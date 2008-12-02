@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="webkit_common"
+	InheritedPropertySheets=".\libcef_webkit_includes.vsprops;$(SolutionDir)..\webkit\build\webkit_common_defines.vsprops;$(SolutionDir)..\webkit\build\js_engine$(JS_ENGINE_TYPE).vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\build\external_code.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops"
+	>
+</VisualStudioPropertySheet>

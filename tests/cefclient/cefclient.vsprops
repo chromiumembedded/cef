@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="cefclient"
+	InheritedPropertySheets="$(SolutionDir)libcef\libcef.vsprops;"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)\include&quot;;&quot;$(OutDir)&quot;"
+		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="comctl32.lib shlwapi.lib rpcrt4.lib winmm.lib"
+		AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\&quot;"
+	/>
+</VisualStudioPropertySheet>

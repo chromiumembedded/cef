@@ -1,0 +1,10 @@
+The Chromium Embedded Framework (CEF) project is built on top of the Chromium
+project source tree.  Because of the Chromium project's constant state of flux
+certain revisions of the CEF project may not be compatible with all Chromium
+revisions, and visa-versa. This document tracks the combination of CEF
+revision and Chromium revision that have been officially tested by the CEF
+development team.
+
+Date       | CEF Revision                    | Chromium Revision
+-------------------------------------------------------------------------------
+2008-12-02 | /trunk@2                        | /trunk@6213
