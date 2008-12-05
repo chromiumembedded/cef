@@ -624,15 +624,11 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   if (!entry)
     return;
 
-  GURL url;
-  std::wstring title;
   std::string state;
   if (!browser_->UIT_GetWebView()->GetMainFrame()->
-      GetPreviousState(&url, &title, &state))
+      GetPreviousHistoryState(&state))
     return;
 
-  entry->SetURL(url);
-  entry->SetTitle(title);
   entry->SetContentState(state);
 }
 

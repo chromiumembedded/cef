@@ -8,3 +8,4 @@ development team.
 Date       | CEF Revision                    | Chromium Revision
 -------------------------------------------------------------------------------
 2008-12-02 | /trunk@2                        | /trunk@6213
+2008-12-05 | /trunk@3                        | /trunk@6430
