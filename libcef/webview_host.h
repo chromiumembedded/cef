@@ -21,7 +21,7 @@ class WebViewHost : public WebWidgetHost {
   // The new instance is deleted once the associated ViewHandle is destroyed.
   // The newly created window should be resized after it is created, using the
   // MoveWindow (or equivalent) function.
-  static WebViewHost* Create(gfx::WindowHandle parent_window,
+  static WebViewHost* Create(gfx::NativeWindow parent_window,
                              WebViewDelegate* delegate,
                              const WebPreferences& prefs);
 

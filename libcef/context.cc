@@ -98,7 +98,7 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
   std::wstring cache_path;
   PathService::Get(base::DIR_EXE, &cache_path);
   BrowserResourceLoaderBridge::Init(
-    new BrowserRequestContext(cache_path, net::HttpCache::NORMAL));
+    new BrowserRequestContext(cache_path, net::HttpCache::NORMAL, false));
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();

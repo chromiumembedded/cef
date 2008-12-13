@@ -15,7 +15,7 @@
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
 /*static*/
-WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle parent_window,
+WebWidgetHost* WebWidgetHost::Create(gfx::NativeWindow parent_window,
                                      WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
 
@@ -45,7 +45,7 @@ WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle parent_window,
 }
 
 /*static*/
-WebWidgetHost* WebWidgetHost::FromWindow(gfx::WindowHandle hwnd) {
+WebWidgetHost* WebWidgetHost::FromWindow(gfx::NativeWindow hwnd) {
   return reinterpret_cast<WebWidgetHost*>(win_util::GetWindowUserData(hwnd));
 }
 

@@ -18,12 +18,14 @@ class BrowserRequestContext : public URLRequestContext {
   // Use an on-disk cache at the specified location.  Optionally, use the cache
   // in playback or record mode.
   BrowserRequestContext(const std::wstring& cache_path,
-                          net::HttpCache::Mode cache_mode);
+                          net::HttpCache::Mode cache_mode,
+                          bool no_proxy);
 
   ~BrowserRequestContext();
 
  private:
-  void Init(const std::wstring& cache_path, net::HttpCache::Mode cache_mode);
+  void Init(const std::wstring& cache_path, net::HttpCache::Mode cache_mode,
+            bool no_proxy);
 };
 
 #endif  // _BROWSER_REQUEST_CONTEXT_H

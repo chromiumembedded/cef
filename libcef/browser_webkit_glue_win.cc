@@ -56,7 +56,7 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }
 
-ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+ScreenInfo GetScreenInfo(gfx::NativeView window) {
   return GetScreenInfoHelper(window);
 }
 
