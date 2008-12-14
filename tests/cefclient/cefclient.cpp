@@ -5,6 +5,7 @@
 
 #include "stdafx.h"
 #include "cefclient.h"
+#include "clientplugin.h"
 #include "cef.h"
 
 #include <sstream>
@@ -35,6 +36,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
   // Initialize the CEF
   CefInitialize();
+
+  // Register the internal client plugin
+  CefRegisterPlugin(ClientPluginInfo);
 
  	MSG msg;
 	HACCEL hAccelTable;
@@ -716,7 +720,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             L"http://www.google.com");
 
         // Start the timer that will be used to update child window state
-        SetTimer(hWnd, 1, 500, NULL);
+        SetTimer(hWnd, 1, 250, NULL);
       }
       return 0;
 
@@ -781,6 +785,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             browser->LoadString(html, L"about:blank");
           }
           return 0;
+        case ID_TESTS_PLUGIN: // Test our custom plugin
+          if(browser.get())
+          {
+            std::wstring html =
+              L"<html><body>Client Plugin:<br>"
+              L"<embed type=\"application/x-client-plugin\""
+              L"width=600 height=40>"
+              L"</body></html>";
+            browser->LoadString(html, L"about:blank");
+          }
         }
       }
 		  break;

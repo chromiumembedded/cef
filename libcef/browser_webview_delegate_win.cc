@@ -14,6 +14,8 @@
 #include "browser_navigation_controller.h"
 #include "browser_impl.h"
 #include "context.h"
+#include "plugins/browser_webplugin_delegate_impl.h"
+#include "plugins/browser_plugin_list.h"
 
 #include <objidl.h>
 #include <shlobj.h>
@@ -55,16 +57,33 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     return NULL;
 
   bool allow_wildcard = true;
+  
+  // first, look for plugins using the normal plugin list
   WebPluginInfo info;
-  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
-                                                     allow_wildcard, &info,
-                                                     actual_mime_type))
-    return NULL;
-
-  if (actual_mime_type && !actual_mime_type->empty())
-    return WebPluginDelegateImpl::Create(info.file, *actual_mime_type, hwnd);
-  else
-    return WebPluginDelegateImpl::Create(info.file, mime_type, hwnd);
+  if (NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
+                                                    allow_wildcard, &info,
+                                                    actual_mime_type)) {
+    if (actual_mime_type && !actual_mime_type->empty())
+      return WebPluginDelegateImpl::Create(info.file, *actual_mime_type, hwnd);
+    else
+      return WebPluginDelegateImpl::Create(info.file, mime_type, hwnd);
+  }
+  
+  // second, look for plugins using the embedded plugin list
+  CefPluginInfo plugin_info;
+  if (NPAPI::BrowserPluginList::Singleton()->GetPluginInfo(url, mime_type,
+                                                           clsid,
+                                                           allow_wildcard,
+                                                           &plugin_info,
+                                                           actual_mime_type)) {
+    if (actual_mime_type && !actual_mime_type->empty())
+      return BrowserWebPluginDelegateImpl::Create(plugin_info,
+                                                  *actual_mime_type, hwnd);
+    else
+      return BrowserWebPluginDelegateImpl::Create(plugin_info, mime_type, hwnd);
+  }
+  
+  return NULL;
 }
 
 void BrowserWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {

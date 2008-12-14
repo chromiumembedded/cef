@@ -38,6 +38,13 @@ public:
   // Returns true if the calling thread is the same as the UI thread
   bool RunningOnUIThread() { return (GetCurrentThreadId() == idthreadui_); }
 
+  ////////////////////////////////////////////////////////////
+  // ALL UIT_* METHODS MUST ONLY BE CALLED ON THE UI THREAD //
+  ////////////////////////////////////////////////////////////
+
+  void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info);
+  void UIT_UnregisterPlugin(struct CefPluginInfo* plugin_info);
+
 private:
   void SetMessageLoopForUI(MessageLoopForUI* loop);
   void NotifyEvent();

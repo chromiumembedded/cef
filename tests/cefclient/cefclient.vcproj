@@ -182,6 +182,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\clientplugin.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\clientplugin.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Resource.h"
 			>
 		</File>

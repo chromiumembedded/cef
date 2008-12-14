@@ -58,6 +58,7 @@ BEGIN
     POPUP "Tests"
     BEGIN
         MENUITEM "JavaScript",                  ID_TESTS_JAVASCRIPT
+        MENUITEM "Plugin",                      ID_TESTS_PLUGIN
     END
 END
 

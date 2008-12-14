@@ -8,6 +8,7 @@
 #include "browser_impl.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
+#include "plugins/browser_plugin_list.h"
 
 #include "base/at_exit.h"
 #include "base/icu_util.h"
@@ -52,6 +53,48 @@ void CefShutdown()
   _Context = NULL;
 }
 
+bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
+{
+  if(!_Context.get())
+    return false;
+
+  CefPluginInfo* pPluginInfo = new CefPluginInfo;
+  *pPluginInfo = plugin_info;
+
+   PostTask(FROM_HERE, NewRunnableMethod(_Context.get(),
+        &CefContext::UIT_RegisterPlugin, pPluginInfo));
+  
+  return true;
+}
+
+void CefContext::UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
+{
+  REQUIRE_UIT();
+  NPAPI::BrowserPluginList::Singleton()->AddPlugin(*plugin_info);
+  delete plugin_info;
+}
+
+// Unregister the plugin with the system.
+bool CefUnregisterPlugin(const struct CefPluginInfo& plugin_info)
+{
+  if(!_Context.get())
+    return false;
+
+  CefPluginInfo* pPluginInfo = new CefPluginInfo;
+  *pPluginInfo = plugin_info;
+
+   PostTask(FROM_HERE, NewRunnableMethod(_Context.get(),
+        &CefContext::UIT_UnregisterPlugin, pPluginInfo));
+
+  return true;
+}
+
+void CefContext::UIT_UnregisterPlugin(struct CefPluginInfo* plugin_info)
+{
+  REQUIRE_UIT();
+  NPAPI::BrowserPluginList::Singleton()->RemovePlugin(*plugin_info);
+  delete plugin_info;
+}
 
 StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;

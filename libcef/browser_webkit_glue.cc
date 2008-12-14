@@ -150,4 +150,12 @@ std::string GetDocumentString(WebFrame* frame) {
   return StringToStdString(WebCore::createMarkup(core_frame->document()));
 }
 
+uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
+  return 0;
+}
+
+bool IsLinkVisited(uint64 link_hash) {
+  return false;
+}
+
 }  // namespace webkit_glue
