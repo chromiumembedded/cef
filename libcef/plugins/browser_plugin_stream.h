@@ -40,10 +40,13 @@ class BrowserPluginStream : public base::RefCounted<BrowserPluginStream> {
   // mime-types table and the extension (if any) in the URL.
   // If the size of the stream is known, use length to set the size.  If
   // not known, set length to 0.
+  // The request_is_seekable parameter indicates whether byte range requests
+  // can be issued on the stream.
   bool Open(const std::string &mime_type,
             const std::string &headers,
             uint32 length,
-            uint32 last_modified);
+            uint32 last_modified,
+            bool request_is_seekable);
 
   // Writes to the stream.
   int Write(const char *buf, const int len, int data_offset);

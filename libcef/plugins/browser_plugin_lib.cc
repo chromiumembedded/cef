@@ -48,7 +48,7 @@ BrowserPluginLib::BrowserPluginLib(WebPluginInfo* info,
       instance_count_(0) {
    memset((void*)&plugin_funcs_, 0, sizeof(plugin_funcs_));
 
-  (*loaded_libs_)[info->file] = this;
+  (*loaded_libs_)[info->path.BaseName().value()] = this;
 }
 
 BrowserPluginLib::~BrowserPluginLib() {
@@ -121,7 +121,7 @@ void BrowserPluginLib::CloseInstance() {
   if (instance_count_ == 0) {
     NP_Shutdown();
     initialized_ = false;
-    loaded_libs_->erase(web_plugin_info_->file);
+    loaded_libs_->erase(web_plugin_info_->path.BaseName().value());
     if (loaded_libs_->empty()) {
       delete loaded_libs_;
       loaded_libs_ = NULL;
@@ -145,7 +145,7 @@ WebPluginInfo* BrowserPluginLib::CreateWebPluginInfo(const CefPluginVersionInfo&
   info->name = plugin_info.product_name;
   info->desc = plugin_info.description;
   info->version = plugin_info.version;
-  info->file = StringToLowerASCII(plugin_info.unique_name);
+  info->path = FilePath(plugin_info.unique_name);
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
     WebPluginMimeType mime_type;

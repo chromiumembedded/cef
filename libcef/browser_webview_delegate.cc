@@ -47,20 +47,20 @@ int next_page_id_ = 1;
 // WebViewDelegate -----------------------------------------------------------
 
 WebView* BrowserWebViewDelegate::CreateWebView(WebView* webview,
-                                            bool user_gesture) {
+                                               bool user_gesture) {
   CefRefPtr<CefBrowserImpl> browser =
       browser_->UIT_CreatePopupWindow(std::wstring());
   return browser.get() ? browser->UIT_GetWebView() : NULL;
 }
 
 WebWidget* BrowserWebViewDelegate::CreatePopupWidget(WebView* webview,
-                                                  bool focus_on_show) {
+                                                     bool activatable) {
   return browser_->UIT_CreatePopupWidget(webview);
 }
 
 void BrowserWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
-                                  const GURL& referrer,
-                                  WindowOpenDisposition disposition) {
+                                     const GURL& referrer,
+                                     WindowOpenDisposition disposition) {
   DCHECK_NE(disposition, CURRENT_TAB);  // No code for this
   if (disposition == SUPPRESS_OPEN)
     return;
@@ -468,7 +468,7 @@ void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-gfx::NativeView BrowserWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
+gfx::NativeView BrowserWebViewDelegate::GetContainingView(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     return host->window_handle();
 

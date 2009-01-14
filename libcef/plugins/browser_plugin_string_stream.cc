@@ -22,7 +22,7 @@ BrowserPluginStringStream::~BrowserPluginStringStream() {
 void BrowserPluginStringStream::SendToPlugin(const std::string &data,
                                              const std::string &mime_type) {
   int length = static_cast<int>(data.length());
-  if (Open(mime_type, std::string(), length, 0)) {
+  if (Open(mime_type, std::string(), length, 0, false)) {
     // TODO - check if it was not fully sent, and figure out a backup plan.
     int written = Write(data.c_str(), length, 0);
     NPReason reason = written == length ? NPRES_DONE : NPRES_NETWORK_ERR;

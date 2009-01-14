@@ -606,7 +606,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, WebFrame* frame,
   DCHECK_NE(saved_state, 0);
 
   // 100% GDI based.
-  gfx::VectorCanvas canvas(hDC, (int)ceil(dest_size_x), (int)ceil(dest_size_y));
+  skia::VectorCanvas canvas(hDC, (int)ceil(dest_size_x), (int)ceil(dest_size_y));
   canvas.translate(SkDoubleToScalar(dest_margin),
       SkDoubleToScalar(dest_margin));
   canvas.scale(SkDoubleToScalar((dest_size_x - dest_margin * 2) / src_size_x),

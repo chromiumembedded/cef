@@ -100,7 +100,7 @@ class WebWidgetHost {
 
   gfx::NativeView view_;
   WebWidget* webwidget_;
-  scoped_ptr<gfx::PlatformCanvas> canvas_;
+  scoped_ptr<skia::PlatformCanvas> canvas_;
 
   // specifies the portion of the webwidget that needs painting
   gfx::Rect paint_rect_;

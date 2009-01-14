@@ -213,7 +213,7 @@ void WebWidgetHost::Paint() {
   if (!canvas_.get()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new gfx::PlatformCanvas(
+    canvas_.reset(new skia::PlatformCanvas(
         paint_rect_.width(), paint_rect_.height(), true));
   }
 
@@ -285,6 +285,14 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
   }
   webwidget_->HandleInputEvent(&event);
+
+  if (event.type == WebInputEvent::MOUSE_DOWN) {
+    // This mimics a temporary workaround in RenderWidgetHostViewWin 
+    // for bug 765011 to get focus when the mouse is clicked. This 
+    // happens after the mouse down event is sent to the renderer 
+    // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+    ::SetFocus(view_);
+  }
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {

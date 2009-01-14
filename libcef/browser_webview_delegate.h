@@ -20,6 +20,7 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webwidget_delegate.h"
 #if defined(OS_WIN)
@@ -42,9 +43,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
       top_loading_frame_(NULL),
       page_id_(-1),
       last_page_id_updated_(-1)
-#if defined(OS_WIN)
-      , custom_cursor_(NULL)
-#elif defined(OS_LINUX)
+#if defined(OS_LINUX)
       , cursor_type_(GDK_X_CURSOR)
 #endif
       { 
@@ -53,7 +52,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
 
   // WebViewDelegate
   virtual WebView* CreateWebView(WebView* webview, bool user_gesture);
-  virtual WebWidget* CreatePopupWidget(WebView* webview, bool focus_on_show);
+  virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable);
   virtual WebPluginDelegate* CreatePluginDelegate(
     WebView* webview,
     const GURL& url,
@@ -179,7 +178,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual int GetHistoryForwardListCount();
 
   // WebWidgetDelegate
-  virtual gfx::NativeView GetContainingWindow(WebWidget* webwidget);
+  virtual gfx::NativeView GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);
@@ -259,9 +258,8 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   int page_id_;
   int last_page_id_updated_;
 
+  WebCursor current_cursor_;
 #if defined(OS_WIN)
-  HCURSOR custom_cursor_;
-
   // Classes needed by drag and drop.
   scoped_refptr<BrowserDragDelegate> drag_delegate_;
   scoped_refptr<BrowserDropDelegate> drop_delegate_;

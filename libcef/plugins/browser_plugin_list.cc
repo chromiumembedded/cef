@@ -61,7 +61,8 @@ void BrowserPluginList::RemovePlugin(const struct CefPluginInfo& plugin_info)
 {
   PluginList::iterator it = plugins_.begin();
   for(; it != plugins_.end(); ++it) {
-    if((*it)->web_plugin_info().file == plugin_info.version_info.unique_name) {
+    if((*it)->web_plugin_info().path.BaseName().value() ==
+      plugin_info.version_info.unique_name) {
       plugins_.erase(it);
     }
   }

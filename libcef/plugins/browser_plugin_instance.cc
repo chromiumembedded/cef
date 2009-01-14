@@ -13,20 +13,23 @@
 #endif
 
 #include "base/file_util.h"
+#include "base/lazy_instance.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/thread_local_storage.h"
+#include "base/thread_local.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_host.h"
 #include "net/base/escape.h"
 
-namespace NPAPI
-{
+namespace NPAPI {
 
-// TODO(evanm): don't rely on static initialization.
-ThreadLocalStorage::Slot BrowserPluginInstance::plugin_instance_tls_index_;
+// Use TLS to store the PluginInstance object during its creation.  We need to
+// pass this instance to the service manager (MozillaExtensionApi) created as a
+// result of NPN_GetValue in the context of NP_Initialize.
+static base::LazyInstance<base::ThreadLocalPointer<BrowserPluginInstance> >
+    lazy_tls(base::LINKER_INITIALIZED);
 
 BrowserPluginInstance::BrowserPluginInstance(BrowserPluginLib *plugin,
                                              const std::string &mime_type)
@@ -287,7 +290,7 @@ void BrowserPluginInstance::NPP_StreamAsFile(NPStream *stream,
   // Creating a temporary FilePath instance on the stack as the explicit
   // FilePath constructor with StringType as an argument causes a compiler
   // error when invoked via vector push back.
-  FilePath file_name(UTF8ToWide(fname));
+  FilePath file_name = FilePath::FromWStringHack(UTF8ToWide(fname));
   files_created_.push_back(file_name);
 }
 
@@ -373,7 +376,7 @@ void BrowserPluginInstance::DidReceiveManualResponse(const std::string& url,
   plugin_data_stream_ = CreateStream(-1, url, mime_type, false, NULL);
 
   plugin_data_stream_->DidReceiveResponse(mime_type, headers, expected_length,
-                                          last_modified, &cancel);
+                                          last_modified, true, &cancel);
   AddStream(plugin_data_stream_.get());
 }
 
@@ -427,16 +430,13 @@ void BrowserPluginInstance::OnPluginThreadAsyncCall(void (*func)(void *),
 
 BrowserPluginInstance* BrowserPluginInstance::SetInitializingInstance(
     BrowserPluginInstance* instance) {
-  BrowserPluginInstance* old_instance =
-      static_cast<BrowserPluginInstance*>(plugin_instance_tls_index_.Get());
-  plugin_instance_tls_index_.Set(instance);
+  BrowserPluginInstance* old_instance = lazy_tls.Pointer()->Get();
+  lazy_tls.Pointer()->Set(instance);
   return old_instance;
 }
 
 BrowserPluginInstance* BrowserPluginInstance::GetInitializingInstance() {
-  BrowserPluginInstance* instance =
-      static_cast<BrowserPluginInstance*>(plugin_instance_tls_index_.Get());
-  return instance;
+  return lazy_tls.Pointer()->Get();
 }
 
 NPError BrowserPluginInstance::GetServiceManager(void** service_manager) {

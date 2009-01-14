@@ -27,7 +27,8 @@ BrowserPluginStream::~BrowserPluginStream() {
 bool BrowserPluginStream::Open(const std::string &mime_type,
                                const std::string &headers,
                                uint32 length,
-                               uint32 last_modified) {
+                               uint32 last_modified,
+                               bool request_is_seekable) {
   headers_ = headers;
   NPP id = instance_->npp();
   stream_.end = length;
@@ -37,7 +38,7 @@ bool BrowserPluginStream::Open(const std::string &mime_type,
   stream_.notifyData = notify_data_;
 
   bool seekable_stream = false;
-  if (!headers_.empty()) {
+  if (request_is_seekable && !headers_.empty()) {
     stream_.headers = headers_.c_str();
     if (headers_.find("Accept-Ranges: bytes") != std::string::npos) {
       seekable_stream = true;

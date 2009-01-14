@@ -59,49 +59,45 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }
 
-ScreenInfo GetScreenInfo(gfx::NativeView window) {
-  return GetScreenInfoHelper(window);
-}
-
 void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap, SIZE& size)
 {
-	gfx::Size webSize = webview->GetSize();
-	size.cx = webSize.width();
-	size.cy = webSize.height();
-	
-	gfx::PlatformCanvasWin canvas(size.cx, size.cy, true);
-	canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
-	PlatformContextSkia context(&canvas);
-	gfx::Rect rect(size.cx, size.cy);
-	webview->Layout();
-	webview->Paint(&canvas, rect);
+  gfx::Size webSize = webview->GetSize();
+  size.cx = webSize.width();
+  size.cy = webSize.height();
+  
+  skia::PlatformCanvasWin canvas(size.cx, size.cy, true);
+  canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
+  PlatformContextSkia context(&canvas);
+  gfx::Rect rect(size.cx, size.cy);
+  webview->Layout();
+  webview->Paint(&canvas, rect);
 
-	HDC hRefDC = GetDC(mainWnd);
-	HDC hDC = CreateCompatibleDC(hRefDC);
-	bitmap = CreateCompatibleBitmap(hRefDC, size.cx, size.cy);
-	DCHECK(bitmap != NULL);
-	HBITMAP hOldBmp = (HBITMAP)SelectObject(hDC, bitmap);
-	  
-	// Create a BMP v4 header that we can serialize.
-	BITMAPV4HEADER bitmap_header;
-	gfx::CreateBitmapV4Header(size.cx, size.cy, &bitmap_header);
-	const SkBitmap& src_bmp = canvas.getDevice()->accessBitmap(true);
-	SkAutoLockPixels src_lock(src_bmp);
+  HDC hRefDC = GetDC(mainWnd);
+  HDC hDC = CreateCompatibleDC(hRefDC);
+  bitmap = CreateCompatibleBitmap(hRefDC, size.cx, size.cy);
+  DCHECK(bitmap != NULL);
+  HBITMAP hOldBmp = (HBITMAP)SelectObject(hDC, bitmap);
+
+  // Create a BMP v4 header that we can serialize.
+  BITMAPV4HEADER bitmap_header;
+  gfx::CreateBitmapV4Header(size.cx, size.cy, &bitmap_header);
+  const SkBitmap& src_bmp = canvas.getDevice()->accessBitmap(true);
+  SkAutoLockPixels src_lock(src_bmp);
 	int retval = StretchDIBits(hDC,
-							   0,
-							   0,
-							   size.cx, size.cy,
-							   0, 0,
-							   size.cx, size.cy,
-							   src_bmp.getPixels(),
-							   reinterpret_cast<BITMAPINFO*>(&bitmap_header),
-							   DIB_RGB_COLORS,
-							   SRCCOPY);
-	DCHECK(retval != GDI_ERROR);
+                               0,
+                               0,
+                               size.cx, size.cy,
+                               0, 0,
+                               size.cx, size.cy,
+                               src_bmp.getPixels(),
+                               reinterpret_cast<BITMAPINFO*>(&bitmap_header),
+                               DIB_RGB_COLORS,
+                               SRCCOPY);
+  DCHECK(retval != GDI_ERROR);
 
-	SelectObject(hDC, hOldBmp);
-	DeleteDC(hDC);
-	ReleaseDC(mainWnd, hRefDC);
+  SelectObject(hDC, hOldBmp);
+  DeleteDC(hDC);
+  ReleaseDC(mainWnd, hRefDC);
 }
 
 
@@ -216,10 +212,10 @@ static BOOL BmpSaveFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP,
                   FILE_ATTRIBUTE_NORMAL, 
                   (HANDLE) NULL);
   if (hf == INVALID_HANDLE_VALUE) {
-		// Could not create the bitmap file
+    // Could not create the bitmap file
     NOTREACHED();
     goto end;
-	}
+  }
   
   hdr.bfType = 0x4d42; // 0x42 = "B", 0x4d = "M"
   
@@ -256,7 +252,7 @@ static BOOL BmpSaveFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP,
   dwTotal = cb = pbih->biSizeImage; 
   hp = lpBits; 
   if (!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp,NULL)) {
-		// Could not write bitmap data to file
+    // Could not write bitmap data to file
     NOTREACHED();
     goto end;
   }

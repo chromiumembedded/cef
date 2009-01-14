@@ -50,13 +50,13 @@ std::list<MSG> BrowserWebPluginDelegateImpl::throttle_queue_;
 
 BrowserWebPluginDelegateImpl* BrowserWebPluginDelegateImpl::current_plugin_instance_ = NULL;
 
-bool BrowserWebPluginDelegateImpl::track_popup_menu_patched_ = false;
-iat_patch::IATPatchFunction BrowserWebPluginDelegateImpl::iat_patch_helper_;
+iat_patch::IATPatchFunction BrowserWebPluginDelegateImpl::iat_patch_track_popup_menu_;
+iat_patch::IATPatchFunction BrowserWebPluginDelegateImpl::iat_patch_set_cursor_;
 
 BrowserWebPluginDelegateImpl* BrowserWebPluginDelegateImpl::Create(
     const struct CefPluginInfo& plugin_info,
     const std::string& mime_type,
-    HWND containing_window) {
+    gfx::NativeView containing_view) {
 
   scoped_refptr<NPAPI::BrowserPluginLib> plugin =
       NPAPI::BrowserPluginLib::GetOrCreatePluginLib(plugin_info);
@@ -69,7 +69,7 @@ BrowserWebPluginDelegateImpl* BrowserWebPluginDelegateImpl::Create(
 
   scoped_refptr<NPAPI::BrowserPluginInstance> instance =
       plugin->CreateInstance(mime_type);
-  return new BrowserWebPluginDelegateImpl(containing_window, instance.get());
+  return new BrowserWebPluginDelegateImpl(containing_view, instance.get());
 }
 
 bool BrowserWebPluginDelegateImpl::IsPluginDelegateWindow(HWND window) {
@@ -124,9 +124,9 @@ LRESULT CALLBACK BrowserWebPluginDelegateImpl::HandleEventMessageFilterHook(
 }
 
 BrowserWebPluginDelegateImpl::BrowserWebPluginDelegateImpl(
-    HWND containing_window,
+    gfx::NativeView containing_view,
     NPAPI::BrowserPluginInstance *instance)
-    : parent_(containing_window),
+    : parent_(containing_view),
       instance_(instance),
       quirks_(0),
       plugin_(NULL),
@@ -149,7 +149,8 @@ BrowserWebPluginDelegateImpl::BrowserWebPluginDelegateImpl(
   memset(&window_, 0, sizeof(window_));
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->web_plugin_info();
-  std::wstring unique_name = file_util::GetFilenameFromPath(plugin_info.file);
+  std::wstring unique_name =
+      StringToLowerASCII(plugin_info.path.BaseName().value());
 
   // Assign quirks here if required
 
@@ -229,12 +230,24 @@ bool BrowserWebPluginDelegateImpl::Initialize(const GURL& url,
   // lives on the browser thread. Our workaround is to intercept the
   // TrackPopupMenu API for Silverlight and replace the window handle
   // with the dummy activation window.
-  if (windowless_ && !track_popup_menu_patched_ &&
+  if (windowless_ && !iat_patch_track_popup_menu_.is_patched() &&
       (quirks_ & PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU)) {
-    iat_patch_helper_.Patch(plugin_module_handle_, "user32.dll",
-                            "TrackPopupMenu",
-                            BrowserWebPluginDelegateImpl::TrackPopupMenuPatch);
-    track_popup_menu_patched_ = true;
+    iat_patch_track_popup_menu_.Patch(
+        plugin_module_handle_, "user32.dll", "TrackPopupMenu",
+        BrowserWebPluginDelegateImpl::TrackPopupMenuPatch);
+  }
+
+  // Windowless plugins can set cursors by calling the SetCursor API. This
+  // works because the thread inputs of the browser UI thread and the plugin
+  // thread are attached. We intercept the SetCursor API for windowless plugins
+  // and remember the cursor being set. This is shipped over to the browser
+  // in the HandleEvent call, which ensures that the cursor does not change
+  // when a windowless plugin instance changes the cursor in a background tab.
+  if (windowless_ && !iat_patch_set_cursor_.is_patched() && 
+      (quirks_ & PLUGIN_QUIRK_PATCH_SETCURSOR)) {
+    iat_patch_set_cursor_.Patch(plugin_module_handle_, "user32.dll",
+                                "SetCursor",
+                                BrowserWebPluginDelegateImpl::SetCursorPatch);
   }
   return true;
 }
@@ -253,6 +266,19 @@ void BrowserWebPluginDelegateImpl::DestroyInstance() {
     }
 
     instance_->NPP_Destroy();
+    
+    if (instance_->plugin_lib()) {
+      // Unpatch if this is the last plugin instance.
+      if (instance_->plugin_lib()->instance_count() == 1) {
+        if (iat_patch_set_cursor_.is_patched()) {
+          iat_patch_set_cursor_.Unpatch();
+        }
+
+        if (iat_patch_track_popup_menu_.is_patched()) {
+          iat_patch_track_popup_menu_.Unpatch();
+        }
+      }
+    }
 
     instance_->set_web_plugin(NULL);
     instance_ = 0;
@@ -333,8 +359,8 @@ void BrowserWebPluginDelegateImpl::DidManualLoadFail() {
   instance()->DidManualLoadFail();
 }
 
-std::wstring BrowserWebPluginDelegateImpl::GetPluginPath() {
-  return instance_->plugin_lib()->web_plugin_info().file;
+FilePath BrowserWebPluginDelegateImpl::GetPluginPath() {
+  return instance_->plugin_lib()->web_plugin_info().path;
 }
 
 void BrowserWebPluginDelegateImpl::InstallMissingPlugin() {
@@ -767,6 +793,8 @@ LRESULT CALLBACK BrowserWebPluginDelegateImpl::NativeWndProc(
     return TRUE;
   }
 
+  current_plugin_instance_ = delegate;
+
   switch (message) {
     case WM_NCDESTROY: {
       RemoveProp(hwnd, kWebPluginDelegateProperty);
@@ -784,6 +812,7 @@ LRESULT CALLBACK BrowserWebPluginDelegateImpl::NativeWndProc(
       if (delegate->quirks() & PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE) {
         BrowserWebPluginDelegateImpl::ThrottleMessage(
             delegate->plugin_wnd_proc_, hwnd, message, wparam, lparam);
+        current_plugin_instance_ = NULL;
         return FALSE;
       }
       break;
@@ -810,6 +839,7 @@ LRESULT CALLBACK BrowserWebPluginDelegateImpl::NativeWndProc(
   LRESULT result = CallWindowProc(delegate->plugin_wnd_proc_, hwnd, message,
                                   wparam, lparam);
   delegate->is_calling_wndproc = false;
+  current_plugin_instance_ = NULL;
   return result;
 }
 
@@ -964,12 +994,11 @@ bool BrowserWebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
   bool ret = instance()->NPP_HandleEvent(event) != 0;
 
-  // Snag a reference to the current cursor ASAP in case the plugin modified
-  // it.  There is a nasty race condition here with the multiprocess browser
-  // as someone might be setting the cursor in the main process as well.
-  HCURSOR last_cursor;
-  if (WM_MOUSEMOVE == event->event) {
-    last_cursor = ::GetCursor();
+  if (event->event == WM_MOUSEMOVE) {
+    // Snag a reference to the current cursor ASAP in case the plugin modified
+    // it. There is a nasty race condition here with the multiprocess browser
+    // as someone might be setting the cursor in the main process as well.
+    *cursor = current_windowless_cursor_;
   }
 
   if (pop_user_gesture) {
@@ -996,10 +1025,6 @@ bool BrowserWebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
   if (event->event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
     ::SetFocus(prev_focus_window);
-  }
-
-  if (WM_MOUSEMOVE == event->event) {
-    cursor->InitFromCursor(last_cursor);
   }
 
   return ret;
@@ -1089,4 +1114,26 @@ BOOL WINAPI BrowserWebPluginDelegateImpl::TrackPopupMenuPatch(
     }
   }
   return TrackPopupMenu(menu, flags, x, y, reserved, window, rect);
+}
+
+HCURSOR WINAPI BrowserWebPluginDelegateImpl::SetCursorPatch(HCURSOR cursor) {
+  // The windowless flash plugin periodically calls SetCursor in a wndproc
+  // instantiated on the plugin thread. This causes annoying cursor flicker
+  // when the mouse is moved on a foreground tab, with a windowless plugin
+  // instance in a background tab. We just ignore the call here.
+  if (!current_plugin_instance_)
+    return GetCursor();
+
+  if (!current_plugin_instance_->windowless()) {
+    return SetCursor(cursor);
+  }
+
+  // It is ok to pass NULL here to GetCursor as we are not looking for cursor
+  // types defined by Webkit.
+  HCURSOR previous_cursor =
+      current_plugin_instance_->current_windowless_cursor_.GetCursor(NULL);
+
+  current_plugin_instance_->current_windowless_cursor_.InitFromExternalCursor(
+      cursor);
+  return previous_cursor;
 }

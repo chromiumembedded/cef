@@ -252,7 +252,7 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
                                          const std::wstring& new_device_name,
                                          const PRINTPAGERANGE* ranges,
                                          int number_ranges) {
-  gfx::PlatformDeviceWin::InitializeDC(hdc_);
+  skia::PlatformDeviceWin::InitializeDC(hdc_);
   DCHECK(GetDeviceCaps(hdc_, CLIPCAPS));
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_STRETCHDIB);
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_BITMAP64);
