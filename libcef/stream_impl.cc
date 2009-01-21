@@ -299,7 +299,7 @@ int CefBytesWriter::Flush()
 std::string CefBytesWriter::GetDataString()
 {
   Lock();
-  std::string str((char*)data_, datasize_);
+  std::string str((char*)data_, offset_);
   Unlock();
   return str;
 }
