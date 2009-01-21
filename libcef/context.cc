@@ -11,6 +11,7 @@
 #include "plugins/browser_plugin_list.h"
 
 #include "base/at_exit.h"
+#include "base/command_line.h"
 #include "base/icu_util.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
@@ -128,7 +129,10 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
   DCHECK(SUCCEEDED(res));
 
   // Instantiate the AtExitManager to avoid asserts and possible memory leaks.
-  base::AtExitManager at_exit_manager; 
+  base::AtExitManager at_exit_manager;
+
+  // Initialize the global CommandLine object.
+  CommandLine::Init(0, NULL);
 
   // Instantiate the message loop for this thread.
   MessageLoopForUI main_message_loop;

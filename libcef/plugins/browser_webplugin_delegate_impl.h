@@ -47,14 +47,12 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
                           WebPlugin* plugin,
                           bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible);
+                              const gfx::Rect& clip_rect);
   virtual void Paint(HDC hdc, const gfx::Rect& rect);
   virtual void Print(HDC hdc);
   virtual void SetFocus();  // only called when windowless
 // only called when windowless
-  virtual bool HandleEvent(NPEvent* event, 
+  virtual bool HandleEvent(NPEvent* event,
                            WebCursor* cursor);
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
@@ -62,9 +60,9 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
 
   virtual void FlushGeometryUpdates() {
   }
-  virtual void SendJavaScriptStream(const std::string& url, 
-                                    const std::wstring& result, 
-                                    bool success, bool notify_needed, 
+  virtual void SendJavaScriptStream(const std::string& url,
+                                    const std::wstring& result,
+                                    bool success, bool notify_needed,
                                     int notify_data);
   virtual void DidReceiveManualResponse(const std::string& url,
                                         const std::string& mime_type,
@@ -97,15 +95,10 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
     PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
     PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
+	PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,
   };
 
   int quirks() { return quirks_; }
-
-  static void MoveWindow(HWND window,
-                         const gfx::Rect& window_rect,
-                         const gfx::Rect& clip_rect,
-                         const std::vector<gfx::Rect>& cutout_rects,
-                         bool visible);
 
  private:
   BrowserWebPluginDelegateImpl(gfx::NativeView containing_view,
@@ -115,9 +108,7 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
   //--------------------------
   // used for windowed plugins
   void WindowedUpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect,
-                              const std::vector<gfx::Rect>& cutout_rects,
-                              bool visible);
+                              const gfx::Rect& clip_rect);
   // Create the native window. 
   // Returns true if the window is created (or already exists).
   // Returns false if unable to create the window.
@@ -129,9 +120,7 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
   // Reposition the native window to be in sync with the given geometry.
   // Returns true if the native window has moved or been clipped differently.
   bool WindowedReposition(const gfx::Rect& window_rect,
-                          const gfx::Rect& clip_rect,
-                          const std::vector<gfx::Rect>& cutout_rects,
-                          bool visible);
+                          const gfx::Rect& clip_rect);
 
   // Tells the plugin about the current state of the window.
   // See NPAPI NPP_SetWindow for more information.
@@ -203,11 +192,6 @@ class BrowserWebPluginDelegateImpl : public WebPluginDelegate {
   gfx::Rect clip_rect_;
   std::vector<gfx::Rect> cutout_rects_;
   int quirks_;
-
-  // We only move/size the plugin window once after its creation. The
-  // rest of the moves are controlled by the browser. This flag controls
-  // this behaviour.
-  bool initial_plugin_resize_done_;
 
   // Windowless plugins don't have keyboard focus causing issues with the
   // plugin not receiving keyboard events if the plugin enters a modal 

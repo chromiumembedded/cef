@@ -16,8 +16,6 @@
 
 #include "base/file_util.h"
 #include "base/message_loop.h"
-#include "base/gfx/gdi_util.h"
-#include "base/gfx/point.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "webkit/default_plugin/plugin_impl.h"
@@ -137,7 +135,6 @@ BrowserWebPluginDelegateImpl::BrowserWebPluginDelegateImpl(
       plugin_wnd_proc_(NULL),
       last_message_(0),
       is_calling_wndproc(false),
-      initial_plugin_resize_done_(false),
       dummy_window_for_activation_(NULL),
       handle_event_message_filter_hook_(NULL),
       handle_event_pump_messages_event_(NULL),
@@ -287,13 +284,11 @@ void BrowserWebPluginDelegateImpl::DestroyInstance() {
 
 void BrowserWebPluginDelegateImpl::UpdateGeometry(
     const gfx::Rect& window_rect,
-    const gfx::Rect& clip_rect,
-    const std::vector<gfx::Rect>& cutout_rects,
-    bool visible) {
+    const gfx::Rect& clip_rect) {
   if (windowless_) {
     WindowlessUpdateGeometry(window_rect, clip_rect);
   } else {
-    WindowedUpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
+    WindowedUpdateGeometry(window_rect, clip_rect);
   }
 }
 
@@ -342,6 +337,13 @@ void BrowserWebPluginDelegateImpl::SendJavaScriptStream(const std::string& url,
 void BrowserWebPluginDelegateImpl::DidReceiveManualResponse(
     const std::string& url, const std::string& mime_type,
     const std::string& headers, uint32 expected_length, uint32 last_modified) {
+  
+  if (!windowless_) {
+    // Calling NPP_WriteReady before NPP_SetWindow causes movies to not load in
+    // Flash.  See http://b/issue?id=892174.
+    DCHECK(windowed_did_set_window_);
+  }   
+   
   instance()->DidReceiveManualResponse(url, mime_type, headers,
                                        expected_length, last_modified);
 }
@@ -373,10 +375,8 @@ void BrowserWebPluginDelegateImpl::InstallMissingPlugin() {
 
 void BrowserWebPluginDelegateImpl::WindowedUpdateGeometry(
     const gfx::Rect& window_rect,
-    const gfx::Rect& clip_rect,
-    const std::vector<gfx::Rect>& cutout_rects,
-    bool visible) {
-  if (WindowedReposition(window_rect, clip_rect, cutout_rects, visible) ||
+    const gfx::Rect& clip_rect) {
+  if (WindowedReposition(window_rect, clip_rect) ||
       !windowed_did_set_window_) {
     // Let the plugin know that it has been moved
     WindowedSetWindow();
@@ -625,69 +625,33 @@ bool BrowserWebPluginDelegateImpl::CreateDummyWindowForActivation() {
   return true;
 }
 
-void BrowserWebPluginDelegateImpl::MoveWindow(
-    HWND window,
-    const gfx::Rect& window_rect,
-    const gfx::Rect& clip_rect,
-    const std::vector<gfx::Rect>& cutout_rects,
-    bool visible) {
-  HRGN hrgn = ::CreateRectRgn(clip_rect.x(),
-                              clip_rect.y(),
-                              clip_rect.right(),
-                              clip_rect.bottom());
-  gfx::SubtractRectanglesFromRegion(hrgn, cutout_rects);
-
-  // Note: System will own the hrgn after we call SetWindowRgn,
-  // so we don't need to call DeleteObject(hrgn)
-  ::SetWindowRgn(window, hrgn, FALSE);
-
-  unsigned long flags = 0;
-  if (visible)
-    flags |= SWP_SHOWWINDOW;
-  else
-    flags |= SWP_HIDEWINDOW;
-
-  ::SetWindowPos(window,
-                 NULL,
-                 window_rect.x(),
-                 window_rect.y(),
-                 window_rect.width(),
-                 window_rect.height(),
-                 flags);
-}
-
 bool BrowserWebPluginDelegateImpl::WindowedReposition(
     const gfx::Rect& window_rect,
-    const gfx::Rect& clip_rect,
-    const std::vector<gfx::Rect>& cutout_rects,
-    bool visible) {
+    const gfx::Rect& clip_rect) {
   if (!windowed_handle_) {
     NOTREACHED();
     return false;
   }
 
-  if (window_rect_ == window_rect && clip_rect_ == clip_rect &&
-      cutout_rects == cutout_rects_ &&
-      initial_plugin_resize_done_)
+  if (window_rect_ == window_rect && clip_rect_ == clip_rect)
     return false;
+
+  // Clipping is handled by WebPlugin.
+  if (window_rect.size() != window_rect_.size()) {
+    ::SetWindowPos(windowed_handle_,
+                   NULL,
+                   0,
+                   0,
+                   window_rect.width(),
+                   window_rect.height(),
+                   SWP_SHOWWINDOW);
+  }
 
   window_rect_ = window_rect;
   clip_rect_ = clip_rect;
-  cutout_rects_ = cutout_rects;
-
-  if (!initial_plugin_resize_done_) {
-    // We need to ensure that the plugin process continues to reposition
-    // the plugin window until we receive an indication that it is now visible.
-    // Subsequent repositions will be done by the browser.
-    if (visible)
-      initial_plugin_resize_done_ = true;
-    // We created the window with 0 width and height since we didn't know it
-    // at the time.  Now that we know the geometry, we we can update its size
-    // since the browser only calls SetWindowPos when scrolling occurs.
-    MoveWindow(windowed_handle_, window_rect, clip_rect, cutout_rects, visible);
-    // Ensure that the entire window gets repainted.
-    ::InvalidateRect(windowed_handle_, NULL, FALSE);
-  }
+  
+  // Ensure that the entire window gets repainted.
+  ::InvalidateRect(windowed_handle_, NULL, FALSE);
 
   return true;
 }
