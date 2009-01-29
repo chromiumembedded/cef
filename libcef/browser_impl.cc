@@ -154,6 +154,16 @@ void CefBrowserImpl::LoadStream(CefRefPtr<CefStreamReader> stream,
       &CefBrowserImpl::UIT_LoadHTMLForStreamRef, stream.get(), url));
 }
 
+void CefBrowserImpl::ExecuteJavaScript(const std::wstring& js_code, 
+                                       const std::wstring& script_url,
+                                       int start_line,
+                                       TargetFrame targetFrame)
+{
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_ExecuteJavaScript, js_code, script_url, start_line,
+      targetFrame));
+}
+
 bool CefBrowserImpl::AddJSHandler(const std::wstring& classname,
                                   CefRefPtr<CefJSHandler> handler)
 {
@@ -308,6 +318,22 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefRequest* request)
     headers);
 
   request->Release();
+}
+
+void CefBrowserImpl::UIT_ExecuteJavaScript(const std::wstring& js_code, 
+                                           const std::wstring& script_url,
+                                           int start_line,
+                                           TargetFrame targetFrame)
+{
+  REQUIRE_UIT();
+
+  WebFrame* frame;
+  if(targetFrame == TF_FOCUSED)
+    frame = UIT_GetWebView()->GetFocusedFrame();
+  else
+    frame = UIT_GetWebView()->GetMainFrame();
+
+  frame->ExecuteJavaScript(WideToUTF8(js_code), GURL(script_url), start_line);
 }
 
 void CefBrowserImpl::UIT_GoBackOrForward(int offset)

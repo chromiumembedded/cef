@@ -57,7 +57,8 @@ BEGIN
     END
     POPUP "Tests"
     BEGIN
-        MENUITEM "JavaScript",                  ID_TESTS_JAVASCRIPT
+        MENUITEM "JavaScript Handler",          ID_TESTS_JAVASCRIPT_HANDLER
+        MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
     END
 END

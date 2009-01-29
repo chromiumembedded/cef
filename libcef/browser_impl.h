@@ -58,6 +58,9 @@ public:
                           const std::wstring& url);
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
                           const std::wstring& url);
+  virtual void ExecuteJavaScript(const std::wstring& js_code, 
+                                 const std::wstring& script_url,
+                                 int start_line, TargetFrame targetFrame);
   virtual bool AddJSHandler(const std::wstring& classname,
                             CefRefPtr<CefJSHandler> handler);
   virtual bool HasJSHandler(const std::wstring& classname);
@@ -137,13 +140,16 @@ public:
   void UIT_LoadURLForRequest(const std::wstring& url,
                                   const std::wstring& frame_name,
                                   const std::wstring& method,
-		                              net::UploadData *upload_data,
-		                              const WebRequest::HeaderMap& headers);
+                                  net::UploadData *upload_data,
+                                  const WebRequest::HeaderMap& headers);
   void UIT_LoadURLForRequestRef(CefRequest* request);
   void UIT_LoadHTML(const std::wstring& html,
                          const std::wstring& url);
   void UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
                                      const std::wstring& url);
+  void UIT_ExecuteJavaScript(const std::wstring& js_code, 
+                             const std::wstring& script_url,
+                             int start_line, TargetFrame targetFrame);
   void UIT_GoBackOrForward(int offset);
   void UIT_Reload();
   bool UIT_Navigate(const BrowserNavigationEntry& entry, bool reload);

@@ -788,7 +788,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		     if(browser.get())
             browser->StopLoad();
           return 0;
-        case ID_TESTS_JAVASCRIPT: // Test our javascript handler
+        case ID_TESTS_JAVASCRIPT_HANDLER: // Test our javascript handler
           if(browser.get())
           {
             std::wstring html =
@@ -801,6 +801,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             browser->LoadString(html, L"about:blank");
           }
           return 0;
+        case ID_TESTS_JAVASCRIPT_EXECUTE: // Test execution of javascript
+          if(browser.get())
+          {
+            browser->ExecuteJavaScript(L"alert('JavaScript execute works!');",
+              L"about:blank", 0, CefBrowser::TF_MAIN);
+          }
+          return 0;
         case ID_TESTS_PLUGIN: // Test our custom plugin
           if(browser.get())
           {
@@ -811,6 +818,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               L"</body></html>";
             browser->LoadString(html, L"about:blank");
           }
+          return 0;
         }
       }
 		  break;

@@ -21,8 +21,9 @@
 #define IDC_NAV_FORWARD                 201
 #define IDC_NAV_RELOAD                  202
 #define IDC_NAV_STOP                    203
-#define ID_TESTS_JAVASCRIPT             32771
-#define ID_TESTS_PLUGIN                 32772
+#define ID_TESTS_JAVASCRIPT_HANDLER     32771
+#define ID_TESTS_JAVASCRIPT_EXECUTE     32772
+#define ID_TESTS_PLUGIN                 32773
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 

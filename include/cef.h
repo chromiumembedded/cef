@@ -220,7 +220,16 @@ public:
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
                           const std::wstring& url) =0;
 
-  // Register a new handler tied to the specified JS object |name|. Returns
+  // Execute a string of JavaScript code in the specified target frame. The
+  // |script_url| parameter is the URL where the script in question can be
+  // found, if any. The renderer may request this URL to show the developer the
+  // source of the error.  The |start_line| parameter is the base line number
+  // to use for error reporting.
+  virtual void ExecuteJavaScript(const std::wstring& js_code, 
+                                 const std::wstring& script_url,
+                                 int start_line, TargetFrame targetFrame) =0;
+
+// Register a new handler tied to the specified JS object |name|. Returns
   // true if the handler is registered successfully.
   // A JS handler will be accessible to JavaScript as window.<classname>.
   virtual bool AddJSHandler(const std::wstring& classname,
