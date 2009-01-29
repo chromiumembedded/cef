@@ -7,6 +7,7 @@
 #define _CONTEXT_H
 
 #include "../include/cef.h"
+#include "base/at_exit.h"
 #include "base/message_loop.h"
 #include "base/gfx/native_widget_types.h"
 #include "webkit/glue/webpreferences.h"
@@ -21,7 +22,7 @@ public:
   CefContext();
   ~CefContext();
 
-  bool Initialize();
+  bool Initialize(bool multi_threaded_message_loop);
   void Shutdown();
 
   MessageLoopForUI* GetMessageLoopForUI() { return messageloopui_; }
@@ -45,10 +46,17 @@ public:
   void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info);
   void UIT_UnregisterPlugin(struct CefPluginInfo* plugin_info);
 
+  bool DoWork();
+  bool DoDelayedWork();
+  bool DoIdleWork();
+
 private:
   void SetMessageLoopForUI(MessageLoopForUI* loop);
   void NotifyEvent();
   
+  bool DoInitialize();
+  void DoUninitialize();
+
 protected:
   HMODULE hinstance_;
   DWORD idthreadui_;
@@ -58,6 +66,10 @@ protected:
   bool in_transition_;
   BrowserList browserlist_;
   WebPreferences* webprefs_;
+  StatsTable* statstable_;
+
+  // Instantiate the AtExitManager to avoid asserts and possible memory leaks.
+  base::AtExitManager at_exit_manager_;
 
   friend DWORD WINAPI ThreadHandlerUI(LPVOID lpParam);
 };

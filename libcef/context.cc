@@ -10,7 +10,6 @@
 #include "browser_request_context.h"
 #include "../include/cef_nplugin.h"
 
-#include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/icu_util.h"
 #include "base/path_service.h"
@@ -33,7 +32,30 @@ static const char* kStatsFilePrefix = "libcef_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
-bool CefInitialize()
+
+// Class used to process events on the current message loop.
+class CefMessageLoopForUI : public MessageLoopForUI
+{
+  typedef MessageLoopForUI inherited;
+
+public:
+  CefMessageLoopForUI()
+  {
+  }
+
+  virtual bool DoIdleWork() {
+    bool valueToRet = inherited::DoIdleWork();
+    pump_->Quit();
+    return valueToRet;
+  }
+
+  void DoMessageLoopIteration() {
+    Run(NULL);
+  }
+};
+
+
+bool CefInitialize(bool multi_threaded_message_loop)
 {
   // Return true if the context is already initialized
   if(_Context.get())
@@ -42,7 +64,7 @@ bool CefInitialize()
   // Create the new global context object
   _Context = new CefContext();
   // Initialize the glboal context
-  return _Context->Initialize();
+  return _Context->Initialize(multi_threaded_message_loop);
 }
 
 void CefShutdown()
@@ -55,6 +77,13 @@ void CefShutdown()
   _Context->Shutdown();
   // Delete the global context object
   _Context = NULL;
+}
+
+void CefDoMessageLoopWork()
+{
+  if(!_Context->RunningOnUIThread())
+    return;
+  ((CefMessageLoopForUI*)CefMessageLoopForUI::current())->DoMessageLoopIteration();
 }
 
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
@@ -124,10 +153,8 @@ StringPiece NetResourceProvider(int key) {
   return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
 
-DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
+bool CefContext::DoInitialize()
 {
-  CefContext *pContext = static_cast<CefContext*>(lpParam);
-
   HRESULT res;
 
   // Initialize common controls
@@ -142,15 +169,8 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
   res = OleInitialize(NULL);
   DCHECK(SUCCEEDED(res));
 
-  // Instantiate the AtExitManager to avoid asserts and possible memory leaks.
-  base::AtExitManager at_exit_manager;
-
   // Initialize the global CommandLine object.
   CommandLine::Init(0, NULL);
-
-  // Instantiate the message loop for this thread.
-  MessageLoopForUI main_message_loop;
-  pContext->SetMessageLoopForUI(&main_message_loop);
 
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
@@ -166,7 +186,7 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
   if(!ret) {
     MessageBox(NULL, L"Failed to load the required icudt38 library",
       L"CEF Initialization Error", MB_ICONERROR | MB_OK);
-    return 1;
+    return false;
   }
 
   // Config the network module so it has access to a limited set of resources.
@@ -174,19 +194,17 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
-  StatsTable *table = new StatsTable(
+  statstable_ = new StatsTable(
       kStatsFilePrefix + Uint64ToString(base::RandUint64()),
       kStatsFileThreads,
       kStatsFileCounters);
-  StatsTable::set_current(table);
+  StatsTable::set_current(statstable_);
 
-  // Notify the context that initialization is complete so that the
-  // Initialize() function can return.
-  pContext->NotifyEvent();
+  return true;
+}
 
-  // Execute the message loop that will run until a quit task is received.
-  MessageLoop::current()->Run();
-
+void CefContext::DoUninitialize()
+{
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
@@ -196,13 +214,35 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
     
   // Tear down shared StatsTable; prevents unit_tests from leaking it.
   StatsTable::set_current(NULL);
-  delete table;
+  delete statstable_;
+  statstable_ = NULL;
 
   // Uninitialize COM stuff
   OleUninitialize();
 
   // Uninitialize common controls
   CoUninitialize();
+}
+
+DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
+{
+  CefContext *pContext = static_cast<CefContext*>(lpParam);
+
+  if (!pContext->DoInitialize()) 
+    return 1;
+
+  // Instantiate the message loop for this thread.
+  MessageLoopForUI main_message_loop;
+  pContext->SetMessageLoopForUI(&main_message_loop);
+
+  // Notify the context that initialization is complete so that the
+  // Initialize() function can return.
+  pContext->NotifyEvent();
+
+  // Execute the message loop that will run until a quit task is received.
+  MessageLoop::current()->Run();
+
+  pContext->DoUninitialize();
 
   return 0;
 }
@@ -222,9 +262,11 @@ CefContext::~CefContext()
 {
   // Just in case CefShutdown() isn't called
   Shutdown();
+
+  DoUninitialize();
 }
 
-bool CefContext::Initialize()
+bool CefContext::Initialize(bool multi_threaded_message_loop)
 {
   bool initialized = false, intransition = false;
   
@@ -294,15 +336,24 @@ bool CefContext::Initialize()
       webprefs_->java_enabled = true;
       webprefs_->allow_scripts_to_close_windows = false;
 
-      // Event that will be used to signal thread setup completion. Start
-      // in non-signaled mode so that the event will block.
-      heventui_ = CreateEvent(NULL, TRUE, FALSE, NULL);
-      DCHECK(heventui_ != NULL);
-      
-      // Thread that hosts the UI loop
-      hthreadui_ = CreateThread(
-          NULL, 0, ThreadHandlerUI, this, 0, &idthreadui_);
-      DCHECK(hthreadui_ != NULL);
+      if (multi_threaded_message_loop) {
+        // Event that will be used to signal thread setup completion. Start
+        // in non-signaled mode so that the event will block.
+        heventui_ = CreateEvent(NULL, TRUE, FALSE, NULL);
+        DCHECK(heventui_ != NULL);
+        
+        // Thread that hosts the UI loop
+        hthreadui_ = CreateThread(
+            NULL, 0, ThreadHandlerUI, this, 0, &idthreadui_);
+        DCHECK(hthreadui_ != NULL);
+      } else {
+        if (!DoInitialize()) {
+          // TODO: Process initialization errors
+        }
+        // Create our own message loop there
+        SetMessageLoopForUI(new CefMessageLoopForUI());
+        idthreadui_ = GetCurrentThreadId();
+      }
       
       initialized = true;
     }
@@ -311,8 +362,10 @@ bool CefContext::Initialize()
   Unlock();
   
   if(initialized) {
-    // Wait for initial UI thread setup to complete
-    WaitForSingleObject(heventui_, INFINITE);
+    if (multi_threaded_message_loop) {
+      // Wait for initial UI thread setup to complete
+      WaitForSingleObject(heventui_, INFINITE);
+    }
 
     Lock();
 

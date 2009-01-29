@@ -39,13 +39,20 @@
 
 // This function should only be called once when the application is started.
 // Create the thread to host the UI message loop.  A return value of true
-// indicates that it succeeded and false indicates that it failed.
-bool CefInitialize();
+// indicates that it succeeded and false indicates that it failed. Set
+// |multi_threaded_message_loop| to true to have the message loop run in
+// a separate thread.  If |multi_threaded_message_loop| is false than
+// the CefDoMessageLoopWork() function must be called from your message loop.
+bool CefInitialize(bool multi_threaded_message_loop);
 
 // This function should only be called once before the application exits.
 // Shut down the thread hosting the UI message loop and destroy any created
 // windows.
 void CefShutdown();
+
+// Perform message loop processing.  Has no affect if the browser UI loop is
+// running in a separate thread.
+void CefDoMessageLoopWork();
 
 
 // Interface defining the the reference count implementation methods. All

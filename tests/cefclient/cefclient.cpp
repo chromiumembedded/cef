@@ -15,6 +15,10 @@
 #define BUTTON_WIDTH 72
 #define URLBAR_HEIGHT  24
 
+// Define this value to run CEF with messages processed using the current
+// application's message loop.
+//#define TEST_SINGLE_THREADED_MESSAGE_LOOP
+
 // Global Variables:
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
@@ -31,11 +35,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
 
-  // Initialize the CEF
-  CefInitialize();
+#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
+  // Initialize the CEF with messages processed using the current application's
+  // message loop.
+  CefInitialize(false);
+#else
+  // Initialize the CEF with messages processed using a separate UI thread.
+  CefInitialize(true);
+#endif
 
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
@@ -56,31 +66,36 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
   // Register the internal client plugin
   CefRegisterPlugin(plugin_info);
 
- 	MSG msg;
-	HACCEL hAccelTable;
+  MSG msg;
+  HACCEL hAccelTable;
 
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_CEFCLIENT, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+  // Initialize global strings
+  LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+  LoadString(hInstance, IDC_CEFCLIENT, szWindowClass, MAX_LOADSTRING);
+  MyRegisterClass(hInstance);
 
-	// Perform application initialization
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
+  // Perform application initialization
+  if (!InitInstance (hInstance, nCmdShow))
+  {
+    return FALSE;
+  }
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+  hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
-	// Main message loop
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+  // Main message loop
+  while (GetMessage(&msg, NULL, 0, 0))
+  {
+#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
+    // Allow the CEF to do its message loop processing.
+    CefDoMessageLoopWork();
+#endif
+
+    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+    {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+  }
 
   // Shut down the CEF
   CefShutdown();
