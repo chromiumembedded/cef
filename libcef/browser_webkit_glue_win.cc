@@ -5,7 +5,6 @@
 
 #include "precompiled_libcef.h"
 #include "browser_webkit_glue.h"
-#include "plugins/browser_plugin_list.h"
 
 #include <atlcore.h>
 #include <atlbase.h>
@@ -47,7 +46,6 @@ HCURSOR LoadCursor(int cursor_id) {
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
-  NPAPI::BrowserPluginList::Singleton()->GetPlugins(refresh, plugins);
   return true;
 }
 

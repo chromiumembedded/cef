@@ -18,21 +18,6 @@ NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* pFuncs);
 NPError API_CALL NP_Initialize(NPNetscapeFuncs* pFuncs);
 NPError API_CALL NP_Shutdown(void);
 
-// Structure providing information about the client plugin.
-const CefPluginInfo ClientPluginInfo = {
-  {
-    L"client_plugin",
-    L"Client Plugin",
-    L"My Example Client Plugin",
-    L"1, 0, 0, 1",
-    L"application/x-client-plugin",
-    L"*",
-    L""
-  },
-  NP_GetEntryPoints,
-  NP_Initialize,
-  NP_Shutdown
-};
 
 // Provides the client plugin functionality.
 class ClientPlugin : public CWindowImpl<ClientPlugin> {

@@ -78,7 +78,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual void StartDragging(WebView* webview,
                              const WebDropData& drop_data);
   virtual void ShowContextMenu(WebView* webview,
-                               ContextNode::Type type,
+                               ContextNode in_node,
                                int x,
                                int y,
                                const GURL& link_url,
@@ -178,7 +178,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual int GetHistoryForwardListCount();
 
   // WebWidgetDelegate
-  virtual gfx::NativeView GetContainingView(WebWidget* webwidget);
+  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);

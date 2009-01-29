@@ -37,8 +37,24 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
   // Initialize the CEF
   CefInitialize();
 
+  // Structure providing information about the client plugin.
+  CefPluginInfo plugin_info;
+  plugin_info.display_name = L"Client Plugin";
+  plugin_info.unique_name = L"client_plugin";
+  plugin_info.version = L"1, 0, 0, 1";
+  plugin_info.description = L"My Example Client Plugin";
+
+  CefPluginMimeType mime_type;
+  mime_type.mime_type = L"application/x-client-plugin";
+  mime_type.file_extensions.push_back(L"*");
+  plugin_info.mime_types.push_back(mime_type);
+
+  plugin_info.np_getentrypoints = NP_GetEntryPoints;
+  plugin_info.np_initialize = NP_Initialize;
+  plugin_info.np_shutdown = NP_Shutdown;
+
   // Register the internal client plugin
-  CefRegisterPlugin(ClientPluginInfo);
+  CefRegisterPlugin(plugin_info);
 
  	MSG msg;
 	HACCEL hAccelTable;

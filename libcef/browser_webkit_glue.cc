@@ -167,4 +167,8 @@ bool IsLinkVisited(uint64 link_hash) {
   return false;
 }
 
+ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
+  return GetScreenInfoHelper(gfx::NativeViewFromId(window));
+}
+
 }  // namespace webkit_glue

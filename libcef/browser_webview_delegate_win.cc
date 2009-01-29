@@ -14,8 +14,6 @@
 #include "browser_navigation_controller.h"
 #include "browser_impl.h"
 #include "context.h"
-#include "plugins/browser_webplugin_delegate_impl.h"
-#include "plugins/browser_plugin_list.h"
 
 #include <objidl.h>
 #include <shlobj.h>
@@ -50,7 +48,7 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  HWND hwnd = GetContainingView(webview);
+  HWND hwnd = gfx::NativeViewFromId(GetContainingView(webview));
   if (!hwnd)
     return NULL;
 
@@ -66,21 +64,7 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     else
       return WebPluginDelegateImpl::Create(info.path, mime_type, hwnd);
   }
-  
-  // second, look for plugins using the embedded plugin list
-  CefPluginInfo plugin_info;
-  if (NPAPI::BrowserPluginList::Singleton()->GetPluginInfo(url, mime_type,
-                                                           clsid,
-                                                           allow_wildcard,
-                                                           &plugin_info,
-                                                           actual_mime_type)) {
-    if (actual_mime_type && !actual_mime_type->empty())
-      return BrowserWebPluginDelegateImpl::Create(plugin_info,
-                                                  *actual_mime_type, hwnd);
-    else
-      return BrowserWebPluginDelegateImpl::Create(plugin_info, mime_type, hwnd);
-  }
-  
+
   return NULL;
 }
 
@@ -211,7 +195,7 @@ static void AddMenuSeparator(HMENU menu, int index)
 }
 
 void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
-                                          ContextNode::Type type,
+                                          ContextNode in_node,
                                           int x,
                                           int y,
                                           const GURL& link_url,
@@ -244,7 +228,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
   if(handler.get()) {
     // Gather menu information
     CefHandler::MenuInfo menuInfo;
-    menuInfo.menuType = static_cast<CefHandler::MenuType>(type);
+    menuInfo.typeFlags = in_node.type;
     menuInfo.x = screen_pt.x;
     menuInfo.y = screen_pt.y;
     menuInfo.linkUrl = UTF8ToWide(link_url.spec().c_str()).c_str();
@@ -263,8 +247,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
   }
 
   // Build the correct default context menu
-  switch(type) {
-	case ContextNode::EDITABLE:
+  if (in_node.type & ContextNode::EDITABLE) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, CefHandler::ID_UNDO, L"Undo",
       !!(edit_flags & ContextNode::CAN_UNDO), label_list);
@@ -282,16 +265,13 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, CefHandler::ID_SELECTALL, L"Select All",
       !!(edit_flags & ContextNode::CAN_SELECT_ALL), label_list);
-		break;
-	case ContextNode::SELECTION:
-		menu = CreatePopupMenu();
-		AddMenuItem(browser_, menu, -1, CefHandler::ID_COPY, L"Copy",
+  } else if(in_node.type & ContextNode::SELECTION) {
+    menu = CreatePopupMenu();
+    AddMenuItem(browser_, menu, -1, CefHandler::ID_COPY, L"Copy",
       !!(edit_flags & ContextNode::CAN_COPY), label_list);
-    break;
-	case ContextNode::PAGE:
-	case ContextNode::FRAME:
-		menu = CreatePopupMenu();
-		AddMenuItem(browser_, menu, -1, CefHandler::ID_NAV_BACK, L"Back",
+  } else if(in_node.type & (ContextNode::PAGE | ContextNode::FRAME)) {
+    menu = CreatePopupMenu();
+    AddMenuItem(browser_, menu, -1, CefHandler::ID_NAV_BACK, L"Back",
       browser_->UIT_CanGoBack(), label_list);
     AddMenuItem(browser_, menu, -1, CefHandler::ID_NAV_FORWARD, L"Forward",
       browser_->UIT_CanGoForward(), label_list);
@@ -300,8 +280,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
       true, label_list);
     AddMenuItem(browser_, menu, -1, CefHandler::ID_VIEWSOURCE, L"View Source",
       true, label_list);
-    break;
-	}
+  }
 
   if(menu) {
     // show the context menu

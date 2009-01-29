@@ -8,7 +8,7 @@
 #include "browser_impl.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
-#include "plugins/browser_plugin_list.h"
+#include "../include/cef_nplugin.h"
 
 #include "base/at_exit.h"
 #include "base/command_line.h"
@@ -19,6 +19,9 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "net/base/net_module.h"
+#include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/plugin_lib.h"
+#include "webkit/glue/plugins/plugin_list.h"
 
 #include <commctrl.h>
 
@@ -71,29 +74,40 @@ bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
 void CefContext::UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
 {
   REQUIRE_UIT();
-  NPAPI::BrowserPluginList::Singleton()->AddPlugin(*plugin_info);
-  delete plugin_info;
-}
 
-// Unregister the plugin with the system.
-bool CefUnregisterPlugin(const struct CefPluginInfo& plugin_info)
-{
-  if(!_Context.get())
-    return false;
+  NPAPI::PluginVersionInfo info;
 
-  CefPluginInfo* pPluginInfo = new CefPluginInfo;
-  *pPluginInfo = plugin_info;
+  info.path = FilePath(plugin_info->unique_name);
+  info.product_name = plugin_info->display_name;
+  info.file_description = plugin_info->description;
+  info.file_version =plugin_info->version;
 
-   PostTask(FROM_HERE, NewRunnableMethod(_Context.get(),
-        &CefContext::UIT_UnregisterPlugin, pPluginInfo));
+  for(size_t i = 0; i < plugin_info->mime_types.size(); ++i) {
+    if(i > 0) {
+      info.mime_types += L"|";
+      info.file_extensions += L"|";
+      info.type_descriptions += L"|";
+    }
 
-  return true;
-}
+    info.mime_types += plugin_info->mime_types[i].mime_type;
+    info.type_descriptions += plugin_info->mime_types[i].description;
+    
+    for(size_t j = 0;
+        j < plugin_info->mime_types[i].file_extensions.size(); ++j) {
+      if(j > 0) {
+        info.file_extensions += L",";
+      }
+      info.file_extensions += plugin_info->mime_types[i].file_extensions[j];
+    }
+  }
 
-void CefContext::UIT_UnregisterPlugin(struct CefPluginInfo* plugin_info)
-{
-  REQUIRE_UIT();
-  NPAPI::BrowserPluginList::Singleton()->RemovePlugin(*plugin_info);
+  info.np_getentrypoints = plugin_info->np_getentrypoints;
+  info.np_initialize = plugin_info->np_initialize;
+  info.np_shutdown = plugin_info->np_shutdown;
+
+  NPAPI::PluginList::RegisterInternalPlugin(info);
+  NPAPI::PluginList::Singleton()->LoadPlugin(FilePath(info.path));
+
   delete plugin_info;
 }
 

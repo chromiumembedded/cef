@@ -27,8 +27,6 @@ void BrowserRequestContext::Init(
     bool no_proxy) {
   cookie_store_ = new net::CookieMonster();
 
-  user_agent_ = webkit_glue::GetUserAgent();
-
   // hard-code A-L and A-C for test shells
   accept_language_ = "en-us,en";
   accept_charset_ = "iso-8859-1,*,utf-8";
@@ -53,3 +51,7 @@ BrowserRequestContext::~BrowserRequestContext() {
   delete proxy_service_;
 }
 
+const std::string& BrowserRequestContext::GetUserAgent(
+    const GURL& url) const {
+  return webkit_glue::GetUserAgent(url);
+}

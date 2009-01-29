@@ -17,6 +17,7 @@
 #include "base/file_util.h"
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
@@ -469,9 +470,9 @@ void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-gfx::NativeView BrowserWebViewDelegate::GetContainingView(WebWidget* webwidget) {
+gfx::NativeViewId BrowserWebViewDelegate::GetContainingView(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return host->window_handle();
+    return gfx::IdFromNativeView(host->window_handle());
 
   return NULL;
 }

@@ -401,23 +401,10 @@ public:
                                           std::wstring& mimeType,
                                           int loadFlags) =0;
 
-  // Various context menu types supported by chrome.
-  enum MenuType
-  {
-    MENUTYPE_NONE = 0,
-    MENUTYPE_PAGE,
-    MENUTYPE_FRAME,
-    MENUTYPE_LINK,
-    MENUTYPE_IMAGE,
-    MENUTYPE_IMAGE_LINK,
-    MENUTYPE_SELECTION,
-    MENUTYPE_EDITABLE
-  };
-
   // Structure representing menu information
   struct MenuInfo
   {
-    MenuType menuType;
+    int typeFlags;
     int x;
     int y;
     std::wstring linkUrl;
@@ -430,8 +417,28 @@ public:
     std::string securityInfo;
   };
 
+  // The MenuInfo typeFlags value will be a combination of the following
+  enum MenuTypeBits {
+    // No node is selected
+    MENUTYPE_NONE = 0x0,
+    // The top page is selected
+    MENUTYPE_PAGE = 0x1,
+    // A subframe page is selected
+    MENUTYPE_FRAME = 0x2,
+    // A link is selected
+    MENUTYPE_LINK = 0x4,
+    // An image is selected
+    MENUTYPE_IMAGE = 0x8,
+    // There is a textual or mixed selection that is selected
+    MENUTYPE_SELECTION = 0x10,
+    // An editable element is selected
+    MENUTYPE_EDITABLE = 0x20,
+    // A misspelled word is selected
+    MENUTYPE_MISSPELLED_WORD = 0x40,
+  };
+
   // The MenuInfo editFlags value will be a combination of the following
-  enum MenuCapability
+  enum MenuCapabilityBits
   {
     CAN_DO_NONE = 0x0,
     CAN_UNDO = 0x1,

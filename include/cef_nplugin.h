@@ -32,6 +32,7 @@
 #define _CEF_PLUGIN_H
 
 #include <string>
+#include <vector>
 #include "webkit/glue/plugins/nphostapi.h"
 #include "third_party/npapi/bindings/npapi.h"
 
@@ -42,35 +43,43 @@
 // See https://developer.mozilla.org/En/Gecko_Plugin_API_Reference for complete
 // documentation on how to use the Netscape Plugin API.
 
-// This structure fully describes a plugin.
-struct CefPluginVersionInfo {
-  // Unique name used to identify a plugin.  The unique name is used in place
-  // of the file path that would be available with normal plugin DLLs.
-  std::wstring unique_name;
-  std::wstring product_name;
+// This structure describes a mime type entry for a plugin.
+struct CefPluginMimeType {
+  // The actual mime type.
+  std::wstring mime_type;
+
+  // A list of all the file extensions for this mime type.
+  std::vector<std::wstring> file_extensions;
+
+  // Description of the mime type.
   std::wstring description;
-  std::wstring version;
-  // List of supported mime type values, delimited with a pipe (|) character.
-  std::wstring mime_types;
-  // List of supported file extensions, delimited with a pipe (|) character.
-  std::wstring file_extensions;
-  // List of descriptions for the file extensions, delimited with a pipe (|)
-  // character.
-  std::wstring file_open_names;
 };
 
-// This structure provides version information and entry point functions.
+// This structure provides attribute information and entry point functions for
+// a plugin.
 struct CefPluginInfo {
-  CefPluginVersionInfo version_info;
+  // The unique name that identifies the plugin.
+  std::wstring unique_name;
+
+  // The friendly display name of the plugin.
+  std::wstring display_name;
+
+  // The version string of the plugin.
+  std::wstring version;
+
+  // A description of the plugin.
+  std::wstring description;
+
+  // A list of all the mime types that this plugin supports.
+  std::vector<CefPluginMimeType> mime_types;
+
+  // Entry point function pointers.
   NP_GetEntryPointsFunc np_getentrypoints;
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
 };
 
-// Register the plugin with the system.
+// Register a plugin with the system.
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info);
-
-// Unregister the plugin with the system.
-bool CefUnregisterPlugin(const struct CefPluginInfo& plugin_info);
 
 #endif // _CEF_PLUGIN_H
