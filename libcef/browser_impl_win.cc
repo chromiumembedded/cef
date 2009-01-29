@@ -294,8 +294,6 @@ void CefBrowserImpl::UIT_CreateBrowser()
 
   if(url_.size() > 0)
     UIT_LoadURL(url_.c_str());
-  else
-    UIT_LoadURL(L"about:blank");
 }
 
 void CefBrowserImpl::UIT_LoadURLForRequest(const std::wstring& url,
