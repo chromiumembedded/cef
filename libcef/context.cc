@@ -130,9 +130,9 @@ void CefContext::UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
     }
   }
 
-  info.np_getentrypoints = plugin_info->np_getentrypoints;
-  info.np_initialize = plugin_info->np_initialize;
-  info.np_shutdown = plugin_info->np_shutdown;
+  info.entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
+  info.entry_points.np_initialize = plugin_info->np_initialize;
+  info.entry_points.np_shutdown = plugin_info->np_shutdown;
 
   NPAPI::PluginList::RegisterInternalPlugin(info);
   NPAPI::PluginList::Singleton()->LoadPlugin(FilePath(info.path));

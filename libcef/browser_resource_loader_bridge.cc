@@ -46,6 +46,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
+#include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webframe.h"
@@ -626,6 +627,24 @@ std::string GetCookies(const GURL& url, const GURL& policy_url) {
       getter.get(), &CookieGetter::Get, url));
 
   return getter->GetResult();
+}
+
+// Issue the proxy resolve request on the io thread, and wait 
+// for the result.
+bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
+  DCHECK(request_context);
+
+  scoped_refptr<net::SyncProxyServiceHelper> sync_proxy_service(
+      new net::SyncProxyServiceHelper(io_thread->message_loop(),
+      request_context->proxy_service()));
+
+  net::ProxyInfo proxy_info;
+  int rv = sync_proxy_service->ResolveProxy(url, &proxy_info);
+  if (rv == net::OK) {
+    *proxy_list = proxy_info.GetAnnotatedProxyList();
+  }
+
+  return rv == net::OK;
 }
 
 }  // namespace webkit_glue
