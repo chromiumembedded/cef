@@ -46,7 +46,7 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
 }
 
 /*static*/
-WebWidgetHost* WebWidgetHost::FromWindow(HWND view) {
+static WebWidgetHost* FromWindow(HWND view) {
   return reinterpret_cast<WebWidgetHost*>(win_util::GetWindowUserData(view));
 }
 

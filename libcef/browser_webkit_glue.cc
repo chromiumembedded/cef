@@ -104,7 +104,12 @@ std::string GetDataResource(int resource_id) {
   }
 }
 
-GlueBitmap GetBitmapResource(int resource_id) {
+#if defined(OS_MACOSX)
+SkBitmap*
+#else
+GlueBitmap*
+#endif
+GetBitmapResource(int resource_id) {
   return NULL;
 }
 

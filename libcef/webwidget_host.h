@@ -27,7 +27,6 @@ class WebWidgetHost {
   static WebWidgetHost* Create(gfx::NativeView parent_view,
                                WebWidgetDelegate* delegate);
 
-  static WebWidgetHost* FromWindow(gfx::NativeView view);
 #if defined(OS_MACOSX)
   static void HandleEvent(gfx::NativeView view, NSEvent *event);
 #endif
@@ -83,7 +82,8 @@ class WebWidgetHost {
   //   parent: a GtkBox to pack the new widget at the end of
   //   host: a pointer to a WebWidgetHost (or subclass thereof)
   // ---------------------------------------------------------------------------
-  static gfx::NativeView CreateWindow(gfx::NativeView parent_view, void* host);
+  static gfx::NativeView CreateWindow(gfx::NativeView parent_view,
+                                      WebWidgetHost* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
 #endif

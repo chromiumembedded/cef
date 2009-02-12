@@ -195,78 +195,80 @@ class RequestProxy : public URLRequest::Delegate,
   void AsyncStart(RequestParams* params) {
     bool handled = false;
 
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if(handler.get())
-    {
-      // Build the request object for passing to the handler
-      CefRefPtr<CefRequest> request(new CefRequestImpl());
-      CefRequestImpl* requestimpl = static_cast<CefRequestImpl*>(request.get());
+    if (browser_) {
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if(handler.get())
+      {
+        // Build the request object for passing to the handler
+        CefRefPtr<CefRequest> request(new CefRequestImpl());
+        CefRequestImpl* requestimpl = static_cast<CefRequestImpl*>(request.get());
 
-      requestimpl->SetURL(UTF8ToWide(params->url.spec()));
-      requestimpl->SetMethod(UTF8ToWide(params->method));
-      
-      // TODO(cef): Parse the extra header values from params->headers and
-      // add to the header map.
-      CefRequest::HeaderMap headerMap;
-      headerMap.insert(
-        std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
+        requestimpl->SetURL(UTF8ToWide(params->url.spec()));
+        requestimpl->SetMethod(UTF8ToWide(params->method));
+        
+        // TODO(cef): Parse the extra header values from params->headers and
+        // add to the header map.
+        CefRequest::HeaderMap headerMap;
+        headerMap.insert(
+          std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
 
-      requestimpl->SetHeaderMap(headerMap);
+        requestimpl->SetHeaderMap(headerMap);
 
-      scoped_refptr<net::UploadData> upload = params->upload;
-		  CefRefPtr<CefPostData> postdata;
-      if(upload.get()) {
-        postdata = new CefPostDataImpl();
-        static_cast<CefPostDataImpl*>(postdata.get())->Set(*upload.get());
-        requestimpl->SetPostData(postdata);
+        scoped_refptr<net::UploadData> upload = params->upload;
+        CefRefPtr<CefPostData> postdata;
+        if(upload.get()) {
+          postdata = new CefPostDataImpl();
+          static_cast<CefPostDataImpl*>(postdata.get())->Set(*upload.get());
+          requestimpl->SetPostData(postdata);
+        }
+
+        int loadFlags = params->load_flags;
+
+        // Handler output will be returned in these variables
+        std::wstring redirectUrl;
+        CefRefPtr<CefStreamReader> resourceStream;
+        std::wstring mimeType;
+        
+        CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
+            browser_, request, redirectUrl, resourceStream, mimeType, loadFlags);
+        if(rv == CefHandler::RV_HANDLED) {
+          // cancel the resource load
+          handled = true;
+          OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0));
+        } else if(!redirectUrl.empty()) {
+          // redirect to the specified URL
+          params->url = GURL(WideToUTF8(redirectUrl));
+          OnReceivedRedirect(params->url);
+        } else if(resourceStream.get()) {
+          // load from the provided resource stream
+          handled = true;
+
+          long offset = resourceStream->Seek(0, SEEK_END);
+          resourceStream->Seek(0, SEEK_SET);
+
+          resource_stream_ = resourceStream;
+
+          ResourceLoaderBridge::ResponseInfo info;
+          info.content_length = static_cast<int64>(offset);
+          if(!mimeType.empty())
+            info.mime_type = WideToUTF8(mimeType);
+          OnReceivedResponse(info, false);
+          AsyncReadData();
+        }
       }
 
-      int loadFlags = params->load_flags;
-
-      // Handler output will be returned in these variables
-      std::wstring redirectUrl;
-      CefRefPtr<CefStreamReader> resourceStream;
-      std::wstring mimeType;
-      
-      CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
-          browser_, request, redirectUrl, resourceStream, mimeType, loadFlags);
-      if(rv == CefHandler::RV_HANDLED) {
-        // cancel the resource load
-        handled = true;
-        OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0));
-      } else if(!redirectUrl.empty()) {
-        // redirect to the specified URL
-        params->url = GURL(WideToUTF8(redirectUrl));
-        OnReceivedRedirect(params->url);
-      } else if(resourceStream.get()) {
-        // load from the provided resource stream
-        handled = true;
-
-        long offset = resourceStream->Seek(0, SEEK_END);
-        resourceStream->Seek(0, SEEK_SET);
-
-        resource_stream_ = resourceStream;
-
-        ResourceLoaderBridge::ResponseInfo info;
-        info.content_length = static_cast<int64>(offset);
-        if(!mimeType.empty())
-          info.mime_type = WideToUTF8(mimeType);
-        OnReceivedResponse(info, false);
-        AsyncReadData();
+      if(!handled)
+      {
+        request_.reset(new URLRequest(params->url, this));
+        request_->set_method(params->method);
+        request_->set_policy_url(params->policy_url);
+        request_->set_referrer(params->referrer.spec());
+        request_->SetExtraRequestHeaders(params->headers);
+        request_->set_load_flags(params->load_flags);
+        request_->set_upload(params->upload.get());
+        request_->set_context(request_context);
+        request_->Start();
       }
-    }
-	  
-	  if(!handled)
-	  {
-      request_.reset(new URLRequest(params->url, this));
-      request_->set_method(params->method);
-      request_->set_policy_url(params->policy_url);
-      request_->set_referrer(params->referrer.spec());
-      request_->SetExtraRequestHeaders(params->headers);
-      request_->set_load_flags(params->load_flags);
-      request_->set_upload(params->upload.get());
-      request_->set_context(request_context);
-      request_->Start();
     }
 
     delete params;

@@ -71,6 +71,8 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
                                    const std::wstring& message,
                                    const std::wstring& default_value,
                                    std::wstring* result);
+  virtual void SetStatusbarText(WebView* webview,
+                                const std::wstring& message);
   virtual void AddMessageToConsole(WebView* webview,
                                    const std::wstring& message,
                                    unsigned int line_no,
@@ -272,7 +274,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   GdkCursorType cursor_type_;
 #endif
   
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserWebViewDelegate);
+  DISALLOW_COPY_AND_ASSIGN(BrowserWebViewDelegate);
 };
 
 #endif // _BROWSER_WEBVIEW_DELEGATE_H

@@ -31,11 +31,11 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
 #endif
@@ -348,6 +348,11 @@ bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
   return retval;
 }
 
+void BrowserWebViewDelegate::SetStatusbarText(WebView* webview,
+                                              const std::wstring& message) {
+  
+}
+
 void BrowserWebViewDelegate::StartDragging(WebView* webview,
                                         const WebDropData& drop_data) {
 #if defined(OS_WIN)
@@ -497,37 +502,6 @@ void BrowserWebViewDelegate::Focus(WebWidget* webwidget) {
 void BrowserWebViewDelegate::Blur(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     browser_->UIT_SetFocus(host, false);
-}
-
-
-void BrowserWebViewDelegate::DidMove(WebWidget* webwidget,
-                                  const WebPluginGeometry& move) {
-#if defined(OS_WIN)
-  HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
-                              move.clip_rect.y(),
-                              move.clip_rect.right(),
-                              move.clip_rect.bottom());
-  gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
-
-  // Note: System will own the hrgn after we call SetWindowRgn,
-  // so we don't need to call DeleteObject(hrgn)
-  ::SetWindowRgn(move.window, hrgn, FALSE);
-
-  unsigned long flags = 0;
-  if (move.visible)
-    flags |= SWP_SHOWWINDOW;
-  else
-    flags |= SWP_HIDEWINDOW;
-
-  ::SetWindowPos(move.window,
-                 NULL,
-                 move.window_rect.x(),
-                 move.window_rect.y(),
-                 move.window_rect.width(),
-                 move.window_rect.height(),
-                 flags);
-
-#endif
 }
 
 bool BrowserWebViewDelegate::IsHidden() {
