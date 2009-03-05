@@ -58,9 +58,9 @@ public:
                           const std::wstring& url);
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
                           const std::wstring& url);
-  virtual void ExecuteJavaScript(const std::wstring& js_code, 
-                                 const std::wstring& script_url,
-                                 int start_line, TargetFrame targetFrame);
+  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
+                                 const std::wstring& scriptUrl,
+                                 int startLine, TargetFrame targetFrame);
   virtual bool AddJSHandler(const std::wstring& classname,
                             CefRefPtr<CefJSHandler> handler);
   virtual bool HasJSHandler(const std::wstring& classname);

@@ -39,6 +39,7 @@ public:
   virtual bool GetIntArray(std::vector<int>& val);
   virtual bool GetDoubleArray(std::vector<double>& val);
   virtual bool GetStringArray(std::vector<std::wstring>& val);
+  virtual int GetArraySize();
 
   // These three methods all perform deep copies of any string data.  This
   // allows the local CefVariantImpl to be released by the destructor without

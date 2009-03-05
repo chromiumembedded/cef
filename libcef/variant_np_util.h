@@ -44,6 +44,10 @@ bool _NPN_ArrayObjectToDoubleVector(NPObject* npobject,
 bool _NPN_ArrayObjectToBooleanVector(NPObject* npobject,
     std::vector<bool>& vec);
 
+// Return the number of elements in a JavaScript Array. Returns -1 if the
+// JavaScript object does not represent an array.
+int _NPN_ArrayObjectGetVectorSize(NPObject* npobject);
+
 // Evaluate the types of values contained in an NPObject representing a
 // JavaScript Array and suggest the most restrictive type that can safely store
 // all of the Array values.  For instance, if the Array contains all Int32

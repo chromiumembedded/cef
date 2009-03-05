@@ -33,6 +33,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include "cef_types_win.h"
 
 // Atomic increment and decrement.
 #define CefAtomicIncrement(p) InterlockedIncrement(p)
@@ -64,12 +65,29 @@ public:
 };
 
 // Class representing window information.
-class CefWindowInfo
+class CefWindowInfo : public cef_window_info_t
 {
 public:
   CefWindowInfo()
   {
+    Init();
+  }
+  ~CefWindowInfo()
+  {
+    if(m_windowName)
+      cef_string_free(m_windowName);
+  }
+
+  CefWindowInfo(const cef_window_info_t& r)
+  {
+    Init();
+    *this = r;
+  }
+
+  void Init()
+  {
     m_dwExStyle = 0;
+    m_windowName = NULL;
     m_dwStyle = 0;
     m_x = 0;
     m_y = 0;
@@ -79,19 +97,16 @@ public:
     m_hMenu = 0;
     m_hWnd = NULL;
   }
-  ~CefWindowInfo()
-  {
-  }
 
-  CefWindowInfo(const CefWindowInfo& r)
-  {
-    *this = r;
-  }
-
-  CefWindowInfo& operator=(const CefWindowInfo& r)
+  CefWindowInfo& operator=(const cef_window_info_t& r)
   {
     m_dwExStyle = r.m_dwExStyle;
-    m_windowName = r.m_windowName;
+    if(m_windowName)
+      cef_string_free(m_windowName);
+    if(r.m_windowName)
+      m_windowName = cef_string_alloc(r.m_windowName);
+    else
+      m_windowName = NULL;
     m_dwStyle = r.m_dwStyle;
     m_x = r.m_x;
     m_y = r.m_y;
@@ -100,7 +115,6 @@ public:
     m_hWndParent = r.m_hWndParent;
     m_hMenu = r.m_hMenu;
     m_hWnd = r.m_hWnd;
-    m_ClientInfo = r.m_ClientInfo;
     return *this;
   }
 
@@ -123,47 +137,42 @@ public:
     m_y = CW_USEDEFAULT;
     m_nWidth = CW_USEDEFAULT;
     m_nHeight = CW_USEDEFAULT;
-    m_windowName = windowName;
+
+    if(m_windowName)
+      cef_string_free(m_windowName);
+    if(windowName)
+      m_windowName = cef_string_alloc(windowName);
+    else
+      m_windowName = NULL;
   }
-
-  // Standard parameters required by CreateWindowEx()
-  DWORD m_dwExStyle;
-  std::wstring m_windowName;
-  DWORD m_dwStyle;
-  int m_x;
-  int m_y;
-  int m_nWidth;
-  int m_nHeight;
-  HWND m_hWndParent;
-  HMENU m_hMenu;
-  
-  // Handle for the new browser window.
-  HWND m_hWnd;
-
-  // A parameter that can be used to store client-specific information.
-  CefRefPtr<CefBase> m_ClientInfo;
 };
 
 // Class representing print context information.
-class CefPrintInfo
+class CefPrintInfo : public cef_print_info_t
 {
 public:
   CefPrintInfo()
   {
-    m_hDC = NULL;
-    m_Rect.left = m_Rect.right = m_Rect.top = m_Rect.bottom = 0;
-    m_Scale = 0;
+    Init();
   }
   ~CefPrintInfo()
   {
   }
 
-  CefPrintInfo(const CefPrintInfo& r)
+  CefPrintInfo(const cef_print_info_t& r)
   {
+    Init();
     *this = r;
   }
 
-  CefPrintInfo& operator=(const CefPrintInfo& r)
+  void Init()
+  {
+    m_hDC = NULL;
+    m_Rect.left = m_Rect.right = m_Rect.top = m_Rect.bottom = 0;
+    m_Scale = 0;
+  }
+
+  CefPrintInfo& operator=(const cef_print_info_t& r)
   {
     m_hDC = r.m_hDC;
     m_Rect.left = r.m_Rect.left;
@@ -173,14 +182,10 @@ public:
     m_Scale = r.m_Scale;
     return *this;
   }
-
-  HDC m_hDC;
-  RECT m_Rect;
-  double m_Scale;
 };
 
 // Window handle.
-#define CefWindowHandle HWND
+#define CefWindowHandle cef_window_handle_t
 #endif // _WIN32
 
 #endif // _CEF_WIN_H

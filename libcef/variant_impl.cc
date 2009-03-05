@@ -62,23 +62,23 @@ CefVariantImpl::~CefVariantImpl()
 
 CefVariant::Type CefVariantImpl::GetType()
 {
-  CefVariant::Type type = TYPE_NULL;
+  CefVariant::Type type = VARIANT_TYPE_NULL;
   
   Lock();
 
   // determine the data type of the underlying NPVariant value
   switch (variant_.type) {
   case NPVariantType_Bool:
-    type = TYPE_BOOL;
+    type = VARIANT_TYPE_BOOL;
     break;
   case NPVariantType_Int32:
-    type = TYPE_INT;
+    type = VARIANT_TYPE_INT;
     break;
   case NPVariantType_Double:
-    type = TYPE_DOUBLE;
+    type = VARIANT_TYPE_DOUBLE;
     break;
   case NPVariantType_String:
-    type = TYPE_STRING;
+    type = VARIANT_TYPE_STRING;
     break;
   case NPVariantType_Object:
     {
@@ -87,16 +87,16 @@ CefVariant::Type CefVariantImpl::GetType()
       if(_NPN_ArrayObjectToVectorTypeHint(variant_.value.objectValue, nptype)) {
         switch(nptype) {
         case NPVariantType_Bool:
-          type = TYPE_BOOL_ARRAY;
+          type = VARIANT_TYPE_BOOL_ARRAY;
           break;
         case NPVariantType_Int32:
-          type = TYPE_INT_ARRAY;
+          type = VARIANT_TYPE_INT_ARRAY;
           break;
         case NPVariantType_Double:
-          type = TYPE_DOUBLE_ARRAY;
+          type = VARIANT_TYPE_DOUBLE_ARRAY;
           break;
         case NPVariantType_String:
-          type = TYPE_STRING_ARRAY;
+          type = VARIANT_TYPE_STRING_ARRAY;
           break;
         }
       }
@@ -285,6 +285,15 @@ bool CefVariantImpl::GetStringArray(std::vector<std::wstring>& val)
   Lock();
   DCHECK(variant_.type == NPVariantType_Object);
   bool rv = _NPN_ArrayObjectToWStringVector(variant_.value.objectValue, val);
+  Unlock();
+  return rv;
+}
+
+int CefVariantImpl::GetArraySize()
+{
+  Lock();
+  DCHECK(variant_.type == NPVariantType_Object);
+  int rv = _NPN_ArrayObjectGetVectorSize(variant_.value.objectValue);
   Unlock();
   return rv;
 }

@@ -231,7 +231,7 @@ class RequestProxy : public URLRequest::Delegate,
         
         CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
             browser_, request, redirectUrl, resourceStream, mimeType, loadFlags);
-        if(rv == CefHandler::RV_HANDLED) {
+        if(rv == RV_HANDLED) {
           // cancel the resource load
           handled = true;
           OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0));

@@ -139,7 +139,7 @@ WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
     // Notify the handler of a browse request
     CefHandler::RetVal rv = handler->HandleBeforeBrowse(browser_, req,
         (CefHandler::NavType)type, is_redirect);
-    if(rv == CefHandler::RV_HANDLED)
+    if(rv == RV_HANDLED)
 			return IGNORE_ACTION;
 	}
       
@@ -226,7 +226,7 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
     CefHandler::RetVal rv = handler->HandleLoadError(browser_,
         static_cast<CefHandler::ErrorCode>(error.GetErrorCode()),
         UTF8ToWide(error.GetFailedURL().spec()), error_str);
-    if(rv == CefHandler::RV_HANDLED && !error_str.empty())
+    if(rv == RV_HANDLED && !error_str.empty())
       error_text = WideToUTF8(error_str);
   } else {
       error_text = StringPrintf("Error loading url: %d", error.GetErrorCode());
@@ -313,22 +313,22 @@ void BrowserWebViewDelegate::AddMessageToConsole(WebView* webview,
 
 void BrowserWebViewDelegate::RunJavaScriptAlert(WebView* webview,
                                              const std::wstring& message) {
-  CefHandler::RetVal rv = CefHandler::RV_CONTINUE;
+  CefHandler::RetVal rv = RV_CONTINUE;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get())
     rv = handler->HandleJSAlert(browser_, message);
-  if(rv != CefHandler::RV_HANDLED)
+  if(rv != RV_HANDLED)
     ShowJavaScriptAlert(webview, message);
 }
 
 bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
                                                const std::wstring& message) {
-  CefHandler::RetVal rv = CefHandler::RV_CONTINUE;
+  CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get())
     rv = handler->HandleJSConfirm(browser_, message, retval);
-  if(rv != CefHandler::RV_HANDLED)
+  if(rv != RV_HANDLED)
     retval = ShowJavaScriptConfirm(webview, message);
   return retval;
 }
@@ -336,14 +336,14 @@ bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
 bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
     const std::wstring& message, const std::wstring& default_value,
     std::wstring* result) {
-  CefHandler::RetVal rv = CefHandler::RV_CONTINUE;
+  CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     rv = handler->HandleJSPrompt(browser_, message, default_value,
         retval, *result);
   }
-  if(rv != CefHandler::RV_HANDLED)
+  if(rv != RV_HANDLED)
     retval = ShowJavaScriptPrompt(webview, message, default_value, result);
   return retval;
 }

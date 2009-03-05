@@ -20,7 +20,7 @@ public:
   virtual std::wstring GetURL();
   virtual void SetURL(const std::wstring& url);
   virtual std::wstring GetFrame();
-  virtual void SetFrame(const std::wstring& url);
+  virtual void SetFrame(const std::wstring& frame);
   virtual std::wstring GetMethod();
   virtual void SetMethod(const std::wstring& method);
   virtual CefRefPtr<CefPostData> GetPostData();

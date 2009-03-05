@@ -176,6 +176,19 @@ bool _NPN_ArrayObjectToBooleanVector(NPObject* npobject,
   return true;
 }
 
+int _NPN_ArrayObjectGetVectorSize(NPObject* npobject)
+{
+  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+    return -1;
+
+  V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
+  if (!object->v8_object->IsArray())
+    return -1;
+
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  return array->Length();
+}
+
 bool _NPN_ArrayObjectToVectorTypeHint(NPObject* npobject,
     NPVariantType &typehint)
 {

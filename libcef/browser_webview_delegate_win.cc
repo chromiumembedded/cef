@@ -250,65 +250,73 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
 	MessageLoop::current()->SetNestableTasksAllowed(true);
 
   if(browser_->UIT_CanGoBack())
-    edit_flags |= CefHandler::CAN_GO_BACK;
+    edit_flags |= MENU_CAN_GO_BACK;
 	if(browser_->UIT_CanGoForward())
-    edit_flags |= CefHandler::CAN_GO_FORWARD;
+    edit_flags |= MENU_CAN_GO_FORWARD;
 	
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Gather menu information
     CefHandler::MenuInfo menuInfo;
+    std::wstring linkstr, imagestr, pagestr, framestr, securitystr;
+
+    linkstr = UTF8ToWide(link_url.spec().c_str());
+    imagestr = UTF8ToWide(image_url.spec().c_str());
+    pagestr = UTF8ToWide(page_url.spec().c_str());
+    framestr = UTF8ToWide(frame_url.spec().c_str());
+    securitystr = UTF8ToWide(security_info);
+    
     menuInfo.typeFlags = in_node.type;
     menuInfo.x = screen_pt.x;
     menuInfo.y = screen_pt.y;
-    menuInfo.linkUrl = UTF8ToWide(link_url.spec().c_str()).c_str();
-    menuInfo.imageUrl = UTF8ToWide(image_url.spec().c_str()).c_str();
-    menuInfo.pageUrl = UTF8ToWide(page_url.spec().c_str()).c_str();
-    menuInfo.frameUrl = UTF8ToWide(frame_url.spec().c_str()).c_str();
-    menuInfo.selectionText = selection_text;
-    menuInfo.misspelledWord = misspelled_word;
+    menuInfo.linkUrl = linkstr.c_str();
+    menuInfo.imageUrl = imagestr.c_str();
+    menuInfo.pageUrl = pagestr.c_str();
+    menuInfo.frameUrl = framestr.c_str();
+    menuInfo.selectionText = selection_text.c_str();
+    menuInfo.misspelledWord = misspelled_word.c_str();
     menuInfo.editFlags = edit_flags;
-    menuInfo.securityInfo = security_info;
+    menuInfo.securityInfo = securitystr.c_str();
    
     // Notify the handler that a context menu is requested
     CefHandler::RetVal rv = handler->HandleBeforeMenu(browser_, menuInfo);
-    if(rv == CefHandler::RV_HANDLED)
+    if(rv == RV_HANDLED)
       goto end;
   }
 
   // Build the correct default context menu
   if (in_node.type & ContextNode::EDITABLE) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_UNDO, L"Undo",
+    AddMenuItem(browser_, menu, -1, MENU_ID_UNDO, L"Undo",
       !!(edit_flags & ContextNode::CAN_UNDO), label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_REDO, L"Redo",
+    AddMenuItem(browser_, menu, -1, MENU_ID_REDO, L"Redo",
       !!(edit_flags & ContextNode::CAN_REDO), label_list);
     AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_CUT, L"Cut",
+    AddMenuItem(browser_, menu, -1, MENU_ID_CUT, L"Cut",
       !!(edit_flags & ContextNode::CAN_CUT), label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_COPY, L"Copy",
+    AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
       !!(edit_flags & ContextNode::CAN_COPY), label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_PASTE, L"Paste",
+    AddMenuItem(browser_, menu, -1, MENU_ID_PASTE, L"Paste",
       !!(edit_flags & ContextNode::CAN_PASTE), label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_DELETE, L"Delete",
+    AddMenuItem(browser_, menu, -1, MENU_ID_DELETE, L"Delete",
       !!(edit_flags & ContextNode::CAN_DELETE), label_list);
     AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_SELECTALL, L"Select All",
-      !!(edit_flags & ContextNode::CAN_SELECT_ALL), label_list);
+    AddMenuItem(browser_, menu, -1, MENU_ID_SELECTALL, L"Select All",
+      !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
   } else if(in_node.type & ContextNode::SELECTION) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_COPY, L"Copy",
+    AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
       !!(edit_flags & ContextNode::CAN_COPY), label_list);
   } else if(in_node.type & (ContextNode::PAGE | ContextNode::FRAME)) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_NAV_BACK, L"Back",
+    AddMenuItem(browser_, menu, -1, MENU_ID_NAV_BACK, L"Back",
       browser_->UIT_CanGoBack(), label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_NAV_FORWARD, L"Forward",
+    AddMenuItem(browser_, menu, -1, MENU_ID_NAV_FORWARD, L"Forward",
       browser_->UIT_CanGoForward(), label_list);
     AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_PRINT, L"Print",
+    AddMenuItem(browser_, menu, -1, MENU_ID_PRINT, L"Print",
       true, label_list);
-    AddMenuItem(browser_, menu, -1, CefHandler::ID_VIEWSOURCE, L"View Source",
+    AddMenuItem(browser_, menu, -1, MENU_ID_VIEWSOURCE, L"View Source",
       true, label_list);
   }
 
@@ -325,12 +333,12 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
       if(handler.get()) {
         // Ask the handler if it wants to handle the action
         CefHandler::RetVal rv = handler->HandleMenuAction(browser_, menuId);
-        handled = (rv == CefHandler::RV_HANDLED);
+        handled = (rv == RV_HANDLED);
       }
 
       if(!handled) {
         // Execute the action
-        browser_->UIT_HandleAction(menuId, CefBrowser::TF_FOCUSED);
+        browser_->UIT_HandleAction(menuId, TF_FOCUSED);
       }
     }
   }

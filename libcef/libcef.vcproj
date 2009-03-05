@@ -51,6 +51,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\lib\libcef_static.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -104,6 +105,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\lib\libcef_static.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -185,11 +187,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\cef_export.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\cef_nplugin.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\cef_ptr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\cef_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\cef_types_win.h"
 				>
 			</File>
 			<File

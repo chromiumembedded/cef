@@ -261,7 +261,7 @@ void CefBrowserImpl::UIT_CreateBrowser()
   
   // Create the new browser window
   window_info_.m_hWnd = CreateWindowEx(window_info_.m_dwExStyle, GetWndClass(),
-      window_info_.m_windowName.c_str(), window_info_.m_dwStyle,
+      window_info_.m_windowName, window_info_.m_dwStyle,
       window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
       window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
       _Context->GetInstanceHandle(), NULL);
@@ -654,7 +654,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, WebFrame* frame,
       url, title, page_number, total_pages, topLeft, topCenter, topRight,
       bottomLeft, bottomCenter, bottomRight);
 
-    if(rv != CefHandler::RV_HANDLED) {
+    if(rv != RV_HANDLED) {
       // Draw handler-defined headers and/or footers.
       LOGFONT lf;
       memset(&lf, 0, sizeof(lf));

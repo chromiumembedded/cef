@@ -38,91 +38,91 @@ CefBrowserImpl::~CefBrowserImpl()
 void CefBrowserImpl::GoBack()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-    &CefBrowserImpl::UIT_HandleAction, CefHandler::ID_NAV_BACK, TF_MAIN));
+    &CefBrowserImpl::UIT_HandleAction, MENU_ID_NAV_BACK, TF_MAIN));
 }
 
 void CefBrowserImpl::GoForward()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_NAV_FORWARD, TF_MAIN));
+      MENU_ID_NAV_FORWARD, TF_MAIN));
 }
 
 void CefBrowserImpl::Reload()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_NAV_RELOAD, TF_MAIN));
+      MENU_ID_NAV_RELOAD, TF_MAIN));
 }
 
 void CefBrowserImpl::StopLoad()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_NAV_STOP, TF_MAIN));
+      MENU_ID_NAV_STOP, TF_MAIN));
 }
 
 void CefBrowserImpl::Undo(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_UNDO, targetFrame));
+      MENU_ID_UNDO, targetFrame));
 }
 
 void CefBrowserImpl::Redo(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_REDO, targetFrame));
+      MENU_ID_REDO, targetFrame));
 }
 
 void CefBrowserImpl::Cut(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_CUT, targetFrame));
+      MENU_ID_CUT, targetFrame));
 }
 
 void CefBrowserImpl::Copy(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_COPY, targetFrame));
+      MENU_ID_COPY, targetFrame));
 }
 
 void CefBrowserImpl::Paste(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_PASTE, targetFrame));
+      MENU_ID_PASTE, targetFrame));
 }
 
 void CefBrowserImpl::Delete(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_DELETE, targetFrame));
+      MENU_ID_DELETE, targetFrame));
 }
 
 void CefBrowserImpl::SelectAll(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_SELECTALL, targetFrame));
+      MENU_ID_SELECTALL, targetFrame));
 }
 
 void CefBrowserImpl::Print(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_PRINT, targetFrame));
+      MENU_ID_PRINT, targetFrame));
 }
 
 void CefBrowserImpl::ViewSource(TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
-      CefHandler::ID_VIEWSOURCE, targetFrame));
+      MENU_ID_VIEWSOURCE, targetFrame));
 }
 void CefBrowserImpl::LoadRequest(CefRefPtr<CefRequest> request)
 {
@@ -154,13 +154,13 @@ void CefBrowserImpl::LoadStream(CefRefPtr<CefStreamReader> stream,
       &CefBrowserImpl::UIT_LoadHTMLForStreamRef, stream.get(), url));
 }
 
-void CefBrowserImpl::ExecuteJavaScript(const std::wstring& js_code, 
-                                       const std::wstring& script_url,
-                                       int start_line,
+void CefBrowserImpl::ExecuteJavaScript(const std::wstring& jsCode, 
+                                       const std::wstring& scriptUrl,
+                                       int startLine,
                                        TargetFrame targetFrame)
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_ExecuteJavaScript, js_code, script_url, start_line,
+      &CefBrowserImpl::UIT_ExecuteJavaScript, jsCode, scriptUrl, startLine,
       targetFrame));
 }
 
@@ -267,7 +267,7 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
     // or cancel the window creation.
     CefHandler::RetVal rv =
         handler->HandleBeforeCreated(NULL, windowInfo, popup, handler, newUrl);
-    if(rv == CefHandler::RV_HANDLED)
+    if(rv == RV_HANDLED)
       return false;
   }
 
@@ -434,7 +434,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstri
     // or cancel the window creation.
     CefHandler::RetVal rv =
         handler_->HandleBeforeCreated(this, info, true, handler, newUrl);
-    if(rv == CefHandler::RV_HANDLED)
+    if(rv == RV_HANDLED)
       return NULL;
   }
 
@@ -465,43 +465,43 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
 
   switch(menuId)
   {
-    case CefHandler::ID_NAV_BACK:
+    case MENU_ID_NAV_BACK:
       UIT_GoBackOrForward(-1);
       break;
-    case CefHandler::ID_NAV_FORWARD:
+    case MENU_ID_NAV_FORWARD:
       UIT_GoBackOrForward(1);
       break;
-    case CefHandler::ID_NAV_RELOAD:
+    case MENU_ID_NAV_RELOAD:
       UIT_Reload();
       break;
-    case CefHandler::ID_NAV_STOP:
+    case MENU_ID_NAV_STOP:
       UIT_GetWebView()->StopLoading();
       break;
-    case CefHandler::ID_UNDO:
+    case MENU_ID_UNDO:
       frame->Undo();
       break;
-    case CefHandler::ID_REDO:
+    case MENU_ID_REDO:
       frame->Redo();
       break;
-    case CefHandler::ID_CUT:
+    case MENU_ID_CUT:
       frame->Cut();
       break;
-    case CefHandler::ID_COPY:
+    case MENU_ID_COPY:
       frame->Copy();
       break;
-    case CefHandler::ID_PASTE:
+    case MENU_ID_PASTE:
       frame->Paste();
       break;
-    case CefHandler::ID_DELETE:
+    case MENU_ID_DELETE:
       frame->Delete();
       break;
-    case CefHandler::ID_SELECTALL:
+    case MENU_ID_SELECTALL:
       frame->SelectAll();
       break;
-    case CefHandler::ID_PRINT:
+    case MENU_ID_PRINT:
       UIT_PrintPages(frame);
       break;
-    case CefHandler::ID_VIEWSOURCE:
+    case MENU_ID_VIEWSOURCE:
       UIT_ViewDocumentString(frame);
       break;
   }

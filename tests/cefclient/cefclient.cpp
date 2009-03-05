@@ -231,22 +231,22 @@ public:
       ss << L"arg" << i;
       switch(args[i]->GetType())
       {
-      case CefVariant::TYPE_NULL:
+      case VARIANT_TYPE_NULL:
         ss << L" null";
         break;
-      case CefVariant::TYPE_BOOL:
+      case VARIANT_TYPE_BOOL:
         ss << L" bool = " << args[i]->GetBool();
         break;
-      case CefVariant::TYPE_INT:
+      case VARIANT_TYPE_INT:
         ss << L" int = " << args[i]->GetInt();
         break;
-      case CefVariant::TYPE_DOUBLE:
+      case VARIANT_TYPE_DOUBLE:
         ss << L" double = " << args[i]->GetDouble();
         break;
-      case CefVariant::TYPE_STRING:
+      case VARIANT_TYPE_STRING:
         ss << L" string = " << args[i]->GetString().c_str();
         break;
-      case CefVariant::TYPE_BOOL_ARRAY:
+      case VARIANT_TYPE_BOOL_ARRAY:
         ss << L" bool array = ";
         {
           std::vector<bool> vec;
@@ -259,7 +259,7 @@ public:
           }
         }
         break;
-      case CefVariant::TYPE_INT_ARRAY:
+      case VARIANT_TYPE_INT_ARRAY:
         ss << L" int array = ";
         {
           std::vector<int> vec;
@@ -272,7 +272,7 @@ public:
           }
         }
         break;
-      case CefVariant::TYPE_DOUBLE_ARRAY:
+      case VARIANT_TYPE_DOUBLE_ARRAY:
         ss << L" double array = ";
         {
           std::vector<double> vec;
@@ -285,7 +285,7 @@ public:
           }
         }
         break;
-      case CefVariant::TYPE_STRING_ARRAY:
+      case VARIANT_TYPE_STRING_ARRAY:
         ss << L" string array = ";
         {
           std::vector<std::wstring> vec;
@@ -580,7 +580,7 @@ public:
   // |result| to the resulting value.
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
                                 const std::wstring& message,
-                                const std::wstring& default_value,
+                                const std::wstring& defaultValue,
                                 bool& retval,
                                 std::wstring& result)
   {
@@ -809,8 +809,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             std::wstring html =
               L"<html><body>ClientJSHandler says:<br>"
               L"<script language=\"JavaScript\">"
-              L"document.writeln(window.myclass.mymethod('foo', 1, 7.6654, 'bar',"
-              L"[5, 6, 1, 8]));"
+              L"document.writeln(window.myclass.mymethod(false, 1, 7.6654,"
+              L"'bar',[false,true],[5, 6, 1, 8],[4.54,10.032,.054],"
+              L"['one','two']));"
               L"</script>"
               L"</body></html>";
             browser->LoadString(html, L"about:blank");
@@ -820,7 +821,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
           {
             browser->ExecuteJavaScript(L"alert('JavaScript execute works!');",
-              L"about:blank", 0, CefBrowser::TF_MAIN);
+              L"about:blank", 0, TF_MAIN);
           }
           return 0;
         case ID_TESTS_PLUGIN: // Test our custom plugin

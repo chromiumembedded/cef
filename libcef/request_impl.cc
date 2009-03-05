@@ -47,10 +47,10 @@ std::wstring CefRequestImpl::GetFrame()
   return frame;
 }
 
-void CefRequestImpl::SetFrame(const std::wstring& url)
+void CefRequestImpl::SetFrame(const std::wstring& frame)
 {
   Lock();
-  frame_ = url;
+  frame_ = frame;
   Unlock();
 }
 
@@ -258,7 +258,7 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement()
 
 CefPostDataElementImpl::CefPostDataElementImpl()
 {
-  type_ = TYPE_EMPTY;
+  type_ = PDE_TYPE_EMPTY;
 }
 
 CefPostDataElementImpl::~CefPostDataElementImpl()
@@ -269,11 +269,11 @@ CefPostDataElementImpl::~CefPostDataElementImpl()
 void CefPostDataElementImpl::SetToEmpty()
 {
   Lock();
-  if(type_ == TYPE_BYTES)
+  if(type_ == PDE_TYPE_BYTES)
     free(data_.bytes.bytes);
-  else if(type_ == TYPE_FILE)
+  else if(type_ == PDE_TYPE_FILE)
     free(data_.filename);
-  type_ = TYPE_EMPTY;
+  type_ = PDE_TYPE_EMPTY;
   Unlock();
 }
 
@@ -295,7 +295,7 @@ void CefPostDataElementImpl::SetToFile(const std::wstring& fileName)
   data[size] = 0;
 
   // Assign the new data
-  type_ = TYPE_FILE;
+  type_ = PDE_TYPE_FILE;
   data_.filename = data;
   Unlock();
 }
@@ -314,7 +314,7 @@ void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes)
 
   memcpy(data, bytes, size);
   
-  type_ = TYPE_BYTES;
+  type_ = PDE_TYPE_BYTES;
   data_.bytes.bytes = data;
   data_.bytes.size = size;
   Unlock();
@@ -331,9 +331,9 @@ CefPostDataElement::Type CefPostDataElementImpl::GetType()
 std::wstring CefPostDataElementImpl::GetFile()
 {
   Lock();
-  DCHECK(type_ == TYPE_FILE);
+  DCHECK(type_ == PDE_TYPE_FILE);
   std::wstring filename;
-  if(type_ == TYPE_FILE)
+  if(type_ == PDE_TYPE_FILE)
     filename = data_.filename;
   Unlock();
   return filename;
@@ -342,9 +342,9 @@ std::wstring CefPostDataElementImpl::GetFile()
 size_t CefPostDataElementImpl::GetBytesCount()
 {
   Lock();
-  DCHECK(type_ == TYPE_BYTES);
+  DCHECK(type_ == PDE_TYPE_BYTES);
   size_t size = 0;
-  if(type_ == TYPE_BYTES)
+  if(type_ == PDE_TYPE_BYTES)
     size = data_.bytes.size;
   Unlock();
   return size;
@@ -353,9 +353,9 @@ size_t CefPostDataElementImpl::GetBytesCount()
 size_t CefPostDataElementImpl::GetBytes(size_t size, void *bytes)
 {
   Lock();
-  DCHECK(type_ == TYPE_BYTES);
+  DCHECK(type_ == PDE_TYPE_BYTES);
   size_t rv = 0;
-  if(type_ == TYPE_BYTES) {
+  if(type_ == PDE_TYPE_BYTES) {
     rv = (size < data_.bytes.size ? size : data_.bytes.size);
     memcpy(bytes, data_.bytes.bytes, rv);
   }
@@ -385,9 +385,9 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
 {
   Lock();
 
-  if(type_ == TYPE_BYTES) {
+  if(type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
-  } else if(type_ == TYPE_FILE) {
+  } else if(type_ == PDE_TYPE_FILE) {
     element.SetToFilePath(data_.filename);
   } else {
     NOTREACHED();
