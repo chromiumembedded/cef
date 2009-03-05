@@ -8,6 +8,7 @@
 #include "browser_impl.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
+#include "browser_webkit_glue.h"
 #include "../include/cef_nplugin.h"
 
 #include "base/command_line.h"
@@ -297,6 +298,9 @@ bool CefContext::Initialize(bool multi_threaded_message_loop)
         /* hIconSm = */ NULL,
       };
       RegisterClassEx(&wcex);
+
+      // Initialize WebKit encodings
+      webkit_glue::InitializeTextEncoding();
 
       // Initialize web preferences
       webprefs_ = new WebPreferences;

@@ -144,7 +144,11 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
-  DCHECK(dx || dy);
+  if (dx != 0 && dy != 0) {
+    // We only support uni-directional scroll
+    DidScrollRect(0, dy, clip_rect);
+    dy = 0;
+  }
 
   // If we already have a pending scroll operation or if this scroll operation
   // intersects the existing paint region, then just failover to invalidating.
@@ -188,7 +192,6 @@ WebWidgetHost::~WebWidgetHost() {
   TrackMouseLeave(false);
 
   webwidget_->Close();
-  webwidget_->Release();
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -282,6 +285,11 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
     case WebInputEvent::MOUSE_DOWN:
       SetCapture(view_);
+      // This mimics a temporary workaround in RenderWidgetHostViewWin 
+      // for bug 765011 to get focus when the mouse is clicked. This 
+      // happens after the mouse down event is sent to the renderer 
+      // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+      ::SetFocus(view_);
       break;
     case WebInputEvent::MOUSE_UP:
       if (GetCapture() == view_)
@@ -289,14 +297,6 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
   }
   webwidget_->HandleInputEvent(&event);
-
-  if (event.type == WebInputEvent::MOUSE_DOWN) {
-    // This mimics a temporary workaround in RenderWidgetHostViewWin 
-    // for bug 765011 to get focus when the mouse is clicked. This 
-    // happens after the mouse down event is sent to the renderer 
-    // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-    ::SetFocus(view_);
-  }
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {

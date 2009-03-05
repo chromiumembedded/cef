@@ -300,6 +300,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\browser_webkit_init.h"
+			>
+		</File>
+		<File
 			RelativePath=".\browser_webview_delegate.cc"
 			>
 		</File>

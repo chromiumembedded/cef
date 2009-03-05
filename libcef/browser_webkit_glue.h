@@ -21,4 +21,7 @@ void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
 
+// Text encoding objects must be initialized on the main thread.
+void InitializeTextEncoding();
+
 }  // namespace webkit_glue

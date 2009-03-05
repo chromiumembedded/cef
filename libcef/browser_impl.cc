@@ -167,6 +167,7 @@ void CefBrowserImpl::ExecuteJavaScript(const std::wstring& jsCode,
 bool CefBrowserImpl::AddJSHandler(const std::wstring& classname,
                                   CefRefPtr<CefJSHandler> handler)
 {
+  DCHECK(handler.get());
   bool rv = false;
 
   Lock();

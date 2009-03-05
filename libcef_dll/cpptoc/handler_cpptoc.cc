@@ -63,6 +63,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
 
   // WindowInfo may or may not have changed.
   *windowInfo = wndInfo;
+#ifdef WIN32
+  // The m_windowName must be duplicated since it's a cef_string_t
+  if(windowInfo->m_windowName)
+    windowInfo->m_windowName = cef_string_alloc(windowInfo->m_windowName);
+#endif
 
   return rv;
 }

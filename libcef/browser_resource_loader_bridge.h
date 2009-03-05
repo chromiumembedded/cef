@@ -6,8 +6,9 @@
 #ifndef _BROWSER_RESOURCE_LOADER_BRIDGE_H
 #define _BROWSER_RESOURCE_LOADER_BRIDGE_H
 
-#include "base/ref_counted.h"
+#include <string>
 
+class GURL;
 class URLRequestContext;
 
 class BrowserResourceLoaderBridge {
@@ -26,6 +27,12 @@ class BrowserResourceLoaderBridge {
 
   // Call this function to shutdown the simple resource loader bridge.
   static void Shutdown();
+
+  // May only be called after Init.
+  static void SetCookie(
+      const GURL& url, const GURL& policy_url, const std::string& cookie);
+  static std::string GetCookies(
+      const GURL& url, const GURL& policy_url);
 };
 
 #endif  // _BROWSER_RESOURCE_LOADER_BRIDGE_H

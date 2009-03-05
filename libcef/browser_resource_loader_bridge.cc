@@ -46,6 +46,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -601,36 +602,6 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     method, url, policy_url, referrer, headers, load_flags);
 }
 
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie) {
-  // Proxy to IO thread to synchronize w/ network loading.
-
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return;
-  }
-
-  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      cookie_setter.get(), &CookieSetter::Set, url, cookie));
-}
-
-std::string GetCookies(const GURL& url, const GURL& policy_url) {
-  // Proxy to IO thread to synchronize w/ network loading
-
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return std::string();
-  }
-
-  scoped_refptr<CookieGetter> getter = new CookieGetter();
-
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      getter.get(), &CookieGetter::Get, url));
-
-  return getter->GetResult();
-}
-
 // Issue the proxy resolve request on the io thread, and wait 
 // for the result.
 bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
@@ -643,10 +614,19 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
   net::ProxyInfo proxy_info;
   int rv = sync_proxy_service->ResolveProxy(url, &proxy_info);
   if (rv == net::OK) {
-    *proxy_list = proxy_info.GetAnnotatedProxyList();
+    *proxy_list = proxy_info.ToPacString();
   }
 
   return rv == net::OK;
+}
+
+void SetCookie(const GURL& url, const GURL& policy_url,
+               const std::string& cookie) {
+  BrowserResourceLoaderBridge::SetCookie(url, policy_url, cookie);  
+}
+
+std::string GetCookies(const GURL& url, const GURL& policy_url) {
+  return BrowserResourceLoaderBridge::GetCookies(url, policy_url);
 }
 
 }  // namespace webkit_glue
@@ -675,4 +655,35 @@ void BrowserResourceLoaderBridge::Shutdown() {
 
     DCHECK(!request_context) << "should have been nulled by thread dtor";
   }
+}
+
+void BrowserResourceLoaderBridge::SetCookie(
+    const GURL& url, const GURL& policy_url, const std::string& cookie) {
+  // Proxy to IO thread to synchronize w/ network loading.
+
+  if (!EnsureIOThread()) {
+    NOTREACHED();
+    return;
+  }
+
+  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
+  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      cookie_setter.get(), &CookieSetter::Set, url, cookie));
+}
+
+std::string BrowserResourceLoaderBridge::GetCookies(
+    const GURL& url, const GURL& policy_url) {
+  // Proxy to IO thread to synchronize w/ network loading
+
+  if (!EnsureIOThread()) {
+    NOTREACHED();
+    return std::string();
+  }
+
+  scoped_refptr<CookieGetter> getter = new CookieGetter();
+
+  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      getter.get(), &CookieGetter::Get, url));
+
+  return getter->GetResult();
 }

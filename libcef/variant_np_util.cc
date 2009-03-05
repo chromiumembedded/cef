@@ -79,10 +79,10 @@ bool _NPN_ArrayObjectToStringVector(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   for (uint32_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> value = array->Get(v8::Integer::New(i));
     v8::Local<v8::String> sval = value->ToString();
@@ -102,10 +102,10 @@ bool _NPN_ArrayObjectToWStringVector(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   for (uint32_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> value = array->Get(v8::Integer::New(i));
     v8::Local<v8::String> sval = value->ToString();
@@ -125,10 +125,10 @@ bool _NPN_ArrayObjectToIntVector(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   for (uint32_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> value = array->Get(v8::Integer::New(i));
     v8::Local<v8::Int32> ival = value->ToInt32();
@@ -144,10 +144,10 @@ bool _NPN_ArrayObjectToDoubleVector(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   for (uint32_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> value = array->Get(v8::Integer::New(i));
     v8::Local<v8::Number> dval = value->ToNumber();
@@ -163,10 +163,10 @@ bool _NPN_ArrayObjectToBooleanVector(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   for (uint32_t i = 0; i < array->Length(); i++) {
     v8::Local<v8::Value> value = array->Get(v8::Integer::New(i));
     v8::Local<v8::Boolean> bval = value->ToBoolean();
@@ -182,10 +182,10 @@ int _NPN_ArrayObjectGetVectorSize(NPObject* npobject)
     return -1;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return -1;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   return array->Length();
 }
 
@@ -196,10 +196,10 @@ bool _NPN_ArrayObjectToVectorTypeHint(NPObject* npobject,
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
-  if (!object->v8_object->IsArray())
+  if (!object->v8Object->IsArray())
     return false;
 
-  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8_object);
+  v8::Handle<v8::Array> array = v8::Handle<v8::Array>::Cast(object->v8Object);
   if (array->Length() == 0)
     return false;
 

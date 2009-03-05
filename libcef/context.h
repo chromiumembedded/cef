@@ -11,6 +11,7 @@
 #include "base/message_loop.h"
 #include "base/gfx/native_widget_types.h"
 #include "webkit/glue/webpreferences.h"
+#include "browser_webkit_init.h"
 
 class CefBrowserImpl;
 
@@ -68,8 +69,10 @@ protected:
   WebPreferences* webprefs_;
   StatsTable* statstable_;
 
-  // Instantiate the AtExitManager to avoid asserts and possible memory leaks.
+  // Initialize the AtExitManager to avoid asserts and possible memory leaks.
   base::AtExitManager at_exit_manager_;
+  // Initialize WebKit for this scope.
+  BrowserWebKitInit webkit_init_;
 
   friend DWORD WINAPI ThreadHandlerUI(LPVOID lpParam);
 };
