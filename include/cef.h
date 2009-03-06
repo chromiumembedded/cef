@@ -44,7 +44,10 @@
 // |multi_threaded_message_loop| to true to have the message loop run in
 // a separate thread.  If |multi_threaded_message_loop| is false than
 // the CefDoMessageLoopWork() function must be called from your message loop.
-bool CefInitialize(bool multi_threaded_message_loop);
+// Set |cache_path| to the location where cache data will be stored on disk.
+// If |cache_path| is empty an in-memory cache will be used for cache data.
+bool CefInitialize(bool multi_threaded_message_loop,
+                   const std::wstring& cache_path);
 
 // This function should only be called once before the application exits.
 // Shut down the thread hosting the UI message loop and destroy any created

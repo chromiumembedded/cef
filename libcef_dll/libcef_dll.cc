@@ -14,9 +14,13 @@
 #include "base/string_util.h"
 
 
-CEF_EXPORT int cef_initialize(int multi_threaded_message_loop)
+CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,
+                              const wchar_t* cache_path)
 {
-  return CefInitialize(multi_threaded_message_loop);
+  std::wstring cachePath;
+  if(cache_path)
+    cachePath = cache_path;
+  return CefInitialize(multi_threaded_message_loop, cachePath);
 }
 
 CEF_EXPORT void cef_shutdown()

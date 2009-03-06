@@ -56,7 +56,8 @@ public:
 };
 
 
-bool CefInitialize(bool multi_threaded_message_loop)
+bool CefInitialize(bool multi_threaded_message_loop,
+                   const std::wstring& cache_path)
 {
   // Return true if the context is already initialized
   if(_Context.get())
@@ -65,7 +66,7 @@ bool CefInitialize(bool multi_threaded_message_loop)
   // Create the new global context object
   _Context = new CefContext();
   // Initialize the glboal context
-  return _Context->Initialize(multi_threaded_message_loop);
+  return _Context->Initialize(multi_threaded_message_loop, cache_path);
 }
 
 void CefShutdown()
@@ -175,12 +176,9 @@ bool CefContext::DoInitialize()
 
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
-  // TODO(cef): Either disable caching or send the cache files to a reasonable
-  // temporary directory
-  std::wstring cache_path;
-  PathService::Get(base::DIR_EXE, &cache_path);
+  //PathService::Get(base::DIR_EXE, &cache_path);
   BrowserResourceLoaderBridge::Init(
-    new BrowserRequestContext(cache_path, net::HttpCache::NORMAL, false));
+    new BrowserRequestContext(cache_path_, net::HttpCache::NORMAL, false));
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();
@@ -267,7 +265,8 @@ CefContext::~CefContext()
   DoUninitialize();
 }
 
-bool CefContext::Initialize(bool multi_threaded_message_loop)
+bool CefContext::Initialize(bool multi_threaded_message_loop,
+                            const std::wstring& cache_path)
 {
   bool initialized = false, intransition = false;
   
@@ -281,6 +280,8 @@ bool CefContext::Initialize(bool multi_threaded_message_loop)
     if(!intransition) {
       // We are now in a transitional state
       in_transition_ = true;
+
+      cache_path_ = cache_path;
 
       // Register the window class
       WNDCLASSEX wcex = {

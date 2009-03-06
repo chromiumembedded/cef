@@ -23,7 +23,8 @@ public:
   CefContext();
   ~CefContext();
 
-  bool Initialize(bool multi_threaded_message_loop);
+  bool Initialize(bool multi_threaded_message_loop,
+                  const std::wstring& cache_path);
   void Shutdown();
 
   MessageLoopForUI* GetMessageLoopForUI() { return messageloopui_; }
@@ -32,6 +33,10 @@ public:
   HANDLE GetUIThreadHandle() { return hthreadui_; }
   DWORD GetUIThreadId() { return idthreadui_; }
   WebPreferences* GetWebPreferences() { return webprefs_; }
+  
+  // Retrieve the path at which cache data will be stored on disk.  If empty,
+  // cache data will be stored in-memory.
+  std::wstring GetCachePath() { return cache_path_; }
 
   bool AddBrowser(CefRefPtr<CefBrowserImpl> browser);
   bool RemoveBrowser(CefRefPtr<CefBrowserImpl> browser);
@@ -68,12 +73,13 @@ protected:
   BrowserList browserlist_;
   WebPreferences* webprefs_;
   StatsTable* statstable_;
+  std::wstring cache_path_;
 
   // Initialize the AtExitManager to avoid asserts and possible memory leaks.
   base::AtExitManager at_exit_manager_;
   // Initialize WebKit for this scope.
   BrowserWebKitInit webkit_init_;
-
+  
   friend DWORD WINAPI ThreadHandlerUI(LPVOID lpParam);
 };
 

@@ -17,7 +17,7 @@
 
 // Define this value to run CEF with messages processed using the current
 // application's message loop.
-//#define TEST_SINGLE_THREADED_MESSAGE_LOOP
+#define TEST_SINGLE_THREADED_MESSAGE_LOOP
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
@@ -41,10 +41,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
   // message loop.
-  CefInitialize(false);
+  CefInitialize(false, std::wstring());
 #else
   // Initialize the CEF with messages processed using a separate UI thread.
-  CefInitialize(true);
+  CefInitialize(true, std::wstring());
 #endif
 
   // Structure providing information about the client plugin.
@@ -384,8 +384,11 @@ public:
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
                                      const std::wstring& url)
   {
-    // Set the edit window text
-    SetWindowText(m_EditHwnd, url.c_str());
+    if(m_BrowserHwnd == browser->GetWindowHandle())
+    {
+      // Set the edit window text
+      SetWindowText(m_EditHwnd, url.c_str());
+    }
     return RV_CONTINUE;
   }
 
@@ -395,7 +398,13 @@ public:
                                    const std::wstring& title)
   {
     // Set the frame window title bar
-    SetWindowText(m_MainHwnd, title.c_str());
+    HWND hwnd = browser->GetWindowHandle();
+    if(!browser->IsPopup())
+    {
+      // The frame window will be the parent of the browser window
+      hwnd = GetParent(hwnd);
+    }
+    SetWindowText(hwnd, title.c_str());
     return RV_CONTINUE;
   }
 
@@ -833,6 +842,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               L"width=600 height=40>"
               L"</body></html>";
             browser->LoadString(html, L"about:blank");
+          }
+          return 0;
+        case ID_TESTS_POPUP: // Test a popup window
+          if(browser.get())
+          {
+            browser->ExecuteJavaScript(L"window.open('http://www.google.com');",
+              L"about:blank", 0, TF_MAIN);
           }
           return 0;
         }

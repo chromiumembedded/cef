@@ -12,9 +12,10 @@
 #include "../ctocpp/stream_ctocpp.h"
 
 
-bool CefInitialize(bool multi_threaded_message_loop)
+bool CefInitialize(bool multi_threaded_message_loop,
+                   const std::wstring& cache_path)
 {
-  return (bool)cef_initialize(multi_threaded_message_loop);
+  return (bool)cef_initialize(multi_threaded_message_loop, cache_path.c_str());
 }
 
 void CefShutdown()
