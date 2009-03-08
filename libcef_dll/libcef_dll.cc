@@ -7,9 +7,12 @@
 #include "cef_capi.h"
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
+#include "cpptoc/browser_cpptoc.h"
 #include "cpptoc/request_cpptoc.h"
+#include "cpptoc/variant_cpptoc.h"
 #include "cpptoc/stream_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
+#include "ctocpp/jshandler_ctocpp.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -26,6 +29,17 @@ CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,
 CEF_EXPORT void cef_shutdown()
 {
   CefShutdown();
+
+  // Check that all wrapper objects have been destroyed
+  DCHECK(CefBrowserCppToC::DebugObjCt == 0);
+  DCHECK(CefRequestCppToC::DebugObjCt == 0);
+  DCHECK(CefPostDataCppToC::DebugObjCt == 0);
+  DCHECK(CefPostDataElementCppToC::DebugObjCt == 0);
+  DCHECK(CefStreamReaderCppToC::DebugObjCt == 0);
+  DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
+  DCHECK(CefVariantCppToC::DebugObjCt == 0);
+  DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
+  DCHECK(CefJSHandlerCToCpp::DebugObjCt == 0);
 }
 
 CEF_EXPORT void cef_do_message_loop_work()
@@ -51,6 +65,36 @@ CEF_EXPORT int cef_create_browser(cef_window_info_t* windowInfo, int popup,
     urlStr = url;
   
   return CefBrowser::CreateBrowser(wi, popup, handlerPtr, urlStr);
+}
+
+CEF_EXPORT cef_browser_t* cef_create_browser_sync(cef_window_info_t* windowInfo,
+                                                  int popup,
+                                                  cef_handler_t* handler,
+                                                  const wchar_t* url)
+{
+  DCHECK(windowInfo);
+
+  CefRefPtr<CefHandler> handlerPtr;
+  std::wstring urlStr;
+  CefWindowInfo wi = *windowInfo;
+  
+  if(handler) {
+    CefHandlerCToCpp* hp = new CefHandlerCToCpp(handler);
+    handlerPtr = hp;
+    hp->UnderlyingRelease();
+  }
+  if(url)
+    urlStr = url;
+  
+  cef_browser_t* browserStruct = NULL;
+  CefRefPtr<CefBrowser> browserPtr(
+      CefBrowser::CreateBrowserSync(wi, popup, handlerPtr, urlStr));
+  if(!browserPtr.get())
+    return NULL;
+
+  CefBrowserCppToC* bp = new CefBrowserCppToC(browserPtr);
+  bp->AddRef();
+  return bp->GetStruct();
 }
 
 CEF_EXPORT cef_request_t* cef_create_request()

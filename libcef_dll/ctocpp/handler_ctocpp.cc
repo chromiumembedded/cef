@@ -335,3 +335,31 @@ CefHandler::RetVal CefHandlerCToCpp::HandleJSPrompt(
 
   return rv;
 }
+
+CefHandler::RetVal CefHandlerCToCpp::HandleBeforeWindowClose(
+    CefRefPtr<CefBrowser> browser)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_before_window_close))
+    return RV_CONTINUE;
+
+  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
+  browserPtr->AddRef();
+
+  return struct_->handle_before_window_close(struct_, browserPtr->GetStruct());
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleTakeFocus(
+    CefRefPtr<CefBrowser> browser, bool reverse)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_take_focus))
+    return RV_CONTINUE;
+
+  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
+  browserPtr->AddRef();
+
+  return struct_->handle_take_focus(struct_, browserPtr->GetStruct(), reverse);
+}
+
+#ifdef _DEBUG
+long CefCToCpp<CefHandler, cef_handler_t>::DebugObjCt = 0;
+#endif

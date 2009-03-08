@@ -74,6 +74,9 @@ public:
                                 const std::wstring& default_value,
                                 bool& retval,
                                 std::wstring& result);
+  virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser);
+  virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser,
+                                 bool reverse);
 };
 
 

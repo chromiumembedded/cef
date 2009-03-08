@@ -144,7 +144,7 @@ bool CEF_CALLBACK jshandler_execute_method(struct _cef_jshandler_t* jshandler,
 }
 
 
-CefJSHandlerCppToC::CefJSHandlerCppToC(CefRefPtr<CefJSHandler> cls)
+CefJSHandlerCppToC::CefJSHandlerCppToC(CefJSHandler* cls)
     : CefCppToC<CefJSHandler, cef_jshandler_t>(cls)
 {
   struct_.struct_.has_method = jshandler_has_method;
@@ -153,3 +153,7 @@ CefJSHandlerCppToC::CefJSHandlerCppToC(CefRefPtr<CefJSHandler> cls)
   struct_.struct_.get_property = jshandler_get_property;
   struct_.struct_.execute_method = jshandler_execute_method;
 }
+
+#ifdef _DEBUG
+long CefCppToC<CefJSHandler, cef_jshandler_t>::DebugObjCt = 0;
+#endif

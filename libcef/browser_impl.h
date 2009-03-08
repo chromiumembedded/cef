@@ -19,6 +19,7 @@
 
 #include "webkit/glue/webview.h"
 
+#define BUFFER_SIZE   32768
 
 // Implementation of CefBrowser.
 class CefBrowserImpl : public CefThreadSafeBase<CefBrowser>
@@ -48,6 +49,7 @@ public:
   virtual void Paste(TargetFrame targetFrame);
   virtual void Delete(TargetFrame targetFrame);
   virtual void SelectAll(TargetFrame targetFrame);
+  virtual void SetFocus(bool enable);
   virtual void Print(TargetFrame targetFrame);
   virtual void ViewSource(TargetFrame targetFrame);
   virtual std::wstring GetSource(TargetFrame targetFrame);

@@ -273,7 +273,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
   Lock();
   
   // We only need to initialize if the UI thread is not currently running
-  if(!hthreadui_) {
+  if(!idthreadui_) {
     // Only start the initialization if we're not currently in a transitional
     // state
     intransition = in_transition_;
@@ -351,6 +351,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
         hthreadui_ = CreateThread(
             NULL, 0, ThreadHandlerUI, this, 0, &idthreadui_);
         DCHECK(hthreadui_ != NULL);
+        DCHECK(idthreadui_ != 0);
       } else {
         if (!DoInitialize()) {
           // TODO: Process initialization errors
@@ -358,6 +359,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
         // Create our own message loop there
         SetMessageLoopForUI(new CefMessageLoopForUI());
         idthreadui_ = GetCurrentThreadId();
+        DCHECK(idthreadui_ != 0);
       }
       
       initialized = true;
@@ -390,7 +392,7 @@ void CefContext::Shutdown()
   Lock();
 
   // We only need to shut down if the UI thread is currently running
-  if(hthreadui_) {
+  if(idthreadui_) {
     // Only start the shutdown if we're not currently in a transitional state
     intransition = in_transition_;
     if(!intransition) {
@@ -417,21 +419,24 @@ void CefContext::Shutdown()
   Unlock();
   
   if(shutdown) {
-    // Wait for the UI thread to exit
-    WaitForSingleObject(hthreadui_, INFINITE);
+    if (hthreadui_) {
+      // Wait for the UI thread to exit
+      WaitForSingleObject(hthreadui_, INFINITE);
+
+      // Clean up thread and event handles
+      CloseHandle(hthreadui_);
+      CloseHandle(heventui_);
+
+      hthreadui_ = NULL;
+      heventui_ = NULL;
+    }
 
     Lock();
 
     // Unregister the window class
     UnregisterClass(CefBrowserImpl::GetWndClass(), hinstance_);
 
-    // Clean up thread and event handles
-    CloseHandle(hthreadui_);
-    CloseHandle(heventui_);
-
-    hthreadui_ = NULL;
     idthreadui_ = 0;
-    heventui_ = NULL;
     messageloopui_ = NULL;
 
     // We have exited the transitional state

@@ -22,10 +22,10 @@ public:
     CefCppToC<ClassName, StructName>* class_;
   };
 
-  CefCppToC(CefRefPtr<ClassName> cls)
+  CefCppToC(ClassName* cls)
     : class_(cls)
   {
-    DCHECK(cls.get());
+    DCHECK(cls);
 
     struct_.class_ = this;
     
@@ -34,12 +34,20 @@ public:
     struct_.struct_.base.size = sizeof(StructName);
     struct_.struct_.base.add_ref = struct_add_ref;
     struct_.struct_.base.release = struct_release;
+    struct_.struct_.base.get_refct = struct_get_refct;
+
+#ifdef _DEBUG
+    CefAtomicIncrement(&DebugObjCt);
+#endif
   }
   virtual ~CefCppToC()
   {
+#ifdef _DEBUG
+    CefAtomicDecrement(&DebugObjCt);
+#endif
   }
 
-  CefRefPtr<ClassName> GetClass() { return class_; }
+  ClassName* GetClass() { return class_; }
 
   // If returning the structure across the DLL boundary you should call
   // AddRef() on this CefCppToC object.  On the other side of the DLL boundary,
@@ -62,6 +70,12 @@ public:
   // Increment/decrement reference counts on only the underlying class.
   int UnderlyingAddRef() { return class_->AddRef(); }
   int UnderlyingRelease() { return class_->Release(); }
+  int UnderlyingGetRefCt() { return class_->GetRefCt(); }
+
+#ifdef _DEBUG
+  // Simple tracking of allocated objects.
+  static long DebugObjCt;
+#endif
 
 private:
   static int CEF_CALLBACK struct_add_ref(struct _cef_base_t* base)
@@ -84,9 +98,19 @@ private:
     return impl->class_->Release();
   }
 
+  static int CEF_CALLBACK struct_get_refct(struct _cef_base_t* base)
+  {
+    DCHECK(base);
+    if(!base)
+      return 0;
+
+    Struct* impl = reinterpret_cast<Struct*>(base);
+    return impl->class_->GetRefCt();
+  }
+
 protected:
   Struct struct_;
-  CefRefPtr<ClassName> class_;
+  ClassName* class_;
 };
 
 #endif // _CPPTOC_H

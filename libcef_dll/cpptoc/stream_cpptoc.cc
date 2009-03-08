@@ -54,7 +54,7 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* stream)
 }
 
 
-CefStreamReaderCppToC::CefStreamReaderCppToC(CefRefPtr<CefStreamReader> cls)
+CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
     : CefCppToC<CefStreamReader, cef_stream_reader_t>(cls)
 {
   struct_.struct_.read = stream_reader_read;
@@ -63,6 +63,9 @@ CefStreamReaderCppToC::CefStreamReaderCppToC(CefRefPtr<CefStreamReader> cls)
   struct_.struct_.eof = stream_reader_eof;
 }
 
+#ifdef _DEBUG
+long CefCppToC<CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
+#endif
 
 
 size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* stream,
@@ -112,7 +115,7 @@ int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* stream)
 }
 
 
-CefStreamWriterCppToC::CefStreamWriterCppToC(CefRefPtr<CefStreamWriter> cls)
+CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
     : CefCppToC<CefStreamWriter, cef_stream_writer_t>(cls)
 {
   struct_.struct_.write = stream_writer_write;
@@ -120,3 +123,7 @@ CefStreamWriterCppToC::CefStreamWriterCppToC(CefRefPtr<CefStreamWriter> cls)
   struct_.struct_.tell = stream_writer_tell;
   struct_.struct_.flush = stream_writer_flush;
 }
+
+#ifdef _DEBUG
+long CefCppToC<CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
+#endif

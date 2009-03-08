@@ -643,3 +643,11 @@ std::wstring BrowserWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
       return L"frame (anonymous)";
   }
 }
+
+void BrowserWebViewDelegate::TakeFocus(WebView* webview, bool reverse) {
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    // Notify the handler that it should take a focus
+    handler->HandleTakeFocus(browser_, reverse);
+  }
+}

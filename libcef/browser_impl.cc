@@ -33,6 +33,7 @@ CefBrowserImpl::~CefBrowserImpl()
   if(webview_bitmap_ != NULL)
 		DeleteObject(webview_bitmap_);
 #endif
+  RemoveAllJSHandlers();
 }
 
 void CefBrowserImpl::GoBack()
@@ -109,6 +110,20 @@ void CefBrowserImpl::SelectAll(TargetFrame targetFrame)
   PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction,
       MENU_ID_SELECTALL, targetFrame));
+}
+
+void CefBrowserImpl::SetFocus(bool enable)
+{
+  if (_Context->RunningOnUIThread())
+  {
+    UIT_SetFocus(UIT_GetWebViewHost(), enable);
+  }
+  else
+  {
+    PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SetFocus,
+      UIT_GetWebViewHost(), enable));
+  }
 }
 
 void CefBrowserImpl::Print(TargetFrame targetFrame)
@@ -279,6 +294,35 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
   return true;
 }
 
+CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
+                                                    bool popup,
+                                                    CefRefPtr<CefHandler> handler,
+                                                    const std::wstring& url)
+{
+  if(!_Context.get() || !_Context->RunningOnUIThread())
+    return NULL;
+
+  std::wstring newUrl = url;
+  CefRefPtr<CefBrowser> alternateBrowser;
+
+  if(handler.get())
+  {
+    // Give the handler an opportunity to modify window attributes, handler,
+    // or cancel the window creation.
+    CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
+        popup, handler, newUrl);
+    if(rv == RV_HANDLED)
+      return false;
+  }
+
+  CefRefPtr<CefBrowser> browser(
+      new CefBrowserImpl(windowInfo, popup, handler, newUrl));
+
+  static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser();
+
+  return browser;
+}
+
 void CefBrowserImpl::UIT_LoadURL(const std::wstring& url)
 {
   REQUIRE_UIT();
@@ -319,6 +363,79 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefRequest* request)
     headers);
 
   request->Release();
+}
+
+void CefBrowserImpl::UIT_LoadURLForRequest(const std::wstring& url,
+                                           const std::wstring& frame_name,
+                                           const std::wstring& method,
+                                           net::UploadData *upload_data,
+                                           const WebRequest::HeaderMap& headers)
+{
+  REQUIRE_UIT();
+  
+  if (url.empty())
+      return;
+
+  GURL gurl(url);
+
+  if (!gurl.is_valid() && !gurl.has_scheme()) {
+    // Try to add "http://" at the beginning
+    gurl = GURL(std::wstring(L"http://") + url);
+    if (!gurl.is_valid())
+      return;
+  }
+
+  nav_controller_->LoadEntry(new BrowserNavigationEntry(
+      -1, gurl, std::wstring(), frame_name, method, upload_data, headers));
+}
+
+void CefBrowserImpl::UIT_LoadHTML(const std::wstring& html,
+                                  const std::wstring& url)
+{
+  REQUIRE_UIT();
+    
+  GURL gurl(url);
+
+  if (!gurl.is_valid() && !gurl.has_scheme()) {
+    // Try to add "http://" at the beginning
+    gurl = GURL(std::wstring(L"http://") + url);
+    if (!gurl.is_valid())
+      return;
+  }
+
+  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(WideToUTF8(html), gurl);
+}
+
+void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
+                                              const std::wstring& url)
+{
+  REQUIRE_UIT();
+    
+  GURL gurl(url);
+
+  if (!gurl.is_valid() && !gurl.has_scheme()) {
+    // Try to add "http://" at the beginning
+    gurl = GURL(std::wstring(L"http://") + url);
+    if (!gurl.is_valid())
+      return;
+  }
+
+  // read all of the stream data into a std::string.
+  std::stringstream ss;
+  char buff[BUFFER_SIZE];
+  size_t read;
+  do {
+    read = stream->Read(buff, sizeof(char), BUFFER_SIZE-1);
+    if(read > 0) {
+      buff[read] = 0;
+      ss << buff;
+    }
+  }
+  while(read > 0);
+
+  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(ss.str(), gurl);
+
+  stream->Release();
 }
 
 void CefBrowserImpl::UIT_ExecuteJavaScript(const std::wstring& js_code, 

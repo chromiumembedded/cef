@@ -19,9 +19,16 @@ public:
     : struct_(str)
   {
     DCHECK(str);
+
+#ifdef _DEBUG
+    CefAtomicIncrement(&DebugObjCt);
+#endif
   }
   virtual ~CefCToCpp()
   {
+#ifdef _DEBUG
+    CefAtomicDecrement(&DebugObjCt);
+#endif
   }
 
   // If returning the structure across the DLL boundary you should call
@@ -55,6 +62,17 @@ public:
       return 0;
     return struct_->base.release(&struct_->base);
   }
+  int UnderlyingGetRefCt()
+  {
+    if(!struct_->base.get_refct)
+      return 0;
+    return struct_->base.get_refct(&struct_->base);
+  }
+
+#ifdef _DEBUG
+  // Simple tracking of allocated objects.
+  static long DebugObjCt;
+#endif
 
 protected:
   StructName* struct_;

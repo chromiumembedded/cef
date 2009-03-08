@@ -19,7 +19,7 @@
 class CefVariantCppToC : public CefCppToC<CefVariant, cef_variant_t>
 {
 public:
-  CefVariantCppToC(CefRefPtr<CefVariant> cls);
+  CefVariantCppToC(CefVariant* cls);
   virtual ~CefVariantCppToC() {}
 };
 

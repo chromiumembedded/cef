@@ -39,6 +39,10 @@ int CefStreamReaderCToCpp::Eof()
   return struct_->eof(struct_);
 }
 
+#ifdef _DEBUG
+long CefCToCpp<CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
+#endif
+
 
 size_t CefStreamWriterCToCpp::Write(const void *ptr, size_t size, size_t n)
 {
@@ -71,3 +75,7 @@ int CefStreamWriterCToCpp::Flush()
 
   return struct_->flush(struct_);
 }
+
+#ifdef _DEBUG
+long CefCToCpp<CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
+#endif

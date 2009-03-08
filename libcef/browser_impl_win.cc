@@ -20,8 +20,6 @@
 #include <wininet.h>
 #include <winspool.h>
 
-#define BUFFER_SIZE   32768
-
 
 LPCTSTR CefBrowserImpl::GetWndClass()
 {
@@ -46,6 +44,11 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_DESTROY:
     {
+      CefRefPtr<CefHandler> handler = browser->GetHandler();
+      if(handler.get()) {
+        // Notify the handler that the window is about to be closed
+        handler->HandleBeforeWindowClose(browser);
+      }
       // Remove the browser from the list maintained by the context
       _Context->RemoveBrowser(browser);
     }
@@ -295,78 +298,6 @@ void CefBrowserImpl::UIT_CreateBrowser()
   if(url_.size() > 0)
     UIT_LoadURL(url_.c_str());
 }
-
-void CefBrowserImpl::UIT_LoadURLForRequest(const std::wstring& url,
-                                           const std::wstring& frame_name,
-                                           const std::wstring& method,
-                                           net::UploadData *upload_data,
-                                           const WebRequest::HeaderMap& headers)
-{
-  REQUIRE_UIT();
-  
-  if (url.empty())
-      return;
-
-  std::wstring urlString(url);
-  if (PathFileExists(url.c_str()) || PathIsUNC(url.c_str())) {
-      TCHAR fileURL[INTERNET_MAX_URL_LENGTH];
-      DWORD fileURLLength = sizeof(fileURL)/sizeof(fileURL[0]);
-      if (SUCCEEDED(UrlCreateFromPath(url.c_str(), fileURL, &fileURLLength, 0)))
-          urlString.assign(fileURL);
-  }
-
-  nav_controller_->LoadEntry(new BrowserNavigationEntry(
-      -1, GURL(urlString), std::wstring(), frame_name, method, upload_data,
-      headers));
-}
-
-void CefBrowserImpl::UIT_LoadHTML(const std::wstring& html,
-                                  const std::wstring& url)
-{
-  REQUIRE_UIT();
-    
-  std::wstring urlString(url);
-  if (PathFileExists(url.c_str()) || PathIsUNC(url.c_str())) {
-      TCHAR fileURL[INTERNET_MAX_URL_LENGTH];
-      DWORD fileURLLength = sizeof(fileURL)/sizeof(fileURL[0]);
-      if (SUCCEEDED(UrlCreateFromPath(url.c_str(), fileURL, &fileURLLength, 0)))
-          urlString.assign(fileURL);
-  }
-
-  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(
-      WideToUTF8(html), GURL(urlString));
-}
-
-void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
-                                              const std::wstring& url)
-{
-  REQUIRE_UIT();
-    
-  std::wstring urlString(url);
-  if (PathFileExists(url.c_str()) || PathIsUNC(url.c_str())) {
-      TCHAR fileURL[INTERNET_MAX_URL_LENGTH];
-      DWORD fileURLLength = sizeof(fileURL)/sizeof(fileURL[0]);
-      if (SUCCEEDED(UrlCreateFromPath(url.c_str(), fileURL, &fileURLLength, 0)))
-          urlString.assign(fileURL);
-  }
-  
-  // read all of the stream data into a std::string.
-  std::stringstream ss;
-  char buff[BUFFER_SIZE];
-  size_t read;
-  do {
-    read = stream->Read(buff, sizeof(char), BUFFER_SIZE-1);
-    if(read > 0) {
-      buff[read] = 0;
-      ss << buff;
-    }
-  }
-  while(read > 0);
-
-  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(ss.str(), GURL(urlString));
-
-  stream->Release();
-}  
 
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 {

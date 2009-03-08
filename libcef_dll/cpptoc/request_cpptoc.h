@@ -19,7 +19,7 @@
 class CefRequestCppToC : public CefCppToC<CefRequest, cef_request_t>
 {
 public:
-  CefRequestCppToC(CefRefPtr<CefRequest> cls);
+  CefRequestCppToC(CefRequest* cls);
   virtual ~CefRequestCppToC() {}
 };
 
@@ -29,7 +29,7 @@ public:
 class CefPostDataCppToC : public CefCppToC<CefPostData, cef_post_data_t>
 {
 public:
-  CefPostDataCppToC(CefRefPtr<CefPostData> cls);
+  CefPostDataCppToC(CefPostData* cls);
   virtual ~CefPostDataCppToC() {}
 };
 
@@ -42,7 +42,7 @@ class CefPostDataElementCppToC :
     public CefCppToC<CefPostDataElement, cef_post_data_element_t>
 {
 public:
-  CefPostDataElementCppToC(CefRefPtr<CefPostDataElement> cls);
+  CefPostDataElementCppToC(CefPostDataElement* cls);
   virtual ~CefPostDataElementCppToC() {}
 };
 

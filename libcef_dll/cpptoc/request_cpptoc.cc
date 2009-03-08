@@ -207,7 +207,7 @@ void CEF_CALLBACK request_set(struct _cef_request_t* request,
 }
 
 
-CefRequestCppToC::CefRequestCppToC(CefRefPtr<CefRequest> cls)
+CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
     : CefCppToC<CefRequest, cef_request_t>(cls)
 {
   struct_.struct_.get_url = request_get_url;
@@ -223,6 +223,9 @@ CefRequestCppToC::CefRequestCppToC(CefRefPtr<CefRequest> cls)
   struct_.struct_.set = request_set;
 }
 
+#ifdef _DEBUG
+long CefCppToC<CefRequest, cef_request_t>::DebugObjCt = 0;
+#endif
 
 
 size_t CEF_CALLBACK post_data_get_element_count(
@@ -303,7 +306,7 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* postData)
 }
 
 
-CefPostDataCppToC::CefPostDataCppToC(CefRefPtr<CefPostData> cls)
+CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
     : CefCppToC<CefPostData, cef_post_data_t>(cls)
 {
   struct_.struct_.get_element_count = post_data_get_element_count;
@@ -313,6 +316,9 @@ CefPostDataCppToC::CefPostDataCppToC(CefRefPtr<CefPostData> cls)
   struct_.struct_.remove_elements = post_data_remove_elements;
 }
 
+#ifdef _DEBUG
+long CefCppToC<CefPostData, cef_post_data_t>::DebugObjCt = 0;
+#endif
 
 
 void CEF_CALLBACK post_data_element_set_to_empty(
@@ -411,8 +417,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
 }
 
 
-CefPostDataElementCppToC::CefPostDataElementCppToC(
-    CefRefPtr<CefPostDataElement> cls)
+CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
     : CefCppToC<CefPostDataElement, cef_post_data_element_t>(cls)
 {
   struct_.struct_.set_to_empty = post_data_element_set_to_empty;
@@ -423,3 +428,7 @@ CefPostDataElementCppToC::CefPostDataElementCppToC(
   struct_.struct_.get_bytes_count = post_data_element_get_bytes_count;
   struct_.struct_.get_bytes = post_data_element_get_bytes;
 }
+
+#ifdef _DEBUG
+long CefCppToC<CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
+#endif

@@ -282,7 +282,7 @@ size_t CEF_CALLBACK variant_get_string_array(struct _cef_variant_t* variant,
 }
 
 
-CefVariantCppToC::CefVariantCppToC(CefRefPtr<CefVariant> cls)
+CefVariantCppToC::CefVariantCppToC(CefVariant* cls)
     : CefCppToC<CefVariant, cef_variant_t>(cls)
 {
   struct_.struct_.get_type = variant_get_type;
@@ -305,3 +305,7 @@ CefVariantCppToC::CefVariantCppToC(CefRefPtr<CefVariant> cls)
   struct_.struct_.get_double_array = variant_get_double_array;
   struct_.struct_.get_string_array = variant_get_string_array;
 }
+
+#ifdef _DEBUG
+long CefCppToC<CefVariant, cef_variant_t>::DebugObjCt = 0;
+#endif

@@ -75,6 +75,9 @@ public:
   // itself from memory.  The resulting reference count value is returned and
   // should be used for diagnostic/testing purposes only.
   virtual int Release() =0;
+
+  // Return the current number of references.
+  virtual int GetRefCt() = 0;
 };
 
 
@@ -112,24 +115,27 @@ public:
   {
     m_dwRef = 0L;
   }
-  ~CefThreadSafeBase()
+  virtual ~CefThreadSafeBase()
   {
   }
 
   // Atomic reference increment.
-  int AddRef()
+  virtual int AddRef()
   {
     return CefAtomicIncrement(&m_dwRef);
   }
 
   // Atomic reference decrement.  Delete this object when no references remain.
-  int Release()
+  virtual int Release()
   {
     int retval = CefAtomicDecrement(&m_dwRef);
     if(retval == 0)
       delete this;
     return retval;
   }
+
+  // Return the current number of references.
+  virtual int GetRefCt() { return m_dwRef; }
 
   // Use the Lock() and Unlock() methods to protect a section of code from
   // simultaneous access by multiple threads.
@@ -166,6 +172,15 @@ public:
                             CefRefPtr<CefHandler> handler,
                             const std::wstring& url);
 
+  // Create a new browser window using the window parameters specified
+  // by |windowInfo|. The |popup| parameter should be true if the new window is
+  // a popup window. This method call will block and can only be used if
+  // the |multi_threaded_message_loop| parameter to CefInitialize() is false.
+  static CefRefPtr<CefBrowser> CreateBrowserSync(CefWindowInfo& windowInfo,
+                                                 bool popup,
+                                                 CefRefPtr<CefHandler> handler,
+                                                 const std::wstring& url);
+
   // Returns true if the browser can navigate backwards.
   virtual bool CanGoBack() =0;
   // Navigate backwards.
@@ -197,6 +212,10 @@ public:
   virtual void Delete(TargetFrame targetFrame) =0;
   // Execute select all in the target frame.
   virtual void SelectAll(TargetFrame targetFrame) =0;
+
+  // Set focus for the browser window.  If |enable| is true focus will be set
+  // to the window.  Otherwise, focus will be removed.
+  virtual void SetFocus(bool enable) =0;
 
   // Execute printing in the target frame.  The user will be prompted with
   // the print dialog appropriate to the operating system.
@@ -420,6 +439,15 @@ public:
                                 bool& retval,
                                 std::wstring& result) =0;
 
+  // Called just before a window is closed. The return value is currently
+  // ignored.
+  virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser) =0;
+
+  // Called when the browser component is about to loose focus. For instance,
+  // if focus was on the last HTML element and the user pressed the TAB key.
+  // The return value is currently ignored.
+  virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser,
+                                 bool reverse) =0;
 };
 
 

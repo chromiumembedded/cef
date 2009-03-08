@@ -596,6 +596,26 @@ public:
     return RV_CONTINUE;
   }
 
+  // Called just before a window is closed. The return value is currently
+  // ignored.
+  virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser)
+  {
+    if(m_BrowserHwnd == browser->GetWindowHandle())
+    {
+      // Free the browser pointer so that the browser can be destroyed
+      m_Browser = NULL;
+    }
+    return RV_CONTINUE;
+  }
+
+  // Called when the browser component is about to loose focus. For instance,
+  // if focus was on the last HTML element and the user pressed the TAB key.
+  // The return value is currently ignored.
+  virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser, bool reverse)
+  {
+    return RV_CONTINUE;
+  }
+
   // Retrieve the current navigation state flags
   void GetNavState(bool &isLoading, bool &canGoBack, bool &canGoForward)
   {
@@ -678,7 +698,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       {
         // When the user hits the enter key load the URL
         CefRefPtr<CefBrowser> browser = handler->GetBrowser();
-        wchar_t strPtr[MAX_URL_LENGTH];
+        wchar_t strPtr[MAX_URL_LENGTH] = {0};
         *((LPWORD)strPtr) = MAX_URL_LENGTH; 
         LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
         if (strLen > 0)
@@ -778,6 +798,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         EnableWindow(reloadWnd, !isLoading);
         EnableWindow(stopWnd, isLoading);
       }
+      return 0;
 
 	  case WM_COMMAND:
       {

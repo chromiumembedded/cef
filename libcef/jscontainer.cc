@@ -41,7 +41,7 @@ MSVC_POP_WARNING()
 // callbacks to.
 struct CefNPObject {
   NPObject parent;  // This must be the first field in the struct.
-  CefRefPtr<CefJSContainer> container;
+  CefJSContainer* container;
   WebFrame* webframe;
 
   //
@@ -148,11 +148,11 @@ NPClass CefNPObject::np_class_ = {
   return obj->container->SetProperty(ident, obj->webframe, value);
 }
 
-CefJSContainer::CefJSContainer(CefRefPtr<CefBrowser> browser,
+CefJSContainer::CefJSContainer(CefBrowser* browser,
                                CefRefPtr<CefJSHandler> handler)
   : browser_(browser), handler_(handler)
 {
-  DCHECK(browser_.get() != NULL);
+  DCHECK(browser_ != NULL);
   DCHECK(handler_.get() != NULL);
 }
 
@@ -275,4 +275,3 @@ void CefJSContainer::BindToJavascript(WebFrame* frame,
   // so we can release it when we're destroyed.
   frame->BindToWindowObject(classname, np_obj);
 }
-

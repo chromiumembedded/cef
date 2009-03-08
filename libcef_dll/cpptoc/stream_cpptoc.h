@@ -20,7 +20,7 @@ class CefStreamReaderCppToC :
     public CefCppToC<CefStreamReader, cef_stream_reader_t>
 {
 public:
-  CefStreamReaderCppToC(CefRefPtr<CefStreamReader> cls);
+  CefStreamReaderCppToC(CefStreamReader* cls);
   virtual ~CefStreamReaderCppToC() {}
 };
 
@@ -31,7 +31,7 @@ class CefStreamWriterCppToC :
     public CefCppToC<CefStreamWriter, cef_stream_writer_t>
 {
 public:
-  CefStreamWriterCppToC(CefRefPtr<CefStreamWriter> cls);
+  CefStreamWriterCppToC(CefStreamWriter* cls);
   virtual ~CefStreamWriterCppToC() {}
 };
 

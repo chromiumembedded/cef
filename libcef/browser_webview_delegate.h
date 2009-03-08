@@ -203,6 +203,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual void Release() {
     base::RefCounted<BrowserWebViewDelegate>::Release();
   }
+  virtual void TakeFocus(WebView* webview, bool reverse);
 
   // Additional accessors
   WebFrame* top_loading_frame() { return top_loading_frame_; }

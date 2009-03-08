@@ -19,7 +19,7 @@
 class CefBrowserCppToC : public CefCppToC<CefBrowser, cef_browser_t>
 {
 public:
-  CefBrowserCppToC(CefRefPtr<CefBrowser> cls);
+  CefBrowserCppToC(CefBrowser* cls);
   virtual ~CefBrowserCppToC() {}
 };
 

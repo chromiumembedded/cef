@@ -8,7 +8,10 @@
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
 #include "../cpptoc/handler_cpptoc.h"
+#include "../cpptoc/jshandler_cpptoc.h"
+#include "../ctocpp/browser_ctocpp.h"
 #include "../ctocpp/request_ctocpp.h"
+#include "../ctocpp/variant_ctocpp.h"
 #include "../ctocpp/stream_ctocpp.h"
 
 
@@ -21,6 +24,17 @@ bool CefInitialize(bool multi_threaded_message_loop,
 void CefShutdown()
 {
   cef_shutdown();
+
+  // Check that all wrapper objects have been destroyed
+  DCHECK(CefHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefJSHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefBrowserCToCpp::DebugObjCt == 0);
+  DCHECK(CefRequestCToCpp::DebugObjCt == 0);
+  DCHECK(CefPostDataCToCpp::DebugObjCt == 0);
+  DCHECK(CefPostDataElementCToCpp::DebugObjCt == 0);
+  DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
+  DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
+  DCHECK(CefVariantCToCpp::DebugObjCt == 0);
 }
 
 void CefDoMessageLoopWork()
@@ -35,6 +49,26 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
   CefHandlerCppToC* hp = new CefHandlerCppToC(handler);
   hp->AddRef();
   return cef_create_browser(&windowInfo, popup, hp->GetStruct(), url.c_str());
+}
+
+CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
+                                                    bool popup,
+                                                    CefRefPtr<CefHandler> handler,
+                                                    const std::wstring& url)
+{
+  CefHandlerCppToC* hp = new CefHandlerCppToC(handler);
+  hp->AddRef();
+
+  cef_browser_t* browserStruct = cef_create_browser_sync(&windowInfo, popup,
+      hp->GetStruct(), url.c_str());
+  if(!browserStruct)
+    return NULL;
+
+  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browserStruct);
+  CefRefPtr<CefBrowser> browserPtr(bp);
+  bp->UnderlyingRelease();
+
+  return browserPtr;
 }
 
 CefRefPtr<CefRequest> CreateRequest()

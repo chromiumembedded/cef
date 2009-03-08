@@ -10,6 +10,7 @@
 #include "ctocpp/jshandler_ctocpp.h"
 #include "base/logging.h"
 
+
 int CEF_CALLBACK browser_can_go_back(cef_browser_t* browser)
 {
   DCHECK(browser);
@@ -158,6 +159,17 @@ void CEF_CALLBACK browser_select_all(cef_browser_t* browser,
   CefBrowserCppToC::Struct* impl =
       reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
   impl->class_->GetClass()->SelectAll(targetFrame);
+}
+
+void CEF_CALLBACK browser_set_focus(struct _cef_browser_t* browser, int enable)
+{
+  DCHECK(browser);
+  if(!browser)
+    return;
+
+  CefBrowserCppToC::Struct* impl =
+      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
+  impl->class_->GetClass()->SetFocus(enable ? true : false);
 }
 
 void CEF_CALLBACK browser_print(cef_browser_t* browser,
@@ -460,7 +472,7 @@ cef_string_t CEF_CALLBACK browser_get_url(cef_browser_t* browser)
   return cef_string_alloc(urlStr.c_str());
 }
 
-CefBrowserCppToC::CefBrowserCppToC(CefRefPtr<CefBrowser> cls)
+CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
     : CefCppToC<CefBrowser, cef_browser_t>(cls)
 {
   struct_.struct_.can_go_back = browser_can_go_back;
@@ -476,6 +488,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefRefPtr<CefBrowser> cls)
   struct_.struct_.paste = browser_paste;
   struct_.struct_.del = browser_delete;
   struct_.struct_.select_all = browser_select_all;
+  struct_.struct_.set_focus = browser_set_focus;
   struct_.struct_.print = browser_print;
   struct_.struct_.view_source = browser_view_source;
   struct_.struct_.get_source = browser_get_source;
@@ -495,3 +508,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefRefPtr<CefBrowser> cls)
   struct_.struct_.get_handler = browser_get_handler;
   struct_.struct_.get_url = browser_get_url;
 }
+
+#ifdef _DEBUG
+long CefCppToC<CefBrowser, cef_browser_t>::DebugObjCt = 0;
+#endif

@@ -19,7 +19,7 @@
 class CefHandlerCppToC : public CefCppToC<CefHandler, cef_handler_t>
 {
 public:
-  CefHandlerCppToC(CefRefPtr<CefHandler> cls);
+  CefHandlerCppToC(CefHandler* cls);
   virtual ~CefHandlerCppToC() {}
 };
 

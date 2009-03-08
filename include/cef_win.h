@@ -78,6 +78,11 @@ public:
       cef_string_free(m_windowName);
   }
 
+  CefWindowInfo(const CefWindowInfo& r)
+  {
+    Init();
+    *this = r;
+  }
   CefWindowInfo(const cef_window_info_t& r)
   {
     Init();
@@ -98,6 +103,10 @@ public:
     m_hWnd = NULL;
   }
 
+  CefWindowInfo& operator=(const CefWindowInfo& r)
+  {
+    return operator=(static_cast<const cef_window_info_t&>(r));
+  }
   CefWindowInfo& operator=(const cef_window_info_t& r)
   {
     m_dwExStyle = r.m_dwExStyle;
@@ -159,6 +168,11 @@ public:
   {
   }
 
+  CefPrintInfo(const CefPrintInfo& r)
+  {
+    Init();
+    *this = r;
+  }
   CefPrintInfo(const cef_print_info_t& r)
   {
     Init();
@@ -172,6 +186,10 @@ public:
     m_Scale = 0;
   }
 
+  CefPrintInfo& operator=(const CefPrintInfo& r)
+  {
+    return operator=(static_cast<const cef_print_info_t&>(r));
+  }
   CefPrintInfo& operator=(const cef_print_info_t& r)
   {
     m_hDC = r.m_hDC;

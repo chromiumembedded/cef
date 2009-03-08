@@ -295,3 +295,7 @@ int CefVariantCToCpp::GetArraySize()
 
   return struct_->get_array_size(struct_);
 }
+
+#ifdef _DEBUG
+long CefCToCpp<CefVariant, cef_variant_t>::DebugObjCt = 0;
+#endif

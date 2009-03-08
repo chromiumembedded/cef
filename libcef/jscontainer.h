@@ -18,7 +18,7 @@ class WebFrame;
 class CefJSContainer : public CefThreadSafeBase<CefBase>
 {
 public:
-  CefJSContainer(CefRefPtr<CefBrowser> browser,
+  CefJSContainer(CefBrowser* browser,
                  CefRefPtr<CefJSHandler> handler);
   ~CefJSContainer();
 
@@ -52,7 +52,7 @@ protected:
   friend struct CefNPObject;
 
 protected:
-  CefRefPtr<CefBrowser> browser_;
+  CefBrowser* browser_;
   CefRefPtr<CefJSHandler> handler_;
 
   // A list of all NPObjects we created and bound in BindToJavascript(), so we

@@ -168,6 +168,10 @@ void CefRequestCToCpp::Set(const std::wstring& url,
     cef_string_map_free(map);
 }
 
+#ifdef _DEBUG
+long CefCToCpp<CefRequest, cef_request_t>::DebugObjCt = 0;
+#endif
+
 
 
 size_t CefPostDataCToCpp::GetElementCount()
@@ -231,6 +235,9 @@ void CefPostDataCToCpp::RemoveElements()
   return struct_->remove_elements(struct_);
 }
 
+#ifdef _DEBUG
+long CefCToCpp<CefPostData, cef_post_data_t>::DebugObjCt = 0;
+#endif
 
 
 void CefPostDataElementCToCpp::SetToEmpty()
@@ -295,3 +302,7 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void *bytes)
 
   return struct_->get_bytes(struct_, size, bytes);
 }
+
+#ifdef _DEBUG
+long CefCToCpp<CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
+#endif

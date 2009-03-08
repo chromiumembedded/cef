@@ -19,7 +19,7 @@
 class CefJSHandlerCppToC : public CefCppToC<CefJSHandler, cef_jshandler_t>
 {
 public:
-  CefJSHandlerCppToC(CefRefPtr<CefJSHandler> cls);
+  CefJSHandlerCppToC(CefJSHandler* cls);
   virtual ~CefJSHandlerCppToC() {}
 };
 

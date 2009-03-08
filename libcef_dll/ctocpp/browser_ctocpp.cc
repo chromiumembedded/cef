@@ -115,6 +115,14 @@ void CefBrowserCToCpp::SelectAll(TargetFrame targetFrame)
   struct_->select_all(struct_, targetFrame);
 }
 
+void CefBrowserCToCpp::SetFocus(bool enable)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_focus))
+    return;
+  
+  struct_->set_focus(struct_, enable);
+}
+
 void CefBrowserCToCpp::Print(TargetFrame targetFrame)
 {
   if(CEF_MEMBER_MISSING(struct_, print))
@@ -310,3 +318,7 @@ std::wstring CefBrowserCToCpp::GetURL()
   }
   return str;
 }
+
+#ifdef _DEBUG
+long CefCToCpp<CefBrowser, cef_browser_t>::DebugObjCt = 0;
+#endif

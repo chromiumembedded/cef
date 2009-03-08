@@ -73,6 +73,8 @@ typedef struct _cef_base_t
   // Decrement the reference count.  Delete this object when no references
   // remain.
   int (CEF_CALLBACK *release)(struct _cef_base_t* base);
+  // Returns the current number of references.
+  int (CEF_CALLBACK *get_refct)(struct _cef_base_t* base);
 } cef_base_t;
 
 
@@ -124,6 +126,10 @@ typedef struct _cef_browser_t
   // Execute select all in the target frame.
   void (CEF_CALLBACK *select_all)(struct _cef_browser_t* browser,
       enum cef_targetframe_t targetFrame);
+
+  // Set focus for the browser window.  If |enable| is true (1) focus will be
+  // set to the window.  Otherwise, focus will be removed.
+  void (CEF_CALLBACK *set_focus)(struct _cef_browser_t* browser, int enable);
 
   // Execute printing in the target frame.  The user will be prompted with
   // the print dialog appropriate to the operating system.
@@ -347,6 +353,17 @@ typedef struct _cef_handler_t
       struct _cef_handler_t* handler, cef_browser_t* browser,
       const wchar_t* message, const wchar_t* defaultValue, int* retval,
       cef_string_t* result);
+
+  // Called just before a window is closed. The return value is currently
+  // ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_before_window_close)(
+      struct _cef_handler_t* handler, cef_browser_t* browser);
+
+  // Called when the browser component is about to loose focus. For instance,
+  // if focus was on the last HTML element and the user pressed the TAB key.
+  // The return value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_take_focus)(
+      struct _cef_handler_t* handler, cef_browser_t* browser, int reverse);
 
 } cef_handler_t;
 
@@ -598,6 +615,15 @@ typedef struct _cef_variant_t
 // block.
 CEF_EXPORT int cef_create_browser(cef_window_info_t* windowInfo, int popup,
                                   cef_handler_t* handler, const wchar_t* url);
+
+// Create a new browser window using the window parameters specified
+// by |windowInfo|. The |popup| parameter should be true (1) if the new window
+// is a popup window. This method call will block and can only be used if
+// the |multi_threaded_message_loop| parameter to CefInitialize() is false.
+CEF_EXPORT cef_browser_t* cef_create_browser_sync(cef_window_info_t* windowInfo,
+                                                  int popup,
+                                                  cef_handler_t* handler,
+                                                  const wchar_t* url);
 
 // Create a new request structure.
 CEF_EXPORT cef_request_t* cef_create_request();

@@ -101,3 +101,7 @@ bool CefJSHandlerCToCpp::ExecuteMethod(CefRefPtr<CefBrowser> browser,
 
   return rv;
 }
+
+#ifdef _DEBUG
+long CefCToCpp<CefJSHandler, cef_jshandler_t>::DebugObjCt = 0;
+#endif
