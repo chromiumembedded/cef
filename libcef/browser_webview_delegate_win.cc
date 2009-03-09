@@ -352,7 +352,7 @@ end:
 
 // Private methods -----------------------------------------------------------
 
-void BrowserWebViewDelegate::ShowJavaScriptAlert(WebView* webview,
+void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
                                                  const std::wstring& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
@@ -360,7 +360,7 @@ void BrowserWebViewDelegate::ShowJavaScriptAlert(WebView* webview,
              browser_->UIT_GetTitle().c_str(), MB_OK | MB_ICONWARNING);
 }
 
-bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebView* webview,
+bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
                                                    const std::wstring& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
@@ -370,7 +370,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebView* webview,
   return (rv == IDYES);
 }
 
-bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebView* webview,
+bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
                                                   const std::wstring& message,
                                                   const std::wstring& default_value,
                                                   std::wstring* result)

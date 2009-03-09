@@ -90,15 +90,6 @@ std::string GetDataResource(int resource_id) {
   }
 }
 
-#if defined(OS_MACOSX)
-SkBitmap*
-#else
-GlueBitmap*
-#endif
-GetBitmapResource(int resource_id) {
-  return NULL;
-}
-
 bool GetApplicationDirectory(std::wstring *path) {
   return PathService::Get(base::DIR_EXE, path);
 }
@@ -148,14 +139,6 @@ std::string GetDocumentString(WebFrame* frame) {
   WebCore::Frame* core_frame = webFrameImpl->frame();
 
   return StringToStdString(WebCore::createMarkup(core_frame->document()));
-}
-
-uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
-  return 0;
-}
-
-bool IsLinkVisited(uint64 link_hash) {
-  return false;
 }
 
 ScreenInfo GetScreenInfo(gfx::NativeViewId window) {

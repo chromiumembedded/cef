@@ -8,7 +8,7 @@
 #include "config.h"
 
 #include <v8.h>
-#include "np_v8object.h"
+#include "NPV8Object.h"
 #include "v8_proxy.h"
 
 #undef LOG
@@ -16,8 +16,8 @@
 #include "bindings/npruntime.h"
 
 
-// NPScriptObjectClass defined in webkit\port\bindings\v8\np_v8object.cpp
-extern NPClass* NPScriptObjectClass;
+// npScriptObjectClass defined in webkit\port\bindings\v8\NPV8Object.cpp
+extern NPClass* npScriptObjectClass;
 
 
 NPObject* _NPN_StringVectorToArrayObject(WebCore::DOMWindow* domwindow,
@@ -28,7 +28,7 @@ NPObject* _NPN_StringVectorToArrayObject(WebCore::DOMWindow* domwindow,
         v8::String::New(vec[index].c_str(), vec[index].length()));
   }
 
-  return NPN_CreateScriptObject(0, array, domwindow);
+  return npCreateV8ScriptObject(0, array, domwindow);
 }
 
 NPObject* _NPN_WStringVectorToArrayObject(WebCore::DOMWindow* domwindow,
@@ -40,7 +40,7 @@ NPObject* _NPN_WStringVectorToArrayObject(WebCore::DOMWindow* domwindow,
         v8::String::New(str.c_str(), str.length()));
   }
 
-  return NPN_CreateScriptObject(0, array, domwindow);
+  return npCreateV8ScriptObject(0, array, domwindow);
 }
 
 NPObject* _NPN_IntVectorToArrayObject(WebCore::DOMWindow* domwindow,
@@ -50,7 +50,7 @@ NPObject* _NPN_IntVectorToArrayObject(WebCore::DOMWindow* domwindow,
     array->Set(v8::Integer::New(index), v8::Int32::New(vec[index]));
   }
 
-  return NPN_CreateScriptObject(0, array, domwindow);
+  return npCreateV8ScriptObject(0, array, domwindow);
 }
 
 NPObject* _NPN_DoubleVectorToArrayObject(WebCore::DOMWindow* domwindow,
@@ -60,7 +60,7 @@ NPObject* _NPN_DoubleVectorToArrayObject(WebCore::DOMWindow* domwindow,
     array->Set(v8::Integer::New(index), v8::Number::New(vec[index]));
   }
 
-  return NPN_CreateScriptObject(0, array, domwindow);
+  return npCreateV8ScriptObject(0, array, domwindow);
 }
 
 NPObject* _NPN_BooleanVectorToArrayObject(WebCore::DOMWindow* domwindow,
@@ -70,12 +70,12 @@ NPObject* _NPN_BooleanVectorToArrayObject(WebCore::DOMWindow* domwindow,
     array->Set(v8::Integer::New(index), v8::Boolean::New(vec[index]));
   }
 
-  return NPN_CreateScriptObject(0, array, domwindow);
+  return npCreateV8ScriptObject(0, array, domwindow);
 }
 
 bool _NPN_ArrayObjectToStringVector(NPObject* npobject,
                                     std::vector<std::string>& vec) {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -98,7 +98,7 @@ bool _NPN_ArrayObjectToStringVector(NPObject* npobject,
 
 bool _NPN_ArrayObjectToWStringVector(NPObject* npobject,
                                      std::vector<std::wstring>& vec) {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -121,7 +121,7 @@ bool _NPN_ArrayObjectToWStringVector(NPObject* npobject,
 
 bool _NPN_ArrayObjectToIntVector(NPObject* npobject,
                                  std::vector<int>& vec) {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -140,7 +140,7 @@ bool _NPN_ArrayObjectToIntVector(NPObject* npobject,
 
 bool _NPN_ArrayObjectToDoubleVector(NPObject* npobject,
                                     std::vector<double>& vec) {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -159,7 +159,7 @@ bool _NPN_ArrayObjectToDoubleVector(NPObject* npobject,
 
 bool _NPN_ArrayObjectToBooleanVector(NPObject* npobject,
                                      std::vector<bool>& vec) {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -178,7 +178,7 @@ bool _NPN_ArrayObjectToBooleanVector(NPObject* npobject,
 
 int _NPN_ArrayObjectGetVectorSize(NPObject* npobject)
 {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return -1;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);
@@ -192,7 +192,7 @@ int _NPN_ArrayObjectGetVectorSize(NPObject* npobject)
 bool _NPN_ArrayObjectToVectorTypeHint(NPObject* npobject,
     NPVariantType &typehint)
 {
-  if (npobject == NULL || npobject->_class != NPScriptObjectClass)
+  if (npobject == NULL || npobject->_class != npScriptObjectClass)
     return false;
 
   V8NPObject *object = reinterpret_cast<V8NPObject*>(npobject);

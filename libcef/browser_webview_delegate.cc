@@ -311,17 +311,17 @@ void BrowserWebViewDelegate::AddMessageToConsole(WebView* webview,
                                              << ")";
 }
 
-void BrowserWebViewDelegate::RunJavaScriptAlert(WebView* webview,
+void BrowserWebViewDelegate::RunJavaScriptAlert(WebFrame* webframe,
                                              const std::wstring& message) {
   CefHandler::RetVal rv = RV_CONTINUE;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get())
     rv = handler->HandleJSAlert(browser_, message);
   if(rv != RV_HANDLED)
-    ShowJavaScriptAlert(webview, message);
+    ShowJavaScriptAlert(webframe, message);
 }
 
-bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
+bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebFrame* webframe,
                                                const std::wstring& message) {
   CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
@@ -329,11 +329,11 @@ bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
   if(handler.get())
     rv = handler->HandleJSConfirm(browser_, message, retval);
   if(rv != RV_HANDLED)
-    retval = ShowJavaScriptConfirm(webview, message);
+    retval = ShowJavaScriptConfirm(webframe, message);
   return retval;
 }
 
-bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
+bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebFrame* webframe,
     const std::wstring& message, const std::wstring& default_value,
     std::wstring* result) {
   CefHandler::RetVal rv = RV_CONTINUE;
@@ -344,7 +344,7 @@ bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
         retval, *result);
   }
   if(rv != RV_HANDLED)
-    retval = ShowJavaScriptPrompt(webview, message, default_value, result);
+    retval = ShowJavaScriptPrompt(webframe, message, default_value, result);
   return retval;
 }
 

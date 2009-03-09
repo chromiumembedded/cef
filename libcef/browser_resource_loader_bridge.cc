@@ -182,9 +182,10 @@ class RequestProxy : public URLRequest::Delegate,
     peer_->OnReceivedData(buf_copy.get(), bytes_read);
   }
 
-  void NotifyCompletedRequest(const URLRequestStatus& status) {
+  void NotifyCompletedRequest(const URLRequestStatus& status,
+                              const std::string& security_info) {
     if (peer_) {
-      peer_->OnCompletedRequest(status);
+      peer_->OnCompletedRequest(status, security_info);
       DropPeer();  // ensure no further notifications
     }
   }
@@ -235,7 +236,8 @@ class RequestProxy : public URLRequest::Delegate,
         if(rv == RV_HANDLED) {
           // cancel the resource load
           handled = true;
-          OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0));
+          OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0),
+            std::string());
         } else if(!redirectUrl.empty()) {
           // redirect to the specified URL
           params->url = GURL(WideToUTF8(redirectUrl));
@@ -334,9 +336,10 @@ class RequestProxy : public URLRequest::Delegate,
         this, &RequestProxy::NotifyReceivedData, bytes_read));
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status) {
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info) {
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyCompletedRequest, status));
+        this, &RequestProxy::NotifyCompletedRequest, status, security_info));
   }
 
   // --------------------------------------------------------------------------
@@ -377,11 +380,12 @@ class RequestProxy : public URLRequest::Delegate,
   void Done() {
     if(resource_stream_.get()) {
       // Resource stream reads always complete successfully
-      OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0));
+      OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
+          std::string());
       resource_stream_ = NULL;
     } else {
       DCHECK(request_.get());
-      OnCompletedRequest(request_->status());
+      OnCompletedRequest(request_->status(), std::string());
       request_.reset();  // destroy on the io thread
     }
   }
@@ -437,7 +441,8 @@ class SyncRequestProxy : public RequestProxy {
     AsyncReadData();  // read more (may recurse)
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status) {
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info) {
     result_->status = status;
     event_.Signal();
   }
@@ -618,15 +623,6 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
   }
 
   return rv == net::OK;
-}
-
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie) {
-  BrowserResourceLoaderBridge::SetCookie(url, policy_url, cookie);  
-}
-
-std::string GetCookies(const GURL& url, const GURL& policy_url) {
-  return BrowserResourceLoaderBridge::GetCookies(url, policy_url);
 }
 
 }  // namespace webkit_glue

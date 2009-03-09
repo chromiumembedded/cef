@@ -63,11 +63,11 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
                        const GURL& url,
                        const GURL& referrer,
                        WindowOpenDisposition disposition);
-  virtual void RunJavaScriptAlert(WebView* webview,
+  virtual void RunJavaScriptAlert(WebFrame* webframe,
                                   const std::wstring& message);
-  virtual bool RunJavaScriptConfirm(WebView* webview,
+  virtual bool RunJavaScriptConfirm(WebFrame* webframe,
                                     const std::wstring& message);
-  virtual bool RunJavaScriptPrompt(WebView* webview,
+  virtual bool RunJavaScriptPrompt(WebFrame* webframe,
                                    const std::wstring& message,
                                    const std::wstring& default_value,
                                    std::wstring* result);
@@ -226,9 +226,9 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   void UpdateAddressBar(WebView* webView);
 
   // Default handling of JavaScript messages.
-  void ShowJavaScriptAlert(WebView* webview, const std::wstring& message);
-  bool ShowJavaScriptConfirm(WebView* webview, const std::wstring& message);
-  bool ShowJavaScriptPrompt(WebView* webview, const std::wstring& message,
+  void ShowJavaScriptAlert(WebFrame* webframe, const std::wstring& message);
+  bool ShowJavaScriptConfirm(WebFrame* webframe, const std::wstring& message);
+  bool ShowJavaScriptPrompt(WebFrame* webframe, const std::wstring& message,
     const std::wstring& default_value, std::wstring* result);
 
   // In the Mac code, this is called to trigger the end of a test after the
