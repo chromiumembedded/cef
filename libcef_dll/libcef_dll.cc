@@ -30,6 +30,7 @@ CEF_EXPORT void cef_shutdown()
 {
   CefShutdown();
 
+#ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefBrowserCppToC::DebugObjCt == 0);
   DCHECK(CefRequestCppToC::DebugObjCt == 0);
@@ -40,6 +41,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefVariantCppToC::DebugObjCt == 0);
   DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefJSHandlerCToCpp::DebugObjCt == 0);
+#endif // _DEBUG
 }
 
 CEF_EXPORT void cef_do_message_loop_work()

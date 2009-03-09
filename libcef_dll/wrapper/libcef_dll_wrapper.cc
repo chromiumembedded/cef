@@ -25,6 +25,7 @@ void CefShutdown()
 {
   cef_shutdown();
 
+#ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefJSHandlerCppToC::DebugObjCt == 0);
@@ -35,6 +36,7 @@ void CefShutdown()
   DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
   DCHECK(CefVariantCToCpp::DebugObjCt == 0);
+#endif // _DEBUG
 }
 
 void CefDoMessageLoopWork()
