@@ -192,6 +192,9 @@ public:
   int UIT_SwitchFrameToPrintMediaType(WebFrame* frame);
   int UIT_GetPagesCount(WebFrame* frame);
 
+  void UIT_SetUniqueID(int id) { unique_id_ = id; }
+  int UIT_GetUniqueID() { return unique_id_; }
+
 #if defined(OS_WIN)
   void UIT_DisableWebView(bool val);
 	bool UIT_IsWebViewDisabled() { return (webview_bitmap_ != NULL); }
@@ -227,6 +230,9 @@ protected:
 
   typedef std::map<std::wstring, CefRefPtr<CefJSContainer> > JSContainerMap;
   JSContainerMap jscontainers_;
+
+  // Unique browser ID assigned by the context.
+  int unique_id_;
 
 #if defined(OS_WIN)
   HBITMAP webview_bitmap_;

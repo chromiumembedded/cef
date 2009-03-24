@@ -7,6 +7,12 @@ development team.  The current CEF revision may be newer than the last CEF
 revision listed in this document.  In that case, it means that the current CEF
 revision is compatible with the last listed Chromium revision.
 
+To update Chromium to a specific revision run the following command, where ####
+is the Chromium revision number that you wish to download.
+
+gclient sync --revision src@#### --force
+
+
 
 Date       | CEF Revision                    | Chromium Revision
 -------------------------------------------------------------------------------
@@ -22,3 +28,4 @@ Date       | CEF Revision                    | Chromium Revision
 2009-02-12 | /trunk@15                       | /trunk@9652
 2009-03-05 | /trunk@17                       | /trunk@10987
 2009-03-09 | /trunk@21                       | /trunk@11252
+2009-03-24 | /trunk@22                       | /trunk@11768

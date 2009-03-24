@@ -40,6 +40,7 @@ public:
 
   bool AddBrowser(CefRefPtr<CefBrowserImpl> browser);
   bool RemoveBrowser(CefRefPtr<CefBrowserImpl> browser);
+  CefRefPtr<CefBrowserImpl> GetBrowserByID(int id);
   BrowserList* GetBrowserList() { return &browserlist_; }
 
   // Returns true if the calling thread is the same as the UI thread
@@ -79,6 +80,9 @@ protected:
   base::AtExitManager at_exit_manager_;
   // Initialize WebKit for this scope.
   BrowserWebKitInit webkit_init_;
+
+  // Used for assigning unique IDs to browser instances.
+  int next_browser_id_;
   
   friend DWORD WINAPI ThreadHandlerUI(LPVOID lpParam);
 };

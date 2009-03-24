@@ -255,6 +255,7 @@ CefContext::CefContext()
   in_transition_ = false;
   webprefs_ = NULL;
   hinstance_ = ::GetModuleHandle(NULL);
+  next_browser_id_ = 1;
 }
 
 CefContext::~CefContext()
@@ -462,7 +463,10 @@ bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
   }
 
   if(!found)
+  {
+    browser->UIT_SetUniqueID(next_browser_id_++);
     browserlist_.push_back(browser);
+  }
  
   Unlock();
   return !found;
@@ -483,9 +487,30 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
     }
   }
 
+  if (browserlist_.empty())
+    next_browser_id_ = 1;
+
   Unlock();
   
   return deleted;
+}
+
+CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
+{
+  CefRefPtr<CefBrowserImpl> browser;
+  Lock();
+
+  BrowserList::const_iterator it = browserlist_.begin();
+  for(; it != browserlist_.end(); ++it) {
+    if(it->get()->UIT_GetUniqueID() == id) {
+      browser = it->get();
+      break;
+    }
+  }
+
+  Unlock();
+
+  return browser;
 }
 
 void CefContext::SetMessageLoopForUI(MessageLoopForUI* loop)

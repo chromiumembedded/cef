@@ -22,9 +22,13 @@
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
   BrowserWebKitInit() {
+    v8::V8::SetCounterFunction(StatsTable::FindLocation);
+
     WebKit::initialize(this);
     WebKit::setLayoutTestMode(false);
     WebKit::registerURLSchemeAsLocal(
+        ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
+    WebKit::registerURLSchemeAsNoAccess(
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
@@ -36,6 +40,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebMimeRegistry* mimeRegistry() {
     return &mime_registry_;
+  }
+
+  virtual WebKit::WebSandboxSupport* sandboxSupport() {
+    return NULL;
   }
 
   virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length) {
@@ -83,11 +91,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebString defaultLocale() {
     return ASCIIToUTF16("en-US");
   }
-
-  virtual void decrementStatsCounter(const char* name) {}
-  virtual void incrementStatsCounter(const char* name) {}
-  virtual void traceEventBegin(const char* name, void* id, const char* extra) {}
-  virtual void traceEventEnd(const char* name, void* id, const char* extra) {}
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;

@@ -40,10 +40,12 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
+#include "net/base/load_flags.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
@@ -107,6 +109,9 @@ struct RequestParams {
   scoped_refptr<net::UploadData> upload;
 };
 
+// The interval for calls to RequestProxy::MaybeUpdateUploadProgress
+static const int kUpdateUploadProgressIntervalMsec = 100;
+
 // The RequestProxy does most of its work on the IO thread.  The Start and
 // Cancel methods are proxied over to the IO thread, where an URLRequest object
 // is instantiated.
@@ -115,7 +120,9 @@ class RequestProxy : public URLRequest::Delegate,
  public:
   // Takes ownership of the params.
   RequestProxy(CefRefPtr<CefBrowser> browser)
-    : browser_(browser), buf_(new net::IOBuffer(kDataSize)) 
+    : browser_(browser),
+      buf_(new net::IOBuffer(kDataSize)),
+      last_upload_position_(0)
   {
   }
 
@@ -149,6 +156,11 @@ class RequestProxy : public URLRequest::Delegate,
   // The following methods are called on the owner's thread in response to
   // various URLRequest callbacks.  The event hooks, defined below, trigger
   // these methods asynchronously.
+
+  void NotifyUploadProgress(uint64 position, uint64 size) {
+    if (peer_)
+      peer_->OnUploadProgress(position, size);
+  }
 
   void NotifyReceivedRedirect(const GURL& new_url) {
     if (peer_)
@@ -197,7 +209,7 @@ class RequestProxy : public URLRequest::Delegate,
   void AsyncStart(RequestParams* params) {
     bool handled = false;
 
-    if (browser_) {
+    if (browser_.get()) {
       CefRefPtr<CefHandler> handler = browser_->GetHandler();
       if(handler.get())
       {
@@ -259,18 +271,25 @@ class RequestProxy : public URLRequest::Delegate,
           AsyncReadData();
         }
       }
+    }
 
-      if(!handled)
-      {
-        request_.reset(new URLRequest(params->url, this));
-        request_->set_method(params->method);
-        request_->set_policy_url(params->policy_url);
-        request_->set_referrer(params->referrer.spec());
-        request_->SetExtraRequestHeaders(params->headers);
-        request_->set_load_flags(params->load_flags);
-        request_->set_upload(params->upload.get());
-        request_->set_context(request_context);
-        request_->Start();
+    if(!handled)
+    {
+      request_.reset(new URLRequest(params->url, this));
+      request_->set_method(params->method);
+      request_->set_policy_url(params->policy_url);
+      request_->set_referrer(params->referrer.spec());
+      request_->SetExtraRequestHeaders(params->headers);
+      request_->set_load_flags(params->load_flags);
+      request_->set_upload(params->upload.get());
+      request_->set_context(request_context);
+      request_->Start();
+
+      if (request_->has_upload() &&
+          params->load_flags & net::LOAD_ENABLE_UPLOAD_PROGRESS) {
+        upload_progress_timer_.Start(
+            base::TimeDelta::FromMilliseconds(kUpdateUploadProgressIntervalMsec),
+            this, &RequestProxy::MaybeUpdateUploadProgress);
       }
     }
 
@@ -384,9 +403,41 @@ class RequestProxy : public URLRequest::Delegate,
           std::string());
       resource_stream_ = NULL;
     } else {
+      if (upload_progress_timer_.IsRunning()) {
+        MaybeUpdateUploadProgress();
+        upload_progress_timer_.Stop();
+      }
+
       DCHECK(request_.get());
       OnCompletedRequest(request_->status(), std::string());
       request_.reset();  // destroy on the io thread
+    }
+  }
+
+  // Called on the IO thread.
+  void MaybeUpdateUploadProgress() {
+    uint64 size = request_->get_upload()->GetContentLength();
+    uint64 position = request_->GetUploadProgress();
+    if (position == last_upload_position_)
+      return;  // no progress made since last time
+
+    const uint64 kHalfPercentIncrements = 200;
+    const base::TimeDelta kOneSecond = base::TimeDelta::FromMilliseconds(1000);
+
+    uint64 amt_since_last = position - last_upload_position_;
+    base::TimeDelta time_since_last = base::TimeTicks::Now() -
+                                      last_upload_ticks_;
+
+    bool is_finished = (size == position);
+    bool enough_new_progress = (amt_since_last > (size /
+                                                  kHalfPercentIncrements));
+    bool too_much_time_passed = time_since_last > kOneSecond;
+
+    if (is_finished || enough_new_progress || too_much_time_passed) {
+      owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &RequestProxy::NotifyUploadProgress, position, size));
+      last_upload_ticks_ = base::TimeTicks::Now();
+      last_upload_position_ = position;
     }
   }
 
@@ -407,6 +458,13 @@ class RequestProxy : public URLRequest::Delegate,
   // not manage its lifetime, and we may only access it from the owner's
   // message loop (owner_loop_).
   ResourceLoaderBridge::Peer* peer_;
+
+  // Timer used to pull upload progress info.
+  base::RepeatingTimer<RequestProxy> upload_progress_timer_;
+
+  // Info used to determine whether or not to send an upload progress update.
+  uint64 last_upload_position_;
+  base::TimeTicks last_upload_ticks_;
 };
 
 //-----------------------------------------------------------------------------
@@ -590,21 +648,19 @@ namespace webkit_glue {
 
 // factory function
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
-    WebFrame* webframe,
     const std::string& method,
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
     const std::string& headers,
     int load_flags,
-    int origin_pid,
+    int requestor_pid,
     ResourceType::Type request_type,
-    bool mixed_contents) {
-  return new ResourceLoaderBridgeImpl(
-    (webframe->GetView()->GetDelegate() ?
-        static_cast<BrowserWebViewDelegate*>(
-        webframe->GetView()->GetDelegate())->GetBrowser() : NULL),
-    method, url, policy_url, referrer, headers, load_flags);
+    bool mixed_contents,
+    int routing_id) {
+  CefRefPtr<CefBrowser> browser = _Context->GetBrowserByID(routing_id);
+  return new ResourceLoaderBridgeImpl(browser, method, url, policy_url,
+                                      referrer, headers, load_flags);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 

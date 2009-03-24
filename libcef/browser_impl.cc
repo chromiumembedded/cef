@@ -10,13 +10,15 @@
 
 #include "base/string_util.h"
 #include "webkit/glue/webframe.h"
+#include "webkit/glue/webscriptsource.h"
 
 
 CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
                                const std::wstring& url)
   : window_info_(windowInfo), is_popup_(popup), is_modal_(false),
-  handler_(handler), webviewhost_(NULL), popuphost_(NULL), url_(url)
+  handler_(handler), webviewhost_(NULL), popuphost_(NULL), url_(url),
+  unique_id_(0)
 {
   delegate_ = new BrowserWebViewDelegate(this);
   nav_controller_.reset(new BrowserNavigationController(this));
@@ -451,7 +453,9 @@ void CefBrowserImpl::UIT_ExecuteJavaScript(const std::wstring& js_code,
   else
     frame = UIT_GetWebView()->GetMainFrame();
 
-  frame->ExecuteJavaScript(WideToUTF8(js_code), GURL(script_url), start_line);
+  frame->ExecuteScript(
+      webkit_glue::WebScriptSource(WideToUTF8(js_code), GURL(script_url),
+                                   start_line));
 }
 
 void CefBrowserImpl::UIT_GoBackOrForward(int offset)

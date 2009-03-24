@@ -7,6 +7,7 @@
 #include "browser_webkit_glue.h"
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 
 #include "config.h"
 #include "webkit_version.h"

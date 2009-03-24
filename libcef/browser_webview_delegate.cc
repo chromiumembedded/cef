@@ -166,6 +166,9 @@ void BrowserWebViewDelegate::AssignIdentifierToRequest(WebView* webview,
 void BrowserWebViewDelegate::WillSendRequest(WebView* webview,
                                           uint32 identifier,
                                           WebRequest* request) {
+  // The requestor ID is used by the resource loader bridge to locate the
+  // browser that originated the request.
+  request->SetRequestorID(browser_->UIT_GetUniqueID());
 }
 
 void BrowserWebViewDelegate::DidFinishLoading(WebView* webview,
