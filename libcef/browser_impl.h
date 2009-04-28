@@ -187,27 +187,12 @@ public:
 
   // Printing support
   void UIT_PrintPages(WebFrame* frame);
-  void UIT_PrintPage(int page_number, WebFrame* frame, int total_pages);
-  void UIT_SwitchFrameToDisplayMediaType(WebFrame* frame);
-  int UIT_SwitchFrameToPrintMediaType(WebFrame* frame);
+  void UIT_PrintPage(int page_number, int total_pages,
+                     const gfx::Size& canvas_size, WebFrame* frame);
   int UIT_GetPagesCount(WebFrame* frame);
 
   void UIT_SetUniqueID(int id) { unique_id_ = id; }
   int UIT_GetUniqueID() { return unique_id_; }
-
-#if defined(OS_WIN)
-  void UIT_DisableWebView(bool val);
-	bool UIT_IsWebViewDisabled() { return (webview_bitmap_ != NULL); }
-
-  void UIT_CaptureWebViewBitmap(HBITMAP &bitmap, SIZE &size);
-  void UIT_SetWebViewBitmap(HBITMAP bitmap, SIZE size);
-	void UIT_GetWebViewBitmap(HBITMAP &bitmap, SIZE &size)
-	{ 
-		bitmap = webview_bitmap_;
-		size.cx = webview_bitmap_size_.cx;
-		size.cy = webview_bitmap_size_.cy;
-	}
-#endif
 
 protected:
   CefWindowInfo window_info_;
@@ -222,22 +207,14 @@ protected:
 
   std::wstring title_;
 
-  // Backup the view size before printing since it needs to be overriden. This
-	// value is set to restore the view size when printing is done.
-	gfx::Size printing_view_size_;
   // Context object used to manage printing.
-	printing::PrintingContext print_context_;
+  printing::PrintingContext print_context_;
 
   typedef std::map<std::wstring, CefRefPtr<CefJSContainer> > JSContainerMap;
   JSContainerMap jscontainers_;
 
   // Unique browser ID assigned by the context.
   int unique_id_;
-
-#if defined(OS_WIN)
-  HBITMAP webview_bitmap_;
-	SIZE webview_bitmap_size_;
-#endif
 };
 
 #endif // _BROWSER_IMPL_H

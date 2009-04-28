@@ -373,7 +373,7 @@ void CefPostDataElementImpl::Set(const net::UploadData::Element& element)
             std::string(element.bytes().begin(),
             element.bytes().end()).c_str()));
   } else if (element.type() == net::UploadData::TYPE_FILE) {
-    SetToFile(element.file_path());
+    SetToFile(element.file_path().value());
   } else {
     NOTREACHED();
   }
@@ -388,7 +388,7 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
   if(type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if(type_ == PDE_TYPE_FILE) {
-    element.SetToFilePath(data_.filename);
+    element.SetToFilePath(FilePath(data_.filename));
   } else {
     NOTREACHED();
   }

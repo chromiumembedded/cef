@@ -355,6 +355,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="resources"
+			>
+			<File
+				RelativePath=".\libcef_dll.rc"
+				>
+			</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.rc"
+				>
+			</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_en-US.rc"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\cef_string.c"
 			>
@@ -381,10 +397,6 @@
 		</File>
 		<File
 			RelativePath=".\libcef_dll.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\libcef_dll.rc"
 			>
 		</File>
 		<File

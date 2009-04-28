@@ -9,8 +9,21 @@
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "webkit/glue/webwidget.h"
+
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
+using WebKit::WebSize;
 
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
@@ -56,13 +69,6 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
   WebWidgetHost* host = FromWindow(hwnd);
   if (host && !host->WndProc(message, wparam, lparam)) {
     switch (message) {
-      case WM_DESTROY:
-        delete host;
-        break;
-      case WM_NCDESTROY:
-        TRACK_HWND_DESTRUCTION(hwnd);
-        break;
-
       case WM_PAINT: {
         RECT rect;
         if (GetUpdateRect(hwnd, &rect, FALSE)) {
@@ -267,23 +273,28 @@ void WebWidgetHost::Paint() {
   UpdateWindow(view_);
 }
 
+WebScreenInfo WebWidgetHost::GetScreenInfo() {
+  return WebScreenInfoFactory::screenInfo(view_);
+}
+
 void WebWidgetHost::Resize(LPARAM lparam) {
   // Force an entire re-paint.  TODO(darin): Maybe reuse this memory buffer.
   DiscardBackingStore();
 
-  webwidget_->Resize(gfx::Size(LOWORD(lparam), HIWORD(lparam)));
+  webwidget_->Resize(WebSize(LOWORD(lparam), HIWORD(lparam)));
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebMouseEvent event(view_, message, wparam, lparam);
+  const WebMouseEvent& event = WebInputEventFactory::mouseEvent(
+      view_, message, wparam, lparam);
   switch (event.type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       TrackMouseLeave(true);
       break;
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       TrackMouseLeave(false);
       break;
-    case WebInputEvent::MOUSE_DOWN:
+    case WebInputEvent::MouseDown:
       SetCapture(view_);
       // This mimics a temporary workaround in RenderWidgetHostViewWin 
       // for bug 765011 to get focus when the mouse is clicked. This 
@@ -291,7 +302,7 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
       ::SetFocus(view_);
       break;
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       if (GetCapture() == view_)
         ReleaseCapture();
       break;
@@ -300,12 +311,14 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {
-  WebMouseWheelEvent event(view_, WM_MOUSEWHEEL, wparam, lparam);
+  const WebMouseWheelEvent& event = WebInputEventFactory::mouseWheelEvent(
+      view_, WM_MOUSEWHEEL, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 
 void WebWidgetHost::KeyEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebKeyboardEvent event(view_, message, wparam, lparam);
+  const WebKeyboardEvent& event = WebInputEventFactory::keyboardEvent(
+      view_, message, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 

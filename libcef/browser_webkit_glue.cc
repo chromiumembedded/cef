@@ -4,7 +4,6 @@
 // found in the LICENSE file.
 
 #include "precompiled_libcef.h"
-#include "browser_webkit_glue.h"
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
@@ -17,14 +16,16 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "webkit/glue/webframe_impl.h"
 MSVC_POP_WARNING();
 
+#include "browser_webkit_glue.h"
+
 #undef LOG
 #include "base/path_service.h"
+#include "base/resource_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "base/win_util.h"
 #include "net/base/mime_util.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -43,8 +44,21 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-std::string GetDataResource(int resource_id) {
-  if (resource_id == IDR_BROKENIMAGE) {
+StringPiece GetRawDataResource(HMODULE module, int resource_id) {
+  void* data_ptr;
+  size_t data_size;
+  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
+                                         &data_size) ?
+      StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
+}
+
+StringPiece NetResourceProvider(int key) {
+  return GetRawDataResource(::GetModuleHandle(NULL), key);
+}
+
+StringPiece GetDataResource(int resource_id) {
+  switch (resource_id) {
+  case IDR_BROKENIMAGE: {
     // Use webkit's broken image icon (16x16)
     static unsigned char broken_image_data[] = {
       0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x10, 0x00, 0x10, 0x00, 0xD5, 0x00,
@@ -79,16 +93,51 @@ std::string GetDataResource(int resource_id) {
       0x07, 0x0E, 0xC7, 0x4C, 0xCF, 0x49, 0xCD, 0xD2, 0xD3, 0xD4, 0xD2, 0x41,
       0x00, 0x3B
     };
-    return reinterpret_cast<char*>(broken_image_data);
-  } else if (resource_id == IDR_FEED_PREVIEW) {
+    return StringPiece(reinterpret_cast<char*>(broken_image_data),
+        static_cast<StringPiece::size_type>(
+            sizeof(broken_image_data) / sizeof(unsigned char)));
+  }
+  case IDR_FEED_PREVIEW:
     // It is necessary to return a feed preview template that contains
     // a {{URL}} substring where the feed URL should go; see the code 
     // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
     // This fixes issue #932714.    
-    return std::string("Feed preview for {{URL}}");
-  } else {
-    return std::string();
+    return "Feed preview for {{URL}}";
+  case IDR_TEXTAREA_RESIZER: {
+    // Use webkit's text area resizer image.
+    static unsigned char area_resizer_data[] = {
+      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0xC4, 0x0F, 0xBE, 0x8B, 0x00, 0x00, 0x00,
+      0x09, 0x70, 0x48, 0x59, 0x73, 0x00, 0x00, 0x0B, 0x13, 0x00, 0x00, 0x0B,
+      0x13, 0x01, 0x00, 0x9A, 0x9C, 0x18, 0x00, 0x00, 0x00, 0x04, 0x67, 0x41,
+      0x4D, 0x41, 0x00, 0x00, 0xB1, 0x8E, 0x7C, 0xFB, 0x51, 0x93, 0x00, 0x00,
+      0x00, 0x20, 0x63, 0x48, 0x52, 0x4D, 0x00, 0x00, 0x7A, 0x25, 0x00, 0x00,
+      0x80, 0x83, 0x00, 0x00, 0xF9, 0xFF, 0x00, 0x00, 0x80, 0xE9, 0x00, 0x00,
+      0x75, 0x30, 0x00, 0x00, 0xEA, 0x60, 0x00, 0x00, 0x3A, 0x98, 0x00, 0x00,
+      0x17, 0x6F, 0x92, 0x5F, 0xC5, 0x46, 0x00, 0x00, 0x00, 0x39, 0x49, 0x44,
+      0x41, 0x54, 0x78, 0xDA, 0x7C, 0x8E, 0xB1, 0x0D, 0x00, 0x20, 0x0C, 0xC3,
+      0x1C, 0x9E, 0xE5, 0xA6, 0x5E, 0x1B, 0xB6, 0x4A, 0xA0, 0xD0, 0xAC, 0x8E,
+      0x25, 0xC3, 0x7F, 0x65, 0x9B, 0x35, 0xC1, 0xC9, 0x2C, 0x80, 0x74, 0x6A,
+      0x98, 0x0E, 0x17, 0x7C, 0x1B, 0xCA, 0x36, 0x92, 0x76, 0x6A, 0x48, 0x66,
+      0x37, 0x68, 0xAA, 0x05, 0x38, 0x03, 0x00, 0x40, 0x17, 0x33, 0x3D, 0x58,
+      0x57, 0x6B, 0xB3, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+      0x42, 0x60, 0x82
+    };
+    return StringPiece(reinterpret_cast<char*>(area_resizer_data),
+        static_cast<StringPiece::size_type>(
+            sizeof(area_resizer_data) / sizeof(unsigned char)));
   }
+  case IDR_SEARCH_CANCEL:
+  case IDR_SEARCH_CANCEL_PRESSED:
+  case IDR_SEARCH_MAGNIFIER:
+  case IDR_SEARCH_MAGNIFIER_RESULTS:
+    return NetResourceProvider(resource_id);
+  default:
+    break;
+  }
+
+  return StringPiece();
 }
 
 bool GetApplicationDirectory(std::wstring *path) {
@@ -115,10 +164,6 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
   return true;
 }
 
-ScreenInfo GetScreenInfo(gfx::NativeView window) {
-  return GetScreenInfoHelper(window);
-}
-
 bool IsPluginRunningInRendererProcess() {
   return true;
 }
@@ -140,10 +185,6 @@ std::string GetDocumentString(WebFrame* frame) {
   WebCore::Frame* core_frame = webFrameImpl->frame();
 
   return StringToStdString(WebCore::createMarkup(core_frame->document()));
-}
-
-ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
-  return GetScreenInfoHelper(gfx::NativeViewFromId(window));
 }
 
 void InitializeTextEncoding() {

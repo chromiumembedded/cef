@@ -52,6 +52,7 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview.h"
 
@@ -106,6 +107,7 @@ struct RequestParams {
   GURL referrer;
   std::string headers;
   int load_flags;
+  int app_cache_context_id;
   scoped_refptr<net::UploadData> upload;
 };
 
@@ -376,6 +378,7 @@ class RequestProxy : public URLRequest::Delegate,
       info.request_time = request->request_time();
       info.response_time = request->response_time();
       info.headers = request->response_headers();
+      info.app_cache_id = WebAppCacheContext::kNoAppCacheId;
       request->GetMimeType(&info.mime_type);
       request->GetCharset(&info.charset);
       OnReceivedResponse(info, false);
@@ -416,6 +419,14 @@ class RequestProxy : public URLRequest::Delegate,
 
   // Called on the IO thread.
   void MaybeUpdateUploadProgress() {
+    // If a redirect is received upload is cancelled in URLRequest, we should
+    // try to stop the |upload_progress_timer_| timer and return.
+    if (!request_->has_upload()) {
+      if (upload_progress_timer_.IsRunning())
+        upload_progress_timer_.Stop();
+      return;
+    }
+
     uint64 size = request_->get_upload()->GetContentLength();
     uint64 position = request_->GetUploadProgress();
     if (position == last_upload_position_)
@@ -520,7 +531,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
                            const GURL& policy_url,
                            const GURL& referrer,
                            const std::string& headers,
-                           int load_flags)
+                           int load_flags,
+                           int app_cache_context_id)
       : browser_(browser),
         params_(new RequestParams),
         proxy_(NULL) {
@@ -530,6 +542,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
+    params_->app_cache_context_id = app_cache_context_id;
   }
 
   virtual ~ResourceLoaderBridgeImpl() {
@@ -550,12 +563,19 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->upload->AppendBytes(data, data_len);
   }
 
-  virtual void AppendFileRangeToUpload(const std::wstring& file_path,
+  virtual void AppendFileRangeToUpload(const FilePath& file_path,
                                        uint64 offset, uint64 length) {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
     params_->upload->AppendFileRange(file_path, offset, length);
+  }
+
+  virtual void SetUploadIdentifier(int64 identifier) {
+    DCHECK(params_.get());
+    if (!params_->upload)
+      params_->upload = new net::UploadData();
+    params_->upload->set_identifier(identifier);
   }
 
   virtual bool Start(Peer* peer) {
@@ -652,15 +672,18 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int load_flags,
     int requestor_pid,
     ResourceType::Type request_type,
-    bool mixed_contents,
+    int app_cache_context_id,
     int routing_id) {
   CefRefPtr<CefBrowser> browser = _Context->GetBrowserByID(routing_id);
   return new ResourceLoaderBridgeImpl(browser, method, url, policy_url,
-                                      referrer, headers, load_flags);
+                                      referrer, headers, load_flags,
+                                      app_cache_context_id);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 

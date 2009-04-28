@@ -2,7 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
 #include <string>
+
+#include "base/string_piece.h"
 
 class WebFrame;
 class WebView;
@@ -23,5 +28,8 @@ BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();
+
+// This is called indirectly by the network layer to access resources.
+StringPiece NetResourceProvider(int key);
 
 }  // namespace webkit_glue

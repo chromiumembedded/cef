@@ -9,7 +9,6 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webview.h"
 
 static const wchar_t kWindowClassName[] = L"WebViewHost";

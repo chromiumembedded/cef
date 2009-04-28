@@ -29,7 +29,6 @@ void PrintSettings::Clear() {
   desired_dpi = 72;
   printer_name_.clear();
   device_name_.clear();
-  page_setup_cmm_.Clear();
   page_setup_pixels_.Clear();
   dpi_ = 0;
   landscape_ = false;
@@ -46,7 +45,6 @@ void PrintSettings::Init(HDC hdc,
   ranges = new_ranges;
   landscape_ = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;
 
-  int old_dpi = dpi_;
   dpi_ = GetDeviceCaps(hdc, LOGPIXELSX);
   // No printer device is known to advertise different dpi in X and Y axis; even
   // the fax device using the 200x100 dpi setting. It's ought to break so many
@@ -64,74 +62,30 @@ void PrintSettings::Init(HDC hdc,
                                   GetDeviceCaps(hdc, PHYSICALOFFSETY),
                                   GetDeviceCaps(hdc, HORZRES),
                                   GetDeviceCaps(hdc, VERTRES));
-  // Hard-code text_height = 0.5cm = ~1/5 of inch
-  page_setup_pixels_.Init(physical_size_pixels, printable_area_pixels,
-                          ConvertUnit(500, kHundrethsMMPerInch, dpi_));
 
-  // Initialize page_setup_cmm_.
-  // In theory, we should be using HORZSIZE and VERTSIZE but their value is
-  // so wrong it's useless. So read the values in dpi unit and convert them back
-  // in 0.01 mm.
-  gfx::Size physical_size_cmm(
-      ConvertUnit(physical_size_pixels.width(), dpi_, kHundrethsMMPerInch),
-      ConvertUnit(physical_size_pixels.height(), dpi_, kHundrethsMMPerInch));
-  gfx::Rect printable_area_cmm(
-      ConvertUnit(printable_area_pixels.x(), dpi_, kHundrethsMMPerInch),
-      ConvertUnit(printable_area_pixels.y(), dpi_, kHundrethsMMPerInch),
-      ConvertUnit(printable_area_pixels.width(), dpi_, kHundrethsMMPerInch),
-      ConvertUnit(printable_area_pixels.bottom(), dpi_, kHundrethsMMPerInch));
-
-  static const int kRoundingTolerance = 5;
-  // Some printers may advertise a slightly larger printable area than the
-  // physical area. This is mostly due to integer calculation and rounding.
-  if (physical_size_cmm.height() > printable_area_cmm.bottom() &&
-      physical_size_cmm.height() <= (printable_area_cmm.bottom() +
-                                     kRoundingTolerance)) {
-    physical_size_cmm.set_height(printable_area_cmm.bottom());
-  }
-  if (physical_size_cmm.width() > printable_area_cmm.right() &&
-      physical_size_cmm.width() <= (printable_area_cmm.right() +
-                                    kRoundingTolerance)) {
-    physical_size_cmm.set_width(printable_area_cmm.right());
-  }
-  page_setup_cmm_.Init(physical_size_cmm, printable_area_cmm, 500);
+  SetPrinterPrintableArea(physical_size_pixels, printable_area_pixels);
 }
 #endif
 
-void PrintSettings::UpdateMarginsMetric(const PageMargins& new_margins) {
-  // Apply the new margins in 0.01 mm unit.
-  page_setup_cmm_.SetRequestedMargins(new_margins);
+void PrintSettings::SetPrinterPrintableArea(
+    gfx::Size const& physical_size_pixels,
+    gfx::Rect const& printable_area_pixels) {
 
-  // Converts the margins in dpi unit and apply those too.
-  PageMargins pixels_margins;
-  pixels_margins.header = ConvertUnit(new_margins.header, kHundrethsMMPerInch,
-                                      dpi_);
-  pixels_margins.footer = ConvertUnit(new_margins.footer, kHundrethsMMPerInch,
-                                      dpi_);
-  pixels_margins.left = ConvertUnit(new_margins.left, kHundrethsMMPerInch,
-                                    dpi_);
-  pixels_margins.top = ConvertUnit(new_margins.top, kHundrethsMMPerInch, dpi_);
-  pixels_margins.right = ConvertUnit(new_margins.right, kHundrethsMMPerInch,
-                                     dpi_);
-  pixels_margins.bottom = ConvertUnit(new_margins.bottom, kHundrethsMMPerInch,
-                                      dpi_);
-  page_setup_pixels_.SetRequestedMargins(pixels_margins);
-}
+  // Start by setting the user configuration
+  // Hard-code text_height = 0.5cm = ~1/5 of inch
+  page_setup_pixels_.Init(physical_size_pixels,
+                          printable_area_pixels,
+                          ConvertUnit(500, kHundrethsMMPerInch, dpi_));
 
-void PrintSettings::UpdateMarginsMilliInch(const PageMargins& new_margins) {
-  // Convert margins from thousandth inches to cmm (0.01mm).
-  PageMargins cmm_margins;
-  cmm_margins.header =
-      ConvertMilliInchToHundredThousanthMeter(new_margins.header);
-  cmm_margins.footer =
-      ConvertMilliInchToHundredThousanthMeter(new_margins.footer);
-  cmm_margins.left = ConvertMilliInchToHundredThousanthMeter(new_margins.left);
-  cmm_margins.top = ConvertMilliInchToHundredThousanthMeter(new_margins.top);
-  cmm_margins.right =
-      ConvertMilliInchToHundredThousanthMeter(new_margins.right);
-  cmm_margins.bottom =
-      ConvertMilliInchToHundredThousanthMeter(new_margins.bottom);
-  UpdateMarginsMetric(cmm_margins);
+  // Now apply user configured settings.
+  PageMargins margins;
+  margins.header = 500;
+  margins.footer = 500;
+  margins.left = 500;
+  margins.top = 500;
+  margins.right = 500;
+  margins.bottom = 500;
+  page_setup_pixels_.SetRequestedMargins(margins);
 }
 
 void PrintSettings::RenderParams(PrintParams* params) const {
@@ -159,7 +113,6 @@ bool PrintSettings::Equals(const PrintSettings& rhs) const {
       desired_dpi == rhs.desired_dpi &&
       device_name_ == rhs.device_name_ &&
       page_setup_pixels_.Equals(rhs.page_setup_pixels_) &&
-      page_setup_cmm_.Equals(rhs.page_setup_cmm_) &&
       dpi_ == rhs.dpi_ &&
       landscape_ == rhs.landscape_;
 }

@@ -6,18 +6,21 @@
 #ifndef _BROWSER_WEBKIT_INIT_H
 #define _BROWSER_WEBKIT_INIT_H
 
+#include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
+#include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
 #include "browser_resource_loader_bridge.h"
 
-#include "WebCString.h"
-#include "WebKit.h"
-#include "WebString.h"
-#include "WebURL.h"
 
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
@@ -42,15 +45,22 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return &mime_registry_;
   }
 
+  WebKit::WebClipboard* clipboard() {
+    if (!clipboard_.get()) {
+      clipboard_.reset(new webkit_glue::WebClipboardImpl());
+    }
+    return clipboard_.get();
+  }
+
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
     return NULL;
   }
 
-  virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length) {
+  virtual unsigned long long visitedLinkHash(const char* canonicalURL, size_t length) {
     return 0;
   }
 
-  virtual bool isLinkVisited(uint64_t linkHash) {
+  virtual bool isLinkVisited(unsigned long long linkHash) {
     return false;
   }
 
@@ -68,7 +78,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual void prefetchHostName(const WebKit::WebString&) {
   }
 
-  virtual WebKit::WebCString loadResource(const char* name) {
+  virtual WebKit::WebData loadResource(const char* name) {
     if (!strcmp(name, "deleteButton")) {
       // Create a red 30x30 square.
       const char red_square[] =
@@ -83,7 +93,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
           "\x18\x50\xb9\x33\x47\xf9\xa8\x01\x32\xd4\xc2\x03\x00\x33\x84\x0d"
           "\x02\x3a\x91\xeb\xa5\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60"
           "\x82";
-      return WebKit::WebCString(red_square, arraysize(red_square));
+      return WebKit::WebData(red_square, arraysize(red_square));
     }
     return webkit_glue::WebKitClientImpl::loadResource(name);
   }
@@ -94,6 +104,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
+  scoped_ptr<WebKit::WebClipboard> clipboard_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

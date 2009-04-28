@@ -62,11 +62,9 @@ class PrintSettings {
             const std::wstring& new_device_name);
 #endif
 
-  // Sets margins in 0.01 millimeter unit.
-  void UpdateMarginsMetric(const PageMargins& new_margins);
-
-  // Sets margins in thousandth of inch.
-  void UpdateMarginsMilliInch(const PageMargins& new_margins);
+  // Set printer printable area in pixels.
+  void SetPrinterPrintableArea(gfx::Size const& physical_size_pixels,
+                               gfx::Rect const& printable_area_pixels);
 
   // Initializes the print parameters that needs to be sent to the renderer
   // process.
@@ -83,11 +81,10 @@ class PrintSettings {
   }
   const std::wstring& device_name() const { return device_name_; }
   int dpi() const { return dpi_; }
-  const PageSetup& page_setup_cmm() const { return page_setup_cmm_; }
   const PageSetup& page_setup_pixels() const { return page_setup_pixels_; }
 
-  // Multipage printing. Each PageRange describes a from-to page combinaison.
-  // This permits printing some selected pages only.
+  // Multi-page printing. Each PageRange describes a from-to page combination.
+  // This permits printing selected pages only.
   PageRanges ranges;
 
   // By imaging to a width a little wider than the available pixels, thin pages
@@ -121,9 +118,6 @@ class PrintSettings {
 
   // Printer device name as opened by the OS.
   std::wstring device_name_;
-
-  // Page setup in centimillimeter (0.01 mm) units.
-  PageSetup page_setup_cmm_;
 
   // Page setup in pixel units, dpi adjusted.
   PageSetup page_setup_pixels_;

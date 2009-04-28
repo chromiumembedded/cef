@@ -38,11 +38,18 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
                             public WebViewDelegate {
  public:
   BrowserWebViewDelegate(CefBrowserImpl* shell) 
-    : is_custom_policy_delegate_(false),
+    : policy_delegate_enabled_(false),
+      policy_delegate_is_permissive_(false),
       browser_(shell),
       top_loading_frame_(NULL),
       page_id_(-1),
-      last_page_id_updated_(-1)
+      last_page_id_updated_(-1),
+      smart_insert_delete_enabled_(true)
+#if defined(OS_WIN)
+      , select_trailing_whitespace_enabled_(true)
+#else
+      , select_trailing_whitespace_enabled_(false)
+#endif
 #if defined(OS_LINUX)
       , cursor_type_(GDK_X_CURSOR)
 #endif
@@ -59,6 +66,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type);
+  virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
   virtual void OpenURL(WebView* webview,
                        const GURL& url,
                        const GURL& referrer,
@@ -78,7 +86,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
                                    unsigned int line_no,
                                    const std::wstring& source_id);
   virtual void StartDragging(WebView* webview,
-                             const WebDropData& drop_data);
+                             const WebKit::WebDragData& drop_data);
   virtual void ShowContextMenu(WebView* webview,
                                ContextNode in_node,
                                int x,
@@ -174,29 +182,36 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  void SetCustomPolicyDelegate(bool isCustom);
   virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
 
   // WebWidgetDelegate
   virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
-  virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
+  virtual void DidInvalidateRect(WebWidget* webwidget,
+                                 const WebKit::WebRect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                             const gfx::Rect& clip_rect);
+                             const WebKit::WebRect& clip_rect);
   virtual void Show(WebWidget* webview, WindowOpenDisposition disposition);
+  virtual void ShowAsPopupWithItems(WebWidget* webwidget,
+                                    const WebKit::WebRect& bounds,
+                                    int item_height,
+                                    int selected_index,
+                                    const std::vector<WebMenuItem>& items);
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
   virtual void SetCursor(WebWidget* webwidget, 
                          const WebCursor& cursor);
-  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
-  virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
-  virtual void GetRootWindowRect(WebWidget *,gfx::Rect *);
-  virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect);
+  virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
+  virtual void SetWindowRect(WebWidget* webwidget, const WebKit::WebRect& rect);
+  virtual void GetRootWindowRect(WebWidget *,WebKit::WebRect *);
+  virtual void GetRootWindowResizerRect(WebWidget* webwidget,
+                                        WebKit::WebRect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);
-  virtual bool IsHidden();
+  virtual bool IsHidden(WebWidget* webwidget);
+  virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget);
   virtual void AddRef() {
     base::RefCounted<BrowserWebViewDelegate>::AddRef();
   }
@@ -204,6 +219,9 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
     base::RefCounted<BrowserWebViewDelegate>::Release();
   }
   virtual void TakeFocus(WebView* webview, bool reverse);
+
+  void SetSmartInsertDeleteEnabled(bool enabled);
+  void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   // Additional accessors
   WebFrame* top_loading_frame() { return top_loading_frame_; }
@@ -218,6 +236,9 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
 
   // Sets the webview as a drop target.
   void RegisterDragDrop();
+
+  void SetCustomPolicyDelegate(bool is_custom, bool is_permissive);
+  void WaitForPolicyDelegate();
 
   CefBrowserImpl* GetBrowser() { return browser_; }
 
@@ -234,7 +255,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   // In the Mac code, this is called to trigger the end of a test after the
   // page has finished loading.  From here, we can generate the dump for the
   // test.
-  void LocationChangeDone(WebDataSource* data_source);
+  void LocationChangeDone(WebFrame*);
 
   WebWidgetHost* GetHostForWidget(WebWidget* webwidget);
 
@@ -249,7 +270,11 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   // Causes navigation actions just printout the intended navigation instead 
   // of taking you to the page. This is used for cases like mailto, where you
   // don't actually want to open the mail program.
-  bool is_custom_policy_delegate_;
+  bool policy_delegate_enabled_;
+
+  // Toggles the behavior of the policy delegate.  If true, then navigations
+  // will be allowed.  Otherwise, they will be ignored (dropped).
+  bool policy_delegate_is_permissive_;
 
   // Non-owning pointer.  The delegate is owned by the host.
   CefBrowserImpl* browser_;
@@ -260,6 +285,12 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   // For tracking session history.  See RenderView.
   int page_id_;
   int last_page_id_updated_;
+
+  // true if we want to enable smart insert/delete.
+  bool smart_insert_delete_enabled_;
+
+  // true if we want to enable selection of trailing whitespaces
+  bool select_trailing_whitespace_enabled_;
 
   WebCursor current_cursor_;
 #if defined(OS_WIN)

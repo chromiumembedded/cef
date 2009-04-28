@@ -26,17 +26,21 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webplugin.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
+
+using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
 
@@ -80,6 +84,15 @@ void BrowserWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
   }
 }
 
+void BrowserWebViewDelegate::ShowAsPopupWithItems(
+    WebWidget* webwidget,
+    const WebRect& bounds,
+    int item_height,
+    int selected_index,
+    const std::vector<WebMenuItem>& items) {
+  NOTREACHED();
+}
+
 void BrowserWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
   if (webwidget == browser_->UIT_GetWebView()) {
     PostMessage(browser_->UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
@@ -98,7 +111,7 @@ void BrowserWebViewDelegate::SetCursor(WebWidget* webwidget,
 }
 
 void BrowserWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        gfx::Rect* out_rect) {
+                                        WebRect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
     ::GetWindowRect(host->window_handle(), &rect);
@@ -107,17 +120,17 @@ void BrowserWebViewDelegate::GetWindowRect(WebWidget* webwidget,
 }
 
 void BrowserWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const gfx::Rect& rect) {
+                                        const WebRect& rect) {
   if (webwidget == browser_->UIT_GetWebView()) {
     // ignored
   } else if (webwidget == browser_->UIT_GetPopup()) {
     MoveWindow(browser_->UIT_GetPopupWndHandle(),
-               rect.x(), rect.y(), rect.width(), rect.height(), FALSE);
+               rect.x, rect.y, rect.width, rect.height, FALSE);
   }
 }
 
 void BrowserWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            gfx::Rect* out_rect) {
+                                            WebRect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
     HWND root_window = ::GetAncestor(host->window_handle(), GA_ROOT);
@@ -127,7 +140,7 @@ void BrowserWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
 }
 
 void BrowserWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
-                                                      gfx::Rect* out_rect) {
+                                                      WebRect* out_rect) {
   // Not necessary on Windows.
   *out_rect = gfx::Rect();
 }

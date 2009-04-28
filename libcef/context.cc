@@ -142,19 +142,6 @@ void CefContext::UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
   delete plugin_info;
 }
 
-StringPiece GetRawDataResource(HMODULE module, int resource_id) {
-  void* data_ptr;
-  size_t data_size;
-  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
-                                         &data_size) ?
-      StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
-}
-
-// This is called indirectly by the network layer to access resources.
-StringPiece NetResourceProvider(int key) {
-  return GetRawDataResource(::GetModuleHandle(NULL), key);
-}
-
 bool CefContext::DoInitialize()
 {
   HRESULT res;
@@ -189,7 +176,7 @@ bool CefContext::DoInitialize()
   }
 
   // Config the network module so it has access to a limited set of resources.
-  net::NetModule::SetResourceProvider(NetResourceProvider);
+  net::NetModule::SetResourceProvider(webkit_glue::NetResourceProvider);
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
@@ -304,6 +291,11 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       // Initialize WebKit encodings
       webkit_glue::InitializeTextEncoding();
 
+#ifndef _DEBUG
+      // Only log error messages and above in release build.
+      logging::SetMinLogLevel(logging::LOG_ERROR);
+#endif
+
       // Initialize web preferences
       webprefs_ = new WebPreferences;
       *webprefs_ = WebPreferences();
@@ -338,7 +330,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->developer_extras_enabled = true;
       webprefs_->shrinks_standalone_images_to_fit = false;
       webprefs_->uses_universal_detector = false;
-      webprefs_->text_areas_are_resizable = false;
+      webprefs_->text_areas_are_resizable = true;
       webprefs_->java_enabled = true;
       webprefs_->allow_scripts_to_close_windows = false;
 

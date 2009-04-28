@@ -4,7 +4,6 @@
 // found in the LICENSE file.
 
 #include "precompiled_libcef.h"
-#include "browser_webkit_glue.h"
 
 #include <atlcore.h>
 #include <atlbase.h>
@@ -18,21 +17,28 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformContextSkia.h"
 MSVC_POP_WARNING();
 
+#include "browser_webkit_glue.h"
+
 #undef LOG
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
+using WebKit::WebRect;
+using WebKit::WebSize;
 
 namespace webkit_glue {
 
 string16 GetLocalizedString(int message_id) {
+  // Localized resources are provided via webkit_resources.rc and
+  // webkit_strings_en-US.rc.
   const ATLSTRINGRESOURCEIMAGE* image =
       AtlGetStringResourceImage(_AtlBaseModule.GetModuleInstance(),
                                 message_id);
-  // TODO(cef): Need to provide strings for common resources.
   if (!image) {
     NOTREACHED();
     return L"No string for this identifier!";
@@ -57,16 +63,17 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }
 
-void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap, SIZE& size)
+void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,
+                          SIZE& size)
 {
-  gfx::Size webSize = webview->GetSize();
-  size.cx = webSize.width();
-  size.cy = webSize.height();
+  WebKit::WebSize webSize = webview->GetSize();
+  size.cx = webSize.width;
+  size.cy = webSize.height;
   
   skia::PlatformCanvasWin canvas(size.cx, size.cy, true);
   canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
   PlatformContextSkia context(&canvas);
-  gfx::Rect rect(size.cx, size.cy);
+  WebKit::WebRect rect(0, 0, size.cx, size.cy);
   webview->Layout();
   webview->Paint(&canvas, rect);
 

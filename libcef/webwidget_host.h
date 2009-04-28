@@ -18,6 +18,10 @@ namespace gfx {
 class Size;
 }
 
+namespace WebKit {
+struct WebScreenInfo;
+}
+
 // This class is a simple ViewHandle-based host for a WebWidget
 class WebWidgetHost {
  public:
@@ -45,6 +49,10 @@ class WebWidgetHost {
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
   void Paint();
+
+  skia::PlatformCanvas* canvas() const { return canvas_.get(); }
+
+  WebKit::WebScreenInfo GetScreenInfo();
 
  protected:
   WebWidgetHost();

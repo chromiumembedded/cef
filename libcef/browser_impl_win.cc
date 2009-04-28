@@ -8,10 +8,13 @@
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "stream_impl.h"
+#include "printing/units.h"
 
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "skia/ext/vector_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -19,6 +22,9 @@
 #include <shlwapi.h>
 #include <wininet.h>
 #include <winspool.h>
+
+using WebKit::WebRect;
+using WebKit::WebSize;
 
 
 LPCTSTR CefBrowserImpl::GetWndClass()
@@ -61,39 +67,10 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       GetClientRect(browser->UIT_GetMainWndHandle(), &rc);
       MoveWindow(browser->UIT_GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
           TRUE);
-
-      if(browser->UIT_IsWebViewDisabled()) {
-        // recreate the capture bitmap at the correct size
-				HBITMAP bitmap;
-				SIZE size;
-        browser->UIT_CaptureWebViewBitmap(bitmap, size);
-				browser->UIT_SetWebViewBitmap(bitmap, size);
-			}
     }
     return 0;
   
-  case WM_PAINT:
-		if(browser->UIT_IsWebViewDisabled()) {
-      // when web view is disabled draw the capture bitmap
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
-			HBITMAP bitmap;
-			SIZE size;
-			browser->UIT_GetWebViewBitmap(bitmap, size);
-
-      HDC hMemDC = CreateCompatibleDC(hdc);
-			HBITMAP hOldBmp = (HBITMAP)SelectObject(hMemDC, bitmap);
-			BitBlt(hdc, 0, 0, size.cx, size.cy, hMemDC, 0, 0, SRCCOPY);
-
-			SelectObject(hMemDC, hOldBmp);
-			DeleteDC(hMemDC);
-			
-			EndPaint(hwnd, &ps);
-			return 0;
-		}
-		break;
-
-	case WM_SETFOCUS:
+  case WM_SETFOCUS:
 		if (browser && browser->UIT_GetWebView())
 			 browser->UIT_GetWebView()->SetFocus(true);
 		return 0;
@@ -442,87 +419,22 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent)
   SetEvent(hEvent);
 }
 
-int CefBrowserImpl::UIT_SwitchFrameToPrintMediaType(WebFrame* frame) {
+void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
+                                   const gfx::Size& canvas_size,
+                                   WebFrame* frame) {
   REQUIRE_UIT();
-  
-  printing::PrintParams params;
-  print_context_.settings().RenderParams(&params);
-
-  float ratio = static_cast<float>(params.desired_dpi / params.dpi);
-  float paper_width = params.printable_size.width() * ratio;
-  float paper_height = params.printable_size.height() * ratio;
-  float minLayoutWidth = static_cast<float>(paper_width * params.min_shrink);
-  float maxLayoutWidth = static_cast<float>(paper_width * params.max_shrink);
-
-  // Safari uses: 765 & 1224. Margins aren't exactly the same either.
-  // Scale = 2.222 for MDI printer.
-  int pages;
-  int width;
-  if (!frame->SetPrintingMode(true,
-                              minLayoutWidth,
-                              maxLayoutWidth,
-                              &width)) {
-    NOTREACHED();
-    pages = 0;
-  } else {
-    // Force to recalculate the height, otherwise it reuse the current window
-    // height as the default.
-    float effective_shrink = static_cast<float>(width) / paper_width;
-    gfx::Size page_size(width,
-                        static_cast<int>(paper_height * effective_shrink) - 1);
-    WebView* view = frame->GetView();
-    if (view) {
-      // Hack around an issue where if the current view height is higher than
-      // the page height, empty pages will be printed even if the bottom of the
-      // web page is empty.
-      printing_view_size_ = view->GetSize();
-      view->Resize(page_size);
-      view->Layout();
-    }
-    pages = frame->ComputePageRects(params.printable_size);
-    DCHECK(pages);
-  }
-  return pages;
-}
-
-void CefBrowserImpl::UIT_SwitchFrameToDisplayMediaType(WebFrame* frame) {
-  REQUIRE_UIT();
-
-  // TODO(cef): Figure out how to make the frame redraw properly after printing
-  // to PDF file (currently leaves a white rectangle behind the save as dialog).
-  
-  // Set the layout back to "normal" document; i.e. CSS media type = "screen".
-  frame->SetPrintingMode(false, 0, 0, NULL);
-  WebView* view = frame->GetView();
-  if (view) {
-    // Restore from the hack described at SwitchFrameToPrintMediaType().
-    view->Resize(printing_view_size_);
-    view->Layout();
-    printing_view_size_.SetSize(0, 0);
-  }
-}
-
-void CefBrowserImpl::UIT_PrintPage(int page_number, WebFrame* frame,
-                                        int total_pages) {
-  REQUIRE_UIT();
-  
-  if (printing_view_size_.width() < 0) {
-    NOTREACHED();
-    return;
-  }
 
   printing::PrintParams params;
   const printing::PrintSettings &settings = print_context_.settings();
   settings.RenderParams(&params);
 
-  gfx::Size src_size = frame->GetView()->GetSize();
-  double src_size_x = src_size.width();
-  double src_size_y = src_size.height();
-  double src_margin = .1 * src_size_x;
+  int src_size_x = canvas_size.width();
+  int src_size_y = canvas_size.height();
+  float src_margin = .1f * src_size_x;
 
-  double dest_size_x = settings.page_setup_pixels().physical_size().width();
-  double dest_size_y = settings.page_setup_pixels().physical_size().height();
-  double dest_margin = .1 * dest_size_x;
+  int dest_size_x = settings.page_setup_pixels().physical_size().width();
+  int dest_size_y = settings.page_setup_pixels().physical_size().height();
+  float dest_margin = .1f * dest_size_x;
 
   print_context_.NewPage();
 
@@ -534,23 +446,29 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, WebFrame* frame,
   int saved_state = SaveDC(hDC);
   DCHECK_NE(saved_state, 0);
 
-  // 100% GDI based.
-  skia::VectorCanvas canvas(hDC, (int)ceil(dest_size_x), (int)ceil(dest_size_y));
-  canvas.translate(SkDoubleToScalar(dest_margin),
-      SkDoubleToScalar(dest_margin));
-  canvas.scale(SkDoubleToScalar((dest_size_x - dest_margin * 2) / src_size_x),
-      SkDoubleToScalar((dest_size_y - dest_margin * 2) / src_size_y));
+  skia::VectorCanvas canvas(hDC, dest_size_x, dest_size_y);
+
+  // Adjust for the margin offset.
+  canvas.translate(dest_margin, dest_margin);
+  
+  // Apply the print scaling factor.
+  float print_scale = (dest_size_x - dest_margin * 2) / src_size_x;
+  canvas.scale(print_scale, print_scale);
   
   // Set the clipping region to be sure to not overflow.
   SkRect clip_rect;
-  clip_rect.set(0, 0, SkDoubleToScalar(src_size_x),
-      SkDoubleToScalar(src_size_y));
+  clip_rect.set(0, 0, static_cast<float>(src_size_x),
+      static_cast<float>(src_size_y));
   canvas.clipRect(clip_rect);
   
-  if (!frame->SpoolPage(page_number-1, &canvas)) {
+  // Apply the WebKit scaling factor.
+  float webkit_scale = frame->GetPrintPageShrink(page_number);
+  if (webkit_scale <= 0) {
     NOTREACHED() << "Printing page " << page_number << " failed.";
-    return;
   }
+  canvas.scale(webkit_scale, webkit_scale);
+  
+  frame->PrintPage(page_number, &canvas);
 
   res = RestoreDC(hDC, saved_state);
   DCHECK_NE(res, 0);
@@ -582,7 +500,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, WebFrame* frame,
 
     // allow the handler to format print header and/or footer
     CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this, printInfo,
-      url, title, page_number, total_pages, topLeft, topCenter, topRight,
+      url, title, page_number+1, total_pages, topLeft, topCenter, topRight,
       bottomLeft, bottomCenter, bottomRight);
 
     if(rv != RV_HANDLED) {
@@ -666,88 +584,69 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
   
   settings.RenderParams(&params);
 
-  // disable the web view so we don't see printing related layout changes on
-  // the screen
-  UIT_DisableWebView(true);
+  int page_count = 0;
+  gfx::Size canvas_size;
   
-  int pages = UIT_SwitchFrameToPrintMediaType(frame);
-  if (pages) {
+  canvas_size.set_width(
+      printing::ConvertUnit(
+          settings.page_setup_pixels().physical_size().width(),
+          static_cast<int>(params.dpi),
+          params.desired_dpi));
+  canvas_size.set_height(
+      printing::ConvertUnit(
+          settings.page_setup_pixels().physical_size().height(),
+          static_cast<int>(params.dpi),
+          params.desired_dpi));
+  frame->BeginPrint(WebSize(canvas_size), &page_count);
+
+  if (page_count) {
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
     MessageLoop::current()->SetNestableTasksAllowed(false);
 
     // TODO(cef): Use the page title as the document name
 	  print_context_.NewDocument(L"New Document");
 	  if(settings.ranges.size() > 0) {
-		  for (unsigned i = 0; i < settings.ranges.size(); ++i) {
-			  const printing::PageRange& range = settings.ranges[i];
+		  for (unsigned x = 0; x < settings.ranges.size(); ++x) {
+			  const printing::PageRange& range = settings.ranges[x];
 			  for(int i = range.from; i <= range.to; ++i)
-				  UIT_PrintPage(i, frame, pages);
+				  UIT_PrintPage(i, page_count, canvas_size, frame);
 		  }
 	  } else {
-		  for(int i = 1; i <= pages; ++i)
-			  UIT_PrintPage(i, frame, pages);
+		  for(int i = 0; i < page_count; ++i)
+			  UIT_PrintPage(i, page_count, canvas_size, frame);
 	  }
 	  print_context_.DocumentDone();
 
 	  MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
-  UIT_SwitchFrameToDisplayMediaType(frame);
 
-  // re-enable web view
-  UIT_DisableWebView(false);
+  frame->EndPrint();
 }
 
 int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
 {
 	REQUIRE_UIT();
   
-  int pages = UIT_SwitchFrameToPrintMediaType(frame);
-	UIT_SwitchFrameToDisplayMediaType(frame);
-	return pages;
-}
-
-void CefBrowserImpl::UIT_CaptureWebViewBitmap(HBITMAP &bitmap, SIZE &size)
-{
-  REQUIRE_UIT();
+  printing::PrintParams params;
+  const printing::PrintSettings &settings = print_context_.settings();
   
-  webkit_glue::CaptureWebViewBitmap(UIT_GetMainWndHandle(), UIT_GetWebView(),
-      bitmap, size);
-}
+  settings.RenderParams(&params);
 
-void CefBrowserImpl::UIT_SetWebViewBitmap(HBITMAP bitmap, SIZE size)
-{
-	REQUIRE_UIT();
+  int page_count = 0;
+  gfx::Size canvas_size;
   
-  if(webview_bitmap_)
-		DeleteObject(webview_bitmap_);
-	webview_bitmap_ = bitmap;
-	webview_bitmap_size_ = size;
-}
-	
-void CefBrowserImpl::UIT_DisableWebView(bool val)
-{
-	REQUIRE_UIT();
-  
-  if(val) {
-    // disable the web view window
-		if(webview_bitmap_ != NULL)
-			return;
+  canvas_size.set_width(
+      printing::ConvertUnit(
+          settings.page_setup_pixels().physical_size().width(),
+          static_cast<int>(params.dpi),
+          params.desired_dpi));
+  canvas_size.set_height(
+      printing::ConvertUnit(
+          settings.page_setup_pixels().physical_size().height(),
+          static_cast<int>(params.dpi),
+          params.desired_dpi));
+  frame->BeginPrint(WebSize(canvas_size), &page_count);
+  frame->EndPrint();
 
-		HBITMAP bitmap;
-		SIZE size;
-    UIT_CaptureWebViewBitmap(bitmap, size);
-		UIT_SetWebViewBitmap(bitmap, size);
-	
-		DWORD dwStyle = GetWindowLong(UIT_GetWebViewWndHandle(), GWL_STYLE);
-		SetWindowLong(UIT_GetWebViewWndHandle(), GWL_STYLE, dwStyle & ~WS_VISIBLE);
-		RedrawWindow(UIT_GetMainWndHandle(), NULL, NULL, RDW_INVALIDATE);
-	} else if(webview_bitmap_) {
-    // enable the web view window
-		SIZE size = {0,0};
-		UIT_SetWebViewBitmap(NULL, size);
-
-		DWORD dwStyle = GetWindowLong(UIT_GetWebViewWndHandle(), GWL_STYLE);
-		SetWindowLong(UIT_GetWebViewWndHandle(), GWL_STYLE, dwStyle | WS_VISIBLE);
-		RedrawWindow(UIT_GetMainWndHandle(), NULL, NULL, RDW_INVALIDATE);
-	}
+  return page_count;
 }

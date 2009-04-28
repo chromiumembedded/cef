@@ -9,8 +9,14 @@
 #include "request_impl.h"
 
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webscriptsource.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
+using WebKit::WebURL;
 
 
 CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
@@ -22,20 +28,12 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
 {
   delegate_ = new BrowserWebViewDelegate(this);
   nav_controller_.reset(new BrowserNavigationController(this));
-
-#if defined(OS_WIN)
-  webview_bitmap_size_.cx = webview_bitmap_size_.cy = 0;
-  webview_bitmap_ = NULL;
-#endif
 }
 
 CefBrowserImpl::~CefBrowserImpl()
 {
-#if defined(OS_WIN)
-  if(webview_bitmap_ != NULL)
-		DeleteObject(webview_bitmap_);
-#endif
   RemoveAllJSHandlers();
+  UIT_GetWebView()->SetDelegate(NULL);
 }
 
 void CefBrowserImpl::GoBack()
@@ -454,8 +452,8 @@ void CefBrowserImpl::UIT_ExecuteJavaScript(const std::wstring& js_code,
     frame = UIT_GetWebView()->GetMainFrame();
 
   frame->ExecuteScript(
-      webkit_glue::WebScriptSource(WideToUTF8(js_code), GURL(script_url),
-                                   start_line));
+      WebScriptSource(WebString(js_code), WebURL(GURL(script_url)),
+                      start_line));
 }
 
 void CefBrowserImpl::UIT_GoBackOrForward(int offset)

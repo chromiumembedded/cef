@@ -8,6 +8,7 @@
 // have initialized a MessageLoop before these methods are called.
 
 #include "precompiled_libcef.h"
+#include "config.h"
 #include "browser_webview_delegate.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
@@ -22,6 +23,10 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -39,6 +44,14 @@
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
 #endif
+
+using WebKit::WebDragData;
+using WebKit::WebRect;
+using WebKit::WebScreenInfo;
+using WebKit::WebSize;
+using WebKit::WebString;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 namespace {
 
@@ -58,6 +71,10 @@ WebView* BrowserWebViewDelegate::CreateWebView(WebView* webview,
 WebWidget* BrowserWebViewDelegate::CreatePopupWidget(WebView* webview,
                                                      bool activatable) {
   return browser_->UIT_CreatePopupWidget(webview);
+}
+
+WebWorker* BrowserWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
+  return NULL;
 }
 
 void BrowserWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
@@ -143,19 +160,21 @@ WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
 			return IGNORE_ACTION;
 	}
       
-  if (is_custom_policy_delegate_) {
+  WindowOpenDisposition result;
+  if (policy_delegate_enabled_) {
     std::wstring frame_name = frame->GetName();
-    printf("Policy delegate: attempt to load %s\n",
-           request->GetURL().spec().c_str());
-    return IGNORE_ACTION;
+    std::string url_description;
+    if (request->GetURL().SchemeIs("file")) {
+      url_description = request->GetURL().ExtractFileName();
+    } else {
+      url_description = request->GetURL().spec();
+    }
+    result = policy_delegate_is_permissive_ ? CURRENT_TAB : IGNORE_ACTION;
   } else {
-    return WebViewDelegate::DispositionForNavigationAction(
-      webview, frame, request, type, disposition, is_redirect);
+    result = WebViewDelegate::DispositionForNavigationAction(
+        webview, frame, request, type, disposition, is_redirect);
   }
-}
-
-void BrowserWebViewDelegate::SetCustomPolicyDelegate(bool isCustom) {
-  is_custom_policy_delegate_ = isCustom;
+  return result;
 }
 
 void BrowserWebViewDelegate::AssignIdentifierToRequest(WebView* webview,
@@ -202,7 +221,7 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
     WebView* webview,
     const WebError& error,
     WebFrame* frame) {
-  LocationChangeDone(frame->GetProvisionalDataSource());
+  LocationChangeDone(frame);
 
   // error codes are defined in net\base\net_error_list.h
 
@@ -259,13 +278,13 @@ void BrowserWebViewDelegate::DidReceiveTitle(WebView* webview,
 void BrowserWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
                                                 WebFrame* frame) {
   UpdateAddressBar(webview);
-  LocationChangeDone(frame->GetDataSource());
+  LocationChangeDone(frame);
 }
 
 void BrowserWebViewDelegate::DidFailLoadWithError(WebView* webview,
                                                const WebError& error,
                                                WebFrame* frame) {
-  LocationChangeDone(frame->GetDataSource());
+  LocationChangeDone(frame);
 }
 
 void BrowserWebViewDelegate::DidFinishDocumentLoadForFrame(WebView* webview,
@@ -357,7 +376,7 @@ void BrowserWebViewDelegate::SetStatusbarText(WebView* webview,
 }
 
 void BrowserWebViewDelegate::StartDragging(WebView* webview,
-                                        const WebDropData& drop_data) {
+                                        const WebDragData& drag_data) {
 #if defined(OS_WIN)
   // TODO(port): make this work on all platforms.
   if (!drag_delegate_) {
@@ -369,7 +388,7 @@ void BrowserWebViewDelegate::StartDragging(WebView* webview,
   // to be able to convert from WebDragData to an IDataObject.
   //const DWORD ok_effect = DROPEFFECT_COPY | DROPEFFECT_LINK | DROPEFFECT_MOVE;
   //DWORD effect;
-  //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
+  //HRESULT res = DoDragDrop(drag_data.data_object, drag_delegate_.get(),
   //                         ok_effect, &effect);
   //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
   webview->DragSourceSystemDragEnded();
@@ -486,13 +505,13 @@ gfx::NativeViewId BrowserWebViewDelegate::GetContainingView(WebWidget* webwidget
 }
 
 void BrowserWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
-                                            const gfx::Rect& rect) {
+                                            const WebRect& rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     host->DidInvalidateRect(rect);
 }
 
 void BrowserWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                                        const gfx::Rect& clip_rect) {
+                                        const WebRect& clip_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     host->DidScrollRect(dx, dy, clip_rect);
 }
@@ -507,8 +526,29 @@ void BrowserWebViewDelegate::Blur(WebWidget* webwidget) {
     browser_->UIT_SetFocus(host, false);
 }
 
-bool BrowserWebViewDelegate::IsHidden() {
+bool BrowserWebViewDelegate::IsHidden(WebWidget* webwidget) {
   return false;
+}
+
+WebScreenInfo BrowserWebViewDelegate::GetScreenInfo(WebWidget* webwidget) {
+  if (WebWidgetHost* host = GetHostForWidget(webwidget))
+    return host->GetScreenInfo();
+
+  return WebScreenInfo();
+}
+
+void BrowserWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
+  smart_insert_delete_enabled_ = enabled;
+  // In upstream WebKit, smart insert/delete is mutually exclusive with select
+  // trailing whitespace, however, we allow both because Chromium on Windows
+  // allows both.
+}
+
+void BrowserWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
+  select_trailing_whitespace_enabled_ = enabled;
+  // In upstream WebKit, smart insert/delete is mutually exclusive with select
+  // trailing whitespace, however, we allow both because Chromium on Windows
+  // allows both.
 }
 
 void BrowserWebViewDelegate::RegisterDragDrop() {
@@ -518,6 +558,16 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
   drop_delegate_ = new BrowserDropDelegate(browser_->UIT_GetWebViewWndHandle(),
                                            browser_->UIT_GetWebView());
 #endif
+}
+
+void BrowserWebViewDelegate::SetCustomPolicyDelegate(bool is_custom,
+                                                  bool is_permissive) {
+  policy_delegate_enabled_ = is_custom;
+  policy_delegate_is_permissive_ = is_permissive;
+}
+
+void BrowserWebViewDelegate::WaitForPolicyDelegate() {
+  policy_delegate_enabled_ = true;
 }
 
 // Private methods -----------------------------------------------------------
@@ -535,8 +585,8 @@ void BrowserWebViewDelegate::UpdateAddressBar(WebView* webView) {
 */
 }
 
-void BrowserWebViewDelegate::LocationChangeDone(WebDataSource* data_source) {
-  if (data_source->GetWebFrame() == top_loading_frame_)
+void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
+  if (frame == top_loading_frame_)
     top_loading_frame_ = NULL;
 }
 

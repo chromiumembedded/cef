@@ -8,7 +8,11 @@
 
 #include <atltypes.h>
 
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "webkit/glue/webview.h"
+
+using WebKit::WebPoint;
+
 
 namespace {
 
@@ -32,12 +36,14 @@ void BrowserDragDelegate::OnDragSourceDrop() {
   CPoint client;
   CPoint screen;
   GetCursorPositions(source_hwnd_, &client, &screen);
-  webview_->DragSourceEndedAt(client.x, client.y, screen.x, screen.y);
+  webview_->DragSourceEndedAt(WebPoint(client.x, client.y),
+                              WebPoint(screen.x, screen.y));
 }
 
 void BrowserDragDelegate::OnDragSourceMove() {
   CPoint client;
   CPoint screen;
   GetCursorPositions(source_hwnd_, &client, &screen);
-  webview_->DragSourceMovedTo(client.x, client.y, screen.x, screen.y);
+  webview_->DragSourceMovedTo(WebPoint(client.x, client.y),
+                              WebPoint(screen.x, screen.y));
 }

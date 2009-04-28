@@ -282,14 +282,6 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
     ranges_vector.push_back(range);
   }
   settings_.Init(hdc_, dev_mode, ranges_vector, new_device_name);
-  PageMargins margins;
-  margins.header = 500;
-  margins.footer = 500;
-  margins.left = 500;
-  margins.top = 500;
-  margins.right = 500;
-  margins.bottom = 500;
-  settings_.UpdateMarginsMilliInch(margins);
   return true;
 }
 
