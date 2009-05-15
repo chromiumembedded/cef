@@ -7,7 +7,7 @@
 
 #include "cef.h"
 #include "cef_capi.h"
-#include "base/logging.h"
+#include "../cef_logging.h"
 
 
 // Wrap a C structure with a C++ class.

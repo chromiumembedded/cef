@@ -8,7 +8,6 @@
 #include "ctocpp/stream_ctocpp.h"
 #include "cpptoc/handler_cpptoc.h"
 #include "cpptoc/jshandler_cpptoc.h"
-#include "base/logging.h"
 
 
 bool CefBrowserCToCpp::CanGoBack()

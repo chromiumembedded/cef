@@ -8,7 +8,6 @@
 #include "cpptoc/stream_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "ctocpp/jshandler_ctocpp.h"
-#include "base/logging.h"
 
 
 int CEF_CALLBACK browser_can_go_back(cef_browser_t* browser)

@@ -4,7 +4,6 @@
 
 #include "../precompiled_libcef.h"
 #include "ctocpp/stream_ctocpp.h"
-#include "base/logging.h"
 
 
 size_t CefStreamReaderCToCpp::Read(void *ptr, size_t size, size_t n)

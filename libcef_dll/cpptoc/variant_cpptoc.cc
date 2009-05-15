@@ -4,7 +4,6 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/variant_cpptoc.h"
-#include "base/logging.h"
 
 
 cef_variant_type_t CEF_CALLBACK variant_get_type(struct _cef_variant_t* variant)

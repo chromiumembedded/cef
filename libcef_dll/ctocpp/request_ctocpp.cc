@@ -5,8 +5,6 @@
 #include "../precompiled_libcef.h"
 #include "ctocpp/request_ctocpp.h"
 #include "transfer_util.h"
-#include "base/logging.h"
-
 
 std::wstring CefRequestCToCpp::GetURL()
 {

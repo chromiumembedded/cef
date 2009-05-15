@@ -4,7 +4,6 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/stream_cpptoc.h"
-#include "base/logging.h"
 
 
 size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* stream,

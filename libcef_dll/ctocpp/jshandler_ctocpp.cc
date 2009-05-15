@@ -6,7 +6,6 @@
 #include "cpptoc/browser_cpptoc.h"
 #include "cpptoc/variant_cpptoc.h"
 #include "ctocpp/jshandler_ctocpp.h"
-#include "base/logging.h"
 
 
 bool CefJSHandlerCToCpp::HasMethod(CefRefPtr<CefBrowser> browser,

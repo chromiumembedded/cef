@@ -8,7 +8,6 @@
 #include "ctocpp/request_ctocpp.h"
 #include "ctocpp/stream_ctocpp.h"
 #include "transfer_util.h"
-#include "base/logging.h"
 
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_created(

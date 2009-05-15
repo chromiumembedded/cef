@@ -5,7 +5,6 @@
 #include "../precompiled_libcef.h"
 #include "cpptoc/request_cpptoc.h"
 #include "transfer_util.h"
-#include "base/logging.h"
 
 
 cef_string_t CEF_CALLBACK request_get_url(struct _cef_request_t* request)

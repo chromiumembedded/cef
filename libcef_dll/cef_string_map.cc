@@ -3,9 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "precompiled_libcef.h"
+#include "cef_logging.h"
 #include "cef_string_map.h"
 #include <map>
-#include "base/logging.h"
 
 
 typedef std::map<std::wstring, std::wstring> StringMap;

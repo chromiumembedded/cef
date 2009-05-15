@@ -8,7 +8,6 @@
 #include "cpptoc/stream_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "transfer_util.h"
-#include "base/logging.h"
 
 
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeCreated(

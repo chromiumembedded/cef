@@ -191,6 +191,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\cef_logging.h"
+			>
+		</File>
+		<File
 			RelativePath=".\libcef_dll_wrapper.cc"
 			>
 		</File>

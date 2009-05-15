@@ -4,7 +4,6 @@
 
 #include "../precompiled_libcef.h"
 #include "ctocpp/variant_ctocpp.h"
-#include "base/logging.h"
 
 
 CefVariant::Type CefVariantCToCpp::GetType()

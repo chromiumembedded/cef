@@ -6,7 +6,6 @@
 #include "cpptoc/jshandler_cpptoc.h"
 #include "ctocpp/browser_ctocpp.h"
 #include "ctocpp/variant_ctocpp.h"
-#include "base/logging.h"
 
 
 bool CEF_CALLBACK jshandler_has_method(struct _cef_jshandler_t* jshandler,

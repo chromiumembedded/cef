@@ -5,6 +5,7 @@
 #include "precompiled_libcef.h"
 #include "cef.h"
 #include "cef_capi.h"
+#include "cef_logging.h"
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
 #include "cpptoc/browser_cpptoc.h"
@@ -13,7 +14,6 @@
 #include "cpptoc/stream_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "ctocpp/jshandler_ctocpp.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 
 

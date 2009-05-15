@@ -372,6 +372,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\cef_logging.h"
+			>
+		</File>
+		<File
 			RelativePath=".\cef_string.c"
 			>
 			<FileConfiguration
