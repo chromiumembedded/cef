@@ -31,9 +31,8 @@ void BrowserRequestContext::Init(
   accept_language_ = "en-us,en";
   accept_charset_ = "iso-8859-1,*,utf-8";
 
-  net::ProxyInfo proxy_info;
-  proxy_info.UseDirect();
-  proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_info : NULL);
+  net::ProxyConfig proxy_config;
+  proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL);
 
   net::HttpCache *cache;
   if (cache_path.empty()) {

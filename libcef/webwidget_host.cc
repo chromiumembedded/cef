@@ -9,11 +9,11 @@
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#include "webkit/api/public/WebInputEvent.h"
+#include "webkit/api/public/WebScreenInfo.h"
+#include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/win/WebInputEventFactory.h"
+#include "webkit/api/public/win/WebScreenInfoFactory.h"
 #include "webkit/glue/webwidget.h"
 
 using WebKit::WebInputEvent;

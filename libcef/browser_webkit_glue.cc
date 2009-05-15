@@ -9,7 +9,6 @@
 #include "base/logging.h"
 
 #include "config.h"
-#include "webkit_version.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Markup.h"
 #include "TextEncoding.h"

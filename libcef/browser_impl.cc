@@ -9,9 +9,9 @@
 #include "request_impl.h"
 
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "webkit/api/public/WebScriptSource.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
 #include "webkit/glue/webframe.h"
 
 using WebKit::WebScriptSource;
@@ -33,7 +33,6 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
 CefBrowserImpl::~CefBrowserImpl()
 {
   RemoveAllJSHandlers();
-  UIT_GetWebView()->SetDelegate(NULL);
 }
 
 void CefBrowserImpl::GoBack()

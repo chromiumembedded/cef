@@ -23,10 +23,10 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebScreenInfo.h"
+#include "webkit/api/public/WebString.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -62,7 +62,8 @@ int next_page_id_ = 1;
 // WebViewDelegate -----------------------------------------------------------
 
 WebView* BrowserWebViewDelegate::CreateWebView(WebView* webview,
-                                               bool user_gesture) {
+                                               bool user_gesture,
+                                               const GURL& creator_url) {
   CefRefPtr<CefBrowserImpl> browser =
       browser_->UIT_CreatePopupWindow(std::wstring());
   return browser.get() ? browser->UIT_GetWebView() : NULL;
@@ -460,13 +461,8 @@ void BrowserWebViewDelegate::DidEndEditing() {
   
 }
 
-WebHistoryItem* BrowserWebViewDelegate::GetHistoryEntryAtOffset(int offset) {
-  BrowserNavigationEntry* entry = static_cast<BrowserNavigationEntry*>(
-      browser_->UIT_GetNavigationController()->GetEntryAtOffset(offset));
-  if (!entry)
-    return NULL;
-
-  return entry->GetHistoryItem();
+void BrowserWebViewDelegate::NavigateBackForwardSoon(int offset) {
+  browser_->UIT_GetNavigationController()->GoToOffset(offset);
 }
 
 int BrowserWebViewDelegate::GetHistoryBackListCount() {

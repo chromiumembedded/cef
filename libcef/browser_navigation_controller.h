@@ -21,7 +21,6 @@ class UploadData;
 
 class GURL;
 class CefBrowserImpl;
-class WebHistoryItem;
 
 // Associated with browser-initated navigations to hold tracking data.
 class BrowserExtraRequestData : public WebRequest::ExtraData {
@@ -75,7 +74,6 @@ class BrowserNavigationEntry {
   void SetPageID(int page_id) { page_id_ = page_id; }
   int32 GetPageID() const { return page_id_; }
 
-  WebHistoryItem* GetHistoryItem() const;
   const std::wstring& GetTargetFrame() const { return target_frame_; }
 
   const std::wstring& GetMethod() const { return method_; }
@@ -94,8 +92,6 @@ private:
   scoped_refptr<net::UploadData> upload_;
   WebRequest::HeaderMap headers_;
 
-  mutable scoped_refptr<WebHistoryItem> cached_history_item_;
-  
   std::wstring target_frame_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserNavigationEntry);
@@ -147,9 +143,9 @@ class BrowserNavigationController {
   // it is the pending_entry_index_.
   int GetCurrentEntryIndex() const;
 
-  // Returns the entry at the specified offset from current.  Returns NULL
-  // if out of bounds.
-  BrowserNavigationEntry* GetEntryAtOffset(int offset) const;
+  // Returns the entry at the specified index.  Returns NULL if out of
+  // bounds.
+  BrowserNavigationEntry* GetEntryAtIndex(int index) const;
 
   // Return the entry with the corresponding type and page_id, or NULL if
   // not found.

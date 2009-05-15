@@ -9,7 +9,6 @@
 
 #include "base/logging.h"
 #include "net/base/upload_data.h"
-#include "webkit/glue/webhistoryitem.h"
 
 // ----------------------------------------------------------------------------
 // BrowserNavigationEntry
@@ -38,22 +37,7 @@ BrowserNavigationEntry::~BrowserNavigationEntry() {
 }
 
 void BrowserNavigationEntry::SetContentState(const std::string& state) {
-  cached_history_item_ = NULL;  // invalidate our cached item
   state_ = state;
-}
-
-WebHistoryItem* BrowserNavigationEntry::GetHistoryItem() const {
-  // TODO(port): temporary hack to get a basic test shell executable going.
-#if !defined(OS_LINUX)
-  if (!cached_history_item_) {
-    BrowserExtraRequestData* extra_data =
-        new BrowserExtraRequestData(GetPageID());
-    cached_history_item_ =
-        WebHistoryItem::Create(GetURL(), GetTitle(), GetContentState(),
-                               extra_data);
-  }
-#endif
-  return cached_history_item_;
 }
 
 // ----------------------------------------------------------------------------
@@ -141,9 +125,8 @@ int BrowserNavigationController::GetCurrentEntryIndex() const {
 }
 
 
-BrowserNavigationEntry* BrowserNavigationController::GetEntryAtOffset(
-    int offset) const {
-  int index = last_committed_entry_index_ + offset;
+BrowserNavigationEntry* BrowserNavigationController::GetEntryAtIndex(
+    int index) const {
   if (index < 0 || index >= GetEntryCount())
     return NULL;
 

@@ -363,11 +363,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.rc"
+				RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_resources.rc"
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_en-US.rc"
+				RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_strings_en-US.rc"
 				>
 			</File>
 		</Filter>

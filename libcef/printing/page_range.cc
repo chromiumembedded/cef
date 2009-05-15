@@ -5,7 +5,7 @@
 #include "precompiled_libcef.h"
 #include "page_range.h"
 
-#include "chrome/common/stl_util-inl.h"
+#include "base/stl_util-inl.h"
 
 namespace printing {
 

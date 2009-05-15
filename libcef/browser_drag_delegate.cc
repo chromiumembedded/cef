@@ -8,7 +8,7 @@
 
 #include <atltypes.h>
 
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "webkit/api/public/WebPoint.h"
 #include "webkit/glue/webview.h"
 
 using WebKit::WebPoint;

@@ -211,30 +211,6 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="external_files"
-			>
-			<File
-				RelativePath="..\..\webkit\glue\simple_clipboard_impl.cc"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-		</Filter>
 		<File
 			RelativePath=".\browser_drag_delegate.cc"
 			>
@@ -361,6 +337,10 @@
 		</File>
 		<File
 			RelativePath=".\request_impl.h"
+			>
+		</File>
+		<File
+			RelativePath=".\simple_clipboard_impl.cc"
 			>
 		</File>
 		<File

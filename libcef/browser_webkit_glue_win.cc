@@ -12,7 +12,6 @@
 #include "base/compiler_specific.h"
 
 #include "config.h"
-#include "webkit_version.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformContextSkia.h"
 MSVC_POP_WARNING();
@@ -22,8 +21,8 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"

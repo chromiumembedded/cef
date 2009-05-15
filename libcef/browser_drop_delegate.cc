@@ -6,8 +6,8 @@
 #include "precompiled_libcef.h"
 #include "browser_drop_delegate.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebPoint.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webview.h"
 

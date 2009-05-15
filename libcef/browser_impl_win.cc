@@ -13,8 +13,8 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "skia/ext/vector_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -55,6 +55,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
         // Notify the handler that the window is about to be closed
         handler->HandleBeforeWindowClose(browser);
       }
+      RevokeDragDrop(browser->UIT_GetWebViewWndHandle());
       // Remove the browser from the list maintained by the context
       _Context->RemoveBrowser(browser);
     }
@@ -631,6 +632,10 @@ int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
   const printing::PrintSettings &settings = print_context_.settings();
   
   settings.RenderParams(&params);
+
+  // The dbi will be 0 if no default printer is configured.
+  if(params.dpi == 0)
+    return 0;
 
   int page_count = 0;
   gfx::Size canvas_size;

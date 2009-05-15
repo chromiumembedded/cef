@@ -26,7 +26,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -45,7 +45,6 @@ using WebKit::WebRect;
 // WebViewDelegate -----------------------------------------------------------
 
 BrowserWebViewDelegate::~BrowserWebViewDelegate() {
-  RevokeDragDrop(browser_->UIT_GetWebViewWndHandle());
 }
 
 WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
@@ -248,7 +247,8 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
                                           const std::wstring& selection_text,
                                           const std::wstring& misspelled_word,
                                           int edit_flags,
-                                          const std::string& security_info) {
+                                          const std::string& security_info,
+                                          const std::string& frame_charset) {
 
   POINT screen_pt = { x, y };
 	MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,

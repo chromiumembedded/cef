@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(OutDir)\WebKit&quot;;&quot;$(OutDir)\grit_derived_sources&quot;;&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\localized_strings&quot;;&quot;$(SolutionDir)..\webkit\port\bridge&quot;;&quot;$(SolutionDir)..\webkit\port\platform&quot;;&quot;$(SolutionDir)..\webkit\port\platform\network&quot;;&quot;$(SolutionDir)..\webkit\glue&quot;;&quot;$(SolutionDir)..\third_party\webkit\src\&quot;;&quot;$(OutDir)\obj\WebCore\JavaScriptHeaders&quot;;&quot;$(OutDir)&quot;"
+		AdditionalIncludeDirectories="&quot;$(OutDir)\obj\WebKit&quot;;&quot;$(OutDir)\obj\global_intermediate\webkit&quot;;&quot;$(IntDir)\grit_derived_sources&quot;;&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\localized_strings&quot;;&quot;$(SolutionDir)..\webkit\port\bridge&quot;;&quot;$(SolutionDir)..\webkit\port\platform&quot;;&quot;$(SolutionDir)..\webkit\port\platform\network&quot;;&quot;$(SolutionDir)..\webkit\glue&quot;;&quot;$(SolutionDir)..\third_party\webkit\src\&quot;;&quot;$(OutDir)\obj\WebCore\JavaScriptHeaders&quot;;&quot;$(OutDir)&quot;"
 		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 	/>
 	<Tool

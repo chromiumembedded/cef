@@ -58,7 +58,9 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual ~BrowserWebViewDelegate();
 
   // WebViewDelegate
-  virtual WebView* CreateWebView(WebView* webview, bool user_gesture);
+  virtual WebView* CreateWebView(WebView* webview,
+                                 bool user_gesture,
+                                 const GURL& creator_url);
   virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable);
   virtual WebPluginDelegate* CreatePluginDelegate(
     WebView* webview,
@@ -98,7 +100,8 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
                                int edit_flags,
-                               const std::string& security_info);
+                               const std::string& security_info,
+                               const std::string& frame_charset);
   virtual void DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -182,7 +185,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
+  virtual void NavigateBackForwardSoon(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
 

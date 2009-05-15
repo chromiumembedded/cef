@@ -34,6 +34,7 @@ MSVC_POP_WARNING()
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "webkit/glue/webframe.h"
+#include "webkit/glue/webview.h"
 
 
 // Our special NPObject type.  We extend an NPObject with a pointer to a
@@ -107,6 +108,7 @@ NPClass CefNPObject::np_class_ = {
   CefNPObject* obj = new CefNPObject;
   // obj->parent will be initialized by the NPObject code calling this.
   obj->container = NULL;
+  obj->webframe = NULL;
   return &obj->parent;
 }
 
@@ -236,6 +238,20 @@ bool CefJSContainer::SetProperty(NPIdentifier ident,
   return handler_->SetProperty(browser_, name, cef_value);
 }
 
+// Check if the specified frame exists by comparing to all frames currently
+// attached to the view.
+static bool FrameExists(WebView* view, WebFrame* frame) {
+  WebFrame* main_frame = view->GetMainFrame();
+  WebFrame* it = main_frame;
+  do {
+    if (it == frame)
+      return true;
+    it = view->GetNextFrameAfter(it, true);
+  } while (it != main_frame);
+
+  return false;
+}
+
 void CefJSContainer::BindToJavascript(WebFrame* frame,
                                       const std::wstring& classname) {
 #if USE(JSC)
@@ -245,15 +261,24 @@ void CefJSContainer::BindToJavascript(WebFrame* frame,
   NPObject* np_obj = NULL;
   CefNPObject* obj = NULL;
 
-  // Check if we already have an NPObject bound to this particular frame.
   Lock();
-  BoundObjectList::const_iterator it = bound_objects_.begin();
-  for(; it != bound_objects_.end(); ++it) {
+  WebView* view = frame->GetView();
+  BoundObjectList::iterator it = bound_objects_.begin();
+  for(; it != bound_objects_.end(); ) {
     obj = reinterpret_cast<CefNPObject*>(*it);
     if(obj->webframe == frame) {
+      // An NPObject is already bound to this particular frame.
       np_obj = *it;
-      break;
+    } else if(!FrameExists(view, obj->webframe)) {
+      // Remove bindings to non-existent frames.
+#if USE(V8)
+      _NPN_UnregisterObject(*it);
+#endif
+      NPN_ReleaseObject(*it);
+      it = bound_objects_.erase(it);
+      continue;
     }
+    ++it;
   }
   Unlock();
 
