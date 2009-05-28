@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _VARIANT_CPPTOC_H
-#define _VARIANT_CPPTOC_H
+#ifndef _FRAME_CPPTOC_H
+#define _FRAME_CPPTOC_H
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
@@ -14,15 +14,16 @@
 #include "cpptoc.h"
 
 
-// Wrap a C++ browser class with a C browser structure.
+// Wrap a C++ frame class with a C frame structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefVariantCppToC : public CefCppToC<CefVariant, cef_variant_t>
+class CefFrameCppToC
+    : public CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>
 {
 public:
-  CefVariantCppToC(CefVariant* cls);
-  virtual ~CefVariantCppToC() {}
+  CefFrameCppToC(CefFrame* cls);
+  virtual ~CefFrameCppToC() {}
 };
 
 
 #endif // BUILDING_CEF_SHARED
-#endif // _VARIANT_CPPTOC_H
+#endif // _FRAME_CPPTOC_H

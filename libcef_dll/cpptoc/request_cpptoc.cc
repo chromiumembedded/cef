@@ -13,13 +13,10 @@ cef_string_t CEF_CALLBACK request_get_url(struct _cef_request_t* request)
   if(!request)
     return NULL;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-
-  std::wstring urlStr = impl->class_->GetClass()->GetURL();
-  if(urlStr.empty())
-    return NULL;
-  return cef_string_alloc(urlStr.c_str());
+  std::wstring urlStr = CefRequestCppToC::Get(request)->GetURL();
+  if(!urlStr.empty())
+    return cef_string_alloc(urlStr.c_str());
+  return NULL;
 }
 
 void CEF_CALLBACK request_set_url(struct _cef_request_t* request,
@@ -29,44 +26,10 @@ void CEF_CALLBACK request_set_url(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-
   std::wstring urlStr;
   if(url)
     urlStr = url;
-  impl->class_->GetClass()->SetURL(urlStr);
-}
-
-cef_string_t CEF_CALLBACK request_get_frame(struct _cef_request_t* request)
-{
-  DCHECK(request);
-  if(!request)
-    return NULL;
-
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-
-  std::wstring frameStr = impl->class_->GetClass()->GetFrame();
-  if(frameStr.empty())
-    return NULL;
-  return cef_string_alloc(frameStr.c_str());
-}
-
-void CEF_CALLBACK request_set_frame(struct _cef_request_t* request,
-                            const wchar_t* frame)
-{
-  DCHECK(request);
-  if(!request)
-    return;
-
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
-  std::wstring frameStr;
-  if(frame)
-    frameStr = frame;
-  impl->class_->GetClass()->SetFrame(frameStr);
+  CefRequestCppToC::Get(request)->SetURL(urlStr);
 }
 
 cef_string_t CEF_CALLBACK request_get_method(struct _cef_request_t* request)
@@ -75,13 +38,10 @@ cef_string_t CEF_CALLBACK request_get_method(struct _cef_request_t* request)
   if(!request)
     return NULL;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
-  std::wstring methodStr = impl->class_->GetClass()->GetMethod();
-  if(methodStr.empty())
-    return NULL;
-  return cef_string_alloc(methodStr.c_str());
+  std::wstring methodStr = CefRequestCppToC::Get(request)->GetMethod();
+  if(!methodStr.empty())
+    return cef_string_alloc(methodStr.c_str());
+  return NULL;
 }
 
 void CEF_CALLBACK request_set_method(struct _cef_request_t* request,
@@ -91,13 +51,10 @@ void CEF_CALLBACK request_set_method(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
   std::wstring methodStr;
   if(method)
     methodStr = method;
-  impl->class_->GetClass()->SetMethod(methodStr);
+  CefRequestCppToC::Get(request)->SetMethod(methodStr);
 }
 
 struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
@@ -107,17 +64,12 @@ struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
   if(!request)
     return NULL;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
-  CefRefPtr<CefPostData> postdata =
-      impl->class_->GetClass()->GetPostData();
-  if(!postdata.get())
+  CefRefPtr<CefPostData> postDataPtr =
+      CefRequestCppToC::Get(request)->GetPostData();
+  if(!postDataPtr.get())
     return NULL;
 
-  CefPostDataCppToC* rp = new CefPostDataCppToC(postdata);
-  rp->AddRef();
-  return rp->GetStruct();
+  return CefPostDataCppToC::Wrap(postDataPtr);
 }
 
 void CEF_CALLBACK request_set_post_data(struct _cef_request_t* request,
@@ -127,16 +79,11 @@ void CEF_CALLBACK request_set_post_data(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  CefPostDataCppToC::Struct* postStructPtr =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  
   CefRefPtr<CefPostData> postDataPtr;
-  if(postStructPtr)
-    postDataPtr = postStructPtr->class_->GetClass();
+  if(postData)
+    postDataPtr = CefPostDataCppToC::Unwrap(postData);
   
-  impl->class_->GetClass()->SetPostData(postDataPtr);
+  CefRequestCppToC::Get(request)->SetPostData(postDataPtr);
 }
 
 void CEF_CALLBACK request_get_header_map(struct _cef_request_t* request,
@@ -146,12 +93,8 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
   CefRequest::HeaderMap map;
-  impl->class_->GetClass()->GetHeaderMap(map);
-
+  CefRequestCppToC::Get(request)->GetHeaderMap(map);
   transfer_string_map_contents(map, headerMap);
 }
 
@@ -162,19 +105,15 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  
   CefRequest::HeaderMap map;
   if(headerMap)
     transfer_string_map_contents(headerMap, map);
 
-  impl->class_->GetClass()->SetHeaderMap(map);
+  CefRequestCppToC::Get(request)->SetHeaderMap(map);
 }
 
 void CEF_CALLBACK request_set(struct _cef_request_t* request,
-                              const wchar_t* url, const wchar_t* frame,
-                              const wchar_t* method,
+                              const wchar_t* url, const wchar_t* method,
                               struct _cef_post_data_t* postData,
                               cef_string_map_t headerMap)
 {
@@ -182,37 +121,28 @@ void CEF_CALLBACK request_set(struct _cef_request_t* request,
   if(!request)
     return;
 
-  CefRequestCppToC::Struct* impl =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  CefPostDataCppToC::Struct* postStructPtr =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  
-  std::wstring urlStr, frameStr, methodStr;
-  CefRefPtr<CefPostData> postPtr;
+  std::wstring urlStr, methodStr;
+  CefRefPtr<CefPostData> postDataPtr;
   CefRequest::HeaderMap map;
 
   if(url)
     urlStr = url;
-  if(frame)
-    frameStr = frame;
   if(method)
     methodStr = method;  
-  if(postStructPtr)
-    postPtr = postStructPtr->class_->GetClass();
+  if(postData)
+    postDataPtr = CefPostDataCppToC::Unwrap(postData);
   if(headerMap)
     transfer_string_map_contents(headerMap, map);
 
-  impl->class_->GetClass()->Set(urlStr, frameStr, methodStr, postPtr, map);
+  CefRequestCppToC::Get(request)->Set(urlStr, methodStr, postDataPtr, map);
 }
 
 
 CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
-    : CefCppToC<CefRequest, cef_request_t>(cls)
+    : CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>(cls)
 {
   struct_.struct_.get_url = request_get_url;
   struct_.struct_.set_url = request_set_url;
-  struct_.struct_.get_frame = request_get_frame;
-  struct_.struct_.set_frame = request_set_frame;
   struct_.struct_.get_method = request_get_method;
   struct_.struct_.set_method = request_set_method;
   struct_.struct_.get_post_data = request_get_post_data;
@@ -223,7 +153,7 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefRequest, cef_request_t>::DebugObjCt = 0;
+long CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>::DebugObjCt = 0;
 #endif
 
 
@@ -234,9 +164,7 @@ size_t CEF_CALLBACK post_data_get_element_count(
   if(!postData)
     return 0;
 
-  CefPostDataCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  return impl->class_->GetClass()->GetElementCount();
+  return CefPostDataCppToC::Get(postData)->GetElementCount();
 }
 
 struct _cef_post_data_element_t* CEF_CALLBACK post_data_get_element(
@@ -246,18 +174,13 @@ struct _cef_post_data_element_t* CEF_CALLBACK post_data_get_element(
   if(!postData)
     return NULL;
 
-  CefPostDataCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  
   CefPostData::ElementVector elements;
-  impl->class_->GetClass()->GetElements(elements);
+  CefPostDataCppToC::Get(postData)->GetElements(elements);
 
   if(index < 0 || index >= (int)elements.size())
     return NULL;
 
-  CefPostDataElementCppToC* rp = new CefPostDataElementCppToC(elements[index]);
-  rp->AddRef();
-  return rp->GetStruct();
+  return CefPostDataElementCppToC::Wrap(elements[index]);
 }
 
 int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* postData,
@@ -268,12 +191,9 @@ int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* postData,
   if(!postData || !element)
     return 0;
 
-  CefPostDataCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  CefPostDataElementCppToC::Struct* structPtr =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(element);
-  
-  return impl->class_->GetClass()->RemoveElement(structPtr->class_->GetClass());
+  CefRefPtr<CefPostDataElement> postDataElementPtr =
+      CefPostDataElementCppToC::Unwrap(element);
+  return CefPostDataCppToC::Get(postData)->RemoveElement(postDataElementPtr);
 }
 
 int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* postData,
@@ -284,12 +204,9 @@ int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* postData,
   if(!postData || !element)
     return 0;
 
-  CefPostDataCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  CefPostDataElementCppToC::Struct* structPtr =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(element);
-
-   return impl->class_->GetClass()->AddElement(structPtr->class_->GetClass());
+  CefRefPtr<CefPostDataElement> postDataElementPtr =
+      CefPostDataElementCppToC::Unwrap(element);
+  return CefPostDataCppToC::Get(postData)->AddElement(postDataElementPtr);
 }
 
 void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* postData)
@@ -298,15 +215,12 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* postData)
   if(!postData)
     return;
 
-  CefPostDataCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataCppToC::Struct*>(postData);
-  
-  impl->class_->GetClass()->RemoveElements();
+  CefPostDataCppToC::Get(postData)->RemoveElements();
 }
 
 
 CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
-    : CefCppToC<CefPostData, cef_post_data_t>(cls)
+    : CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>(cls)
 {
   struct_.struct_.get_element_count = post_data_get_element_count;
   struct_.struct_.get_element = post_data_get_element;
@@ -316,7 +230,8 @@ CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefPostData, cef_post_data_t>::DebugObjCt = 0;
+long CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>::DebugObjCt
+    = 0;
 #endif
 
 
@@ -327,9 +242,7 @@ void CEF_CALLBACK post_data_element_set_to_empty(
   if(!postDataElement)
     return;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  impl->class_->GetClass()->SetToEmpty();
+  CefPostDataElementCppToC::Get(postDataElement)->SetToEmpty();
 }
 
 void CEF_CALLBACK post_data_element_set_to_file(
@@ -340,13 +253,11 @@ void CEF_CALLBACK post_data_element_set_to_file(
   if(!postDataElement)
     return;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  
   std::wstring fileNameStr;
   if(fileName)
     fileNameStr = fileName;
-  impl->class_->GetClass()->SetToFile(fileNameStr);
+
+  CefPostDataElementCppToC::Get(postDataElement)->SetToFile(fileNameStr);
 }
 
 void CEF_CALLBACK post_data_element_set_to_bytes(
@@ -357,9 +268,7 @@ void CEF_CALLBACK post_data_element_set_to_bytes(
   if(!postDataElement)
     return;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  impl->class_->GetClass()->SetToBytes(size, bytes);
+  CefPostDataElementCppToC::Get(postDataElement)->SetToBytes(size, bytes);
 }
 
 cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
@@ -369,9 +278,7 @@ cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
   if(!postDataElement)
     return PDE_TYPE_EMPTY;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  return impl->class_->GetClass()->GetType();
+  return CefPostDataElementCppToC::Get(postDataElement)->GetType();
 }
 
 cef_string_t CEF_CALLBACK post_data_element_get_file(
@@ -381,13 +288,11 @@ cef_string_t CEF_CALLBACK post_data_element_get_file(
   if(!postDataElement)
     return NULL;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  
-  std::wstring fileNameStr = impl->class_->GetClass()->GetFile();
-  if(fileNameStr.empty())
-    return NULL;
-  return cef_string_alloc(fileNameStr.c_str());
+  std::wstring fileNameStr =
+      CefPostDataElementCppToC::Get(postDataElement)->GetFile();
+  if(!fileNameStr.empty())
+    return cef_string_alloc(fileNameStr.c_str());
+  return NULL;
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes_count(
@@ -397,9 +302,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes_count(
   if(!postDataElement)
     return 0;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  return impl->class_->GetClass()->GetBytesCount();
+  return CefPostDataElementCppToC::Get(postDataElement)->GetBytesCount();
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes(
@@ -410,14 +313,13 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
   if(!postDataElement)
     return 0;
 
-  CefPostDataElementCppToC::Struct* impl =
-      reinterpret_cast<CefPostDataElementCppToC::Struct*>(postDataElement);
-  return impl->class_->GetClass()->GetBytes(size, bytes);
+  return CefPostDataElementCppToC::Get(postDataElement)->GetBytes(size, bytes);
 }
 
 
 CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
-    : CefCppToC<CefPostDataElement, cef_post_data_element_t>(cls)
+    : CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+                cef_post_data_element_t>(cls)
 {
   struct_.struct_.set_to_empty = post_data_element_set_to_empty;
   struct_.struct_.set_to_file = post_data_element_set_to_file;
@@ -429,5 +331,6 @@ CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
+long CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+    cef_post_data_element_t>::DebugObjCt = 0;
 #endif

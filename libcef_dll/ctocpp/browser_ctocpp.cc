@@ -4,10 +4,8 @@
 
 #include "../precompiled_libcef.h"
 #include "ctocpp/browser_ctocpp.h"
-#include "ctocpp/request_ctocpp.h"
-#include "ctocpp/stream_ctocpp.h"
 #include "cpptoc/handler_cpptoc.h"
-#include "cpptoc/jshandler_cpptoc.h"
+#include "ctocpp/frame_ctocpp.h"
 
 
 bool CefBrowserCToCpp::CanGoBack()
@@ -58,217 +56,12 @@ void CefBrowserCToCpp::StopLoad()
   struct_->stop_load(struct_);
 }
 
-void CefBrowserCToCpp::Undo(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, undo))
-    return;
-  
-  struct_->undo(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::Redo(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, redo))
-    return;
-  
-  struct_->redo(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::Cut(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, cut))
-    return;
-  
-  struct_->cut(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::Copy(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, copy))
-    return;
-  
-  struct_->copy(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::Paste(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, paste))
-    return;
-  
-  struct_->paste(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::Delete(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, del))
-    return;
-  
-  struct_->del(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::SelectAll(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, select_all))
-    return;
-  
-  struct_->select_all(struct_, targetFrame);
-}
-
 void CefBrowserCToCpp::SetFocus(bool enable)
 {
   if(CEF_MEMBER_MISSING(struct_, set_focus))
     return;
   
   struct_->set_focus(struct_, enable);
-}
-
-void CefBrowserCToCpp::Print(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, print))
-    return;
-  
-  struct_->print(struct_, targetFrame);
-}
-
-void CefBrowserCToCpp::ViewSource(TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, view_source))
-    return;
-  
-  struct_->view_source(struct_, targetFrame);
-}
-
-std::wstring CefBrowserCToCpp::GetSource(TargetFrame targetFrame)
-{
-  std::wstring str;
-  if(CEF_MEMBER_MISSING(struct_, get_source))
-    return str;
-
-  cef_string_t cef_str = struct_->get_source(struct_, targetFrame);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-  return str;
-}
-
-std::wstring CefBrowserCToCpp::GetText(TargetFrame targetFrame)
-{
-  std::wstring str;
-  if(CEF_MEMBER_MISSING(struct_, get_text))
-    return str;
-
-  cef_string_t cef_str = struct_->get_text(struct_, targetFrame);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-  return str;
-}
-
-void CefBrowserCToCpp::LoadRequest(CefRefPtr<CefRequest> request)
-{
-  if(CEF_MEMBER_MISSING(struct_, load_request))
-    return;
-
-  CefRequestCToCpp* rp = static_cast<CefRequestCToCpp*>(request.get());
-  rp->UnderlyingAddRef();
-  struct_->load_request(struct_, rp->GetStruct());
-}
-
-void CefBrowserCToCpp::LoadURL(const std::wstring& url,
-                               const std::wstring& frame)
-{
-  if(CEF_MEMBER_MISSING(struct_, load_url))
-    return;
-
-  struct_->load_url(struct_, url.c_str(), frame.c_str());
-}
-
-void CefBrowserCToCpp::LoadString(const std::wstring& string,
-                                  const std::wstring& url)
-{
-  if(CEF_MEMBER_MISSING(struct_, load_string))
-    return;
-  
-  struct_->load_string(struct_, string.c_str(), url.c_str());
-}
-
-void CefBrowserCToCpp::LoadStream(CefRefPtr<CefStreamReader> stream,
-                                  const std::wstring& url)
-{
-  if(CEF_MEMBER_MISSING(struct_, load_stream))
-    return;
-
-  CefStreamReaderCToCpp* sp =
-      static_cast<CefStreamReaderCToCpp*>(stream.get());
-  sp->UnderlyingAddRef();
-  struct_->load_stream(struct_, sp->GetStruct(), url.c_str());
-}
-
-void CefBrowserCToCpp::ExecuteJavaScript(const std::wstring& js_code,
-                                         const std::wstring& script_url,
-                                         int start_line,
-                                         TargetFrame targetFrame)
-{
-  if(CEF_MEMBER_MISSING(struct_, execute_javascript))
-      return;
-
-  struct_->execute_javascript(struct_, js_code.c_str(), script_url.c_str(),
-      start_line, targetFrame);
-}
-
-bool CefBrowserCToCpp::AddJSHandler(const std::wstring& classname,
-                                    CefRefPtr<CefJSHandler> handler)
-{
-  if(CEF_MEMBER_MISSING(struct_, add_jshandler))
-    return false;
-
-  CefJSHandlerCppToC* hp = new CefJSHandlerCppToC(handler);
-  hp->AddRef();
-  return struct_->add_jshandler(struct_, classname.c_str(), hp->GetStruct());
-  return true;
-}
-
-bool CefBrowserCToCpp::HasJSHandler(const std::wstring& classname)
-{
-  if(CEF_MEMBER_MISSING(struct_, has_jshandler))
-    return false;
-
-  return struct_->has_jshandler(struct_, classname.c_str());
-}
-
-CefRefPtr<CefJSHandler> CefBrowserCToCpp::GetJSHandler(const std::wstring& classname)
-{
-  if(CEF_MEMBER_MISSING(struct_, get_jshandler))
-    return NULL;
-
-  CefJSHandlerCppToC::Struct* hp =
-      reinterpret_cast<CefJSHandlerCppToC::Struct*>(
-          struct_->get_jshandler(struct_, classname.c_str()));
-  if(hp) {
-    CefRefPtr<CefJSHandler> handlerPtr(hp->class_->GetClass());
-    hp->class_->UnderlyingRelease();
-    return handlerPtr;
-  }
-
-  return NULL;
-}
-
-bool CefBrowserCToCpp::RemoveJSHandler(const std::wstring& classname)
-{
-  if(CEF_MEMBER_MISSING(struct_, remove_jshandler))
-      return false;
-  
-  return struct_->remove_jshandler(struct_, classname.c_str());
-}
-
-void CefBrowserCToCpp::RemoveAllJSHandlers()
-{
-  if(CEF_MEMBER_MISSING(struct_, remove_all_jshandlers))
-      return;
-
-  struct_->remove_all_jshandlers(struct_);
 }
 
 CefWindowHandle CefBrowserCToCpp::GetWindowHandle()
@@ -291,33 +84,69 @@ CefRefPtr<CefHandler> CefBrowserCToCpp::GetHandler()
 {
   if(CEF_MEMBER_MISSING(struct_, get_handler))
     return NULL;
-  
-  CefHandlerCppToC::Struct* hp =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(
-          struct_->get_handler(struct_));
-  if(hp) {
-    CefRefPtr<CefHandler> handlerPtr(hp->class_->GetClass());
-    hp->class_->UnderlyingRelease();
-    return handlerPtr;
-  }
+
+  cef_handler_t* handlerStruct = struct_->get_handler(struct_);
+  if(handlerStruct)
+    return CefHandlerCppToC::Unwrap(handlerStruct);
 
   return NULL;
 }
 
-std::wstring CefBrowserCToCpp::GetURL()
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetMainFrame()
 {
-  std::wstring str;
-  if(CEF_MEMBER_MISSING(struct_, get_url))
-    return str;
+  if(CEF_MEMBER_MISSING(struct_, get_main_frame))
+    return NULL;
 
-  cef_string_t cef_str = struct_->get_url(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
+  cef_frame_t* frameStruct = struct_->get_main_frame(struct_);
+  if(frameStruct)
+    return CefFrameCToCpp::Wrap(frameStruct);
+
+  return NULL;
+}
+
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame()
+{
+   if(CEF_MEMBER_MISSING(struct_, get_main_frame))
+    return NULL;
+
+  cef_frame_t* frameStruct = struct_->get_focused_frame(struct_);
+  if(frameStruct)
+    return CefFrameCToCpp::Wrap(frameStruct);
+
+  return NULL;
+}
+
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const std::wstring& name)
+{
+  if(CEF_MEMBER_MISSING(struct_, get_main_frame))
+    return NULL;
+
+  cef_frame_t* frameStruct = struct_->get_frame(struct_, name.c_str());
+  if(frameStruct)
+    return CefFrameCToCpp::Wrap(frameStruct);
+
+  return NULL;
+}
+
+void CefBrowserCToCpp::GetFrameNames(std::vector<std::wstring>& names)
+{
+  if(CEF_MEMBER_MISSING(struct_, get_frame_names))
+    return;
+
+  cef_string_list_t list = cef_string_list_alloc();
+  struct_->get_frame_names(struct_, list);
+
+  cef_string_t str;
+  int size = cef_string_list_size(list);
+  for(int i = 0; i < size; ++i) {
+    str = cef_string_list_value(list, i);
+    names.push_back(str);
+    cef_string_free(str);
   }
-  return str;
+
+  cef_string_list_free(list);
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefBrowser, cef_browser_t>::DebugObjCt = 0;
+long CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>::DebugObjCt = 0;
 #endif

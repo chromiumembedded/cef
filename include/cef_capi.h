@@ -37,6 +37,7 @@ extern "C" {
 
 #include "cef_export.h"
 #include "cef_string.h"
+#include "cef_string_list.h"
 #include "cef_string_map.h"
 #include "cef_types.h"
 
@@ -62,6 +63,66 @@ CEF_EXPORT void cef_shutdown();
 // running in a separate thread.
 CEF_EXPORT void cef_do_message_loop_work();
 
+// Register a new V8 extension with the specified JavaScript extension code and
+// handler. Functions implemented by the handler are prototyped using the
+// keyword 'native'. The calling of a native function is restricted to the scope
+// in which the prototype of the native function is defined.
+//
+// Example JavaScript extension code:
+//
+//   // create the 'example' global object if it doesn't already exist.
+//   if (!example)
+//     example = {};
+//   // create the 'example.test' global object if it doesn't already exist.
+//   if (!example.test)
+//     example.test = {};
+//   (function() {
+//     // Define the function 'example.test.myfunction'.
+//     example.test.myfunction = function() {
+//       // Call CefV8Handler::Execute() with the function name 'MyFunction'
+//       // and no arguments.
+//       native function MyFunction();
+//       return MyFunction();
+//     };
+//     // Define the getter function for parameter 'example.test.myparam'.
+//     example.test.__defineGetter__('myparam', function() {
+//       // Call CefV8Handler::Execute() with the function name 'GetMyParam'
+//       // and no arguments.
+//       native function GetMyParam();
+//       return GetMyParam();
+//     });
+//     // Define the setter function for parameter 'example.test.myparam'.
+//     example.test.__defineSetter__('myparam', function(b) {
+//       // Call CefV8Handler::Execute() with the function name 'SetMyParam'
+//       // and a single argument.
+//       native function SetMyParam();
+//       if(b) SetMyParam(b);
+//     });
+//
+//     // Extension definitions can also contain normal JavaScript variables
+//     // and functions.
+//     var myint = 0;
+//     example.test.increment = function() {
+//       myint += 1;
+//       return myint;
+//     };
+//   })();
+//
+// Example usage in the page:
+//
+//   // Call the function.
+//   example.test.myfunction();
+//   // Set the parameter.
+//   example.test.myparam = value;
+//   // Get the parameter.
+//   value = example.test.myparam;
+//   // Call another function.
+//   example.test.increment();
+//
+CEF_EXPORT int cef_register_extension(const wchar_t* extension_name,
+                                      const wchar_t* javascript_code,
+                                      struct _cef_v8handler_t* handler);
+
 
 typedef struct _cef_base_t
 {
@@ -85,6 +146,7 @@ typedef struct _cef_base_t
 
 #define CEF_MEMBER_MISSING(s, f)  (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
 
+
 // Structure used to represent a browser window.  All functions exposed by this
 // structure should be thread safe.
 typedef struct _cef_browser_t
@@ -105,100 +167,9 @@ typedef struct _cef_browser_t
   // Stop loading the page.
   void (CEF_CALLBACK *stop_load)(struct _cef_browser_t* browser);
 
-  // Execute undo in the target frame.
-  void (CEF_CALLBACK *undo)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute redo in the target frame.
-  void (CEF_CALLBACK *redo)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute cut in the target frame.
-  void (CEF_CALLBACK *cut)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute copy in the target frame.
-  void (CEF_CALLBACK *copy)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute paste in the target frame.
-  void (CEF_CALLBACK *paste)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute delete in the target frame.
-  void (CEF_CALLBACK *del)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-  // Execute select all in the target frame.
-  void (CEF_CALLBACK *select_all)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-
   // Set focus for the browser window.  If |enable| is true (1) focus will be
   // set to the window.  Otherwise, focus will be removed.
   void (CEF_CALLBACK *set_focus)(struct _cef_browser_t* browser, int enable);
-
-  // Execute printing in the target frame.  The user will be prompted with
-  // the print dialog appropriate to the operating system.
-  void (CEF_CALLBACK *print)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-
-  // Save the target frame's HTML source to a temporary file and open it in
-  // the default text viewing application.
-  void (CEF_CALLBACK *view_source)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-
-  // Returns the target frame's HTML source as a string. The returned string
-  // must be released using cef_string_free().
-  cef_string_t (CEF_CALLBACK *get_source)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-
-  // Returns the target frame's display text as a string. The returned string
-  // must be released using cef_string_free().
-  cef_string_t (CEF_CALLBACK *get_text)(struct _cef_browser_t* browser,
-      enum cef_targetframe_t targetFrame);
-
-  // Load the request represented by the |request| object.
-  void (CEF_CALLBACK *load_request)(struct _cef_browser_t* browser,
-      struct _cef_request_t* request);
-
-  // Convenience method for loading the specified |url| in the optional target
-  // |frame|.
-  void (CEF_CALLBACK *load_url)(struct _cef_browser_t* browser,
-      const wchar_t* url, const wchar_t* frame);
-
-  // Load the contents of |string| with the optional dummy target |url|.
-  void (CEF_CALLBACK *load_string)(struct _cef_browser_t* browser,
-      const wchar_t* string, const wchar_t* url);
-
-  // Load the contents of |stream| with the optional dummy target |url|.
-  void (CEF_CALLBACK *load_stream)(struct _cef_browser_t* browser,
-      struct _cef_stream_reader_t* stream, const wchar_t* url);
-
-  // Execute a string of JavaScript code in the specified target frame. The
-  // |script_url| parameter is the URL where the script in question can be
-  // found, if any. The renderer may request this URL to show the developer the
-  // source of the error.  The |start_line| parameter is the base line number
-  // to use for error reporting.
-  void (CEF_CALLBACK *execute_javascript)(struct _cef_browser_t* browser,
-      const wchar_t* jsCode, const wchar_t* scriptUrl, int startLine,
-      enum cef_targetframe_t targetFrame);
-
-  // Register a new handler tied to the specified JS object |name|. Returns
-  // true if the handler is registered successfully.
-  // A JS handler will be accessible to JavaScript as window.<classname>.
-  int (CEF_CALLBACK *add_jshandler)(struct _cef_browser_t* browser,
-      const wchar_t* classname, struct _cef_jshandler_t* handler);
-
-  // Returns true if a JS handler with the specified |name| is currently
-  // registered.
-  int (CEF_CALLBACK *has_jshandler)(struct _cef_browser_t* browser,
-      const wchar_t* classname);
-
-  // Returns the JS handler registered with the specified |name|.
-  struct _cef_jshandler_t* (CEF_CALLBACK *get_jshandler)(
-      struct _cef_browser_t* browser, const wchar_t* classname);
-
-  // Unregister the JS handler registered with the specified |name|.  Returns
-  // true if the handler is unregistered successfully.
-  int (CEF_CALLBACK *remove_jshandler)(struct _cef_browser_t* browser,
-      const wchar_t* classname);
-
-  // Unregister all JS handlers that are currently registered.
-  void (CEF_CALLBACK *remove_all_jshandlers)(struct _cef_browser_t* browser);
 
   // Retrieve the window handle for this browser.
   cef_window_handle_t (CEF_CALLBACK *get_window_handle)(
@@ -211,11 +182,102 @@ typedef struct _cef_browser_t
   struct _cef_handler_t* (CEF_CALLBACK *get_handler)(
       struct _cef_browser_t* browser);
 
-  // Return the currently loaded URL.  The returned string must be released
-  // using cef_string_free().
-  cef_string_t (CEF_CALLBACK *get_url)(struct _cef_browser_t* browser);
+  // Returns the main (top-level) frame for the browser window.
+  struct _cef_frame_t* (CEF_CALLBACK *get_main_frame)(
+      struct _cef_browser_t* browser);
 
+  // Returns the focused frame for the browser window.
+  struct _cef_frame_t* (CEF_CALLBACK *get_focused_frame)(
+      struct _cef_browser_t* browser);
+
+  // Returns the frame with the specified name, or NULL if not found.
+  struct _cef_frame_t* (CEF_CALLBACK *get_frame)(
+      struct _cef_browser_t* browser,
+      const wchar_t* name);
+
+  // Reads the names of all existing frames into the provided string list.
+  size_t (CEF_CALLBACK *get_frame_names)(struct _cef_browser_t* browser,
+      cef_string_list_t list);
 } cef_browser_t;
+
+
+// Structure used to represent a frame in the browser window.  All functions
+// exposed by this structure should be thread safe.
+typedef struct _cef_frame_t
+{
+  // Base structure
+  cef_base_t base;
+
+  // Execute undo in this frame.
+  void (CEF_CALLBACK *undo)(struct _cef_frame_t* frame);
+  // Execute redo in this frame.
+  void (CEF_CALLBACK *redo)(struct _cef_frame_t* frame);
+  // Execute cut in this frame.
+  void (CEF_CALLBACK *cut)(struct _cef_frame_t* frame);
+  // Execute copy in this frame.
+  void (CEF_CALLBACK *copy)(struct _cef_frame_t* frame);
+  // Execute paste in this frame.
+  void (CEF_CALLBACK *paste)(struct _cef_frame_t* frame);
+  // Execute delete in this frame.
+  void (CEF_CALLBACK *del)(struct _cef_frame_t* frame);
+  // Execute select all in this frame.
+  void (CEF_CALLBACK *select_all)(struct _cef_frame_t* frame);
+
+  // Execute printing in the this frame.  The user will be prompted with the
+  // print dialog appropriate to the operating system.
+  void (CEF_CALLBACK *print)(struct _cef_frame_t* frame);
+
+  // Save this frame's HTML source to a temporary file and open it in the
+  // default text viewing application.
+  void (CEF_CALLBACK *view_source)(struct _cef_frame_t* frame);
+
+  // Returns this frame's HTML source as a string. The returned string must be
+  // released using cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_source)(struct _cef_frame_t* frame);
+
+  // Returns this frame's display text as a string. The returned string must be
+  // released using cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_text)(struct _cef_frame_t* frame);
+
+  // Load the request represented by the |request| object.
+  void (CEF_CALLBACK *load_request)(struct _cef_frame_t* frame,
+      struct _cef_request_t* request);
+
+  // Load the specified |url|.
+  void (CEF_CALLBACK *load_url)(struct _cef_frame_t* frame,
+      const wchar_t* url);
+
+  // Load the contents of |string| with the optional dummy target |url|.
+  void (CEF_CALLBACK *load_string)(struct _cef_frame_t* frame,
+      const wchar_t* string, const wchar_t* url);
+
+  // Load the contents of |stream| with the optional dummy target |url|.
+  void (CEF_CALLBACK *load_stream)(struct _cef_frame_t* frame,
+      struct _cef_stream_reader_t* stream, const wchar_t* url);
+
+  // Execute a string of JavaScript code in this frame. The |script_url|
+  // parameter is the URL where the script in question can be found, if any.
+  // The renderer may request this URL to show the developer the source of the
+  // error.  The |start_line| parameter is the base line number to use for error
+  // reporting.
+  void (CEF_CALLBACK *execute_javascript)(struct _cef_frame_t* frame,
+      const wchar_t* jsCode, const wchar_t* scriptUrl, int startLine);
+
+  // Returns true (1) if this is the main frame.
+  int (CEF_CALLBACK *is_main)(struct _cef_frame_t* frame);
+
+  // Returns true (1) if this is the focused frame.
+  int (CEF_CALLBACK *is_focused)(struct _cef_frame_t* frame);
+
+  // Returns this frame's name. The returned string must be released using
+  // cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_name)(struct _cef_frame_t* frame);
+
+  // Returns the currently loaded URL.  The returned string must be released
+  // using cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_url)(struct _cef_frame_t* frame);
+
+} cef_frame_t;
 
 
 // Structure used to handle events generated by the browser window.  All methods
@@ -247,7 +309,7 @@ typedef struct _cef_handler_t
   // ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_address_change)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      const wchar_t* url);
+      cef_frame_t* frame, const wchar_t* url);
 
   // Event called when the page title changes. The return value is currently
   // ignored.
@@ -260,19 +322,24 @@ typedef struct _cef_handler_t
   // navigation.
   enum cef_retval_t (CEF_CALLBACK *handle_before_browse)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      struct _cef_request_t* request, cef_handler_navtype_t navType,
-      int isRedirect);
+      cef_frame_t* frame, struct _cef_request_t* request,
+      cef_handler_navtype_t navType, int isRedirect);
 
-  // Event called when the browser begins loading a page.  The return value is
-  // currently ignored.
+  // Event called when the browser begins loading a page.  The |frame| pointer
+  // will be NULL if the event represents the overall load status and not the
+  // load status for a particular frame. The return value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_start)(
-      struct _cef_handler_t* handler, cef_browser_t* browser);
+      struct _cef_handler_t* handler, cef_browser_t* browser,
+      cef_frame_t* frame);
 
-  // Event called when the browser is done loading a page.  This event will
-  // be generated irrespective of whether the request completes successfully.
-  // The return value is currently ignored.
+  // Event called when the browser is done loading a page.  The |frame| pointer
+  // will be NULL if the event represents the overall load status and not the
+  // load status for a particular frame. This event will be generated
+  // irrespective of whether the request completes successfully. The return
+  // value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_end)(
-      struct _cef_handler_t* handler, cef_browser_t* browser);
+      struct _cef_handler_t* handler, cef_browser_t* browser,
+      cef_frame_t* frame);
 
   // Called when the browser fails to load a resource.  |errorCode is the
   // error code number and |failedUrl| is the URL that failed to load.  To
@@ -280,8 +347,8 @@ typedef struct _cef_handler_t
   // RV_HANDLED.  Otherwise, return RV_CONTINUE for the default error text.
   enum cef_retval_t (CEF_CALLBACK *handle_load_error)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      cef_handler_errorcode_t errorCode, const wchar_t* failedUrl,
-      cef_string_t* errorText);
+      cef_frame_t* frame, cef_handler_errorcode_t errorCode,
+      const wchar_t* failedUrl, cef_string_t* errorText);
 
   // Event called before a resource is loaded.  To allow the resource to load
   // normally return RV_CONTINUE. To redirect the resource to a new url
@@ -326,9 +393,9 @@ typedef struct _cef_handler_t
   // variables and return RV_CONTINUE.
   enum cef_retval_t (CEF_CALLBACK *handle_print_header_footer)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      cef_print_info_t* printInfo, const wchar_t* url, const wchar_t* title,
-      int currentPage, int maxPages, cef_string_t* topLeft,
-      cef_string_t* topCenter, cef_string_t* topRight,
+      cef_frame_t* frame, cef_print_info_t* printInfo, const wchar_t* url,
+      const wchar_t* title, int currentPage, int maxPages,
+      cef_string_t* topLeft, cef_string_t* topCenter, cef_string_t* topRight,
       cef_string_t* bottomLeft, cef_string_t* bottomCenter,
       cef_string_t* bottomRight);
 
@@ -336,14 +403,14 @@ typedef struct _cef_handler_t
   // or RV_HANDLED if you displayed a custom alert.
   enum cef_retval_t (CEF_CALLBACK *handle_jsalert)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      const wchar_t* message);
+      cef_frame_t* frame, const wchar_t* message);
 
   // Run a JS confirm request.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.  If you handled the alert
   // set |retval| to true (1) if the user accepted the confirmation.
   enum cef_retval_t (CEF_CALLBACK *handle_jsconfirm)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      const wchar_t* message, int* retval);
+      cef_frame_t* frame, const wchar_t* message, int* retval);
 
   // Run a JS prompt request.  Return RV_CONTINUE to display the default prompt
   // or RV_HANDLED if you displayed a custom prompt.  If you handled the prompt
@@ -351,8 +418,8 @@ typedef struct _cef_handler_t
   // |result| to the resulting value.
   enum cef_retval_t (CEF_CALLBACK *handle_jsprompt)(
       struct _cef_handler_t* handler, cef_browser_t* browser,
-      const wchar_t* message, const wchar_t* defaultValue, int* retval,
-      cef_string_t* result);
+      cef_frame_t* frame, const wchar_t* message, const wchar_t* defaultValue,
+      int* retval, cef_string_t* result);
 
   // Called just before a window is closed. The return value is currently
   // ignored.
@@ -365,6 +432,11 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_take_focus)(
       struct _cef_handler_t* handler, cef_browser_t* browser, int reverse);
 
+  // Event called for adding values to a frame's JavaScript 'window' object. The
+  // return value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_jsbinding)(
+      struct _cef_handler_t* handler, cef_browser_t* browser,
+      cef_frame_t* frame, struct _cef_v8value_t* object);
 } cef_handler_t;
 
 
@@ -378,11 +450,6 @@ typedef struct _cef_request_t
   cef_string_t (CEF_CALLBACK *get_url)(struct _cef_request_t* request);
   void (CEF_CALLBACK *set_url)(struct _cef_request_t* request,
       const wchar_t* url);
-
-  // Optional name of the target frame.
-  cef_string_t (CEF_CALLBACK *get_frame)(struct _cef_request_t* request);
-  void (CEF_CALLBACK *set_frame)(struct _cef_request_t* request,
-      const wchar_t* frame);
 
   // Optional request method type, defaulting to POST if post data is provided
   // and GET otherwise.
@@ -404,8 +471,8 @@ typedef struct _cef_request_t
 
   // Set all values at one time.
   void (CEF_CALLBACK *set)(struct _cef_request_t* request, const wchar_t* url,
-      const wchar_t* frame, const wchar_t* method,
-      struct _cef_post_data_t* postData, cef_string_map_t headerMap);
+      const wchar_t* method, struct _cef_post_data_t* postData,
+      cef_string_map_t headerMap);
 
 } cef_request_t;
 
@@ -527,85 +594,113 @@ typedef struct _cef_stream_writer_t
 } cef_stream_writer_t;
 
 
-// Structure for implementing external JavaScript objects.
-typedef struct _cef_jshandler_t
+// Structure that should be implemented to handle V8 function calls.
+typedef struct _cef_v8handler_t
 {
   // Base structure
   cef_base_t base;
-
-  // Return true if the specified method exists.
-  bool (CEF_CALLBACK *has_method)(struct _cef_jshandler_t* jshandler,
-      cef_browser_t* browser, const wchar_t* name);
-  
-  // Return true if the specified property exists.
-  bool (CEF_CALLBACK *has_property)(struct _cef_jshandler_t* jshandler,
-      cef_browser_t* browser, const wchar_t* name);
-
-  // Set the property value. Return true if the property is accepted.
-  bool (CEF_CALLBACK *set_property)(struct _cef_jshandler_t* jshandler,
-      cef_browser_t* browser, const wchar_t* name,
-      struct _cef_variant_t* value);
-  
-  // Get the property value. Return true if the value is returned.
-  bool (CEF_CALLBACK *get_property)(struct _cef_jshandler_t* jshandler,
-      cef_browser_t* browser, const wchar_t* name,
-      struct _cef_variant_t* value);
 
   // Execute a method with the specified argument vector and return
   // value.  Return true if the method was handled.
-  bool (CEF_CALLBACK *execute_method)(struct _cef_jshandler_t* jshandler,
-      cef_browser_t* browser, const wchar_t* name, size_t numargs,
-      struct _cef_variant_t** args, struct _cef_variant_t* retval);
+  int (CEF_CALLBACK *execute)(struct _cef_v8handler_t* v8handler,
+      const wchar_t* name, struct _cef_v8value_t* object, size_t numargs,
+      struct _cef_v8value_t** args, struct _cef_v8value_t** retval,
+      cef_string_t* exception);
 
-} cef_jshandler_t;
+} cef_v8handler_t;
 
 
-typedef struct _cef_variant_t
+// Structure representing a V8 value.
+typedef struct _cef_v8value_t
 {
   // Base structure
   cef_base_t base;
 
-  // Return the variant data type.
-  cef_variant_type_t (CEF_CALLBACK *get_type)(struct _cef_variant_t* variant);
-
-  // Assign various data types.
-  void (CEF_CALLBACK *set_null)(struct _cef_variant_t* variant);
-  void (CEF_CALLBACK *set_bool)(struct _cef_variant_t* variant, int val);
-  void (CEF_CALLBACK *set_int)(struct _cef_variant_t* variant, int val);
-  void (CEF_CALLBACK *set_double)(struct _cef_variant_t* variant, double val);
-  void (CEF_CALLBACK *set_string)(struct _cef_variant_t* variant,
-      const wchar_t* val);
-  void (CEF_CALLBACK *set_bool_array)(struct _cef_variant_t* variant,
-      size_t count, const int* vals);
-  void (CEF_CALLBACK *set_int_array)(struct _cef_variant_t* variant,
-      size_t count, const int* vals);
-  void (CEF_CALLBACK *set_double_array)(struct _cef_variant_t* variant,
-      size_t count, const double* vals);
-  void (CEF_CALLBACK *set_string_array)(struct _cef_variant_t* variant,
-      size_t count, const cef_string_t* vals);
-
-  // Retrieve various data types.
-  int (CEF_CALLBACK *get_bool)(struct _cef_variant_t* variant);
-  int (CEF_CALLBACK *get_int)(struct _cef_variant_t* variant);
-  double (CEF_CALLBACK *get_double)(struct _cef_variant_t* variant);
-  cef_string_t (CEF_CALLBACK *get_string)(struct _cef_variant_t* variant);
+  // Check the value type.
+  int (CEF_CALLBACK *is_undefined)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_null)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_bool)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_int)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_double)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_string)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_object)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_array)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *is_function)(struct _cef_v8value_t* v8value);
   
-  // Returns the number of values in the array.  Returns -1 if the variant
-  // is not an array type.
-  int (CEF_CALLBACK *get_array_size)(struct _cef_variant_t* variant);
+  // Return a primitive value type.  The underlying data will be converted to
+  // the requested type if necessary.
+  int (CEF_CALLBACK *get_bool_value)(struct _cef_v8value_t* v8value);
+  int (CEF_CALLBACK *get_int_value)(struct _cef_v8value_t* v8value);
+  double (CEF_CALLBACK *get_double_value)(struct _cef_v8value_t* v8value);
+  // The returned string must be released using cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_string_value)(struct _cef_v8value_t* v8value);
 
-  // Reads up to |maxcount| values into the specified |vals| array.  Returns
-  // the number of values actually read in.
-  size_t (CEF_CALLBACK *get_bool_array)(struct _cef_variant_t* variant,
-      size_t maxcount, int* vals);
-  size_t (CEF_CALLBACK *get_int_array)(struct _cef_variant_t* variant,
-      size_t maxcount, int* vals);
-  size_t (CEF_CALLBACK *get_double_array)(struct _cef_variant_t* variant,
-      size_t maxcount, double* vals);
-  size_t (CEF_CALLBACK *get_string_array)(struct _cef_variant_t* variant,
-      size_t maxcount, cef_string_t* vals);
 
-} cef_variant_t;
+  // OBJECT METHODS - These methods are only available on objects. Arrays and
+  // functions are also objects. String- and integer-based keys can be used
+  // interchangably with the framework converting between them as necessary.
+  // Keys beginning with "Cef::" and "v8::" are reserved by the system.
+
+  // Returns true if the object has a value with the specified identifier.
+  int (CEF_CALLBACK *has_value_bykey)(struct _cef_v8value_t* v8value,
+      const wchar_t* key);
+  int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* v8value,
+      int index);
+  
+  // Delete the value with the specified identifier.
+  int (CEF_CALLBACK *delete_value_bykey)(struct _cef_v8value_t* v8value,
+      const wchar_t* key);
+  int (CEF_CALLBACK *delete_value_byindex)(struct _cef_v8value_t* v8value,
+      int index);
+  
+  // Returns the value with the specified identifier.
+  struct _cef_v8value_t* (CEF_CALLBACK *get_value_bykey)(
+      struct _cef_v8value_t* v8value,
+      const wchar_t* key);
+  struct _cef_v8value_t* (CEF_CALLBACK *get_value_byindex)(
+      struct _cef_v8value_t* v8value,
+      int index);
+  
+  // Associate value with the specified identifier.
+  int (CEF_CALLBACK *set_value_bykey)(struct _cef_v8value_t* v8value,
+      const wchar_t* key, struct _cef_v8value_t* new_value);
+  int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* v8value,
+      int index, struct _cef_v8value_t* new_value);
+  
+  // Read the keys for the object's values into the specified vector. Integer-
+  // based keys will also be returned as strings.
+  int (CEF_CALLBACK *get_keys)(struct _cef_v8value_t* v8value,
+      cef_string_list_t list);
+
+  // Returns the user data, if any, specified when the object was created.
+  struct _cef_base_t* (CEF_CALLBACK *get_user_data)(
+      struct _cef_v8value_t* v8value);
+
+
+  // ARRAY METHODS - These methods are only available on arrays.
+
+  // Returns the number of elements in the array.
+  int (CEF_CALLBACK *get_array_length)(struct _cef_v8value_t* v8value);
+  
+
+  // FUNCTION METHODS - These methods are only available on functions.
+
+  // Returns the function name.  The returned string must be released using
+  // cef_string_free().
+  cef_string_t (CEF_CALLBACK *get_function_name)(
+      struct _cef_v8value_t* v8value);
+
+  // Returns the function handler or NULL if not a CEF-created function.
+  struct _cef_v8handler_t* (CEF_CALLBACK *get_function_handler)(
+      struct _cef_v8value_t* v8value);
+
+  // Execute the function.
+  int (CEF_CALLBACK *execute_function)(struct _cef_v8value_t* v8value,
+      struct _cef_v8value_t* object, size_t numargs,
+      struct _cef_v8value_t** args, struct _cef_v8value_t** retval,
+      cef_string_t* exception);
+
+} cef_v8value_t;
 
 
 // Create a new browser window using the window parameters specified
@@ -641,6 +736,21 @@ CEF_EXPORT cef_stream_reader_t* cef_create_stream_reader_for_file(
 // Create a new stream reader structure for reading from the specified data.
 CEF_EXPORT cef_stream_reader_t* cef_create_stream_reader_for_data(void *data,
     size_t size);
+
+// Create a new value of the specified type.  These functions should only be
+// called from within the JavaScript context -- either in a
+// cef_v8handler_t::execute callback or a cef_handler_t::handle_script_binding
+// callback.
+CEF_EXPORT cef_v8value_t* cef_create_v8value_undefined();
+CEF_EXPORT cef_v8value_t* cef_create_v8value_null();
+CEF_EXPORT cef_v8value_t* cef_create_v8value_bool(int value);
+CEF_EXPORT cef_v8value_t* cef_create_v8value_int(int value);
+CEF_EXPORT cef_v8value_t* cef_create_v8value_double(double value);
+CEF_EXPORT cef_v8value_t* cef_create_v8value_string(const wchar_t* value);
+CEF_EXPORT cef_v8value_t* cef_create_v8value_object(cef_base_t* user_data);
+CEF_EXPORT cef_v8value_t* cef_create_v8value_array();
+CEF_EXPORT cef_v8value_t* cef_create_v8value_function(const wchar_t* name,
+                                                      cef_v8handler_t* handler);
 
 
 #ifdef __cplusplus

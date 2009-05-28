@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -7,8 +7,8 @@
 #include "cefclient.h"
 #include "clientplugin.h"
 #include "cef.h"
-
 #include <sstream>
+
 
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
@@ -29,6 +29,66 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+
+// Implementation of the V8 handler class for the "cef.test" extension.
+class ClientV8ExtensionHandler : public CefThreadSafeBase<CefV8Handler>
+{
+public:
+  ClientV8ExtensionHandler() : test_param_(L"An initial string value.") {}
+  virtual ~ClientV8ExtensionHandler() {}
+
+  // Execute with the specified argument list and return value.  Return true if
+  // the method was handled.
+  virtual bool Execute(const std::wstring& name,
+                       CefRefPtr<CefV8Value> object,
+                       CefV8ValueList& arguments,
+                       CefRefPtr<CefV8Value>& retval,
+                       std::wstring& exception)
+  {
+    if(name == L"SetTestParam")
+    {
+      // Handle the SetTestParam native function by saving the string argument
+      // into the local member.
+      if(arguments.size() != 1 || !arguments[0]->IsString())
+        return false;
+      
+      test_param_ = arguments[0]->GetStringValue();
+      return true;
+    }
+    else if(name == L"GetTestParam")
+    {
+      // Handle the GetTestParam native function by returning the local member
+      // value.
+      retval = CefV8Value::CreateString(test_param_);
+      return true;
+    }
+    else if(name == L"GetTestObject")
+    {
+      // Handle the GetTestObject native function by creating and returning a
+      // new V8 object.
+      retval = CefV8Value::CreateObject(NULL);
+      // Add a string parameter to the new V8 object.
+      retval->SetValue(L"param", CefV8Value::CreateString(
+          L"Retrieving a parameter on a native object succeeded."));
+      // Add a function to the new V8 object.
+      retval->SetValue(L"GetMessage",
+          CefV8Value::CreateFunction(L"GetMessage", this));
+      return true;
+    }
+    else if(name == L"GetMessage")
+    {
+      // Handle the GetMessage object function by returning a string.
+      retval = CefV8Value::CreateString(
+          L"Calling a function on a native object succeeded.");
+      return true;
+    }
+    return false;
+  }
+
+private:
+  std::wstring test_param_;
+};
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -65,6 +125,29 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
   // Register the internal client plugin
   CefRegisterPlugin(plugin_info);
+
+  // Register a V8 extension with the below JavaScript code that calls native
+  // methods implemented in ClientV8ExtensionHandler.
+  std::wstring code = L"var cef;"
+    L"if (!cef)"
+    L"  cef = {};"
+    L"if (!cef.test)"
+    L"  cef.test = {};"
+    L"(function() {"
+    L"  cef.test.__defineGetter__('test_param', function() {"
+    L"    native function GetTestParam();"
+    L"    return GetTestParam();"
+    L"  });"
+    L"  cef.test.__defineSetter__('test_param', function(b) {"
+    L"    native function SetTestParam();"
+    L"    if(b) SetTestParam(b);"
+    L"  });"
+    L"  cef.test.test_object = function() {"
+    L"    native function GetTestObject();"
+    L"    return GetTestObject();"
+    L"  };"
+    L"})();";
+  CefRegisterExtension(L"v8/test", code, new ClientV8ExtensionHandler());
 
   MSG msg;
   HACCEL hAccelTable;
@@ -170,144 +253,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-// Client implementation of the JS handler class
-// Select the "JavaScript" option from the "Tests" menu for an example
-class ClientJSHandler : public CefThreadSafeBase<CefJSHandler>
-{
-public:
-  ClientJSHandler()
-  {
-  }
-  ~ClientJSHandler()
-  {
-  }
-
-  // Return true if the specified method exists.
-  virtual bool HasMethod(CefRefPtr<CefBrowser> browser,
-                         const std::wstring& name)
-  {
-    // We have a method called "mymethod"
-    return (name.compare(L"mymethod") == 0);
-  }
-  
-  // Return true if the specified property exists.
-  virtual bool HasProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name)
-  {
-    return false;
-  }
-  
-  // Set the property value. Return true if the property is accepted.
-  virtual bool SetProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name,
-                           const CefRefPtr<CefVariant> value)
-  {
-    return false;
-  }
-  
-  // Get the property value. Return true if the value is returned.
-  virtual bool GetProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name,
-                           CefRefPtr<CefVariant> value)
-  {
-    return false;
-  }
-
-  // Execute a method with the specified argument vector and return
-  // value.  Return true if the method was handled.
-  virtual bool ExecuteMethod(CefRefPtr<CefBrowser> browser,
-                             const std::wstring& name,
-                             const VariantVector& args,
-                             CefRefPtr<CefVariant> retval)
-  {
-    // We only handle the "mymethod" method
-    if(name.compare(L"mymethod") != 0)
-      return false;
-
-    // Return a description of the input arguments
-    std::wstringstream ss;
-    for(size_t i = 0; i < args.size(); i++)
-    {
-      ss << L"arg" << i;
-      switch(args[i]->GetType())
-      {
-      case VARIANT_TYPE_NULL:
-        ss << L" null";
-        break;
-      case VARIANT_TYPE_BOOL:
-        ss << L" bool = " << args[i]->GetBool();
-        break;
-      case VARIANT_TYPE_INT:
-        ss << L" int = " << args[i]->GetInt();
-        break;
-      case VARIANT_TYPE_DOUBLE:
-        ss << L" double = " << args[i]->GetDouble();
-        break;
-      case VARIANT_TYPE_STRING:
-        ss << L" string = " << args[i]->GetString().c_str();
-        break;
-      case VARIANT_TYPE_BOOL_ARRAY:
-        ss << L" bool array = ";
-        {
-          std::vector<bool> vec;
-          args[i]->GetBoolArray(vec);
-          for(size_t x = 0; x < vec.size(); x++)
-          {
-            ss << vec[x];
-            if(x < vec.size()-1)
-              ss << L",";
-          }
-        }
-        break;
-      case VARIANT_TYPE_INT_ARRAY:
-        ss << L" int array = ";
-        {
-          std::vector<int> vec;
-          args[i]->GetIntArray(vec);
-          for(size_t x = 0; x < vec.size(); x++)
-          {
-            ss << vec[x];
-            if(x < vec.size()-1)
-              ss << L",";
-          }
-        }
-        break;
-      case VARIANT_TYPE_DOUBLE_ARRAY:
-        ss << L" double array = ";
-        {
-          std::vector<double> vec;
-          args[i]->GetDoubleArray(vec);
-          for(size_t x = 0; x < vec.size(); x++)
-          {
-            ss << vec[x];
-            if(x < vec.size()-1)
-              ss << L",";
-          }
-        }
-        break;
-      case VARIANT_TYPE_STRING_ARRAY:
-        ss << L" string array = ";
-        {
-          std::vector<std::wstring> vec;
-          args[i]->GetStringArray(vec);
-          for(size_t x = 0; x < vec.size(); x++)
-          {
-            ss << vec[x].c_str();
-            if(x < vec.size()-1)
-              ss << L",";
-          }
-        }
-        break;
-      }
-      ss << L"\n<br>";
-    }
-
-    retval->SetString(ss.str());
-
-    return true;
-  }
-};
-
 // Load a resource of type BINARY
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 {
@@ -327,6 +272,124 @@ bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 
 	return false;
 }
+
+// Implementation of the V8 handler class for the "window.cef_test.Dump"
+// function.
+class ClientV8FunctionHandler : public CefThreadSafeBase<CefV8Handler>
+{
+public:
+  ClientV8FunctionHandler() {}
+  virtual ~ClientV8FunctionHandler() {}
+
+  // Execute with the specified argument list and return value.  Return true if
+  // the method was handled.
+  virtual bool Execute(const std::wstring& name,
+                       CefRefPtr<CefV8Value> object,
+                       CefV8ValueList& arguments,
+                       CefRefPtr<CefV8Value>& retval,
+                       std::wstring& exception)
+  {
+    if(name == L"Dump")
+    {
+      // The "Dump" function will return a human-readable dump of the input
+      // arguments.
+      std::wstringstream stream;
+      size_t i;
+
+      for(i = 0; i < arguments.size(); ++i)
+      {
+        stream << L"arg[" << i << L"] = ";
+        PrintValue(arguments[i], stream, 0);
+        stream << L"\n";
+      }
+
+      retval = CefV8Value::CreateString(stream.str());
+      return true;
+    }
+    else if(name == L"Call")
+    {
+      // The "Call" function will execute a function to get an object and then
+      // return the result of calling a function belonging to that object.  The
+      // first arument is the function that will return an object and the second
+      // argument is the function that will be called on that returned object.
+      int argSize = arguments.size();
+      if(argSize < 2 || !arguments[0]->IsFunction()
+          || !arguments[1]->IsString())
+        return false;
+
+      CefV8ValueList argList;
+      
+      // Execute the function stored in the first argument to retrieve an
+      // object.
+      CefRefPtr<CefV8Value> objectPtr;
+      if(!arguments[0]->ExecuteFunction(object, argList, objectPtr, exception))
+        return false;
+      // Verify that the returned value is an object.
+      if(!objectPtr.get() || !objectPtr->IsObject())
+        return false;
+
+      // Retrieve the member function specified by name in the second argument
+      // from the object.
+      CefRefPtr<CefV8Value> funcPtr =
+          objectPtr->GetValue(arguments[1]->GetStringValue());
+      // Verify that the returned value is a function.
+      if(!funcPtr.get() || !funcPtr->IsFunction())
+        return false;
+
+      // Pass any additional arguments on to the member function.
+      for(int i = 2; i < argSize; ++i)
+        argList.push_back(arguments[i]);
+      
+      // Execute the member function.
+      return funcPtr->ExecuteFunction(arguments[0], argList, retval, exception);
+    }
+    return false;
+  }
+
+  // Simple function for formatted output of a V8 value.
+  void PrintValue(CefRefPtr<CefV8Value> value, std::wstringstream &stream,
+                  int indent)
+  {
+    std::wstringstream indent_stream;
+    for(int i = 0; i < indent; ++i)
+      indent_stream << L"  ";
+    std::wstring indent_str = indent_stream.str();
+    
+    if(value->IsUndefined())
+      stream << L"(undefined)";
+    else if(value->IsNull())
+      stream << L"(null)";
+    else if(value->IsBool())
+      stream << L"(bool) " << (value->GetBoolValue() ? L"true" : L"false");
+    else if(value->IsInt())
+      stream << L"(int) " << value->GetIntValue();
+    else if(value->IsDouble())
+      stream << L"(double) " << value->GetDoubleValue();
+    else if(value->IsString())
+      stream << L"(string) " << value->GetStringValue().c_str();
+    else if(value->IsFunction())
+      stream << L"(function) " << value->GetFunctionName().c_str();
+    else if(value->IsArray()) {
+      stream << L"(array) [";
+      int len = value->GetArrayLength();
+      for(int i = 0; i < len; ++i) {
+        stream << L"\n  " << indent_str.c_str() << i << L" = ";
+        PrintValue(value->GetValue(i), stream, indent+1);
+      }
+      stream << L"\n" << indent_str.c_str() << L"]";
+    } else if(value->IsObject()) {
+      stream << L"(object) [";
+      std::vector<std::wstring> keys;
+      if(value->GetKeys(keys)) {
+        for(size_t i = 0; i < keys.size(); ++i) {
+          stream << L"\n  " << indent_str.c_str() << keys[i].c_str() << L" = ";
+          PrintValue(value->GetValue(keys[i]), stream, indent+1);
+        }
+      }
+      stream << L"\n" << indent_str.c_str() << L"]";
+    }
+  }
+};
 
 // Client implementation of the browser handler class
 class ClientHandler : public CefThreadSafeBase<CefHandler>
@@ -373,8 +436,6 @@ public:
       m_Browser = browser;
       m_BrowserHwnd = browser->GetWindowHandle();
     }
-    // Register our JavaScript "myclass" object
-    browser->AddJSHandler(L"myclass", new ClientJSHandler());
     Unlock();
     return RV_CONTINUE;
   }
@@ -382,9 +443,10 @@ public:
   // Event called when the address bar changes. The return value is currently
   // ignored.
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
                                      const std::wstring& url)
   {
-    if(m_BrowserHwnd == browser->GetWindowHandle())
+    if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
     {
       // Set the edit window text
       SetWindowText(m_EditHwnd, url.c_str());
@@ -412,44 +474,57 @@ public:
   // modify the |request| object if desired.  Return RV_HANDLED to cancel
   // navigation.
   virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request,
                                     NavType navType, bool isRedirect)
   {
     return RV_CONTINUE;
   }
 
-  // Event called when the browser begins loading a page.  The return value is
-  // currently ignored.
-  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser)
+  // Event called when the browser begins loading a page.  The |frame| pointer
+  // will be empty if the event represents the overall load status and not the
+  // load status for a particular frame.  The return value is currently ignored.
+  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame)
   {
-    Lock();
-    // We've just started loading a page
-    m_bLoading = true;
-    m_bCanGoBack = false;
-    m_bCanGoForward = false;
-    Unlock();
+    if(!frame.get())
+    {
+      Lock();
+      // We've just started loading a page
+      m_bLoading = true;
+      m_bCanGoBack = false;
+      m_bCanGoForward = false;
+      Unlock();
+    }
     return RV_CONTINUE;
   }
 
-  // Event called when the browser is done loading a page.  This event will
-  // be generated irrespective of whether the request completes successfully.
-  // The return value is currently ignored.
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser)
+  // Event called when the browser is done loading a page. The |frame| pointer
+  // will be empty if the event represents the overall load status and not the
+  // load status for a particular frame. This event will be generated
+  // irrespective of whether the request completes successfully. The return
+  // value is currently ignored.
+  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame)
   {
-    Lock();
-    // We've just finished loading a page
-    m_bLoading = false;
-    m_bCanGoBack = browser->CanGoBack();
-    m_bCanGoForward = browser->CanGoForward();
-    Unlock();
+    if(!frame.get())
+    {
+      Lock();
+      // We've just finished loading a page
+      m_bLoading = false;
+      m_bCanGoBack = browser->CanGoBack();
+      m_bCanGoForward = browser->CanGoForward();
+      Unlock();
+    }
     return RV_CONTINUE;
   }
 
-  // Called when the browser fails to load a resource.  |errorCode is the
+  // Called when the browser fails to load a resource.  |errorCode| is the
   // error code number and |failedUrl| is the URL that failed to load.  To
   // provide custom error text assign the text to |errorText| and return
   // RV_HANDLED.  Otherwise, return RV_CONTINUE for the default error text.
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
                                  const std::wstring& failedUrl,
                                  std::wstring& errorText)
@@ -542,6 +617,7 @@ public:
   // and footer yourself return RV_HANDLED.  Otherwise, populate the approprate
   // variables and return RV_CONTINUE.
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
                                          const std::wstring& url,
                                          const std::wstring& title,
@@ -569,6 +645,7 @@ public:
   // Run a JS alert message.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame,
                                const std::wstring& message)
   {
     return RV_CONTINUE;
@@ -578,6 +655,7 @@ public:
   // or RV_HANDLED if you displayed a custom alert.  If you handled the alert
   // set |retval| to true if the user accepted the confirmation.
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  const std::wstring& message, bool& retval)
   {
     return RV_CONTINUE;
@@ -588,6 +666,7 @@ public:
   // set |retval| to true if the user accepted the prompt and request and
   // |result| to the resulting value.
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 const std::wstring& message,
                                 const std::wstring& defaultValue,
                                 bool& retval,
@@ -614,6 +693,31 @@ public:
   virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser, bool reverse)
   {
     return RV_CONTINUE;
+  }
+
+  // Event called for binding to a frame's JavaScript global object. The
+  // return value is currently ignored.
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object)
+  {
+    // Create the new V8 object.
+    CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL);
+    // Add the new V8 object to the global window object with the name
+    // "cef_test".
+    object->SetValue(L"cef_test", testObjPtr);
+
+    // Create an instance of ClientV8FunctionHandler as the V8 handler.
+    CefRefPtr<CefV8Handler> handlerPtr = new ClientV8FunctionHandler();
+
+    // Add a new V8 function to the cef_test object with the name "Dump".
+    testObjPtr->SetValue(L"Dump",
+        CefV8Value::CreateFunction(L"Dump", handlerPtr));
+    // Add a new V8 function to the cef_test object with the name "Call".
+    testObjPtr->SetValue(L"Call",
+        CefV8Value::CreateFunction(L"Call", handlerPtr));
+
+    return RV_HANDLED;
   }
 
   // Retrieve the current navigation state flags
@@ -702,7 +806,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         *((LPWORD)strPtr) = MAX_URL_LENGTH; 
         LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
         if (strLen > 0)
-          browser->LoadURL(strPtr, std::wstring());
+          browser->GetMainFrame()->LoadURL(strPtr);
 
         return 0;
       }
@@ -833,28 +937,62 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		     if(browser.get())
             browser->StopLoad();
           return 0;
-        case ID_TESTS_JAVASCRIPT_HANDLER: // Test our javascript handler
+        case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 function handler
           if(browser.get())
           {
             std::wstring html =
-              L"<html><body>ClientJSHandler says:<br>"
+              L"<html><body>ClientV8FunctionHandler says:<br><pre>"
               L"<script language=\"JavaScript\">"
-              L"document.writeln(window.myclass.mymethod(false, 1, 7.6654,"
-              L"'bar',[false,true],[5, 6, 1, 8],[4.54,10.032,.054],"
-              L"['one','two']));"
+              L"document.writeln(window.cef_test.Dump(false, 1, 7.6654,'bar',"
+              L"  [false,true],[5, 7.654, 1, 'foo', [true, 'bar'], 8]));"
+              L"document.writeln(window.cef_test.Dump(cef));"
+              L"document.writeln("
+              L"  window.cef_test.Call(cef.test.test_object, 'GetMessage'));"
+              L"function my_object() {"
+              L"  var obj = {};"
+              L"  (function() {"
+              L"    obj.GetMessage = function(a) {"
+              L"      return 'Calling a function with value '+a+' on a user object succeeded.';"
+              L"    };"
+              L"  })();"
+              L"  return obj;"
+              L"};"
+              L"document.writeln("
+              L"  window.cef_test.Call(my_object, 'GetMessage', 'foobar'));"
               L"</script>"
-              L"</body></html>";
-            browser->LoadString(html, L"about:blank");
+              L"</pre></body></html>";
+            browser->GetMainFrame()->LoadString(html, L"about:blank");
+          }
+          return 0;
+        case ID_TESTS_JAVASCRIPT_HANDLER2: // Test the V8 extension handler
+          if(browser.get())
+          {
+            std::wstring html =
+              L"<html><body>ClientV8ExtensionHandler says:<br><pre>"
+              L"<script language=\"JavaScript\">"
+              L"cef.test.test_param ="
+              L"  'Assign and retrieve a value succeeded the first time.';"
+              L"document.writeln(cef.test.test_param);"
+              L"cef.test.test_param ="
+              L"  'Assign and retrieve a value succeeded the second time.';"
+              L"document.writeln(cef.test.test_param);"
+              L"var obj = cef.test.test_object();"
+              L"document.writeln(obj.param);"
+              L"document.writeln(obj.GetMessage());"
+              L"</script>"
+              L"</pre></body></html>";
+            browser->GetMainFrame()->LoadString(html, L"about:blank");
           }
           return 0;
         case ID_TESTS_JAVASCRIPT_EXECUTE: // Test execution of javascript
           if(browser.get())
           {
-            browser->ExecuteJavaScript(L"alert('JavaScript execute works!');",
-              L"about:blank", 0, TF_MAIN);
+            browser->GetMainFrame()->ExecuteJavaScript(
+              L"alert('JavaScript execute works!');",
+              L"about:blank", 0);
           }
           return 0;
-        case ID_TESTS_PLUGIN: // Test our custom plugin
+        case ID_TESTS_PLUGIN: // Test the custom plugin
           if(browser.get())
           {
             std::wstring html =
@@ -862,14 +1000,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               L"<embed type=\"application/x-client-plugin\""
               L"width=600 height=40>"
               L"</body></html>";
-            browser->LoadString(html, L"about:blank");
+            browser->GetMainFrame()->LoadString(html, L"about:blank");
           }
           return 0;
         case ID_TESTS_POPUP: // Test a popup window
           if(browser.get())
           {
-            browser->ExecuteJavaScript(L"window.open('http://www.google.com');",
-              L"about:blank", 0, TF_MAIN);
+            browser->GetMainFrame()->ExecuteJavaScript(
+              L"window.open('http://www.google.com');",
+              L"about:blank", 0);
           }
           return 0;
         }

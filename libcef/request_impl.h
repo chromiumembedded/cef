@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -15,12 +15,10 @@ class CefRequestImpl : public CefThreadSafeBase<CefRequest>
 {
 public:
   CefRequestImpl();
-  ~CefRequestImpl();
+  ~CefRequestImpl() {}
 
   virtual std::wstring GetURL();
   virtual void SetURL(const std::wstring& url);
-  virtual std::wstring GetFrame();
-  virtual void SetFrame(const std::wstring& frame);
   virtual std::wstring GetMethod();
   virtual void SetMethod(const std::wstring& method);
   virtual CefRefPtr<CefPostData> GetPostData();
@@ -28,7 +26,6 @@ public:
   virtual void GetHeaderMap(HeaderMap& headerMap);
   virtual void SetHeaderMap(const HeaderMap& headerMap);
   virtual void Set(const std::wstring& url,
-                   const std::wstring& frame,
                    const std::wstring& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
@@ -38,7 +35,6 @@ public:
 
 protected:
   std::wstring url_;
-  std::wstring frame_;
   std::wstring method_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
@@ -49,7 +45,7 @@ class CefPostDataImpl : public CefThreadSafeBase<CefPostData>
 {
 public:
   CefPostDataImpl();
-  ~CefPostDataImpl();
+  ~CefPostDataImpl() {}
 
   virtual size_t GetElementCount();
   virtual void GetElements(ElementVector& elements);

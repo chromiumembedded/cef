@@ -1,4 +1,4 @@
-// Copyright (c) 2008 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2008-2009 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -37,6 +37,17 @@
 #include "cef_ptr.h"
 #include "cef_types.h"
 
+class CefBrowser;
+class CefFrame;
+class CefHandler;
+class CefPostData;
+class CefPostDataElement;
+class CefRequest;
+class CefStreamReader;
+class CefStreamWriter;
+class CefV8Handler;
+class CefV8Value;
+
 
 // This function should only be called once when the application is started.
 // Create the thread to host the UI message loop.  A return value of true
@@ -57,6 +68,66 @@ void CefShutdown();
 // Perform message loop processing.  Has no affect if the browser UI loop is
 // running in a separate thread.
 void CefDoMessageLoopWork();
+
+// Register a new V8 extension with the specified JavaScript extension code and
+// handler. Functions implemented by the handler are prototyped using the
+// keyword 'native'. The calling of a native function is restricted to the scope
+// in which the prototype of the native function is defined.
+//
+// Example JavaScript extension code:
+//
+//   // create the 'example' global object if it doesn't already exist.
+//   if (!example)
+//     example = {};
+//   // create the 'example.test' global object if it doesn't already exist.
+//   if (!example.test)
+//     example.test = {};
+//   (function() {
+//     // Define the function 'example.test.myfunction'.
+//     example.test.myfunction = function() {
+//       // Call CefV8Handler::Execute() with the function name 'MyFunction'
+//       // and no arguments.
+//       native function MyFunction();
+//       return MyFunction();
+//     };
+//     // Define the getter function for parameter 'example.test.myparam'.
+//     example.test.__defineGetter__('myparam', function() {
+//       // Call CefV8Handler::Execute() with the function name 'GetMyParam'
+//       // and no arguments.
+//       native function GetMyParam();
+//       return GetMyParam();
+//     });
+//     // Define the setter function for parameter 'example.test.myparam'.
+//     example.test.__defineSetter__('myparam', function(b) {
+//       // Call CefV8Handler::Execute() with the function name 'SetMyParam'
+//       // and a single argument.
+//       native function SetMyParam();
+//       if(b) SetMyParam(b);
+//     });
+//
+//     // Extension definitions can also contain normal JavaScript variables
+//     // and functions.
+//     var myint = 0;
+//     example.test.increment = function() {
+//       myint += 1;
+//       return myint;
+//     };
+//   })();
+//
+// Example usage in the page:
+//
+//   // Call the function.
+//   example.test.myfunction();
+//   // Set the parameter.
+//   example.test.myparam = value;
+//   // Get the parameter.
+//   value = example.test.myparam;
+//   // Call another function.
+//   example.test.increment();
+//
+bool CefRegisterExtension(const std::wstring& extension_name,
+                          const std::wstring& javascript_code,
+                          CefRefPtr<CefV8Handler> handler);
 
 
 // Interface defining the the reference count implementation methods. All
@@ -148,18 +219,8 @@ protected:
 };
 
 
-class CefHandler;
-class CefRequest;
-class CefStreamReader;
-class CefStreamWriter;
-class CefPostData;
-class CefPostDataElement;
-class CefJSHandler;
-class CefVariant;
-
-
-// Class used to represent a browser window.  All methods exposed by this
-// class should be thread safe.
+// Class used to represent a browser window.  All methods exposed by this class
+// should be thread safe.
 class CefBrowser : public CefBase
 {
 public:
@@ -194,86 +255,9 @@ public:
   // Stop loading the page.
   virtual void StopLoad() =0;
 
-  // Define frame target types. Using TF_FOCUSED will target the focused
-  // frame and using TF_MAIN will target the main frame.
-  typedef cef_targetframe_t TargetFrame;
-
-  // Execute undo in the target frame.
-  virtual void Undo(TargetFrame targetFrame) =0;
-  // Execute redo in the target frame.
-  virtual void Redo(TargetFrame targetFrame) =0;
-  // Execute cut in the target frame.
-  virtual void Cut(TargetFrame targetFrame) =0;
-  // Execute copy in the target frame.
-  virtual void Copy(TargetFrame targetFrame) =0;
-  // Execute paste in the target frame.
-  virtual void Paste(TargetFrame targetFrame) =0;
-  // Execute delete in the target frame.
-  virtual void Delete(TargetFrame targetFrame) =0;
-  // Execute select all in the target frame.
-  virtual void SelectAll(TargetFrame targetFrame) =0;
-
   // Set focus for the browser window.  If |enable| is true focus will be set
   // to the window.  Otherwise, focus will be removed.
   virtual void SetFocus(bool enable) =0;
-
-  // Execute printing in the target frame.  The user will be prompted with
-  // the print dialog appropriate to the operating system.
-  virtual void Print(TargetFrame targetFrame) =0;
-
-  // Save the target frame's HTML source to a temporary file and open it in
-  // the default text viewing application.
-  virtual void ViewSource(TargetFrame targetFrame) =0;
-
-  // Returns the target frame's HTML source as a string.
-  virtual std::wstring GetSource(TargetFrame targetFrame) =0;
-
-  // Returns the target frame's display text as a string.
-  virtual std::wstring GetText(TargetFrame targetFrame) =0;
-
-  // Load the request represented by the |request| object.
-  virtual void LoadRequest(CefRefPtr<CefRequest> request) =0;
-
-  // Convenience method for loading the specified |url| in the optional target
-  // |frame|.
-  virtual void LoadURL(const std::wstring& url, const std::wstring& frame) =0;
-  
-  // Load the contents of |string| with the optional dummy target |url|.
-  virtual void LoadString(const std::wstring& string,
-                          const std::wstring& url) =0;
-
-  // Load the contents of |stream| with the optional dummy target |url|.
-  virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url) =0;
-
-  // Execute a string of JavaScript code in the specified target frame. The
-  // |script_url| parameter is the URL where the script in question can be
-  // found, if any. The renderer may request this URL to show the developer the
-  // source of the error.  The |start_line| parameter is the base line number
-  // to use for error reporting.
-  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
-                                 const std::wstring& scriptUrl,
-                                 int startLine, TargetFrame targetFrame) =0;
-
-  // Register a new handler tied to the specified JS object |name|. Returns
-  // true if the handler is registered successfully.
-  // A JS handler will be accessible to JavaScript as window.<classname>.
-  virtual bool AddJSHandler(const std::wstring& classname,
-                            CefRefPtr<CefJSHandler> handler) =0;
-  
-  // Returns true if a JS handler with the specified |name| is currently
-  // registered.
-  virtual bool HasJSHandler(const std::wstring& classname) =0;
-
-  // Returns the JS handler registered with the specified |name|.
-  virtual CefRefPtr<CefJSHandler> GetJSHandler(const std::wstring& classname) =0;
-
-  // Unregister the JS handler registered with the specified |name|.  Returns
-  // true if the handler is unregistered successfully.
-  virtual bool RemoveJSHandler(const std::wstring& classname) =0;
-
-  // Unregister all JS handlers that are currently registered.
-  virtual void RemoveAllJSHandlers() =0;
 
   // Retrieve the window handle for this browser.
   virtual CefWindowHandle GetWindowHandle() =0;
@@ -284,7 +268,87 @@ public:
   // Returns the handler for this browser.
   virtual CefRefPtr<CefHandler> GetHandler() =0;
 
-  // Return the currently loaded URL.
+  // Returns the main (top-level) frame for the browser window.
+  virtual CefRefPtr<CefFrame> GetMainFrame() =0;
+
+  // Returns the focused frame for the browser window.
+  virtual CefRefPtr<CefFrame> GetFocusedFrame() =0;
+
+  // Returns the frame with the specified name, or NULL if not found.
+  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name) =0;
+
+  // Returns the names of all existing frames.
+  virtual void GetFrameNames(std::vector<std::wstring>& names) =0;
+};
+
+
+// Class used to represent a frame in the browser window.  All methods exposed
+// by this class should be thread safe.
+class CefFrame : public CefBase
+{
+public:
+  // Execute undo in this frame.
+  virtual void Undo() =0;
+  // Execute redo in this frame.
+  virtual void Redo() =0;
+  // Execute cut in this frame.
+  virtual void Cut() =0;
+  // Execute copy in this frame.
+  virtual void Copy() =0;
+  // Execute paste in this frame.
+  virtual void Paste() =0;
+  // Execute delete in this frame.
+  virtual void Delete() =0;
+  // Execute select all in this frame.
+  virtual void SelectAll() =0;
+
+  // Execute printing in the this frame.  The user will be prompted with the
+  // print dialog appropriate to the operating system.
+  virtual void Print() =0;
+
+  // Save this frame's HTML source to a temporary file and open it in the
+  // default text viewing application.
+  virtual void ViewSource() =0;
+
+  // Returns this frame's HTML source as a string.
+  virtual std::wstring GetSource() =0;
+
+  // Returns this frame's display text as a string.
+  virtual std::wstring GetText() =0;
+
+  // Load the request represented by the |request| object.
+  virtual void LoadRequest(CefRefPtr<CefRequest> request) =0;
+
+  // Load the specified |url|.
+  virtual void LoadURL(const std::wstring& url) =0;
+  
+  // Load the contents of |string| with the optional dummy target |url|.
+  virtual void LoadString(const std::wstring& string,
+                          const std::wstring& url) =0;
+
+  // Load the contents of |stream| with the optional dummy target |url|.
+  virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
+                          const std::wstring& url) =0;
+
+  // Execute a string of JavaScript code in this frame. The |script_url|
+  // parameter is the URL where the script in question can be found, if any.
+  // The renderer may request this URL to show the developer the source of the
+  // error.  The |start_line| parameter is the base line number to use for error
+  // reporting.
+  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
+                                 const std::wstring& scriptUrl,
+                                 int startLine) =0;
+
+  // Returns true if this is the main frame.
+  virtual bool IsMain() =0;
+
+  // Returns true if this is the focused frame.
+  virtual bool IsFocused() =0;
+
+  // Returns this frame's name.
+  virtual std::wstring GetName() =0;
+
+  // Return the URL currently loaded in this frame.
   virtual std::wstring GetURL() =0;
 };
 
@@ -319,9 +383,10 @@ public:
   // ignored.
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser) =0;
 
-  // Event called when the address bar changes. The return value is currently
-  // ignored.
+  // Event called when a frame's address has changed. The return value is
+  // currently ignored.
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
                                      const std::wstring& url) =0;
 
   // Event called when the page title changes. The return value is currently
@@ -336,27 +401,34 @@ public:
   // modify the |request| object if desired.  Return RV_HANDLED to cancel
   // navigation.
   virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request,
                                     NavType navType, bool isRedirect) =0;
 
-  // Event called when the browser begins loading a page.  The return value is
-  // currently ignored.
-  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser) =0;
+  // Event called when the browser begins loading a page.  The |frame| pointer
+  // will be empty if the event represents the overall load status and not the
+  // load status for a particular frame.  The return value is currently ignored.
+  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame) =0;
 
-  // Event called when the browser is done loading a page.  This event will
-  // be generated irrespective of whether the request completes successfully.
-  // The return value is currently ignored.
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser) =0;
+  // Event called when the browser is done loading a page. The |frame| pointer
+  // will be empty if the event represents the overall load status and not the
+  // load status for a particular frame. This event will be generated
+  // irrespective of whether the request completes successfully. The return
+  // value is currently ignored.
+  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame) =0;
 
   // Supported error code values. See net\base\net_error_list.h for complete
   // descriptions of the error codes.
   typedef cef_handler_errorcode_t ErrorCode;
 
-  // Called when the browser fails to load a resource.  |errorCode is the
+  // Called when the browser fails to load a resource.  |errorCode| is the
   // error code number and |failedUrl| is the URL that failed to load.  To
   // provide custom error text assign the text to |errorText| and return
   // RV_HANDLED.  Otherwise, return RV_CONTINUE for the default error text.
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
                                  const std::wstring& failedUrl,
                                  std::wstring& errorText) =0;
@@ -407,6 +479,7 @@ public:
   // and footer yourself return RV_HANDLED.  Otherwise, populate the approprate
   // variables and return RV_CONTINUE.
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
                                          const std::wstring& url,
                                          const std::wstring& title,
@@ -421,12 +494,14 @@ public:
   // Run a JS alert message.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame,
                                const std::wstring& message) =0;
 
   // Run a JS confirm request.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.  If you handled the alert
   // set |retval| to true if the user accepted the confirmation.
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  const std::wstring& message, bool& retval) =0;
 
   // Run a JS prompt request.  Return RV_CONTINUE to display the default prompt
@@ -434,6 +509,7 @@ public:
   // set |retval| to true if the user accepted the prompt and request and
   // |result| to the resulting value.
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 const std::wstring& message,
                                 const std::wstring& defaultValue,
                                 bool& retval,
@@ -448,6 +524,12 @@ public:
   // The return value is currently ignored.
   virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser,
                                  bool reverse) =0;
+
+  // Event called for adding values to a frame's JavaScript 'window' object. The
+  // return value is currently ignored.
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object) =0;
 };
 
 
@@ -464,10 +546,6 @@ public:
   virtual std::wstring GetURL() =0;
   virtual void SetURL(const std::wstring& url) =0;
 
-  // Optional name of the target frame.
-  virtual std::wstring GetFrame() =0;
-  virtual void SetFrame(const std::wstring& frame) =0;
-
   // Optional request method type, defaulting to POST if post data is provided
   // and GET otherwise.
   virtual std::wstring GetMethod() =0;
@@ -483,7 +561,6 @@ public:
 
   // Set all values at one time.
   virtual void Set(const std::wstring& url,
-                   const std::wstring& frame,
                    const std::wstring& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap) =0;
@@ -593,72 +670,108 @@ public:
 };
 
 
-// Class for implementing external JavaScript objects.
-class CefJSHandler : public CefBase
+typedef std::vector<CefRefPtr<CefV8Value>> CefV8ValueList;
+
+// Interface that should be implemented to handle V8 function calls.
+class CefV8Handler : public CefBase
 {
 public:
-  typedef std::vector<CefRefPtr<CefVariant> > VariantVector;
-
-  // Return true if the specified method exists.
-  virtual bool HasMethod(CefRefPtr<CefBrowser> browser,
-                         const std::wstring& name) =0;
-  
-  // Return true if the specified property exists.
-  virtual bool HasProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name) =0;
-
-  // Set the property value. Return true if the property is accepted.
-  virtual bool SetProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name,
-                           const CefRefPtr<CefVariant> value) =0;
-  
-  // Get the property value. Return true if the value is returned.
-  virtual bool GetProperty(CefRefPtr<CefBrowser> browser,
-                           const std::wstring& name,
-                           CefRefPtr<CefVariant> value) =0;
-
-  // Execute a method with the specified argument vector and return
-  // value.  Return true if the method was handled.
-  virtual bool ExecuteMethod(CefRefPtr<CefBrowser> browser,
-                             const std::wstring& name,
-                             const VariantVector& args,
-                             CefRefPtr<CefVariant> retval) =0;
+  // Execute with the specified argument list and return value.  Return true if
+  // the method was handled.
+  virtual bool Execute(const std::wstring& name,
+                       CefRefPtr<CefV8Value> object,
+                       CefV8ValueList& arguments,
+                       CefRefPtr<CefV8Value>& retval,
+                       std::wstring& exception) =0;
 };
 
 
-// Class that represents multiple data types as a single object.
-class CefVariant : public CefBase
+// Class representing a V8 value.
+class CefV8Value : public CefBase
 {
 public:
-  typedef cef_variant_type_t Type;
+  // Create a new value of the specified type.  These functions should only be
+  // called from within the JavaScript context -- either in a
+  // CefV8Handler::Execute() callback or a CefHandler::HandleScriptBinding()
+  // callback.
+  static CefRefPtr<CefV8Value> CreateUndefined();
+  static CefRefPtr<CefV8Value> CreateNull();
+  static CefRefPtr<CefV8Value> CreateBool(bool value);
+  static CefRefPtr<CefV8Value> CreateInt(int value);
+  static CefRefPtr<CefV8Value> CreateDouble(double value);
+  static CefRefPtr<CefV8Value> CreateString(const std::wstring& value);
+  static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
+  static CefRefPtr<CefV8Value> CreateArray();
+  static CefRefPtr<CefV8Value> CreateFunction(const std::wstring& name,
+                                              CefRefPtr<CefV8Handler> handler);
 
-  // Return the variant data type.
-  virtual Type GetType() =0;
+  // Check the value type.
+  virtual bool IsUndefined() =0;
+  virtual bool IsNull() =0;
+  virtual bool IsBool() =0;
+  virtual bool IsInt() =0;
+  virtual bool IsDouble() =0;
+  virtual bool IsString() =0;
+  virtual bool IsObject() =0;
+  virtual bool IsArray() =0;
+  virtual bool IsFunction() =0;
+  
+  // Return a primitive value type.  The underlying data will be converted to
+  // the requested type if necessary.
+  virtual bool GetBoolValue() =0;
+  virtual int GetIntValue() =0;
+  virtual double GetDoubleValue() =0;
+  virtual std::wstring GetStringValue() =0;
 
-  // Assign various data types.
-  virtual void SetNull() =0;
-  virtual void SetBool(bool val) =0;
-  virtual void SetInt(int val) =0;
-  virtual void SetDouble(double val) =0;
-  virtual void SetString(const std::wstring& val) =0;
-  virtual void SetBoolArray(const std::vector<bool>& val) =0;
-  virtual void SetIntArray(const std::vector<int>& val) =0;
-  virtual void SetDoubleArray(const std::vector<double>& val) =0;
-  virtual void SetStringArray(const std::vector<std::wstring>& val) =0;
 
-  // Retrieve various data types.
-  virtual bool GetBool() =0;
-  virtual int GetInt() =0;
-  virtual double GetDouble() =0;
-  virtual std::wstring GetString() =0;
-  virtual bool GetBoolArray(std::vector<bool>& val) =0;
-  virtual bool GetIntArray(std::vector<int>& val) =0;
-  virtual bool GetDoubleArray(std::vector<double>& val) =0;
-  virtual bool GetStringArray(std::vector<std::wstring>& val) =0;
+  // OBJECT METHODS - These methods are only available on objects. Arrays and
+  // functions are also objects. String- and integer-based keys can be used
+  // interchangably with the framework converting between them as necessary.
+  // Keys beginning with "Cef::" and "v8::" are reserved by the system.
 
-  // Returns the number of values in the array.  Returns -1 if the variant
-  // is not an array type.
-  virtual int GetArraySize() =0;
+  // Returns true if the object has a value with the specified identifier.
+  virtual bool HasValue(const std::wstring& key) =0;
+  virtual bool HasValue(int index) =0;
+
+  // Delete the value with the specified identifier.
+  virtual bool DeleteValue(const std::wstring& key) =0;
+  virtual bool DeleteValue(int index) =0;
+
+  // Returns the value with the specified identifier.
+  virtual CefRefPtr<CefV8Value> GetValue(const std::wstring& key) =0;
+  virtual CefRefPtr<CefV8Value> GetValue(int index) =0;
+
+  // Associate value with the specified identifier.
+  virtual bool SetValue(const std::wstring& key, CefRefPtr<CefV8Value> value) =0;
+  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) =0;
+
+  // Read the keys for the object's values into the specified vector. Integer-
+  // based keys will also be returned as strings.
+  virtual bool GetKeys(std::vector<std::wstring>& keys) =0;
+
+  // Returns the user data, if any, specified when the object was created.
+  virtual CefRefPtr<CefBase> GetUserData() =0;
+
+
+  // ARRAY METHODS - These methods are only available on arrays.
+
+  // Returns the number of elements in the array.
+  virtual int GetArrayLength() =0;
+
+
+  // FUNCTION METHODS - These methods are only available on functions.
+
+  // Returns the function name.
+  virtual std::wstring GetFunctionName() =0;
+
+  // Returns the function handler or NULL if not a CEF-created function.
+  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() =0;
+  
+  // Execute the function.
+  virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
+                               CefV8ValueList& arguments,
+                               CefRefPtr<CefV8Value>& retval,
+                               std::wstring& exception) =0;
 };
 
 #endif // _CEF_H

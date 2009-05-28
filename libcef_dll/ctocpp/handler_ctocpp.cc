@@ -4,8 +4,10 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/browser_cpptoc.h"
+#include "cpptoc/frame_cpptoc.h"
 #include "cpptoc/request_cpptoc.h"
 #include "cpptoc/stream_cpptoc.h"
+#include "cpptoc/v8value_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "transfer_util.h"
 
@@ -17,38 +19,28 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeCreated(
   if(CEF_MEMBER_MISSING(struct_, handle_before_created))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = NULL;
-  cef_browser_t* browserStructPtr = NULL;
-  if(parentBrowser.get()) {
-    browserPtr = new CefBrowserCppToC(parentBrowser);
-    browserPtr->AddRef();
-    browserStructPtr = browserPtr->GetStruct();
-  }
+  cef_browser_t* browserStruct = NULL;
+  if(parentBrowser.get())
+    browserStruct = CefBrowserCppToC::Wrap(parentBrowser);
 
-  CefHandlerCToCpp* handlerPtr = NULL;
-  cef_handler_t* handlerRet = NULL;
-  if(handler.get()) {
-    handlerPtr = static_cast<CefHandlerCToCpp*>(handler.get());
-    handlerPtr->UnderlyingAddRef();
-    handlerRet = handlerPtr->GetStruct();
-  }
+  cef_handler_t* handlerStruct = NULL;
+  if(handler.get())
+    handlerStruct = CefHandlerCToCpp::Unwrap(handler);
+  cef_handler_t *origHandlerStruct = handlerStruct;
 
   cef_string_t urlRet = NULL;
   if(!url.empty())
     urlRet = cef_string_alloc(url.c_str());
 
   cef_retval_t rv = struct_->handle_before_created(struct_,
-    browserStructPtr, &windowInfo, popup, &handlerRet, &urlRet);
+    browserStruct, &windowInfo, popup, &handlerStruct, &urlRet);
 
-  if(handlerPtr && handlerRet != handlerPtr->GetStruct()) {
+  if(handlerStruct && handlerStruct != origHandlerStruct) {
     // The handler was changed.
-    if(handlerRet) {
-      CefHandlerCToCpp* hp = new CefHandlerCToCpp(handlerRet);
-      handler = hp;
-      hp->UnderlyingRelease();
-    } else {
+    if(handlerStruct)
+      handler = CefHandlerCToCpp::Wrap(handlerStruct);
+    else
       handler = NULL;
-    }
   }
 
   transfer_string_contents(urlRet, url, true);
@@ -62,20 +54,19 @@ CefHandler::RetVal CefHandlerCToCpp::HandleAfterCreated(
   if(CEF_MEMBER_MISSING(struct_, handle_after_created))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-  return struct_->handle_after_created(struct_, browserPtr->GetStruct());
+  return struct_->handle_after_created(struct_,
+      CefBrowserCppToC::Wrap(browser));
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleAddressChange(
-    CefRefPtr<CefBrowser> browser, const std::wstring& url)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    const std::wstring& url)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_address_change))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-  return struct_->handle_address_change(struct_, browserPtr->GetStruct(),
+  return struct_->handle_address_change(struct_,
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       url.c_str());
 }
 
@@ -85,69 +76,64 @@ CefHandler::RetVal CefHandlerCToCpp::HandleTitleChange(
   if(CEF_MEMBER_MISSING(struct_, handle_title_change))
    return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-  return struct_->handle_title_change(struct_, browserPtr->GetStruct(),
+  return struct_->handle_title_change(struct_, CefBrowserCppToC::Wrap(browser),
       title.c_str());
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeBrowse(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
-    NavType navType, bool isRedirect)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request, NavType navType, bool isRedirect)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_before_browse))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  CefRequestCppToC* requestPtr = new CefRequestCppToC(request);
-  requestPtr->AddRef();
-
-  return struct_->handle_before_browse(struct_, browserPtr->GetStruct(),
-    requestPtr->GetStruct(), navType, isRedirect);
+  return struct_->handle_before_browse(struct_, CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame), CefRequestCppToC::Wrap(request),
+      navType, isRedirect);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadStart(
-    CefRefPtr<CefBrowser> browser)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_start))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
+  cef_frame_t* frameStruct = NULL;
+  if(frame.get())
+    frameStruct = CefFrameCppToC::Wrap(frame);
 
-  return struct_->handle_load_start(struct_, browserPtr->GetStruct());
+  return struct_->handle_load_start(struct_, CefBrowserCppToC::Wrap(browser),
+      frameStruct);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadEnd(
-    CefRefPtr<CefBrowser> browser)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_end))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
+  cef_frame_t* frameStruct = NULL;
+  if(frame.get())
+    frameStruct = CefFrameCppToC::Wrap(frame);
 
-  return struct_->handle_load_end(struct_, browserPtr->GetStruct());
+  return struct_->handle_load_end(struct_, CefBrowserCppToC::Wrap(browser),
+      frameStruct);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadError(
-    CefRefPtr<CefBrowser> browser, ErrorCode errorCode,
-    const std::wstring& failedUrl, std::wstring& errorText)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    ErrorCode errorCode, const std::wstring& failedUrl, std::wstring& errorText)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_error))
     return RV_CONTINUE;
-
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
 
   cef_string_t errorTextRet = NULL;
   if(!errorText.empty())
     errorTextRet = cef_string_alloc(errorText.c_str());
 
-  cef_retval_t rv = struct_->handle_load_error(struct_, browserPtr->GetStruct(),
-      errorCode, failedUrl.c_str(), &errorTextRet);
+  cef_retval_t rv = struct_->handle_load_error(struct_,
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame), errorCode,
+      failedUrl.c_str(), &errorTextRet);
 
   transfer_string_contents(errorTextRet, errorText, true);
 
@@ -162,12 +148,6 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
   if(CEF_MEMBER_MISSING(struct_, handle_before_resource_load))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  CefRequestCppToC* requestPtr = new CefRequestCppToC(request);
-  requestPtr->AddRef();
-
   cef_string_t redirectUrlRet = NULL;
   cef_string_t mimeTypeRet = NULL;
   cef_stream_reader_t* streamRet = NULL;
@@ -176,18 +156,14 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
     redirectUrlRet = cef_string_alloc(redirectUrl.c_str());
   
   cef_retval_t rv = struct_->handle_before_resource_load(struct_,
-      browserPtr->GetStruct(), requestPtr->GetStruct(), &redirectUrlRet,
-      &streamRet, &mimeTypeRet, loadFlags);
+      CefBrowserCppToC::Wrap(browser), CefRequestCppToC::Wrap(request),
+      &redirectUrlRet, &streamRet, &mimeTypeRet, loadFlags);
 
   transfer_string_contents(redirectUrlRet, redirectUrl, true);
   transfer_string_contents(mimeTypeRet, mimeType, true);
 
-  if(streamRet) {
-    CefStreamReaderCppToC::Struct* sp =
-        reinterpret_cast<CefStreamReaderCppToC::Struct*>(streamRet);
-    resourceStream = sp->class_->GetClass();
-    sp->class_->Release();
-  }
+  if(streamRet)
+    resourceStream = CefStreamReaderCppToC::Unwrap(streamRet);
 
   return rv;
 }
@@ -198,10 +174,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeMenu(
   if(CEF_MEMBER_MISSING(struct_, handle_before_menu))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  return struct_->handle_before_menu(struct_, browserPtr->GetStruct(),
+  return struct_->handle_before_menu(struct_, CefBrowserCppToC::Wrap(browser),
       &menuInfo);
 }
 
@@ -211,15 +184,12 @@ CefHandler::RetVal CefHandlerCToCpp::HandleGetMenuLabel(
   if(CEF_MEMBER_MISSING(struct_, handle_get_menu_label))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
   cef_string_t labelRet = NULL;
   if(!label.empty())
     labelRet = cef_string_alloc(label.c_str());
 
   cef_retval_t rv = struct_->handle_get_menu_label(struct_,
-      browserPtr->GetStruct(), menuId, &labelRet);
+      CefBrowserCppToC::Wrap(browser), menuId, &labelRet);
 
   transfer_string_contents(labelRet, label, true);
 
@@ -232,24 +202,19 @@ CefHandler::RetVal CefHandlerCToCpp::HandleMenuAction(
   if(CEF_MEMBER_MISSING(struct_, handle_menu_action))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  return struct_->handle_menu_action(struct_, browserPtr->GetStruct(), menuId);
+  return struct_->handle_menu_action(struct_, CefBrowserCppToC::Wrap(browser),
+      menuId);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandlePrintHeaderFooter(
-    CefRefPtr<CefBrowser> browser, CefPrintInfo& printInfo,
-    const std::wstring& url, const std::wstring& title, int currentPage,
-    int maxPages, std::wstring& topLeft, std::wstring& topCenter,
-    std::wstring& topRight, std::wstring& bottomLeft,
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefPrintInfo& printInfo, const std::wstring& url, const std::wstring& title,
+    int currentPage, int maxPages, std::wstring& topLeft,
+    std::wstring& topCenter, std::wstring& topRight, std::wstring& bottomLeft,
     std::wstring& bottomCenter, std::wstring& bottomRight)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_print_header_footer))
     return RV_CONTINUE;
-
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
 
   cef_string_t topLeftRet = NULL, topCenterRet = NULL, topRightRet = NULL,
       bottomLeftRet = NULL, bottomCenterRet = NULL, bottomRightRet = NULL;
@@ -268,9 +233,10 @@ CefHandler::RetVal CefHandlerCToCpp::HandlePrintHeaderFooter(
     bottomRightRet = cef_string_alloc(bottomRight.c_str());
 
   cef_retval_t rv = struct_->handle_print_header_footer(struct_,
-      browserPtr->GetStruct(), &printInfo, url.c_str(), title.c_str(),
-      currentPage, maxPages, &topLeftRet, &topCenterRet, &topRightRet,
-      &bottomLeftRet, &bottomCenterRet, &bottomRightRet);
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      &printInfo, url.c_str(), title.c_str(), currentPage, maxPages,
+      &topLeftRet, &topCenterRet, &topRightRet, &bottomLeftRet,
+      &bottomCenterRet, &bottomRightRet);
 
   transfer_string_contents(topLeftRet, topLeft, true);
   transfer_string_contents(topCenterRet, topCenter, true);
@@ -283,50 +249,46 @@ CefHandler::RetVal CefHandlerCToCpp::HandlePrintHeaderFooter(
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleJSAlert(
-    CefRefPtr<CefBrowser> browser, const std::wstring& message)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    const std::wstring& message)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_jsalert))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  return struct_->handle_jsalert(struct_, browserPtr->GetStruct(),
-      message.c_str());
+  return struct_->handle_jsalert(struct_, CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame), message.c_str());
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleJSConfirm(
-    CefRefPtr<CefBrowser> browser, const std::wstring& message, bool& retval)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    const std::wstring& message, bool& retval)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_jsconfirm))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
   int ret = 0;
-  cef_retval_t rv = struct_->handle_jsconfirm(struct_, browserPtr->GetStruct(),
+  cef_retval_t rv = struct_->handle_jsconfirm(struct_,
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       message.c_str(), &ret);
   retval = (ret ? true : false);
   return rv;
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleJSPrompt(
-    CefRefPtr<CefBrowser> browser, const std::wstring& message,
-    const std::wstring& defaultValue, bool& retval, std::wstring& result)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    const std::wstring& message, const std::wstring& defaultValue, bool& retval,
+    std::wstring& result)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_jsprompt))
     return RV_CONTINUE;
-
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
 
   cef_string_t resultRet = NULL;
   if(!result.empty())
     resultRet = cef_string_alloc(result.c_str());
 
   int ret = 0;
-  cef_retval_t rv = struct_->handle_jsprompt(struct_, browserPtr->GetStruct(),
+  cef_retval_t rv = struct_->handle_jsprompt(struct_,
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       message.c_str(), defaultValue.c_str(), &ret, &resultRet);
   retval = (ret ? true : false);
 
@@ -341,10 +303,8 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeWindowClose(
   if(CEF_MEMBER_MISSING(struct_, handle_before_window_close))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
-
-  return struct_->handle_before_window_close(struct_, browserPtr->GetStruct());
+  return struct_->handle_before_window_close(struct_,
+      CefBrowserCppToC::Wrap(browser));
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleTakeFocus(
@@ -353,12 +313,21 @@ CefHandler::RetVal CefHandlerCToCpp::HandleTakeFocus(
   if(CEF_MEMBER_MISSING(struct_, handle_take_focus))
     return RV_CONTINUE;
 
-  CefBrowserCppToC* browserPtr = new CefBrowserCppToC(browser);
-  browserPtr->AddRef();
+  return struct_->handle_take_focus(struct_, CefBrowserCppToC::Wrap(browser),
+      reverse);
+}
 
-  return struct_->handle_take_focus(struct_, browserPtr->GetStruct(), reverse);
+CefHandler::RetVal CefHandlerCToCpp::HandleJSBinding(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefV8Value> object)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_jsbinding))
+    return RV_CONTINUE;
+
+  return struct_->handle_jsbinding(struct_, CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame), CefV8ValueCppToC::Wrap(object));
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefHandler, cef_handler_t>::DebugObjCt = 0;
+long CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>::DebugObjCt = 0;
 #endif

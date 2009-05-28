@@ -10,11 +10,41 @@
 #include "../cef_logging.h"
 
 
-// Wrap a C structure with a C++ class.
-template <class ClassName, class StructName>
-class CefCToCpp : public CefThreadSafeBase<ClassName>
+// Wrap a C structure with a C++ class.  This is used when the implementation
+// exists on the other side of the DLL boundary but will have methods called on
+// this side of the DLL boundary.
+template <class ClassName, class BaseName, class StructName>
+class CefCToCpp : public CefThreadSafeBase<BaseName>
 {
 public:
+  // Use this method to create a wrapper class instance for a structure
+  // received from the other side.
+  static CefRefPtr<BaseName> Wrap(StructName* s)
+  {
+    // Wrap their structure with the CefCToCpp object.
+    ClassName* wrapper = new ClassName(s);
+    // Put the wrapper object in a smart pointer.
+    CefRefPtr<BaseName> wrapperPtr(wrapper);
+    // Release the reference that was added to the CefCppToC wrapper object on
+    // the other side before their structure was passed to us.
+    wrapper->UnderlyingRelease();
+    // Return the smart pointer.
+    return wrapperPtr;
+  }
+
+  // Use this method to retrieve the underlying structure from a wrapper class
+  // instance for return back to the other side.
+  static StructName* Unwrap(CefRefPtr<BaseName> c)
+  {
+    // Cast the object to our wrapper class type.
+    ClassName* wrapper = static_cast<ClassName*>(c.get());
+    // Add a reference to the CefCppToC wrapper object on the other side that
+    // will be released once the structure is received.
+    wrapper->UnderlyingAddRef();
+    // Return their original structure.
+    return wrapper->GetStruct();
+  }
+
   CefCToCpp(StructName* str)
     : struct_(str)
   {
@@ -41,12 +71,12 @@ public:
   virtual int AddRef()
   {
     UnderlyingAddRef();
-    return CefThreadSafeBase<ClassName>::AddRef();
+    return CefThreadSafeBase<BaseName>::AddRef();
   }
   virtual int Release()
   {
     UnderlyingRelease();
-    return CefThreadSafeBase<ClassName>::Release();
+    return CefThreadSafeBase<BaseName>::Release();
   }
 
   // Increment/decrement reference counts on only the underlying class.
@@ -76,6 +106,87 @@ public:
 
 protected:
   StructName* struct_;
+};
+
+// CefCToCpp implementation for CefBase.
+class CefBaseCToCpp : public CefThreadSafeBase<CefBase>
+{
+public:
+  // Use this method to create a wrapper class instance for a structure
+  // received from the other side.
+  static CefRefPtr<CefBase> Wrap(cef_base_t* s)
+  {
+    // Wrap their structure with the CefCToCpp object.
+    CefBaseCToCpp* wrapper = new CefBaseCToCpp(s);
+    // Put the wrapper object in a smart pointer.
+    CefRefPtr<CefBase> wrapperPtr(wrapper);
+    // Release the reference that was added to the CefCppToC wrapper object on
+    // the other side before their structure was passed to us.
+    wrapper->UnderlyingRelease();
+    // Return the smart pointer.
+    return wrapperPtr;
+  }
+
+  // Use this method to retrieve the underlying structure from a wrapper class
+  // instance for return back to the other side.
+  static cef_base_t* Unwrap(CefRefPtr<CefBase> c)
+  {
+    // Cast the object to our wrapper class type.
+    CefBaseCToCpp* wrapper = static_cast<CefBaseCToCpp*>(c.get());
+    // Add a reference to the CefCppToC wrapper object on the other side that
+    // will be released once the structure is received.
+    wrapper->UnderlyingAddRef();
+    // Return their original structure.
+    return wrapper->GetStruct();
+  }
+
+  CefBaseCToCpp(cef_base_t* str)
+    : struct_(str)
+  {
+    DCHECK(str);
+  }
+  virtual ~CefBaseCToCpp() {}
+
+  // If returning the structure across the DLL boundary you should call
+  // UnderlyingAddRef() on this wrapping CefCToCpp object.  On the other side of
+  // the DLL  boundary, call Release() on the CefCppToC object.
+  cef_base_t* GetStruct() { return struct_; }
+
+  // CefBase methods increment/decrement reference counts on both this object
+  // and the underlying wrapped structure.
+  virtual int AddRef()
+  {
+    UnderlyingAddRef();
+    return CefThreadSafeBase<CefBase>::AddRef();
+  }
+  virtual int Release()
+  {
+    UnderlyingRelease();
+    return CefThreadSafeBase<CefBase>::Release();
+  }
+
+  // Increment/decrement reference counts on only the underlying class.
+  int UnderlyingAddRef()
+  {
+    if(!struct_->add_ref)
+      return 0;
+    return struct_->add_ref(struct_);
+  }
+  int UnderlyingRelease()
+  {
+    if(!struct_->release)
+      return 0;
+    return struct_->release(struct_);
+  }
+  int UnderlyingGetRefCt()
+  {
+    if(!struct_->get_refct)
+      return 0;
+    return struct_->get_refct(struct_);
+  }
+
+protected:
+  cef_base_t* struct_;
 };
 
 

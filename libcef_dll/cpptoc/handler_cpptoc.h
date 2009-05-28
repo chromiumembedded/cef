@@ -16,7 +16,8 @@
 
 // Wrap a C++ handler class with a C handler structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefHandlerCppToC : public CefCppToC<CefHandler, cef_handler_t>
+class CefHandlerCppToC
+    : public CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>
 {
 public:
   CefHandlerCppToC(CefHandler* cls);

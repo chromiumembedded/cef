@@ -39,7 +39,8 @@ int CefStreamReaderCToCpp::Eof()
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
+long CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
+    cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 
 
@@ -76,5 +77,6 @@ int CefStreamWriterCToCpp::Flush()
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
+long CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
+    cef_stream_writer_t>::DebugObjCt = 0;
 #endif

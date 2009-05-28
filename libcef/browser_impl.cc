@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -14,229 +14,58 @@
 #include "webkit/api/public/WebURL.h"
 #include "webkit/glue/webframe.h"
 
+
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 using WebKit::WebURL;
 
 
 CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
-                               CefRefPtr<CefHandler> handler,
-                               const std::wstring& url)
+                               CefRefPtr<CefHandler> handler)
   : window_info_(windowInfo), is_popup_(popup), is_modal_(false),
-  handler_(handler), webviewhost_(NULL), popuphost_(NULL), url_(url),
-  unique_id_(0)
+  handler_(handler), webviewhost_(NULL), popuphost_(NULL), unique_id_(0),
+  frame_main_(NULL)
 {
   delegate_ = new BrowserWebViewDelegate(this);
   nav_controller_.reset(new BrowserNavigationController(this));
 }
 
-CefBrowserImpl::~CefBrowserImpl()
-{
-  RemoveAllJSHandlers();
-}
-
 void CefBrowserImpl::GoBack()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-    &CefBrowserImpl::UIT_HandleAction, MENU_ID_NAV_BACK, TF_MAIN));
+    &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_BACK));
 }
 
 void CefBrowserImpl::GoForward()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_NAV_FORWARD, TF_MAIN));
+      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_FORWARD));
 }
 
 void CefBrowserImpl::Reload()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_NAV_RELOAD, TF_MAIN));
+      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD));
 }
 
 void CefBrowserImpl::StopLoad()
 {
   PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_NAV_STOP, TF_MAIN));
-}
-
-void CefBrowserImpl::Undo(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_UNDO, targetFrame));
-}
-
-void CefBrowserImpl::Redo(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_REDO, targetFrame));
-}
-
-void CefBrowserImpl::Cut(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_CUT, targetFrame));
-}
-
-void CefBrowserImpl::Copy(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_COPY, targetFrame));
-}
-
-void CefBrowserImpl::Paste(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_PASTE, targetFrame));
-}
-
-void CefBrowserImpl::Delete(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_DELETE, targetFrame));
-}
-
-void CefBrowserImpl::SelectAll(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_SELECTALL, targetFrame));
+      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_STOP));
 }
 
 void CefBrowserImpl::SetFocus(bool enable)
 {
   if (_Context->RunningOnUIThread())
   {
-    UIT_SetFocus(UIT_GetWebViewHost(), enable);
+    UIT_SetFocus(GetWebViewHost(), enable);
   }
   else
   {
     PostTask(FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_SetFocus,
-      UIT_GetWebViewHost(), enable));
+      GetWebViewHost(), enable));
   }
-}
-
-void CefBrowserImpl::Print(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_PRINT, targetFrame));
-}
-
-void CefBrowserImpl::ViewSource(TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction,
-      MENU_ID_VIEWSOURCE, targetFrame));
-}
-void CefBrowserImpl::LoadRequest(CefRefPtr<CefRequest> request)
-{
-  DCHECK(request.get() != NULL);
-  request->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadURLForRequestRef, request.get()));
-}
-
-void CefBrowserImpl::LoadURL(const std::wstring& url, const std::wstring& frame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadURLForFrame, url, frame));
-}
-
-void CefBrowserImpl::LoadString(const std::wstring& string,
-                          const std::wstring& url)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadHTML, string, url));
-}
-
-void CefBrowserImpl::LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url)
-{
-  DCHECK(stream.get() != NULL);
-  stream->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadHTMLForStreamRef, stream.get(), url));
-}
-
-void CefBrowserImpl::ExecuteJavaScript(const std::wstring& jsCode, 
-                                       const std::wstring& scriptUrl,
-                                       int startLine,
-                                       TargetFrame targetFrame)
-{
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_ExecuteJavaScript, jsCode, scriptUrl, startLine,
-      targetFrame));
-}
-
-bool CefBrowserImpl::AddJSHandler(const std::wstring& classname,
-                                  CefRefPtr<CefJSHandler> handler)
-{
-  DCHECK(handler.get());
-  bool rv = false;
-
-  Lock();
-  if(!HasJSHandler(classname)) {
-    CefRefPtr<CefJSContainer> jscon(new CefJSContainer(this, handler));
-    jscontainers_.insert(std::make_pair(classname, jscon));
-    rv = true;
-  }
-  Unlock();
-
-  return rv;
-}
-
-bool CefBrowserImpl::HasJSHandler(const std::wstring& classname)
-{
-  Lock();
-  bool rv = (jscontainers_.find(classname) != jscontainers_.end());
-  Unlock();
-
-  return rv;
-}
-
-CefRefPtr<CefJSHandler> CefBrowserImpl::GetJSHandler(const std::wstring& classname)
-{
-  CefRefPtr<CefJSHandler> handler;
-
-  Lock();
-  JSContainerMap::const_iterator it = jscontainers_.find(classname);
-  if(it != jscontainers_.end())
-    handler = it->second->GetHandler();
-  Unlock();
-
-  return handler;
-}
-
-bool CefBrowserImpl::RemoveJSHandler(const std::wstring& classname)
-{
-  bool rv = false;
-  
-  Lock();
-  JSContainerMap::iterator it = jscontainers_.find(classname);
-  if(it != jscontainers_.end()) {
-    jscontainers_.erase(it);
-    rv = true;
-  }
-  Unlock();
-
-  return rv;
-}
-
-void CefBrowserImpl::RemoveAllJSHandlers()
-{
-  Lock();
-  jscontainers_.clear();
-  Unlock();
 }
 
 bool CefBrowserImpl::IsPopup()
@@ -252,19 +81,209 @@ CefRefPtr<CefHandler> CefBrowserImpl::GetHandler()
   return handler_;
 }
 
-std::wstring CefBrowserImpl::GetURL()
+CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame()
 {
-  Lock();
-  std::wstring url = url_;
-  Unlock();
-  return url;
+  return GetCefFrame(GetWebView()->GetMainFrame());
 }
 
-void CefBrowserImpl::SetURL(const std::wstring& url)
+CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame()
+{
+  return GetCefFrame(GetWebView()->GetFocusedFrame());
+}
+
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
+{
+  WebFrame* frame = GetWebView()->GetFrameWithName(name);
+  if(frame)
+    return GetCefFrame(frame);
+  return NULL;
+}
+
+void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
+{
+  WebView* view = GetWebView();
+  WebFrame* main_frame = view->GetMainFrame();
+  WebFrame* it = main_frame;
+  do {
+    if(it != main_frame)
+      names.push_back(it->GetName());
+    it = view->GetNextFrameAfter(it, true);
+  } while (it != main_frame);
+}
+
+CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
+{
+  CefRefPtr<CefFrame> cef_frame;
+  Lock();
+
+  WebView *view = GetWebView();
+  if(view) {
+    if(frame == view->GetMainFrame()) {
+      // Use or create the single main frame reference.
+      if(frame_main_ == NULL)
+        frame_main_ = new CefFrameImpl(this, std::wstring());
+      cef_frame = frame_main_;
+    } else {
+      // Locate or create the appropriate named reference.
+      std::wstring name = frame->GetName();
+      DCHECK(!name.empty());
+      FrameMap::const_iterator it = frames_.find(name);
+      if(it != frames_.end())
+        cef_frame = it->second;
+      else {
+        cef_frame = new CefFrameImpl(this, name);
+        frames_.insert(std::make_pair(name, cef_frame.get()));
+      }
+    }
+  }
+
+  Unlock();
+  return cef_frame;
+}
+
+void CefBrowserImpl::RemoveCefFrame(const std::wstring& name)
 {
   Lock();
-  url_ = url;
+
+  if(name.empty())
+    frame_main_ = NULL;
+  else {
+    FrameMap::iterator it = frames_.find(name);
+    if(it != frames_.end())
+      frames_.erase(it);
+  }
+
   Unlock();
+}
+
+WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
+{
+  std::wstring name = frame->GetName();
+  if(name.empty())
+    return GetWebView()->GetMainFrame();
+  return GetWebView()->GetFrameWithName(name);
+}
+
+void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_UNDO, frame.get()));
+}
+
+void CefBrowserImpl::Redo(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_REDO, frame.get()));
+}
+
+void CefBrowserImpl::Cut(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_CUT, frame.get()));
+}
+
+void CefBrowserImpl::Copy(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_COPY, frame.get()));
+}
+
+void CefBrowserImpl::Paste(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_PASTE, frame.get()));
+}
+
+void CefBrowserImpl::Delete(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_DELETE, frame.get()));
+}
+
+void CefBrowserImpl::SelectAll(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_SELECTALL, frame.get()));
+}
+
+
+void CefBrowserImpl::Print(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_PRINT, frame.get()));
+}
+
+void CefBrowserImpl::ViewSource(CefRefPtr<CefFrame> frame)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleAction, MENU_ID_VIEWSOURCE, frame.get()));
+}
+
+void CefBrowserImpl::LoadRequest(CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefRequest> request)
+{
+  DCHECK(request.get() != NULL);
+  frame->AddRef();
+  request->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_LoadURLForRequestRef, frame.get(), request.get()));
+}
+
+void CefBrowserImpl::LoadURL(CefRefPtr<CefFrame> frame,
+                             const std::wstring& url)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_LoadURL, frame.get(), url));
+}
+
+void CefBrowserImpl::LoadString(CefRefPtr<CefFrame> frame,
+                                const std::wstring& string,
+                                const std::wstring& url)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_LoadHTML, frame.get(), string, url));
+}
+
+void CefBrowserImpl::LoadStream(CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefStreamReader> stream,
+                                const std::wstring& url)
+{
+  DCHECK(stream.get() != NULL);
+  frame->AddRef();
+  stream->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_LoadHTMLForStreamRef, frame.get(), stream.get(),
+      url));
+}
+
+void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
+                                       const std::wstring& jsCode, 
+                                       const std::wstring& scriptUrl,
+                                       int startLine)
+{
+  frame->AddRef();
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_ExecuteJavaScript, frame.get(), jsCode, scriptUrl,
+      startLine));
+}
+
+std::wstring CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
+{
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame)
+    return UTF8ToWide(web_frame->GetURL().spec());
+  return std::wstring();
 }
 
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
@@ -287,9 +306,9 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
   }
 
   CefRefPtr<CefBrowserImpl> browser(
-      new CefBrowserImpl(windowInfo, popup, handler, newUrl));
+      new CefBrowserImpl(windowInfo, popup, handler));
   PostTask(FROM_HERE, NewRunnableMethod(browser.get(),
-      &CefBrowserImpl::UIT_CreateBrowser));
+      &CefBrowserImpl::UIT_CreateBrowser, newUrl));
   return true;
 }
 
@@ -314,35 +333,23 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
       return false;
   }
 
-  CefRefPtr<CefBrowser> browser(
-      new CefBrowserImpl(windowInfo, popup, handler, newUrl));
-
-  static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser();
+  CefRefPtr<CefBrowser> browser(new CefBrowserImpl(windowInfo, popup, handler));
+  static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(newUrl);
 
   return browser;
 }
 
-void CefBrowserImpl::UIT_LoadURL(const std::wstring& url)
+void CefBrowserImpl::UIT_LoadURL(CefFrame* frame,
+                                 const std::wstring& url)
 {
-  REQUIRE_UIT();
-  UIT_LoadURLForRequest(url, std::wstring(), std::wstring(), NULL,
+  UIT_LoadURLForRequest(frame, url, std::wstring(), NULL,
       WebRequest::HeaderMap());
 }
 
-void CefBrowserImpl::UIT_LoadURLForFrame(const std::wstring& url,
-                                         const std::wstring& frame_name)
+void CefBrowserImpl::UIT_LoadURLForRequestRef(CefFrame* frame,
+                                              CefRequest* request)
 {
-  REQUIRE_UIT();
-  UIT_LoadURLForRequest(url, frame_name, std::wstring(), NULL,
-      WebRequest::HeaderMap());
-}
-
-void CefBrowserImpl::UIT_LoadURLForRequestRef(CefRequest* request)
-{
-  REQUIRE_UIT();
-    
   std::wstring url = request->GetURL();
-  std::wstring frame_name = request->GetFrame();
   std::wstring method = request->GetMethod();
 
   CefRequestImpl *impl = static_cast<CefRequestImpl*>(request);
@@ -358,14 +365,13 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefRequest* request)
   WebRequest::HeaderMap headers;
   impl->GetHeaderMap(headers);
 
-  UIT_LoadURLForRequest(url, frame_name, method, upload_data.get(),
-    headers);
+  UIT_LoadURLForRequest(frame, url, method, upload_data.get(), headers);
 
   request->Release();
 }
 
-void CefBrowserImpl::UIT_LoadURLForRequest(const std::wstring& url,
-                                           const std::wstring& frame_name,
+void CefBrowserImpl::UIT_LoadURLForRequest(CefFrame* frame,
+                                           const std::wstring& url,
                                            const std::wstring& method,
                                            net::UploadData *upload_data,
                                            const WebRequest::HeaderMap& headers)
@@ -384,11 +390,15 @@ void CefBrowserImpl::UIT_LoadURLForRequest(const std::wstring& url,
       return;
   }
 
-  nav_controller_->LoadEntry(new BrowserNavigationEntry(
-      -1, gurl, std::wstring(), frame_name, method, upload_data, headers));
+  nav_controller_->LoadEntry(
+      new BrowserNavigationEntry(-1, gurl, std::wstring(), frame->GetName(),
+          method, upload_data, headers));
+
+  frame->Release();
 }
 
-void CefBrowserImpl::UIT_LoadHTML(const std::wstring& html,
+void CefBrowserImpl::UIT_LoadHTML(CefFrame* frame,
+                                  const std::wstring& html,
                                   const std::wstring& url)
 {
   REQUIRE_UIT();
@@ -402,10 +412,15 @@ void CefBrowserImpl::UIT_LoadHTML(const std::wstring& html,
       return;
   }
 
-  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(WideToUTF8(html), gurl);
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame)
+    web_frame->LoadHTMLString(WideToUTF8(html), gurl);
+
+  frame->Release();
 }
 
-void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
+void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefFrame* frame,
+                                              CefStreamReader* stream,
                                               const std::wstring& url)
 {
   REQUIRE_UIT();
@@ -432,27 +447,29 @@ void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
   }
   while(read > 0);
 
-  UIT_GetWebView()->GetMainFrame()->LoadHTMLString(ss.str(), gurl);
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame)
+    web_frame->LoadHTMLString(ss.str(), gurl);
 
   stream->Release();
+  frame->Release();
 }
 
-void CefBrowserImpl::UIT_ExecuteJavaScript(const std::wstring& js_code, 
+void CefBrowserImpl::UIT_ExecuteJavaScript(CefFrame* frame,
+                                           const std::wstring& js_code, 
                                            const std::wstring& script_url,
-                                           int start_line,
-                                           TargetFrame targetFrame)
+                                           int start_line)
 {
   REQUIRE_UIT();
 
-  WebFrame* frame;
-  if(targetFrame == TF_FOCUSED)
-    frame = UIT_GetWebView()->GetFocusedFrame();
-  else
-    frame = UIT_GetWebView()->GetMainFrame();
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame) {
+    web_frame->ExecuteScript(
+        WebScriptSource(WebString(js_code), WebURL(GURL(script_url)),
+                        start_line));
+  }
 
-  frame->ExecuteScript(
-      WebScriptSource(WebString(js_code), WebURL(GURL(script_url)),
-                      start_line));
+  frame->Release();
 }
 
 void CefBrowserImpl::UIT_GoBackOrForward(int offset)
@@ -509,9 +526,9 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   }
 
   // Get the right target frame for the entry.
-  WebFrame* frame = UIT_GetWebView()->GetMainFrame();
+  WebFrame* frame = GetWebView()->GetMainFrame();
   if (!entry.GetTargetFrame().empty())
-    frame = UIT_GetWebView()->GetFrameWithName(entry.GetTargetFrame());
+    frame = GetWebView()->GetFrameWithName(entry.GetTargetFrame());
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
 
@@ -521,21 +538,10 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // iframe would keep focus when the SetFocus called immediately after
   // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
   // for more details).
-  UIT_GetWebView()->SetFocusedFrame(frame);
-  UIT_SetFocus(UIT_GetWebViewHost(), true);
+  GetWebView()->SetFocusedFrame(frame);
+  UIT_SetFocus(GetWebViewHost(), true);
 
   return true;
-}
-
-void CefBrowserImpl::UIT_BindJSObjectsToWindow(WebFrame* frame)
-{
-  REQUIRE_UIT();
-    
-  Lock();
-  JSContainerMap::const_iterator it = jscontainers_.begin();
-  for(; it != jscontainers_.end(); ++it)
-    it->second->BindToJavascript(frame, it->first);
-  Unlock();
 }
 
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstring& url)
@@ -557,9 +563,8 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstri
       return NULL;
   }
 
-  CefRefPtr<CefBrowserImpl> browser(
-      new CefBrowserImpl(info, true, handler, newUrl));
-  browser->UIT_CreateBrowser();
+  CefRefPtr<CefBrowserImpl> browser(new CefBrowserImpl(info, true, handler));
+  browser->UIT_CreateBrowser(newUrl);
 
   return browser;
 }
@@ -571,16 +576,19 @@ void CefBrowserImpl::UIT_Show(WebView* webview,
   delegate_->Show(webview, disposition);
 }
 
+void CefBrowserImpl::UIT_HandleActionView(CefHandler::MenuId menuId)
+{
+  return UIT_HandleAction(menuId, NULL);
+}
+
 void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
-                                      TargetFrame target)
+                                      CefFrame* frame)
 {
   REQUIRE_UIT();
-  
-  WebFrame* frame;
-  if(target == TF_FOCUSED)
-    frame = UIT_GetWebView()->GetFocusedFrame();
-  else
-    frame = UIT_GetWebView()->GetMainFrame();
+
+  WebFrame* web_frame = NULL;
+  if(frame)
+    web_frame = GetWebFrame(frame);
 
   switch(menuId)
   {
@@ -594,34 +602,46 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
       UIT_Reload();
       break;
     case MENU_ID_NAV_STOP:
-      UIT_GetWebView()->StopLoading();
+      GetWebView()->StopLoading();
       break;
     case MENU_ID_UNDO:
-      frame->Undo();
+      if(web_frame)
+        web_frame->Undo();
       break;
     case MENU_ID_REDO:
-      frame->Redo();
+      if(web_frame)
+        web_frame->Redo();
       break;
     case MENU_ID_CUT:
-      frame->Cut();
+      if(web_frame)
+        web_frame->Cut();
       break;
     case MENU_ID_COPY:
-      frame->Copy();
+      if(web_frame)
+        web_frame->Copy();
       break;
     case MENU_ID_PASTE:
-      frame->Paste();
+      if(web_frame)
+        web_frame->Paste();
       break;
     case MENU_ID_DELETE:
-      frame->Delete();
+      if(web_frame)
+        web_frame->Delete();
       break;
     case MENU_ID_SELECTALL:
-      frame->SelectAll();
+      if(web_frame)
+        web_frame->SelectAll();
       break;
     case MENU_ID_PRINT:
-      UIT_PrintPages(frame);
+      if(web_frame)
+        UIT_PrintPages(web_frame);
       break;
     case MENU_ID_VIEWSOURCE:
-      UIT_ViewDocumentString(frame);
+      if(web_frame)
+        UIT_ViewDocumentString(web_frame);
       break;
   }
+
+  if(frame)
+    frame->Release();
 }

@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "precompiled_libcef.h"
-#include "cef_logging.h"
-#include "cef_string_map.h"
+#include "include/cef_string_map.h"
+#include "base/logging.h"
 #include <map>
 
 

@@ -16,11 +16,12 @@
 
 // Wrap a C browser structure with a C++ browser class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefBrowserCToCpp : public CefCToCpp<CefBrowser, cef_browser_t>
+class CefBrowserCToCpp
+    : public CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>
 {
 public:
   CefBrowserCToCpp(cef_browser_t* str)
-    : CefCToCpp<CefBrowser, cef_browser_t>(str) {}
+    : CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>(str) {}
   virtual ~CefBrowserCToCpp() {}
 
   // CefBrowser methods
@@ -30,37 +31,14 @@ public:
   virtual void GoForward();
   virtual void Reload();
   virtual void StopLoad();
-  virtual void Undo(TargetFrame targetFrame);
-  virtual void Redo(TargetFrame targetFrame);
-  virtual void Cut(TargetFrame targetFrame);
-  virtual void Copy(TargetFrame targetFrame);
-  virtual void Paste(TargetFrame targetFrame);
-  virtual void Delete(TargetFrame targetFrame);
-  virtual void SelectAll(TargetFrame targetFrame);
   virtual void SetFocus(bool enable);
-  virtual void Print(TargetFrame targetFrame);
-  virtual void ViewSource(TargetFrame targetFrame);
-  virtual std::wstring GetSource(TargetFrame targetFrame);
-  virtual std::wstring GetText(TargetFrame targetFrame);
-  virtual void LoadRequest(CefRefPtr<CefRequest> request);
-  virtual void LoadURL(const std::wstring& url, const std::wstring& frame);
-  virtual void LoadString(const std::wstring& string,
-                          const std::wstring& url);
-  virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url);
-  virtual void ExecuteJavaScript(const std::wstring& js_code, 
-                                 const std::wstring& script_url,
-                                 int start_line, TargetFrame targetFrame);
-  virtual bool AddJSHandler(const std::wstring& classname,
-                            CefRefPtr<CefJSHandler> handler);
-  virtual bool HasJSHandler(const std::wstring& classname);
-  virtual CefRefPtr<CefJSHandler> GetJSHandler(const std::wstring& classname);
-  virtual bool RemoveJSHandler(const std::wstring& classname);
-  virtual void RemoveAllJSHandlers();
   virtual CefWindowHandle GetWindowHandle();
   virtual bool IsPopup();
   virtual CefRefPtr<CefHandler> GetHandler();
-  virtual std::wstring GetURL();
+  virtual CefRefPtr<CefFrame> GetMainFrame();
+  virtual CefRefPtr<CefFrame> GetFocusedFrame();
+  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
+  virtual void GetFrameNames(std::vector<std::wstring>& names);
 };
 
 

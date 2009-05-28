@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -14,6 +14,7 @@
 #include "browser_navigation_controller.h"
 #include "context.h"
 #include "request_impl.h"
+#include "v8_impl.h"
 
 #include "base/file_util.h"
 #include "base/gfx/gdi_util.h"
@@ -38,6 +39,7 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
+#include "browser_webkit_glue.h"
 
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
@@ -66,7 +68,7 @@ WebView* BrowserWebViewDelegate::CreateWebView(WebView* webview,
                                                const GURL& creator_url) {
   CefRefPtr<CefBrowserImpl> browser =
       browser_->UIT_CreatePopupWindow(std::wstring());
-  return browser.get() ? browser->UIT_GetWebView() : NULL;
+  return browser.get() ? browser->GetWebView() : NULL;
 }
 
 WebWidget* BrowserWebViewDelegate::CreatePopupWidget(WebView* webview,
@@ -89,7 +91,7 @@ void BrowserWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
     browser_->UIT_CreatePopupWindow(UTF8ToWide(url.spec()));
 
   if(browser.get())
-    browser->UIT_Show(browser->UIT_GetWebView(), disposition);
+    browser->UIT_Show(browser->GetWebView(), disposition);
 }
 
 void BrowserWebViewDelegate::DidStartLoading(WebView* webview) {
@@ -99,7 +101,7 @@ void BrowserWebViewDelegate::DidStartLoading(WebView* webview) {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Notify the handler that loading has started
-    handler->HandleLoadStart(browser_);
+    handler->HandleLoadStart(browser_, NULL);
   }
 }
 
@@ -116,12 +118,24 @@ void BrowserWebViewDelegate::DidStopLoading(WebView* webview) {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Notify the handler that loading has ended
-    handler->HandleLoadEnd(browser_);
+    handler->HandleLoadEnd(browser_, NULL);
   }
 }
 
 void BrowserWebViewDelegate::WindowObjectCleared(WebFrame* webframe) {
-  browser_->UIT_BindJSObjectsToWindow(webframe);
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    v8::HandleScope handle_scope;
+    v8::Handle<v8::Context> context = webkit_glue::GetV8Context(webframe);
+    if(context.IsEmpty())
+      return;
+
+    v8::Context::Scope scope(context);
+
+    CefRefPtr<CefFrame> frame(browser_->GetCefFrame(webframe));
+    CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
+    handler->HandleJSBinding(browser_, frame, object);
+  }
 }
 
 WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
@@ -155,8 +169,9 @@ WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
       static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
 
     // Notify the handler of a browse request
-    CefHandler::RetVal rv = handler->HandleBeforeBrowse(browser_, req,
-        (CefHandler::NavType)type, is_redirect);
+    CefHandler::RetVal rv = handler->HandleBeforeBrowse(browser_,
+        browser_->GetCefFrame(frame), req, (CefHandler::NavType)type,
+        is_redirect);
     if(rv == RV_HANDLED)
 			return IGNORE_ACTION;
 	}
@@ -247,6 +262,7 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
     // give the handler an opportunity to generate a custom error message
     std::wstring error_str;
     CefHandler::RetVal rv = handler->HandleLoadError(browser_,
+        browser_->GetCefFrame(frame),
         static_cast<CefHandler::ErrorCode>(error.GetErrorCode()),
         UTF8ToWide(error.GetFailedURL().spec()), error_str);
     if(rv == RV_HANDLED && !error_str.empty())
@@ -263,6 +279,11 @@ void BrowserWebViewDelegate::DidCommitLoadForFrame(WebView* webview,
                                                 WebFrame* frame,
                                                 bool is_new_navigation) {
   UpdateForCommittedLoad(frame, is_new_navigation);
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    // Notify the handler that loading has started
+    handler->HandleLoadStart(browser_, browser_->GetCefFrame(frame));
+  }
 }
 
 void BrowserWebViewDelegate::DidReceiveTitle(WebView* webview,
@@ -280,6 +301,11 @@ void BrowserWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
                                                 WebFrame* frame) {
   UpdateAddressBar(webview);
   LocationChangeDone(frame);
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    // Notify the handler that loading has ended
+    handler->HandleLoadEnd(browser_, browser_->GetCefFrame(frame));
+  }
 }
 
 void BrowserWebViewDelegate::DidFailLoadWithError(WebView* webview,
@@ -335,11 +361,13 @@ void BrowserWebViewDelegate::AddMessageToConsole(WebView* webview,
 }
 
 void BrowserWebViewDelegate::RunJavaScriptAlert(WebFrame* webframe,
-                                             const std::wstring& message) {
+                                                const std::wstring& message) {
   CefHandler::RetVal rv = RV_CONTINUE;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get())
-    rv = handler->HandleJSAlert(browser_, message);
+  if(handler.get()) {
+    rv = handler->HandleJSAlert(browser_, browser_->GetCefFrame(webframe),
+        message);
+  }
   if(rv != RV_HANDLED)
     ShowJavaScriptAlert(webframe, message);
 }
@@ -349,8 +377,10 @@ bool BrowserWebViewDelegate::RunJavaScriptConfirm(WebFrame* webframe,
   CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get())
-    rv = handler->HandleJSConfirm(browser_, message, retval);
+  if(handler.get()) {
+    rv = handler->HandleJSConfirm(browser_, browser_->GetCefFrame(webframe),
+        message, retval);
+  }
   if(rv != RV_HANDLED)
     retval = ShowJavaScriptConfirm(webframe, message);
   return retval;
@@ -363,8 +393,8 @@ bool BrowserWebViewDelegate::RunJavaScriptPrompt(WebFrame* webframe,
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
-    rv = handler->HandleJSPrompt(browser_, message, default_value,
-        retval, *result);
+    rv = handler->HandleJSPrompt(browser_, browser_->GetCefFrame(webframe),
+        message, default_value, retval, *result);
   }
   if(rv != RV_HANDLED)
     retval = ShowJavaScriptPrompt(webframe, message, default_value, result);
@@ -382,8 +412,8 @@ void BrowserWebViewDelegate::StartDragging(WebView* webview,
   // TODO(port): make this work on all platforms.
   if (!drag_delegate_) {
     drag_delegate_ = new BrowserDragDelegate(
-        browser_->UIT_GetWebViewWndHandle(),
-        browser_->UIT_GetWebView());
+        browser_->GetWebViewWndHandle(),
+        browser_->GetWebView());
   }
   // TODO(tc): Drag and drop is disabled in the test shell because we need
   // to be able to convert from WebDragData to an IDataObject.
@@ -481,14 +511,14 @@ int BrowserWebViewDelegate::GetHistoryForwardListCount() {
 void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
   WebPreferences* prefs = _Context->GetWebPreferences();
   prefs->user_style_sheet_enabled = is_enabled;
-  browser_->UIT_GetWebView()->SetPreferences(*prefs);
+  browser_->GetWebView()->SetPreferences(*prefs);
 }
 
 void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   WebPreferences* prefs = _Context->GetWebPreferences();
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
-  browser_->UIT_GetWebView()->SetPreferences(*prefs);
+  browser_->GetWebView()->SetPreferences(*prefs);
 }
 
 // WebWidgetDelegate ---------------------------------------------------------
@@ -551,8 +581,8 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
 #if defined(OS_WIN)
   // TODO(port): add me once drag and drop works.
   DCHECK(!drop_delegate_);
-  drop_delegate_ = new BrowserDropDelegate(browser_->UIT_GetWebViewWndHandle(),
-                                           browser_->UIT_GetWebView());
+  drop_delegate_ = new BrowserDropDelegate(browser_->GetWebViewWndHandle(),
+                                           browser_->GetWebView());
 #endif
 }
 
@@ -587,16 +617,16 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
 }
 
 WebWidgetHost* BrowserWebViewDelegate::GetHostForWidget(WebWidget* webwidget) {
-  if (webwidget == browser_->UIT_GetWebView())
-    return browser_->UIT_GetWebViewHost();
-  if (webwidget == browser_->UIT_GetPopup())
-    return browser_->UIT_GetPopupHost();
+  if (webwidget == browser_->GetWebView())
+    return browser_->GetWebViewHost();
+  if (webwidget == browser_->GetPopup())
+    return browser_->GetPopupHost();
   return NULL;
 }
 
 void BrowserWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,
                                                  bool is_new_navigation) {
-  WebView* webview = browser_->UIT_GetWebView();
+  WebView* webview = browser_->GetWebView();
 
   // Code duplicated from RenderView::DidCommitLoadForFrame.
   const WebRequest& request =
@@ -641,15 +671,11 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   }
 
   std::wstring url = UTF8ToWide(entry->GetURL().spec().c_str());
-	browser_->SetURL(url);
 
-  if(frame->GetView()->GetMainFrame() == frame) {
-    // only send address changes that originate from the main frame
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if(handler.get()) {
-      // Notify the handler of an address change
-      handler->HandleAddressChange(browser_, url);
-    }
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    // Notify the handler of an address change
+    handler->HandleAddressChange(browser_, browser_->GetCefFrame(frame), url);
   }
 
   browser_->UIT_GetNavigationController()->DidNavigateToEntry(entry.release());
@@ -670,7 +696,7 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
     return;
 
   std::string state;
-  if (!browser_->UIT_GetWebView()->GetMainFrame()->
+  if (!browser_->GetWebView()->GetMainFrame()->
       GetPreviousHistoryState(&state))
     return;
 
@@ -680,7 +706,7 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
 std::wstring BrowserWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
   std::wstring name = webframe->GetName();
 
-  if (webframe == browser_->UIT_GetWebView()->GetMainFrame()) {
+  if (webframe == browser_->GetWebView()->GetMainFrame()) {
     if (name.length())
       return L"main frame \"" + name + L"\"";
     else

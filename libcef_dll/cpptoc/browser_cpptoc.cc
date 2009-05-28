@@ -4,10 +4,8 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/browser_cpptoc.h"
-#include "cpptoc/request_cpptoc.h"
-#include "cpptoc/stream_cpptoc.h"
+#include "cpptoc/frame_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
-#include "ctocpp/jshandler_ctocpp.h"
 
 
 int CEF_CALLBACK browser_can_go_back(cef_browser_t* browser)
@@ -16,9 +14,7 @@ int CEF_CALLBACK browser_can_go_back(cef_browser_t* browser)
   if(!browser)
     return 0;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  return impl->class_->GetClass()->CanGoBack();
+  return CefBrowserCppToC::Get(browser)->CanGoBack();
 }
 
 void CEF_CALLBACK browser_go_back(cef_browser_t* browser)
@@ -27,9 +23,7 @@ void CEF_CALLBACK browser_go_back(cef_browser_t* browser)
   if(!browser)
     return;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->GoBack();
+  CefBrowserCppToC::Get(browser)->GoBack();
 }
 
 int CEF_CALLBACK browser_can_go_forward(cef_browser_t* browser)
@@ -38,9 +32,7 @@ int CEF_CALLBACK browser_can_go_forward(cef_browser_t* browser)
   if(!browser)
     return 0;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  return impl->class_->GetClass()->CanGoForward();
+  return CefBrowserCppToC::Get(browser)->CanGoForward();
 }
 
 void CEF_CALLBACK browser_go_forward(cef_browser_t* browser)
@@ -49,9 +41,7 @@ void CEF_CALLBACK browser_go_forward(cef_browser_t* browser)
   if(!browser)
     return;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->GoForward();
+  CefBrowserCppToC::Get(browser)->GoForward();
 }
 
 void CEF_CALLBACK browser_reload(cef_browser_t* browser)
@@ -60,9 +50,7 @@ void CEF_CALLBACK browser_reload(cef_browser_t* browser)
   if(!browser)
     return;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Reload();
+  CefBrowserCppToC::Get(browser)->Reload();
 }
 
 void CEF_CALLBACK browser_stop_load(cef_browser_t* browser)
@@ -71,93 +59,7 @@ void CEF_CALLBACK browser_stop_load(cef_browser_t* browser)
   if(!browser)
     return;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->StopLoad();
-}
-
-void CEF_CALLBACK browser_undo(cef_browser_t* browser,
-                               enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Undo(targetFrame);
-}
-
-void CEF_CALLBACK browser_redo(cef_browser_t* browser,
-                               enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Redo(targetFrame);
-}
-
-void CEF_CALLBACK browser_cut(cef_browser_t* browser,
-                              enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Cut(targetFrame);
-}
-
-void CEF_CALLBACK browser_copy(cef_browser_t* browser,
-                               enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Copy(targetFrame);
-}
-
-void CEF_CALLBACK browser_paste(cef_browser_t* browser,
-                                enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Paste(targetFrame);
-}
-
-void CEF_CALLBACK browser_delete(cef_browser_t* browser,
-                                 enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Delete(targetFrame);
-}
-
-void CEF_CALLBACK browser_select_all(cef_browser_t* browser,
-                                     enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->SelectAll(targetFrame);
+  CefBrowserCppToC::Get(browser)->StopLoad();
 }
 
 void CEF_CALLBACK browser_set_focus(struct _cef_browser_t* browser, int enable)
@@ -166,254 +68,7 @@ void CEF_CALLBACK browser_set_focus(struct _cef_browser_t* browser, int enable)
   if(!browser)
     return;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->SetFocus(enable ? true : false);
-}
-
-void CEF_CALLBACK browser_print(cef_browser_t* browser,
-                                enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->Print(targetFrame);
-}
-
-void CEF_CALLBACK browser_view_source(cef_browser_t* browser,
-                                      enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  impl->class_->GetClass()->ViewSource(targetFrame);
-}
-
-cef_string_t CEF_CALLBACK browser_get_source(cef_browser_t* browser,
-                                             enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return NULL;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-
-  std::wstring sourceStr = impl->class_->GetClass()->GetSource(targetFrame);
-  if(sourceStr.empty())
-    return NULL;
-  return cef_string_alloc(sourceStr.c_str());
-}
-
-cef_string_t CEF_CALLBACK browser_get_text(cef_browser_t* browser,
-                                           enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return NULL;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring textStr = impl->class_->GetClass()->GetText(targetFrame);
-  if(textStr.empty())
-    return NULL;
-  return cef_string_alloc(textStr.c_str());
-}
-
-void CEF_CALLBACK browser_load_request(cef_browser_t* browser,
-                                       cef_request_t* request)
-{
-  DCHECK(browser);
-  DCHECK(request);
-  if(!browser || !request)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  CefRequestCppToC::Struct* structPtr =
-      reinterpret_cast<CefRequestCppToC::Struct*>(request);
-  CefRefPtr<CefRequest> requestPtr(structPtr->class_->GetClass());
-  structPtr->class_->Release();
-  impl->class_->GetClass()->LoadRequest(requestPtr);
-}
-
-void CEF_CALLBACK browser_load_url(cef_browser_t* browser, const wchar_t* url,
-                                   const wchar_t* frame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring urlStr, frameStr;
-  if(url)
-    urlStr = url;
-  if(frame)
-    frameStr = frame;
-  impl->class_->GetClass()->LoadURL(urlStr, frameStr);
-}
-
-void CEF_CALLBACK browser_load_string(cef_browser_t* browser,
-                                      const wchar_t* string,
-                                      const wchar_t* url)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring stringStr, urlStr;
-  if(string)
-    stringStr = string;
-  if(url)
-    urlStr = url;
-  impl->class_->GetClass()->LoadString(stringStr, urlStr);
-}
-
-void CEF_CALLBACK browser_load_stream(cef_browser_t* browser,
-                                      cef_stream_reader_t* stream,
-                                      const wchar_t* url)
-{
-  DCHECK(browser);
-  DCHECK(stream);
-  if(!browser || !stream)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  CefStreamReaderCppToC::Struct* structPtr =
-      reinterpret_cast<CefStreamReaderCppToC::Struct*>(stream);
-  CefRefPtr<CefStreamReader> streamPtr(structPtr->class_->GetClass());
-  structPtr->class_->Release();
-  
-  std::wstring urlStr;
-  if(url)
-    urlStr = url;
-  impl->class_->GetClass()->LoadStream(streamPtr, urlStr);
-}
-
-void CEF_CALLBACK browser_execute_javascript(cef_browser_t* browser,
-                                             const wchar_t* jsCode,
-                                             const wchar_t* scriptUrl,
-                                             int startLine,
-                                             enum cef_targetframe_t targetFrame)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring jsCodeStr, scriptUrlStr;
-  if(jsCode)
-    jsCodeStr = jsCode;
-  if(scriptUrl)
-    scriptUrlStr = scriptUrl;
-
-  impl->class_->GetClass()->ExecuteJavaScript(jsCodeStr, scriptUrlStr,
-      startLine, targetFrame);
-}
-
-int CEF_CALLBACK browser_add_jshandler(cef_browser_t* browser,
-                                       const wchar_t* classname,
-                                       cef_jshandler_t* handler)
-{
-  DCHECK(browser);
-  DCHECK(handler);
-  if(!browser || !handler)
-    return 0;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  CefJSHandlerCToCpp* hp = new CefJSHandlerCToCpp(handler);
-  CefRefPtr<CefJSHandler> handlerPtr(hp);
-  hp->UnderlyingRelease();
-  
-  std::wstring classnameStr;
-  if(classname)
-    classnameStr = classname;
-  return impl->class_->GetClass()->AddJSHandler(classnameStr, handlerPtr);
-}
-
-int CEF_CALLBACK browser_has_jshandler(cef_browser_t* browser,
-                                       const wchar_t* classname)
-{
-  DCHECK(browser);
-  if(!browser)
-    return 0;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring classnameStr;
-  if(classname)
-    classnameStr = classname;
-  return impl->class_->GetClass()->HasJSHandler(classnameStr);
-}
-
-cef_jshandler_t* CEF_CALLBACK browser_get_jshandler(cef_browser_t* browser,
-                                                    const wchar_t* classname)
-{
-  DCHECK(browser);
-  if(!browser)
-    return NULL;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring classnameStr;
-  if(classname)
-    classnameStr = classname;
-  CefRefPtr<CefJSHandler> handler =
-      impl->class_->GetClass()->GetJSHandler(classnameStr);
-  if(handler.get()) {
-    CefJSHandlerCToCpp* hp = static_cast<CefJSHandlerCToCpp*>(handler.get());
-    hp->UnderlyingAddRef();
-    return hp->GetStruct();
-  }
-  return NULL;
-}
-
-int CEF_CALLBACK browser_remove_jshandler(cef_browser_t* browser,
-                                          const wchar_t* classname)
-{
-  DCHECK(browser);
-  if(!browser)
-    return 0;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring classnameStr;
-  if(classname)
-    classnameStr = classname;
-  return impl->class_->GetClass()->RemoveJSHandler(classnameStr);
-}
-
-void CEF_CALLBACK browser_remove_all_jshandlers(cef_browser_t* browser)
-{
-  DCHECK(browser);
-  if(!browser)
-    return;
-
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  return impl->class_->GetClass()->RemoveAllJSHandlers();
+  CefBrowserCppToC::Get(browser)->SetFocus(enable ? true : false);
 }
 
 cef_window_handle_t CEF_CALLBACK browser_get_window_handle(cef_browser_t* browser)
@@ -422,9 +77,7 @@ cef_window_handle_t CEF_CALLBACK browser_get_window_handle(cef_browser_t* browse
   if(!browser)
     return NULL;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  return impl->class_->GetClass()->GetWindowHandle();
+  return CefBrowserCppToC::Get(browser)->GetWindowHandle();
 }
 
 int CEF_CALLBACK browser_is_popup(cef_browser_t* browser)
@@ -433,9 +86,7 @@ int CEF_CALLBACK browser_is_popup(cef_browser_t* browser)
   if(!browser)
     return 0;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  return impl->class_->GetClass()->IsPopup();
+  return CefBrowserCppToC::Get(browser)->IsPopup();
 }
 
 cef_handler_t* CEF_CALLBACK browser_get_handler(cef_browser_t* browser)
@@ -444,35 +95,81 @@ cef_handler_t* CEF_CALLBACK browser_get_handler(cef_browser_t* browser)
   if(!browser)
     return NULL;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  CefRefPtr<CefHandler> handler = impl->class_->GetClass()->GetHandler();
-  if(handler.get()) {
-    CefHandlerCToCpp* hp = static_cast<CefHandlerCToCpp*>(handler.get());
-    hp->UnderlyingAddRef();
-    return hp->GetStruct();
-  }
+  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(browser);
+  CefRefPtr<CefHandler> handlerPtr = browserPtr->GetHandler();
+  if(handlerPtr.get())
+    return CefHandlerCToCpp::Unwrap(handlerPtr);
+
   return NULL;
 }
 
-cef_string_t CEF_CALLBACK browser_get_url(cef_browser_t* browser)
+struct _cef_frame_t* CEF_CALLBACK browser_get_main_frame(
+    struct _cef_browser_t* browser)
 {
   DCHECK(browser);
   if(!browser)
     return NULL;
 
-  CefBrowserCppToC::Struct* impl =
-      reinterpret_cast<CefBrowserCppToC::Struct*>(browser);
-  
-  std::wstring urlStr = impl->class_->GetClass()->GetURL();
-  if(urlStr.empty())
+  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(browser);
+  CefRefPtr<CefFrame> framePtr = browserPtr->GetMainFrame();
+  if(framePtr.get())
+    return CefFrameCppToC::Wrap(framePtr);
+  return NULL;    
+}
+
+struct _cef_frame_t* CEF_CALLBACK browser_get_focused_frame(
+    struct _cef_browser_t* browser)
+{
+  DCHECK(browser);
+  if(!browser)
     return NULL;
-  return cef_string_alloc(urlStr.c_str());
+
+  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(browser);
+  CefRefPtr<CefFrame> framePtr = browserPtr->GetFocusedFrame();
+  if(framePtr.get())
+    return CefFrameCppToC::Wrap(framePtr);
+  return NULL; 
+}
+
+struct _cef_frame_t* CEF_CALLBACK browser_get_frame(
+    struct _cef_browser_t* browser, const wchar_t* name)
+{
+  DCHECK(browser);
+  if(!browser)
+    return NULL;
+
+  std::wstring nameStr;
+  if(name)
+    nameStr = name;
+  if(nameStr.empty())
+    return NULL;
+
+  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(browser);
+  CefRefPtr<CefFrame> framePtr = browserPtr->GetFrame(nameStr);
+  if(framePtr.get())
+    return CefFrameCppToC::Wrap(framePtr);
+  return NULL;
+}
+
+size_t CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* browser,
+                                            cef_string_list_t list)
+{
+  DCHECK(browser);
+  DCHECK(list);
+  if(!browser || !list)
+    return NULL;
+
+  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(browser);
+  std::vector<std::wstring> stringList;
+  browserPtr->GetFrameNames(stringList);
+  size_t size = stringList.size();
+  for(size_t i = 0; i < size; ++i)
+    cef_string_list_append(list, stringList[i].c_str());
+  return size;
 }
 
 CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
-    : CefCppToC<CefBrowser, cef_browser_t>(cls)
+    : CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>(cls)
 {
   struct_.struct_.can_go_back = browser_can_go_back;
   struct_.struct_.go_back = browser_go_back;
@@ -480,34 +177,16 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.go_forward = browser_go_forward;
   struct_.struct_.reload = browser_reload;
   struct_.struct_.stop_load = browser_stop_load;
-  struct_.struct_.undo = browser_undo;
-  struct_.struct_.redo = browser_redo;
-  struct_.struct_.cut = browser_cut;
-  struct_.struct_.copy = browser_copy;
-  struct_.struct_.paste = browser_paste;
-  struct_.struct_.del = browser_delete;
-  struct_.struct_.select_all = browser_select_all;
   struct_.struct_.set_focus = browser_set_focus;
-  struct_.struct_.print = browser_print;
-  struct_.struct_.view_source = browser_view_source;
-  struct_.struct_.get_source = browser_get_source;
-  struct_.struct_.get_text = browser_get_text;
-  struct_.struct_.load_request = browser_load_request;
-  struct_.struct_.load_url = browser_load_url;
-  struct_.struct_.load_string = browser_load_string;
-  struct_.struct_.load_stream = browser_load_stream;
-  struct_.struct_.execute_javascript = browser_execute_javascript;
-  struct_.struct_.add_jshandler = browser_add_jshandler;
-  struct_.struct_.has_jshandler = browser_has_jshandler;
-  struct_.struct_.get_jshandler = browser_get_jshandler;
-  struct_.struct_.remove_jshandler = browser_remove_jshandler;
-  struct_.struct_.remove_all_jshandlers = browser_remove_all_jshandlers;
   struct_.struct_.get_window_handle = browser_get_window_handle;
   struct_.struct_.is_popup = browser_is_popup;
   struct_.struct_.get_handler = browser_get_handler;
-  struct_.struct_.get_url = browser_get_url;
+  struct_.struct_.get_main_frame = browser_get_main_frame;
+  struct_.struct_.get_focused_frame = browser_get_focused_frame;
+  struct_.struct_.get_frame = browser_get_frame;
+  struct_.struct_.get_frame_names = browser_get_frame_names;
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefBrowser, cef_browser_t>::DebugObjCt = 0;
+long CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>::DebugObjCt = 0;
 #endif

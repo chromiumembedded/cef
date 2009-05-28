@@ -5,8 +5,10 @@
 #include "../precompiled_libcef.h"
 #include "cpptoc/handler_cpptoc.h"
 #include "ctocpp/browser_ctocpp.h"
+#include "ctocpp/frame_ctocpp.h"
 #include "ctocpp/request_ctocpp.h"
 #include "ctocpp/stream_ctocpp.h"
+#include "ctocpp/v8value_ctocpp.h"
 #include "transfer_util.h"
 
 
@@ -22,42 +24,29 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   if(!handler || !windowInfo || !newHandler || !*newHandler || !url)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
+  CefWindowInfo wndInfo(*windowInfo);
   
   // |newHandler| will start off pointing to the current handler.
-  CefHandlerCppToC::Struct* structPtr
-      = reinterpret_cast<CefHandlerCppToC::Struct*>(*newHandler);
-  
-  CefWindowInfo wndInfo(*windowInfo);
-  CefRefPtr<CefBrowser> browserPtr;
-  CefRefPtr<CefHandler> handlerPtr(structPtr->class_->GetClass());
-  structPtr->class_->Release();
-
-  std::wstring urlStr;
+  CefRefPtr<CefHandler> handlerPtr = CefHandlerCppToC::Unwrap(*newHandler);
+  CefHandler* origHandler = handlerPtr.get();
   
   // |parentBrowser| will be NULL if this is a top-level browser window.
+  CefRefPtr<CefBrowser> browserPtr;
   if(parentBrowser)
-  {
-    CefBrowserCToCpp* bp = new CefBrowserCToCpp(parentBrowser);
-    browserPtr = bp;
-    bp->UnderlyingRelease();
-  }
+    browserPtr = CefBrowserCToCpp::Wrap(parentBrowser);
   
+  std::wstring urlStr;
   if(*url)
     urlStr = *url;
 
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleBeforeCreated(
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->HandleBeforeCreated(
       browserPtr, wndInfo, popup, handlerPtr, urlStr);
 
   transfer_string_contents(urlStr, url);
 
-  if(handlerPtr.get() != structPtr->class_->GetClass())
-  {
+  if(handlerPtr.get() != origHandler) {
     // The handler has been changed.
-    CefHandlerCppToC* hobj = new CefHandlerCppToC(handlerPtr);
-    hobj->AddRef();
-    *newHandler = hobj->GetStruct();
+    *newHandler = CefHandlerCppToC::Wrap(handlerPtr);
   }
 
   // WindowInfo may or may not have changed.
@@ -79,37 +68,26 @@ enum cef_retval_t CEF_CALLBACK handler_handle_after_created(
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-  
-  return impl->class_->GetClass()->HandleAfterCreated(browserPtr);
+  return CefHandlerCppToC::Get(handler)->HandleAfterCreated(
+      CefBrowserCToCpp::Wrap(browser));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_address_change(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     const wchar_t* url)
 {
   DCHECK(handler);
   DCHECK(browser);
-  if(!handler || !browser)
+  DCHECK(frame);
+  if(!handler || !browser || !frame)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring urlStr;
   if(url)
     urlStr = url;
 
-  return impl->class_->GetClass()->HandleAddressChange(browserPtr, urlStr);
+  return CefHandlerCppToC::Get(handler)->HandleAddressChange(
+    CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), urlStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_title_change(
@@ -121,99 +99,74 @@ enum cef_retval_t CEF_CALLBACK handler_handle_title_change(
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
   std::wstring titleStr;
   if(title)
     titleStr = title;
 
-  return impl->class_->GetClass()->HandleTitleChange(browserPtr, titleStr);
+  return CefHandlerCppToC::Get(handler)->HandleTitleChange(
+      CefBrowserCToCpp::Wrap(browser), titleStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_browse(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     struct _cef_request_t* request, cef_handler_navtype_t navType,
     int isRedirect)
 {
   DCHECK(handler);
   DCHECK(browser);
+  DCHECK(frame);
   DCHECK(request);
-  if(!handler || !browser || !request)
+  if(!handler || !browser || !request || !frame)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
-  CefRequestCToCpp* rp = new CefRequestCToCpp(request);
-  CefRefPtr<CefRequest> requestPtr(rp);
-  rp->UnderlyingRelease();
-
-  return impl->class_->GetClass()->HandleBeforeBrowse(browserPtr, requestPtr,
-      navType, (isRedirect ? true : false));
+  return CefHandlerCppToC::Get(handler)->HandleBeforeBrowse(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefRequestCToCpp::Wrap(request), navType, (isRedirect ? true : false));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_start(
-    struct _cef_handler_t* handler, cef_browser_t* browser)
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame)
 {
   DCHECK(handler);
   DCHECK(browser);
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
+  CefRefPtr<CefFrame> framePtr;
+  if(frame)
+    framePtr = CefFrameCToCpp::Wrap(frame);
 
-  return impl->class_->GetClass()->HandleLoadStart(browserPtr);
+  return CefHandlerCppToC::Get(handler)->HandleLoadStart(
+      CefBrowserCToCpp::Wrap(browser), framePtr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_end(
-    struct _cef_handler_t* handler, cef_browser_t* browser)
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame)
 {
   DCHECK(handler);
   DCHECK(browser);
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
+  CefRefPtr<CefFrame> framePtr;
+  if(frame)
+    framePtr = CefFrameCToCpp::Wrap(frame);
 
-  return impl->class_->GetClass()->HandleLoadEnd(browserPtr);
+  return CefHandlerCppToC::Get(handler)->HandleLoadEnd(
+      CefBrowserCToCpp::Wrap(browser), framePtr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     cef_handler_errorcode_t errorCode, const wchar_t* failedUrl,
     cef_string_t* errorText)
 {
   DCHECK(handler);
   DCHECK(browser);
+  DCHECK(frame);
   DCHECK(errorText);
-  if(!handler || !browser || !errorText)
+  if(!handler || !browser || !errorText || !frame)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring failedUrlStr, errorTextStr;
 
@@ -222,8 +175,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
   if(*errorText)
     errorTextStr = *errorText;
 
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleLoadError(browserPtr,
-      errorCode, failedUrlStr, errorTextStr);
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->HandleLoadError(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), errorCode,
+      failedUrlStr, errorTextStr);
 
   transfer_string_contents(errorTextStr, errorText);
 
@@ -244,17 +198,6 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
   if(!handler || !browser || !redirectUrl || !resourceStream || !mimeType)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
-  CefRequestCToCpp* rp = new CefRequestCToCpp(request);
-  CefRefPtr<CefRequest> requestPtr(rp);
-  rp->UnderlyingRelease();
-
   std::wstring redirectUrlStr, mimeTypeStr;
   CefRefPtr<CefStreamReader> streamPtr;
 
@@ -263,20 +206,16 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
   if(*mimeType)
     mimeTypeStr = *mimeType;
 
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleBeforeResourceLoad(
-      browserPtr, requestPtr, redirectUrlStr, streamPtr, mimeTypeStr,
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->
+      HandleBeforeResourceLoad(CefBrowserCToCpp::Wrap(browser),
+      CefRequestCToCpp::Wrap(request), redirectUrlStr, streamPtr, mimeTypeStr,
       loadFlags);
 
   transfer_string_contents(redirectUrlStr, redirectUrl);
   transfer_string_contents(mimeTypeStr, mimeType);
 
   if(streamPtr.get())
-  {
-    CefStreamReaderCToCpp* sp =
-        static_cast<CefStreamReaderCToCpp*>(streamPtr.get());
-    sp->UnderlyingAddRef();
-    *resourceStream = sp->GetStruct();
-  }
+    *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);
 
   return rv;
 }
@@ -291,14 +230,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_menu(
   if(!handler || !browser || !menuInfo)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
-  return impl->class_->GetClass()->HandleBeforeMenu(browserPtr, *menuInfo);
+  return CefHandlerCppToC::Get(handler)->HandleBeforeMenu(
+      CefBrowserCToCpp::Wrap(browser), *menuInfo);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
@@ -311,19 +244,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
   if(!handler || !browser || !label)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
   std::wstring labelStr;
   if(*label)
     labelStr = *label;
 
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleGetMenuLabel(
-      browserPtr, menuId, labelStr);
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->HandleGetMenuLabel(
+      CefBrowserCToCpp::Wrap(browser), menuId, labelStr);
 
   transfer_string_contents(labelStr, label);
 
@@ -339,18 +265,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_menu_action(
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
-  return impl->class_->GetClass()->HandleMenuAction(browserPtr, menuId);
+  return CefHandlerCppToC::Get(handler)->HandleMenuAction(
+      CefBrowserCToCpp::Wrap(browser), menuId);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     cef_print_info_t* printInfo, const wchar_t* url, const wchar_t* title,
     int currentPage, int maxPages, cef_string_t* topLeft,
     cef_string_t* topCenter, cef_string_t* topRight,
@@ -359,19 +279,13 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
 {
   DCHECK(handler);
   DCHECK(browser);
+  DCHECK(frame);
   DCHECK(printInfo);
   DCHECK(topLeft && topCenter && topRight);
   DCHECK(bottomLeft && bottomCenter && bottomRight);
-  if(!handler || !browser || !printInfo || !topLeft || !topCenter || !topRight
-      || !bottomLeft || !bottomCenter || !bottomRight)
+  if(!handler || !browser || !frame || !printInfo || !topLeft || !topCenter
+      || !topRight || !bottomLeft || !bottomCenter || !bottomRight)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring urlStr, titleStr;
   std::wstring topLeftStr, topCenterStr, topRightStr;
@@ -395,10 +309,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
   if(*bottomRight)
     bottomRightStr = *bottomRight;
 
-  enum cef_retval_t rv = impl->class_->GetClass()->
-      HandlePrintHeaderFooter(browserPtr, info, urlStr, titleStr,
-          currentPage, maxPages, topLeftStr, topCenterStr, topRightStr,
-          bottomLeftStr, bottomCenterStr, bottomRightStr);
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->
+      HandlePrintHeaderFooter(CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame), info, urlStr, titleStr, currentPage,
+      maxPages, topLeftStr, topCenterStr, topRightStr, bottomLeftStr,
+      bottomCenterStr, bottomRightStr);
 
   transfer_string_contents(topLeftStr, topLeft);
   transfer_string_contents(topCenterStr, topCenter);
@@ -411,75 +326,59 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsalert(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     const wchar_t* message)
 {
   DCHECK(handler);
   DCHECK(browser);
-  if(!handler || !browser)
+  DCHECK(frame);
+  if(!handler || !browser || !frame)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring messageStr;
   if(message)
     messageStr = message;
 
-  return impl->class_->GetClass()->HandleJSAlert(browserPtr, messageStr);
+  return CefHandlerCppToC::Get(handler)->HandleJSAlert(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsconfirm(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     const wchar_t* message, int* retval)
 {
   DCHECK(handler);
   DCHECK(browser);
+  DCHECK(frame);
   DCHECK(retval);
-  if(!handler || !browser || !retval)
+  if(!handler || !browser || !retval || !frame)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring messageStr;
   if(message)
     messageStr = message;
 
   bool ret = false;
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleJSConfirm(browserPtr,
-      messageStr, ret);
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->HandleJSConfirm(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr,
+      ret);
   *retval = (ret ? 1 : 0);
 
   return rv;
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
-    struct _cef_handler_t* handler, cef_browser_t* browser,
+    struct _cef_handler_t* handler, cef_browser_t* browser, cef_frame_t* frame,
     const wchar_t* message, const wchar_t* defaultValue, int* retval,
     cef_string_t* result)
 {
   DCHECK(handler);
   DCHECK(browser);
+  DCHECK(frame);
   DCHECK(retval);
   DCHECK(result);
-  if(!handler || !browser || !retval || !result)
+  if(!handler || !browser || !frame || !retval || !result)
     return RV_CONTINUE;
-
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
 
   std::wstring messageStr, defaultValueStr, resultStr;
 
@@ -491,8 +390,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
     resultStr = *result;
 
   bool ret = false;
-  enum cef_retval_t rv = impl->class_->GetClass()->HandleJSPrompt(
-      browserPtr, messageStr, defaultValueStr, ret, resultStr);
+  enum cef_retval_t rv = CefHandlerCppToC::Get(handler)->HandleJSPrompt(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr,
+      defaultValueStr, ret, resultStr);
   *retval = (ret ? 1 : 0);
 
   transfer_string_contents(resultStr, result);
@@ -508,14 +408,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_window_close(
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-  
-  return impl->class_->GetClass()->HandleBeforeWindowClose(browserPtr);
+  return CefHandlerCppToC::Get(handler)->HandleBeforeWindowClose(
+      CefBrowserCToCpp::Wrap(browser));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_take_focus(
@@ -526,20 +420,29 @@ enum cef_retval_t CEF_CALLBACK handler_handle_take_focus(
   if(!handler || !browser)
     return RV_CONTINUE;
 
-  CefHandlerCppToC::Struct* impl =
-      reinterpret_cast<CefHandlerCppToC::Struct*>(handler);
-  
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browser);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-  
-  return impl->class_->GetClass()->
-      HandleTakeFocus(browserPtr, (reverse ? true : false));
+  return CefHandlerCppToC::Get(handler)->HandleTakeFocus(
+      CefBrowserCToCpp::Wrap(browser), (reverse ? true : false));
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_jsbinding(
+    struct _cef_handler_t* handler, cef_browser_t* browser,
+    cef_frame_t* frame, struct _cef_v8value_t* object)
+{
+  DCHECK(handler);
+  DCHECK(browser);
+  DCHECK(frame);
+  DCHECK(object);
+  if(!handler || !browser || !frame || !object)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(handler)->HandleJSBinding(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefV8ValueCToCpp::Wrap(object));
 }
 
 
 CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
-    : CefCppToC<CefHandler, cef_handler_t>(cls)
+    : CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>(cls)
 {
   struct_.struct_.handle_before_created = handler_handle_before_created;
   struct_.struct_.handle_after_created = handler_handle_after_created;
@@ -562,8 +465,9 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_before_window_close =
       handler_handle_before_window_close;
   struct_.struct_.handle_take_focus = handler_handle_take_focus;
+  struct_.struct_.handle_jsbinding = handler_handle_jsbinding;
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefHandler, cef_handler_t>::DebugObjCt = 0;
+long CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>::DebugObjCt = 0;
 #endif

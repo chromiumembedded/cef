@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -35,12 +35,12 @@ class WebDataSource;
 class WebWidgetHost;
 
 class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
-                            public WebViewDelegate {
+                               public WebViewDelegate {
  public:
-  BrowserWebViewDelegate(CefBrowserImpl* shell) 
+  BrowserWebViewDelegate(CefBrowserImpl* browser) 
     : policy_delegate_enabled_(false),
       policy_delegate_is_permissive_(false),
-      browser_(shell),
+      browser_(browser),
       top_loading_frame_(NULL),
       page_id_(-1),
       last_page_id_updated_(-1),
@@ -55,7 +55,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
 #endif
       { 
   }
-  virtual ~BrowserWebViewDelegate();
+  virtual ~BrowserWebViewDelegate() {}
 
   // WebViewDelegate
   virtual WebView* CreateWebView(WebView* webview,

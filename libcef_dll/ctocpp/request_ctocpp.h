@@ -16,18 +16,17 @@
 
 // Wrap a C request structure with a C++ request class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefRequestCToCpp : public CefCToCpp<CefRequest, cef_request_t>
+class CefRequestCToCpp
+    : public CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>
 {
 public:
   CefRequestCToCpp(cef_request_t* str)
-    : CefCToCpp<CefRequest, cef_request_t>(str) {}
+    : CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>(str) {}
   virtual ~CefRequestCToCpp() {}
 
    // CefRequest methods
   virtual std::wstring GetURL();
   virtual void SetURL(const std::wstring& url);
-  virtual std::wstring GetFrame();
-  virtual void SetFrame(const std::wstring& url);
   virtual std::wstring GetMethod();
   virtual void SetMethod(const std::wstring& method);
   virtual CefRefPtr<CefPostData> GetPostData();
@@ -35,7 +34,6 @@ public:
   virtual void GetHeaderMap(HeaderMap& headerMap);
   virtual void SetHeaderMap(const HeaderMap& headerMap);
   virtual void Set(const std::wstring& url,
-                   const std::wstring& frame,
                    const std::wstring& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
@@ -44,11 +42,12 @@ public:
 
 // Wrap a C post data structure with a C++ post data class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefPostDataCToCpp : public CefCToCpp<CefPostData, cef_post_data_t>
+class CefPostDataCToCpp
+    : public CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>
 {
 public:
   CefPostDataCToCpp(cef_post_data_t* str)
-    : CefCToCpp<CefPostData, cef_post_data_t>(str) {}
+    : CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>(str) {}
   virtual ~CefPostDataCToCpp() {}
 
   // CefPostData methods
@@ -62,12 +61,14 @@ public:
 
 // Wrap a C post data element structure with a C++ post data element class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefPostDataElementCToCpp :
-    public CefCToCpp<CefPostDataElement, cef_post_data_element_t>
+class CefPostDataElementCToCpp
+    : public CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
+                       cef_post_data_element_t>
 {
 public:
   CefPostDataElementCToCpp(cef_post_data_element_t* str)
-    : CefCToCpp<CefPostDataElement, cef_post_data_element_t>(str) {}
+    : CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
+                cef_post_data_element_t>(str) {}
   virtual ~CefPostDataElementCToCpp() {}
 
   // CefPostDataElement methods

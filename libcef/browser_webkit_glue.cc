@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -10,9 +10,11 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "Frame.h"
 #include "Markup.h"
 #include "TextEncoding.h"
 #include "webkit/glue/webframe_impl.h"
+#include "webkit/port/bindings/v8/v8_proxy.h"
 MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
@@ -188,6 +190,13 @@ std::string GetDocumentString(WebFrame* frame) {
 
 void InitializeTextEncoding() {
   WebCore::UTF8Encoding();
+}
+
+v8::Handle<v8::Context> GetV8Context(WebFrame* frame)
+{
+  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
+  WebCore::Frame* core_frame = webFrameImpl->frame();
+  return WebCore::V8Proxy::GetContext(core_frame);
 }
 
 }  // namespace webkit_glue

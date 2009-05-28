@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -20,10 +20,6 @@ CefRequestImpl::CefRequestImpl()
 {
 }
 
-CefRequestImpl::~CefRequestImpl()
-{
-}
-
 std::wstring CefRequestImpl::GetURL()
 {
   Lock();
@@ -36,21 +32,6 @@ void CefRequestImpl::SetURL(const std::wstring& url)
 {
   Lock();
   url_ = url;
-  Unlock();
-}
-
-std::wstring CefRequestImpl::GetFrame()
-{
-  Lock();
-  std::wstring frame = frame_;
-  Unlock();
-  return frame;
-}
-
-void CefRequestImpl::SetFrame(const std::wstring& frame)
-{
-  Lock();
-  frame_ = frame;
   Unlock();
 }
 
@@ -99,14 +80,12 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& headerMap)
 }
 
 void CefRequestImpl::Set(const std::wstring& url,
-                 const std::wstring& frame,
-                 const std::wstring& method,
-                 CefRefPtr<CefPostData> postData,
-                 const HeaderMap& headerMap)
+                         const std::wstring& method,
+                         CefRefPtr<CefPostData> postData,
+                         const HeaderMap& headerMap)
 {
   Lock();
   url_ = url;
-  frame_ = frame;
   method_ = method;
   postdata_ = postData;
   headermap_ = headerMap;
@@ -148,11 +127,6 @@ CefRefPtr<CefPostData> CefPostData::CreatePostData()
 
 CefPostDataImpl::CefPostDataImpl()
 {
-}
-
-CefPostDataImpl::~CefPostDataImpl()
-{
-  RemoveElements();
 }
 
 size_t CefPostDataImpl::GetElementCount()

@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _BROWSER_CPPTOC_H
-#define _BROWSER_CPPTOC_H
+#ifndef _V8VALUE_CPPTOC_H
+#define _V8VALUE_CPPTOC_H
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
@@ -14,16 +14,16 @@
 #include "cpptoc.h"
 
 
-// Wrap a C++ browser class with a C browser structure.
-// This class may be instantiated and accessed DLL-side only.
-class CefBrowserCppToC
-    : public CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>
+// Wrap a C++ v8value class with a C v8value structure.
+// This class may be instantiated and accessed wrapper-side only.
+class CefV8ValueCppToC
+    : public CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>
 {
 public:
-  CefBrowserCppToC(CefBrowser* cls);
-  virtual ~CefBrowserCppToC() {}
+  CefV8ValueCppToC(CefV8Value* cls);
+  virtual ~CefV8ValueCppToC() {}
 };
 
 
 #endif // BUILDING_CEF_SHARED
-#endif // _BROWSER_CPPTOC_H
+#endif // _V8VALUE_CPPTOC_H

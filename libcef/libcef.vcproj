@@ -199,6 +199,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\cef_string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\cef_string_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\cef_string_map.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\cef_types.h"
 				>
 			</File>
@@ -292,19 +304,73 @@
 			>
 		</File>
 		<File
+			RelativePath=".\cef_string.c"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+					UsePrecompiledHeader="0"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+					UsePrecompiledHeader="0"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\cef_string_list.cc"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\cef_string_map.cc"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					PreprocessorDefinitions="BUILDING_CEF_SHARED"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath=".\context.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\context.h"
-			>
-		</File>
-		<File
-			RelativePath=".\jscontainer.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\jscontainer.h"
 			>
 		</File>
 		<File
@@ -352,19 +418,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\variant_impl.cc"
+			RelativePath=".\tracker.h"
 			>
 		</File>
 		<File
-			RelativePath=".\variant_impl.h"
+			RelativePath=".\v8_impl.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\variant_np_util.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\variant_np_util.h"
+			RelativePath=".\v8_impl.h"
 			>
 		</File>
 		<File

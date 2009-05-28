@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/string_piece.h"
+#include "v8/include/v8.h"
 
 class WebFrame;
 class WebView;
@@ -31,5 +32,8 @@ void InitializeTextEncoding();
 
 // This is called indirectly by the network layer to access resources.
 StringPiece NetResourceProvider(int key);
+
+// Retrieve the V8 context associated with the frame.
+v8::Handle<v8::Context> GetV8Context(WebFrame* frame);
 
 }  // namespace webkit_glue

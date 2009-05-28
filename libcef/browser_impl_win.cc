@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -44,7 +44,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       int wmId    = LOWORD(wParam);
       int wmEvent = HIWORD(wParam);
 
-      
+
     }
     break;
 
@@ -55,34 +55,42 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
         // Notify the handler that the window is about to be closed
         handler->HandleBeforeWindowClose(browser);
       }
-      RevokeDragDrop(browser->UIT_GetWebViewWndHandle());
+      RevokeDragDrop(browser->GetWebViewWndHandle());
+
+      // Call GC twice to clean up garbage.
+      browser->GetWebView()->GetMainFrame()->CallJSGC();
+      browser->GetWebView()->GetMainFrame()->CallJSGC();
+
+      // Clean up anything associated with the WebViewHost widget.
+      browser->GetWebViewHost()->webwidget()->Close();
+
       // Remove the browser from the list maintained by the context
       _Context->RemoveBrowser(browser);
     }
     return 0;
 
   case WM_SIZE:
-    if (browser && browser->UIT_GetWebView()) {
+    if (browser && browser->GetWebView()) {
       // resize the web view window to the full size of the browser window
       RECT rc;
-      GetClientRect(browser->UIT_GetMainWndHandle(), &rc);
-      MoveWindow(browser->UIT_GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
+      GetClientRect(browser->GetMainWndHandle(), &rc);
+      MoveWindow(browser->GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
           TRUE);
     }
     return 0;
-  
+
   case WM_SETFOCUS:
-		if (browser && browser->UIT_GetWebView())
-			 browser->UIT_GetWebView()->SetFocus(true);
-		return 0;
+    if (browser && browser->GetWebView())
+      browser->GetWebView()->SetFocus(true);
+    return 0;
 
-	case WM_KILLFOCUS:
-		if (browser && browser->UIT_GetWebView())
-			 browser->UIT_GetWebView()->SetFocus(false);
-		return 0;
+  case WM_KILLFOCUS:
+    if (browser && browser->GetWebView())
+      browser->GetWebView()->SetFocus(false);
+    return 0;
 
-	case WM_ERASEBKGND:
-		return 0;
+  case WM_ERASEBKGND:
+    return 0;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -96,7 +104,7 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return handle;
 }
 
-std::wstring CefBrowserImpl::GetSource(TargetFrame targetFrame)
+std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
 {
   if(!_Context->RunningOnUIThread())
   {
@@ -110,9 +118,10 @@ std::wstring CefBrowserImpl::GetSource(TargetFrame targetFrame)
     CefRefPtr<CefStreamWriter> stream(new CefBytesWriter(BUFFER_SIZE));
 
     // Request the data from the UI thread
+    frame->AddRef();
     stream->AddRef();
     PostTask(FROM_HERE, NewRunnableMethod(this,
-        &CefBrowserImpl::UIT_GetDocumentStringNotify, targetFrame, stream.get(),
+        &CefBrowserImpl::UIT_GetDocumentStringNotify, frame.get(), stream.get(),
         hEvent));
 
     // Wait for the UI thread callback to tell us that the data is available
@@ -124,19 +133,15 @@ std::wstring CefBrowserImpl::GetSource(TargetFrame targetFrame)
   }
   else
   {
-    // Retrieve the frame contents directly
-    WebFrame* frame;
-    if(targetFrame == TF_FOCUSED)
-      frame = UIT_GetWebView()->GetFocusedFrame();
-    else
-      frame = UIT_GetWebView()->GetMainFrame();
-
-    // Retrieve the document string
-    return UTF8ToWide(webkit_glue::GetDocumentString(frame));
+    // Retrieve the document string directly
+    WebFrame* web_frame = GetWebFrame(frame);
+    if(web_frame)
+      return UTF8ToWide(webkit_glue::GetDocumentString(web_frame));
+    return std::wstring();
   }
 }
 
-std::wstring CefBrowserImpl::GetText(TargetFrame targetFrame)
+std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
 {
   if(!_Context->RunningOnUIThread())
   {
@@ -150,9 +155,10 @@ std::wstring CefBrowserImpl::GetText(TargetFrame targetFrame)
     CefRefPtr<CefStreamWriter> stream(new CefBytesWriter(BUFFER_SIZE));
 
     // Request the data from the UI thread
+    frame->AddRef();
     stream->AddRef();
     PostTask(FROM_HERE, NewRunnableMethod(this,
-        &CefBrowserImpl::UIT_GetDocumentTextNotify, targetFrame, stream.get(),
+        &CefBrowserImpl::UIT_GetDocumentTextNotify, frame.get(), stream.get(),
         hEvent));
 
     // Wait for the UI thread callback to tell us that the data is available
@@ -164,15 +170,11 @@ std::wstring CefBrowserImpl::GetText(TargetFrame targetFrame)
   }
   else
   {
-    // Retrieve the frame contents directly
-    WebFrame* frame;
-    if(targetFrame == TF_FOCUSED)
-      frame = UIT_GetWebView()->GetFocusedFrame();
-    else
-      frame = UIT_GetWebView()->GetMainFrame();
-
-    // Retrieve the document string
-    return webkit_glue::DumpDocumentText(frame);
+    // Retrieve the document text directly
+    WebFrame* web_frame = GetWebFrame(frame);
+    if(web_frame)
+      webkit_glue::DumpDocumentText(web_frame);
+    return std::wstring();
   }
 }
 
@@ -236,7 +238,7 @@ bool CefBrowserImpl::CanGoForward()
   }
 }
 
-void CefBrowserImpl::UIT_CreateBrowser()
+void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 {
   REQUIRE_UIT();
   
@@ -250,22 +252,22 @@ void CefBrowserImpl::UIT_CreateBrowser()
 
   // Set window user data to this object for future reference from the window
   // procedure
-	win_util::SetWindowUserData(window_info_.m_hWnd, this);
+  win_util::SetWindowUserData(window_info_.m_hWnd, this);
 
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
-	
-	// Create the webview host object
+
+  // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, delegate_.get(),
       *_Context->GetWebPreferences()));
-  UIT_GetWebView()->SetUseEditorDelegate(true);
+  GetWebView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
     
   // Size the web view window to the browser window
-	RECT cr;
-	GetClientRect(window_info_.m_hWnd, &cr);
-	SetWindowPos(UIT_GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
+  RECT cr;
+  GetClientRect(window_info_.m_hWnd, &cr);
+  SetWindowPos(GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
       cr.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
   if(handler_.get()) {
@@ -273,8 +275,11 @@ void CefBrowserImpl::UIT_CreateBrowser()
     handler_->HandleAfterCreated(this);
   }
 
-  if(url_.size() > 0)
-    UIT_LoadURL(url_.c_str());
+  if(url.size() > 0) {
+    CefRefPtr<CefFrame> frame = GetMainFrame();
+    frame->AddRef();
+    UIT_LoadURL(frame, url.c_str());
+  }
 }
 
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
@@ -293,7 +298,7 @@ WebWidget* CefBrowserImpl::UIT_CreatePopupWidget(WebView* webview)
   
   DCHECK(!popuphost_);
   popuphost_ = WebWidgetHost::Create(NULL, delegate_.get());
-  ShowWindow(UIT_GetPopupWndHandle(), SW_SHOW);
+  ShowWindow(GetPopupWndHandle(), SW_SHOW);
 
   return popuphost_->webwidget();
 }
@@ -302,7 +307,7 @@ void CefBrowserImpl::UIT_ClosePopupWidget()
 {
   REQUIRE_UIT();
   
-  PostMessage(UIT_GetPopupWndHandle(), WM_CLOSE, 0, 0);
+  PostMessage(GetPopupWndHandle(), WM_CLOSE, 0, 0);
   popuphost_ = NULL;
 }
 
@@ -345,7 +350,7 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebFrame *frame)
 	wcscpy(szTempName + len - 3, L"txt");
   WriteTextToFile(webkit_glue::GetDocumentString(frame), szTempName);
 
-  int errorCode = (int)ShellExecute(UIT_GetMainWndHandle(), L"open", szTempName,
+  int errorCode = (int)ShellExecute(GetMainWndHandle(), L"open", szTempName,
     NULL, NULL, SW_SHOWNORMAL);
   if(errorCode <= 32)
     return false;
@@ -353,51 +358,47 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebFrame *frame)
   return true;
 }
 
-void CefBrowserImpl::UIT_GetDocumentStringNotify(TargetFrame targetFrame,
+void CefBrowserImpl::UIT_GetDocumentStringNotify(CefFrame* frame,
                                                  CefStreamWriter* writer,
                                                  HANDLE hEvent)
 {
   REQUIRE_UIT();
   
-  WebFrame* frame;
-  if(targetFrame == TF_FOCUSED)
-    frame = UIT_GetWebView()->GetFocusedFrame();
-  else
-    frame = UIT_GetWebView()->GetMainFrame();
-
-  // Retrieve the document string
-  std::string str = webkit_glue::GetDocumentString(frame);
-  // Write the document string to the stream
-  writer->Write(str.c_str(), str.size(), 1);
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame) {
+    // Retrieve the document string
+    std::string str = webkit_glue::GetDocumentString(web_frame);
+    // Write the document string to the stream
+    writer->Write(str.c_str(), str.size(), 1);
+  }
   
   // Notify the calling thread that the data is now available
   SetEvent(hEvent);
 
   writer->Release();
+  frame->Release();
 }
 
-void CefBrowserImpl::UIT_GetDocumentTextNotify(TargetFrame targetFrame,
+void CefBrowserImpl::UIT_GetDocumentTextNotify(CefFrame* frame,
                                                CefStreamWriter* writer,
                                                HANDLE hEvent)
 {
   REQUIRE_UIT();
   
-  WebFrame* frame;
-  if(targetFrame == TF_FOCUSED)
-    frame = UIT_GetWebView()->GetFocusedFrame();
-  else
-    frame = UIT_GetWebView()->GetMainFrame();
-
-  // Retrieve the document string
-  std::wstring str = webkit_glue::DumpDocumentText(frame);
-  std::string cstr = WideToUTF8(str);
-  // Write the document string to the stream
-  writer->Write(cstr.c_str(), cstr.size(), 1);
+  WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame) {
+    // Retrieve the document string
+    std::wstring str = webkit_glue::DumpDocumentText(web_frame);
+    std::string cstr = WideToUTF8(str);
+    // Write the document string to the stream
+    writer->Write(cstr.c_str(), cstr.size(), 1);
+  }
   
   // Notify the calling thread that the data is now available
   SetEvent(hEvent);
 
   writer->Release();
+  frame->Release();
 }
 
 void CefBrowserImpl::UIT_CanGoBackNotify(bool *retVal, HANDLE hEvent)
@@ -500,9 +501,9 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     std::wstring bottomLeft, bottomCenter, bottomRight;
 
     // allow the handler to format print header and/or footer
-    CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this, printInfo,
-      url, title, page_number+1, total_pages, topLeft, topCenter, topRight,
-      bottomLeft, bottomCenter, bottomRight);
+    CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this,
+      GetCefFrame(frame), printInfo, url, title, page_number+1, total_pages,
+      topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight);
 
     if(rv != RV_HANDLED) {
       // Draw handler-defined headers and/or footers.
@@ -548,14 +549,14 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
           DT_RIGHT | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-		  
-		  SetTextColor(hDC, hOldColor);
-		  SelectObject(hDC, hOldFont);
-		  DeleteObject(hFont);
-		  SetBkMode(hDC, hOldBkMode);
-	  }
 
-	  res = RestoreDC(hDC, saved_state);
+      SetTextColor(hDC, hOldColor);
+      SelectObject(hDC, hOldFont);
+      DeleteObject(hFont);
+      SetBkMode(hDC, hOldBkMode);
+    }
+
+    res = RestoreDC(hDC, saved_state);
     DCHECK_NE(res, 0);
   }
 
@@ -563,20 +564,20 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 }
 
 void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
-  
-	REQUIRE_UIT();
-  
+
+  REQUIRE_UIT();
+
   TCHAR printername[512];
-	DWORD size = sizeof(printername)-1;
-	if(GetDefaultPrinter(printername, &size)) {
-		printing::PrintSettings settings;
-		settings.set_device_name(printername);
-		// Initialize it.
-		print_context_.InitWithSettings(settings);
-	}
+  DWORD size = sizeof(printername)-1;
+  if(GetDefaultPrinter(printername, &size)) {
+    printing::PrintSettings settings;
+    settings.set_device_name(printername);
+    // Initialize it.
+    print_context_.InitWithSettings(settings);
+  }
 
   if(print_context_.AskUserForSettings(
-      UIT_GetMainWndHandle(), UIT_GetPagesCount(frame))
+      GetMainWndHandle(), UIT_GetPagesCount(frame))
       != printing::PrintingContext::OK)
     return;
 
@@ -605,20 +606,20 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
     MessageLoop::current()->SetNestableTasksAllowed(false);
 
     // TODO(cef): Use the page title as the document name
-	  print_context_.NewDocument(L"New Document");
-	  if(settings.ranges.size() > 0) {
-		  for (unsigned x = 0; x < settings.ranges.size(); ++x) {
-			  const printing::PageRange& range = settings.ranges[x];
-			  for(int i = range.from; i <= range.to; ++i)
-				  UIT_PrintPage(i, page_count, canvas_size, frame);
-		  }
-	  } else {
-		  for(int i = 0; i < page_count; ++i)
-			  UIT_PrintPage(i, page_count, canvas_size, frame);
-	  }
-	  print_context_.DocumentDone();
+    print_context_.NewDocument(L"New Document");
+    if(settings.ranges.size() > 0) {
+      for (unsigned x = 0; x < settings.ranges.size(); ++x) {
+        const printing::PageRange& range = settings.ranges[x];
+        for(int i = range.from; i <= range.to; ++i)
+          UIT_PrintPage(i, page_count, canvas_size, frame);
+      }
+    } else {
+      for(int i = 0; i < page_count; ++i)
+        UIT_PrintPage(i, page_count, canvas_size, frame);
+    }
+    print_context_.DocumentDone();
 
-	  MessageLoop::current()->SetNestableTasksAllowed(old_state);
+    MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
 
   frame->EndPrint();

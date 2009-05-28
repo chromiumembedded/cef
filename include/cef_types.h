@@ -42,14 +42,6 @@ extern "C" {
 #endif
 
 
-// Define frame target types. Using TF_FOCUSED will target the focused
-// frame and using TF_MAIN will target the main frame.
-enum cef_targetframe_t
-{
-  TF_FOCUSED   = 0,
-  TF_MAIN      = 1,
-};
-
 // Define handler return value types. Returning RV_HANDLED indicates
 // that the implementation completely handled the method and that no further
 // processing is required.  Returning RV_CONTINUE indicates that the
@@ -204,19 +196,6 @@ enum cef_postdataelement_type_t
   PDE_TYPE_EMPTY  = 0,
   PDE_TYPE_BYTES,
   PDE_TYPE_FILE,
-};
-
-enum cef_variant_type_t
-{
-  VARIANT_TYPE_NULL = 0,
-  VARIANT_TYPE_BOOL,
-  VARIANT_TYPE_INT,
-  VARIANT_TYPE_DOUBLE,
-  VARIANT_TYPE_STRING,
-  VARIANT_TYPE_BOOL_ARRAY,
-  VARIANT_TYPE_INT_ARRAY,
-  VARIANT_TYPE_DOUBLE_ARRAY,
-  VARIANT_TYPE_STRING_ARRAY,
 };
 
 

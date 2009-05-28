@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _JSHANDLER_CPPTOC_H
-#define _JSHANDLER_CPPTOC_H
+#ifndef _V8HANDLER_CPPTOC_H
+#define _V8HANDLER_CPPTOC_H
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
@@ -14,15 +14,16 @@
 #include "cpptoc.h"
 
 
-// Wrap a C++ jshandler class with a C jshandler structure.
+// Wrap a C++ v8handler class with a C v8handler structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefJSHandlerCppToC : public CefCppToC<CefJSHandler, cef_jshandler_t>
+class CefV8HandlerCppToC
+    : public CefCppToC<CefV8HandlerCppToC, CefV8Handler, cef_v8handler_t>
 {
 public:
-  CefJSHandlerCppToC(CefJSHandler* cls);
-  virtual ~CefJSHandlerCppToC() {}
+  CefV8HandlerCppToC(CefV8Handler* cls);
+  virtual ~CefV8HandlerCppToC() {}
 };
 
 
 #endif // USING_CEF_SHARED
-#endif // _JSHANDLER_CPPTOC_H
+#endif // _V8HANDLER_CPPTOC_H

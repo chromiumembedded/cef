@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -44,9 +44,6 @@ using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
 
-BrowserWebViewDelegate::~BrowserWebViewDelegate() {
-}
-
 WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     WebView* webview,
     const GURL& url,
@@ -74,12 +71,12 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
 }
 
 void BrowserWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
-  if (webwidget == browser_->UIT_GetWebView()) {
-    ShowWindow(browser_->UIT_GetMainWndHandle(), SW_SHOW);
-    UpdateWindow(browser_->UIT_GetMainWndHandle());
-  } else if (webwidget == browser_->UIT_GetPopup()) {
-    ShowWindow(browser_->UIT_GetPopupWndHandle(), SW_SHOW);
-    UpdateWindow(browser_->UIT_GetPopupWndHandle());
+  if (webwidget == browser_->GetWebView()) {
+    ShowWindow(browser_->GetMainWndHandle(), SW_SHOW);
+    UpdateWindow(browser_->GetMainWndHandle());
+  } else if (webwidget == browser_->GetPopup()) {
+    ShowWindow(browser_->GetPopupWndHandle(), SW_SHOW);
+    UpdateWindow(browser_->GetPopupWndHandle());
   }
 }
 
@@ -93,9 +90,9 @@ void BrowserWebViewDelegate::ShowAsPopupWithItems(
 }
 
 void BrowserWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
-  if (webwidget == browser_->UIT_GetWebView()) {
-    PostMessage(browser_->UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
-  } else if (webwidget == browser_->UIT_GetPopup()) {
+  if (webwidget == browser_->GetWebView()) {
+    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
+  } else if (webwidget == browser_->GetPopup()) {
     browser_->UIT_ClosePopupWidget();
   }
 }
@@ -120,10 +117,10 @@ void BrowserWebViewDelegate::GetWindowRect(WebWidget* webwidget,
 
 void BrowserWebViewDelegate::SetWindowRect(WebWidget* webwidget,
                                         const WebRect& rect) {
-  if (webwidget == browser_->UIT_GetWebView()) {
+  if (webwidget == browser_->GetWebView()) {
     // ignored
-  } else if (webwidget == browser_->UIT_GetPopup()) {
-    MoveWindow(browser_->UIT_GetPopupWndHandle(),
+  } else if (webwidget == browser_->GetPopup()) {
+    MoveWindow(browser_->GetPopupWndHandle(),
                rect.x, rect.y, rect.width, rect.height, FALSE);
   }
 }
@@ -183,7 +180,7 @@ void BrowserWebViewDelegate::RunModal(WebWidget* webwidget) {
   i = list->begin();
   for (; i != list->end(); ++i) {
     if (i->get()->IsPopup())
-      EnableWindow(i->get()->UIT_GetMainWndHandle(), FALSE);
+      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
   }
   _Context->Unlock();
   
@@ -194,7 +191,7 @@ void BrowserWebViewDelegate::RunModal(WebWidget* webwidget) {
   list = _Context->GetBrowserList();
   i = list->begin();
   for (; i != list->end(); ++i)
-    EnableWindow(i->get()->UIT_GetMainWndHandle(), TRUE);
+    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
   _Context->Unlock();
 }
 
@@ -251,7 +248,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
                                           const std::string& frame_charset) {
 
   POINT screen_pt = { x, y };
-	MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,
+  MapWindowPoints(browser_->GetMainWndHandle(), HWND_DESKTOP,
       &screen_pt, 1);
 
   HMENU menu = NULL;
@@ -337,7 +334,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
     // show the context menu
     int selected_id = TrackPopupMenu(menu,
       TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
-      screen_pt.x, screen_pt.y, 0, browser_->UIT_GetMainWndHandle(), NULL);
+      screen_pt.x, screen_pt.y, 0, browser_->GetMainWndHandle(), NULL);
 
     if(selected_id != 0) {
       // An action was chosen
@@ -351,7 +348,9 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
 
       if(!handled) {
         // Execute the action
-        browser_->UIT_HandleAction(menuId, TF_FOCUSED);
+        CefRefPtr<CefFrame> frame = browser_->GetFocusedFrame();
+        frame->AddRef();
+        browser_->UIT_HandleAction(menuId, frame.get());
       }
     }
   }
@@ -369,7 +368,7 @@ void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
                                                  const std::wstring& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
-  MessageBox(browser_->UIT_GetMainWndHandle(), message.c_str(),
+  MessageBox(browser_->GetMainWndHandle(), message.c_str(),
              browser_->UIT_GetTitle().c_str(), MB_OK | MB_ICONWARNING);
 }
 
@@ -377,7 +376,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
                                                    const std::wstring& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
-  int rv = MessageBox(browser_->UIT_GetMainWndHandle(), message.c_str(),
+  int rv = MessageBox(browser_->GetMainWndHandle(), message.c_str(),
                       browser_->UIT_GetTitle().c_str(),
                       MB_YESNO | MB_ICONQUESTION);
   return (rv == IDYES);

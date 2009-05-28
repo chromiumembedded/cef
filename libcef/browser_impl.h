@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -6,8 +6,7 @@
 #ifndef _BROWSER_IMPL_H
 #define _BROWSER_IMPL_H
 
-#include "../include/cef.h"
-#include "jscontainer.h"
+#include "include/cef.h"
 #include "context.h"
 
 #include "webview_host.h"
@@ -21,13 +20,14 @@
 
 #define BUFFER_SIZE   32768
 
+
 // Implementation of CefBrowser.
 class CefBrowserImpl : public CefThreadSafeBase<CefBrowser>
 {
 public:
   CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
-                 CefRefPtr<CefHandler> handler, const std::wstring& url);
-  virtual ~CefBrowserImpl();
+                 CefRefPtr<CefHandler> handler);
+  virtual ~CefBrowserImpl() {}
 
 #if defined(OS_WIN)
   static LPCTSTR GetWndClass();
@@ -42,72 +42,81 @@ public:
   virtual void GoForward();
   virtual void Reload();
   virtual void StopLoad();
-  virtual void Undo(TargetFrame targetFrame);
-  virtual void Redo(TargetFrame targetFrame);
-  virtual void Cut(TargetFrame targetFrame);
-  virtual void Copy(TargetFrame targetFrame);
-  virtual void Paste(TargetFrame targetFrame);
-  virtual void Delete(TargetFrame targetFrame);
-  virtual void SelectAll(TargetFrame targetFrame);
   virtual void SetFocus(bool enable);
-  virtual void Print(TargetFrame targetFrame);
-  virtual void ViewSource(TargetFrame targetFrame);
-  virtual std::wstring GetSource(TargetFrame targetFrame);
-  virtual std::wstring GetText(TargetFrame targetFrame);
-  virtual void LoadRequest(CefRefPtr<CefRequest> request);
-  virtual void LoadURL(const std::wstring& url, const std::wstring& frame);
-  virtual void LoadString(const std::wstring& string,
-                          const std::wstring& url);
-  virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url);
-  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
-                                 const std::wstring& scriptUrl,
-                                 int startLine, TargetFrame targetFrame);
-  virtual bool AddJSHandler(const std::wstring& classname,
-                            CefRefPtr<CefJSHandler> handler);
-  virtual bool HasJSHandler(const std::wstring& classname);
-  virtual CefRefPtr<CefJSHandler> GetJSHandler(const std::wstring& classname);
-  virtual bool RemoveJSHandler(const std::wstring& classname);
-  virtual void RemoveAllJSHandlers();
   virtual CefWindowHandle GetWindowHandle();
   virtual bool IsPopup();
   virtual CefRefPtr<CefHandler> GetHandler();
-  virtual std::wstring GetURL();
+  virtual CefRefPtr<CefFrame> GetMainFrame();
+  virtual CefRefPtr<CefFrame> GetFocusedFrame();
+  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
+  virtual void GetFrameNames(std::vector<std::wstring>& names);
 
-  void SetURL(const std::wstring& url);
+  // CefFrames are light-weight objects managed by the browser and loosely
+  // coupled to a WebFrame object by name.  If a CefFrame object does not
+  // already exist for the specified WebFrame one will be created.  There is no
+  // guarantee that the same CefFrame object will be returned across different
+  // calls to this function.
+  CefRefPtr<CefFrame> GetCefFrame(WebFrame* frame);
+  void RemoveCefFrame(const std::wstring& name);
 
+  // Return the WebFrame object associated with the specified CefFrame.  This
+  // may return NULL if no WebFrame with the CefFrame's name exists.
+  WebFrame* GetWebFrame(CefRefPtr<CefFrame> frame);
+
+  // Frame-related methods
+  void Undo(CefRefPtr<CefFrame> frame);
+  void Redo(CefRefPtr<CefFrame> frame);
+  void Cut(CefRefPtr<CefFrame> frame);
+  void Copy(CefRefPtr<CefFrame> frame);
+  void Paste(CefRefPtr<CefFrame> frame);
+  void Delete(CefRefPtr<CefFrame> frame);
+  void SelectAll(CefRefPtr<CefFrame> frame);
+  void Print(CefRefPtr<CefFrame> frame);
+  void ViewSource(CefRefPtr<CefFrame> frame);
+  std::wstring GetSource(CefRefPtr<CefFrame> frame);
+  std::wstring GetText(CefRefPtr<CefFrame> frame);
+  void LoadRequest(CefRefPtr<CefFrame> frame,
+                   CefRefPtr<CefRequest> request);
+  void LoadURL(CefRefPtr<CefFrame> frame,
+               const std::wstring& url);
+  void LoadString(CefRefPtr<CefFrame> frame,
+                  const std::wstring& string,
+                  const std::wstring& url);
+  void LoadStream(CefRefPtr<CefFrame> frame,
+                  CefRefPtr<CefStreamReader> stream,
+                  const std::wstring& url);
+  void ExecuteJavaScript(CefRefPtr<CefFrame> frame,
+                         const std::wstring& jsCode, 
+                         const std::wstring& scriptUrl,
+                         int startLine);
+  virtual std::wstring GetURL(CefRefPtr<CefFrame> frame);
+  
+  WebView* GetWebView() const {
+    return webviewhost_.get() ? webviewhost_->webview() : NULL;
+  }
+  WebViewHost* GetWebViewHost() const {
+    return webviewhost_.get();
+  }
+  HWND GetWebViewWndHandle() const {
+    return webviewhost_->window_handle();
+  }
+  WebWidget* GetPopup() const {
+    return popuphost_ ? popuphost_->webwidget() : NULL;
+  }
+  WebWidgetHost* GetPopupHost() const {
+    return popuphost_;
+  }
+  HWND GetPopupWndHandle() const {
+    return popuphost_->window_handle();
+  }
+  HWND GetMainWndHandle() const {
+    return window_info_.m_hWnd;
+  }
+  
   ////////////////////////////////////////////////////////////
   // ALL UIT_* METHODS MUST ONLY BE CALLED ON THE UI THREAD //
   ////////////////////////////////////////////////////////////
 
-  WebView* UIT_GetWebView() const {
-    REQUIRE_UIT();
-    return webviewhost_.get() ? webviewhost_->webview() : NULL;
-  }
-  WebViewHost* UIT_GetWebViewHost() const {
-    REQUIRE_UIT();
-    return webviewhost_.get();
-  }
-  HWND UIT_GetWebViewWndHandle() const {
-    REQUIRE_UIT();
-    return webviewhost_->window_handle();
-  }
-  WebWidget* UIT_GetPopup() const {
-    REQUIRE_UIT();
-    return popuphost_ ? popuphost_->webwidget() : NULL;
-  }
-  WebWidgetHost* UIT_GetPopupHost() const {
-    REQUIRE_UIT();
-    return popuphost_;
-  }
-  HWND UIT_GetPopupWndHandle() const {
-    REQUIRE_UIT();
-    return popuphost_->window_handle();
-  }
-  HWND UIT_GetMainWndHandle() const {
-    REQUIRE_UIT();
-    return window_info_.m_hWnd;
-  }
   BrowserNavigationController* UIT_GetNavigationController() {
     REQUIRE_UIT();
     return nav_controller_.get();
@@ -134,32 +143,31 @@ public:
     return title_;
   }
 
-  // UIThread functions must be executed from the UI thread.
-  void UIT_CreateBrowser();
-  void UIT_LoadURL(const std::wstring& url);
-  void UIT_LoadURLForFrame(const std::wstring& url,
-                                const std::wstring& frame_name);
-  void UIT_LoadURLForRequest(const std::wstring& url,
-                                  const std::wstring& frame_name,
-                                  const std::wstring& method,
-                                  net::UploadData *upload_data,
-                                  const WebRequest::HeaderMap& headers);
-  void UIT_LoadURLForRequestRef(CefRequest* request);
-  void UIT_LoadHTML(const std::wstring& html,
-                         const std::wstring& url);
-  void UIT_LoadHTMLForStreamRef(CefStreamReader* stream,
-                                     const std::wstring& url);
-  void UIT_ExecuteJavaScript(const std::wstring& js_code, 
+  void UIT_CreateBrowser(const std::wstring& url);
+
+  void UIT_LoadURL(CefFrame* frame,
+                   const std::wstring& url);
+  void UIT_LoadURLForRequest(CefFrame* frame,
+                             const std::wstring& url,
+                             const std::wstring& method,
+                             net::UploadData *upload_data,
+                             const WebRequest::HeaderMap& headers);
+  void UIT_LoadURLForRequestRef(CefFrame* frame,
+                                CefRequest* request);
+  void UIT_LoadHTML(CefFrame* frame,
+                    const std::wstring& html,
+                    const std::wstring& url);
+  void UIT_LoadHTMLForStreamRef(CefFrame* frame,
+                                CefStreamReader* stream,
+                                const std::wstring& url);
+  void UIT_ExecuteJavaScript(CefFrame* frame,
+                             const std::wstring& js_code, 
                              const std::wstring& script_url,
-                             int start_line, TargetFrame targetFrame);
+                             int start_line);
   void UIT_GoBackOrForward(int offset);
   void UIT_Reload();
   bool UIT_Navigate(const BrowserNavigationEntry& entry, bool reload);
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
-
-  // Called by the WebView delegate WindowObjectCleared() method, this
-  // binds the C++ controller classes to window JavaScript objects.
-  void UIT_BindJSObjectsToWindow(WebFrame* frame);
 
   CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url);
   WebWidget* UIT_CreatePopupWidget(WebView* webview);
@@ -168,16 +176,17 @@ public:
   void UIT_Show(WebView* webview, WindowOpenDisposition disposition);
   
   // Handles most simple browser actions
-  void UIT_HandleAction(CefHandler::MenuId menuId, TargetFrame target);
+  void UIT_HandleActionView(CefHandler::MenuId menuId);
+  void UIT_HandleAction(CefHandler::MenuId menuId, CefFrame* frame);
 
   // Save the document HTML to a temporary file and open in the default viewing
   // application
   bool UIT_ViewDocumentString(WebFrame *frame);
 #if defined(OS_WIN)
-  void UIT_GetDocumentStringNotify(TargetFrame targetFrame,
-                                  CefStreamWriter* writer, HANDLE hEvent);
-  void UIT_GetDocumentTextNotify(TargetFrame targetFrame,
-                                CefStreamWriter* writer, HANDLE hEvent);
+  void UIT_GetDocumentStringNotify(CefFrame* frame,
+                                   CefStreamWriter* writer, HANDLE hEvent);
+  void UIT_GetDocumentTextNotify(CefFrame* frame,
+                                 CefStreamWriter* writer, HANDLE hEvent);
   void UIT_CanGoBackNotify(bool *retVal, HANDLE hEvent);
   void UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent);
 #endif
@@ -198,7 +207,6 @@ protected:
   CefWindowInfo window_info_;
   bool is_popup_;
   bool is_modal_;
-  std::wstring url_;
   CefRefPtr<CefHandler> handler_;
   scoped_ptr<WebViewHost> webviewhost_;
   WebWidgetHost* popuphost_;
@@ -210,11 +218,59 @@ protected:
   // Context object used to manage printing.
   printing::PrintingContext print_context_;
 
-  typedef std::map<std::wstring, CefRefPtr<CefJSContainer> > JSContainerMap;
-  JSContainerMap jscontainers_;
+  typedef std::map<std::wstring, CefFrame*> FrameMap;
+  FrameMap frames_;
+  CefFrame* frame_main_;
 
   // Unique browser ID assigned by the context.
   int unique_id_;
+};
+
+
+// Implementation of CefFrame.
+class CefFrameImpl : public CefThreadSafeBase<CefFrame>
+{
+public:
+  CefFrameImpl(CefBrowserImpl* browser, const std::wstring& name)
+    : browser_(browser), name_(name) {}
+  virtual ~CefFrameImpl() { browser_->RemoveCefFrame(name_); }
+
+  // CefFrame methods
+  virtual void Undo() { browser_->Undo(this); }
+  virtual void Redo() { browser_->Redo(this); }
+  virtual void Cut() { browser_->Cut(this); }
+  virtual void Copy() { browser_->Copy(this); }
+  virtual void Paste() { browser_->Paste(this); }
+  virtual void Delete() { browser_->Delete(this); }
+  virtual void SelectAll() { browser_->SelectAll(this); }
+  virtual void Print() { browser_->Print(this); }
+  virtual void ViewSource() { browser_->ViewSource(this); }
+  virtual std::wstring GetSource() { return browser_->GetSource(this); }
+  virtual std::wstring GetText() { return browser_->GetText(this); }
+  virtual void LoadRequest(CefRefPtr<CefRequest> request)
+    { return browser_->LoadRequest(this, request); }
+  virtual void LoadURL(const std::wstring& url)
+    { return browser_->LoadURL(this, url); }
+  virtual void LoadString(const std::wstring& string,
+                          const std::wstring& url)
+    { return browser_->LoadString(this, string, url); }
+  virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
+                          const std::wstring& url)
+    { return browser_->LoadStream(this, stream, url); }
+  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
+                                 const std::wstring& scriptUrl,
+                                 int startLine) 
+    { return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine); }
+  virtual bool IsMain() { return name_.empty(); }
+  virtual bool IsFocused()
+    { return (browser_->GetWebFrame(this) ==
+              browser_->GetWebView()->GetFocusedFrame()); }
+  virtual std::wstring GetName() { return name_; }
+  virtual std::wstring GetURL() { return browser_->GetURL(this); }
+
+private:
+  CefRefPtr<CefBrowserImpl> browser_;
+  std::wstring name_;
 };
 
 #endif // _BROWSER_IMPL_H

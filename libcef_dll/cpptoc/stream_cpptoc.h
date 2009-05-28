@@ -16,8 +16,9 @@
 
 // Wrap a C++ stream reader class with a C stream reader structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefStreamReaderCppToC :
-    public CefCppToC<CefStreamReader, cef_stream_reader_t>
+class CefStreamReaderCppToC
+    : public CefCppToC<CefStreamReaderCppToC, CefStreamReader,
+                       cef_stream_reader_t>
 {
 public:
   CefStreamReaderCppToC(CefStreamReader* cls);
@@ -27,8 +28,9 @@ public:
 
 // Wrap a C++ stream writer class with a C stream writer structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefStreamWriterCppToC :
-    public CefCppToC<CefStreamWriter, cef_stream_writer_t>
+class CefStreamWriterCppToC
+    : public CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
+                       cef_stream_writer_t>
 {
 public:
   CefStreamWriterCppToC(CefStreamWriter* cls);

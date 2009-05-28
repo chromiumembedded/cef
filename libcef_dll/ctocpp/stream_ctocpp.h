@@ -16,12 +16,14 @@
 
 // Wrap a C stream reader structure with a C++ stream reader class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefStreamReaderCToCpp :
-    public CefCToCpp<CefStreamReader, cef_stream_reader_t>
+class CefStreamReaderCToCpp
+    : public CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
+                       cef_stream_reader_t>
 {
 public:
   CefStreamReaderCToCpp(cef_stream_reader_t* str)
-    : CefCToCpp<CefStreamReader, cef_stream_reader_t>(str) {}
+    : CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
+                cef_stream_reader_t>(str) {}
   virtual ~CefStreamReaderCToCpp() {}
 
   // CefStreamReader methods
@@ -34,12 +36,14 @@ public:
 
 // Wrap a C stream writer structure with a C++ stream writer class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefStreamWriterCToCpp :
-    public CefCToCpp<CefStreamWriter, cef_stream_writer_t>
+class CefStreamWriterCToCpp
+    : public CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
+                       cef_stream_writer_t>
 {
 public:
   CefStreamWriterCToCpp(cef_stream_writer_t* str)
-    : CefCToCpp<CefStreamWriter, cef_stream_writer_t>(str) {}
+    : CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
+                cef_stream_writer_t>(str) {}
   virtual ~CefStreamWriterCToCpp() {}
 
   // CefStreamWriter methods

@@ -16,11 +16,12 @@
 
 // Wrap a C handler structure with a C++ handler class.
 // This class may be instantiated and accessed DLL-side only.
-class CefHandlerCToCpp : public CefCToCpp<CefHandler, cef_handler_t>
+class CefHandlerCToCpp
+    : public CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>
 {
 public:
   CefHandlerCToCpp(cef_handler_t* str)
-    : CefCToCpp<CefHandler, cef_handler_t>(str) {}
+    : CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>(str) {}
   virtual ~CefHandlerCToCpp() {}
 
   // CefHandler methods
@@ -30,15 +31,20 @@ public:
                                      std::wstring& url);
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
                                      const std::wstring& url);
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
                                    const std::wstring& title);
   virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request,
                                     NavType navType, bool isRedirect);
-  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser);
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser);
+  virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame);
+  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame);
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
                                  const std::wstring& failedUrl,
                                  std::wstring& errorText);
@@ -55,6 +61,7 @@ public:
   virtual RetVal HandleMenuAction(CefRefPtr<CefBrowser> browser,
                                   MenuId menuId);
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
                                          const std::wstring& url,
                                          const std::wstring& title,
@@ -66,10 +73,13 @@ public:
                                          std::wstring& bottomCenter,
                                          std::wstring& bottomRight);
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame,
                                const std::wstring& message);
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
                                  const std::wstring& message, bool& retval);
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 const std::wstring& message,
                                 const std::wstring& default_value,
                                 bool& retval,
@@ -77,6 +87,9 @@ public:
   virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser,
                                  bool reverse);
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object);
 };
 
 

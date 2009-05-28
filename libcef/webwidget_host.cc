@@ -1,4 +1,5 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
+// Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -196,8 +197,6 @@ WebWidgetHost::~WebWidgetHost() {
   win_util::SetWindowUserData(view_, 0);
 
   TrackMouseLeave(false);
-
-  webwidget_->Close();
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {

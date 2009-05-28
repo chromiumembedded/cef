@@ -28,28 +28,6 @@ void CefRequestCToCpp::SetURL(const std::wstring& url)
   struct_->set_url(struct_, url.c_str());
 }
 
-std::wstring CefRequestCToCpp::GetFrame()
-{
-  std::wstring str;
-  if(CEF_MEMBER_MISSING(struct_, get_frame))
-    return str;
-  
-  cef_string_t cef_str = struct_->get_frame(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-  return str;
-}
-
-void CefRequestCToCpp::SetFrame(const std::wstring& frame)
-{
-  if(CEF_MEMBER_MISSING(struct_, set_frame))
-    return;
-
-  struct_->set_frame(struct_, frame.c_str());
-}
-
 std::wstring CefRequestCToCpp::GetMethod()
 {
   std::wstring str;
@@ -78,14 +56,9 @@ CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
     return NULL;
 
   cef_post_data_t* postDataStruct = struct_->get_post_data(struct_);
-  if(!postDataStruct)
-    return NULL;
-
-  CefPostDataCToCpp* pdp = new CefPostDataCToCpp(postDataStruct);
-  CefRefPtr<CefPostData> postDataPtr(pdp);
-  pdp->UnderlyingRelease();
-
-  return postDataPtr;
+  if(postDataStruct)
+    return CefPostDataCToCpp::Wrap(postDataStruct);
+  return NULL;
 }
 
 void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
@@ -94,11 +67,9 @@ void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
     return;
 
   cef_post_data_t* postDataStruct = NULL;
-  if(postData.get()) {
-    CefPostDataCToCpp* pdp = static_cast<CefPostDataCToCpp*>(postData.get());
-    pdp->UnderlyingAddRef();
-    postDataStruct = pdp->GetStruct();
-  }
+  if(postData.get())
+    postDataStruct = CefPostDataCToCpp::Unwrap(postData);
+
   struct_->set_post_data(struct_, postDataStruct);
 }
 
@@ -136,7 +107,6 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
 }
 
 void CefRequestCToCpp::Set(const std::wstring& url,
-                           const std::wstring& frame,
                            const std::wstring& method,
                            CefRefPtr<CefPostData> postData,
                            const HeaderMap& headerMap)
@@ -145,11 +115,8 @@ void CefRequestCToCpp::Set(const std::wstring& url,
     return;
 
   cef_post_data_t* postDataStruct = NULL;
-  if(postData.get()) {
-    CefPostDataCToCpp* pdp = static_cast<CefPostDataCToCpp*>(postData.get());
-    pdp->UnderlyingAddRef();
-    postDataStruct = pdp->GetStruct();
-  }
+  if(postData.get())
+    postDataStruct = CefPostDataCToCpp::Unwrap(postData);
 
   cef_string_map_t map = NULL;
   if(!headerMap.empty()) {
@@ -159,15 +126,14 @@ void CefRequestCToCpp::Set(const std::wstring& url,
     transfer_string_map_contents(headerMap, map);
   }
 
-  struct_->set(struct_, url.c_str(), frame.c_str(), method.c_str(),
-      postDataStruct, map);
+  struct_->set(struct_, url.c_str(), method.c_str(), postDataStruct, map);
   
   if(map)
     cef_string_map_free(map);
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefRequest, cef_request_t>::DebugObjCt = 0;
+long CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>::DebugObjCt = 0;
 #endif
 
 
@@ -188,16 +154,10 @@ void CefPostDataCToCpp::GetElements(ElementVector& elements)
   int count = (int)GetElementCount();
 
   cef_post_data_element_t* structPtr;
-  CefPostDataElementCToCpp* pdep;
   for(int i = 0; i < count; ++i) {
     structPtr = struct_->get_element(struct_, i);
-    if(!structPtr)
-      continue;
-
-    pdep = new CefPostDataElementCToCpp(structPtr);
-    CefRefPtr<CefPostDataElement> elementPtr(pdep);
-    pdep->UnderlyingRelease();
-    elements.push_back(elementPtr);
+    if(structPtr)
+      elements.push_back(CefPostDataElementCToCpp::Wrap(structPtr));
   }
 }
 
@@ -207,10 +167,8 @@ bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element)
   if(CEF_MEMBER_MISSING(struct_, remove_element) || !element.get())
     return false;
 
-  CefPostDataElementCToCpp* pdep =
-      static_cast<CefPostDataElementCToCpp*>(element.get());
-  pdep->UnderlyingAddRef();
-  return struct_->remove_element(struct_, pdep->GetStruct());
+  return struct_->remove_element(struct_,
+      CefPostDataElementCToCpp::Unwrap(element));
 }
 
 bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
@@ -219,10 +177,8 @@ bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
   if(CEF_MEMBER_MISSING(struct_, add_element) || !element.get())
     return false;
 
-  CefPostDataElementCToCpp* pdep =
-      static_cast<CefPostDataElementCToCpp*>(element.get());
-  pdep->UnderlyingAddRef();
-  return struct_->add_element(struct_, pdep->GetStruct());
+  return struct_->add_element(struct_,
+      CefPostDataElementCToCpp::Unwrap(element));
 }
 
 void CefPostDataCToCpp::RemoveElements()
@@ -234,7 +190,7 @@ void CefPostDataCToCpp::RemoveElements()
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefPostData, cef_post_data_t>::DebugObjCt = 0;
+long CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>::DebugObjCt = 0;
 #endif
 
 
@@ -302,5 +258,6 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void *bytes)
 }
 
 #ifdef _DEBUG
-long CefCToCpp<CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
+long CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
+    cef_post_data_element_t>::DebugObjCt = 0;
 #endif

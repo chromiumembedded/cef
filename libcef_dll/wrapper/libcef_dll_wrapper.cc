@@ -8,11 +8,11 @@
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
 #include "../cpptoc/handler_cpptoc.h"
-#include "../cpptoc/jshandler_cpptoc.h"
+#include "../cpptoc/v8handler_cpptoc.h"
 #include "../ctocpp/browser_ctocpp.h"
 #include "../ctocpp/request_ctocpp.h"
-#include "../ctocpp/variant_ctocpp.h"
 #include "../ctocpp/stream_ctocpp.h"
+#include "../ctocpp/v8value_ctocpp.h"
 
 
 bool CefInitialize(bool multi_threaded_message_loop,
@@ -28,14 +28,14 @@ void CefShutdown()
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefHandlerCppToC::DebugObjCt == 0);
-  DCHECK(CefJSHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
   DCHECK(CefBrowserCToCpp::DebugObjCt == 0);
   DCHECK(CefRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefPostDataCToCpp::DebugObjCt == 0);
   DCHECK(CefPostDataElementCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
-  DCHECK(CefVariantCToCpp::DebugObjCt == 0);
+  DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
 #endif // _DEBUG
 }
 
@@ -44,13 +44,20 @@ void CefDoMessageLoopWork()
   cef_do_message_loop_work();
 }
 
+bool CefRegisterExtension(const std::wstring& extension_name,
+                          const std::wstring& javascript_code,
+                          CefRefPtr<CefV8Handler> handler)
+{
+  return cef_register_extension(extension_name.c_str(), javascript_code.c_str(),
+      CefV8HandlerCppToC::Wrap(handler));
+}
+
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
                                const std::wstring& url)
 {
-  CefHandlerCppToC* hp = new CefHandlerCppToC(handler);
-  hp->AddRef();
-  return cef_create_browser(&windowInfo, popup, hp->GetStruct(), url.c_str());
+  return cef_create_browser(&windowInfo, popup, CefHandlerCppToC::Wrap(handler),
+      url.c_str());
 }
 
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
@@ -58,75 +65,134 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
                                                     CefRefPtr<CefHandler> handler,
                                                     const std::wstring& url)
 {
-  CefHandlerCppToC* hp = new CefHandlerCppToC(handler);
-  hp->AddRef();
-
-  cef_browser_t* browserStruct = cef_create_browser_sync(&windowInfo, popup,
-      hp->GetStruct(), url.c_str());
-  if(!browserStruct)
-    return NULL;
-
-  CefBrowserCToCpp* bp = new CefBrowserCToCpp(browserStruct);
-  CefRefPtr<CefBrowser> browserPtr(bp);
-  bp->UnderlyingRelease();
-
-  return browserPtr;
+  cef_browser_t* impl = cef_create_browser_sync(&windowInfo, popup,
+      CefHandlerCppToC::Wrap(handler), url.c_str());
+  if(impl)
+    return CefBrowserCToCpp::Wrap(impl);
+  return NULL;
 }
 
 CefRefPtr<CefRequest> CreateRequest()
 {
   cef_request_t* impl = cef_create_request();
-  if(!impl)
-    return NULL;
-  CefRequestCToCpp* ptr = new CefRequestCToCpp(impl);
-  CefRefPtr<CefRequest> rp(ptr);
-  ptr->UnderlyingRelease();
-  return rp;
+  if(impl)
+    return CefRequestCToCpp::Wrap(impl);
+  return NULL;
 }
 
 CefRefPtr<CefPostData> CreatePostData()
 {
   cef_post_data_t* impl = cef_create_post_data();
-  if(!impl)
-    return NULL;
-  CefPostDataCToCpp* ptr = new CefPostDataCToCpp(impl);
-  CefRefPtr<CefPostData> rp(ptr);
-  ptr->UnderlyingRelease();
-  return rp;
+  if(impl)
+    return CefPostDataCToCpp::Wrap(impl);
+  return NULL;
 }
 
 CefRefPtr<CefPostDataElement> CreatePostDataElement()
 {
   cef_post_data_element_t* impl = cef_create_post_data_element();
-  if(!impl)
-    return NULL;
-  CefPostDataElementCToCpp* ptr = new CefPostDataElementCToCpp(impl);
-  CefRefPtr<CefPostDataElement> rp(ptr);
-  ptr->UnderlyingRelease();
-  return rp;
+  if(impl)
+    return CefPostDataElementCToCpp::Wrap(impl);
+  return NULL;
 }
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(const std::wstring& fileName)
 {
   cef_stream_reader_t* impl =
       cef_create_stream_reader_for_file(fileName.c_str());
-  if(!impl)
-    return NULL;
-  CefStreamReaderCToCpp* ptr = new CefStreamReaderCToCpp(impl);
-  CefRefPtr<CefStreamReader> rp(ptr);
-  ptr->UnderlyingRelease();
-  return rp;
+  if(impl)
+    return CefStreamReaderCToCpp::Wrap(impl);
+  return NULL;
 }
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void *data, size_t size)
 {
   cef_stream_reader_t* impl = cef_create_stream_reader_for_data(data, size);
-  if(!impl)
-    return NULL;
-  CefStreamReaderCToCpp* ptr = new CefStreamReaderCToCpp(impl);
-  CefRefPtr<CefStreamReader> rp(ptr);
-  ptr->UnderlyingRelease();
-  return rp;
+  if(impl)
+    return CefStreamReaderCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateUndefined()
+{
+  cef_v8value_t* impl = cef_create_v8value_undefined();
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateNull()
+{
+  cef_v8value_t* impl = cef_create_v8value_null();
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value)
+{
+  cef_v8value_t* impl = cef_create_v8value_bool(value);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateInt(int value)
+{
+  cef_v8value_t* impl = cef_create_v8value_int(value);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
+{
+  cef_v8value_t* impl = cef_create_v8value_double(value);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateString(const std::wstring& value)
+{
+  cef_v8value_t* impl = cef_create_v8value_string(value.c_str());
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
+{
+  cef_base_t* baseStruct = NULL;
+  if(user_data)
+    baseStruct = CefBaseCppToC::Wrap(user_data);
+
+  cef_v8value_t* impl = cef_create_v8value_object(baseStruct);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateArray()
+{
+  cef_v8value_t* impl = cef_create_v8value_array();
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const std::wstring& name,
+                                                CefRefPtr<CefV8Handler> handler)
+{
+  cef_v8handler_t* handlerStruct = NULL;
+  if(handler.get())
+    handlerStruct = CefV8HandlerCppToC::Wrap(handler);
+
+  cef_v8value_t* impl = cef_create_v8value_function(name.c_str(),
+      handlerStruct);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
 }
 
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)

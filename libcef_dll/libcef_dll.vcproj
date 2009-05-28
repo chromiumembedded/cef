@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\cef_string_list.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\cef_string_map.h"
 				>
 			</File>
@@ -224,6 +228,30 @@
 			</File>
 			<File
 				RelativePath=".\cpptoc\cpptoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cpptoc\frame_cpptoc.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cpptoc\frame_cpptoc.h"
 				>
 			</File>
 			<File
@@ -275,7 +303,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cpptoc\variant_cpptoc.cc"
+				RelativePath=".\cpptoc\v8value_cpptoc.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -295,7 +323,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\cpptoc\variant_cpptoc.h"
+				RelativePath=".\cpptoc\v8value_cpptoc.h"
 				>
 			</File>
 		</Filter>
@@ -331,7 +359,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ctocpp\jshandler_ctocpp.cc"
+				RelativePath=".\ctocpp\v8handler_ctocpp.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -351,7 +379,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ctocpp\jshandler_ctocpp.h"
+				RelativePath=".\ctocpp\v8handler_ctocpp.h"
 				>
 			</File>
 		</Filter>
@@ -373,30 +401,6 @@
 		</Filter>
 		<File
 			RelativePath=".\cef_logging.h"
-			>
-		</File>
-		<File
-			RelativePath=".\cef_string.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="0"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="0"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\cef_string_map.cc"
 			>
 		</File>
 		<File

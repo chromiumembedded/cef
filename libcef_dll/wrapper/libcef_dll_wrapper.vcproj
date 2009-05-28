@@ -142,11 +142,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cpptoc\jshandler_cpptoc.cc"
+				RelativePath="..\cpptoc\v8handler_cpptoc.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\cpptoc\jshandler_cpptoc.h"
+				RelativePath="..\cpptoc\v8handler_cpptoc.h"
 				>
 			</File>
 		</Filter>
@@ -166,6 +166,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ctocpp\frame_ctocpp.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\frame_ctocpp.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ctocpp\request_ctocpp.cc"
 				>
 			</File>
@@ -182,11 +190,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ctocpp\variant_ctocpp.cc"
+				RelativePath="..\ctocpp\v8value_ctocpp.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\ctocpp\variant_ctocpp.h"
+				RelativePath="..\ctocpp\v8value_ctocpp.h"
 				>
 			</File>
 		</Filter>

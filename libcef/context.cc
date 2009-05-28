@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
+// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -19,6 +19,7 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "net/base/net_module.h"
+#include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -186,6 +187,11 @@ bool CefContext::DoInitialize()
       kStatsFileCounters);
   StatsTable::set_current(statstable_);
 
+  // CEF always exposes the GC.
+  webkit_glue::SetJavaScriptFlags(L"--expose-gc");
+  // Expose GCController to JavaScript.
+  WebKit::registerExtension(extensions_v8::GCExtension::Get());
+
   return true;
 }
 
@@ -195,10 +201,10 @@ void CefContext::DoUninitialize()
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
- 
+
   BrowserResourceLoaderBridge::Shutdown();
     
-  // Tear down shared StatsTable; prevents unit_tests from leaking it.
+  // Tear down the shared StatsTable.
   StatsTable::set_current(NULL);
   delete statstable_;
   statstable_ = NULL;
@@ -249,8 +255,6 @@ CefContext::~CefContext()
 {
   // Just in case CefShutdown() isn't called
   Shutdown();
-
-  DoUninitialize();
 }
 
 bool CefContext::Initialize(bool multi_threaded_message_loop,
@@ -422,6 +426,8 @@ void CefContext::Shutdown()
 
       hthreadui_ = NULL;
       heventui_ = NULL;
+    } else {
+      DoUninitialize();
     }
 
     Lock();

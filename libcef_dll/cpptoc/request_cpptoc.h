@@ -16,7 +16,8 @@
 
 // Wrap a C++ request class with a C request structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefRequestCppToC : public CefCppToC<CefRequest, cef_request_t>
+class CefRequestCppToC
+    : public CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>
 {
 public:
   CefRequestCppToC(CefRequest* cls);
@@ -26,7 +27,8 @@ public:
 
 // Wrap a C++ post data class with a C post data structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefPostDataCppToC : public CefCppToC<CefPostData, cef_post_data_t>
+class CefPostDataCppToC
+    : public CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>
 {
 public:
   CefPostDataCppToC(CefPostData* cls);
@@ -38,8 +40,9 @@ class CefPostDataElementCppToC;
 
 // Wrap a C++ post data element class with a C post data element structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefPostDataElementCppToC :
-    public CefCppToC<CefPostDataElement, cef_post_data_element_t>
+class CefPostDataElementCppToC
+    : public CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+                       cef_post_data_element_t>
 {
 public:
   CefPostDataElementCppToC(CefPostDataElement* cls);
