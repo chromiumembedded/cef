@@ -9,10 +9,11 @@
 #include "../include/cef.h"
 #include "base/at_exit.h"
 #include "base/message_loop.h"
+#include "base/stats_table.h"
 #include "base/gfx/native_widget_types.h"
 #include "webkit/glue/webpreferences.h"
-#include "browser_webkit_init.h"
 
+class BrowserWebKitInit;
 class CefBrowserImpl;
 
 class CefContext : public CefThreadSafeBase<CefBase>
@@ -78,8 +79,8 @@ protected:
 
   // Initialize the AtExitManager to avoid asserts and possible memory leaks.
   base::AtExitManager at_exit_manager_;
-  // Initialize WebKit for this scope.
-  BrowserWebKitInit webkit_init_;
+  // WebKit implementation class.
+  BrowserWebKitInit* webkit_init_;
 
   // Used for assigning unique IDs to browser instances.
   int next_browser_id_;

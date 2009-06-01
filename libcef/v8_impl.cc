@@ -7,6 +7,7 @@
 #include "context.h"
 #include "tracker.h"
 #include "base/lazy_instance.h"
+#include "base/string_util.h"
 #include "webkit/api/public/WebKit.h"
 
 

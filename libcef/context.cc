@@ -9,6 +9,7 @@
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
 #include "browser_webkit_glue.h"
+#include "browser_webkit_init.h"
 #include "../include/cef_nplugin.h"
 
 #include "base/command_line.h"
@@ -162,6 +163,12 @@ bool CefContext::DoInitialize()
   // Initialize the global CommandLine object.
   CommandLine::Init(0, NULL);
 
+  // Initialize WebKit.
+  webkit_init_ = new BrowserWebKitInit();
+
+  // Initialize WebKit encodings
+  webkit_glue::InitializeTextEncoding();
+
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
   //PathService::Get(base::DIR_EXE, &cache_path);
@@ -209,6 +216,10 @@ void CefContext::DoUninitialize()
   delete statstable_;
   statstable_ = NULL;
 
+  // Shut down WebKit.
+  delete webkit_init_;
+  webkit_init_ = NULL;
+
   // Uninitialize COM stuff
   OleUninitialize();
 
@@ -249,6 +260,7 @@ CefContext::CefContext()
   webprefs_ = NULL;
   hinstance_ = ::GetModuleHandle(NULL);
   next_browser_id_ = 1;
+  webkit_init_ = NULL;
 }
 
 CefContext::~CefContext()
@@ -291,9 +303,6 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
         /* hIconSm = */ NULL,
       };
       RegisterClassEx(&wcex);
-
-      // Initialize WebKit encodings
-      webkit_glue::InitializeTextEncoding();
 
 #ifndef _DEBUG
       // Only log error messages and above in release build.
