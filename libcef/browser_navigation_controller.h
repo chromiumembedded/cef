@@ -13,6 +13,7 @@
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/weburlrequest.h"
 
 namespace net {
@@ -23,11 +24,10 @@ class GURL;
 class CefBrowserImpl;
 
 // Associated with browser-initated navigations to hold tracking data.
-class BrowserExtraRequestData : public WebRequest::ExtraData {
+class BrowserExtraData : public WebDataSource::ExtraData {
  public:
-  BrowserExtraRequestData(int32 pending_page_id)
-      : WebRequest::ExtraData(),
-        pending_page_id(pending_page_id),
+  BrowserExtraData(int32 pending_page_id)
+      : pending_page_id(pending_page_id),
         request_committed(false) {
   }
 

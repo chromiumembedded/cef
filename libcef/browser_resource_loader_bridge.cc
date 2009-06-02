@@ -46,6 +46,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
@@ -103,7 +104,7 @@ bool EnsureIOThread() {
 struct RequestParams {
   std::string method;
   GURL url;
-  GURL policy_url;
+  GURL first_party_for_cookies;
   GURL referrer;
   std::string headers;
   int load_flags;
@@ -279,7 +280,7 @@ class RequestProxy : public URLRequest::Delegate,
     {
       request_.reset(new URLRequest(params->url, this));
       request_->set_method(params->method);
-      request_->set_policy_url(params->policy_url);
+      request_->set_first_party_for_cookies(params->first_party_for_cookies);
       request_->set_referrer(params->referrer.spec());
       request_->SetExtraRequestHeaders(params->headers);
       request_->set_load_flags(params->load_flags);
@@ -528,7 +529,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   ResourceLoaderBridgeImpl(CefRefPtr<CefBrowser> browser,
                            const std::string& method,
                            const GURL& url,
-                           const GURL& policy_url,
+                           const GURL& first_party_for_cookies,
                            const GURL& referrer,
                            const std::string& headers,
                            int load_flags,
@@ -538,7 +539,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
         proxy_(NULL) {
     params_->method = method;
     params_->url = url;
-    params_->policy_url = policy_url;
+    params_->first_party_for_cookies = first_party_for_cookies;
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
@@ -670,7 +671,7 @@ namespace webkit_glue {
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
@@ -681,7 +682,8 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int app_cache_context_id,
     int routing_id) {
   CefRefPtr<CefBrowser> browser = _Context->GetBrowserByID(routing_id);
-  return new ResourceLoaderBridgeImpl(browser, method, url, policy_url,
+  return new ResourceLoaderBridgeImpl(browser, method, url,
+                                      first_party_for_cookies,
                                       referrer, headers, load_flags,
                                       app_cache_context_id);
 }
@@ -732,8 +734,9 @@ void BrowserResourceLoaderBridge::Shutdown() {
   }
 }
 
-void BrowserResourceLoaderBridge::SetCookie(
-    const GURL& url, const GURL& policy_url, const std::string& cookie) {
+void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
+                                            const GURL& first_party_for_cookies,
+                                            const std::string& cookie) {
   // Proxy to IO thread to synchronize w/ network loading.
 
   if (!EnsureIOThread()) {
@@ -747,7 +750,7 @@ void BrowserResourceLoaderBridge::SetCookie(
 }
 
 std::string BrowserResourceLoaderBridge::GetCookies(
-    const GURL& url, const GURL& policy_url) {
+    const GURL& url, const GURL& first_party_for_cookies) {
   // Proxy to IO thread to synchronize w/ network loading
 
   if (!EnsureIOThread()) {

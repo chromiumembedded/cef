@@ -217,6 +217,11 @@ void BrowserWebViewDelegate::DidFailLoadingWithError(WebView* webview,
   
 }
 
+void BrowserWebViewDelegate::DidCreateDataSource(WebFrame* frame,
+                                                 WebDataSource* ds) {
+  ds->SetExtraData(pending_extra_data_.release());
+}
+
 void BrowserWebViewDelegate::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -246,13 +251,12 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
   if (error.GetErrorCode() == net::ERR_ABORTED)
     return;
 
-  const WebRequest& failed_request =
-      frame->GetProvisionalDataSource()->GetRequest();
-  BrowserExtraRequestData* extra_data =
-      static_cast<BrowserExtraRequestData*>(failed_request.GetExtraData());
+  const WebDataSource* failed_ds = frame->GetProvisionalDataSource();
+  BrowserExtraData* extra_data =
+      static_cast<BrowserExtraData*>(failed_ds->GetExtraData());
   bool replace = extra_data && extra_data->pending_page_id != -1;
 
-  scoped_ptr<WebRequest> request(failed_request.Clone());
+  scoped_ptr<WebRequest> request(failed_ds->GetRequest().Clone());
   request->SetURL(GURL("cef-error:"));
 
   std::string error_text;
@@ -326,6 +330,7 @@ void BrowserWebViewDelegate::DidHandleOnloadEventsForFrame(WebView* webview,
 
 void BrowserWebViewDelegate::DidChangeLocationWithinPageForFrame(
     WebView* webview, WebFrame* frame, bool is_new_navigation) {
+  frame->GetDataSource()->SetExtraData(pending_extra_data_.release());
   UpdateForCommittedLoad(frame, is_new_navigation);
 }
 
@@ -607,7 +612,7 @@ void BrowserWebViewDelegate::UpdateAddressBar(WebView* webView) {
   if (!dataSource)
     return;
 
-  GURL gUrl = dataSource->GetRequest().GetMainDocumentURL();
+  GURL gUrl = dataSource->GetRequest().GetFirstPartyForCookies();
 */
 }
 
@@ -629,10 +634,8 @@ void BrowserWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,
   WebView* webview = browser_->GetWebView();
 
   // Code duplicated from RenderView::DidCommitLoadForFrame.
-  const WebRequest& request =
-      webview->GetMainFrame()->GetDataSource()->GetRequest();
-  BrowserExtraRequestData* extra_data =
-      static_cast<BrowserExtraRequestData*>(request.GetExtraData());
+  BrowserExtraData* extra_data = static_cast<BrowserExtraData*>(
+      frame->GetDataSource()->GetExtraData());
 
   if (is_new_navigation) {
     // New navigation.
@@ -677,6 +680,10 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     // Notify the handler of an address change
     handler->HandleAddressChange(browser_, browser_->GetCefFrame(frame), url);
   }
+
+  std::string state;
+  if (frame->GetCurrentHistoryState(&state))
+    entry->SetContentState(state);
 
   browser_->UIT_GetNavigationController()->DidNavigateToEntry(entry.release());
 

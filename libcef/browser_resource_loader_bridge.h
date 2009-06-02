@@ -29,10 +29,11 @@ class BrowserResourceLoaderBridge {
   static void Shutdown();
 
   // May only be called after Init.
-  static void SetCookie(
-      const GURL& url, const GURL& policy_url, const std::string& cookie);
-  static std::string GetCookies(
-      const GURL& url, const GURL& policy_url);
+  static void SetCookie(const GURL& url,
+                        const GURL& first_party_for_cookies,
+                        const std::string& cookie);
+  static std::string GetCookies(const GURL& url,
+                                const GURL& first_party_for_cookies);
 };
 
 #endif  // _BROWSER_RESOURCE_LOADER_BRIDGE_H

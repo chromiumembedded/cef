@@ -51,7 +51,6 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
                                0, 0, 0, 0,
                                parent_view, NULL, GetModuleHandle(NULL), NULL);
 
-  TRACK_HWND_CREATION(host->view_);
   win_util::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebWidget::Create(delegate);

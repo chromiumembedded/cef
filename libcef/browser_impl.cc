@@ -488,51 +488,66 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
                                   bool reload)
 {
   REQUIRE_UIT();
-    
-  WebRequestCachePolicy cache_policy;
-  if (reload) {
-    cache_policy = WebRequestReloadIgnoringCacheData;
-  } else if (entry.GetPageID() != -1) {
-    cache_policy = WebRequestReturnCacheDataElseLoad;
-  } else {
-    cache_policy = WebRequestUseProtocolCachePolicy;
-  }
-
-  scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
-  request->SetCachePolicy(cache_policy);
-  // If we are reloading, then WebKit will use the state of the current page.
-  // Otherwise, we give it the state to navigate to.
-  if (!reload)
-    request->SetHistoryState(entry.GetContentState());
-    
-  request->SetExtraData(
-      new BrowserExtraRequestData(entry.GetPageID()));
-
-  if(entry.GetMethod().size() > 0)
-    request->SetHttpMethod(WideToUTF8(entry.GetMethod()));
-
-  if(entry.GetHeaders().size() > 0)
-    request->SetHttpHeaders(entry.GetHeaders());
-	
-  if(entry.GetUploadData())
-  {
-    if(request->GetHttpMethod() == "GET" || request->GetHttpMethod() == "HEAD")
-      request->SetHttpMethod("POST");
-    if(request->GetHttpHeaderValue("Content-Type").size() == 0) {
-      request->SetHttpHeaderValue(
-        "Content-Type", "application/x-www-form-urlencoded");
-    }
-    request->SetUploadData(*entry.GetUploadData());
-  }
 
   // Get the right target frame for the entry.
-  WebFrame* frame = GetWebView()->GetMainFrame();
+  WebFrame* frame;
   if (!entry.GetTargetFrame().empty())
     frame = GetWebView()->GetFrameWithName(entry.GetTargetFrame());
+  else
+    frame = GetWebView()->GetMainFrame();
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
 
-  frame->LoadRequest(request.get());
+  // A navigation resulting from loading a javascript URL should not be
+  // treated as a browser initiated event.  Instead, we want it to look as if
+  // the page initiated any load resulting from JS execution.
+  if (!entry.GetURL().SchemeIs("javascript")) {
+    delegate_->set_pending_extra_data(
+        new BrowserExtraData(entry.GetPageID()));
+  }
+
+  // If we are reloading, then WebKit will use the state of the current page.
+  // Otherwise, we give it the state to navigate to.
+  if (!reload && !entry.GetContentState().empty()) {
+    DCHECK(entry.GetPageID() != -1);
+    frame->LoadHistoryState(entry.GetContentState());
+  } else {
+    WebRequestCachePolicy cache_policy;
+    if (reload) {
+      cache_policy = WebRequestReloadIgnoringCacheData;
+    } else {
+      DCHECK(entry.GetPageID() == -1);
+      cache_policy = WebRequestUseProtocolCachePolicy;
+    }
+
+    scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
+    request->SetCachePolicy(cache_policy);
+
+    if(entry.GetMethod().size() > 0)
+      request->SetHttpMethod(WideToUTF8(entry.GetMethod()));
+
+    if(entry.GetHeaders().size() > 0)
+      request->SetHttpHeaders(entry.GetHeaders());
+
+    if(entry.GetUploadData())
+    {
+      if(request->GetHttpMethod() == "GET"
+        || request->GetHttpMethod() == "HEAD") {
+        request->SetHttpMethod("POST");
+      }
+      if(request->GetHttpHeaderValue("Content-Type").size() == 0) {
+        request->SetHttpHeaderValue(
+          "Content-Type", "application/x-www-form-urlencoded");
+      }
+      request->SetUploadData(*entry.GetUploadData());
+    }
+
+    frame->LoadRequest(request.get());
+  }
+
+  // In case LoadRequest failed before DidCreateDataSource was called.
+  delegate_->set_pending_extra_data(NULL);
+
   // Restore focus to the main frame prior to loading new request.
   // This makes sure that we don't have a focused iframe. Otherwise, that
   // iframe would keep focus when the SetFocus called immediately after

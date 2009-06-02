@@ -11,9 +11,8 @@
 #include "base/lazy_instance.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
-
-#include "SkBitmap.h"
 
 // Clipboard glue
 
