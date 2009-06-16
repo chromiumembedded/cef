@@ -548,8 +548,11 @@ void BrowserWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
 }
 
 void BrowserWebViewDelegate::Focus(WebWidget* webwidget) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    browser_->UIT_SetFocus(host, true);
+  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
+    CefRefPtr<CefHandler> handler = browser_->GetHandler();
+    if (handler.get() && handler->HandleSetFocus(browser_, true) == RV_CONTINUE)
+      browser_->UIT_SetFocus(host, true);
+  }
 }
 
 void BrowserWebViewDelegate::Blur(WebWidget* webwidget) {

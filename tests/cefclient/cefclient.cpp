@@ -720,6 +720,16 @@ public:
     return RV_HANDLED;
   }
 
+  // Called when the browser component is requesting focus. |isWidget| will be
+  // true if the focus is requested for a child widget of the browser window.
+  // Return RV_CONTINUE to allow the focus to be set or RV_HANDLED to cancel
+  // setting the focus.
+  virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser,
+                                bool isWidget)
+  {
+    return RV_CONTINUE;
+  }
+
   // Retrieve the current navigation state flags
   void GetNavState(bool &isLoading, bool &canGoBack, bool &canGoForward)
   {

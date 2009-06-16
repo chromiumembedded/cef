@@ -440,6 +440,18 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsbinding(
       CefV8ValueCToCpp::Wrap(object));
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_set_focus(
+    struct _cef_handler_t* handler, cef_browser_t* browser, int isWidget)
+{
+  DCHECK(handler);
+  DCHECK(browser);
+  if(!handler || !browser)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(handler)->HandleSetFocus(
+      CefBrowserCToCpp::Wrap(browser), isWidget);
+}
+
 
 CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
     : CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>(cls)
@@ -466,6 +478,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
       handler_handle_before_window_close;
   struct_.struct_.handle_take_focus = handler_handle_take_focus;
   struct_.struct_.handle_jsbinding = handler_handle_jsbinding;
+  struct_.struct_.handle_set_focus = handler_handle_set_focus;
 }
 
 #ifdef _DEBUG

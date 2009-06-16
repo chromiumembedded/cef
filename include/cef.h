@@ -530,6 +530,13 @@ public:
   virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Value> object) =0;
+
+  // Called when the browser component is requesting focus. |isWidget| will be
+  // true if the focus is requested for a child widget of the browser window.
+  // Return RV_CONTINUE to allow the focus to be set or RV_HANDLED to cancel
+  // setting the focus.
+  virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser,
+                                bool isWidget) =0;
 };
 
 

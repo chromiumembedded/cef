@@ -328,6 +328,16 @@ CefHandler::RetVal CefHandlerCToCpp::HandleJSBinding(
       CefFrameCppToC::Wrap(frame), CefV8ValueCppToC::Wrap(object));
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleSetFocus(
+    CefRefPtr<CefBrowser> browser, bool isWidget)
+{
+    if(CEF_MEMBER_MISSING(struct_, handle_set_focus))
+        return RV_CONTINUE;
+
+    return struct_->handle_set_focus(struct_, CefBrowserCppToC::Wrap(browser),
+        isWidget);
+}
+
 #ifdef _DEBUG
 long CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>::DebugObjCt = 0;
 #endif

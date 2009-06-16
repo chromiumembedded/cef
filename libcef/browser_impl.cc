@@ -548,13 +548,19 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // In case LoadRequest failed before DidCreateDataSource was called.
   delegate_->set_pending_extra_data(NULL);
 
-  // Restore focus to the main frame prior to loading new request.
-  // This makes sure that we don't have a focused iframe. Otherwise, that
-  // iframe would keep focus when the SetFocus called immediately after
-  // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
-  // for more details).
-  GetWebView()->SetFocusedFrame(frame);
-  UIT_SetFocus(GetWebViewHost(), true);
+  if (handler_.get() && handler_->HandleSetFocus(this, false) == RV_CONTINUE) {
+    // Restore focus to the main frame prior to loading new request.
+    // This makes sure that we don't have a focused iframe. Otherwise, that
+    // iframe would keep focus when the SetFocus called immediately after
+    // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
+    // for more details).
+    // TODO(cef): The above comment may be wrong, or the below call to
+    // SetFocusedFrame() may be unnecessary or in the wrong place.  See this
+    // thread for additional details:
+    // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
+    GetWebView()->SetFocusedFrame(frame);
+    UIT_SetFocus(GetWebViewHost(), true);
+  }
 
   return true;
 }

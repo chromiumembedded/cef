@@ -90,6 +90,8 @@ public:
   virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Value> object);
+  virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser,
+                                bool isWidget);
 };
 
 
