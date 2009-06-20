@@ -8,27 +8,28 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-#ifndef _V8HANDLER_CPPTOC_H
-#define _V8HANDLER_CPPTOC_H
+#ifndef _POSTDATAELEMENT_CPPTOC_H
+#define _POSTDATAELEMENT_CPPTOC_H
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#ifndef BUILDING_CEF_SHARED
+#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
+#else // BUILDING_CEF_SHARED
 
 #include "cef.h"
 #include "cef_capi.h"
 #include "cpptoc.h"
 
 // Wrap a C++ class with a C structure.
-// This class may be instantiated and accessed wrapper-side only.
-class CefV8HandlerCppToC
-    : public CefCppToC<CefV8HandlerCppToC, CefV8Handler, cef_v8handler_t>
+// This class may be instantiated and accessed DLL-side only.
+class CefPostDataElementCppToC
+    : public CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+        cef_post_data_element_t>
 {
 public:
-  CefV8HandlerCppToC(CefV8Handler* cls);
-  virtual ~CefV8HandlerCppToC() {}
+  CefPostDataElementCppToC(CefPostDataElement* cls);
+  virtual ~CefPostDataElementCppToC() {}
 };
 
-#endif // USING_CEF_SHARED
-#endif // _V8HANDLER_CPPTOC_H
+#endif // BUILDING_CEF_SHARED
+#endif // _POSTDATAELEMENT_CPPTOC_H
 

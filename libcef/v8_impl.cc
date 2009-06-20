@@ -649,9 +649,9 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler()
 }
 
 bool CefV8ValueImpl::ExecuteFunction(CefRefPtr<CefV8Value> object,
-                                       CefV8ValueList& arguments,
-                                       CefRefPtr<CefV8Value>& retval,
-                                       std::wstring& exception)
+                                     const CefV8ValueList& arguments,
+                                     CefRefPtr<CefV8Value>& retval,
+                                     std::wstring& exception)
 {
   bool rv = false;
   Lock();

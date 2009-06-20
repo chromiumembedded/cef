@@ -255,6 +255,54 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cpptoc\post_data_cpptoc.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cpptoc\post_data_cpptoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cpptoc\post_data_element_cpptoc.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cpptoc\post_data_element_cpptoc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\cpptoc\request_cpptoc.cc"
 				>
 				<FileConfiguration
@@ -279,7 +327,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cpptoc\stream_cpptoc.cc"
+				RelativePath=".\cpptoc\stream_reader_cpptoc.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -299,7 +347,31 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\cpptoc\stream_cpptoc.h"
+				RelativePath=".\cpptoc\stream_reader_cpptoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cpptoc\stream_writer_cpptoc.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cpptoc\stream_writer_cpptoc.h"
 				>
 			</File>
 			<File

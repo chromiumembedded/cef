@@ -49,7 +49,7 @@ public:
   virtual std::wstring GetFunctionName();
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler();
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
-                               CefV8ValueList& arguments,
+                               const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
                                std::wstring& exception);
 

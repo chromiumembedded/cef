@@ -174,6 +174,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ctocpp\post_data_ctocpp.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\post_data_ctocpp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\post_data_element_ctocpp.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\post_data_element_ctocpp.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ctocpp\request_ctocpp.cc"
 				>
 			</File>
@@ -182,11 +198,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ctocpp\stream_ctocpp.cc"
+				RelativePath="..\ctocpp\stream_reader_ctocpp.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\ctocpp\stream_ctocpp.h"
+				RelativePath="..\ctocpp\stream_reader_ctocpp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\stream_writer_ctocpp.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ctocpp\stream_writer_ctocpp.h"
 				>
 			</File>
 			<File

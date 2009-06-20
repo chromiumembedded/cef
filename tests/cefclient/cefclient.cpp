@@ -42,7 +42,7 @@ public:
   // the method was handled.
   virtual bool Execute(const std::wstring& name,
                        CefRefPtr<CefV8Value> object,
-                       CefV8ValueList& arguments,
+                       const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
                        std::wstring& exception)
   {
@@ -285,7 +285,7 @@ public:
   // the method was handled.
   virtual bool Execute(const std::wstring& name,
                        CefRefPtr<CefV8Value> object,
-                       CefV8ValueList& arguments,
+                       const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
                        std::wstring& exception)
   {
