@@ -28,7 +28,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
   return NULL;
 }
 
-CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void *data,
+CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
     size_t size)
 {
   CefRefPtr<CefStreamReader> impl = CefStreamReader::CreateForData(data, size);
@@ -41,7 +41,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void *data,
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
-    void *ptr, size_t size, size_t n)
+    void* ptr, size_t size, size_t n)
 {
   DCHECK(self);
   if(!self)

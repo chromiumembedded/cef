@@ -729,7 +729,7 @@ public:
   // Read up to |size| bytes into |bytes| and return the number of bytes
   // actually read.
   /*--cef()--*/
-  virtual size_t GetBytes(size_t size, void *bytes) =0;
+  virtual size_t GetBytes(size_t size, void* bytes) =0;
 };
 
 
@@ -742,11 +742,11 @@ public:
   /*--cef()--*/
   static CefRefPtr<CefStreamReader> CreateForFile(const std::wstring& fileName);
   /*--cef()--*/
-  static CefRefPtr<CefStreamReader> CreateForData(void *data, size_t size);
+  static CefRefPtr<CefStreamReader> CreateForData(void* data, size_t size);
 
   // Read raw binary data.
   /*--cef()--*/
-  virtual size_t Read(void *ptr, size_t size, size_t n) =0;
+  virtual size_t Read(void* ptr, size_t size, size_t n) =0;
 	
   // Seek to the specified offset position. |whence| may be any one of
   // SEEK_CUR, SEEK_END or SEEK_SET.
@@ -770,7 +770,7 @@ class CefStreamWriter : public CefBase
 public:
   // Write raw binary data.
   /*--cef()--*/
-  virtual size_t Write(const void *ptr, size_t size, size_t n) =0;
+  virtual size_t Write(const void* ptr, size_t size, size_t n) =0;
 	
   // Seek to the specified offset position. |whence| may be any one of
   // SEEK_CUR, SEEK_END or SEEK_SET.

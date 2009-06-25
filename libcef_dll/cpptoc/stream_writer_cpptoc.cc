@@ -17,7 +17,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
-    const void *ptr, size_t size, size_t n)
+    const void* ptr, size_t size, size_t n)
 {
   DCHECK(self);
   if(!self)

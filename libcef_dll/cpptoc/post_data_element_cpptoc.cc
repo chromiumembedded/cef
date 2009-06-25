@@ -97,7 +97,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes_count(
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes(
-    struct _cef_post_data_element_t* self, size_t size, void *bytes)
+    struct _cef_post_data_element_t* self, size_t size, void* bytes)
 {
   DCHECK(self);
   if(!self)

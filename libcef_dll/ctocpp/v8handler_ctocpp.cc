@@ -36,8 +36,7 @@ bool CefV8HandlerCToCpp::Execute(const std::wstring& name,
   cef_string_t exceptionStr = NULL;
 
   int rv = struct_->execute(struct_, name.c_str(),
-      CefV8ValueCppToC::Wrap(object), argsSize,
-      const_cast<const cef_v8value_t**>(argsStructPtr), &retvalStruct,
+      CefV8ValueCppToC::Wrap(object), argsSize, argsStructPtr, &retvalStruct,
       &exceptionStr);
   if(retvalStruct)
     retval = CefV8ValueCppToC::Unwrap(retvalStruct);

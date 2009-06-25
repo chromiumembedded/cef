@@ -118,7 +118,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_title_change(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_browse(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    struct _cef_request_t* request, cef_handler_navtype_t navType,
+    struct _cef_request_t* request, enum cef_handler_navtype_t navType,
     int isRedirect)
 {
   DCHECK(self);
@@ -167,7 +167,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_end(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    cef_handler_errorcode_t errorCode, const wchar_t* failedUrl,
+    enum cef_handler_errorcode_t errorCode, const wchar_t* failedUrl,
     cef_string_t* errorText)
 {
   DCHECK(self);
@@ -245,7 +245,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_menu(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
     struct _cef_handler_t* self, cef_browser_t* browser,
-    cef_handler_menuid_t menuId, cef_string_t* label)
+    enum cef_handler_menuid_t menuId, cef_string_t* label)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -267,7 +267,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_menu_action(
     struct _cef_handler_t* self, cef_browser_t* browser,
-    cef_handler_menuid_t menuId)
+    enum cef_handler_menuid_t menuId)
 {
   DCHECK(self);
   DCHECK(browser);

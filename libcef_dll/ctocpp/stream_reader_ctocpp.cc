@@ -26,7 +26,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
   return NULL;
 }
 
-CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void *data,
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
     size_t size)
 {
   cef_stream_reader_t* impl = cef_stream_reader_create_for_data(data, size);
@@ -38,7 +38,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void *data,
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-size_t CefStreamReaderCToCpp::Read(void *ptr, size_t size, size_t n)
+size_t CefStreamReaderCToCpp::Read(void* ptr, size_t size, size_t n)
 {
   if(CEF_MEMBER_MISSING(struct_, read))
     return 0;

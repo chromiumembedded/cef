@@ -6,10 +6,13 @@ from cef_parser import *
 
 def make_ctocpp_impl_proto(clsname, name, func, parts):
     proto = parts['retval']+' '+clsname
+    const = ''
     if isinstance(func, obj_function_virtual):
         proto += 'CToCpp'
+        if func.is_const():
+            const = ' const'
     
-    proto += '::'+name+'('+string.join(parts['args'], ', ')+')'
+    proto += '::'+name+'('+string.join(parts['args'], ', ')+')'+const
     return wrap_code(proto)
 
 def make_ctocpp_impl_existing(clsname, name, func, impl):

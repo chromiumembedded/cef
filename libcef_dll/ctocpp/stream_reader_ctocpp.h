@@ -33,7 +33,7 @@ public:
   virtual ~CefStreamReaderCToCpp() {}
 
   // CefStreamReader methods
-  virtual size_t Read(void *ptr, size_t size, size_t n);
+  virtual size_t Read(void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Eof();

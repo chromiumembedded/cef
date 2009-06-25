@@ -324,7 +324,7 @@ size_t CefPostDataElementImpl::GetBytesCount()
   return size;
 }
 
-size_t CefPostDataElementImpl::GetBytes(size_t size, void *bytes)
+size_t CefPostDataElementImpl::GetBytes(size_t size, void* bytes)
 {
   Lock();
   DCHECK(type_ == PDE_TYPE_BYTES);

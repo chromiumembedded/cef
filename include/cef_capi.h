@@ -352,7 +352,7 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_before_browse)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_frame_t* frame, struct _cef_request_t* request,
-      cef_handler_navtype_t navType, int isRedirect);
+      enum cef_handler_navtype_t navType, int isRedirect);
 
   // Event called when the browser begins loading a page.  The |frame| pointer
   // will be NULL if the event represents the overall load status and not the
@@ -375,7 +375,7 @@ typedef struct _cef_handler_t
   // Otherwise, return RV_CONTINUE for the default error text.
   enum cef_retval_t (CEF_CALLBACK *handle_load_error)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame, cef_handler_errorcode_t errorCode,
+      struct _cef_frame_t* frame, enum cef_handler_errorcode_t errorCode,
       const wchar_t* failedUrl, cef_string_t* errorText);
 
   // Event called before a resource is loaded.  To allow the resource to load
@@ -401,13 +401,13 @@ typedef struct _cef_handler_t
   // alternate text.  The return value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_get_menu_label)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      cef_handler_menuid_t menuId, cef_string_t* label);
+      enum cef_handler_menuid_t menuId, cef_string_t* label);
 
   // Event called when an option is selected from the default context menu.
   // Return RV_HANDLED to cancel default handling of the action.
   enum cef_retval_t (CEF_CALLBACK *handle_menu_action)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      cef_handler_menuid_t menuId);
+      enum cef_handler_menuid_t menuId);
 
   // Event called to format print headers and footers.  |printInfo| contains
   // platform-specific information about the printer context.  |url| is the URL
@@ -584,7 +584,7 @@ typedef struct _cef_post_data_element_t
   // Read up to |size| bytes into |bytes| and return the number of bytes
   // actually read.
   size_t (CEF_CALLBACK *get_bytes)(struct _cef_post_data_element_t* self,
-      size_t size, void *bytes);
+      size_t size, void* bytes);
 
 } cef_post_data_element_t;
 
@@ -600,7 +600,7 @@ typedef struct _cef_stream_reader_t
   cef_base_t base;
 
   // Read raw binary data.
-  size_t (CEF_CALLBACK *read)(struct _cef_stream_reader_t* self, void *ptr,
+  size_t (CEF_CALLBACK *read)(struct _cef_stream_reader_t* self, void* ptr,
       size_t size, size_t n);
 
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
@@ -620,7 +620,7 @@ typedef struct _cef_stream_reader_t
 // Create a new cef_stream_reader_t object.
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
     const wchar_t* fileName);
-CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void *data,
+CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
     size_t size);
 
 
@@ -632,7 +632,7 @@ typedef struct _cef_stream_writer_t
 
   // Write raw binary data.
   size_t (CEF_CALLBACK *write)(struct _cef_stream_writer_t* self,
-      const void *ptr, size_t size, size_t n);
+      const void* ptr, size_t size, size_t n);
 
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   // SEEK_END or SEEK_SET.
@@ -658,7 +658,7 @@ typedef struct _cef_v8handler_t
   // if the function was handled.
   int (CEF_CALLBACK *execute)(struct _cef_v8handler_t* self,
       const wchar_t* name, struct _cef_v8value_t* object, size_t argumentCount,
-      const struct _cef_v8value_t** arguments, struct _cef_v8value_t** retval,
+      struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
       cef_string_t* exception);
 
 } cef_v8handler_t;
@@ -747,7 +747,7 @@ typedef struct _cef_v8value_t
   // Execute the function.
   int (CEF_CALLBACK *execute_function)(struct _cef_v8value_t* self,
       struct _cef_v8value_t* object, size_t argumentCount,
-      const struct _cef_v8value_t** arguments, struct _cef_v8value_t** retval,
+      struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
       cef_string_t* exception);
 
 } cef_v8value_t;

@@ -33,7 +33,7 @@ public:
   virtual ~CefStreamWriterCToCpp() {}
 
   // CefStreamWriter methods
-  virtual size_t Write(const void *ptr, size_t size, size_t n);
+  virtual size_t Write(const void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Flush();

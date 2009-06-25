@@ -73,7 +73,7 @@ public:
   virtual Type GetType();
   virtual std::wstring GetFile();
   virtual size_t GetBytesCount();
-  virtual size_t GetBytes(size_t size, void *bytes);
+  virtual size_t GetBytes(size_t size, void* bytes);
 
   void Set(const net::UploadData::Element& element);
   void Get(net::UploadData::Element& element);

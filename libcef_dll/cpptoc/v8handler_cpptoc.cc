@@ -19,7 +19,7 @@
 
 int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
     const wchar_t* name, struct _cef_v8value_t* object, size_t argumentCount,
-    const struct _cef_v8value_t** arguments, struct _cef_v8value_t** retval,
+    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
     cef_string_t* exception)
 {
   DCHECK(self);
@@ -36,8 +36,7 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
 
   CefV8ValueList list;
   for(size_t i = 0; i < argumentCount; ++i) {
-    list.push_back(CefV8ValueCToCpp::Wrap(
-        const_cast<cef_v8value_t*>(arguments[i])));
+    list.push_back(CefV8ValueCToCpp::Wrap(arguments[i]));
   }
 
   CefRefPtr<CefV8Value> retValPtr;

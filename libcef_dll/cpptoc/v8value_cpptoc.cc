@@ -396,7 +396,7 @@ cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
 
 int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
     struct _cef_v8value_t* object, size_t argumentCount,
-    const struct _cef_v8value_t** arguments, struct _cef_v8value_t** retval,
+    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
     cef_string_t* exception)
 {
   DCHECK(self);
@@ -407,8 +407,7 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
   CefRefPtr<CefV8Value> objectPtr = CefV8ValueCppToC::Unwrap(object);
   CefV8ValueList argsList;
   for(size_t i = 0; i < argumentCount; i++) {
-    argsList.push_back(CefV8ValueCppToC::Unwrap(
-        const_cast<cef_v8value_t*>(arguments[i])));
+    argsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
   }
   CefRefPtr<CefV8Value> retvalPtr;
   std::wstring exceptionStr;

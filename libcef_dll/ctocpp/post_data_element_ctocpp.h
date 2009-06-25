@@ -39,7 +39,7 @@ public:
   virtual Type GetType();
   virtual std::wstring GetFile();
   virtual size_t GetBytesCount();
-  virtual size_t GetBytes(size_t size, void *bytes);
+  virtual size_t GetBytes(size_t size, void* bytes);
 };
 
 #endif // USING_CEF_SHARED

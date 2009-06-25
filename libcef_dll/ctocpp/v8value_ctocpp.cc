@@ -369,8 +369,7 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
   cef_string_t exceptionStr = NULL;
 
   int rv = struct_->execute_function(struct_, CefV8ValueCToCpp::Unwrap(object),
-      argsSize, const_cast<const cef_v8value_t**>(argsStructPtr), &retvalStruct,
-      &exceptionStr);
+      argsSize, argsStructPtr, &retvalStruct, &exceptionStr);
   if(retvalStruct)
     retval = CefV8ValueCToCpp::Wrap(retvalStruct);
   if(exceptionStr) {

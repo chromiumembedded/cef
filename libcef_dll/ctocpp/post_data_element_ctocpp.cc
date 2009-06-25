@@ -82,7 +82,7 @@ size_t CefPostDataElementCToCpp::GetBytesCount()
   return struct_->get_bytes_count(struct_);
 }
 
-size_t CefPostDataElementCToCpp::GetBytes(size_t size, void *bytes)
+size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes)
 {
   if(CEF_MEMBER_MISSING(struct_, get_bytes))
     return 0;

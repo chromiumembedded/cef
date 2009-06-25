@@ -341,6 +341,8 @@ _cre_cfname = '([A-Za-z0-9_]{1,})'
 _cre_retval = '([A-Za-z0-9_<>:,\*\&]{1,})'
 # regex for matching function return value and name combination
 _cre_func   = '([A-Za-z][A-Za-z0-9_<>:,\*\& ]{1,})'
+# regex for matching virtual function modifiers
+_cre_vfmod = '([A-Za-z0-9_]{0,})'
 # regex for matching arbitrary whitespace
 _cre_space =  '[\s]{1,}'
 
@@ -351,14 +353,14 @@ def get_function_impls(content, ident):
     the value.
     """
     # extract the functions
-    p = re.compile('\n'+_cre_func+'\((.*?)\)'
-                   + _cre_space+'\{(.*?)\n\}',
+    p = re.compile('\n'+_cre_func+'\((.*?)\)([A-Za-z0-9_\s]{0,})'+
+                   '\{(.*?)\n\}',
                    re.MULTILINE | re.DOTALL)
     list = p.findall(content)
 
     # build the function map with the function name as the key
     result = []
-    for retval, argval, body in list:
+    for retval, argval, vfmod, body in list:
         if retval.find(ident) < 0:
             # the identifier was not found
             continue
@@ -384,6 +386,7 @@ def get_function_impls(content, ident):
             'retval' : string.strip(retval),
             'name' : name,
             'args' : args,
+            'vfmod' : string.strip(vfmod),
             'body' : body
         })
     
@@ -591,22 +594,23 @@ class obj_class:
         # build the static function objects
         self.staticfuncs = []
         for attrib, retval, argval in list:
-            comment = get_comment(body, retval+'('+argval+');')
+            comment = get_comment(body, retval+'('+argval+')')
             self.staticfuncs.append(
                 obj_function_static(self, attrib, retval, argval, comment))
         
         # extract virtual functions
         p = re.compile('\n'+_cre_space+_cre_attrib+'\n'+_cre_space+'virtual'+
-                       _cre_space+_cre_func+'\((.*?)\)',
+                       _cre_space+_cre_func+'\((.*?)\)'+_cre_space+_cre_vfmod,
                        re.MULTILINE | re.DOTALL)
         list = p.findall(body)
         
         # build the virtual function objects
         self.virtualfuncs = []
-        for attrib, retval, argval in list:
-            comment = get_comment(body, retval+'('+argval+') =0;')
+        for attrib, retval, argval, vfmod in list:
+            comment = get_comment(body, retval+'('+argval+')')
             self.virtualfuncs.append(
-                obj_function_virtual(self, attrib, retval, argval, comment))
+                obj_function_virtual(self, attrib, retval, argval, comment,
+                                     vfmod))
         
     def __repr__(self):
         result = '/* '+dict_to_str(self.attribs)+' */ class '+self.name+"\n{"
@@ -791,7 +795,11 @@ class obj_function:
         
         if isinstance(self, obj_function_virtual):
             # virtual functions get themselves as the first argument
-            args.append('struct _'+self.parent.get_capi_name()+'* self')
+            str = 'struct _'+self.parent.get_capi_name()+'* self'
+            if isinstance(self, obj_function_virtual) and self.is_const():
+                # const virtual functions get const self pointers
+                str = 'const '+str
+            args.append(str)
         
         if len(self.arguments) > 0:
             for cls in self.arguments:
@@ -850,6 +858,8 @@ class obj_function:
         if not classname is None:
             result += classname+'::'
         result += parts['name']+'('+string.join(parts['args'], ', ')+')'
+        if isinstance(self, obj_function_virtual) and self.is_const():
+            result += ' const'
         return result
 
 
@@ -874,13 +884,21 @@ class obj_function_static(obj_function):
 class obj_function_virtual(obj_function):
     """ Class representing a virtual function. """
     
-    def __init__(self, parent, attrib, retval, argval, comment):
+    def __init__(self, parent, attrib, retval, argval, comment, vfmod):
         if not isinstance(parent, obj_class):
             raise Exception('Invalid parent object type')
         obj_function.__init__(self, parent, attrib, retval, argval, comment)
+        if vfmod == 'const':
+            self.isconst = True
+        else:
+            self.isconst = False
     
     def __repr__(self):
         return 'virtual '+obj_function.__repr__(self)+';'
+    
+    def is_const(self):
+        """ Returns true if the method declaration is const. """
+        return self.isconst
 
 
 class obj_argument:
@@ -1049,6 +1067,7 @@ class obj_analysis:
             'int' : 'int',
             'double' : 'double',
             'long' : 'long',
+            'unsigned long' : 'unsigned long',
             'size_t' : 'size_t',
             'bool' : 'int',
             'CefWindowHandle' : 'cef_window_handle_t'
@@ -1150,7 +1169,7 @@ class obj_analysis:
                 result += 'const '
             if not self.result_value in defined_structs:
                 result += 'struct _'
-        elif not self.has_name():
+        else:
             result += 'enum '
         result += self.result_value
         if self.is_byref() or self.is_byaddr():
@@ -1193,13 +1212,11 @@ class obj_analysis:
             result['value'] = value
         elif type == 'refptr':
             str = ''
-            if self.is_const():
-                str += 'const '
             if not value[:-1] in defined_structs:
                 str += 'struct _'
             str += value
             if self.is_const():
-                str += '*'
+                str += ' const*'
             result['value'] = str
         else:
             raise Exception('Unsupported vector type: '+type)

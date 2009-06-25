@@ -19,7 +19,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(const std::wstring& fi
   return reader;
 }
 
-CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void *data, size_t size)
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data, size_t size)
 {
   DCHECK(data != NULL);
   DCHECK(size > 0);
@@ -45,7 +45,7 @@ CefFileReader::~CefFileReader()
   Unlock();
 }
 
-size_t CefFileReader::Read(void *ptr, size_t size, size_t n)
+size_t CefFileReader::Read(void* ptr, size_t size, size_t n)
 {
   Lock();
   size_t rv = fread(ptr, size, n, file_);
@@ -93,7 +93,7 @@ CefFileWriter::~CefFileWriter()
   Unlock();
 }
 
-size_t CefFileWriter::Write(const void *ptr, size_t size, size_t n)
+size_t CefFileWriter::Write(const void* ptr, size_t size, size_t n)
 {
   Lock();
   size_t rv = (size_t)fwrite(ptr, size, n, file_);
@@ -128,7 +128,7 @@ int CefFileWriter::Flush()
 
 // CefBytesReader
 
-CefBytesReader::CefBytesReader(void *data, long datasize, bool copy)
+CefBytesReader::CefBytesReader(void* data, long datasize, bool copy)
   : data_(NULL), datasize_(0), copy_(false), offset_(0)
 {
   SetData(data, datasize, copy);
@@ -139,7 +139,7 @@ CefBytesReader::~CefBytesReader()
   SetData(NULL, 0, false);
 }
 
-size_t CefBytesReader::Read(void *ptr, size_t size, size_t n)
+size_t CefBytesReader::Read(void* ptr, size_t size, size_t n)
 {
   Lock();
   size_t s = (datasize_ - offset_) / size;
@@ -197,7 +197,7 @@ int CefBytesReader::Eof()
   return rv;
 }
 	
-void CefBytesReader::SetData(void *data, long datasize, bool copy)
+void CefBytesReader::SetData(void* data, long datasize, bool copy)
 {
   Lock();
   if(copy_)
@@ -237,7 +237,7 @@ CefBytesWriter::~CefBytesWriter()
   Unlock();
 }
 
-size_t CefBytesWriter::Write(const void *ptr, size_t size, size_t n)
+size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n)
 {
   Lock();
   size_t rv;
@@ -309,7 +309,7 @@ size_t CefBytesWriter::Grow(size_t size)
   Lock();
   size_t rv;
   size_t s = (size > grow_ ? size : grow_);
-	void *tmp = realloc(data_, datasize_ + s);
+	void* tmp = realloc(data_, datasize_ + s);
   DCHECK(tmp != NULL);
 	if(tmp) {
 	  data_ = tmp;

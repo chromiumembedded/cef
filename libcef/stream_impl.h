@@ -15,7 +15,7 @@ public:
   CefFileReader(FILE* file, bool close);
   ~CefFileReader();
 
-  virtual size_t Read(void *ptr, size_t size, size_t n);
+  virtual size_t Read(void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Eof();
@@ -32,7 +32,7 @@ public:
   CefFileWriter(FILE* file, bool close);
   ~CefFileWriter();
 
-  virtual size_t Write(const void *ptr, size_t size, size_t n);
+  virtual size_t Write(const void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Flush();
@@ -46,21 +46,21 @@ protected:
 class CefBytesReader : public CefThreadSafeBase<CefStreamReader>
 {
 public:
-  CefBytesReader(void *data, long datasize, bool copy);
+  CefBytesReader(void* data, long datasize, bool copy);
   ~CefBytesReader();
 
-  virtual size_t Read(void *ptr, size_t size, size_t n);
+  virtual size_t Read(void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Eof();
 	
-  void SetData(void *data, long datasize, bool copy);
+  void SetData(void* data, long datasize, bool copy);
 
-  void *GetData() { return data_; }
+  void* GetData() { return data_; }
   size_t GetDataSize() { return offset_; }
 
 protected:
-	void *data_;
+	void* data_;
 	size_t datasize_;
   bool copy_;
 	size_t offset_;
@@ -73,12 +73,12 @@ public:
   CefBytesWriter(size_t grow);
   ~CefBytesWriter();
 
-  virtual size_t Write(const void *ptr, size_t size, size_t n);
+  virtual size_t Write(const void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
   virtual long Tell();
   virtual int Flush();
 
-  void *GetData() { return data_; }
+  void* GetData() { return data_; }
 	size_t GetDataSize() { return offset_; }
   std::string GetDataString();
 	
@@ -87,7 +87,7 @@ protected:
 
 protected:
   size_t grow_;
-  void *data_;
+  void* data_;
   size_t datasize_;
   size_t offset_;
 };

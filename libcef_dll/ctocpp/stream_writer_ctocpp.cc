@@ -16,7 +16,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-size_t CefStreamWriterCToCpp::Write(const void *ptr, size_t size, size_t n)
+size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n)
 {
   if(CEF_MEMBER_MISSING(struct_, write))
     return 0;
