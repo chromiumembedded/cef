@@ -4,10 +4,10 @@
 
 #include "precompiled_libcef.h"
 #include "print_settings.h"
-#include "units.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
+#include "printing/units.h"
 
 namespace printing {
 
@@ -18,6 +18,8 @@ PrintSettings::PrintSettings()
     : min_shrink(1.25),
       max_shrink(2.0),
       desired_dpi(72),
+      selection_only(false),
+      to_file(false),
       dpi_(0),
       landscape_(false) {
 }
@@ -27,6 +29,8 @@ void PrintSettings::Clear() {
   min_shrink = 1.25;
   max_shrink = 2.;
   desired_dpi = 72;
+  selection_only = false;
+  to_file = false;
   printer_name_.clear();
   device_name_.clear();
   page_setup_pixels_.Clear();
@@ -38,12 +42,16 @@ void PrintSettings::Clear() {
 void PrintSettings::Init(HDC hdc,
                          const DEVMODE& dev_mode,
                          const PageRanges& new_ranges,
-                         const std::wstring& new_device_name) {
+                         const std::wstring& new_device_name,
+                         bool print_selection_only,
+                         bool print_to_file) {
   DCHECK(hdc);
   printer_name_ = dev_mode.dmDeviceName;
   device_name_ = new_device_name;
   ranges = new_ranges;
   landscape_ = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;
+  selection_only = print_selection_only;
+  to_file = print_to_file;
 
   dpi_ = GetDeviceCaps(hdc, LOGPIXELSX);
   // No printer device is known to advertise different dpi in X and Y axis; even
@@ -71,20 +79,22 @@ void PrintSettings::SetPrinterPrintableArea(
     gfx::Size const& physical_size_pixels,
     gfx::Rect const& printable_area_pixels) {
 
+  int margin_printer_units = ConvertUnit(500, kHundrethsMMPerInch, dpi_);
+
   // Start by setting the user configuration
   // Hard-code text_height = 0.5cm = ~1/5 of inch
   page_setup_pixels_.Init(physical_size_pixels,
                           printable_area_pixels,
-                          ConvertUnit(500, kHundrethsMMPerInch, dpi_));
+                          margin_printer_units);
 
   // Now apply user configured settings.
   PageMargins margins;
-  margins.header = 500;
-  margins.footer = 500;
-  margins.left = 500;
-  margins.top = 500;
-  margins.right = 500;
-  margins.bottom = 500;
+  margins.header = margin_printer_units;
+  margins.footer = margin_printer_units;
+  margins.left = margin_printer_units;
+  margins.top = margin_printer_units;
+  margins.right = margin_printer_units;
+  margins.bottom = margin_printer_units;
   page_setup_pixels_.SetRequestedMargins(margins);
 }
 
@@ -101,6 +111,8 @@ void PrintSettings::RenderParams(PrintParams* params) const {
   params->desired_dpi = desired_dpi;
   // Always use an invalid cookie.
   params->document_cookie = 0;
+  params->selection_only = selection_only;
+  params->to_file = to_file;
 }
 
 bool PrintSettings::Equals(const PrintSettings& rhs) const {

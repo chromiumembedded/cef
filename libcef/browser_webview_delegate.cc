@@ -21,23 +21,34 @@
 #include "base/gfx/point.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebHistoryItem.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebString.h"
-#include "webkit/glue/webdatasource.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLError.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/glue/glue_serialize.h"
+#include "webkit/glue/glue_util.h"
+#include "webkit/glue/media/buffered_data_source.h"
+#include "webkit/glue/media/media_resource_loader_bridge_factory.h"
+#include "webkit/glue/media/simple_data_source.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "browser_webkit_glue.h"
 
@@ -47,11 +58,19 @@
 #include "browser_drop_delegate.h"
 #endif
 
+using WebKit::WebData;
+using WebKit::WebDataSource;
 using WebKit::WebDragData;
+using WebKit::WebHistoryItem;
+using WebKit::WebNavigationPolicy;
 using WebKit::WebRect;
 using WebKit::WebScreenInfo;
 using WebKit::WebSize;
 using WebKit::WebString;
+using WebKit::WebURL;
+using WebKit::WebURLError;
+using WebKit::WebURLRequest;
+using WebKit::WebWidget;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
 
@@ -71,9 +90,30 @@ WebView* BrowserWebViewDelegate::CreateWebView(WebView* webview,
   return browser.get() ? browser->GetWebView() : NULL;
 }
 
-WebWidget* BrowserWebViewDelegate::CreatePopupWidget(WebView* webview,
-                                                     bool activatable) {
+WebKit::WebWidget* BrowserWebViewDelegate::CreatePopupWidget(
+    WebView* webview,
+    bool activatable) {
   return browser_->UIT_CreatePopupWidget(webview);
+}
+
+WebKit::WebMediaPlayer* BrowserWebViewDelegate::CreateWebMediaPlayer(
+    WebKit::WebMediaPlayerClient* client) {
+  scoped_refptr<media::FilterFactoryCollection> factory =
+      new media::FilterFactoryCollection();
+
+  // TODO(hclam): this is the same piece of code as in RenderView, maybe they
+  // should be grouped together.
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
+      new webkit_glue::MediaResourceLoaderBridgeFactory(
+          GURL::EmptyGURL(),  // referrer
+          "null",             // frame origin
+          "null",             // main_frame_origin
+          base::GetCurrentProcId(),
+          WebAppCacheContext::kNoAppCacheContextId,
+          0);
+  factory->AddFactory(webkit_glue::BufferedDataSource::CreateFactory(
+      MessageLoop::current(), bridge_factory));
+  return new webkit_glue::WebMediaPlayerImpl(client, factory);
 }
 
 WebWorker* BrowserWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
@@ -82,16 +122,13 @@ WebWorker* BrowserWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
 
 void BrowserWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
                                      const GURL& referrer,
-                                     WindowOpenDisposition disposition) {
-  DCHECK_NE(disposition, CURRENT_TAB);  // No code for this
-  if (disposition == SUPPRESS_OPEN)
-    return;
-  
+                                     WebNavigationPolicy policy) {
+  DCHECK_NE(policy, WebKit::WebNavigationPolicyCurrentTab);
   CefRefPtr<CefBrowserImpl> browser =
     browser_->UIT_CreatePopupWindow(UTF8ToWide(url.spec()));
 
   if(browser.get())
-    browser->UIT_Show(browser->GetWebView(), disposition);
+    browser->UIT_Show(policy);
 }
 
 void BrowserWebViewDelegate::DidStartLoading(WebView* webview) {
@@ -138,12 +175,12 @@ void BrowserWebViewDelegate::WindowObjectCleared(WebFrame* webframe) {
   }
 }
 
-WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
+WebNavigationPolicy BrowserWebViewDelegate::PolicyForNavigationAction(
     WebView* webview,
     WebFrame* frame,
-    const WebRequest* request,
-    WebNavigationType type,
-    WindowOpenDisposition disposition,
+    const WebKit::WebURLRequest& request,
+    WebKit::WebNavigationType type,
+    WebNavigationPolicy default_policy,
     bool is_redirect) {
   
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
@@ -151,20 +188,20 @@ WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
     // Gather browse request information
     CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
     
-    req->SetURL(UTF8ToWide(request->GetURL().spec()));
-    req->SetMethod(UTF8ToWide(request->GetHttpMethod()));
+    GURL request_url = request.url();
+    req->SetURL(UTF8ToWide(request_url.spec()));
+    req->SetMethod(
+        UTF8ToWide(webkit_glue::WebStringToStdString(request.httpMethod())));
 
-    if(request->HasUploadData()) {
-      scoped_refptr<net::UploadData> data(new net::UploadData());
-			request->GetUploadData(data.get());
-
+    const WebKit::WebHTTPBody& httpBody = request.httpBody();
+    if(!httpBody.isNull()) {
       CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
-      static_cast<CefPostDataImpl*>(postdata.get())->Set(*data.get());
+      static_cast<CefPostDataImpl*>(postdata.get())->Set(httpBody);
       req->SetPostData(postdata);
-		}
+    }
 
-		WebRequest::HeaderMap map;
-		request->GetHttpHeaders(&map);
+    CefRequest::HeaderMap map;
+    CefRequestImpl::GetHeaderMap(request, map);
     if(map.size() > 0)
       static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
 
@@ -173,37 +210,41 @@ WindowOpenDisposition BrowserWebViewDelegate::DispositionForNavigationAction(
         browser_->GetCefFrame(frame), req, (CefHandler::NavType)type,
         is_redirect);
     if(rv == RV_HANDLED)
-			return IGNORE_ACTION;
-	}
-      
-  WindowOpenDisposition result;
+      return WebKit::WebNavigationPolicyIgnore;
+    }
+
+  WebNavigationPolicy result;
   if (policy_delegate_enabled_) {
     std::wstring frame_name = frame->GetName();
     std::string url_description;
-    if (request->GetURL().SchemeIs("file")) {
-      url_description = request->GetURL().ExtractFileName();
+    GURL request_url = request.url();
+    if (request_url.SchemeIs("file")) {
+      url_description = request_url.ExtractFileName();
     } else {
-      url_description = request->GetURL().spec();
+      url_description = request_url.spec();
     }
-    result = policy_delegate_is_permissive_ ? CURRENT_TAB : IGNORE_ACTION;
+    if (policy_delegate_is_permissive_) {
+      result = WebKit::WebNavigationPolicyCurrentTab;
+    } else {
+      result = WebKit::WebNavigationPolicyIgnore;
+    }
   } else {
-    result = WebViewDelegate::DispositionForNavigationAction(
-        webview, frame, request, type, disposition, is_redirect);
+    result = default_policy;
   }
   return result;
 }
 
 void BrowserWebViewDelegate::AssignIdentifierToRequest(WebView* webview,
-                                                    uint32 identifier,
-                                                    const WebRequest& request) {
+                                                uint32 identifier,
+                                                const WebURLRequest& request) {
 }
 
 void BrowserWebViewDelegate::WillSendRequest(WebView* webview,
-                                          uint32 identifier,
-                                          WebRequest* request) {
+                                             uint32 identifier,
+                                             WebURLRequest* request) {
   // The requestor ID is used by the resource loader bridge to locate the
   // browser that originated the request.
-  request->SetRequestorID(browser_->UIT_GetUniqueID());
+  request->setRequestorID(browser_->UIT_GetUniqueID());
 }
 
 void BrowserWebViewDelegate::DidFinishLoading(WebView* webview,
@@ -213,13 +254,13 @@ void BrowserWebViewDelegate::DidFinishLoading(WebView* webview,
 
 void BrowserWebViewDelegate::DidFailLoadingWithError(WebView* webview,
                                                   uint32 identifier,
-                                                  const WebError& error) {
+                                                  const WebURLError& error) {
   
 }
 
 void BrowserWebViewDelegate::DidCreateDataSource(WebFrame* frame,
                                                  WebDataSource* ds) {
-  ds->SetExtraData(pending_extra_data_.release());
+  ds->setExtraData(pending_extra_data_.release());
 }
 
 void BrowserWebViewDelegate::DidStartProvisionalLoadForFrame(
@@ -240,7 +281,7 @@ void BrowserWebViewDelegate::DidReceiveServerRedirectForProvisionalLoadForFrame(
 
 void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
     WebView* webview,
-    const WebError& error,
+    const WebURLError& error,
     WebFrame* frame) {
   LocationChangeDone(frame);
 
@@ -248,16 +289,13 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
 
   // Don't display an error page if this is simply a cancelled load.  Aside
   // from being dumb, WebCore doesn't expect it and it will cause a crash.
-  if (error.GetErrorCode() == net::ERR_ABORTED)
+  if (error.reason == net::ERR_ABORTED)
     return;
 
   const WebDataSource* failed_ds = frame->GetProvisionalDataSource();
   BrowserExtraData* extra_data =
-      static_cast<BrowserExtraData*>(failed_ds->GetExtraData());
+      static_cast<BrowserExtraData*>(failed_ds->extraData());
   bool replace = extra_data && extra_data->pending_page_id != -1;
-
-  scoped_ptr<WebRequest> request(failed_ds->GetRequest().Clone());
-  request->SetURL(GURL("cef-error:"));
 
   std::string error_text;
 
@@ -267,16 +305,20 @@ void BrowserWebViewDelegate::DidFailProvisionalLoadWithError(
     std::wstring error_str;
     CefHandler::RetVal rv = handler->HandleLoadError(browser_,
         browser_->GetCefFrame(frame),
-        static_cast<CefHandler::ErrorCode>(error.GetErrorCode()),
-        UTF8ToWide(error.GetFailedURL().spec()), error_str);
+        static_cast<CefHandler::ErrorCode>(error.reason),
+        UTF8ToWide(failed_ds->request().url().spec().data()), error_str);
     if(rv == RV_HANDLED && !error_str.empty())
       error_text = WideToUTF8(error_str);
   } else {
-      error_text = StringPrintf("Error loading url: %d", error.GetErrorCode());
+    error_text = StringPrintf("Error %d when loading url %s", error.reason,
+        failed_ds->request().url().spec().data());
   }
 
-  frame->LoadAlternateHTMLString(request.get(), error_text,
-      error.GetFailedURL(), replace);
+  // Make sure we never show errors in view source mode.
+  frame->SetInViewSourceMode(false);
+
+  frame->LoadHTMLString(
+      error_text, GURL("testshell-error:"), error.unreachableURL, replace);
 }
 
 void BrowserWebViewDelegate::DidCommitLoadForFrame(WebView* webview,
@@ -313,8 +355,8 @@ void BrowserWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
 }
 
 void BrowserWebViewDelegate::DidFailLoadWithError(WebView* webview,
-                                               const WebError& error,
-                                               WebFrame* frame) {
+                                                  const WebURLError& error,
+                                                  WebFrame* frame) {
   LocationChangeDone(frame);
 }
 
@@ -330,7 +372,7 @@ void BrowserWebViewDelegate::DidHandleOnloadEventsForFrame(WebView* webview,
 
 void BrowserWebViewDelegate::DidChangeLocationWithinPageForFrame(
     WebView* webview, WebFrame* frame, bool is_new_navigation) {
-  frame->GetDataSource()->SetExtraData(pending_extra_data_.release());
+  frame->GetDataSource()->setExtraData(pending_extra_data_.release());
   UpdateForCommittedLoad(frame, is_new_navigation);
 }
 
@@ -513,6 +555,14 @@ int BrowserWebViewDelegate::GetHistoryForwardListCount() {
       - current_index - 1;
 }
 
+void BrowserWebViewDelegate::TakeFocus(WebView* webview, bool reverse) {
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    // Notify the handler that it should take a focus
+    handler->HandleTakeFocus(browser_, reverse);
+  }
+}
+
 void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
   WebPreferences* prefs = _Context->GetWebPreferences();
   prefs->user_style_sheet_enabled = is_enabled;
@@ -524,51 +574,6 @@ void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
   browser_->GetWebView()->SetPreferences(*prefs);
-}
-
-// WebWidgetDelegate ---------------------------------------------------------
-
-gfx::NativeViewId BrowserWebViewDelegate::GetContainingView(WebWidget* webwidget) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return gfx::IdFromNativeView(host->window_handle());
-
-  return NULL;
-}
-
-void BrowserWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
-                                            const WebRect& rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    host->DidInvalidateRect(rect);
-}
-
-void BrowserWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                                        const WebRect& clip_rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    host->DidScrollRect(dx, dy, clip_rect);
-}
-
-void BrowserWebViewDelegate::Focus(WebWidget* webwidget) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if (handler.get() && handler->HandleSetFocus(browser_, true) == RV_CONTINUE)
-      browser_->UIT_SetFocus(host, true);
-  }
-}
-
-void BrowserWebViewDelegate::Blur(WebWidget* webwidget) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    browser_->UIT_SetFocus(host, false);
-}
-
-bool BrowserWebViewDelegate::IsHidden(WebWidget* webwidget) {
-  return false;
-}
-
-WebScreenInfo BrowserWebViewDelegate::GetScreenInfo(WebWidget* webwidget) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return host->GetScreenInfo();
-
-  return WebScreenInfo();
 }
 
 void BrowserWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
@@ -604,6 +609,39 @@ void BrowserWebViewDelegate::WaitForPolicyDelegate() {
   policy_delegate_enabled_ = true;
 }
 
+// WebWidgetClient ---------------------------------------------------------
+
+void BrowserWebViewDelegate::didInvalidateRect(const WebRect& rect) {
+  if (WebWidgetHost* host = GetWidgetHost())
+    host->DidInvalidateRect(rect);
+}
+
+void BrowserWebViewDelegate::didScrollRect(int dx, int dy,
+                                           const WebRect& clip_rect) {
+  if (WebWidgetHost* host = GetWidgetHost())
+    host->DidScrollRect(dx, dy, clip_rect);
+}
+
+void BrowserWebViewDelegate::didFocus() {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    CefRefPtr<CefHandler> handler = browser_->GetHandler();
+    if (handler.get() && handler->HandleSetFocus(browser_, true) == RV_CONTINUE)
+      browser_->UIT_SetFocus(host, true);
+  }
+}
+
+void BrowserWebViewDelegate::didBlur() {
+  if (WebWidgetHost* host = GetWidgetHost())
+    browser_->UIT_SetFocus(host, false);
+}
+
+WebScreenInfo BrowserWebViewDelegate::screenInfo() {
+  if (WebWidgetHost* host = GetWidgetHost())
+    return host->GetScreenInfo();
+
+  return WebScreenInfo();
+}
+
 // Private methods -----------------------------------------------------------
 
 void BrowserWebViewDelegate::UpdateAddressBar(WebView* webView) {
@@ -615,7 +653,7 @@ void BrowserWebViewDelegate::UpdateAddressBar(WebView* webView) {
   if (!dataSource)
     return;
 
-  GURL gUrl = dataSource->GetRequest().GetFirstPartyForCookies();
+  GURL gUrl = dataSource->request().firstPartyForCookies();
 */
 }
 
@@ -624,10 +662,10 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
     top_loading_frame_ = NULL;
 }
 
-WebWidgetHost* BrowserWebViewDelegate::GetHostForWidget(WebWidget* webwidget) {
-  if (webwidget == browser_->GetWebView())
+WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
+  if (this == browser_->GetWebViewDelegate())
     return browser_->GetWebViewHost();
-  if (webwidget == browser_->GetPopup())
+  if (this == browser_->GetPopupDelegate())
     return browser_->GetPopupHost();
   return NULL;
 }
@@ -638,7 +676,7 @@ void BrowserWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,
 
   // Code duplicated from RenderView::DidCommitLoadForFrame.
   BrowserExtraData* extra_data = static_cast<BrowserExtraData*>(
-      frame->GetDataSource()->GetExtraData());
+      frame->GetDataSource()->extraData());
 
   if (is_new_navigation) {
     // New navigation.
@@ -662,7 +700,7 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   DCHECK(ds);
 
-  const WebRequest& request = ds->GetRequest();
+  const WebURLRequest& request = ds->request();
 
   // Type is unused.
   scoped_ptr<BrowserNavigationEntry> entry(new BrowserNavigationEntry);
@@ -670,10 +708,10 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   // Bug 654101: the referrer will be empty on https->http transitions. It
   // would be nice if we could get the real referrer from somewhere.
   entry->SetPageID(page_id_);
-  if (ds->HasUnreachableURL()) {
-    entry->SetURL(GURL(ds->GetUnreachableURL()));
+  if (ds->hasUnreachableURL()) {
+    entry->SetURL(ds->unreachableURL());
   } else {
-    entry->SetURL(GURL(request.GetURL()));
+    entry->SetURL(request.url());
   }
 
   std::wstring url = UTF8ToWide(entry->GetURL().spec().c_str());
@@ -684,9 +722,9 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     handler->HandleAddressChange(browser_, browser_->GetCefFrame(frame), url);
   }
 
-  std::string state;
-  if (frame->GetCurrentHistoryState(&state))
-    entry->SetContentState(state);
+  const WebHistoryItem& history_item = frame->GetCurrentHistoryItem();
+  if (!history_item.isNull())
+    entry->SetContentState(webkit_glue::HistoryItemToString(history_item));
 
   browser_->UIT_GetNavigationController()->DidNavigateToEntry(entry.release());
 
@@ -705,12 +743,12 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   if (!entry)
     return;
 
-  std::string state;
-  if (!browser_->GetWebView()->GetMainFrame()->
-      GetPreviousHistoryState(&state))
+  const WebHistoryItem& history_item =
+      browser_->GetWebView()->GetMainFrame()->GetPreviousHistoryItem();
+  if (history_item.isNull())
     return;
 
-  entry->SetContentState(state);
+  entry->SetContentState(webkit_glue::HistoryItemToString(history_item));
 }
 
 std::wstring BrowserWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
@@ -726,13 +764,5 @@ std::wstring BrowserWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
       return L"frame \"" + name + L"\"";
     else
       return L"frame (anonymous)";
-  }
-}
-
-void BrowserWebViewDelegate::TakeFocus(WebView* webview, bool reverse) {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    // Notify the handler that it should take a focus
-    handler->HandleTakeFocus(browser_, reverse);
   }
 }

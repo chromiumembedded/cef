@@ -131,43 +131,11 @@
 			Name="printing"
 			>
 			<File
-				RelativePath=".\printing\page_number.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\page_number.h"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\page_range.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\page_range.h"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\page_setup.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\page_setup.h"
-				>
-			</File>
-			<File
 				RelativePath=".\printing\print_settings.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\printing\print_settings.h"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\units.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\units.h"
 				>
 			</File>
 			<File

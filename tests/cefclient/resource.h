@@ -26,6 +26,7 @@
 #define ID_TESTS_JAVASCRIPT_EXECUTE     32773
 #define ID_TESTS_PLUGIN                 32774
 #define ID_TESTS_POPUP                  32775
+#define ID_TESTS_REQUEST                32776
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 

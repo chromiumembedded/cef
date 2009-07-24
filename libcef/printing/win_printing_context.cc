@@ -8,11 +8,10 @@
 #include <winspool.h>
 
 #include "base/file_util.h"
-#include "base/gfx/platform_canvas.h"
-#include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "base/time_format.h"
+#include "skia/ext/platform_device_win.h"
 
 using base::Time;
 
@@ -50,8 +49,10 @@ PrintingContext::~PrintingContext() {
   ResetSettings();
 }
 
-PrintingContext::Result PrintingContext::AskUserForSettings(HWND window,
-                                                            int max_pages) {
+PrintingContext::Result PrintingContext::AskUserForSettings(
+    HWND window,
+    int max_pages,
+    bool has_selection) {
   DCHECK(window);
   DCHECK(!in_print_job_);
   dialog_box_dismissed_ = false;
@@ -66,12 +67,13 @@ PrintingContext::Result PrintingContext::AskUserForSettings(HWND window,
   // On failure, the settings are reset and FAILED is returned.
   PRINTDLGEX dialog_options = { sizeof(PRINTDLGEX) };
   dialog_options.hwndOwner = window;
-  // Disables the Current Page and Selection radio buttons since WebKit can't
-  // print a part of the webpage and we don't know which page is the current
-  // one.
+  // Disable options we don't support currently.
   // TODO(maruel):  Reuse the previously loaded settings!
   dialog_options.Flags = PD_RETURNDC | PD_USEDEVMODECOPIESANDCOLLATE  |
-                         PD_NOSELECTION | PD_NOCURRENTPAGE | PD_HIDEPRINTTOFILE;
+                         PD_NOCURRENTPAGE;
+  if (!has_selection)
+    dialog_options.Flags |= PD_NOSELECTION;
+
   PRINTPAGERANGE ranges[32];
   dialog_options.nStartPage = START_PAGE_GENERAL;
   if (max_pages) {
@@ -81,6 +83,7 @@ PrintingContext::Result PrintingContext::AskUserForSettings(HWND window,
     ranges[0].nToPage = max_pages;
     dialog_options.nPageRanges = 1;
     dialog_options.nMaxPageRanges = arraysize(ranges);
+    dialog_options.nMinPage = 1;
     dialog_options.nMaxPage = max_pages;
     dialog_options.lpPageRanges = ranges;
   } else {
@@ -94,7 +97,6 @@ PrintingContext::Result PrintingContext::AskUserForSettings(HWND window,
       return FAILED;
     }
   }
-  // TODO(maruel):  Support PD_PRINTTOFILE.
   return ParseDialogResultEx(dialog_options);
 }
 
@@ -151,7 +153,7 @@ PrintingContext::Result PrintingContext::NewDocument(
     const std::wstring& document_name) {
   DCHECK(!in_print_job_);
   if (!hdc_)
-    return OnErrror();
+    return OnError();
 
   // Set the flag used by the AbortPrintJob dialog procedure.
   abort_printing_ = false;
@@ -160,17 +162,35 @@ PrintingContext::Result PrintingContext::NewDocument(
 
   // Register the application's AbortProc function with GDI.
   if (SP_ERROR == SetAbortProc(hdc_, &AbortProc))
-    return OnErrror();
+    return OnError();
 
   DOCINFO di = { sizeof(DOCINFO) };
   di.lpszDocName = document_name.c_str();
+
+  wchar_t szFileName[MAX_PATH] = L"";
+  if (settings_.to_file) {
+    // Prompt for the file name to use for the printed output.
+    OPENFILENAME ofn = { sizeof(ofn) };
+
+    ofn.lpstrFilter = L"PostScript Files (*.ps)\0*.ps\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                OFN_NOREADONLYRETURN | OFN_ENABLESIZING;
+    ofn.lpstrDefExt = L"ps";
+
+    if(GetSaveFileName(&ofn))
+      di.lpszOutput = szFileName;
+    else
+      return OnError();
+  }
 
   DCHECK_EQ(MessageLoop::current()->NestableTasksAllowed(), false);
   // Begin a print job by calling the StartDoc function.
   // NOTE: StartDoc() starts a message loop. That causes a lot of problems with
   // IPC. Make sure recursive task processing is disabled.
   if (StartDoc(hdc_, &di) <= 0)
-    return OnErrror();
+    return OnError();
 
 #ifndef NDEBUG
   page_number_ = 0;
@@ -185,7 +205,7 @@ PrintingContext::Result PrintingContext::NewPage() {
 
   // Inform the driver that the application is about to begin sending data.
   if (StartPage(hdc_) <= 0)
-    return OnErrror();
+    return OnError();
 
 #ifndef NDEBUG
   ++page_number_;
@@ -200,7 +220,7 @@ PrintingContext::Result PrintingContext::PageDone() {
   DCHECK(in_print_job_);
 
   if (EndPage(hdc_) <= 0)
-    return OnErrror();
+    return OnError();
   return OK;
 }
 
@@ -211,7 +231,7 @@ PrintingContext::Result PrintingContext::DocumentDone() {
 
   // Inform the driver that document has ended.
   if (EndDoc(hdc_) <= 0)
-    return OnErrror();
+    return OnError();
 
   ResetSettings();
   return OK;
@@ -232,7 +252,7 @@ void PrintingContext::DismissDialog() {
   }
 }
 
-PrintingContext::Result PrintingContext::OnErrror() {
+PrintingContext::Result PrintingContext::OnError() {
   // This will close hdc_ and clear settings_.
   ResetSettings();
   return abort_printing_ ? CANCEL : FAILED;
@@ -251,8 +271,10 @@ BOOL PrintingContext::AbortProc(HDC hdc, int nCode) {
 bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
                                          const std::wstring& new_device_name,
                                          const PRINTPAGERANGE* ranges,
-                                         int number_ranges) {
-  skia::PlatformDeviceWin::InitializeDC(hdc_);
+                                         int number_ranges,
+                                         bool selection_only,
+                                         bool to_file) {
+  skia::PlatformDevice::InitializeDC(hdc_);
   DCHECK(GetDeviceCaps(hdc_, CLIPCAPS));
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_STRETCHDIB);
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_BITMAP64);
@@ -271,17 +293,24 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
 
   DCHECK(!in_print_job_);
   DCHECK(hdc_);
-  // Convert the PRINTPAGERANGE array to a PrintSettings::PageRanges vector.
   PageRanges ranges_vector;
-  ranges_vector.reserve(number_ranges);
-  for (int i = 0; i < number_ranges; ++i) {
-    PageRange range;
-    // Transfert from 1-based to 0-based.
-    range.from = ranges[i].nFromPage - 1;
-    range.to = ranges[i].nToPage - 1;
-    ranges_vector.push_back(range);
+  if (!selection_only) {
+    // Convert the PRINTPAGERANGE array to a PrintSettings::PageRanges vector.
+    ranges_vector.reserve(number_ranges);
+    for (int i = 0; i < number_ranges; ++i) {
+      PageRange range;
+      // Transfer from 1-based to 0-based.
+      range.from = ranges[i].nFromPage - 1;
+      range.to = ranges[i].nToPage - 1;
+      ranges_vector.push_back(range);
+    }
   }
-  settings_.Init(hdc_, dev_mode, ranges_vector, new_device_name);
+  settings_.Init(hdc_,
+                 dev_mode,
+                 ranges_vector,
+                 new_device_name,
+                 selection_only,
+                 to_file);
   return true;
 }
 
@@ -300,7 +329,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
         ResetSettings();
         return false;
       }
-      return InitializeSettings(*info_9->pDevMode, device_name, NULL, 0);
+      return InitializeSettings(*info_9->pDevMode, device_name, NULL, 0, false,
+          false);
     }
     buffer.reset();
   }
@@ -314,7 +344,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
         ResetSettings();
         return false;
       }
-      return InitializeSettings(*info_8->pDevMode, device_name, NULL, 0);
+      return InitializeSettings(*info_8->pDevMode, device_name, NULL, 0, false,
+          false);
     }
     buffer.reset();
   }
@@ -329,7 +360,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
         ResetSettings();
         return false;
       }
-      return InitializeSettings(*info_2->pDevMode, device_name, NULL, 0);
+      return InitializeSettings(*info_2->pDevMode, device_name, NULL, 0, false,
+          false);
     }
     buffer.reset();
   }
@@ -376,14 +408,26 @@ PrintingContext::Result PrintingContext::ParseDialogResultEx(
     bool success = false;
     if (dev_mode && !device_name.empty()) {
       hdc_ = dialog_options.hDC;
+      PRINTPAGERANGE* page_ranges = NULL;
+      DWORD num_page_ranges = 0;
+      bool print_selection_only = false;
+      bool print_to_file = false;
       if (dialog_options.Flags & PD_PAGENUMS) {
-        success = InitializeSettings(*dev_mode,
-                                     device_name,
-                                     dialog_options.lpPageRanges,
-                                     dialog_options.nPageRanges);
-      } else {
-        success = InitializeSettings(*dev_mode, device_name, NULL, 0);
+        page_ranges = dialog_options.lpPageRanges;
+        num_page_ranges = dialog_options.nPageRanges;
       }
+      if (dialog_options.Flags & PD_SELECTION) {
+        print_selection_only = true;
+      }
+      if (dialog_options.Flags & PD_PRINTTOFILE) {
+        print_to_file = true;
+      }
+      success = InitializeSettings(*dev_mode,
+                                   device_name,
+                                   dialog_options.lpPageRanges,
+                                   dialog_options.nPageRanges,
+                                   print_selection_only,
+                                   print_to_file);
     }
 
     if (!success && dialog_options.hDC) {
@@ -447,7 +491,8 @@ PrintingContext::Result PrintingContext::ParseDialogResult(
   bool success = false;
   if (dev_mode && !device_name.empty()) {
     hdc_ = dialog_options.hDC;
-    success = InitializeSettings(*dev_mode, device_name, NULL, 0);
+    success = InitializeSettings(*dev_mode, device_name, NULL, 0, false,
+        false);
   }
 
   if (!success && dialog_options.hDC) {

@@ -97,22 +97,29 @@ public:
   WebViewHost* GetWebViewHost() const {
     return webviewhost_.get();
   }
-  HWND GetWebViewWndHandle() const {
-    return webviewhost_->window_handle();
+  BrowserWebViewDelegate* GetWebViewDelegate() const {
+    return delegate_.get();
   }
-  WebWidget* GetPopup() const {
+  HWND GetWebViewWndHandle() const {
+    return webviewhost_->view_handle();
+  }
+  WebKit::WebWidget* GetPopup() const {
     return popuphost_ ? popuphost_->webwidget() : NULL;
   }
   WebWidgetHost* GetPopupHost() const {
     return popuphost_;
   }
+  BrowserWebViewDelegate* GetPopupDelegate() const {
+    return popup_delegate_.get();
+  }
   HWND GetPopupWndHandle() const {
-    return popuphost_->window_handle();
+    return popuphost_->view_handle();
   }
   HWND GetMainWndHandle() const {
     return window_info_.m_hWnd;
   }
-  
+
+
   ////////////////////////////////////////////////////////////
   // ALL UIT_* METHODS MUST ONLY BE CALLED ON THE UI THREAD //
   ////////////////////////////////////////////////////////////
@@ -121,7 +128,7 @@ public:
     REQUIRE_UIT();
     return nav_controller_.get();
   }
-
+  
   // Return true to allow user editing such as entering text in form elements
   bool UIT_AllowEditing() { return true; }
 
@@ -150,8 +157,8 @@ public:
   void UIT_LoadURLForRequest(CefFrame* frame,
                              const std::wstring& url,
                              const std::wstring& method,
-                             net::UploadData *upload_data,
-                             const WebRequest::HeaderMap& headers);
+                             const WebKit::WebHTTPBody& upload_data,
+                             const CefRequest::HeaderMap& headers);
   void UIT_LoadURLForRequestRef(CefFrame* frame,
                                 CefRequest* request);
   void UIT_LoadHTML(CefFrame* frame,
@@ -170,10 +177,10 @@ public:
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
 
   CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url);
-  WebWidget* UIT_CreatePopupWidget(WebView* webview);
+  WebKit::WebWidget* UIT_CreatePopupWidget(WebView* webview);
   void UIT_ClosePopupWidget();
 
-  void UIT_Show(WebView* webview, WindowOpenDisposition disposition);
+  void UIT_Show(WebKit::WebNavigationPolicy policy);
   
   // Handles most simple browser actions
   void UIT_HandleActionView(CefHandler::MenuId menuId);
@@ -211,6 +218,7 @@ protected:
   scoped_ptr<WebViewHost> webviewhost_;
   WebWidgetHost* popuphost_;
   scoped_refptr<BrowserWebViewDelegate> delegate_;
+  scoped_refptr<BrowserWebViewDelegate> popup_delegate_;
   scoped_ptr<BrowserNavigationController> nav_controller_;
 
   std::wstring title_;

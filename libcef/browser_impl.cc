@@ -9,15 +9,22 @@
 #include "request_impl.h"
 
 #include "base/string_util.h"
+#include "webkit/api/public/WebHTTPBody.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/glue/glue_serialize.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe.h"
 
-
+using WebKit::WebHTTPBody;
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 using WebKit::WebURL;
+using WebKit::WebURLRequest;
+using webkit_glue::StdStringToWebString;
+using webkit_glue::WebStringToStdString;
 
 
 CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
@@ -27,6 +34,7 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
   frame_main_(NULL)
 {
   delegate_ = new BrowserWebViewDelegate(this);
+  popup_delegate_ = new BrowserWebViewDelegate(this);
   nav_controller_.reset(new BrowserNavigationController(this));
 }
 
@@ -342,8 +350,8 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
 void CefBrowserImpl::UIT_LoadURL(CefFrame* frame,
                                  const std::wstring& url)
 {
-  UIT_LoadURLForRequest(frame, url, std::wstring(), NULL,
-      WebRequest::HeaderMap());
+  UIT_LoadURLForRequest(frame, url, std::wstring(), WebHTTPBody(),
+      CefRequest::HeaderMap());
 }
 
 void CefBrowserImpl::UIT_LoadURLForRequestRef(CefFrame* frame,
@@ -354,27 +362,26 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefFrame* frame,
 
   CefRequestImpl *impl = static_cast<CefRequestImpl*>(request);
 
-  scoped_refptr<net::UploadData> upload_data;
+  WebHTTPBody upload_data;
   CefRefPtr<CefPostData> postdata = impl->GetPostData();
-  if(postdata.get())
-  {
-    upload_data = new net::UploadData();
-    static_cast<CefPostDataImpl*>(postdata.get())->Get(*upload_data.get());
+  if(postdata.get()) {
+    upload_data.initialize();
+    static_cast<CefPostDataImpl*>(postdata.get())->Get(upload_data);
   }
 
-  WebRequest::HeaderMap headers;
+  CefRequest::HeaderMap headers;
   impl->GetHeaderMap(headers);
 
-  UIT_LoadURLForRequest(frame, url, method, upload_data.get(), headers);
+  UIT_LoadURLForRequest(frame, url, method, upload_data, headers);
 
   request->Release();
 }
 
 void CefBrowserImpl::UIT_LoadURLForRequest(CefFrame* frame,
-                                           const std::wstring& url,
-                                           const std::wstring& method,
-                                           net::UploadData *upload_data,
-                                           const WebRequest::HeaderMap& headers)
+                                         const std::wstring& url,
+                                         const std::wstring& method,
+                                         const WebKit::WebHTTPBody& upload_data,
+                                         const CefRequest::HeaderMap& headers)
 {
   REQUIRE_UIT();
   
@@ -508,41 +515,40 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
-  if (!reload && !entry.GetContentState().empty()) {
+  if (reload) {
+    frame->Reload();
+  } else if (!entry.GetContentState().empty()) {
     DCHECK(entry.GetPageID() != -1);
-    frame->LoadHistoryState(entry.GetContentState());
+    frame->LoadHistoryItem(
+        webkit_glue::HistoryItemFromString(entry.GetContentState()));
   } else {
-    WebRequestCachePolicy cache_policy;
-    if (reload) {
-      cache_policy = WebRequestReloadIgnoringCacheData;
-    } else {
-      DCHECK(entry.GetPageID() == -1);
-      cache_policy = WebRequestUseProtocolCachePolicy;
+    DCHECK(entry.GetPageID() == -1);
+    WebURLRequest request(entry.GetURL());
+
+    if(entry.GetMethod().size() > 0) {
+      request.setHTTPMethod(
+          StdStringToWebString(WideToUTF8(entry.GetMethod())));
     }
-
-    scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
-    request->SetCachePolicy(cache_policy);
-
-    if(entry.GetMethod().size() > 0)
-      request->SetHttpMethod(WideToUTF8(entry.GetMethod()));
 
     if(entry.GetHeaders().size() > 0)
-      request->SetHttpHeaders(entry.GetHeaders());
+      CefRequestImpl::SetHeaderMap(entry.GetHeaders(), request);
 
-    if(entry.GetUploadData())
+    if(!entry.GetUploadData().isNull())
     {
-      if(request->GetHttpMethod() == "GET"
-        || request->GetHttpMethod() == "HEAD") {
-        request->SetHttpMethod("POST");
+      std::string method = WebStringToStdString(request.httpMethod());
+      if(method == "GET" || method == "HEAD") {
+        request.setHTTPMethod(StdStringToWebString("POST"));
       }
-      if(request->GetHttpHeaderValue("Content-Type").size() == 0) {
-        request->SetHttpHeaderValue(
-          "Content-Type", "application/x-www-form-urlencoded");
+      if(request.httpHeaderField(StdStringToWebString("Content-Type")).length()
+          == 0) {
+        request.setHTTPHeaderField(
+            StdStringToWebString("Content-Type"),
+            StdStringToWebString("application/x-www-form-urlencoded"));
       }
-      request->SetUploadData(*entry.GetUploadData());
+      request.setHTTPBody(entry.GetUploadData());
     }
 
-    frame->LoadRequest(request.get());
+    frame->LoadRequest(request);
   }
 
   // In case LoadRequest failed before DidCreateDataSource was called.
@@ -590,11 +596,10 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstri
   return browser;
 }
 
-void CefBrowserImpl::UIT_Show(WebView* webview,
-                              WindowOpenDisposition disposition)
+void CefBrowserImpl::UIT_Show(WebKit::WebNavigationPolicy policy)
 {
   REQUIRE_UIT();
-  delegate_->Show(webview, disposition);
+  delegate_->show(policy);
 }
 
 void CefBrowserImpl::UIT_HandleActionView(CefHandler::MenuId menuId)

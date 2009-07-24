@@ -41,6 +41,7 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "base/timer.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_monster.h"
@@ -50,6 +51,7 @@
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
+#include "net/http/http_util.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -223,9 +225,19 @@ class RequestProxy : public URLRequest::Delegate,
         requestimpl->SetURL(UTF8ToWide(params->url.spec()));
         requestimpl->SetMethod(UTF8ToWide(params->method));
         
-        // TODO(cef): Parse the extra header values from params->headers and
-        // add to the header map.
         CefRequest::HeaderMap headerMap;
+        
+        // Parse the request header values
+        std::string headerStr = "HTTP/1.1 200 OK\n";
+        headerStr += params->headers;
+        scoped_refptr<net::HttpResponseHeaders> headers =
+            new HttpResponseHeaders(net::HttpUtil::AssembleRawHeaders(
+                headerStr.c_str(), headerStr.length()));
+        void* iter = NULL;
+        std::string name, value;
+        while(headers->EnumerateHeaderLines(&iter, &name, &value))
+          headerMap.insert(std::make_pair(UTF8ToWide(name), UTF8ToWide(value)));
+
         headerMap.insert(
           std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
 
@@ -368,7 +380,8 @@ class RequestProxy : public URLRequest::Delegate,
   // URLRequest::Delegate implementation:
 
   virtual void OnReceivedRedirect(URLRequest* request,
-                                  const GURL& new_url) {
+                                  const GURL& new_url,
+                                  bool* defer_redirect) {
     DCHECK(request->status().is_success());
     OnReceivedRedirect(new_url);
   }

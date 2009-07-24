@@ -6,11 +6,16 @@
 #ifndef _BROWSER_WEBKIT_INIT_H
 #define _BROWSER_WEBKIT_INIT_H
 
+#include "base/file_util.h"
+#include "base/path_service.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "media/base/media.h"
 #include "webkit/api/public/WebCString.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebStorageArea.h"
+#include "webkit/api/public/WebStorageNamespace.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
@@ -35,6 +40,13 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
+
+    // Load libraries for media and enable the media player.
+    FilePath module_path;
+    if (PathService::Get(base::DIR_MODULE, &module_path) &&
+        media::InitializeMediaLibrary(module_path)) {
+      WebKit::enableMediaPlayer();
+    }
   }
 
   ~BrowserWebKitInit() {
@@ -54,6 +66,11 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
     return NULL;
+  }
+
+  virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
+    return file_util::GetFileSize(
+        FilePath(webkit_glue::WebStringToFilePathString(path)), &result);
   }
 
   virtual unsigned long long visitedLinkHash(const char* canonicalURL, size_t length) {
@@ -104,6 +121,16 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebString defaultLocale() {
     return ASCIIToUTF16("en-US");
   }
+
+  virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
+      const WebKit::WebString& path) {
+    return WebKit::WebStorageNamespace::createLocalStorageNamespace(path);
+  }
+
+  virtual WebKit::WebStorageNamespace* createSessionStorageNamespace() {
+    return WebKit::WebStorageNamespace::createSessionStorageNamespace();
+  }
+
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;

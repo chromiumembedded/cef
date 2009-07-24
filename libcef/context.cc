@@ -346,6 +346,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->text_areas_are_resizable = true;
       webprefs_->java_enabled = true;
       webprefs_->allow_scripts_to_close_windows = false;
+      webprefs_->xss_auditor_enabled = false;
 
       if (multi_threaded_message_loop) {
         // Event that will be used to signal thread setup completion. Start

@@ -32,7 +32,7 @@ class PrintingContext {
 
   // Asks the user what printer and format should be used to print. Updates the
   // context with the select device settings.
-  Result AskUserForSettings(HWND window, int max_pages);
+  Result AskUserForSettings(HWND window, int max_pages, bool has_selection);
 
   // Selects the user's default printer and format. Updates the context with the
   // default device settings.
@@ -82,10 +82,10 @@ class PrintingContext {
   // temporary object used during the Print... dialog display.
   class CallbackHandler;
 
-  // Does bookeeping when an error occurs.
-  PrintingContext::Result OnErrror();
+  // Does bookkeeping when an error occurs.
+  PrintingContext::Result OnError();
 
-  // Used in response to the user cancelling the printing.
+  // Used in response to the user canceling the printing.
   static BOOL CALLBACK AbortProc(HDC hdc, int nCode);
 
   // Reads the settings from the selected device context. Updates settings_ and
@@ -93,7 +93,9 @@ class PrintingContext {
   bool InitializeSettings(const DEVMODE& dev_mode,
                           const std::wstring& new_device_name,
                           const PRINTPAGERANGE* ranges,
-                          int number_ranges);
+                          int number_ranges,
+                          bool selection_only,
+                          bool to_file);
 
   // Retrieves the printer's default low-level settings. hdc_ is allocated with
   // this call.

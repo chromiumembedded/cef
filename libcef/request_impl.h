@@ -7,7 +7,8 @@
 
 #include "../include/cef.h"
 #include "net/base/upload_data.h"
-#include "webkit/glue/weburlrequest.h"
+#include "webkit/api/public/WebHTTPBody.h"
+#include "webkit/api/public/WebURLRequest.h"
 
 
 // Implementation of CefRequest
@@ -30,8 +31,10 @@ public:
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
 
-  void SetHeaderMap(const WebRequest::HeaderMap& map);
-  void GetHeaderMap(WebRequest::HeaderMap& map);
+  static void GetHeaderMap(const WebKit::WebURLRequest& request,
+                           HeaderMap& map);
+  static void SetHeaderMap(const HeaderMap& map,
+                           WebKit::WebURLRequest& request);
 
 protected:
   std::wstring url_;
@@ -55,6 +58,8 @@ public:
 
   void Set(const net::UploadData& data);
   void Get(net::UploadData& data);
+  void Set(const WebKit::WebHTTPBody& data);
+  void Get(WebKit::WebHTTPBody& data);
 
 protected:
   ElementVector elements_;
@@ -75,8 +80,12 @@ public:
   virtual size_t GetBytesCount();
   virtual size_t GetBytes(size_t size, void* bytes);
 
+  void* GetBytes() { return data_.bytes.bytes; }
+
   void Set(const net::UploadData::Element& element);
   void Get(net::UploadData::Element& element);
+  void Set(const WebKit::WebHTTPBody::Element& element);
+  void Get(WebKit::WebHTTPBody::Element& element);
 
 protected:
   Type type_;

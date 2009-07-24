@@ -13,18 +13,16 @@
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/glue/webdatasource.h"
-#include "webkit/glue/weburlrequest.h"
+#include "webkit/api/public/WebDataSource.h"
+#include "webkit/api/public/WebHTTPBody.h"
 
-namespace net {
-class UploadData;
-}
+#include "include/cef.h"
 
 class GURL;
 class CefBrowserImpl;
 
 // Associated with browser-initated navigations to hold tracking data.
-class BrowserExtraData : public WebDataSource::ExtraData {
+class BrowserExtraData : public WebKit::WebDataSource::ExtraData {
  public:
   BrowserExtraData(int32 pending_page_id)
       : pending_page_id(pending_page_id),
@@ -48,8 +46,8 @@ class BrowserNavigationEntry {
                       const std::wstring& title,
                       const std::wstring& target_frame,
                       const std::wstring& method,
-                      net::UploadData *upload,
-                      const WebRequest::HeaderMap& headers);
+                      const WebKit::WebHTTPBody& upload,
+                      const CefRequest::HeaderMap& headers);
   ~BrowserNavigationEntry();
 
   // Set / Get the URI
@@ -75,8 +73,8 @@ class BrowserNavigationEntry {
   const std::wstring& GetTargetFrame() const { return target_frame_; }
 
   const std::wstring& GetMethod() const { return method_; }
-  net::UploadData* GetUploadData() const { return upload_.get(); }
-  const WebRequest::HeaderMap& GetHeaders() const { return headers_; }
+  const WebKit::WebHTTPBody& GetUploadData() const { return upload_; }
+  const CefRequest::HeaderMap& GetHeaders() const { return headers_; }
 
 private:
   // Describes the current page that the tab represents. This is not relevant
@@ -87,8 +85,8 @@ private:
   std::wstring title_;
   std::string state_;
   std::wstring method_;
-  scoped_refptr<net::UploadData> upload_;
-  WebRequest::HeaderMap headers_;
+  WebKit::WebHTTPBody upload_;
+  CefRequest::HeaderMap headers_;
 
   std::wstring target_frame_;
 

@@ -5,10 +5,9 @@
 #ifndef _PRINTING_PRINT_SETTINGS_H
 #define _PRINTING_PRINT_SETTINGS_H
 
-#include "page_range.h"
-#include "page_setup.h"
-
 #include "base/gfx/rect.h"
+#include "printing/page_range.h"
+#include "printing/page_setup.h"
 
 typedef struct HDC__* HDC;
 typedef struct _devicemodeW DEVMODE;
@@ -35,13 +34,21 @@ struct PrintParams {
   // Cookie for the document to ensure correctness.
   int document_cookie;
 
+  // Indicates if the user only wants to print the current selection.
+  bool selection_only;
+
+  // Indicates if the user wants to print to file.
+  bool to_file;
+
   // Warning: do not compare document_cookie.
   bool Equals(const PrintParams& rhs) const {
     return printable_size == rhs.printable_size &&
            dpi == rhs.dpi &&
            min_shrink == rhs.min_shrink &&
            max_shrink == rhs.max_shrink &&
-           desired_dpi == rhs.desired_dpi;
+           desired_dpi == rhs.desired_dpi &&
+           selection_only == rhs.selection_only &&
+           to_file == rhs.to_file;
   }
 };
 
@@ -59,7 +66,9 @@ class PrintSettings {
   void Init(HDC hdc,
             const DEVMODE& dev_mode,
             const PageRanges& new_ranges,
-            const std::wstring& new_device_name);
+            const std::wstring& new_device_name,
+            bool selection_only,
+            bool to_file);
 #endif
 
   // Set printer printable area in pixels.
@@ -103,6 +112,12 @@ class PrintSettings {
   // Desired visible dots per inch rendering for output. Printing should be
   // scaled to ScreenDpi/dpix*desired_dpi.
   int desired_dpi;
+
+  // Indicates if the user only wants to print the current selection.
+  bool selection_only;
+
+  // Indicates if the user wants to print to file.
+  bool to_file;
 
   // Cookie generator. It is used to initialize PrintedDocument with its
   // associated PrintSettings, to be sure that each generated PrintedPage is

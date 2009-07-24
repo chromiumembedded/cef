@@ -22,15 +22,16 @@ BrowserNavigationEntry::BrowserNavigationEntry(int page_id,
                                          const std::wstring& title,
                                          const std::wstring& target_frame,
                                          const std::wstring& method,
-                                         net::UploadData *upload,
-                                         const WebRequest::HeaderMap& headers)
+                                         const WebKit::WebHTTPBody& upload,
+                                         const CefRequest::HeaderMap& headers)
     : page_id_(page_id),
       url_(url),
       title_(title),
       target_frame_(target_frame),
       method_(method),
-      upload_(upload),
       headers_(headers) {
+  if(!upload.isNull())
+    upload_ = upload;
 }
 
 BrowserNavigationEntry::~BrowserNavigationEntry() {

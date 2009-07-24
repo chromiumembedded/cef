@@ -10,11 +10,8 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "Frame.h"
-#include "Markup.h"
 #include "TextEncoding.h"
 #include "webkit/glue/webframe_impl.h"
-#include "webkit/port/bindings/v8/v8_proxy.h"
 MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
@@ -133,6 +130,10 @@ StringPiece GetDataResource(int resource_id) {
   case IDR_SEARCH_CANCEL_PRESSED:
   case IDR_SEARCH_MAGNIFIER:
   case IDR_SEARCH_MAGNIFIER_RESULTS:
+  case IDR_MEDIA_PAUSE_BUTTON:
+  case IDR_MEDIA_PLAY_BUTTON:
+  case IDR_MEDIA_SOUND_FULL_BUTTON:
+  case IDR_MEDIA_SOUND_NONE_BUTTON:
     return NetResourceProvider(resource_id);
   default:
     break;
@@ -181,13 +182,6 @@ std::wstring GetWebKitLocale() {
   return L"en-US";
 }
 
-std::string GetDocumentString(WebFrame* frame) {
-  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
-  WebCore::Frame* core_frame = webFrameImpl->frame();
-
-  return StringToStdString(WebCore::createMarkup(core_frame->document()));
-}
-
 void InitializeTextEncoding() {
   WebCore::UTF8Encoding();
 }
@@ -196,7 +190,15 @@ v8::Handle<v8::Context> GetV8Context(WebFrame* frame)
 {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
   WebCore::Frame* core_frame = webFrameImpl->frame();
-  return WebCore::V8Proxy::GetContext(core_frame);
+  return WebCore::V8Proxy::context(core_frame);
+}
+
+void CloseIdleConnections() {
+  // Used in benchmarking,  Ignored for CEF.
+}
+
+void SetCacheMode(bool enabled) {
+  // Used in benchmarking,  Ignored for CEF.
 }
 
 }  // namespace webkit_glue

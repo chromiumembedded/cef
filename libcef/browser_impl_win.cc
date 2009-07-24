@@ -9,6 +9,7 @@
 #include "browser_webkit_glue.h"
 #include "stream_impl.h"
 #include "printing/units.h"
+#include "../patch/patch_state.h"
 
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -62,7 +63,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       browser->GetWebView()->GetMainFrame()->CallJSGC();
 
       // Clean up anything associated with the WebViewHost widget.
-      browser->GetWebViewHost()->webwidget()->Close();
+      browser->GetWebViewHost()->webwidget()->close();
 
       // Remove the browser from the list maintained by the context
       _Context->RemoveBrowser(browser);
@@ -81,12 +82,12 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_SETFOCUS:
     if (browser && browser->GetWebView())
-      browser->GetWebView()->SetFocus(true);
+      browser->GetWebView()->setFocus(true);
     return 0;
 
   case WM_KILLFOCUS:
     if (browser && browser->GetWebView())
-      browser->GetWebView()->SetFocus(false);
+      browser->GetWebView()->setFocus(false);
     return 0;
 
   case WM_ERASEBKGND:
@@ -136,7 +137,7 @@ std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
     // Retrieve the document string directly
     WebFrame* web_frame = GetWebFrame(frame);
     if(web_frame)
-      return UTF8ToWide(webkit_glue::GetDocumentString(web_frame));
+      return UTF8ToWide(web_frame->GetFullPageHtml());
     return std::wstring();
   }
 }
@@ -287,17 +288,17 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
   REQUIRE_UIT();
     
   if (enable)
-    ::SetFocus(host->window_handle());
-  else if (::GetFocus() == host->window_handle())
+    ::SetFocus(host->view_handle());
+  else if (::GetFocus() == host->view_handle())
     ::SetFocus(NULL);
 }
 
-WebWidget* CefBrowserImpl::UIT_CreatePopupWidget(WebView* webview)
+WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget(WebView* webview)
 {
   REQUIRE_UIT();
   
   DCHECK(!popuphost_);
-  popuphost_ = WebWidgetHost::Create(NULL, delegate_.get());
+  popuphost_ = WebWidgetHost::Create(NULL, popup_delegate_.get());
   ShowWindow(GetPopupWndHandle(), SW_SHOW);
 
   return popuphost_->webwidget();
@@ -348,7 +349,7 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebFrame *frame)
  
 	size_t len = wcslen(szTempName);
 	wcscpy(szTempName + len - 3, L"txt");
-  WriteTextToFile(webkit_glue::GetDocumentString(frame), szTempName);
+  WriteTextToFile(frame->GetFullPageHtml(), szTempName);
 
   int errorCode = (int)ShellExecute(GetMainWndHandle(), L"open", szTempName,
     NULL, NULL, SW_SHOWNORMAL);
@@ -367,7 +368,7 @@ void CefBrowserImpl::UIT_GetDocumentStringNotify(CefFrame* frame,
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     // Retrieve the document string
-    std::string str = webkit_glue::GetDocumentString(web_frame);
+    std::string str = web_frame->GetFullPageHtml();
     // Write the document string to the stream
     writer->Write(str.c_str(), str.size(), 1);
   }
@@ -424,6 +425,11 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent)
 void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
                                    const gfx::Size& canvas_size,
                                    WebFrame* frame) {
+#if !CEF_PATCHES_APPLIED
+  NOTREACHED() << "CEF patches must be applied to support printing.";
+  return;
+#endif // !CEF_PATCHES_APPLIED
+
   REQUIRE_UIT();
 
   printing::PrintParams params;
@@ -464,7 +470,10 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   canvas.clipRect(clip_rect);
   
   // Apply the WebKit scaling factor.
-  float webkit_scale = frame->GetPrintPageShrink(page_number);
+  float webkit_scale = 0;
+#if CEF_PATCHES_APPLIED
+  webkit_scale = frame->GetPrintPageShrink(page_number);
+#endif // CEF_PATCHES_APPLIED
   if (webkit_scale <= 0) {
     NOTREACHED() << "Printing page " << page_number << " failed.";
   }
@@ -564,6 +573,10 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 }
 
 void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
+#if !CEF_PATCHES_APPLIED
+  NOTREACHED() << "CEF patches must be applied to support printing.";
+  return;
+#endif // !CEF_PATCHES_APPLIED
 
   REQUIRE_UIT();
 
@@ -577,7 +590,7 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
   }
 
   if(print_context_.AskUserForSettings(
-      GetMainWndHandle(), UIT_GetPagesCount(frame))
+      GetMainWndHandle(), UIT_GetPagesCount(frame), false)
       != printing::PrintingContext::OK)
     return;
 
@@ -599,7 +612,7 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
           settings.page_setup_pixels().physical_size().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
-  frame->BeginPrint(WebSize(canvas_size), &page_count);
+  page_count = frame->PrintBegin(WebSize(canvas_size));
 
   if (page_count) {
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
@@ -622,7 +635,7 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
     MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
 
-  frame->EndPrint();
+  frame->PrintEnd();
 }
 
 int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
@@ -651,8 +664,8 @@ int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
           settings.page_setup_pixels().physical_size().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
-  frame->BeginPrint(WebSize(canvas_size), &page_count);
-  frame->EndPrint();
+  page_count = frame->PrintBegin(WebSize(canvas_size));
+  frame->PrintEnd();
 
   return page_count;
 }

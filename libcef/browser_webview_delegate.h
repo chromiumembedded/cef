@@ -23,7 +23,6 @@
 #include "base/scoped_ptr.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview_delegate.h"
-#include "webkit/glue/webwidget_delegate.h"
 #if defined(OS_WIN)
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
@@ -31,9 +30,9 @@
 #include "browser_navigation_controller.h"
 
 class CefBrowserImpl;
+struct ContextMenuMediaParams;
 struct WebPreferences;
 class GURL;
-class WebDataSource;
 class WebWidgetHost;
 
 class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
@@ -63,18 +62,23 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual WebView* CreateWebView(WebView* webview,
                                  bool user_gesture,
                                  const GURL& creator_url);
-  virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable);
+  virtual WebKit::WebWidget* CreatePopupWidget(
+    WebView* webview,
+    bool activatable);
   virtual WebPluginDelegate* CreatePluginDelegate(
     WebView* webview,
     const GURL& url,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type);
+  virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
+    WebKit::WebMediaPlayerClient* client);
   virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
   virtual void OpenURL(WebView* webview,
                        const GURL& url,
                        const GURL& referrer,
-                       WindowOpenDisposition disposition);
+                       WebKit::WebNavigationPolicy policy);
+  virtual void DidMovePlugin(const WebPluginGeometry& move);
   virtual void RunJavaScriptAlert(WebFrame* webframe,
                                   const std::wstring& message);
   virtual bool RunJavaScriptConfirm(WebFrame* webframe,
@@ -92,29 +96,31 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual void StartDragging(WebView* webview,
                              const WebKit::WebDragData& drop_data);
   virtual void ShowContextMenu(WebView* webview,
-                               ContextNode in_node,
+                               ContextNodeType node_type,
                                int x,
                                int y,
                                const GURL& link_url,
                                const GURL& image_url,
                                const GURL& page_url,
                                const GURL& frame_url,
+                               const ContextMenuMediaParams& media_params,
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
                                int edit_flags,
                                const std::string& security_info,
                                const std::string& frame_charset);
   virtual void DidCreateDataSource(WebFrame* frame,
-                                   WebDataSource* ds);
+                                   WebKit::WebDataSource* ds);
   virtual void DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
     NavigationGesture gesture);
   virtual void DidReceiveServerRedirectForProvisionalLoadForFrame(
     WebView* webview, WebFrame* frame);
-  virtual void DidFailProvisionalLoadWithError(WebView* webview,
-                                               const WebError& error,
-                                               WebFrame* frame);
+  virtual void DidFailProvisionalLoadWithError(
+    WebView* webview,
+    const WebKit::WebURLError& error,
+    WebFrame* frame);
   virtual void DidCommitLoadForFrame(WebView* webview, WebFrame* frame,
                                      bool is_new_navigation);
   virtual void DidReceiveTitle(WebView* webview,
@@ -139,19 +145,19 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
 
   virtual void DidFinishLoadForFrame(WebView* webview, WebFrame* frame);
   virtual void DidFailLoadWithError(WebView* webview,
-                                    const WebError& error,
-                                    WebFrame* forFrame);
+                                    const WebKit::WebURLError& error,
+                                    WebFrame* for_frame);
 
   virtual void AssignIdentifierToRequest(WebView* webview,
                                          uint32 identifier,
-                                         const WebRequest& request);
+                                         const WebKit::WebURLRequest& request);
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
-                               WebRequest* request);
+                               WebKit::WebURLRequest* request);
   virtual void DidFinishLoading(WebView* webview, uint32 identifier);
   virtual void DidFailLoadingWithError(WebView* webview,
                                        uint32 identifier,
-                                       const WebError& error);
+                                       const WebKit::WebURLError& error);
 
   virtual bool ShouldBeginEditing(WebView* webview, std::wstring range);
   virtual bool ShouldEndEditing(WebView* webview, std::wstring range);
@@ -182,50 +188,33 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   virtual void DidStopLoading(WebView* webview);
 
   virtual void WindowObjectCleared(WebFrame* webframe);
-  virtual WindowOpenDisposition DispositionForNavigationAction(
+  virtual WebKit::WebNavigationPolicy PolicyForNavigationAction(
     WebView* webview,
     WebFrame* frame,
-    const WebRequest* request,
-    WebNavigationType type,
-    WindowOpenDisposition disposition,
+    const WebKit::WebURLRequest& request,
+    WebKit::WebNavigationType type,
+    WebKit::WebNavigationPolicy default_policy,
     bool is_redirect);
   virtual void NavigateBackForwardSoon(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
-
-  // WebWidgetDelegate
-  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
-  virtual void DidInvalidateRect(WebWidget* webwidget,
-                                 const WebKit::WebRect& rect);
-  virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                             const WebKit::WebRect& clip_rect);
-  virtual void Show(WebWidget* webview, WindowOpenDisposition disposition);
-  virtual void ShowAsPopupWithItems(WebWidget* webwidget,
-                                    const WebKit::WebRect& bounds,
-                                    int item_height,
-                                    int selected_index,
-                                    const std::vector<WebMenuItem>& items);
-  virtual void CloseWidgetSoon(WebWidget* webwidget);
-  virtual void Focus(WebWidget* webwidget);
-  virtual void Blur(WebWidget* webwidget);
-  virtual void SetCursor(WebWidget* webwidget, 
-                         const WebCursor& cursor);
-  virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
-  virtual void SetWindowRect(WebWidget* webwidget, const WebKit::WebRect& rect);
-  virtual void GetRootWindowRect(WebWidget *,WebKit::WebRect *);
-  virtual void GetRootWindowResizerRect(WebWidget* webwidget,
-                                        WebKit::WebRect* rect);
-  virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
-  virtual void RunModal(WebWidget* webwidget);
-  virtual bool IsHidden(WebWidget* webwidget);
-  virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget);
-  virtual void AddRef() {
-    base::RefCounted<BrowserWebViewDelegate>::AddRef();
-  }
-  virtual void Release() {
-    base::RefCounted<BrowserWebViewDelegate>::Release();
-  }
   virtual void TakeFocus(WebView* webview, bool reverse);
+
+  // WebWidgetClient
+  virtual void didInvalidateRect(const WebKit::WebRect& rect);
+  virtual void didScrollRect(int dx, int dy,
+                             const WebKit::WebRect& clip_rect);
+  virtual void didFocus();
+  virtual void didBlur();
+  virtual void didChangeCursor(const WebKit::WebCursorInfo& cursor);
+  virtual void closeWidgetSoon();
+  virtual void show(WebKit::WebNavigationPolicy policy);
+  virtual void runModal();
+  virtual WebKit::WebRect windowRect();
+  virtual void setWindowRect(const WebKit::WebRect& rect);
+  virtual WebKit::WebRect rootWindowRect();
+  virtual WebKit::WebRect windowResizerRect();
+  virtual WebKit::WebScreenInfo screenInfo();
 
   void SetSmartInsertDeleteEnabled(bool enabled);
   void SetSelectTrailingWhitespaceEnabled(bool enabled);
@@ -268,7 +257,7 @@ class BrowserWebViewDelegate : public base::RefCounted<BrowserWebViewDelegate>,
   // test.
   void LocationChangeDone(WebFrame*);
 
-  WebWidgetHost* GetHostForWidget(WebWidget* webwidget);
+  WebWidgetHost* GetWidgetHost();
 
   void UpdateForCommittedLoad(WebFrame* webframe, bool is_new_navigation);
   void UpdateURL(WebFrame* frame);

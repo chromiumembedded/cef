@@ -62,6 +62,7 @@ BEGIN
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP
+        MENUITEM "Request",                     ID_TESTS_REQUEST
     END
 END
 

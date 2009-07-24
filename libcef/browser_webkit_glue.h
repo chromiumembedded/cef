@@ -15,9 +15,6 @@ class WebView;
 
 namespace webkit_glue {
 
-// Return the HTML contents of a web frame as a string
-std::string GetDocumentString(WebFrame* frame);
-
 #if defined(OS_WIN)
 // Capture a bitmap of the web view.
 void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,

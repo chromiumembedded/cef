@@ -154,6 +154,10 @@ enum cef_handler_menutypebits_t
   MENUTYPE_EDITABLE = 0x20,
   // A misspelled word is selected
   MENUTYPE_MISSPELLED_WORD = 0x40,
+  // A video node is selected
+  MENUTYPE_VIDEO = 0x80,
+  // A video node is selected
+  MENUTYPE_AUDIO = 0x100,
 };
 
 // The cef_handler_menuinfo_t editFlags value will be a combination of the

@@ -30,6 +30,13 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+// Convert a std::string to a std::wstring
+std::wstring StringToWString(const std::string& s)
+{
+  std::wstring temp(s.length(),L' ');
+  std::copy(s.begin(), s.end(), temp.begin());
+  return temp;
+}
 
 // Implementation of the V8 handler class for the "cef.test" extension.
 class ClientV8ExtensionHandler : public CefThreadSafeBase<CefV8Handler>
@@ -487,7 +494,7 @@ public:
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame)
   {
-    if(!frame.get())
+    if(!browser->IsPopup() && !frame.get())
     {
       Lock();
       // We've just started loading a page
@@ -507,7 +514,7 @@ public:
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame)
   {
-    if(!frame.get())
+    if(!browser->IsPopup() && !frame.get())
     {
       Lock();
       // We've just finished loading a page
@@ -568,7 +575,58 @@ public:
                                           int loadFlags)
   {
     std::wstring url = request->GetURL();
-    if(wcsstr(url.c_str(), L"logo.gif") != NULL) {
+    if(url == L"http://tests/request") {
+      // Show the request contents
+      std::wstringstream ss;
+
+      ss << L"URL: " << url;
+      ss << L"\nMethod: " << request->GetMethod();
+
+      CefRequest::HeaderMap headerMap;
+      request->GetHeaderMap(headerMap);
+      if(headerMap.size() > 0) {
+        ss << L"\nHeaders:";
+        CefRequest::HeaderMap::const_iterator it = headerMap.begin();
+        for(; it != headerMap.end(); ++it) {
+          ss << L"\n\t" << (*it).first << L": " << (*it).second;
+        }
+      }
+
+      CefRefPtr<CefPostData> postData = request->GetPostData();
+      if(postData.get()) {
+        CefPostData::ElementVector elements;
+        postData->GetElements(elements);
+        if(elements.size() > 0) {
+          ss << L"\nPost Data:";
+          CefRefPtr<CefPostDataElement> element;
+          CefPostData::ElementVector::const_iterator it = elements.begin();
+          for(; it != elements.end(); ++it) {
+            element = (*it);
+            if(element->GetType() == PDE_TYPE_BYTES) {
+              // the element is composed of bytes
+              ss << L"\n\tBytes: ";
+              if(element->GetBytesCount() == 0)
+                ss << L"(empty)";
+              else {
+                // retrieve the data.
+                size_t size = element->GetBytesCount();
+                char* bytes = new char[size];
+                element->GetBytes(size, bytes);
+                ss << StringToWString(std::string(bytes, size));
+                delete [] bytes;
+              }
+            } else if(element->GetType() == PDE_TYPE_FILE) {
+              ss << L"\n\tFile: " << element->GetFile();
+            }
+          }
+        }
+      }
+
+      std::wstring str = ss.str();
+      resourceStream = CefStreamReader::CreateForData(
+          (void*)str.c_str(), str.size() * sizeof(wchar_t));
+      mimeType = L"text/plain";
+    } else if(wcsstr(url.c_str(), L"logo.gif") != NULL) {
       // Any time we find "logo.gif" in the URL substitute in our own image
       DWORD dwSize;
       LPBYTE pBytes;
@@ -815,8 +873,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         wchar_t strPtr[MAX_URL_LENGTH] = {0};
         *((LPWORD)strPtr) = MAX_URL_LENGTH; 
         LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
-        if (strLen > 0)
+        if (strLen > 0) {
+          strPtr[strLen] = 0;
           browser->GetMainFrame()->LoadURL(strPtr);
+        }
 
         return 0;
       }
@@ -1019,6 +1079,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             browser->GetMainFrame()->ExecuteJavaScript(
               L"window.open('http://www.google.com');",
               L"about:blank", 0);
+          }
+          return 0;
+        case ID_TESTS_REQUEST: // Test a request
+          if(browser.get())
+          {
+            // Create a new request
+            CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
+
+            // Set the request URL
+            request->SetURL(L"http://tests/request");
+
+            // Add post data to the request.  The correct method and content-
+            // type headers will be set by CEF.
+            CefRefPtr<CefPostDataElement> postDataElement(
+                CefPostDataElement::CreatePostDataElement());
+            std::string data = "arg1=val1&arg2=val2";
+            postDataElement->SetToBytes(data.length(), data.c_str());
+            CefRefPtr<CefPostData> postData(CefPostData::CreatePostData());
+            postData->AddElement(postDataElement);
+            request->SetPostData(postData);
+
+            // Add a custom header
+            CefRequest::HeaderMap headerMap;
+            headerMap.insert(
+                std::make_pair(L"X-My-Header", L"My Header Value"));
+            request->SetHeaderMap(headerMap);
+
+            // Load the request
+            browser->GetMainFrame()->LoadRequest(request);
           }
           return 0;
         }

@@ -7,6 +7,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "webkit/api/public/WebHTTPHeaderVisitor.h"
 #include "webkit/glue/glue_util.h"
 
 
@@ -92,32 +93,39 @@ void CefRequestImpl::Set(const std::wstring& url,
   Unlock();
 }
 
-void CefRequestImpl::SetHeaderMap(const WebRequest::HeaderMap& map)
+void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
+                                  HeaderMap& map)
 {
-  Lock();
-  WebRequest::HeaderMap::const_iterator it = map.begin();
+  class CefHTTPHeaderVisitor : public WebKit::WebHTTPHeaderVisitor {
+    public:
+      CefHTTPHeaderVisitor(HeaderMap* map) : map_(map) {}
+
+      virtual void visitHeader(const WebKit::WebString& name,
+                               const WebKit::WebString& value) {
+        map_->insert(
+            std::make_pair(
+                UTF8ToWide(webkit_glue::WebStringToStdString(name)),
+                UTF8ToWide(webkit_glue::WebStringToStdString(value))));
+      }
+
+    private:
+      HeaderMap* map_;
+  };
+
+  CefHTTPHeaderVisitor visitor(&map);
+  request.visitHTTPHeaderFields(&visitor);
+}
+
+void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
+                                  WebKit::WebURLRequest& request)
+{
+  HeaderMap::const_iterator it = map.begin();
   for(; it != map.end(); ++it) {
-    headermap_.insert(
-        std::make_pair(
-            UTF8ToWide(it->first.c_str()),
-            UTF8ToWide(it->second.c_str())));
+    request.setHTTPHeaderField(
+        webkit_glue::StdStringToWebString(WideToUTF8(it->first.c_str())),
+        webkit_glue::StdStringToWebString(WideToUTF8(it->second.c_str())));
   }
-  Unlock();
 }
-
-void CefRequestImpl::GetHeaderMap(WebRequest::HeaderMap& map)
-{
-  Lock();
-  HeaderMap::const_iterator it = headermap_.begin();
-  for(; it != headermap_.end(); ++it) {
-    map.insert(
-        std::make_pair(
-            WideToUTF8(it->first.c_str()),
-            WideToUTF8(it->second.c_str())));
-  }
-  Unlock();
-}
-
 
 CefRefPtr<CefPostData> CefPostData::CreatePostData()
 {
@@ -213,16 +221,55 @@ void CefPostDataImpl::Get(net::UploadData& data)
 {
   Lock();
 
-  net::UploadData::Element* element;
+  net::UploadData::Element element;
+  std::vector<net::UploadData::Element> data_elements;
   ElementVector::iterator it = elements_.begin();
   for(; it != elements_.end(); ++it) {
-    element = new net::UploadData::Element();
-    static_cast<CefPostDataElementImpl*>(it->get())->Set(*element);
+    static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
+    data_elements.push_back(element);
+  }
+  data.set_elements(data_elements);
+
+  Unlock();
+}
+
+void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data)
+{
+  Lock();
+
+  CefRefPtr<CefPostDataElement> postelem;
+  WebKit::WebHTTPBody::Element element;
+  size_t size = data.elementCount();
+  for (size_t i = 0; i < size; ++i) {
+    if (data.elementAt(i, element)) {
+      postelem = CefPostDataElement::CreatePostDataElement();
+      static_cast<CefPostDataElementImpl*>(postelem.get())->Set(element);
+      AddElement(postelem);
+    }
   }
 
   Unlock();
 }
 
+void CefPostDataImpl::Get(WebKit::WebHTTPBody& data)
+{
+  Lock();
+
+  WebKit::WebHTTPBody::Element element;
+  ElementVector::iterator it = elements_.begin();
+  for(; it != elements_.end(); ++it) {
+    static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
+    if(element.type == WebKit::WebHTTPBody::Element::TypeData) {
+      data.appendData(element.data);
+    } else if(element.type == WebKit::WebHTTPBody::Element::TypeFile) {
+      data.appendFile(element.filePath);
+    } else {
+      NOTREACHED();
+    }
+  }
+
+  Unlock();
+}
 
 CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement()
 {
@@ -370,3 +417,37 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
   Unlock();
 }
 
+void CefPostDataElementImpl::Set(const WebKit::WebHTTPBody::Element& element)
+{
+  Lock();
+
+  if(element.type == WebKit::WebHTTPBody::Element::TypeData) {
+    SetToBytes(element.data.size(),
+        static_cast<const void*>(element.data.data()));
+  } else if(element.type == WebKit::WebHTTPBody::Element::TypeFile) {
+    SetToFile(UTF8ToWide(webkit_glue::WebStringToStdString(element.filePath)));
+  } else {
+    NOTREACHED();
+  }
+
+  Unlock();
+}
+
+void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element)
+{
+  Lock();
+
+  if(type_ == PDE_TYPE_BYTES) {
+    element.type = WebKit::WebHTTPBody::Element::TypeData;
+    element.data.assign(
+        static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
+  } else if(type_ == PDE_TYPE_FILE) {
+    element.type = WebKit::WebHTTPBody::Element::TypeFile;
+    element.filePath.assign(
+        webkit_glue::StdStringToWebString(WideToUTF8(data_.filename)));
+  } else {
+    NOTREACHED();
+  }
+
+  Unlock();
+}

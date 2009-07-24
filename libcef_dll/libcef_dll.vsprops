@@ -12,7 +12,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalDependencies="comctl32.lib shlwapi.lib rpcrt4.lib winmm.lib"
+		AdditionalDependencies=""
 		AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
 	/>
 	<Tool

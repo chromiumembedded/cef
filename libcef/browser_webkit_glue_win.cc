@@ -21,6 +21,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webkit_glue.h"
@@ -65,16 +66,16 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
 void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,
                           SIZE& size)
 {
-  WebKit::WebSize webSize = webview->GetSize();
+  WebKit::WebSize webSize = webview->size();
   size.cx = webSize.width;
   size.cy = webSize.height;
   
-  skia::PlatformCanvasWin canvas(size.cx, size.cy, true);
-  canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
+  skia::PlatformCanvas canvas(size.cx, size.cy, true);
+  canvas.drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
   PlatformContextSkia context(&canvas);
   WebKit::WebRect rect(0, 0, size.cx, size.cy);
-  webview->Layout();
-  webview->Paint(&canvas, rect);
+  webview->layout();
+  webview->paint(&canvas, rect);
 
   HDC hRefDC = GetDC(mainWnd);
   HDC hDC = CreateCompatibleDC(hRefDC);

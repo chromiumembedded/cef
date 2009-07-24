@@ -26,20 +26,20 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebRect.h"
-#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 
+using WebKit::WebCursorInfo;
+using WebKit::WebNavigationPolicy;
 using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
@@ -50,7 +50,7 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  HWND hwnd = gfx::NativeViewFromId(GetContainingView(webview));
+  HWND hwnd = browser_->GetWebViewHost()->view_handle();
   if (!hwnd)
     return NULL;
 
@@ -70,79 +70,7 @@ WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
   return NULL;
 }
 
-void BrowserWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
-  if (webwidget == browser_->GetWebView()) {
-    ShowWindow(browser_->GetMainWndHandle(), SW_SHOW);
-    UpdateWindow(browser_->GetMainWndHandle());
-  } else if (webwidget == browser_->GetPopup()) {
-    ShowWindow(browser_->GetPopupWndHandle(), SW_SHOW);
-    UpdateWindow(browser_->GetPopupWndHandle());
-  }
-}
-
-void BrowserWebViewDelegate::ShowAsPopupWithItems(
-    WebWidget* webwidget,
-    const WebRect& bounds,
-    int item_height,
-    int selected_index,
-    const std::vector<WebMenuItem>& items) {
-  NOTREACHED();
-}
-
-void BrowserWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
-  if (webwidget == browser_->GetWebView()) {
-    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
-  } else if (webwidget == browser_->GetPopup()) {
-    browser_->UIT_ClosePopupWidget();
-  }
-}
-
-void BrowserWebViewDelegate::SetCursor(WebWidget* webwidget,
-                                    const WebCursor& cursor) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    current_cursor_ = cursor;
-    HINSTANCE mod_handle = GetModuleHandle(NULL);
-    host->SetCursor(current_cursor_.GetCursor(mod_handle));
-  }
-}
-
-void BrowserWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        WebRect* out_rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    RECT rect;
-    ::GetWindowRect(host->window_handle(), &rect);
-    *out_rect = gfx::Rect(rect);
-  }
-}
-
-void BrowserWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const WebRect& rect) {
-  if (webwidget == browser_->GetWebView()) {
-    // ignored
-  } else if (webwidget == browser_->GetPopup()) {
-    MoveWindow(browser_->GetPopupWndHandle(),
-               rect.x, rect.y, rect.width, rect.height, FALSE);
-  }
-}
-
-void BrowserWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            WebRect* out_rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    RECT rect;
-    HWND root_window = ::GetAncestor(host->window_handle(), GA_ROOT);
-    ::GetWindowRect(root_window, &rect);
-    *out_rect = gfx::Rect(rect);
-  }
-}
-
-void BrowserWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
-                                                      WebRect* out_rect) {
-  // Not necessary on Windows.
-  *out_rect = gfx::Rect();
-}
-
-void BrowserWebViewDelegate::DidMove(WebWidget* webwidget,
-                                  const WebPluginGeometry& move) {
+void BrowserWebViewDelegate::DidMovePlugin(const WebPluginGeometry& move) {
   HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
                               move.clip_rect.y(),
                               move.clip_rect.right(),
@@ -152,7 +80,6 @@ void BrowserWebViewDelegate::DidMove(WebWidget* webwidget,
   // Note: System will own the hrgn after we call SetWindowRgn,
   // so we don't need to call DeleteObject(hrgn)
   ::SetWindowRgn(move.window, hrgn, FALSE);
-
   unsigned long flags = 0;
   if (move.visible)
     flags |= SWP_SHOWWINDOW;
@@ -166,33 +93,6 @@ void BrowserWebViewDelegate::DidMove(WebWidget* webwidget,
                  move.window_rect.width(),
                  move.window_rect.height(),
                  flags);
-
-}
-
-void BrowserWebViewDelegate::RunModal(WebWidget* webwidget) {
-  Show(webwidget, NEW_WINDOW);
-
-  CefContext::BrowserList *list;
-  CefContext::BrowserList::const_iterator i;
-
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i) {
-    if (i->get()->IsPopup())
-      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
-  }
-  _Context->Unlock();
-  
-  browser_->UIT_SetIsModal(true);
-  MessageLoop::current()->Run();
-
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i)
-    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
-  _Context->Unlock();
 }
 
 static void AddMenuItem(CefRefPtr<CefBrowser> browser, HMENU menu, int index,
@@ -233,19 +133,21 @@ static void AddMenuSeparator(HMENU menu, int index)
   InsertMenuItem(menu, index, TRUE, &mii);
 }
 
-void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
-                                          ContextNode in_node,
-                                          int x,
-                                          int y,
-                                          const GURL& link_url,
-                                          const GURL& image_url,
-                                          const GURL& page_url,
-                                          const GURL& frame_url,
-                                          const std::wstring& selection_text,
-                                          const std::wstring& misspelled_word,
-                                          int edit_flags,
-                                          const std::string& security_info,
-                                          const std::string& frame_charset) {
+void BrowserWebViewDelegate::ShowContextMenu(
+    WebView* webview,
+    ContextNodeType node_type,
+    int x,
+    int y,
+    const GURL& link_url,
+    const GURL& image_url,
+    const GURL& page_url,
+    const GURL& frame_url,
+    const ContextMenuMediaParams& media_params,
+    const std::wstring& selection_text,
+    const std::wstring& misspelled_word,
+    int edit_flags,
+    const std::string& security_info,
+    const std::string& frame_charset) {
 
   POINT screen_pt = { x, y };
   MapWindowPoints(browser_->GetMainWndHandle(), HWND_DESKTOP,
@@ -276,7 +178,7 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
     framestr = UTF8ToWide(frame_url.spec().c_str());
     securitystr = UTF8ToWide(security_info);
     
-    menuInfo.typeFlags = in_node.type;
+    menuInfo.typeFlags = node_type.type;
     menuInfo.x = screen_pt.x;
     menuInfo.y = screen_pt.y;
     menuInfo.linkUrl = linkstr.c_str();
@@ -295,29 +197,30 @@ void BrowserWebViewDelegate::ShowContextMenu(WebView* webview,
   }
 
   // Build the correct default context menu
-  if (in_node.type & ContextNode::EDITABLE) {
+  if (node_type.type & ContextNodeType::EDITABLE) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_UNDO, L"Undo",
-      !!(edit_flags & ContextNode::CAN_UNDO), label_list);
+      !!(edit_flags & ContextNodeType::CAN_UNDO), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_REDO, L"Redo",
-      !!(edit_flags & ContextNode::CAN_REDO), label_list);
+      !!(edit_flags & ContextNodeType::CAN_REDO), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_CUT, L"Cut",
-      !!(edit_flags & ContextNode::CAN_CUT), label_list);
+      !!(edit_flags & ContextNodeType::CAN_CUT), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & ContextNode::CAN_COPY), label_list);
+      !!(edit_flags & ContextNodeType::CAN_COPY), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_PASTE, L"Paste",
-      !!(edit_flags & ContextNode::CAN_PASTE), label_list);
+      !!(edit_flags & ContextNodeType::CAN_PASTE), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_DELETE, L"Delete",
-      !!(edit_flags & ContextNode::CAN_DELETE), label_list);
+      !!(edit_flags & ContextNodeType::CAN_DELETE), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_SELECTALL, L"Select All",
       !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
-  } else if(in_node.type & ContextNode::SELECTION) {
+  } else if(node_type.type & ContextNodeType::SELECTION) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & ContextNode::CAN_COPY), label_list);
-  } else if(in_node.type & (ContextNode::PAGE | ContextNode::FRAME)) {
+      !!(edit_flags & ContextNodeType::CAN_COPY), label_list);
+  } else if(node_type.type &
+      (ContextNodeType::PAGE | ContextNodeType::FRAME)) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_NAV_BACK, L"Back",
       browser_->UIT_CanGoBack(), label_list);
@@ -361,6 +264,95 @@ end:
 	MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
+// WebWidgetClient ---------------------------------------------------------
+
+void BrowserWebViewDelegate::show(WebNavigationPolicy) {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    HWND root = GetAncestor(host->view_handle(), GA_ROOT);
+    ShowWindow(root, SW_SHOW);
+    UpdateWindow(root);
+  }
+}
+
+void BrowserWebViewDelegate::closeWidgetSoon() {
+  if (this == browser_->GetWebViewDelegate()) {
+    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
+  } else if (this == browser_->GetPopupDelegate()) {
+    browser_->UIT_ClosePopupWidget();
+  }
+}
+
+void BrowserWebViewDelegate::didChangeCursor(
+    const WebCursorInfo& cursor_info) {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    current_cursor_.InitFromCursorInfo(cursor_info);
+    HINSTANCE mod_handle = GetModuleHandle(NULL);
+    host->SetCursor(current_cursor_.GetCursor(mod_handle));
+  }
+}
+
+WebRect BrowserWebViewDelegate::windowRect() {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    RECT rect;
+    ::GetWindowRect(host->view_handle(), &rect);
+    return gfx::Rect(rect);
+  }
+  return WebRect();
+}
+
+void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
+  if (this == browser_->GetWebViewDelegate()) {
+    // ignored
+  } else if (this == browser_->GetPopupDelegate()) {
+    MoveWindow(browser_->GetPopupWndHandle(),
+               rect.x, rect.y, rect.width, rect.height, FALSE);
+  }
+}
+
+WebRect BrowserWebViewDelegate::rootWindowRect() {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    RECT rect;
+    HWND root_window = ::GetAncestor(host->view_handle(), GA_ROOT);
+    ::GetWindowRect(root_window, &rect);
+    return gfx::Rect(rect);
+  }
+  return WebRect();
+}
+
+WebRect BrowserWebViewDelegate::windowResizerRect() {
+  // Not necessary on Windows.
+  return WebRect();
+}
+
+void BrowserWebViewDelegate::runModal() {
+  WebWidgetHost* host = GetWidgetHost();
+  if (!host)
+    return;
+
+  show(WebNavigationPolicy() /*XXX NEW_WINDOW*/);
+
+  CefContext::BrowserList *list;
+  CefContext::BrowserList::const_iterator i;
+
+  _Context->Lock();
+  list = _Context->GetBrowserList();
+  i = list->begin();
+  for (; i != list->end(); ++i) {
+    if (i->get()->IsPopup())
+      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
+  }
+  _Context->Unlock();
+  
+  browser_->UIT_SetIsModal(true);
+  MessageLoop::current()->Run();
+
+  _Context->Lock();
+  list = _Context->GetBrowserList();
+  i = list->begin();
+  for (; i != list->end(); ++i)
+    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
+  _Context->Unlock();
+}
 
 // Private methods -----------------------------------------------------------
 
