@@ -27,9 +27,9 @@
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "webkit/api/public/WebCursorInfo.h"
+#include "webkit/api/public/WebFrame.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
@@ -39,6 +39,7 @@
 #include "webkit/glue/window_open_disposition.h"
 
 using WebKit::WebCursorInfo;
+using WebKit::WebFrame;
 using WebKit::WebNavigationPolicy;
 using WebKit::WebRect;
 
@@ -329,7 +330,7 @@ void BrowserWebViewDelegate::runModal() {
   if (!host)
     return;
 
-  show(WebNavigationPolicy() /*XXX NEW_WINDOW*/);
+  show(WebKit::WebNavigationPolicyNewWindow);
 
   CefContext::BrowserList *list;
   CefContext::BrowserList::const_iterator i;

@@ -14,9 +14,9 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "skia/ext/vector_canvas.h"
+#include "webkit/api/public/WebFrame.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
-#include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 
 #include <shellapi.h>
@@ -56,11 +56,11 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
         // Notify the handler that the window is about to be closed
         handler->HandleBeforeWindowClose(browser);
       }
-      RevokeDragDrop(browser->GetWebViewWndHandle());
+      browser->GetWebViewDelegate()->RevokeDragDrop();
 
       // Call GC twice to clean up garbage.
-      browser->GetWebView()->GetMainFrame()->CallJSGC();
-      browser->GetWebView()->GetMainFrame()->CallJSGC();
+      browser->GetWebView()->GetMainFrame()->collectGarbage();
+      browser->GetWebView()->GetMainFrame()->collectGarbage();
 
       // Clean up anything associated with the WebViewHost widget.
       browser->GetWebViewHost()->webwidget()->close();
@@ -135,9 +135,11 @@ std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
   else
   {
     // Retrieve the document string directly
-    WebFrame* web_frame = GetWebFrame(frame);
-    if(web_frame)
-      return UTF8ToWide(web_frame->GetFullPageHtml());
+    WebKit::WebFrame* web_frame = GetWebFrame(frame);
+    if(web_frame) {
+      std::string markup = web_frame->contentAsMarkup().utf8();
+      return UTF8ToWide(markup);
+    }
     return std::wstring();
   }
 }
@@ -172,7 +174,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
   else
   {
     // Retrieve the document text directly
-    WebFrame* web_frame = GetWebFrame(frame);
+    WebKit::WebFrame* web_frame = GetWebFrame(frame);
     if(web_frame)
       webkit_glue::DumpDocumentText(web_frame);
     return std::wstring();
@@ -324,15 +326,15 @@ static void WriteTextToFile(const std::string& data,
   fclose(fp);
 }
 
-bool CefBrowserImpl::UIT_ViewDocumentString(WebFrame *frame)
+bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
 {
   REQUIRE_UIT();
   
   DWORD dwRetVal;
   DWORD dwBufSize = 512;
   TCHAR lpPathBuffer[512];
-	UINT uRetVal;
-	TCHAR szTempName[512];
+  UINT uRetVal;
+  TCHAR szTempName[512];
     
   dwRetVal = GetTempPath(dwBufSize,     // length of the buffer
                          lpPathBuffer); // buffer for path 
@@ -347,9 +349,10 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebFrame *frame)
   if (uRetVal == 0)
     return false;
  
-	size_t len = wcslen(szTempName);
-	wcscpy(szTempName + len - 3, L"txt");
-  WriteTextToFile(frame->GetFullPageHtml(), szTempName);
+  size_t len = wcslen(szTempName);
+  wcscpy(szTempName + len - 3, L"txt");
+  std::string markup = frame->contentAsMarkup().utf8();
+  WriteTextToFile(markup, szTempName);
 
   int errorCode = (int)ShellExecute(GetMainWndHandle(), L"open", szTempName,
     NULL, NULL, SW_SHOWNORMAL);
@@ -365,12 +368,12 @@ void CefBrowserImpl::UIT_GetDocumentStringNotify(CefFrame* frame,
 {
   REQUIRE_UIT();
   
-  WebFrame* web_frame = GetWebFrame(frame);
+  WebKit::WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     // Retrieve the document string
-    std::string str = web_frame->GetFullPageHtml();
+    std::string markup = web_frame->contentAsMarkup().utf8();
     // Write the document string to the stream
-    writer->Write(str.c_str(), str.size(), 1);
+    writer->Write(markup.c_str(), markup.size(), 1);
   }
   
   // Notify the calling thread that the data is now available
@@ -386,7 +389,7 @@ void CefBrowserImpl::UIT_GetDocumentTextNotify(CefFrame* frame,
 {
   REQUIRE_UIT();
   
-  WebFrame* web_frame = GetWebFrame(frame);
+  WebKit::WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     // Retrieve the document string
     std::wstring str = webkit_glue::DumpDocumentText(web_frame);
@@ -424,7 +427,7 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent)
 
 void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
                                    const gfx::Size& canvas_size,
-                                   WebFrame* frame) {
+                                   WebKit::WebFrame* frame) {
 #if !CEF_PATCHES_APPLIED
   NOTREACHED() << "CEF patches must be applied to support printing.";
   return;
@@ -472,14 +475,14 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   // Apply the WebKit scaling factor.
   float webkit_scale = 0;
 #if CEF_PATCHES_APPLIED
-  webkit_scale = frame->GetPrintPageShrink(page_number);
+  webkit_scale = frame->getPrintPageShrink(page_number);
 #endif // CEF_PATCHES_APPLIED
   if (webkit_scale <= 0) {
     NOTREACHED() << "Printing page " << page_number << " failed.";
   }
   canvas.scale(webkit_scale, webkit_scale);
   
-  frame->PrintPage(page_number, &canvas);
+  frame->printPage(page_number, &canvas);
 
   res = RestoreDC(hDC, saved_state);
   DCHECK_NE(res, 0);
@@ -503,7 +506,8 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     printInfo.m_Rect = rect;
     printInfo.m_Scale = scale;
 
-    std::wstring url = UTF8ToWide(frame->GetURL().spec());
+    std::string spec = frame->url().spec();
+    std::wstring url = UTF8ToWide(spec);
     std::wstring title = title_;
 
     std::wstring topLeft, topCenter, topRight;
@@ -572,7 +576,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   print_context_.PageDone();
 }
 
-void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
+void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
 #if !CEF_PATCHES_APPLIED
   NOTREACHED() << "CEF patches must be applied to support printing.";
   return;
@@ -612,7 +616,7 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
           settings.page_setup_pixels().physical_size().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
-  page_count = frame->PrintBegin(WebSize(canvas_size));
+  page_count = frame->printBegin(WebSize(canvas_size));
 
   if (page_count) {
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
@@ -635,10 +639,10 @@ void CefBrowserImpl::UIT_PrintPages(WebFrame* frame) {
     MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
 
-  frame->PrintEnd();
+  frame->printEnd();
 }
 
-int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
+int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 {
 	REQUIRE_UIT();
   
@@ -664,8 +668,8 @@ int CefBrowserImpl::UIT_GetPagesCount(WebFrame* frame)
           settings.page_setup_pixels().physical_size().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
-  page_count = frame->PrintBegin(WebSize(canvas_size));
-  frame->PrintEnd();
+  page_count = frame->printBegin(WebSize(canvas_size));
+  frame->printEnd();
 
   return page_count;
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="libcef_webkit_v8bindings"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir)..\v8\include;$(IntDir)\..\V8Bindings\DerivedSources;$(IntDir)\..\V8Bindings\SharedSources;$(SolutionDir)..\webkit\port\bindings\v8;"
+		PreprocessorDefinitions="_SCL_SECURE_NO_WARNINGS;CRASH=__debugbreak"
+	/>
+</VisualStudioPropertySheet>

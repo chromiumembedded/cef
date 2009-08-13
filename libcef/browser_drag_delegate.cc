@@ -6,8 +6,6 @@
 #include "precompiled_libcef.h"
 #include "browser_drag_delegate.h"
 
-#include <atltypes.h>
-
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/glue/webview.h"
 
@@ -16,14 +14,18 @@ using WebKit::WebPoint;
 
 namespace {
 
-void GetCursorPositions(HWND hwnd, CPoint* client, CPoint* screen) {
+void GetCursorPositions(HWND hwnd, gfx::Point* client, gfx::Point* screen) {
   // GetCursorPos will fail if the input desktop isn't the current desktop.
   // See http://b/1173534. (0,0) is wrong, but better than uninitialized.
-  if (!GetCursorPos(screen))
-    screen->SetPoint(0, 0);
+  POINT pos;
+  if (!GetCursorPos(&pos)) {
+    pos.x = 0;
+    pos.y = 0;
+  }
 
-  *client = *screen;
-  ScreenToClient(hwnd, client);
+  *screen = gfx::Point(pos);
+  ScreenToClient(hwnd, &pos);
+  *client = gfx::Point(pos);
 }
 
 }  // anonymous namespace
@@ -33,17 +35,15 @@ void BrowserDragDelegate::OnDragSourceCancel() {
 }
 
 void BrowserDragDelegate::OnDragSourceDrop() {
-  CPoint client;
-  CPoint screen;
+  gfx::Point client;
+  gfx::Point screen;
   GetCursorPositions(source_hwnd_, &client, &screen);
-  webview_->DragSourceEndedAt(WebPoint(client.x, client.y),
-                              WebPoint(screen.x, screen.y));
+  webview_->DragSourceEndedAt(client, screen);
 }
 
 void BrowserDragDelegate::OnDragSourceMove() {
-  CPoint client;
-  CPoint screen;
+  gfx::Point client;
+  gfx::Point screen;
   GetCursorPositions(source_hwnd_, &client, &screen);
-  webview_->DragSourceMovedTo(WebPoint(client.x, client.y),
-                              WebPoint(screen.x, screen.y));
+  webview_->DragSourceMovedTo(client, screen);
 }

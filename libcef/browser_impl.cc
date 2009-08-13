@@ -9,6 +9,7 @@
 #include "request_impl.h"
 
 #include "base/string_util.h"
+#include "webkit/api/public/WebFrame.h"
 #include "webkit/api/public/WebHTTPBody.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/api/public/WebString.h"
@@ -16,8 +17,8 @@
 #include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webframe.h"
 
+using WebKit::WebFrame;
 using WebKit::WebHTTPBody;
 using WebKit::WebScriptSource;
 using WebKit::WebString;
@@ -33,8 +34,8 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
   handler_(handler), webviewhost_(NULL), popuphost_(NULL), unique_id_(0),
   frame_main_(NULL)
 {
-  delegate_ = new BrowserWebViewDelegate(this);
-  popup_delegate_ = new BrowserWebViewDelegate(this);
+  delegate_.reset(new BrowserWebViewDelegate(this));
+  popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
 }
 
@@ -114,7 +115,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
   WebFrame* it = main_frame;
   do {
     if(it != main_frame)
-      names.push_back(it->GetName());
+      names.push_back(UTF16ToWideHack(it->name()));
     it = view->GetNextFrameAfter(it, true);
   } while (it != main_frame);
 }
@@ -133,7 +134,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
       cef_frame = frame_main_;
     } else {
       // Locate or create the appropriate named reference.
-      std::wstring name = frame->GetName();
+      std::wstring name = UTF16ToWideHack(frame->name());
       DCHECK(!name.empty());
       FrameMap::const_iterator it = frames_.find(name);
       if(it != frames_.end())
@@ -289,8 +290,10 @@ void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
 std::wstring CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 {
   WebFrame* web_frame = GetWebFrame(frame);
-  if(web_frame)
-    return UTF8ToWide(web_frame->GetURL().spec());
+  if(web_frame) {
+    std::string spec = web_frame->url().spec();
+    return UTF8ToWide(spec);
+  }
   return std::wstring();
 }
 
@@ -421,7 +424,7 @@ void CefBrowserImpl::UIT_LoadHTML(CefFrame* frame,
 
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame)
-    web_frame->LoadHTMLString(WideToUTF8(html), gurl);
+    web_frame->loadHTMLString(WideToUTF8(html), gurl);
 
   frame->Release();
 }
@@ -456,7 +459,7 @@ void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefFrame* frame,
 
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame)
-    web_frame->LoadHTMLString(ss.str(), gurl);
+    web_frame->loadHTMLString(ss.str(), gurl);
 
   stream->Release();
   frame->Release();
@@ -471,7 +474,7 @@ void CefBrowserImpl::UIT_ExecuteJavaScript(CefFrame* frame,
 
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
-    web_frame->ExecuteScript(
+    web_frame->executeScript(
         WebScriptSource(WebString(js_code), WebURL(GURL(script_url)),
                         start_line));
   }
@@ -516,10 +519,10 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
   if (reload) {
-    frame->Reload();
+    frame->reload();
   } else if (!entry.GetContentState().empty()) {
     DCHECK(entry.GetPageID() != -1);
-    frame->LoadHistoryItem(
+    frame->loadHistoryItem(
         webkit_glue::HistoryItemFromString(entry.GetContentState()));
   } else {
     DCHECK(entry.GetPageID() == -1);
@@ -548,7 +551,7 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
       request.setHTTPBody(entry.GetUploadData());
     }
 
-    frame->LoadRequest(request);
+    frame->loadRequest(request);
   }
 
   // In case LoadRequest failed before DidCreateDataSource was called.
@@ -632,31 +635,31 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
       break;
     case MENU_ID_UNDO:
       if(web_frame)
-        web_frame->Undo();
+        web_frame->executeCommand(WebString::fromUTF8("Undo"));
       break;
     case MENU_ID_REDO:
       if(web_frame)
-        web_frame->Redo();
+        web_frame->executeCommand(WebString::fromUTF8("Redo"));
       break;
     case MENU_ID_CUT:
       if(web_frame)
-        web_frame->Cut();
+        web_frame->executeCommand(WebString::fromUTF8("Cut"));
       break;
     case MENU_ID_COPY:
       if(web_frame)
-        web_frame->Copy();
+        web_frame->executeCommand(WebString::fromUTF8("Copy"));
       break;
     case MENU_ID_PASTE:
       if(web_frame)
-        web_frame->Paste();
+        web_frame->executeCommand(WebString::fromUTF8("Paste"));
       break;
     case MENU_ID_DELETE:
       if(web_frame)
-        web_frame->Delete();
+        web_frame->executeCommand(WebString::fromUTF8("Delete"));
       break;
     case MENU_ID_SELECTALL:
       if(web_frame)
-        web_frame->SelectAll();
+        web_frame->executeCommand(WebString::fromUTF8("SelectAll"));
       break;
     case MENU_ID_PRINT:
       if(web_frame)

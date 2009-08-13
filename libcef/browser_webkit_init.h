@@ -58,19 +58,21 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   WebKit::WebClipboard* clipboard() {
-    if (!clipboard_.get()) {
-      clipboard_.reset(new webkit_glue::WebClipboardImpl());
-    }
-    return clipboard_.get();
+    return &clipboard_;
   }
 
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
     return NULL;
   }
 
-  virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
+  virtual bool sandboxEnabled() {
+    return false;
+  }
+
+   virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
     return file_util::GetFileSize(
-        FilePath(webkit_glue::WebStringToFilePathString(path)), &result);
+        FilePath(webkit_glue::WebStringToFilePathString(path)),
+                 reinterpret_cast<int64*>(&result));
   }
 
   virtual unsigned long long visitedLinkHash(const char* canonicalURL, size_t length) {
@@ -81,17 +83,21 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return false;
   }
 
+  virtual WebKit::WebMessagePortChannel* createMessagePortChannel() {
+    return NULL;
+  }
+
   virtual void setCookies(const WebKit::WebURL& url,
                           const WebKit::WebURL& first_party_for_cookies,
                           const WebKit::WebString& value) {
     BrowserResourceLoaderBridge::SetCookie(
-        url, first_party_for_cookies, UTF16ToUTF8(value));
+        url, first_party_for_cookies, value.utf8());
   }
 
   virtual WebKit::WebString cookies(
       const WebKit::WebURL& url,
       const WebKit::WebURL& first_party_for_cookies) {
-    return UTF8ToUTF16(BrowserResourceLoaderBridge::GetCookies(
+    return WebKit::WebString::fromUTF8(BrowserResourceLoaderBridge::GetCookies(
         url, first_party_for_cookies));
   }
 
@@ -134,7 +140,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
-  scoped_ptr<WebKit::WebClipboard> clipboard_;
+  webkit_glue::WebClipboardImpl clipboard_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

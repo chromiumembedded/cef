@@ -56,12 +56,12 @@ public:
   // already exist for the specified WebFrame one will be created.  There is no
   // guarantee that the same CefFrame object will be returned across different
   // calls to this function.
-  CefRefPtr<CefFrame> GetCefFrame(WebFrame* frame);
+  CefRefPtr<CefFrame> GetCefFrame(WebKit::WebFrame* frame);
   void RemoveCefFrame(const std::wstring& name);
 
   // Return the WebFrame object associated with the specified CefFrame.  This
   // may return NULL if no WebFrame with the CefFrame's name exists.
-  WebFrame* GetWebFrame(CefRefPtr<CefFrame> frame);
+  WebKit::WebFrame* GetWebFrame(CefRefPtr<CefFrame> frame);
 
   // Frame-related methods
   void Undo(CefRefPtr<CefFrame> frame);
@@ -188,7 +188,7 @@ public:
 
   // Save the document HTML to a temporary file and open in the default viewing
   // application
-  bool UIT_ViewDocumentString(WebFrame *frame);
+  bool UIT_ViewDocumentString(WebKit::WebFrame *frame);
 #if defined(OS_WIN)
   void UIT_GetDocumentStringNotify(CefFrame* frame,
                                    CefStreamWriter* writer, HANDLE hEvent);
@@ -202,10 +202,10 @@ public:
   bool UIT_CanGoForward() { return !nav_controller_->IsAtEnd(); }
 
   // Printing support
-  void UIT_PrintPages(WebFrame* frame);
+  void UIT_PrintPages(WebKit::WebFrame* frame);
   void UIT_PrintPage(int page_number, int total_pages,
-                     const gfx::Size& canvas_size, WebFrame* frame);
-  int UIT_GetPagesCount(WebFrame* frame);
+                     const gfx::Size& canvas_size, WebKit::WebFrame* frame);
+  int UIT_GetPagesCount(WebKit::WebFrame* frame);
 
   void UIT_SetUniqueID(int id) { unique_id_ = id; }
   int UIT_GetUniqueID() { return unique_id_; }
@@ -217,8 +217,8 @@ protected:
   CefRefPtr<CefHandler> handler_;
   scoped_ptr<WebViewHost> webviewhost_;
   WebWidgetHost* popuphost_;
-  scoped_refptr<BrowserWebViewDelegate> delegate_;
-  scoped_refptr<BrowserWebViewDelegate> popup_delegate_;
+  scoped_ptr<BrowserWebViewDelegate> delegate_;
+  scoped_ptr<BrowserWebViewDelegate> popup_delegate_;
   scoped_ptr<BrowserNavigationController> nav_controller_;
 
   std::wstring title_;

@@ -10,7 +10,9 @@
 #include "base/string_piece.h"
 #include "v8/include/v8.h"
 
+namespace WebKit {
 class WebFrame;
+}
 class WebView;
 
 namespace webkit_glue {
@@ -31,6 +33,6 @@ void InitializeTextEncoding();
 StringPiece NetResourceProvider(int key);
 
 // Retrieve the V8 context associated with the frame.
-v8::Handle<v8::Context> GetV8Context(WebFrame* frame);
+v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 
 }  // namespace webkit_glue
