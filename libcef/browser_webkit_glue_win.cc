@@ -50,9 +50,8 @@ HCURSOR LoadCursor(int cursor_id) {
   return NULL;
 }
 
-bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
+void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
-  return true;
 }
 
 bool EnsureFontLoaded(HFONT font) {

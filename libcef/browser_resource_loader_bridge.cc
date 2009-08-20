@@ -748,7 +748,7 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
       request_context->proxy_service()));
 
   net::ProxyInfo proxy_info;
-  int rv = sync_proxy_service->ResolveProxy(NULL, url, &proxy_info);
+  int rv = sync_proxy_service->ResolveProxy(url, &proxy_info, NULL);
   if (rv == net::OK) {
     *proxy_list = proxy_info.ToPacString();
   }

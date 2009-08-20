@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 
+#undef LOG
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "TextEncoding.h"
@@ -16,7 +17,6 @@ MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
 
-#undef LOG
 #include "base/path_service.h"
 #include "base/resource_util.h"
 #include "base/scoped_ptr.h"
@@ -132,8 +132,10 @@ StringPiece GetDataResource(int resource_id) {
   case IDR_SEARCH_MAGNIFIER_RESULTS:
   case IDR_MEDIA_PAUSE_BUTTON:
   case IDR_MEDIA_PLAY_BUTTON:
+  case IDR_MEDIA_PLAY_BUTTON_DISABLED:
   case IDR_MEDIA_SOUND_FULL_BUTTON:
   case IDR_MEDIA_SOUND_NONE_BUTTON:
+  case IDR_MEDIA_SOUND_DISABLED:
   case IDR_MEDIA_SLIDER_THUMB:
     return NetResourceProvider(resource_id);
   default:

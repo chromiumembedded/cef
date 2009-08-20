@@ -9,7 +9,6 @@
 #include "browser_webkit_glue.h"
 #include "stream_impl.h"
 #include "printing/units.h"
-#include "../patch/patch_state.h"
 
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -428,11 +427,6 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent)
 void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
                                    const gfx::Size& canvas_size,
                                    WebKit::WebFrame* frame) {
-#if !CEF_PATCHES_APPLIED
-  NOTREACHED() << "CEF patches must be applied to support printing.";
-  return;
-#endif // !CEF_PATCHES_APPLIED
-
   REQUIRE_UIT();
 
   printing::PrintParams params;
@@ -473,10 +467,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   canvas.clipRect(clip_rect);
   
   // Apply the WebKit scaling factor.
-  float webkit_scale = 0;
-#if CEF_PATCHES_APPLIED
-  webkit_scale = frame->getPrintPageShrink(page_number);
-#endif // CEF_PATCHES_APPLIED
+  float webkit_scale = frame->getPrintPageShrink(page_number);
   if (webkit_scale <= 0) {
     NOTREACHED() << "Printing page " << page_number << " failed.";
   }
@@ -577,11 +568,6 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 }
 
 void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
-#if !CEF_PATCHES_APPLIED
-  NOTREACHED() << "CEF patches must be applied to support printing.";
-  return;
-#endif // !CEF_PATCHES_APPLIED
-
   REQUIRE_UIT();
 
   TCHAR printername[512];

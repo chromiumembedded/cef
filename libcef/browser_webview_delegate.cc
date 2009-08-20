@@ -9,6 +9,7 @@
 
 #include "precompiled_libcef.h"
 #include "config.h"
+#undef LOG
 #include "browser_webview_delegate.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
@@ -583,14 +584,14 @@ void BrowserWebViewDelegate::TakeFocus(WebView* webview, bool reverse) {
 void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
   WebPreferences* prefs = _Context->GetWebPreferences();
   prefs->user_style_sheet_enabled = is_enabled;
-  browser_->GetWebView()->SetPreferences(*prefs);
+  prefs->Apply(browser_->GetWebView());
 }
 
 void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   WebPreferences* prefs = _Context->GetWebPreferences();
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
-  browser_->GetWebView()->SetPreferences(*prefs);
+  prefs->Apply(browser_->GetWebView());
 }
 
 void BrowserWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {

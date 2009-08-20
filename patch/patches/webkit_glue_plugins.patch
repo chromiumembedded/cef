@@ -1,0 +1,37 @@
+Index: plugin_list.cc
+===================================================================
+--- plugin_list.cc	(revision 23814)
++++ plugin_list.cc	(working copy)
+@@ -50,7 +50,7 @@
+ 
+ void PluginList::RegisterInternalPlugin(const PluginVersionInfo& info) {
+   AutoLock lock(lock_);
+-  internal_plugins_.push_back(info);
++  internal_plugins_.insert(internal_plugins_.begin(), info);
+ }
+ 
+ bool PluginList::ReadPluginInfo(const FilePath &filename,
+Index: plugin_list_win.cc
+===================================================================
+--- plugin_list_win.cc	(revision 23814)
++++ plugin_list_win.cc	(working copy)
+@@ -356,10 +356,15 @@
+ }
+ 
+ void PluginList::LoadInternalPlugins(std::vector<WebPluginInfo>* plugins) {
+-  if (!use_internal_activex_shim_)
+-    return;
+-  LoadPlugin(FilePath(kActiveXShimFileName), plugins);
+-  LoadPlugin(FilePath(kActiveXShimFileNameForMediaPlayer), plugins);
++  for (size_t i = 0; i < internal_plugins_.size(); ++i) {
++    if (!use_internal_activex_shim_ &&
++        (internal_plugins_[i].path.value() == kActiveXShimFileName ||
++        internal_plugins_[i].path.value() ==
++            kActiveXShimFileNameForMediaPlayer)) {
++      continue;
++    }
++    LoadPlugin(internal_plugins_[i].path, plugins);
++  }
+ }
+ 
+ } // namespace NPAPI
