@@ -229,28 +229,17 @@ class RequestProxy : public URLRequest::Delegate,
         requestimpl->SetURL(UTF8ToWide(params->url.spec()));
         requestimpl->SetMethod(UTF8ToWide(params->method));
         
+        // Transfer request headers
         CefRequest::HeaderMap headerMap;
-        
-        // Parse the request header values
-        std::string headerStr = "HTTP/1.1 200 OK\n";
-        headerStr += params->headers;
-        scoped_refptr<net::HttpResponseHeaders> headers =
-            new HttpResponseHeaders(net::HttpUtil::AssembleRawHeaders(
-                headerStr.c_str(), headerStr.length()));
-        void* iter = NULL;
-        std::string name, value;
-        while(headers->EnumerateHeaderLines(&iter, &name, &value))
-          headerMap.insert(std::make_pair(UTF8ToWide(name), UTF8ToWide(value)));
-
+        CefRequestImpl::GetHeaderMap(params->headers, headerMap);
         headerMap.insert(
           std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
-
         requestimpl->SetHeaderMap(headerMap);
 
+        // Transfer post data, if any
         scoped_refptr<net::UploadData> upload = params->upload;
-        CefRefPtr<CefPostData> postdata;
         if(upload.get()) {
-          postdata = new CefPostDataImpl();
+          CefRefPtr<CefPostData> postdata(new CefPostDataImpl());
           static_cast<CefPostDataImpl*>(postdata.get())->Set(*upload.get());
           requestimpl->SetPostData(postdata);
         }

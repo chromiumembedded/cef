@@ -183,16 +183,10 @@ private:
       //////////////////////////////////////////////////////////////////////////
       // safe to perform long operation here
       CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-      req->SetURL(UTF8ToWide(url.spec()));
-      req->SetMethod(UTF8ToWide(owner_->request()->method()));
 
-      // check to see if we have post data
-      net::UploadData* data = owner_->request()->get_upload();
-      if (data) {
-        CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
-        static_cast<CefPostDataImpl*>(postdata.get())->Set(*data);
-        req->SetPostData(postdata);
-      }
+      // populate the request data
+      static_cast<CefRequestImpl*>(req.get())->Set(owner_->request());
+
       owner_->handler_->Cancel();
       std::wstring mime_type;
       int response_length = 0;
@@ -386,7 +380,7 @@ public:
   }
 
   void AddRef() {}
-  void Release() {}
+  void Release() { delete this; }
 
 private:
   CefSchemeHandlerFactory* factory_;

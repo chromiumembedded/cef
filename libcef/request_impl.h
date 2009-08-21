@@ -10,6 +10,7 @@
 #include "webkit/api/public/WebHTTPBody.h"
 #include "webkit/api/public/WebURLRequest.h"
 
+class URLRequest;
 
 // Implementation of CefRequest
 class CefRequestImpl : public CefThreadSafeBase<CefRequest>
@@ -31,10 +32,14 @@ public:
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
 
+  void Set(URLRequest* request);
+
   static void GetHeaderMap(const WebKit::WebURLRequest& request,
                            HeaderMap& map);
   static void SetHeaderMap(const HeaderMap& map,
                            WebKit::WebURLRequest& request);
+
+  static void GetHeaderMap(const std::string& header_str, HeaderMap& map);
 
 protected:
   std::wstring url_;

@@ -7,8 +7,13 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "net/http/http_response_headers.h"
+#include "net/http/http_util.h"
+#include "net/url_request/url_request.h"
 #include "webkit/api/public/WebHTTPHeaderVisitor.h"
 #include "webkit/glue/glue_util.h"
+
+using net::HttpResponseHeaders;
 
 
 CefRefPtr<CefRequest> CefRequest::CreateRequest()
@@ -93,6 +98,27 @@ void CefRequestImpl::Set(const std::wstring& url,
   Unlock();
 }
 
+void CefRequestImpl::Set(URLRequest* request)
+{
+  SetURL(UTF8ToWide(request->url().spec()));
+  SetMethod(UTF8ToWide(request->method()));
+
+  // Transfer request headers
+  HeaderMap headerMap;
+  GetHeaderMap(request->extra_request_headers(), headerMap);
+  headerMap.insert(
+      std::make_pair(L"Referrer", UTF8ToWide(request->referrer())));
+  SetHeaderMap(headerMap);
+
+  // Transfer post data, if any
+  net::UploadData* data = request->get_upload();
+  if (data) {
+    CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
+    static_cast<CefPostDataImpl*>(postdata.get())->Set(*data);
+    SetPostData(postdata);
+  }
+}
+
 void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
                                   HeaderMap& map)
 {
@@ -125,6 +151,20 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
         webkit_glue::StdStringToWebString(WideToUTF8(it->first.c_str())),
         webkit_glue::StdStringToWebString(WideToUTF8(it->second.c_str())));
   }
+}
+
+void CefRequestImpl::GetHeaderMap(const std::string& header_str, HeaderMap& map)
+{
+  // Parse the request header values
+  std::string headerStr = "HTTP/1.1 200 OK\n";
+  headerStr += header_str;
+  scoped_refptr<net::HttpResponseHeaders> headers =
+      new HttpResponseHeaders(net::HttpUtil::AssembleRawHeaders(
+          headerStr.c_str(), headerStr.length()));
+  void* iter = NULL;
+  std::string name, value;
+  while(headers->EnumerateHeaderLines(&iter, &name, &value))
+    map.insert(std::make_pair(UTF8ToWide(name), UTF8ToWide(value)));
 }
 
 CefRefPtr<CefPostData> CefPostData::CreatePostData()
