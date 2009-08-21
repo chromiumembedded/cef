@@ -16,6 +16,8 @@
 #include "cpptoc/stream_writer_cpptoc.h"
 #include "cpptoc/v8value_cpptoc.h"
 #include "ctocpp/handler_ctocpp.h"
+#include "ctocpp/scheme_handler_ctocpp.h"
+#include "ctocpp/scheme_handler_factory_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
 #include "base/string_util.h"
 
@@ -43,6 +45,8 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
   DCHECK(CefV8ValueCppToC::DebugObjCt == 0);
   DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
+  DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
+  DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
 #endif // _DEBUG
 }
@@ -106,4 +110,23 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
   pluginInfo.np_shutdown = plugin_info->np_shutdown;
   
   return CefRegisterPlugin(pluginInfo);
+}
+
+CEF_EXPORT int cef_register_scheme(const wchar_t* scheme_name,
+    const wchar_t* host_name, struct _cef_scheme_handler_factory_t* factory)
+{
+  DCHECK(scheme_name);
+  DCHECK(factory);
+  if(!scheme_name || !factory)
+    return 0;
+
+  std::wstring nameStr, codeStr;
+
+  if(scheme_name)
+    nameStr = scheme_name;
+  if(host_name)
+    codeStr = host_name;
+
+  return CefRegisterScheme(nameStr, codeStr,
+      CefSchemeHandlerFactoryCToCpp::Wrap(factory));
 }

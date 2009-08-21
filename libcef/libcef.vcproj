@@ -374,6 +374,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\scheme_impl.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\simple_clipboard_impl.cc"
 			>
 		</File>

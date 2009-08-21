@@ -63,6 +63,7 @@ BEGIN
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP
         MENUITEM "Request",                     ID_TESTS_REQUEST
+        MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
     END
 END
 

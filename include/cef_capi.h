@@ -126,6 +126,13 @@ CEF_EXPORT void cef_do_message_loop_work();
 CEF_EXPORT int cef_register_extension(const wchar_t* extension_name,
     const wchar_t* javascript_code, struct _cef_v8handler_t* handler);
 
+// Register a custom scheme handler factory for the specified |scheme_name| and
+// |host_name|. All URLs beginning with scheme_name://host_name/ can be handled
+// by cef_scheme_handler_t instances returned by the factory. Specify an NULL
+// |host_name| value to match all host names.
+CEF_EXPORT int cef_register_scheme(const wchar_t* scheme_name,
+    const wchar_t* host_name, struct _cef_scheme_handler_factory_t* factory);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.
@@ -767,6 +774,50 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_array();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const wchar_t* name,
     cef_v8handler_t* handler);
+
+
+// Structure that creates cef_scheme_handler_t instances.
+typedef struct _cef_scheme_handler_factory_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Return a new scheme handler instance to handle the request.
+  struct _cef_scheme_handler_t* (CEF_CALLBACK *create)(
+      struct _cef_scheme_handler_factory_t* self);
+
+} cef_scheme_handler_factory_t;
+
+
+// Structure used to represent a custom scheme handler structure.
+typedef struct _cef_scheme_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Process the request. All response generation should take place in this
+  // function. If there is no response set |response_length| to zero and
+  // read_response() will not be called. If the response length is not known
+  // then set |response_length| to -1 and read_response() will be called until
+  // it returns false (0) or until the value of |bytes_read| is set to 0.
+  // Otherwise, set |response_length| to a positive value and read_response()
+  // will be called until it returns false (0), the value of |bytes_read| is set
+  // to 0 or the specified number of bytes have been read. If there is a
+  // response set |mime_type| to the mime type for the response.
+  int (CEF_CALLBACK *process_request)(struct _cef_scheme_handler_t* self,
+      struct _cef_request_t* request, cef_string_t* mime_type,
+      int* response_length);
+
+  // Cancel processing of the request.
+  void (CEF_CALLBACK *cancel)(struct _cef_scheme_handler_t* self);
+
+  // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds set
+  // |bytes_read| to the number of bytes copied and return true (1). If the copy
+  // fails return false (0) and read_response() will not be called again.
+  int (CEF_CALLBACK *read_response)(struct _cef_scheme_handler_t* self,
+      void* data_out, int bytes_to_read, int* bytes_read);
+
+} cef_scheme_handler_t;
 
 
 #ifdef __cplusplus

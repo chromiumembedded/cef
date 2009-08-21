@@ -142,6 +142,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\cpptoc\scheme_handler_cpptoc.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\cpptoc\scheme_handler_cpptoc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cpptoc\scheme_handler_factory_cpptoc.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\cpptoc\scheme_handler_factory_cpptoc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\cpptoc\v8handler_cpptoc.cc"
 				>
 			</File>

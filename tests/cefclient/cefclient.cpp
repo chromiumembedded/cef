@@ -33,10 +33,106 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 // Convert a std::string to a std::wstring
 std::wstring StringToWString(const std::string& s)
 {
-  std::wstring temp(s.length(),L' ');
-  std::copy(s.begin(), s.end(), temp.begin());
-  return temp;
+	wchar_t* wch;
+	UINT bytes = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size()+1, NULL, 0);
+	wch  = new wchar_t[bytes];
+	if(wch)
+		bytes = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size()+1, wch, bytes);
+  std::wstring str = wch;
+	delete [] wch;
+  return str;
 }
+
+// Convert a std::wstring to a std::string
+std::string WStringToString(const std::wstring& s)
+{
+	char* ch;
+	UINT bytes = WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size()+1, NULL, 0,
+                                   NULL, NULL); 
+	ch = new char[bytes];
+	if(ch)
+		bytes = WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size()+1, ch, bytes,
+                                NULL, NULL);
+	std::string str = ch;
+	delete [] ch;
+  return str;
+}
+
+// Load a resource of type BINARY
+bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
+{
+	HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(binaryId),
+                            MAKEINTRESOURCE(256));
+	if(hRes)
+	{
+		HGLOBAL hGlob = LoadResource(hInst, hRes);
+		if(hGlob)
+		{
+			dwSize = SizeofResource(hInst, hRes);
+			pBytes = (LPBYTE)LockResource(hGlob);
+			if(dwSize > 0 && pBytes)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+// Dump the contents of the request into a string.
+void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
+{
+  std::wstringstream ss;
+
+  ss << L"URL: " << request->GetURL();
+  ss << L"\nMethod: " << request->GetMethod();
+
+  CefRequest::HeaderMap headerMap;
+  request->GetHeaderMap(headerMap);
+  if(headerMap.size() > 0) {
+    ss << L"\nHeaders:";
+    CefRequest::HeaderMap::const_iterator it = headerMap.begin();
+    for(; it != headerMap.end(); ++it) {
+      ss << L"\n\t" << (*it).first << L": " << (*it).second;
+    }
+  }
+
+  CefRefPtr<CefPostData> postData = request->GetPostData();
+  if(postData.get()) {
+    CefPostData::ElementVector elements;
+    postData->GetElements(elements);
+    if(elements.size() > 0) {
+      ss << L"\nPost Data:";
+      CefRefPtr<CefPostDataElement> element;
+      CefPostData::ElementVector::const_iterator it = elements.begin();
+      for(; it != elements.end(); ++it) {
+        element = (*it);
+        if(element->GetType() == PDE_TYPE_BYTES) {
+          // the element is composed of bytes
+          ss << L"\n\tBytes: ";
+          if(element->GetBytesCount() == 0)
+            ss << L"(empty)";
+          else {
+            // retrieve the data.
+            size_t size = element->GetBytesCount();
+            char* bytes = new char[size];
+            element->GetBytes(size, bytes);
+            ss << StringToWString(std::string(bytes, size));
+            delete [] bytes;
+          }
+        } else if(element->GetType() == PDE_TYPE_FILE) {
+          ss << L"\n\tFile: " << element->GetFile();
+        }
+      }
+    }
+  }
+
+  str = ss.str();
+}
+
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
 
 // Implementation of the V8 handler class for the "cef.test" extension.
 class ClientV8ExtensionHandler : public CefThreadSafeBase<CefV8Handler>
@@ -97,6 +193,123 @@ private:
   std::wstring test_param_;
 };
 
+
+// Implementation of the schema handler for client:// requests.
+class ClientSchemeHandler : public CefThreadSafeBase<CefSchemeHandler>
+{
+public:
+  ClientSchemeHandler() : size_(0), offset_(0), bytes_(NULL) {}
+
+  // Process the request. All response generation should take place in this
+  // method. If there is no response set |response_length| to zero and
+  // ReadResponse() will not be called. If the response length is not known then
+  // set |response_length| to -1 and ReadResponse() will be called until it
+  // returns false or until the value of |bytes_read| is set to 0. Otherwise,
+  // set |response_length| to a positive value and ReadResponse() will be called
+  // until it returns false, the value of |bytes_read| is set to 0 or the
+  // specified number of bytes have been read. If there is a response set
+  // |mime_type| to the mime type for the response.
+  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
+                              std::wstring& mime_type, int* response_length)
+  {
+    bool handled = false;
+
+    Lock();
+    std::wstring url = request->GetURL();
+    if(wcsstr(url.c_str(), L"handler.html") != NULL) {
+      // Build the response html
+      html_ = "<html><head><title>Client Scheme Handler</title></head><body>"
+              "This contents of this page page are served by the "
+              "ClientSchemeHandler class handling the client:// protocol."
+              "<br>You should see an image:"
+              "<br/><img src=\"client://tests/client.gif\"><pre>";
+      
+      // Output a string representation of the request
+      std::wstring dump;
+      DumpRequestContents(request, dump);
+      html_.append(WStringToString(dump));
+
+      html_.append("</pre><br>Try the test form:"
+                   "<form method=\"POST\" action=\"handler.html\">"
+                   "<input type=\"text\" name=\"field1\">"
+                   "<input type=\"text\" name=\"field2\">"
+                   "<input type=\"submit\">"
+                   "</form></body></html>");
+
+      handled = true;
+      size_ = html_.size();
+      bytes_ = (LPBYTE)html_.c_str();
+
+      // Set the resulting mime type
+      mime_type = L"text/html";
+    }
+    else if(wcsstr(url.c_str(), L"client.gif") != NULL) {
+      // Load the response image
+      if(LoadBinaryResource(IDS_LOGO, size_, bytes_)) {
+        handled = true;
+        // Set the resulting mime type
+        mime_type = L"image/jpg";
+      }
+    }
+
+    // Set the resulting response length
+    *response_length = size_;
+    Unlock();
+
+    return handled;
+  }
+
+  // Cancel processing of the request.
+  virtual void Cancel()
+  {
+  }
+
+  // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds
+  // set |bytes_read| to the number of bytes copied and return true. If the
+  // copy fails return false and ReadResponse() will not be called again.
+  virtual bool ReadResponse(void* data_out, int bytes_to_read,
+                            int* bytes_read)
+  {
+    bool has_data = false;
+    *bytes_read = 0;
+
+    Lock();
+
+    if(offset_ < size_) {
+      // Copy the next block of data into the buffer.
+      int transfer_size = min(bytes_to_read, static_cast<int>(size_ - offset_));
+      memcpy(data_out, bytes_ + offset_, transfer_size);
+      offset_ += transfer_size;
+
+      *bytes_read = transfer_size;
+      has_data = true;
+    }
+
+    Unlock();
+
+    return has_data;
+  }
+
+private:
+  DWORD size_, offset_;
+  LPBYTE bytes_;
+  std::string html_;
+};
+
+// Implementation of the factory for for creating schema handlers.
+class ClientSchemeHandlerFactory :
+  public CefThreadSafeBase<CefSchemeHandlerFactory>
+{
+public:
+  // Return a new scheme handler instance to handle the request.
+  virtual CefRefPtr<CefSchemeHandler> Create()
+  {
+    return new ClientSchemeHandler();
+  }
+};
+
+
+// Program entry point function.
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -155,6 +368,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     L"  };"
     L"})();";
   CefRegisterExtension(L"v8/test", code, new ClientV8ExtensionHandler());
+
+  // Register the scheme handler factory for requests using the client://
+  // protocol in the tests domain.
+  CefRegisterScheme(L"client", L"tests", new ClientSchemeHandlerFactory());
 
   MSG msg;
   HACCEL hAccelTable;
@@ -258,26 +475,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    return TRUE;
-}
-
-// Load a resource of type BINARY
-bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
-{
-	HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(binaryId),
-                            MAKEINTRESOURCE(256));
-	if(hRes)
-	{
-		HGLOBAL hGlob = LoadResource(hInst, hRes);
-		if(hGlob)
-		{
-			dwSize = SizeofResource(hInst, hRes);
-			pBytes = (LPBYTE)LockResource(hGlob);
-			if(dwSize > 0 && pBytes)
-				return true;
-		}
-	}
-
-	return false;
 }
 
 // Implementation of the V8 handler class for the "window.cef_test.Dump"
@@ -577,54 +774,10 @@ public:
     std::wstring url = request->GetURL();
     if(url == L"http://tests/request") {
       // Show the request contents
-      std::wstringstream ss;
-
-      ss << L"URL: " << url;
-      ss << L"\nMethod: " << request->GetMethod();
-
-      CefRequest::HeaderMap headerMap;
-      request->GetHeaderMap(headerMap);
-      if(headerMap.size() > 0) {
-        ss << L"\nHeaders:";
-        CefRequest::HeaderMap::const_iterator it = headerMap.begin();
-        for(; it != headerMap.end(); ++it) {
-          ss << L"\n\t" << (*it).first << L": " << (*it).second;
-        }
-      }
-
-      CefRefPtr<CefPostData> postData = request->GetPostData();
-      if(postData.get()) {
-        CefPostData::ElementVector elements;
-        postData->GetElements(elements);
-        if(elements.size() > 0) {
-          ss << L"\nPost Data:";
-          CefRefPtr<CefPostDataElement> element;
-          CefPostData::ElementVector::const_iterator it = elements.begin();
-          for(; it != elements.end(); ++it) {
-            element = (*it);
-            if(element->GetType() == PDE_TYPE_BYTES) {
-              // the element is composed of bytes
-              ss << L"\n\tBytes: ";
-              if(element->GetBytesCount() == 0)
-                ss << L"(empty)";
-              else {
-                // retrieve the data.
-                size_t size = element->GetBytesCount();
-                char* bytes = new char[size];
-                element->GetBytes(size, bytes);
-                ss << StringToWString(std::string(bytes, size));
-                delete [] bytes;
-              }
-            } else if(element->GetType() == PDE_TYPE_FILE) {
-              ss << L"\n\tFile: " << element->GetFile();
-            }
-          }
-        }
-      }
-
-      std::wstring str = ss.str();
+      std::wstring dump;
+      DumpRequestContents(request, dump);
       resourceStream = CefStreamReader::CreateForData(
-          (void*)str.c_str(), str.size() * sizeof(wchar_t));
+          (void*)dump.c_str(), dump.size() * sizeof(wchar_t));
       mimeType = L"text/plain";
     } else if(wcsstr(url.c_str(), L"logo.gif") != NULL) {
       // Any time we find "logo.gif" in the URL substitute in our own image
@@ -1109,6 +1262,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Load the request
             browser->GetMainFrame()->LoadRequest(request);
           }
+          return 0;
+        case ID_TESTS_SCHEME_HANDLER: // Test the scheme handler
+          if(browser.get())
+            browser->GetMainFrame()->LoadURL(L"client://tests/handler.html");
           return 0;
         }
       }

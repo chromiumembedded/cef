@@ -8,6 +8,8 @@
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
 #include "../cpptoc/handler_cpptoc.h"
+#include "../cpptoc/scheme_handler_cpptoc.h"
+#include "../cpptoc/scheme_handler_factory_cpptoc.h"
 #include "../cpptoc/v8handler_cpptoc.h"
 #include "../ctocpp/browser_ctocpp.h"
 #include "../ctocpp/post_data_ctocpp.h"
@@ -31,6 +33,8 @@ void CefShutdown()
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
   DCHECK(CefBrowserCToCpp::DebugObjCt == 0);
   DCHECK(CefRequestCToCpp::DebugObjCt == 0);
@@ -94,4 +98,12 @@ bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
   pluginInfo.np_shutdown = plugin_info.np_shutdown;
 
   return (cef_register_plugin(&pluginInfo) ? true : false);
+}
+
+bool CefRegisterScheme(const std::wstring& scheme_name,
+                       const std::wstring& host_name,
+                       CefRefPtr<CefSchemeHandlerFactory> factory)
+{
+  return cef_register_scheme(scheme_name.c_str(), host_name.c_str(),
+      CefSchemeHandlerFactoryCppToC::Wrap(factory));
 }

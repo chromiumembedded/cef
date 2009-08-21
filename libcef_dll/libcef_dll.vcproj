@@ -431,6 +431,54 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ctocpp\scheme_handler_ctocpp.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ctocpp\scheme_handler_ctocpp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ctocpp\scheme_handler_factory_ctocpp.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderThrough="../precompiled_libcef.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ctocpp\scheme_handler_factory_ctocpp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ctocpp\v8handler_ctocpp.cc"
 				>
 				<FileConfiguration

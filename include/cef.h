@@ -50,6 +50,8 @@ class CefHandler;
 class CefPostData;
 class CefPostDataElement;
 class CefRequest;
+class CefSchemeHandler;
+class CefSchemeHandlerFactory;
 class CefStreamReader;
 class CefStreamWriter;
 class CefV8Handler;
@@ -139,6 +141,16 @@ void CefDoMessageLoopWork();
 bool CefRegisterExtension(const std::wstring& extension_name,
                           const std::wstring& javascript_code,
                           CefRefPtr<CefV8Handler> handler);
+
+
+// Register a custom scheme handler factory for the specified |scheme_name| and
+// |host_name|. All URLs beginning with scheme_name://host_name/ can be handled
+// by CefSchemeHandler instances returned by the factory. Specify an empty
+// |host_name| value to match all host names.
+/*--cef()--*/
+bool CefRegisterScheme(const std::wstring& scheme_name,
+                       const std::wstring& host_name,
+                       CefRefPtr<CefSchemeHandlerFactory> factory);
 
 
 // Interface defining the the reference count implementation methods. All
@@ -929,5 +941,48 @@ public:
                                CefRefPtr<CefV8Value>& retval,
                                std::wstring& exception) =0;
 };
+
+
+// Class that creates CefSchemeHandler instances.
+/*--cef(source=client)--*/
+class CefSchemeHandlerFactory : public CefBase
+{
+public:
+  // Return a new scheme handler instance to handle the request.
+  /*--cef()--*/
+  virtual CefRefPtr<CefSchemeHandler> Create() =0;
+};
+
+
+// Class used to represent a custom scheme handler interface.
+/*--cef(source=client)--*/
+class CefSchemeHandler : public CefBase
+{
+public:
+  // Process the request. All response generation should take place in this
+  // method. If there is no response set |response_length| to zero and
+  // ReadResponse() will not be called. If the response length is not known then
+  // set |response_length| to -1 and ReadResponse() will be called until it
+  // returns false or until the value of |bytes_read| is set to 0. Otherwise,
+  // set |response_length| to a positive value and ReadResponse() will be called
+  // until it returns false, the value of |bytes_read| is set to 0 or the
+  // specified number of bytes have been read. If there is a response set
+  // |mime_type| to the mime type for the response.
+  /*--cef()--*/
+  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
+                              std::wstring& mime_type, int* response_length) =0;
+
+  // Cancel processing of the request.
+  /*--cef()--*/
+  virtual void Cancel() =0;
+
+  // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds
+  // set |bytes_read| to the number of bytes copied and return true. If the
+  // copy fails return false and ReadResponse() will not be called again.
+  /*--cef()--*/
+  virtual bool ReadResponse(void* data_out, int bytes_to_read,
+                            int* bytes_read) =0;
+};
+
 
 #endif // _CEF_H
