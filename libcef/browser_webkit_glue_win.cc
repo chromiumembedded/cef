@@ -33,17 +33,17 @@ using WebKit::WebSize;
 
 namespace webkit_glue {
 
-#define MAX_LOADSTRING 100
-
 string16 GetLocalizedString(int message_id) {
-  wchar_t localized[MAX_LOADSTRING];
-  int length = LoadString(GetModuleHandle(NULL), message_id,
-                          localized, MAX_LOADSTRING);
-  if (!length && GetLastError() == ERROR_RESOURCE_NAME_NOT_FOUND) {
+  // Localized resources are provided via webkit_resources.rc and
+  // webkit_strings_en-US.rc.
+  const ATLSTRINGRESOURCEIMAGE* image =
+      AtlGetStringResourceImage(_AtlBaseModule.GetModuleInstance(),
+                                message_id);
+  if (!image) {
     NOTREACHED();
     return L"No string for this identifier!";
   }
-  return string16(localized, length);
+  return string16(image->achString, image->nLength);
 }
 
 HCURSOR LoadCursor(int cursor_id) {
