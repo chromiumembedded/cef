@@ -11,6 +11,7 @@
 //
 
 #include "../precompiled_libcef.h"
+#include "cpptoc/read_handler_cpptoc.h"
 #include "ctocpp/stream_reader_ctocpp.h"
 
 
@@ -30,6 +31,16 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
     size_t size)
 {
   cef_stream_reader_t* impl = cef_stream_reader_create_for_data(data, size);
+  if(impl)
+    return CefStreamReaderCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
+    CefRefPtr<CefReadHandler> handler)
+{
+  cef_stream_reader_t* impl =
+      cef_stream_reader_create_for_handler(CefReadHandlerCppToC::Wrap(handler));
   if(impl)
     return CefStreamReaderCToCpp::Wrap(impl);
   return NULL;

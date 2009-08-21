@@ -2,11 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-
 #include "stdafx.h"
-#include "cefclient.h"
-#include "clientplugin.h"
 #include "cef.h"
+#include "cefclient.h"
+#include "binding_test.h"
+#include "extension_test.h"
+#include "plugin_test.h"
+#include "resource_util.h"
+#include "scheme_test.h"
+#include "string_util.h"
 #include <sstream>
 
 
@@ -30,284 +34,6 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-// Convert a std::string to a std::wstring
-std::wstring StringToWString(const std::string& s)
-{
-	wchar_t* wch;
-	UINT bytes = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size()+1, NULL, 0);
-	wch  = new wchar_t[bytes];
-	if(wch)
-		bytes = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size()+1, wch, bytes);
-  std::wstring str = wch;
-	delete [] wch;
-  return str;
-}
-
-// Convert a std::wstring to a std::string
-std::string WStringToString(const std::wstring& s)
-{
-	char* ch;
-	UINT bytes = WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size()+1, NULL, 0,
-                                   NULL, NULL); 
-	ch = new char[bytes];
-	if(ch)
-		bytes = WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size()+1, ch, bytes,
-                                NULL, NULL);
-	std::string str = ch;
-	delete [] ch;
-  return str;
-}
-
-// Load a resource of type BINARY
-bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
-{
-	HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(binaryId),
-                            MAKEINTRESOURCE(256));
-	if(hRes)
-	{
-		HGLOBAL hGlob = LoadResource(hInst, hRes);
-		if(hGlob)
-		{
-			dwSize = SizeofResource(hInst, hRes);
-			pBytes = (LPBYTE)LockResource(hGlob);
-			if(dwSize > 0 && pBytes)
-				return true;
-		}
-	}
-
-	return false;
-}
-
-// Dump the contents of the request into a string.
-void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
-{
-  std::wstringstream ss;
-
-  ss << L"URL: " << request->GetURL();
-  ss << L"\nMethod: " << request->GetMethod();
-
-  CefRequest::HeaderMap headerMap;
-  request->GetHeaderMap(headerMap);
-  if(headerMap.size() > 0) {
-    ss << L"\nHeaders:";
-    CefRequest::HeaderMap::const_iterator it = headerMap.begin();
-    for(; it != headerMap.end(); ++it) {
-      ss << L"\n\t" << (*it).first << L": " << (*it).second;
-    }
-  }
-
-  CefRefPtr<CefPostData> postData = request->GetPostData();
-  if(postData.get()) {
-    CefPostData::ElementVector elements;
-    postData->GetElements(elements);
-    if(elements.size() > 0) {
-      ss << L"\nPost Data:";
-      CefRefPtr<CefPostDataElement> element;
-      CefPostData::ElementVector::const_iterator it = elements.begin();
-      for(; it != elements.end(); ++it) {
-        element = (*it);
-        if(element->GetType() == PDE_TYPE_BYTES) {
-          // the element is composed of bytes
-          ss << L"\n\tBytes: ";
-          if(element->GetBytesCount() == 0)
-            ss << L"(empty)";
-          else {
-            // retrieve the data.
-            size_t size = element->GetBytesCount();
-            char* bytes = new char[size];
-            element->GetBytes(size, bytes);
-            ss << StringToWString(std::string(bytes, size));
-            delete [] bytes;
-          }
-        } else if(element->GetType() == PDE_TYPE_FILE) {
-          ss << L"\n\tFile: " << element->GetFile();
-        }
-      }
-    }
-  }
-
-  str = ss.str();
-}
-
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
-
-// Implementation of the V8 handler class for the "cef.test" extension.
-class ClientV8ExtensionHandler : public CefThreadSafeBase<CefV8Handler>
-{
-public:
-  ClientV8ExtensionHandler() : test_param_(L"An initial string value.") {}
-  virtual ~ClientV8ExtensionHandler() {}
-
-  // Execute with the specified argument list and return value.  Return true if
-  // the method was handled.
-  virtual bool Execute(const std::wstring& name,
-                       CefRefPtr<CefV8Value> object,
-                       const CefV8ValueList& arguments,
-                       CefRefPtr<CefV8Value>& retval,
-                       std::wstring& exception)
-  {
-    if(name == L"SetTestParam")
-    {
-      // Handle the SetTestParam native function by saving the string argument
-      // into the local member.
-      if(arguments.size() != 1 || !arguments[0]->IsString())
-        return false;
-      
-      test_param_ = arguments[0]->GetStringValue();
-      return true;
-    }
-    else if(name == L"GetTestParam")
-    {
-      // Handle the GetTestParam native function by returning the local member
-      // value.
-      retval = CefV8Value::CreateString(test_param_);
-      return true;
-    }
-    else if(name == L"GetTestObject")
-    {
-      // Handle the GetTestObject native function by creating and returning a
-      // new V8 object.
-      retval = CefV8Value::CreateObject(NULL);
-      // Add a string parameter to the new V8 object.
-      retval->SetValue(L"param", CefV8Value::CreateString(
-          L"Retrieving a parameter on a native object succeeded."));
-      // Add a function to the new V8 object.
-      retval->SetValue(L"GetMessage",
-          CefV8Value::CreateFunction(L"GetMessage", this));
-      return true;
-    }
-    else if(name == L"GetMessage")
-    {
-      // Handle the GetMessage object function by returning a string.
-      retval = CefV8Value::CreateString(
-          L"Calling a function on a native object succeeded.");
-      return true;
-    }
-    return false;
-  }
-
-private:
-  std::wstring test_param_;
-};
-
-
-// Implementation of the schema handler for client:// requests.
-class ClientSchemeHandler : public CefThreadSafeBase<CefSchemeHandler>
-{
-public:
-  ClientSchemeHandler() : size_(0), offset_(0), bytes_(NULL) {}
-
-  // Process the request. All response generation should take place in this
-  // method. If there is no response set |response_length| to zero and
-  // ReadResponse() will not be called. If the response length is not known then
-  // set |response_length| to -1 and ReadResponse() will be called until it
-  // returns false or until the value of |bytes_read| is set to 0. Otherwise,
-  // set |response_length| to a positive value and ReadResponse() will be called
-  // until it returns false, the value of |bytes_read| is set to 0 or the
-  // specified number of bytes have been read. If there is a response set
-  // |mime_type| to the mime type for the response.
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              std::wstring& mime_type, int* response_length)
-  {
-    bool handled = false;
-
-    Lock();
-    std::wstring url = request->GetURL();
-    if(wcsstr(url.c_str(), L"handler.html") != NULL) {
-      // Build the response html
-      html_ = "<html><head><title>Client Scheme Handler</title></head><body>"
-              "This contents of this page page are served by the "
-              "ClientSchemeHandler class handling the client:// protocol."
-              "<br>You should see an image:"
-              "<br/><img src=\"client://tests/client.gif\"><pre>";
-      
-      // Output a string representation of the request
-      std::wstring dump;
-      DumpRequestContents(request, dump);
-      html_.append(WStringToString(dump));
-
-      html_.append("</pre><br>Try the test form:"
-                   "<form method=\"POST\" action=\"handler.html\">"
-                   "<input type=\"text\" name=\"field1\">"
-                   "<input type=\"text\" name=\"field2\">"
-                   "<input type=\"submit\">"
-                   "</form></body></html>");
-
-      handled = true;
-      size_ = html_.size();
-      bytes_ = (LPBYTE)html_.c_str();
-
-      // Set the resulting mime type
-      mime_type = L"text/html";
-    }
-    else if(wcsstr(url.c_str(), L"client.gif") != NULL) {
-      // Load the response image
-      if(LoadBinaryResource(IDS_LOGO, size_, bytes_)) {
-        handled = true;
-        // Set the resulting mime type
-        mime_type = L"image/jpg";
-      }
-    }
-
-    // Set the resulting response length
-    *response_length = size_;
-    Unlock();
-
-    return handled;
-  }
-
-  // Cancel processing of the request.
-  virtual void Cancel()
-  {
-  }
-
-  // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds
-  // set |bytes_read| to the number of bytes copied and return true. If the
-  // copy fails return false and ReadResponse() will not be called again.
-  virtual bool ReadResponse(void* data_out, int bytes_to_read,
-                            int* bytes_read)
-  {
-    bool has_data = false;
-    *bytes_read = 0;
-
-    Lock();
-
-    if(offset_ < size_) {
-      // Copy the next block of data into the buffer.
-      int transfer_size = min(bytes_to_read, static_cast<int>(size_ - offset_));
-      memcpy(data_out, bytes_ + offset_, transfer_size);
-      offset_ += transfer_size;
-
-      *bytes_read = transfer_size;
-      has_data = true;
-    }
-
-    Unlock();
-
-    return has_data;
-  }
-
-private:
-  DWORD size_, offset_;
-  LPBYTE bytes_;
-  std::string html_;
-};
-
-// Implementation of the factory for for creating schema handlers.
-class ClientSchemeHandlerFactory :
-  public CefThreadSafeBase<CefSchemeHandlerFactory>
-{
-public:
-  // Return a new scheme handler instance to handle the request.
-  virtual CefRefPtr<CefSchemeHandler> Create()
-  {
-    return new ClientSchemeHandler();
-  }
-};
-
 
 // Program entry point function.
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -327,52 +53,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
   CefInitialize(true, std::wstring());
 #endif
 
-  // Structure providing information about the client plugin.
-  CefPluginInfo plugin_info;
-  plugin_info.display_name = L"Client Plugin";
-  plugin_info.unique_name = L"client_plugin";
-  plugin_info.version = L"1, 0, 0, 1";
-  plugin_info.description = L"My Example Client Plugin";
+  // Register the internal client plugin.
+  InitPluginTest();
 
-  CefPluginMimeType mime_type;
-  mime_type.mime_type = L"application/x-client-plugin";
-  mime_type.file_extensions.push_back(L"*");
-  plugin_info.mime_types.push_back(mime_type);
+  // Register the V8 extension handler.
+  InitExtensionTest();
 
-  plugin_info.np_getentrypoints = NP_GetEntryPoints;
-  plugin_info.np_initialize = NP_Initialize;
-  plugin_info.np_shutdown = NP_Shutdown;
-
-  // Register the internal client plugin
-  CefRegisterPlugin(plugin_info);
-
-  // Register a V8 extension with the below JavaScript code that calls native
-  // methods implemented in ClientV8ExtensionHandler.
-  std::wstring code = L"var cef;"
-    L"if (!cef)"
-    L"  cef = {};"
-    L"if (!cef.test)"
-    L"  cef.test = {};"
-    L"(function() {"
-    L"  cef.test.__defineGetter__('test_param', function() {"
-    L"    native function GetTestParam();"
-    L"    return GetTestParam();"
-    L"  });"
-    L"  cef.test.__defineSetter__('test_param', function(b) {"
-    L"    native function SetTestParam();"
-    L"    if(b) SetTestParam(b);"
-    L"  });"
-    L"  cef.test.test_object = function() {"
-    L"    native function GetTestObject();"
-    L"    return GetTestObject();"
-    L"  };"
-    L"})();";
-  CefRegisterExtension(L"v8/test", code, new ClientV8ExtensionHandler());
-
-  // Register the scheme handler factory for requests using the client://
-  // protocol in the tests domain.
-  CefRegisterScheme(L"client", L"tests", new ClientSchemeHandlerFactory());
-
+  // Register the scheme handler.
+  InitSchemeTest();
+  
   MSG msg;
   HACCEL hAccelTable;
 
@@ -409,8 +98,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	return (int) msg.wParam;
 }
-
-
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -477,123 +164,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-// Implementation of the V8 handler class for the "window.cef_test.Dump"
-// function.
-class ClientV8FunctionHandler : public CefThreadSafeBase<CefV8Handler>
-{
-public:
-  ClientV8FunctionHandler() {}
-  virtual ~ClientV8FunctionHandler() {}
-
-  // Execute with the specified argument list and return value.  Return true if
-  // the method was handled.
-  virtual bool Execute(const std::wstring& name,
-                       CefRefPtr<CefV8Value> object,
-                       const CefV8ValueList& arguments,
-                       CefRefPtr<CefV8Value>& retval,
-                       std::wstring& exception)
-  {
-    if(name == L"Dump")
-    {
-      // The "Dump" function will return a human-readable dump of the input
-      // arguments.
-      std::wstringstream stream;
-      size_t i;
-
-      for(i = 0; i < arguments.size(); ++i)
-      {
-        stream << L"arg[" << i << L"] = ";
-        PrintValue(arguments[i], stream, 0);
-        stream << L"\n";
-      }
-
-      retval = CefV8Value::CreateString(stream.str());
-      return true;
-    }
-    else if(name == L"Call")
-    {
-      // The "Call" function will execute a function to get an object and then
-      // return the result of calling a function belonging to that object.  The
-      // first arument is the function that will return an object and the second
-      // argument is the function that will be called on that returned object.
-      int argSize = arguments.size();
-      if(argSize < 2 || !arguments[0]->IsFunction()
-          || !arguments[1]->IsString())
-        return false;
-
-      CefV8ValueList argList;
-      
-      // Execute the function stored in the first argument to retrieve an
-      // object.
-      CefRefPtr<CefV8Value> objectPtr;
-      if(!arguments[0]->ExecuteFunction(object, argList, objectPtr, exception))
-        return false;
-      // Verify that the returned value is an object.
-      if(!objectPtr.get() || !objectPtr->IsObject())
-        return false;
-
-      // Retrieve the member function specified by name in the second argument
-      // from the object.
-      CefRefPtr<CefV8Value> funcPtr =
-          objectPtr->GetValue(arguments[1]->GetStringValue());
-      // Verify that the returned value is a function.
-      if(!funcPtr.get() || !funcPtr->IsFunction())
-        return false;
-
-      // Pass any additional arguments on to the member function.
-      for(int i = 2; i < argSize; ++i)
-        argList.push_back(arguments[i]);
-      
-      // Execute the member function.
-      return funcPtr->ExecuteFunction(arguments[0], argList, retval, exception);
-    }
-    return false;
-  }
-
-  // Simple function for formatted output of a V8 value.
-  void PrintValue(CefRefPtr<CefV8Value> value, std::wstringstream &stream,
-                  int indent)
-  {
-    std::wstringstream indent_stream;
-    for(int i = 0; i < indent; ++i)
-      indent_stream << L"  ";
-    std::wstring indent_str = indent_stream.str();
-    
-    if(value->IsUndefined())
-      stream << L"(undefined)";
-    else if(value->IsNull())
-      stream << L"(null)";
-    else if(value->IsBool())
-      stream << L"(bool) " << (value->GetBoolValue() ? L"true" : L"false");
-    else if(value->IsInt())
-      stream << L"(int) " << value->GetIntValue();
-    else if(value->IsDouble())
-      stream << L"(double) " << value->GetDoubleValue();
-    else if(value->IsString())
-      stream << L"(string) " << value->GetStringValue().c_str();
-    else if(value->IsFunction())
-      stream << L"(function) " << value->GetFunctionName().c_str();
-    else if(value->IsArray()) {
-      stream << L"(array) [";
-      int len = value->GetArrayLength();
-      for(int i = 0; i < len; ++i) {
-        stream << L"\n  " << indent_str.c_str() << i << L" = ";
-        PrintValue(value->GetValue(i), stream, indent+1);
-      }
-      stream << L"\n" << indent_str.c_str() << L"]";
-    } else if(value->IsObject()) {
-      stream << L"(object) [";
-      std::vector<std::wstring> keys;
-      if(value->GetKeys(keys)) {
-        for(size_t i = 0; i < keys.size(); ++i) {
-          stream << L"\n  " << indent_str.c_str() << keys[i].c_str() << L" = ";
-          PrintValue(value->GetValue(keys[i]), stream, indent+1);
-        }
-      }
-      stream << L"\n" << indent_str.c_str() << L"]";
-    }
-  }
-};
 
 // Client implementation of the browser handler class
 class ClientHandler : public CefThreadSafeBase<CefHandler>
@@ -784,7 +354,8 @@ public:
       DWORD dwSize;
       LPBYTE pBytes;
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
-        resourceStream = CefStreamReader::CreateForData(pBytes, dwSize);
+        resourceStream = CefStreamReader::CreateForHandler(
+            new ClientReadHandler(pBytes, dwSize));
         mimeType = L"image/jpg";
       }
     }
@@ -912,21 +483,8 @@ public:
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Value> object)
   {
-    // Create the new V8 object.
-    CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL);
-    // Add the new V8 object to the global window object with the name
-    // "cef_test".
-    object->SetValue(L"cef_test", testObjPtr);
-
-    // Create an instance of ClientV8FunctionHandler as the V8 handler.
-    CefRefPtr<CefV8Handler> handlerPtr = new ClientV8FunctionHandler();
-
-    // Add a new V8 function to the cef_test object with the name "Dump".
-    testObjPtr->SetValue(L"Dump",
-        CefV8Value::CreateFunction(L"Dump", handlerPtr));
-    // Add a new V8 function to the cef_test object with the name "Call".
-    testObjPtr->SetValue(L"Call",
-        CefV8Value::CreateFunction(L"Call", handlerPtr));
+    // Add the V8 bindings.
+    InitBindingTest(browser, frame, object);
 
     return RV_HANDLED;
   }
@@ -1162,50 +720,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           return 0;
         case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 function handler
           if(browser.get())
-          {
-            std::wstring html =
-              L"<html><body>ClientV8FunctionHandler says:<br><pre>"
-              L"<script language=\"JavaScript\">"
-              L"document.writeln(window.cef_test.Dump(false, 1, 7.6654,'bar',"
-              L"  [false,true],[5, 7.654, 1, 'foo', [true, 'bar'], 8]));"
-              L"document.writeln(window.cef_test.Dump(cef));"
-              L"document.writeln("
-              L"  window.cef_test.Call(cef.test.test_object, 'GetMessage'));"
-              L"function my_object() {"
-              L"  var obj = {};"
-              L"  (function() {"
-              L"    obj.GetMessage = function(a) {"
-              L"      return 'Calling a function with value '+a+' on a user object succeeded.';"
-              L"    };"
-              L"  })();"
-              L"  return obj;"
-              L"};"
-              L"document.writeln("
-              L"  window.cef_test.Call(my_object, 'GetMessage', 'foobar'));"
-              L"</script>"
-              L"</pre></body></html>";
-            browser->GetMainFrame()->LoadString(html, L"about:blank");
-          }
+            RunBindingTest(browser);
           return 0;
         case ID_TESTS_JAVASCRIPT_HANDLER2: // Test the V8 extension handler
           if(browser.get())
-          {
-            std::wstring html =
-              L"<html><body>ClientV8ExtensionHandler says:<br><pre>"
-              L"<script language=\"JavaScript\">"
-              L"cef.test.test_param ="
-              L"  'Assign and retrieve a value succeeded the first time.';"
-              L"document.writeln(cef.test.test_param);"
-              L"cef.test.test_param ="
-              L"  'Assign and retrieve a value succeeded the second time.';"
-              L"document.writeln(cef.test.test_param);"
-              L"var obj = cef.test.test_object();"
-              L"document.writeln(obj.param);"
-              L"document.writeln(obj.GetMessage());"
-              L"</script>"
-              L"</pre></body></html>";
-            browser->GetMainFrame()->LoadString(html, L"about:blank");
-          }
+            RunExtensionTest(browser);
           return 0;
         case ID_TESTS_JAVASCRIPT_EXECUTE: // Test execution of javascript
           if(browser.get())
@@ -1217,14 +736,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           return 0;
         case ID_TESTS_PLUGIN: // Test the custom plugin
           if(browser.get())
-          {
-            std::wstring html =
-              L"<html><body>Client Plugin:<br>"
-              L"<embed type=\"application/x-client-plugin\""
-              L"width=600 height=40>"
-              L"</body></html>";
-            browser->GetMainFrame()->LoadString(html, L"about:blank");
-          }
+            RunPluginTest(browser);
           return 0;
         case ID_TESTS_POPUP: // Test a popup window
           if(browser.get())
@@ -1265,7 +777,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           return 0;
         case ID_TESTS_SCHEME_HANDLER: // Test the scheme handler
           if(browser.get())
-            browser->GetMainFrame()->LoadURL(L"client://tests/handler.html");
+            RunSchemeTest(browser);
           return 0;
         }
       }

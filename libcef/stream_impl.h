@@ -13,7 +13,7 @@ class CefFileReader : public CefThreadSafeBase<CefStreamReader>
 {
 public:
   CefFileReader(FILE* file, bool close);
-  ~CefFileReader();
+  virtual ~CefFileReader();
 
   virtual size_t Read(void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
@@ -30,7 +30,7 @@ class CefFileWriter : public CefThreadSafeBase<CefStreamWriter>
 {
 public:
   CefFileWriter(FILE* file, bool close);
-  ~CefFileWriter();
+  virtual ~CefFileWriter();
 
   virtual size_t Write(const void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
@@ -47,7 +47,7 @@ class CefBytesReader : public CefThreadSafeBase<CefStreamReader>
 {
 public:
   CefBytesReader(void* data, long datasize, bool copy);
-  ~CefBytesReader();
+  virtual ~CefBytesReader();
 
   virtual size_t Read(void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
@@ -71,7 +71,7 @@ class CefBytesWriter : public CefThreadSafeBase<CefStreamWriter>
 {
 public:
   CefBytesWriter(size_t grow);
-  ~CefBytesWriter();
+  virtual ~CefBytesWriter();
 
   virtual size_t Write(const void* ptr, size_t size, size_t n);
   virtual int Seek(long offset, int whence);
@@ -90,6 +90,60 @@ protected:
   void* data_;
   size_t datasize_;
   size_t offset_;
+};
+
+// Implementation of CefStreamReader for handlers.
+class CefHandlerReader : public CefThreadSafeBase<CefStreamReader>
+{
+public:
+  CefHandlerReader(CefRefPtr<CefReadHandler> handler) : handler_(handler) {}
+
+  virtual size_t Read(void* ptr, size_t size, size_t n)
+  {
+    return handler_->Read(ptr, size, n);
+  }
+  virtual int Seek(long offset, int whence)
+  {
+    return handler_->Seek(offset, whence);
+  }
+  virtual long Tell()
+  {
+    return handler_->Tell();
+  }
+  virtual int Eof()
+  {
+    return handler_->Eof();
+  }
+	
+protected:
+  CefRefPtr<CefReadHandler> handler_;
+};
+
+// Implementation of CefStreamWriter for handlers.
+class CefHandlerWriter : public CefThreadSafeBase<CefStreamWriter>
+{
+public:
+  CefHandlerWriter(CefRefPtr<CefWriteHandler> handler) : handler_(handler) {}
+
+  virtual size_t Write(const void* ptr, size_t size, size_t n)
+  {
+    return handler_->Write(ptr, size, n);
+  }
+  virtual int Seek(long offset, int whence)
+  {
+    return handler_->Seek(offset, whence);
+  }
+  virtual long Tell()
+  {
+    return handler_->Tell();
+  }
+  virtual int Flush()
+  {
+    return handler_->Flush();
+  }
+	
+protected:
+  CefRefPtr<CefWriteHandler> handler_;
 };
 
 #endif // _STREAM_IMPL_H

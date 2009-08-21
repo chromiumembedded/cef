@@ -170,6 +170,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\binding_test.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\binding_test.h"
+			>
+		</File>
+		<File
 			RelativePath=".\cefclient.cpp"
 			>
 		</File>
@@ -190,7 +198,39 @@
 			>
 		</File>
 		<File
+			RelativePath=".\extension_test.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\extension_test.h"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_test.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_test.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Resource.h"
+			>
+		</File>
+		<File
+			RelativePath=".\resource_util.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\resource_util.h"
+			>
+		</File>
+		<File
+			RelativePath=".\scheme_test.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\scheme_test.h"
 			>
 		</File>
 		<File
@@ -215,6 +255,14 @@
 		</File>
 		<File
 			RelativePath=".\stdafx.h"
+			>
+		</File>
+		<File
+			RelativePath=".\string_util.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\string_util.h"
 			>
 		</File>
 	</Files>

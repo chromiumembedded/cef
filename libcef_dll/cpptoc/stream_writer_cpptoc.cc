@@ -12,6 +12,38 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/stream_writer_cpptoc.h"
+#include "ctocpp/write_handler_ctocpp.h"
+
+
+// GLOBAL FUNCTIONS - Body may be edited by hand.
+
+CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
+    const wchar_t* fileName)
+{
+  DCHECK(fileName);
+  if(!fileName)
+    return NULL;
+
+  std::wstring fileNameStr = fileName;
+  CefRefPtr<CefStreamWriter> impl = CefStreamWriter::CreateForFile(fileName);
+  if(impl.get())
+    return CefStreamWriterCppToC::Wrap(impl);
+  return NULL;
+}
+
+CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
+    cef_write_handler_t* handler)
+{
+  DCHECK(handler);
+  if(!handler)
+    return NULL;
+
+  CefRefPtr<CefStreamWriter> impl =
+      CefStreamWriter::CreateForHandler(CefWriteHandlerCToCpp::Wrap(handler));
+  if(impl.get())
+    return CefStreamWriterCppToC::Wrap(impl);
+  return NULL;
+}
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

@@ -11,7 +11,40 @@
 //
 
 #include "../precompiled_libcef.h"
+#include "cpptoc/write_handler_cpptoc.h"
 #include "ctocpp/stream_writer_ctocpp.h"
+
+
+// STATIC METHODS - Body may be edited by hand.
+
+CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
+    const std::wstring& fileName)
+{
+  DCHECK(!fileName.empty());
+  if(fileName.empty())
+    return NULL;
+
+  cef_stream_writer_t* impl =
+      cef_stream_writer_create_for_file(fileName.c_str());
+  if(impl)
+    return CefStreamWriterCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
+    CefRefPtr<CefWriteHandler> handler)
+{
+  DCHECK(handler.get());
+  if(!handler.get())
+    return NULL;
+
+  cef_stream_writer_t* impl =
+      cef_stream_writer_create_for_handler(
+          CefWriteHandlerCppToC::Wrap(handler));
+  if(impl)
+    return CefStreamWriterCToCpp::Wrap(impl);
+  return NULL;
+}
 
 
 // VIRTUAL METHODS - Body may be edited by hand.

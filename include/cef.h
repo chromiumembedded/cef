@@ -745,6 +745,30 @@ public:
 };
 
 
+// Interface the client can implement to provide a custom stream reader.
+/*--cef(source=client)--*/
+class CefReadHandler : public CefBase
+{
+public:
+  // Read raw binary data.
+  /*--cef()--*/
+  virtual size_t Read(void* ptr, size_t size, size_t n) =0;
+	
+  // Seek to the specified offset position. |whence| may be any one of
+  // SEEK_CUR, SEEK_END or SEEK_SET.
+  /*--cef()--*/
+  virtual int Seek(long offset, int whence) =0;
+	
+  // Return the current offset position.
+  /*--cef()--*/
+  virtual long Tell() =0;
+
+  // Return non-zero if at end of file.
+  /*--cef()--*/
+  virtual int Eof() =0;
+};
+
+
 // Class used to read data from a stream.
 /*--cef(source=library)--*/
 class CefStreamReader : public CefBase
@@ -755,6 +779,8 @@ public:
   static CefRefPtr<CefStreamReader> CreateForFile(const std::wstring& fileName);
   /*--cef()--*/
   static CefRefPtr<CefStreamReader> CreateForData(void* data, size_t size);
+   /*--cef()--*/
+  static CefRefPtr<CefStreamReader> CreateForHandler(CefRefPtr<CefReadHandler> handler);
 
   // Read raw binary data.
   /*--cef()--*/
@@ -775,11 +801,41 @@ public:
 };
 
 
+// Interface the client can implement to provide a custom stream writer.
+/*--cef(source=client)--*/
+class CefWriteHandler : public CefBase
+{
+public:
+   // Write raw binary data.
+  /*--cef()--*/
+  virtual size_t Write(const void* ptr, size_t size, size_t n) =0;
+	
+  // Seek to the specified offset position. |whence| may be any one of
+  // SEEK_CUR, SEEK_END or SEEK_SET.
+  /*--cef()--*/
+  virtual int Seek(long offset, int whence) =0;
+	
+  // Return the current offset position.
+  /*--cef()--*/
+  virtual long Tell() =0;
+
+  // Flush the stream.
+  /*--cef()--*/
+  virtual int Flush() =0;
+};
+
+
 // Class used to write data to a stream.
 /*--cef(source=library)--*/
 class CefStreamWriter : public CefBase
 {
 public:
+   // Create a new CefStreamWriter object.
+  /*--cef()--*/
+  static CefRefPtr<CefStreamWriter> CreateForFile(const std::wstring& fileName);
+  /*--cef()--*/
+  static CefRefPtr<CefStreamWriter> CreateForHandler(CefRefPtr<CefWriteHandler> handler);
+
   // Write raw binary data.
   /*--cef()--*/
   virtual size_t Write(const void* ptr, size_t size, size_t n) =0;

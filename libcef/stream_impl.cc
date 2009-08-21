@@ -10,7 +10,8 @@
 
 // Static functions
 
-CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(const std::wstring& fileName)
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
+    const std::wstring& fileName)
 {
   CefRefPtr<CefStreamReader> reader;
   FILE *f = _wfopen(fileName.c_str(), L"rb");
@@ -19,7 +20,8 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(const std::wstring& fi
   return reader;
 }
 
-CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data, size_t size)
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
+                                                          size_t size)
 {
   DCHECK(data != NULL);
   DCHECK(size > 0);
@@ -27,6 +29,37 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data, size_t siz
   if(data && size > 0)
     reader = new CefBytesReader(data, size, true);
   return reader;
+}
+
+CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
+    CefRefPtr<CefReadHandler> handler)
+{
+  DCHECK(handler.get());
+  CefRefPtr<CefStreamReader> reader;
+  if(handler.get())
+    reader = new CefHandlerReader(handler);
+  return reader;
+}
+
+CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
+    const std::wstring& fileName)
+{
+  DCHECK(!fileName.empty());
+  CefRefPtr<CefStreamWriter> writer;
+  FILE* file = _wfopen(fileName.c_str(), L"wb");
+  if(file)
+    writer = new CefFileWriter(file, true);
+  return writer;
+}
+
+CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
+    CefRefPtr<CefWriteHandler> handler)
+{
+  DCHECK(handler.get());
+  CefRefPtr<CefStreamWriter> writer;
+  if(handler.get())
+    writer = new CefHandlerWriter(handler);
+  return writer;
 }
 
 

@@ -8,9 +8,11 @@
 #include "cef_nplugin.h"
 #include "cef_nplugin_capi.h"
 #include "../cpptoc/handler_cpptoc.h"
+#include "../cpptoc/read_handler_cpptoc.h"
 #include "../cpptoc/scheme_handler_cpptoc.h"
 #include "../cpptoc/scheme_handler_factory_cpptoc.h"
 #include "../cpptoc/v8handler_cpptoc.h"
+#include "../cpptoc/write_handler_cpptoc.h"
 #include "../ctocpp/browser_ctocpp.h"
 #include "../ctocpp/post_data_ctocpp.h"
 #include "../ctocpp/post_data_element_ctocpp.h"
@@ -33,9 +35,11 @@ void CefShutdown()
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefReadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefWriteHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefBrowserCToCpp::DebugObjCt == 0);
   DCHECK(CefRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefPostDataCToCpp::DebugObjCt == 0);

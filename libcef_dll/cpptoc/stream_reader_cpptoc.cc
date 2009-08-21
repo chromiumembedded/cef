@@ -12,6 +12,7 @@
 
 #include "../precompiled_libcef.h"
 #include "cpptoc/stream_reader_cpptoc.h"
+#include "ctocpp/read_handler_ctocpp.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -32,6 +33,16 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
     size_t size)
 {
   CefRefPtr<CefStreamReader> impl = CefStreamReader::CreateForData(data, size);
+  if(impl.get())
+    return CefStreamReaderCppToC::Wrap(impl);
+  return NULL;
+}
+
+CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
+    cef_read_handler_t* handler)
+{
+  CefRefPtr<CefStreamReader> impl =
+      CefStreamReader::CreateForHandler(CefReadHandlerCToCpp::Wrap(handler));
   if(impl.get())
     return CefStreamReaderCppToC::Wrap(impl);
   return NULL;
