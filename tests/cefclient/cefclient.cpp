@@ -11,6 +11,7 @@
 #include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
+#include "uiplugin_test.h"
 #include <sstream>
 
 
@@ -55,6 +56,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
   // Register the internal client plugin.
   InitPluginTest();
+
+  // Register the internal UI client plugin.
+  InitUIPluginTest();
 
   // Register the V8 extension handler.
   InitExtensionTest();
@@ -341,6 +345,9 @@ public:
                                           std::wstring& mimeType,
                                           int loadFlags)
   {
+    DWORD dwSize;
+    LPBYTE pBytes;
+    
     std::wstring url = request->GetURL();
     if(url == L"http://tests/request") {
       // Show the request contents
@@ -349,14 +356,26 @@ public:
       resourceStream = CefStreamReader::CreateForData(
           (void*)dump.c_str(), dump.size() * sizeof(wchar_t));
       mimeType = L"text/plain";
-    } else if(wcsstr(url.c_str(), L"logo.gif") != NULL) {
+    } else if(url == L"http://tests/uiapp") {
+      // Show the uiapp contents
+      if(LoadBinaryResource(IDS_UIPLUGIN, dwSize, pBytes)) {
+        resourceStream = CefStreamReader::CreateForHandler(
+            new ClientReadHandler(pBytes, dwSize));
+        mimeType = L"text/html";
+      }
+    } else if(wcsstr(url.c_str(), L"/logo.gif") != NULL) {
       // Any time we find "logo.gif" in the URL substitute in our own image
-      DWORD dwSize;
-      LPBYTE pBytes;
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
             new ClientReadHandler(pBytes, dwSize));
         mimeType = L"image/jpg";
+      }
+    } else if(wcsstr(url.c_str(), L"/logoball.png") != NULL) {
+      // Load the "logoball.png" image resource.
+      if(LoadBinaryResource(IDS_LOGOBALL, dwSize, pBytes)) {
+        resourceStream = CefStreamReader::CreateForHandler(
+            new ClientReadHandler(pBytes, dwSize));
+        mimeType = L"image/png";
       }
     }
     return RV_CONTINUE;
@@ -485,6 +504,9 @@ public:
   {
     // Add the V8 bindings.
     InitBindingTest(browser, frame, object);
+    
+    // Add the UI app V8 bindings.
+    InitUIBindingTest(browser, frame, object);
 
     return RV_HANDLED;
   }
@@ -515,6 +537,7 @@ public:
     m_MainHwnd = hwnd;
     Unlock();
   }
+  HWND GetMainHwnd() { return m_MainHwnd; }
 
   void SetEditHwnd(HWND hwnd)
   {
@@ -554,6 +577,23 @@ protected:
   bool m_bCanGoForward;
 };
 
+// global handler instance
+CefRefPtr<ClientHandler> g_handler;
+
+CefRefPtr<CefBrowser> AppGetBrowser()
+{
+  if(!g_handler.get())
+    return NULL;
+  return g_handler->GetBrowser();
+}
+
+HWND AppGetMainHwnd()
+{
+  if(!g_handler.get())
+    return NULL;
+  return g_handler->GetMainHwnd();
+}
+
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -562,7 +602,6 @@ protected:
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static CefRefPtr<ClientHandler> handler;
   static HWND backWnd = NULL, forwardWnd = NULL, reloadWnd = NULL,
       stopWnd = NULL, editWnd = NULL;
   static WNDPROC editWndOldProc = NULL;
@@ -577,10 +616,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CHAR:
-      if (wParam == VK_RETURN && handler.get())
+      if (wParam == VK_RETURN && g_handler.get())
       {
         // When the user hits the enter key load the URL
-        CefRefPtr<CefBrowser> browser = handler->GetBrowser();
+        CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
         wchar_t strPtr[MAX_URL_LENGTH] = {0};
         *((LPWORD)strPtr) = MAX_URL_LENGTH; 
         LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
@@ -603,8 +642,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
       {
         // Create the single static handler class instance
-        handler = new ClientHandler();
-        handler->SetMainHwnd(hWnd);
+        g_handler = new ClientHandler();
+        g_handler->SetMainHwnd(hWnd);
 
         // Create the child windows used for navigation
         RECT rect;
@@ -650,7 +689,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             reinterpret_cast<WNDPROC>(GetWindowLongPtr(editWnd, GWLP_WNDPROC));
         SetWindowLongPtr(editWnd, GWLP_WNDPROC,
             reinterpret_cast<LONG_PTR>(WndProc)); 
-        handler->SetEditHwnd(editWnd);
+        g_handler->SetEditHwnd(editWnd);
         
         rect.top += URLBAR_HEIGHT;
          
@@ -661,7 +700,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         // Creat the new child child browser window
         CefBrowser::CreateBrowser(info, false,
-            static_cast<CefRefPtr<CefHandler>>(handler),
+            static_cast<CefRefPtr<CefHandler>>(g_handler),
             L"http://www.google.com");
 
         // Start the timer that will be used to update child window state
@@ -670,11 +709,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       return 0;
 
     case WM_TIMER:
-      if(handler.get() && handler->GetBrowserHwnd())
+      if(g_handler.get() && g_handler->GetBrowserHwnd())
       {
         // Retrieve the current navigation state
         bool isLoading, canGoBack, canGoForward;
-        handler->GetNavState(isLoading, canGoBack, canGoForward);
+        g_handler->GetNavState(isLoading, canGoBack, canGoForward);
 
         // Update the status of child windows
         EnableWindow(editWnd, TRUE);
@@ -688,8 +727,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	  case WM_COMMAND:
       {
         CefRefPtr<CefBrowser> browser;
-        if(handler.get())
-          browser = handler->GetBrowser();
+        if(g_handler.get())
+          browser = g_handler->GetBrowser();
 
 		    wmId    = LOWORD(wParam);
 		    wmEvent = HIWORD(wParam);
@@ -779,6 +818,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunSchemeTest(browser);
           return 0;
+        case ID_TESTS_UIAPP: // Test the UI app
+          if(browser.get())
+            RunUIPluginTest(browser);
+          return 0;
         }
       }
 		  break;
@@ -789,15 +832,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		  return 0;
 
     case WM_SETFOCUS:
-      if(handler.get() && handler->GetBrowserHwnd())
+      if(g_handler.get() && g_handler->GetBrowserHwnd())
       {
         // Pass focus to the browser window
-        PostMessage(handler->GetBrowserHwnd(), WM_SETFOCUS, wParam, NULL);
+        PostMessage(g_handler->GetBrowserHwnd(), WM_SETFOCUS, wParam, NULL);
       }
       return 0;
 
     case WM_SIZE:
-      if(handler.get() && handler->GetBrowserHwnd())
+      if(g_handler.get() && g_handler->GetBrowserHwnd())
       {
         // Resize the browser window and address bar to match the new frame
         // window size
@@ -810,7 +853,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         HDWP hdwp = BeginDeferWindowPos(1);
         hdwp = DeferWindowPos(hdwp, editWnd, NULL, urloffset,
           0, rect.right - urloffset, URLBAR_HEIGHT, SWP_NOZORDER);
-        hdwp = DeferWindowPos(hdwp, handler->GetBrowserHwnd(), NULL,
+        hdwp = DeferWindowPos(hdwp, g_handler->GetBrowserHwnd(), NULL,
           rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
           SWP_NOZORDER);
         EndDeferWindowPos(hdwp);
@@ -818,7 +861,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       break;
 
     case WM_ERASEBKGND:
-      if(handler.get() && handler->GetBrowserHwnd())
+      if(g_handler.get() && g_handler->GetBrowserHwnd())
       {
         // Dont erase the background if the browser window has been loaded
         // (this avoids flashing)

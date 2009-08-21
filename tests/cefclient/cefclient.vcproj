@@ -265,6 +265,22 @@
 			RelativePath=".\string_util.h"
 			>
 		</File>
+		<File
+			RelativePath=".\uiplugin.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\uiplugin.h"
+			>
+		</File>
+		<File
+			RelativePath=".\uiplugin_test.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\uiplugin_test.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

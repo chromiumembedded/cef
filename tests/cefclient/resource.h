@@ -28,8 +28,11 @@
 #define ID_TESTS_POPUP                  32775
 #define ID_TESTS_REQUEST                32776
 #define ID_TESTS_SCHEME_HANDLER         32777
+#define ID_TESTS_UIAPP                  32778
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
+#define IDS_UIPLUGIN                    1001
+#define IDS_LOGOBALL                    1002
 
 // Next default values for new objects
 // 

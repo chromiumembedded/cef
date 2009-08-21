@@ -9,7 +9,7 @@
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_browser = NULL;
 
-
+static
 NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
                 char* argn[], char* argv[], NPSavedData* saved) {
   if (instance == NULL)
@@ -22,6 +22,7 @@ NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
   return NPERR_NO_ERROR;
 }
 
+static
 NPError NPP_Destroy(NPP instance, NPSavedData** save) {
   ClientPlugin* plugin_impl = reinterpret_cast<ClientPlugin*>(instance->pdata);
 
@@ -33,6 +34,7 @@ NPError NPP_Destroy(NPP instance, NPSavedData** save) {
   return NPERR_NO_ERROR;
 }
 
+static
 NPError NPP_SetWindow(NPP instance, NPWindow* window_info) {
   if (instance == NULL)
     return NPERR_INVALID_INSTANCE_ERROR;
