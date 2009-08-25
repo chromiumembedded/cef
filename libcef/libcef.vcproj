@@ -192,6 +192,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\browser_appcache_system.h"
+			>
+		</File>
+		<File
 			RelativePath=".\browser_drag_delegate.cc"
 			>
 		</File>

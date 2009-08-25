@@ -10,11 +10,7 @@
 
 #include "net/base/cookie_monster.h"
 #include "net/base/host_resolver.h"
-#if defined(OS_WIN)
-#include "net/base/ssl_config_service_win.h"
-#else
-#include "net/base/ssl_config_service_defaults.h"
-#endif
+#include "net/base/ssl_config_service.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
@@ -44,11 +40,7 @@ void BrowserRequestContext::Init(
   host_resolver_ = net::CreateSystemHostResolver();
   proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL,
                                              false, NULL, NULL);
-#if defined(OS_WIN)
-  ssl_config_service_ = new net::SSLConfigServiceWin;
-#else
-  ssl_config_service_ = new net::SSLConfigServiceDefaults;
-#endif
+  ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   net::HttpCache *cache;
   if (cache_path.empty()) {

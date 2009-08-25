@@ -11,6 +11,7 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "media/base/media.h"
+#include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/api/public/WebCString.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebKit.h"
@@ -24,6 +25,7 @@
 #include "webkit/glue/webkitclient_impl.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
+#include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 
 
@@ -40,6 +42,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
+    appcache_system_.Initialize();
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
@@ -137,10 +140,16 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return WebKit::WebStorageNamespace::createSessionStorageNamespace();
   }
 
+  virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
+        WebKit::WebApplicationCacheHostClient* client) {
+    return new appcache::WebApplicationCacheHostImpl(
+                            client, appcache_system_.backend());
+  }
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
+  BrowserAppCacheSystem appcache_system_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

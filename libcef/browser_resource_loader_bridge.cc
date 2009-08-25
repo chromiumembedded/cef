@@ -54,8 +54,8 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/api/public/WebFrame.h"
+#include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/glue/resource_loader_bridge.h"
-#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webview.h"
 
 using webkit_glue::ResourceLoaderBridge;
@@ -109,7 +109,7 @@ struct RequestParams {
   GURL referrer;
   std::string headers;
   int load_flags;
-  int app_cache_context_id;
+  int appcache_host_id;
   scoped_refptr<net::UploadData> upload;
 };
 
@@ -475,7 +475,8 @@ class RequestProxy : public URLRequest::Delegate,
     info->request_time = request->request_time();
     info->response_time = request->response_time();
     info->headers = request->response_headers();
-    info->app_cache_id = WebAppCacheContext::kNoAppCacheId;
+    info->appcache_id = appcache::kNoCacheId;
+    // TODO(michaeln): info->appcache_manifest_url = GURL();
     request->GetMimeType(&info->mime_type);
     request->GetCharset(&info->charset);
     info->content_length = request->GetExpectedContentSize();
@@ -572,7 +573,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
                            const GURL& referrer,
                            const std::string& headers,
                            int load_flags,
-                           int app_cache_context_id)
+                           int appcache_host_id)
       : browser_(browser),
         params_(new RequestParams),
         proxy_(NULL) {
@@ -582,7 +583,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
-    params_->app_cache_context_id = app_cache_context_id;
+    params_->appcache_host_id = appcache_host_id;
   }
 
   virtual ~ResourceLoaderBridgeImpl() {
@@ -718,13 +719,13 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int load_flags,
     int requestor_pid,
     ResourceType::Type request_type,
-    int app_cache_context_id,
+    int appcache_host_id,
     int routing_id) {
   CefRefPtr<CefBrowser> browser = _Context->GetBrowserByID(routing_id);
   return new ResourceLoaderBridgeImpl(browser, method, url,
                                       first_party_for_cookies,
                                       referrer, headers, load_flags,
-                                      app_cache_context_id);
+                                      appcache_host_id);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 

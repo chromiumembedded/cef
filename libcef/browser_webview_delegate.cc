@@ -26,6 +26,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
@@ -43,7 +44,6 @@
 #include "webkit/glue/media/buffered_data_source.h"
 #include "webkit/glue/media/media_resource_loader_bridge_factory.h"
 #include "webkit/glue/media/simple_data_source.h"
-#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
@@ -112,7 +112,7 @@ WebKit::WebMediaPlayer* BrowserWebViewDelegate::CreateWebMediaPlayer(
           "null",             // frame origin
           "null",             // main_frame_origin
           base::GetCurrentProcId(),
-          WebAppCacheContext::kNoAppCacheContextId,
+          appcache::kNoHostId,
           0);
   factory->AddFactory(webkit_glue::BufferedDataSource::CreateFactory(
       MessageLoop::current(), bridge_factory));
