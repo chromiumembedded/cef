@@ -192,6 +192,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\browser_appcache_system.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\browser_appcache_system.h"
 			>
 		</File>

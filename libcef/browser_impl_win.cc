@@ -263,7 +263,6 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, delegate_.get(),
       *_Context->GetWebPreferences()));
-  GetWebView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
     
   // Size the web view window to the browser window
@@ -294,7 +293,7 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
     ::SetFocus(NULL);
 }
 
-WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget(WebView* webview)
+WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
 {
   REQUIRE_UIT();
   

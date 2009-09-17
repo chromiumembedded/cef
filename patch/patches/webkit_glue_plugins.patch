@@ -1,37 +1,35 @@
 Index: plugin_list.cc
 ===================================================================
---- plugin_list.cc	(revision 23814)
+--- plugin_list.cc	(revision 26359)
 +++ plugin_list.cc	(working copy)
-@@ -50,7 +50,7 @@
+@@ -141,6 +141,7 @@
+   // other methods if they're called on other threads.
+   std::vector<FilePath> extra_plugin_paths;
+   std::vector<FilePath> extra_plugin_dirs;
++  std::vector<PluginVersionInfo> internal_plugins;
+   {
+     AutoLock lock(lock_);
+     if (plugins_loaded_ && !refresh)
+@@ -148,6 +149,7 @@
  
- void PluginList::RegisterInternalPlugin(const PluginVersionInfo& info) {
-   AutoLock lock(lock_);
--  internal_plugins_.push_back(info);
-+  internal_plugins_.insert(internal_plugins_.begin(), info);
- }
+     extra_plugin_paths = extra_plugin_paths_;
+     extra_plugin_dirs = extra_plugin_dirs_;
++    internal_plugins = internal_plugins_;
+   }
  
- bool PluginList::ReadPluginInfo(const FilePath &filename,
-Index: plugin_list_win.cc
-===================================================================
---- plugin_list_win.cc	(revision 23814)
-+++ plugin_list_win.cc	(working copy)
-@@ -356,10 +356,15 @@
- }
+   base::TimeTicks start_time = base::TimeTicks::Now();
+@@ -157,6 +159,14 @@
+   std::vector<FilePath> directories_to_scan;
+   GetPluginDirectories(&directories_to_scan);
  
- void PluginList::LoadInternalPlugins(std::vector<WebPluginInfo>* plugins) {
--  if (!use_internal_activex_shim_)
--    return;
--  LoadPlugin(FilePath(kActiveXShimFileName), plugins);
--  LoadPlugin(FilePath(kActiveXShimFileNameForMediaPlayer), plugins);
-+  for (size_t i = 0; i < internal_plugins_.size(); ++i) {
-+    if (!use_internal_activex_shim_ &&
-+        (internal_plugins_[i].path.value() == kActiveXShimFileName ||
-+        internal_plugins_[i].path.value() ==
-+            kActiveXShimFileNameForMediaPlayer)) {
++  for (size_t i = 0; i < internal_plugins.size(); ++i) {
++#if defined(OS_WIN)
++    if (internal_plugins[i].path.value() == kDefaultPluginLibraryName)
 +      continue;
-+    }
-+    LoadPlugin(internal_plugins_[i].path, plugins);
++#endif
++    LoadPlugin(internal_plugins[i].path, &new_plugins);
 +  }
- }
++
+   for (size_t i = 0; i < extra_plugin_paths.size(); ++i)
+     LoadPlugin(extra_plugin_paths[i], &new_plugins);
  
- } // namespace NPAPI

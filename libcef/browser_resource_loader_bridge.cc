@@ -32,6 +32,7 @@
 // alternate implementation that defers fetching to another process.
 
 #include "precompiled_libcef.h"
+#include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
 #include "browser_impl.h"
@@ -44,6 +45,7 @@
 #include "base/timer.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
+#include "net/base/cookie_policy.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
@@ -59,6 +61,7 @@
 #include "webkit/glue/webview.h"
 
 using webkit_glue::ResourceLoaderBridge;
+using net::CookiePolicy;
 using net::HttpResponseHeaders;
 
 namespace {
@@ -79,6 +82,10 @@ class IOThread : public base::Thread {
     Stop();
   }
 
+  virtual void Init() {
+    BrowserAppCacheSystem::InitializeOnIOThread(request_context);
+  }
+
   virtual void CleanUp() {
     if (request_context) {
       request_context->Release();
@@ -86,19 +93,6 @@ class IOThread : public base::Thread {
     }
   }
 };
-
-bool EnsureIOThread() {
-  if (io_thread)
-    return true;
-
-  if (!request_context)
-    BrowserResourceLoaderBridge::Init(NULL);
-
-  io_thread = new IOThread();
-  base::Thread::Options options;
-  options.message_loop_type = MessageLoop::TYPE_IO;
-  return io_thread->StartWithOptions(options);
-}
 
 //-----------------------------------------------------------------------------
 
@@ -109,6 +103,7 @@ struct RequestParams {
   GURL referrer;
   std::string headers;
   int load_flags;
+  ResourceType::Type request_type;
   int appcache_host_id;
   scoped_refptr<net::UploadData> upload;
 };
@@ -293,6 +288,9 @@ class RequestProxy : public URLRequest::Delegate,
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
       request_->set_context(request_context);
+      BrowserAppCacheSystem::SetExtraRequestInfo(
+          request_.get(), params->appcache_host_id, params->request_type);
+
       request_->Start();
 
       if (request_->has_upload() &&
@@ -406,6 +404,13 @@ class RequestProxy : public URLRequest::Delegate,
     }
   }
 
+  virtual void OnSSLCertificateError(URLRequest* request,
+                                     int cert_error,
+                                     net::X509Certificate* cert) {
+    // Allow all certificate errors.
+    request->ContinueDespiteLastError();
+  }
+
   virtual void OnReadCompleted(URLRequest* request, int bytes_read) {
     if (request->status().is_success() && bytes_read > 0) {
       OnReceivedData(bytes_read);
@@ -475,11 +480,13 @@ class RequestProxy : public URLRequest::Delegate,
     info->request_time = request->request_time();
     info->response_time = request->response_time();
     info->headers = request->response_headers();
-    info->appcache_id = appcache::kNoCacheId;
-    // TODO(michaeln): info->appcache_manifest_url = GURL();
     request->GetMimeType(&info->mime_type);
     request->GetCharset(&info->charset);
     info->content_length = request->GetExpectedContentSize();
+    BrowserAppCacheSystem::GetExtraResponseInfo(
+        request,
+        &info->appcache_id,
+        &info->appcache_manifest_url);
   }
 
   scoped_ptr<URLRequest> request_;
@@ -573,6 +580,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
                            const GURL& referrer,
                            const std::string& headers,
                            int load_flags,
+                           ResourceType::Type request_type,
                            int appcache_host_id)
       : browser_(browser),
         params_(new RequestParams),
@@ -583,6 +591,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
+    params_->request_type = request_type;
     params_->appcache_host_id = appcache_host_id;
   }
 
@@ -622,7 +631,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   virtual bool Start(Peer* peer) {
     DCHECK(!proxy_);
 
-    if (!EnsureIOThread())
+    if (!BrowserResourceLoaderBridge::EnsureIOThread())
       return false;
 
     proxy_ = new RequestProxy(browser_);
@@ -645,7 +654,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   virtual void SyncLoad(SyncLoadResponse* response) {
     DCHECK(!proxy_);
 
-    if (!EnsureIOThread())
+    if (!BrowserResourceLoaderBridge::EnsureIOThread())
       return;
 
     // this may change as the result of a redirect
@@ -725,7 +734,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
   return new ResourceLoaderBridgeImpl(browser, method, url,
                                       first_party_for_cookies,
                                       referrer, headers, load_flags,
-                                      appcache_host_id);
+                                      request_type, appcache_host_id);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 
@@ -762,6 +771,7 @@ void BrowserResourceLoaderBridge::Init(URLRequestContext* context) {
     request_context = new BrowserRequestContext();
   }
   request_context->AddRef();
+  BrowserResourceLoaderBridge::SetAcceptAllCookies(false);
 }
 
 // static
@@ -774,6 +784,7 @@ void BrowserResourceLoaderBridge::Shutdown() {
   }
 }
 
+// static
 void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
                                             const GURL& first_party_for_cookies,
                                             const std::string& cookie) {
@@ -789,6 +800,7 @@ void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
       cookie_setter.get(), &CookieSetter::Set, url, cookie));
 }
 
+// static
 std::string BrowserResourceLoaderBridge::GetCookies(
     const GURL& url, const GURL& first_party_for_cookies) {
   // Proxy to IO thread to synchronize w/ network loading
@@ -804,4 +816,25 @@ std::string BrowserResourceLoaderBridge::GetCookies(
       getter.get(), &CookieGetter::Get, url));
 
   return getter->GetResult();
+}
+
+// static
+bool BrowserResourceLoaderBridge::EnsureIOThread() {
+  if (io_thread)
+    return true;
+
+  if (!request_context)
+    BrowserResourceLoaderBridge::Init(NULL);
+
+  io_thread = new IOThread();
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  return io_thread->StartWithOptions(options);
+}
+
+// static
+void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
+  CookiePolicy::Type policy_type = accept_all_cookies ?
+      CookiePolicy::ALLOW_ALL_COOKIES : CookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
+  request_context->cookie_policy()->set_type(policy_type);
 }

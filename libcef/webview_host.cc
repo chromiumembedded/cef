@@ -4,6 +4,7 @@
 
 #include "precompiled_libcef.h"
 #include "webview_host.h"
+#include "browser_webview_delegate.h"
 
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
@@ -16,7 +17,7 @@ static const wchar_t kWindowClassName[] = L"WebViewHost";
 
 /*static*/
 WebViewHost* WebViewHost::Create(HWND parent_view,
-                                 WebViewDelegate* delegate,
+                                 BrowserWebViewDelegate* delegate,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();
 
@@ -39,7 +40,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              GetModuleHandle(NULL), NULL);
   win_util::SetWindowUserData(host->view_, host);
 
-  host->webwidget_ = WebView::Create();
+  host->webwidget_ = WebView::Create(delegate, delegate);
   prefs.Apply(host->webview());
   host->webview()->InitializeMainFrame(delegate);
 

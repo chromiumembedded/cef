@@ -41,47 +41,158 @@
 using WebKit::WebCursorInfo;
 using WebKit::WebFrame;
 using WebKit::WebNavigationPolicy;
+using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
+using WebKit::WebWidget;
 
-// WebViewDelegate -----------------------------------------------------------
+// WebViewClient --------------------------------------------------------------
 
-WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
-    WebView* webview,
+WebWidget* BrowserWebViewDelegate::createPopupMenu(
+    const WebPopupMenuInfo& info) {
+  NOTREACHED();
+  return NULL;
+}
+
+// WebWidgetClient ------------------------------------------------------------
+
+void BrowserWebViewDelegate::show(WebNavigationPolicy) {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    HWND root = GetAncestor(host->view_handle(), GA_ROOT);
+    ShowWindow(root, SW_SHOW);
+    UpdateWindow(root);
+  }
+}
+
+void BrowserWebViewDelegate::closeWidgetSoon() {
+  if (this == browser_->GetWebViewDelegate()) {
+    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
+  } else if (this == browser_->GetPopupDelegate()) {
+    browser_->UIT_ClosePopupWidget();
+  }
+}
+
+void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    current_cursor_.InitFromCursorInfo(cursor_info);
+    HINSTANCE mod_handle = GetModuleHandle(NULL);
+    host->SetCursor(current_cursor_.GetCursor(mod_handle));
+  }
+}
+
+WebRect BrowserWebViewDelegate::windowRect() {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    RECT rect;
+    ::GetWindowRect(host->view_handle(), &rect);
+    return gfx::Rect(rect);
+  }
+  return WebRect();
+}
+
+void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
+  if (this == browser_->GetWebViewDelegate()) {
+    // ignored
+  } else if (this == browser_->GetPopupDelegate()) {
+    MoveWindow(browser_->GetPopupWndHandle(),
+               rect.x, rect.y, rect.width, rect.height, FALSE);
+  }
+}
+
+WebRect BrowserWebViewDelegate::rootWindowRect() {
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    RECT rect;
+    HWND root_window = ::GetAncestor(host->view_handle(), GA_ROOT);
+    ::GetWindowRect(root_window, &rect);
+    return gfx::Rect(rect);
+  }
+  return WebRect();
+}
+
+WebRect BrowserWebViewDelegate::windowResizerRect() {
+  // Not necessary on Windows.
+  return WebRect();
+}
+
+void BrowserWebViewDelegate::runModal() {
+  WebWidgetHost* host = GetWidgetHost();
+  if (!host)
+    return;
+
+  show(WebKit::WebNavigationPolicyNewWindow);
+
+  CefContext::BrowserList *list;
+  CefContext::BrowserList::const_iterator i;
+
+  _Context->Lock();
+  list = _Context->GetBrowserList();
+  i = list->begin();
+  for (; i != list->end(); ++i) {
+    if (i->get()->IsPopup())
+      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
+  }
+  _Context->Unlock();
+  
+  browser_->UIT_SetIsModal(true);
+  MessageLoop::current()->Run();
+
+  _Context->Lock();
+  list = _Context->GetBrowserList();
+  i = list->begin();
+  for (; i != list->end(); ++i)
+    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
+  _Context->Unlock();
+}
+
+// WebPluginPageDelegate ------------------------------------------------------
+
+webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     const GURL& url,
     const std::string& mime_type,
-    const std::string& clsid,
     std::string* actual_mime_type) {
   HWND hwnd = browser_->GetWebViewHost()->view_handle();
   if (!hwnd)
     return NULL;
 
   bool allow_wildcard = true;
-  
-  // first, look for plugins using the normal plugin list
   WebPluginInfo info;
-  if (NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
-                                                    allow_wildcard, &info,
-                                                    actual_mime_type)) {
-    if (actual_mime_type && !actual_mime_type->empty())
-      return WebPluginDelegateImpl::Create(info.path, *actual_mime_type, hwnd);
-    else
-      return WebPluginDelegateImpl::Create(info.path, mime_type, hwnd);
+  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(
+          url, mime_type, allow_wildcard, &info, actual_mime_type)) {
+    return NULL;
   }
 
-  return NULL;
+  if (actual_mime_type && !actual_mime_type->empty())
+    return WebPluginDelegateImpl::Create(info.path, *actual_mime_type, hwnd);
+  else
+    return WebPluginDelegateImpl::Create(info.path, mime_type, hwnd);
 }
 
-void BrowserWebViewDelegate::DidMovePlugin(const WebPluginGeometry& move) {
-  HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
-                              move.clip_rect.y(),
-                              move.clip_rect.right(),
-                              move.clip_rect.bottom());
-  gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
+void BrowserWebViewDelegate::CreatedPluginWindow(
+    gfx::PluginWindowHandle handle) {
+  // ignored
+}
 
-  // Note: System will own the hrgn after we call SetWindowRgn,
-  // so we don't need to call DeleteObject(hrgn)
-  ::SetWindowRgn(move.window, hrgn, FALSE);
+void BrowserWebViewDelegate::WillDestroyPluginWindow(
+    gfx::PluginWindowHandle handle) {
+  // ignored
+}
+
+void BrowserWebViewDelegate::DidMovePlugin(
+    const webkit_glue::WebPluginGeometry& move) {
   unsigned long flags = 0;
+
+  if (move.rects_valid) {
+    HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
+                                move.clip_rect.y(),
+                                move.clip_rect.right(),
+                                move.clip_rect.bottom());
+    gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
+
+    // Note: System will own the hrgn after we call SetWindowRgn,
+    // so we don't need to call DeleteObject(hrgn)
+    ::SetWindowRgn(move.window, hrgn, FALSE);
+  } else {
+    flags |= (SWP_NOSIZE | SWP_NOMOVE);
+  }
+
   if (move.visible)
     flags |= SWP_SHOWWINDOW;
   else
@@ -265,97 +376,7 @@ end:
 	MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
-// WebWidgetClient ---------------------------------------------------------
-
-void BrowserWebViewDelegate::show(WebNavigationPolicy) {
-  if (WebWidgetHost* host = GetWidgetHost()) {
-    HWND root = GetAncestor(host->view_handle(), GA_ROOT);
-    ShowWindow(root, SW_SHOW);
-    UpdateWindow(root);
-  }
-}
-
-void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->GetWebViewDelegate()) {
-    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
-  } else if (this == browser_->GetPopupDelegate()) {
-    browser_->UIT_ClosePopupWidget();
-  }
-}
-
-void BrowserWebViewDelegate::didChangeCursor(
-    const WebCursorInfo& cursor_info) {
-  if (WebWidgetHost* host = GetWidgetHost()) {
-    current_cursor_.InitFromCursorInfo(cursor_info);
-    HINSTANCE mod_handle = GetModuleHandle(NULL);
-    host->SetCursor(current_cursor_.GetCursor(mod_handle));
-  }
-}
-
-WebRect BrowserWebViewDelegate::windowRect() {
-  if (WebWidgetHost* host = GetWidgetHost()) {
-    RECT rect;
-    ::GetWindowRect(host->view_handle(), &rect);
-    return gfx::Rect(rect);
-  }
-  return WebRect();
-}
-
-void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
-  if (this == browser_->GetWebViewDelegate()) {
-    // ignored
-  } else if (this == browser_->GetPopupDelegate()) {
-    MoveWindow(browser_->GetPopupWndHandle(),
-               rect.x, rect.y, rect.width, rect.height, FALSE);
-  }
-}
-
-WebRect BrowserWebViewDelegate::rootWindowRect() {
-  if (WebWidgetHost* host = GetWidgetHost()) {
-    RECT rect;
-    HWND root_window = ::GetAncestor(host->view_handle(), GA_ROOT);
-    ::GetWindowRect(root_window, &rect);
-    return gfx::Rect(rect);
-  }
-  return WebRect();
-}
-
-WebRect BrowserWebViewDelegate::windowResizerRect() {
-  // Not necessary on Windows.
-  return WebRect();
-}
-
-void BrowserWebViewDelegate::runModal() {
-  WebWidgetHost* host = GetWidgetHost();
-  if (!host)
-    return;
-
-  show(WebKit::WebNavigationPolicyNewWindow);
-
-  CefContext::BrowserList *list;
-  CefContext::BrowserList::const_iterator i;
-
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i) {
-    if (i->get()->IsPopup())
-      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
-  }
-  _Context->Unlock();
-  
-  browser_->UIT_SetIsModal(true);
-  MessageLoop::current()->Run();
-
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i)
-    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
-  _Context->Unlock();
-}
-
-// Private methods -----------------------------------------------------------
+// Private methods ------------------------------------------------------------
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
                                                  const std::wstring& message)

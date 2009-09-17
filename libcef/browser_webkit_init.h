@@ -8,6 +8,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/scoped_temp_dir.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "media/base/media.h"
@@ -31,7 +32,7 @@
 
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
-  BrowserWebKitInit() {
+  explicit BrowserWebKitInit() {
     v8::V8::SetCounterFunction(StatsTable::FindLocation);
 
     WebKit::initialize(this);
@@ -42,7 +43,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
-    appcache_system_.Initialize();
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
@@ -50,6 +50,12 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         media::InitializeMediaLibrary(module_path)) {
       WebKit::enableMediaPlayer();
     }
+
+    // Construct and initialize an appcache system for this scope.
+    // A new empty temp directory is created to house any cached
+    // content during the run. Upon exit that directory is deleted.
+    if (appcache_dir_.CreateUniqueTempDir())
+      BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
   }
 
   ~BrowserWebKitInit() {
@@ -72,13 +78,15 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return false;
   }
 
-   virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
+  virtual bool getFileSize(const WebKit::WebString& path,
+                           long long& result) {
     return file_util::GetFileSize(
         FilePath(webkit_glue::WebStringToFilePathString(path)),
                  reinterpret_cast<int64*>(&result));
   }
 
-  virtual unsigned long long visitedLinkHash(const char* canonicalURL, size_t length) {
+  virtual unsigned long long visitedLinkHash(const char* canonicalURL,
+                                             size_t length) {
     return 0;
   }
 
@@ -142,13 +150,13 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
         WebKit::WebApplicationCacheHostClient* client) {
-    return new appcache::WebApplicationCacheHostImpl(
-                            client, appcache_system_.backend());
+    return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
   }
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
+  ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
 };
 

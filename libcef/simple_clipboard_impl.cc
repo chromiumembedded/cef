@@ -34,21 +34,22 @@ Clipboard* ClipboardGetClipboard() {
   return clipboard.Pointer();
 }
 
-bool ClipboardIsFormatAvailable(const Clipboard::FormatType& format) {
-  return ClipboardGetClipboard()->IsFormatAvailable(format);
+bool ClipboardIsFormatAvailable(const Clipboard::FormatType& format,
+                                Clipboard::Buffer buffer) {
+  return ClipboardGetClipboard()->IsFormatAvailable(format, buffer);
 }
 
-void ClipboardReadText(string16* result) {
-  ClipboardGetClipboard()->ReadText(result);
+void ClipboardReadText(Clipboard::Buffer buffer, string16* result) {
+  ClipboardGetClipboard()->ReadText(buffer, result);
 }
 
-void ClipboardReadAsciiText(std::string* result) {
-  ClipboardGetClipboard()->ReadAsciiText(result);
+void ClipboardReadAsciiText(Clipboard::Buffer buffer, std::string* result) {
+  ClipboardGetClipboard()->ReadAsciiText(buffer, result);
 }
 
-void ClipboardReadHTML(string16* markup, GURL* url) {
+void ClipboardReadHTML(Clipboard::Buffer buffer, string16* markup, GURL* url) {
   std::string url_str;
-  ClipboardGetClipboard()->ReadHTML(markup, url ? &url_str : NULL);
+  ClipboardGetClipboard()->ReadHTML(buffer, markup, url ? &url_str : NULL);
   if (url)
     *url = GURL(url_str);
 }

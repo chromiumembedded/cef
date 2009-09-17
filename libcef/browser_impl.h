@@ -177,7 +177,7 @@ public:
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
 
   CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url);
-  WebKit::WebWidget* UIT_CreatePopupWidget(WebView* webview);
+  WebKit::WebWidget* UIT_CreatePopupWidget();
   void UIT_ClosePopupWidget();
 
   void UIT_Show(WebKit::WebNavigationPolicy policy);

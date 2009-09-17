@@ -42,19 +42,20 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-StringPiece GetRawDataResource(HMODULE module, int resource_id) {
+base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;
   return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
-                                         &data_size) ?
-      StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
+                                         &data_size)
+      ? base::StringPiece(static_cast<char*>(data_ptr), data_size)
+      : base::StringPiece();
 }
 
-StringPiece NetResourceProvider(int key) {
+base::StringPiece NetResourceProvider(int key) {
   return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
 
-StringPiece GetDataResource(int resource_id) {
+base::StringPiece GetDataResource(int resource_id) {
   switch (resource_id) {
   case IDR_BROKENIMAGE: {
     // Use webkit's broken image icon (16x16)
@@ -91,8 +92,8 @@ StringPiece GetDataResource(int resource_id) {
       0x07, 0x0E, 0xC7, 0x4C, 0xCF, 0x49, 0xCD, 0xD2, 0xD3, 0xD4, 0xD2, 0x41,
       0x00, 0x3B
     };
-    return StringPiece(reinterpret_cast<char*>(broken_image_data),
-        static_cast<StringPiece::size_type>(
+    return base::StringPiece(reinterpret_cast<char*>(broken_image_data),
+        static_cast<base::StringPiece::size_type>(
             sizeof(broken_image_data) / sizeof(unsigned char)));
   }
   case IDR_FEED_PREVIEW:
@@ -122,8 +123,8 @@ StringPiece GetDataResource(int resource_id) {
       0x57, 0x6B, 0xB3, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
       0x42, 0x60, 0x82
     };
-    return StringPiece(reinterpret_cast<char*>(area_resizer_data),
-        static_cast<StringPiece::size_type>(
+    return base::StringPiece(reinterpret_cast<char*>(area_resizer_data),
+        static_cast<base::StringPiece::size_type>(
             sizeof(area_resizer_data) / sizeof(unsigned char)));
   }
   case IDR_SEARCH_CANCEL:
@@ -143,10 +144,10 @@ StringPiece GetDataResource(int resource_id) {
     break;
   }
 
-  return StringPiece();
+  return base::StringPiece();
 }
 
-bool GetApplicationDirectory(std::wstring *path) {
+bool GetApplicationDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
 }
 
@@ -158,16 +159,8 @@ std::string GetUIResourceProtocol() {
   return "cef-resource";
 }
 
-bool GetExeDirectory(std::wstring *path) {
+bool GetExeDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
-}
-
-bool SpellCheckWord(const wchar_t* word, int word_len,
-                    int* misspelling_start, int* misspelling_len) {
-  // Report all words being correctly spelled.
-  *misspelling_start = 0;
-  *misspelling_len = 0;
-  return true;
 }
 
 bool IsPluginRunningInRendererProcess() {

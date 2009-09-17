@@ -39,7 +39,7 @@ void BrowserRequestContext::Init(
   net::ProxyConfig proxy_config;
   host_resolver_ = net::CreateSystemHostResolver();
   proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL,
-                                             false, NULL, NULL);
+                                             false, NULL, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   net::HttpCache *cache;
@@ -57,7 +57,6 @@ void BrowserRequestContext::Init(
 }
 
 BrowserRequestContext::~BrowserRequestContext() {
-  delete cookie_store_;
   delete ftp_transaction_factory_;
   delete http_transaction_factory_;
 }

@@ -332,7 +332,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->cursive_font_family = L"Comic Sans MS";
       webprefs_->fantasy_font_family = L"Impact";
 #endif
-      webprefs_->default_encoding = L"ISO-8859-1";
+      webprefs_->default_encoding = "ISO-8859-1";
       webprefs_->default_font_size = 16;
       webprefs_->default_fixed_font_size = 13;
       webprefs_->minimum_font_size = 1;
