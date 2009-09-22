@@ -175,6 +175,12 @@ bool IsDefaultPluginEnabled() {
   return false;
 }
 
+bool IsProtocolSupportedForMedia(const GURL& url) {
+  if (url.SchemeIsFile() || url.SchemeIs("http") || url.SchemeIs("https"))
+    return true;
+  return false;
+}
+
 std::wstring GetWebKitLocale() {
   return L"en-US";
 }

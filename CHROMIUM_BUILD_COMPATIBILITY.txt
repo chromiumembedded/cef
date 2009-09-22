@@ -37,3 +37,6 @@ Date       | CEF Revision                    | Chromium Revision
 2009-08-20 | /trunk@35                       | /trunk@23814
 2009-08-25 | /trunk@41                       | /trunk@24210
 2009-09-17 | /trunk@42                       | /trunk@26432
+  After syncing to rev 26432 you must manually run 'gclient runhooks --force'.
+  Earlier and later revisions do not have this requirement.
+2009-09-22 | /trunk@48                       | /trunk@26790

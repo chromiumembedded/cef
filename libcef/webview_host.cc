@@ -40,7 +40,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              GetModuleHandle(NULL), NULL);
   win_util::SetWindowUserData(host->view_, host);
 
-  host->webwidget_ = WebView::Create(delegate, delegate);
+  host->webwidget_ = WebView::Create(delegate);
   prefs.Apply(host->webview());
   host->webview()->InitializeMainFrame(delegate);
 

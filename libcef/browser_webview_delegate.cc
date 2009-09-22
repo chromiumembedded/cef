@@ -88,6 +88,7 @@ using WebKit::WebPopupMenu;
 using WebKit::WebRange;
 using WebKit::WebRect;
 using WebKit::WebScreenInfo;
+using WebKit::WebSecurityOrigin;
 using WebKit::WebSize;
 using WebKit::WebString;
 using WebKit::WebTextAffinity;
@@ -176,6 +177,66 @@ void BrowserWebViewDelegate::didStopLoading() {
     // Notify the handler that loading has ended
     handler->HandleLoadEnd(browser_, NULL);
   }
+}
+
+bool BrowserWebViewDelegate::shouldBeginEditing(const WebRange& range) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldEndEditing(const WebRange& range) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldInsertNode(const WebNode& node,
+                                           const WebRange& range,
+                                           WebEditingAction action) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldInsertText(const WebString& text,
+                                           const WebRange& range,
+                                           WebEditingAction action) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldChangeSelectedRange(const WebRange& from_range,
+                                                    const WebRange& to_range,
+                                                    WebTextAffinity affinity,
+                                                    bool still_selecting) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldDeleteRange(const WebRange& range) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::shouldApplyStyle(const WebString& style,
+                                           const WebRange& range) {
+  return browser_->UIT_AllowEditing();
+}
+
+bool BrowserWebViewDelegate::isSmartInsertDeleteEnabled() {
+  return smart_insert_delete_enabled_;
+}
+
+bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
+  return select_trailing_whitespace_enabled_;
+}
+
+void BrowserWebViewDelegate::didBeginEditing() {
+}
+
+void BrowserWebViewDelegate::didChangeSelection(bool is_empty_selection) {
+}
+
+void BrowserWebViewDelegate::didChangeContents() {
+}
+
+void BrowserWebViewDelegate::didExecuteCommand(
+    const WebKit::WebString& command_name) {
+}
+
+void BrowserWebViewDelegate::didEndEditing() {
 }
 
 void BrowserWebViewDelegate::runModalAlertDialog(
@@ -330,66 +391,6 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
     return host->GetScreenInfo();
 
   return WebScreenInfo();
-}
-
-// WebEditingClient ----------------------------------------------------------
-// The output from these methods in layout test mode should match that
-// expected by the layout tests.  See EditingDelegate.m in DumpRenderTree.
-
-bool BrowserWebViewDelegate::shouldBeginEditing(const WebRange& range) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldEndEditing(const WebRange& range) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldInsertNode(const WebNode& node,
-                                           const WebRange& range,
-                                           WebEditingAction action) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldInsertText(const WebString& text,
-                                           const WebRange& range,
-                                           WebEditingAction action) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldChangeSelectedRange(const WebRange& from_range,
-                                                    const WebRange& to_range,
-                                                    WebTextAffinity affinity,
-                                                    bool still_selecting) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldDeleteRange(const WebRange& range) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::shouldApplyStyle(const WebString& style,
-                                           const WebRange& range) {
-  return browser_->UIT_AllowEditing();
-}
-
-bool BrowserWebViewDelegate::isSmartInsertDeleteEnabled() {
-  return smart_insert_delete_enabled_;
-}
-
-bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
-  return select_trailing_whitespace_enabled_;
-}
-
-void BrowserWebViewDelegate::didBeginEditing() {
-}
-
-void BrowserWebViewDelegate::didChangeSelection(bool is_empty_selection) {
-}
-
-void BrowserWebViewDelegate::didChangeContents() {
-}
-
-void BrowserWebViewDelegate::didEndEditing() {
 }
 
 // WebFrameClient ------------------------------------------------------------
@@ -670,7 +671,7 @@ void BrowserWebViewDelegate::didDisplayInsecureContent(WebFrame* frame) {
 }
 
 void BrowserWebViewDelegate::didRunInsecureContent(
-    WebFrame* frame, const WebString& security_origin) {
+    WebFrame* frame, const WebKit::WebSecurityOrigin& origin) {
 }
 
 void BrowserWebViewDelegate::didExhaustMemoryAvailableForScript(WebFrame* frame) {
