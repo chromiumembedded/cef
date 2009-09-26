@@ -11,6 +11,7 @@
 #undef LOG
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "Cache.h"
 #include "TextEncoding.h"
 #include "webkit/glue/webframe_impl.h"
 MSVC_POP_WARNING();
@@ -202,6 +203,13 @@ void CloseIdleConnections() {
 
 void SetCacheMode(bool enabled) {
   // Used in benchmarking,  Ignored for CEF.
+}
+
+void ClearCache()
+{
+  // Clear the cache by disabling it and then re-enabling it.
+  WebCore::cache()->setDisabled(true);
+  WebCore::cache()->setDisabled(false);
 }
 
 }  // namespace webkit_glue

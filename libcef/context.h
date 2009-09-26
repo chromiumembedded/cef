@@ -53,6 +53,7 @@ public:
 
   void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info);
   void UIT_UnregisterPlugin(struct CefPluginInfo* plugin_info);
+  void UIT_ClearCache();
 
   bool DoWork();
   bool DoDelayedWork();

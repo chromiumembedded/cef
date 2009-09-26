@@ -398,6 +398,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
 void CefContext::Shutdown()
 {
   bool shutdown = false, intransition = false;
+  BrowserList browserlist;
   
   Lock();
 
@@ -411,8 +412,8 @@ void CefContext::Shutdown()
       // We are now in a transitional state
       in_transition_ = true;
 
-      if(browserlist_.size() > 0)
-        browserlist_.clear();
+      browserlist = browserlist_;
+      browserlist_.empty();
       
       if(webprefs_) {
         delete webprefs_;
@@ -429,6 +430,14 @@ void CefContext::Shutdown()
   Unlock();
   
   if(shutdown) {
+    if (browserlist.size() > 0) {
+      // Close any remaining browser windows
+      BrowserList::const_iterator it = browserlist.begin();
+      for (; it != browserlist.end(); ++it)
+        PostMessage((*it)->GetWindowHandle(), WM_CLOSE, 0, 0);
+      browserlist.empty();
+    }
+
     if (hthreadui_) {
       // Wait for the UI thread to exit
       WaitForSingleObject(hthreadui_, INFINITE);
@@ -483,9 +492,15 @@ bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
   return !found;
 }
 
+void CefContext::UIT_ClearCache()
+{
+  webkit_glue::ClearCache();
+}
+
 bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
 {
   bool deleted = false;
+  bool empty = false;
 
   Lock();
 
@@ -498,11 +513,18 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
     }
   }
 
-  if (browserlist_.empty())
+  if (browserlist_.empty()) {
     next_browser_id_ = 1;
+    empty = true;
+  }
 
   Unlock();
-  
+
+  if (empty) {
+    PostTask(FROM_HERE, NewRunnableMethod(_Context.get(),
+        &CefContext::UIT_ClearCache));
+  }
+
   return deleted;
 }
 

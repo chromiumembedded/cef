@@ -64,6 +64,11 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       // Clean up anything associated with the WebViewHost widget.
       browser->GetWebViewHost()->webwidget()->close();
 
+      // Clear the user data pointer.
+      win_util::SetWindowUserData(hwnd, NULL);
+      // Remove the reference added in UIT_CreateBrowser().
+      browser->Release();
+
       // Remove the browser from the list maintained by the context
       _Context->RemoveBrowser(browser);
     }
@@ -255,6 +260,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   // Set window user data to this object for future reference from the window
   // procedure
   win_util::SetWindowUserData(window_info_.m_hWnd, this);
+  // Add a reference that will be released on WM_DESTROY.
+  AddRef();
 
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
