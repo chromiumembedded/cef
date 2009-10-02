@@ -10,10 +10,9 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/request_cpptoc.h"
-#include "ctocpp/scheme_handler_ctocpp.h"
-#include "../transfer_util.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -33,7 +32,7 @@ bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
 
   transfer_string_contents(mimeTypeRet, mime_type, true);
 
-  return rv;
+  return rv ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::Cancel()
@@ -50,7 +49,8 @@ bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
   if(CEF_MEMBER_MISSING(struct_, read_response))
     return false;
 
-  return struct_->read_response(struct_, data_out, bytes_to_read, bytes_read);
+  return struct_->read_response(struct_, data_out, bytes_to_read, bytes_read)
+	  ? true : false;
 }
 
 

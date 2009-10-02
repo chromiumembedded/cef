@@ -31,7 +31,6 @@
 // perform URL loads.  See renderer/resource_dispatcher.h for details on an
 // alternate implementation that defers fetching to another process.
 
-#include "precompiled_libcef.h"
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"

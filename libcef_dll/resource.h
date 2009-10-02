@@ -3,6 +3,9 @@
 // Used by libcef_dll.rc
 //
 
+// Avoid files associated with MacOS
+#define _X86_
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

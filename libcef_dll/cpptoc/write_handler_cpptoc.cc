@@ -10,8 +10,7 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

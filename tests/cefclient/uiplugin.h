@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "cef_nplugin.h"
+#include "include/cef_nplugin.h"
 
 extern NPNetscapeFuncs* g_uibrowser;
 

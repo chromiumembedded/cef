@@ -10,9 +10,8 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/v8value_cpptoc.h"
-#include "ctocpp/v8handler_ctocpp.h"
+#include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -48,7 +47,7 @@ bool CefV8HandlerCToCpp::Execute(const std::wstring& name,
   if(argsStructPtr)
     delete [] argsStructPtr;
 
-  return rv;
+  return rv ? true : false;
 }
 
 

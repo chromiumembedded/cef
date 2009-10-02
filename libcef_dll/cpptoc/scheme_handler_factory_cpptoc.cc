@@ -10,9 +10,8 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/scheme_handler_cpptoc.h"
-#include "cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

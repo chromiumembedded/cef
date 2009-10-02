@@ -10,10 +10,9 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/scheme_handler_cpptoc.h"
-#include "ctocpp/request_ctocpp.h"
-#include "../transfer_util.h"
+#include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

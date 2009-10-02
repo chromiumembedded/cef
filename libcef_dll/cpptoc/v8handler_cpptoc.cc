@@ -10,9 +10,8 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/v8handler_cpptoc.h"
-#include "ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/ctocpp/v8value_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

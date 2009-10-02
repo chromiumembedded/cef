@@ -34,6 +34,9 @@
 #define IDS_UIPLUGIN                    1001
 #define IDS_LOGOBALL                    1002
 
+// Avoid files associated with MacOS
+#define _X86_
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

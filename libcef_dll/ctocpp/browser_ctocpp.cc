@@ -10,10 +10,9 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/handler_cpptoc.h"
-#include "ctocpp/browser_ctocpp.h"
-#include "ctocpp/frame_ctocpp.h"
+#include "libcef_dll/cpptoc/handler_cpptoc.h"
+#include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
@@ -22,7 +21,7 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
     CefRefPtr<CefHandler> handler, const std::wstring& url)
 {
   return cef_browser_create(&windowInfo, popup, CefHandlerCppToC::Wrap(handler),
-      url.c_str());
+      url.c_str())?true:false;
 }
 
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
@@ -59,7 +58,7 @@ bool CefBrowserCToCpp::CanGoForward()
   if(CEF_MEMBER_MISSING(struct_, can_go_forward))
     return false;
   
-  return struct_->can_go_forward(struct_);
+  return struct_->can_go_forward(struct_)?true:false;
 }
 
 void CefBrowserCToCpp::GoForward()
@@ -107,7 +106,7 @@ bool CefBrowserCToCpp::IsPopup()
   if(CEF_MEMBER_MISSING(struct_, is_popup))
     return false;
   
-  return struct_->is_popup(struct_);
+  return struct_->is_popup(struct_)?true:false;
 }
 
 CefRefPtr<CefHandler> CefBrowserCToCpp::GetHandler()

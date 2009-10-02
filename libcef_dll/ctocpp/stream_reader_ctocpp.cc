@@ -10,9 +10,8 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/read_handler_cpptoc.h"
-#include "ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/cpptoc/read_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 
 
 // STATIC METHODS - Body may be edited by hand.

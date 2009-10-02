@@ -7,7 +7,6 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "precompiled_libcef.h"
 #include "config.h"
 #undef LOG
 #include "browser_webview_delegate.h"

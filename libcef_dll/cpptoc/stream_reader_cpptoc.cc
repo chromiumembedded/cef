@@ -10,9 +10,8 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/stream_reader_cpptoc.h"
-#include "ctocpp/read_handler_ctocpp.h"
+#include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.

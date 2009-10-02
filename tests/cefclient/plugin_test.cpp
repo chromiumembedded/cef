@@ -2,10 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "stdafx.h"
-#include "plugin_test.h"
+#include "include/cef.h"
 #include "clientplugin.h"
-
 
 void InitPluginTest()
 {

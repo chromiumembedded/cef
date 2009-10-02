@@ -10,14 +10,13 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/handler_cpptoc.h"
-#include "ctocpp/browser_ctocpp.h"
-#include "ctocpp/frame_ctocpp.h"
-#include "ctocpp/request_ctocpp.h"
-#include "ctocpp/stream_reader_ctocpp.h"
-#include "ctocpp/v8value_ctocpp.h"
-#include "../transfer_util.h"
+#include "libcef_dll/cpptoc/handler_cpptoc.h"
+#include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -50,7 +49,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     urlStr = *url;
 
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleBeforeCreated(
-      browserPtr, wndInfo, popup, handlerPtr, urlStr);
+	  browserPtr, wndInfo, popup?true:false, handlerPtr, urlStr);
 
   transfer_string_contents(urlStr, url);
 
@@ -457,7 +456,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_set_focus(
     return RV_CONTINUE;
 
   return CefHandlerCppToC::Get(self)->HandleSetFocus(
-      CefBrowserCToCpp::Wrap(browser), isWidget);
+	  CefBrowserCToCpp::Wrap(browser), isWidget?true:false);
 }
 
 

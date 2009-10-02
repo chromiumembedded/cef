@@ -10,9 +10,8 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "ctocpp/scheme_handler_ctocpp.h"
-#include "ctocpp/scheme_handler_factory_ctocpp.h"
+#include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.

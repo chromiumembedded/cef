@@ -10,9 +10,8 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "ctocpp/post_data_ctocpp.h"
-#include "ctocpp/post_data_element_ctocpp.h"
+#include "libcef_dll/ctocpp/post_data_ctocpp.h"
+#include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
@@ -58,7 +57,7 @@ bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element)
     return false;
 
   return struct_->remove_element(struct_,
-      CefPostDataElementCToCpp::Unwrap(element));
+      CefPostDataElementCToCpp::Unwrap(element))?true:false;
 }
 
 bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
@@ -68,7 +67,7 @@ bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
     return false;
 
   return struct_->add_element(struct_,
-      CefPostDataElementCToCpp::Unwrap(element));
+      CefPostDataElementCToCpp::Unwrap(element))?true:false;
 }
 
 void CefPostDataCToCpp::RemoveElements()

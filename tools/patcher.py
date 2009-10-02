@@ -4,7 +4,7 @@
 
 import pickle
 from optparse import OptionParser
-from os.path import isfile
+import os.path
 import sys
 from file_util import *
 from patch_util import *
@@ -22,39 +22,38 @@ This utility applies patch files.
 """
 
 parser = OptionParser(description=disc)
-parser.add_option('--patch-dir', dest='patchdir', metavar='DIR',
-                  help='source directory for patch files')
+parser.add_option('--patch-config', dest='patchconfig', metavar='DIR',
+                  help='patch configuration file')
 (options, args) = parser.parse_args()
 
-# the patchdir option is required
-if options.patchdir is None:
+# the patchconfig option is required
+if options.patchconfig is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-# normalize the directory value
-patchdir = options.patchdir.replace('\\', '/')
+# normalize the patch directory value
+patchdir = os.path.dirname(os.path.abspath(options.patchconfig)).replace('\\', '/')
 if patchdir[-1] != '/':
     patchdir += '/'
 
 # check if the patching should be skipped
-if isfile(patchdir + 'NOPATCH'):
+if os.path.isfile(patchdir + 'NOPATCH'):
     nopatch = True
     sys.stdout.write('NOPATCH exists -- files have not been patched.\n')
 else:
     nopatch = False
     # locate the patch configuration file
-    patchcfg = patchdir + 'patch.cfg'
-    if not isfile(patchcfg):
-        sys.stderr.write('File '+patchcfg+' does not exist.\n')
+    if not os.path.isfile(options.patchconfig):
+        sys.stderr.write('File '+options.patchconfig+' does not exist.\n')
         sys.exit()
     
     scope = {}
-    execfile(patchcfg, scope)
+    execfile(options.patchconfig, scope)
     patches = scope["patches"]
     
     for name in patches.keys():
         file = patchdir+'patches/'+name+'.patch'
-        if not isfile(file):
+        if not os.path.isfile(file):
             sys.stderr.write('Patch file '+file+' does not exist.\n')
         else:
             sys.stderr.write('Reading patch file '+file+'\n')
@@ -82,7 +81,7 @@ else:
 """
 
 inccur = ''
-if isfile(incfile):
+if os.path.isfile(incfile):
     inccur = read_file(incfile)
     
 if inccur != incnew:

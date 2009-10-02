@@ -5,9 +5,9 @@
 #ifndef _CTOCPP_H
 #define _CTOCPP_H
 
-#include "cef.h"
-#include "cef_capi.h"
-#include "../cef_logging.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/cef_logging.h"
 
 
 // Wrap a C structure with a C++ class.  This is used when the implementation

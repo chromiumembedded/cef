@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #pragma once
-#include "cef.h"
+#include "include/cef.h"
 
 // Add the V8 bindings.
 void InitBindingTest(CefRefPtr<CefBrowser> browser,

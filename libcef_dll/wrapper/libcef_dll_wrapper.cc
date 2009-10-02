@@ -2,30 +2,30 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "../precompiled_libcef.h"
-#include "cef.h"
-#include "cef_capi.h"
-#include "cef_nplugin.h"
-#include "cef_nplugin_capi.h"
-#include "../cpptoc/handler_cpptoc.h"
-#include "../cpptoc/read_handler_cpptoc.h"
-#include "../cpptoc/scheme_handler_cpptoc.h"
-#include "../cpptoc/scheme_handler_factory_cpptoc.h"
-#include "../cpptoc/v8handler_cpptoc.h"
-#include "../cpptoc/write_handler_cpptoc.h"
-#include "../ctocpp/browser_ctocpp.h"
-#include "../ctocpp/post_data_ctocpp.h"
-#include "../ctocpp/post_data_element_ctocpp.h"
-#include "../ctocpp/request_ctocpp.h"
-#include "../ctocpp/stream_reader_ctocpp.h"
-#include "../ctocpp/stream_writer_ctocpp.h"
-#include "../ctocpp/v8value_ctocpp.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "include/cef_nplugin.h"
+#include "include/cef_nplugin_capi.h"
+#include "libcef_dll/cpptoc/handler_cpptoc.h"
+#include "libcef_dll/cpptoc/read_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/post_data_ctocpp.h"
+#include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
+#include "libcef_dll/ctocpp/v8value_ctocpp.h"
 
 
 bool CefInitialize(bool multi_threaded_message_loop,
                    const std::wstring& cache_path)
 {
-  return (bool)cef_initialize(multi_threaded_message_loop, cache_path.c_str());
+  return cef_initialize(multi_threaded_message_loop, cache_path.c_str())
+      ?true:false;
 }
 
 void CefShutdown()
@@ -60,7 +60,7 @@ bool CefRegisterExtension(const std::wstring& extension_name,
                           CefRefPtr<CefV8Handler> handler)
 {
   return cef_register_extension(extension_name.c_str(), javascript_code.c_str(),
-      CefV8HandlerCppToC::Wrap(handler));
+      CefV8HandlerCppToC::Wrap(handler))?true:false;
 }
 
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
@@ -109,5 +109,5 @@ bool CefRegisterScheme(const std::wstring& scheme_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
   return cef_register_scheme(scheme_name.c_str(), host_name.c_str(),
-      CefSchemeHandlerFactoryCppToC::Wrap(factory));
+      CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
 }

@@ -290,24 +290,24 @@ def format_translation_includes(body):
     """ Return the necessary list of includes based on the contents of the
     body.
     """
-    result = '#include "../precompiled_libcef.h"\n'
+    result = ''
     
     # identify what CppToC classes are being used
     p = re.compile('([A-Za-z0-9_]{1,})CppToC')
     list = sorted(set(p.findall(body)))
     for item in list:
-        result += '#include "cpptoc/'+ \
+        result += '#include "libcef_dll/cpptoc/'+ \
                   get_capi_name(item[3:], False)+'_cpptoc.h"\n'
     
     # identify what CToCpp classes are being used
     p = re.compile('([A-Za-z0-9_]{1,})CToCpp')
     list = sorted(set(p.findall(body)))
     for item in list:
-        result += '#include "ctocpp/'+ \
+        result += '#include "libcef_dll/ctocpp/'+ \
                   get_capi_name(item[3:], False)+'_ctocpp.h"\n'
     
     if body.find('transfer_') > 0:
-        result += '#include "../transfer_util.h"\n'
+        result += '#include "libcef_dll/transfer_util.h"\n'
         
     return result
 

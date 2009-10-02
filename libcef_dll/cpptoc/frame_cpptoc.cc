@@ -10,10 +10,9 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/frame_cpptoc.h"
-#include "cpptoc/request_cpptoc.h"
-#include "cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject Keyword="Win32Proj" Name="libcef_dll_wrapper" ProjectGUID="{A9D6DC71-C0DC-4549-AEA0-3B15B44E86A9}" ProjectType="Visual C++" RootNamespace="libcef_dll_wrapper" Version="8.00">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration CharacterSet="1" ConfigurationType="4" InheritedPropertySheets="" IntermediateDirectory="$(OutDir)\obj\$(ProjectName)" Name="Debug|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories=".;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" AdditionalOptions="/MP" BasicRuntimeChecks="3" BufferSecurityCheck="true" DebugInformationFormat="3" DisableSpecificWarnings="4396;4503;4819" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_DEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="1" RuntimeTypeInfo="false" WarnAsError="true" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..;.;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="2" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+    <Configuration CharacterSet="1" ConfigurationType="4" InheritedPropertySheets="..\build\release.vsprops" IntermediateDirectory="$(OutDir)\obj\$(ProjectName)" Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories=".;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" AdditionalOptions="/MP" BufferSecurityCheck="true" DebugInformationFormat="3" DisableSpecificWarnings="4396;4503;4819" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;NVALGRIND" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeTypeInfo="false" WarnAsError="true" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..;.;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;NVALGRIND"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="1" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+    <Configuration CharacterSet="1" ConfigurationType="4" InheritedPropertySheets="..\build\release.vsprops" IntermediateDirectory="$(OutDir)\obj\$(ProjectName)" Name="Purify|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories=".;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" AdditionalOptions="/MP" BufferSecurityCheck="false" DebugInformationFormat="3" DisableSpecificWarnings="4396;4503;4819" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;PURIFY;NO_TCMALLOC" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="0" RuntimeTypeInfo="false" WarnAsError="true" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..;.;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;PURIFY;NO_TCMALLOC"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" EnableCOMDATFolding="1" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="1" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+    <Configuration CharacterSet="1" ConfigurationType="4" InheritedPropertySheets="..\build\release.vsprops" IntermediateDirectory="$(OutDir)\obj\$(ProjectName)" Name="Release - no tcmalloc|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories=".;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" AdditionalOptions="/MP" BufferSecurityCheck="true" DebugInformationFormat="3" DisableSpecificWarnings="4396;4503;4819" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;NO_TCMALLOC" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeTypeInfo="false" WarnAsError="true" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..;.;..;..\third_party\npapi;..\third_party\npapi\bindings;..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include" Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0;__STDC_FORMAT_MACROS;CHROMIUM_BUILD;USING_CEF_SHARED;NDEBUG;NO_TCMALLOC"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="1" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <File RelativePath="cef.gyp"/>
+    <Filter Name="libcef_dll">
+      <File RelativePath="libcef_dll\transfer_util.h"/>
+      <File RelativePath="libcef_dll\transfer_util.cpp"/>
+      <File RelativePath="libcef_dll\cef_logging.h"/>
+      <Filter Name="ctocpp">
+        <File RelativePath="libcef_dll\ctocpp\frame_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\post_data_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\frame_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\v8value_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\post_data_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\post_data_element_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\stream_reader_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\stream_writer_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\v8value_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\request_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\request_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\browser_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\stream_writer_ctocpp.h"/>
+        <File RelativePath="libcef_dll\ctocpp\stream_reader_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\post_data_element_ctocpp.cc"/>
+        <File RelativePath="libcef_dll\ctocpp\browser_ctocpp.cc"/>
+      </Filter>
+      <Filter Name="wrapper">
+        <File RelativePath="libcef_dll\wrapper\libcef_dll_wrapper.cc"/>
+      </Filter>
+      <Filter Name="cpptoc">
+        <File RelativePath="libcef_dll\cpptoc\scheme_handler_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\handler_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\write_handler_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\scheme_handler_factory_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\v8handler_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\scheme_handler_cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\read_handler_cpptoc.cc"/>
+        <File RelativePath="libcef_dll\cpptoc\v8handler_cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\write_handler_cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\read_handler_cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\handler_cpptoc.h"/>
+        <File RelativePath="libcef_dll\cpptoc\scheme_handler_factory_cpptoc.h"/>
+      </Filter>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>

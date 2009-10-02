@@ -2,8 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "stdafx.h"
-#include "cef.h"
+#include "include/cef.h"
 #include "cefclient.h"
 #include "binding_test.h"
 #include "extension_test.h"
@@ -37,7 +36,7 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 
 // Program entry point function.
-int APIENTRY _tWinMain(HINSTANCE hInstance,
+int APIENTRY wWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)

@@ -5,9 +5,9 @@
 #ifndef _BASE_CTOCPP_H
 #define _BASE_CTOCPP_H
 
-#include "cef.h"
-#include "cef_capi.h"
-#include "../cef_logging.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/cef_logging.h"
 
 
 // CefCToCpp implementation for CefBase.

@@ -10,7 +10,7 @@
 
 #include <atlbase.h>
 #include <atlwin.h>
-#include "cef_nplugin.h"
+#include "include/cef_nplugin.h"
 
 extern NPNetscapeFuncs* g_browser;
 

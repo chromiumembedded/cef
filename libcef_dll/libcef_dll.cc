@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "precompiled_libcef.h"
-#include "cef.h"
-#include "cef_capi.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "include/cef_nplugin.h"
+#include "include/cef_nplugin_capi.h"
 #include "cef_logging.h"
-#include "cef_nplugin.h"
-#include "cef_nplugin_capi.h"
 #include "cpptoc/browser_cpptoc.h"
 #include "cpptoc/post_data_cpptoc.h"
 #include "cpptoc/post_data_element_cpptoc.h"
@@ -30,7 +29,7 @@ CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,
   std::wstring cachePath;
   if(cache_path)
     cachePath = cache_path;
-  return CefInitialize(multi_threaded_message_loop, cachePath);
+  return CefInitialize(multi_threaded_message_loop?true:false, cachePath);
 }
 
 CEF_EXPORT void cef_shutdown()

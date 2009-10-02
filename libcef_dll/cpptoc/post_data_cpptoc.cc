@@ -10,9 +10,8 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/post_data_cpptoc.h"
-#include "cpptoc/post_data_element_cpptoc.h"
+#include "libcef_dll/cpptoc/post_data_cpptoc.h"
+#include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.

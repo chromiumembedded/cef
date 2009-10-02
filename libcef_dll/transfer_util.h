@@ -5,8 +5,10 @@
 #ifndef _TRANSFER_UTIL_H
 #define _TRANSFER_UTIL_H
 
-#include "cef_string.h"
-#include "cef_string_map.h"
+#include "include/cef_string.h"
+#include "include/cef_string_map.h"
+#include <map>
+#include <string>
 
 // Copy contents from one map type to another.
 void transfer_string_map_contents(cef_string_map_t fromMap,

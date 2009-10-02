@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #pragma once
-#include "cef.h"
+#include "include/cef.h"
 
 // Register the internal client plugin.
 void InitUIPluginTest();

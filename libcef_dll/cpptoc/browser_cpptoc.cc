@@ -10,10 +10,9 @@
 // for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/browser_cpptoc.h"
-#include "cpptoc/frame_cpptoc.h"
-#include "ctocpp/handler_ctocpp.h"
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/ctocpp/handler_ctocpp.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -32,7 +31,7 @@ CEF_EXPORT int cef_browser_create(cef_window_info_t* windowInfo, int popup,
   if(url)
     urlStr = url;
   
-  return CefBrowser::CreateBrowser(wi, popup, handlerPtr, urlStr);
+  return CefBrowser::CreateBrowser(wi, popup?true:false, handlerPtr, urlStr);
 }
 
 CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
@@ -50,7 +49,7 @@ CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
     urlStr = url;
   
   CefRefPtr<CefBrowser> browserPtr(
-      CefBrowser::CreateBrowserSync(wi, popup, handlerPtr, urlStr));
+	  CefBrowser::CreateBrowserSync(wi, popup?true:false, handlerPtr, urlStr));
   if(browserPtr.get())
     return CefBrowserCppToC::Wrap(browserPtr);
   return NULL;

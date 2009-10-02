@@ -15,9 +15,9 @@
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
 #else // USING_CEF_SHARED
 
-#include "cef.h"
-#include "cef_capi.h"
-#include "cpptoc.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.

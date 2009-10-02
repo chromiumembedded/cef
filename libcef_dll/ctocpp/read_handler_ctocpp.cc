@@ -10,8 +10,7 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "ctocpp/read_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.

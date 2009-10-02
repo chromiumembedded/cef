@@ -42,9 +42,9 @@ def make_cpptoc_header(header, clsname):
 """
 
     result += """
-#include "cef.h"
-#include "cef_capi.h"
-#include "cpptoc.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.
 """

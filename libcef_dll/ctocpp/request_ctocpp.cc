@@ -10,10 +10,9 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "ctocpp/post_data_ctocpp.h"
-#include "ctocpp/request_ctocpp.h"
-#include "../transfer_util.h"
+#include "libcef_dll/ctocpp/post_data_ctocpp.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // STATIC METHODS - Body may be edited by hand.

@@ -10,14 +10,13 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/browser_cpptoc.h"
-#include "cpptoc/frame_cpptoc.h"
-#include "cpptoc/request_cpptoc.h"
-#include "cpptoc/stream_reader_cpptoc.h"
-#include "cpptoc/v8value_cpptoc.h"
-#include "ctocpp/handler_ctocpp.h"
-#include "../transfer_util.h"
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/ctocpp/handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.

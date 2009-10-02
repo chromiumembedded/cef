@@ -5,9 +5,9 @@
 #ifndef _CPPTOC_H
 #define _CPPTOC_H
 
-#include "cef.h"
-#include "cef_capi.h"
-#include "../cef_logging.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/cef_logging.h"
 
 
 // Wrap a C++ class with a C structure.  This is used when the class

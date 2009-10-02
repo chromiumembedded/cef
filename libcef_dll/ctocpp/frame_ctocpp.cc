@@ -10,10 +10,9 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "ctocpp/frame_ctocpp.h"
-#include "ctocpp/request_ctocpp.h"
-#include "ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -168,7 +167,7 @@ bool CefFrameCToCpp::IsMain()
   if(CEF_MEMBER_MISSING(struct_, is_main))
       return false;
 
-  return struct_->is_main(struct_);
+  return struct_->is_main(struct_)?true:false;
 }
 
 bool CefFrameCToCpp::IsFocused()
@@ -176,7 +175,7 @@ bool CefFrameCToCpp::IsFocused()
   if(CEF_MEMBER_MISSING(struct_, is_focused))
       return false;
 
-  return struct_->is_focused(struct_);
+  return struct_->is_focused(struct_)?true:false;
 }
 
 std::wstring CefFrameCToCpp::GetName()

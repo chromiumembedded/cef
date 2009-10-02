@@ -10,10 +10,9 @@
 // tools directory for more information.
 //
 
-#include "../precompiled_libcef.h"
-#include "cpptoc/base_cpptoc.h"
-#include "cpptoc/v8handler_cpptoc.h"
-#include "ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/cpptoc/base_cpptoc.h"
+#include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/ctocpp/v8value_ctocpp.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
@@ -108,7 +107,7 @@ bool CefV8ValueCToCpp::IsUndefined()
   if(CEF_MEMBER_MISSING(struct_, is_undefined))
     return false;
 
-  return struct_->is_undefined(struct_);
+  return struct_->is_undefined(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsNull()
@@ -116,7 +115,7 @@ bool CefV8ValueCToCpp::IsNull()
   if(CEF_MEMBER_MISSING(struct_, is_null))
     return false;
 
-  return struct_->is_null(struct_);
+  return struct_->is_null(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsBool()
@@ -124,7 +123,7 @@ bool CefV8ValueCToCpp::IsBool()
   if(CEF_MEMBER_MISSING(struct_, is_bool))
     return false;
 
-  return struct_->is_bool(struct_);
+  return struct_->is_bool(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsInt()
@@ -132,7 +131,7 @@ bool CefV8ValueCToCpp::IsInt()
   if(CEF_MEMBER_MISSING(struct_, is_int))
     return false;
 
-  return struct_->is_int(struct_);
+  return struct_->is_int(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsDouble()
@@ -140,7 +139,7 @@ bool CefV8ValueCToCpp::IsDouble()
   if(CEF_MEMBER_MISSING(struct_, is_double))
     return false;
 
-  return struct_->is_double(struct_);
+  return struct_->is_double(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsString()
@@ -148,7 +147,7 @@ bool CefV8ValueCToCpp::IsString()
   if(CEF_MEMBER_MISSING(struct_, is_string))
     return false;
 
-  return struct_->is_string(struct_);
+  return struct_->is_string(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsObject()
@@ -156,7 +155,7 @@ bool CefV8ValueCToCpp::IsObject()
   if(CEF_MEMBER_MISSING(struct_, is_object))
     return false;
 
-  return struct_->is_object(struct_);
+  return struct_->is_object(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsArray()
@@ -164,7 +163,7 @@ bool CefV8ValueCToCpp::IsArray()
   if(CEF_MEMBER_MISSING(struct_, is_array))
     return false;
 
-  return struct_->is_array(struct_);
+  return struct_->is_array(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::IsFunction()
@@ -172,7 +171,7 @@ bool CefV8ValueCToCpp::IsFunction()
   if(CEF_MEMBER_MISSING(struct_, is_function))
     return false;
 
-  return struct_->is_function(struct_);
+  return struct_->is_function(struct_)?true:false;
 }
 
 bool CefV8ValueCToCpp::GetBoolValue()
@@ -180,7 +179,7 @@ bool CefV8ValueCToCpp::GetBoolValue()
   if(CEF_MEMBER_MISSING(struct_, get_bool_value))
     return false;
 
-  return struct_->get_bool_value(struct_);
+  return struct_->get_bool_value(struct_)?true:false;
 }
 
 int CefV8ValueCToCpp::GetIntValue()
@@ -218,7 +217,7 @@ bool CefV8ValueCToCpp::HasValue(const std::wstring& key)
   if(CEF_MEMBER_MISSING(struct_, has_value_bykey))
     return false;
 
-  return struct_->has_value_bykey(struct_, key.c_str());
+  return struct_->has_value_bykey(struct_, key.c_str())?true:false;
 }
 
 bool CefV8ValueCToCpp::HasValue(int index)
@@ -226,7 +225,7 @@ bool CefV8ValueCToCpp::HasValue(int index)
   if(CEF_MEMBER_MISSING(struct_, has_value_byindex))
     return false;
 
-  return struct_->has_value_byindex(struct_, index);
+  return struct_->has_value_byindex(struct_, index)?true:false;
 }
 
 bool CefV8ValueCToCpp::DeleteValue(const std::wstring& key)
@@ -234,7 +233,7 @@ bool CefV8ValueCToCpp::DeleteValue(const std::wstring& key)
   if(CEF_MEMBER_MISSING(struct_, delete_value_bykey))
     return false;
 
-  return struct_->delete_value_bykey(struct_, key.c_str());
+  return struct_->delete_value_bykey(struct_, key.c_str())?true:false;
 }
 
 bool CefV8ValueCToCpp::DeleteValue(int index)
@@ -242,7 +241,7 @@ bool CefV8ValueCToCpp::DeleteValue(int index)
   if(CEF_MEMBER_MISSING(struct_, delete_value_byindex))
     return false;
 
-  return struct_->delete_value_byindex(struct_, index);
+  return struct_->delete_value_byindex(struct_, index)?true:false;
 }
 
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const std::wstring& key)
@@ -274,7 +273,7 @@ bool CefV8ValueCToCpp::SetValue(const std::wstring& key,
     return false;
 
   return struct_->set_value_bykey(struct_, key.c_str(),
-      CefV8ValueCToCpp::Unwrap(value));
+      CefV8ValueCToCpp::Unwrap(value))?true:false;
 }
 
 bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
@@ -283,7 +282,7 @@ bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
     return false;
 
   return struct_->set_value_byindex(struct_, index,
-      CefV8ValueCToCpp::Unwrap(value));
+      CefV8ValueCToCpp::Unwrap(value))?true:false;
 }
 
 bool CefV8ValueCToCpp::GetKeys(std::vector<std::wstring>& keys)
@@ -380,7 +379,7 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
   if(argsStructPtr)
     delete [] argsStructPtr;
 
-  return rv;
+  return rv?true:false;
 }
 
 

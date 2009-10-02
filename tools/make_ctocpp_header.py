@@ -43,9 +43,9 @@ def make_ctocpp_header(header, clsname):
 """
 
     result += """
-#include "cef.h"
-#include "cef_capi.h"
-#include "ctocpp.h"
+#include "include/cef.h"
+#include "include/cef_capi.h"
+#include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.
 """
