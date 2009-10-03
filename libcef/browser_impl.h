@@ -210,6 +210,8 @@ public:
   void UIT_SetUniqueID(int id) { unique_id_ = id; }
   int UIT_GetUniqueID() { return unique_id_; }
 
+  static bool ImplementsThreadSafeReferenceCounting() { return true; }
+
 protected:
   CefWindowInfo window_info_;
   bool is_popup_;
@@ -272,7 +274,7 @@ public:
   virtual bool IsMain() { return name_.empty(); }
   virtual bool IsFocused()
     { return (browser_->GetWebFrame(this) ==
-              browser_->GetWebView()->GetFocusedFrame()); }
+              browser_->GetWebView()->focusedFrame()); }
   virtual std::wstring GetName() { return name_; }
   virtual std::wstring GetURL() { return browser_->GetURL(this); }
 

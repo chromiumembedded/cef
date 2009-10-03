@@ -22,6 +22,7 @@
 #include "base/scoped_ptr.h"
 #include "base/weak_ptr.h"
 #include "webkit/api/public/WebFrameClient.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_page_delegate.h"
 #include "webkit/glue/webview_delegate.h"
@@ -67,6 +68,7 @@ class BrowserWebViewDelegate : public WebViewDelegate,
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line);
   virtual void printPage(WebKit::WebFrame* frame);
+  virtual WebKit::WebNotificationPresenter* notificationPresenter();
   virtual void didStartLoading();
   virtual void didStopLoading();
   virtual bool shouldBeginEditing(const WebKit::WebRange& range);
@@ -91,6 +93,14 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual void didChangeContents();
   virtual void didExecuteCommand(const WebKit::WebString& command_name);
   virtual void didEndEditing();
+  virtual bool handleCurrentKeyboardEvent();
+  virtual void spellCheck(
+      const WebKit::WebString& text, int& offset, int& length);
+  virtual WebKit::WebString autoCorrectWord(
+      const WebKit::WebString& misspelled_word);
+  virtual void showSpellingUI(bool show);
+  virtual void updateSpellingUIWithMisspelledWord(
+      const WebKit::WebString& word);
   virtual void runModalAlertDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message);
   virtual bool runModalConfirmDialog(
@@ -107,6 +117,7 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual void startDragging(
       const WebKit::WebPoint& from, const WebKit::WebDragData& data,
       WebKit::WebDragOperationsMask mask);
+  virtual bool acceptsLoadDrops();
   virtual void focusNext();
   virtual void focusPrevious();
   virtual void navigateBackForwardSoon(int offset);

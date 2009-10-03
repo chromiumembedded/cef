@@ -91,17 +91,17 @@ CefRefPtr<CefHandler> CefBrowserImpl::GetHandler()
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame()
 {
-  return GetCefFrame(GetWebView()->GetMainFrame());
+  return GetCefFrame(GetWebView()->mainFrame());
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame()
 {
-  return GetCefFrame(GetWebView()->GetFocusedFrame());
+  return GetCefFrame(GetWebView()->focusedFrame());
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
 {
-  WebFrame* frame = GetWebView()->GetFrameWithName(name);
+  WebFrame* frame = GetWebView()->findFrameByName(name);
   if(frame)
     return GetCefFrame(frame);
   return NULL;
@@ -110,12 +110,12 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
 void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
 {
   WebView* view = GetWebView();
-  WebFrame* main_frame = view->GetMainFrame();
+  WebFrame* main_frame = view->mainFrame();
   WebFrame* it = main_frame;
   do {
     if(it != main_frame)
       names.push_back(UTF16ToWideHack(it->name()));
-    it = view->GetNextFrameAfter(it, true);
+    it = it->traverseNext(true);
   } while (it != main_frame);
 }
 
@@ -126,7 +126,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
 
   WebView *view = GetWebView();
   if(view) {
-    if(frame == view->GetMainFrame()) {
+    if(frame == view->mainFrame()) {
       // Use or create the single main frame reference.
       if(frame_main_ == NULL)
         frame_main_ = new CefFrameImpl(this, std::wstring());
@@ -168,8 +168,8 @@ WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
 {
   std::wstring name = frame->GetName();
   if(name.empty())
-    return GetWebView()->GetMainFrame();
-  return GetWebView()->GetFrameWithName(name);
+    return GetWebView()->mainFrame();
+  return GetWebView()->findFrameByName(name);
 }
 
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
@@ -501,9 +501,9 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // Get the right target frame for the entry.
   WebFrame* frame;
   if (!entry.GetTargetFrame().empty())
-    frame = GetWebView()->GetFrameWithName(entry.GetTargetFrame());
+    frame = GetWebView()->findFrameByName(entry.GetTargetFrame());
   else
-    frame = GetWebView()->GetMainFrame();
+    frame = GetWebView()->mainFrame();
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
 
@@ -563,10 +563,10 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
     // for more details).
     // TODO(cef): The above comment may be wrong, or the below call to
-    // SetFocusedFrame() may be unnecessary or in the wrong place.  See this
+    // setFocusedFrame() may be unnecessary or in the wrong place.  See this
     // thread for additional details:
     // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
-    GetWebView()->SetFocusedFrame(frame);
+    GetWebView()->setFocusedFrame(frame);
     UIT_SetFocus(GetWebViewHost(), true);
   }
 
@@ -630,7 +630,7 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
       UIT_Reload();
       break;
     case MENU_ID_NAV_STOP:
-      GetWebView()->StopLoading();
+      GetWebView()->mainFrame()->stopLoading();
       break;
     case MENU_ID_UNDO:
       if(web_frame)

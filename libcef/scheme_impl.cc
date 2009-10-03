@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "base/lazy_instance.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/worker_pool.h"
@@ -380,6 +381,8 @@ public:
 
   void AddRef() {}
   void Release() { delete this; }
+
+  static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 private:
   CefSchemeHandlerFactory* factory_;

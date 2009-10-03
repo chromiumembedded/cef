@@ -131,6 +131,8 @@ public:
   void AddRef() {}
   void Release() {}
 
+  static bool ImplementsThreadSafeReferenceCounting() { return true; }
+
 private:
   CefV8Handler* handler_;
 };

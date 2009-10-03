@@ -348,7 +348,8 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->remote_fonts_enabled = true;
       webprefs_->local_storage_enabled = true;
       webprefs_->session_storage_enabled = true;
-      webprefs_->application_cache_enabled = false;
+      webprefs_->application_cache_enabled = true;
+      webprefs_->databases_enabled = true;
 
       if (multi_threaded_message_loop) {
         // Event that will be used to signal thread setup completion. Start

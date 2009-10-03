@@ -59,6 +59,8 @@ public:
   bool DoDelayedWork();
   bool DoIdleWork();
 
+  static bool ImplementsThreadSafeReferenceCounting() { return true; }
+
 private:
   void SetMessageLoopForUI(MessageLoopForUI* loop);
   void NotifyEvent();

@@ -57,8 +57,8 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       browser->GetWebViewDelegate()->RevokeDragDrop();
 
       // Call GC twice to clean up garbage.
-      browser->GetWebView()->GetMainFrame()->collectGarbage();
-      browser->GetWebView()->GetMainFrame()->collectGarbage();
+      browser->GetWebView()->mainFrame()->collectGarbage();
+      browser->GetWebView()->mainFrame()->collectGarbage();
 
       // Clean up anything associated with the WebViewHost widget.
       browser->GetWebViewHost()->webwidget()->close();

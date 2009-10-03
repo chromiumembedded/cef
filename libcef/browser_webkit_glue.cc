@@ -4,7 +4,6 @@
 // found in the LICENSE file.
 
 #include "base/compiler_specific.h"
-#include "base/logging.h"
 
 #undef LOG
 #include "config.h"
@@ -16,6 +15,7 @@ MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
 
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/resource_util.h"
 #include "base/scoped_ptr.h"

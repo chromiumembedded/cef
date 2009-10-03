@@ -41,7 +41,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
 
   host->webwidget_ = WebView::Create(delegate);
   prefs.Apply(host->webview());
-  host->webview()->InitializeMainFrame(delegate);
+  host->webview()->initializeMainFrame(delegate);
 
   return host;
 }

@@ -150,6 +150,10 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
 void BrowserWebViewDelegate::printPage(WebFrame* frame) {
 }
 
+WebKit::WebNotificationPresenter* BrowserWebViewDelegate::notificationPresenter() {
+  return NULL;
+}
+
 void BrowserWebViewDelegate::didStartLoading() {
   // clear the title so we can tell if it wasn't provided by the page
   browser_->UIT_SetTitle(std::wstring());
@@ -238,6 +242,26 @@ void BrowserWebViewDelegate::didExecuteCommand(
 void BrowserWebViewDelegate::didEndEditing() {
 }
 
+bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
+  return false;
+}
+
+void BrowserWebViewDelegate::spellCheck(const WebKit::WebString& text,
+                                        int& offset, int& length) {
+}
+
+WebString BrowserWebViewDelegate::autoCorrectWord(const WebString& word) {
+  // Dummy implementation.
+  return word;
+}
+
+void BrowserWebViewDelegate::showSpellingUI(bool show) {
+}
+
+void BrowserWebViewDelegate::updateSpellingUIWithMisspelledWord(
+    const WebKit::WebString& word) {
+}
+
 void BrowserWebViewDelegate::runModalAlertDialog(
     WebFrame* frame, const WebString& message) {
   std::wstring messageStr = UTF16ToWideHack(message);
@@ -320,7 +344,11 @@ void BrowserWebViewDelegate::startDragging(
   //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
   //                         ok_effect, &effect);
   //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
-  browser_->GetWebView()->DragSourceSystemDragEnded();
+  browser_->GetWebView()->dragSourceSystemDragEnded();
+}
+
+bool BrowserWebViewDelegate::acceptsLoadDrops() {
+  return true;
 }
 
 void BrowserWebViewDelegate::focusNext() {
@@ -840,7 +868,7 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
     return;
 
   const WebHistoryItem& history_item =
-      browser_->GetWebView()->GetMainFrame()->previousHistoryItem();
+      browser_->GetWebView()->mainFrame()->previousHistoryItem();
   if (history_item.isNull())
     return;
 
