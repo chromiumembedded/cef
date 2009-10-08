@@ -635,7 +635,7 @@ typedef struct _cef_stream_reader_t
       size_t size, size_t n);
 
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET.
+  // SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
   int (CEF_CALLBACK *seek)(struct _cef_stream_reader_t* self, long offset,
       int whence);
 

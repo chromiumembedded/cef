@@ -787,7 +787,8 @@ public:
   virtual size_t Read(void* ptr, size_t size, size_t n) =0;
 	
   // Seek to the specified offset position. |whence| may be any one of
-  // SEEK_CUR, SEEK_END or SEEK_SET.
+  // SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on
+  // failure.
   /*--cef()--*/
   virtual int Seek(long offset, int whence) =0;
 	

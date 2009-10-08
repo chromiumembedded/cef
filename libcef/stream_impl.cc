@@ -192,20 +192,21 @@ int CefBytesReader::Seek(long offset, int whence)
       break;	
     }
     offset_ += offset;
-    rv = offset_;
+    rv = 0;
     break;
   case SEEK_END:
     if(offset > (int)datasize_) {
       break;
     }
     offset_ = datasize_ - offset;
-    rv = offset_;
+    rv = 0;
+    break;
   case SEEK_SET:
     if(offset > (int)datasize_) {
       break;	
     }
     offset_ = offset;
-    rv = offset_;
+    rv = 0;
     break;
   }
   Unlock();

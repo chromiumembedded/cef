@@ -250,8 +250,9 @@ class RequestProxy : public URLRequest::Delegate,
         if(rv == RV_HANDLED) {
           // cancel the resource load
           handled = true;
-          OnCompletedRequest(URLRequestStatus(URLRequestStatus::CANCELED, 0),
-            std::string());
+          OnCompletedRequest(
+              URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
+              std::string());
         } else if(!redirectUrl.empty()) {
           // redirect to the specified URL
           params->url = GURL(WideToUTF8(redirectUrl));

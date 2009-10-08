@@ -75,6 +75,31 @@
       ],
     },
     {
+      'target_name': 'cef_unittests',
+      'type': 'executable',
+      'msvs_guid': '8500027C-B11A-11DE-A16E-B80256D89593',
+      'dependencies': [
+        '../base/base.gyp:base',
+        '../testing/gtest.gyp:gtest',
+        '../third_party/icu/icu.gyp:icui18n',
+        '../third_party/icu/icu.gyp:icuuc',
+        'libcef',
+        'libcef_dll_wrapper',
+      ],
+      'sources': [
+        'tests/unittests/request_unittest.cc',
+        'tests/unittests/run_all_unittests.cc',
+        'tests/unittests/stream_unittest.cc',
+        'tests/unittests/test_handler.h',
+        'tests/unittests/test_suite.h',
+        'tests/unittests/v8_unittest.cc',
+      ],
+      'include_dirs': [
+        '.',
+        '..',
+      ],
+    },
+    {
       'target_name': 'patcher',
       'type': 'none',
       'msvs_guid': 'A6D0953E-899E-4C60-AB6B-CAE75A44B8E6',
