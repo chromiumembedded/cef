@@ -12,7 +12,7 @@
 #include "../include/cef_nplugin.h"
 
 #include "base/command_line.h"
-#include "base/icu_util.h"
+#include "base/i18n/icu_util.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
 #include "base/resource_util.h"

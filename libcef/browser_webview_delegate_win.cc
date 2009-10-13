@@ -18,13 +18,14 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 
-#include "base/gfx/gdi_util.h"
-#include "base/gfx/native_widget_types.h"
+#include "app/gfx/gdi_util.h"
+#include "app/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebContextMenuData.h"
 #include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebFrame.h"
 #include "webkit/api/public/WebRect.h"
@@ -37,6 +38,7 @@
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 
+using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
 using WebKit::WebFrame;
 using WebKit::WebNavigationPolicy;
@@ -244,23 +246,10 @@ static void AddMenuSeparator(HMENU menu, int index)
   InsertMenuItem(menu, index, TRUE, &mii);
 }
 
-void BrowserWebViewDelegate::ShowContextMenu(
-    WebView* webview,
-    ContextNodeType node_type,
-    int x,
-    int y,
-    const GURL& link_url,
-    const GURL& image_url,
-    const GURL& page_url,
-    const GURL& frame_url,
-    const ContextMenuMediaParams& media_params,
-    const std::wstring& selection_text,
-    const std::wstring& misspelled_word,
-    int edit_flags,
-    const std::string& security_info,
-    const std::string& frame_charset) {
-
-  POINT screen_pt = { x, y };
+void BrowserWebViewDelegate::showContextMenu(
+    WebFrame* frame, const WebContextMenuData& data)
+{
+  POINT screen_pt = { data.mousePosition.x, data.mousePosition.y };
   MapWindowPoints(browser_->GetMainWndHandle(), HWND_DESKTOP,
       &screen_pt, 1);
 
@@ -272,34 +261,58 @@ void BrowserWebViewDelegate::ShowContextMenu(
 	bool old_state = MessageLoop::current()->NestableTasksAllowed();
 	MessageLoop::current()->SetNestableTasksAllowed(true);
 
+  int edit_flags = data.editFlags;
   if(browser_->UIT_CanGoBack())
     edit_flags |= MENU_CAN_GO_BACK;
 	if(browser_->UIT_CanGoForward())
     edit_flags |= MENU_CAN_GO_FORWARD;
+
+  int type_flags = MENUTYPE_NONE;
+  if(!data.pageURL.isEmpty())
+    type_flags |= MENUTYPE_PAGE;
+  if(!data.frameURL.isEmpty())
+    type_flags |= MENUTYPE_FRAME;
+  if(!data.linkURL.isEmpty())
+    type_flags |= MENUTYPE_LINK;
+  if(data.mediaType == WebContextMenuData::MediaTypeImage)
+    type_flags |= MENUTYPE_IMAGE;
+  if(!data.selectedText.isEmpty())
+    type_flags |= MENUTYPE_SELECTION;
+  if(data.isEditable)
+    type_flags |= MENUTYPE_EDITABLE;
+  if(data.isSpellCheckingEnabled && !data.misspelledWord.isEmpty())
+    type_flags |= MENUTYPE_MISSPELLED_WORD;
+  if(data.mediaType == WebContextMenuData::MediaTypeVideo)
+    type_flags |= MENUTYPE_VIDEO;
+  if(data.mediaType == WebContextMenuData::MediaTypeAudio)
+    type_flags |= MENUTYPE_AUDIO;
 	
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Gather menu information
     CefHandler::MenuInfo menuInfo;
-    std::wstring linkstr, imagestr, pagestr, framestr, securitystr;
+    std::wstring linkStr, imageStr, pageStr, frameStr;
+    std::wstring selectedTextStr, misspelledWordStr, securityInfoStr;
 
-    linkstr = UTF8ToWide(link_url.spec().c_str());
-    imagestr = UTF8ToWide(image_url.spec().c_str());
-    pagestr = UTF8ToWide(page_url.spec().c_str());
-    framestr = UTF8ToWide(frame_url.spec().c_str());
-    securitystr = UTF8ToWide(security_info);
+    linkStr = UTF16ToWideHack(data.linkURL.spec().utf16());
+    imageStr = UTF16ToWideHack(data.srcURL.spec().utf16());
+    pageStr = UTF16ToWideHack(data.pageURL.spec().utf16());
+    frameStr = UTF16ToWideHack(data.frameURL.spec().utf16());
+    selectedTextStr = UTF16ToWideHack(data.selectedText);
+    misspelledWordStr = UTF16ToWideHack(data.misspelledWord);
+    securityInfoStr = UTF16ToWideHack(data.securityInfo.utf16());
     
-    menuInfo.typeFlags = node_type.type;
+    menuInfo.typeFlags = type_flags;
     menuInfo.x = screen_pt.x;
     menuInfo.y = screen_pt.y;
-    menuInfo.linkUrl = linkstr.c_str();
-    menuInfo.imageUrl = imagestr.c_str();
-    menuInfo.pageUrl = pagestr.c_str();
-    menuInfo.frameUrl = framestr.c_str();
-    menuInfo.selectionText = selection_text.c_str();
-    menuInfo.misspelledWord = misspelled_word.c_str();
+    menuInfo.linkUrl = linkStr.c_str();
+    menuInfo.imageUrl = imageStr.c_str();
+    menuInfo.pageUrl = pageStr.c_str();
+    menuInfo.frameUrl = frameStr.c_str();
+    menuInfo.selectionText = selectedTextStr.c_str();
+    menuInfo.misspelledWord = misspelledWordStr.c_str();
     menuInfo.editFlags = edit_flags;
-    menuInfo.securityInfo = securitystr.c_str();
+    menuInfo.securityInfo = securityInfoStr.c_str();
    
     // Notify the handler that a context menu is requested
     CefHandler::RetVal rv = handler->HandleBeforeMenu(browser_, menuInfo);
@@ -308,30 +321,29 @@ void BrowserWebViewDelegate::ShowContextMenu(
   }
 
   // Build the correct default context menu
-  if (node_type.type & ContextNodeType::EDITABLE) {
+  if (type_flags &  MENUTYPE_EDITABLE) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_UNDO, L"Undo",
-      !!(edit_flags & ContextNodeType::CAN_UNDO), label_list);
+      !!(edit_flags & WebContextMenuData::CanUndo), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_REDO, L"Redo",
-      !!(edit_flags & ContextNodeType::CAN_REDO), label_list);
+      !!(edit_flags & WebContextMenuData::CanRedo), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_CUT, L"Cut",
-      !!(edit_flags & ContextNodeType::CAN_CUT), label_list);
+      !!(edit_flags & WebContextMenuData::CanCut), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & ContextNodeType::CAN_COPY), label_list);
+      !!(edit_flags & WebContextMenuData::CanCopy), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_PASTE, L"Paste",
-      !!(edit_flags & ContextNodeType::CAN_PASTE), label_list);
+      !!(edit_flags & WebContextMenuData::CanPaste), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_DELETE, L"Delete",
-      !!(edit_flags & ContextNodeType::CAN_DELETE), label_list);
+      !!(edit_flags & WebContextMenuData::CanDelete), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_SELECTALL, L"Select All",
       !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
-  } else if(node_type.type & ContextNodeType::SELECTION) {
+  } else if(type_flags & MENUTYPE_SELECTION) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & ContextNodeType::CAN_COPY), label_list);
-  } else if(node_type.type &
-      (ContextNodeType::PAGE | ContextNodeType::FRAME)) {
+      !!(edit_flags & WebContextMenuData::CanCopy), label_list);
+  } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_NAV_BACK, L"Back",
       browser_->UIT_CanGoBack(), label_list);

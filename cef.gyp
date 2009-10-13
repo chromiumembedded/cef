@@ -122,6 +122,7 @@
       'type': 'shared_library',
       'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
       'dependencies': [
+        '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../breakpad/breakpad.gyp:breakpad_handler',
@@ -277,6 +278,7 @@
         '..',
       ],
       'dependencies': [
+        '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../breakpad/breakpad.gyp:breakpad_handler',

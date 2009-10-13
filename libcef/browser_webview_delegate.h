@@ -21,6 +21,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/weak_ptr.h"
+#include "webkit/api/public/WebContextMenuData.h"
 #include "webkit/api/public/WebFrameClient.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
@@ -33,7 +34,6 @@
 #include "browser_navigation_controller.h"
 
 class CefBrowserImpl;
-struct ContextMenuMediaParams;
 struct WebPreferences;
 class GURL;
 class WebWidgetHost;
@@ -43,22 +43,6 @@ class BrowserWebViewDelegate : public WebViewDelegate,
     public webkit_glue::WebPluginPageDelegate,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
-  // WebViewDelegate
-  virtual void ShowContextMenu(WebView* webview,
-                               ContextNodeType node_type,
-                               int x,
-                               int y,
-                               const GURL& link_url,
-                               const GURL& image_url,
-                               const GURL& page_url,
-                               const GURL& frame_url,
-                               const ContextMenuMediaParams& media_params,
-                               const std::wstring& selection_text,
-                               const std::wstring& misspelled_word,
-                               int edit_flags,
-                               const std::string& security_info,
-                               const std::string& frame_charset);
-  
   // WebKit::WebViewClient
   virtual WebView* createView(WebKit::WebFrame* creator);
   virtual WebKit::WebWidget* createPopupMenu(bool activatable);
@@ -99,8 +83,13 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual WebKit::WebString autoCorrectWord(
       const WebKit::WebString& misspelled_word);
   virtual void showSpellingUI(bool show);
+  virtual bool isShowingSpellingUI();
   virtual void updateSpellingUIWithMisspelledWord(
       const WebKit::WebString& word);
+  virtual bool runFileChooser(
+      bool multi_select, const WebKit::WebString& title,
+      const WebKit::WebString& initial_value,
+      WebKit::WebFileChooserCompletion* chooser_completion);
   virtual void runModalAlertDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message);
   virtual bool runModalConfirmDialog(
@@ -110,6 +99,8 @@ class BrowserWebViewDelegate : public WebViewDelegate,
       const WebKit::WebString& default_value, WebKit::WebString* actual_value);
   virtual bool runModalBeforeUnloadDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message);
+  virtual void showContextMenu(
+      WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data);
   virtual void setStatusText(const WebKit::WebString& text);
   virtual void setMouseOverURL(const WebKit::WebURL& url);
   virtual void setToolTipText(
@@ -124,6 +115,7 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual int historyBackListCount();
   virtual int historyForwardListCount();
   virtual void didAddHistoryItem();
+  virtual void didUpdateInspectorSettings();
   
   // WebKit::WebWidgetClient
   virtual void didInvalidateRect(const WebKit::WebRect& rect);
@@ -154,8 +146,8 @@ class BrowserWebViewDelegate : public WebViewDelegate,
       WebKit::WebNavigationPolicy);
   virtual WebKit::WebNavigationPolicy decidePolicyForNavigation(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
-      WebKit::WebNavigationType, WebKit::WebNavigationPolicy default_policy,
-      bool isRedirect);
+      WebKit::WebNavigationType, const WebKit::WebNode&,
+      WebKit::WebNavigationPolicy default_policy, bool isRedirect);
   virtual void willSubmitForm(WebKit::WebFrame*, const WebKit::WebForm&);
   virtual void willPerformClientRedirect(
       WebKit::WebFrame*, const WebKit::WebURL& from, const WebKit::WebURL& to,
@@ -204,8 +196,15 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual void didRunInsecureContent(
       WebKit::WebFrame* frame, const WebKit::WebSecurityOrigin& origin);
   virtual void didExhaustMemoryAvailableForScript(WebKit::WebFrame*);
+  virtual void didCreateScriptContext(WebKit::WebFrame* frame);
+  virtual void didDestroyScriptContext(WebKit::WebFrame* frame);
+  virtual void didCreateIsolatedScriptContext(WebKit::WebFrame* frame);
   virtual void didChangeContentsSize(
       WebKit::WebFrame*, const WebKit::WebSize&);
+  virtual void reportFindInPageMatchCount(
+      int identifier, int count, bool final_update);
+  virtual void reportFindInPageSelection(
+      int identifier, int ordinal, const WebKit::WebRect& selection);
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit_glue::WebPluginDelegate* CreatePluginDelegate(

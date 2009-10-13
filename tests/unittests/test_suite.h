@@ -6,7 +6,7 @@
 #define _CEF_TEST_SUITE_H
 
 #include "build/build_config.h"
-#include "base/test_suite.h"
+#include "base/test/test_suite.h"
 #include "include/cef.h"
 
 class CefTestSuite : public TestSuite {

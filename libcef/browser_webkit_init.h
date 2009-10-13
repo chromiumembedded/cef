@@ -20,6 +20,7 @@
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebStorageArea.h"
+#include "webkit/api/public/WebStorageEventDispatcher.h"
 #include "webkit/api/public/WebStorageNamespace.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
@@ -165,12 +166,28 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
-      const WebKit::WebString& path) {
-    return WebKit::WebStorageNamespace::createLocalStorageNamespace(path);
+      const WebKit::WebString& path, unsigned quota) {
+    return WebKit::WebStorageNamespace::createLocalStorageNamespace(path,
+                                                                    quota);
   }
 
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace() {
     return WebKit::WebStorageNamespace::createSessionStorageNamespace();
+  }
+
+  void dispatchStorageEvent(const WebKit::WebString& key,
+      const WebKit::WebString& old_value, const WebKit::WebString& new_value,
+      const WebKit::WebString& origin, bool is_local_storage) {
+    // TODO(jorlow): Implement
+    if (!is_local_storage)
+      return;
+
+    if (!dom_storage_event_dispatcher_.get()) {
+      dom_storage_event_dispatcher_.reset(
+          WebKit::WebStorageEventDispatcher::create());
+    }
+    dom_storage_event_dispatcher_->dispatchStorageEvent(key, old_value,
+        new_value, origin, is_local_storage);
   }
 
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
@@ -184,6 +201,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
+  scoped_ptr<WebKit::WebStorageEventDispatcher> dom_storage_event_dispatcher_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

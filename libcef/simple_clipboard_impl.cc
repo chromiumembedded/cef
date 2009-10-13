@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "base/clipboard.h"
+#include "app/clipboard/clipboard.h"
 #include "base/lazy_instance.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"

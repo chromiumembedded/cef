@@ -5,7 +5,6 @@
 
 #include "webwidget_host.h"
 
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/win_util.h"

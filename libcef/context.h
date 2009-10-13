@@ -7,10 +7,10 @@
 #define _CONTEXT_H
 
 #include "../include/cef.h"
+#include "app/gfx/native_widget_types.h"
 #include "base/at_exit.h"
 #include "base/message_loop.h"
 #include "base/stats_table.h"
-#include "base/gfx/native_widget_types.h"
 #include "webkit/glue/webpreferences.h"
 
 class BrowserWebKitInit;

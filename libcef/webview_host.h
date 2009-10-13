@@ -6,7 +6,7 @@
 #define _WEBVIEW_HOST_H
 
 #include "base/basictypes.h"
-#include "base/gfx/native_widget_types.h"
+#include "app/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "webwidget_host.h"
 

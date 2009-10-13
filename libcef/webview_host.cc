@@ -5,7 +5,6 @@
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 
-#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"

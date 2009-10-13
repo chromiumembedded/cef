@@ -16,16 +16,17 @@
 #include "request_impl.h"
 #include "v8_impl.h"
 
+#include "app/gfx/gdi_util.h"
+#include "app/gfx/native_widget_types.h"
 #include "base/file_util.h"
-#include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
-#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "webkit/api/public/WebConsoleMessage.h"
+#include "webkit/api/public/WebContextMenuData.h"
 #include "webkit/api/public/WebCString.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/api/public/WebData.h"
@@ -67,6 +68,7 @@
 #endif
 
 using WebKit::WebConsoleMessage;
+using WebKit::WebContextMenuData;
 using WebKit::WebData;
 using WebKit::WebDataSource;
 using WebKit::WebDragData;
@@ -258,8 +260,19 @@ WebString BrowserWebViewDelegate::autoCorrectWord(const WebString& word) {
 void BrowserWebViewDelegate::showSpellingUI(bool show) {
 }
 
+bool BrowserWebViewDelegate::isShowingSpellingUI() {
+  return false;
+}
+
 void BrowserWebViewDelegate::updateSpellingUIWithMisspelledWord(
     const WebKit::WebString& word) {
+}
+
+bool BrowserWebViewDelegate::runFileChooser(
+      bool multi_select, const WebKit::WebString& title,
+      const WebKit::WebString& initial_value,
+      WebKit::WebFileChooserCompletion* chooser_completion) {
+  return false;
 }
 
 void BrowserWebViewDelegate::runModalAlertDialog(
@@ -387,6 +400,9 @@ int BrowserWebViewDelegate::historyForwardListCount() {
 void BrowserWebViewDelegate::didAddHistoryItem() {
 }
 
+void BrowserWebViewDelegate::didUpdateInspectorSettings() {
+}
+
 // WebWidgetClient -----------------------------------------------------------
 
 void BrowserWebViewDelegate::didInvalidateRect(const WebRect& rect) {
@@ -465,8 +481,8 @@ void BrowserWebViewDelegate::loadURLExternally(
 
 WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
     WebFrame* frame, const WebURLRequest& request,
-    WebNavigationType type, WebNavigationPolicy default_policy,
-    bool is_redirect) {
+    WebNavigationType type, const WebNode& originating_node,
+    WebNavigationPolicy default_policy, bool is_redirect) {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Gather browse request information
@@ -701,11 +717,29 @@ void BrowserWebViewDelegate::didRunInsecureContent(
     WebFrame* frame, const WebKit::WebSecurityOrigin& origin) {
 }
 
-void BrowserWebViewDelegate::didExhaustMemoryAvailableForScript(WebFrame* frame) {
+void BrowserWebViewDelegate::didExhaustMemoryAvailableForScript(
+    WebFrame* frame) {
+}
+
+void BrowserWebViewDelegate::didCreateScriptContext(WebKit::WebFrame* frame) {
+}
+
+void BrowserWebViewDelegate::didDestroyScriptContext(WebKit::WebFrame* frame) {
+}
+
+void BrowserWebViewDelegate::didCreateIsolatedScriptContext(
+    WebKit::WebFrame* frame) {
 }
 
 void BrowserWebViewDelegate::didChangeContentsSize(
     WebFrame* frame, const WebSize&) {
+}
+
+void BrowserWebViewDelegate::reportFindInPageMatchCount(
+    int identifier, int count, bool final_update) {
+}
+void BrowserWebViewDelegate::reportFindInPageSelection(
+    int identifier, int ordinal, const WebKit::WebRect& selection) {
 }
 
 
