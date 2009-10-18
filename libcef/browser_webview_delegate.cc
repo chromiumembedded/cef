@@ -7,7 +7,7 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "config.h"
+#include "third_party/webkit/webcore/config.h"
 #undef LOG
 #include "browser_webview_delegate.h"
 #include "browser_impl.h"
@@ -400,7 +400,24 @@ int BrowserWebViewDelegate::historyForwardListCount() {
 void BrowserWebViewDelegate::didAddHistoryItem() {
 }
 
+void BrowserWebViewDelegate::focusAccessibilityObject(
+    const WebKit::WebAccessibilityObject& object) {
+}
+
 void BrowserWebViewDelegate::didUpdateInspectorSettings() {
+}
+
+WebKit::WebDevToolsAgentClient* BrowserWebViewDelegate::devToolsAgentClient() {
+  return NULL;
+}
+
+void BrowserWebViewDelegate::queryAutofillSuggestions(
+    const WebKit::WebNode&, const WebKit::WebString& name,
+    const WebKit::WebString& value) {
+}
+
+void BrowserWebViewDelegate::removeAutofillSuggestions(
+    const WebKit::WebString& name, const WebKit::WebString& value) {
 }
 
 // WebWidgetClient -----------------------------------------------------------

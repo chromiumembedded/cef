@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 
-#include "config.h"
+#include "third_party/webkit/webcore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformContextSkia.h"
 MSVC_POP_WARNING();

@@ -171,7 +171,8 @@ bool CefContext::DoInitialize()
   // and no support for directory listings.
   //PathService::Get(base::DIR_EXE, &cache_path);
   BrowserResourceLoaderBridge::Init(
-    new BrowserRequestContext(cache_path_, net::HttpCache::NORMAL, false));
+      new BrowserRequestContext(FilePath(cache_path_), net::HttpCache::NORMAL,
+      false));
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();

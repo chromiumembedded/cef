@@ -80,6 +80,7 @@
       'msvs_guid': '8500027C-B11A-11DE-A16E-B80256D89593',
       'dependencies': [
         '../base/base.gyp:base',
+        '../base/base.gyp:base_i18n',
         '../testing/gtest.gyp:gtest',
         '../third_party/icu/icu.gyp:icui18n',
         '../third_party/icu/icu.gyp:icuuc',
@@ -124,7 +125,7 @@
       'dependencies': [
         '../app/app.gyp:app_base',
         '../base/base.gyp:base',
-        '../base/base.gyp:base_gfx',
+        '../base/base.gyp:base_i18n',
         '../breakpad/breakpad.gyp:breakpad_handler',
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../media/media.gyp:media',
@@ -158,6 +159,12 @@
         'BUILDING_CEF_SHARED',
       ],
       'include_dirs': [
+        '.',
+        '..',
+      ],
+      # Avoid "RC1102: internal error : too many arguments to RCPP" error by
+      # explicitly specifying a short list of resource include directories.
+      'resource_include_dirs' :  [
         '.',
         '..',
       ],
@@ -280,7 +287,7 @@
       'dependencies': [
         '../app/app.gyp:app_base',
         '../base/base.gyp:base',
-        '../base/base.gyp:base_gfx',
+        '../base/base.gyp:base_i18n',
         '../breakpad/breakpad.gyp:breakpad_handler',
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../media/media.gyp:media',

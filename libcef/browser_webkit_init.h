@@ -19,6 +19,7 @@
 #include "webkit/api/public/WebCString.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebScriptController.h"
 #include "webkit/api/public/WebStorageArea.h"
 #include "webkit/api/public/WebStorageEventDispatcher.h"
 #include "webkit/api/public/WebStorageNamespace.h"

@@ -6,7 +6,7 @@
 #include "base/compiler_specific.h"
 
 #undef LOG
-#include "config.h"
+#include "third_party/webkit/webcore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cache.h"
 #include "TextEncoding.h"

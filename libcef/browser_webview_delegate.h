@@ -115,8 +115,16 @@ class BrowserWebViewDelegate : public WebViewDelegate,
   virtual int historyBackListCount();
   virtual int historyForwardListCount();
   virtual void didAddHistoryItem();
+  virtual void focusAccessibilityObject(
+      const WebKit::WebAccessibilityObject& object);
   virtual void didUpdateInspectorSettings();
-  
+  virtual WebKit::WebDevToolsAgentClient* devToolsAgentClient();
+  virtual void queryAutofillSuggestions(
+      const WebKit::WebNode&, const WebKit::WebString& name,
+      const WebKit::WebString& value);
+  virtual void removeAutofillSuggestions(
+      const WebKit::WebString& name, const WebKit::WebString& value);
+
   // WebKit::WebWidgetClient
   virtual void didInvalidateRect(const WebKit::WebRect& rect);
   virtual void didScrollRect(int dx, int dy,
