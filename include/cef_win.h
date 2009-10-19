@@ -138,7 +138,7 @@ public:
     m_nHeight = windowRect.bottom - windowRect.top;
   }
 
-  void SetAsPopup(HWND hWndParent, LPCTSTR windowName)
+  void SetAsPopup(HWND hWndParent, LPCWSTR windowName)
   {
     m_dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
     m_hWndParent = hWndParent;

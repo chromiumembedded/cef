@@ -179,7 +179,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
     // Retrieve the document text directly
     WebKit::WebFrame* web_frame = GetWebFrame(frame);
     if(web_frame)
-      webkit_glue::DumpDocumentText(web_frame);
+      return webkit_glue::DumpDocumentText(web_frame);
     return std::wstring();
   }
 }
