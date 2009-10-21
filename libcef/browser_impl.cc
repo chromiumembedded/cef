@@ -14,6 +14,7 @@
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebURLRequest.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 
@@ -23,6 +24,7 @@ using WebKit::WebScriptSource;
 using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebURLRequest;
+using WebKit::WebView;
 using webkit_glue::StdStringToWebString;
 using webkit_glue::WebStringToStdString;
 
@@ -672,4 +674,13 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
 
   if(frame)
     frame->Release();
+}
+
+
+// CefFrameImpl
+
+bool CefFrameImpl::IsFocused()
+{
+  return (browser_->GetWebFrame(this) ==
+          browser_->GetWebView()->focusedFrame());
 }

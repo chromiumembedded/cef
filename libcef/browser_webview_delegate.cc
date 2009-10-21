@@ -45,6 +45,7 @@
 #include "webkit/api/public/WebURLError.h"
 #include "webkit/api/public/WebURLRequest.h"
 #include "webkit/api/public/WebURLResponse.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/media/buffered_data_source.h"
@@ -54,7 +55,6 @@
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webmediaplayer_impl.h"
@@ -98,6 +98,7 @@ using WebKit::WebURL;
 using WebKit::WebURLError;
 using WebKit::WebURLRequest;
 using WebKit::WebURLResponse;
+using WebKit::WebView;
 using WebKit::WebWidget;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
@@ -541,6 +542,33 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
     result = default_policy;
   }
   return result;
+}
+
+bool BrowserWebViewDelegate::canHandleRequest(
+    WebFrame* frame, const WebURLRequest& request) {
+  return true;
+}
+
+WebURLError BrowserWebViewDelegate::cannotHandleRequestError(
+    WebFrame* frame, const WebURLRequest& request) {
+  WebURLError error;
+  error.domain = WebString::fromUTF8(net::kErrorDomain);
+  error.reason = net::ERR_ABORTED;
+  error.unreachableURL = request.url();
+  return error;
+}
+
+WebURLError BrowserWebViewDelegate::cancelledError(
+    WebFrame* frame, const WebURLRequest& request) {
+  WebURLError error;
+  error.domain = WebString::fromUTF8(net::kErrorDomain);
+  error.reason = net::ERR_ABORTED;
+  error.unreachableURL = request.url();
+  return error;
+}
+
+void BrowserWebViewDelegate::unableToImplementPolicyWithError(
+    WebFrame* frame, const WebURLError& error) {
 }
 
 void BrowserWebViewDelegate::willSubmitForm(WebFrame* frame, const WebForm&) {

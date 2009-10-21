@@ -24,9 +24,9 @@
 #include "webkit/api/public/WebContextMenuData.h"
 #include "webkit/api/public/WebFrameClient.h"
 #include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_page_delegate.h"
-#include "webkit/glue/webview_delegate.h"
 #if defined(OS_WIN)
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
@@ -38,13 +38,13 @@ struct WebPreferences;
 class GURL;
 class WebWidgetHost;
 
-class BrowserWebViewDelegate : public WebViewDelegate,
+class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
     public webkit_glue::WebPluginPageDelegate,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
   // WebKit::WebViewClient
-  virtual WebView* createView(WebKit::WebFrame* creator);
+  virtual WebKit::WebView* createView(WebKit::WebFrame* creator);
   virtual WebKit::WebWidget* createPopupMenu(bool activatable);
   virtual WebKit::WebWidget* createPopupMenu(
       const WebKit::WebPopupMenuInfo& info);
@@ -156,6 +156,14 @@ class BrowserWebViewDelegate : public WebViewDelegate,
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
       WebKit::WebNavigationType, const WebKit::WebNode&,
       WebKit::WebNavigationPolicy default_policy, bool isRedirect);
+  virtual bool canHandleRequest(
+      WebKit::WebFrame*, const WebKit::WebURLRequest&);
+  virtual WebKit::WebURLError cannotHandleRequestError(
+      WebKit::WebFrame*, const WebKit::WebURLRequest& request);
+  virtual WebKit::WebURLError cancelledError(
+      WebKit::WebFrame*, const WebKit::WebURLRequest& request);
+  virtual void unableToImplementPolicyWithError(
+      WebKit::WebFrame*, const WebKit::WebURLError&);
   virtual void willSubmitForm(WebKit::WebFrame*, const WebKit::WebForm&);
   virtual void willPerformClientRedirect(
       WebKit::WebFrame*, const WebKit::WebURL& from, const WebKit::WebURL& to,
@@ -275,7 +283,7 @@ class BrowserWebViewDelegate : public WebViewDelegate,
 
  protected:
   // Called when the URL of the page changes.
-  void UpdateAddressBar(WebView* webView);
+  void UpdateAddressBar(WebKit::WebView* webView);
 
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,

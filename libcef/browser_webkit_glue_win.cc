@@ -22,12 +22,13 @@ MSVC_POP_WARNING();
 #include "skia/ext/platform_canvas.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
 using WebKit::WebRect;
 using WebKit::WebSize;
+using WebKit::WebView;
 
 namespace webkit_glue {
 

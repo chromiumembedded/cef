@@ -10,11 +10,13 @@
 
 #include "base/base_drop_target.h"
 
+namespace WebKit {
 class WebView;
+}
 
 class BrowserDropDelegate : public BaseDropTarget {
  public:
-  BrowserDropDelegate(HWND source_hwnd, WebView* webview)
+  BrowserDropDelegate(HWND source_hwnd, WebKit::WebView* webview)
       : BaseDropTarget(source_hwnd),
         webview_(webview) { }
 
@@ -36,7 +38,7 @@ class BrowserDropDelegate : public BaseDropTarget {
 
 
  private:
-  WebView* webview_;
+  WebKit::WebView* webview_;
 };
 
 #endif  // _BROWSER_DROP_DELEGATE_H

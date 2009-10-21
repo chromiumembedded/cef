@@ -344,6 +344,8 @@
         'libcef/browser_request_context.h',
         'libcef/browser_resource_loader_bridge.cc',
         'libcef/browser_resource_loader_bridge.h',
+        'libcef/browser_socket_stream_bridge.cc',
+        'libcef/browser_socket_stream_bridge.h',
         'libcef/browser_webkit_glue.cc',
         'libcef/browser_webkit_glue.h',
         'libcef/browser_webkit_glue_win.cc',

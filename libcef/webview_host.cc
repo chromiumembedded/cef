@@ -8,8 +8,10 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/webview.h"
+
+using namespace WebKit;
 
 static const wchar_t kWindowClassName[] = L"WebViewHost";
 
@@ -38,7 +40,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              GetModuleHandle(NULL), NULL);
   win_util::SetWindowUserData(host->view_, host);
 
-  host->webwidget_ = WebView::Create(delegate);
+  host->webwidget_ = WebView::create(delegate);
   prefs.Apply(host->webview());
   host->webview()->initializeMainFrame(delegate);
 

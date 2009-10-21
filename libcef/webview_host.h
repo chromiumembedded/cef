@@ -11,8 +11,11 @@
 #include "webwidget_host.h"
 
 struct WebPreferences;
-class WebView;
 class BrowserWebViewDelegate;
+
+namespace WebKit {
+class WebView;
+}
 
 // This class is a simple ViewHandle-based host for a WebView
 class WebViewHost : public WebWidgetHost {
@@ -24,7 +27,7 @@ class WebViewHost : public WebWidgetHost {
                              BrowserWebViewDelegate* delegate,
                              const WebPreferences& prefs);
 
-  WebView* webview() const;
+  WebKit::WebView* webview() const;
 
  protected:
 #if defined(OS_WIN)

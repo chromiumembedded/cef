@@ -34,6 +34,7 @@
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
+#include "browser_socket_stream_bridge.h"
 #include "browser_impl.h"
 #include "request_impl.h"
 
@@ -55,9 +56,9 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/api/public/WebFrame.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/glue/resource_loader_bridge.h"
-#include "webkit/glue/webview.h"
 
 using webkit_glue::ResourceLoaderBridge;
 using net::CookiePolicy;
@@ -83,9 +84,11 @@ class IOThread : public base::Thread {
 
   virtual void Init() {
     BrowserAppCacheSystem::InitializeOnIOThread(request_context);
+    BrowserSocketStreamBridge::InitializeOnIOThread(request_context);
   }
 
   virtual void CleanUp() {
+    BrowserSocketStreamBridge::Cleanup();
     if (request_context) {
       request_context->Release();
       request_context = NULL;

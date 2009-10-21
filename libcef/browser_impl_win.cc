@@ -15,6 +15,7 @@
 #include "webkit/api/public/WebFrame.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/WebView.h"
 #include "webkit/glue/webkit_glue.h"
 
 #include <shellapi.h>

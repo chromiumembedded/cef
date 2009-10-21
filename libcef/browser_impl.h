@@ -16,7 +16,9 @@
 #include "printing/win_printing_context.h"
 #endif
 
-#include "webkit/glue/webview.h"
+namespace WebKit {
+class WebView;
+}
 
 #define BUFFER_SIZE   32768
 
@@ -91,7 +93,7 @@ public:
                          int startLine);
   virtual std::wstring GetURL(CefRefPtr<CefFrame> frame);
   
-  WebView* GetWebView() const {
+  WebKit::WebView* GetWebView() const {
     return webviewhost_.get() ? webviewhost_->webview() : NULL;
   }
   WebViewHost* GetWebViewHost() const {
@@ -272,9 +274,7 @@ public:
                                  int startLine) 
     { return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine); }
   virtual bool IsMain() { return name_.empty(); }
-  virtual bool IsFocused()
-    { return (browser_->GetWebFrame(this) ==
-              browser_->GetWebView()->focusedFrame()); }
+  virtual bool IsFocused();
   virtual std::wstring GetName() { return name_; }
   virtual std::wstring GetURL() { return browser_->GetURL(this); }
 
