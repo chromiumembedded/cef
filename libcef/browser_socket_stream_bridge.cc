@@ -25,14 +25,12 @@ MessageLoop* g_io_thread;
 scoped_refptr<URLRequestContext> g_request_context;
 
 class WebSocketStreamHandleBridgeImpl
-    : public base::RefCountedThreadSafe<WebSocketStreamHandleBridgeImpl>,
-      public WebSocketStreamHandleBridge,
+    : public WebSocketStreamHandleBridge,
       public net::SocketStream::Delegate {
  public:
   WebSocketStreamHandleBridgeImpl(
       WebKit::WebSocketStreamHandle* handle,
       webkit_glue::WebSocketStreamHandleDelegate* delegate);
-  virtual ~WebSocketStreamHandleBridgeImpl();
 
   // WebSocketStreamHandleBridge methods.
   virtual void Connect(const GURL& url);
@@ -50,6 +48,8 @@ class WebSocketStreamHandleBridgeImpl
 
 
  private:
+  virtual ~WebSocketStreamHandleBridgeImpl();
+
   // Runs on |g_io_thread|;
   void DoConnect(const GURL& url);
   void DoSend(std::vector<char>* data);

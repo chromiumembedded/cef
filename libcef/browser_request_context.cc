@@ -12,6 +12,8 @@
 #include "net/base/host_resolver.h"
 #include "net/base/ssl_config_service.h"
 #include "net/ftp/ftp_network_layer.h"
+#include "net/proxy/proxy_config_service.h"
+#include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -36,10 +38,12 @@ void BrowserRequestContext::Init(
   accept_language_ = "en-us,en";
   accept_charset_ = "iso-8859-1,*,utf-8";
 
-  net::ProxyConfig proxy_config;
+  // Use the system proxy settings.
+  scoped_ptr<net::ProxyConfigService> proxy_config_service(
+      net::ProxyService::CreateSystemProxyConfigService(NULL, NULL));
   host_resolver_ = net::CreateSystemHostResolver();
-  proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL,
-                                             false, NULL, NULL, NULL);
+  proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
+                                             false, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   net::HttpCache *cache;

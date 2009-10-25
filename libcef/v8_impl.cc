@@ -125,7 +125,7 @@ public:
 
   void UIT_RegisterExtension()
   {
-    WebKit::registerExtension(this);
+    WebKit::WebScriptController::registerExtension(this);
   }
 
   void AddRef() {}

@@ -19,6 +19,7 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "net/base/net_module.h"
+#include "webkit/api/public/WebScriptController.h"
 #include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/plugin_lib.h"
@@ -196,7 +197,8 @@ bool CefContext::DoInitialize()
   // CEF always exposes the GC.
   webkit_glue::SetJavaScriptFlags(L"--expose-gc");
   // Expose GCController to JavaScript.
-  WebKit::registerExtension(extensions_v8::GCExtension::Get());
+  WebKit::WebScriptController::registerExtension(
+      extensions_v8::GCExtension::Get());
 
   return true;
 }
