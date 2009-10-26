@@ -5,7 +5,6 @@
 
 #include "base/compiler_specific.h"
 
-#undef LOG
 #include "third_party/webkit/webcore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cache.h"
@@ -15,6 +14,7 @@ MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
 
+#undef LOG
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/resource_util.h"
