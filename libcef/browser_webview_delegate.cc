@@ -341,6 +341,9 @@ void BrowserWebViewDelegate::setStatusText(const WebString& text) {
 void BrowserWebViewDelegate::setMouseOverURL(const WebURL& url) {
 }
 
+void BrowserWebViewDelegate::setKeyboardFocusURL(const WebKit::WebURL& url) {
+}
+
 void BrowserWebViewDelegate::setToolTipText(
     const WebString& text, WebTextDirection hint) {
 }

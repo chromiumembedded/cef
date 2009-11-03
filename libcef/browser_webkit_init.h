@@ -18,6 +18,7 @@
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/api/public/WebCString.h"
 #include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebRuntimeFeatures.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScriptController.h"
 #include "webkit/api/public/WebSecurityPolicy.h"
@@ -50,14 +51,13 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         extensions_v8::GearsExtension::Get());
     WebKit::WebScriptController::registerExtension(
         extensions_v8::IntervalExtension::Get());
-    WebKit::enableWebSockets();
+    WebKit::WebRuntimeFeatures::enableSockets(true);
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
-    if (PathService::Get(base::DIR_MODULE, &module_path) &&
-        media::InitializeMediaLibrary(module_path)) {
-      WebKit::enableMediaPlayer();
-    }
+    WebKit::WebRuntimeFeatures::enableMediaPlayer(
+        PathService::Get(base::DIR_MODULE, &module_path) &&
+        media::InitializeMediaLibrary(module_path));
 
     // Construct and initialize an appcache system for this scope.
     // A new empty temp directory is created to house any cached
@@ -200,7 +200,11 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
   }
 
- private:
+  virtual WebKit::WebSharedWorkerRepository* sharedWorkerRepository() {
+      return NULL;
+  }
+
+private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
   ScopedTempDir appcache_dir_;

@@ -103,6 +103,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data);
   virtual void setStatusText(const WebKit::WebString& text);
   virtual void setMouseOverURL(const WebKit::WebURL& url);
+  virtual void setKeyboardFocusURL(const WebKit::WebURL& url);
   virtual void setToolTipText(
       const WebKit::WebString& text, WebKit::WebTextDirection hint);
   virtual void startDragging(
