@@ -43,10 +43,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
     WebKit::initialize(this);
     WebKit::setLayoutTestMode(false);
-    WebKit::WebSecurityPolicy::registerURLSchemeAsLocal(
-        ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
-    WebKit::WebSecurityPolicy::registerURLSchemeAsNoAccess(
-        ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::WebScriptController::registerExtension(
         extensions_v8::GearsExtension::Get());
     WebKit::WebScriptController::registerExtension(

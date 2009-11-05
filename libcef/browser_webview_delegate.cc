@@ -150,13 +150,6 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
                                                << ")";
 }
 
-void BrowserWebViewDelegate::printPage(WebFrame* frame) {
-}
-
-WebKit::WebNotificationPresenter* BrowserWebViewDelegate::notificationPresenter() {
-  return NULL;
-}
-
 void BrowserWebViewDelegate::didStartLoading() {
   // clear the title so we can tell if it wasn't provided by the page
   browser_->UIT_SetTitle(std::wstring());
@@ -227,46 +220,6 @@ bool BrowserWebViewDelegate::isSmartInsertDeleteEnabled() {
 
 bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
   return select_trailing_whitespace_enabled_;
-}
-
-void BrowserWebViewDelegate::didBeginEditing() {
-}
-
-void BrowserWebViewDelegate::didChangeSelection(bool is_empty_selection) {
-}
-
-void BrowserWebViewDelegate::didChangeContents() {
-}
-
-void BrowserWebViewDelegate::didExecuteCommand(
-    const WebKit::WebString& command_name) {
-}
-
-void BrowserWebViewDelegate::didEndEditing() {
-}
-
-bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
-  return false;
-}
-
-void BrowserWebViewDelegate::spellCheck(const WebKit::WebString& text,
-                                        int& offset, int& length) {
-}
-
-WebString BrowserWebViewDelegate::autoCorrectWord(const WebString& word) {
-  // Dummy implementation.
-  return word;
-}
-
-void BrowserWebViewDelegate::showSpellingUI(bool show) {
-}
-
-bool BrowserWebViewDelegate::isShowingSpellingUI() {
-  return false;
-}
-
-void BrowserWebViewDelegate::updateSpellingUIWithMisspelledWord(
-    const WebKit::WebString& word) {
 }
 
 bool BrowserWebViewDelegate::runFileChooser(
@@ -364,10 +317,6 @@ void BrowserWebViewDelegate::startDragging(
   browser_->GetWebView()->dragSourceSystemDragEnded();
 }
 
-bool BrowserWebViewDelegate::acceptsLoadDrops() {
-  return true;
-}
-
 void BrowserWebViewDelegate::focusNext() {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
@@ -399,29 +348,6 @@ int BrowserWebViewDelegate::historyForwardListCount() {
       browser_->UIT_GetNavigationController()->GetLastCommittedEntryIndex();
   return browser_->UIT_GetNavigationController()->GetEntryCount()
       - current_index - 1;
-}
-
-void BrowserWebViewDelegate::didAddHistoryItem() {
-}
-
-void BrowserWebViewDelegate::focusAccessibilityObject(
-    const WebKit::WebAccessibilityObject& object) {
-}
-
-void BrowserWebViewDelegate::didUpdateInspectorSettings() {
-}
-
-WebKit::WebDevToolsAgentClient* BrowserWebViewDelegate::devToolsAgentClient() {
-  return NULL;
-}
-
-void BrowserWebViewDelegate::queryAutofillSuggestions(
-    const WebKit::WebNode&, const WebKit::WebString& name,
-    const WebKit::WebString& value) {
-}
-
-void BrowserWebViewDelegate::removeAutofillSuggestions(
-    const WebKit::WebString& name, const WebKit::WebString& value) {
 }
 
 // WebWidgetClient -----------------------------------------------------------
@@ -464,11 +390,6 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
   return new webkit_glue::WebPluginImpl(frame, params, AsWeakPtr());
 }
 
-WebWorker* BrowserWebViewDelegate::createWorker(
-    WebFrame* frame, WebWorkerClient* client) {
-  return NULL;
-}
-
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
   scoped_refptr<media::FilterFactoryCollection> factory =
@@ -495,9 +416,6 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   factory->AddFactory(buffered_data_source_factory);
   factory->AddFactory(simple_data_source_factory);
   return new webkit_glue::WebMediaPlayerImpl(client, factory);
-}
-
-void BrowserWebViewDelegate::willClose(WebFrame* frame) {
 }
 
 void BrowserWebViewDelegate::loadURLExternally(
@@ -554,11 +472,6 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
   return result;
 }
 
-bool BrowserWebViewDelegate::canHandleRequest(
-    WebFrame* frame, const WebURLRequest& request) {
-  return true;
-}
-
 WebURLError BrowserWebViewDelegate::cannotHandleRequestError(
     WebFrame* frame, const WebURLRequest& request) {
   WebURLError error;
@@ -575,26 +488,6 @@ WebURLError BrowserWebViewDelegate::cancelledError(
   error.reason = net::ERR_ABORTED;
   error.unreachableURL = request.url();
   return error;
-}
-
-void BrowserWebViewDelegate::unableToImplementPolicyWithError(
-    WebFrame* frame, const WebURLError& error) {
-}
-
-void BrowserWebViewDelegate::willSubmitForm(WebFrame* frame, const WebForm&) {
-  // Ignore
-}
-
-void BrowserWebViewDelegate::willPerformClientRedirect(
-    WebFrame* frame, const WebURL& from, const WebURL& to,
-    double interval, double fire_time) {
-}
-
-void BrowserWebViewDelegate::didCancelClientRedirect(WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didCompleteClientRedirect(
-    WebFrame* frame, const WebURL& from) {
 }
 
 void BrowserWebViewDelegate::didCreateDataSource(
@@ -655,12 +548,6 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
       error_text, GURL("testshell-error:"), error.unreachableURL, replace);
 }
 
-void BrowserWebViewDelegate::didReceiveDocumentData(
-    WebFrame* frame, const char* data, size_t length,
-    bool& preventDefault) {
-  // Ignore
-}
-
 void BrowserWebViewDelegate::didCommitProvisionalLoad(
     WebFrame* frame, bool is_new_navigation) {
   UpdateForCommittedLoad(frame, is_new_navigation);
@@ -687,10 +574,6 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
   }
 }
 
-void BrowserWebViewDelegate::didCreateDocumentElement(WebFrame* frame) {
-  // Ignore
-}
-
 void BrowserWebViewDelegate::didReceiveTitle(
     WebFrame* frame, const WebString& title) {
   std::wstring wtitle = UTF16ToWideHack(title);
@@ -701,12 +584,6 @@ void BrowserWebViewDelegate::didReceiveTitle(
     // Notify the handler of a page title change
     handler->HandleTitleChange(browser_, wtitle);
   }
-}
-
-void BrowserWebViewDelegate::didFinishDocumentLoad(WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didHandleOnloadEvents(WebFrame* frame) {
 }
 
 void BrowserWebViewDelegate::didFailLoad(
@@ -730,10 +607,6 @@ void BrowserWebViewDelegate::didChangeLocationWithinPage(
   UpdateForCommittedLoad(frame, is_new_navigation);
 }
 
-void BrowserWebViewDelegate::assignIdentifierToRequest(
-    WebFrame* frame, unsigned identifier, const WebURLRequest& request) {
-}
-
 void BrowserWebViewDelegate::willSendRequest(
     WebFrame* frame, unsigned identifier, WebURLRequest& request,
     const WebURLResponse& redirect_response) {
@@ -746,55 +619,6 @@ void BrowserWebViewDelegate::willSendRequest(
   // The requestor ID is used by the resource loader bridge to locate the
   // browser that originated the request.
   request.setRequestorID(browser_->UIT_GetUniqueID());
-}
-
-void BrowserWebViewDelegate::didReceiveResponse(
-    WebFrame* frame, unsigned identifier, const WebURLResponse& response) {
-}
-
-void BrowserWebViewDelegate::didFinishResourceLoad(
-    WebFrame* frame, unsigned identifier) {
-}
-
-void BrowserWebViewDelegate::didFailResourceLoad(
-    WebFrame* frame, unsigned identifier, const WebURLError& error) {
-}
-
-void BrowserWebViewDelegate::didLoadResourceFromMemoryCache(
-    WebFrame* frame, const WebURLRequest&,
-    const WebURLResponse&) {
-}
-
-void BrowserWebViewDelegate::didDisplayInsecureContent(WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didRunInsecureContent(
-    WebFrame* frame, const WebKit::WebSecurityOrigin& origin) {
-}
-
-void BrowserWebViewDelegate::didExhaustMemoryAvailableForScript(
-    WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didCreateScriptContext(WebKit::WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didDestroyScriptContext(WebKit::WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didCreateIsolatedScriptContext(
-    WebKit::WebFrame* frame) {
-}
-
-void BrowserWebViewDelegate::didChangeContentsSize(
-    WebFrame* frame, const WebSize&) {
-}
-
-void BrowserWebViewDelegate::reportFindInPageMatchCount(
-    int identifier, int count, bool final_update) {
-}
-void BrowserWebViewDelegate::reportFindInPageSelection(
-    int identifier, int ordinal, const WebKit::WebRect& selection) {
 }
 
 

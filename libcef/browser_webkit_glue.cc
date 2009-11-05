@@ -152,14 +152,6 @@ bool GetApplicationDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
 }
 
-GURL GetInspectorURL() {
-  return GURL("cef-resource://inspector/inspector.html");
-}
-
-std::string GetUIResourceProtocol() {
-  return "cef-resource";
-}
-
 bool GetExeDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
 }
