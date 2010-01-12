@@ -5,9 +5,9 @@
 
 #include "browser_drop_delegate.h"
 
-#include "webkit/api/public/WebDragData.h"
-#include "webkit/api/public/WebPoint.h"
-#include "webkit/api/public/WebView.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webdropdata.h"
 
 using WebKit::WebDragOperation;

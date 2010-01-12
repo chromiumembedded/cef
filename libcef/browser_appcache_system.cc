@@ -3,20 +3,47 @@
 // LICENSE file.
 
 #include "browser_appcache_system.h"
+#include "browser_resource_loader_bridge.h"
 
 #include "base/lock.h"
 #include "base/task.h"
 #include "base/waitable_event.h"
 #include "webkit/appcache/appcache_interceptor.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
-#include "browser_resource_loader_bridge.h"
 
 using WebKit::WebApplicationCacheHost;
 using WebKit::WebApplicationCacheHostClient;
 using appcache::WebApplicationCacheHostImpl;
 using appcache::AppCacheBackendImpl;
 using appcache::AppCacheInterceptor;
+using appcache::AppCacheThread;
 
+namespace appcache {
+
+// An impl of AppCacheThread we need to provide to the appcache lib.
+
+bool AppCacheThread::PostTask(
+    int id,
+    const tracked_objects::Location& from_here,
+    Task* task) {
+  if (BrowserAppCacheSystem::thread_provider()) {
+    return BrowserAppCacheSystem::thread_provider()->PostTask(
+        id, from_here, task);
+  }
+  scoped_ptr<Task> task_ptr(task);
+  MessageLoop* loop = BrowserAppCacheSystem::GetMessageLoop(id);
+  if (loop)
+    loop->PostTask(from_here, task_ptr.release());
+  return loop ? true : false;
+}
+
+bool AppCacheThread::CurrentlyOn(int id) {
+  if (BrowserAppCacheSystem::thread_provider())
+    return BrowserAppCacheSystem::thread_provider()->CurrentlyOn(id);
+  return MessageLoop::current() == BrowserAppCacheSystem::GetMessageLoop(id);
+}
+
+}  // namespace appcache
 
 // BrowserFrontendProxy --------------------------------------------------------
 // Proxies method calls from the backend IO thread to the frontend UI thread.
@@ -72,6 +99,10 @@ class BrowserFrontendProxy
   }
 
  private:
+  friend class base::RefCountedThreadSafe<BrowserFrontendProxy>;
+
+  ~BrowserFrontendProxy() {}
+
   BrowserAppCacheSystem* system_;
 };
 
@@ -215,6 +246,10 @@ class BrowserBackendProxy
   }
 
  private:
+  friend class base::RefCountedThreadSafe<BrowserBackendProxy>;
+
+  ~BrowserBackendProxy() {}
+
   BrowserAppCacheSystem* system_;
   base::WaitableEvent event_;
   bool bool_result_;
@@ -239,7 +274,8 @@ BrowserAppCacheSystem::BrowserAppCacheSystem()
           backend_proxy_(new BrowserBackendProxy(this))),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           frontend_proxy_(new BrowserFrontendProxy(this))),
-      backend_impl_(NULL), service_(NULL) {
+      backend_impl_(NULL), service_(NULL), db_thread_("AppCacheDBThread"),
+      thread_provider_(NULL) {
   DCHECK(!instance_);
   instance_ = this;
 }
@@ -254,6 +290,7 @@ void BrowserAppCacheSystem::InitOnUIThread(
     const FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
   DCHECK(!cache_directory.empty());
+  AppCacheThread::InitIDs(DB_THREAD_ID, IO_THREAD_ID);
   ui_message_loop_ = MessageLoop::current();
   cache_directory_ = cache_directory;
 }
@@ -265,6 +302,9 @@ void BrowserAppCacheSystem::InitOnIOThread(URLRequestContext* request_context) {
   DCHECK(!io_message_loop_);
   io_message_loop_ = MessageLoop::current();
   io_message_loop_->AddDestructionObserver(this);
+
+  if (!db_thread_.IsRunning())
+    db_thread_.Start();
 
   // Recreate and initialize per each IO thread.
   service_ = new appcache::AppCacheService();
@@ -313,11 +353,11 @@ void BrowserAppCacheSystem::WillDestroyCurrentMessageLoop() {
   DCHECK(is_io_thread());
   DCHECK(backend_impl_->hosts().empty());
 
-  io_message_loop_ = NULL;
   delete backend_impl_;
   delete service_;
   backend_impl_ = NULL;
   service_ = NULL;
+  io_message_loop_ = NULL;
 
   // Just in case the main thread is waiting on it.
   backend_proxy_->SignalEvent();

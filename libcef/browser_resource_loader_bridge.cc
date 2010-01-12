@@ -55,8 +55,8 @@
 #include "net/http/http_util.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
-#include "webkit/api/public/WebFrame.h"
-#include "webkit/api/public/WebView.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
@@ -127,12 +127,6 @@ class RequestProxy : public URLRequest::Delegate,
   {
   }
 
-  virtual ~RequestProxy() {
-    // If we have a request, then we'd better be on the io thread!
-    DCHECK(!request_.get() ||
-           MessageLoop::current() == io_thread->message_loop());
-  }
-
   void DropPeer() {
     peer_ = NULL;
   }
@@ -153,6 +147,14 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
  protected:
+  friend class base::RefCountedThreadSafe<RequestProxy>;
+
+  virtual ~RequestProxy() {
+    // If we have a request, then we'd better be on the io thread!
+    DCHECK(!request_.get() ||
+           MessageLoop::current() == io_thread->message_loop());
+  }
+
   // --------------------------------------------------------------------------
   // The following methods are called on the owner's thread in response to
   // various URLRequest callbacks.  The event hooks, defined below, trigger
@@ -165,9 +167,14 @@ class RequestProxy : public URLRequest::Delegate,
 
   void NotifyReceivedRedirect(const GURL& new_url,
                               const ResourceLoaderBridge::ResponseInfo& info) {
-    if (peer_ && peer_->OnReceivedRedirect(new_url, info)) {
+    bool has_new_first_party_for_cookies = false;
+    GURL new_first_party_for_cookies;
+    if (peer_ && peer_->OnReceivedRedirect(new_url, info,
+                                           &has_new_first_party_for_cookies,
+                                           &new_first_party_for_cookies)) {
       io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &RequestProxy::AsyncFollowDeferredRedirect));
+          this, &RequestProxy::AsyncFollowDeferredRedirect,
+          has_new_first_party_for_cookies, new_first_party_for_cookies));
     } else {
       Cancel();
     }
@@ -316,11 +323,14 @@ class RequestProxy : public URLRequest::Delegate,
     Done();
   }
 
-  void AsyncFollowDeferredRedirect() {
+  void AsyncFollowDeferredRedirect(bool has_new_first_party_for_cookies,
+                                   const GURL& new_first_party_for_cookies) {
     // This can be null in cases where the request is already done.
     if (!request_.get())
       return;
 
+    if (has_new_first_party_for_cookies)
+      request_->set_first_party_for_cookies(new_first_party_for_cookies);
     request_->FollowDeferredRedirect();
   }
 
@@ -577,25 +587,18 @@ class SyncRequestProxy : public RequestProxy {
 class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
  public:
   ResourceLoaderBridgeImpl(CefRefPtr<CefBrowser> browser,
-                           const std::string& method,
-                           const GURL& url,
-                           const GURL& first_party_for_cookies,
-                           const GURL& referrer,
-                           const std::string& headers,
-                           int load_flags,
-                           ResourceType::Type request_type,
-                           int appcache_host_id)
+      const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info)
       : browser_(browser),
         params_(new RequestParams),
         proxy_(NULL) {
-    params_->method = method;
-    params_->url = url;
-    params_->first_party_for_cookies = first_party_for_cookies;
-    params_->referrer = referrer;
-    params_->headers = headers;
-    params_->load_flags = load_flags;
-    params_->request_type = request_type;
-    params_->appcache_host_id = appcache_host_id;
+    params_->method = request_info.method;
+    params_->url = request_info.url;
+    params_->first_party_for_cookies = request_info.first_party_for_cookies;
+    params_->referrer = request_info.referrer;
+    params_->headers = request_info.headers;
+    params_->load_flags = request_info.load_flags;
+    params_->request_type = request_info.request_type;
+    params_->appcache_host_id = request_info.appcache_host_id;
   }
 
   virtual ~ResourceLoaderBridgeImpl() {
@@ -690,6 +693,11 @@ class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
     DCHECK(MessageLoop::current() == io_thread->message_loop());
     request_context->cookie_store()->SetCookie(url, cookie);
   }
+
+ private:
+  friend class base::RefCountedThreadSafe<CookieSetter>;
+
+  ~CookieSetter() {}
 };
 
 class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
@@ -709,6 +717,10 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
  private:
+  friend class base::RefCountedThreadSafe<CookieGetter>;
+
+  ~CookieGetter() {}
+
   base::WaitableEvent event_;
   std::string result_;
 };
@@ -719,25 +731,12 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
 
 namespace webkit_glue {
 
-// factory function
+// Factory function.
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
-    const std::string& method,
-    const GURL& url,
-    const GURL& first_party_for_cookies,
-    const GURL& referrer,
-    const std::string& frame_origin,
-    const std::string& main_frame_origin,
-    const std::string& headers,
-    int load_flags,
-    int requestor_pid,
-    ResourceType::Type request_type,
-    int appcache_host_id,
-    int routing_id) {
-  CefRefPtr<CefBrowser> browser = _Context->GetBrowserByID(routing_id);
-  return new ResourceLoaderBridgeImpl(browser, method, url,
-                                      first_party_for_cookies,
-                                      referrer, headers, load_flags,
-                                      request_type, appcache_host_id);
+    const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info) {
+  CefRefPtr<CefBrowser> browser =
+      _Context->GetBrowserByID(request_info.routing_id);
+  return new ResourceLoaderBridgeImpl(browser, request_info);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 

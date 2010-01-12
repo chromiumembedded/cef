@@ -16,17 +16,18 @@
 #include "webkit/database/vfs_backend.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
-#include "webkit/api/public/WebCString.h"
-#include "webkit/api/public/WebData.h"
-#include "webkit/api/public/WebRuntimeFeatures.h"
-#include "webkit/api/public/WebKit.h"
-#include "webkit/api/public/WebScriptController.h"
-#include "webkit/api/public/WebSecurityPolicy.h"
-#include "webkit/api/public/WebStorageArea.h"
-#include "webkit/api/public/WebStorageEventDispatcher.h"
-#include "webkit/api/public/WebStorageNamespace.h"
-#include "webkit/api/public/WebString.h"
-#include "webkit/api/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRuntimeFeatures.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSecurityPolicy.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebStorageEventDispatcher.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webkit_glue.h"
@@ -48,6 +49,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebScriptController::registerExtension(
         extensions_v8::IntervalExtension::Get());
     WebKit::WebRuntimeFeatures::enableSockets(true);
+    WebKit::WebRuntimeFeatures::enableApplicationCache(true);
+    WebKit::WebRuntimeFeatures::enableDatabase(true);
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
@@ -60,6 +63,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     // content during the run. Upon exit that directory is deleted.
     if (appcache_dir_.CreateUniqueTempDir())
       BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
+
+    WebKit::WebDatabase::setObserver(&database_system_);
   }
 
   ~BrowserWebKitInit() {
@@ -83,27 +88,27 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebKitClient::FileHandle databaseOpenFile(
-      const WebKit::WebString& file_name, int desired_flags,
+      const WebKit::WebString& vfs_file_name, int desired_flags,
       WebKit::WebKitClient::FileHandle* dir_handle) {
     return BrowserDatabaseSystem::GetInstance()->OpenFile(
-        webkit_glue::WebStringToFilePath(file_name),
-        desired_flags, dir_handle);
+        vfs_file_name, desired_flags, dir_handle);
   }
 
-  virtual int databaseDeleteFile(const WebKit::WebString& file_name,
+  virtual int databaseDeleteFile(const WebKit::WebString& vfs_file_name,
                                  bool sync_dir) {
     return BrowserDatabaseSystem::GetInstance()->DeleteFile(
-        webkit_glue::WebStringToFilePath(file_name), sync_dir);
+        vfs_file_name, sync_dir);
   }
 
-  virtual long databaseGetFileAttributes(const WebKit::WebString& file_name) {
+  virtual long databaseGetFileAttributes(
+      const WebKit::WebString& vfs_file_name) {
     return BrowserDatabaseSystem::GetInstance()->GetFileAttributes(
-        webkit_glue::WebStringToFilePath(file_name));
+        vfs_file_name);
   }
 
-  virtual long long databaseGetFileSize(const WebKit::WebString& file_name) {
-    return BrowserDatabaseSystem::GetInstance()->GetFileSize(
-        webkit_glue::WebStringToFilePath(file_name));
+  virtual long long databaseGetFileSize(
+      const WebKit::WebString& vfs_file_name) {
+    return BrowserDatabaseSystem::GetInstance()->GetFileSize(vfs_file_name);
   }
 
   virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
@@ -178,7 +183,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   void dispatchStorageEvent(const WebKit::WebString& key,
       const WebKit::WebString& old_value, const WebKit::WebString& new_value,
-      const WebKit::WebString& origin, bool is_local_storage) {
+      const WebKit::WebString& origin, const WebKit::WebURL& url,
+      bool is_local_storage) {
     // TODO(jorlow): Implement
     if (!is_local_storage)
       return;
@@ -187,8 +193,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
       dom_storage_event_dispatcher_.reset(
           WebKit::WebStorageEventDispatcher::create());
     }
-    dom_storage_event_dispatcher_->dispatchStorageEvent(key, old_value,
-        new_value, origin, is_local_storage);
+    dom_storage_event_dispatcher_->dispatchStorageEvent(
+        key, old_value, new_value, origin, url, is_local_storage);
   }
 
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
@@ -200,7 +206,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
       return NULL;
   }
 
-private:
+ private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
   ScopedTempDir appcache_dir_;

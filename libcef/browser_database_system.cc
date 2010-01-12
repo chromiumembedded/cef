@@ -11,12 +11,15 @@
 #endif
 
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/database/database_util.h"
 #include "webkit/database/vfs_backend.h"
-#include "webkit/glue/webkit_glue.h"
 
+using webkit_database::DatabaseTracker;
+using webkit_database::DatabaseUtil;
 using webkit_database::VfsBackend;
 
 BrowserDatabaseSystem* BrowserDatabaseSystem::instance_ = NULL;
@@ -26,57 +29,46 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
   return instance_;
 }
 
-BrowserDatabaseSystem::BrowserDatabaseSystem()
-    : hack_main_db_handle_(base::kInvalidPlatformFileValue) {
+BrowserDatabaseSystem::BrowserDatabaseSystem() {
   temp_dir_.CreateUniqueTempDir();
+  db_tracker_ = new DatabaseTracker(temp_dir_.path());
   DCHECK(!instance_);
   instance_ = this;
 }
 
 BrowserDatabaseSystem::~BrowserDatabaseSystem() {
-  base::ClosePlatformFile(hack_main_db_handle_);
   instance_ = NULL;
 }
 
 base::PlatformFile BrowserDatabaseSystem::OpenFile(
-      const FilePath& file_name, int desired_flags,
+      const string16& vfs_file_name, int desired_flags,
       base::PlatformFile* dir_handle) {
   base::PlatformFile file_handle = base::kInvalidPlatformFileValue;
-  VfsBackend::OpenFile(GetDBFileFullPath(file_name), GetDBDir(), desired_flags,
-                       base::GetCurrentProcessHandle(), &file_handle,
-                       dir_handle);
-
-  // HACK: Currently, the DB object that keeps track of the main database
-  // (DatabaseTracker) is a singleton that is declared as a static variable
-  // in a function, so it gets destroyed at the very end of the program.
-  // Because of that, we have a handle opened to the main DB file until the
-  // very end of the program, which prevents temp_dir_'s destructor from
-  // deleting the database directory.
-  //
-  // We will properly solve this problem when we reimplement DatabaseTracker.
-  // For now, however, we are going to take advantage of the fact that in order
-  // to do anything related to DBs, we have to call openDatabase() first, which
-  // opens a handle to the main DB before opening handles to any other DB files.
-  // We are going to cache the first file handle we get, and we are going to
-  // manually close it in the destructor.
-  if (hack_main_db_handle_ == base::kInvalidPlatformFileValue) {
-    hack_main_db_handle_ = file_handle;
+  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
+  if (file_name.empty()) {
+    VfsBackend::OpenTempFileInDirectory(
+        db_tracker_->DatabaseDirectory(), desired_flags,
+        base::GetCurrentProcessHandle(), &file_handle, dir_handle);
+  } else {
+    VfsBackend::OpenFile(file_name, desired_flags,
+                         base::GetCurrentProcessHandle(), &file_handle,
+                         dir_handle);
   }
 
   return file_handle;
 }
 
 int BrowserDatabaseSystem::DeleteFile(
-    const FilePath& file_name, bool sync_dir) {
+    const string16& vfs_file_name, bool sync_dir) {
   // We try to delete the file multiple times, because that's what the default
   // VFS does (apparently deleting a file can sometimes fail on Windows).
   // We sleep for 10ms between retries for the same reason.
   const int kNumDeleteRetries = 3;
   int num_retries = 0;
   int error_code = SQLITE_OK;
+  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
   do {
-    error_code = VfsBackend::DeleteFile(
-        GetDBFileFullPath(file_name), GetDBDir(), sync_dir);
+    error_code = VfsBackend::DeleteFile(file_name, sync_dir);
   } while ((++num_retries < kNumDeleteRetries) &&
            (error_code == SQLITE_IOERR_DELETE) &&
            (PlatformThread::Sleep(10), 1));
@@ -84,25 +76,99 @@ int BrowserDatabaseSystem::DeleteFile(
   return error_code;
 }
 
-long BrowserDatabaseSystem::GetFileAttributes(
-    const FilePath& file_name) {
-  return VfsBackend::GetFileAttributes(GetDBFileFullPath(file_name));
+long BrowserDatabaseSystem::GetFileAttributes(const string16& vfs_file_name) {
+  return VfsBackend::GetFileAttributes(
+      GetFullFilePathForVfsFile(vfs_file_name));
 }
 
-long long BrowserDatabaseSystem::GetFileSize(
-    const FilePath& file_name) {
-  return VfsBackend::GetFileSize(GetDBFileFullPath(file_name));
+long long BrowserDatabaseSystem::GetFileSize(const string16& vfs_file_name) {
+  return VfsBackend::GetFileSize(GetFullFilePathForVfsFile(vfs_file_name));
+}
+
+void BrowserDatabaseSystem::DatabaseOpened(const string16& origin_identifier,
+                                          const string16& database_name,
+                                          const string16& description,
+                                          int64 estimated_size) {
+  int64 database_size = 0;
+  int64 space_available = 0;
+  database_connections_.AddConnection(origin_identifier, database_name);
+  db_tracker_->DatabaseOpened(origin_identifier, database_name, description,
+                              estimated_size, &database_size, &space_available);
+  SetFullFilePathsForVfsFile(origin_identifier, database_name);
+
+  OnDatabaseSizeChanged(origin_identifier, database_name,
+                        database_size, space_available);
+}
+
+void BrowserDatabaseSystem::DatabaseModified(const string16& origin_identifier,
+                                            const string16& database_name) {
+  DCHECK(database_connections_.IsDatabaseOpened(
+      origin_identifier, database_name));
+  db_tracker_->DatabaseModified(origin_identifier, database_name);
+}
+
+void BrowserDatabaseSystem::DatabaseClosed(const string16& origin_identifier,
+                                          const string16& database_name) {
+  DCHECK(database_connections_.IsDatabaseOpened(
+      origin_identifier, database_name));
+  db_tracker_->DatabaseClosed(origin_identifier, database_name);
+  database_connections_.RemoveConnection(origin_identifier, database_name);
+}
+
+void BrowserDatabaseSystem::OnDatabaseSizeChanged(
+    const string16& origin_identifier,
+    const string16& database_name,
+    int64 database_size,
+    int64 space_available) {
+  if (database_connections_.IsOriginUsed(origin_identifier)) {
+    WebKit::WebDatabase::updateDatabaseSize(
+        origin_identifier, database_name, database_size, space_available);
+  }
+}
+
+void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) {
+  DatabaseOpened(database.securityOrigin().databaseIdentifier(),
+                 database.name(), database.displayName(),
+                 database.estimatedSize());
+}
+
+void BrowserDatabaseSystem::databaseModified(
+    const WebKit::WebDatabase& database) {
+  DatabaseModified(database.securityOrigin().databaseIdentifier(),
+                   database.name());
+}
+
+void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) {
+  DatabaseClosed(database.securityOrigin().databaseIdentifier(),
+                 database.name());
 }
 
 void BrowserDatabaseSystem::ClearAllDatabases() {
-  // TODO(dumi): implement this once we refactor DatabaseTracker
-  //file_util::Delete(GetDBDir(), true);
+  db_tracker_->CloseDatabases(database_connections_);
+  database_connections_.RemoveAllConnections();
+  db_tracker_->CloseTrackerDatabaseAndClearCaches();
+  file_util::Delete(db_tracker_->DatabaseDirectory(), true);
+  file_names_.clear();
 }
 
-FilePath BrowserDatabaseSystem::GetDBDir() {
-  return temp_dir_.path().Append(FILE_PATH_LITERAL("databases"));
+void BrowserDatabaseSystem::SetFullFilePathsForVfsFile(
+    const string16& origin_identifier,
+    const string16& database_name) {
+  string16 vfs_file_name = origin_identifier + ASCIIToUTF16("/") +
+      database_name + ASCIIToUTF16("#");
+  FilePath file_name =
+      DatabaseUtil::GetFullFilePathForVfsFile(db_tracker_, vfs_file_name);
+
+  AutoLock file_names_auto_lock(file_names_lock_);
+  file_names_[vfs_file_name] = file_name;
+  file_names_[vfs_file_name + ASCIIToUTF16("-journal")] =
+      FilePath::FromWStringHack(file_name.ToWStringHack() +
+                                ASCIIToWide("-journal"));
 }
 
-FilePath BrowserDatabaseSystem::GetDBFileFullPath(const FilePath& file_name) {
-  return GetDBDir().Append(file_name);
+FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
+    const string16& vfs_file_name) {
+  AutoLock file_names_auto_lock(file_names_lock_);
+  DCHECK(file_names_.find(vfs_file_name) != file_names_.end());
+  return file_names_[vfs_file_name];
 }

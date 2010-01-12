@@ -13,8 +13,8 @@
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/api/public/WebDataSource.h"
-#include "webkit/api/public/WebHTTPBody.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDataSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
 
 #include "include/cef.h"
 

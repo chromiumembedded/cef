@@ -11,9 +11,9 @@
 #include "googleurl/src/gurl.h"
 #include "net/socket_stream/socket_stream.h"
 #include "net/url_request/url_request_context.h"
-#include "webkit/api/public/WebSocketStreamHandle.h"
 #include "webkit/glue/websocketstreamhandle_bridge.h"
 #include "webkit/glue/websocketstreamhandle_delegate.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSocketStreamHandle.h"
 
 using webkit_glue::WebSocketStreamHandleBridge;
 

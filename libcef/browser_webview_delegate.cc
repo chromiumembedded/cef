@@ -7,8 +7,6 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "third_party/webkit/webcore/config.h"
-#undef LOG
 #include "browser_webview_delegate.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
@@ -25,27 +23,27 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
-#include "webkit/api/public/WebConsoleMessage.h"
-#include "webkit/api/public/WebContextMenuData.h"
-#include "webkit/api/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDataSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebHistoryItem.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebNode.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRange.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURLError.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURLResponse.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/appcache/appcache_interfaces.h"
-#include "webkit/api/public/WebData.h"
-#include "webkit/api/public/WebDataSource.h"
-#include "webkit/api/public/WebDragData.h"
-#include "webkit/api/public/WebFrame.h"
-#include "webkit/api/public/WebHistoryItem.h"
-#include "webkit/api/public/WebKit.h"
-#include "webkit/api/public/WebNode.h"
-#include "webkit/api/public/WebPoint.h"
-#include "webkit/api/public/WebPopupMenu.h"
-#include "webkit/api/public/WebRange.h"
-#include "webkit/api/public/WebScreenInfo.h"
-#include "webkit/api/public/WebString.h"
-#include "webkit/api/public/WebURL.h"
-#include "webkit/api/public/WebURLError.h"
-#include "webkit/api/public/WebURLRequest.h"
-#include "webkit/api/public/WebURLResponse.h"
-#include "webkit/api/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/media/buffered_data_source.h"
@@ -74,7 +72,7 @@ using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebDragOperationsMask;
 using WebKit::WebEditingAction;
-using WebKit::WebForm;
+using WebKit::WebFormElement;
 using WebKit::WebFrame;
 using WebKit::WebHistoryItem;
 using WebKit::WebMediaPlayer;
@@ -220,6 +218,18 @@ bool BrowserWebViewDelegate::isSmartInsertDeleteEnabled() {
 
 bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
   return select_trailing_whitespace_enabled_;
+}
+
+bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
+  if (edit_command_name_.empty())
+    return false;
+
+  WebFrame* frame = browser_->GetWebView()->focusedFrame();
+  if (!frame)
+    return false;
+
+  return frame->executeCommand(WebString::fromUTF8(edit_command_name_),
+                               WebString::fromUTF8(edit_command_value_));
 }
 
 bool BrowserWebViewDelegate::runFileChooser(

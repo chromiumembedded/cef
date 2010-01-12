@@ -9,7 +9,7 @@
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
-#include "webkit/api/public/WebHTTPHeaderVisitor.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebHTTPHeaderVisitor.h"
 #include "webkit/glue/glue_util.h"
 
 using net::HttpResponseHeaders;

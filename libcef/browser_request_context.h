@@ -23,11 +23,11 @@ class BrowserRequestContext : public URLRequestContext {
                         net::HttpCache::Mode cache_mode,
                         bool no_proxy);
 
-  ~BrowserRequestContext();
-
   virtual const std::string& GetUserAgent(const GURL& url) const;
 
  private:
+  ~BrowserRequestContext();
+
   void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
 };

@@ -360,7 +360,7 @@ private:
 CefUrlRequestFilter* CefUrlRequestFilter::shared_instance_ = NULL;
 
 
-class SchemeRequestJobWrapper {
+class SchemeRequestJobWrapper : public CefThreadSafeBase<CefBase> {
 public:
   SchemeRequestJobWrapper(const std::string& scheme_name,
       const std::string& host_name,
@@ -379,9 +379,6 @@ public:
         scheme_name_, host_name_, factory_);
   }
 
-  void AddRef() {}
-  void Release() { delete this; }
-
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 private:
@@ -398,10 +395,16 @@ bool CefRegisterScheme(const std::wstring& scheme_name,
   if(!_Context.get())
     return false;
 
-  SchemeRequestJobWrapper* wrapper = new SchemeRequestJobWrapper(
-      WideToUTF8(scheme_name), WideToUTF8(host_name), factory);
+  // Use a smart pointer for the wrapper object because
+  // RunnableMethodTraits::RetainCallee() (originating from NewRunnableMethod)
+  // will call AddRef() and Release() on the object in debug mode, resulting in
+  // the object being deleted if it doesn't already have a reference.
+  CefRefPtr<SchemeRequestJobWrapper> wrapper(
+      new SchemeRequestJobWrapper(WideToUTF8(scheme_name),
+          WideToUTF8(host_name), factory));
 
-  PostTask(FROM_HERE, NewRunnableMethod(wrapper,
+  PostTask(FROM_HERE, NewRunnableMethod(wrapper.get(),
       &SchemeRequestJobWrapper::RegisterScheme));
+
   return true;
 }

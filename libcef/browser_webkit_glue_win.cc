@@ -20,9 +20,9 @@ MSVC_POP_WARNING();
 #include "app/gfx/gdi_util.h"
 #include "base/logging.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/api/public/WebRect.h"
-#include "webkit/api/public/WebSize.h"
-#include "webkit/api/public/WebView.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_list.h"
 

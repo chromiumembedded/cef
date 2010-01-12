@@ -9,7 +9,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cache.h"
 #include "TextEncoding.h"
-#include "webkit/api/src/WebFrameImpl.h"
+#include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
 
 #include "browser_webkit_glue.h"
@@ -22,7 +22,7 @@ MSVC_POP_WARNING();
 #include "base/string16.h"
 #include "base/win_util.h"
 #include "net/base/mime_util.h"
-#include "webkit/api/public/WebFrame.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 

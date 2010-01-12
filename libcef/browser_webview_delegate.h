@@ -21,10 +21,10 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/weak_ptr.h"
-#include "webkit/api/public/WebContextMenuData.h"
-#include "webkit/api/public/WebFrameClient.h"
-#include "webkit/api/public/WebRect.h"
-#include "webkit/api/public/WebViewClient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFrameClient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_page_delegate.h"
 #if defined(OS_WIN)
@@ -69,6 +69,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       const WebKit::WebString& style, const WebKit::WebRange& range);
   virtual bool isSmartInsertDeleteEnabled();
   virtual bool isSelectTrailingWhitespaceEnabled();
+  virtual bool handleCurrentKeyboardEvent();
   virtual bool runFileChooser(
       bool multi_select, const WebKit::WebString& title,
       const WebKit::WebString& initial_value,
@@ -210,6 +211,16 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
     return block_redirects_;
   }
 
+  void SetEditCommand(const std::string& name, const std::string& value) {
+    edit_command_name_ = name;
+    edit_command_value_ = value;
+  }
+
+  void ClearEditCommand() {
+    edit_command_name_.clear();
+    edit_command_value_.clear();
+  }
+
   CefBrowserImpl* GetBrowser() { return browser_; }
 
  protected:
@@ -285,6 +296,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // true if we should block any redirects
   bool block_redirects_;
+
+  // Edit command associated to the current keyboard event.
+  std::string edit_command_name_;
+  std::string edit_command_value_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWebViewDelegate);
 };

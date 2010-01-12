@@ -7,8 +7,8 @@
 
 #include "../include/cef.h"
 #include "net/base/upload_data.h"
-#include "webkit/api/public/WebHTTPBody.h"
-#include "webkit/api/public/WebURLRequest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 
 class URLRequest;
 

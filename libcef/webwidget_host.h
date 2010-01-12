@@ -53,6 +53,8 @@ class WebWidgetHost {
 
   WebKit::WebScreenInfo GetScreenInfo();
 
+  void PaintRect(const gfx::Rect& rect);
+
  protected:
   WebWidgetHost();
   ~WebWidgetHost();
@@ -97,8 +99,6 @@ class WebWidgetHost {
 
   void TrackMouseLeave(bool enable);
   void ResetScrollRect();
-  void PaintRect(const gfx::Rect& rect);
-
   void set_painting(bool value) {
 #ifndef NDEBUG
     painting_ = value;

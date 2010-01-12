@@ -19,7 +19,7 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "net/base/net_module.h"
-#include "webkit/api/public/WebScriptController.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
 #include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/plugin_lib.h"
@@ -342,6 +342,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->javascript_can_open_windows_automatically = true;
       webprefs_->dom_paste_enabled = true;
       webprefs_->developer_extras_enabled = true;
+      webprefs_->site_specific_quirks_enabled = true;
       webprefs_->shrinks_standalone_images_to_fit = false;
       webprefs_->uses_universal_detector = false;
       webprefs_->text_areas_are_resizable = true;
@@ -350,7 +351,6 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
       webprefs_->xss_auditor_enabled = false;
       webprefs_->remote_fonts_enabled = true;
       webprefs_->local_storage_enabled = true;
-      webprefs_->session_storage_enabled = true;
       webprefs_->application_cache_enabled = true;
       webprefs_->databases_enabled = true;
 
