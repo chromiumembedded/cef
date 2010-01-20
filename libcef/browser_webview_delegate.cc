@@ -42,6 +42,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebURLError.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLResponse.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebVector.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/glue/glue_serialize.h"
@@ -96,6 +97,7 @@ using WebKit::WebURL;
 using WebKit::WebURLError;
 using WebKit::WebURLRequest;
 using WebKit::WebURLResponse;
+using WebKit::WebVector;
 using WebKit::WebView;
 using WebKit::WebWidget;
 using WebKit::WebWorker;
@@ -236,7 +238,22 @@ bool BrowserWebViewDelegate::runFileChooser(
       bool multi_select, const WebKit::WebString& title,
       const WebKit::WebString& initial_value,
       WebKit::WebFileChooserCompletion* chooser_completion) {
-  return false;
+  // Support file open dialog.
+  std::vector<FilePath> file_names;
+  
+  if(!ShowFileChooser(file_names, multi_select, title, 
+      webkit_glue::WebStringToFilePath(initial_value))) {
+    return false;
+  }
+
+  WebVector<WebString> ws_file_names(file_names.size());
+  for (size_t i = 0; i < file_names.size(); ++i) {
+    ws_file_names[i] = webkit_glue::FilePathToWebString(file_names[i]);
+  }
+
+  chooser_completion->didChooseFile(ws_file_names);
+
+  return true;
 }
 
 void BrowserWebViewDelegate::runModalAlertDialog(

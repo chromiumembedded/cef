@@ -415,3 +415,119 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
   // TODO(cef): Implement a default prompt dialog
   return false;
 }
+
+namespace 
+{
+
+// from chrome/browser/views/shell_dialogs_win.cc
+
+bool RunOpenFileDialog(
+    const std::wstring& filter,
+    HWND owner,
+    FilePath* path)
+{
+  OPENFILENAME ofn;
+
+  // We must do this otherwise the ofn's FlagsEx may be initialized to random
+  // junk in release builds which can cause the Places Bar not to show up!
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = owner;
+
+  wchar_t filename[MAX_PATH];
+  base::wcslcpy(filename, path->value().c_str(), arraysize(filename));
+
+  ofn.lpstrFile = filename;
+  ofn.nMaxFile = MAX_PATH;
+
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
+  bool success = !!GetOpenFileName(&ofn);
+  if (success)
+    *path = FilePath(filename);
+  return success;
+}
+
+bool RunOpenMultiFileDialog(
+    const std::wstring& filter,
+    HWND owner,
+    std::vector<FilePath>* paths)
+{
+  OPENFILENAME ofn;
+
+  // We must do this otherwise the ofn's FlagsEx may be initialized to random
+  // junk in release builds which can cause the Places Bar not to show up!
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = owner;
+
+  wchar_t filename[MAX_PATH] = L"";
+
+  ofn.lpstrFile = filename;
+  ofn.nMaxFile = MAX_PATH;
+
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER
+               | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT;
+
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
+  bool success = !!GetOpenFileName(&ofn);
+
+  if (success) {
+    std::vector<FilePath> files;
+    const wchar_t* selection = ofn.lpstrFile;
+    while (*selection) {  // Empty string indicates end of list.
+      files.push_back(FilePath(selection));
+      // Skip over filename and null-terminator.
+      selection += files.back().value().length() + 1;
+    }
+    if (files.empty()) {
+      success = false;
+    } else if (files.size() == 1) {
+      // When there is one file, it contains the path and filename.
+      paths->swap(files);
+    } else {
+      // Otherwise, the first string is the path, and the remainder are
+      // filenames.
+      std::vector<FilePath>::iterator path = files.begin();
+      for (std::vector<FilePath>::iterator file = path + 1;
+           file != files.end(); ++file) {
+        paths->push_back(path->Append(*file));
+      }
+    }
+  }
+  return success;
+}
+
+}
+
+bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names, 
+                                             const bool multi_select, 
+                                             const WebKit::WebString& title, 
+                                             const FilePath& default_file)
+{
+  bool result = false;
+  
+  if (multi_select)
+  {
+    result = RunOpenMultiFileDialog(L"", browser_->GetMainWndHandle(), &file_names);
+  }
+  else
+  {
+    FilePath file_name;
+    result = RunOpenFileDialog(L"", browser_->GetMainWndHandle(), &file_name);
+    if (result)
+      file_names.push_back(file_name);
+  }
+
+  return result;
+}
+

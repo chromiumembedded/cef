@@ -37,6 +37,7 @@ class CefBrowserImpl;
 struct WebPreferences;
 class GURL;
 class WebWidgetHost;
+class FilePath;
 
 class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
@@ -236,6 +237,12 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                             const std::wstring& message,
                             const std::wstring& default_value,
                             std::wstring* result);
+
+  // Called to show the file chooser dialog.
+  bool ShowFileChooser(std::vector<FilePath>& file_names, 
+                       const bool multi_select, 
+                       const WebKit::WebString& title, 
+                       const FilePath& default_file);
 
   // In the Mac code, this is called to trigger the end of a test after the
   // page has finished loading.  From here, we can generate the dump for the
