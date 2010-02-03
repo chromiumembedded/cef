@@ -180,6 +180,9 @@ private:
 
     void Resolve(const GURL& url) {
       AutoLock locked(lock_);
+      if (!owner_ || !owner_loop_)
+        return;
+
       //////////////////////////////////////////////////////////////////////////
       // safe to perform long operation here
       CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
@@ -207,9 +210,8 @@ private:
     void Cancel() {
       owner_->handler_->Cancel();
 
-      owner_ = NULL;
-
       AutoLock locked(lock_);
+      owner_ = NULL;
       owner_loop_ = NULL;
     }
 
