@@ -482,6 +482,19 @@ typedef struct _cef_handler_t
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       int isWidget);
 
+  // Called when the browser component receives a keyboard event. |type| is the
+  // type of keyboard event (see |KeyEventType|). |code| is the windows scan-
+  // code for the event. |modifiers| is a set of bit-flags describing any
+  // pressed modifier keys. |isSystemKey| is set if Windows considers this a
+  // 'system key' message;
+  //   (see http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx)
+  // Return RV_HANDLED if the keyboard event was handled or RV_CONTINUE to allow
+  // the browser component to handle the event.
+  enum cef_retval_t (CEF_CALLBACK *handle_key_event)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      enum cef_handler_keyevent_type_t type, int code, int modifiers,
+      int isSystemKey);
+
 } cef_handler_t;
 
 

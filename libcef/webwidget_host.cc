@@ -318,6 +318,7 @@ void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {
 void WebWidgetHost::KeyEvent(UINT message, WPARAM wparam, LPARAM lparam) {
   const WebKeyboardEvent& event = WebInputEventFactory::keyboardEvent(
       view_, message, wparam, lparam);
+  last_key_event_ = event;
   webwidget_->handleInputEvent(event);
 }
 

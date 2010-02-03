@@ -10,6 +10,7 @@
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 
 namespace gfx {
 class Size;
@@ -18,6 +19,7 @@ class Size;
 namespace WebKit {
 class WebWidget;
 class WebWidgetClient;
+class WebKeyboardEvent;
 struct WebScreenInfo;
 }
 
@@ -52,6 +54,8 @@ class WebWidgetHost {
   skia::PlatformCanvas* canvas() const { return canvas_.get(); }
 
   WebKit::WebScreenInfo GetScreenInfo();
+
+  WebKit::WebKeyboardEvent GetLastKeyEvent() const { return last_key_event_; }
 
   void PaintRect(const gfx::Rect& rect);
 
@@ -118,6 +122,8 @@ class WebWidgetHost {
   int scroll_dy_;
 
   bool track_mouse_leave_;
+
+  WebKit::WebKeyboardEvent last_key_event_;
 
 #ifndef NDEBUG
   bool painting_;

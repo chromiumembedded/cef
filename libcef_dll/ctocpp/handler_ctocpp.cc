@@ -349,6 +349,17 @@ CefHandler::RetVal CefHandlerCToCpp::HandleSetFocus(
       isWidget);
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleKeyEvent(
+    CefRefPtr<CefBrowser> browser, KeyEventType type, int code, int modifiers,
+    bool isSystemKey)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_key_event))
+    return RV_CONTINUE;
+
+  return struct_->handle_key_event(struct_, CefBrowserCppToC::Wrap(browser),
+      type, code, modifiers, isSystemKey);
+}
+
 
 #ifdef _DEBUG
 long CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>::DebugObjCt = 0;

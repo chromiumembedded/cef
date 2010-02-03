@@ -202,6 +202,13 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
+                                KeyEventType type, int code,
+                                int modifiers, bool isSystemKey)
+  {
+    return RV_CONTINUE;
+  }
+
   CefRefPtr<CefBrowser> GetBrowser()
   {
     return browser_;

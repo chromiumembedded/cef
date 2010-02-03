@@ -459,6 +459,21 @@ enum cef_retval_t CEF_CALLBACK handler_handle_set_focus(
 	  CefBrowserCToCpp::Wrap(browser), isWidget?true:false);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_key_event(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    enum cef_handler_keyevent_type_t type, int code, int modifiers,
+    int isSystemKey)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleKeyEvent(
+      CefBrowserCToCpp::Wrap(browser), type, code,
+      modifiers, isSystemKey?true:false);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -488,6 +503,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_take_focus = handler_handle_take_focus;
   struct_.struct_.handle_jsbinding = handler_handle_jsbinding;
   struct_.struct_.handle_set_focus = handler_handle_set_focus;
+  struct_.struct_.handle_key_event = handler_handle_key_event;
 }
 
 #ifdef _DEBUG

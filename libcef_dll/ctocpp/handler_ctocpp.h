@@ -76,6 +76,8 @@ public:
   virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object);
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser, bool isWidget);
+  virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
+      KeyEventType type, int code, int modifiers, bool isSystemKey);
 };
 
 #endif // BUILDING_CEF_SHARED

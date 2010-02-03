@@ -619,6 +619,24 @@ public:
   /*--cef()--*/
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser,
                                 bool isWidget) =0;
+
+  // Supported keyboard event types.
+  typedef cef_handler_keyevent_type_t KeyEventType;
+
+  // Called when the browser component receives a keyboard event.
+  // |type| is the type of keyboard event (see |KeyEventType|).
+  // |code| is the windows scan-code for the event.
+  // |modifiers| is a set of bit-flags describing any pressed modifier keys.
+  // |isSystemKey| is set if Windows considers this a 'system key' message;
+  //   (see http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx)
+  // Return RV_HANDLED if the keyboard event was handled or RV_CONTINUE
+  // to allow the browser component to handle the event.
+  /*--cef()--*/
+  virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
+                                KeyEventType type,
+                                int code,
+                                int modifiers,
+                                bool isSystemKey) =0;
 };
 
 

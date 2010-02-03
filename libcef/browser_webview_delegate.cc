@@ -102,6 +102,7 @@ using WebKit::WebView;
 using WebKit::WebWidget;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
+using WebKit::WebKeyboardEvent;
 
 namespace {
 
@@ -223,6 +224,35 @@ bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
 }
 
 bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
+  CefHandler::RetVal rv = RV_CONTINUE;
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if (handler.get()) {
+      WebWidgetHost* host = GetWidgetHost();
+      if (host) {
+        WebKeyboardEvent event = host->GetLastKeyEvent();
+        switch (event.type)
+        {
+        case WebKeyboardEvent::RawKeyDown: 
+          rv = handler->HandleKeyEvent(browser_,
+              KEYEVENT_RAWKEYDOWN, event.windowsKeyCode,
+              event.modifiers, event.isSystemKey?true:false);
+          break;
+        case WebKeyboardEvent::KeyUp:
+          rv = handler->HandleKeyEvent(browser_,
+              KEYEVENT_KEYUP, event.windowsKeyCode,
+              event.modifiers, event.isSystemKey?true:false);
+          break;
+        case WebKeyboardEvent::Char:
+          rv = handler->HandleKeyEvent(browser_,
+              KEYEVENT_CHAR, event.windowsKeyCode,
+              event.modifiers, event.isSystemKey?true:false);
+          break;
+      }
+    }
+  }
+  if (rv == RV_HANDLED)
+    return true;
+
   if (edit_command_name_.empty())
     return false;
 

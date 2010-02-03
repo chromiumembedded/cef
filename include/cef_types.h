@@ -202,6 +202,23 @@ enum cef_postdataelement_type_t
   PDE_TYPE_FILE,
 };
 
+// Key event types.
+enum cef_handler_keyevent_type_t
+{
+  KEYEVENT_RAWKEYDOWN = 0,
+  KEYEVENT_KEYDOWN,
+  KEYEVENT_KEYUP,
+  KEYEVENT_CHAR
+};
+
+// Key event modifiers.
+enum cef_handler_keyevent_modifiers_t
+{
+  KEY_SHIFT = 1 << 0,
+  KEY_CTRL  = 1 << 1,
+  KEY_ALT   = 1 << 2,
+  KEY_META  = 1 << 3
+};
 
 #ifdef __cplusplus
 }
