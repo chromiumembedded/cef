@@ -319,7 +319,8 @@ class RequestProxy : public URLRequest::Delegate,
     if (!resource_stream_.get() && !request_.get())
       return;
 
-    request_->Cancel();
+    if (request_.get())
+      request_->Cancel();
     Done();
   }
 
@@ -441,13 +442,12 @@ class RequestProxy : public URLRequest::Delegate,
       OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
           std::string());
       resource_stream_ = NULL;
-    } else {
+    } else if(request_.get()) {
       if (upload_progress_timer_.IsRunning()) {
         MaybeUpdateUploadProgress();
         upload_progress_timer_.Stop();
       }
 
-      DCHECK(request_.get());
       OnCompletedRequest(request_->status(), std::string());
       request_.reset();  // destroy on the io thread
     }
