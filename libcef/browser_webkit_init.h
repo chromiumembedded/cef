@@ -61,8 +61,13 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     // Construct and initialize an appcache system for this scope.
     // A new empty temp directory is created to house any cached
     // content during the run. Upon exit that directory is deleted.
-    if (appcache_dir_.CreateUniqueTempDir())
-      BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
+    // If we can't create a tempdir, we'll use in-memory storage.
+    if (!appcache_dir_.CreateUniqueTempDir()) {
+      LOG(WARNING) << "Failed to create a temp dir for the appcache, "
+                      "using in-memory storage.";
+      DCHECK(appcache_dir_.path().empty());
+    }
+    BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
 
     WebKit::WebDatabase::setObserver(&database_system_);
   }
@@ -177,24 +182,11 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
                                                                     quota);
   }
 
-  virtual WebKit::WebStorageNamespace* createSessionStorageNamespace() {
-    return WebKit::WebStorageNamespace::createSessionStorageNamespace();
-  }
-
   void dispatchStorageEvent(const WebKit::WebString& key,
       const WebKit::WebString& old_value, const WebKit::WebString& new_value,
       const WebKit::WebString& origin, const WebKit::WebURL& url,
       bool is_local_storage) {
-    // TODO(jorlow): Implement
-    if (!is_local_storage)
-      return;
-
-    if (!dom_storage_event_dispatcher_.get()) {
-      dom_storage_event_dispatcher_.reset(
-          WebKit::WebStorageEventDispatcher::create());
-    }
-    dom_storage_event_dispatcher_->dispatchStorageEvent(
-        key, old_value, new_value, origin, url, is_local_storage);
+     // The event is dispatched by the proxy.
   }
 
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
@@ -212,7 +204,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
-  scoped_ptr<WebKit::WebStorageEventDispatcher> dom_storage_event_dispatcher_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

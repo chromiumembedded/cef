@@ -37,6 +37,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRange.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLError.h"
@@ -44,9 +45,8 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebURLResponse.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebVector.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
-#include "webkit/appcache/appcache_interfaces.h"
+#include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/glue_util.h"
 #include "webkit/glue/media/buffered_data_source.h"
 #include "webkit/glue/media/media_resource_loader_bridge_factory.h"
 #include "webkit/glue/media/simple_data_source.h"
@@ -66,6 +66,7 @@
 #include "browser_drop_delegate.h"
 #endif
 
+using appcache::WebApplicationCacheHostImpl;
 using WebKit::WebConsoleMessage;
 using WebKit::WebContextMenuData;
 using WebKit::WebData;
@@ -90,6 +91,7 @@ using WebKit::WebRect;
 using WebKit::WebScreenInfo;
 using WebKit::WebSecurityOrigin;
 using WebKit::WebSize;
+using WebKit::WebStorageNamespace;
 using WebKit::WebString;
 using WebKit::WebTextAffinity;
 using WebKit::WebTextDirection;
@@ -137,6 +139,10 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(
     bool activatable) {
   // TODO(darin): Should we honor activatable?
   return browser_->UIT_CreatePopupWidget();
+}
+
+WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace() {
+  return WebKit::WebStorageNamespace::createSessionStorageNamespace();
 }
 
 void BrowserWebViewDelegate::didAddMessageToConsole(
@@ -452,6 +458,9 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   scoped_refptr<media::FilterFactoryCollection> factory =
       new media::FilterFactoryCollection();
 
+  WebApplicationCacheHostImpl* appcache_host =
+      WebApplicationCacheHostImpl::FromFrame(frame);
+
   // TODO(hclam): this is the same piece of code as in RenderView, maybe they
   // should be grouped together.
   webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
@@ -460,7 +469,7 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
           "null",             // frame origin
           "null",             // main_frame_origin
           base::GetCurrentProcId(),
-          appcache::kNoHostId,
+          appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
           0);
   // A simple data source that keeps all data in memory.
   media::FilterFactory* simple_data_source_factory =

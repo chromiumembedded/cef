@@ -50,6 +50,7 @@
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
+#include "net/base/static_cookie_policy.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
@@ -61,8 +62,8 @@
 #include "webkit/glue/resource_loader_bridge.h"
 
 using webkit_glue::ResourceLoaderBridge;
-using net::CookiePolicy;
 using net::HttpResponseHeaders;
+using net::StaticCookiePolicy;
 
 namespace {
 
@@ -762,7 +763,7 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
 //-----------------------------------------------------------------------------
 
 // static
-void BrowserResourceLoaderBridge::Init(URLRequestContext* context) {
+void BrowserResourceLoaderBridge::Init(BrowserRequestContext* context) {
   // Make sure to stop any existing IO thread since it may be using the
   // current request context.
   Shutdown();
@@ -836,7 +837,9 @@ bool BrowserResourceLoaderBridge::EnsureIOThread() {
 
 // static
 void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
-  CookiePolicy::Type policy_type = accept_all_cookies ?
-      CookiePolicy::ALLOW_ALL_COOKIES : CookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
-  request_context->cookie_policy()->set_type(policy_type);
+  StaticCookiePolicy::Type policy_type = accept_all_cookies ?
+      StaticCookiePolicy::ALLOW_ALL_COOKIES :
+      StaticCookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
+  static_cast<StaticCookiePolicy*>(request_context->cookie_policy())->
+      set_type(policy_type);
 }

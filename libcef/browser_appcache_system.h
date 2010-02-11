@@ -126,7 +126,7 @@ class BrowserAppCacheSystem : public MessageLoop::DestructionObserver {
     return io_message_loop_ && is_initailized_on_ui_thread();
   }
   bool is_initailized_on_ui_thread() {
-    return ui_message_loop_ && !cache_directory_.empty();
+    return ui_message_loop_ ? true : false;
   }
   static MessageLoop* GetMessageLoop(int id) {
     if (instance_) {

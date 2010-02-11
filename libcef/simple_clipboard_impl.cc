@@ -15,12 +15,10 @@
 
 // Clipboard glue
 
-#if defined(OS_WIN)
 void ScopedClipboardWriterGlue::WriteBitmapFromPixels(
     const void* pixels, const gfx::Size& size) {
   ScopedClipboardWriter::WriteBitmapFromPixels(pixels, size);
 }
-#endif
 
 ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 }

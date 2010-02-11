@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "request_impl.h"
+#include "browser_webkit_glue.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -10,7 +11,6 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPHeaderVisitor.h"
-#include "webkit/glue/glue_util.h"
 
 using net::HttpResponseHeaders;
 

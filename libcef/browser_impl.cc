@@ -5,6 +5,7 @@
 
 #include "context.h"
 #include "browser_impl.h"
+#include "browser_webkit_glue.h"
 #include "request_impl.h"
 
 #include "base/string_util.h"
@@ -16,7 +17,6 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/glue_util.h"
 
 using WebKit::WebFrame;
 using WebKit::WebHTTPBody;

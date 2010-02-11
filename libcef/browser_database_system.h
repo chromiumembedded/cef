@@ -53,6 +53,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   virtual void databaseClosed(const WebKit::WebDatabase& database);
 
   void ClearAllDatabases();
+  void SetDatabaseQuota(int64 quota);
 
  private:
   // The calls that come from the database tracker run on the main thread.
@@ -67,6 +68,8 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   FilePath GetFullFilePathForVfsFile(const string16& vfs_file_name);
 
   static BrowserDatabaseSystem* instance_;
+
+  bool waiting_for_dbs_to_close_;
 
   ScopedTempDir temp_dir_;
 

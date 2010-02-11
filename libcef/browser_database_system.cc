@@ -10,7 +10,9 @@
 #include "third_party/sqlite/preprocessed/sqlite3.h"
 #endif
 
+#include "base/auto_reset.h"
 #include "base/file_util.h"
+#include "base/message_loop.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
@@ -29,14 +31,17 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
   return instance_;
 }
 
-BrowserDatabaseSystem::BrowserDatabaseSystem() {
+BrowserDatabaseSystem::BrowserDatabaseSystem()
+    : waiting_for_dbs_to_close_(false) {
   temp_dir_.CreateUniqueTempDir();
   db_tracker_ = new DatabaseTracker(temp_dir_.path());
+  db_tracker_->AddObserver(this);
   DCHECK(!instance_);
   instance_ = this;
 }
 
 BrowserDatabaseSystem::~BrowserDatabaseSystem() {
+  db_tracker_->RemoveObserver(this);
   instance_ = NULL;
 }
 
@@ -113,6 +118,9 @@ void BrowserDatabaseSystem::DatabaseClosed(const string16& origin_identifier,
       origin_identifier, database_name));
   db_tracker_->DatabaseClosed(origin_identifier, database_name);
   database_connections_.RemoveConnection(origin_identifier, database_name);
+
+  if (waiting_for_dbs_to_close_ && database_connections_.IsEmpty())
+    MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
 void BrowserDatabaseSystem::OnDatabaseSizeChanged(
@@ -144,11 +152,20 @@ void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) 
 }
 
 void BrowserDatabaseSystem::ClearAllDatabases() {
-  db_tracker_->CloseDatabases(database_connections_);
-  database_connections_.RemoveAllConnections();
+  // Wait for all databases to be closed.
+  if (!database_connections_.IsEmpty()) {
+    AutoReset waiting_for_dbs_auto_reset(&waiting_for_dbs_to_close_, true);
+    MessageLoop::ScopedNestableTaskAllower nestable(MessageLoop::current());
+    MessageLoop::current()->Run();
+  }
+
   db_tracker_->CloseTrackerDatabaseAndClearCaches();
   file_util::Delete(db_tracker_->DatabaseDirectory(), true);
   file_names_.clear();
+}
+
+void BrowserDatabaseSystem::SetDatabaseQuota(int64 quota) {
+  db_tracker_->SetDefaultQuota(quota);
 }
 
 void BrowserDatabaseSystem::SetFullFilePathsForVfsFile(
