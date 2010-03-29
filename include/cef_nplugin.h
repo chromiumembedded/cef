@@ -33,8 +33,8 @@
 
 #include <string>
 #include <vector>
-#include "webkit/glue/plugins/nphostapi.h"
 #include "third_party/npapi/bindings/npapi.h"
+#include "third_party/npapi/bindings/nphostapi.h"
 
 // Netscape plugins are normally built at separate DLLs that are loaded by the
 // browser when needed.  This interface supports the creation of plugins that

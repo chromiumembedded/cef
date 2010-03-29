@@ -40,10 +40,10 @@
 
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
-#include "base/string_util.h"
 #include "base/time.h"
 #include "base/timer.h"
 #include "base/thread.h"
+#include "base/utf_string_conversions.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_policy.h"
 #include "net/base/io_buffer.h"
@@ -620,12 +620,16 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->upload->AppendBytes(data, data_len);
   }
 
-  virtual void AppendFileRangeToUpload(const FilePath& file_path,
-                                       uint64 offset, uint64 length) {
+  virtual void AppendFileRangeToUpload(
+      const FilePath& file_path,
+      uint64 offset,
+      uint64 length,
+      const base::Time& expected_modification_time) {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
-    params_->upload->AppendFileRange(file_path, offset, length);
+    params_->upload->AppendFileRange(file_path, offset, length,
+                                     expected_modification_time);
   }
 
   virtual void SetUploadIdentifier(int64 identifier) {

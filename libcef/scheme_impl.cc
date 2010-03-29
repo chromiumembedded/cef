@@ -6,8 +6,9 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "base/worker_pool.h"
+#include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
@@ -375,6 +376,11 @@ public:
 
   void RegisterScheme()
   {
+    // Register the scheme as a standard scheme if it isn't already.
+    url_parse::Component scheme(0, scheme_name_.length());
+    if (!url_util::IsStandard(scheme_name_.c_str(), scheme))
+      url_util::AddStandardScheme(scheme_name_.c_str());
+
     // we need to store the pointer of this handler because
     // we can't pass it as a parameter to the factory method
     CefUrlRequestFilter::GetInstance()->AddHostnameHandler(

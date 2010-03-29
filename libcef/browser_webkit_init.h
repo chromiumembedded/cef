@@ -10,7 +10,7 @@
 #include "base/path_service.h"
 #include "base/scoped_temp_dir.h"
 #include "base/stats_counters.h"
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "media/base/media.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/database/vfs_backend.h"
@@ -35,6 +35,7 @@
 #include "browser_appcache_system.h"
 #include "browser_database_system.h"
 #include "browser_resource_loader_bridge.h"
+#include "browser_webcookiejar_impl.h"
 
 
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
@@ -51,6 +52,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableSockets(true);
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
+    WebKit::WebRuntimeFeatures::enableWebGL(true);
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
@@ -88,6 +90,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return NULL;
   }
 
+  virtual WebKit::WebCookieJar* cookieJar() {
+    return &cookie_jar_;
+  }
+  
   virtual bool sandboxEnabled() {
     return true;
   }
@@ -133,20 +139,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebMessagePortChannel* createMessagePortChannel() {
     return NULL;
-  }
-
-  virtual void setCookies(const WebKit::WebURL& url,
-                          const WebKit::WebURL& first_party_for_cookies,
-                          const WebKit::WebString& value) {
-    BrowserResourceLoaderBridge::SetCookie(
-        url, first_party_for_cookies, value.utf8());
-  }
-
-  virtual WebKit::WebString cookies(
-      const WebKit::WebURL& url,
-      const WebKit::WebURL& first_party_for_cookies) {
-    return WebKit::WebString::fromUTF8(BrowserResourceLoaderBridge::GetCookies(
-        url, first_party_for_cookies));
   }
 
   virtual void prefetchHostName(const WebKit::WebString&) {
@@ -204,6 +196,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
+  BrowserWebCookieJarImpl cookie_jar_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

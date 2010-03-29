@@ -18,12 +18,13 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 
-#include "app/gfx/gdi_util.h"
-#include "app/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
-#include "base/string_util.h"
 #include "base/trace_event.h"
+#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
+#include "gfx/gdi_util.h"
+#include "gfx/native_widget_types.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebCursorInfo.h"

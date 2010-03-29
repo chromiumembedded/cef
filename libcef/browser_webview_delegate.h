@@ -174,6 +174,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       const gfx::Size& size,
       const std::string& json_arguments,
       std::string* json_retval) {}
+  virtual WebKit::WebCookieJar* GetCookieJar();
 
   BrowserWebViewDelegate(CefBrowserImpl* browser);
   ~BrowserWebViewDelegate();

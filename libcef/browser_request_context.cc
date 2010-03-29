@@ -13,6 +13,7 @@
 #include "net/base/ssl_config_service.h"
 #include "net/base/static_cookie_policy.h"
 #include "net/ftp/ftp_network_layer.h"
+#include "net/http/http_auth_handler_factory.h"
 #include "net/proxy/proxy_config_service.h"
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_service.h"
@@ -33,7 +34,7 @@ void BrowserRequestContext::Init(
     const FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy) {
-  cookie_store_ = new net::CookieMonster(NULL);
+  cookie_store_ = new net::CookieMonster(NULL, NULL);
   cookie_policy_ = new net::StaticCookiePolicy();
 
   // hard-code A-L and A-C for test shells
@@ -44,17 +45,21 @@ void BrowserRequestContext::Init(
   scoped_ptr<net::ProxyConfigService> proxy_config_service(
       net::ProxyService::CreateSystemProxyConfigService(NULL, NULL));
   host_resolver_ = net::CreateSystemHostResolver(NULL);
-  proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
-                                             false, NULL, NULL, NULL);
+   proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
+                                             false, NULL, NULL, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
+
+  http_auth_handler_factory_ = net::HttpAuthHandlerFactory::CreateDefault();
 
   net::HttpCache *cache;
   if (cache_path.empty()) {
     cache = new net::HttpCache(NULL, host_resolver_, proxy_service_,
-                               ssl_config_service_, 0);
+                               ssl_config_service_, http_auth_handler_factory_,
+                               0);
   } else {
     cache = new net::HttpCache(NULL, host_resolver_, proxy_service_,
-                               ssl_config_service_, cache_path, 0);
+                               ssl_config_service_, http_auth_handler_factory_,
+                               cache_path, 0);
   }
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;
@@ -65,6 +70,7 @@ void BrowserRequestContext::Init(
 BrowserRequestContext::~BrowserRequestContext() {
   delete ftp_transaction_factory_;
   delete http_transaction_factory_;
+  delete http_auth_handler_factory_;
   delete static_cast<net::StaticCookiePolicy*>(cookie_policy_);
 }
 

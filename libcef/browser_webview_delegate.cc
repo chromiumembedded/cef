@@ -14,14 +14,14 @@
 #include "request_impl.h"
 #include "v8_impl.h"
 
-#include "app/gfx/gdi_util.h"
-#include "app/gfx/native_widget_types.h"
 #include "base/file_util.h"
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
-#include "base/string_util.h"
 #include "base/trace_event.h"
+#include "base/utf_string_conversions.h"
+#include "gfx/gdi_util.h"
+#include "gfx/native_widget_types.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
@@ -32,6 +32,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHistoryItem.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
@@ -50,6 +51,7 @@
 #include "webkit/glue/media/buffered_data_source.h"
 #include "webkit/glue/media/media_resource_loader_bridge_factory.h"
 #include "webkit/glue/media/simple_data_source.h"
+#include "webkit/glue/media/video_renderer_impl.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webpreferences.h"
@@ -69,6 +71,7 @@
 using appcache::WebApplicationCacheHostImpl;
 using WebKit::WebConsoleMessage;
 using WebKit::WebContextMenuData;
+using WebKit::WebCookieJar;
 using WebKit::WebData;
 using WebKit::WebDataSource;
 using WebKit::WebDragData;
@@ -413,6 +416,12 @@ int BrowserWebViewDelegate::historyForwardListCount() {
       - current_index - 1;
 }
 
+// WebPluginPageDelegate -----------------------------------------------------
+
+WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
+  return WebKit::webKitClient()->cookieJar();
+}
+
 // WebWidgetClient -----------------------------------------------------------
 
 void BrowserWebViewDelegate::didInvalidateRect(const WebRect& rect) {
@@ -458,16 +467,16 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   scoped_refptr<media::FilterFactoryCollection> factory =
       new media::FilterFactoryCollection();
 
-  WebApplicationCacheHostImpl* appcache_host =
-      WebApplicationCacheHostImpl::FromFrame(frame);
+  appcache::WebApplicationCacheHostImpl* appcache_host =
+      appcache::WebApplicationCacheHostImpl::FromFrame(frame);
 
   // TODO(hclam): this is the same piece of code as in RenderView, maybe they
   // should be grouped together.
   webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
       new webkit_glue::MediaResourceLoaderBridgeFactory(
-          GURL::EmptyGURL(),  // referrer
-          "null",             // frame origin
-          "null",             // main_frame_origin
+          GURL(),  // referrer
+          "null",  // frame origin
+          "null",  // main_frame_origin
           base::GetCurrentProcId(),
           appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
           0);
@@ -481,7 +490,8 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
                                                      bridge_factory);
   factory->AddFactory(buffered_data_source_factory);
   factory->AddFactory(simple_data_source_factory);
-  return new webkit_glue::WebMediaPlayerImpl(client, factory);
+  return new webkit_glue::WebMediaPlayerImpl(
+      client, factory, new webkit_glue::VideoRendererImpl::FactoryFactory());
 }
 
 void BrowserWebViewDelegate::loadURLExternally(

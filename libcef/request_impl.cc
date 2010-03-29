@@ -6,7 +6,7 @@
 #include "browser_webkit_glue.h"
 
 #include "base/logging.h"
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"

@@ -20,7 +20,7 @@ MSVC_POP_WARNING();
 #include "base/resource_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "base/win_util.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"

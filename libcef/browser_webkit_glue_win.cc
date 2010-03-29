@@ -17,8 +17,8 @@ MSVC_POP_WARNING();
 #include "browser_webkit_glue.h"
 
 #undef LOG
-#include "app/gfx/gdi_util.h"
 #include "base/logging.h"
+#include "gfx/gdi_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"

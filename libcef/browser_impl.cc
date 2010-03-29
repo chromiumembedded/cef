@@ -8,7 +8,7 @@
 #include "browser_webkit_glue.h"
 #include "request_impl.h"
 
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"

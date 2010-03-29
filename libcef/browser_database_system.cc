@@ -134,6 +134,13 @@ void BrowserDatabaseSystem::OnDatabaseSizeChanged(
   }
 }
 
+void BrowserDatabaseSystem::OnDatabaseScheduledForDeletion(
+    const string16& origin_identifier,
+    const string16& database_name) {
+  WebKit::WebDatabase::closeDatabaseImmediately(
+      origin_identifier, database_name);
+}
+
 void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) {
   DatabaseOpened(database.securityOrigin().databaseIdentifier(),
                  database.name(), database.displayName(),

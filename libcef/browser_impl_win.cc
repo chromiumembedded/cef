@@ -9,7 +9,7 @@
 #include "stream_impl.h"
 #include "printing/units.h"
 
-#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "base/win_util.h"
 #include "skia/ext/vector_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"

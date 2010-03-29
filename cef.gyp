@@ -152,7 +152,6 @@
         '../webkit/webkit.gyp:glue',
         '../webkit/webkit.gyp:webkit_resources',
         '../webkit/webkit.gyp:webkit_strings',
-        '../webkit/default_plugin/default_plugin.gyp:default_plugin',
         'libcef_static',
       ],
       'defines': [
@@ -314,7 +313,6 @@
         '../webkit/webkit.gyp:glue',
         '../webkit/webkit.gyp:webkit_resources',
         '../webkit/webkit.gyp:webkit_strings',
-        '../webkit/default_plugin/default_plugin.gyp:default_plugin',
       ],
       'sources': [
         'include/cef.h',
@@ -346,6 +344,8 @@
         'libcef/browser_resource_loader_bridge.h',
         'libcef/browser_socket_stream_bridge.cc',
         'libcef/browser_socket_stream_bridge.h',
+        'libcef/browser_webcookiejar_impl.cc',
+        'libcef/browser_webcookiejar_impl.h',
         'libcef/browser_webkit_glue.cc',
         'libcef/browser_webkit_glue.h',
         'libcef/browser_webkit_glue_win.cc',

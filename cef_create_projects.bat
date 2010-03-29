@@ -4,7 +4,7 @@ CALL tools\patch_build.bat
 ECHO Generating project files...
 CALL :SET_ENV %CD%
 :GEN_PROJ
-CALL ..\tools\gyp\gyp.bat cef.gyp -I ..\build\common.gypi -I ..\build\features_override.gypi -I cef.gypi
+CALL ..\tools\gyp\gyp.bat cef.gyp -I ..\build\common.gypi -I ..\build\features_override.gypi -I cef.gypi --no-circular-check
 GOTO :END
 :SET_ENV
 SET CEF_DIRECTORY=%~n1

@@ -5,6 +5,7 @@
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 
+#include "base/callback.h"
 #include "base/lock.h"
 #include "base/task.h"
 #include "base/waitable_event.h"
@@ -302,7 +303,7 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
 void BrowserAppCacheSystem::InitOnUIThread(
     const FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
-  AppCacheThread::InitIDs(DB_THREAD_ID, IO_THREAD_ID);
+  AppCacheThread::Init(DB_THREAD_ID, IO_THREAD_ID, NULL);
   ui_message_loop_ = MessageLoop::current();
   cache_directory_ = cache_directory;
 }

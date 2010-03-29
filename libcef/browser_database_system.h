@@ -46,6 +46,8 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
                                      const string16& database_name,
                                      int64 database_size,
                                      int64 space_available);
+  virtual void OnDatabaseScheduledForDeletion(const string16& origin_identifier,
+                                              const string16& database_name);
 
   // WebDatabaseObserver implementation
   virtual void databaseOpened(const WebKit::WebDatabase& database);
