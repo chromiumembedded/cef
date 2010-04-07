@@ -1,4 +1,4 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -9,6 +9,7 @@
 #include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
+#include "thread_util.h"
 #include "uiplugin_test.h"
 #include <sstream>
 
@@ -594,6 +595,29 @@ HWND AppGetMainHwnd()
   return g_handler->GetMainHwnd();
 }
 
+// Retrieve the current page source and display.
+static void RunGetSourceTest(CefRefPtr<CefFrame> frame)
+{
+  std::wstring source = frame->GetSource();
+  source = StringReplace(source, L"<", L"&lt;");
+  source = StringReplace(source, L">", L"&gt;");
+  std::wstringstream ss;
+  ss << L"<html><body>Source:" << L"<pre>" << source
+      << L"</pre></body></html>";
+  frame->LoadString(ss.str(), L"http://tests/getsource");
+}
+
+// Retrieve the current page text and display.
+static void RunGetTextTest(CefRefPtr<CefFrame> frame)
+{
+  std::wstring text = frame->GetText();
+  text = StringReplace(text, L"<", L"&lt;");
+  text = StringReplace(text, L">", L"&gt;");
+  std::wstringstream ss;
+  ss << L"<html><body>Text:" << L"<pre>" << text
+      << L"</pre></body></html>";
+  frame->LoadString(ss.str(), L"http://tests/gettext");
+}
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -756,6 +780,56 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case IDC_NAV_STOP:  // Stop button
 		     if(browser.get())
             browser->StopLoad();
+          return 0;
+        case ID_TESTS_GETSOURCE: // Test the GetSource function
+          if(browser.get()) {
+#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
+            RunGetSourceTest(browser->GetMainFrame());
+#else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
+            // Execute the GetSource() call on a new worker thread to avoid
+            // blocking the UI thread when using a multi-threaded message loop
+            // (issue #79).
+            class ExecHandler : public Thread::Handler
+            {
+            public:
+              ExecHandler(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+              virtual DWORD Run()
+              {
+                RunGetSourceTest(m_Frame);
+                return 0;
+              }
+              virtual void Destroy() { delete this; }
+            private:
+              CefRefPtr<CefFrame> m_Frame;
+            };
+            Thread::Execute(new ExecHandler(browser->GetMainFrame()));
+#endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
+          }
+          return 0;
+        case ID_TESTS_GETTEXT: // Test the GetText function
+          if(browser.get()) {
+#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
+            RunGetTextTest(browser->GetMainFrame());
+#else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
+            // Execute the GetText() call on a new worker thread to avoid
+            // blocking the UI thread when using a multi-threaded message loop
+            // (issue #79).
+            class ExecHandler : public Thread::Handler
+            {
+            public:
+              ExecHandler(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+              virtual DWORD Run()
+              {
+                RunGetTextTest(m_Frame);
+                return 0;
+              }
+              virtual void Destroy() { delete this; }
+            private:
+              CefRefPtr<CefFrame> m_Frame;
+            };
+            Thread::Execute(new ExecHandler(browser->GetMainFrame()));
+#endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
+          }
           return 0;
         case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 extension handler
           if(browser.get())

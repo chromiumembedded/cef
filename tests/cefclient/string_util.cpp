@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -80,4 +80,21 @@ void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
   }
 
   str = ss.str();
+}
+
+std::wstring StringReplace(const std::wstring& str, const std::wstring& from,
+                           const std::wstring& to)
+{
+  std::wstring result = str;
+  std::wstring::size_type pos = 0;
+  std::wstring::size_type from_len = from.length();
+  std::wstring::size_type to_len = to.length();
+  do {
+    pos = result.find(from, pos);
+    if(pos != std::wstring::npos) {
+      result.replace(pos, from_len, to);
+      pos += to_len;
+    }
+  } while(pos != std::wstring::npos);
+  return result;
 }

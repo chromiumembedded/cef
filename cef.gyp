@@ -46,6 +46,7 @@
         'tests/cefclient/scheme_test.h',
         'tests/cefclient/string_util.cpp',
         'tests/cefclient/string_util.h',
+        'tests/cefclient/thread_util.h',
         'tests/cefclient/uiplugin.cpp',
         'tests/cefclient/uiplugin.h',
         'tests/cefclient/uiplugin_test.cpp',
