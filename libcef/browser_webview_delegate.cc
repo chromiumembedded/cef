@@ -634,22 +634,6 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   }
 }
 
-void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    v8::HandleScope handle_scope;
-    v8::Handle<v8::Context> context = webkit_glue::GetV8Context(frame);
-    if(context.IsEmpty())
-      return;
-
-    v8::Context::Scope scope(context);
-
-    CefRefPtr<CefFrame> cframe(browser_->GetCefFrame(frame));
-    CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
-    handler->HandleJSBinding(browser_, cframe, object);
-  }
-}
-
 void BrowserWebViewDelegate::didReceiveTitle(
     WebFrame* frame, const WebString& title) {
   std::wstring wtitle = UTF16ToWideHack(title);

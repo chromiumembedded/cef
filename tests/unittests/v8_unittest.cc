@@ -215,18 +215,12 @@ public:
 class V8TestHandler : public TestHandler
 {
 public:
-  V8TestHandler(bool bindingTest) { binding_test_ = bindingTest; }
+  V8TestHandler() {}
 
   virtual void RunTest()
   {
-    std::string object;
-    if(binding_test_) {
-      // binding uses the window object
-      object = "window.test";
-    } else {
-      // extension uses a global object
-      object = "test";
-    }
+    // extension uses a global object
+    std::string object = "test";
 
     std::stringstream testHtml;
     testHtml <<
@@ -253,74 +247,7 @@ public:
       NotifyTestComplete();
     return RV_CONTINUE;
   }
-
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Value> object)
-  {
-    if(binding_test_) {
-      TestHandleJSBinding(browser, frame, object);
-      return RV_HANDLED;
-    }
-    return RV_CONTINUE;
-  }
-
-  void TestHandleJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object)
-  {
-    // Create the new V8 object
-    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL);
-    ASSERT_TRUE(testObj.get() != NULL);
-    ASSERT_TRUE(object->SetValue(L"test", testObj));
-
-    // Create an instance of V8ExecuteV8Handler
-    CefRefPtr<CefV8Handler> testHandler(new V8TestV8Handler(true));
-    ASSERT_TRUE(testHandler.get() != NULL);
-
-    // Add the functions
-    CefRefPtr<CefV8Value> testFunc;
-    testFunc = CefV8Value::CreateFunction(L"execute", testHandler);
-    ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"execute", testFunc));
-    testFunc = CefV8Value::CreateFunction(L"execute2", testHandler);
-    ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"execute2", testFunc));
-
-    // Add the values
-    ASSERT_TRUE(testObj->SetValue(L"intVal",
-        CefV8Value::CreateInt(12)));
-    ASSERT_TRUE(testObj->SetValue(L"doubleVal",
-        CefV8Value::CreateDouble(5.432)));
-    ASSERT_TRUE(testObj->SetValue(L"boolVal",
-        CefV8Value::CreateBool(true)));
-    ASSERT_TRUE(testObj->SetValue(L"stringVal",
-        CefV8Value::CreateString(L"the string")));
-
-    CefRefPtr<CefV8Value> testArray(CefV8Value::CreateArray());
-    ASSERT_TRUE(testArray.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"arrayVal", testArray));
-    ASSERT_TRUE(testArray->SetValue(0, CefV8Value::CreateInt(4)));
-    ASSERT_TRUE(testArray->SetValue(1, CefV8Value::CreateDouble(120.43)));
-    ASSERT_TRUE(testArray->SetValue(2, CefV8Value::CreateBool(true)));
-    ASSERT_TRUE(testArray->SetValue(3, CefV8Value::CreateString(L"a string")));
-  }
-
-  bool binding_test_;
 };
-
-// Verify window binding
-TEST(V8Test, Binding)
-{
-  g_V8TestV8HandlerExecuteCalled = false;
-  g_V8TestV8HandlerExecute2Called = false;
-
-  V8TestHandler* handler = new V8TestHandler(true);
-  handler->ExecuteTest();
-
-  ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);
-  ASSERT_TRUE(g_V8TestV8HandlerExecute2Called);
-}
 
 // Verify extensions
 TEST(V8Test, Extension)
@@ -344,7 +271,7 @@ TEST(V8Test, Extension)
     L"})();";
   CefRegisterExtension(L"v8/test", extensionCode, new V8TestV8Handler(false));
 
-  V8TestHandler* handler = new V8TestHandler(false);
+  V8TestHandler* handler = new V8TestHandler();
   handler->ExecuteTest();
 
   ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);

@@ -605,13 +605,6 @@ public:
   virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser,
                                  bool reverse) =0;
 
-  // Event called for adding values to a frame's JavaScript 'window' object. The
-  // return value is currently ignored.
-  /*--cef()--*/
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Value> object) =0;
-
   // Called when the browser component is requesting focus. |isWidget| will be
   // true if the focus is requested for a child widget of the browser window.
   // Return RV_CONTINUE to allow the focus to be set or RV_HANDLED to cancel
@@ -898,9 +891,8 @@ class CefV8Value : public CefBase
 {
 public:
   // Create a new CefV8Value object of the specified type.  These methods
-  // should only be called from within the JavaScript context -- either in a
-  // CefV8Handler::Execute() callback or a CefHandler::HandleJSBinding()
-  // callback.
+  // should only be called from within the JavaScript context in a
+  // CefV8Handler::Execute() callback.
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateUndefined();
   /*--cef()--*/

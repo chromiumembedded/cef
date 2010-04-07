@@ -183,13 +183,6 @@ void InitializeTextEncoding() {
   WebCore::UTF8Encoding();
 }
 
-v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame)
-{
-  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
-  WebCore::Frame* core_frame = webFrameImpl->frame();
-  return WebCore::V8Proxy::context(core_frame);
-}
-
 void CloseIdleConnections() {
   // Used in benchmarking,  Ignored for CEF.
 }

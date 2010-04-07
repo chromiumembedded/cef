@@ -73,8 +73,6 @@ public:
       const std::wstring& defaultValue, bool& retval, std::wstring& result);
   virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleTakeFocus(CefRefPtr<CefBrowser> browser, bool reverse);
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object);
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser, bool isWidget);
   virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
       KeyEventType type, int code, int modifiers, bool isSystemKey);

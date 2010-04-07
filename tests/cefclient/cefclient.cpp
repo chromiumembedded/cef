@@ -4,7 +4,6 @@
 
 #include "include/cef.h"
 #include "cefclient.h"
-#include "binding_test.h"
 #include "extension_test.h"
 #include "plugin_test.h"
 #include "resource_util.h"
@@ -495,21 +494,6 @@ public:
     return RV_CONTINUE;
   }
 
-  // Event called for binding to a frame's JavaScript global object. The
-  // return value is currently ignored.
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Value> object)
-  {
-    // Add the V8 bindings.
-    InitBindingTest(browser, frame, object);
-    
-    // Add the UI app V8 bindings.
-    InitUIBindingTest(browser, frame, object);
-
-    return RV_HANDLED;
-  }
-
   // Called when the browser component is requesting focus. |isWidget| will be
   // true if the focus is requested for a child widget of the browser window.
   // Return RV_CONTINUE to allow the focus to be set or RV_HANDLED to cancel
@@ -773,11 +757,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		     if(browser.get())
             browser->StopLoad();
           return 0;
-        case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 function handler
-          if(browser.get())
-            RunBindingTest(browser);
-          return 0;
-        case ID_TESTS_JAVASCRIPT_HANDLER2: // Test the V8 extension handler
+        case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 extension handler
           if(browser.get())
             RunExtensionTest(browser);
           return 0;

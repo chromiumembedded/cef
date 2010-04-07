@@ -5,14 +5,8 @@
 #pragma once
 #include "include/cef.h"
 
-// Register the internal client plugin.
+// Register the internal client plugin and V8 extension.
 void InitUIPluginTest();
-
-// Add the V8 bindings.
-void InitUIBindingTest(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       CefRefPtr<CefV8Value> object);
-
 
 // Run the test.
 void RunUIPluginTest(CefRefPtr<CefBrowser> browser);

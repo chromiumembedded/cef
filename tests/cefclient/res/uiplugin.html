@@ -13,7 +13,7 @@
       </tr>
       <tr>
          <td colspan="2" style="font-size: 8pt;"><i>An embedded OpenGL plugin window that communicates with the Chromium browser control via JavaScript calls.</i>
-         <a href="#" onclick="window.uiapp.viewSource(); return false;">View Page Source</a></td>
+         <a href="#" onclick="cef.uiapp.viewSource(); return false;">View Page Source</a></td>
       </tr>
       <tr>
          <td colspan="2" height="10"></td>
@@ -36,9 +36,9 @@
       
       <form name="control">
       Rotation Value: <input type="text" name="rotation_field" value="0" size="5" readonly>
-      <br/><input type="button" value="Decrement Rotation" onclick="window.uiapp.modifyRotation(-2.0);">
-      <input type="button" value="Increment Rotation" onclick="window.uiapp.modifyRotation(2.0);">
-      <input type="button" value="Reset Rotation" name="reset_button" onclick="window.uiapp.resetRotation();" disabled>
+      <br/><input type="button" value="Decrement Rotation" onclick="cef.uiapp.modifyRotation(-2.0);">
+      <input type="button" value="Increment Rotation" onclick="cef.uiapp.modifyRotation(2.0);">
+      <input type="button" value="Reset Rotation" name="reset_button" onclick="cef.uiapp.resetRotation();" disabled>
       </form>
    </td>
 </tr>

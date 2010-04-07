@@ -328,17 +328,6 @@ CefHandler::RetVal CefHandlerCToCpp::HandleTakeFocus(
       reverse);
 }
 
-CefHandler::RetVal CefHandlerCToCpp::HandleJSBinding(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefV8Value> object)
-{
-  if(CEF_MEMBER_MISSING(struct_, handle_jsbinding))
-    return RV_CONTINUE;
-
-  return struct_->handle_jsbinding(struct_, CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame), CefV8ValueCppToC::Wrap(object));
-}
-
 CefHandler::RetVal CefHandlerCToCpp::HandleSetFocus(
     CefRefPtr<CefBrowser> browser, bool isWidget)
 {
