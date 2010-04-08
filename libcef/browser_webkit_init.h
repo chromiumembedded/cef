@@ -53,6 +53,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
     WebKit::WebRuntimeFeatures::enableWebGL(true);
+    WebKit::WebRuntimeFeatures::enableGeolocation(false);
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
