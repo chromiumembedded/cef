@@ -22,6 +22,7 @@
 #include "base/scoped_ptr.h"
 #include "base/weak_ptr.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFileChooserParams.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
@@ -73,8 +74,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual bool isSelectTrailingWhitespaceEnabled();
   virtual bool handleCurrentKeyboardEvent();
   virtual bool runFileChooser(
-      bool multi_select, const WebKit::WebString& title,
-      const WebKit::WebString& initial_value,
+      const WebKit::WebFileChooserParams& params,
       WebKit::WebFileChooserCompletion* chooser_completion);
   virtual void runModalAlertDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message);

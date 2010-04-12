@@ -77,6 +77,7 @@ using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebDragOperationsMask;
 using WebKit::WebEditingAction;
+using WebKit::WebFileChooserParams;
 using WebKit::WebFormElement;
 using WebKit::WebFrame;
 using WebKit::WebHistoryItem;
@@ -274,14 +275,13 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
 }
 
 bool BrowserWebViewDelegate::runFileChooser(
-      bool multi_select, const WebKit::WebString& title,
-      const WebKit::WebString& initial_value,
+      const WebFileChooserParams& params,
       WebKit::WebFileChooserCompletion* chooser_completion) {
   // Support file open dialog.
   std::vector<FilePath> file_names;
   
-  if(!ShowFileChooser(file_names, multi_select, title, 
-      webkit_glue::WebStringToFilePath(initial_value))) {
+  if(!ShowFileChooser(file_names, params.multiSelect, params.title, 
+      webkit_glue::WebStringToFilePath(params.initialValue))) {
     return false;
   }
 
