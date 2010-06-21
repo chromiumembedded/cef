@@ -322,7 +322,8 @@ class RequestProxy : public URLRequest::Delegate,
           // load from the provided resource stream
           handled = true;
 
-          long offset = resourceStream->Seek(0, SEEK_END);
+          resourceStream->Seek(0, SEEK_END);
+          long offset = resourceStream->Tell();
           resourceStream->Seek(0, SEEK_SET);
 
           resource_stream_ = resourceStream;
