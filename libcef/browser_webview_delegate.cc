@@ -8,6 +8,7 @@
 // have initialized a MessageLoop before these methods are called.
 
 #include "browser_webview_delegate.h"
+#include "browser_appcache_system.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
 #include "context.h"
@@ -15,7 +16,7 @@
 #include "v8_impl.h"
 
 #include "base/file_util.h"
-#include "base/gfx/point.h"
+#include "gfx/point.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/trace_event.h"
@@ -36,6 +37,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPluginParams.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRange.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
@@ -53,7 +55,7 @@
 #include "webkit/glue/media/simple_data_source.h"
 #include "webkit/glue/media/video_renderer_impl.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webplugin_impl.h"
+#include "webkit/glue/plugins/webplugin_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -69,6 +71,8 @@
 #endif
 
 using appcache::WebApplicationCacheHostImpl;
+using WebKit::WebApplicationCacheHost;
+using WebKit::WebApplicationCacheHostClient;
 using WebKit::WebConsoleMessage;
 using WebKit::WebContextMenuData;
 using WebKit::WebCookieJar;
@@ -81,6 +85,7 @@ using WebKit::WebFileChooserParams;
 using WebKit::WebFormElement;
 using WebKit::WebFrame;
 using WebKit::WebHistoryItem;
+using WebKit::WebImage;
 using WebKit::WebMediaPlayer;
 using WebKit::WebMediaPlayerClient;
 using WebKit::WebNavigationType;
@@ -90,6 +95,7 @@ using WebKit::WebPlugin;
 using WebKit::WebPluginParams;
 using WebKit::WebPoint;
 using WebKit::WebPopupMenu;
+using WebKit::WebPopupType;
 using WebKit::WebRange;
 using WebKit::WebRect;
 using WebKit::WebScreenInfo;
@@ -106,6 +112,7 @@ using WebKit::WebURLResponse;
 using WebKit::WebVector;
 using WebKit::WebView;
 using WebKit::WebWidget;
+using WebKit::WebWindowFeatures;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
 using WebKit::WebKeyboardEvent;
@@ -133,20 +140,25 @@ void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebViewClient -------------------------------------------------------------
 
-WebView* BrowserWebViewDelegate::createView(WebFrame* creator) {
+WebView* BrowserWebViewDelegate::createView(WebFrame* creator,
+                                            const WebWindowFeatures& features,
+                                            const WebString& name) {
   CefRefPtr<CefBrowserImpl> browser =
       browser_->UIT_CreatePopupWindow(std::wstring());
   return browser.get() ? browser->GetWebView() : NULL;
 }
 
-WebWidget* BrowserWebViewDelegate::createPopupMenu(
-    bool activatable) {
-  // TODO(darin): Should we honor activatable?
+WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
+  // TODO(darin): Should we take into account |popup_type| (for activation
+  //              purpose)?
   return browser_->UIT_CreatePopupWidget();
 }
 
-WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace() {
-  return WebKit::WebStorageNamespace::createSessionStorageNamespace();
+WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
+    unsigned quota) {
+  // Enforce quota, ignoring the parameter from WebCore as in Chrome.
+  return WebKit::WebStorageNamespace::createSessionStorageNamespace(
+      WebStorageNamespace::m_sessionStorageQuota);
 }
 
 void BrowserWebViewDelegate::didAddMessageToConsole(
@@ -368,8 +380,10 @@ void BrowserWebViewDelegate::setToolTipText(
 }
 
 void BrowserWebViewDelegate::startDragging(
-    const WebPoint& mouse_coords, const WebDragData& data,
-    WebDragOperationsMask mask) {
+    const WebDragData& data,
+    WebDragOperationsMask mask,
+    const WebImage& image,
+    const WebPoint& image_offset) {
   // TODO(tc): Drag and drop is disabled in the test shell because we need
   // to be able to convert from WebDragData to an IDataObject.
   //if (!drag_delegate_)
@@ -459,7 +473,20 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
 
 WebPlugin* BrowserWebViewDelegate::createPlugin(
     WebFrame* frame, const WebPluginParams& params) {
-  return new webkit_glue::WebPluginImpl(frame, params, AsWeakPtr());
+  bool allow_wildcard = true;
+  WebPluginInfo info;
+  std::string actual_mime_type;
+  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(
+          params.url, params.mimeType.utf8(), allow_wildcard, &info,
+          &actual_mime_type)) {
+    return NULL;
+  }
+
+  if (actual_mime_type.empty())
+    actual_mime_type = params.mimeType.utf8();
+
+  return new webkit_glue::WebPluginImpl(
+      frame, params, info.path, actual_mime_type, AsWeakPtr());
 }
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
@@ -491,7 +518,12 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   factory->AddFactory(buffered_data_source_factory);
   factory->AddFactory(simple_data_source_factory);
   return new webkit_glue::WebMediaPlayerImpl(
-      client, factory, new webkit_glue::VideoRendererImpl::FactoryFactory());
+      client, factory, new webkit_glue::VideoRendererImpl::FactoryFactory(false));
+}
+
+WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
+    WebFrame* frame, WebApplicationCacheHostClient* client) {
+  return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
 }
 
 void BrowserWebViewDelegate::loadURLExternally(

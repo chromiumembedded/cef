@@ -99,6 +99,47 @@ class BrowserFrontendProxy
       NOTREACHED();
   }
 
+  virtual void OnProgressEventRaised(const std::vector<int>& host_ids,
+                                     const GURL& url,
+                                     int num_total, int num_complete) {
+    if (!system_)
+      return;
+    if (system_->is_io_thread())
+      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserFrontendProxy::OnProgressEventRaised, host_ids, url, num_total, num_complete));
+    else if (system_->is_ui_thread())
+      system_->frontend_impl_.OnProgressEventRaised(host_ids, url, num_total, num_complete);
+    else
+      NOTREACHED();
+  }
+
+  virtual void OnContentBlocked(int host_id){
+    if (!system_)
+      return;
+    if (system_->is_io_thread())
+      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserFrontendProxy::OnContentBlocked, host_id));
+    else if (system_->is_ui_thread())
+      system_->frontend_impl_.OnContentBlocked(host_id);
+    else
+      NOTREACHED();
+
+  }
+
+  virtual void OnLogMessage(int host_id, appcache::LogLevel log_level,
+      const std::string& message) {
+
+    if (!system_)
+      return;
+    if (system_->is_io_thread())
+      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserFrontendProxy::OnLogMessage, host_id, log_level, message));
+    else if (system_->is_ui_thread())
+      system_->frontend_impl_.OnLogMessage(host_id, log_level, message);
+    else
+      NOTREACHED();
+  }
+
  private:
   friend class base::RefCountedThreadSafe<BrowserFrontendProxy>;
 
@@ -159,6 +200,36 @@ class BrowserBackendProxy
       system_->backend_impl_->SelectCache(host_id, document_url,
                                           cache_document_was_loaded_from,
                                           manifest_url);
+    } else {
+      NOTREACHED();
+    }
+  }
+
+  virtual void SelectCacheForWorker(
+                           int host_id,
+                           int parent_process_id,
+                           int parent_host_id) {
+
+    if (system_->is_ui_thread()) {
+      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserBackendProxy::SelectCacheForWorker, host_id, parent_process_id,
+          parent_host_id));
+    } else if (system_->is_io_thread()) {
+      system_->backend_impl_->SelectCacheForWorker(host_id, parent_process_id,
+                                                 parent_host_id);
+    } else {
+      NOTREACHED();
+    }
+  }
+
+  virtual void SelectCacheForSharedWorker(
+                           int host_id,
+                           int64 appcache_id){
+    if (system_->is_ui_thread()) {
+      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserBackendProxy::SelectCacheForSharedWorker, host_id, appcache_id));
+    } else if (system_->is_io_thread()) {
+      system_->backend_impl_->SelectCacheForSharedWorker(host_id, appcache_id);
     } else {
       NOTREACHED();
     }
@@ -303,7 +374,7 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
 void BrowserAppCacheSystem::InitOnUIThread(
     const FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
-  AppCacheThread::Init(DB_THREAD_ID, IO_THREAD_ID, NULL);
+  AppCacheThread::Init(DB_THREAD_ID, IO_THREAD_ID);
   ui_message_loop_ = MessageLoop::current();
   cache_directory_ = cache_directory;
 }
@@ -322,7 +393,8 @@ void BrowserAppCacheSystem::InitOnIOThread(URLRequestContext* request_context) {
   // Recreate and initialize per each IO thread.
   service_ = new appcache::AppCacheService();
   backend_impl_ = new appcache::AppCacheBackendImpl();
-  service_->Initialize(cache_directory_);
+  service_->Initialize(cache_directory_,
+      BrowserResourceLoaderBridge::GetCacheThread());
   service_->set_request_context(request_context);
   backend_impl_->Initialize(service_, frontend_proxy_.get(), kSingleProcessId);
 
@@ -364,7 +436,6 @@ void BrowserAppCacheSystem::GetExtraResponseBits(
 
 void BrowserAppCacheSystem::WillDestroyCurrentMessageLoop() {
   DCHECK(is_io_thread());
-  DCHECK(backend_impl_->hosts().empty());
 
   delete backend_impl_;
   delete service_;

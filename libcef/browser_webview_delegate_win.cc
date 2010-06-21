@@ -18,7 +18,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 
-#include "base/gfx/point.h"
+#include "gfx/point.h"
 #include "base/message_loop.h"
 #include "base/trace_event.h"
 #include "base/string_util.h"
@@ -33,7 +33,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
@@ -147,24 +147,14 @@ void BrowserWebViewDelegate::runModal() {
 // WebPluginPageDelegate ------------------------------------------------------
 
 webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
-    const GURL& url,
-    const std::string& mime_type,
-    std::string* actual_mime_type) {
+      const FilePath& file_path,
+      const std::string& mime_type)
+{
   HWND hwnd = browser_->GetWebViewHost()->view_handle();
   if (!hwnd)
     return NULL;
 
-  bool allow_wildcard = true;
-  WebPluginInfo info;
-  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(
-          url, mime_type, allow_wildcard, &info, actual_mime_type)) {
-    return NULL;
-  }
-
-  if (actual_mime_type && !actual_mime_type->empty())
-    return WebPluginDelegateImpl::Create(info.path, *actual_mime_type, hwnd);
-  else
-    return WebPluginDelegateImpl::Create(info.path, mime_type, hwnd);
+  return WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(

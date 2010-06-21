@@ -118,6 +118,15 @@ void CefRequestImpl::Set(URLRequest* request)
   }
 }
 
+
+void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers, HeaderMap& map)
+{
+  net::HttpRequestHeaders::Iterator it(headers);
+  do {
+    map[UTF8ToWide(it.name())] = UTF8ToWide(it.value());
+  } while (it.GetNext());
+}
+
 void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
                                   HeaderMap& map)
 {
@@ -240,14 +249,15 @@ void CefPostDataImpl::RemoveElements()
   Unlock();
 }
 
-void CefPostDataImpl::Set(const net::UploadData& data)
+void CefPostDataImpl::Set(net::UploadData& data)
 {
   Lock();
 
   CefRefPtr<CefPostDataElement> postelem;
-  const std::vector<net::UploadData::Element>& elements = data.elements();
-  std::vector<net::UploadData::Element>::const_iterator it = elements.begin();
-  for (; it != elements.end(); ++it) {
+
+  std::vector<net::UploadData::Element>* elements = data.elements();
+  std::vector<net::UploadData::Element>::const_iterator it = elements->begin();
+  for (; it != elements->end(); ++it) {
     postelem = CefPostDataElement::CreatePostDataElement();
     static_cast<CefPostDataElementImpl*>(postelem.get())->Set(*it);
     AddElement(postelem);

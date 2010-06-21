@@ -21,7 +21,7 @@
 #include "net/base/net_module.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
 #include "webkit/extensions/v8/gc_extension.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/webplugin.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
@@ -171,9 +171,8 @@ bool CefContext::DoInitialize()
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
   //PathService::Get(base::DIR_EXE, &cache_path);
-  BrowserResourceLoaderBridge::Init(
-      new BrowserRequestContext(FilePath(cache_path_), net::HttpCache::NORMAL,
-      false));
+  BrowserResourceLoaderBridge::Init(FilePath(cache_path_), net::HttpCache::NORMAL,
+      false);
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();

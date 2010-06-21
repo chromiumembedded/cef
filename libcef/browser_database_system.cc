@@ -34,7 +34,7 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
 BrowserDatabaseSystem::BrowserDatabaseSystem()
     : waiting_for_dbs_to_close_(false) {
   temp_dir_.CreateUniqueTempDir();
-  db_tracker_ = new DatabaseTracker(temp_dir_.path());
+  db_tracker_ = new DatabaseTracker(temp_dir_.path(), false);
   db_tracker_->AddObserver(this);
   DCHECK(!instance_);
   instance_ = this;
@@ -46,18 +46,14 @@ BrowserDatabaseSystem::~BrowserDatabaseSystem() {
 }
 
 base::PlatformFile BrowserDatabaseSystem::OpenFile(
-      const string16& vfs_file_name, int desired_flags,
-      base::PlatformFile* dir_handle) {
+      const string16& vfs_file_name, int desired_flags) {
   base::PlatformFile file_handle = base::kInvalidPlatformFileValue;
   FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
   if (file_name.empty()) {
     VfsBackend::OpenTempFileInDirectory(
-        db_tracker_->DatabaseDirectory(), desired_flags,
-        base::GetCurrentProcessHandle(), &file_handle, dir_handle);
+        db_tracker_->DatabaseDirectory(), desired_flags, &file_handle);
   } else {
-    VfsBackend::OpenFile(file_name, desired_flags,
-                         base::GetCurrentProcessHandle(), &file_handle,
-                         dir_handle);
+    VfsBackend::OpenFile(file_name, desired_flags, &file_handle);
   }
 
   return file_handle;
@@ -161,7 +157,7 @@ void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) 
 void BrowserDatabaseSystem::ClearAllDatabases() {
   // Wait for all databases to be closed.
   if (!database_connections_.IsEmpty()) {
-    AutoReset waiting_for_dbs_auto_reset(&waiting_for_dbs_to_close_, true);
+    AutoReset<bool> waiting_for_dbs_auto_reset(&waiting_for_dbs_to_close_, true);
     MessageLoop::ScopedNestableTaskAllower nestable(MessageLoop::current());
     MessageLoop::current()->Run();
   }

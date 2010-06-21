@@ -5,7 +5,7 @@
 
 #include "webwidget_host.h"
 
-#include "base/gfx/rect.h"
+#include "gfx/rect.h"
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
@@ -118,7 +118,6 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_SYSKEYUP:
       case WM_CHAR:
       case WM_SYSCHAR:
-      case WM_IME_CHAR:
         host->KeyEvent(message, wparam, lparam);
         break;
 

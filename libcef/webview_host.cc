@@ -5,8 +5,8 @@
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 
-#include "base/gfx/rect.h"
-#include "base/gfx/size.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "base/win_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webpreferences.h"

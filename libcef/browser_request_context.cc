@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 #include "browser_request_context.h"
-
+#include "browser_resource_loader_bridge.h"
 #include "build/build_config.h"
 
 #include "base/file_path.h"
@@ -51,16 +51,15 @@ void BrowserRequestContext::Init(
 
   http_auth_handler_factory_ = net::HttpAuthHandlerFactory::CreateDefault();
 
-  net::HttpCache *cache;
-  if (cache_path.empty()) {
-    cache = new net::HttpCache(NULL, host_resolver_, proxy_service_,
-                               ssl_config_service_, http_auth_handler_factory_,
-                               0);
-  } else {
-    cache = new net::HttpCache(NULL, host_resolver_, proxy_service_,
-                               ssl_config_service_, http_auth_handler_factory_,
-                               cache_path, 0);
-  }
+  net::HttpCache::DefaultBackend* backend = new net::HttpCache::DefaultBackend(
+      cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
+      cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
+
+  net::HttpCache* cache =
+      new net::HttpCache(NULL, host_resolver_, proxy_service_,
+                         ssl_config_service_, http_auth_handler_factory_,
+                         NULL, NULL, backend);
+
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;
 
@@ -78,3 +77,4 @@ const std::string& BrowserRequestContext::GetUserAgent(
     const GURL& url) const {
   return webkit_glue::GetUserAgent(url);
 }
+

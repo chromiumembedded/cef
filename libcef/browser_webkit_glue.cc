@@ -98,12 +98,6 @@ base::StringPiece GetDataResource(int resource_id) {
         static_cast<base::StringPiece::size_type>(
             sizeof(broken_image_data) / sizeof(unsigned char)));
   }
-  case IDR_FEED_PREVIEW:
-    // It is necessary to return a feed preview template that contains
-    // a {{URL}} substring where the feed URL should go; see the code 
-    // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
-    // This fixes issue #932714.    
-    return "Feed preview for {{URL}}";
   case IDR_TEXTAREA_RESIZER: {
     // Use webkit's text area resizer image.
     static unsigned char area_resizer_data[] = {
@@ -208,5 +202,10 @@ std::string WebStringToStdString(const WebKit::WebString& str) {
     UTF16ToUTF8(str.data(), str.length(), &ret);
   return ret;
 }
+
+std::string GetProductVersion() {
+  return std::string("CEF/0.0.0.0");
+}
+
 
 }  // namespace webkit_glue

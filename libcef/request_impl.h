@@ -7,6 +7,7 @@
 
 #include "../include/cef.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_request_headers.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 
@@ -34,6 +35,8 @@ public:
 
   void Set(URLRequest* request);
 
+  static void GetHeaderMap(const net::HttpRequestHeaders& headers,
+                           HeaderMap& map);
   static void GetHeaderMap(const WebKit::WebURLRequest& request,
                            HeaderMap& map);
   static void SetHeaderMap(const HeaderMap& map,
@@ -61,7 +64,7 @@ public:
   virtual bool AddElement(CefRefPtr<CefPostDataElement> element);
   virtual void RemoveElements();
 
-  void Set(const net::UploadData& data);
+  void Set(net::UploadData& data);
   void Get(net::UploadData& data);
   void Set(const WebKit::WebHTTPBody& data);
   void Get(WebKit::WebHTTPBody& data);

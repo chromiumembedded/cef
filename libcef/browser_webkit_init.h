@@ -16,7 +16,6 @@
 #include "webkit/database/vfs_backend.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
@@ -25,11 +24,12 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageEventDispatcher.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebIndexedDatabase.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
+#include "webkit/glue/webfilesystem_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
 #include "browser_appcache_system.h"
@@ -53,6 +53,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
     WebKit::WebRuntimeFeatures::enableWebGL(true);
+    WebKit::WebRuntimeFeatures::enablePushState(true);
+    WebKit::WebRuntimeFeatures::enableNotifications(true);
+    WebKit::WebRuntimeFeatures::enableTouch(true);
+    WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
     WebKit::WebRuntimeFeatures::enableGeolocation(false);
 
     // Load libraries for media and enable the media player.
@@ -73,6 +77,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
 
     WebKit::WebDatabase::setObserver(&database_system_);
+
+    file_system_.set_sandbox_enabled(false);
   }
 
   ~BrowserWebKitInit() {
@@ -85,6 +91,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   WebKit::WebClipboard* clipboard() {
     return &clipboard_;
+  }
+
+  virtual WebKit::WebFileSystem* fileSystem() {
+    return &file_system_;
   }
 
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
@@ -100,10 +110,9 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebKitClient::FileHandle databaseOpenFile(
-      const WebKit::WebString& vfs_file_name, int desired_flags,
-      WebKit::WebKitClient::FileHandle* dir_handle) {
+      const WebKit::WebString& vfs_file_name, int desired_flags) {
     return BrowserDatabaseSystem::GetInstance()->OpenFile(
-        vfs_file_name, desired_flags, dir_handle);
+        vfs_file_name, desired_flags);
   }
 
   virtual int databaseDeleteFile(const WebKit::WebString& vfs_file_name,
@@ -121,12 +130,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual long long databaseGetFileSize(
       const WebKit::WebString& vfs_file_name) {
     return BrowserDatabaseSystem::GetInstance()->GetFileSize(vfs_file_name);
-  }
-
-  virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
-    return file_util::GetFileSize(
-        webkit_glue::WebStringToFilePath(path),
-        reinterpret_cast<int64*>(&result));
   }
 
   virtual unsigned long long visitedLinkHash(const char* canonicalURL,
@@ -172,28 +175,17 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
       const WebKit::WebString& path, unsigned quota) {
     return WebKit::WebStorageNamespace::createLocalStorageNamespace(path,
-                                                                    quota);
+        WebKit::WebStorageNamespace::m_localStorageQuota);
   }
 
-  void dispatchStorageEvent(const WebKit::WebString& key,
-      const WebKit::WebString& old_value, const WebKit::WebString& new_value,
-      const WebKit::WebString& origin, const WebKit::WebURL& url,
-      bool is_local_storage) {
-     // The event is dispatched by the proxy.
-  }
-
-  virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
-        WebKit::WebApplicationCacheHostClient* client) {
-    return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
-  }
-
-  virtual WebKit::WebSharedWorkerRepository* sharedWorkerRepository() {
-      return NULL;
+  virtual WebKit::WebIndexedDatabase* indexedDatabase() {
+    return WebKit::WebIndexedDatabase::create();
   }
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
+  webkit_glue::WebFileSystemImpl file_system_;
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;

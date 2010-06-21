@@ -27,7 +27,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit/glue/webplugin_page_delegate.h"
+#include "webkit/glue/plugins/webplugin_page_delegate.h"
 #if defined(OS_WIN)
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
@@ -46,11 +46,14 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
   // WebKit::WebViewClient
-  virtual WebKit::WebView* createView(WebKit::WebFrame* creator);
-  virtual WebKit::WebWidget* createPopupMenu(bool activatable);
+  virtual WebKit::WebView* createView(WebKit::WebFrame* creator,
+                                      const WebKit::WebWindowFeatures& features,
+                                      const WebKit::WebString& name);
+  virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type);
   virtual WebKit::WebWidget* createPopupMenu(
       const WebKit::WebPopupMenuInfo& info);
-  virtual WebKit::WebStorageNamespace* createSessionStorageNamespace();
+  virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
+      unsigned quota);
   virtual void didAddMessageToConsole(
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line);
@@ -93,8 +96,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void setToolTipText(
       const WebKit::WebString& text, WebKit::WebTextDirection hint);
   virtual void startDragging(
-      const WebKit::WebPoint& from, const WebKit::WebDragData& data,
-      WebKit::WebDragOperationsMask mask);
+      const  WebKit::WebDragData& data,
+       WebKit::WebDragOperationsMask mask,
+      const  WebKit::WebImage& image,
+      const  WebKit::WebPoint& image_offset);
   virtual bool acceptsLoadDrops() { return true; }
   virtual void focusNext();
   virtual void focusPrevious();
@@ -123,6 +128,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*, const WebKit::WebPluginParams&);
   virtual WebKit::WebMediaPlayer* createMediaPlayer(
       WebKit::WebFrame*, WebKit::WebMediaPlayerClient*);
+  virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
+    WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client);
   virtual void loadURLExternally(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
       WebKit::WebNavigationPolicy);
@@ -157,9 +164,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit_glue::WebPluginDelegate* CreatePluginDelegate(
-      const GURL& url,
-      const std::string& mime_type,
-      std::string* actual_mime_type);
+      const FilePath& file_path,
+      const std::string& mime_type);
   virtual void CreatedPluginWindow(
       gfx::PluginWindowHandle handle);
   virtual void WillDestroyPluginWindow(

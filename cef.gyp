@@ -146,11 +146,11 @@
         '../third_party/WebKit/WebCore/WebCore.gyp/WebCore.gyp:webcore',
         '../third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
         '../third_party/zlib/zlib.gyp:zlib',
-        '../webkit/webkit.gyp:appcache',
-        '../webkit/webkit.gyp:database',
-        '../webkit/webkit.gyp:glue',
-        '../webkit/webkit.gyp:webkit_resources',
-        '../webkit/webkit.gyp:webkit_strings',
+        '../webkit/support/webkit_support.gyp:appcache',
+        '../webkit/support/webkit_support.gyp:database',
+        '../webkit/support/webkit_support.gyp:glue',
+        '../webkit/support/webkit_support.gyp:webkit_resources',
+        '../webkit/support/webkit_support.gyp:webkit_strings',
         'libcef_static',
       ],
       'defines': [
@@ -281,6 +281,7 @@
       'include_dirs': [
         '.',
         '..',
+        '../third_party/WebKit/WebKit/chromium/public'
       ],
       'dependencies': [
         '../app/app.gyp:app_base',
@@ -307,11 +308,11 @@
         '../third_party/WebKit/WebCore/WebCore.gyp/WebCore.gyp:webcore',
         '../third_party/WebKit/WebKit/chromium/WebKit.gyp:webkit',
         '../third_party/zlib/zlib.gyp:zlib',
-        '../webkit/webkit.gyp:appcache',
-        '../webkit/webkit.gyp:database',
-        '../webkit/webkit.gyp:glue',
-        '../webkit/webkit.gyp:webkit_resources',
-        '../webkit/webkit.gyp:webkit_strings',
+        '../webkit/support/webkit_support.gyp:appcache',
+        '../webkit/support/webkit_support.gyp:database',
+        '../webkit/support/webkit_support.gyp:glue',
+        '../webkit/support/webkit_support.gyp:webkit_resources',
+        '../webkit/support/webkit_support.gyp:webkit_strings',
       ],
       'sources': [
         'include/cef.h',
