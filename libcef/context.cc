@@ -231,6 +231,9 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
 {
   CefContext *pContext = static_cast<CefContext*>(lpParam);
 
+  // AtExitManager is scoped to the UI thread.
+  base::AtExitManager at_exit_manager;
+
   if (!pContext->DoInitialize()) 
     return 1;
 
@@ -258,6 +261,8 @@ CefContext::CefContext()
   messageloopui_ = NULL;
   in_transition_ = false;
   webprefs_ = NULL;
+  statstable_ = NULL;
+  at_exit_manager_ = NULL;
   hinstance_ = ::GetModuleHandle(NULL);
   next_browser_id_ = 1;
   webkit_init_ = NULL;
@@ -267,6 +272,8 @@ CefContext::~CefContext()
 {
   // Just in case CefShutdown() isn't called
   Shutdown();
+  if(at_exit_manager_)
+    delete at_exit_manager_;
 }
 
 bool CefContext::Initialize(bool multi_threaded_message_loop,
@@ -366,6 +373,8 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
         DCHECK(hthreadui_ != NULL);
         DCHECK(idthreadui_ != 0);
       } else {
+        // AtExitManager is scoped to the context.
+        at_exit_manager_ = new base::AtExitManager;
         if (!DoInitialize()) {
           // TODO: Process initialization errors
         }

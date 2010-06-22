@@ -80,8 +80,10 @@ protected:
   StatsTable* statstable_;
   std::wstring cache_path_;
 
-  // Initialize the AtExitManager to avoid asserts and possible memory leaks.
-  base::AtExitManager at_exit_manager_;
+  // AtExitManager will be scoped to the context when running in single threaded
+  // message loop mode.
+  base::AtExitManager* at_exit_manager_;
+  
   // WebKit implementation class.
   BrowserWebKitInit* webkit_init_;
 
