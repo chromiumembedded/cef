@@ -489,6 +489,12 @@ typedef struct _cef_handler_t
       enum cef_handler_keyevent_type_t type, int code, int modifiers,
       int isSystemKey);
 
+  // Called to display a console message. Return RV_HANDLED to stop the message
+  // from being output to the console.
+  enum cef_retval_t (CEF_CALLBACK *handle_console_message)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      const wchar_t* message, const wchar_t* source, int line);
+
 } cef_handler_t;
 
 

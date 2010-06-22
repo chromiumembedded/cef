@@ -630,6 +630,13 @@ public:
                                 int code,
                                 int modifiers,
                                 bool isSystemKey) =0;
+
+  // Called to display a console message. Return RV_HANDLED to stop the message
+  // from being output to the console.
+  /*--cef()--*/
+  virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                      const std::wstring& message,
+                                      const std::wstring& source, int line) =0;
 };
 
 

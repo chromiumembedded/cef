@@ -15,7 +15,6 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
-#include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -458,6 +457,25 @@ enum cef_retval_t CEF_CALLBACK handler_handle_key_event(
       modifiers, isSystemKey?true:false);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_console_message(
+    struct _cef_handler_t* self, cef_browser_t* browser, const wchar_t* message,
+    const wchar_t* source, int line)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  std::wstring messageStr, sourceStr;
+  if(message)
+    messageStr = message;
+  if(source)
+    sourceStr = source;
+
+  return CefHandlerCppToC::Get(self)->HandleConsoleMessage(
+      CefBrowserCToCpp::Wrap(browser), messageStr, sourceStr, line);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -487,6 +505,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_take_focus = handler_handle_take_focus;
   struct_.struct_.handle_set_focus = handler_handle_set_focus;
   struct_.struct_.handle_key_event = handler_handle_key_event;
+  struct_.struct_.handle_console_message = handler_handle_console_message;
 }
 
 #ifdef _DEBUG

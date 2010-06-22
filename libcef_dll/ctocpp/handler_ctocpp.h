@@ -76,6 +76,8 @@ public:
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser, bool isWidget);
   virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
       KeyEventType type, int code, int modifiers, bool isSystemKey);
+  virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
+      const std::wstring& message, const std::wstring& source, int line);
 };
 
 #endif // BUILDING_CEF_SHARED

@@ -164,6 +164,17 @@ WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
 void BrowserWebViewDelegate::didAddMessageToConsole(
     const WebConsoleMessage& message, const WebString& source_name,
     unsigned source_line) {
+  std::wstring wmessage = UTF16ToWideHack(message.text);
+  std::wstring wsource = UTF16ToWideHack(source_name);
+
+  CefHandler::RetVal rv = RV_CONTINUE;
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    rv = handler->HandleConsoleMessage(browser_, wmessage, wsource,
+                                       source_line);
+  }
+
+  if(rv == RV_CONTINUE) {
     logging::LogMessage("CONSOLE", 0).stream() << "\""
                                                << message.text.utf8().data()
                                                << ",\" source: "
@@ -171,6 +182,7 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
                                                << "("
                                                << source_line
                                                << ")";
+  }
 }
 
 void BrowserWebViewDelegate::didStartLoading() {

@@ -14,7 +14,6 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
-#include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -347,6 +346,17 @@ CefHandler::RetVal CefHandlerCToCpp::HandleKeyEvent(
 
   return struct_->handle_key_event(struct_, CefBrowserCppToC::Wrap(browser),
       type, code, modifiers, isSystemKey);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleConsoleMessage(
+    CefRefPtr<CefBrowser> browser, const std::wstring& message,
+    const std::wstring& source, int line)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_console_message))
+    return RV_CONTINUE;
+
+  return struct_->handle_console_message(struct_,
+      CefBrowserCppToC::Wrap(browser), message.c_str(), source.c_str(), line);
 }
 
 

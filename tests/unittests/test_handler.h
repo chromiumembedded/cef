@@ -202,6 +202,13 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                      const std::wstring& message,
+                                      const std::wstring& source, int line)
+  {
+    return RV_CONTINUE;
+  }
+
   CefRefPtr<CefBrowser> GetBrowser()
   {
     return browser_;

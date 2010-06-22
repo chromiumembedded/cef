@@ -27,6 +27,7 @@
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+TCHAR szWorkingDir[MAX_PATH];   // The current working directory
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -43,6 +44,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
+
+  // Retrieve the current working directory.
+  if(_wgetcwd(szWorkingDir, MAX_PATH) == NULL)
+    szWorkingDir[0] = 0;
 
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
@@ -522,6 +527,41 @@ public:
     return RV_CONTINUE;
   }
 
+  // Called to display a console message. Return RV_HANDLED to stop the message
+  // from being output to the console.
+  RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
+                              const std::wstring& message,
+                              const std::wstring& source, int line)
+  {
+    Lock();
+    bool first_message = m_LogFile.empty();
+    if(first_message) {
+      std::wstringstream ss;
+      ss << szWorkingDir << L"\\console.log";
+      m_LogFile = ss.str();
+    }
+    std::wstring logFile = m_LogFile;
+    Unlock();
+    
+    FILE* file = NULL;
+    _wfopen_s(&file, logFile.c_str(), L"a, ccs=UTF-8");
+    
+    if(file) {
+      std::wstringstream ss;
+      ss << L"Message: " << message << L"\r\nSource: " << source <<
+          L"\r\nLine: " << line << L"\r\n-----------------------\r\n";
+      fputws(ss.str().c_str(), file);
+      fclose(file);
+
+      if(first_message) {
+        // Show the message box on the UI thread.
+        PostMessage(m_MainHwnd, WM_COMMAND, ID_WARN_CONSOLEMESSAGE, 0);
+      }
+    }
+
+    return RV_HANDLED;
+  }
+
   // Retrieve the current navigation state flags
   void GetNavState(bool &isLoading, bool &canGoBack, bool &canGoForward)
   {
@@ -557,6 +597,14 @@ public:
     return m_BrowserHwnd;
   }
 
+  std::wstring GetLogFile()
+  {
+    Lock();
+    std::wstring str = m_LogFile;
+    Unlock();
+    return str;
+  }
+
 protected:
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
@@ -576,6 +624,8 @@ protected:
   bool m_bCanGoBack;
   // True if the user can navigate forwards
   bool m_bCanGoForward;
+
+  std::wstring m_LogFile;
 };
 
 // global handler instance
@@ -765,6 +815,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		    case IDM_EXIT:
 			    DestroyWindow(hWnd);
 			    return 0;
+        case ID_WARN_CONSOLEMESSAGE:
+          if(g_handler.get()) {
+            std::wstringstream ss;
+            ss << L"Console messages will be written to "
+               << g_handler->GetLogFile();
+            MessageBoxW(hWnd, ss.str().c_str(), L"Console Messages",
+                MB_OK | MB_ICONINFORMATION);
+          }
+          return 0;
         case IDC_NAV_BACK:  // Back button
           if(browser.get())
             browser->GoBack();

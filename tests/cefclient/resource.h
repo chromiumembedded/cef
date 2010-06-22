@@ -21,6 +21,7 @@
 #define IDC_NAV_FORWARD                 201
 #define IDC_NAV_RELOAD                  202
 #define IDC_NAV_STOP                    203
+#define ID_WARN_CONSOLEMESSAGE          32000
 #define ID_TESTS_GETSOURCE              32769
 #define ID_TESTS_GETTEXT                32770
 #define ID_TESTS_JAVASCRIPT_HANDLER     32771
