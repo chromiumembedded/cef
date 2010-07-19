@@ -76,8 +76,10 @@ void BrowserWebViewDelegate::closeWidgetSoon() {
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
   if (WebWidgetHost* host = GetWidgetHost()) {
     current_cursor_.InitFromCursorInfo(cursor_info);
-    HINSTANCE mod_handle = GetModuleHandle(NULL);
-    host->SetCursor(current_cursor_.GetCursor(mod_handle));
+    HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
+    if(!hModule)
+      hModule = ::GetModuleHandle(NULL);
+    host->SetCursor(current_cursor_.GetCursor(hModule));
   }
 }
 

@@ -69,17 +69,22 @@ private:
   void DoUninitialize();
 
 protected:
+  bool multi_threaded_message_loop_;
+
   HMODULE hinstance_;
   DWORD idthreadui_;
   HANDLE hthreadui_;
   HANDLE heventui_;
-  MessageLoopForUI* messageloopui_;
   bool in_transition_;
   BrowserList browserlist_;
   WebPreferences* webprefs_;
   StatsTable* statstable_;
   std::wstring cache_path_;
 
+  // MessageLoopForUI will be scoped to the context when running in single
+  // threaded message loop mode.
+  MessageLoopForUI* messageloopui_;
+  
   // AtExitManager will be scoped to the context when running in single threaded
   // message loop mode.
   base::AtExitManager* at_exit_manager_;

@@ -45,6 +45,9 @@ public:
   virtual CefRefPtr<CefFrame> GetFocusedFrame();
   virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
   virtual void GetFrameNames(std::vector<std::wstring>& names);
+  virtual void Find(int identifier, const std::wstring& searchText,
+      bool forward, bool matchCase, bool findNext);
+  virtual void StopFinding(bool clearSelection);
 };
 
 #endif // USING_CEF_SHARED

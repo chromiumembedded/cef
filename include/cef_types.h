@@ -220,6 +220,15 @@ enum cef_handler_keyevent_modifiers_t
   KEY_META  = 1 << 3
 };
 
+// Structure representing a rectangle.
+typedef struct _cef_rect_t
+{
+  int x;
+  int y;
+  int width;
+  int height;
+} cef_rect_t;
+
 #ifdef __cplusplus
 }
 #endif

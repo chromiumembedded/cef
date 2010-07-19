@@ -12,7 +12,7 @@
 #include "thread_util.h"
 #include "uiplugin_test.h"
 #include <sstream>
-
+#include <commdlg.h>
 
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
@@ -28,6 +28,8 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 TCHAR szWorkingDir[MAX_PATH];   // The current working directory
+UINT uFindMsg;  // Message identifier for find events.
+HWND hFindDlg = NULL; // Handle for the find dialog.
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -86,6 +88,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
+  // Register the find event message.
+  uFindMsg = RegisterWindowMessage(FINDMSGSTRING);
+
   // Main message loop
   while (GetMessage(&msg, NULL, 0, 0))
   {
@@ -93,6 +98,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     // Allow the CEF to do its message loop processing.
     CefDoMessageLoopWork();
 #endif
+
+    // Allow processing of find dialog messages.
+    if(hFindDlg && IsDialogMessage(hFindDlg, &msg))
+      continue;
 
     if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
     {
@@ -562,6 +571,20 @@ public:
     return RV_HANDLED;
   }
 
+  // Called to report find results returned by CefBrowser::Find(). |identifer|
+  // is the identifier passed to CefBrowser::Find(), |count| is the number of
+  // matches currently identified, |selectionRect| is the location of where the
+  // match was found (in window coordinates), |activeMatchOrdinal| is the
+  // current position in the search results, and |finalUpdate| is true if this
+  // is the last find notification.  The return value is currently ignored.
+  virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser,
+                                  int identifier, int count,
+                                  const CefRect& selectionRect,
+                                  int activeMatchOrdinal, bool finalUpdate)
+  {
+    return RV_CONTINUE;
+  }
+
   // Retrieve the current navigation state flags
   void GetNavState(bool &isLoading, bool &canGoBack, bool &canGoForward)
   {
@@ -679,7 +702,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   static HWND backWnd = NULL, forwardWnd = NULL, reloadWnd = NULL,
       stopWnd = NULL, editWnd = NULL;
   static WNDPROC editWndOldProc = NULL;
-
+  
+  // Static members used for the find dialog.
+  static FINDREPLACE fr;
+  static WCHAR szFindWhat[80] = {0};
+  static WCHAR szLastFindWhat[80] = {0};
+  static bool findNext = false;
+  static bool lastMatchCase = false;
+  
   int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
@@ -707,6 +737,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
 
     return (LRESULT)CallWindowProc(editWndOldProc, hWnd, message, wParam, lParam);
+  }
+  else if (message == uFindMsg)
+  { 
+    // Find event.
+    LPFINDREPLACE lpfr = (LPFINDREPLACE)lParam;
+
+    if (lpfr->Flags & FR_DIALOGTERM)
+    { 
+      // The find dialog box has been dismissed so invalidate the handle and
+      // reset the search results.
+      hFindDlg = NULL; 
+      if(g_handler.get())
+      {
+        g_handler->GetBrowser()->StopFinding(true);
+        szLastFindWhat[0] = 0;
+        findNext = false;
+      }
+      return 0; 
+    } 
+
+    if ((lpfr->Flags & FR_FINDNEXT) && g_handler.get()) 
+    {
+      // Search for the requested string.
+      bool matchCase = (lpfr->Flags & FR_MATCHCASE?true:false);
+      if(matchCase != lastMatchCase ||
+        (matchCase && wcsncmp(szFindWhat, szLastFindWhat,
+          sizeof(szLastFindWhat)/sizeof(WCHAR)) != 0) ||
+        (!matchCase && _wcsnicmp(szFindWhat, szLastFindWhat,
+          sizeof(szLastFindWhat)/sizeof(WCHAR)) != 0))
+      {
+        // The search string has changed, so reset the search results.
+        if(szLastFindWhat[0] != 0) {
+          g_handler->GetBrowser()->StopFinding(true);
+          findNext = false;
+        }
+        lastMatchCase = matchCase;
+        wcscpy_s(szLastFindWhat, sizeof(szLastFindWhat)/sizeof(WCHAR),
+            szFindWhat);
+      }
+
+      g_handler->GetBrowser()->Find(0, lpfr->lpstrFindWhat,
+          (lpfr->Flags & FR_DOWN)?true:false, matchCase, findNext);
+      if(!findNext)
+        findNext = true;
+    }
+
+    return 0; 
   }
   else
   {
@@ -822,6 +899,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                << g_handler->GetLogFile();
             MessageBoxW(hWnd, ss.str().c_str(), L"Console Messages",
                 MB_OK | MB_ICONINFORMATION);
+          }
+          return 0;
+        case ID_FIND:
+          if(!hFindDlg)
+          {
+            // Create the find dialog.
+            ZeroMemory(&fr, sizeof(fr));
+            fr.lStructSize = sizeof(fr);
+            fr.hwndOwner = hWnd;
+            fr.lpstrFindWhat = szFindWhat;
+            fr.wFindWhatLen = sizeof(szFindWhat);
+            fr.Flags = FR_HIDEWHOLEWORD | FR_DOWN;
+
+            hFindDlg = FindText(&fr);
+          }
+          else
+          {
+            // Give focus to the existing find dialog.
+            ::SetFocus(hFindDlg);
           }
           return 0;
         case IDC_NAV_BACK:  // Back button

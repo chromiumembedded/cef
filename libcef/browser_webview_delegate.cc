@@ -725,6 +725,21 @@ void BrowserWebViewDelegate::willSendRequest(
   request.setRequestorID(browser_->UIT_GetUniqueID());
 }
 
+void BrowserWebViewDelegate::reportFindInPageMatchCount(
+    int request_id, int count, bool final_update)
+{
+  browser_->UIT_NotifyFindStatus(request_id, count, gfx::Rect(),
+      -1,  // // Don't update active match ordinal.
+      final_update);
+}
+
+void BrowserWebViewDelegate::reportFindInPageSelection(
+    int request_id, int active_match_ordinal, const WebKit::WebRect& sel)
+{
+  browser_->UIT_NotifyFindStatus(request_id, -1, sel, active_match_ordinal,
+      false);
+}
+
 
 // Public methods ------------------------------------------------------------
 

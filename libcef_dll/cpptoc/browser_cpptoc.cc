@@ -219,6 +219,31 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
     cef_string_list_append(names, stringList[i].c_str());
 }
 
+void CEF_CALLBACK browser_find(struct _cef_browser_t* self, int identifier,
+    const wchar_t* searchText, int forward, int matchCase, int findNext)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  std::wstring searchTextStr;
+  if(searchText)
+    searchTextStr = searchText;
+
+  CefBrowserCppToC::Get(self)->Find(identifier, searchTextStr,
+      forward?true:false, matchCase?true:false, findNext?true:false);
+}
+
+void CEF_CALLBACK browser_stop_finding(struct _cef_browser_t* self,
+    int clearSelection)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->StopFinding(clearSelection?true:false);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -239,6 +264,8 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.get_focused_frame = browser_get_focused_frame;
   struct_.struct_.get_frame = browser_get_frame;
   struct_.struct_.get_frame_names = browser_get_frame_names;
+  struct_.struct_.find = browser_find;
+  struct_.struct_.stop_finding = browser_stop_finding;
 }
 
 #ifdef _DEBUG

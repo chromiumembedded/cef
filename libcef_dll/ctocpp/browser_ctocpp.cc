@@ -176,6 +176,24 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<std::wstring>& names)
   cef_string_list_free(list);
 }
 
+void CefBrowserCToCpp::Find(int identifier, const std::wstring& searchText,
+    bool forward, bool matchCase, bool findNext)
+{
+  if(CEF_MEMBER_MISSING(struct_, find))
+    return;
+
+  struct_->find(struct_, identifier, searchText.c_str(), forward,
+      matchCase, findNext);
+}
+
+void CefBrowserCToCpp::StopFinding(bool clearSelection)
+{
+  if(CEF_MEMBER_MISSING(struct_, stop_finding))
+    return;
+
+  struct_->stop_finding(struct_, clearSelection);
+}
+
 
 #ifdef _DEBUG
 long CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>::DebugObjCt = 0;

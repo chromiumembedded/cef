@@ -255,6 +255,7 @@ DWORD WINAPI ThreadHandlerUI(LPVOID lpParam)
 
 CefContext::CefContext()
 {
+  multi_threaded_message_loop_ = false;
   hthreadui_ = NULL;
   idthreadui_ = 0;
   heventui_ = NULL;
@@ -272,8 +273,12 @@ CefContext::~CefContext()
 {
   // Just in case CefShutdown() isn't called
   Shutdown();
-  if(at_exit_manager_)
-    delete at_exit_manager_;
+  if(!multi_threaded_message_loop_) {
+    if(messageloopui_)
+      delete messageloopui_;
+    if(at_exit_manager_)
+      delete at_exit_manager_;
+  }
 }
 
 bool CefContext::Initialize(bool multi_threaded_message_loop,
@@ -378,7 +383,7 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
         if (!DoInitialize()) {
           // TODO: Process initialization errors
         }
-        // Create our own message loop there
+        // Message loop is scoped to the context.
         SetMessageLoopForUI(new CefMessageLoopForUI());
         idthreadui_ = GetCurrentThreadId();
         DCHECK(idthreadui_ != 0);
@@ -391,6 +396,8 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
   Unlock();
   
   if(initialized) {
+    multi_threaded_message_loop_ = multi_threaded_message_loop;
+
     if (multi_threaded_message_loop) {
       // Wait for initial UI thread setup to complete
       WaitForSingleObject(heventui_, INFINITE);
@@ -470,7 +477,6 @@ void CefContext::Shutdown()
     UnregisterClass(CefBrowserImpl::GetWndClass(), hinstance_);
 
     idthreadui_ = 0;
-    messageloopui_ = NULL;
 
     // We have exited the transitional state
     in_transition_ = false;

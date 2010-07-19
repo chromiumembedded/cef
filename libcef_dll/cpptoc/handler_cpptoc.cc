@@ -476,6 +476,22 @@ enum cef_retval_t CEF_CALLBACK handler_handle_console_message(
       CefBrowserCToCpp::Wrap(browser), messageStr, sourceStr, line);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_find_result(
+    struct _cef_handler_t* self, cef_browser_t* browser, int identifier,
+    int count, const cef_rect_t* selectionRect, int activeMatchOrdinal,
+    int finalUpdate)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  CefRect rect(*selectionRect);
+  return CefHandlerCppToC::Get(self)->HandleFindResult(
+      CefBrowserCToCpp::Wrap(browser), identifier, count, rect,
+      activeMatchOrdinal, finalUpdate?true:false);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -506,6 +522,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_set_focus = handler_handle_set_focus;
   struct_.struct_.handle_key_event = handler_handle_key_event;
   struct_.struct_.handle_console_message = handler_handle_console_message;
+  struct_.struct_.handle_find_result = handler_handle_find_result;
 }
 
 #ifdef _DEBUG

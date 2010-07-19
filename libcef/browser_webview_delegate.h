@@ -161,6 +161,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void willSendRequest(
       WebKit::WebFrame*, unsigned identifier, WebKit::WebURLRequest&,
       const WebKit::WebURLResponse& redirectResponse);
+  virtual void reportFindInPageMatchCount(
+      int request_id, int count, bool final_update);
+  virtual void reportFindInPageSelection(
+      int request_id, int active_match_ordinal, const WebKit::WebRect& sel);
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit_glue::WebPluginDelegate* CreatePluginDelegate(

@@ -78,6 +78,9 @@ public:
       KeyEventType type, int code, int modifiers, bool isSystemKey);
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
       const std::wstring& message, const std::wstring& source, int line);
+  virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser, int identifier,
+      int count, const CefRect& selectionRect, int activeMatchOrdinal,
+      bool finalUpdate);
 };
 
 #endif // BUILDING_CEF_SHARED

@@ -209,6 +209,14 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser,
+                                  int identifier, int count,
+                                  const CefRect& selectionRect,
+                                  int activeMatchOrdinal, bool finalUpdate)
+  {
+    return RV_CONTINUE;
+  }
+
   CefRefPtr<CefBrowser> GetBrowser()
   {
     return browser_;

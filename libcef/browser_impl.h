@@ -16,6 +16,8 @@
 #include "printing/win_printing_context.h"
 #endif
 
+#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
+
 namespace WebKit {
 class WebView;
 }
@@ -52,7 +54,10 @@ public:
   virtual CefRefPtr<CefFrame> GetFocusedFrame();
   virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
   virtual void GetFrameNames(std::vector<std::wstring>& names);
-
+  virtual void Find(int identifier, const std::wstring& searchText,
+                    bool forward, bool matchCase, bool findNext);
+  virtual void StopFinding(bool clearSelection);
+  
   // CefFrames are light-weight objects managed by the browser and loosely
   // coupled to a WebFrame object by name.  If a CefFrame object does not
   // already exist for the specified WebFrame one will be created.  There is no
@@ -91,7 +96,7 @@ public:
                          const std::wstring& jsCode, 
                          const std::wstring& scriptUrl,
                          int startLine);
-  virtual std::wstring GetURL(CefRefPtr<CefFrame> frame);
+  std::wstring GetURL(CefRefPtr<CefFrame> frame);
   
   WebKit::WebView* GetWebView() const {
     return webviewhost_.get() ? webviewhost_->webview() : NULL;
@@ -211,6 +216,13 @@ public:
 
   void UIT_SetUniqueID(int id) { unique_id_ = id; }
   int UIT_GetUniqueID() { return unique_id_; }
+
+  void UIT_Find(int identifier, const std::wstring& search_text,
+                const WebKit::WebFindOptions& options);
+  void UIT_StopFinding(bool clear_selection);
+  void UIT_NotifyFindStatus(int identifier, int count,
+                            const WebKit::WebRect& selection_rect,
+                            int active_match_ordinal, bool final_update);
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 

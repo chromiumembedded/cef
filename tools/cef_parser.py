@@ -1070,7 +1070,8 @@ class obj_analysis:
             'unsigned long' : 'unsigned long',
             'size_t' : 'size_t',
             'bool' : 'int',
-            'CefWindowHandle' : 'cef_window_handle_t'
+            'CefWindowHandle' : 'cef_window_handle_t',
+            'CefRect' : 'cef_rect_t',
         }
         if value in simpletypes.keys():
             return {

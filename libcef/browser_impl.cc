@@ -9,17 +9,29 @@
 #include "request_impl.h"
 
 #include "base/utf_string_conversions.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPlugin.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPluginDocument.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRange.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
+#include "webkit/glue/plugins/webplugin_delegate.h"
+#include "webkit/glue/plugins/webplugin_impl.h"
 
+using WebKit::WebDocument;
 using WebKit::WebFrame;
 using WebKit::WebHTTPBody;
+using WebKit::WebPlugin;
+using WebKit::WebPluginDocument;
+using WebKit::WebRange;
+using WebKit::WebRect;
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 using WebKit::WebURL;
@@ -119,6 +131,26 @@ void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
       names.push_back(UTF16ToWideHack(it->name()));
     it = it->traverseNext(true);
   } while (it != main_frame);
+}
+
+void CefBrowserImpl::Find(int identifier, const std::wstring& searchText,
+                          bool forward, bool matchCase, bool findNext)
+{
+  WebKit::WebFindOptions options;
+  options.forward = forward;
+  options.matchCase = matchCase;
+  options.findNext = findNext;
+
+  // Execute the request on the UI thread.
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_Find, identifier, searchText, options));
+}
+
+void CefBrowserImpl::StopFinding(bool clearSelection)
+{
+  // Execute the request on the UI thread.
+  PostTask(FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_StopFinding, clearSelection));
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
@@ -674,6 +706,169 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
 
   if(frame)
     frame->Release();
+}
+
+void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
+                              const WebKit::WebFindOptions& options)
+{
+  WebFrame* main_frame = GetWebView()->mainFrame();
+
+  if (main_frame->document().isPluginDocument()) {
+    WebPlugin* plugin = main_frame->document().to<WebPluginDocument>().plugin();
+    webkit_glue::WebPluginDelegate* delegate =
+        static_cast<webkit_glue::WebPluginImpl*>(plugin)->delegate();
+    if (options.findNext) {
+      // Just navigate back/forward.
+      delegate->SelectFindResult(options.forward);
+    } else {
+      if (delegate->SupportsFind()) {
+        delegate->StartFind(UTF16ToUTF8(search_text),
+                            options.matchCase,
+                            identifier);
+      } else {
+        // No find results.
+        UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);
+      }
+    }
+    return;
+  }
+
+  WebFrame* frame_after_main = main_frame->traverseNext(true);
+  WebFrame* focused_frame = GetWebView()->focusedFrame();
+  WebFrame* search_frame = focused_frame;  // start searching focused frame.
+
+  bool multi_frame = (frame_after_main != main_frame);
+
+  // If we have multiple frames, we don't want to wrap the search within the
+  // frame, so we check here if we only have main_frame in the chain.
+  bool wrap_within_frame = !multi_frame;
+
+  WebRect selection_rect;
+  bool result = false;
+
+  // If something is selected when we start searching it means we cannot just
+  // increment the current match ordinal; we need to re-generate it.
+  WebRange current_selection = focused_frame->selectionRange();
+
+  do {
+    result = search_frame->find(
+        identifier, search_text, options, wrap_within_frame, &selection_rect);
+
+    if (!result) {
+      // don't leave text selected as you move to the next frame.
+      search_frame->executeCommand(WebString::fromUTF8("Unselect"));
+
+      // Find the next frame, but skip the invisible ones.
+      do {
+        // What is the next frame to search? (we might be going backwards). Note
+        // that we specify wrap=true so that search_frame never becomes NULL.
+        search_frame = options.forward ?
+            search_frame->traverseNext(true) :
+            search_frame->traversePrevious(true);
+      } while (!search_frame->hasVisibleContent() &&
+               search_frame != focused_frame);
+
+      // Make sure selection doesn't affect the search operation in new frame.
+      search_frame->executeCommand(WebString::fromUTF8("Unselect"));
+
+      // If we have multiple frames and we have wrapped back around to the
+      // focused frame, we need to search it once more allowing wrap within
+      // the frame, otherwise it will report 'no match' if the focused frame has
+      // reported matches, but no frames after the focused_frame contain a
+      // match for the search word(s).
+      if (multi_frame && search_frame == focused_frame) {
+        result = search_frame->find(
+            identifier, search_text, options, true,  // Force wrapping.
+            &selection_rect);
+      }
+    }
+
+    GetWebView()->setFocusedFrame(search_frame);
+  } while (!result && search_frame != focused_frame);
+
+  if (options.findNext && current_selection.isNull()) {
+    // Force the main_frame to report the actual count.
+    main_frame->increaseMatchCount(0, identifier);
+  } else {
+    // If nothing is found, set result to "0 of 0", otherwise, set it to
+    // "-1 of 1" to indicate that we found at least one item, but we don't know
+    // yet what is active.
+    int ordinal = result ? -1 : 0;  // -1 here means, we might know more later.
+    int match_count = result ? 1 : 0;  // 1 here means possibly more coming.
+
+    // If we find no matches then this will be our last status update.
+    // Otherwise the scoping effort will send more results.
+    bool final_status_update = !result;
+
+    // Send the search result.
+    UIT_NotifyFindStatus(identifier, match_count, selection_rect, ordinal,
+        final_status_update);
+
+    // Scoping effort begins, starting with the mainframe.
+    search_frame = main_frame;
+
+    main_frame->resetMatchCount();
+
+    do {
+      // Cancel all old scoping requests before starting a new one.
+      search_frame->cancelPendingScopingEffort();
+
+      // We don't start another scoping effort unless at least one match has
+      // been found.
+      if (result) {
+        // Start new scoping request. If the scoping function determines that it
+        // needs to scope, it will defer until later.
+        search_frame->scopeStringMatches(identifier,
+                                         search_text,
+                                         options,
+                                         true);  // reset the tickmarks
+      }
+
+      // Iterate to the next frame. The frame will not necessarily scope, for
+      // example if it is not visible.
+      search_frame = search_frame->traverseNext(true);
+    } while (search_frame != main_frame);
+  }
+}
+
+void CefBrowserImpl::UIT_StopFinding(bool clear_selection)
+{
+  WebView* view = GetWebView();
+  if (!view)
+    return;
+
+  WebDocument doc = view->mainFrame()->document();
+  if (doc.isPluginDocument()) {
+    WebPlugin* plugin = view->mainFrame()->document().
+        to<WebPluginDocument>().plugin();
+    webkit_glue::WebPluginDelegate* delegate =
+        static_cast<webkit_glue::WebPluginImpl*>(plugin)->delegate();
+    delegate->StopFind();
+    return;
+  }
+
+  if (clear_selection)
+    view->focusedFrame()->executeCommand(WebString::fromUTF8("Unselect"));
+
+  WebFrame* frame = view->mainFrame();
+  while (frame) {
+    frame->stopFinding(clear_selection);
+    frame = frame->traverseNext(false);
+  }
+}
+
+void CefBrowserImpl::UIT_NotifyFindStatus(int identifier, int count,
+                                          const WebKit::WebRect& selection_rect,
+                                          int active_match_ordinal,
+                                          bool final_update)
+{
+  if(handler_.get())
+  {
+    CefRect rect(selection_rect.x, selection_rect.y, selection_rect.width,
+        selection_rect.height);
+    handler_->HandleFindResult(this, identifier, count, rect,
+        active_match_ordinal, final_update);
+  }
 }
 
 

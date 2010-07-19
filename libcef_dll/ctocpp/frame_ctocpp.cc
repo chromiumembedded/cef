@@ -156,7 +156,7 @@ void CefFrameCToCpp::ExecuteJavaScript(const std::wstring& jsCode,
     const std::wstring& scriptUrl, int startLine)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_java_script))
-      return;
+    return;
 
   struct_->execute_java_script(struct_, jsCode.c_str(), scriptUrl.c_str(),
       startLine);
@@ -165,7 +165,7 @@ void CefFrameCToCpp::ExecuteJavaScript(const std::wstring& jsCode,
 bool CefFrameCToCpp::IsMain()
 {
   if(CEF_MEMBER_MISSING(struct_, is_main))
-      return false;
+    return false;
 
   return struct_->is_main(struct_)?true:false;
 }
@@ -173,7 +173,7 @@ bool CefFrameCToCpp::IsMain()
 bool CefFrameCToCpp::IsFocused()
 {
   if(CEF_MEMBER_MISSING(struct_, is_focused))
-      return false;
+    return false;
 
   return struct_->is_focused(struct_)?true:false;
 }

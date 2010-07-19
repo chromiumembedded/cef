@@ -213,6 +213,18 @@ typedef struct _cef_browser_t
   void (CEF_CALLBACK *get_frame_names)(struct _cef_browser_t* self,
       cef_string_list_t names);
 
+  // Search for |searchText|. |identifier| can be used to have multiple searches
+  // running simultaniously. |forward| indicates whether to search forward or
+  // backward within the page. |matchCase| indicates whether the search should
+  // be case-sensitive. |findNext| indicates whether this is the first request
+  // or a follow-up.
+  void (CEF_CALLBACK *find)(struct _cef_browser_t* self, int identifier,
+      const wchar_t* searchText, int forward, int matchCase, int findNext);
+
+  // Cancel all searches that are currently going on.
+  void (CEF_CALLBACK *stop_finding)(struct _cef_browser_t* self,
+      int clearSelection);
+
 } cef_browser_t;
 
 
@@ -494,6 +506,18 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_console_message)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       const wchar_t* message, const wchar_t* source, int line);
+
+  // Called to report find results returned by cef_browser_t::find().
+  // |identifer| is the identifier passed to cef_browser_t::find(), |count| is
+  // the number of matches currently identified, |selectionRect| is the location
+  // of where the match was found (in window coordinates), |activeMatchOrdinal|
+  // is the current position in the search results, and |finalUpdate| is true
+  // (1) if this is the last find notification.  The return value is currently
+  // ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_find_result)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      int identifier, int count, const cef_rect_t* selectionRect,
+      int activeMatchOrdinal, int finalUpdate);
 
 } cef_handler_t;
 

@@ -242,6 +242,50 @@ protected:
 };
 
 
+// Class representing a rectangle.
+class CefRect : public cef_rect_t
+{
+public:
+  CefRect()
+  {
+    x = y = width = height = 0;
+  }
+  CefRect(int x, int y, int width, int height)
+  {
+    set(x, y, width, height);
+  }
+
+  CefRect(const cef_rect_t& r)
+  {
+    set(r.x, r.y, r.width, r.height);
+  }
+  CefRect& operator=(const cef_rect_t& r)
+  {
+      x = r.x;
+      y = r.y;
+      width = r.width;
+      height = r.height;
+      return *this;
+  }
+
+  bool isEmpty() const { return width <= 0 || height <= 0; }
+  void set(int x, int y, int width, int height)
+  {
+    this->x = x, this->y = y, this->width = width, this->height = height;
+  }
+};
+
+inline bool operator==(const CefRect& a, const CefRect& b)
+{
+  return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
+}
+
+inline bool operator!=(const CefRect& a, const CefRect& b)
+{
+  return !(a == b);
+}
+
+
 // Class used to represent a browser window.  All methods exposed by this class
 // should be thread safe.
 /*--cef(source=library)--*/
@@ -319,6 +363,19 @@ public:
   // Returns the names of all existing frames.
   /*--cef()--*/
   virtual void GetFrameNames(std::vector<std::wstring>& names) =0;
+
+  // Search for |searchText|. |identifier| can be used to have multiple searches
+  // running simultaniously. |forward| indicates whether to search forward or
+  // backward within the page. |matchCase| indicates whether the search should
+  // be case-sensitive. |findNext| indicates whether this is the first request
+  // or a follow-up.
+  /*--cef()--*/
+  virtual void Find(int identifier, const std::wstring& searchText,
+                    bool forward, bool matchCase, bool findNext) =0;
+
+  // Cancel all searches that are currently going on.
+  /*--cef()--*/
+  virtual void StopFinding(bool clearSelection) =0;
 };
 
 
@@ -637,6 +694,18 @@ public:
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
                                       const std::wstring& message,
                                       const std::wstring& source, int line) =0;
+
+  // Called to report find results returned by CefBrowser::Find(). |identifer|
+  // is the identifier passed to CefBrowser::Find(), |count| is the number of
+  // matches currently identified, |selectionRect| is the location of where the
+  // match was found (in window coordinates), |activeMatchOrdinal| is the
+  // current position in the search results, and |finalUpdate| is true if this
+  // is the last find notification.  The return value is currently ignored.
+  /*--cef()--*/
+  virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser,
+                                  int identifier, int count,
+                                  const CefRect& selectionRect,
+                                  int activeMatchOrdinal, bool finalUpdate) =0;
 };
 
 

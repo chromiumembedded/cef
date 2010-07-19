@@ -359,6 +359,18 @@ CefHandler::RetVal CefHandlerCToCpp::HandleConsoleMessage(
       CefBrowserCppToC::Wrap(browser), message.c_str(), source.c_str(), line);
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleFindResult(
+    CefRefPtr<CefBrowser> browser, int identifier, int count,
+    const CefRect& selectionRect, int activeMatchOrdinal, bool finalUpdate)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_find_result))
+    return RV_CONTINUE;
+
+  return struct_->handle_find_result(struct_,
+      CefBrowserCppToC::Wrap(browser), identifier, count, &selectionRect,
+      activeMatchOrdinal, finalUpdate);
+}
+
 
 #ifdef _DEBUG
 long CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>::DebugObjCt = 0;
