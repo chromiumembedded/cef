@@ -57,6 +57,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didAddMessageToConsole(
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line);
+  virtual void printPage(WebKit::WebFrame* frame);
   virtual void didStartLoading();
   virtual void didStopLoading();
   virtual bool shouldBeginEditing(const WebKit::WebRange& range);

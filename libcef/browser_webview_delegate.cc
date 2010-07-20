@@ -185,6 +185,12 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
   }
 }
 
+void BrowserWebViewDelegate::printPage(WebFrame* frame) {
+  if(frame == NULL)
+    frame = browser_->GetWebView()->mainFrame();
+  browser_->UIT_PrintPages(frame);
+}
+
 void BrowserWebViewDelegate::didStartLoading() {
   // clear the title so we can tell if it wasn't provided by the page
   browser_->UIT_SetTitle(std::wstring());

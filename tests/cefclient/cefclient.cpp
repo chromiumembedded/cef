@@ -920,6 +920,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             ::SetFocus(hFindDlg);
           }
           return 0;
+        case ID_PRINT:
+          if(browser.get())
+            browser->GetMainFrame()->Print();
+          return 0;
         case IDC_NAV_BACK:  // Back button
           if(browser.get())
             browser->GoBack();

@@ -51,9 +51,11 @@ IDC_CEFCLIENT MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "E&xit",                       IDM_EXIT
-        MENUITEM SEPARATOR
         MENUITEM "&Find...",                    ID_FIND
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...",                   ID_PRINT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_EXIT
     END
     POPUP "&Help"
     BEGIN
