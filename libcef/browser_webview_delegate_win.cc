@@ -12,7 +12,7 @@
 #include "browser_drop_delegate.h"
 #include "browser_navigation_controller.h"
 #include "browser_impl.h"
-#include "context.h"
+#include "cef_context.h"
 
 #include <objidl.h>
 #include <shlobj.h>

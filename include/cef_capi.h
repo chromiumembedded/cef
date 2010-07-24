@@ -133,6 +133,24 @@ CEF_EXPORT int cef_register_extension(const wchar_t* extension_name,
 CEF_EXPORT int cef_register_scheme(const wchar_t* scheme_name,
     const wchar_t* host_name, struct _cef_scheme_handler_factory_t* factory);
 
+// CEF maintains multiple internal threads that are used for handling different
+// types of tasks. The UI thread creates the browser window and is used for all
+// interaction with the WebKit rendering engine and V8 JavaScript engine (The UI
+// thread will be the same as the main application thread if cef_initialize()
+// was called with a |multi_threaded_message_loop| value of false (0).) The IO
+// thread is used for handling schema and network requests. The FILE thread is
+// used for the application cache and other miscellaneous activities. This
+// function will return true (1) if called on the specified thread.
+CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId);
+
+// Post a task for execution on the specified thread.
+CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task);
+
+// Post a task for delayed execution on the specified thread.
+CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task, long delay_ms);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.
@@ -155,6 +173,19 @@ typedef struct _cef_base_t
   ((int)&((s)->f) - (int)(s) + sizeof((s)->f) <= (s)->base.size)
 
 #define CEF_MEMBER_MISSING(s, f)  (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
+
+
+// Implement this structure for task execution.
+typedef struct _cef_task_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Method that will be executed. |threadId| is the thread executing the call.
+  void (CEF_CALLBACK *execute)(struct _cef_task_t* self,
+      cef_thread_id_t threadId);
+
+} cef_task_t;
 
 
 // Structure used to represent a browser window.  All functions exposed by this

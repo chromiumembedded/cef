@@ -7,11 +7,11 @@
 #define _BROWSER_IMPL_H
 
 #include "include/cef.h"
-#include "context.h"
 
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 #include "browser_navigation_controller.h"
+#include "cef_thread.h"
 #if defined(OS_WIN)
 #include "printing/win_printing_context.h"
 #endif

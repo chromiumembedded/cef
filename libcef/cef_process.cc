@@ -1,0 +1,134 @@
+// Copyright (c) 2010 The Chromium Embedded Framework Authors.
+// Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "cef_process.h"
+#include "cef_process_io_thread.h"
+#include "cef_process_sub_thread.h"
+#include "cef_process_ui_thread.h"
+
+#include "base/thread.h"
+#include "base/waitable_event.h"
+
+CefProcess* g_cef_process = NULL;
+
+// Class used to process events on the current message loop.
+class CefMessageLoopForUI : public MessageLoopForUI
+{
+  typedef MessageLoopForUI inherited;
+
+public:
+  CefMessageLoopForUI()
+  {
+  }
+
+  // Returns the MessageLoopForUI of the current thread.
+  static CefMessageLoopForUI* current() {
+    MessageLoop* loop = MessageLoop::current();
+    DCHECK_EQ(MessageLoop::TYPE_UI, loop->type());
+    return static_cast<CefMessageLoopForUI*>(loop);
+  }
+
+  virtual bool DoIdleWork() {
+    bool valueToRet = inherited::DoIdleWork();
+    pump_->Quit();
+    return valueToRet;
+  }
+
+  void DoMessageLoopIteration() {
+    Run(NULL);
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefMessageLoopForUI);
+};
+
+CefProcess::CefProcess(bool multi_threaded_message_loop)
+    : multi_threaded_message_loop_(multi_threaded_message_loop),
+      created_ui_thread_(false),
+      created_io_thread_(false),
+      created_file_thread_(false) {
+  g_cef_process = this;
+}
+
+CefProcess::~CefProcess() {
+  // Terminate the IO thread.
+  io_thread_.reset();
+
+  // Terminate the FILE thread.
+  file_thread_.reset();
+
+  if(!multi_threaded_message_loop_) {
+    // Must explicitly clean up the UI thread.
+    ui_thread_->CleanUp();
+
+    // Terminate the UI thread.
+    ui_thread_.reset();
+
+    // Terminate the message loop.
+    ui_message_loop_.reset();
+  }
+
+  g_cef_process = NULL;
+}
+
+void CefProcess::DoMessageLoopIteration() {
+  DCHECK(CalledOnValidThread() && ui_message_loop_.get() != NULL);
+  ui_message_loop_->DoMessageLoopIteration();
+}
+
+void CefProcess::CreateUIThread() {
+  DCHECK(!created_ui_thread_ && ui_thread_.get() == NULL);
+  created_ui_thread_ = true;
+
+  scoped_ptr<CefProcessUIThread> thread;
+  if(multi_threaded_message_loop_) {
+    // Create the message loop on a new thread.
+    thread.reset(new CefProcessUIThread());
+    base::Thread::Options options;
+    options.message_loop_type = MessageLoop::TYPE_UI;
+    if (!thread->StartWithOptions(options))
+      return;
+  } else {
+    // Create the message loop on the current (main application) thread.
+    ui_message_loop_.reset(new CefMessageLoopForUI());
+    thread.reset(
+        new CefProcessUIThread(ui_message_loop_.get()));
+
+    // Must explicitly initialize the UI thread.
+    thread->Init();
+  }
+
+  ui_thread_.swap(thread);
+}
+
+void CefProcess::CreateIOThread() {
+  DCHECK(!created_io_thread_ && io_thread_.get() == NULL);
+  created_io_thread_ = true;
+
+  scoped_ptr<CefProcessIOThread> thread(new CefProcessIOThread());
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  if (!thread->StartWithOptions(options))
+    return;
+  io_thread_.swap(thread);
+}
+
+void CefProcess::CreateFileThread() {
+  DCHECK(!created_file_thread_ && file_thread_.get() == NULL);
+  created_file_thread_ = true;
+
+  scoped_ptr<base::Thread> thread(new CefProcessSubThread(CefThread::FILE));
+  base::Thread::Options options;
+#if defined(OS_WIN)
+  // On Windows, the FILE thread needs to be have a UI message loop which pumps
+  // messages in such a way that Google Update can communicate back to us.
+  options.message_loop_type = MessageLoop::TYPE_UI;
+#else
+  options.message_loop_type = MessageLoop::TYPE_IO;
+#endif
+  if (!thread->StartWithOptions(options))
+    return;
+  file_thread_.swap(thread);
+}

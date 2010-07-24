@@ -36,6 +36,9 @@
 #include "browser_request_context.h"
 #include "browser_socket_stream_bridge.h"
 #include "browser_impl.h"
+#include "cef_context.h"
+#include "cef_process.h"
+#include "cef_process_io_thread.h"
 #include "request_impl.h"
 
 #include "base/file_path.h"
@@ -72,80 +75,6 @@ using net::StaticCookiePolicy;
 
 
 namespace {
-
-struct BrowserRequestContextParams {
-  BrowserRequestContextParams(
-      const FilePath& in_cache_path,
-      net::HttpCache::Mode in_cache_mode,
-      bool in_no_proxy)
-      : cache_path(in_cache_path),
-        cache_mode(in_cache_mode),
-        no_proxy(in_no_proxy),
-        accept_all_cookies(false) {}
-
-  FilePath cache_path;
-  net::HttpCache::Mode cache_mode;
-  bool no_proxy;
-  bool accept_all_cookies;
-};
-
-BrowserRequestContextParams* g_request_context_params = NULL;
-URLRequestContext* g_request_context = NULL;
-base::Thread* g_cache_thread = NULL;
-
-//-----------------------------------------------------------------------------
-
-class IOThread : public base::Thread {
- public:
-  IOThread() : base::Thread("IOThread") {
-  }
-
-  ~IOThread() {
-    // We cannot rely on our base class to stop the thread since we want our
-    // CleanUp function to run.
-    Stop();
-  }
-
-  virtual void Init() {
-    if (g_request_context_params) {
-      g_request_context = new  BrowserRequestContext(
-          g_request_context_params->cache_path,
-          g_request_context_params->cache_mode,
-          g_request_context_params->no_proxy);
-      SetAcceptAllCookies(g_request_context_params->accept_all_cookies);
-      delete g_request_context_params;
-      g_request_context_params = NULL;
-    } else {
-      g_request_context = new  BrowserRequestContext();
-      SetAcceptAllCookies(false);
-    }
-
-    g_request_context->AddRef();
-
-    BrowserAppCacheSystem::InitializeOnIOThread(g_request_context);
-    BrowserSocketStreamBridge::InitializeOnIOThread(g_request_context);
-  }
-
-  virtual void CleanUp() {
-    BrowserSocketStreamBridge::Cleanup();
-    if (g_request_context) {
-      g_request_context->Release();
-      g_request_context = NULL;
-    }
-  }
-
-  void SetAcceptAllCookies(bool accept_all_cookies) {
-    StaticCookiePolicy::Type policy_type = accept_all_cookies ?
-        StaticCookiePolicy::ALLOW_ALL_COOKIES :
-        StaticCookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
-    static_cast<StaticCookiePolicy*>(g_request_context->cookie_policy())->
-        set_type(policy_type);
-  }
-};
-
-IOThread* g_io_thread = NULL;
-
-//-----------------------------------------------------------------------------
 
 struct RequestParams {
   std::string method;
@@ -185,13 +114,13 @@ class RequestProxy : public URLRequest::Delegate,
     owner_loop_ = MessageLoop::current();
 
     // proxy over to the io thread
-    g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncStart, params));
   }
 
   void Cancel() {
     // proxy over to the io thread
-    g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncCancel));
   }
 
@@ -200,8 +129,7 @@ class RequestProxy : public URLRequest::Delegate,
 
   virtual ~RequestProxy() {
     // If we have a request, then we'd better be on the io thread!
-    DCHECK(!request_.get() ||
-           MessageLoop::current() == g_io_thread->message_loop());
+    DCHECK(!request_.get() || CefThread::CurrentlyOn(CefThread::IO));
   }
 
   // --------------------------------------------------------------------------
@@ -216,7 +144,7 @@ class RequestProxy : public URLRequest::Delegate,
     if (peer_ && peer_->OnReceivedRedirect(new_url, info,
                                            &has_new_first_party_for_cookies,
                                            &new_first_party_for_cookies)) {
-      g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
           this, &RequestProxy::AsyncFollowDeferredRedirect,
           has_new_first_party_for_cookies, new_first_party_for_cookies));
     } else {
@@ -245,7 +173,7 @@ class RequestProxy : public URLRequest::Delegate,
     // peer could generate new requests in reponse to the received data, which
     // when run on the io thread, could race against this function in doing
     // another InvokeLater.  See bug 769249.
-    g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncReadData));
 
     peer_->OnReceivedData(buf_copy.get(), bytes_read);
@@ -349,7 +277,7 @@ class RequestProxy : public URLRequest::Delegate,
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
-      request_->set_context(g_request_context);
+      request_->set_context(_Context->request_context());
       BrowserAppCacheSystem::SetExtraRequestInfo(
           request_.get(), params->appcache_host_id, params->request_type);
 
@@ -657,7 +585,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     if (proxy_) {
       proxy_->DropPeer();
       // Let the proxy die on the IO thread
-      g_io_thread->message_loop()->ReleaseSoon(FROM_HERE, proxy_);
+      CefThread::ReleaseSoon(CefThread::IO, FROM_HERE, proxy_);
     }
   }
 
@@ -693,9 +621,6 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   virtual bool Start(Peer* peer) {
     DCHECK(!proxy_);
 
-    if (!BrowserResourceLoaderBridge::EnsureIOThread())
-      return false;
-
     proxy_ = new RequestProxy(browser_);
     proxy_->AddRef();
 
@@ -715,9 +640,6 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 
   virtual void SyncLoad(SyncLoadResponse* response) {
     DCHECK(!proxy_);
-
-    if (!BrowserResourceLoaderBridge::EnsureIOThread())
-      return;
 
     // this may change as the result of a redirect
     response->url = params_->url;
@@ -746,8 +668,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
  public:
   void Set(const GURL& url, const std::string& cookie) {
-    DCHECK(MessageLoop::current() == g_io_thread->message_loop());
-    g_request_context->cookie_store()->SetCookie(url, cookie);
+    REQUIRE_IOT();
+    _Context->request_context()->cookie_store()->SetCookie(url, cookie);
   }
 
  private:
@@ -762,7 +684,7 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
   void Get(const GURL& url) {
-    result_ = g_request_context->cookie_store()->GetCookies(url);
+    result_ = _Context->request_context()->cookie_store()->GetCookies(url);
     event_.Signal();
   }
 
@@ -798,11 +720,12 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
 // Issue the proxy resolve request on the io thread, and wait 
 // for the result.
 bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
-  DCHECK(g_request_context);
+  DCHECK(_Context->request_context());
 
   scoped_refptr<net::SyncProxyServiceHelper> sync_proxy_service(
-      new net::SyncProxyServiceHelper(g_io_thread->message_loop(),
-      g_request_context->proxy_service()));
+      new net::SyncProxyServiceHelper(
+      _Context->process()->io_thread()->message_loop(),
+      _Context->request_context()->proxy_service()));
 
   net::ProxyInfo proxy_info;
   int rv = sync_proxy_service->ResolveProxy(url, &proxy_info,
@@ -819,52 +742,13 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
 //-----------------------------------------------------------------------------
 
 // static
-void BrowserResourceLoaderBridge::Init(
-    const FilePath& cache_path,
-    net::HttpCache::Mode cache_mode,
-    bool no_proxy) {
-  // Make sure to stop any existing IO thread since it may be using the
-  // current request context.
-  Shutdown();
-
-  DCHECK(!g_request_context_params);
-  DCHECK(!g_request_context);
-  DCHECK(!g_io_thread);
-
-  g_request_context_params = new BrowserRequestContextParams(
-      cache_path, cache_mode, no_proxy);
-}
-
-// static
-void BrowserResourceLoaderBridge::Shutdown() {
-  if (g_io_thread) {
-    delete g_io_thread;
-    g_io_thread = NULL;
-
-    DCHECK(g_cache_thread);
-    delete g_cache_thread;
-    g_cache_thread = NULL;
-
-    DCHECK(!g_request_context) << "should have been nulled by thread dtor";
-  } else {
-    delete g_request_context_params;
-    g_request_context_params = NULL;
-  }
-}
-
-// static
 void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
                                            const GURL& first_party_for_cookies,
                                            const std::string& cookie) {
   // Proxy to IO thread to synchronize w/ network loading.
 
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return;
-  }
-
   scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
-  g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
       cookie_setter.get(), &CookieSetter::Set, url, cookie));
 }
 
@@ -873,61 +757,24 @@ std::string BrowserResourceLoaderBridge::GetCookies(
     const GURL& url, const GURL& first_party_for_cookies) {
   // Proxy to IO thread to synchronize w/ network loading
 
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return std::string();
-  }
-
   scoped_refptr<CookieGetter> getter = new CookieGetter();
 
-  g_io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
       getter.get(), &CookieGetter::Get, url));
 
   return getter->GetResult();
 }
 
 // static
-bool BrowserResourceLoaderBridge::EnsureIOThread() {
-  if (g_io_thread)
-    return true;
-
-#if defined(OS_WIN)
-  // Use NSS for SSL on Windows.  TODO(wtc): this should eventually be hidden
-  // inside DefaultClientSocketFactory::CreateSSLClientSocket.
-  net::ClientSocketFactory::SetSSLClientSocketFactory(
-      net::SSLClientSocketNSSFactory);
-#endif
-#if defined(OS_MACOSX) || defined(OS_WIN)
-  // We want to be sure to init NSPR on the main thread.
-  base::EnsureNSPRInit();
-#endif
-
-  // Create the cache thread. We want the cache thread to outlive the IO thread,
-  // so its lifetime is bonded to the IO thread lifetime.
-  DCHECK(!g_cache_thread);
-  g_cache_thread = new base::Thread("cache");
-  CHECK(g_cache_thread->StartWithOptions(
-      base::Thread::Options(MessageLoop::TYPE_IO, 0)));
-
-  g_io_thread = new IOThread();
-  base::Thread::Options options;
-  options.message_loop_type = MessageLoop::TYPE_IO;
-  return g_io_thread->StartWithOptions(options);
-}
-
-// static
 void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
-  if (g_request_context_params) {
-    g_request_context_params->accept_all_cookies = accept_all_cookies;
-    DCHECK(!g_request_context);
-    DCHECK(!g_io_thread);
-  } else {
-    g_io_thread->SetAcceptAllCookies(accept_all_cookies);
-  }
+  // Proxy to IO thread to synchronize w/ network loading
+  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
+      _Context->request_context().get(),
+      &BrowserRequestContext::SetAcceptAllCookies, accept_all_cookies));
 }
 
-// static
+//static
 scoped_refptr<base::MessageLoopProxy>
     BrowserResourceLoaderBridge::GetCacheThread() {
-  return g_cache_thread->message_loop_proxy();
+  return CefThread::GetMessageLoopProxyForThread(CefThread::FILE);
 }

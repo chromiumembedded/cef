@@ -10,6 +10,7 @@
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -110,4 +111,21 @@ bool CefRegisterScheme(const std::wstring& scheme_name,
 {
   return cef_register_scheme(scheme_name.c_str(), host_name.c_str(),
       CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
+}
+
+bool CefCurrentlyOn(CefThreadId threadId)
+{
+  return cef_currently_on(threadId)?true:false;
+}
+
+bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
+{
+  return cef_post_task(threadId, CefTaskCppToC::Wrap(task))?true:false;
+}
+
+bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
+                        long delay_ms)
+{
+  return cef_post_delayed_task(threadId, CefTaskCppToC::Wrap(task), delay_ms)?
+      true:false;
 }

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "context.h"
+#include "cef_context.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "request_impl.h"
@@ -54,39 +54,38 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
 
 void CefBrowserImpl::GoBack()
 {
-  PostTask(FROM_HERE, NewRunnableMethod(this,
-    &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_BACK));
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_BACK));
 }
 
 void CefBrowserImpl::GoForward()
 {
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_FORWARD));
 }
 
 void CefBrowserImpl::Reload()
 {
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD));
 }
 
 void CefBrowserImpl::StopLoad()
 {
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_STOP));
 }
 
 void CefBrowserImpl::SetFocus(bool enable)
 {
-  if (_Context->RunningOnUIThread())
+  if (CefThread::CurrentlyOn(CefThread::UI))
   {
     UIT_SetFocus(GetWebViewHost(), enable);
   }
   else
   {
-    PostTask(FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SetFocus,
-      GetWebViewHost(), enable));
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::UIT_SetFocus, GetWebViewHost(), enable));
   }
 }
 
@@ -142,14 +141,14 @@ void CefBrowserImpl::Find(int identifier, const std::wstring& searchText,
   options.findNext = findNext;
 
   // Execute the request on the UI thread.
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_Find, identifier, searchText, options));
 }
 
 void CefBrowserImpl::StopFinding(bool clearSelection)
 {
   // Execute the request on the UI thread.
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_StopFinding, clearSelection));
 }
 
@@ -209,49 +208,49 @@ WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_UNDO, frame.get()));
 }
 
 void CefBrowserImpl::Redo(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_REDO, frame.get()));
 }
 
 void CefBrowserImpl::Cut(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_CUT, frame.get()));
 }
 
 void CefBrowserImpl::Copy(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_COPY, frame.get()));
 }
 
 void CefBrowserImpl::Paste(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_PASTE, frame.get()));
 }
 
 void CefBrowserImpl::Delete(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_DELETE, frame.get()));
 }
 
 void CefBrowserImpl::SelectAll(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_SELECTALL, frame.get()));
 }
 
@@ -259,14 +258,14 @@ void CefBrowserImpl::SelectAll(CefRefPtr<CefFrame> frame)
 void CefBrowserImpl::Print(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_PRINT, frame.get()));
 }
 
 void CefBrowserImpl::ViewSource(CefRefPtr<CefFrame> frame)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_VIEWSOURCE, frame.get()));
 }
 
@@ -276,7 +275,7 @@ void CefBrowserImpl::LoadRequest(CefRefPtr<CefFrame> frame,
   DCHECK(request.get() != NULL);
   frame->AddRef();
   request->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_LoadURLForRequestRef, frame.get(), request.get()));
 }
 
@@ -284,7 +283,7 @@ void CefBrowserImpl::LoadURL(CefRefPtr<CefFrame> frame,
                              const std::wstring& url)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_LoadURL, frame.get(), url));
 }
 
@@ -293,7 +292,7 @@ void CefBrowserImpl::LoadString(CefRefPtr<CefFrame> frame,
                                 const std::wstring& url)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_LoadHTML, frame.get(), string, url));
 }
 
@@ -304,7 +303,7 @@ void CefBrowserImpl::LoadStream(CefRefPtr<CefFrame> frame,
   DCHECK(stream.get() != NULL);
   frame->AddRef();
   stream->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_LoadHTMLForStreamRef, frame.get(), stream.get(),
       url));
 }
@@ -315,7 +314,7 @@ void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
                                        int startLine)
 {
   frame->AddRef();
-  PostTask(FROM_HERE, NewRunnableMethod(this,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_ExecuteJavaScript, frame.get(), jsCode, scriptUrl,
       startLine));
 }
@@ -351,7 +350,7 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
 
   CefRefPtr<CefBrowserImpl> browser(
       new CefBrowserImpl(windowInfo, popup, handler));
-  PostTask(FROM_HERE, NewRunnableMethod(browser.get(),
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(browser.get(),
       &CefBrowserImpl::UIT_CreateBrowser, newUrl));
   return true;
 }
@@ -361,7 +360,7 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
                                                     CefRefPtr<CefHandler> handler,
                                                     const std::wstring& url)
 {
-  if(!_Context.get() || !_Context->RunningOnUIThread())
+  if(!_Context.get() || !CefThread::CurrentlyOn(CefThread::UI))
     return NULL;
 
   std::wstring newUrl = url;

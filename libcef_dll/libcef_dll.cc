@@ -18,6 +18,7 @@
 #include "ctocpp/read_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_factory_ctocpp.h"
+#include "ctocpp/task_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
 #include "ctocpp/write_handler_ctocpp.h"
 #include "base/string_util.h"
@@ -132,4 +133,29 @@ CEF_EXPORT int cef_register_scheme(const wchar_t* scheme_name,
 
   return CefRegisterScheme(nameStr, codeStr,
       CefSchemeHandlerFactoryCToCpp::Wrap(factory));
+}
+
+CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId)
+{
+  return CefCurrentlyOn(threadId);
+}
+
+CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task)
+{
+  DCHECK(task);
+  if(!task)
+    return 0;
+
+  return CefPostTask(threadId, CefTaskCToCpp::Wrap(task));
+}
+
+CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task, long delay_ms)
+{
+  DCHECK(task);
+  if(!task)
+    return 0;
+
+  return CefPostDelayedTask(threadId, CefTaskCToCpp::Wrap(task), delay_ms);
 }

@@ -7,7 +7,6 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/utf_string_conversions.h"
-#include "base/worker_pool.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
@@ -19,7 +18,7 @@
 
 #include "include/cef.h"
 #include "tracker.h"
-#include "context.h"
+#include "cef_context.h"
 #include "request_impl.h"
 
 #include <map>
@@ -68,8 +67,8 @@ public:
     // Continue asynchronously.
     DCHECK(!async_resolver_);
     async_resolver_ = new AsyncResolver(this);
-    WorkerPool::PostTask(FROM_HERE, NewRunnableMethod(
-        async_resolver_.get(), &AsyncResolver::Resolve, url_), true);
+    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
+        async_resolver_.get(), &AsyncResolver::Resolve, url_));
     return;
   }
 
@@ -411,7 +410,7 @@ bool CefRegisterScheme(const std::wstring& scheme_name,
       new SchemeRequestJobWrapper(WideToUTF8(scheme_name),
           WideToUTF8(host_name), factory));
 
-  PostTask(FROM_HERE, NewRunnableMethod(wrapper.get(),
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper.get(),
       &SchemeRequestJobWrapper::RegisterScheme));
 
   return true;

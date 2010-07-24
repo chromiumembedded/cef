@@ -11,7 +11,7 @@
 #include "browser_appcache_system.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
-#include "context.h"
+#include "cef_context.h"
 #include "request_impl.h"
 #include "v8_impl.h"
 
@@ -126,13 +126,13 @@ int next_page_id_ = 1;
 // WebViewDelegate -----------------------------------------------------------
 
 void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
-  WebPreferences* prefs = _Context->GetWebPreferences();
+  WebPreferences* prefs = _Context->web_preferences();
   prefs->user_style_sheet_enabled = is_enabled;
   prefs->Apply(browser_->GetWebView());
 }
 
 void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
-  WebPreferences* prefs = _Context->GetWebPreferences();
+  WebPreferences* prefs = _Context->web_preferences();
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
   prefs->Apply(browser_->GetWebView());

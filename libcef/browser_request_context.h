@@ -16,6 +16,7 @@ class BrowserRequestContext : public URLRequestContext {
  public:
   // Use an in-memory cache
   BrowserRequestContext();
+  ~BrowserRequestContext();
 
   // Use an on-disk cache at the specified location.  Optionally, use the cache
   // in playback or record mode.
@@ -25,9 +26,9 @@ class BrowserRequestContext : public URLRequestContext {
 
   virtual const std::string& GetUserAgent(const GURL& url) const;
 
- private:
-  ~BrowserRequestContext();
+  void SetAcceptAllCookies(bool accept_all_cookies);
 
+ private:
   void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
 };

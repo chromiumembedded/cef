@@ -229,6 +229,14 @@ typedef struct _cef_rect_t
   int height;
 } cef_rect_t;
 
+// Existing thread IDs.
+enum cef_thread_id_t
+{
+  TID_UI      = 0,
+  TID_IO      = 1,
+  TID_FILE    = 2,
+};
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "v8_impl.h"
-#include "context.h"
+#include "cef_context.h"
 #include "tracker.h"
 #include "base/lazy_instance.h"
 #include "base/utf_string_conversions.h"
@@ -156,7 +156,7 @@ bool CefRegisterExtension(const std::wstring& extension_name,
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
       code->GetString(), handler.get());
   
-  PostTask(FROM_HERE, NewRunnableMethod(wrapper,
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper,
       &ExtensionWrapper::UIT_RegisterExtension));
   return true;
 }

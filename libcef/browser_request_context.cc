@@ -73,6 +73,13 @@ BrowserRequestContext::~BrowserRequestContext() {
   delete static_cast<net::StaticCookiePolicy*>(cookie_policy_);
 }
 
+void BrowserRequestContext::SetAcceptAllCookies(bool accept_all_cookies) {
+  net::StaticCookiePolicy::Type policy_type = accept_all_cookies ?
+      net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
+      net::StaticCookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
+  static_cast<net::StaticCookiePolicy*>(cookie_policy())->set_type(policy_type);
+}
+
 const std::string& BrowserRequestContext::GetUserAgent(
     const GURL& url) const {
   return webkit_glue::GetUserAgent(url);

@@ -408,9 +408,6 @@ WebApplicationCacheHost* BrowserAppCacheSystem::CreateCacheHostForWebKit(
 
   DCHECK(is_ui_thread());
 
-  // The IO thread needs to be running for this system to work.
-  BrowserResourceLoaderBridge::EnsureIOThread();
-
   if (!is_initialized())
     return NULL;
   return new WebApplicationCacheHostImpl(client, backend_proxy_.get());

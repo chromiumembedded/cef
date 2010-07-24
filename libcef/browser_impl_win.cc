@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "context.h"
+#include "cef_context.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "stream_impl.h"
@@ -111,7 +111,7 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
 
 std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
 {
-  if(!_Context->RunningOnUIThread())
+  if(!CefThread::CurrentlyOn(CefThread::UI))
   {
     // We need to send the request to the UI thread and wait for the result
 
@@ -125,7 +125,7 @@ std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
     // Request the data from the UI thread
     frame->AddRef();
     stream->AddRef();
-    PostTask(FROM_HERE, NewRunnableMethod(this,
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
         &CefBrowserImpl::UIT_GetDocumentStringNotify, frame.get(), stream.get(),
         hEvent));
 
@@ -150,7 +150,7 @@ std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
 
 std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
 {
-  if(!_Context->RunningOnUIThread())
+  if(!CefThread::CurrentlyOn(CefThread::UI))
   {
     // We need to send the request to the UI thread and wait for the result
 
@@ -164,7 +164,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
     // Request the data from the UI thread
     frame->AddRef();
     stream->AddRef();
-    PostTask(FROM_HERE, NewRunnableMethod(this,
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
         &CefBrowserImpl::UIT_GetDocumentTextNotify, frame.get(), stream.get(),
         hEvent));
 
@@ -187,7 +187,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
 
 bool CefBrowserImpl::CanGoBack()
 {
-  if(!_Context->RunningOnUIThread())
+  if(!CefThread::CurrentlyOn(CefThread::UI))
   {
     // We need to send the request to the UI thread and wait for the result
 
@@ -199,7 +199,7 @@ bool CefBrowserImpl::CanGoBack()
     bool retVal = true;
 
     // Request the data from the UI thread
-    PostTask(FROM_HERE, NewRunnableMethod(this,
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
         &CefBrowserImpl::UIT_CanGoBackNotify, &retVal, hEvent));
 
     // Wait for the UI thread callback to tell us that the data is available
@@ -217,7 +217,7 @@ bool CefBrowserImpl::CanGoBack()
 
 bool CefBrowserImpl::CanGoForward()
 {
-  if(!_Context->RunningOnUIThread())
+  if(!CefThread::CurrentlyOn(CefThread::UI))
   {
     // We need to send the request to the UI thread and wait for the result
 
@@ -229,7 +229,7 @@ bool CefBrowserImpl::CanGoForward()
     bool retVal = true;
 
     // Request the data from the UI thread
-    PostTask(FROM_HERE, NewRunnableMethod(this,
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
         &CefBrowserImpl::UIT_CanGoForwardNotify, &retVal, hEvent));
 
     // Wait for the UI thread callback to tell us that the data is available
@@ -254,7 +254,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
       window_info_.m_windowName, window_info_.m_dwStyle,
       window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
       window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
-      _Context->GetInstanceHandle(), NULL);
+      ::GetModuleHandle(NULL), NULL);
   DCHECK(window_info_.m_hWnd != NULL);
 
   // Set window user data to this object for future reference from the window
@@ -269,7 +269,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, delegate_.get(),
-      *_Context->GetWebPreferences()));
+      *_Context->web_preferences()));
   delegate_->RegisterDragDrop();
     
   // Size the web view window to the browser window

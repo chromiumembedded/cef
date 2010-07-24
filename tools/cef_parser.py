@@ -1072,6 +1072,7 @@ class obj_analysis:
             'bool' : 'int',
             'CefWindowHandle' : 'cef_window_handle_t',
             'CefRect' : 'cef_rect_t',
+            'CefThreadId' : 'cef_thread_id_t',
         }
         if value in simpletypes.keys():
             return {

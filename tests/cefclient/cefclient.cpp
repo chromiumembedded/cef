@@ -9,7 +9,6 @@
 #include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
-#include "thread_util.h"
 #include "uiplugin_test.h"
 #include <sstream>
 #include <commdlg.h>
@@ -376,12 +375,12 @@ public:
             new ClientReadHandler(pBytes, dwSize));
         mimeType = L"text/html";
       }
-    } else if(wcsstr(url.c_str(), L"/logo.gif") != NULL) {
+    } else if(wcsstr(url.c_str(), L"/logo1w.png") != NULL) {
       // Any time we find "logo.gif" in the URL substitute in our own image
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
             new ClientReadHandler(pBytes, dwSize));
-        mimeType = L"image/jpg";
+        mimeType = L"image/png";
       }
     } else if(wcsstr(url.c_str(), L"/logoball.png") != NULL) {
       // Load the "logoball.png" image resource.
@@ -563,7 +562,7 @@ public:
       fclose(file);
 
       if(first_message) {
-        // Show the message box on the UI thread.
+        // Show the message box on the main application thread.
         PostMessage(m_MainHwnd, WM_COMMAND, ID_WARN_CONSOLEMESSAGE, 0);
       }
     }
@@ -945,23 +944,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
             RunGetSourceTest(browser->GetMainFrame());
 #else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-            // Execute the GetSource() call on a new worker thread to avoid
-            // blocking the UI thread when using a multi-threaded message loop
+            // Execute the GetSource() call on the FILE thread to avoid blocking
+            // the UI thread when using a multi-threaded message loop
             // (issue #79).
-            class ExecHandler : public Thread::Handler
+            class ExecTask : public CefThreadSafeBase<CefTask>
             {
             public:
-              ExecHandler(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-              virtual DWORD Run()
+              ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+              virtual void Execute(CefThreadId threadId)
               {
                 RunGetSourceTest(m_Frame);
-                return 0;
               }
-              virtual void Destroy() { delete this; }
             private:
               CefRefPtr<CefFrame> m_Frame;
             };
-            Thread::Execute(new ExecHandler(browser->GetMainFrame()));
+            CefPostTask(TID_FILE, new ExecTask(browser->GetMainFrame()));
 #endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
           }
           return 0;
@@ -970,23 +967,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
             RunGetTextTest(browser->GetMainFrame());
 #else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-            // Execute the GetText() call on a new worker thread to avoid
-            // blocking the UI thread when using a multi-threaded message loop
+            // Execute the GetText() call on the FILE thread to avoid blocking
+            // the UI thread when using a multi-threaded message loop
             // (issue #79).
-            class ExecHandler : public Thread::Handler
+            class ExecTask : public CefThreadSafeBase<CefTask>
             {
             public:
-              ExecHandler(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-              virtual DWORD Run()
+              ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+              virtual void Execute(CefThreadId threadId)
               {
                 RunGetTextTest(m_Frame);
-                return 0;
               }
-              virtual void Destroy() { delete this; }
             private:
               CefRefPtr<CefFrame> m_Frame;
             };
-            Thread::Execute(new ExecHandler(browser->GetMainFrame()));
+            CefPostTask(TID_FILE, new ExecTask(browser->GetMainFrame()));
 #endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
           }
           return 0;

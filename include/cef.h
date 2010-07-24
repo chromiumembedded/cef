@@ -54,6 +54,7 @@ class CefSchemeHandler;
 class CefSchemeHandlerFactory;
 class CefStreamReader;
 class CefStreamWriter;
+class CefTask;
 class CefV8Handler;
 class CefV8Value;
 
@@ -151,6 +152,29 @@ bool CefRegisterExtension(const std::wstring& extension_name,
 bool CefRegisterScheme(const std::wstring& scheme_name,
                        const std::wstring& host_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory);
+
+
+typedef cef_thread_id_t CefThreadId;
+
+// CEF maintains multiple internal threads that are used for handling different
+// types of tasks. The UI thread creates the browser window and is used for all
+// interaction with the WebKit rendering engine and V8 JavaScript engine (The
+// UI thread will be the same as the main application thread if CefInitialize()
+// was called with a |multi_threaded_message_loop| value of false.) The IO
+// thread is used for handling schema and network requests. The FILE thread is
+// used for the application cache and other miscellaneous activities. This
+// method will return true if called on the specified thread.
+/*--cef()--*/
+bool CefCurrentlyOn(CefThreadId threadId);
+
+// Post a task for execution on the specified thread.
+/*--cef()--*/
+bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
+
+// Post a task for delayed execution on the specified thread.
+/*--cef()--*/
+bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
+                        long delay_ms);
 
 
 // Interface defining the the reference count implementation methods. All
@@ -284,6 +308,16 @@ inline bool operator!=(const CefRect& a, const CefRect& b)
 {
   return !(a == b);
 }
+
+// Implement this interface for task execution.
+/*--cef(source=client)--*/
+class CefTask : public CefBase
+{
+public:
+  // Method that will be executed. |threadId| is the thread executing the call.
+  /*--cef()--*/
+  virtual void Execute(CefThreadId threadId) =0;
+};
 
 
 // Class used to represent a browser window.  All methods exposed by this class
