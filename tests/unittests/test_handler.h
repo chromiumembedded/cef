@@ -6,13 +6,14 @@
 #define _TEST_HANDLER_H
 
 #include "include/cef.h"
+#include "base/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Base implementation of CefHandler for unit tests.
 class TestHandler : public CefThreadSafeBase<CefHandler>
 {
 public:
-  TestHandler() : browser_hwnd_(NULL), completion_event_(NULL)
+  TestHandler() : browser_hwnd_(NULL), completion_event_(true, false)
   {
   }
 
@@ -177,8 +178,8 @@ public:
       browser_ = NULL;
       browser_hwnd_ = NULL;
 
-      // Just in case it wasn't called already
-      NotifyTestComplete();
+      // Signal that the test is now complete.
+      completion_event_.Signal();
     }
     Unlock();
     return RV_CONTINUE;
@@ -232,47 +233,33 @@ public:
   // returns.
   void ExecuteTest()
   {
-    // Add a reference
-    AddRef();
-
-    // Create the notification event
-    Lock();
-    completion_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
-    ASSERT_TRUE(completion_event_ != NULL);
-    Unlock();
-
     // Run the test
     RunTest();
 
     // Wait for the test to complete
-    WaitForSingleObject(completion_event_, INFINITE);
-    Lock();
-    CloseHandle(completion_event_);
-    completion_event_ = NULL;
-    Unlock();
-
-    // Remove the reference
-    Release();
+    completion_event_.Wait();
   }
 
 protected:
-  // Called by the implementing class when the test is complete
-  void NotifyTestComplete()
+  // Destroy the browser window. Once the window is destroyed test completion
+  // will be signaled.
+  void DestroyTest()
   {
-    // Notify that the test is complete
     Lock();
-    if(completion_event_ != NULL)
-      SetEvent(completion_event_);
+#if defined(OS_WIN)
     if(browser_hwnd_ != NULL)
       PostMessage(browser_hwnd_, WM_CLOSE, 0, 0);
+#endif
     Unlock();
   }
 
   void CreateBrowser(const std::wstring& url)
   {
     CefWindowInfo windowInfo;
+#if defined(OS_WIN)
     windowInfo.SetAsPopup(NULL, L"CefUnitTest");
     windowInfo.m_dwStyle |= WS_VISIBLE;
+#endif
     CefBrowser::CreateBrowser(windowInfo, false, this, url);
   }
 
@@ -292,10 +279,10 @@ private:
   CefRefPtr<CefBrowser> browser_;
 
   // The browser window handle
-  HWND browser_hwnd_;
+  CefWindowHandle browser_hwnd_;
 
   // Handle used to notify when the test is complete
-  HANDLE completion_event_;
+  base::WaitableEvent completion_event_;
 
   // Map of resources that can be automatically loaded
   typedef std::map<std::wstring, std::pair<std::string, std::wstring>> ResourceMap;

@@ -273,7 +273,7 @@ public:
                                CefRefPtr<CefFrame> frame)
   {
     if(!browser->IsPopup() && !frame.get())
-      NotifyTestComplete();
+      DestroyTest();
     return RV_CONTINUE;
   }
 
@@ -286,7 +286,8 @@ TEST(RequestTest, SendRecv)
   g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled = false;
   g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = false;
 
-  RequestSendRecvTestHandler* handler = new RequestSendRecvTestHandler();
+  CefRefPtr<RequestSendRecvTestHandler> handler =
+      new RequestSendRecvTestHandler();
   handler->ExecuteTest();
 
   ASSERT_TRUE(g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled);
@@ -393,7 +394,7 @@ public:
         else
         {
           // Resource re-load, end the test
-          NotifyTestComplete();
+          DestroyTest();
         }
       }
       else
@@ -416,7 +417,8 @@ TEST(RequestTest, HistoryNav)
   g_RequestHistoryNavTestDidLoadRequest = false;
   g_RequestHistoryNavTestDidReloadRequest = false;
 
-  RequestHistoryNavTestHandler* handler = new RequestHistoryNavTestHandler();
+  CefRefPtr<RequestHistoryNavTestHandler> handler =
+      new RequestHistoryNavTestHandler();
   handler->ExecuteTest();
 
   ASSERT_TRUE(g_RequestHistoryNavTestDidLoadRequest);

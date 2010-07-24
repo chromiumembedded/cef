@@ -244,7 +244,7 @@ public:
                                CefRefPtr<CefFrame> frame)
   {
     if(!browser->IsPopup() && !frame.get())
-      NotifyTestComplete();
+      DestroyTest();
     return RV_CONTINUE;
   }
 };
@@ -271,7 +271,7 @@ TEST(V8Test, Extension)
     L"})();";
   CefRegisterExtension(L"v8/test", extensionCode, new V8TestV8Handler(false));
 
-  V8TestHandler* handler = new V8TestHandler();
+  CefRefPtr<V8TestHandler> handler = new V8TestHandler();
   handler->ExecuteTest();
 
   ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);

@@ -6,6 +6,7 @@
 #define _CEF_TEST_SUITE_H
 
 #include "build/build_config.h"
+#include "base/platform_thread.h"
 #include "base/test/test_suite.h"
 #include "include/cef.h"
 
@@ -22,6 +23,10 @@ class CefTestSuite : public TestSuite {
   }
 
   virtual void Shutdown() {
+    // Delay a bit so that the system has a chance to finish destroying windows
+    // before CefShutdown() checks for memory leaks.
+    PlatformThread::Sleep(500);
+
     CefShutdown();
     TestSuite::Shutdown();
   }
