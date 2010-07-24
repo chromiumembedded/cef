@@ -46,7 +46,7 @@ class CefThread : public base::Thread {
     // This is the thread that interacts with the file system.
     FILE,
 
-    // This is the thread that processes IPC and network messages.
+    // This is the thread that processes network and schema messages.
     IO,
 
     // This identifier does not represent a thread.  Instead it counts the

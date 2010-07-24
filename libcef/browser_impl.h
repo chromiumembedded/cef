@@ -18,6 +18,9 @@
 
 #include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
 
+namespace base {
+class WaitableEvent;
+}
 namespace WebKit {
 class WebView;
 }
@@ -196,14 +199,13 @@ public:
   // Save the document HTML to a temporary file and open in the default viewing
   // application
   bool UIT_ViewDocumentString(WebKit::WebFrame *frame);
-#if defined(OS_WIN)
   void UIT_GetDocumentStringNotify(CefFrame* frame,
-                                   CefStreamWriter* writer, HANDLE hEvent);
-  void UIT_GetDocumentTextNotify(CefFrame* frame,
-                                 CefStreamWriter* writer, HANDLE hEvent);
-  void UIT_CanGoBackNotify(bool *retVal, HANDLE hEvent);
-  void UIT_CanGoForwardNotify(bool *retVal, HANDLE hEvent);
-#endif
+                                   CefStreamWriter* writer,
+                                   base::WaitableEvent* event);
+  void UIT_GetDocumentTextNotify(CefFrame* frame, CefStreamWriter* writer,
+                                 base::WaitableEvent* event);
+  void UIT_CanGoBackNotify(bool *retVal, base::WaitableEvent* event);
+  void UIT_CanGoForwardNotify(bool *retVal, base::WaitableEvent* event);
 
   bool UIT_CanGoBack() { return !nav_controller_->IsAtStart(); }
   bool UIT_CanGoForward() { return !nav_controller_->IsAtEnd(); }

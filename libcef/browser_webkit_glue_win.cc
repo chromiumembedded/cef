@@ -18,6 +18,7 @@ MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
+#include "base/resource_util.h"
 #include "gfx/gdi_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
@@ -47,6 +48,22 @@ string16 GetLocalizedString(int message_id) {
 
 HCURSOR LoadCursor(int cursor_id) {
   return NULL;
+}
+
+base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
+  void* data_ptr;
+  size_t data_size;
+  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
+                                         &data_size)
+      ? base::StringPiece(static_cast<char*>(data_ptr), data_size)
+      : base::StringPiece();
+}
+
+base::StringPiece NetResourceProvider(int key) {
+  HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
+  if(!hModule)
+    hModule = ::GetModuleHandle(NULL);
+  return GetRawDataResource(hModule, key);
 }
 
 void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

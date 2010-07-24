@@ -7,8 +7,10 @@
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "request_impl.h"
+#include "stream_impl.h"
 
 #include "base/utf_string_conversions.h"
+#include "base/waitable_event.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
@@ -24,6 +26,7 @@
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/plugins/webplugin_delegate.h"
 #include "webkit/glue/plugins/webplugin_impl.h"
+#include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebDocument;
 using WebKit::WebFrame;
@@ -52,10 +55,67 @@ CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
   nav_controller_.reset(new BrowserNavigationController(this));
 }
 
+
+bool CefBrowserImpl::CanGoBack()
+{
+  if(!CefThread::CurrentlyOn(CefThread::UI))
+  {
+    // We need to send the request to the UI thread and wait for the result
+
+    // Event that will be used to signal that data is available. Start
+    // in non-signaled mode so that the event will block.
+    base::WaitableEvent event(false, false);
+
+    bool retVal = true;
+
+    // Request the data from the UI thread
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::UIT_CanGoBackNotify, &retVal, &event));
+
+    // Wait for the UI thread callback to tell us that the data is available
+    event.Wait();
+
+    return retVal;
+  }
+  else
+  {
+    // Call the method directly
+    return UIT_CanGoBack();
+  }
+}
+
 void CefBrowserImpl::GoBack()
 {
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_BACK));
+}
+
+bool CefBrowserImpl::CanGoForward()
+{
+  if(!CefThread::CurrentlyOn(CefThread::UI))
+  {
+    // We need to send the request to the UI thread and wait for the result
+
+    // Event that will be used to signal that data is available. Start
+    // in non-signaled mode so that the event will block.
+    base::WaitableEvent event(false, false);
+
+    bool retVal = true;
+
+    // Request the data from the UI thread
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::UIT_CanGoForwardNotify, &retVal, &event));
+
+    // Wait for the UI thread callback to tell us that the data is available
+    event.Wait();
+
+    return retVal;
+  }
+  else
+  {
+    // Call the method directly
+    return UIT_CanGoForward();
+  }
 }
 
 void CefBrowserImpl::GoForward()
@@ -267,6 +327,78 @@ void CefBrowserImpl::ViewSource(CefRefPtr<CefFrame> frame)
   frame->AddRef();
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_VIEWSOURCE, frame.get()));
+}
+
+std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
+{
+  if(!CefThread::CurrentlyOn(CefThread::UI))
+  {
+    // We need to send the request to the UI thread and wait for the result
+
+    // Event that will be used to signal that data is available. Start
+    // in non-signaled mode so that the event will block.
+    base::WaitableEvent event(false, false);
+
+    CefRefPtr<CefStreamWriter> stream(new CefBytesWriter(BUFFER_SIZE));
+
+    // Request the data from the UI thread
+    frame->AddRef();
+    stream->AddRef();
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::UIT_GetDocumentStringNotify, frame.get(), stream.get(),
+        &event));
+
+    // Wait for the UI thread callback to tell us that the data is available
+    event.Wait();
+
+    return UTF8ToWide(
+        static_cast<CefBytesWriter*>(stream.get())->GetDataString());
+  }
+  else
+  {
+    // Retrieve the document string directly
+    WebKit::WebFrame* web_frame = GetWebFrame(frame);
+    if(web_frame) {
+      std::string markup = web_frame->contentAsMarkup().utf8();
+      return UTF8ToWide(markup);
+    }
+    return std::wstring();
+  }
+}
+
+std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
+{
+  if(!CefThread::CurrentlyOn(CefThread::UI))
+  {
+    // We need to send the request to the UI thread and wait for the result
+
+    // Event that will be used to signal that data is available. Start
+    // in non-signaled mode so that the event will block.
+    base::WaitableEvent event(false, false);
+
+    CefRefPtr<CefStreamWriter> stream(new CefBytesWriter(BUFFER_SIZE));
+
+    // Request the data from the UI thread
+    frame->AddRef();
+    stream->AddRef();
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::UIT_GetDocumentTextNotify, frame.get(), stream.get(),
+        &event));
+
+    // Wait for the UI thread callback to tell us that the data is available
+    event.Wait();
+
+    return UTF8ToWide(
+        static_cast<CefBytesWriter*>(stream.get())->GetDataString());
+  }
+  else
+  {
+    // Retrieve the document text directly
+    WebKit::WebFrame* web_frame = GetWebFrame(frame);
+    if(web_frame)
+      return webkit_glue::DumpDocumentText(web_frame);
+    return std::wstring();
+  }
 }
 
 void CefBrowserImpl::LoadRequest(CefRefPtr<CefFrame> frame,
@@ -705,6 +837,71 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
 
   if(frame)
     frame->Release();
+}
+
+void CefBrowserImpl::UIT_GetDocumentStringNotify(CefFrame* frame,
+                                                 CefStreamWriter* writer,
+                                                 base::WaitableEvent* event)
+{
+  REQUIRE_UIT();
+  
+  WebKit::WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame) {
+    // Retrieve the document string
+    std::string markup = web_frame->contentAsMarkup().utf8();
+    // Write the document string to the stream
+    writer->Write(markup.c_str(), markup.size(), 1);
+  }
+  
+  // Notify the calling thread that the data is now available
+  event->Signal();
+
+  writer->Release();
+  frame->Release();
+}
+
+void CefBrowserImpl::UIT_GetDocumentTextNotify(CefFrame* frame,
+                                               CefStreamWriter* writer,
+                                               base::WaitableEvent* event)
+{
+  REQUIRE_UIT();
+  
+  WebKit::WebFrame* web_frame = GetWebFrame(frame);
+  if(web_frame) {
+    // Retrieve the document string
+    std::wstring str = webkit_glue::DumpDocumentText(web_frame);
+    std::string cstr = WideToUTF8(str);
+    // Write the document string to the stream
+    writer->Write(cstr.c_str(), cstr.size(), 1);
+  }
+  
+  // Notify the calling thread that the data is now available
+  event->Signal();
+
+  writer->Release();
+  frame->Release();
+}
+
+void CefBrowserImpl::UIT_CanGoBackNotify(bool *retVal,
+                                         base::WaitableEvent* event)
+{
+  REQUIRE_UIT();
+  
+  *retVal = UIT_CanGoBack();
+
+  // Notify the calling thread that the data is now available
+  event->Signal();
+}
+
+void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal,
+                                            base::WaitableEvent* event)
+{
+  REQUIRE_UIT();
+  
+  *retVal = UIT_CanGoForward();
+
+  // Notify the calling thread that the data is now available
+  event->Signal();
 }
 
 void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,

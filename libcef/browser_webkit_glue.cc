@@ -17,7 +17,6 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/resource_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "base/utf_string_conversions.h"
@@ -42,22 +41,6 @@ void PrecacheUrl(const char16* url, int url_length) {}
 
 void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
-}
-
-base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
-  void* data_ptr;
-  size_t data_size;
-  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
-                                         &data_size)
-      ? base::StringPiece(static_cast<char*>(data_ptr), data_size)
-      : base::StringPiece();
-}
-
-base::StringPiece NetResourceProvider(int key) {
-  HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
-  if(!hModule)
-    hModule = ::GetModuleHandle(NULL);
-  return GetRawDataResource(hModule, key);
 }
 
 base::StringPiece GetDataResource(int resource_id) {

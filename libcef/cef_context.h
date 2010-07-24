@@ -78,4 +78,4 @@ private:
 // Global context object pointer
 extern CefRefPtr<CefContext> _Context;
 
-#endif // _CONTEXT_H
+#endif // _CEF_CONTEXT_H
