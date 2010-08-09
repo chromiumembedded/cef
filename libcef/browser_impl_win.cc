@@ -54,10 +54,6 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       }
       browser->GetWebViewDelegate()->RevokeDragDrop();
 
-      // Call GC twice to clean up garbage.
-      browser->GetWebView()->mainFrame()->collectGarbage();
-      browser->GetWebView()->mainFrame()->collectGarbage();
-
       // Clean up anything associated with the WebViewHost widget.
       browser->GetWebViewHost()->webwidget()->close();
 
@@ -129,7 +125,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 
   // Create the webview host object
   webviewhost_.reset(
-      WebViewHost::Create(window_info_.m_hWnd, delegate_.get(),
+      WebViewHost::Create(window_info_.m_hWnd, delegate_.get(), NULL,
       *_Context->web_preferences()));
   delegate_->RegisterDragDrop();
     

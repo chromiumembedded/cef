@@ -219,6 +219,11 @@
         'libcef_dll/transfer_util.cpp',
         'libcef_dll/transfer_util.h',
       ],
+      'link_settings': {
+        'libraries': [
+          '-lcomctl32.lib',
+        ],
+      },
     },
     {
       'target_name': 'libcef_dll_wrapper',

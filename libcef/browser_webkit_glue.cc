@@ -73,8 +73,8 @@ bool IsProtocolSupportedForMedia(const GURL& url) {
   return false;
 }
 
-std::wstring GetWebKitLocale() {
-  return L"en-US";
+std::string GetWebKitLocale() {
+  return "en-US";
 }
 
 void InitializeTextEncoding() {
@@ -111,5 +111,20 @@ std::string GetProductVersion() {
   return std::string("CEF/0.0.0.0");
 }
 
+bool IsSingleProcess() {
+  return true;
+}
+
+#if defined(OS_LINUX)
+int MatchFontWithFallback(const std::string& face, bool bold,
+                          bool italic, int charset) {
+  return -1;
+}
+
+bool GetFontTable(int fd, uint32_t table, uint8_t* output,
+                  size_t* output_length) {
+  return false;
+}
+#endif
 
 }  // namespace webkit_glue

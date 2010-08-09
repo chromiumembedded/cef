@@ -1,6 +1,6 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
@@ -59,16 +59,17 @@ class BrowserFrontendProxy
 
   void clear_appcache_system() { system_ = NULL; }
 
-  virtual void OnCacheSelected(int host_id, int64 cache_id ,
-                               appcache::Status status) {
+  virtual void OnCacheSelected(int host_id,
+      const appcache::AppCacheInfo& info) {
     if (!system_)
       return;
     if (system_->is_io_thread())
       system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
           this, &BrowserFrontendProxy::OnCacheSelected,
-          host_id, cache_id, status));
-    else if (system_->is_ui_thread())
-      system_->frontend_impl_.OnCacheSelected(host_id, cache_id, status);
+          host_id, info));
+    else if (system_->is_ui_thread()) {
+      system_->frontend_impl_.OnCacheSelected(host_id, info);
+    }
     else
       NOTREACHED();
   }
@@ -106,39 +107,47 @@ class BrowserFrontendProxy
       return;
     if (system_->is_io_thread())
       system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnProgressEventRaised, host_ids, url, num_total, num_complete));
+          this, &BrowserFrontendProxy::OnProgressEventRaised,
+          host_ids, url, num_total, num_complete));
     else if (system_->is_ui_thread())
-      system_->frontend_impl_.OnProgressEventRaised(host_ids, url, num_total, num_complete);
+      system_->frontend_impl_.OnProgressEventRaised(
+          host_ids, url, num_total, num_complete);
     else
       NOTREACHED();
   }
 
-  virtual void OnContentBlocked(int host_id){
+  virtual void OnErrorEventRaised(const std::vector<int>& host_ids,
+                                  const std::string& message) {
     if (!system_)
       return;
     if (system_->is_io_thread())
       system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnContentBlocked, host_id));
+          this, &BrowserFrontendProxy::OnErrorEventRaised,
+          host_ids, message));
     else if (system_->is_ui_thread())
-      system_->frontend_impl_.OnContentBlocked(host_id);
+      system_->frontend_impl_.OnErrorEventRaised(
+          host_ids, message);
     else
       NOTREACHED();
-
   }
 
-  virtual void OnLogMessage(int host_id, appcache::LogLevel log_level,
-      const std::string& message) {
-
+  virtual void OnLogMessage(int host_id,
+                            appcache::LogLevel log_level,
+                            const std::string& message) {
     if (!system_)
       return;
     if (system_->is_io_thread())
       system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnLogMessage, host_id, log_level, message));
+          this, &BrowserFrontendProxy::OnLogMessage,
+          host_id, log_level, message));
     else if (system_->is_ui_thread())
-      system_->frontend_impl_.OnLogMessage(host_id, log_level, message);
+      system_->frontend_impl_.OnLogMessage(
+          host_id, log_level, message);
     else
       NOTREACHED();
   }
+
+  virtual void OnContentBlocked(int host_id, const GURL& manifest_url) {}
 
  private:
   friend class base::RefCountedThreadSafe<BrowserFrontendProxy>;
@@ -205,34 +214,31 @@ class BrowserBackendProxy
     }
   }
 
-  virtual void SelectCacheForWorker(
-                           int host_id,
-                           int parent_process_id,
-                           int parent_host_id) {
-
+  virtual void GetResourceList(
+      int host_id,
+      std::vector<appcache::AppCacheResourceInfo>* resource_infos) {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::SelectCacheForWorker, host_id, parent_process_id,
-          parent_host_id));
+          this, &BrowserBackendProxy::GetResourceList,
+          host_id, resource_infos));
     } else if (system_->is_io_thread()) {
-      system_->backend_impl_->SelectCacheForWorker(host_id, parent_process_id,
-                                                 parent_host_id);
+      system_->backend_impl_->GetResourceList(host_id, resource_infos);
     } else {
       NOTREACHED();
     }
   }
 
+  virtual void SelectCacheForWorker(
+                           int host_id,
+                           int parent_process_id,
+                           int parent_host_id) {
+    NOTIMPLEMENTED();  // Workers are not supported in test_shell.
+  }
+
   virtual void SelectCacheForSharedWorker(
                            int host_id,
-                           int64 appcache_id){
-    if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::SelectCacheForSharedWorker, host_id, appcache_id));
-    } else if (system_->is_io_thread()) {
-      system_->backend_impl_->SelectCacheForSharedWorker(host_id, appcache_id);
-    } else {
-      NOTREACHED();
-    }
+                           int64 appcache_id) {
+    NOTIMPLEMENTED();  // Workers are not supported in test_shell.
   }
 
   virtual void MarkAsForeignEntry(int host_id, const GURL& document_url,
@@ -371,8 +377,7 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
   }
 }
 
-void BrowserAppCacheSystem::InitOnUIThread(
-    const FilePath& cache_directory) {
+void BrowserAppCacheSystem::InitOnUIThread(const FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
   AppCacheThread::Init(DB_THREAD_ID, IO_THREAD_ID);
   ui_message_loop_ = MessageLoop::current();
@@ -394,7 +399,7 @@ void BrowserAppCacheSystem::InitOnIOThread(URLRequestContext* request_context) {
   service_ = new appcache::AppCacheService();
   backend_impl_ = new appcache::AppCacheBackendImpl();
   service_->Initialize(cache_directory_,
-      BrowserResourceLoaderBridge::GetCacheThread());
+                       BrowserResourceLoaderBridge::GetCacheThread());
   service_->set_request_context(request_context);
   backend_impl_->Initialize(service_, frontend_proxy_.get(), kSingleProcessId);
 

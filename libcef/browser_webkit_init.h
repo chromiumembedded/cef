@@ -24,7 +24,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageEventDispatcher.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebIndexedDatabase.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebIDBFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
@@ -58,6 +58,11 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableTouch(true);
     WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
     WebKit::WebRuntimeFeatures::enableGeolocation(false);
+    WebKit::WebRuntimeFeatures::enableSpeechInput(true);
+
+    // TODO(hwennborg): Enable this once the implementation supports it.
+    WebKit::WebRuntimeFeatures::enableDeviceMotion(false);
+    WebKit::WebRuntimeFeatures::enableDeviceOrientation(false);
 
     // Load libraries for media and enable the media player.
     FilePath module_path;
@@ -178,8 +183,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
         WebKit::WebStorageNamespace::m_localStorageQuota);
   }
 
-  virtual WebKit::WebIndexedDatabase* indexedDatabase() {
-    return WebKit::WebIndexedDatabase::create();
+  virtual WebKit::WebIDBFactory* idbFactory() {
+    return WebKit::WebIDBFactory::create();
   }
 
  private:

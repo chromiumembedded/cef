@@ -917,10 +917,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       // Just navigate back/forward.
       delegate->SelectFindResult(options.forward);
     } else {
-      if (delegate->SupportsFind()) {
-        delegate->StartFind(UTF16ToUTF8(search_text),
-                            options.matchCase,
-                            identifier);
+      if (delegate->StartFind(search_text.c_str(), options.matchCase,
+          identifier)) {
       } else {
         // No find results.
         UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);

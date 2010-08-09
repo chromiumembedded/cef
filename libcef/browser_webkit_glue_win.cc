@@ -87,7 +87,7 @@ void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,
   
   skia::PlatformCanvas canvas(size.cx, size.cy, true);
   canvas.drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
-  PlatformContextSkia context(&canvas);
+  WebCore::PlatformContextSkia context(&canvas);
   WebKit::WebRect rect(0, 0, size.cx, size.cy);
   webview->layout();
   webview->paint(&canvas, rect);

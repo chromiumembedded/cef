@@ -16,13 +16,14 @@
 #include "v8_impl.h"
 
 #include "base/file_util.h"
-#include "gfx/point.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
+#include "base/string_util.h"
 #include "base/trace_event.h"
 #include "base/utf_string_conversions.h"
 #include "gfx/gdi_util.h"
 #include "gfx/native_widget_types.h"
+#include "gfx/point.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
@@ -663,8 +664,8 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
     if(rv == RV_HANDLED && !error_str.empty())
       error_text = WideToUTF8(error_str);
   } else {
-    error_text = StringPrintf("Error %d when loading url %s", error.reason,
-        failed_ds->request().url().spec().data());
+    error_text = StringPrintf("Error %d when loading url %s",
+        error.reason, failed_ds->request().url().spec().data());
   }
 
   // Make sure we never show errors in view source mode.

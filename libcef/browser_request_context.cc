@@ -43,9 +43,11 @@ void BrowserRequestContext::Init(
 
   // Use the system proxy settings.
   scoped_ptr<net::ProxyConfigService> proxy_config_service(
-      net::ProxyService::CreateSystemProxyConfigService(NULL, NULL));
-  host_resolver_ = net::CreateSystemHostResolver(NULL);
-   proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
+      net::ProxyService::CreateSystemProxyConfigService(
+          MessageLoop::current(), NULL));
+  host_resolver_ =
+      net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism);
+  proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
                                              false, NULL, NULL, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
@@ -56,9 +58,8 @@ void BrowserRequestContext::Init(
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
-      new net::HttpCache(NULL, host_resolver_, proxy_service_,
-                         ssl_config_service_, http_auth_handler_factory_,
-                         NULL, NULL, backend);
+      new net::HttpCache(host_resolver_, proxy_service_, ssl_config_service_,
+                         http_auth_handler_factory_, NULL, NULL, backend);
 
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;

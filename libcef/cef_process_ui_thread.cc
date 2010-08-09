@@ -15,6 +15,7 @@
 #include "base/i18n/icu_util.h"
 #include "base/rand_util.h"
 #include "base/stats_table.h"
+#include "base/string_number_conversions.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #if defined(OS_WIN)
@@ -108,13 +109,13 @@ void CefProcessUIThread::Init() {
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
   statstable_ = new StatsTable(
-      kStatsFilePrefix + Uint64ToString(base::RandUint64()),
+      kStatsFilePrefix + base::Uint64ToString(base::RandUint64()),
       kStatsFileThreads,
       kStatsFileCounters);
   StatsTable::set_current(statstable_);
 
   // CEF always exposes the GC.
-  webkit_glue::SetJavaScriptFlags(L"--expose-gc");
+  webkit_glue::SetJavaScriptFlags("--expose-gc");
   // Expose GCController to JavaScript.
   WebKit::WebScriptController::registerExtension(
       extensions_v8::GCExtension::Get());

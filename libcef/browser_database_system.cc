@@ -4,17 +4,12 @@
 
 #include "browser_database_system.h"
 
-#if defined(USE_SYSTEM_SQLITE)
-#include <sqlite3.h>
-#else
-#include "third_party/sqlite/preprocessed/sqlite3.h"
-#endif
-
 #include "base/auto_reset.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
+#include "third_party/sqlite/preprocessed/sqlite3.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/database/database_util.h"
