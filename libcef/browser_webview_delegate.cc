@@ -560,8 +560,11 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
   if(handler.get()) {
     // Gather browse request information
     CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-    
+
     GURL request_url = request.url();
+    if (!request_url.is_valid())
+      return WebKit::WebNavigationPolicyIgnore;
+
     req->SetURL(UTF8ToWide(request_url.spec()));
     req->SetMethod(
         UTF8ToWide(webkit_glue::WebStringToStdString(request.httpMethod())));
