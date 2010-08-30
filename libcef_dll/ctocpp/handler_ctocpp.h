@@ -76,6 +76,8 @@ public:
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser, bool isWidget);
   virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
       KeyEventType type, int code, int modifiers, bool isSystemKey);
+  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
+      std::wstring& text);
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
       const std::wstring& message, const std::wstring& source, int line);
   virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser, int identifier,

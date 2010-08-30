@@ -395,7 +395,14 @@ void BrowserWebViewDelegate::setKeyboardFocusURL(const WebKit::WebURL& url) {
 }
 
 void BrowserWebViewDelegate::setToolTipText(
-    const WebString& text, WebTextDirection hint) {
+    const WebString& text, WebTextDirection hint) 
+{
+  std::wstring tooltipText(UTF8ToWide(webkit_glue::WebStringToStdString(text)));
+   
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get() && handler->HandleTooltip(browser_, tooltipText) == RV_CONTINUE){
+     GetWidgetHost()->SetTooltipText(tooltipText);
+  }
 }
 
 void BrowserWebViewDelegate::startDragging(

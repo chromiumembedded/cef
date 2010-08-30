@@ -348,6 +348,23 @@ CefHandler::RetVal CefHandlerCToCpp::HandleKeyEvent(
       type, code, modifiers, isSystemKey);
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleTooltip(
+    CefRefPtr<CefBrowser> browser, std::wstring& text)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_tooltip))
+    return RV_CONTINUE;
+  cef_string_t textRet = NULL;
+  if(!text.empty())
+    textRet = cef_string_alloc(text.c_str());
+
+  cef_retval_t rv = struct_->handle_tooltip(struct_, 
+      CefBrowserCppToC::Wrap(browser), &textRet);
+
+  transfer_string_contents(textRet, text, true);
+
+  return rv;
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandleConsoleMessage(
     CefRefPtr<CefBrowser> browser, const std::wstring& message,
     const std::wstring& source, int line)

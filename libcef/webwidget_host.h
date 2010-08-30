@@ -59,6 +59,8 @@ class WebWidgetHost {
 
   void PaintRect(const gfx::Rect& rect);
 
+  void SetTooltipText(const std::wstring& tooltip_text);
+
  protected:
   WebWidgetHost();
   ~WebWidgetHost();
@@ -73,6 +75,7 @@ class WebWidgetHost {
   void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void CaptureLostEvent();
   void SetFocus(bool enable);
+  void OnNotify(WPARAM wparam, NMHDR* header);
 
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(OS_MACOSX)
@@ -108,6 +111,9 @@ class WebWidgetHost {
     painting_ = value;
 #endif
   }
+  
+  void EnsureTooltip();
+  void ResetTooltip();
 
   gfx::NativeView view_;
   WebKit::WebWidget* webwidget_;
@@ -124,6 +130,10 @@ class WebWidgetHost {
   bool track_mouse_leave_;
 
   WebKit::WebKeyboardEvent last_key_event_;
+
+  gfx::NativeView tooltip_view_;
+  std::wstring tooltip_text_;
+  bool tooltip_showing_;
 
 #ifndef NDEBUG
   bool painting_;

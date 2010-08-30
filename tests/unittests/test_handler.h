@@ -203,6 +203,12 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
+                               std::wstring& text)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
                                       const std::wstring& message,
                                       const std::wstring& source, int line)

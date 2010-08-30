@@ -724,6 +724,15 @@ public:
                                 int modifiers,
                                 bool isSystemKey) =0;
 
+  // Event called when the browser is about to display a tooltip.  |text|
+  // contains the text that will be displayed in the tooltip.  To handle
+  // the display of the tooltip yourself return RV_HANDLED.  Otherwise,
+  // you can optionally modify |text| and then return RV_CONTINUE to allow
+  // the browser to display the tooltip.
+  /*--cef()--*/
+  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
+                               std::wstring& text) =0;
+
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.
   /*--cef()--*/

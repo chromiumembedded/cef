@@ -36,6 +36,11 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+#ifdef _WIN32
+// Add Common Controls to the application manifest because it's required to
+// support the default tooltip implementation.
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 
 // Program entry point function.
 int APIENTRY wWinMain(HINSTANCE hInstance,
@@ -514,6 +519,17 @@ public:
   // setting the focus.
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser,
                                 bool isWidget)
+  {
+    return RV_CONTINUE;
+  }
+
+  // Event called when the browser is about to display a tooltip.  |text|
+  // contains the text that will be displayed in the tooltip.  To handle
+  // the display of the tooltip yourself return RV_HANDLED.  Otherwise,
+  // you can optionally modify |text| and then return RV_CONTINUE to allow
+  // the browser to display the tooltip.
+  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
+                               std::wstring& text)
   {
     return RV_CONTINUE;
   }

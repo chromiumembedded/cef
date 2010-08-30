@@ -128,6 +128,10 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_KILLFOCUS:
         host->SetFocus(false);
         break;
+
+      case WM_NOTIFY:
+        host->OnNotify(0, (NMHDR*)lparam);
+        break;
     }
   }
 
@@ -188,7 +192,9 @@ WebWidgetHost::WebWidgetHost()
       webwidget_(NULL),
       track_mouse_leave_(false),
       scroll_dx_(0),
-      scroll_dy_(0) {
+      scroll_dy_(0),
+      tooltip_view_(NULL),
+      tooltip_showing_(false) {
   set_painting(false);
 }
 
@@ -196,6 +202,7 @@ WebWidgetHost::~WebWidgetHost() {
   win_util::SetWindowUserData(view_, 0);
 
   TrackMouseLeave(false);
+  ResetTooltip();
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -280,6 +287,7 @@ void WebWidgetHost::Resize(LPARAM lparam) {
   DiscardBackingStore();
 
   webwidget_->resize(WebSize(LOWORD(lparam), HIWORD(lparam)));
+  EnsureTooltip();
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -327,6 +335,80 @@ void WebWidgetHost::CaptureLostEvent() {
 
 void WebWidgetHost::SetFocus(bool enable) {
   webwidget_->setFocus(enable);
+}
+
+void WebWidgetHost::OnNotify(WPARAM wparam, NMHDR* header) {
+  if (tooltip_view_ == NULL)
+    return;
+
+  switch (header->code) {
+    case TTN_GETDISPINFO: 
+      {
+        NMTTDISPINFOW* tooltip_info = reinterpret_cast<NMTTDISPINFOW*>(header);
+        tooltip_info->szText[0] = L'\0';
+        tooltip_info->lpszText = const_cast<wchar_t*>(tooltip_text_.c_str());
+        ::SendMessage(tooltip_view_, TTM_SETMAXTIPWIDTH, 0, 1024);
+      }
+      break;
+
+    case TTN_POP:
+      tooltip_showing_ = false;
+      break;
+
+    case TTN_SHOW:
+      tooltip_showing_ = true;
+      break;
+  }
+}
+
+void WebWidgetHost::SetTooltipText(const std::wstring& new_tooltip_text) {
+  if (new_tooltip_text != tooltip_text_) {
+    tooltip_text_ = new_tooltip_text;
+
+    // Need to check if the tooltip is already showing so that we don't
+    // immediately show the tooltip with no delay when we move the mouse from
+    // a region with no tooltip to a region with a tooltip.
+    if (::IsWindow(tooltip_view_) && tooltip_showing_) {
+      ::SendMessage(tooltip_view_, TTM_POP, 0, 0);
+      ::SendMessage(tooltip_view_, TTM_POPUP, 0, 0);
+    }
+  }
+  else {
+    // Make sure the tooltip gets closed after TTN_POP gets sent. For some
+    // reason this doesn't happen automatically, so moving the mouse around
+    // within the same link/image/etc doesn't cause the tooltip to re-appear.
+    if (!tooltip_showing_) {
+      if (::IsWindow(tooltip_view_))
+        ::SendMessage(tooltip_view_, TTM_POP, 0, 0);
+    }
+  }
+}
+
+void WebWidgetHost::EnsureTooltip() {
+  UINT message = TTM_NEWTOOLRECT;
+
+  TOOLINFO ti;
+  ti.cbSize = sizeof(ti);
+  ti.hwnd = view_handle();
+  ti.uId = 0;
+  if (!::IsWindow(tooltip_view_)) {
+    message = TTM_ADDTOOL;
+    tooltip_view_ = CreateWindowEx(
+        WS_EX_TRANSPARENT,
+        TOOLTIPS_CLASS, L"tooltip_view_", TTS_NOPREFIX, 0, 0, 0, 0, view_handle(), NULL,
+        NULL, NULL);
+    ti.uFlags = TTF_SUBCLASS;
+    ti.lpszText = LPSTR_TEXTCALLBACK;
+  }
+
+  GetClientRect(view_handle(), &ti.rect);
+  SendMessage(tooltip_view_, message, NULL, reinterpret_cast<LPARAM>(&ti));
+}
+
+void WebWidgetHost::ResetTooltip() {
+  if (::IsWindow(tooltip_view_))
+    ::DestroyWindow(tooltip_view_);
+  tooltip_view_ = NULL;
 }
 
 void WebWidgetHost::TrackMouseLeave(bool track) {
