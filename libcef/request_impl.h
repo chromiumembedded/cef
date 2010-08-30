@@ -42,7 +42,8 @@ public:
   static void SetHeaderMap(const HeaderMap& map,
                            WebKit::WebURLRequest& request);
 
-  static void GetHeaderMap(const std::string& header_str, HeaderMap& map);
+  static std::string GenerateHeaders(const HeaderMap& map);
+  static void ParseHeaders(const std::string& header_str, HeaderMap& map);
 
 protected:
   std::wstring url_;

@@ -599,7 +599,9 @@ public:
   // populate the |redirectUrl| value and return RV_CONTINUE.  To specify
   // data for the resource return a CefStream object in |resourceStream|, set
   // |mimeType| to the resource stream's mime type, and return RV_CONTINUE.
-  // To cancel loading of the resource return RV_HANDLED.
+  // To cancel loading of the resource return RV_HANDLED.  Any modifications
+  // to |request| will be observed.  If the URL in |request| is changed and
+  // |redirectUrl| is also set, the URL in |request| will be used.
   /*--cef()--*/
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefRequest> request,

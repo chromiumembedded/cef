@@ -207,12 +207,13 @@ class RequestProxy : public URLRequest::Delegate,
         CefRefPtr<CefRequest> request(new CefRequestImpl());
         CefRequestImpl* requestimpl = static_cast<CefRequestImpl*>(request.get());
 
-        requestimpl->SetURL(UTF8ToWide(params->url.spec()));
+        const std::wstring originalUrl = UTF8ToWide(params->url.spec());
+        requestimpl->SetURL(originalUrl);
         requestimpl->SetMethod(UTF8ToWide(params->method));
         
         // Transfer request headers
         CefRequest::HeaderMap headerMap;
-        CefRequestImpl::GetHeaderMap(params->headers, headerMap);
+        CefRequestImpl::ParseHeaders(params->headers, headerMap);
         headerMap.insert(
           std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
         requestimpl->SetHeaderMap(headerMap);
@@ -234,6 +235,35 @@ class RequestProxy : public URLRequest::Delegate,
         
         CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
             browser_, request, redirectUrl, resourceStream, mimeType, loadFlags);
+
+        // Observe URL from request.
+        const std::wstring requestUrl = request->GetURL();
+        if(requestUrl != originalUrl) {
+          params->url = GURL(WideToUTF8(requestUrl));
+          redirectUrl.clear(); // Request URL trumps redirect URL
+        }
+
+        // Observe method from request.
+        params->method = WideToUTF8(request->GetMethod());
+
+        // Observe headers from request.
+        request->GetHeaderMap(headerMap);
+        CefRequest::HeaderMap::iterator referrer = headerMap.find(L"Referrer");
+        if(referrer == headerMap.end()) {
+          params->referrer = GURL();
+        } else {
+          params->referrer = GURL(WideToUTF8(referrer->second));
+          headerMap.erase(referrer);
+        }
+        params->headers = CefRequestImpl::GenerateHeaders(headerMap);
+
+        // Observe post data from request.
+        CefRefPtr<CefPostData> postData = request->GetPostData();
+        if(postData.get()) {
+          params->upload = new net::UploadData();
+          static_cast<CefPostDataImpl*>(postData.get())->Get(*params->upload);
+        }
+
         if(rv == RV_HANDLED) {
           // cancel the resource load
           handled = true;

@@ -161,7 +161,29 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
   }
 }
 
-void CefRequestImpl::GetHeaderMap(const std::string& header_str, HeaderMap& map)
+std::string CefRequestImpl::GenerateHeaders(const HeaderMap& map)
+{
+  std::string headers;
+
+  for(HeaderMap::const_iterator header = map.begin();
+      header != map.end();
+      ++header) {
+    const std::wstring& key = header->first;
+    const std::wstring& value = header->second;
+
+    if(!key.empty()) {
+      // Delimit with "\r\n".
+      if(!headers.empty())
+        headers += "\r\n";
+
+      headers += WideToUTF8(key) + ": " + WideToUTF8(value);
+    }
+  }
+
+  return headers;
+}
+
+void CefRequestImpl::ParseHeaders(const std::string& header_str, HeaderMap& map)
 {
   // Parse the request header values
   std::string headerStr = "HTTP/1.1 200 OK\n";

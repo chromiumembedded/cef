@@ -433,7 +433,9 @@ typedef struct _cef_handler_t
   // the |redirectUrl| value and return RV_CONTINUE.  To specify data for the
   // resource return a CefStream object in |resourceStream|, set |mimeType| to
   // the resource stream's mime type, and return RV_CONTINUE. To cancel loading
-  // of the resource return RV_HANDLED.
+  // of the resource return RV_HANDLED.  Any modifications to |request| will be
+  // observed.  If the URL in |request| is changed and |redirectUrl| is also
+  // set, the URL in |request| will be used.
   enum cef_retval_t (CEF_CALLBACK *handle_before_resource_load)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_request_t* request, cef_string_t* redirectUrl,
