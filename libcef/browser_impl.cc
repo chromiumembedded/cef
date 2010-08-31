@@ -164,17 +164,21 @@ CefRefPtr<CefHandler> CefBrowserImpl::GetHandler()
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame()
 {
-  return GetCefFrame(GetWebView()->mainFrame());
+  return GetWebView() ? GetCefFrame(GetWebView()->mainFrame()) : NULL;
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame()
 {
-  return GetCefFrame(GetWebView()->focusedFrame());
+  return GetWebView() ? GetCefFrame(GetWebView()->focusedFrame()) : NULL;
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
 {
-  WebFrame* frame = GetWebView()->findFrameByName(name);
+  WebView* view = GetWebView();
+  if (!view)
+    return NULL;
+
+  WebFrame* frame = view->findFrameByName(name);
   if(frame)
     return GetCefFrame(frame);
   return NULL;
@@ -183,6 +187,9 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
 void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
 {
   WebView* view = GetWebView();
+  if (!view)
+    return;
+
   WebFrame* main_frame = view->mainFrame();
   WebFrame* it = main_frame;
   do {
@@ -259,10 +266,14 @@ void CefBrowserImpl::RemoveCefFrame(const std::wstring& name)
 
 WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
 {
+  WebView* view = GetWebView();
+  if (!view)
+    return NULL;
+
   std::wstring name = frame->GetName();
   if(name.empty())
-    return GetWebView()->mainFrame();
-  return GetWebView()->findFrameByName(name);
+    return view ->mainFrame();
+  return view ->findFrameByName(name);
 }
 
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
@@ -663,12 +674,16 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 {
   REQUIRE_UIT();
 
+  WebView* view = GetWebView();
+  if (!view)
+    return false;
+
   // Get the right target frame for the entry.
   WebFrame* frame;
   if (!entry.GetTargetFrame().empty())
-    frame = GetWebView()->findFrameByName(entry.GetTargetFrame());
+    frame = view->findFrameByName(entry.GetTargetFrame());
   else
-    frame = GetWebView()->mainFrame();
+    frame = view->mainFrame();
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
 
@@ -731,7 +746,7 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     // setFocusedFrame() may be unnecessary or in the wrong place.  See this
     // thread for additional details:
     // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
-    GetWebView()->setFocusedFrame(frame);
+    view->setFocusedFrame(frame);
     UIT_SetFocus(GetWebViewHost(), true);
   }
 
@@ -795,7 +810,8 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
       UIT_Reload();
       break;
     case MENU_ID_NAV_STOP:
-      GetWebView()->mainFrame()->stopLoading();
+      if (GetWebView()) 
+        GetWebView()->mainFrame()->stopLoading();
       break;
     case MENU_ID_UNDO:
       if(web_frame)
@@ -907,7 +923,11 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal,
 void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
                               const WebKit::WebFindOptions& options)
 {
-  WebFrame* main_frame = GetWebView()->mainFrame();
+  WebView* view = GetWebView();
+  if (!view)
+    return;
+
+  WebFrame* main_frame = view->mainFrame();
 
   if (main_frame->document().isPluginDocument()) {
     WebPlugin* plugin = main_frame->document().to<WebPluginDocument>().plugin();
@@ -928,7 +948,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
   }
 
   WebFrame* frame_after_main = main_frame->traverseNext(true);
-  WebFrame* focused_frame = GetWebView()->focusedFrame();
+  WebFrame* focused_frame = view->focusedFrame();
   WebFrame* search_frame = focused_frame;  // start searching focused frame.
 
   bool multi_frame = (frame_after_main != main_frame);
@@ -977,7 +997,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       }
     }
 
-    GetWebView()->setFocusedFrame(search_frame);
+    view->setFocusedFrame(search_frame);
   } while (!result && search_frame != focused_frame);
 
   if (options.findNext && current_selection.isNull()) {
@@ -1070,6 +1090,7 @@ void CefBrowserImpl::UIT_NotifyFindStatus(int identifier, int count,
 
 bool CefFrameImpl::IsFocused()
 {
-  return (browser_->GetWebFrame(this) ==
-          browser_->GetWebView()->focusedFrame());
+  return (browser_->GetWebView() &&
+         (browser_->GetWebFrame(this) ==
+            browser_->GetWebView()->focusedFrame()));
 }

@@ -129,14 +129,16 @@ int next_page_id_ = 1;
 void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
   WebPreferences* prefs = _Context->web_preferences();
   prefs->user_style_sheet_enabled = is_enabled;
-  prefs->Apply(browser_->GetWebView());
+  if (browser_->GetWebView())
+    prefs->Apply(browser_->GetWebView());
 }
 
 void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   WebPreferences* prefs = _Context->web_preferences();
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
-  prefs->Apply(browser_->GetWebView());
+  if (browser_->GetWebView())
+    prefs->Apply(browser_->GetWebView());
 }
 
 // WebViewClient -------------------------------------------------------------
@@ -187,9 +189,10 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
 }
 
 void BrowserWebViewDelegate::printPage(WebFrame* frame) {
-  if(frame == NULL)
-    frame = browser_->GetWebView()->mainFrame();
-  browser_->UIT_PrintPages(frame);
+  if (!frame)
+    frame = browser_->GetWebView() ? browser_->GetWebView()->mainFrame() : NULL;
+  if (frame)
+    browser_->UIT_PrintPages(frame);
 }
 
 void BrowserWebViewDelegate::didStartLoading() {
@@ -297,7 +300,8 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
   if (edit_command_name_.empty())
     return false;
 
-  WebFrame* frame = browser_->GetWebView()->focusedFrame();
+  WebFrame* frame = browser_->GetWebView() ?
+      browser_->GetWebView()->focusedFrame() : NULL;
   if (!frame)
     return false;
 
@@ -420,7 +424,8 @@ void BrowserWebViewDelegate::startDragging(
   //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
   //                         ok_effect, &effect);
   //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
-  browser_->GetWebView()->dragSourceSystemDragEnded();
+  if (browser_->GetWebView())
+    browser_->GetWebView()->dragSourceSystemDragEnded();
 }
 
 void BrowserWebViewDelegate::focusNext() {
@@ -914,6 +919,9 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   BrowserNavigationEntry* entry = static_cast<BrowserNavigationEntry*>(
       browser_->UIT_GetNavigationController()->GetEntryWithPageID(page_id_));
   if (!entry)
+    return;
+
+  if (!browser_->GetWebView()) 
     return;
 
   const WebHistoryItem& history_item =

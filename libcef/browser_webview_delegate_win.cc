@@ -152,7 +152,8 @@ webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type)
 {
-  HWND hwnd = browser_->GetWebViewHost()->view_handle();
+  HWND hwnd = browser_->GetWebViewHost() ?
+      browser_->GetWebViewHost()->view_handle() : NULL;
   if (!hwnd)
     return NULL;
 

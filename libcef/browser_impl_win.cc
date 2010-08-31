@@ -46,6 +46,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     break;
 
   case WM_DESTROY:
+    if (browser)
     {
       CefRefPtr<CefHandler> handler = browser->GetHandler();
       if(handler.get()) {
@@ -56,6 +57,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
       // Clean up anything associated with the WebViewHost widget.
       browser->GetWebViewHost()->webwidget()->close();
+      browser->webviewhost_.reset();
 
       // Clear the user data pointer.
       win_util::SetWindowUserData(hwnd, NULL);
@@ -150,7 +152,9 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 {
   REQUIRE_UIT();
-    
+  if (!host)
+    return;
+
   if (enable)
     ::SetFocus(host->view_handle());
   else if (::GetFocus() == host->view_handle())
