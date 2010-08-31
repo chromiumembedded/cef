@@ -276,6 +276,19 @@ enum cef_retval_t CEF_CALLBACK handler_handle_menu_action(
       CefBrowserCToCpp::Wrap(browser), menuId);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_print_options(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    struct _cef_print_options_t* printOptions)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(printOptions);
+  if(!self || !browser || !printOptions)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandlePrintOptions(CefBrowserCToCpp::Wrap(browser), *printOptions);
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
     cef_print_info_t* printInfo, const wchar_t* url, const wchar_t* title,
@@ -458,8 +471,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_key_event(
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_tooltip(
-    struct _cef_handler_t* self, struct _cef_browser_t* browser,
-    cef_string_t* text)
+    struct _cef_handler_t* self, cef_browser_t* browser, cef_string_t* text)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -533,6 +545,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_before_menu = handler_handle_before_menu;
   struct_.struct_.handle_get_menu_label = handler_handle_get_menu_label;
   struct_.struct_.handle_menu_action = handler_handle_menu_action;
+  struct_.struct_.handle_print_options = handler_handle_print_options;
   struct_.struct_.handle_print_header_footer =
       handler_handle_print_header_footer;
   struct_.struct_.handle_jsalert = handler_handle_jsalert;

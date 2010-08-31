@@ -237,13 +237,11 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   const printing::PrintSettings &settings = print_context_.settings();
   settings.RenderParams(&params);
 
-  int src_size_x = canvas_size.width();
-  int src_size_y = canvas_size.height();
-  float src_margin = .1f * src_size_x;
+  const int src_size_x = canvas_size.width();
+  const int src_size_y = canvas_size.height();
 
-  int dest_size_x = settings.page_setup_pixels().physical_size().width();
-  int dest_size_y = settings.page_setup_pixels().physical_size().height();
-  float dest_margin = .1f * dest_size_x;
+  const int dest_size_x = settings.page_setup_pixels().printable_area().width();
+  const int dest_size_y = settings.page_setup_pixels().printable_area().height();
 
   print_context_.NewPage();
 
@@ -257,21 +255,26 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
   skia::VectorCanvas canvas(hDC, dest_size_x, dest_size_y);
 
+  //The hDC 0 coord is the left most printeable area and not physical area of the paper 
+  //so subtract that out of our canvas translate.
+  const int left_margin_offset = settings.page_setup_pixels().effective_margins().left - 
+     settings.page_setup_pixels().printable_area().x();
+  const int top_margin_offset = settings.page_setup_pixels().effective_margins().top - 
+     settings.page_setup_pixels().printable_area().y();
+
   // Adjust for the margin offset.
-  canvas.translate(dest_margin, dest_margin);
+  canvas.translate(static_cast<float>(left_margin_offset), 
+      static_cast<float>(top_margin_offset));
   
   // Apply the print scaling factor.
-  float print_scale = (dest_size_x - dest_margin * 2) / src_size_x;
-  canvas.scale(print_scale, print_scale);
-  
-  // Set the clipping region to be sure to not overflow.
-  SkRect clip_rect;
-  clip_rect.set(0, 0, static_cast<float>(src_size_x),
-      static_cast<float>(src_size_y));
-  canvas.clipRect(clip_rect);
-  
+  const float print_scale_x = static_cast<float>(settings.page_setup_pixels().content_area().width())
+      / src_size_x;
+  const float print_scale_y = static_cast<float>(settings.page_setup_pixels().content_area().height())
+      / src_size_y;
+  canvas.scale(print_scale_x, print_scale_y);
+
   // Apply the WebKit scaling factor.
-  float webkit_scale = frame->getPrintPageShrink(page_number);
+  const float webkit_scale = frame->getPrintPageShrink(page_number);
   if (webkit_scale <= 0) {
     NOTREACHED() << "Printing page " << page_number << " failed.";
   }
@@ -288,13 +291,18 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
     // Gather print header state information
     RECT rect;
-    rect.left = (int)floor(dest_margin / 2);
-    rect.top = rect.left;
-	  rect.right = (int)ceil(dest_size_x - dest_margin / 2);
-	  rect.bottom = (int)ceil(dest_size_y - dest_margin / 2);
+    rect.left = left_margin_offset;
+    rect.top = settings.page_setup_pixels().effective_margins().header -
+        settings.page_setup_pixels().printable_area().y();
+    rect.right = left_margin_offset + settings.page_setup_pixels().content_area().width();
+    rect.bottom = settings.page_setup_pixels().printable_area().height() -
+        (settings.page_setup_pixels().effective_margins().footer -
+            (settings.page_setup_pixels().physical_size().height() -
+             settings.page_setup_pixels().printable_area().bottom()));
 
-    double scale = (double)settings.dpi() / (double)settings.desired_dpi;
-    
+    const double scale = static_cast<double>(settings.dpi()) / 
+        static_cast<double>(settings.desired_dpi);
+
     CefPrintInfo printInfo;
     
     printInfo.m_hDC = hDC;
@@ -374,13 +382,18 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
 
-  TCHAR printername[512];
-  DWORD size = sizeof(printername)-1;
-  if(GetDefaultPrinter(printername, &size)) {
-    printing::PrintSettings settings;
-    settings.set_device_name(printername);
-    // Initialize it.
-    print_context_.InitWithSettings(settings);
+  print_context_.Init();
+  {
+    // Make a copy of settings.
+    printing::PrintSettings settings = print_context_.settings();
+    cef_print_options_t print_options;
+    settings.UpdatePrintOptions(print_options);  
+    
+    // Ask the handler if they want to update the print options.
+    if (handler_.get() && RV_HANDLED == handler_->HandlePrintOptions(this, print_options)) {
+      settings.UpdateFromPrintOptions(print_options);
+      print_context_.InitWithSettings(settings);
+    }
   }
 
   if(print_context_.AskUserForSettings(
@@ -398,12 +411,12 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   
   canvas_size.set_width(
       printing::ConvertUnit(
-          settings.page_setup_pixels().physical_size().width(),
+          settings.page_setup_pixels().content_area().width(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
   canvas_size.set_height(
       printing::ConvertUnit(
-          settings.page_setup_pixels().physical_size().height(),
+          settings.page_setup_pixels().content_area().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
   page_count = frame->printBegin(WebSize(canvas_size));
@@ -412,19 +425,19 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
     MessageLoop::current()->SetNestableTasksAllowed(false);
 
-    // TODO(cef): Use the page title as the document name
-    print_context_.NewDocument(L"New Document");
-    if(settings.ranges.size() > 0) {
-      for (unsigned x = 0; x < settings.ranges.size(); ++x) {
-        const printing::PageRange& range = settings.ranges[x];
-        for(int i = range.from; i <= range.to; ++i)
+    if (print_context_.NewDocument(title_) == printing::PrintingContext::OK) {
+      if(settings.ranges.size() > 0) {
+        for (unsigned x = 0; x < settings.ranges.size(); ++x) {
+          const printing::PageRange& range = settings.ranges[x];
+          for(int i = range.from; i <= range.to; ++i)
+            UIT_PrintPage(i, page_count, canvas_size, frame);
+        }
+      } else {
+        for(int i = 0; i < page_count; ++i)
           UIT_PrintPage(i, page_count, canvas_size, frame);
       }
-    } else {
-      for(int i = 0; i < page_count; ++i)
-        UIT_PrintPage(i, page_count, canvas_size, frame);
+      print_context_.DocumentDone();
     }
-    print_context_.DocumentDone();
 
     MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
@@ -450,12 +463,12 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   
   canvas_size.set_width(
       printing::ConvertUnit(
-          settings.page_setup_pixels().physical_size().width(),
+          settings.page_setup_pixels().content_area().width(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
   canvas_size.set_height(
       printing::ConvertUnit(
-          settings.page_setup_pixels().physical_size().height(),
+          settings.page_setup_pixels().content_area().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
   page_count = frame->printBegin(WebSize(canvas_size));

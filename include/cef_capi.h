@@ -461,6 +461,16 @@ typedef struct _cef_handler_t
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       enum cef_handler_menuid_t menuId);
 
+  // Event called to allow customization of standard print options before the
+  // print dialog is displayed. |printOptions| allows specification of paper
+  // size, orientation and margins. Note that the specified margins may be
+  // adjusted if they are outside the range supported by the printer. All units
+  // are in inches. Return RV_CONTINUE to display the default print options or
+  // RV_HANDLED to display the modified |printOptions|.
+  enum cef_retval_t (CEF_CALLBACK *handle_print_options)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_print_options_t* printOptions);
+
   // Event called to format print headers and footers.  |printInfo| contains
   // platform-specific information about the printer context.  |url| is the URL
   // if the currently printing page, |title| is the title of the currently
@@ -534,9 +544,13 @@ typedef struct _cef_handler_t
       enum cef_handler_keyevent_type_t type, int code, int modifiers,
       int isSystemKey);
 
-  enum cef_retval_t (CEF_CALLBACK *handle_tooltip)(
-      struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      cef_string_t* text);
+  // Event called when the browser is about to display a tooltip.  |text|
+  // contains the text that will be displayed in the tooltip.  To handle the
+  // display of the tooltip yourself return RV_HANDLED.  Otherwise, you can
+  // optionally modify |text| and then return RV_CONTINUE to allow the browser
+  // to display the tooltip.
+  enum cef_retval_t (CEF_CALLBACK *handle_tooltip)(struct _cef_handler_t* self,
+      struct _cef_browser_t* browser, cef_string_t* text);
 
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.

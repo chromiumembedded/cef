@@ -215,6 +215,16 @@ CefHandler::RetVal CefHandlerCToCpp::HandleMenuAction(
       menuId);
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandlePrintOptions(
+    CefRefPtr<CefBrowser> browser, CefPrintOptions& printOptions)
+{
+  if (CEF_MEMBER_MISSING(struct_, handle_print_options))
+     return RV_CONTINUE;
+
+  return struct_->handle_print_options(struct_, CefBrowserCppToC::Wrap(browser),
+     &printOptions);
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandlePrintHeaderFooter(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefPrintInfo& printInfo, const std::wstring& url,

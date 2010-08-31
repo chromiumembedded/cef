@@ -58,6 +58,8 @@ public:
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,
       MenuId menuId, std::wstring& label);
   virtual RetVal HandleMenuAction(CefRefPtr<CefBrowser> browser, MenuId menuId);
+  virtual RetVal HandlePrintOptions(CefRefPtr<CefBrowser> browser,
+      CefPrintOptions& printOptions);
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefPrintInfo& printInfo,
       const std::wstring& url, const std::wstring& title, int currentPage,

@@ -129,6 +129,12 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandlePrintOptions(CefRefPtr<CefBrowser> browser,
+                                    CefPrintOptions& printOptions)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,

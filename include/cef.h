@@ -635,6 +635,19 @@ public:
   virtual RetVal HandleMenuAction(CefRefPtr<CefBrowser> browser,
                                   MenuId menuId) =0;
 
+  // Structure representing print options.
+  typedef cef_print_options_t CefPrintOptions;
+  
+  // Event called to allow customization of standard print options before the
+  // print dialog is displayed. |printOptions| allows specification of paper
+  // size, orientation and margins. Note that the specified margins may be
+  // adjusted if they are outside the range supported by the printer. All units
+  // are in inches. Return RV_CONTINUE to display the default print options or
+  // RV_HANDLED to display the modified |printOptions|.
+  /*--cef()--*/
+  virtual RetVal HandlePrintOptions(CefRefPtr<CefBrowser> browser,
+                                    CefPrintOptions& printOptions) = 0;
+
   // Event called to format print headers and footers.  |printInfo| contains
   // platform-specific information about the printer context.  |url| is the
   // URL if the currently printing page, |title| is the title of the currently

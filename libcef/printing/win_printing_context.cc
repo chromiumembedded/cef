@@ -12,6 +12,8 @@
 #include "base/time.h"
 #include "skia/ext/platform_device_win.h"
 
+#include "printing/units.h"
+
 using base::Time;
 
 namespace {
@@ -90,6 +92,17 @@ PrintingContext::Result PrintingContext::AskUserForSettings(
     dialog_options.Flags |= PD_NOPAGENUMS;
   }
 
+  // Adjust the default dev mode for the printdlg settings.
+  DEVMODE dev_mode;
+  memset(&dev_mode,0,sizeof(dev_mode));
+  dev_mode.dmSpecVersion = DM_SPECVERSION;
+  dev_mode.dmSize = sizeof(DEVMODE);
+  AdjustDevMode(dev_mode);
+
+  dialog_options.hDevMode = GlobalAlloc(GMEM_MOVEABLE, sizeof(DEVMODE));
+  DEVMODE* locked_dev_mode = reinterpret_cast<DEVMODE*>(GlobalLock(dialog_options.hDevMode));
+  memcpy(locked_dev_mode, &dev_mode, sizeof(DEVMODE));
+  GlobalUnlock(dialog_options.hDevMode);
   {
     if (PrintDlgEx(&dialog_options) != S_OK) {
       ResetSettings();
@@ -111,20 +124,82 @@ PrintingContext::Result PrintingContext::UseDefaultSettings() {
   return ParseDialogResult(dialog_options);
 }
 
+void PrintingContext::AdjustDevMode(DEVMODE& dev_mode)
+{
+  dev_mode.dmFields |= DM_ORIENTATION;
+  dev_mode.dmOrientation = (settings_.landscape) ? DMORIENT_LANDSCAPE : DMORIENT_PORTRAIT;
+
+  dev_mode.dmFields |= DM_PAPERSIZE;
+  switch(settings_.page_measurements.page_type) {
+    case PT_LETTER:
+      dev_mode.dmPaperSize = DMPAPER_LETTER;
+      break;
+    case PT_LEGAL:
+      dev_mode.dmPaperSize = DMPAPER_LEGAL;
+      break;
+    case PT_EXECUTIVE:
+      dev_mode.dmPaperSize = DMPAPER_EXECUTIVE;
+      break;
+    case PT_A3:
+      dev_mode.dmPaperSize = DMPAPER_A3;
+      break;
+    case PT_A4:
+      dev_mode.dmPaperSize = DMPAPER_A4;
+      break;
+    case PT_CUSTOM:
+      {
+        dev_mode.dmPaperSize = DMPAPER_USER;
+        dev_mode.dmFields |= DM_PAPERLENGTH | DM_PAPERWIDTH;
+        DCHECK_GT(settings_.page_measurements.page_length, 0);
+        DCHECK_GT(settings_.page_measurements.page_width, 0);
+        // Convert from desired_dpi to tenths of a mm.
+        dev_mode.dmPaperLength = static_cast<short>(
+                                 ConvertUnitDouble(abs(settings_.page_measurements.page_length), 
+                                                   10.0 * settings_.desired_dpi, 
+                                                   static_cast<double>(kHundrethsMMPerInch)) + 0.5);
+        dev_mode.dmPaperWidth = static_cast<short>(
+                                ConvertUnitDouble(abs(settings_.page_measurements.page_width), 
+                                                  10.0 * settings_.desired_dpi, 
+                                                  static_cast<double>(kHundrethsMMPerInch)) + 0.5);
+        break;
+      }
+    default:
+      //we shouldn't ever hit this case.
+      DCHECK(false);
+      dev_mode.dmPaperSize = DMPAPER_LETTER;
+      break;
+  }
+}
+
+PrintingContext::Result PrintingContext::Init() {
+  DCHECK(!in_print_job_);
+  TCHAR printername[512];
+  DWORD size = sizeof(printername)-1;
+  if(GetDefaultPrinter(printername, &size)) {
+    return Init(std::wstring(printername), false);
+  }
+  return FAILED;
+}
+
 PrintingContext::Result PrintingContext::InitWithSettings(
     const PrintSettings& settings) {
   DCHECK(!in_print_job_);
   settings_ = settings;
-  // TODO(maruel): settings_->ToDEVMODE()
+
+  return Init(settings_.device_name().c_str(), true);
+}
+
+PrintingContext::Result PrintingContext::Init(const std::wstring& device_name, 
+                                              bool adjust_dev_mode) {
   HANDLE printer;
-  if (!OpenPrinter(const_cast<wchar_t*>(settings_.device_name().c_str()),
+  if (!OpenPrinter(const_cast<wchar_t*>(device_name.c_str()),
                    &printer,
                    NULL))
     return FAILED;
 
   Result status = OK;
 
-  if (!GetPrinterSettings(printer, settings_.device_name()))
+  if (!GetPrinterSettings(printer, device_name, adjust_dev_mode))
     status = FAILED;
 
   // Close the printer after retrieving the context.
@@ -314,7 +389,8 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
 }
 
 bool PrintingContext::GetPrinterSettings(HANDLE printer,
-                                         const std::wstring& device_name) {
+                                         const std::wstring& device_name,
+                                         bool adjust_dev_mode) {
   DCHECK(!in_print_job_);
   scoped_array<uint8> buffer;
 
@@ -324,6 +400,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
   if (buffer.get()) {
     PRINTER_INFO_9* info_9 = reinterpret_cast<PRINTER_INFO_9*>(buffer.get());
     if (info_9->pDevMode != NULL) {
+      if (adjust_dev_mode)
+        AdjustDevMode(*info_9->pDevMode);
       if (!AllocateContext(device_name, info_9->pDevMode)) {
         ResetSettings();
         return false;
@@ -339,6 +417,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
   if (buffer.get()) {
     PRINTER_INFO_8* info_8 = reinterpret_cast<PRINTER_INFO_8*>(buffer.get());
     if (info_8->pDevMode != NULL) {
+      if (adjust_dev_mode)
+        AdjustDevMode(*info_8->pDevMode);
       if (!AllocateContext(device_name, info_8->pDevMode)) {
         ResetSettings();
         return false;
@@ -355,6 +435,8 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
   if (buffer.get()) {
     PRINTER_INFO_2* info_2 = reinterpret_cast<PRINTER_INFO_2*>(buffer.get());
     if (info_2->pDevMode != NULL) {
+      if (adjust_dev_mode)
+        AdjustDevMode(*info_2->pDevMode);
       if (!AllocateContext(device_name, info_2->pDevMode)) {
         ResetSettings();
         return false;
@@ -380,8 +462,10 @@ PrintingContext::Result PrintingContext::ParseDialogResultEx(
     const PRINTDLGEX& dialog_options) {
   // If the user clicked OK or Apply then Cancel, but not only Cancel.
   if (dialog_options.dwResultAction != PD_RESULT_CANCEL) {
-    // Start fresh.
+    PageMargins requested_margins = settings_.requested_margins;
+    // Start fresh except for page margins since that isn't controlled by this dialog.
     ResetSettings();
+    settings_.requested_margins = requested_margins;
 
     DEVMODE* dev_mode = NULL;
     if (dialog_options.hDevMode) {

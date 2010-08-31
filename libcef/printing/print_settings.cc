@@ -13,6 +13,24 @@ namespace printing {
 // Global SequenceNumber used for generating unique cookie values.
 static base::AtomicSequenceNumber cookie_seq(base::LINKER_INITIALIZED);
 
+PageMeasurements::PageMeasurements()
+    : page_type(PT_LETTER),
+      page_length(0.0f),
+      page_width(0.0f) {
+}
+
+void PageMeasurements::Clear() {
+  page_type = PT_LETTER;
+  page_length = 0.0f;
+  page_width = 0.0f;
+}
+
+bool PageMeasurements::Equals(const PageMeasurements& rhs) const {
+  return page_type == rhs.page_type &&
+      page_length == rhs.page_length &&
+      page_width == rhs.page_width;
+}
+
 PrintSettings::PrintSettings()
     : min_shrink(1.25),
       max_shrink(2.0),
@@ -20,7 +38,8 @@ PrintSettings::PrintSettings()
       selection_only(false),
       to_file(false),
       dpi_(0),
-      landscape_(false) {
+      landscape(false) {
+  ResetRequestedPageMargins();
 }
 
 void PrintSettings::Clear() {
@@ -34,7 +53,22 @@ void PrintSettings::Clear() {
   device_name_.clear();
   page_setup_pixels_.Clear();
   dpi_ = 0;
-  landscape_ = false;
+  landscape = false;
+  page_measurements.Clear();
+  ResetRequestedPageMargins();
+}
+
+void PrintSettings::ResetRequestedPageMargins() {
+  // Initial requested margins to = 1.0cm = ~2/5 of inch
+  const int margin_printer_units = ConvertUnit(1000, kHundrethsMMPerInch, desired_dpi);
+  // Initial requested header/footer margins to = 0.5cm = ~1/5 of inch
+  const int header_footer_margins = ConvertUnit(500, kHundrethsMMPerInch, desired_dpi);
+  requested_margins.header = header_footer_margins;
+  requested_margins.footer = header_footer_margins;
+  requested_margins.left = margin_printer_units;
+  requested_margins.top = margin_printer_units;
+  requested_margins.right = margin_printer_units;
+  requested_margins.bottom = margin_printer_units;
 }
 
 #ifdef WIN32
@@ -48,9 +82,38 @@ void PrintSettings::Init(HDC hdc,
   printer_name_ = dev_mode.dmDeviceName;
   device_name_ = new_device_name;
   ranges = new_ranges;
-  landscape_ = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;
+  landscape = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;
   selection_only = print_selection_only;
   to_file = print_to_file;
+
+  bool is_custom_paper = true;
+  if (dev_mode.dmFields & DM_PAPERSIZE) {
+    switch(dev_mode.dmPaperSize) {
+    case DMPAPER_LETTER:
+      page_measurements.page_type = PT_LETTER;
+      is_custom_paper = false;
+      break;
+    case DMPAPER_LEGAL:
+      page_measurements.page_type = PT_LEGAL;
+      is_custom_paper = false;
+      break;
+    case DMPAPER_EXECUTIVE:
+      page_measurements.page_type = PT_EXECUTIVE;
+      is_custom_paper = false;
+      break;
+    case DMPAPER_A3:
+      page_measurements.page_type = PT_A3;
+      is_custom_paper = false;
+      break;
+    case DMPAPER_A4:
+      page_measurements.page_type = PT_A4;
+      is_custom_paper = false;
+      break;
+    default:
+      //we'll translate it as a custom paper size.
+      break;
+    }
+  }
 
   dpi_ = GetDeviceCaps(hdc, LOGPIXELSX);
   // No printer device is known to advertise different dpi in X and Y axis; even
@@ -70,6 +133,22 @@ void PrintSettings::Init(HDC hdc,
                                   GetDeviceCaps(hdc, HORZRES),
                                   GetDeviceCaps(hdc, VERTRES));
 
+  if (is_custom_paper) {
+    page_measurements.page_length = ConvertUnitDouble(
+      static_cast<double>(physical_size_pixels.height()),
+      static_cast<double>(dpi_),
+      static_cast<double>(desired_dpi));
+    page_measurements.page_width = ConvertUnitDouble(
+      static_cast<double>(physical_size_pixels.width()),
+      static_cast<double>(dpi_),
+      static_cast<double>(desired_dpi));
+    if (landscape) {
+      double temp = page_measurements.page_length;
+      page_measurements.page_length = page_measurements.page_width;
+      page_measurements.page_width = temp;
+    }
+
+  }
   SetPrinterPrintableArea(physical_size_pixels, printable_area_pixels);
 }
 #endif
@@ -77,23 +156,23 @@ void PrintSettings::Init(HDC hdc,
 void PrintSettings::SetPrinterPrintableArea(
     gfx::Size const& physical_size_pixels,
     gfx::Rect const& printable_area_pixels) {
-
-  int margin_printer_units = ConvertUnit(500, kHundrethsMMPerInch, dpi_);
+      
+  // Hard-code text_height = 0.5cm = ~1/5 of inch
+  const int text_height = ConvertUnit(500, kHundrethsMMPerInch, dpi_);
 
   // Start by setting the user configuration
-  // Hard-code text_height = 0.5cm = ~1/5 of inch
   page_setup_pixels_.Init(physical_size_pixels,
                           printable_area_pixels,
-                          margin_printer_units);
+                          text_height);
 
-  // Now apply user configured settings.
+  // Now adjust requested margins to the appropriate dpi.
   PageMargins margins;
-  margins.header = margin_printer_units;
-  margins.footer = margin_printer_units;
-  margins.left = margin_printer_units;
-  margins.top = margin_printer_units;
-  margins.right = margin_printer_units;
-  margins.bottom = margin_printer_units;
+  margins.header = ConvertUnit(requested_margins.header, desired_dpi, dpi_);
+  margins.footer = ConvertUnit(requested_margins.footer, desired_dpi, dpi_);
+  margins.left = ConvertUnit(requested_margins.left, desired_dpi, dpi_);
+  margins.top = ConvertUnit(requested_margins.top, desired_dpi, dpi_);
+  margins.right = ConvertUnit(requested_margins.right, desired_dpi, dpi_);
+  margins.bottom = ConvertUnit(requested_margins.bottom, desired_dpi, dpi_);
   page_setup_pixels_.SetRequestedMargins(margins);
 }
 
@@ -125,12 +204,61 @@ bool PrintSettings::Equals(const PrintSettings& rhs) const {
       device_name_ == rhs.device_name_ &&
       page_setup_pixels_.Equals(rhs.page_setup_pixels_) &&
       dpi_ == rhs.dpi_ &&
-      landscape_ == rhs.landscape_;
+      landscape == rhs.landscape &&
+      page_measurements.Equals(rhs.page_measurements) &&
+      requested_margins.Equals(rhs.requested_margins);
 }
 
 int PrintSettings::NewCookie() {
   // A cookie of 0 is used to mark a document as unassigned, count from 1.
   return cookie_seq.GetNext() + 1;
+}
+
+void PrintSettings::UpdatePrintOptions(cef_print_options_t& print_options) {
+  
+  print_options.page_orientation = (landscape) ? LANDSCAPE : PORTRAIT;
+  print_options.paper_metrics.paper_type = page_measurements.page_type;
+  
+  if (page_measurements.page_type == PT_CUSTOM) {
+    print_options.paper_metrics.length = ConvertUnitDouble(
+      page_measurements.page_length, desired_dpi, 1);
+    print_options.paper_metrics.width = ConvertUnitDouble(
+      page_measurements.page_width, desired_dpi, 1);
+  }
+  print_options.paper_margins.left = ConvertUnitDouble(
+      requested_margins.left, desired_dpi, 1);
+  print_options.paper_margins.top = ConvertUnitDouble(
+      requested_margins.top, desired_dpi, 1);
+  print_options.paper_margins.right = ConvertUnitDouble(
+      requested_margins.right, desired_dpi, 1);
+  print_options.paper_margins.bottom = ConvertUnitDouble(
+      requested_margins.bottom, desired_dpi, 1);
+  print_options.paper_margins.header = ConvertUnitDouble(
+      requested_margins.header, desired_dpi, 1);
+  print_options.paper_margins.footer = ConvertUnitDouble(
+      requested_margins.footer, desired_dpi, 1);
+}
+void PrintSettings::UpdateFromPrintOptions(const cef_print_options_t& print_options) {
+  landscape = print_options.page_orientation == LANDSCAPE;
+  page_measurements.page_type = print_options.paper_metrics.paper_type;
+  if (page_measurements.page_type == PT_CUSTOM) {
+    page_measurements.page_length = ConvertUnitDouble(
+      print_options.paper_metrics.length, 1, desired_dpi);
+    page_measurements.page_width = ConvertUnitDouble(
+      print_options.paper_metrics.width, 1, desired_dpi);
+  }
+  requested_margins.left = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.left, 1, desired_dpi));
+  requested_margins.top = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.top, 1, desired_dpi));
+  requested_margins.right = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.right, 1, desired_dpi));
+  requested_margins.bottom = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.bottom, 1, desired_dpi));
+  requested_margins.header = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.header, 1, desired_dpi));
+  requested_margins.footer = static_cast<int>(ConvertUnitDouble(
+      print_options.paper_margins.footer, 1, desired_dpi));
 }
 
 }  // namespace printing

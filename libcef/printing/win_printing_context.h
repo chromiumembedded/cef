@@ -38,6 +38,9 @@ class PrintingContext {
   // default device settings.
   Result UseDefaultSettings();
 
+  // Initializes with printer default's settings.
+  Result Init();
+
   // Initializes with predefined settings.
   Result InitWithSettings(const PrintSettings& settings);
 
@@ -100,11 +103,18 @@ class PrintingContext {
   // Retrieves the printer's default low-level settings. hdc_ is allocated with
   // this call.
   bool GetPrinterSettings(HANDLE printer,
-                          const std::wstring& device_name);
+                          const std::wstring& device_name,
+                          bool adjust_dev_mode);
 
   // Allocates the HDC for a specific DEVMODE.
   bool AllocateContext(const std::wstring& printer_name,
                        const DEVMODE* dev_mode);
+  
+  // Updates printer dev_mode with settings_
+  void PrintingContext::AdjustDevMode(DEVMODE& dev_mode);
+
+  // Initializes the hdc_ either with setting_ or with just printer defaults.
+  Result Init(const std::wstring& device_name, bool adjust_dev_mode);
 
   // Parses the result of a PRINTDLGEX result.
   Result ParseDialogResultEx(const PRINTDLGEX& dialog_options);

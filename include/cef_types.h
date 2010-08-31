@@ -237,6 +237,55 @@ enum cef_thread_id_t
   TID_FILE    = 2,
 };
 
+// Paper type for printing.
+enum cef_paper_type_t
+{
+  PT_LETTER = 0,
+  PT_LEGAL,
+  PT_EXECUTIVE,
+  PT_A3,
+  PT_A4,
+  PT_CUSTOM
+};
+
+// Paper metric information for printing.
+struct cef_paper_metrics
+{
+  enum cef_paper_type_t paper_type;
+  //Length and width needed if paper_type is custom_size
+  //Units are in inches.
+  double length;
+  double width;
+};
+
+// Paper print margins.
+struct cef_print_margins
+{
+  //Margin size in inches for left/right/top/bottom (this is content margins).
+  double left;
+  double right;
+  double top;
+  double bottom;
+  //Margin size (top/bottom) in inches for header/footer.
+  double header;
+  double footer;
+};
+
+// Page orientation for printing
+enum cef_page_orientation
+{
+  PORTRAIT = 0,
+  LANDSCAPE
+};
+
+// Printing options.
+typedef struct _cef_print_options_t
+{
+  enum cef_page_orientation page_orientation;
+  struct cef_paper_metrics paper_metrics;
+  struct cef_print_margins paper_margins;
+} cef_print_options_t;
+
 #ifdef __cplusplus
 }
 #endif

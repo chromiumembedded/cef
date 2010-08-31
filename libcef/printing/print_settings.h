@@ -5,6 +5,8 @@
 #ifndef _PRINTING_PRINT_SETTINGS_H
 #define _PRINTING_PRINT_SETTINGS_H
 
+#include "include/cef_types.h"
+
 #include "gfx/rect.h"
 #include "printing/page_range.h"
 #include "printing/page_setup.h"
@@ -52,6 +54,22 @@ struct PrintParams {
   }
 };
 
+// Page measurements information.
+class PageMeasurements {
+public:
+  PageMeasurements();
+  void Clear();
+
+  // Equality operator.
+  bool Equals(const PageMeasurements& rhs) const;
+
+  enum cef_paper_type_t page_type;
+  // Page length and width represented in inches.
+  // These should be filled in if page_type is PT_CUSTOM.
+  double page_length;
+  double page_width;
+};
+
 // OS-independent print settings.
 class PrintSettings {
  public:
@@ -92,6 +110,9 @@ class PrintSettings {
   int dpi() const { return dpi_; }
   const PageSetup& page_setup_pixels() const { return page_setup_pixels_; }
 
+  void UpdatePrintOptions(cef_print_options_t& print_options);
+  void UpdateFromPrintOptions(const cef_print_options_t& print_options);
+
   // Multi-page printing. Each PageRange describes a from-to page combination.
   // This permits printing selected pages only.
   PageRanges ranges;
@@ -124,7 +145,17 @@ class PrintSettings {
   // correctly associated with its corresponding PrintedDocument.
   static int NewCookie();
 
+  // Requested Page Margins in pixels based on desired_dpi.
+  // These are in terms of desired_dpi since printer dpi may vary.
+  PageMargins requested_margins;
+
+  // Is the orientation landscape or portrait.
+  bool landscape;
+
+  // Page Measurements.
+  PageMeasurements page_measurements;
  private:
+  void ResetRequestedPageMargins();
   //////////////////////////////////////////////////////////////////////////////
   // Settings that can't be changed without side-effects.
 
@@ -139,9 +170,6 @@ class PrintSettings {
 
   // Printer's device effective dots per inch in both axis.
   int dpi_;
-
-  // Is the orientation landscape or portrait.
-  bool landscape_;
 };
 
 }  // namespace printing
