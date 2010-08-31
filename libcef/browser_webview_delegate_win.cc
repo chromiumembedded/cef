@@ -318,31 +318,31 @@ void BrowserWebViewDelegate::showContextMenu(
   if (type_flags &  MENUTYPE_EDITABLE) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_UNDO, L"Undo",
-      !!(edit_flags & WebContextMenuData::CanUndo), label_list);
+      !!(edit_flags & MENU_CAN_UNDO), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_REDO, L"Redo",
-      !!(edit_flags & WebContextMenuData::CanRedo), label_list);
+      !!(edit_flags & MENU_CAN_REDO), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_CUT, L"Cut",
-      !!(edit_flags & WebContextMenuData::CanCut), label_list);
+      !!(edit_flags & MENU_CAN_CUT), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & WebContextMenuData::CanCopy), label_list);
+      !!(edit_flags & MENU_CAN_COPY), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_PASTE, L"Paste",
-      !!(edit_flags & WebContextMenuData::CanPaste), label_list);
+      !!(edit_flags & MENU_CAN_PASTE), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_DELETE, L"Delete",
-      !!(edit_flags & WebContextMenuData::CanDelete), label_list);
+      !!(edit_flags & MENU_CAN_DELETE), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_SELECTALL, L"Select All",
       !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
   } else if(type_flags & MENUTYPE_SELECTION) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
-      !!(edit_flags & WebContextMenuData::CanCopy), label_list);
+      !!(edit_flags & MENU_CAN_COPY), label_list);
   } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, menu, -1, MENU_ID_NAV_BACK, L"Back",
-      browser_->UIT_CanGoBack(), label_list);
+      !!(edit_flags & MENU_CAN_GO_BACK), label_list);
     AddMenuItem(browser_, menu, -1, MENU_ID_NAV_FORWARD, L"Forward",
-      browser_->UIT_CanGoForward(), label_list);
+      !!(edit_flags & MENU_CAN_GO_FORWARD), label_list);
     AddMenuSeparator(menu, -1);
     AddMenuItem(browser_, menu, -1, MENU_ID_PRINT, L"Print",
       true, label_list);

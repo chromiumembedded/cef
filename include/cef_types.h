@@ -164,6 +164,7 @@ enum cef_handler_menutypebits_t
 // following values.
 enum cef_handler_menucapabilitybits_t
 {
+  // Values from WebContextMenuData::EditFlags in WebContextMenuData.h
   MENU_CAN_DO_NONE = 0x0,
   MENU_CAN_UNDO = 0x1,
   MENU_CAN_REDO = 0x2,
@@ -172,8 +173,10 @@ enum cef_handler_menucapabilitybits_t
   MENU_CAN_PASTE = 0x10,
   MENU_CAN_DELETE = 0x20,
   MENU_CAN_SELECT_ALL = 0x40,
-  MENU_CAN_GO_FORWARD = 0x80,
-  MENU_CAN_GO_BACK = 0x100,
+  MENU_CAN_TRANSLATE = 0x80,
+  // Values unique to CEF
+  MENU_CAN_GO_FORWARD = 0x10000000,
+  MENU_CAN_GO_BACK = 0x20000000,
 };
 
 // Supported menu ID values.
