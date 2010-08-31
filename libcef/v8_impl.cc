@@ -50,6 +50,8 @@ static void TrackDestructor(v8::Persistent<v8::Value> object,
 {
   if(parameter)
     TrackDelete(static_cast<CefTrackObject*>(parameter));
+  object.Dispose();
+  object.Clear();
 }
 
 
@@ -305,7 +307,6 @@ void CefV8ValueImpl::Detach()
   if(tracker_)
     TrackAdd(tracker_);
   v8_value_.MakeWeak(tracker_, TrackDestructor);
-  v8_value_.Clear();
   tracker_ = NULL;
   Unlock();
 }

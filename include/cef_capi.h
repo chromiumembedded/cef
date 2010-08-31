@@ -511,6 +511,12 @@ typedef struct _cef_handler_t
       const wchar_t* message, const wchar_t* defaultValue, int* retval,
       cef_string_t* result);
 
+  // Event called for adding values to a frame's JavaScript 'window' object. The
+  // return value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_jsbinding)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, struct _cef_v8value_t* object);
+
   // Called just before a window is closed. The return value is currently
   // ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_before_window_close)(
@@ -906,8 +912,9 @@ typedef struct _cef_v8value_t
 
 
 // Create a new cef_v8value_t object of the specified type.  These functions
-// should only be called from within the JavaScript context in a
-// cef_v8handler_t::execute() callback.
+// should only be called from within the JavaScript context -- either in a
+// cef_v8handler_t::execute() callback or a cef_handler_t::handle_jsbinding()
+// callback.
 CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_null();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value);

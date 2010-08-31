@@ -15,6 +15,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -419,6 +420,22 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
   return rv;
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_jsbinding(
+    struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
+    struct _cef_v8value_t* object)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(frame);
+  DCHECK(object);
+  if(!self || !browser || !frame || !object)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleJSBinding(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefV8ValueCToCpp::Wrap(object));
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_before_window_close(
     struct _cef_handler_t* self, cef_browser_t* browser)
 {
@@ -551,6 +568,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_jsalert = handler_handle_jsalert;
   struct_.struct_.handle_jsconfirm = handler_handle_jsconfirm;
   struct_.struct_.handle_jsprompt = handler_handle_jsprompt;
+  struct_.struct_.handle_jsbinding = handler_handle_jsbinding;
   struct_.struct_.handle_before_window_close =
       handler_handle_before_window_close;
   struct_.struct_.handle_take_focus = handler_handle_take_focus;

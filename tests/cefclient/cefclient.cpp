@@ -4,6 +4,7 @@
 
 #include "include/cef.h"
 #include "cefclient.h"
+#include "binding_test.h"
 #include "extension_test.h"
 #include "plugin_test.h"
 #include "resource_util.h"
@@ -503,6 +504,18 @@ public:
                                 std::wstring& result)
   {
     return RV_CONTINUE;
+  }
+
+  // Event called for binding to a frame's JavaScript global object. The
+  // return value is currently ignored.
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object)
+  {
+    // Add the V8 bindings.
+    InitBindingTest(browser, frame, object);
+    
+    return RV_HANDLED;
   }
 
   // Called just before a window is closed. The return value is currently
@@ -1013,7 +1026,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
           }
           return 0;
-        case ID_TESTS_JAVASCRIPT_HANDLER: // Test the V8 extension handler
+        case ID_TESTS_JAVASCRIPT_BINDING: // Test the V8 binding handler
+          if(browser.get())
+            RunBindingTest(browser);
+          return 0;
+        case ID_TESTS_JAVASCRIPT_EXTENSION: // Test the V8 extension handler
           if(browser.get())
             RunExtensionTest(browser);
           return 0;

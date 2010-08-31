@@ -699,6 +699,13 @@ public:
                                 bool& retval,
                                 std::wstring& result) =0;
 
+  // Event called for adding values to a frame's JavaScript 'window' object. The
+  // return value is currently ignored.
+  /*--cef()--*/
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object) =0;
+
   // Called just before a window is closed. The return value is currently
   // ignored.
   /*--cef()--*/
@@ -1025,8 +1032,9 @@ class CefV8Value : public CefBase
 {
 public:
   // Create a new CefV8Value object of the specified type.  These methods
-  // should only be called from within the JavaScript context in a
-  // CefV8Handler::Execute() callback.
+  // should only be called from within the JavaScript context -- either in a
+  // CefV8Handler::Execute() callback or a CefHandler::HandleJSBinding()
+  // callback.
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateUndefined();
   /*--cef()--*/

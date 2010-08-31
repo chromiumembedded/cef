@@ -65,7 +65,8 @@ BEGIN
     BEGIN
         MENUITEM "Get Source",                  ID_TESTS_GETSOURCE
         MENUITEM "Get Text",                    ID_TESTS_GETTEXT
-        MENUITEM "JavaScript Extension Handler",ID_TESTS_JAVASCRIPT_HANDLER
+        MENUITEM "JavaScript Binding Handler",  ID_TESTS_JAVASCRIPT_BINDING
+        MENUITEM "JavaScript Extension Handler",ID_TESTS_JAVASCRIPT_EXTENSION
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP

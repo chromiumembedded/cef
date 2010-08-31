@@ -175,6 +175,13 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser)
   {
     Lock();

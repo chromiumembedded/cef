@@ -33,6 +33,9 @@ void InitializeTextEncoding();
 // This is called indirectly by the network layer to access resources.
 base::StringPiece NetResourceProvider(int key);
 
+// Retrieve the V8 context associated with the frame.
+v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
+
 // Clear all cached data.
 void ClearCache();
 

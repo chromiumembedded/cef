@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -315,6 +316,17 @@ CefHandler::RetVal CefHandlerCToCpp::HandleJSPrompt(
   transfer_string_contents(resultRet, result, true);
 
   return rv;
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleJSBinding(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefV8Value> object)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_jsbinding))
+    return RV_CONTINUE;
+
+  return struct_->handle_jsbinding(struct_, CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame), CefV8ValueCppToC::Wrap(object));
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeWindowClose(

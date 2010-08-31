@@ -25,6 +25,8 @@
       ],
       'sources': [
         'tests/cefclient/Resource.h',
+        'tests/cefclient/binding_test.cpp',
+        'tests/cefclient/binding_test.h',
         'tests/cefclient/cefclient.cpp',
         'tests/cefclient/cefclient.h',
         'tests/cefclient/cefclient.ico',

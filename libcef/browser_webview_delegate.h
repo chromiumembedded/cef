@@ -152,6 +152,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*, const WebKit::WebURLError&);
   virtual void didCommitProvisionalLoad(
       WebKit::WebFrame*, bool is_new_navigation);
+  virtual void didClearWindowObject(WebKit::WebFrame*);
   virtual void didReceiveTitle(
       WebKit::WebFrame*, const WebKit::WebString& title);
   virtual void didFailLoad(
