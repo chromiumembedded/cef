@@ -17,11 +17,15 @@
 #include "base/stats_table.h"
 #include "base/string_number_conversions.h"
 #include "build/build_config.h"
+#include "app/gfx/gl/gl_implementation.h"
 #include "net/base/net_module.h"
 #if defined(OS_WIN)
 #include "net/socket/ssl_client_socket_nss_factory.h"
 #endif
+#include "webkit/blob/blob_storage_controller.h"
+#include "webkit/blob/blob_url_request_job.h"
 #include "webkit/extensions/v8/gc_extension.h"
+#include "net/url_request/url_request.h"
 
 #if defined(OS_WIN)
 #include <commctrl.h>
@@ -31,6 +35,22 @@
 static const char* kStatsFilePrefix = "libcef_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
+
+namespace {
+
+URLRequestJob* BlobURLRequestJobFactory(URLRequest* request,
+                                        const std::string& scheme) {
+  webkit_blob::BlobStorageController* blob_storage_controller =
+      static_cast<BrowserRequestContext*>(request->context())->
+          blob_storage_controller();
+  return new webkit_blob::BlobURLRequestJob(
+      request,
+      blob_storage_controller->GetBlobDataFromUrl(request->url()),
+      NULL);
+}
+
+} // namespace
+
 
 CefProcessUIThread::CefProcessUIThread()
       : CefThread(CefThread::UI), statstable_(NULL), webkit_init_(NULL) {}
@@ -126,6 +146,10 @@ void CefProcessUIThread::Init() {
   net::ClientSocketFactory::SetSSLClientSocketFactory(
       net::SSLClientSocketNSSFactory);
 #endif
+
+  gfx::InitializeGLBindings(gfx::kGLImplementationOSMesaGL);
+
+  URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
 }
 
 void CefProcessUIThread::CleanUp() {

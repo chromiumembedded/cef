@@ -16,6 +16,7 @@
 #include "printing/win_printing_context.h"
 #endif
 
+#include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
 
 namespace base {
@@ -228,6 +229,8 @@ public:
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
+  const FilePath& file_system_root() const { return file_system_root_.path(); }
+
 protected:
   CefWindowInfo window_info_;
   bool is_popup_;
@@ -250,6 +253,9 @@ protected:
 
   // Unique browser ID assigned by the context.
   int unique_id_;
+ 
+  // A temporary directory for FileSystem API.
+  ScopedTempDir file_system_root_;
 };
 
 

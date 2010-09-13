@@ -10,6 +10,9 @@
 #include "net/url_request/url_request_context.h"
 
 class FilePath;
+namespace webkit_blob {
+class BlobStorageController;
+}
 
 // A basic URLRequestContext that only provides an in-memory cookie store.
 class BrowserRequestContext : public URLRequestContext {
@@ -28,9 +31,15 @@ class BrowserRequestContext : public URLRequestContext {
 
   void SetAcceptAllCookies(bool accept_all_cookies);
 
+  webkit_blob::BlobStorageController* blob_storage_controller() const {
+    return blob_storage_controller_.get();
+  }
+
  private:
   void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
+
+  scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
 };
 
 #endif  // _BROWSER_REQUEST_CONTEXT_H

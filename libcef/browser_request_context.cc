@@ -17,6 +17,7 @@
 #include "net/proxy/proxy_config_service.h"
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_service.h"
+#include "webkit/blob/blob_storage_controller.h"
 #include "webkit/glue/webkit_glue.h"
 
 BrowserRequestContext::BrowserRequestContext() {
@@ -46,7 +47,8 @@ void BrowserRequestContext::Init(
       net::ProxyService::CreateSystemProxyConfigService(
           MessageLoop::current(), NULL));
   host_resolver_ =
-      net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism);
+      net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
+                                    NULL);
   proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
                                              false, NULL, NULL, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
@@ -65,6 +67,8 @@ void BrowserRequestContext::Init(
   http_transaction_factory_ = cache;
 
   ftp_transaction_factory_ = new net::FtpNetworkLayer(host_resolver_);
+
+  blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
 }
 
 BrowserRequestContext::~BrowserRequestContext() {

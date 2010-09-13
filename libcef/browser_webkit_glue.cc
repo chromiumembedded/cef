@@ -115,7 +115,7 @@ std::string WebStringToStdString(const WebKit::WebString& str) {
 }
 
 std::string GetProductVersion() {
-  return std::string("CEF/0.0.0.0");
+  return std::string("Chrome/7.0.517.0");
 }
 
 bool IsSingleProcess() {
@@ -133,5 +133,9 @@ bool GetFontTable(int fd, uint32_t table, uint8_t* output,
   return false;
 }
 #endif
+
+void EnableSpdy(bool enable) {
+  // Used in benchmarking,  Ignored for CEF.
+}
 
 }  // namespace webkit_glue

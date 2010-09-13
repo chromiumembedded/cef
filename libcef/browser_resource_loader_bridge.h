@@ -8,8 +8,6 @@
 
 #include <string>
 #include "base/message_loop_proxy.h"
-#include "base/file_path.h"
-#include "net/http/http_cache.h"
 
 class GURL;
 

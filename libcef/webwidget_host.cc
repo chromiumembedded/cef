@@ -15,6 +15,8 @@
 #include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 
+#include <commctrl.h>
+
 using WebKit::WebInputEvent;
 using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;

@@ -15,7 +15,6 @@
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/database/vfs_backend.h"
 #include "webkit/extensions/v8/gears_extension.h"
-#include "webkit/extensions/v8/interval_extension.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
@@ -25,16 +24,20 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageEventDispatcher.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebIDBFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebIDBKey.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebIDBKeyPath.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSerializedScriptValue.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
-#include "webkit/glue/webfilesystem_impl.h"
+#include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
 #include "browser_appcache_system.h"
 #include "browser_database_system.h"
 #include "browser_resource_loader_bridge.h"
+#include "browser_webblobregistry_impl.h"
 #include "browser_webcookiejar_impl.h"
 
 
@@ -47,8 +50,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::setLayoutTestMode(false);
     WebKit::WebScriptController::registerExtension(
         extensions_v8::GearsExtension::Get());
-    WebKit::WebScriptController::registerExtension(
-        extensions_v8::IntervalExtension::Get());
     WebKit::WebRuntimeFeatures::enableSockets(true);
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
@@ -59,6 +60,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
     WebKit::WebRuntimeFeatures::enableGeolocation(false);
     WebKit::WebRuntimeFeatures::enableSpeechInput(true);
+    WebKit::WebRuntimeFeatures::enableFileSystem(true);
 
     // TODO(hwennborg): Enable this once the implementation supports it.
     WebKit::WebRuntimeFeatures::enableDeviceMotion(false);
@@ -83,7 +85,9 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
     WebKit::WebDatabase::setObserver(&database_system_);
 
-    file_system_.set_sandbox_enabled(false);
+    blob_registry_ = new BrowserWebBlobRegistryImpl();
+ 
+    file_utilities_.set_sandbox_enabled(false);
   }
 
   ~BrowserWebKitInit() {
@@ -98,12 +102,16 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return &clipboard_;
   }
 
-  virtual WebKit::WebFileSystem* fileSystem() {
-    return &file_system_;
+  virtual WebKit::WebFileUtilities* fileUtilities() {
+    return &file_utilities_;
   }
 
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
     return NULL;
+  }
+
+  virtual WebKit::WebBlobRegistry* blobRegistry() {
+    return blob_registry_.get();
   }
 
   virtual WebKit::WebCookieJar* cookieJar() {
@@ -187,14 +195,27 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return WebKit::WebIDBFactory::create();
   }
 
+  virtual void createIDBKeysFromSerializedValuesAndKeyPath(
+      const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
+      const WebKit::WebString& keyPath,
+      WebKit::WebVector<WebKit::WebIDBKey>& keys_out) {
+    WebKit::WebVector<WebKit::WebIDBKey> keys(values.size());
+    for (size_t i = 0; i < values.size(); ++i) {
+      keys[i] = WebKit::WebIDBKey::createFromValueAndKeyPath(
+          values[i], WebKit::WebIDBKeyPath::create(keyPath));
+    }
+    keys_out.swap(keys);
+  }
+
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
-  webkit_glue::WebFileSystemImpl file_system_;
+  webkit_glue::WebFileUtilitiesImpl file_utilities_;
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
   BrowserWebCookieJarImpl cookie_jar_;
+  scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

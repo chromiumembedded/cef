@@ -52,6 +52,7 @@
 #include "base/thread.h"
 #include "base/utf_string_conversions.h"
 #include "base/waitable_event.h"
+#include "net/base/cookie_store.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
@@ -67,6 +68,7 @@
 #endif
 #include "net/url_request/url_request.h"
 #include "webkit/appcache/appcache_interfaces.h"
+#include "webkit/blob/blob_storage_controller.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
 using webkit_glue::ResourceLoaderBridge;
@@ -298,6 +300,12 @@ class RequestProxy : public URLRequest::Delegate,
 
     if(!handled)
     {
+      // Might need to resolve the blob references in the upload data.
+      if (params->upload) {
+        _Context->request_context()->blob_storage_controller()->
+            ResolveBlobReferencesInUploadData(params->upload.get());
+      }
+
       request_.reset(new URLRequest(params->url, this));
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
@@ -639,6 +647,13 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
       params_->upload = new net::UploadData();
     params_->upload->AppendFileRange(file_path, offset, length,
                                      expected_modification_time);
+  }
+
+  virtual void AppendBlobToUpload(const GURL& blob_url) {
+    DCHECK(params_.get());
+    if (!params_->upload)
+      params_->upload = new net::UploadData();
+    params_->upload->AppendBlob(blob_url);
   }
 
   virtual void SetUploadIdentifier(int64 identifier) {

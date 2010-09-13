@@ -299,7 +299,7 @@ void CefPostDataImpl::Get(net::UploadData& data)
     static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
     data_elements.push_back(element);
   }
-  data.set_elements(data_elements);
+  data.SetElements(data_elements);
 
   Unlock();
 }

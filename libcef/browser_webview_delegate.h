@@ -23,6 +23,7 @@
 #include "base/weak_ptr.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFileChooserParams.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFileSystem.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
@@ -167,6 +168,11 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       int request_id, int count, bool final_update);
   virtual void reportFindInPageSelection(
       int request_id, int active_match_ordinal, const WebKit::WebRect& sel);
+  virtual void openFileSystem(
+      WebKit::WebFrame* frame,
+      WebKit::WebFileSystem::Type type,
+      long long size,
+      WebKit::WebFileSystemCallbacks* callbacks);
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit_glue::WebPluginDelegate* CreatePluginDelegate(

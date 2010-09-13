@@ -8,6 +8,7 @@
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_socket_stream_bridge.h"
+#include "browser_webblobregistry_impl.h"
 
 #include "build/build_config.h"
 
@@ -39,6 +40,8 @@ void CefProcessIOThread::Init() {
 
   BrowserAppCacheSystem::InitializeOnIOThread(request_context_);
   BrowserSocketStreamBridge::InitializeOnIOThread(request_context_);
+  BrowserWebBlobRegistryImpl::InitializeOnIOThread(
+      request_context_->blob_storage_controller());
 }
 
 void CefProcessIOThread::CleanUp() {
@@ -48,6 +51,7 @@ void CefProcessIOThread::CleanUp() {
   MessageLoop::current()->RunAllPending();
 
   BrowserSocketStreamBridge::Cleanup();
+  BrowserWebBlobRegistryImpl::Cleanup();
 
   _Context->set_request_context(NULL);
   request_context_ = NULL;

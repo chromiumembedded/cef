@@ -31,6 +31,8 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFileError.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFileSystemCallbacks.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHistoryItem.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
@@ -83,6 +85,8 @@ using WebKit::WebDragData;
 using WebKit::WebDragOperationsMask;
 using WebKit::WebEditingAction;
 using WebKit::WebFileChooserParams;
+using WebKit::WebFileSystem;
+using WebKit::WebFileSystemCallbacks;
 using WebKit::WebFormElement;
 using WebKit::WebFrame;
 using WebKit::WebHistoryItem;
@@ -778,6 +782,18 @@ void BrowserWebViewDelegate::reportFindInPageSelection(
       false);
 }
 
+void BrowserWebViewDelegate::openFileSystem(
+    WebFrame* frame, WebFileSystem::Type type, long long size,
+    WebFileSystemCallbacks* callbacks) {
+  if (browser_->file_system_root().empty()) {
+    // The FileSystem temp directory was not initialized successfully.
+    callbacks->didFail(WebKit::WebFileErrorSecurity);
+  } else {
+    callbacks->didOpenFileSystem(
+        "CefFileSystem",
+        webkit_glue::FilePathToWebString(browser_->file_system_root()));
+  }
+}
 
 // Public methods ------------------------------------------------------------
 
