@@ -121,13 +121,7 @@ void CefProcess::CreateFileThread() {
 
   scoped_ptr<base::Thread> thread(new CefProcessSubThread(CefThread::FILE));
   base::Thread::Options options;
-#if defined(OS_WIN)
-  // On Windows, the FILE thread needs to be have a UI message loop which pumps
-  // messages in such a way that Google Update can communicate back to us.
-  options.message_loop_type = MessageLoop::TYPE_UI;
-#else
   options.message_loop_type = MessageLoop::TYPE_IO;
-#endif
   if (!thread->StartWithOptions(options))
     return;
   file_thread_.swap(thread);
