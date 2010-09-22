@@ -24,6 +24,7 @@
 #include "gfx/gdi_util.h"
 #include "gfx/native_widget_types.h"
 #include "gfx/point.h"
+#include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
@@ -528,6 +529,9 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
   scoped_refptr<media::FilterFactoryCollection> factory =
       new media::FilterFactoryCollection();
+
+  // Add the audio renderer factory.
+  factory->AddFactory(media::AudioRendererImpl::CreateFilterFactory());
 
   appcache::WebApplicationCacheHostImpl* appcache_host =
       appcache::WebApplicationCacheHostImpl::FromFrame(frame);
