@@ -136,6 +136,12 @@ void CefBrowserImpl::Reload()
       &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD));
 }
 
+void CefBrowserImpl::ReloadIgnoreCache()
+{
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD_NOCACHE));
+}
+
 void CefBrowserImpl::StopLoad()
 {
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
@@ -669,14 +675,15 @@ void CefBrowserImpl::UIT_GoBackOrForward(int offset)
   nav_controller_->GoToOffset(offset);
 }
 
-void CefBrowserImpl::UIT_Reload()
+void CefBrowserImpl::UIT_Reload(bool ignoreCache)
 {
   REQUIRE_UIT();
-  nav_controller_->Reload();
+  nav_controller_->Reload(ignoreCache);
 }
 
 bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
-                                  bool reload)
+                                  bool reload,
+                                  bool ignoreCache)
 {
   REQUIRE_UIT();
 
@@ -704,7 +711,7 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
   if (reload) {
-    frame->reload();
+    frame->reload(ignoreCache);
   } else if (!entry.GetContentState().empty()) {
     DCHECK(entry.GetPageID() != -1);
     frame->loadHistoryItem(
@@ -813,7 +820,10 @@ void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
       UIT_GoBackOrForward(1);
       break;
     case MENU_ID_NAV_RELOAD:
-      UIT_Reload();
+      UIT_Reload(false);
+      break;
+    case MENU_ID_NAV_RELOAD_NOCACHE:
+      UIT_Reload(true);
       break;
     case MENU_ID_NAV_STOP:
       if (GetWebView()) 

@@ -36,6 +36,7 @@ public:
   virtual bool CanGoForward();
   virtual void GoForward();
   virtual void Reload();
+  virtual void ReloadIgnoreCache();
   virtual void StopLoad();
   virtual void SetFocus(bool enable);
   virtual CefWindowHandle GetWindowHandle();

@@ -49,6 +49,7 @@ public:
   virtual bool CanGoForward();
   virtual void GoForward();
   virtual void Reload();
+  virtual void ReloadIgnoreCache();
   virtual void StopLoad();
   virtual void SetFocus(bool enable);
   virtual CefWindowHandle GetWindowHandle();
@@ -183,8 +184,10 @@ public:
                              const std::wstring& script_url,
                              int start_line);
   void UIT_GoBackOrForward(int offset);
-  void UIT_Reload();
-  bool UIT_Navigate(const BrowserNavigationEntry& entry, bool reload);
+  void UIT_Reload(bool ignoreCache);
+  bool UIT_Navigate(const BrowserNavigationEntry& entry,
+                    bool reload,
+                    bool ignoreCahce);
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
 
   CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url);

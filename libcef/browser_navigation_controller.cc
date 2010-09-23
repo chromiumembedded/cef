@@ -62,7 +62,7 @@ void BrowserNavigationController::Reset() {
   last_committed_entry_index_ = -1;
 }
 
-void BrowserNavigationController::Reload() {
+void BrowserNavigationController::Reload(bool ignoreCache) {
   // Base the navigation on where we are now...
   int current_index = GetCurrentEntryIndex();
 
@@ -74,7 +74,7 @@ void BrowserNavigationController::Reload() {
   DiscardPendingEntry();
 
   pending_entry_index_ = current_index;
-  NavigateToPendingEntry(true);
+  NavigateToPendingEntry(true, ignoreCache);
 }
 
 void BrowserNavigationController::GoToOffset(int offset) {
@@ -92,7 +92,7 @@ void BrowserNavigationController::GoToIndex(int index) {
   DiscardPendingEntry();
 
   pending_entry_index_ = index;
-  NavigateToPendingEntry(false);
+  NavigateToPendingEntry(false, false);
 }
 
 void BrowserNavigationController::LoadEntry(BrowserNavigationEntry* entry) {
@@ -101,7 +101,7 @@ void BrowserNavigationController::LoadEntry(BrowserNavigationEntry* entry) {
   // result in a download or a 'no content' response (e.g., a mailto: URL).
   DiscardPendingEntry();
   pending_entry_ = entry;
-  NavigateToPendingEntry(false);
+  NavigateToPendingEntry(false, false);
 }
 
 
@@ -218,14 +218,14 @@ int BrowserNavigationController::GetEntryIndexWithPageID(int32 page_id) const {
   return -1;
 }
 
-void BrowserNavigationController::NavigateToPendingEntry(bool reload) {
+void BrowserNavigationController::NavigateToPendingEntry(bool reload, bool ignoreCache) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
     DCHECK(pending_entry_index_ != -1); 
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 
-  if (browser_->UIT_Navigate(*pending_entry_, reload)) {
+  if (browser_->UIT_Navigate(*pending_entry_, reload, ignoreCache)) {
     // Note: this is redundant if navigation completed synchronously because
     // DidNavigateToEntry call this as well.
     UpdateMaxPageID();

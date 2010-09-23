@@ -103,7 +103,7 @@ class BrowserNavigationController {
   void Reset();
 
   // Causes the controller to reload the current (or pending) entry.
-  void Reload();
+  void Reload(bool ignoreCache);
 
   // Causes the controller to go to the specified offset from current.  Does
   // nothing if out of bounds.
@@ -176,7 +176,7 @@ class BrowserNavigationController {
   void InsertEntry(BrowserNavigationEntry* entry);
 
   int GetMaxPageID() const { return max_page_id_; }
-  void NavigateToPendingEntry(bool reload);
+  void NavigateToPendingEntry(bool reload, bool ignoreCache);
 
   // Return the index of the entry with the corresponding type and page_id,
   // or -1 if not found.

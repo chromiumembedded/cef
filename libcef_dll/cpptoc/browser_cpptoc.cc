@@ -103,6 +103,15 @@ void CEF_CALLBACK browser_reload(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->Reload();
 }
 
+void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->ReloadIgnoreCache();
+}
+
 void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self)
 {
   DCHECK(self);
@@ -255,6 +264,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.can_go_forward = browser_can_go_forward;
   struct_.struct_.go_forward = browser_go_forward;
   struct_.struct_.reload = browser_reload;
+  struct_.struct_.reload_ignore_cache = browser_reload_ignore_cache;
   struct_.struct_.stop_load = browser_stop_load;
   struct_.struct_.set_focus = browser_set_focus;
   struct_.struct_.get_window_handle = browser_get_window_handle;

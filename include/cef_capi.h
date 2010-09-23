@@ -210,6 +210,9 @@ typedef struct _cef_browser_t
   // Reload the current page.
   void (CEF_CALLBACK *reload)(struct _cef_browser_t* self);
 
+  // Reload the current page ignoring any cached data.
+  void (CEF_CALLBACK *reload_ignore_cache)(struct _cef_browser_t* self);
+
   // Stop loading the page.
   void (CEF_CALLBACK *stop_load)(struct _cef_browser_t* self);
 

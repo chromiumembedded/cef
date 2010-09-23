@@ -361,6 +361,9 @@ public:
   // Reload the current page.
   /*--cef()--*/
   virtual void Reload() =0;
+  // Reload the current page ignoring any cached data.
+  /*--cef()--*/
+  virtual void ReloadIgnoreCache() =0;
   // Stop loading the page.
   /*--cef()--*/
   virtual void StopLoad() =0;

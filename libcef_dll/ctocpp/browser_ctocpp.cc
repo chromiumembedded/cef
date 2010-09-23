@@ -77,6 +77,14 @@ void CefBrowserCToCpp::Reload()
   struct_->reload(struct_);
 }
 
+void CefBrowserCToCpp::ReloadIgnoreCache()
+{
+  if(CEF_MEMBER_MISSING(struct_, reload))
+    return;
+
+  struct_->reload_ignore_cache(struct_);
+}
+
 void CefBrowserCToCpp::StopLoad()
 {
   if(CEF_MEMBER_MISSING(struct_, stop_load))
