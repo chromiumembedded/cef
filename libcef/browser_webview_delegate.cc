@@ -672,7 +672,12 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   const WebDataSource* failed_ds = frame->provisionalDataSource();
   BrowserExtraData* extra_data =
       static_cast<BrowserExtraData*>(failed_ds->extraData());
-  bool replace = extra_data && extra_data->pending_page_id != -1;
+  
+  if (extra_data && !extra_data->request_committed) {
+    // Set the pending extra_data for our error page as the same pending_page_id
+    // to keep the history from getting messed up.
+    set_pending_extra_data(new BrowserExtraData(extra_data->pending_page_id));
+  }
 
   std::string error_text;
 
@@ -695,7 +700,10 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   frame->enableViewSourceMode(false);
 
   frame->loadHTMLString(
-      error_text, GURL("testshell-error:"), error.unreachableURL, replace);
+      error_text, GURL("testshell-error:"), error.unreachableURL, false);
+
+  // In case loadHTMLString failed before DidCreateDataSource was called.
+  set_pending_extra_data(NULL);
 }
 
 void BrowserWebViewDelegate::didCommitProvisionalLoad(
