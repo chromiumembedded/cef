@@ -21,7 +21,7 @@
 #include "ctocpp/task_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
 #include "ctocpp/write_handler_ctocpp.h"
-#include "base/string_util.h"
+#include "base/string_split.h"
 
 
 CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,

@@ -113,6 +113,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didInvalidateRect(const WebKit::WebRect& rect);
   virtual void didScrollRect(int dx, int dy,
                              const WebKit::WebRect& clip_rect);
+  virtual void scheduleComposite();
   virtual void didFocus();
   virtual void didBlur();
   virtual void didChangeCursor(const WebKit::WebCursorInfo& cursor);

@@ -485,6 +485,11 @@ void BrowserWebViewDelegate::didScrollRect(int dx, int dy,
     host->DidScrollRect(dx, dy, clip_rect);
 }
 
+void BrowserWebViewDelegate::scheduleComposite() {
+  if (WebWidgetHost* host = GetWidgetHost())
+    host->ScheduleComposite();
+}
+
 void BrowserWebViewDelegate::didFocus() {
   if (WebWidgetHost* host = GetWidgetHost()) {
     CefRefPtr<CefHandler> handler = browser_->GetHandler();

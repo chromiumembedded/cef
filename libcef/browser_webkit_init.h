@@ -36,6 +36,7 @@
 #include "webkit/glue/webkitclient_impl.h"
 #include "browser_appcache_system.h"
 #include "browser_database_system.h"
+#include "browser_file_system.h"
 #include "browser_resource_loader_bridge.h"
 #include "browser_webblobregistry_impl.h"
 #include "browser_webcookiejar_impl.h"
@@ -116,6 +117,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebCookieJar* cookieJar() {
     return &cookie_jar_;
+  }
+
+  virtual WebKit::WebFileSystem* fileSystem() {
+    return &file_system_;
   }
   
   virtual bool sandboxEnabled() {
@@ -216,6 +221,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   BrowserDatabaseSystem database_system_;
   BrowserWebCookieJarImpl cookie_jar_;
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
+  BrowserFileSystem file_system_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

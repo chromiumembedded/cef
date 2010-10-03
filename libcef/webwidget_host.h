@@ -41,6 +41,7 @@ class WebWidgetHost {
 
   void DidInvalidateRect(const gfx::Rect& rect);
   void DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect);
+  void ScheduleComposite();
 #if defined(OS_WIN)
   void SetCursor(HCURSOR cursor);
 #endif

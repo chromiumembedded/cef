@@ -179,6 +179,15 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   InvalidateRect(view_, &r, FALSE);
 }
 
+void WebWidgetHost::ScheduleComposite() {
+  if (!webwidget_)
+    return;
+  WebSize size = webwidget_->size();
+  gfx::Rect rect(0, 0, size.width, size.height);
+  RECT r = rect.ToRECT();
+  InvalidateRect(view_, &r, FALSE);
+}
+
 void WebWidgetHost::SetCursor(HCURSOR cursor) {
   SetClassLong(view_, GCL_HCURSOR,
       static_cast<LONG>(reinterpret_cast<LONG_PTR>(cursor)));

@@ -42,7 +42,9 @@
 #include "request_impl.h"
 
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop.h"
+#include "base/message_loop_proxy.h"
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "base/nss_util.h"
 #endif
@@ -53,6 +55,7 @@
 #include "base/utf_string_conversions.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_store.h"
+#include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
@@ -69,11 +72,13 @@
 #include "net/url_request/url_request.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/blob/blob_storage_controller.h"
+#include "webkit/blob/deletable_file_reference.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
-using webkit_glue::ResourceLoaderBridge;
 using net::HttpResponseHeaders;
 using net::StaticCookiePolicy;
+using webkit_blob::DeletableFileReference;
+using webkit_glue::ResourceLoaderBridge;
 
 
 namespace {
@@ -87,6 +92,7 @@ struct RequestParams {
   int load_flags;
   ResourceType::Type request_type;
   int appcache_host_id;
+  bool download_to_file;
   scoped_refptr<net::UploadData> upload;
 };
 
@@ -102,6 +108,7 @@ class RequestProxy : public URLRequest::Delegate,
   // Takes ownership of the params.
   RequestProxy(CefRefPtr<CefBrowser> browser)
     : browser_(browser),
+      download_to_file_(false),
       buf_(new net::IOBuffer(kDataSize)),
       last_upload_position_(0)
   {
@@ -181,10 +188,22 @@ class RequestProxy : public URLRequest::Delegate,
     peer_->OnReceivedData(buf_copy.get(), bytes_read);
   }
 
+  void NotifyDownloadedData(int bytes_read) {
+    if (!peer_)
+      return;
+
+    // Continue reading more data, see the comment in NotifyReceivedData.
+    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
+        this, &RequestProxy::AsyncReadData));
+
+    peer_->OnDownloadedData(bytes_read);
+  }
+
   void NotifyCompletedRequest(const URLRequestStatus& status,
-                              const std::string& security_info) {
+                              const std::string& security_info,
+                              const base::Time& complete_time) {
     if (peer_) {
-      peer_->OnCompletedRequest(status, security_info);
+      peer_->OnCompletedRequest(status, security_info, complete_time);
       DropPeer();  // ensure no further notifications
     }
   }
@@ -271,7 +290,7 @@ class RequestProxy : public URLRequest::Delegate,
           handled = true;
           OnCompletedRequest(
               URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
-              std::string());
+              std::string(), base::Time());
         } else if(!redirectUrl.empty()) {
           // redirect to the specified URL
           params->url = GURL(WideToUTF8(redirectUrl));
@@ -318,6 +337,17 @@ class RequestProxy : public URLRequest::Delegate,
       request_->set_context(_Context->request_context());
       BrowserAppCacheSystem::SetExtraRequestInfo(
           request_.get(), params->appcache_host_id, params->request_type);
+
+      download_to_file_ = params->download_to_file;
+      if (download_to_file_) {
+        FilePath path;
+        if (file_util::CreateTemporaryFile(&path)) {
+          downloaded_file_ = DeletableFileReference::GetOrCreate(
+              path, base::MessageLoopProxy::CreateForCurrentThread());
+          file_stream_.Open(
+              path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
+        }
+      }
 
       request_->Start();
 
@@ -403,14 +433,26 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   virtual void OnReceivedData(int bytes_read) {
+    if (download_to_file_) {
+      file_stream_.Write(buf_->data(), bytes_read, NULL);
+      owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &RequestProxy::NotifyDownloadedData, bytes_read));
+      return;
+    }
+    
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::NotifyReceivedData, bytes_read));
   }
 
   virtual void OnCompletedRequest(const URLRequestStatus& status,
-                                  const std::string& security_info) {
+                                  const std::string& security_info,
+                                  const base::Time& complete_time) {
+    if (download_to_file_)
+      file_stream_.Close();
+
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyCompletedRequest, status, security_info));
+        this, &RequestProxy::NotifyCompletedRequest, status, security_info,
+        complete_time));
   }
 
   // --------------------------------------------------------------------------
@@ -458,7 +500,7 @@ class RequestProxy : public URLRequest::Delegate,
     if(resource_stream_.get()) {
       // Resource stream reads always complete successfully
       OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
-          std::string());
+          std::string(), base::Time());
       resource_stream_ = NULL;
     } else if(request_.get()) {
       if (upload_progress_timer_.IsRunning()) {
@@ -466,7 +508,7 @@ class RequestProxy : public URLRequest::Delegate,
         upload_progress_timer_.Stop();
       }
       DCHECK(request_.get());
-      OnCompletedRequest(request_->status(), std::string());
+      OnCompletedRequest(request_->status(), std::string(), base::Time());
       request_.reset();  // destroy on the io thread
     }
   }
@@ -514,6 +556,8 @@ class RequestProxy : public URLRequest::Delegate,
     request->GetMimeType(&info->mime_type);
     request->GetCharset(&info->charset);
     info->content_length = request->GetExpectedContentSize();
+    if (downloaded_file_)
+      info->download_file_path = downloaded_file_->path();
     BrowserAppCacheSystem::GetExtraResponseInfo(
         request,
         &info->appcache_id,
@@ -522,6 +566,11 @@ class RequestProxy : public URLRequest::Delegate,
 
   scoped_ptr<URLRequest> request_;
   CefRefPtr<CefStreamReader> resource_stream_;
+
+  // Support for request.download_to_file behavior.
+  bool download_to_file_;
+  net::FileStream file_stream_;
+  scoped_refptr<DeletableFileReference> downloaded_file_;
 
   // Size of our async IO data buffers
   static const int kDataSize = 16*1024;
@@ -585,12 +634,19 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   virtual void OnReceivedData(int bytes_read) {
-    result_->data.append(buf_->data(), bytes_read);
+    if (download_to_file_)
+      file_stream_.Write(buf_->data(), bytes_read, NULL);
+    else
+      result_->data.append(buf_->data(), bytes_read);
     AsyncReadData();  // read more (may recurse)
   }
 
   virtual void OnCompletedRequest(const URLRequestStatus& status,
-                                  const std::string& security_info) {
+                                  const std::string& security_info,
+                                  const base::Time& complete_time) {
+    if (download_to_file_)
+      file_stream_.Close();
+    
     result_->status = status;
     event_.Signal();
   }
@@ -617,6 +673,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->load_flags = request_info.load_flags;
     params_->request_type = request_info.request_type;
     params_->appcache_host_id = request_info.appcache_host_id;
+    params_->download_to_file = request_info.download_to_file;
   }
 
   virtual ~ResourceLoaderBridgeImpl() {

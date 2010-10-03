@@ -7,7 +7,6 @@
 #include "base/message_loop.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebBlobData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebBlobStorageData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/blob/blob_data.h"

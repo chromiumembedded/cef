@@ -225,6 +225,8 @@ bool CefContext::Initialize(bool multi_threaded_message_loop,
   webprefs_->application_cache_enabled = true;
   webprefs_->databases_enabled = true;
   webprefs_->allow_file_access_from_file_urls = true;
+  webprefs_->accelerated_2d_canvas_enabled = true;
+  webprefs_->accelerated_compositing_enabled = true;
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
   // We want to be sure to init NSPR on the main thread.
