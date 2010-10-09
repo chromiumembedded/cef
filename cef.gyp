@@ -412,9 +412,7 @@
         'libcef/tracker.h',
         'libcef/v8_impl.cc',
         'libcef/v8_impl.h',
-        'libcef/webview_host.cc',
         'libcef/webview_host.h',
-        'libcef/webwidget_host.cc',
         'libcef/webwidget_host.h',
       ],
       'conditions': [
@@ -435,8 +433,30 @@
             'libcef/printing/print_settings.h',
             'libcef/printing/win_printing_context.cc',
             'libcef/printing/win_printing_context.h',
+            'libcef/webview_host_win.cc',
+            'libcef/webwidget_host_win.cc',
           ],
-        }]
+        }],
+        [ 'OS=="mac"', {
+          'sources': [
+            'include/cef_types_mac.h',
+            'include/cef_mac.h',
+            'libcef/browser_webkit_glue_mac.mm',
+            'libcef/browser_webview_delegate_mac.mm',
+            'libcef/webview_host_mac.mm',
+            'libcef/webwidget_host_mac.mm',
+          ],
+        }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'sources': [
+            'include/cef_types_linux.h',
+            'include/cef_linux.h',
+            'libcef/browser_webkit_glue_gtk.cc',
+            'libcef/browser_webview_delegate_gtk.cc',
+            'libcef/webview_host_gtk.cc',
+            'libcef/webwidget_host_gtk.cc',
+          ],
+        }],
       ],
     },
   ]

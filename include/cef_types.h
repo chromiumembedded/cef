@@ -1,4 +1,4 @@
-// Copyright (c) 2009 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -37,8 +37,12 @@ extern "C" {
 
 
 // Bring in platform-specific definitions.
-#ifdef _WIN32
+#if defined(_WIN32)
 #include "cef_types_win.h"
+#elif defined(__APPLE__)
+#include "cef_types_mac.h"
+#elif defined(__linux__)
+#include "cef_types_linux.h"
 #endif
 
 

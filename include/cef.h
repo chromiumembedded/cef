@@ -200,8 +200,12 @@ public:
 
 
 // Bring in platform-specific definitions.
-#ifdef _WIN32
+#if defined(_WIN32)
 #include "cef_win.h"
+#elif defined(__APPLE__)
+#include "cef_mac.h"
+#elif defined(__linux__)
+#include "cef_linux.h"
 #endif
 
 

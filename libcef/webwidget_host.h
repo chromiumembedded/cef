@@ -6,9 +6,9 @@
 #define _WEBWIDGET_HOST_H
 
 #include "base/basictypes.h"
-#include "gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "gfx/native_widget_types.h"
+#include "gfx/rect.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 
@@ -23,17 +23,25 @@ class WebKeyboardEvent;
 struct WebScreenInfo;
 }
 
-// This class is a simple ViewHandle-based host for a WebWidget
+#if defined(OS_MACOSX)
+#ifdef __OBJC__
+@class NSEvent;
+#else
+class NSEvent;
+#endif
+#endif
+
+// This class is a simple NativeView-based host for a WebWidget
 class WebWidgetHost {
  public:
-  // The new instance is deleted once the associated ViewHandle is destroyed.
+  // The new instance is deleted once the associated NativeView is destroyed.
   // The newly created window should be resized after it is created, using the
   // MoveWindow (or equivalent) function.
   static WebWidgetHost* Create(gfx::NativeView parent_view,
                                WebKit::WebWidgetClient* client);
 
 #if defined(OS_MACOSX)
-  static void HandleEvent(gfx::NativeView view, NSEvent *event);
+  static void HandleEvent(gfx::NativeView view, NSEvent* event);
 #endif
 
   gfx::NativeView view_handle() const { return view_; }
@@ -88,7 +96,7 @@ class WebWidgetHost {
   void KeyEvent(NSEvent *);
   void SetFocus(bool enable);
  protected:
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_USES_GTK)
  public:
   // ---------------------------------------------------------------------------
   // This is needed on Linux because the GtkWidget creation is the same between
@@ -99,14 +107,18 @@ class WebWidgetHost {
   //   parent: a GtkBox to pack the new widget at the end of
   //   host: a pointer to a WebWidgetHost (or subclass thereof)
   // ---------------------------------------------------------------------------
-  static gfx::NativeView CreateWindow(gfx::NativeView parent_view,
+  static gfx::NativeView CreateWidget(gfx::NativeView parent_view,
                                       WebWidgetHost* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
 #endif
 
+#if defined(OS_WIN)
   void TrackMouseLeave(bool enable);
+#endif
+
   void ResetScrollRect();
+
   void set_painting(bool value) {
 #ifndef NDEBUG
     painting_ = value;
@@ -128,10 +140,17 @@ class WebWidgetHost {
   int scroll_dx_;
   int scroll_dy_;
 
+#if defined(OS_WIN)
   bool track_mouse_leave_;
+#endif
+
+#if defined(TOOLKIT_USES_GTK)
+  // Since GtkWindow resize is asynchronous, we have to stash the dimensions,
+  // so that the backing store doesn't have to wait for sizing to take place.
+  gfx::Size logical_size_;
+#endif
 
   WebKit::WebKeyboardEvent last_key_event_;
-
   gfx::NativeView tooltip_view_;
   std::wstring tooltip_text_;
   bool tooltip_showing_;
