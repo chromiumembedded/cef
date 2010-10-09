@@ -53,15 +53,6 @@
         'tests/cefclient/uiplugin_test.cpp',
         'tests/cefclient/uiplugin_test.h',
       ],
-      'link_settings': {
-        'libraries': [
-          '-lcomctl32.lib',
-          '-lshlwapi.lib',
-          '-lrpcrt4.lib',
-          '-lopengl32.lib',
-          '-lglu32.lib',
-        ],
-      },
       'conditions': [
         ['OS=="win"', {
           'msvs_settings': {
@@ -70,6 +61,15 @@
               'SubSystem': '2',
               'EntryPointSymbol' : 'wWinMainCRTStartup',
             },
+          },
+          'link_settings': {
+            'libraries': [
+              '-lcomctl32.lib',
+              '-lshlwapi.lib',
+              '-lrpcrt4.lib',
+              '-lopengl32.lib',
+              '-lglu32.lib',
+            ],
           },
         }],
       ],
@@ -105,18 +105,31 @@
       'target_name': 'patcher',
       'type': 'none',
       'msvs_guid': 'A6D0953E-899E-4C60-AB6B-CAE75A44B8E6',
-      'actions': [
-        {
-          'action_name': 'patch_source',
-          'msvs_cygwin_shell': 0,
-          'inputs': [
-            'tools/patch_source.bat',
-          ],
-          'outputs': [
-            'tools/patch_source.bat.output',
-          ],
-          'action': ['', '<@(_inputs)'],
-        },
+      'conditions': [
+        ['OS=="win"', {
+          'actions': [{
+            'action_name': 'patch_source',
+            'msvs_cygwin_shell': 0,
+            'inputs': [
+              'tools/patch_source.bat',
+            ],
+            'outputs': [
+              'tools/patch_source.bat.output',
+            ],
+            'action': ['', '<@(_inputs)'],
+          }],
+        }, { # OS!="win"
+          'actions': [{
+            'action_name': 'patch_source',
+            'inputs': [
+              'tools/patch_source.sh',
+            ],
+            'outputs': [
+              'tools/patch_source.sh.output',
+            ],
+            'action': ['', '<@(_inputs)'],
+          }],
+        }],
       ],
     },
     {
@@ -127,7 +140,6 @@
         '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
-        '../breakpad/breakpad.gyp:breakpad_handler',
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../gfx/gfx.gyp:gfx',
         '../media/media.gyp:media',
@@ -173,8 +185,6 @@
         '..',
       ],
       'sources': [
-        '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
-        '$(OutDir)/obj/global_intermediate/webkit/webkit_strings_en-US.rc',
         'include/cef.h',
         'include/cef_capi.h',
         'include/cef_export.h',
@@ -185,8 +195,6 @@
         'include/cef_string_list.h',
         'include/cef_string_map.h',
         'include/cef_types.h',
-        'include/cef_types_win.h',
-        'include/cef_win.h',
         'libcef_dll/cef_logging.h',
         'libcef_dll/cpptoc/browser_cpptoc.cc',
         'libcef_dll/cpptoc/browser_cpptoc.h',
@@ -221,16 +229,29 @@
         'libcef_dll/ctocpp/write_handler_ctocpp.cc',
         'libcef_dll/ctocpp/write_handler_ctocpp.h',
         'libcef_dll/libcef_dll.cc',
-        'libcef_dll/libcef_dll.rc',
         'libcef_dll/resource.h',
         'libcef_dll/transfer_util.cpp',
         'libcef_dll/transfer_util.h',
       ],
-      'link_settings': {
-        'libraries': [
-          '-lcomctl32.lib',
-        ],
-      },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            '../breakpad/breakpad.gyp:breakpad_handler',
+          ],
+          'sources': [
+            '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
+            '$(OutDir)/obj/global_intermediate/webkit/webkit_strings_en-US.rc',
+            'include/cef_types_win.h',
+            'include/cef_win.h',
+            'libcef_dll/libcef_dll.rc',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lcomctl32.lib',
+            ],
+          },
+        }]
+      ],
     },
     {
       'target_name': 'libcef_dll_wrapper',
@@ -302,7 +323,6 @@
         '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
-        '../breakpad/breakpad.gyp:breakpad_handler',
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../gfx/gfx.gyp:gfx',
         '../media/media.gyp:media',
@@ -342,16 +362,10 @@
         'include/cef_string_list.h',
         'include/cef_string_map.h',
         'include/cef_types.h',
-        'include/cef_types_win.h',
-        'include/cef_win.h',
         'libcef/browser_appcache_system.cc',
         'libcef/browser_appcache_system.h',
         'libcef/browser_database_system.cc',
         'libcef/browser_database_system.h',
-        'libcef/browser_drag_delegate.cc',
-        'libcef/browser_drag_delegate.h',
-        'libcef/browser_drop_delegate.cc',
-        'libcef/browser_drop_delegate.h',
         'libcef/browser_file_system.cc',
         'libcef/browser_file_system.h',
         'libcef/browser_impl.cc',
@@ -371,11 +385,9 @@
         'libcef/browser_webblobregistry_impl.h',
         'libcef/browser_webkit_glue.cc',
         'libcef/browser_webkit_glue.h',
-        'libcef/browser_webkit_glue_win.cc',
         'libcef/browser_webkit_init.h',
         'libcef/browser_webview_delegate.cc',
         'libcef/browser_webview_delegate.h',
-        'libcef/browser_webview_delegate_win.cc',
         'libcef/cef_context.cc',
         'libcef/cef_context.h',
         'libcef/cef_process.cc',
@@ -391,10 +403,6 @@
         'libcef/cef_string_map.cc',
         'libcef/cef_thread.cc',
         'libcef/cef_thread.h',
-        'libcef/printing/print_settings.cc',
-        'libcef/printing/print_settings.h',
-        'libcef/printing/win_printing_context.cc',
-        'libcef/printing/win_printing_context.h',
         'libcef/request_impl.cc',
         'libcef/request_impl.h',
         'libcef/scheme_impl.cc',
@@ -408,6 +416,27 @@
         'libcef/webview_host.h',
         'libcef/webwidget_host.cc',
         'libcef/webwidget_host.h',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            '../breakpad/breakpad.gyp:breakpad_handler',
+          ],
+          'sources': [
+            'include/cef_types_win.h',
+            'include/cef_win.h',
+            'libcef/browser_drag_delegate.cc',
+            'libcef/browser_drag_delegate.h',
+            'libcef/browser_drop_delegate.cc',
+            'libcef/browser_drop_delegate.h',
+            'libcef/browser_webkit_glue_win.cc',
+            'libcef/browser_webview_delegate_win.cc',
+            'libcef/printing/print_settings.cc',
+            'libcef/printing/print_settings.h',
+            'libcef/printing/win_printing_context.cc',
+            'libcef/printing/win_printing_context.h',
+          ],
+        }]
       ],
     },
   ]
