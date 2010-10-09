@@ -112,7 +112,7 @@ public:
   BrowserWebViewDelegate* GetWebViewDelegate() const {
     return delegate_.get();
   }
-  HWND GetWebViewWndHandle() const {
+  CefWindowHandle GetWebViewWndHandle() const {
     return webviewhost_->view_handle();
   }
   WebKit::WebWidget* GetPopup() const {
@@ -124,11 +124,15 @@ public:
   BrowserWebViewDelegate* GetPopupDelegate() const {
     return popup_delegate_.get();
   }
-  HWND GetPopupWndHandle() const {
+  CefWindowHandle GetPopupWndHandle() const {
     return popuphost_->view_handle();
   }
-  HWND GetMainWndHandle() const {
+  CefWindowHandle GetMainWndHandle() const {
+#if defined(OS_WIN)
     return window_info_.m_hWnd;
+#else
+    return 0;
+#endif
   }
 
 
@@ -247,8 +251,10 @@ protected:
 
   std::wstring title_;
 
+#if defined(OS_WIN)
   // Context object used to manage printing.
   printing::PrintingContext print_context_;
+#endif
 
   typedef std::map<std::wstring, CefFrame*> FrameMap;
   FrameMap frames_;

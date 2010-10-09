@@ -113,27 +113,17 @@ public:
   }
   CefWindowInfo& operator=(const cef_window_info_t& r)
   {
-    m_dwExStyle = r.m_dwExStyle;
     if(m_windowName)
       cef_string_free(m_windowName);
     if(r.m_windowName)
       m_windowName = cef_string_alloc(r.m_windowName);
     else
       m_windowName = NULL;
-    m_dwStyle = r.m_dwStyle;
     m_x = r.m_x;
     m_y = r.m_y;
     m_nWidth = r.m_nWidth;
     m_nHeight = r.m_nHeight;
     return *this;
-  }
-
-  void SetAsChild(HWND hWndParent, RECT windowRect)
-  {
-    m_x = windowRect.left;
-    m_y = windowRect.top;
-    m_nWidth = windowRect.right - windowRect.left;
-    m_nHeight = windowRect.bottom - windowRect.top;
   }
 };
 
@@ -162,7 +152,6 @@ public:
 
   void Init()
   {
-    m_hDC = NULL;
     m_Scale = 0;
   }
 

@@ -891,7 +891,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         // Creat the new child child browser window
         CefBrowser::CreateBrowser(info, false,
-            static_cast<CefRefPtr<CefHandler>>(g_handler),
+            static_cast<CefRefPtr<CefHandler> >(g_handler),
             L"http://www.google.com");
 
         // Start the timer that will be used to update child window state

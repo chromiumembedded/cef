@@ -771,7 +771,9 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstri
   REQUIRE_UIT();
     
   CefWindowInfo info;
+#if defined(OS_WIN)
   info.SetAsPopup(NULL, url.c_str());
+#endif
   CefRefPtr<CefHandler> handler = handler_;
   std::wstring newUrl = url;
 

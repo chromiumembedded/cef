@@ -304,7 +304,7 @@ private:
   base::WaitableEvent completion_event_;
 
   // Map of resources that can be automatically loaded
-  typedef std::map<std::wstring, std::pair<std::string, std::wstring>> ResourceMap;
+  typedef std::map<std::wstring, std::pair<std::string, std::wstring> > ResourceMap;
   ResourceMap resource_map_;
 };
 

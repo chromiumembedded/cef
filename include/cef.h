@@ -831,7 +831,7 @@ public:
 class CefPostData : public CefBase
 {
 public:
-  typedef std::vector<CefRefPtr<CefPostDataElement>> ElementVector;
+  typedef std::vector<CefRefPtr<CefPostDataElement> > ElementVector;
 
   // Create a new CefPostData object.
   /*--cef()--*/
@@ -1015,7 +1015,7 @@ public:
 };
 
 
-typedef std::vector<CefRefPtr<CefV8Value>> CefV8ValueList;
+typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 
 // Interface that should be implemented to handle V8 function calls.
 /*--cef(source=client)--*/
