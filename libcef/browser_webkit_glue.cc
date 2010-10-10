@@ -113,6 +113,14 @@ std::string WebStringToStdString(const WebKit::WebString& str) {
   return ret;
 }
 
+WebKit::WebString StdWStringToWebString(const std::wstring& str) {
+  return StdStringToWebString(WideToUTF8(str));
+}
+
+std::wstring WebStringToStdWString(const WebKit::WebString& str) {
+  return UTF8ToWide(WebStringToStdString(str));
+}
+
 std::string GetProductVersion() {
   return std::string("Chrome/7.0.517.0");
 }

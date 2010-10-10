@@ -3,8 +3,14 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_string.h"
+#include "build/build_config.h"
+
 #include <limits.h>
+#if defined(OS_MACOSX)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <string.h>
 
 typedef unsigned long dword_t;

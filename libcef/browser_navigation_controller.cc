@@ -26,9 +26,9 @@ BrowserNavigationEntry::BrowserNavigationEntry(int page_id,
     : page_id_(page_id),
       url_(url),
       title_(title),
-      target_frame_(target_frame),
       method_(method),
-      headers_(headers) {
+      headers_(headers),
+      target_frame_(target_frame) {
   if(!upload.isNull())
     upload_ = upload;
 }

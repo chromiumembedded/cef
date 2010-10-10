@@ -13,6 +13,7 @@
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "base/nss_util.h"
 #endif
+#include "base/utf_string_conversions.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/webpreferences.h"
 
@@ -61,7 +62,11 @@ static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
 
   NPAPI::PluginVersionInfo info;
 
+#if defined(OS_WIN)
   info.path = FilePath(plugin_info->unique_name);
+#else
+  info.path = FilePath(WideToUTF8(plugin_info->unique_name));
+#endif
   info.product_name = plugin_info->display_name;
   info.file_description = plugin_info->description;
   info.file_version =plugin_info->version;

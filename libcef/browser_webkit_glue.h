@@ -43,4 +43,8 @@ WebKit::WebString StdStringToWebString(const std::string& str);
 
 std::string WebStringToStdString(const WebKit::WebString& str);
 
+WebKit::WebString StdWStringToWebString(const std::wstring& str);
+
+std::wstring WebStringToStdWString(const WebKit::WebString& str);
+
 }  // namespace webkit_glue

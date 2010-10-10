@@ -42,10 +42,6 @@ static void TrackAdd(CefTrackObject* object)
   g_scheme_tracker.Pointer()->Add(object);
 }
 
-static void TrackDelete(CefTrackObject* object)
-{
-  g_scheme_tracker.Pointer()->Delete(object);
-}
 
 
 // URLRequestJob implementation.
@@ -54,9 +50,9 @@ class CefUrlRequestJob : public URLRequestJob {
 public:
   CefUrlRequestJob(URLRequest* request, CefRefPtr<CefSchemeHandler> handler)
     : URLRequestJob(request),
-    url_(request->url()),
     handler_(handler),
     response_length_(0),
+    url_(request->url()),
     remaining_bytes_(0) {  }
 
   virtual ~CefUrlRequestJob(){}

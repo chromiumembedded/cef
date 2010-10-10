@@ -107,9 +107,9 @@ class RequestProxy : public URLRequest::Delegate,
  public:
   // Takes ownership of the params.
   RequestProxy(CefRefPtr<CefBrowser> browser)
-    : browser_(browser),
-      download_to_file_(false),
+    : download_to_file_(false),
       buf_(new net::IOBuffer(kDataSize)),
+      browser_(browser),
       last_upload_position_(0)
   {
   }
@@ -814,9 +814,9 @@ namespace webkit_glue {
 // Factory function.
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info) {
-  CefRefPtr<CefBrowser> browser =
+  CefRefPtr<CefBrowserImpl> browser =
       _Context->GetBrowserByID(request_info.routing_id);
-  return new ResourceLoaderBridgeImpl(browser, request_info);
+  return new ResourceLoaderBridgeImpl(browser.get(), request_info);
 }
 
 // Issue the proxy resolve request on the io thread, and wait 

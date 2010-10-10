@@ -10,6 +10,7 @@
 #include "browser_socket_stream_bridge.h"
 #include "browser_webblobregistry_impl.h"
 
+#include "base/utf_string_conversions.h"
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
@@ -33,8 +34,14 @@ void CefProcessIOThread::Init() {
   // Initializes the COM library on the current thread.
   CoInitialize(NULL);
 #endif
+  
+#if defined(OS_WIN)
+  FilePath cache_path(_Context->cache_path());
+#else
+  FilePath cache_path(WideToUTF8(_Context->cache_path()));
+#endif
 
-  request_context_ = new BrowserRequestContext(FilePath(_Context->cache_path()),
+  request_context_ = new BrowserRequestContext(cache_path,
       net::HttpCache::NORMAL, false);
   _Context->set_request_context(request_context_);
 

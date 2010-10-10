@@ -37,7 +37,11 @@ public:
   }
 
   void DoMessageLoopIteration() {
+#if defined(OS_MACOSX)
+    Run();
+#else
     Run(NULL);
+#endif
   }
 
  private:

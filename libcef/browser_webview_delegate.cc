@@ -21,8 +21,6 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "base/utf_string_conversions.h"
-#include "gfx/gdi_util.h"
-#include "gfx/native_widget_types.h"
 #include "gfx/point.h"
 #include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
@@ -295,6 +293,8 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
           rv = handler->HandleKeyEvent(browser_,
               KEYEVENT_CHAR, event.windowsKeyCode,
               event.modifiers, event.isSystemKey?true:false);
+          break;
+        default:
           break;
       }
     }

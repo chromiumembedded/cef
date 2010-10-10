@@ -17,6 +17,13 @@ template <class ClassName, class BaseName, class StructName>
 class CefCppToC : public CefThreadSafeBase<CefBase>
 {
 public:
+  // Structure representation with pointer to the C++ class.
+  struct Struct
+  {
+    StructName struct_;
+    CefCppToC<ClassName,BaseName,StructName>* class_;
+  };
+  
   // Use this method to retrieve the underlying class instance from our
   // own structure when the structure is passed as the required first
   // parameter of a C API function call. No explicit reference counting
@@ -24,8 +31,7 @@ public:
   static CefRefPtr<BaseName> Get(StructName* s)
   {
     // Cast our structure to the wrapper structure type.
-    ClassName::Struct* wrapperStruct =
-        reinterpret_cast<ClassName::Struct*>(s);
+    Struct* wrapperStruct = reinterpret_cast<Struct*>(s);
     // Return the underlying object instance.
     return wrapperStruct->class_->GetClass();
   }
@@ -48,8 +54,7 @@ public:
   static CefRefPtr<BaseName> Unwrap(StructName* s)
   {
     // Cast our structure to the wrapper structure type.
-    ClassName::Struct* wrapperStruct =
-        reinterpret_cast<ClassName::Struct*>(s);
+    Struct* wrapperStruct = reinterpret_cast<Struct*>(s);
     // Add the underlying object instance to a smart pointer.
     CefRefPtr<BaseName> objectPtr(wrapperStruct->class_->GetClass());
     // Release the reference to our wrapper object that was added before the
@@ -58,13 +63,6 @@ public:
     // Return the underlying object instance.
     return objectPtr;
   }
-
-  // Structure representation with pointer to the C++ class.
-  struct Struct
-  {
-    StructName struct_;
-    CefCppToC<ClassName,BaseName,StructName>* class_;
-  };
 
   CefCppToC(BaseName* cls)
     : class_(cls)

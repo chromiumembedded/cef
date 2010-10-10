@@ -156,8 +156,8 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
   HeaderMap::const_iterator it = map.begin();
   for(; it != map.end(); ++it) {
     request.setHTTPHeaderField(
-        webkit_glue::StdStringToWebString(WideToUTF8(it->first.c_str())),
-        webkit_glue::StdStringToWebString(WideToUTF8(it->second.c_str())));
+        webkit_glue::StdWStringToWebString(it->first.c_str()),
+        webkit_glue::StdWStringToWebString(it->second.c_str()));
   }
 }
 
@@ -465,7 +465,11 @@ void CefPostDataElementImpl::Set(const net::UploadData::Element& element)
             std::string(element.bytes().begin(),
             element.bytes().end()).c_str()));
   } else if (element.type() == net::UploadData::TYPE_FILE) {
+#if defined(OS_WIN)
     SetToFile(element.file_path().value());
+#else
+    SetToFile(UTF8ToWide(element.file_path().value()));
+#endif
   } else {
     NOTREACHED();
   }
@@ -480,7 +484,11 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
   if(type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if(type_ == PDE_TYPE_FILE) {
+#if defined(OS_WIN)
     element.SetToFilePath(FilePath(data_.filename));
+#else
+    element.SetToFilePath(FilePath(WideToUTF8(data_.filename)));
+#endif
   } else {
     NOTREACHED();
   }
@@ -514,8 +522,7 @@ void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element)
         static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if(type_ == PDE_TYPE_FILE) {
     element.type = WebKit::WebHTTPBody::Element::TypeFile;
-    element.filePath.assign(
-        webkit_glue::StdStringToWebString(WideToUTF8(data_.filename)));
+    element.filePath.assign(webkit_glue::StdWStringToWebString(data_.filename));
   } else {
     NOTREACHED();
   }

@@ -5,6 +5,7 @@
 #include "stream_impl.h"
 
 #include "base/logging.h"
+#include "base/utf_string_conversions.h"
 
 
 // Static functions
@@ -13,7 +14,11 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
     const std::wstring& fileName)
 {
   CefRefPtr<CefStreamReader> reader;
+#if defined(OS_WIN)
   FILE *f = _wfopen(fileName.c_str(), L"rb");
+#else
+  FILE *f = fopen(WideToUTF8(fileName).c_str(), "rb");
+#endif
   if(f)
     reader = new CefFileReader(f, true);
   return reader;
@@ -45,7 +50,11 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
 {
   DCHECK(!fileName.empty());
   CefRefPtr<CefStreamWriter> writer;
+#if defined(OS_WIN)
   FILE* file = _wfopen(fileName.c_str(), L"wb");
+#else
+  FILE* file = fopen(WideToUTF8(fileName).c_str(), "wb");
+#endif
   if(file)
     writer = new CefFileWriter(file, true);
   return writer;
@@ -65,7 +74,7 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
 // CefFileReader
 
 CefFileReader::CefFileReader(FILE* file, bool close)
-  : file_(file), close_(close)
+  : close_(close), file_(file)
 {
 }
 
@@ -255,7 +264,7 @@ void CefBytesReader::SetData(void* data, long datasize, bool copy)
 // CefBytesWriter
 
 CefBytesWriter::CefBytesWriter(size_t grow)
-  : grow_(grow), offset_(0), datasize_(grow)
+  : grow_(grow), datasize_(grow), offset_(0)
 {
   DCHECK(grow > 0);
   data_ = malloc(grow);

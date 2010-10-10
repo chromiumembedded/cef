@@ -41,14 +41,16 @@ using WebKit::WebURL;
 using WebKit::WebURLRequest;
 using WebKit::WebView;
 using webkit_glue::StdStringToWebString;
+using webkit_glue::StdWStringToWebString;
 using webkit_glue::WebStringToStdString;
+using webkit_glue::WebStringToStdWString;
 
 
 CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler)
   : window_info_(windowInfo), is_popup_(popup), is_modal_(false),
-  handler_(handler), webviewhost_(NULL), popuphost_(NULL), unique_id_(0),
-  frame_main_(NULL)
+    handler_(handler), webviewhost_(NULL), popuphost_(NULL),
+    frame_main_(NULL), unique_id_(0)
 {
   delegate_.reset(new BrowserWebViewDelegate(this));
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
@@ -190,7 +192,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
   if (!view)
     return NULL;
 
-  WebFrame* frame = view->findFrameByName(name);
+  WebFrame* frame = view->findFrameByName(StdWStringToWebString(name));
   if(frame)
     return GetCefFrame(frame);
   return NULL;
@@ -285,7 +287,7 @@ WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
   std::wstring name = frame->GetName();
   if(name.empty())
     return view ->mainFrame();
-  return view ->findFrameByName(name);
+  return view ->findFrameByName(StdWStringToWebString(name));
 }
 
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
@@ -578,11 +580,12 @@ void CefBrowserImpl::UIT_LoadURLForRequest(CefFrame* frame,
   if (url.empty())
       return;
 
-  GURL gurl(url);
+  GURL gurl(StdWStringToWebString(url));
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    gurl = GURL(std::wstring(L"http://") + url);
+    std::wstring new_url = std::wstring(L"http://") + url;
+    gurl = GURL(StdWStringToWebString(new_url));
     if (!gurl.is_valid())
       return;
   }
@@ -600,11 +603,12 @@ void CefBrowserImpl::UIT_LoadHTML(CefFrame* frame,
 {
   REQUIRE_UIT();
     
-  GURL gurl(url);
+  GURL gurl(StdWStringToWebString(url));
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    gurl = GURL(std::wstring(L"http://") + url);
+    std::wstring new_url = std::wstring(L"http://") + url;
+    gurl = GURL(StdWStringToWebString(new_url));
     if (!gurl.is_valid())
       return;
   }
@@ -622,11 +626,12 @@ void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefFrame* frame,
 {
   REQUIRE_UIT();
     
-  GURL gurl(url);
+  GURL gurl(StdWStringToWebString(url));
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    gurl = GURL(std::wstring(L"http://") + url);
+    std::wstring new_url = std::wstring(L"http://") + url;
+    gurl = GURL(StdWStringToWebString(new_url));
     if (!gurl.is_valid())
       return;
   }
@@ -662,8 +667,9 @@ void CefBrowserImpl::UIT_ExecuteJavaScript(CefFrame* frame,
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     web_frame->executeScript(
-        WebScriptSource(WebString(js_code), WebURL(GURL(script_url)),
-                        start_line));
+        WebScriptSource(StdWStringToWebString(js_code),
+            WebURL(GURL(StdWStringToWebString(script_url))),
+            start_line));
   }
 
   frame->Release();
@@ -693,10 +699,13 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 
   // Get the right target frame for the entry.
   WebFrame* frame;
-  if (!entry.GetTargetFrame().empty())
-    frame = view->findFrameByName(entry.GetTargetFrame());
-  else
+  if (!entry.GetTargetFrame().empty()) {
+    frame = view->findFrameByName(
+        StdWStringToWebString(entry.GetTargetFrame()));
+  } else {
     frame = view->mainFrame();
+  }
+
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
 
@@ -720,10 +729,8 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     DCHECK(entry.GetPageID() == -1);
     WebURLRequest request(entry.GetURL());
 
-    if(entry.GetMethod().size() > 0) {
-      request.setHTTPMethod(
-          StdStringToWebString(WideToUTF8(entry.GetMethod())));
-    }
+    if(entry.GetMethod().size() > 0)
+      request.setHTTPMethod(StdWStringToWebString(entry.GetMethod()));
 
     if(entry.GetHeaders().size() > 0)
       CefRequestImpl::SetHeaderMap(entry.GetHeaders(), request);
@@ -955,8 +962,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       // Just navigate back/forward.
       delegate->SelectFindResult(options.forward);
     } else {
-      if (delegate->StartFind(search_text.c_str(), options.matchCase,
-          identifier)) {
+      if (delegate->StartFind(StdWStringToWebString(search_text),
+          options.matchCase, identifier)) {
       } else {
         // No find results.
         UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);
@@ -983,8 +990,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
   WebRange current_selection = focused_frame->selectionRange();
 
   do {
-    result = search_frame->find(
-        identifier, search_text, options, wrap_within_frame, &selection_rect);
+    result = search_frame->find(identifier, StdWStringToWebString(search_text),
+        options, wrap_within_frame, &selection_rect);
 
     if (!result) {
       // don't leave text selected as you move to the next frame.
@@ -1010,7 +1017,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       // match for the search word(s).
       if (multi_frame && search_frame == focused_frame) {
         result = search_frame->find(
-            identifier, search_text, options, true,  // Force wrapping.
+            identifier, StdWStringToWebString(search_text),
+            options, true,  // Force wrapping.
             &selection_rect);
       }
     }
@@ -1051,7 +1059,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
         // Start new scoping request. If the scoping function determines that it
         // needs to scope, it will defer until later.
         search_frame->scopeStringMatches(identifier,
-                                         search_text,
+                                         StdWStringToWebString(search_text),
                                          options,
                                          true);  // reset the tickmarks
       }
