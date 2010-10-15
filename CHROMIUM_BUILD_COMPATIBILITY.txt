@@ -54,3 +54,4 @@ Date       | CEF Revision                    | Chromium Revision
 2010-08-09 | /trunk@93                       | /trunk@55388
 2010-09-12 | /trunk@102                      | /trunk@59193
 2010-10-03 | /trunk@108                      | /trunk@61327
+2010-10-15 | /trunk@116                      | /trunk@62731

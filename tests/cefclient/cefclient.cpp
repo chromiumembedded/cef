@@ -381,8 +381,8 @@ public:
             new ClientReadHandler(pBytes, dwSize));
         mimeType = L"text/html";
       }
-    } else if(wcsstr(url.c_str(), L"/logo1w.png") != NULL) {
-      // Any time we find "logo.gif" in the URL substitute in our own image
+    } else if(wcsstr(url.c_str(), L"/ps_logo2.png") != NULL) {
+      // Any time we find "ps_logo2.png" in the URL substitute in our own image
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
             new ClientReadHandler(pBytes, dwSize));

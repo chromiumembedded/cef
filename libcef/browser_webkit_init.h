@@ -7,9 +7,9 @@
 #define _BROWSER_WEBKIT_INIT_H
 
 #include "base/file_util.h"
+#include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
 #include "base/scoped_temp_dir.h"
-#include "base/stats_counters.h"
 #include "base/utf_string_conversions.h"
 #include "media/base/media.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
@@ -45,7 +45,7 @@
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
   explicit BrowserWebKitInit() {
-    v8::V8::SetCounterFunction(StatsTable::FindLocation);
+    v8::V8::SetCounterFunction(base::StatsTable::FindLocation);
 
     WebKit::initialize(this);
     WebKit::setLayoutTestMode(false);

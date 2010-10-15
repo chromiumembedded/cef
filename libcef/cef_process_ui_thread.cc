@@ -13,8 +13,8 @@
 
 #include "base/command_line.h"
 #include "base/i18n/icu_util.h"
+#include "base/metrics/stats_table.h"
 #include "base/rand_util.h"
-#include "base/stats_table.h"
 #include "base/string_number_conversions.h"
 #include "build/build_config.h"
 #include "app/gfx/gl/gl_implementation.h"
@@ -128,11 +128,11 @@ void CefProcessUIThread::Init() {
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
-  statstable_ = new StatsTable(
+  statstable_ = new base::StatsTable(
       kStatsFilePrefix + base::Uint64ToString(base::RandUint64()),
       kStatsFileThreads,
       kStatsFileCounters);
-  StatsTable::set_current(statstable_);
+  base::StatsTable::set_current(statstable_);
 
   // CEF always exposes the GC.
   webkit_glue::SetJavaScriptFlags("--expose-gc");
@@ -159,7 +159,7 @@ void CefProcessUIThread::CleanUp() {
   MessageLoop::current()->RunAllPending();
 
   // Tear down the shared StatsTable.
-  StatsTable::set_current(NULL);
+  base::StatsTable::set_current(NULL);
   delete statstable_;
   statstable_ = NULL;
 

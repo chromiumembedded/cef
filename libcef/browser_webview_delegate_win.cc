@@ -378,7 +378,7 @@ void BrowserWebViewDelegate::showContextMenu(
   DestroyMenu(menu);
 
 end:
-	MessageLoop::current()->SetNestableTasksAllowed(old_state);
+  MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
 // Private methods ------------------------------------------------------------

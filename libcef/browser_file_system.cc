@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "browser_file_system.h"
+#include "browser_file_writer.h"
 
 #include "base/file_path.h"
 #include "base/message_loop_proxy.h"
@@ -16,6 +17,8 @@
 using WebKit::WebFileInfo;
 using WebKit::WebFileSystemCallbacks;
 using WebKit::WebFileSystemEntry;
+using WebKit::WebFileWriter;
+using WebKit::WebFileWriterClient;
 using WebKit::WebString;
 using WebKit::WebVector;
 
@@ -41,10 +44,10 @@ WebKit::WebFileError PlatformFileErrorToWebFileError(
   }
 }
 
-class TestShellFileSystemCallbackDispatcher
+class BrowserFileSystemCallbackDispatcher
     : public fileapi::FileSystemCallbackDispatcher {
  public:
-  TestShellFileSystemCallbackDispatcher(
+  BrowserFileSystemCallbackDispatcher(
       BrowserFileSystem* file_system,
       WebFileSystemCallbacks* callbacks)
       : file_system_(file_system),
@@ -61,7 +64,10 @@ class TestShellFileSystemCallbackDispatcher
 
   virtual void DidReadMetadata(const base::PlatformFileInfo& info) {
     WebFileInfo web_file_info;
+    web_file_info.length = info.size;
     web_file_info.modificationTime = info.last_modified.ToDoubleT();
+    web_file_info.type = info.is_directory ?
+        WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
     callbacks_->didReadMetadata(web_file_info);
     file_system_->RemoveCompletedOperation(request_id_);
   }
@@ -92,7 +98,7 @@ class TestShellFileSystemCallbackDispatcher
     file_system_->RemoveCompletedOperation(request_id_);
   }
 
-  virtual void DidWrite(int64, bool, fileapi::FileSystemOperation*) {
+  virtual void DidWrite(int64, bool) {
     NOTREACHED();
   }
 
@@ -133,7 +139,14 @@ void BrowserFileSystem::remove(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
   FilePath filepath(webkit_glue::WebStringToFilePath(path));
 
-  GetNewOperation(callbacks)->Remove(filepath);
+  GetNewOperation(callbacks)->Remove(filepath, false /* recursive */);
+}
+
+void BrowserFileSystem::removeRecursively(
+    const WebString& path, WebFileSystemCallbacks* callbacks) {
+  FilePath filepath(webkit_glue::WebStringToFilePath(path));
+
+  GetNewOperation(callbacks)->Remove(filepath, true /* recursive */);
 }
 
 void BrowserFileSystem::readMetadata(
@@ -158,7 +171,7 @@ void BrowserFileSystem::createDirectory(
 }
 
 void BrowserFileSystem::fileExists(
-  const WebString& path, WebFileSystemCallbacks* callbacks) {
+    const WebString& path, WebFileSystemCallbacks* callbacks) {
   FilePath filepath(webkit_glue::WebStringToFilePath(path));
 
   GetNewOperation(callbacks)->FileExists(filepath);
@@ -178,11 +191,16 @@ void BrowserFileSystem::readDirectory(
   GetNewOperation(callbacks)->ReadDirectory(filepath);
 }
 
+WebFileWriter* BrowserFileSystem::createFileWriter(
+    const WebString& path, WebFileWriterClient* client) {
+  return new BrowserFileWriter(path, client);
+}
+
 fileapi::FileSystemOperation* BrowserFileSystem::GetNewOperation(
     WebFileSystemCallbacks* callbacks) {
   // This pointer will be owned by |operation|.
-  TestShellFileSystemCallbackDispatcher* dispatcher =
-      new TestShellFileSystemCallbackDispatcher(this, callbacks);
+  BrowserFileSystemCallbackDispatcher* dispatcher =
+      new BrowserFileSystemCallbackDispatcher(this, callbacks);
   fileapi::FileSystemOperation* operation = new fileapi::FileSystemOperation(
       dispatcher, base::MessageLoopProxy::CreateForCurrentThread());
   int32 request_id = operations_.Add(operation);

@@ -20,6 +20,27 @@
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/glue/webkit_glue.h"
 
+#if defined(OS_WIN)
+
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
+
+namespace {
+
+// ProxyConfigService implementation that does nothing.
+class ProxyConfigServiceNull : public net::ProxyConfigService {
+public:
+  ProxyConfigServiceNull() {}
+  virtual void AddObserver(Observer* observer) {}
+  virtual void RemoveObserver(Observer* observer) {}
+  virtual bool GetLatestProxyConfig(net::ProxyConfig* config) { return true; }
+  virtual void OnLazyPoll() {}
+};
+
+} // namespace
+
+#endif // defined(OS_WIN)
+
 BrowserRequestContext::BrowserRequestContext() {
   Init(FilePath(), net::HttpCache::NORMAL, false);
 }
@@ -42,15 +63,34 @@ void BrowserRequestContext::Init(
   accept_language_ = "en-us,en";
   accept_charset_ = "iso-8859-1,*,utf-8";
 
-  // Use the system proxy settings.
-  scoped_ptr<net::ProxyConfigService> proxy_config_service(
-      net::ProxyService::CreateSystemProxyConfigService(
-          MessageLoop::current(), NULL));
+#if defined(OS_WIN)
+  // Using the system proxy resolver on Windows when "Automatically detect
+  // settings" (auto-detection) is checked under LAN Settings can hurt resource
+  // loading performance because the call to WinHttpGetProxyForUrl in
+  // proxy_resolver_winhttp.cc will block the IO thread.  This is especially
+  // true for Windows 7 where auto-detection is checked by default. To avoid
+  // slow resource loading on Windows we only use the system proxy resolver if
+  // auto-detection is unchecked.
+  WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
+  if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config) &&
+      ie_config.fAutoDetect == TRUE) {
+    proxy_service_ = net::ProxyService::CreateWithoutProxyResolver(
+        new ProxyConfigServiceNull(), NULL);
+  }
+#endif // defined(OS_WIN)
+  
+  if (!proxy_service_.get()) {
+    // Use the system proxy resolver.
+    scoped_ptr<net::ProxyConfigService> proxy_config_service(
+        net::ProxyService::CreateSystemProxyConfigService(
+            MessageLoop::current(), NULL));
+    proxy_service_ = net::ProxyService::CreateUsingSystemProxyResolver(
+        proxy_config_service.release(), 0, NULL);
+  }
+
   host_resolver_ =
       net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
                                     NULL);
-  proxy_service_ = net::ProxyService::Create(proxy_config_service.release(),
-                                             false, NULL, NULL, NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   http_auth_handler_factory_ =
@@ -61,8 +101,9 @@ void BrowserRequestContext::Init(
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
-      new net::HttpCache(host_resolver_, proxy_service_, ssl_config_service_,
-                         http_auth_handler_factory_, NULL, NULL, backend);
+      new net::HttpCache(host_resolver_, NULL, proxy_service_,
+                         ssl_config_service_, http_auth_handler_factory_, NULL,
+                         NULL, backend);
 
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;

@@ -79,6 +79,7 @@ using net::HttpResponseHeaders;
 using net::StaticCookiePolicy;
 using webkit_blob::DeletableFileReference;
 using webkit_glue::ResourceLoaderBridge;
+using webkit_glue::ResourceResponseInfo;
 
 
 namespace {
@@ -147,7 +148,7 @@ class RequestProxy : public URLRequest::Delegate,
   // these methods asynchronously.
 
   void NotifyReceivedRedirect(const GURL& new_url,
-                              const ResourceLoaderBridge::ResponseInfo& info) {
+                              const ResourceResponseInfo& info) {
     bool has_new_first_party_for_cookies = false;
     GURL new_first_party_for_cookies;
     if (peer_ && peer_->OnReceivedRedirect(new_url, info,
@@ -161,7 +162,7 @@ class RequestProxy : public URLRequest::Delegate,
     }
   }
 
-  void NotifyReceivedResponse(const ResourceLoaderBridge::ResponseInfo& info,
+  void NotifyReceivedResponse(const ResourceResponseInfo& info,
                               bool content_filtered) {
     if (peer_)
       peer_->OnReceivedResponse(info, content_filtered);
@@ -294,7 +295,7 @@ class RequestProxy : public URLRequest::Delegate,
         } else if(!redirectUrl.empty()) {
           // redirect to the specified URL
           params->url = GURL(WideToUTF8(redirectUrl));
-          ResourceLoaderBridge::ResponseInfo info;
+          ResourceResponseInfo info;
           bool defer_redirect;
           OnReceivedRedirect(params->url, info, &defer_redirect);
         } else if(resourceStream.get()) {
@@ -307,7 +308,7 @@ class RequestProxy : public URLRequest::Delegate,
 
           resource_stream_ = resourceStream;
 
-          ResourceLoaderBridge::ResponseInfo info;
+          ResourceResponseInfo info;
           info.content_length = static_cast<int64>(offset);
           if(!mimeType.empty())
             info.mime_type = WideToUTF8(mimeType);
@@ -418,7 +419,7 @@ class RequestProxy : public URLRequest::Delegate,
 
   virtual void OnReceivedRedirect(
       const GURL& new_url,
-      const ResourceLoaderBridge::ResponseInfo& info,
+      const ResourceResponseInfo& info,
       bool* defer_redirect) {
     *defer_redirect = true;  // See AsyncFollowDeferredRedirect
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
@@ -426,7 +427,7 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info,
+      const ResourceResponseInfo& info,
       bool content_filtered) {
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::NotifyReceivedResponse, info, content_filtered));
@@ -462,14 +463,14 @@ class RequestProxy : public URLRequest::Delegate,
                                   const GURL& new_url,
                                   bool* defer_redirect) {
     DCHECK(request->status().is_success());
-    ResourceLoaderBridge::ResponseInfo info;
+    ResourceResponseInfo info;
     PopulateResponseInfo(request, &info);
     OnReceivedRedirect(new_url, info, defer_redirect);
   }
 
   virtual void OnResponseStarted(URLRequest* request) {
     if (request->status().is_success()) {
-      ResourceLoaderBridge::ResponseInfo info;
+      ResourceResponseInfo info;
       PopulateResponseInfo(request, &info);
       OnReceivedResponse(info, false);
       AsyncReadData();  // start reading
@@ -549,7 +550,7 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   void PopulateResponseInfo(URLRequest* request,
-                            ResourceLoaderBridge::ResponseInfo* info) const {
+                            ResourceResponseInfo* info) const {
     info->request_time = request->request_time();
     info->response_time = request->response_time();
     info->headers = request->response_headers();
@@ -614,7 +615,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnReceivedRedirect(
       const GURL& new_url,
-      const ResourceLoaderBridge::ResponseInfo& info,
+      const ResourceResponseInfo& info,
       bool* defer_redirect) {
     // TODO(darin): It would be much better if this could live in WebCore, but
     // doing so requires API changes at all levels.  Similar code exists in
@@ -628,9 +629,9 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info,
+      const ResourceResponseInfo& info,
       bool content_filtered) {
-    *static_cast<ResourceLoaderBridge::ResponseInfo*>(result_) = info;
+    *static_cast<ResourceResponseInfo*>(result_) = info;
   }
 
   virtual void OnReceivedData(int bytes_read) {

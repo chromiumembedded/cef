@@ -91,9 +91,9 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
 
   std::vector<std::wstring> mime_types, file_extensions;
   std::vector<std::wstring> descriptions;
-  SplitString(plugin_info->mime_types, '|', &mime_types);
-  SplitString(plugin_info->file_extensions, '|', &file_extensions);
-  SplitString(plugin_info->type_descriptions, '|', &descriptions);
+  base::SplitString(plugin_info->mime_types, '|', &mime_types);
+  base::SplitString(plugin_info->file_extensions, '|', &file_extensions);
+  base::SplitString(plugin_info->type_descriptions, '|', &descriptions);
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
     CefPluginMimeType mimeType;
@@ -101,7 +101,7 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
     mimeType.mime_type = mime_types[i];
     
     if (file_extensions.size() > i)
-      SplitString(file_extensions[i], ',', &mimeType.file_extensions);
+      base::SplitString(file_extensions[i], ',', &mimeType.file_extensions);
 
     if (descriptions.size() > i)
       mimeType.description = descriptions[i];

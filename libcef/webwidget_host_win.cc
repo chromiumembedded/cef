@@ -304,6 +304,7 @@ void WebWidgetHost::Resize(LPARAM lparam) {
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
   const WebMouseEvent& event = WebInputEventFactory::mouseEvent(
       view_, message, wparam, lparam);
+  webwidget_->handleInputEvent(event);
   switch (event.type) {
     case WebInputEvent::MouseMove:
       TrackMouseLeave(true);
@@ -324,7 +325,6 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
         ReleaseCapture();
       break;
   }
-  webwidget_->handleInputEvent(event);
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {

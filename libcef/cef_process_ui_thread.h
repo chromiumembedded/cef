@@ -10,7 +10,9 @@
 #include "cef_thread.h"
 
 class BrowserWebKitInit;
+namespace base {
 class StatsTable;
+}
 
 // ----------------------------------------------------------------------------
 // CefProcessUIThread
@@ -31,7 +33,7 @@ class CefProcessUIThread : public CefThread {
   virtual void CleanUp();
 
  private:
-  StatsTable* statstable_;
+  base::StatsTable* statstable_;
 
   // WebKit implementation class.
   BrowserWebKitInit* webkit_init_;

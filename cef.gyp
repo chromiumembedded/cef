@@ -368,6 +368,8 @@
         'libcef/browser_database_system.h',
         'libcef/browser_file_system.cc',
         'libcef/browser_file_system.h',
+        'libcef/browser_file_writer.cc',
+        'libcef/browser_file_writer.h',
         'libcef/browser_impl.cc',
         'libcef/browser_impl.h',
         'libcef/browser_impl_win.cc',

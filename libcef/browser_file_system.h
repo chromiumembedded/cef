@@ -1,6 +1,6 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #ifndef BROWSER_FILE_SYSTEM_H_
 #define BROWSER_FILE_SYSTEM_H_
@@ -28,6 +28,8 @@ class BrowserFileSystem : public WebKit::WebFileSystem {
                     WebKit::WebFileSystemCallbacks* callbacks);
   virtual void remove(const WebKit::WebString& path,
                       WebKit::WebFileSystemCallbacks* callbacks);
+  virtual void removeRecursively(const WebKit::WebString& path,
+                                 WebKit::WebFileSystemCallbacks* callbacks);
   virtual void readMetadata(const WebKit::WebString& path,
                             WebKit::WebFileSystemCallbacks* callbacks);
   virtual void createFile(const WebKit::WebString& path,
@@ -42,6 +44,8 @@ class BrowserFileSystem : public WebKit::WebFileSystem {
                                WebKit::WebFileSystemCallbacks* callbacks);
   virtual void readDirectory(const WebKit::WebString& path,
                              WebKit::WebFileSystemCallbacks* callbacks);
+  virtual WebKit::WebFileWriter* createFileWriter(
+      const WebKit::WebString& path, WebKit::WebFileWriterClient* client);
 
  private:
   // Helpers.

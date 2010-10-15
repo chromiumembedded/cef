@@ -523,9 +523,6 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
     return NULL;
   }
 
-  if (actual_mime_type.empty())
-    actual_mime_type = params.mimeType.utf8();
-
   return new webkit_glue::WebPluginImpl(
       frame, params, info.path, actual_mime_type, AsWeakPtr());
 }
@@ -545,7 +542,7 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   // should be grouped together.
   webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
       new webkit_glue::MediaResourceLoaderBridgeFactory(
-          GURL(),  // referrer
+          GURL(frame->url()),  // referrer
           "null",  // frame origin
           "null",  // main_frame_origin
           base::GetCurrentProcId(),
@@ -806,6 +803,7 @@ void BrowserWebViewDelegate::openFileSystem(
     // The FileSystem temp directory was not initialized successfully.
     callbacks->didFail(WebKit::WebFileErrorSecurity);
   } else {
+    // TODO(michaeln): need to put origin/type in the path.
     callbacks->didOpenFileSystem(
         "CefFileSystem",
         webkit_glue::FilePathToWebString(browser_->file_system_root()));
