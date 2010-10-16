@@ -1,4 +1,4 @@
-# Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -45,7 +45,7 @@ def make_capi_header(header):
     
     # header string
     result = \
-"""// Copyright (c) 2009 Marshall A. Greenblatt. All rights reserved.
+"""// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are

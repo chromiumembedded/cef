@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -53,6 +53,9 @@ public:
       CefRefPtr<CefRequest> request, std::wstring& redirectUrl,
       CefRefPtr<CefStreamReader>& resourceStream, std::wstring& mimeType,
       int loadFlags);
+  virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
+      const std::wstring& mimeType, const std::wstring& fileName,
+      int64 contentLength, CefRefPtr<CefDownloadHandler>& handler);
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
       const MenuInfo& menuInfo);
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,

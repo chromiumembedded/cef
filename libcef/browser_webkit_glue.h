@@ -47,4 +47,9 @@ WebKit::WebString StdWStringToWebString(const std::wstring& str);
 
 std::wstring WebStringToStdWString(const WebKit::WebString& str);
 
+// Returns true if the specified 'Content-Disposition' header value represents
+// an attachment download. Also returns the file name.
+bool IsContentDispositionAttachment(const std::string& cd_header,
+                                    std::string& file_name);
+
 }  // namespace webkit_glue

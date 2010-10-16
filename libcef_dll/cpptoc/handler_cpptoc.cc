@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -224,6 +225,36 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
 
   if(streamPtr.get())
     *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);
+
+  return rv;
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_download_response(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    const wchar_t* mimeType, const wchar_t* fileName, int64 contentLength,
+    struct _cef_download_handler_t** handler)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(mimeType);
+  DCHECK(fileName);
+  if(!self || !browser || !mimeType || !fileName)
+    return RV_CONTINUE;
+
+  std::wstring mimeTypeStr, fileNameStr;
+  CefRefPtr<CefDownloadHandler> downloadPtr;
+
+  if(mimeType)
+    mimeTypeStr = mimeType;
+  if(fileName)
+    fileNameStr = fileName;
+
+  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
+      HandleDownloadResponse(CefBrowserCToCpp::Wrap(browser), mimeTypeStr,
+      fileNameStr, contentLength, downloadPtr);
+
+  if(downloadPtr.get())
+    *handler = CefDownloadHandlerCppToC::Wrap(downloadPtr);
 
   return rv;
 }
@@ -559,6 +590,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_load_error = handler_handle_load_error;
   struct_.struct_.handle_before_resource_load =
       handler_handle_before_resource_load;
+  struct_.struct_.handle_download_response = handler_handle_download_response;
   struct_.struct_.handle_before_menu = handler_handle_before_menu;
   struct_.struct_.handle_get_menu_label = handler_handle_get_menu_label;
   struct_.struct_.handle_menu_action = handler_handle_menu_action;

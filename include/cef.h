@@ -45,6 +45,7 @@
 #include "cef_types.h"
 
 class CefBrowser;
+class CefDownloadHandler;
 class CefFrame;
 class CefHandler;
 class CefPostData;
@@ -616,6 +617,20 @@ public:
                                           CefRefPtr<CefStreamReader>& resourceStream,
                                           std::wstring& mimeType,
                                           int loadFlags) =0;
+
+  // Called when a server indicates via the 'Content-Disposition' header that a
+  // response represents a file to download. |mimeType| is the mime type for
+  // the download, |fileName| is the suggested target file name and
+  // |contentLength| is either the value of the 'Content-Size' header or -1 if
+  // no size was provided. Set |handler| to the CefDownloadHandler instance that
+  // will recieve the file contents.  Return RV_CONTINUE to download the file
+  // or RV_HANDLED to cancel the file download.
+  /*--cef()--*/
+  virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
+                                    const std::wstring& mimeType,
+                                    const std::wstring& fileName,
+                                    int64 contentLength,
+                                    CefRefPtr<CefDownloadHandler>& handler) =0;
 
   // Structure representing menu information.
   typedef cef_handler_menuinfo_t MenuInfo;
@@ -1200,5 +1215,21 @@ public:
                             int* bytes_read) =0;
 };
 
+
+// Class used to handle file downloads.
+/*--cef(source=client)--*/
+class CefDownloadHandler : public CefBase
+{
+public:
+  // A portion of the file contents have been received. This method will be
+  // called multiple times until the download is complete. Return |true| to
+  // continue receiving data and |false| to cancel.
+  /*--cef()--*/
+  virtual bool ReceivedData(void* data, int data_size) =0;
+
+  // The download is complete.
+  /*--cef()--*/
+  virtual void Complete() =0;
+};
 
 #endif // _CEF_H

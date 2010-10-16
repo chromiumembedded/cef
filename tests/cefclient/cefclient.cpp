@@ -5,12 +5,14 @@
 #include "include/cef.h"
 #include "cefclient.h"
 #include "binding_test.h"
+#include "download_handler.h"
 #include "extension_test.h"
 #include "plugin_test.h"
 #include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
 #include "uiplugin_test.h"
+#include "util.h"
 #include <sstream>
 #include <commdlg.h>
 
@@ -191,7 +193,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 class ClientHandler : public CefThreadSafeBase<CefHandler>
 {
 public:
+  // Implements the DownloadListener interface.
+  class ClientDownloadListener : public CefThreadSafeBase<DownloadListener>
+  {
+  public:
+    ClientDownloadListener(ClientHandler* handler) : handler_(handler) {}
+
+    // Called when the download is complete.
+    virtual void NotifyDownloadComplete(const std::wstring& fileName)
+    {
+      handler_->SetLastDownloadFile(fileName);
+      PostMessage(handler_->GetMainHwnd(), WM_COMMAND,
+          ID_WARN_DOWNLOADCOMPLETE, 0);
+    }
+
+    // Called if the download fails.
+    virtual void NotifyDownloadError(const std::wstring& fileName)
+    {
+      handler_->SetLastDownloadFile(fileName);
+      PostMessage(handler_->GetMainHwnd(), WM_COMMAND,
+          ID_WARN_DOWNLOADERROR, 0);
+    }
+
+  private:
+    ClientHandler* handler_;
+  };
+
   ClientHandler()
+    : ALLOW_THIS_IN_INITIALIZER_LIST(
+          m_DownloadListener(new ClientDownloadListener(this)))
   {
     m_MainHwnd = NULL;
     m_BrowserHwnd = NULL;
@@ -399,6 +429,25 @@ public:
     return RV_CONTINUE;
   }
 
+  // Called when a server indicates via the 'Content-Disposition' header that a
+  // response represents a file to download. |mime_type| is the mime type for
+  // the download, |file_name| is the suggested target file name and
+  // |content_length| is either the value of the 'Content-Size' header or -1 if
+  // no size was provided. Set |handler| to the CefDownloadHandler instance that
+  // will recieve the file contents.  Return RV_CONTINUE to download the file
+  // or RV_HANDLED to cancel the file download.
+  /*--cef()--*/
+  virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
+                                        const std::wstring& mimeType,
+                                        const std::wstring& fileName,
+                                        int64 contentLength,
+                                        CefRefPtr<CefDownloadHandler>& handler)
+  {
+    // Create the handler for the file download.
+    handler = CreateDownloadHandler(m_DownloadListener, fileName);
+    return RV_CONTINUE;
+  }
+
   // Event called before a context menu is displayed.  To cancel display of the
   // default context menu return RV_HANDLED.
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
@@ -406,7 +455,6 @@ public:
   {
     return RV_CONTINUE;
   }
-
 
   // Event called to optionally override the default text for a context menu
   // item.  |label| contains the default text and may be modified to substitute
@@ -668,6 +716,22 @@ public:
     return str;
   }
 
+  void SetLastDownloadFile(const std::wstring& fileName)
+  {
+    Lock();
+    m_LastDownloadFile = fileName;
+    Unlock();
+  }
+
+  std::wstring GetLastDownloadFile()
+  {
+    std::wstring str;
+    Lock();
+    str = m_LastDownloadFile;
+    Unlock();
+    return str;
+  }
+
 protected:
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
@@ -689,6 +753,10 @@ protected:
   bool m_bCanGoForward;
 
   std::wstring m_LogFile;
+
+  // Support for downloading files.
+  CefRefPtr<DownloadListener> m_DownloadListener;
+  std::wstring m_LastDownloadFile;
 };
 
 // global handler instance
@@ -938,6 +1006,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             ss << L"Console messages will be written to "
                << g_handler->GetLogFile();
             MessageBoxW(hWnd, ss.str().c_str(), L"Console Messages",
+                MB_OK | MB_ICONINFORMATION);
+          }
+          return 0;
+        case ID_WARN_DOWNLOADCOMPLETE:
+        case ID_WARN_DOWNLOADERROR:
+          if(g_handler.get()) {
+            std::wstringstream ss;
+            ss << L"File \"" << g_handler->GetLastDownloadFile() << L"\" ";
+
+            if(wmId == ID_WARN_DOWNLOADCOMPLETE)
+              ss << L"downloaded successfully.";
+            else
+              ss << L"failed to download.";
+
+            MessageBoxW(hWnd, ss.str().c_str(), L"File Download",
                 MB_OK | MB_ICONINFORMATION);
           }
           return 0;

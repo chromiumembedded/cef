@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -174,6 +175,26 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
 
   if(streamRet)
     resourceStream = CefStreamReaderCppToC::Unwrap(streamRet);
+
+  return rv;
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleDownloadResponse(
+    CefRefPtr<CefBrowser> browser, const std::wstring& mimeType,
+    const std::wstring& fileName, int64 contentLength,
+    CefRefPtr<CefDownloadHandler>& handler)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_download_response))
+    return RV_CONTINUE;
+
+  cef_download_handler_t* handlerRet = NULL;
+
+  cef_retval_t rv = struct_->handle_download_response(struct_,
+      CefBrowserCppToC::Wrap(browser), mimeType.c_str(), fileName.c_str(),
+      contentLength, &handlerRet);
+
+  if(handlerRet)
+    handler = CefDownloadHandlerCToCpp::Wrap(handlerRet);
 
   return rv;
 }

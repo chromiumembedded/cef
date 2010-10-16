@@ -45,6 +45,13 @@ extern "C" {
 #include "cef_types_linux.h"
 #endif
 
+// The NSPR system headers define 64-bit as |long| when possible.  In order to
+// not have typedef mismatches, we do the same on LP64.
+#if __LP64__
+typedef long                int64;
+#else
+typedef long long           int64;
+#endif
 
 // Define handler return value types. Returning RV_HANDLED indicates
 // that the implementation completely handled the method and that no further

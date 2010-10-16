@@ -1,4 +1,4 @@
-// Copyright (c) 2009 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -444,6 +444,18 @@ typedef struct _cef_handler_t
       struct _cef_request_t* request, cef_string_t* redirectUrl,
       struct _cef_stream_reader_t** resourceStream, cef_string_t* mimeType,
       int loadFlags);
+
+  // Called when a server indicates via the 'Content-Disposition' header that a
+  // response represents a file to download. |mimeType| is the mime type for the
+  // download, |fileName| is the suggested target file name and |contentLength|
+  // is either the value of the 'Content-Size' header or -1 if no size was
+  // provided. Set |handler| to the cef_download_handler_t instance that will
+  // recieve the file contents.  Return RV_CONTINUE to download the file or
+  // RV_HANDLED to cancel the file download.
+  enum cef_retval_t (CEF_CALLBACK *handle_download_response)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      const wchar_t* mimeType, const wchar_t* fileName, int64 contentLength,
+      struct _cef_download_handler_t** handler);
 
   // Event called before a context menu is displayed.  To cancel display of the
   // default context menu return RV_HANDLED.
@@ -972,6 +984,24 @@ typedef struct _cef_scheme_handler_t
       void* data_out, int bytes_to_read, int* bytes_read);
 
 } cef_scheme_handler_t;
+
+
+// Structure used to handle file downloads.
+typedef struct _cef_download_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // A portion of the file contents have been received. This function will be
+  // called multiple times until the download is complete. Return |true (1)| to
+  // continue receiving data and |false (0)| to cancel.
+  int (CEF_CALLBACK *received_data)(struct _cef_download_handler_t* self,
+      void* data, int data_size);
+
+  // The download is complete.
+  void (CEF_CALLBACK *complete)(struct _cef_download_handler_t* self);
+
+} cef_download_handler_t;
 
 
 #ifdef __cplusplus

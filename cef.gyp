@@ -33,6 +33,8 @@
         'tests/cefclient/cefclient.rc',
         'tests/cefclient/clientplugin.cpp',
         'tests/cefclient/clientplugin.h',
+        'tests/cefclient/download_handler.cpp',
+        'tests/cefclient/download_handler.h',
         'tests/cefclient/extension_test.cpp',
         'tests/cefclient/extension_test.h',
         'tests/cefclient/plugin_test.cpp',
@@ -52,6 +54,7 @@
         'tests/cefclient/uiplugin.h',
         'tests/cefclient/uiplugin_test.cpp',
         'tests/cefclient/uiplugin_test.h',
+        'tests/cefclient/util.h',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -214,6 +217,8 @@
         'libcef_dll/cpptoc/v8value_cpptoc.cc',
         'libcef_dll/cpptoc/v8value_cpptoc.h',
         'libcef_dll/ctocpp/ctocpp.h',
+        'libcef_dll/ctocpp/download_handler_ctocpp.cc',
+        'libcef_dll/ctocpp/download_handler_ctocpp.h',
         'libcef_dll/ctocpp/handler_ctocpp.cc',
         'libcef_dll/ctocpp/handler_ctocpp.h',
         'libcef_dll/ctocpp/read_handler_ctocpp.cc',
@@ -271,6 +276,8 @@
       'sources': [
         'libcef_dll/cef_logging.h',
         'libcef_dll/cpptoc/cpptoc.h',
+        'libcef_dll/cpptoc/download_handler_cpptoc.cc',
+        'libcef_dll/cpptoc/download_handler_cpptoc.h',
         'libcef_dll/cpptoc/handler_cpptoc.cc',
         'libcef_dll/cpptoc/handler_cpptoc.h',
         'libcef_dll/cpptoc/read_handler_cpptoc.cc',

@@ -8,8 +8,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-#ifndef _READHANDLER_CPPTOC_H
-#define _READHANDLER_CPPTOC_H
+#ifndef _DOWNLOADHANDLER_CPPTOC_H
+#define _DOWNLOADHANDLER_CPPTOC_H
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
@@ -21,14 +21,15 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefReadHandlerCppToC
-    : public CefCppToC<CefReadHandlerCppToC, CefReadHandler, cef_read_handler_t>
+class CefDownloadHandlerCppToC
+    : public CefCppToC<CefDownloadHandlerCppToC, CefDownloadHandler,
+        cef_download_handler_t>
 {
 public:
-  CefReadHandlerCppToC(CefReadHandler* cls);
-  virtual ~CefReadHandlerCppToC() {}
+  CefDownloadHandlerCppToC(CefDownloadHandler* cls);
+  virtual ~CefDownloadHandlerCppToC() {}
 };
 
 #endif // USING_CEF_SHARED
-#endif // _READHANDLER_CPPTOC_H
+#endif // _DOWNLOADHANDLER_CPPTOC_H
 

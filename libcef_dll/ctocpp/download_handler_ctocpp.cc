@@ -10,25 +10,30 @@
 // tools directory for more information.
 //
 
-#include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
+#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefRefPtr<CefSchemeHandler> CefSchemeHandlerFactoryCToCpp::Create()
+bool CefDownloadHandlerCToCpp::ReceivedData(void* data, int data_size)
 {
-  if(CEF_MEMBER_MISSING(struct_, create))
-    return NULL;
+  if(CEF_MEMBER_MISSING(struct_, received_data))
+    return false;
 
-  _cef_scheme_handler_t* rv = struct_->create(struct_);
+  return struct_->received_data(struct_, data, data_size) ? true : false;
+}
 
-  return CefSchemeHandlerCToCpp::Wrap(rv);
+void CefDownloadHandlerCToCpp::Complete()
+{
+  if(CEF_MEMBER_MISSING(struct_, complete))
+    return;
+
+  return struct_->complete(struct_);
 }
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
-    cef_scheme_handler_factory_t>::DebugObjCt = 0;
+long CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
+    cef_download_handler_t>::DebugObjCt = 0;
 #endif
 

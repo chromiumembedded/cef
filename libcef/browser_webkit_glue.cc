@@ -9,6 +9,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cache.h"
 #include "TextEncoding.h"
+#include "third_party/WebKit/WebCore/platform/network/HTTPParsers.h"
 #include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
 
@@ -143,6 +144,22 @@ bool GetFontTable(int fd, uint32_t table, uint8_t* output,
 
 void EnableSpdy(bool enable) {
   // Used in benchmarking,  Ignored for CEF.
+}
+
+bool IsContentDispositionAttachment(const std::string& cd_header,
+                                    std::string& file_name) {
+  WTF::String cd_str(cd_header.c_str(), cd_header.length());
+  if (WebCore::contentDispositionType(cd_str) ==
+    WebCore::ContentDispositionAttachment) {
+    WTF::String name_str =
+        WebCore::filenameFromHTTPContentDisposition(cd_str);
+    if (!name_str.isEmpty()) {
+      file_name = WideToUTF8(
+          std::wstring(name_str.characters(), name_str.length()));
+    }
+    return true;
+  }
+  return false;
 }
 
 }  // namespace webkit_glue

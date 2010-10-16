@@ -110,6 +110,15 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
+                                        const std::wstring& mimeType,
+                                        const std::wstring& fileName,
+                                        int64 contentLength,
+                                        CefRefPtr<CefDownloadHandler>& handler)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
                                   const MenuInfo& menuInfo)
   {

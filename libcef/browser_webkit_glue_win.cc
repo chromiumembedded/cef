@@ -74,10 +74,6 @@ bool EnsureFontLoaded(HFONT font) {
   return true;
 }
 
-bool DownloadUrl(const std::string& url, HWND caller_window) {
-  return false;
-}
-
 void CaptureWebViewBitmap(HWND mainWnd, WebView* webview, HBITMAP& bitmap,
                           SIZE& size)
 {

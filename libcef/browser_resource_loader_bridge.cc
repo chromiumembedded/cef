@@ -35,6 +35,7 @@
 #include "browser_resource_loader_bridge.h"
 #include "browser_request_context.h"
 #include "browser_socket_stream_bridge.h"
+#include "browser_webkit_glue.h"
 #include "browser_impl.h"
 #include "cef_context.h"
 #include "cef_process.h"
@@ -129,6 +130,11 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   void Cancel() {
+    if(download_handler_.get()) {
+      // WebKit will try to cancel the download but we won't allow it.
+      return;
+    }
+
     // proxy over to the io thread
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncCancel));
@@ -164,6 +170,22 @@ class RequestProxy : public URLRequest::Delegate,
 
   void NotifyReceivedResponse(const ResourceResponseInfo& info,
                               bool content_filtered) {
+    std::string cd_header, filename;
+    if (info.headers && browser_.get() &&
+        info.headers->GetNormalizedHeader("Content-Disposition", &cd_header) &&
+        webkit_glue::IsContentDispositionAttachment(cd_header, filename)) {
+      // The response represents a download request.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get()) {
+        CefRefPtr<CefDownloadHandler> dl_handler;
+        if (handler->HandleDownloadResponse(browser_,
+                UTF8ToWide(info.mime_type), UTF8ToWide(filename),
+                info.content_length, dl_handler) == RV_CONTINUE) {
+          download_handler_ = dl_handler;
+        }
+      }
+    }
+
     if (peer_)
       peer_->OnReceivedResponse(info, content_filtered);
   }
@@ -186,6 +208,13 @@ class RequestProxy : public URLRequest::Delegate,
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncReadData));
 
+    if (download_handler_.get() &&
+        !download_handler_->ReceivedData(buf_copy.get(), bytes_read)) {
+      // Cancel loading by proxying over to the io thread.
+      CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
+          this, &RequestProxy::AsyncCancel));
+    }
+
     peer_->OnReceivedData(buf_copy.get(), bytes_read);
   }
 
@@ -203,6 +232,11 @@ class RequestProxy : public URLRequest::Delegate,
   void NotifyCompletedRequest(const URLRequestStatus& status,
                               const std::string& security_info,
                               const base::Time& complete_time) {
+    if (download_handler_.get()) {
+      download_handler_->Complete();
+      download_handler_ = NULL;
+    }
+
     if (peer_) {
       peer_->OnCompletedRequest(status, security_info, complete_time);
       DropPeer();  // ensure no further notifications
@@ -594,6 +628,8 @@ class RequestProxy : public URLRequest::Delegate,
   // Info used to determine whether or not to send an upload progress update.
   uint64 last_upload_position_;
   base::TimeTicks last_upload_ticks_;
+
+  CefRefPtr<CefDownloadHandler> download_handler_;
 };
 
 //-----------------------------------------------------------------------------

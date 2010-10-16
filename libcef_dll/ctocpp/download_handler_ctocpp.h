@@ -9,8 +9,8 @@
 // more information.
 //
 
-#ifndef _WRITEHANDLER_CTOCPP_H
-#define _WRITEHANDLER_CTOCPP_H
+#ifndef _DOWNLOADHANDLER_CTOCPP_H
+#define _DOWNLOADHANDLER_CTOCPP_H
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
@@ -22,23 +22,21 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefWriteHandlerCToCpp
-    : public CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
-        cef_write_handler_t>
+class CefDownloadHandlerCToCpp
+    : public CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
+        cef_download_handler_t>
 {
 public:
-  CefWriteHandlerCToCpp(cef_write_handler_t* str)
-      : CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler, cef_write_handler_t>(
-          str) {}
-  virtual ~CefWriteHandlerCToCpp() {}
+  CefDownloadHandlerCToCpp(cef_download_handler_t* str)
+      : CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
+          cef_download_handler_t>(str) {}
+  virtual ~CefDownloadHandlerCToCpp() {}
 
-  // CefWriteHandler methods
-  virtual size_t Write(const void* ptr, size_t size, size_t n);
-  virtual int Seek(long offset, int whence);
-  virtual long Tell();
-  virtual int Flush();
+  // CefDownloadHandler methods
+  virtual bool ReceivedData(void* data, int data_size);
+  virtual void Complete();
 };
 
 #endif // BUILDING_CEF_SHARED
-#endif // _WRITEHANDLER_CTOCPP_H
+#endif // _DOWNLOADHANDLER_CTOCPP_H
 
