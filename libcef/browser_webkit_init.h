@@ -17,6 +17,7 @@
 #include "webkit/extensions/v8/gears_extension.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebGraphicsContext3D.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
@@ -210,6 +211,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
           values[i], WebKit::WebIDBKeyPath::create(keyPath));
     }
     keys_out.swap(keys);
+  }
+
+  virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {
+    return WebKit::WebGraphicsContext3D::createDefault();
   }
 
  private:

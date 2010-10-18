@@ -14,6 +14,7 @@
 #include "cpptoc/stream_reader_cpptoc.h"
 #include "cpptoc/stream_writer_cpptoc.h"
 #include "cpptoc/v8value_cpptoc.h"
+#include "ctocpp/download_handler_ctocpp.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "ctocpp/read_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_ctocpp.h"
@@ -46,6 +47,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefStreamReaderCppToC::DebugObjCt == 0);
   DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
   DCHECK(CefV8ValueCppToC::DebugObjCt == 0);
+  DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);

@@ -6,6 +6,7 @@
 #include "include/cef_capi.h"
 #include "include/cef_nplugin.h"
 #include "include/cef_nplugin_capi.h"
+#include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
@@ -35,6 +36,7 @@ void CefShutdown()
 
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
+  DCHECK(CefDownloadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefReadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
