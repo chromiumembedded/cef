@@ -301,6 +301,35 @@ typedef struct _cef_print_options_t
   struct cef_print_margins paper_margins;
 } cef_print_options_t;
 
+// Supported XML encoding types. The parser supports ASCII, ISO-8859-1, and
+// UTF16 (LE and BE) by default. All other types must be translated to UTF8
+// before being passed to the parser. If a BOM is detected and the correct
+// decoder is available then that decoder will be used automatically.
+enum cef_xml_encoding_type_t
+{
+  XML_ENCODING_NONE = 0,
+  XML_ENCODING_UTF8,
+  XML_ENCODING_UTF16LE,
+  XML_ENCODING_UTF16BE,
+  XML_ENCODING_ASCII,
+};
+
+// XML node types.
+enum cef_xml_node_type_t
+{
+  XML_NODE_UNSUPPORTED = 0,
+  XML_NODE_PROCESSING_INSTRUCTION,
+  XML_NODE_DOCUMENT_TYPE,
+  XML_NODE_ELEMENT_START,
+  XML_NODE_ELEMENT_END,
+  XML_NODE_ATTRIBUTE,
+  XML_NODE_TEXT,
+  XML_NODE_CDATA,
+  XML_NODE_ENTITY_REFERENCE,
+  XML_NODE_WHITESPACE,
+  XML_NODE_COMMENT,
+};
+
 #ifdef __cplusplus
 }
 #endif

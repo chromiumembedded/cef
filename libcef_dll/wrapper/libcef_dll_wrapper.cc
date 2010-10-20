@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -21,6 +21,7 @@
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 
 
 bool CefInitialize(bool multi_threaded_message_loop,
@@ -50,6 +51,7 @@ void CefShutdown()
   DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
+  DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);
 #endif // _DEBUG
 }
 
