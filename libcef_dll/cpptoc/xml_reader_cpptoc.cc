@@ -32,13 +32,13 @@ CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK xml_reader_move_to_next_element(struct _cef_xml_reader_t* self)
+int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  return CefXmlReaderCppToC::Get(self)->MoveToNextElement();
+  return CefXmlReaderCppToC::Get(self)->MoveToNextNode();
 }
 
 int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self)
@@ -367,7 +367,7 @@ int CEF_CALLBACK xml_reader_move_to_carrying_element(
 CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
     : CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>(cls)
 {
-  struct_.struct_.move_to_next_element = xml_reader_move_to_next_element;
+  struct_.struct_.move_to_next_node = xml_reader_move_to_next_node;
   struct_.struct_.close = xml_reader_close;
   struct_.struct_.has_error = xml_reader_has_error;
   struct_.struct_.get_error = xml_reader_get_error;

@@ -1266,11 +1266,11 @@ public:
                                         EncodingType encodingType,
                                         const std::wstring& URI);
 
-  // Moves the cursor to the next element node in the document. This method
-  // must be called at least once to set the current cursor position. Returns
-  // true if the cursor position was set successfully.
+  // Moves the cursor to the next node in the document. This method must be
+  // called at least once to set the current cursor position. Returns true if
+  // the cursor position was set successfully.
   /*--cef()--*/
-  virtual bool MoveToNextElement() =0;
+  virtual bool MoveToNextNode() =0;
 
   // Close the document. This must be called directly to ensure that cleanup
   // occurs on the correct thread.

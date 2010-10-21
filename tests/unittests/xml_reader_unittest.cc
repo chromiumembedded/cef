@@ -44,7 +44,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_TRUE(reader.get() != NULL);
 
   // Move to the processing instruction node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 0);
   ASSERT_EQ(reader->GetType(), XML_NODE_PROCESSING_INSTRUCTION);
   ASSERT_EQ(reader->GetLocalName(), L"my_instruction");
@@ -53,7 +53,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"my_value");
 
   // Move to the DOCTYPE node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 0);
   ASSERT_EQ(reader->GetType(), XML_NODE_DOCUMENT_TYPE);
   ASSERT_EQ(reader->GetLocalName(), L"my_document");
@@ -61,7 +61,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to ns:obj element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 0);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"obj");
@@ -76,11 +76,11 @@ TEST(XmlReaderTest, Read)
       L"http://www.example.org/ns");
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objA element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objA");
@@ -92,7 +92,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the ns:objA value node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_TEXT);
   ASSERT_EQ(reader->GetLocalName(), L"#text");
@@ -101,7 +101,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"value A");
 
   // Move to the ns:objA element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objA");
@@ -113,12 +113,12 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the comment node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_COMMENT);
   ASSERT_EQ(reader->GetLocalName(), L"#comment");
@@ -127,11 +127,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L" my comment ");
   
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objB");
@@ -143,11 +143,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB_1 element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objB_1");
@@ -159,14 +159,14 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the ns:objB_1 value node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_TEXT);
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), L"value B1");
 
   // Move to the ns:objB_1 element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objB_1");
@@ -178,11 +178,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB_2 element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objB_2");
@@ -194,14 +194,14 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the ns:objB_2 value node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_CDATA);
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), L"some <br/> data");
 
   // Move to the ns:objB_2 element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objB_2");
@@ -213,11 +213,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB_3 element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objB_3");
@@ -229,7 +229,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the EB entity reference node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_ENTITY_REFERENCE);
   ASSERT_EQ(reader->GetLocalName(), L"EB");
@@ -238,7 +238,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"EB Value");
   
   // Move to the ns:objB_3 element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objB_3");
@@ -250,11 +250,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB_4 element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objB_4");
@@ -270,7 +270,7 @@ TEST(XmlReaderTest, Read)
       L"<b>this is</b> mixed content &EA;</ns:objB_4>");
 
   // Move to the <b> element node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"b");
@@ -280,7 +280,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
   
   // Move to the text node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 4);
   ASSERT_EQ(reader->GetType(), XML_NODE_TEXT);
   ASSERT_EQ(reader->GetLocalName(), L"#text");
@@ -289,14 +289,14 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"this is");
   
   // Move to the </b> element node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"b");
   ASSERT_EQ(reader->GetQualifiedName(), L"b");
   
   // Move to the text node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_TEXT);
   ASSERT_EQ(reader->GetLocalName(), L"#text");
@@ -305,7 +305,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L" mixed content ");
   
   // Move to the EA entity reference node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_ENTITY_REFERENCE);
   ASSERT_EQ(reader->GetLocalName(), L"EA");
@@ -314,7 +314,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"EA Value");
   
   // Move to the ns:objB_4 element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objB_4");
@@ -326,11 +326,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objB element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objB");
@@ -342,11 +342,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the whitespace node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to the ns:objC element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objC");
@@ -447,7 +447,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetValue(), L"value C1");
   
   // Move to the ns:objD element start node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetLocalName(), L"objD");
@@ -458,7 +458,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
 
   // Move to the ns:objD element end node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"objD");
@@ -469,11 +469,11 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->HasValue());
   
   // Move to the whitespace node without returning to the ns:objC element.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
 
   // Move to ns:obj element ending node.
-  ASSERT_TRUE(reader->MoveToNextElement());
+  ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 0);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), L"obj");
@@ -489,7 +489,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetAttributeCount(), 0);
 
   // And we're done.
-  ASSERT_FALSE(reader->MoveToNextElement());
+  ASSERT_FALSE(reader->MoveToNextNode());
 
   ASSERT_TRUE(reader->Close());
 }
@@ -513,7 +513,7 @@ TEST(XmlReaderTest, ReadError)
   ASSERT_TRUE(reader.get() != NULL);
 
   // Move to the processing instruction node and generate parser error.
-  ASSERT_FALSE(reader->MoveToNextElement());
+  ASSERT_FALSE(reader->MoveToNextNode());
   ASSERT_TRUE(reader->HasError());
 }
 

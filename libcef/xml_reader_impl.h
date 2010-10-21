@@ -21,7 +21,7 @@ public:
   bool Initialize(CefRefPtr<CefStreamReader> stream,
                   EncodingType encodingType, const std::wstring& URI);
 
-  virtual bool MoveToNextElement();
+  virtual bool MoveToNextNode();
   virtual bool Close();
   virtual bool HasError();
   virtual std::wstring GetError();

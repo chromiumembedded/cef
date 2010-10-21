@@ -24,7 +24,7 @@ public:
     if (!reader.get())
       return false;
 
-    bool ret = reader->MoveToNextElement();
+    bool ret = reader->MoveToNextNode();
     if (ret) {
       CefRefPtr<CefXmlObject> cur_object(root_object_), new_object;
       CefXmlObject::ObjectVector queue;
@@ -133,7 +133,7 @@ public:
             break;
           }
         }
-      } while(reader->MoveToNextElement());
+      } while(reader->MoveToNextNode());
     }
 
     if (reader->HasError()) {

@@ -31,7 +31,7 @@ public:
   virtual ~CefXmlReaderCToCpp() {}
 
   // CefXmlReader methods
-  virtual bool MoveToNextElement();
+  virtual bool MoveToNextNode();
   virtual bool Close();
   virtual bool HasError();
   virtual std::wstring GetError();

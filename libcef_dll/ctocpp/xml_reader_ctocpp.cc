@@ -29,12 +29,12 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefXmlReaderCToCpp::MoveToNextElement()
+bool CefXmlReaderCToCpp::MoveToNextNode()
 {
-  if(CEF_MEMBER_MISSING(struct_, move_to_next_element))
+  if(CEF_MEMBER_MISSING(struct_, move_to_next_node))
     return false;
 
-  return struct_->move_to_next_element(struct_) ? true : false;
+  return struct_->move_to_next_node(struct_) ? true : false;
 }
 
 bool CefXmlReaderCToCpp::Close()

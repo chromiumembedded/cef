@@ -1010,10 +1010,10 @@ typedef struct _cef_xml_reader_t
   // Base structure.
   cef_base_t base;
 
-  // Moves the cursor to the next element node in the document. This function
-  // must be called at least once to set the current cursor position. Returns
-  // true (1) if the cursor position was set successfully.
-  int (CEF_CALLBACK *move_to_next_element)(struct _cef_xml_reader_t* self);
+  // Moves the cursor to the next node in the document. This function must be
+  // called at least once to set the current cursor position. Returns true (1)
+  // if the cursor position was set successfully.
+  int (CEF_CALLBACK *move_to_next_node)(struct _cef_xml_reader_t* self);
 
   // Close the document. This must be called directly to ensure that cleanup
   // occurs on the correct thread.

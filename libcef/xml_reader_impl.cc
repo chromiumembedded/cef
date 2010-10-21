@@ -200,7 +200,7 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
   return true;
 }
 
-bool CefXmlReaderImpl::MoveToNextElement()
+bool CefXmlReaderImpl::MoveToNextNode()
 {
   if (!VerifyContext())
     return false;
