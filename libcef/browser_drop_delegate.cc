@@ -1,5 +1,4 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
-// Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -15,7 +14,10 @@ using WebKit::WebDragOperationCopy;
 using WebKit::WebPoint;
 using WebKit::WebView;
 
-// BaseDropTarget methods ----------------------------------------------------
+BrowserDropDelegate::BrowserDropDelegate(HWND source_hwnd, WebKit::WebView* webview)
+    : app::win::DropTarget(source_hwnd),
+      webview_(webview) {
+}
 
 DWORD BrowserDropDelegate::OnDragEnter(IDataObject* data_object,
                                     DWORD key_state,
@@ -68,4 +70,3 @@ DWORD BrowserDropDelegate::OnDrop(IDataObject* data_object,
   // webkit win port always returns DROPEFFECT_NONE
   return DROPEFFECT_NONE;
 }
-

@@ -1,14 +1,12 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "browser_database_system.h"
 
 #include "base/auto_reset.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
-#include "base/platform_thread.h"
-#include "base/process_util.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/sqlite/sqlite3.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
@@ -42,7 +40,7 @@ BrowserDatabaseSystem::~BrowserDatabaseSystem() {
 }
 
 base::PlatformFile BrowserDatabaseSystem::OpenFile(
-      const string16& vfs_file_name, int desired_flags) {
+    const string16& vfs_file_name, int desired_flags) {
   base::PlatformFile file_handle = base::kInvalidPlatformFileValue;
   FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
   if (file_name.empty()) {
@@ -153,7 +151,8 @@ void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) 
 void BrowserDatabaseSystem::ClearAllDatabases() {
   // Wait for all databases to be closed.
   if (!database_connections_.IsEmpty()) {
-    AutoReset<bool> waiting_for_dbs_auto_reset(&waiting_for_dbs_to_close_, true);
+    AutoReset<bool> waiting_for_dbs_auto_reset(
+        &waiting_for_dbs_to_close_, true);
     MessageLoop::ScopedNestableTaskAllower nestable(MessageLoop::current());
     MessageLoop::current()->Run();
   }
@@ -184,6 +183,9 @@ void BrowserDatabaseSystem::SetFullFilePathsForVfsFile(
 
 FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
     const string16& vfs_file_name) {
+  if (vfs_file_name.empty())  // temp file, used for vacuuming
+    return FilePath();
+
   AutoLock file_names_auto_lock(file_names_lock_);
   DCHECK(file_names_.find(vfs_file_name) != file_names_.end());
   return file_names_[vfs_file_name];

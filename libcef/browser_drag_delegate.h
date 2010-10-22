@@ -1,28 +1,27 @@
-// Copyright (c) 2008 The Chromium Embedded Framework Authors.
-// Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// A class that implements BaseDragSource for the test shell webview delegate.
 
 #ifndef _BROWSER_DRAG_DELEGATE_H
 #define _BROWSER_DRAG_DELEGATE_H
 
-#include "base/base_drag_source.h"
+#include "app/win/drag_source.h"
 
 namespace WebKit {
 class WebView;
 }
 
-class BrowserDragDelegate : public BaseDragSource {
+// A class that implements app::win::DragSource for the browser webview
+// delegate.
+class BrowserDragDelegate : public app::win::DragSource {
  public:
   BrowserDragDelegate(HWND source_hwnd, WebKit::WebView* webview)
-      : BaseDragSource(),
+      : app::win::DragSource(),
         source_hwnd_(source_hwnd),
         webview_(webview) { }
 
  protected:
-  // BaseDragSource
+  // app::win::DragSource
   virtual void OnDragSourceCancel();
   virtual void OnDragSourceDrop();
   virtual void OnDragSourceMove();
