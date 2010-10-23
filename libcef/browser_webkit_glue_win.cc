@@ -66,6 +66,10 @@ base::StringPiece NetResourceProvider(int key) {
   return GetRawDataResource(hModule, key);
 }
 
+base::StringPiece GetDataResource(int resource_id) {
+  return NetResourceProvider(resource_id);
+}
+
 void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }

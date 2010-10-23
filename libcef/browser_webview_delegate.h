@@ -26,6 +26,9 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebFileSystem.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#if defined(OS_MACOSX)
+#include "third_party/WebKit/WebKit/chromium/public/WebPopupMenuInfo.h"
+#endif
 #include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/plugins/webplugin_page_delegate.h"
@@ -314,7 +317,12 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // cursor.
   GdkCursorType cursor_type_;
 #endif
-  
+
+#if defined(OS_MACOSX)
+      scoped_ptr<WebKit::WebPopupMenuInfo> popup_menu_info_;
+      WebKit::WebRect popup_bounds_;
+#endif
+
   // true if we want to enable smart insert/delete.
   bool smart_insert_delete_enabled_;
 

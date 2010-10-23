@@ -38,6 +38,9 @@ extern "C" {
 #if defined(__linux__)
 #include "cef_string.h"
 
+// Window handle.
+#define cef_window_handle_t void*
+
 // Class representing window information.
 typedef struct _cef_window_info_t
 {
@@ -55,8 +58,6 @@ typedef struct _cef_print_info_t
   double m_Scale;
 } cef_print_info_t;
 
-// Window handle.
-#define cef_window_handle_t void*
 #endif // defined(__linux__)
 
 #ifdef __cplusplus

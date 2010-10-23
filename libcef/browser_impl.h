@@ -112,7 +112,7 @@ public:
   BrowserWebViewDelegate* GetWebViewDelegate() const {
     return delegate_.get();
   }
-  CefWindowHandle GetWebViewWndHandle() const {
+  gfx::NativeView GetWebViewWndHandle() const {
     return webviewhost_->view_handle();
   }
   WebKit::WebWidget* GetPopup() const {
@@ -124,17 +124,10 @@ public:
   BrowserWebViewDelegate* GetPopupDelegate() const {
     return popup_delegate_.get();
   }
-  CefWindowHandle GetPopupWndHandle() const {
+  gfx::NativeView GetPopupWndHandle() const {
     return popuphost_->view_handle();
   }
-  CefWindowHandle GetMainWndHandle() const {
-#if defined(OS_WIN)
-    return window_info_.m_hWnd;
-#else
-    return 0;
-#endif
-  }
-
+  gfx::NativeWindow GetMainWndHandle() const;
 
   ////////////////////////////////////////////////////////////
   // ALL UIT_* METHODS MUST ONLY BE CALLED ON THE UI THREAD //

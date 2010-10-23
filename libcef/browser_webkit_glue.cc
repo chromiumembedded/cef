@@ -43,10 +43,6 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-base::StringPiece GetDataResource(int resource_id) {
-  return NetResourceProvider(resource_id);
-}
-
 bool GetApplicationDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
 }
@@ -154,8 +150,8 @@ bool IsContentDispositionAttachment(const std::string& cd_header,
     WTF::String name_str =
         WebCore::filenameFromHTTPContentDisposition(cd_str);
     if (!name_str.isEmpty()) {
-      file_name = WideToUTF8(
-          std::wstring(name_str.characters(), name_str.length()));
+      WTF::CString cstr(name_str.utf8());
+      file_name = std::string(cstr.data(), cstr.length());
     }
     return true;
   }

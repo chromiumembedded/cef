@@ -38,6 +38,9 @@ extern "C" {
 #if defined(__APPLE__)
 #include "cef_string.h"
 
+// Window handle.
+#define cef_window_handle_t void*
+
 // Class representing window information.
 typedef struct _cef_window_info_t
 {
@@ -47,6 +50,12 @@ typedef struct _cef_window_info_t
   int m_y;
   int m_nWidth;
   int m_nHeight;
+
+  // NSWindow pointer for the parent window.
+  cef_window_handle_t m_ParentWindow;
+  
+  // NSWindow pointer for the new browser window.
+  cef_window_handle_t m_Window;
 } cef_window_info_t;
 
 // Class representing print context information.
@@ -55,8 +64,6 @@ typedef struct _cef_print_info_t
   double m_Scale;
 } cef_print_info_t;
 
-// Window handle.
-#define cef_window_handle_t void*
 #endif // defined(__APPLE__)
 
 #ifdef __cplusplus

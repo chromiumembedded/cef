@@ -11,6 +11,7 @@
 #include "gfx/rect.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include <string>
 
 namespace gfx {
 class Size;

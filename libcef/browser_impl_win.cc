@@ -104,6 +104,10 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return handle;
 }
 
+gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
+  return window_info_.m_hWnd;
+}
+
 void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 {
   REQUIRE_UIT();
