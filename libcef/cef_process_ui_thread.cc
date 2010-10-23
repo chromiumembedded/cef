@@ -147,7 +147,7 @@ void CefProcessUIThread::Init() {
       net::SSLClientSocketNSSFactory);
 #endif
 
-  gfx::InitializeGLBindings(gfx::kGLImplementationOSMesaGL);
+  gfx::InitializeGLBindings(gfx::kGLImplementationNone);
 
   URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
 }
