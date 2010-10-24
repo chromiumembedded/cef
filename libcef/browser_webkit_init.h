@@ -221,7 +221,10 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {
-    return WebKit::WebGraphicsContext3D::createDefault();
+    // TODO(cef): WebGL support is disabled until a better implementation is
+    // available.
+    //return WebKit::WebGraphicsContext3D::createDefault();
+    return NULL;
   }
 
  private:
