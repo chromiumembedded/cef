@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_wrapper.h"
 #include "scheme_test.h"
 #include "string_util.h"
 #include "resource_util.h"

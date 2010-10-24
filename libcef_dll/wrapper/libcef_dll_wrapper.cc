@@ -22,6 +22,7 @@
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 
 
 bool CefInitialize(bool multi_threaded_message_loop,
@@ -52,6 +53,7 @@ void CefShutdown()
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
   DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);
+  DCHECK(CefZipReaderCToCpp::DebugObjCt == 0);
 #endif // _DEBUG
 }
 

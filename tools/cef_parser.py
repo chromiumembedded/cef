@@ -1073,6 +1073,7 @@ class obj_analysis:
             'long' : 'long',
             'unsigned long' : 'unsigned long',
             'size_t' : 'size_t',
+            'time_t' : 'time_t',
             'bool' : 'int',
             'CefWindowHandle' : 'cef_window_handle_t',
             'CefRect' : 'cef_rect_t',

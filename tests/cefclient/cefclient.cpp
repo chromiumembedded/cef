@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef.h"
+#include "include/cef_wrapper.h"
 #include "cefclient.h"
 #include "binding_test.h"
 #include "download_handler.h"
@@ -408,21 +409,21 @@ public:
       // Show the uiapp contents
       if(LoadBinaryResource(IDS_UIPLUGIN, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
-            new ClientReadHandler(pBytes, dwSize));
+            new CefByteReadHandler(pBytes, dwSize, NULL));
         mimeType = L"text/html";
       }
     } else if(wcsstr(url.c_str(), L"/ps_logo2.png") != NULL) {
       // Any time we find "ps_logo2.png" in the URL substitute in our own image
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
-            new ClientReadHandler(pBytes, dwSize));
+            new CefByteReadHandler(pBytes, dwSize, NULL));
         mimeType = L"image/png";
       }
     } else if(wcsstr(url.c_str(), L"/logoball.png") != NULL) {
       // Load the "logoball.png" image resource.
       if(LoadBinaryResource(IDS_LOGOBALL, dwSize, pBytes)) {
         resourceStream = CefStreamReader::CreateForHandler(
-            new ClientReadHandler(pBytes, dwSize));
+            new CefByteReadHandler(pBytes, dwSize, NULL));
         mimeType = L"image/png";
       }
     }

@@ -1272,7 +1272,7 @@ public:
   /*--cef()--*/
   virtual bool MoveToNextNode() =0;
 
-  // Close the document. This must be called directly to ensure that cleanup
+  // Close the document. This should be called directly to ensure that cleanup
   // occurs on the correct thread.
   /*--cef()--*/
   virtual bool Close() =0;
@@ -1410,6 +1410,76 @@ public:
   // position was set successfully.
   /*--cef()--*/
   virtual bool MoveToCarryingElement() =0;
+};
+
+
+// Class that supports the reading of zip archives via the zlib unzip API.
+/*--cef(source=library)--*/
+class CefZipReader : public CefBase
+{
+public:
+  // Create a new CefZipReader object. The returned object's methods can only
+  // be called from the thread that created the object.
+  /*--cef()--*/
+  static CefRefPtr<CefZipReader> Create(CefRefPtr<CefStreamReader> stream);
+
+  // Moves the cursor to the first file in the archive. Returns true if the
+  // cursor position was set successfully.
+  /*--cef()--*/
+  virtual bool MoveToFirstFile() =0;
+
+  // Moves the cursor to the next file in the archive. Returns true if the
+  // cursor position was set successfully.
+  /*--cef()--*/
+  virtual bool MoveToNextFile() =0;
+
+  // Moves the cursor to the specified file in the archive. If |caseSensitive|
+  // is true then the search will be case sensitive. Returns true if the cursor
+  // position was set successfully. 
+  /*--cef()--*/
+  virtual bool MoveToFile(const std::wstring& fileName, bool caseSensitive) =0;
+
+  // Closes the archive. This should be called directly to ensure that cleanup
+  // occurs on the correct thread.
+  /*--cef()--*/
+  virtual bool Close() =0;
+
+
+  // The below methods act on the file at the current cursor position.
+
+  // Returns the name of the file.
+  /*--cef()--*/
+  virtual std::wstring GetFileName() =0;
+
+  // Returns the uncompressed size of the file.
+  /*--cef()--*/
+  virtual long GetFileSize() =0;
+
+  // Returns the last modified timestamp for the file.
+  /*--cef()--*/
+  virtual time_t GetFileLastModified() =0;
+
+  // Opens the file for reading of uncompressed data. A read password may
+  // optionally be specified.
+  /*--cef()--*/
+  virtual bool OpenFile(const std::wstring& password) =0;
+
+  // Closes the file.
+  /*--cef()--*/
+  virtual bool CloseFile() =0;
+
+  // Read uncompressed file contents into the specified buffer. Returns < 0 if
+  // an error occurred, 0 if at the end of file, or the number of bytes read.
+  /*--cef()--*/
+  virtual int ReadFile(void* buffer, size_t bufferSize) =0;
+
+  // Returns the current offset in the uncompressed file contents.
+  /*--cef()--*/
+  virtual long Tell() =0;
+
+  // Returns true if at end of the file contents.
+  /*--cef()--*/
+  virtual bool Eof() =0;
 };
 
 #endif // _CEF_H
