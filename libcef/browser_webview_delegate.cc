@@ -15,11 +15,11 @@
 #include "request_impl.h"
 #include "v8_impl.h"
 
+#include "base/debug/trace_event.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
-#include "base/trace_event.h"
 #include "base/utf_string_conversions.h"
 #include "gfx/point.h"
 #include "media/filters/audio_renderer_impl.h"
@@ -529,18 +529,14 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
-  scoped_refptr<media::FilterFactoryCollection> factory =
-      new media::FilterFactoryCollection();
-
-  // Add the audio renderer factory.
-  factory->AddFactory(media::AudioRendererImpl::CreateFilterFactory());
+  media::MediaFilterCollection collection;
 
   appcache::WebApplicationCacheHostImpl* appcache_host =
       appcache::WebApplicationCacheHostImpl::FromFrame(frame);
 
   // TODO(hclam): this is the same piece of code as in RenderView, maybe they
   // should be grouped together.
-  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory_simple =
       new webkit_glue::MediaResourceLoaderBridgeFactory(
           GURL(frame->url()),  // referrer
           "null",  // frame origin
@@ -548,18 +544,25 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
           base::GetCurrentProcId(),
           appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
           0);
-  // A simple data source that keeps all data in memory.
-  media::FilterFactory* simple_data_source_factory =
-      webkit_glue::SimpleDataSource::CreateFactory(MessageLoop::current(),
-                                                   bridge_factory);
-  // A sophisticated data source that does memory caching.
-  media::FilterFactory* buffered_data_source_factory =
-      webkit_glue::BufferedDataSource::CreateFactory(MessageLoop::current(),
-                                                     bridge_factory);
-  factory->AddFactory(buffered_data_source_factory);
-  factory->AddFactory(simple_data_source_factory);
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory_buffered =
+      new webkit_glue::MediaResourceLoaderBridgeFactory(
+          GURL(frame->url()),  // referrer
+          "null",  // frame origin
+          "null",  // main_frame_origin
+          base::GetCurrentProcId(),
+          appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
+          0);
+
+  scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer =
+      new webkit_glue::VideoRendererImpl(false);
+  collection.push_back(video_renderer);
+
+  // Add the audio renderer.
+  collection.push_back(new media::AudioRendererImpl());
+
   return new webkit_glue::WebMediaPlayerImpl(
-      client, factory, new webkit_glue::VideoRendererImpl::FactoryFactory(false));
+      client, collection, bridge_factory_simple, bridge_factory_buffered,
+      false, video_renderer);
 }
 
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
