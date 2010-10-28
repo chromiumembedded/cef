@@ -6,7 +6,10 @@
 // Portions of this implementation are borrowed from webkit\default_plugin\
 // plugin_impl.h
 
-#pragma once
+#ifndef _CEFCLIENT_CLIENTPLUGIN_H
+#define _CEFCLIENT_CLIENTPLUGIN_H
+
+#ifdef _WIN32
 
 #include <atlbase.h>
 #include <atlwin.h>
@@ -86,3 +89,7 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
   // The plugin instantiation mode (NP_FULL or NP_EMBED)
   int16 mode_;
 };
+
+#endif // _WIN32
+
+#endif // _CEFCLIENT_CLIENTPLUGIN_H

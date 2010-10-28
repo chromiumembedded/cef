@@ -2,9 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_RESOURCE_UTIL
+#define _CEFCLIENT_RESOURCE_UTIL
 
 #include "include/cef.h"
 
+#ifdef _WIN32
+
 // Load a resource of type BINARY
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
+
+#endif // _WIN32
+
+#endif // _CEFCLIENT_RESOURCE_UTIL

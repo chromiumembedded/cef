@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_PLUGIN_TEST_H
+#define _CEFCLIENT_PLUGIN_TEST_H
+
 #include "include/cef.h"
 
 // Register the internal client plugin.
@@ -10,3 +12,5 @@ void InitPluginTest();
 
 // Run the test.
 void RunPluginTest(CefRefPtr<CefBrowser> browser);
+
+#endif // _CEFCLIENT_PLUGIN_TEST_H

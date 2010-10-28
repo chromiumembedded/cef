@@ -4,13 +4,15 @@
 
 #include "download_handler.h"
 #include "util.h"
+#include <sstream>
+#include <vector>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #endif // _WIN32
-#include <sstream>
-#include <vector>
+
 
 namespace {
 

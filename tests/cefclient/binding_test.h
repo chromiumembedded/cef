@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_BINDING_TEST_H
+#define _CEFCLIENT_BINDING_TEST_H
+
 #include "include/cef.h"
 
 // Add the V8 bindings.
@@ -12,3 +14,5 @@ void InitBindingTest(CefRefPtr<CefBrowser> browser,
 
 // Run the test.
 void RunBindingTest(CefRefPtr<CefBrowser> browser);
+
+#endif // _CEFCLIENT_BINDING_TEST_H

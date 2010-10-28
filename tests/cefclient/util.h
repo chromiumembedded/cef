@@ -3,7 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_UTIL_H
+#define _CEFCLIENT_UTIL_H
 
 #ifdef _WIN32
 
@@ -46,3 +47,5 @@
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
+
+#endif // _CEFCLIENT_UTIL_H

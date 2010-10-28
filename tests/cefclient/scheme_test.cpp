@@ -6,7 +6,10 @@
 #include "scheme_test.h"
 #include "string_util.h"
 #include "resource_util.h"
+
+#ifdef _WIN32
 #include "resource.h"
+#endif // _WIN32
 
 
 // Implementation of the schema handler for client:// requests.
@@ -58,6 +61,7 @@ public:
       // Set the resulting mime type
       mime_type = L"text/html";
     }
+#ifdef _WIN32
     else if(wcsstr(url.c_str(), L"client.gif") != NULL) {
       // Load the response image
       if(LoadBinaryResource(IDS_LOGO, size_, bytes_)) {
@@ -66,6 +70,7 @@ public:
         mime_type = L"image/jpg";
       }
     }
+#endif // _WIN32
 
     // Set the resulting response length
     *response_length = size_;

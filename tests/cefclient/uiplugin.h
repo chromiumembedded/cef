@@ -6,9 +6,12 @@
 // Portions of this implementation are borrowed from webkit\default_plugin\
 // plugin_impl.h
 
-#pragma once
+#ifndef _CEFCLIENT_UIPLUGIN_H
+#define _CEFCLIENT_UIPLUGIN_H
 
 #include "include/cef_nplugin.h"
+
+#ifdef _WIN32
 
 extern NPNetscapeFuncs* g_uibrowser;
 
@@ -20,3 +23,7 @@ NPError API_CALL NP_UIShutdown(void);
 void ModifyRotation(float value);
 // Function called to reset the rotation value.
 void ResetRotation();
+
+#endif // _WIN32
+
+#endif // _CEFCLIENT_UIPLUGIN_H

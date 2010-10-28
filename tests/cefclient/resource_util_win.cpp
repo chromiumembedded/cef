@@ -4,6 +4,8 @@
 
 #include "resource_util.h"
 
+#ifdef _WIN32
+
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 {
   extern HINSTANCE hInst;
@@ -23,3 +25,5 @@ bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 
 	return false;
 }
+
+#endif // _WIN32

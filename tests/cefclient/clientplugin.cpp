@@ -5,6 +5,8 @@
 
 #include "clientplugin.h"
 
+#ifdef _WIN32
+
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_browser = NULL;
 
@@ -184,3 +186,5 @@ void ClientPlugin::RefreshDisplay() {
   InvalidateRect(NULL, TRUE);
   UpdateWindow();
 }
+
+#endif // _WIN32

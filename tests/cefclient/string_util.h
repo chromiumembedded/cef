@@ -2,7 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_STRING_UTIL_H
+#define _CEFCLIENT_STRING_UTIL_H
 
 #include "include/cef.h"
 #include <string>
@@ -20,3 +21,5 @@ void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str);
 // Replace all instances of |from| with |to| in |str|.
 std::wstring StringReplace(const std::wstring& str, const std::wstring& from,
                            const std::wstring& to);
+
+#endif // _CEFCLIENT_STRING_UTIL_H

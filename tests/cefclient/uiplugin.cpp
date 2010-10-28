@@ -8,6 +8,7 @@
 #include <gl/gl.h>
 #include <sstream>
 
+#ifdef _WIN32
 
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_uibrowser = NULL;
@@ -281,3 +282,5 @@ void DisableOpenGL(HWND hWnd, HDC hDC, HGLRC hRC)
   wglDeleteContext(hRC);
   ReleaseDC(hWnd, hDC);
 }
+
+#endif // _WIN32

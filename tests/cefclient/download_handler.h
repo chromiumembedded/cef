@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#pragma once
+#ifndef _CEFCLIENT_DOWNLOAD_HANDLER_H
+#define _CEFCLIENT_DOWNLOAD_HANDLER_H
+
 #include "include/cef.h"
 
 // Implement this interface to receive download notifications.
@@ -19,3 +21,5 @@ public:
 // Create a new download handler to manage download of a single file.
 CefRefPtr<CefDownloadHandler> CreateDownloadHandler(
     CefRefPtr<DownloadListener> listener, const std::wstring& fileName);
+
+#endif // _CEFCLIENT_DOWNLOAD_HANDLER_H
