@@ -688,13 +688,13 @@ void ClientHandler::SendNotification(NotificationType type)
   switch(type)
   {
   case NOTIFY_CONSOLE_MESSAGE:
-    id = ID_WARN_DOWNLOADERROR;
+    id = ID_WARN_CONSOLEMESSAGE;
     break;
   case NOTIFY_DOWNLOAD_COMPLETE:
     id = ID_WARN_DOWNLOADCOMPLETE;
     break;
   case NOTIFY_DOWNLOAD_ERROR:
-    id = ID_WARN_CONSOLEMESSAGE;
+    id = ID_WARN_DOWNLOADERROR;
     break;
   default:
     return;
