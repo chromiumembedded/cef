@@ -3,7 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_wrapper.h"
-#include "base/logging.h"
+#include "libcef_dll/cef_logging.h"
+#include <sstream>
 
 namespace {
 
@@ -103,7 +104,7 @@ public:
               cur_object->GetName() != reader->GetQualifiedName()) {
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
-            NOTREACHED();
+            DCHECK(FALSE);
             std::wstringstream ss;
             ss << L"Mismatched end tag for " << cur_object->GetName() <<
                 L", line " << reader->GetLineNumber();

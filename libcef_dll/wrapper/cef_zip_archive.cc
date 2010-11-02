@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_wrapper.h"
-#include "base/logging.h"
+#include "libcef_dll/cef_logging.h"
 #include <algorithm>
 
 namespace {

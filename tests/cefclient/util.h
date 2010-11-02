@@ -44,8 +44,4 @@
 
 #endif // _WIN32
 
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 #endif // _CEFCLIENT_UTIL_H
