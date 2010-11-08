@@ -132,6 +132,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // WebKit::WebFrameClient
   virtual WebKit::WebPlugin* createPlugin(
       WebKit::WebFrame*, const WebKit::WebPluginParams&);
+  virtual WebKit::WebWorker* createWorker(
+      WebKit::WebFrame*, WebKit::WebWorkerClient*);
   virtual WebKit::WebMediaPlayer* createMediaPlayer(
       WebKit::WebFrame*, WebKit::WebMediaPlayerClient*);
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(

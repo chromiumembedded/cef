@@ -11,6 +11,7 @@
 #include "browser_appcache_system.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
+#include "browser_web_worker.h"
 #include "cef_context.h"
 #include "request_impl.h"
 #include "v8_impl.h"
@@ -525,6 +526,11 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 
   return new webkit_glue::WebPluginImpl(
       frame, params, info.path, actual_mime_type, AsWeakPtr());
+}
+
+WebWorker* BrowserWebViewDelegate::createWorker(
+    WebFrame* frame, WebWorkerClient* client) {
+  return new BrowserWebWorker();
 }
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
