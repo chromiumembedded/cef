@@ -41,23 +41,6 @@ int XMLCALL xml_read_callback(void * context, char * buffer, int len)
 }
 
 /**
- * xmlInputCloseCallback:
- * @context:  an Input context
- *
- * Callback used in the I/O Input API to close the resource
- *
- * Returns 0 or -1 in case of error
- */
-int XMLCALL xml_close_callback(void * context)
-{
-  CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(context));
-  
-  // Release the reference added by CefXmlReaderImpl::Initialize().
-  reader->Release();
-  return 1;
-}
-
-/**
  * xmlTextReaderErrorFunc:
  * @arg: the user argument
  * @msg: the message
@@ -177,12 +160,8 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
   if (!input_buffer)
     return false;
 
-  // Add a reference that will be released by xml_close_callback().
-  stream->AddRef();
-  
   input_buffer->context = stream.get();
-	input_buffer->readcallback = xml_read_callback;
-	input_buffer->closecallback = xml_close_callback;
+  input_buffer->readcallback = xml_read_callback;
 
   // Create the text reader.
   reader_ = xmlNewTextReader(input_buffer, WideToUTF8(URI).c_str());
@@ -191,6 +170,9 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
     xmlFreeParserInputBuffer(input_buffer);
     return false;
   }
+
+  // Keep a reference to the stream.
+  stream_ = stream;
 
   // Register the error callbacks.
   xmlTextReaderSetErrorHandler(reader_, xml_error_callback, this);

@@ -62,6 +62,7 @@ public:
 
 protected:
   PlatformThreadId supported_thread_id_;
+  CefRefPtr<CefStreamReader> stream_;
   xmlTextReaderPtr reader_;
   std::wstringstream error_buf_;
 };

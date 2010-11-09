@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BROWSER_WEB_WORKER_H_
-#define BROWSER_WEB_WORKER_H_
+#ifndef _BROWSER_WEB_WORKER_H
+#define _BROWSER_WEB_WORKER_H
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -98,4 +98,4 @@ class BrowserWebWorker : public WebKit::WebWorker,
   DISALLOW_COPY_AND_ASSIGN(BrowserWebWorker);
 };
 
-#endif  // BROWSER_WEB_WORKER_H_
+#endif  // _BROWSER_WEB_WORKER_H
