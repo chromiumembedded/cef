@@ -33,6 +33,9 @@ class CefProcessUIThread : public CefThread {
   virtual void CleanUp();
 
  private:
+  void PlatformInit();
+  void PlatformCleanUp();
+
   base::StatsTable* statstable_;
 
   // WebKit implementation class.

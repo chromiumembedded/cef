@@ -6,7 +6,6 @@
 #define _WEBVIEW_HOST_H
 
 #include "base/basictypes.h"
-#include "gfx/rect.h"
 #include "gfx/native_widget_types.h"
 #include "webwidget_host.h"
 
@@ -29,6 +28,7 @@ class WebViewHost : public WebWidgetHost {
   // The newly created window should be resized after it is created, using the
   // MoveWindow (or equivalent) function.
   static WebViewHost* Create(gfx::NativeView parent_view,
+                             const gfx::Rect& rect,
                              BrowserWebViewDelegate* delegate,
                              WebKit::WebDevToolsAgentClient* devtools_client,
                              const WebPreferences& prefs);

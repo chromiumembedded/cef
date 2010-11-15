@@ -7,6 +7,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "browser_impl.h"
+#include "cef_context.h"
 #include "webwidget_host.h"
 
 #include "base/scoped_ptr.h"
@@ -35,9 +36,11 @@
 }
 
 - (void) dealloc {
+  browser_->UIT_DestroyBrowser();
+
   [self removeTrackingArea:trackingArea_];
   [trackingArea_ release];
-
+  
   [super dealloc];
 }
 
@@ -59,37 +62,6 @@
     browser_->GetWebViewHost()->UpdatePaintRect(client_rect);
     browser_->GetWebViewHost()->Paint();
   }
-}
-
-- (IBAction)goBack:(id)sender {
-  if (browser_)
-    browser_->UIT_GoBackOrForward(-1);
-}
-
-- (IBAction)goForward:(id)sender {
-  if (browser_)
-    browser_->UIT_GoBackOrForward(1);
-}
-
-- (IBAction)reload:(id)sender {
-  if (browser_)
-    browser_->UIT_Reload(false);
-}
-
-- (IBAction)stopLoading:(id)sender {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebView()->mainFrame()->stopLoading();
-}
-
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender {
-  NSString *url = [sender stringValue];
-
-  // if it doesn't already have a prefix, add http. If we can't parse it,
-  // just don't bother rather than making things worse.
-  NSURL* tempUrl = [NSURL URLWithString:url];
-  if (tempUrl && ![tempUrl scheme])
-    url = [@"http://" stringByAppendingString:url];
-  browser_->LoadURL(browser_->GetMainFrame(), UTF8ToWide([url UTF8String]));
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
@@ -195,11 +167,6 @@
   }
 
   return NO;
-}
-
-- (void)setIsActive:(BOOL)active {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->SetIsActive(active ? true : false);
 }
 
 - (void)setFrame:(NSRect)frameRect {

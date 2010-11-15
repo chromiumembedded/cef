@@ -42,6 +42,18 @@
                                              code \
                                              MSVC_POP_WARNING()
 
-#endif // _WIN32
+#else // !_WIN32
+
+#include <assert.h>
+
+#ifdef _DEBUG
+#define ASSERT(condition) if(!(condition)) { assert(false); }
+#else
+#define ASSERT(condition) ((void)0)
+#endif
+
+#define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
+
+#endif // !_WIN32
 
 #endif // _CEFCLIENT_UTIL_H

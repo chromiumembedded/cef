@@ -26,6 +26,10 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 // Save a bitmap image to file, providing optional alternative data in |lpBits|
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
+  
+#if defined(OS_MACOSX)
+void InitializeDataPak();
+#endif
 
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();

@@ -5,6 +5,7 @@
 
 #include "cef_context.h"
 #include "browser_impl.h"
+#include "browser_webview_mac.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -20,36 +21,38 @@ using WebKit::WebSize;
 CefWindowHandle CefBrowserImpl::GetWindowHandle()
 {
   Lock();
-  CefWindowHandle handle = window_info_.m_Window;
+  CefWindowHandle handle = window_info_.m_View;
   Unlock();
   return handle;
 }
 
 gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
-  return (NSWindow*)window_info_.m_Window;
+  return (NSWindow*)window_info_.m_View;
 }
 
 void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 {
   REQUIRE_UIT();
   
-  // Create the new browser window
-  // TODO(port): Add implementation.
-  
-  // Add a reference that will be released on WM_DESTROY.
+  // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();
 
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
+  
+  NSView* parentView = (NSView*)window_info_.m_ParentView;
+  gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
+                        window_info_.m_nWidth, window_info_.m_nHeight);
 
   // Create the webview host object
   webviewhost_.reset(
-      WebViewHost::Create([GetMainWndHandle() contentView], delegate_.get(),
-      NULL, *_Context->web_preferences()));
+      WebViewHost::Create(parentView, contentRect, delegate_.get(),
+                          NULL, *_Context->web_preferences()));
   delegate_->RegisterDragDrop();
-    
-  // Size the web view window to the browser window
-  // TODO(port): Add implementation.
+  
+  BrowserWebView* browserView = (BrowserWebView*)webviewhost_->view_handle();
+  browserView.browser = this;
+  window_info_.m_View = (void*)browserView;
   
   if(handler_.get()) {
     // Notify the handler that we're done creating the new window
@@ -68,8 +71,13 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
   REQUIRE_UIT();
   if (!host)
     return;
+  
+  NSView* view = host->view_handle();
+  if (!view)
+    return;
 
-  // TODO(port): Add implementation.
+  if (enable)
+    [[view window] makeFirstResponder:view];
 }
 
 WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()

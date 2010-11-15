@@ -198,13 +198,14 @@ void BrowserWebViewDelegate::DidMovePlugin(
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const std::wstring& message) {
   NSString *text =
-  [NSString stringWithUTF8String:WideToUTF8(message).c_str()];
+      [NSString stringWithUTF8String:WideToUTF8(message).c_str()];
   NSAlert *alert = [NSAlert alertWithMessageText:@"JavaScript Alert"
                                    defaultButton:@"OK"
                                  alternateButton:nil
                                      otherButton:nil
                        informativeTextWithFormat:text];
   [alert runModal];
+  [text release];
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(

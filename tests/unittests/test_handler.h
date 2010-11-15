@@ -251,7 +251,7 @@ public:
     return browser_;
   }
 
-  HWND GetBrowserHwnd()
+  CefWindowHandle GetBrowserHwnd()
   {
     return browser_hwnd_;
   }

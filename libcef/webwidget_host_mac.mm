@@ -35,12 +35,8 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
   WebWidgetHost* host = new WebWidgetHost();
 
   NSRect content_rect = [parent_view frame];
-  content_rect.origin.y += 64;
-  content_rect.size.height -= 64;
   host->view_ = [[NSView alloc] initWithFrame:content_rect];
   [parent_view addSubview:host->view_];
-
-  // win_util::SetWindowUserData(host->hwnd_, host);
 
   host->webwidget_ = WebPopupMenu::create(client);
   host->webwidget_->resize(WebSize(content_rect.size.width,
@@ -137,9 +133,6 @@ void WebWidgetHost::ScheduleComposite() {
   [view_ setNeedsDisplayInRect:r];
 }
 
-// void WebWidgetHost::SetCursor(HCURSOR cursor) {
-// }
-
 void WebWidgetHost::DiscardBackingStore() {
   canvas_.reset();
 }
@@ -153,9 +146,6 @@ WebWidgetHost::WebWidgetHost()
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  // win_util::SetWindowUserData(hwnd_, 0);
-
-  webwidget_->close();
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
@@ -225,7 +215,7 @@ void WebWidgetHost::Paint() {
 }
 
 void WebWidgetHost::SetTooltipText(const std::wstring& tooltip_text) {
-  NOTIMPLEMENTED();
+  // TODO(port): Implement this method.
 }
 
 WebScreenInfo WebWidgetHost::GetScreenInfo() {

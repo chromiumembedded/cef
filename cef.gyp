@@ -10,6 +10,7 @@
     {
       'target_name': 'cefclient',
       'type': 'executable',
+      'mac_bundle': 1,
       'msvs_guid': '6617FED9-C5D4-4907-BF55-A90062A6683F',
       'dependencies': [
         '../third_party/npapi/npapi.gyp:npapi',
@@ -32,17 +33,29 @@
         'tests/cefclient/download_handler.h',
         'tests/cefclient/extension_test.cpp',
         'tests/cefclient/extension_test.h',
-        'tests/cefclient/plugin_test.cpp',
-        'tests/cefclient/plugin_test.h',
         'tests/cefclient/resource_util.h',
         'tests/cefclient/scheme_test.cpp',
         'tests/cefclient/scheme_test.h',
         'tests/cefclient/string_util.cpp',
         'tests/cefclient/string_util.h',
-        'tests/cefclient/uiplugin_test.cpp',
-        'tests/cefclient/uiplugin_test.h',
         'tests/cefclient/util.h',
       ],
+      'mac_bundle_resources': [
+        'tests/cefclient/mac/cefclient.icns',
+        'tests/cefclient/mac/data/',
+        'tests/cefclient/mac/English.lproj/InfoPlist.strings',
+        'tests/cefclient/mac/English.lproj/MainMenu.xib',
+        'tests/cefclient/mac/Info.plist',
+      ],
+      'mac_bundle_resources!': [
+        # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
+        # that automatically sets the correct INFOPLIST_FILE setting and adds
+        # the file to a source group.
+        'tests/cefclient/mac/Info.plist',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': 'tests/cefclient/mac/Info.plist',
+      },
       'conditions': [
         ['OS=="win"', {
           'msvs_settings': {
@@ -67,6 +80,8 @@
             'tests/cefclient/cefclient_win.cpp',
             'tests/cefclient/clientplugin.cpp',
             'tests/cefclient/clientplugin.h',
+            'tests/cefclient/plugin_test.cpp',
+            'tests/cefclient/plugin_test.h',
             'tests/cefclient/Resource.h',
             'tests/cefclient/res/cefclient.ico',
             'tests/cefclient/res/logo.jpg',
@@ -77,6 +92,74 @@
             'tests/cefclient/string_util_win.cpp',
             'tests/cefclient/uiplugin.cpp',
             'tests/cefclient/uiplugin.h',
+            'tests/cefclient/uiplugin_test.cpp',
+            'tests/cefclient/uiplugin_test.h',
+          ],
+        }],
+        [ 'OS=="mac"', {
+          'product_name': 'cefclient',
+          'variables': {
+            'repack_path': '../tools/data_pack/repack.py',
+          },
+          'actions': [
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded en-US.
+              'action_name': 'repack_locale',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/cefclient.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+          ],
+          'copies': [
+            # TODO(ajwong): This, and the parallel chromium stanza below
+            # really should find a way to share file paths with
+            # ffmpeg.gyp so they don't diverge. (BUG=23602)
+            {
+              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
+              'files': ['<(PRODUCT_DIR)/libffmpegsumo.dylib'],
+            },
+            {
+              # TODO(tony): We should have cefclient.app load plugins from
+              # <(PRODUCT_DIR)/plugins so we don't have this extra copy of
+              # the plugin.
+              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/PlugIns/',
+              'files': ['<(PRODUCT_DIR)/TestNetscapePlugIn.plugin/'],
+            },
+            {
+              # Add the WebCore resources to the bundle.
+              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/',
+              'files': ['../third_party/WebKit/WebCore/Resources/'],
+            },
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
+          'sources': [
+            'tests/cefclient/cefclient_mac.mm',
+            'tests/cefclient/string_util_mac.h',
+            'tests/cefclient/string_util_mac.mm',
+          ],
+        }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'sources': [
+            'tests/cefclient/cefclient_gtk.cpp',
+            'tests/cefclient/string_util_gtk.cpp',
           ],
         }],
       ],
@@ -461,6 +544,7 @@
             'libcef/browser_impl_win.cc',
             'libcef/browser_webkit_glue_win.cc',
             'libcef/browser_webview_delegate_win.cc',
+            'libcef/cef_process_ui_thread_win.cc',
             'libcef/printing/print_settings.cc',
             'libcef/printing/print_settings.h',
             'libcef/printing/win_printing_context.cc',
@@ -478,6 +562,7 @@
             'libcef/browser_webview_delegate_mac.mm',
             'libcef/browser_webview_mac.h',
             'libcef/browser_webview_mac.mm',
+            'libcef/cef_process_ui_thread_mac.mm',
             'libcef/webview_host_mac.mm',
             'libcef/webwidget_host_mac.mm',
           ],
@@ -489,6 +574,7 @@
             'libcef/browser_impl_gtk.cc',
             'libcef/browser_webkit_glue_gtk.cc',
             'libcef/browser_webview_delegate_gtk.cc',
+            'libcef/cef_process_ui_thread_gtk.cc',
             'libcef/webview_host_gtk.cc',
             'libcef/webwidget_host_gtk.cc',
           ],

@@ -58,16 +58,19 @@ static void TrackDestructor(v8::Persistent<v8::Value> object,
 // Convert a wide string to a V8 string.
 static v8::Handle<v8::String> GetV8String(const std::wstring& str)
 {
-  return v8::String::New(
-      reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
+  std::string tmpStr = WideToUTF8(str);
+  return v8::String::New(tmpStr.c_str(), tmpStr.length());
 }
 
 // Convert a V8 string to a wide string.
 static std::wstring GetWString(v8::Handle<v8::String> str)
 {
-  uint16_t* buf = new uint16_t[str->Length()+1];
-  str->Write(buf);
-  std::wstring value = reinterpret_cast<wchar_t*>(buf);
+  // Allocate enough space for a worst-case conversion.
+  size_t len = str->Length()*4;
+  char* buf = new char[len];
+  int newlen = str->WriteUtf8(buf, len);
+  std::wstring value;
+  UTF8ToWide(buf, newlen, &value);
   delete [] buf;
   return value;
 }

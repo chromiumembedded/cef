@@ -51,11 +51,11 @@ typedef struct _cef_window_info_t
   int m_nWidth;
   int m_nHeight;
 
-  // NSWindow pointer for the parent window.
-  cef_window_handle_t m_ParentWindow;
+  // NSView pointer for the parent view.
+  cef_window_handle_t m_ParentView;
   
-  // NSWindow pointer for the new browser window.
-  cef_window_handle_t m_Window;
+  // NSView pointer for the new browser view.
+  cef_window_handle_t m_View;
 } cef_window_info_t;
 
 // Class representing print context information.

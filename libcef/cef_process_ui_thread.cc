@@ -4,9 +4,6 @@
 // found in the LICENSE file.
 
 #include "cef_process_ui_thread.h"
-#include "browser_impl.h"
-#include "browser_resource_loader_bridge.h"
-#include "browser_request_context.h"
 #include "browser_webkit_glue.h"
 #include "browser_webkit_init.h"
 #include "cef_context.h"
@@ -66,38 +63,7 @@ CefProcessUIThread::~CefProcessUIThread() {
 }
 
 void CefProcessUIThread::Init() {
-#if defined(OS_WIN)
-  HRESULT res;
-
-  // Initialize common controls
-  res = CoInitialize(NULL);
-  DCHECK(SUCCEEDED(res));
-  INITCOMMONCONTROLSEX InitCtrlEx;
-  InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
-  InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
-  InitCommonControlsEx(&InitCtrlEx);
-
-  // Start COM stuff
-  res = OleInitialize(NULL);
-  DCHECK(SUCCEEDED(res));
-
-  // Register the window class
-  WNDCLASSEX wcex = {
-    /* cbSize = */ sizeof(WNDCLASSEX),
-    /* style = */ CS_HREDRAW | CS_VREDRAW,
-    /* lpfnWndProc = */ CefBrowserImpl::WndProc,
-    /* cbClsExtra = */ 0,
-    /* cbWndExtra = */ 0,
-    /* hInstance = */ ::GetModuleHandle(NULL),
-    /* hIcon = */ NULL,
-    /* hCursor = */ LoadCursor(NULL, IDC_ARROW),
-    /* hbrBackground = */ 0,
-    /* lpszMenuName = */ NULL,
-    /* lpszClassName = */ CefBrowserImpl::GetWndClass(),
-    /* hIconSm = */ NULL,
-  };
-  RegisterClassEx(&wcex);
-#endif
+  PlatformInit();
 
 #ifndef _DEBUG
   // Only log error messages and above in release build.
@@ -167,12 +133,5 @@ void CefProcessUIThread::CleanUp() {
   delete webkit_init_;
   webkit_init_ = NULL;
 
-#if defined(OS_WIN)
-  // Uninitialize COM stuff
-  OleUninitialize();
-
-  // Closes the COM library on the current thread. CoInitialize must
-  // be balanced by a corresponding call to CoUninitialize.
-  CoUninitialize();
-#endif
+  PlatformCleanUp();
 }

@@ -539,6 +539,25 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
   return browser;
 }
 
+void CefBrowserImpl::UIT_DestroyBrowser()
+{
+  if(handler_.get()) {
+    // Notify the handler that the window is about to be closed.
+    handler_->HandleBeforeWindowClose(this);
+  }
+  GetWebViewDelegate()->RevokeDragDrop();
+  
+  // Clean up anything associated with the WebViewHost widget.
+  GetWebViewHost()->webwidget()->close();
+  webviewhost_.reset();
+  
+  // Remove the reference added in UIT_CreateBrowser().
+  Release();
+  
+  // Remove the browser from the list maintained by the context.
+  _Context->RemoveBrowser(this);
+}
+
 void CefBrowserImpl::UIT_LoadURL(CefFrame* frame,
                                  const std::wstring& url)
 {

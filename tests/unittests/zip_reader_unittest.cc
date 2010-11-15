@@ -222,7 +222,7 @@ TEST(ZipReaderTest, ReadArchive)
   // Create the Zip archive object.
   CefRefPtr<CefZipArchive> archive(new CefZipArchive());
 
-  ASSERT_EQ(archive->Load(stream, false), 5);
+  ASSERT_EQ(archive->Load(stream, false), (size_t)5);
 
   ASSERT_TRUE(archive->HasFile(L"test_archive/file 1.txt"));
   ASSERT_TRUE(archive->HasFile(L"test_archive/folder 1/file 1a.txt"));
@@ -235,7 +235,7 @@ TEST(ZipReaderTest, ReadArchive)
   file = archive->GetFile(L"test_archive/folder 2/file 2a.txt");
   ASSERT_TRUE(file.get());
 
-  ASSERT_EQ(file->GetDataSize(), 20);
+  ASSERT_EQ(file->GetDataSize(), (size_t)20);
   ASSERT_TRUE(!strncmp(reinterpret_cast<const char*>(file->GetData()),
       "Contents of file 2A.", 20));
 
@@ -244,11 +244,11 @@ TEST(ZipReaderTest, ReadArchive)
   ASSERT_TRUE(reader.get());
 
   char buff[8];
-  ASSERT_EQ(reader->Read(buff, 1, 8), 8);
+  ASSERT_EQ(reader->Read(buff, 1, 8), (size_t)8);
   ASSERT_TRUE(!strncmp(buff, "Contents", 8));
-  ASSERT_EQ(reader->Read(buff, 1, 8), 8);
+  ASSERT_EQ(reader->Read(buff, 1, 8), (size_t)8);
   ASSERT_TRUE(!strncmp(buff, " of file", 8));
-  ASSERT_EQ(reader->Read(buff, 1, 8), 4);
+  ASSERT_EQ(reader->Read(buff, 1, 8), (size_t)4);
   ASSERT_TRUE(!strncmp(buff, " 2A.", 4));
   ASSERT_TRUE(reader->Eof());
 }

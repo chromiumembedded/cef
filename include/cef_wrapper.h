@@ -40,10 +40,6 @@
 #include <map>
 #include <vector>
 
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 
 // Thread safe class for representing XML data as a structured object. This
 // class should not be used with large XML documents because all data will be

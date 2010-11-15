@@ -40,13 +40,13 @@ public:
   bool VerifyContext();
 
 protected:
+  PlatformThreadId supported_thread_id_;
   unzFile reader_;
   bool has_fileopen_;
   bool has_fileinfo_;
   std::wstring filename_;
   long filesize_;
   time_t filemodified_;
-  PlatformThreadId supported_thread_id_;
 };
 
 #endif // _ZIP_READER_IMPL_H

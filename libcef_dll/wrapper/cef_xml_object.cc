@@ -104,7 +104,7 @@ public:
               cur_object->GetName() != reader->GetQualifiedName()) {
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
-            DCHECK(FALSE);
+            DCHECK(false);
             std::wstringstream ss;
             ss << L"Mismatched end tag for " << cur_object->GetName() <<
                 L", line " << reader->GetLineNumber();

@@ -160,6 +160,7 @@ public:
   }
 
   void UIT_CreateBrowser(const std::wstring& url);
+  void UIT_DestroyBrowser();
 
   void UIT_LoadURL(CefFrame* frame,
                    const std::wstring& url);

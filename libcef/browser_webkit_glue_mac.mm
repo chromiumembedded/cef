@@ -24,6 +24,17 @@ namespace webkit_glue {
 // Data pack resource. This is a pointer to the mmapped resources file.
 static base::DataPack* g_resource_data_pack = NULL;
   
+void InitializeDataPak() {
+  // mmap the data pack which holds strings used by WebCore.
+  // TODO(port): Allow the embedder to customize the pak name.
+  g_resource_data_pack = new base::DataPack;
+  NSString *resource_path =
+      [mac_util::MainAppBundle() pathForResource:@"cefclient" ofType:@"pak"];
+  FilePath resources_pak_path([resource_path fileSystemRepresentation]);
+  if (!g_resource_data_pack->Load(resources_pak_path))
+    LOG(FATAL) << "failed to load cefclient.pak";
+}
+  
 // Helper method for getting the path to the CEF resources directory.
 FilePath GetResourcesFilePath() {
   FilePath path;
@@ -33,10 +44,13 @@ FilePath GetResourcesFilePath() {
     path = path.Append(FilePath::kParentDirectory);
     return path.AppendASCII("Resources");
   } else {
+    // TODO(port): Allow the embedder to customize the resource path.
     PathService::Get(base::DIR_SOURCE_ROOT, &path);
     path = path.AppendASCII("src");
     path = path.AppendASCII("cef");
-    return path.AppendASCII("resources");
+    path = path.AppendASCII("tests");
+    path = path.AppendASCII("cefclient");
+    return path.AppendASCII("res");
   }
 }
   

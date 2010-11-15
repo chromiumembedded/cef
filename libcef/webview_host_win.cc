@@ -17,6 +17,7 @@ static const wchar_t kWindowClassName[] = L"WebViewHost";
 
 /*static*/
 WebViewHost* WebViewHost::Create(HWND parent_view,
+                                 const gfx::Rect&,
                                  BrowserWebViewDelegate* delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {

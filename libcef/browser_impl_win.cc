@@ -46,26 +46,12 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     break;
 
   case WM_DESTROY:
-    if (browser)
-    {
-      CefRefPtr<CefHandler> handler = browser->GetHandler();
-      if(handler.get()) {
-        // Notify the handler that the window is about to be closed
-        handler->HandleBeforeWindowClose(browser);
-      }
-      browser->GetWebViewDelegate()->RevokeDragDrop();
-
-      // Clean up anything associated with the WebViewHost widget.
-      browser->GetWebViewHost()->webwidget()->close();
-      browser->webviewhost_.reset();
-
+    if (browser) {
       // Clear the user data pointer.
       win_util::SetWindowUserData(hwnd, NULL);
-      // Remove the reference added in UIT_CreateBrowser().
-      browser->Release();
 
-      // Remove the browser from the list maintained by the context
-      _Context->RemoveBrowser(browser);
+      // Destroy the browser.
+      browser->UIT_DestroyBrowser();
     }
     return 0;
 
@@ -123,7 +109,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   // Set window user data to this object for future reference from the window
   // procedure
   win_util::SetWindowUserData(window_info_.m_hWnd, this);
-  // Add a reference that will be released on WM_DESTROY.
+  
+  // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();
 
   // Add the new browser to the list maintained by the context
@@ -131,8 +118,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
 
   // Create the webview host object
   webviewhost_.reset(
-      WebViewHost::Create(window_info_.m_hWnd, delegate_.get(), NULL,
-      *_Context->web_preferences()));
+      WebViewHost::Create(window_info_.m_hWnd, gfx::Rect(), delegate_.get(),
+      NULL, *_Context->web_preferences()));
   delegate_->RegisterDragDrop();
     
   // Size the web view window to the browser window

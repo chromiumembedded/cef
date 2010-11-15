@@ -15,7 +15,7 @@ size_t CefByteReadHandler::Read(void* ptr, size_t size, size_t n)
 {
   Lock();
   size_t s = (size_ - offset_) / size;
-  size_t ret = min(n, s);
+  size_t ret = std::min(n, s);
   memcpy(ptr, bytes_ + offset_, ret * size);
   offset_ += ret * size;
   Unlock();

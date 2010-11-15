@@ -69,7 +69,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), L"ns:obj");
   ASSERT_EQ(reader->GetNamespaceURI(), L"http://www.example.org/ns");
   ASSERT_TRUE(reader->HasAttributes());
-  ASSERT_EQ(reader->GetAttributeCount(), 1);
+  ASSERT_EQ(reader->GetAttributeCount(), (size_t)1);
   ASSERT_EQ(reader->GetAttribute(0), L"http://www.example.org/ns");
   ASSERT_EQ(reader->GetAttribute(L"xmlns:ns"), L"http://www.example.org/ns");
   ASSERT_EQ(reader->GetAttribute(L"ns", L"http://www.w3.org/2000/xmlns/"),
@@ -356,7 +356,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_TRUE(reader->IsEmptyElement());
   ASSERT_TRUE(reader->HasAttributes());
   ASSERT_FALSE(reader->HasValue());
-  ASSERT_EQ(reader->GetAttributeCount(), 2);
+  ASSERT_EQ(reader->GetAttributeCount(), (size_t)2);
   ASSERT_EQ(reader->GetAttribute(0), L"value C1");
   ASSERT_EQ(reader->GetAttribute(L"ns:attr1"), L"value C1");
   ASSERT_EQ(reader->GetAttribute(L"attr1", L"http://www.example.org/ns"),
@@ -486,7 +486,7 @@ TEST(XmlReaderTest, Read)
   // Strangely, the end node will report if the starting node has attributes
   // but will not provide access to them.
   ASSERT_TRUE(reader->HasAttributes());
-  ASSERT_EQ(reader->GetAttributeCount(), 0);
+  ASSERT_EQ(reader->GetAttributeCount(), (size_t)0);
 
   // And we're done.
   ASSERT_FALSE(reader->MoveToNextNode());
@@ -532,12 +532,12 @@ TEST(XmlReaderTest, ObjectLoad)
 
   ASSERT_FALSE(object->HasAttributes());
   ASSERT_TRUE(object->HasChildren());
-  ASSERT_EQ(object->GetChildCount(), 1);
+  ASSERT_EQ(object->GetChildCount(), (size_t)1);
 
   CefRefPtr<CefXmlObject> obj(object->FindChild(L"ns:obj"));
   ASSERT_TRUE(obj.get());
   ASSERT_TRUE(obj->HasChildren());
-  ASSERT_EQ(obj->GetChildCount(), 4);
+  ASSERT_EQ(obj->GetChildCount(), (size_t)4);
 
   CefRefPtr<CefXmlObject> obj_child(obj->FindChild(L"ns:objC"));
   ASSERT_TRUE(obj_child.get());
@@ -547,8 +547,8 @@ TEST(XmlReaderTest, ObjectLoad)
   ASSERT_TRUE(obj_child->HasAttributes());
 
   CefXmlObject::ObjectVector obj_children;
-  ASSERT_EQ(obj->GetChildren(obj_children), 4);
-  ASSERT_EQ(obj_children.size(), 4);
+  ASSERT_EQ(obj->GetChildren(obj_children), (size_t)4);
+  ASSERT_EQ(obj_children.size(), (size_t)4);
 
   CefXmlObject::ObjectVector::const_iterator it = obj_children.begin();
   for (int ct = 0; it != obj_children.end(); ++it, ++ct) {
@@ -567,7 +567,7 @@ TEST(XmlReaderTest, ObjectLoad)
       ASSERT_TRUE(obj_child->HasChildren());
       ASSERT_FALSE(obj_child->HasValue());
       ASSERT_FALSE(obj_child->HasAttributes());
-      ASSERT_EQ(obj_child->GetChildCount(), 4);
+      ASSERT_EQ(obj_child->GetChildCount(), (size_t)4);
       obj_child = obj_child->FindChild(L"ns:objB_4");
       ASSERT_TRUE(obj_child.get());
       ASSERT_TRUE(obj_child->HasValue());
@@ -581,12 +581,12 @@ TEST(XmlReaderTest, ObjectLoad)
       ASSERT_TRUE(obj_child->HasAttributes());
 
       CefXmlObject::AttributeMap attribs;
-      ASSERT_EQ(obj_child->GetAttributes(attribs), 2);
-      ASSERT_EQ(attribs.size(), 2);
+      ASSERT_EQ(obj_child->GetAttributes(attribs), (size_t)2);
+      ASSERT_EQ(attribs.size(), (size_t)2);
       ASSERT_EQ(attribs[L"ns:attr1"], L"value C1");
       ASSERT_EQ(attribs[L"ns:attr2"], L"value C2");
 
-      ASSERT_EQ(obj_child->GetAttributeCount(), 2);
+      ASSERT_EQ(obj_child->GetAttributeCount(), (size_t)2);
       ASSERT_TRUE(obj_child->HasAttribute(L"ns:attr1"));
       ASSERT_EQ(obj_child->GetAttributeValue(L"ns:attr1"), L"value C1");
       ASSERT_TRUE(obj_child->HasAttribute(L"ns:attr2"));

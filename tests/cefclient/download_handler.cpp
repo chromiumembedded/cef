@@ -169,7 +169,10 @@ public:
       file_ = _wfopen(ss.str().c_str(), L"wb");
       ASSERT(file_ != NULL);
     }
-#endif // _WIN32
+#else
+    // TODO(port): Implement this.
+    ASSERT(false); // Not implemented
+#endif
   }
 
   void OnComplete()

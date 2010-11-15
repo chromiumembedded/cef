@@ -14,6 +14,7 @@
 #include <string>
 
 namespace gfx {
+class Rect;
 class Size;
 }
 

@@ -38,16 +38,21 @@ public:
       // Build the response html
       html_ = "<html><head><title>Client Scheme Handler</title></head><body>"
               "This contents of this page page are served by the "
-              "ClientSchemeHandler class handling the client:// protocol."
-              "<br>You should see an image:"
-              "<br/><img src=\"client://tests/client.gif\"><pre>";
+              "ClientSchemeHandler class handling the client:// protocol.";
+      
+#ifdef _WIN32
+      html_.append("<br/>You should see an image:"
+                   "<br/><img src=\"client://tests/client.gif\">");
+#endif // _WIN32
+      
+      html_.append("<pre>");
       
       // Output a string representation of the request
       std::wstring dump;
       DumpRequestContents(request, dump);
       html_.append(WStringToString(dump));
 
-      html_.append("</pre><br>Try the test form:"
+      html_.append("</pre><br/>Try the test form:"
                    "<form method=\"POST\" action=\"handler.html\">"
                    "<input type=\"text\" name=\"field1\">"
                    "<input type=\"text\" name=\"field2\">"
@@ -56,7 +61,7 @@ public:
 
       handled = true;
       size_ = html_.size();
-      bytes_ = (LPBYTE)html_.c_str();
+      bytes_ = html_.c_str();
 
       // Set the resulting mime type
       mime_type = L"text/html";
@@ -64,7 +69,11 @@ public:
 #ifdef _WIN32
     else if(wcsstr(url.c_str(), L"client.gif") != NULL) {
       // Load the response image
-      if(LoadBinaryResource(IDS_LOGO, size_, bytes_)) {
+      DWORD dwSize;
+      LPBYTE pBytes;
+      if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
+        size_ = dwSize;
+        bytes_ = reinterpret_cast<const char*>(pBytes);
         handled = true;
         // Set the resulting mime type
         mime_type = L"image/jpg";
@@ -97,7 +106,8 @@ public:
 
     if(offset_ < size_) {
       // Copy the next block of data into the buffer.
-      int transfer_size = min(bytes_to_read, static_cast<int>(size_ - offset_));
+      int transfer_size =
+          std::min(bytes_to_read, static_cast<int>(size_ - offset_));
       memcpy(data_out, bytes_ + offset_, transfer_size);
       offset_ += transfer_size;
 
@@ -111,8 +121,8 @@ public:
   }
 
 private:
-  DWORD size_, offset_;
-  LPBYTE bytes_;
+  size_t size_, offset_;
+  const char* bytes_;
   std::string html_;
 };
 

@@ -45,6 +45,9 @@ inline long CefAtomicDecrement(long volatile *pDest)
   return __sync_sub_and_fetch(pDest, 1);
 }
 
+// Window handle.
+#define CefWindowHandle cef_window_handle_t
+
 // Critical section wrapper.
 class CefCriticalSection
 {
@@ -100,11 +103,23 @@ public:
 
   void Init()
   {
+    m_View = NULL;
+    m_ParentView = NULL;
     m_windowName = NULL;
     m_x = 0;
     m_y = 0;
     m_nWidth = 0;
     m_nHeight = 0;
+  }
+  
+  void SetAsChild(CefWindowHandle ParentView, int x, int y, int width,
+                  int height)
+  {
+    m_ParentView = ParentView;
+    m_x = x;
+    m_y = y;
+    m_nWidth = width;
+    m_nHeight = height;
   }
 
   CefWindowInfo& operator=(const CefWindowInfo& r)
@@ -113,6 +128,8 @@ public:
   }
   CefWindowInfo& operator=(const cef_window_info_t& r)
   {
+    m_View = r.m_View;
+    m_ParentView = r.m_ParentView;
     if(m_windowName)
       cef_string_free(m_windowName);
     if(r.m_windowName)
@@ -166,8 +183,6 @@ public:
   }
 };
 
-// Window handle.
-#define CefWindowHandle cef_window_handle_t
 #endif // defined(__APPLE__)
 
 #endif // _CEF_MAC_H

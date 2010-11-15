@@ -15,12 +15,6 @@ class CefBrowserImpl;
   NSTrackingArea *trackingArea_;
 }
 
-- (IBAction)goBack:(id)sender;
-- (IBAction)goForward:(id)sender;
-- (IBAction)reload:(id)sender;
-- (IBAction)stopLoading:(id)sender;
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender;
-
 - (void)mouseDown:(NSEvent *)theEvent;
 - (void)rightMouseDown:(NSEvent *)theEvent;
 - (void)otherMouseDown:(NSEvent *)theEvent;
@@ -38,7 +32,6 @@ class CefBrowserImpl;
 - (void)keyUp:(NSEvent *)theEvent;
 - (BOOL)isOpaque;
 - (void)setFrame:(NSRect)frameRect;
-- (void)setIsActive:(BOOL)active;
 
 @property (nonatomic, assign) CefBrowserImpl *browser;
 

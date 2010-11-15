@@ -175,14 +175,24 @@ CefHandler::RetVal ClientHandler::HandleConsoleMessage(
   bool first_message = m_LogFile.empty();
   if(first_message) {
     std::wstringstream ss;
-    ss << AppGetWorkingDirectory() << L"\\console.log";
+    ss << AppGetWorkingDirectory();
+#ifdef _WIN32
+    ss << L"\\";
+#else
+    ss << L"/";
+#endif
+    ss << L"console.log";
     m_LogFile = ss.str();
   }
   std::wstring logFile = m_LogFile;
   Unlock();
   
   FILE* file = NULL;
+#ifdef _WIN32
   _wfopen_s(&file, logFile.c_str(), L"a, ccs=UTF-8");
+#else
+  file = fopen(WStringToString(logFile).c_str(), "a");
+#endif
   
   if(file) {
     std::wstringstream ss;

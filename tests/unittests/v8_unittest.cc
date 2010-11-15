@@ -33,7 +33,7 @@ public:
     if(name == L"execute") {
       g_V8TestV8HandlerExecuteCalled = true;
       
-      ASSERT_EQ(8, arguments.size());
+      ASSERT_EQ((size_t)8, arguments.size());
       int argct = 0;
       
       // basic types
@@ -203,7 +203,7 @@ public:
       g_V8TestV8HandlerExecute2Called = true;
       
       // check the result of calling the "execute" function
-      ASSERT_EQ(1, arguments.size());
+      ASSERT_EQ((size_t)1, arguments.size());
       ASSERT_TRUE(arguments[0]->IsInt());
       ASSERT_EQ(5, arguments[0]->GetIntValue());
     }

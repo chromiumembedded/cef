@@ -21,17 +21,13 @@ using WebKit::WebView;
 
 // static
 WebViewHost* WebViewHost::Create(NSView* parent_view,
+                                 const gfx::Rect& rect,
                                  BrowserWebViewDelegate* delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();
 
-  NSRect content_rect = [parent_view frame];
-  // bump down the top of the view so that it doesn't overlap the buttons
-  // and URL field.  32 is an ad hoc constant.
-  // TODO(awalker): replace explicit view layout with a little nib file
-  // and use that for view geometry.
-  content_rect.size.height -= 32;
+  NSRect content_rect = {{rect.x(), rect.y()}, {rect.width(), rect.height()}};
   host->view_ = [[BrowserWebView alloc] initWithFrame:content_rect];
   // make the height and width track the window size.
   [host->view_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];

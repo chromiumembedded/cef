@@ -5,8 +5,6 @@
 #include "include/cef.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#define min(a,b) ((a)<(b)?(a):(b))
-
 static void VerifyStreamReadBehavior(CefRefPtr<CefStreamReader> stream,
                                      const std::string& contents)
 {
@@ -29,7 +27,7 @@ static void VerifyStreamReadBehavior(CefRefPtr<CefStreamReader> stream,
   char buff[10];
   int res, read, offset = 0;
   do {
-    read = min(sizeof(buff), contentSize-offset);
+    read = std::min((int)sizeof(buff), contentSize-offset);
     res = stream->Read(buff, 1, read);
     ASSERT_EQ(read, res);
     ASSERT_TRUE(!memcmp(contentStr+offset, buff, res));
@@ -50,7 +48,7 @@ static void VerifyStreamWriteBehavior(CefRefPtr<CefStreamWriter> stream,
   // Write 10 characters at a time and verify the result
   int res, write, offset = 0;
   do {
-    write = min(10, contentSize-offset);
+    write = std::min(10, contentSize-offset);
     res = stream->Write(contentStr+offset, 1, write);
     ASSERT_EQ(write, res);
     offset += res;
@@ -72,18 +70,24 @@ static void VerifyStreamWriteBehavior(CefRefPtr<CefStreamWriter> stream,
 
 TEST(StreamTest, ReadFile)
 {
-  std::wstring fileName = L"StreamTest.VerifyReadFile.txt";
+  const char* fileName = "StreamTest.VerifyReadFile.txt";
+  std::wstring fileNameStr = L"StreamTest.VerifyReadFile.txt";
   std::string contents = "This is my test\ncontents for the file";
   
   // Create the file
   FILE* f = NULL;
-  _wfopen_s(&f, fileName.c_str(), L"wb");
+#ifdef _WIN32
+  fopen_s(&f, fileName, "wb");
+#else
+  f = fopen(fileName, "wb");
+#endif
   ASSERT_TRUE(f != NULL);
-  ASSERT_EQ(1, fwrite(contents.c_str(), contents.size(), 1, f));
+  ASSERT_EQ((size_t)1, fwrite(contents.c_str(), contents.size(), 1, f));
   fclose(f);
 
   // Test the stream
-  CefRefPtr<CefStreamReader> stream(CefStreamReader::CreateForFile(fileName));
+  CefRefPtr<CefStreamReader> stream(
+      CefStreamReader::CreateForFile(fileNameStr));
   ASSERT_TRUE(stream.get() != NULL);
   VerifyStreamReadBehavior(stream, contents);
 
@@ -91,7 +95,11 @@ TEST(StreamTest, ReadFile)
   stream = NULL;
 
   // Delete the file
-  ASSERT_EQ(0, _wunlink(fileName.c_str()));
+#ifdef _WIN32
+  ASSERT_EQ(0, _unlink(fileName));
+#else
+  ASSERT_EQ(0, unlink(fileName));
+#endif
 }
 
 TEST(StreamTest, ReadData)
@@ -107,11 +115,13 @@ TEST(StreamTest, ReadData)
 
 TEST(StreamTest, WriteFile)
 {
-  std::wstring fileName = L"StreamTest.VerifyWriteFile.txt";
+  const char* fileName = "StreamTest.VerifyWriteFile.txt";
+  std::wstring fileNameStr = L"StreamTest.VerifyWriteFile.txt";
   std::string contents = "This is my test\ncontents for the file";
 
   // Test the stream
-  CefRefPtr<CefStreamWriter> stream(CefStreamWriter::CreateForFile(fileName));
+  CefRefPtr<CefStreamWriter> stream(
+      CefStreamWriter::CreateForFile(fileNameStr));
   ASSERT_TRUE(stream.get() != NULL);
   VerifyStreamWriteBehavior(stream, contents);
 
@@ -121,9 +131,13 @@ TEST(StreamTest, WriteFile)
   // Read the file that was written
   FILE* f = NULL;
   char* buff = new char[contents.size()];
-  _wfopen_s(&f, fileName.c_str(), L"rb");
+#ifdef _WIN32
+  fopen_s(&f, fileName, "rb");
+#else
+  f = fopen(fileName, "rb");
+#endif
   ASSERT_TRUE(f != NULL);
-  ASSERT_EQ(1, fread(buff, contents.size(), 1, f));
+  ASSERT_EQ((size_t)1, fread(buff, contents.size(), 1, f));
 
   // Read past the end of the file
   fgetc(f);
@@ -135,7 +149,11 @@ TEST(StreamTest, WriteFile)
   delete [] buff;
 
   // Delete the file
-  ASSERT_EQ(0, _wunlink(fileName.c_str()));
+#ifdef _WIN32
+  ASSERT_EQ(0, _unlink(fileName));
+#else
+  ASSERT_EQ(0, unlink(fileName));
+#endif
 }
 
 bool g_ReadHandlerTesterDeleted = false;
@@ -206,12 +224,12 @@ TEST(StreamTest, ReadHandler)
   ASSERT_TRUE(stream.get() != NULL);
 
   // CefReadHandler Read
-  char* read_ptr = "My data";
+  const char* read_ptr = "My data";
   size_t read_size = sizeof(read_ptr);
   size_t read_n = 1;
-  size_t read_res = stream->Read(read_ptr, read_size, read_n);
+  size_t read_res = stream->Read((void*)read_ptr, read_size, read_n);
   ASSERT_TRUE(handler->read_called_);
-  ASSERT_EQ(10, read_res);
+  ASSERT_EQ((size_t)10, read_res);
   ASSERT_EQ(read_ptr, handler->read_ptr_);
   ASSERT_EQ(read_size, handler->read_size_);
   ASSERT_EQ(read_n, handler->read_n_);
@@ -310,12 +328,12 @@ TEST(StreamTest, WriteHandler)
   ASSERT_TRUE(stream.get() != NULL);
 
   // CefWriteHandler Write
-  char* write_ptr = "My data";
+  const char* write_ptr = "My data";
   size_t write_size = sizeof(write_ptr);
   size_t write_n = 1;
   size_t write_res = stream->Write(write_ptr, write_size, write_n);
   ASSERT_TRUE(handler->write_called_);
-  ASSERT_EQ(10, write_res);
+  ASSERT_EQ((size_t)10, write_res);
   ASSERT_EQ(write_ptr, handler->write_ptr_);
   ASSERT_EQ(write_size, handler->write_size_);
   ASSERT_EQ(write_n, handler->write_n_);

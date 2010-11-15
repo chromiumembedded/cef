@@ -46,6 +46,8 @@ static void VerifyPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
     case PDE_TYPE_FILE:
       ASSERT_EQ(elem1->GetFile(), elem2->GetFile());
       break;
+    default:
+      break;
   }
 }
 
@@ -128,19 +130,19 @@ TEST(RequestTest, SetGet)
   // CefPostData AddElement
   postData->AddElement(element1);
   postData->AddElement(element2);
-  ASSERT_EQ(2, postData->GetElementCount());
+  ASSERT_EQ((size_t)2, postData->GetElementCount());
 
   // CefPostData RemoveElement
   postData->RemoveElement(element1);
-  ASSERT_EQ(1, postData->GetElementCount());
+  ASSERT_EQ((size_t)1, postData->GetElementCount());
 
   // CefPostData RemoveElements
   postData->RemoveElements();
-  ASSERT_EQ(0, postData->GetElementCount());
+  ASSERT_EQ((size_t)0, postData->GetElementCount());
 
   postData->AddElement(element1);
   postData->AddElement(element2);
-  ASSERT_EQ(2, postData->GetElementCount());
+  ASSERT_EQ((size_t)2, postData->GetElementCount());
   CefPostData::ElementVector elements;
   postData->GetElements(elements);
   CefPostData::ElementVector::const_iterator it = elements.begin();
