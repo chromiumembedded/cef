@@ -219,7 +219,7 @@
             'outputs': [
               'tools/patch_source.sh.output',
             ],
-            'action': ['', '<@(_inputs)'],
+            'action': ['<@(_inputs)'],
           }],
         }],
       ],
