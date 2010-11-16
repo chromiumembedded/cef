@@ -90,7 +90,7 @@ void BrowserRequestContext::Init(
 
   host_resolver_ =
       net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
-                                    NULL);
+                                    NULL, NULL);
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   http_auth_handler_factory_ =

@@ -59,9 +59,11 @@ void CefProcessIOThread::CleanUp() {
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
 
-  BrowserFileWriter::CleanupOnIOThread();
-  BrowserSocketStreamBridge::Cleanup();
+  // In reverse order of initialization.
   BrowserWebBlobRegistryImpl::Cleanup();
+  BrowserSocketStreamBridge::Cleanup();
+  BrowserFileWriter::CleanupOnIOThread();
+  BrowserAppCacheSystem::CleanupOnIOThread();
 
   _Context->set_request_context(NULL);
   request_context_ = NULL;

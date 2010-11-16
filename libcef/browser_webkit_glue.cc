@@ -7,7 +7,7 @@
 
 #include "third_party/webkit/webcore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "Cache.h"
+#include "MemoryCache.h"
 #include "TextEncoding.h"
 #include "third_party/WebKit/WebCore/platform/network/HTTPParsers.h"
 #include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"

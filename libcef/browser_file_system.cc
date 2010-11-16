@@ -24,26 +24,6 @@ using WebKit::WebVector;
 
 namespace {
 
-WebKit::WebFileError PlatformFileErrorToWebFileError(
-    base::PlatformFileError error_code) {
-  switch (error_code) {
-    case base::PLATFORM_FILE_ERROR_NOT_FOUND:
-      return WebKit::WebFileErrorNotFound;
-    case base::PLATFORM_FILE_ERROR_INVALID_OPERATION:
-    case base::PLATFORM_FILE_ERROR_EXISTS:
-    case base::PLATFORM_FILE_ERROR_NOT_A_DIRECTORY:
-      return WebKit::WebFileErrorInvalidModification;
-    case base::PLATFORM_FILE_ERROR_ACCESS_DENIED:
-      return WebKit::WebFileErrorNoModificationAllowed;
-    case base::PLATFORM_FILE_ERROR_FAILED:
-      return WebKit::WebFileErrorInvalidState;
-    case base::PLATFORM_FILE_ERROR_ABORT:
-      return WebKit::WebFileErrorAbort;
-    default:
-      return WebKit::WebFileErrorInvalidModification;
-  }
-}
-
 class BrowserFileSystemCallbackDispatcher
     : public fileapi::FileSystemCallbackDispatcher {
  public:
@@ -73,10 +53,10 @@ class BrowserFileSystemCallbackDispatcher
   }
 
   virtual void DidReadDirectory(
-      const std::vector<base::file_util_proxy::Entry>& entries,
+      const std::vector<base::FileUtilProxy::Entry>& entries,
       bool has_more) {
     std::vector<WebFileSystemEntry> web_entries_vector;
-    for (std::vector<base::file_util_proxy::Entry>::const_iterator it =
+    for (std::vector<base::FileUtilProxy::Entry>::const_iterator it =
              entries.begin(); it != entries.end(); ++it) {
       WebFileSystemEntry entry;
       entry.name = webkit_glue::FilePathStringToWebString(it->name);
@@ -94,7 +74,8 @@ class BrowserFileSystemCallbackDispatcher
   }
 
   virtual void DidFail(base::PlatformFileError error_code) {
-    callbacks_->didFail(PlatformFileErrorToWebFileError(error_code));
+    callbacks_->didFail(
+        webkit_glue::PlatformFileErrorToWebFileError(error_code));
     file_system_->RemoveCompletedOperation(request_id_);
   }
 

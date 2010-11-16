@@ -1,6 +1,6 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #ifndef _BROWSER_APPCACHE_SYSTEM_H
 #define _BROWSER_APPCACHE_SYSTEM_H
@@ -28,7 +28,7 @@ class URLRequestContext;
 // a UI thread on which webkit runs and an IO thread on which URLRequests
 // are handled. This class conspires with BrowserResourceLoaderBridge to
 // retrieve resources from the appcache.
-class BrowserAppCacheSystem : public MessageLoop::DestructionObserver {
+class BrowserAppCacheSystem {
  public:
   // Should be instanced somewhere in main(). If not instanced, the public
   // static methods are all safe no-ops.
@@ -49,6 +49,11 @@ class BrowserAppCacheSystem : public MessageLoop::DestructionObserver {
   static void InitializeOnIOThread(URLRequestContext* request_context) {
     if (instance_)
       instance_->InitOnIOThread(request_context);
+  }
+
+  static void CleanupOnIOThread() {
+    if (instance_)
+      instance_->CleanupIOThread();
   }
 
   // Called by TestShellWebKitInit to manufacture a 'host' for webcore.
@@ -108,6 +113,7 @@ class BrowserAppCacheSystem : public MessageLoop::DestructionObserver {
   // Instance methods called by our static public methods
   void InitOnUIThread(const FilePath& cache_directory);
   void InitOnIOThread(URLRequestContext* request_context);
+  void CleanupIOThread();
   WebKit::WebApplicationCacheHost* CreateCacheHostForWebKit(
       WebKit::WebApplicationCacheHostClient* client);
   void SetExtraRequestBits(URLRequest* request,
@@ -138,9 +144,6 @@ class BrowserAppCacheSystem : public MessageLoop::DestructionObserver {
     }
     return NULL;
   }
-
-  // IOThread DestructionObserver
-  virtual void WillDestroyCurrentMessageLoop();
 
   FilePath cache_directory_;
   MessageLoop* io_message_loop_;

@@ -535,7 +535,8 @@ WebWorker* BrowserWebViewDelegate::createWorker(
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
-  media::MediaFilterCollection collection;
+  scoped_ptr<media::MediaFilterCollection> collection(
+      new media::MediaFilterCollection());
 
   appcache::WebApplicationCacheHostImpl* appcache_host =
       appcache::WebApplicationCacheHostImpl::FromFrame(frame);
@@ -559,16 +560,16 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
           appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
           0);
 
-  scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer =
-      new webkit_glue::VideoRendererImpl(false);
-  collection.push_back(video_renderer);
+  scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer(
+      new webkit_glue::VideoRendererImpl(false));
+  collection->AddVideoRenderer(video_renderer);
 
   // Add the audio renderer.
-  collection.push_back(new media::AudioRendererImpl());
+  collection->AddAudioRenderer(new media::AudioRendererImpl());
 
   return new webkit_glue::WebMediaPlayerImpl(
-      client, collection, bridge_factory_simple, bridge_factory_buffered,
-      false, video_renderer);
+      client, collection.release(), bridge_factory_simple,
+      bridge_factory_buffered, false, video_renderer);
 }
 
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
@@ -806,7 +807,7 @@ void BrowserWebViewDelegate::reportFindInPageSelection(
 }
 
 void BrowserWebViewDelegate::openFileSystem(
-    WebFrame* frame, WebFileSystem::Type type, long long size,
+    WebFrame* frame, WebFileSystem::Type type, long long size, bool create,
     WebFileSystemCallbacks* callbacks) {
   if (browser_->file_system_root().empty()) {
     // The FileSystem temp directory was not initialized successfully.

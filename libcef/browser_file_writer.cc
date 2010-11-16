@@ -97,7 +97,7 @@ class BrowserFileWriter::IOThreadProxy
     }
 
     virtual void DidReadDirectory(
-        const std::vector<base::file_util_proxy::Entry>& entries,
+        const std::vector<base::FileUtilProxy::Entry>& entries,
         bool has_more) {
       NOTREACHED();
     }
