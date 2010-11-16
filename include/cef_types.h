@@ -35,6 +35,7 @@
 extern "C" {
 #endif
 
+#include "cef_string_list.h"
 
 // Bring in platform-specific definitions.
 #if defined(_WIN32)
@@ -286,7 +287,7 @@ struct cef_print_margins
   double footer;
 };
 
-// Page orientation for printing
+// Page orientation for printing.
 enum cef_page_orientation
 {
   PORTRAIT = 0,
@@ -329,6 +330,30 @@ enum cef_xml_node_type_t
   XML_NODE_WHITESPACE,
   XML_NODE_COMMENT,
 };
+
+// Popup window features.
+typedef struct _cef_popup_features_t
+{
+  int x;
+  bool xSet;
+  int y;
+  bool ySet;
+  int width;
+  bool widthSet;
+  int height;
+  bool heightSet;
+
+  bool menuBarVisible;
+  bool statusBarVisible;
+  bool toolBarVisible;
+  bool locationBarVisible;
+  bool scrollbarsVisible;
+  bool resizable;
+
+  bool fullscreen;
+  bool dialog;
+  cef_string_list_t additionalFeatures;
+} cef_popup_features_t;
 
 #ifdef __cplusplus
 }

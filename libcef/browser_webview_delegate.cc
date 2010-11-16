@@ -51,6 +51,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebURLResponse.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebVector.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWindowFeatures.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/media/buffered_data_source.h"
@@ -126,6 +127,38 @@ namespace {
 
 int next_page_id_ = 1;
 
+void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
+                            CefPopupFeatures& features)
+{
+  features.x = static_cast<int>(webKitFeatures.x);
+  features.xSet = webKitFeatures.xSet;
+  features.y = static_cast<int>(webKitFeatures.y);
+  features.ySet = webKitFeatures.ySet;
+  features.width = static_cast<int>(webKitFeatures.width);
+  features.widthSet = webKitFeatures.widthSet;
+  features.height = static_cast<int>(webKitFeatures.height);
+  features.heightSet =  webKitFeatures.heightSet;
+
+  features.menuBarVisible =  webKitFeatures.menuBarVisible;
+  features.statusBarVisible =  webKitFeatures.statusBarVisible;
+  features.toolBarVisible =  webKitFeatures.toolBarVisible;
+  features.locationBarVisible =  webKitFeatures.locationBarVisible;
+  features.scrollbarsVisible =  webKitFeatures.scrollbarsVisible;
+  features.resizable =  webKitFeatures.resizable;
+
+  features.fullscreen =  webKitFeatures.fullscreen;
+  features.dialog =  webKitFeatures.dialog;      
+  features.additionalFeatures = NULL;
+  if (webKitFeatures.additionalFeatures.size() > 0)   
+     features.additionalFeatures = cef_string_list_alloc();
+
+  for(unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
+    cef_string_list_append(features.additionalFeatures,
+        webkit_glue::WebStringToStdWString(
+            webKitFeatures.additionalFeatures[i]).c_str());
+  }
+}
+
 }  // namespace
 
 // WebViewDelegate -----------------------------------------------------------
@@ -150,8 +183,10 @@ void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 WebView* BrowserWebViewDelegate::createView(WebFrame* creator,
                                             const WebWindowFeatures& features,
                                             const WebString& name) {
+  CefPopupFeatures cefFeatures;
+  TranslatePopupFeatures(features, cefFeatures);
   CefRefPtr<CefBrowserImpl> browser =
-      browser_->UIT_CreatePopupWindow(std::wstring());
+      browser_->UIT_CreatePopupWindow(std::wstring(), cefFeatures);
   return browser.get() ? browser->GetWebView() : NULL;
 }
 
@@ -247,10 +282,9 @@ bool BrowserWebViewDelegate::shouldInsertText(const WebString& text,
   return browser_->UIT_AllowEditing();
 }
 
-bool BrowserWebViewDelegate::shouldChangeSelectedRange(const WebRange& from_range,
-                                                    const WebRange& to_range,
-                                                    WebTextAffinity affinity,
-                                                    bool still_selecting) {
+bool BrowserWebViewDelegate::shouldChangeSelectedRange(
+    const WebRange& from_range, const WebRange& to_range,
+    WebTextAffinity affinity, bool still_selecting) {
   return browser_->UIT_AllowEditing();
 }
 
@@ -410,7 +444,8 @@ void BrowserWebViewDelegate::setToolTipText(
   std::wstring tooltipText(UTF8ToWide(webkit_glue::WebStringToStdString(text)));
    
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get() && handler->HandleTooltip(browser_, tooltipText) == RV_CONTINUE){
+  if(handler.get() && handler->HandleTooltip(browser_, tooltipText)
+      == RV_CONTINUE){
      GetWidgetHost()->SetTooltipText(tooltipText);
   }
 }
@@ -581,7 +616,8 @@ void BrowserWebViewDelegate::loadURLExternally(
     WebFrame* frame, const WebURLRequest& request,
     WebNavigationPolicy policy) {
   DCHECK_NE(policy, WebKit::WebNavigationPolicyCurrentTab);
-  browser_->UIT_CreatePopupWindow(UTF8ToWide(request.url().spec().data()));
+  browser_->UIT_CreatePopupWindow(UTF8ToWide(request.url().spec().data()),
+      CefPopupFeatures());
 }
 
 WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(

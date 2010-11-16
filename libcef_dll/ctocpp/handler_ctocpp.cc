@@ -24,7 +24,8 @@
 
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeCreated(
     CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& windowInfo, bool popup,
-    CefRefPtr<CefHandler>& handler, std::wstring& url)
+    CefRefPtr<CefHandler>& handler, std::wstring& url,
+    const CefPopupFeatures& popupFeatures)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_before_created))
     return RV_CONTINUE;
@@ -43,7 +44,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeCreated(
     urlRet = cef_string_alloc(url.c_str());
 
   cef_retval_t rv = struct_->handle_before_created(struct_,
-    browserStruct, &windowInfo, popup, &handlerStruct, &urlRet);
+    browserStruct, &windowInfo, popup, &handlerStruct, &urlRet, &popupFeatures);
 
   if(handlerStruct && handlerStruct != origHandlerStruct) {
     // The handler was changed.

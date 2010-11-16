@@ -499,8 +499,8 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
   {
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
-    CefHandler::RetVal rv =
-        handler->HandleBeforeCreated(NULL, windowInfo, popup, handler, newUrl);
+    CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
+        popup, handler, newUrl, CefPopupFeatures());
     if(rv == RV_HANDLED)
       return false;
   }
@@ -513,9 +513,7 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
 }
 
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
-                                                    bool popup,
-                                                    CefRefPtr<CefHandler> handler,
-                                                    const std::wstring& url)
+    bool popup, CefRefPtr<CefHandler> handler, const std::wstring& url)
 {
   if(!_Context.get() || !CefThread::CurrentlyOn(CefThread::UI))
     return NULL;
@@ -528,7 +526,7 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
     CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
-        popup, handler, newUrl);
+        popup, handler, newUrl, CefPopupFeatures());
     if(rv == RV_HANDLED)
       return false;
   }
@@ -792,7 +790,8 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   return true;
 }
 
-CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstring& url)
+CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
+    const std::wstring& url, const CefPopupFeatures& features)
 {
   REQUIRE_UIT();
     
@@ -807,8 +806,8 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(const std::wstri
   {
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
-    CefHandler::RetVal rv =
-        handler_->HandleBeforeCreated(this, info, true, handler, newUrl);
+    CefHandler::RetVal rv = handler_->HandleBeforeCreated(this, info, true,
+        handler, newUrl, features);
     if(rv == RV_HANDLED)
       return NULL;
   }

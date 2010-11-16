@@ -58,6 +58,7 @@ class CefStreamWriter;
 class CefTask;
 class CefV8Handler;
 class CefV8Value;
+class CefPopupFeatures;
 
 
 // This function should only be called once when the application is started.
@@ -547,17 +548,20 @@ public:
 
   // Event called before a new window is created. The |parentBrowser| parameter
   // will point to the parent browser window, if any. The |popup| parameter
-  // will be true if the new window is a popup window. If you create the window
-  // yourself you should populate the window handle member of |createInfo| and
-  // return RV_HANDLED.  Otherwise, return RV_CONTINUE and the framework will
-  // create the window.  By default, a newly created window will recieve the
-  // same handler as the parent window.  To change the handler for the new
-  // window modify the object that |handler| points to.
+  // will be true if the new window is a popup window, in which case
+  // |popupFeatures| will contain information about the style of popup window
+  // requested. If you create the window yourself you should populate the window
+  // handle member of |createInfo| and return RV_HANDLED.  Otherwise, return
+  // RV_CONTINUE and the framework will create the window.  By default, a newly
+  // created window will recieve the same handler as the parent window.  To
+  // change the handler for the new window modify the object that |handler|
+  // points to.
   /*--cef()--*/
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
                                      CefWindowInfo& windowInfo, bool popup,
                                      CefRefPtr<CefHandler>& handler,
-                                     std::wstring& url) =0;
+                                     std::wstring& url,
+                                     const CefPopupFeatures& popupFeatures) =0;
 
   // Event called after a new window is created. The return value is currently
   // ignored.
@@ -1480,6 +1484,97 @@ public:
   // Returns true if at end of the file contents.
   /*--cef()--*/
   virtual bool Eof() =0;
+};
+
+
+// Class representing popup window features.
+class CefPopupFeatures : public cef_popup_features_t
+{
+public:
+  CefPopupFeatures()
+  {
+    Init();
+  }
+  ~CefPopupFeatures()
+  {
+    if(additionalFeatures)
+      cef_string_list_free(additionalFeatures);
+  }
+
+  CefPopupFeatures(const CefPopupFeatures& r)
+  {
+    Init();
+    *this = r;
+  }
+  CefPopupFeatures(const cef_popup_features_t& r)
+  {
+    Init();
+    *this = r;
+  }
+
+  void Init()
+  {
+    x = 0;
+    xSet = false;
+    y = 0;
+    ySet = false;
+    width = 0;
+    widthSet = false;
+    height = 0;
+    heightSet = false;
+
+    menuBarVisible = true;
+    statusBarVisible = true;
+    toolBarVisible = true;
+    locationBarVisible = true;
+    scrollbarsVisible = true;
+    resizable = true;
+
+    fullscreen = false;
+    dialog = false;
+    additionalFeatures = NULL;
+  }
+
+  CefPopupFeatures& operator=(const CefPopupFeatures& r)
+  {
+    return operator=(static_cast<const cef_popup_features_t&>(r));
+  }
+
+  CefPopupFeatures& operator=(const cef_popup_features_t& r)
+  {
+    if(additionalFeatures)
+      cef_string_list_free(additionalFeatures);
+    if(r.additionalFeatures) {
+      additionalFeatures = cef_string_list_alloc();
+      unsigned int size = cef_string_list_size(r.additionalFeatures);
+      for(unsigned int i = 0; i < size; ++i) {
+        cef_string_t feature = cef_string_list_value(r.additionalFeatures, i);
+        cef_string_list_append(additionalFeatures, feature);
+        cef_string_free(feature);
+      }
+    }
+    else {
+      additionalFeatures = NULL;
+    }
+
+    x = r.x;
+    xSet = r.xSet;
+    y = r.y;
+    ySet = r.ySet;
+    width = r.width;
+    widthSet = r.widthSet;
+    height = r.height;
+    heightSet = r.heightSet;
+    menuBarVisible = r.menuBarVisible;
+    statusBarVisible = r.statusBarVisible;
+    toolBarVisible = r.toolBarVisible;
+    locationBarVisible = r.locationBarVisible;
+    scrollbarsVisible = r.scrollbarsVisible;
+    resizable = r.resizable;
+    fullscreen = r.fullscreen;
+    dialog = r.dialog;
+    return *this;
+  }
 };
 
 #endif // _CEF_H

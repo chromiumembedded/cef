@@ -1056,7 +1056,8 @@ class obj_analysis:
         # check for simple direct translations
         structuretypes = {
             'CefPrintInfo' : 'cef_print_info_t',
-            'CefWindowInfo' : 'cef_window_info_t'
+            'CefWindowInfo' : 'cef_window_info_t',
+            'CefPopupFeatures' : 'cef_popup_features_t'
         }
         if value in structuretypes.keys():
             return {

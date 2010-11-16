@@ -371,16 +371,19 @@ typedef struct _cef_handler_t
 
   // Event called before a new window is created. The |parentBrowser| parameter
   // will point to the parent browser window, if any. The |popup| parameter will
-  // be true (1) if the new window is a popup window. If you create the window
-  // yourself you should populate the window handle member of |createInfo| and
-  // return RV_HANDLED.  Otherwise, return RV_CONTINUE and the framework will
-  // create the window.  By default, a newly created window will recieve the
-  // same handler as the parent window.  To change the handler for the new
-  // window modify the object that |handler| points to.
+  // be true (1) if the new window is a popup window, in which case
+  // |popupFeatures| will contain information about the style of popup window
+  // requested. If you create the window yourself you should populate the window
+  // handle member of |createInfo| and return RV_HANDLED.  Otherwise, return
+  // RV_CONTINUE and the framework will create the window.  By default, a newly
+  // created window will recieve the same handler as the parent window.  To
+  // change the handler for the new window modify the object that |handler|
+  // points to.
   enum cef_retval_t (CEF_CALLBACK *handle_before_created)(
       struct _cef_handler_t* self, struct _cef_browser_t* parentBrowser,
       struct _cef_window_info_t* windowInfo, int popup,
-      struct _cef_handler_t** handler, cef_string_t* url);
+      struct _cef_handler_t** handler, cef_string_t* url,
+      const struct _cef_popup_features_t* popupFeatures);
 
   // Event called after a new window is created. The return value is currently
   // ignored.

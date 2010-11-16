@@ -188,7 +188,8 @@ public:
                     bool ignoreCahce);
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
 
-  CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url);
+  CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url,
+      const CefPopupFeatures& features);
   WebKit::WebWidget* UIT_CreatePopupWidget();
   void UIT_ClosePopupWidget();
 

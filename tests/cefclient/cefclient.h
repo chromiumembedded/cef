@@ -43,7 +43,8 @@ public:
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
                                      CefWindowInfo& createInfo, bool popup,
                                      CefRefPtr<CefHandler>& handler,
-                                     std::wstring& url)
+                                     std::wstring& url,
+                                     const CefPopupFeatures& popupFeatures)
   {
     return RV_CONTINUE;
   }
