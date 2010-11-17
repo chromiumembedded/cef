@@ -31,18 +31,19 @@ int CefByteReadHandler::Seek(long offset, int whence)
     if(offset_ + offset > size_)
       break;
     offset_ += offset;
-    rv = offset_;
+    rv = 0;
     break;
   case SEEK_END:
     if(offset > static_cast<long>(size_))
       break;
     offset_ = size_ - offset;
-    rv = offset_;
+    rv = 0;
+    break;
   case SEEK_SET:
     if(offset > static_cast<long>(size_))
       break;
     offset_ = offset;
-    rv = offset_;
+    rv = 0;
     break;
   }
   Unlock();
