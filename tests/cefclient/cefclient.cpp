@@ -338,3 +338,8 @@ void RunPopupTest(CefRefPtr<CefBrowser> browser)
   browser->GetMainFrame()->ExecuteJavaScript(
       L"window.open('http://www.google.com');", L"about:blank", 0);
 }
+
+void RunLocalStorageTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL(L"http://tests/localstorage");
+}

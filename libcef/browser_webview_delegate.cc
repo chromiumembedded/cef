@@ -198,7 +198,9 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
 
 WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
     unsigned quota) {
-  // Enforce quota, ignoring the parameter from WebCore as in Chrome.
+  // Enforce quota, ignoring the parameter from WebCore as in Chrome. We could
+  // potentially use DOMStorageContext to manage session storage but there's
+  // currently no need since session storage data is not written to disk.
   return WebKit::WebStorageNamespace::createSessionStorageNamespace(
       WebStorageNamespace::m_sessionStorageQuota);
 }

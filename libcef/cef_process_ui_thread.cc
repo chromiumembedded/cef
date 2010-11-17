@@ -116,6 +116,11 @@ void CefProcessUIThread::Init() {
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 
   URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
+
+  if(!_Context->cache_path().empty()) {
+    // Create the storage context object.
+    _Context->set_storage_context(new DOMStorageContext());
+  }
 }
 
 void CefProcessUIThread::CleanUp() {
@@ -123,6 +128,9 @@ void CefProcessUIThread::CleanUp() {
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
+
+  // Destroy the storage context object.
+  _Context->set_storage_context(NULL);
 
   // Tear down the shared StatsTable.
   base::StatsTable::set_current(NULL);

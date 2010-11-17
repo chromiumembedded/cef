@@ -533,6 +533,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunUIPluginTest(browser);
           return 0;
+        case ID_TESTS_LOCALSTORAGE: // Test localStorage
+          if(browser.get())
+            RunLocalStorageTest(browser);
+          return 0;
         }
       }
 		  break;
@@ -656,10 +660,16 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     resourceStream = CefStreamReader::CreateForData(
         (void*)dump.c_str(), dump.size() * sizeof(wchar_t));
     mimeType = L"text/plain";
-  }
-  else if(url == L"http://tests/uiapp") {
+  } else if(url == L"http://tests/uiapp") {
     // Show the uiapp contents
     if(LoadBinaryResource(IDS_UIPLUGIN, dwSize, pBytes)) {
+      resourceStream = CefStreamReader::CreateForHandler(
+          new CefByteReadHandler(pBytes, dwSize, NULL));
+      mimeType = L"text/html";
+    }
+  } else if(url == L"http://tests/localstorage") {
+    // Show the localstorage contents
+    if(LoadBinaryResource(IDS_LOCALSTORAGE, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
       mimeType = L"text/html";

@@ -9,6 +9,7 @@
 #include "browser_request_context.h"
 #include "cef_process.h"
 #include "cef_thread.h"
+#include "dom_storage_context.h"
 
 #include "base/at_exit.h"
 #include "base/file_path.h"
@@ -56,6 +57,11 @@ public:
   scoped_refptr<BrowserRequestContext> request_context()
     { return request_context_; }
 
+  // The DOMStorageContext object is managed by CefProcessUIThread.
+  void set_storage_context(DOMStorageContext* storage_context)
+    { storage_context_.reset(storage_context); }
+  DOMStorageContext* storage_context() { return storage_context_.get(); }
+
 private:
   // Manages the various process threads.
   scoped_refptr<CefProcess> process_;
@@ -67,10 +73,11 @@ private:
   std::wstring cache_path_;
   WebPreferences* webprefs_;
   scoped_refptr<BrowserRequestContext> request_context_;
-  
+  scoped_ptr<DOMStorageContext> storage_context_;
+
   // Map of browsers that currently exist.
   BrowserList browserlist_;
-  
+
   // Used for assigning unique IDs to browser instances.
   int next_browser_id_;
 };

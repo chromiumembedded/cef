@@ -361,5 +361,6 @@ void RunGetTextTest(CefRefPtr<CefFrame> frame);
 void RunRequestTest(CefRefPtr<CefBrowser> browser);
 void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser);
 void RunPopupTest(CefRefPtr<CefBrowser> browser);
+void RunLocalStorageTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_H

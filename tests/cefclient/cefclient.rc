@@ -31,6 +31,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 IDS_LOGO BINARY "res\logo.png"
 IDS_UIPLUGIN BINARY "res\uiplugin.html"
 IDS_LOGOBALL BINARY "res\logoball.png"
+IDS_LOCALSTORAGE BINARY "res\localstorage.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -73,7 +74,8 @@ BEGIN
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
-    END
+        MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
+   END
 END
 
 

@@ -6,6 +6,14 @@
 #ifndef _BROWSER_WEBKIT_INIT_H
 #define _BROWSER_WEBKIT_INIT_H
 
+#include "browser_appcache_system.h"
+#include "browser_database_system.h"
+#include "browser_file_system.h"
+#include "browser_resource_loader_bridge.h"
+#include "browser_webblobregistry_impl.h"
+#include "browser_webcookiejar_impl.h"
+#include "browser_webstoragenamespace_impl.h"
+
 #include "base/file_util.h"
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
@@ -35,12 +43,6 @@
 #include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
-#include "browser_appcache_system.h"
-#include "browser_database_system.h"
-#include "browser_file_system.h"
-#include "browser_resource_loader_bridge.h"
-#include "browser_webblobregistry_impl.h"
-#include "browser_webcookiejar_impl.h"
 
 
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
@@ -193,6 +195,12 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
       const WebKit::WebString& path, unsigned quota) {
+    if (BrowserWebStorageNamespaceImpl::IsStorageActive()) {
+      // Use the localStorage implementation that writes data to disk.
+      return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
+    }
+
+    // Use the default localStorage implementation.
     return WebKit::WebStorageNamespace::createLocalStorageNamespace(path,
         WebKit::WebStorageNamespace::m_localStorageQuota);
   }

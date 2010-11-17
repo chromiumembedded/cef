@@ -187,6 +187,10 @@ FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
     return FilePath();
 
   AutoLock file_names_auto_lock(file_names_lock_);
-  DCHECK(file_names_.find(vfs_file_name) != file_names_.end());
-  return file_names_[vfs_file_name];
+  if(file_names_.find(vfs_file_name) != file_names_.end())
+    return file_names_[vfs_file_name];
+
+  // This method is getting called when an empty localStorage database is
+  // deleted. In that case, just return the path.
+  return FilePath(vfs_file_name);
 }
