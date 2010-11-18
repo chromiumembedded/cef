@@ -21,6 +21,7 @@
 #endif
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job.h"
+#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/extensions/v8/gc_extension.h"
 #include "net/url_request/url_request.h"
 
@@ -117,9 +118,29 @@ void CefProcessUIThread::Init() {
 
   URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
 
-  if(!_Context->cache_path().empty()) {
+  if (!_Context->cache_path().empty()) {
     // Create the storage context object.
     _Context->set_storage_context(new DOMStorageContext());
+  }
+
+  const CefSettings& settings = _Context->settings();
+  
+  if (settings.user_agent)
+    webkit_glue::SetUserAgent(WideToUTF8(settings.user_agent));
+  
+  if (settings.extra_plugin_paths) {
+    cef_string_t str;
+    FilePath path;
+    int size = cef_string_list_size(settings.extra_plugin_paths);
+    for(int i = 0; i < size; ++i) {
+      str = cef_string_list_value(settings.extra_plugin_paths, i);
+#if defined(OS_WIN)
+      path = FilePath(str);
+#else
+      path = FilePath(WideToUTF8(str));
+#endif
+      NPAPI::PluginList::Singleton()->AddExtraPluginPath(path);
+    }
   }
 }
 

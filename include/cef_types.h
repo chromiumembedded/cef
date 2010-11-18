@@ -54,6 +54,162 @@ typedef long                int64;
 typedef long long           int64;
 #endif
 
+// Initialization settings. Specify NULL or 0 to get the recommended default
+// values.
+typedef struct _cef_settings_t
+{
+  // Size of this structure.
+  size_t size;
+
+  // Set to true (1) to have the message loop run in a separate thread. If
+  // false (0) than the CefDoMessageLoopWork() function must be called from
+  // your application message loop.
+  bool multi_threaded_message_loop;
+  
+  // The location where cache data will be stored on disk. If empty an
+  // in-memory cache will be used. HTML5 databases such as localStorage will
+  // only persist across sessions if a cache path is specified.
+  cef_string_t cache_path;
+  
+  // Value that will be returned as the User-Agent HTTP header. If empty the
+  // default User-Agent string will be used.
+  cef_string_t user_agent;
+
+  // Value that will be inserted as the product portion of the default
+  // User-Agent string. If empty the Chromium product version will be used. If
+  // |userAgent| is specified this value will be ignored.
+  cef_string_t product_version;
+
+  // The locale string that will be passed to WebKit. If empty the default
+  // locale of "en-US" will be used.
+  cef_string_t locale;
+
+  // List of file system paths that will be searched by the browser to locate
+  // plugins. This is in addition to the default search paths.
+  cef_string_list_t extra_plugin_paths;
+} cef_settings_t;
+
+// Browser initialization settings. Specify NULL or 0 to get the recommended
+// default values. The consequences of using custom values may not be well
+// tested.
+typedef struct _cef_browser_settings_t
+{
+  // Size of this structure.
+  size_t size;
+
+  // Disable drag & drop of URLs from other windows.
+  bool drag_drop_disabled;
+
+  // The below values map to WebPreferences settings.
+
+  // Font settings.
+  cef_string_t standard_font_family;
+  cef_string_t fixed_font_family;
+  cef_string_t serif_font_family;
+  cef_string_t sans_serif_font_family;
+  cef_string_t cursive_font_family;
+  cef_string_t fantasy_font_family;
+  int default_font_size;
+  int default_fixed_font_size;
+  int minimum_font_size;
+  int minimum_logical_font_size;
+
+  // Set to true (1) to disable loading of fonts from remote sources.
+  bool remote_fonts_disabled;
+
+  // Default encoding for Web content. If empty "ISO-8859-1" will be used.
+  cef_string_t default_encoding;
+
+  // Set to true (1) to attempt automatic detection of content encoding.
+  bool encoding_detector_enabled;
+
+  // Set to true (1) to disable JavaScript.
+  bool javascript_disabled;
+
+  // Set to true (1) to disallow JavaScript from opening windows.
+  bool javascript_open_windows_disallowed;
+
+  // Set to true (1) to disallow JavaScript from closing windows.
+  bool javascript_close_windows_disallowed;
+
+  // Set to true (1) to disallow JavaScript from accessing the clipboard.
+  bool javascript_access_clipboard_disallowed;
+
+  // Set to true (1) to disable DOM pasting in the editor. DOM pasting also
+  // depends on |javascript_cannot_access_clipboard| being false (0).
+  bool dom_paste_disabled;
+
+  // Set to true (1) to enable drawing of the caret position.
+  bool caret_browsing_enabled;
+
+  // Set to true (1) to disable Java.
+  bool java_disabled;
+
+  // Set to true (1) to disable plugins.
+  bool plugins_disabled;
+
+  // Set to true (1) to allow access to all URLs from file URLs.
+  bool universal_access_from_file_urls_allowed;
+
+  // Set to true (1) to allow access to file URLs from other file URLs.
+  bool file_access_from_file_urls_allowed;
+
+  // Set to true (1) to allow risky security behavior such as cross-site
+  // scripting (XSS). Use with extreme care.
+  bool web_security_disabled;
+
+  // Set to true (1) to enable console warnings about XSS attempts.
+  bool xss_auditor_enabled;
+
+  // Set to true (1) to suppress the network load of image URLs.  A cached
+  // image will still be rendered if requested.
+  bool image_load_disabled;
+
+  // Set to true (1) to shrink standalone images to fit the page.
+  bool shrink_standalone_images_to_fit;
+
+  // Set to true (1) to disable browser backwards compatibility features.
+  bool site_specific_quirks_disabled;
+
+  // Set to true (1) to disable resize of text areas.
+  bool text_area_resize_disabled;
+
+  // Set to true (1) to disable use of the page cache.
+  bool page_cache_disabled;
+
+  // Set to true (1) to not have the tab key advance focus to links.
+  bool tab_to_links_disabled;
+
+  // Set to true (1) to disable hyperlink pings (<a ping> and window.sendPing).
+  bool hyperlink_auditing_disabled;
+
+  // Set to true (1) to enable the user style sheet for all pages.
+  // |user_style_sheet_location| must be set to the style sheet URL.
+  bool user_style_sheet_enabled;
+  cef_string_t user_style_sheet_location;
+
+  // Set to true (1) to disable style sheets.
+  bool author_and_user_styles_disabled;
+
+  // Set to true (1) to disable local storage.
+  bool local_storage_disabled;
+
+  // Set to true (1) to disable databases.
+  bool databases_disabled;
+
+  // Set to true (1) to disable application cache.
+  bool application_cache_disabled;
+
+  // Set to true (1) to enable experimental WebGL features.
+  bool experimental_webgl_enabled;
+
+  // Set to true (1) to disable accelerated compositing.
+  bool accelerated_compositing_disabled;
+
+  // Set to true (1) to disable accelerated 2d canvas.
+  bool accelerated_2d_canvas_disabled;
+} cef_browser_settings_t;
+
 // Define handler return value types. Returning RV_HANDLED indicates
 // that the implementation completely handled the method and that no further
 // processing is required.  Returning RV_CONTINUE indicates that the

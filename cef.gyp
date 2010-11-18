@@ -483,6 +483,8 @@
         'libcef/browser_request_context.h',
         'libcef/browser_resource_loader_bridge.cc',
         'libcef/browser_resource_loader_bridge.h',
+        'libcef/browser_settings.cc',
+        'libcef/browser_settings.h',
         'libcef/browser_socket_stream_bridge.cc',
         'libcef/browser_socket_stream_bridge.h',
         'libcef/browser_web_worker.h',

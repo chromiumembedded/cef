@@ -5,6 +5,7 @@
 
 #include "cef_context.h"
 #include "browser_impl.h"
+#include "browser_settings.h"
 #include "printing/units.h"
 
 #include "base/utf_string_conversions.h"
@@ -14,6 +15,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "webkit/glue/webpreferences.h"
 
 #include <shellapi.h>
 #include <shlwapi.h>
@@ -116,12 +118,17 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
 
+  WebPreferences prefs;
+  BrowserToWebSettings(settings_, prefs);
+
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, gfx::Rect(), delegate_.get(),
-      NULL, *_Context->web_preferences()));
-  delegate_->RegisterDragDrop();
-    
+      NULL, prefs));
+
+  if (!settings_.drag_drop_disabled)
+    delegate_->RegisterDragDrop();
+
   // Size the web view window to the browser window
   RECT cr;
   GetClientRect(window_info_.m_hWnd, &cr);

@@ -19,7 +19,6 @@
 
 class BrowserRequestContext;
 class CefBrowserImpl;
-struct WebPreferences;
 
 class CefContext : public CefThreadSafeBase<CefBase>
 {
@@ -30,8 +29,8 @@ public:
   ~CefContext();
 
   // These methods will be called on the main application thread.
-  bool Initialize(bool multi_threaded_message_loop,
-                  const FilePath& cache_path);
+  bool Initialize(const CefSettings& settings,
+                  const CefBrowserSettings& browser_defaults);
   void Shutdown();
 
   scoped_refptr<CefProcess> process() { return process_; }
@@ -43,13 +42,11 @@ public:
 
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.
-  const FilePath& cache_path() { return cache_path_; }
+  const FilePath& cache_path() const { return cache_path_; }
 
-  WebPreferences* web_preferences()
-  {
-    REQUIRE_UIT();
-    return webprefs_;
-  }
+  const CefSettings& settings() const { return settings_; }
+  const CefBrowserSettings& browser_defaults() const
+    { return browser_defaults_; }
 
   // The BrowserRequestContext object is managed by CefProcessIOThread.
   void set_request_context(BrowserRequestContext* request_context)
@@ -70,8 +67,9 @@ private:
   // asserts and possible memory leaks.
   base::AtExitManager at_exit_manager_;
 
+  CefSettings settings_;
+  CefBrowserSettings browser_defaults_;
   FilePath cache_path_;
-  WebPreferences* webprefs_;
   scoped_refptr<BrowserRequestContext> request_context_;
   scoped_ptr<DOMStorageContext> storage_context_;
 

@@ -48,7 +48,7 @@ public:
     memset(&m_sec, 0, sizeof(CRITICAL_SECTION));
     InitializeCriticalSection(&m_sec);
   }
-  ~CefCriticalSection()
+  virtual ~CefCriticalSection()
   {
     DeleteCriticalSection(&m_sec);
   }
@@ -72,10 +72,9 @@ public:
   {
     Init();
   }
-  ~CefWindowInfo()
+  virtual ~CefWindowInfo()
   {
-    if(m_windowName)
-      cef_string_free(m_windowName);
+    Reset();
   }
 
   CefWindowInfo(const CefWindowInfo& r)
@@ -89,18 +88,22 @@ public:
     *this = r;
   }
 
-  void Init()
+  void Reset()
   {
-    m_dwExStyle = 0;
-    m_windowName = NULL;
-    m_dwStyle = 0;
-    m_x = 0;
-    m_y = 0;
-    m_nWidth = 0;
-    m_nHeight = 0;
-    m_hWndParent = NULL;
-    m_hMenu = 0;
-    m_hWnd = NULL;
+    if(m_windowName)
+      cef_string_free(m_windowName);
+    Init();
+  }
+
+  void Attach(const cef_window_info_t& r)
+  {
+    Reset();
+    *static_cast<cef_window_info_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
   }
 
   CefWindowInfo& operator=(const CefWindowInfo& r)
@@ -154,6 +157,21 @@ public:
     else
       m_windowName = NULL;
   }
+
+protected:
+  void Init()
+  {
+    m_dwExStyle = 0;
+    m_windowName = NULL;
+    m_dwStyle = 0;
+    m_x = 0;
+    m_y = 0;
+    m_nWidth = 0;
+    m_nHeight = 0;
+    m_hWndParent = NULL;
+    m_hMenu = 0;
+    m_hWnd = NULL;
+  }
 };
 
 // Class representing print context information.
@@ -164,7 +182,7 @@ public:
   {
     Init();
   }
-  ~CefPrintInfo()
+  virtual ~CefPrintInfo()
   {
   }
 

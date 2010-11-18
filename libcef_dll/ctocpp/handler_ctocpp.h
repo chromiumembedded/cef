@@ -32,8 +32,9 @@ public:
 
   // CefHandler methods
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
-      CefWindowInfo& windowInfo, bool popup, CefRefPtr<CefHandler>& handler,
-      std::wstring& url, const CefPopupFeatures& popupFeatures);
+      CefWindowInfo& windowInfo, bool popup,
+      const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
+      std::wstring& url, CefBrowserSettings& settings);
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const std::wstring& url);

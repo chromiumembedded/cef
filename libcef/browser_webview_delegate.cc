@@ -161,23 +161,6 @@ void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
 
 }  // namespace
 
-// WebViewDelegate -----------------------------------------------------------
-
-void BrowserWebViewDelegate::SetUserStyleSheetEnabled(bool is_enabled) {
-  WebPreferences* prefs = _Context->web_preferences();
-  prefs->user_style_sheet_enabled = is_enabled;
-  if (browser_->GetWebView())
-    prefs->Apply(browser_->GetWebView());
-}
-
-void BrowserWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
-  WebPreferences* prefs = _Context->web_preferences();
-  prefs->user_style_sheet_enabled = true;
-  prefs->user_style_sheet_location = location;
-  if (browser_->GetWebView())
-    prefs->Apply(browser_->GetWebView());
-}
-
 // WebViewClient -------------------------------------------------------------
 
 WebView* BrowserWebViewDelegate::createView(WebFrame* creator,
@@ -912,7 +895,8 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
 
 void BrowserWebViewDelegate::RevokeDragDrop() {
 #if defined(OS_WIN)
-  ::RevokeDragDrop(browser_->GetWebViewWndHandle());
+  if (drop_delegate_.get())
+    ::RevokeDragDrop(browser_->GetWebViewWndHandle());
 #endif
 }
 

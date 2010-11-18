@@ -48,19 +48,14 @@ extern "C" {
 #include "cef_types.h"
 
 
-// This function should only be called once when the application is started.
-// Create the thread to host the UI message loop.  A return value of true (1)
-// indicates that it succeeded and false (0) indicates that it failed. Set
-// |multi_threaded_message_loop| to true (1) to have the message loop run in a
-// separate thread.  If |multi_threaded_message_loop| is false (0) than the
-// cef_do_message_loop_work() function must be called from your message loop.
-// Set |cache_path| to the location where cache data will be stored on disk. If
-// |cache_path| is NULL an in-memory cache will be used for cache data.
-CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,
-    const wchar_t* cache_path);
+// This function should be called once when the application is started to
+// initialize CEF.  A return value of true (1) indicates that it succeeded and
+// false (0) indicates that it failed.
+CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
+    const struct _cef_browser_settings_t* browser_defaults);
 
-// This function should only be called once before the application exits. Shut
-// down the thread hosting the UI message loop and destroy any created windows.
+// This function should be called once before the application exits to shut down
+// CEF.
 CEF_EXPORT void cef_shutdown();
 
 // Perform message loop processing.  Has no affect if the browser UI loop is
@@ -382,8 +377,9 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_before_created)(
       struct _cef_handler_t* self, struct _cef_browser_t* parentBrowser,
       struct _cef_window_info_t* windowInfo, int popup,
+      const struct _cef_popup_features_t* popupFeatures,
       struct _cef_handler_t** handler, cef_string_t* url,
-      const struct _cef_popup_features_t* popupFeatures);
+      struct _cef_browser_settings_t* settings);
 
   // Event called after a new window is created. The return value is currently
   // ignored.

@@ -27,13 +27,25 @@
 #include "base/string_split.h"
 
 
-CEF_EXPORT int cef_initialize(int multi_threaded_message_loop,
-                              const wchar_t* cache_path)
+CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
+    const struct _cef_browser_settings_t* browser_defaults)
 {
-  std::wstring cachePath;
-  if(cache_path)
-    cachePath = cache_path;
-  return CefInitialize(multi_threaded_message_loop?true:false, cachePath);
+  CefSettings settingsObj;
+  CefBrowserSettings browserDefaultsObj;
+
+  // Take ownership of the pointers instead of copying.
+  if (settings)
+    settingsObj.Attach(*settings);
+  if (browser_defaults)
+    browserDefaultsObj.Attach(*browser_defaults);
+
+  int ret = CefInitialize(settingsObj, browserDefaultsObj);
+
+  // Don't free the pointers.
+  settingsObj.Detach();
+  browserDefaultsObj.Detach();
+
+  return ret;
 }
 
 CEF_EXPORT void cef_shutdown()

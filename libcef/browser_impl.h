@@ -33,7 +33,8 @@ class WebView;
 class CefBrowserImpl : public CefThreadSafeBase<CefBrowser>
 {
 public:
-  CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
+  CefBrowserImpl(const CefWindowInfo& windowInfo,
+                 const CefBrowserSettings& settings, bool popup,
                  CefRefPtr<CefHandler> handler);
   virtual ~CefBrowserImpl() {}
 
@@ -102,7 +103,7 @@ public:
                          const std::wstring& scriptUrl,
                          int startLine);
   std::wstring GetURL(CefRefPtr<CefFrame> frame);
-  
+
   WebKit::WebView* GetWebView() const {
     return webviewhost_.get() ? webviewhost_->webview() : NULL;
   }
@@ -231,10 +232,12 @@ public:
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
+  const CefBrowserSettings& settings() const { return settings_; }
   const FilePath& file_system_root() const { return file_system_root_.path(); }
 
 protected:
   CefWindowInfo window_info_;
+  CefBrowserSettings settings_;
   bool is_popup_;
   bool is_modal_;
   CefRefPtr<CefHandler> handler_;

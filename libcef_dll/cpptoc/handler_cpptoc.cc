@@ -24,8 +24,10 @@
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     struct _cef_handler_t* self, cef_browser_t* parentBrowser,
-    cef_window_info_t* windowInfo, int popup, struct _cef_handler_t** handler,
-    cef_string_t* url, const struct _cef_popup_features_t* popupFeatures)
+    cef_window_info_t* windowInfo, int popup,
+    const struct _cef_popup_features_t* popupFeatures,
+    struct _cef_handler_t** handler, cef_string_t* url,
+    struct _cef_browser_settings_t* settings)
 {
   DCHECK(self);
   DCHECK(windowInfo);
@@ -34,8 +36,14 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   if(!self || !windowInfo || !handler || !*handler || !url)
     return RV_CONTINUE;
 
-  CefWindowInfo wndInfo(*windowInfo);
-  CefPopupFeatures features(*popupFeatures);
+  CefWindowInfo wndInfo;
+  CefBrowserSettings browserSettings;
+  CefPopupFeatures features;
+  
+  // Take ownership of the pointers instead of copying.
+  wndInfo.Attach(*windowInfo);
+  browserSettings.Attach(*settings);
+  features.Attach(*popupFeatures);
   
   // |newHandler| will start off pointing to the current handler.
   CefRefPtr<CefHandler> handlerPtr = CefHandlerCppToC::Unwrap(*handler);
@@ -51,7 +59,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     urlStr = *url;
 
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleBeforeCreated(
-	  browserPtr, wndInfo, popup?true:false, handlerPtr, urlStr, features);
+      browserPtr, wndInfo, popup?true:false, features, handlerPtr, urlStr,
+      browserSettings);
 
   transfer_string_contents(urlStr, url);
 
@@ -60,13 +69,16 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     *handler = CefHandlerCppToC::Wrap(handlerPtr);
   }
 
-  // WindowInfo may or may not have changed.
+  // Window info may or may not have changed.
   *windowInfo = wndInfo;
-#ifdef WIN32
-  // The m_windowName must be duplicated since it's a cef_string_t
-  if(windowInfo->m_windowName)
-    windowInfo->m_windowName = cef_string_alloc(windowInfo->m_windowName);
-#endif
+  
+  // Browser settings may or may not have changed.
+  *settings = browserSettings;
+  
+  // Don't free the pointers.
+  features.Detach();
+  wndInfo.Detach();
+  browserSettings.Detach();
 
   return rv;
 }

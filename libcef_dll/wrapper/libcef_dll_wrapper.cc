@@ -25,11 +25,10 @@
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 
 
-bool CefInitialize(bool multi_threaded_message_loop,
-                   const std::wstring& cache_path)
+bool CefInitialize(const CefSettings& settings,
+                   const CefBrowserSettings& browser_defaults)
 {
-  return cef_initialize(multi_threaded_message_loop, cache_path.c_str())
-      ?true:false;
+  return cef_initialize(&settings, &browser_defaults)?true:false;
 }
 
 void CefShutdown()

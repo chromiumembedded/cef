@@ -53,3 +53,10 @@ CEF_EXPORT void cef_string_list_free(cef_string_list_t list)
   DCHECK(list);
   delete (StringList*)list;
 }
+
+CEF_EXPORT cef_string_list_t cef_string_list_copy(cef_string_list_t list)
+{
+  DCHECK(list);
+  StringList* impl = (StringList*)list;
+  return new StringList(*impl);
+}

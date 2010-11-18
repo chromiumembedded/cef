@@ -55,7 +55,7 @@ public:
     pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&lock_, &attr_);
   }
-  ~CefCriticalSection()
+  virtual ~CefCriticalSection()
   {
     pthread_mutex_destroy(&lock_);
     pthread_mutexattr_destroy(&attr_);
@@ -81,10 +81,9 @@ public:
   {
     Init();
   }
-  ~CefWindowInfo()
+  virtual ~CefWindowInfo()
   {
-    if(m_windowName)
-      cef_string_free(m_windowName);
+    Reset();
   }
 
   CefWindowInfo(const CefWindowInfo& r)
@@ -98,13 +97,22 @@ public:
     *this = r;
   }
 
-  void Init()
+  void Reset()
   {
-    m_windowName = NULL;
-    m_x = 0;
-    m_y = 0;
-    m_nWidth = 0;
-    m_nHeight = 0;
+    if(m_windowName)
+      cef_string_free(m_windowName);
+    Init();
+  }
+
+  void Attach(const cef_window_info_t& r)
+  {
+    Reset();
+    *static_cast<cef_window_info_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
   }
 
   CefWindowInfo& operator=(const CefWindowInfo& r)
@@ -125,6 +133,16 @@ public:
     m_nHeight = r.m_nHeight;
     return *this;
   }
+
+protected:
+  void Init()
+  {
+    m_windowName = NULL;
+    m_x = 0;
+    m_y = 0;
+    m_nWidth = 0;
+    m_nHeight = 0;
+  }
 };
 
 // Class representing print context information.
@@ -135,7 +153,7 @@ public:
   {
     Init();
   }
-  ~CefPrintInfo()
+  virtual ~CefPrintInfo()
   {
   }
 

@@ -39,7 +39,6 @@
 #include "browser_navigation_controller.h"
 
 class CefBrowserImpl;
-struct WebPreferences;
 class GURL;
 class WebWidgetHost;
 class FilePath;
@@ -217,10 +216,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void set_pending_extra_data(BrowserExtraData* extra_data) {
     pending_extra_data_.reset(extra_data);
   }
-
-  // Methods for modifying WebPreferences
-  void SetUserStyleSheetEnabled(bool is_enabled);
-  void SetUserStyleSheetLocation(const GURL& location);
 
   // Sets the webview as a drop target.
   void RegisterDragDrop();

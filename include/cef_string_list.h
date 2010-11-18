@@ -59,6 +59,8 @@ CEF_EXPORT void cef_string_list_clear(cef_string_list_t list);
 // Free the string list.
 CEF_EXPORT void cef_string_list_free(cef_string_list_t list);
 
+// Creates a copy of an existing string list.
+CEF_EXPORT cef_string_list_t cef_string_list_copy(cef_string_list_t list);
 
 #ifdef __cplusplus
 }

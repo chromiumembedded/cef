@@ -1057,7 +1057,9 @@ class obj_analysis:
         structuretypes = {
             'CefPrintInfo' : 'cef_print_info_t',
             'CefWindowInfo' : 'cef_window_info_t',
-            'CefPopupFeatures' : 'cef_popup_features_t'
+            'CefPopupFeatures' : 'cef_popup_features_t',
+            'CefSettings' : 'cef_settings_t',
+            'CefBrowserSettings' : 'cef_browser_settings_t',
         }
         if value in structuretypes.keys():
             return {

@@ -46,10 +46,11 @@ using webkit_glue::WebStringToStdString;
 using webkit_glue::WebStringToStdWString;
 
 
-CefBrowserImpl::CefBrowserImpl(CefWindowInfo& windowInfo, bool popup,
+CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
+                               const CefBrowserSettings& settings, bool popup,
                                CefRefPtr<CefHandler> handler)
-  : window_info_(windowInfo), is_popup_(popup), is_modal_(false),
-    handler_(handler), webviewhost_(NULL), popuphost_(NULL),
+  : window_info_(windowInfo), settings_(settings), is_popup_(popup),
+    is_modal_(false), handler_(handler), webviewhost_(NULL), popuphost_(NULL),
     frame_main_(NULL), unique_id_(0)
 {
   delegate_.reset(new BrowserWebViewDelegate(this));
@@ -486,6 +487,7 @@ std::wstring CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
   return std::wstring();
 }
 
+// static
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
                                const std::wstring& url)
@@ -494,24 +496,26 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
     return false;
 
   std::wstring newUrl = url;
+  CefBrowserSettings settings(_Context->browser_defaults());
 
   if(handler.get())
   {
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
     CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
-        popup, handler, newUrl, CefPopupFeatures());
+        popup, CefPopupFeatures(), handler, newUrl, settings);
     if(rv == RV_HANDLED)
       return false;
   }
 
   CefRefPtr<CefBrowserImpl> browser(
-      new CefBrowserImpl(windowInfo, popup, handler));
+      new CefBrowserImpl(windowInfo, settings, popup, handler));
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(browser.get(),
       &CefBrowserImpl::UIT_CreateBrowser, newUrl));
   return true;
 }
 
+// static
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
     bool popup, CefRefPtr<CefHandler> handler, const std::wstring& url)
 {
@@ -520,18 +524,20 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
 
   std::wstring newUrl = url;
   CefRefPtr<CefBrowser> alternateBrowser;
+  CefBrowserSettings settings(_Context->browser_defaults());
 
   if(handler.get())
   {
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
     CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
-        popup, handler, newUrl, CefPopupFeatures());
+        popup, CefPopupFeatures(), handler, newUrl, settings);
     if(rv == RV_HANDLED)
       return false;
   }
 
-  CefRefPtr<CefBrowser> browser(new CefBrowserImpl(windowInfo, popup, handler));
+  CefRefPtr<CefBrowser> browser(
+      new CefBrowserImpl(windowInfo, settings, popup, handler));
   static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(newUrl);
 
   return browser;
@@ -802,17 +808,21 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
   CefRefPtr<CefHandler> handler = handler_;
   std::wstring newUrl = url;
 
+  // Start with the current browser window's settings.
+  CefBrowserSettings settings(settings_);
+
   if(handler_.get())
   {
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
     CefHandler::RetVal rv = handler_->HandleBeforeCreated(this, info, true,
-        handler, newUrl, features);
+        features, handler, newUrl, settings);
     if(rv == RV_HANDLED)
       return NULL;
   }
 
-  CefRefPtr<CefBrowserImpl> browser(new CefBrowserImpl(info, true, handler));
+  CefRefPtr<CefBrowserImpl> browser(
+      new CefBrowserImpl(info, settings, true, handler));
   browser->UIT_CreateBrowser(newUrl);
 
   return browser;

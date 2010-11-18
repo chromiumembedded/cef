@@ -19,7 +19,11 @@ class CefTestSuite : public TestSuite {
 
   virtual void Initialize() {
     TestSuite::Initialize();
-    CefInitialize(true, std::wstring());
+    
+    CefSettings settings;
+    CefBrowserSettings browserDefaults;
+    settings.multi_threaded_message_loop = true;
+    CefInitialize(settings, browserDefaults);
   }
 
   virtual void Shutdown() {

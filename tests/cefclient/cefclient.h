@@ -42,9 +42,10 @@ public:
   // window modify the object that |handler| points to.
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
                                      CefWindowInfo& createInfo, bool popup,
+                                     const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
                                      std::wstring& url,
-                                     const CefPopupFeatures& popupFeatures)
+                                     CefBrowserSettings& settings)
   {
     return RV_CONTINUE;
   }

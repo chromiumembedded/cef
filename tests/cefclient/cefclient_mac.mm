@@ -348,7 +348,9 @@ int main(int argc, char* argv[])
   getcwd(szWorkingDir, sizeof(szWorkingDir));
   
   // Initialize CEF. This will also create the NSApplication instance.
-  CefInitialize(false, std::wstring());
+  CefSettings settings;
+  CefBrowserSettings browserDefaults;
+  CefInitialize(settings, browserDefaults);
   
   // Initialize tests.
   InitExtensionTest();

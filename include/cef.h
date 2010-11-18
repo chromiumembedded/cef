@@ -45,37 +45,33 @@
 #include "cef_types.h"
 
 class CefBrowser;
+class CefBrowserSettings;
 class CefDownloadHandler;
 class CefFrame;
 class CefHandler;
+class CefPopupFeatures;
 class CefPostData;
 class CefPostDataElement;
 class CefRequest;
 class CefSchemeHandler;
 class CefSchemeHandlerFactory;
+class CefSettings;
 class CefStreamReader;
 class CefStreamWriter;
 class CefTask;
 class CefV8Handler;
 class CefV8Value;
-class CefPopupFeatures;
 
 
-// This function should only be called once when the application is started.
-// Create the thread to host the UI message loop.  A return value of true
-// indicates that it succeeded and false indicates that it failed. Set
-// |multi_threaded_message_loop| to true to have the message loop run in
-// a separate thread.  If |multi_threaded_message_loop| is false than
-// the CefDoMessageLoopWork() function must be called from your message loop.
-// Set |cache_path| to the location where cache data will be stored on disk.
-// If |cache_path| is empty an in-memory cache will be used for cache data.
+// This function should be called once when the application is started to
+// initialize CEF.  A return value of true indicates that it succeeded and
+// false indicates that it failed.
 /*--cef()--*/
-bool CefInitialize(bool multi_threaded_message_loop,
-                   const std::wstring& cache_path);
+bool CefInitialize(const CefSettings& settings,
+                   const CefBrowserSettings& browser_defaults);
 
-// This function should only be called once before the application exits.
-// Shut down the thread hosting the UI message loop and destroy any created
-// windows.
+// This function should be called once before the application exits to shut down
+// CEF.
 /*--cef()--*/
 void CefShutdown();
 
@@ -559,9 +555,10 @@ public:
   /*--cef()--*/
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
                                      CefWindowInfo& windowInfo, bool popup,
+                                     const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
                                      std::wstring& url,
-                                     const CefPopupFeatures& popupFeatures) =0;
+                                     CefBrowserSettings& settings) =0;
 
   // Event called after a new window is created. The return value is currently
   // ignored.
@@ -1495,10 +1492,9 @@ public:
   {
     Init();
   }
-  ~CefPopupFeatures()
+  virtual ~CefPopupFeatures()
   {
-    if(additionalFeatures)
-      cef_string_list_free(additionalFeatures);
+    Reset();
   }
 
   CefPopupFeatures(const CefPopupFeatures& r)
@@ -1512,6 +1508,55 @@ public:
     *this = r;
   }
 
+  void Reset()
+  {
+    if(additionalFeatures)
+      cef_string_list_free(additionalFeatures);
+  }
+
+  void Attach(const cef_popup_features_t& r)
+  {
+    Reset();
+    *static_cast<cef_popup_features_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
+  }
+
+  CefPopupFeatures& operator=(const CefPopupFeatures& r)
+  {
+    return operator=(static_cast<const cef_popup_features_t&>(r));
+  }
+
+  CefPopupFeatures& operator=(const cef_popup_features_t& r)
+  {
+    if(additionalFeatures)
+      cef_string_list_free(additionalFeatures);
+    additionalFeatures = r.additionalFeatures ?
+        cef_string_list_copy(r.additionalFeatures) : NULL;
+
+    x = r.x;
+    xSet = r.xSet;
+    y = r.y;
+    ySet = r.ySet;
+    width = r.width;
+    widthSet = r.widthSet;
+    height = r.height;
+    heightSet = r.heightSet;
+    menuBarVisible = r.menuBarVisible;
+    statusBarVisible = r.statusBarVisible;
+    toolBarVisible = r.toolBarVisible;
+    locationBarVisible = r.locationBarVisible;
+    scrollbarsVisible = r.scrollbarsVisible;
+    resizable = r.resizable;
+    fullscreen = r.fullscreen;
+    dialog = r.dialog;
+    return *this;
+  }
+
+protected:
   void Init()
   {
     x = 0;
@@ -1534,46 +1579,254 @@ public:
     dialog = false;
     additionalFeatures = NULL;
   }
+};
 
-  CefPopupFeatures& operator=(const CefPopupFeatures& r)
+
+// Class representing initialization settings.
+class CefSettings : public cef_settings_t
+{
+public:
+  CefSettings()
   {
-    return operator=(static_cast<const cef_popup_features_t&>(r));
+    Init();
+  }
+  virtual ~CefSettings()
+  {
+    Reset();
   }
 
-  CefPopupFeatures& operator=(const cef_popup_features_t& r)
+  CefSettings(const CefSettings& r)
   {
-    if(additionalFeatures)
-      cef_string_list_free(additionalFeatures);
-    if(r.additionalFeatures) {
-      additionalFeatures = cef_string_list_alloc();
-      unsigned int size = cef_string_list_size(r.additionalFeatures);
-      for(unsigned int i = 0; i < size; ++i) {
-        cef_string_t feature = cef_string_list_value(r.additionalFeatures, i);
-        cef_string_list_append(additionalFeatures, feature);
-        cef_string_free(feature);
-      }
-    }
-    else {
-      additionalFeatures = NULL;
-    }
+    Init();
+    *this = r;
+  }
+  CefSettings(const cef_settings_t& r)
+  {
+    Init();
+    *this = r;
+  }
 
-    x = r.x;
-    xSet = r.xSet;
-    y = r.y;
-    ySet = r.ySet;
-    width = r.width;
-    widthSet = r.widthSet;
-    height = r.height;
-    heightSet = r.heightSet;
-    menuBarVisible = r.menuBarVisible;
-    statusBarVisible = r.statusBarVisible;
-    toolBarVisible = r.toolBarVisible;
-    locationBarVisible = r.locationBarVisible;
-    scrollbarsVisible = r.scrollbarsVisible;
-    resizable = r.resizable;
-    fullscreen = r.fullscreen;
-    dialog = r.dialog;
+  void Reset()
+  {
+    if(cache_path)
+      cef_string_free(cache_path);
+    if(user_agent)
+      cef_string_free(user_agent);
+    if(product_version)
+      cef_string_free(product_version);
+    if(locale)
+      cef_string_free(locale);
+    if(extra_plugin_paths)
+      cef_string_list_free(extra_plugin_paths);
+    Init();
+  }
+
+  void Attach(const cef_settings_t& r)
+  {
+    Reset();
+    *static_cast<cef_settings_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
+  }
+
+  CefSettings& operator=(const CefSettings& r)
+  {
+    return operator=(static_cast<const cef_settings_t&>(r));
+  }
+
+  CefSettings& operator=(const cef_settings_t& r)
+  {
+    multi_threaded_message_loop = r.multi_threaded_message_loop;
+
+    if(cache_path)
+      cef_string_free(cache_path);
+    cache_path = r.cache_path ? cef_string_alloc(r.cache_path) : NULL;
+
+    if(user_agent)
+      cef_string_free(user_agent);
+    user_agent = r.user_agent ? cef_string_alloc(r.user_agent) : NULL;
+
+    if(product_version)
+      cef_string_free(product_version);
+    product_version = r.product_version ?
+        cef_string_alloc(r.product_version) : NULL;
+
+    if(locale)
+      cef_string_free(locale);
+    locale = r.locale ? cef_string_alloc(r.locale) : NULL;
+
+    if(extra_plugin_paths)
+      cef_string_list_free(extra_plugin_paths);
+    extra_plugin_paths = r.extra_plugin_paths ?
+        cef_string_list_copy(r.extra_plugin_paths) : NULL;
+
     return *this;
+  }
+
+protected:
+  void Init()
+  {
+    memset(static_cast<cef_settings_t*>(this), 0, sizeof(cef_settings_t));
+    size = sizeof(cef_settings_t);
+  }
+};
+
+
+// Class representing browser initialization settings.
+class CefBrowserSettings : public cef_browser_settings_t
+{
+public:
+  CefBrowserSettings()
+  {
+    Init();
+  }
+  virtual ~CefBrowserSettings()
+  {
+    Reset();
+  }
+
+  CefBrowserSettings(const CefBrowserSettings& r)
+  {
+    Init();
+    *this = r;
+  }
+  CefBrowserSettings(const cef_browser_settings_t& r)
+  {
+    Init();
+    *this = r;
+  }
+
+  void Reset()
+  {
+    if(standard_font_family)
+      cef_string_free(standard_font_family);
+    if(fixed_font_family)
+      cef_string_free(fixed_font_family);
+    if(serif_font_family)
+      cef_string_free(serif_font_family);
+    if(sans_serif_font_family)
+      cef_string_free(sans_serif_font_family);
+    if(cursive_font_family)
+      cef_string_free(cursive_font_family);
+    if(fantasy_font_family)
+      cef_string_free(fantasy_font_family);
+    if(default_encoding)
+      cef_string_free(default_encoding);
+    if(user_style_sheet_location)
+      cef_string_free(user_style_sheet_location);
+    Init();
+  }
+
+  void Attach(const cef_browser_settings_t& r)
+  {
+    Reset();
+    *static_cast<cef_browser_settings_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
+  }
+
+  CefBrowserSettings& operator=(const CefBrowserSettings& r)
+  {
+    return operator=(static_cast<const cef_browser_settings_t&>(r));
+  }
+
+  CefBrowserSettings& operator=(const cef_browser_settings_t& r)
+  {
+    drag_drop_disabled = r.drag_drop_disabled;
+
+    if(standard_font_family)
+      cef_string_free(standard_font_family);
+    standard_font_family = r.standard_font_family ?
+        cef_string_alloc(r.standard_font_family) : NULL;
+
+    if(fixed_font_family)
+      cef_string_free(fixed_font_family);
+    fixed_font_family = r.fixed_font_family ?
+        cef_string_alloc(r.fixed_font_family) : NULL;
+
+    if(serif_font_family)
+      cef_string_free(serif_font_family);
+    serif_font_family = r.serif_font_family ?
+        cef_string_alloc(r.serif_font_family) : NULL;
+
+    if(sans_serif_font_family)
+      cef_string_free(sans_serif_font_family);
+    serif_font_family = r.sans_serif_font_family ?
+        cef_string_alloc(r.sans_serif_font_family) : NULL;
+
+    if(cursive_font_family)
+      cef_string_free(cursive_font_family);
+    cursive_font_family = r.cursive_font_family ?
+        cef_string_alloc(r.cursive_font_family) : NULL;
+
+    if(fantasy_font_family)
+      cef_string_free(fantasy_font_family);
+    fantasy_font_family = r.fantasy_font_family ?
+        cef_string_alloc(r.fantasy_font_family) : NULL;
+
+    default_font_size = r.default_font_size;
+    default_fixed_font_size = r.default_fixed_font_size;
+    minimum_font_size = r.minimum_font_size;
+    minimum_logical_font_size = r.minimum_logical_font_size;
+    remote_fonts_disabled = r.remote_fonts_disabled;
+
+    if(default_encoding)
+      cef_string_free(default_encoding);
+    default_encoding = r.default_encoding ?
+        cef_string_alloc(r.default_encoding) : NULL;
+
+    encoding_detector_enabled = r.encoding_detector_enabled;
+    javascript_disabled = r.javascript_disabled;
+    javascript_open_windows_disallowed = r.javascript_open_windows_disallowed;
+    javascript_close_windows_disallowed = r.javascript_close_windows_disallowed;
+    javascript_access_clipboard_disallowed =
+        r.javascript_access_clipboard_disallowed;
+    dom_paste_disabled = r.dom_paste_disabled;
+    caret_browsing_enabled = r.caret_browsing_enabled;
+    java_disabled = r.java_disabled;
+    plugins_disabled = r.plugins_disabled;
+    universal_access_from_file_urls_allowed =
+        r.universal_access_from_file_urls_allowed;
+    file_access_from_file_urls_allowed = r.file_access_from_file_urls_allowed;
+    web_security_disabled = r.web_security_disabled;
+    xss_auditor_enabled = r.xss_auditor_enabled;
+    image_load_disabled = r.image_load_disabled;
+    shrink_standalone_images_to_fit = r.shrink_standalone_images_to_fit;
+    site_specific_quirks_disabled = r.site_specific_quirks_disabled;
+    text_area_resize_disabled = r.text_area_resize_disabled;
+    page_cache_disabled = r.page_cache_disabled;
+    tab_to_links_disabled = r.tab_to_links_disabled;
+    hyperlink_auditing_disabled = r.hyperlink_auditing_disabled;
+    user_style_sheet_enabled = r.user_style_sheet_enabled;
+
+    if(user_style_sheet_location)
+      cef_string_free(user_style_sheet_location);
+    user_style_sheet_location = r.user_style_sheet_location ?
+        cef_string_alloc(r.user_style_sheet_location) : NULL;
+
+    author_and_user_styles_disabled = r.author_and_user_styles_disabled;
+    local_storage_disabled = r.local_storage_disabled;
+    databases_disabled = r.databases_disabled;
+    application_cache_disabled = r.application_cache_disabled;
+    experimental_webgl_enabled = r.experimental_webgl_enabled;
+    accelerated_compositing_disabled = r.accelerated_compositing_disabled;
+    accelerated_2d_canvas_disabled = r.accelerated_2d_canvas_disabled;
+
+    return *this;
+  }
+
+protected:
+  void Init()
+  {
+    memset(static_cast<cef_browser_settings_t*>(this), 0,
+        sizeof(cef_browser_settings_t));
+    size = sizeof(cef_browser_settings_t);
   }
 };
 

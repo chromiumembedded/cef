@@ -16,6 +16,8 @@ MSVC_POP_WARNING();
 #include "browser_webkit_glue.h"
 
 #undef LOG
+#include "cef_context.h"
+
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
@@ -70,6 +72,9 @@ bool IsProtocolSupportedForMedia(const GURL& url) {
 }
 
 std::string GetWebKitLocale() {
+  const CefSettings& settings = _Context->settings();
+  if (settings.locale)
+    return WideToUTF8(settings.locale);
   return "en-US";
 }
 
@@ -119,7 +124,10 @@ std::wstring WebStringToStdWString(const WebKit::WebString& str) {
 }
 
 std::string GetProductVersion() {
-  return std::string("Chrome/7.0.517.0");
+  const CefSettings& settings = _Context->settings();
+  if (settings.product_version)
+    return WideToUTF8(settings.product_version);
+  return "Chrome/7.0.517.0";
 }
 
 bool IsSingleProcess() {

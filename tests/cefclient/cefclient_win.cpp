@@ -62,14 +62,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if(_wgetcwd(szWorkingDir, MAX_PATH) == NULL)
     szWorkingDir[0] = 0;
 
+  CefSettings settings;
+  CefBrowserSettings browserDefaults;
+
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
   // message loop.
-  CefInitialize(false, std::wstring());
+  settings.multi_threaded_message_loop = false;
 #else
   // Initialize the CEF with messages processed using a separate UI thread.
-  CefInitialize(true, std::wstring());
+  settings.multi_threaded_message_loop = true;
 #endif
+
+  CefInitialize(settings, browserDefaults);
 
   // Register the internal client plugin.
   InitPluginTest();

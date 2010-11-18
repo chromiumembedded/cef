@@ -5,6 +5,7 @@
 
 #include "cef_context.h"
 #include "browser_impl.h"
+#include "browser_settings.h"
 #include "browser_webview_mac.h"
 
 #import <Cocoa/Cocoa.h>
@@ -14,6 +15,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "webkit/glue/webpreferences.h"
 
 using WebKit::WebRect;
 using WebKit::WebSize;
@@ -44,10 +46,13 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
                         window_info_.m_nWidth, window_info_.m_nHeight);
 
+  WebPreferences prefs;
+  BrowserToWebSettings(settings_, prefs);
+
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(parentView, contentRect, delegate_.get(),
-                          NULL, *_Context->web_preferences()));
+                          NULL, prefs));
   delegate_->RegisterDragDrop();
   
   BrowserWebView* browserView = (BrowserWebView*)webviewhost_->view_handle();

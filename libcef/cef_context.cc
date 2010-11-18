@@ -15,28 +15,28 @@
 #endif
 #include "base/utf_string_conversions.h"
 #include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/webpreferences.h"
 
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
 
-bool CefInitialize(bool multi_threaded_message_loop,
-                   const std::wstring& cache_path)
+bool CefInitialize(const CefSettings& settings,
+                   const CefBrowserSettings& browser_defaults)
 {
   // Return true if the context is already initialized
   if(_Context.get())
     return true;
 
+  if(settings.size != sizeof(cef_settings_t) ||
+    browser_defaults.size != sizeof(cef_browser_settings_t)) {
+    NOTREACHED();
+    return false;
+  }
+
   // Create the new global context object
   _Context = new CefContext();
 
   // Initialize the global context
-#if defined(OS_WIN)
-  FilePath cachePath(cache_path);
-#else
-  FilePath cachePath(WideToUTF8(_Context->cache_path()));
-#endif
-  return _Context->Initialize(multi_threaded_message_loop, cachePath);
+  return _Context->Initialize(settings, browser_defaults);
 }
 
 void CefShutdown()
@@ -176,7 +176,7 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
 
 // CefContext
 
-CefContext::CefContext() : process_(NULL), webprefs_(NULL)
+CefContext::CefContext() : process_(NULL)
 {
   
 }
@@ -187,64 +187,27 @@ CefContext::~CefContext()
   Shutdown();
 }
 
-bool CefContext::Initialize(bool multi_threaded_message_loop,
-                            const FilePath& cache_path)
+bool CefContext::Initialize(const CefSettings& settings,
+                            const CefBrowserSettings& browser_defaults)
 {
-  cache_path_ = cache_path;
+  settings_ = settings;
+  browser_defaults_ = browser_defaults;
 
-  // Initialize web preferences
-  webprefs_ = new WebPreferences;
-  *webprefs_ = WebPreferences();
-  webprefs_->standard_font_family = L"Times";
-  webprefs_->fixed_font_family = L"Courier";
-  webprefs_->serif_font_family = L"Times";
-  webprefs_->sans_serif_font_family = L"Helvetica";
-  // These two fonts are picked from the intersection of
-  // Win XP font list and Vista font list :
-  //   http://www.microsoft.com/typography/fonts/winxp.htm 
-  //   http://blogs.msdn.com/michkap/archive/2006/04/04/567881.aspx
-  // Some of them are installed only with CJK and complex script
-  // support enabled on Windows XP and are out of consideration here. 
-  // (although we enabled both on our buildbots.)
-  // They (especially Impact for fantasy) are not typical cursive
-  // and fantasy fonts, but it should not matter for layout tests
-  // as long as they're available.
-#if defined(OS_MACOSX)
-  webprefs_->cursive_font_family = L"Apple Chancery";
-  webprefs_->fantasy_font_family = L"Papyrus";
+  std::wstring cachePathStr;
+  if(settings.cache_path)
+    cachePathStr = settings.cache_path;
+#if defined(OS_WIN)
+  cache_path_ = FilePath(cachePathStr);
 #else
-  webprefs_->cursive_font_family = L"Comic Sans MS";
-  webprefs_->fantasy_font_family = L"Impact";
+  cache_path_ = FilePath(WideToUTF8(cachePathStr));
 #endif
-  webprefs_->default_encoding = "ISO-8859-1";
-  webprefs_->default_font_size = 16;
-  webprefs_->default_fixed_font_size = 13;
-  webprefs_->minimum_font_size = 1;
-  webprefs_->minimum_logical_font_size = 9;
-  webprefs_->javascript_can_open_windows_automatically = true;
-  webprefs_->dom_paste_enabled = true;
-  webprefs_->developer_extras_enabled = true;
-  webprefs_->site_specific_quirks_enabled = true;
-  webprefs_->shrinks_standalone_images_to_fit = false;
-  webprefs_->uses_universal_detector = false;
-  webprefs_->text_areas_are_resizable = true;
-  webprefs_->java_enabled = true;
-  webprefs_->allow_scripts_to_close_windows = false;
-  webprefs_->xss_auditor_enabled = false;
-  webprefs_->remote_fonts_enabled = true;
-  webprefs_->local_storage_enabled = true;
-  webprefs_->application_cache_enabled = true;
-  webprefs_->databases_enabled = true;
-  webprefs_->allow_file_access_from_file_urls = true;
-  webprefs_->accelerated_2d_canvas_enabled = true;
-  webprefs_->accelerated_compositing_enabled = true;
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
   // We want to be sure to init NSPR on the main thread.
   base::EnsureNSPRInit();
 #endif
 
-  process_ = new CefProcess(multi_threaded_message_loop);
+  process_ = new CefProcess(settings_.multi_threaded_message_loop);
   process_->CreateChildThreads();
 
   return true;
