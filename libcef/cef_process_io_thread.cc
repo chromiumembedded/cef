@@ -36,12 +36,7 @@ void CefProcessIOThread::Init() {
   CoInitialize(NULL);
 #endif
   
-#if defined(OS_WIN)
   FilePath cache_path(_Context->cache_path());
-#else
-  FilePath cache_path(WideToUTF8(_Context->cache_path()));
-#endif
-
   request_context_ = new BrowserRequestContext(cache_path,
       net::HttpCache::NORMAL, false);
   _Context->set_request_context(request_context_);

@@ -192,5 +192,9 @@ FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
 
   // This method is getting called when an empty localStorage database is
   // deleted. In that case, just return the path.
+#if defined(OS_WIN)
   return FilePath(vfs_file_name);
+#else
+  return FilePath(UTF16ToUTF8(vfs_file_name));
+#endif
 }

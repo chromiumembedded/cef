@@ -29,8 +29,14 @@ bool CefInitialize(bool multi_threaded_message_loop,
 
   // Create the new global context object
   _Context = new CefContext();
+
   // Initialize the global context
-  return _Context->Initialize(multi_threaded_message_loop, cache_path);
+#if defined(OS_WIN)
+  FilePath cachePath(cache_path);
+#else
+  FilePath cachePath(WideToUTF8(_Context->cache_path()));
+#endif
+  return _Context->Initialize(multi_threaded_message_loop, cachePath);
 }
 
 void CefShutdown()
@@ -182,7 +188,7 @@ CefContext::~CefContext()
 }
 
 bool CefContext::Initialize(bool multi_threaded_message_loop,
-                            const std::wstring& cache_path)
+                            const FilePath& cache_path)
 {
   cache_path_ = cache_path;
 

@@ -31,7 +31,7 @@ public:
 
   // These methods will be called on the main application thread.
   bool Initialize(bool multi_threaded_message_loop,
-                  const std::wstring& cache_path);
+                  const FilePath& cache_path);
   void Shutdown();
 
   scoped_refptr<CefProcess> process() { return process_; }
@@ -43,7 +43,7 @@ public:
 
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.
-  const std::wstring& cache_path() { return cache_path_; }
+  const FilePath& cache_path() { return cache_path_; }
 
   WebPreferences* web_preferences()
   {
@@ -70,7 +70,7 @@ private:
   // asserts and possible memory leaks.
   base::AtExitManager at_exit_manager_;
 
-  std::wstring cache_path_;
+  FilePath cache_path_;
   WebPreferences* webprefs_;
   scoped_refptr<BrowserRequestContext> request_context_;
   scoped_ptr<DOMStorageContext> storage_context_;
