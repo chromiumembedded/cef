@@ -125,24 +125,21 @@
             },
           ],
           'copies': [
-            # TODO(ajwong): This, and the parallel chromium stanza below
-            # really should find a way to share file paths with
-            # ffmpeg.gyp so they don't diverge. (BUG=23602)
             {
+              # Add library dependencies and app launcher script to the bundle.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
-              'files': ['<(PRODUCT_DIR)/libffmpegsumo.dylib'],
-            },
-            {
-              # TODO(tony): We should have cefclient.app load plugins from
-              # <(PRODUCT_DIR)/plugins so we don't have this extra copy of
-              # the plugin.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/PlugIns/',
-              'files': ['<(PRODUCT_DIR)/TestNetscapePlugIn.plugin/'],
+              'files': [
+                '<(PRODUCT_DIR)/libcef.dylib',
+                '<(PRODUCT_DIR)/libffmpegsumo.dylib',
+                'tests/cefclient/cefclient_mac_app.sh',
+              ],
             },
             {
               # Add the WebCore resources to the bundle.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/',
-              'files': ['../third_party/WebKit/WebCore/Resources/'],
+              'files': [
+                '../third_party/WebKit/WebCore/Resources/',
+              ],
             },
           ],
           'link_settings': {

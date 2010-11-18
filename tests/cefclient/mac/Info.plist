@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>cefclient_mac_app.sh</string>
 	<key>CFBundleIconFile</key>
 	<string>cefclient.icns</string>
 	<key>CFBundleIdentifier</key>

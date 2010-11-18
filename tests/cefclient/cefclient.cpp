@@ -109,7 +109,7 @@ CefHandler::RetVal ClientHandler::HandleLoadError(CefRefPtr<CefBrowser> browser,
     ss <<       L"<html><head><title>Load Failed</title></head>"
                 L"<body><h1>Load Failed</h1>"
                 L"<h2>Load of URL " << failedUrl <<
-                L"failed with error code " << static_cast<int>(errorCode) <<
+                L" failed with error code " << static_cast<int>(errorCode) <<
                 L".</h2></body>"
                 L"</html>";
     errorText = ss.str();
