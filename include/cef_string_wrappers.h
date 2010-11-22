@@ -593,7 +593,7 @@ private:
 
 // CEF string classes can convert between all supported string types. For
 // example, the CefStringWide class uses wchar_t as the underlying character
-// type and provides two approaches for translating data to/from a UTF8 string
+// type and provides two approaches for converting data to/from a UTF8 string
 // (std::string).
 //
 // 1. Implicit conversion using the assignment operator overload.
@@ -610,9 +610,9 @@ private:
 //   aCefString.FromString(aUTF8String); // Assign std::string to CefStringWide
 //   aUTF8String = aCefString.ToString(); // Assign CefStringWide to std::string
 //
-// Translation will only occur if the assigned value is a different string type.
+// Conversion will only occur if the assigned value is a different string type.
 // Assigning a std::string to a CefStringUTF8, for example, will copy the data
-// without performing a translation.
+// without performing a conversion.
 //
 // CEF string classes are safe for reading from multiple threads but not for
 // modification. It is the user's responsibility to provide synchronization if
