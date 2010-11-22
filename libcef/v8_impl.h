@@ -20,7 +20,7 @@ public:
   bool Attach(v8::Handle<v8::Value> value, CefTrackObject* tracker = NULL);
   void Detach();
   v8::Handle<v8::Value> GetValue();
-  bool IsReservedKey(const std::wstring& key);
+  bool IsReservedKey(const CefString& key);
 
   virtual bool IsUndefined();
   virtual bool IsNull();
@@ -34,24 +34,24 @@ public:
   virtual bool GetBoolValue();
   virtual int GetIntValue();
   virtual double GetDoubleValue();
-  virtual std::wstring GetStringValue();
-  virtual bool HasValue(const std::wstring& key);
+  virtual CefString GetStringValue();
+  virtual bool HasValue(const CefString& key);
   virtual bool HasValue(int index);
-  virtual bool DeleteValue(const std::wstring& key);
+  virtual bool DeleteValue(const CefString& key);
   virtual bool DeleteValue(int index);
-  virtual CefRefPtr<CefV8Value> GetValue(const std::wstring& key);
+  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key);
   virtual CefRefPtr<CefV8Value> GetValue(int index);
-  virtual bool SetValue(const std::wstring& key, CefRefPtr<CefV8Value> value);
+  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value);
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value);
-  virtual bool GetKeys(std::vector<std::wstring>& keys);
+  virtual bool GetKeys(std::vector<CefString>& keys);
   virtual CefRefPtr<CefBase> GetUserData();
   virtual int GetArrayLength();
-  virtual std::wstring GetFunctionName();
+  virtual CefString GetFunctionName();
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler();
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
-                               std::wstring& exception);
+                               CefString& exception);
 
 protected:
   v8::Persistent<v8::Value> v8_value_;

@@ -94,11 +94,11 @@ TEST(RequestTest, SetGet)
   CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
   ASSERT_TRUE(request.get() != NULL);
 
-  std::wstring url = L"http://tests/run.html";
-  std::wstring method = L"POST";
+  CefString url = "http://tests/run.html";
+  CefString method = "POST";
   CefRequest::HeaderMap setHeaders, getHeaders;
-  setHeaders.insert(std::make_pair(L"HeaderA", L"ValueA"));
-  setHeaders.insert(std::make_pair(L"HeaderB", L"ValueB"));
+  setHeaders.insert(std::make_pair("HeaderA", "ValueA"));
+  setHeaders.insert(std::make_pair("HeaderB", "ValueB"));
 
   // CefPostData CreatePostData
   CefRefPtr<CefPostData> postData(CefPostData::CreatePostData());
@@ -113,7 +113,7 @@ TEST(RequestTest, SetGet)
   ASSERT_TRUE(element2.get() != NULL);
   
   // CefPostDataElement SetToFile
-  std::wstring file = L"c:\\path\\to\\file.ext";
+  CefString file = "c:\\path\\to\\file.ext";
   element1->SetToFile(file);
   ASSERT_EQ(PDE_TYPE_FILE, element1->GetType());
   ASSERT_EQ(file, element1->GetFile());
@@ -189,12 +189,12 @@ static void CreateRequest(CefRefPtr<CefRequest>& request)
   request = CefRequest::CreateRequest();
   ASSERT_TRUE(request.get() != NULL);
 
-  request->SetURL(L"http://tests/run.html");
-  request->SetMethod(L"POST");
+  request->SetURL("http://tests/run.html");
+  request->SetMethod("POST");
 
   CefRequest::HeaderMap headers;
-  headers.insert(std::make_pair(L"HeaderA", L"ValueA"));
-  headers.insert(std::make_pair(L"HeaderB", L"ValueB"));
+  headers.insert(std::make_pair("HeaderA", "ValueA"));
+  headers.insert(std::make_pair("HeaderB", "ValueB"));
   request->SetHeaderMap(headers);
 
   CefRefPtr<CefPostData> postData(CefPostData::CreatePostData());
@@ -203,7 +203,7 @@ static void CreateRequest(CefRefPtr<CefRequest>& request)
   CefRefPtr<CefPostDataElement> element1(
       CefPostDataElement::CreatePostDataElement());
   ASSERT_TRUE(element1.get() != NULL);
-  element1->SetToFile(L"c:\\path\\to\\file.ext");
+  element1->SetToFile("c:\\path\\to\\file.ext");
   postData->AddElement(element1);
   
   CefRefPtr<CefPostDataElement> element2(
@@ -230,7 +230,7 @@ public:
     CreateRequest(request_);
 
     // Create the browser
-    CreateBrowser(std::wstring());
+    CreateBrowser(CefString());
   }
 
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser)
@@ -257,9 +257,9 @@ public:
 
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefRequest> request,
-                                          std::wstring& redirectUrl,
+                                          CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          std::wstring& mimeType,
+                                          CefString& mimeType,
                                           int loadFlags)
   {
     g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = true;
@@ -310,10 +310,10 @@ public:
     CreateRequest(request_);
 
     // Add the resource that we will navigate to/from
-    AddResource(L"http://tests/goto.html", "<html>To</html>", L"text/html");
+    AddResource("http://tests/goto.html", "<html>To</html>", "text/html");
 
     // Create the browser
-    CreateBrowser(std::wstring());
+    CreateBrowser(CefString());
   }
 
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser)
@@ -330,8 +330,8 @@ public:
                                     CefRefPtr<CefRequest> request,
                                     NavType navType, bool isRedirect)
   {
-    std::wstring url = request->GetURL();
-    if(url == L"http://tests/run.html")
+    CefString url = request->GetURL();
+    if(url == "http://tests/run.html")
     {
       // Verify that the request is the same
       VerifyRequestEqual(request_, request, true);
@@ -342,13 +342,13 @@ public:
 
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefRequest> request,
-                                          std::wstring& redirectUrl,
+                                          CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          std::wstring& mimeType,
+                                          CefString& mimeType,
                                           int loadFlags)
   {
-    std::wstring url = request->GetURL();
-    if(url == L"http://tests/run.html")
+    CefString url = request->GetURL();
+    if(url == "http://tests/run.html")
     {
       // Verify that the request is the same
       VerifyRequestEqual(request_, request, true);
@@ -368,7 +368,7 @@ public:
       std::string output = "<html>Request</html>";
       resourceStream = CefStreamReader::CreateForData((void*)output.c_str(),
           output.length());
-      mimeType = L"text/html";
+      mimeType = "text/html";
       return RV_CONTINUE;
     }
     else
@@ -384,14 +384,14 @@ public:
   {
     if(!browser->IsPopup() && !frame.get())
     {
-      std::wstring url = browser->GetMainFrame()->GetURL();
-      if(url == L"http://tests/run.html")
+      CefString url = browser->GetMainFrame()->GetURL();
+      if(url == "http://tests/run.html")
       {
         if(!navigated_)
         {
           // First resource load, go to the next page
           navigated_ = true;
-          browser->GetMainFrame()->LoadURL(L"http://tests/goto.html");
+          browser->GetMainFrame()->LoadURL("http://tests/goto.html");
         }
         else
         {

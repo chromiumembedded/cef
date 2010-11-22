@@ -31,10 +31,6 @@
 #ifndef _CEF_TYPES_H
 #define _CEF_TYPES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "cef_string_list.h"
 
 // Bring in platform-specific definitions.
@@ -52,6 +48,10 @@ extern "C" {
 typedef long                int64;
 #else
 typedef long long           int64;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 // Initialization settings. Specify NULL or 0 to get the recommended default
@@ -292,14 +292,14 @@ typedef struct _cef_handler_menuinfo_t
   int typeFlags;
   int x;
   int y;
-  const wchar_t* linkUrl;
-  const wchar_t* imageUrl;
-  const wchar_t* pageUrl;
-  const wchar_t* frameUrl;
-  const wchar_t* selectionText;
-  const wchar_t* misspelledWord;
+  cef_string_t linkUrl;
+  cef_string_t imageUrl;
+  cef_string_t pageUrl;
+  cef_string_t frameUrl;
+  cef_string_t selectionText;
+  cef_string_t misspelledWord;
   int editFlags;
-  const wchar_t* securityInfo;
+  cef_string_t securityInfo;
 } cef_handler_menuinfo_t;
 
 // The cef_handler_menuinfo_t typeFlags value will be a combination of the

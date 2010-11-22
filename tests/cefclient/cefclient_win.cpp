@@ -13,8 +13,9 @@
 #include "scheme_test.h"
 #include "string_util.h"
 #include "uiplugin_test.h"
-#include <sstream>
 #include <commdlg.h>
+#include <direct.h>
+#include <sstream>
 
 
 #define MAX_LOADSTRING 100
@@ -30,7 +31,7 @@
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-TCHAR szWorkingDir[MAX_PATH];   // The current working directory
+char szWorkingDir[MAX_PATH];   // The current working directory
 UINT uFindMsg;  // Message identifier for find events.
 HWND hFindDlg = NULL; // Handle for the find dialog.
 
@@ -59,11 +60,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   // Retrieve the current working directory.
-  if(_wgetcwd(szWorkingDir, MAX_PATH) == NULL)
+  if(_getcwd(szWorkingDir, MAX_PATH) == NULL)
     szWorkingDir[0] = 0;
 
   CefSettings settings;
   CefBrowserSettings browserDefaults;
+
+  // Specify a cache path value.
+  //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
 
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
@@ -357,7 +361,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Creat the new child child browser window
         CefBrowser::CreateBrowser(info, false,
             static_cast<CefRefPtr<CefHandler> >(g_handler),
-            L"http://www.google.com");
+            "http://www.google.com");
 
         // Start the timer that will be used to update child window state
         SetTimer(hWnd, 1, 250, NULL);
@@ -401,8 +405,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(g_handler.get()) {
             std::wstringstream ss;
             ss << L"Console messages will be written to "
-               << g_handler->GetLogFile();
-            MessageBoxW(hWnd, ss.str().c_str(), L"Console Messages",
+                << std::wstring(CefString(g_handler->GetLogFile()));
+            MessageBox(hWnd, ss.str().c_str(), L"Console Messages",
                 MB_OK | MB_ICONINFORMATION);
           }
           return 0;
@@ -410,14 +414,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case ID_WARN_DOWNLOADERROR:
           if(g_handler.get()) {
             std::wstringstream ss;
-            ss << L"File \"" << g_handler->GetLastDownloadFile() << L"\" ";
+            ss << L"File \"" <<
+                std::wstring(CefString(g_handler->GetLastDownloadFile())) <<
+                L"\" ";
 
             if(wmId == ID_WARN_DOWNLOADCOMPLETE)
               ss << L"downloaded successfully.";
             else
               ss << L"failed to download.";
 
-            MessageBoxW(hWnd, ss.str().c_str(), L"File Download",
+            MessageBox(hWnd, ss.str().c_str(), L"File Download",
                 MB_OK | MB_ICONINFORMATION);
           }
           return 0;
@@ -625,18 +631,18 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    const std::wstring& url)
+    const CefString& url)
 {
   if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
     // Set the edit window text
-    SetWindowText(m_EditHwnd, url.c_str());
+    SetWindowText(m_EditHwnd, std::wstring(url).c_str());
   }
   return RV_CONTINUE;
 }
 
 CefHandler::RetVal ClientHandler::HandleTitleChange(
-    CefRefPtr<CefBrowser> browser, const std::wstring& title)
+    CefRefPtr<CefBrowser> browser, const CefString& title)
 {
   // Set the frame window title bar
   CefWindowHandle hwnd = browser->GetWindowHandle();
@@ -645,53 +651,53 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
     // The frame window will be the parent of the browser window
     hwnd = GetParent(hwnd);
   }
-  SetWindowText(hwnd, title.c_str());
+  SetWindowText(hwnd, std::wstring(title).c_str());
   return RV_CONTINUE;
 }
 
 CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
-    std::wstring& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    std::wstring& mimeType, int loadFlags)
+    CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
+    CefString& mimeType, int loadFlags)
 {
   DWORD dwSize;
   LPBYTE pBytes;
   
-  std::wstring url = request->GetURL();
-  if(url == L"http://tests/request") {
+  std::string url = request->GetURL();
+  if(url == "http://tests/request") {
     // Show the request contents
-    std::wstring dump;
+    std::string dump;
     DumpRequestContents(request, dump);
-    resourceStream = CefStreamReader::CreateForData(
-        (void*)dump.c_str(), dump.size() * sizeof(wchar_t));
-    mimeType = L"text/plain";
-  } else if(url == L"http://tests/uiapp") {
+    resourceStream = CefStreamReader::CreateForData((void*)dump.c_str(),
+        dump.size());
+    mimeType = "text/plain";
+  } else if(url == "http://tests/uiapp") {
     // Show the uiapp contents
     if(LoadBinaryResource(IDS_UIPLUGIN, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = L"text/html";
+      mimeType = "text/html";
     }
-  } else if(url == L"http://tests/localstorage") {
+  } else if(url == "http://tests/localstorage") {
     // Show the localstorage contents
     if(LoadBinaryResource(IDS_LOCALSTORAGE, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = L"text/html";
+      mimeType = "text/html";
     }
-  } else if(wcsstr(url.c_str(), L"/ps_logo2.png") != NULL) {
+  } else if(strstr(url.c_str(), "/ps_logo2.png") != NULL) {
     // Any time we find "ps_logo2.png" in the URL substitute in our own image
     if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = L"image/png";
+      mimeType = "image/png";
     }
-  } else if(wcsstr(url.c_str(), L"/logoball.png") != NULL) {
+  } else if(strstr(url.c_str(), "/logoball.png") != NULL) {
     // Load the "logoball.png" image resource.
     if(LoadBinaryResource(IDS_LOGOBALL, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = L"image/png";
+      mimeType = "image/png";
     }
   }
   return RV_CONTINUE;
@@ -720,7 +726,7 @@ void ClientHandler::SendNotification(NotificationType type)
 
 // Global functions
 
-std::wstring AppGetWorkingDirectory()
+std::string AppGetWorkingDirectory()
 {
 	return szWorkingDir;
 }

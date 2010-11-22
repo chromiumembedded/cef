@@ -17,10 +17,10 @@
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
-    EncodingType encodingType, const std::wstring& URI)
+    EncodingType encodingType, const CefString& URI)
 {
   cef_xml_reader_t* impl = cef_xml_reader_create(
-      CefStreamReaderCToCpp::Unwrap(stream), encodingType, URI.c_str());
+      CefStreamReaderCToCpp::Unwrap(stream), encodingType, URI.GetStruct());
   if(impl)
     return CefXmlReaderCToCpp::Wrap(impl);
   return NULL;
@@ -53,18 +53,14 @@ bool CefXmlReaderCToCpp::HasError()
   return struct_->has_error(struct_) ? true : false;
 }
 
-std::wstring CefXmlReaderCToCpp::GetError()
+CefString CefXmlReaderCToCpp::GetError()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_error))
     return str;
 
-  cef_string_t cef_str = struct_->get_error(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_error(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -84,93 +80,69 @@ int CefXmlReaderCToCpp::GetDepth()
   return struct_->get_depth(struct_);
 }
 
-std::wstring CefXmlReaderCToCpp::GetLocalName()
+CefString CefXmlReaderCToCpp::GetLocalName()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_local_name))
     return str;
 
-  cef_string_t cef_str = struct_->get_local_name(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_local_name(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetPrefix()
+CefString CefXmlReaderCToCpp::GetPrefix()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_prefix))
     return str;
 
-  cef_string_t cef_str = struct_->get_prefix(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_prefix(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetQualifiedName()
+CefString CefXmlReaderCToCpp::GetQualifiedName()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_qualified_name))
     return str;
 
-  cef_string_t cef_str = struct_->get_qualified_name(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_qualified_name(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetNamespaceURI()
+CefString CefXmlReaderCToCpp::GetNamespaceURI()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_namespace_uri))
     return str;
 
-  cef_string_t cef_str = struct_->get_namespace_uri(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_namespace_uri(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetBaseURI()
+CefString CefXmlReaderCToCpp::GetBaseURI()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_base_uri))
     return str;
 
-  cef_string_t cef_str = struct_->get_base_uri(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_base_uri(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetXmlLang()
+CefString CefXmlReaderCToCpp::GetXmlLang()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_xml_lang))
     return str;
 
-  cef_string_t cef_str = struct_->get_xml_lang(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_xml_lang(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -190,18 +162,14 @@ bool CefXmlReaderCToCpp::HasValue()
   return struct_->has_value(struct_) ? true : false;
 }
 
-std::wstring CefXmlReaderCToCpp::GetValue()
+CefString CefXmlReaderCToCpp::GetValue()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_value))
     return str;
 
-  cef_string_t cef_str = struct_->get_value(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_value(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -221,81 +189,61 @@ size_t CefXmlReaderCToCpp::GetAttributeCount()
   return struct_->get_attribute_count(struct_);
 }
 
-std::wstring CefXmlReaderCToCpp::GetAttribute(int index)
+CefString CefXmlReaderCToCpp::GetAttribute(int index)
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_attribute_byindex))
     return str;
 
-  cef_string_t cef_str = struct_->get_attribute_byindex(struct_, index);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_attribute_byindex(struct_, index);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetAttribute(const std::wstring& qualifiedName)
+CefString CefXmlReaderCToCpp::GetAttribute(const CefString& qualifiedName)
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_attribute_byqname))
     return str;
 
-  cef_string_t cef_str = struct_->get_attribute_byqname(struct_,
-      qualifiedName.c_str());
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_attribute_byqname(struct_,
+      qualifiedName.GetStruct());
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetAttribute(const std::wstring& localName,
-    const std::wstring& namespaceURI)
+CefString CefXmlReaderCToCpp::GetAttribute(const CefString& localName,
+    const CefString& namespaceURI)
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_attribute_bylname))
     return str;
 
-  cef_string_t cef_str = struct_->get_attribute_bylname(struct_,
-      localName.c_str(), namespaceURI.c_str());
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_attribute_bylname(struct_,
+      localName.GetStruct(), namespaceURI.GetStruct());
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetInnerXml()
+CefString CefXmlReaderCToCpp::GetInnerXml()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_inner_xml))
     return str;
 
-  cef_string_t cef_str = struct_->get_inner_xml(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_inner_xml(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefXmlReaderCToCpp::GetOuterXml()
+CefString CefXmlReaderCToCpp::GetOuterXml()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_outer_xml))
     return str;
 
-  cef_string_t cef_str = struct_->get_outer_xml(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_outer_xml(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -315,23 +263,23 @@ bool CefXmlReaderCToCpp::MoveToAttribute(int index)
   return struct_->move_to_attribute_byindex(struct_, index) ? true : false;
 }
 
-bool CefXmlReaderCToCpp::MoveToAttribute(const std::wstring& qualifiedName)
+bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& qualifiedName)
 {
   if(CEF_MEMBER_MISSING(struct_, move_to_attribute_byqname))
     return false;
 
-  return struct_->move_to_attribute_byqname(struct_, qualifiedName.c_str()) ?
+  return struct_->move_to_attribute_byqname(struct_, qualifiedName.GetStruct())?
       true : false;
 }
 
-bool CefXmlReaderCToCpp::MoveToAttribute(const std::wstring& localName,
-    const std::wstring& namespaceURI)
+bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& localName,
+    const CefString& namespaceURI)
 {
   if(CEF_MEMBER_MISSING(struct_, move_to_attribute_bylname))
     return false;
 
-  return struct_->move_to_attribute_bylname(struct_, localName.c_str(),
-      namespaceURI.c_str()) ? true : false;
+  return struct_->move_to_attribute_bylname(struct_, localName.GetStruct(),
+      namespaceURI.GetStruct()) ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToFirstAttribute()

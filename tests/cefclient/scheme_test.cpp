@@ -28,13 +28,13 @@ public:
   // specified number of bytes have been read. If there is a response set
   // |mime_type| to the mime type for the response.
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              std::wstring& mime_type, int* response_length)
+                              CefString& mime_type, int* response_length)
   {
     bool handled = false;
 
     Lock();
-    std::wstring url = request->GetURL();
-    if(wcsstr(url.c_str(), L"handler.html") != NULL) {
+    std::string url = request->GetURL();
+    if(strstr(url.c_str(), "handler.html") != NULL) {
       // Build the response html
       html_ = "<html><head><title>Client Scheme Handler</title></head><body>"
               "This contents of this page page are served by the "
@@ -48,9 +48,9 @@ public:
       html_.append("<pre>");
       
       // Output a string representation of the request
-      std::wstring dump;
+      std::string dump;
       DumpRequestContents(request, dump);
-      html_.append(WStringToString(dump));
+      html_.append(dump);
 
       html_.append("</pre><br/>Try the test form:"
                    "<form method=\"POST\" action=\"handler.html\">"
@@ -64,10 +64,10 @@ public:
       bytes_ = html_.c_str();
 
       // Set the resulting mime type
-      mime_type = L"text/html";
+      mime_type = "text/html";
     }
 #ifdef _WIN32
-    else if(wcsstr(url.c_str(), L"client.gif") != NULL) {
+    else if(strstr(url.c_str(), "client.gif") != NULL) {
       // Load the response image
       DWORD dwSize;
       LPBYTE pBytes;
@@ -76,7 +76,7 @@ public:
         bytes_ = reinterpret_cast<const char*>(pBytes);
         handled = true;
         // Set the resulting mime type
-        mime_type = L"image/jpg";
+        mime_type = "image/jpg";
       }
     }
 #endif // _WIN32
@@ -140,10 +140,10 @@ public:
 
 void InitSchemeTest()
 {
-  CefRegisterScheme(L"client", L"tests", new ClientSchemeHandlerFactory());
+  CefRegisterScheme("client", "tests", new ClientSchemeHandlerFactory());
 }
 
 void RunSchemeTest(CefRefPtr<CefBrowser> browser)
 {
-  browser->GetMainFrame()->LoadURL(L"client://tests/handler.html");
+  browser->GetMainFrame()->LoadURL("client://tests/handler.html");
 }

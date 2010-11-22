@@ -64,18 +64,18 @@ class CefXmlObject : public CefThreadSafeBase<CefBase>
 {
 public:
   typedef std::vector<CefRefPtr<CefXmlObject> > ObjectVector;
-  typedef std::map<std::wstring, std::wstring > AttributeMap;
+  typedef std::map<CefString, CefString > AttributeMap;
 
   // Create a new object with the specified name. An object name must always be
   // at least one character long.
-  CefXmlObject(const std::wstring& name);
+  CefXmlObject(const CefString& name);
   virtual ~CefXmlObject();
 
   // Load the contents of the specified XML stream into this object.  The
   // existing children and attributes, if any, will first be cleared.
   bool Load(CefRefPtr<CefStreamReader> stream,
             CefXmlReader::EncodingType encodingType,
-            const std::wstring& URI, std::wstring* loadError);
+            const CefString& URI, CefString* loadError);
 
   // Set the name, children and attributes of this object to a duplicate of the
   // specified object's contents. The existing children and attributes, if any,
@@ -98,8 +98,8 @@ public:
 
   // Access the object's name. An object name must always be at least one
   // character long.
-  std::wstring GetName();
-  bool SetName(const std::wstring& name);
+  CefString GetName();
+  bool SetName(const CefString& name);
 
   // Access the object's parent. The parent can be NULL if this object has not
   // been added as the child on another object.
@@ -109,15 +109,15 @@ public:
   // Access the object's value. An object cannot have a value if it also has
   // children. Attempting to set the value while children exist will fail.
   bool HasValue();
-  std::wstring GetValue();
-  bool SetValue(const std::wstring& value);
+  CefString GetValue();
+  bool SetValue(const CefString& value);
 
   // Access the object's attributes. Attributes must have unique names.
   bool HasAttributes();
   size_t GetAttributeCount();
-  bool HasAttribute(const std::wstring& name);
-  std::wstring GetAttributeValue(const std::wstring& name);
-  bool SetAttributeValue(const std::wstring& name, const std::wstring& value);
+  bool HasAttribute(const CefString& name);
+  CefString GetAttributeValue(const CefString& name);
+  bool SetAttributeValue(const CefString& name, const CefString& value);
   size_t GetAttributes(AttributeMap& attributes);
   void ClearAttributes();
 
@@ -135,17 +135,17 @@ public:
   void ClearChildren();
 
   // Find the first child with the specified name.
-  CefRefPtr<CefXmlObject> FindChild(const std::wstring& name);
+  CefRefPtr<CefXmlObject> FindChild(const CefString& name);
 
   // Find all children with the specified name.
-  size_t FindChildren(const std::wstring& name, ObjectVector& children);
+  size_t FindChildren(const CefString& name, ObjectVector& children);
 
 private:
   void SetParent(CefXmlObject* parent);
 
-  std::wstring name_;
+  CefString name_;
   CefXmlObject* parent_;
-  std::wstring value_;
+  CefString value_;
   AttributeMap attributes_;
   ObjectVector children_;
 };
@@ -209,7 +209,7 @@ public:
     // Returns a CefStreamReader object for streaming the contents of the file.
     virtual CefRefPtr<CefStreamReader> GetStreamReader() =0;
   };
-  typedef std::map<std::wstring, CefRefPtr<File> > FileMap;
+  typedef std::map<CefString, CefRefPtr<File> > FileMap;
 
   // Create a new object.
   CefZipArchive();
@@ -228,13 +228,13 @@ public:
   size_t GetFileCount();
 
   // Returns true if the specified file exists and has contents.
-  bool HasFile(const std::wstring& fileName);
+  bool HasFile(const CefString& fileName);
 
   // Returns the specified file.
-  CefRefPtr<File> GetFile(const std::wstring& fileName);
+  CefRefPtr<File> GetFile(const CefString& fileName);
 
   // Removes the specified file.
-  bool RemoveFile(const std::wstring& fileName);
+  bool RemoveFile(const CefString& fileName);
 
   // Returns the map of all files.
   size_t GetFiles(FileMap& map);

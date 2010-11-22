@@ -176,7 +176,7 @@ PrintingContext::Result PrintingContext::Init() {
   TCHAR printername[512];
   DWORD size = sizeof(printername)-1;
   if(GetDefaultPrinter(printername, &size)) {
-    return Init(std::wstring(printername), false);
+    return Init(CefString(printername), false);
   }
   return FAILED;
 }
@@ -186,13 +186,14 @@ PrintingContext::Result PrintingContext::InitWithSettings(
   DCHECK(!in_print_job_);
   settings_ = settings;
 
-  return Init(settings_.device_name().c_str(), true);
+  return Init(settings_.device_name(), true);
 }
 
-PrintingContext::Result PrintingContext::Init(const std::wstring& device_name, 
+PrintingContext::Result PrintingContext::Init(const CefString& device_name, 
                                               bool adjust_dev_mode) {
   HANDLE printer;
-  if (!OpenPrinter(const_cast<wchar_t*>(device_name.c_str()),
+  std::wstring deviceNameStr = device_name;
+  if (!OpenPrinter(const_cast<wchar_t*>(deviceNameStr.c_str()),
                    &printer,
                    NULL))
     return FAILED;
@@ -224,7 +225,7 @@ void PrintingContext::ResetSettings() {
 }
 
 PrintingContext::Result PrintingContext::NewDocument(
-    const std::wstring& document_name) {
+    const CefString& document_name) {
   DCHECK(!in_print_job_);
   if (!hdc_)
     return OnError();
@@ -239,7 +240,8 @@ PrintingContext::Result PrintingContext::NewDocument(
     return OnError();
 
   DOCINFO di = { sizeof(DOCINFO) };
-  di.lpszDocName = document_name.c_str();
+  std::wstring documentNameStr = document_name;
+  di.lpszDocName = documentNameStr.c_str();
 
   wchar_t szFileName[MAX_PATH] = L"";
   if (settings_.to_file) {
@@ -343,7 +345,7 @@ BOOL PrintingContext::AbortProc(HDC hdc, int nCode) {
 }
 
 bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
-                                         const std::wstring& new_device_name,
+                                         const CefString& new_device_name,
                                          const PRINTPAGERANGE* ranges,
                                          int number_ranges,
                                          bool selection_only,
@@ -389,7 +391,7 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
 }
 
 bool PrintingContext::GetPrinterSettings(HANDLE printer,
-                                         const std::wstring& device_name,
+                                         const CefString& device_name,
                                          bool adjust_dev_mode) {
   DCHECK(!in_print_job_);
   scoped_array<uint8> buffer;
@@ -451,9 +453,10 @@ bool PrintingContext::GetPrinterSettings(HANDLE printer,
   return false;
 }
 
-bool PrintingContext::AllocateContext(const std::wstring& printer_name,
+bool PrintingContext::AllocateContext(const CefString& printer_name,
                                       const DEVMODE* dev_mode) {
-  hdc_ = CreateDC(L"WINSPOOL", printer_name.c_str(), NULL, dev_mode);
+  std::wstring printerNameStr = printer_name;
+  hdc_ = CreateDC(L"WINSPOOL", printerNameStr.c_str(), NULL, dev_mode);
   DCHECK(hdc_);
   return hdc_ != NULL;
 }

@@ -40,19 +40,19 @@ public:
   virtual void SelectAll();
   virtual void Print();
   virtual void ViewSource();
-  virtual std::wstring GetSource();
-  virtual std::wstring GetText();
+  virtual CefString GetSource();
+  virtual CefString GetText();
   virtual void LoadRequest(CefRefPtr<CefRequest> request);
-  virtual void LoadURL(const std::wstring& url);
-  virtual void LoadString(const std::wstring& string, const std::wstring& url);
+  virtual void LoadURL(const CefString& url);
+  virtual void LoadString(const CefString& string, const CefString& url);
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-      const std::wstring& url);
-  virtual void ExecuteJavaScript(const std::wstring& jsCode,
-      const std::wstring& scriptUrl, int startLine);
+      const CefString& url);
+  virtual void ExecuteJavaScript(const CefString& jsCode,
+      const CefString& scriptUrl, int startLine);
   virtual bool IsMain();
   virtual bool IsFocused();
-  virtual std::wstring GetName();
-  virtual std::wstring GetURL();
+  virtual CefString GetName();
+  virtual CefString GetURL();
 };
 
 #endif // USING_CEF_SHARED

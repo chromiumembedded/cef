@@ -78,8 +78,8 @@ CEF_EXPORT void cef_do_message_loop_work()
   CefDoMessageLoopWork();
 }
 
-CEF_EXPORT int cef_register_extension(const wchar_t* extension_name,
-                                      const wchar_t* javascript_code,
+CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
+                                      const cef_string_t* javascript_code,
                                       struct _cef_v8handler_t* handler)
 {
   DCHECK(extension_name);
@@ -90,36 +90,45 @@ CEF_EXPORT int cef_register_extension(const wchar_t* extension_name,
   
   if(handler)
     handlerPtr = CefV8HandlerCToCpp::Wrap(handler);
-  if(extension_name)
-    nameStr = extension_name;
-  if(javascript_code)
-    codeStr = javascript_code;
   
-  return CefRegisterExtension(nameStr, codeStr, handlerPtr);
+  return CefRegisterExtension(CefString(extension_name),
+      CefString(javascript_code), handlerPtr);
 }
 
 CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
 {
   CefPluginInfo pluginInfo;
 
-  pluginInfo.unique_name = plugin_info->unique_name;
-  pluginInfo.display_name = plugin_info->display_name;
-  pluginInfo.version = plugin_info->version;
-  pluginInfo.description = plugin_info->description;
+  pluginInfo.unique_name.FromString(plugin_info->unique_name.str,
+      plugin_info->unique_name.length, true);
+  pluginInfo.display_name.FromString(plugin_info->display_name.str,
+      plugin_info->display_name.length, true);
+  pluginInfo.version.FromString(plugin_info->version.str,
+      plugin_info->version.length, true);
+  pluginInfo.description.FromString(plugin_info->description.str,
+      plugin_info->description.length, true);
 
-  std::vector<std::wstring> mime_types, file_extensions;
-  std::vector<std::wstring> descriptions;
-  base::SplitString(plugin_info->mime_types, '|', &mime_types);
-  base::SplitString(plugin_info->file_extensions, '|', &file_extensions);
-  base::SplitString(plugin_info->type_descriptions, '|', &descriptions);
+  typedef std::vector<std::string> VectorType;
+  VectorType mime_types, file_extensions, descriptions, file_extensions_parts;
+  base::SplitString(CefString(&plugin_info->mime_types), '|',
+      &mime_types);
+  base::SplitString(CefString(&plugin_info->file_extensions), '|',
+      &file_extensions);
+  base::SplitString(CefString(&plugin_info->type_descriptions), '|',
+      &descriptions);
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
     CefPluginMimeType mimeType;
     
     mimeType.mime_type = mime_types[i];
     
-    if (file_extensions.size() > i)
-      base::SplitString(file_extensions[i], ',', &mimeType.file_extensions);
+    if (file_extensions.size() > i) {
+      base::SplitString(file_extensions[i], ',', &file_extensions_parts);
+      VectorType::const_iterator it = file_extensions_parts.begin();
+      for(; it != file_extensions_parts.end(); ++it)
+        mimeType.file_extensions.push_back(*(it));
+      file_extensions_parts.clear();
+    }
 
     if (descriptions.size() > i)
       mimeType.description = descriptions[i];
@@ -134,22 +143,16 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
   return CefRegisterPlugin(pluginInfo);
 }
 
-CEF_EXPORT int cef_register_scheme(const wchar_t* scheme_name,
-    const wchar_t* host_name, struct _cef_scheme_handler_factory_t* factory)
+CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,
+    const cef_string_t* host_name,
+    struct _cef_scheme_handler_factory_t* factory)
 {
   DCHECK(scheme_name);
   DCHECK(factory);
   if(!scheme_name || !factory)
     return 0;
 
-  std::wstring nameStr, codeStr;
-
-  if(scheme_name)
-    nameStr = scheme_name;
-  if(host_name)
-    codeStr = host_name;
-
-  return CefRegisterScheme(nameStr, codeStr,
+  return CefRegisterScheme(CefString(scheme_name), CefString(host_name),
       CefSchemeHandlerFactoryCToCpp::Wrap(factory));
 }
 

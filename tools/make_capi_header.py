@@ -12,7 +12,7 @@ def make_capi_global_funcs(funcs, defined_names, translate_map, indent):
         if first or len(comment) > 0:
             result += '\n'+format_comment(comment, indent, translate_map);
         if func.get_retval().get_type().is_result_string():
-            result += indent+'// The resulting string must be freed by calling cef_string_free().\n'
+            result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
         result += wrap_code(indent+'CEF_EXPORT '+
                             func.get_capi_proto(defined_names)+';')
         if first:
@@ -27,7 +27,7 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
         if first or len(comment) > 0:
             result += '\n'+format_comment(comment, indent, translate_map)
         if func.get_retval().get_type().is_result_string():
-            result += indent+'// The resulting string must be freed by calling cef_string_free().\n'
+            result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
         parts = func.get_capi_parts()
         result += wrap_code(indent+parts['retval']+' (CEF_CALLBACK *'+
                             parts['name']+')('+

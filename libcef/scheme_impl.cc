@@ -6,7 +6,6 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/utf_string_conversions.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
@@ -187,13 +186,13 @@ private:
       static_cast<CefRequestImpl*>(req.get())->Set(owner_->request());
 
       owner_->handler_->Cancel();
-      std::wstring mime_type;
+      CefString mime_type;
       int response_length = 0;
       // handler should complete content generation in ProcessRequest
       bool res = owner_->handler_->ProcessRequest(req, mime_type,
           &response_length);
       if (res) {
-        owner_->mime_type_ = WideToUTF8(mime_type);
+        owner_->mime_type_ = mime_type;
         owner_->response_length_ = response_length;
       }
       //////////////////////////////////////////////////////////////////////////
@@ -390,8 +389,8 @@ private:
   std::string host_name_;
 };
 
-bool CefRegisterScheme(const std::wstring& scheme_name,
-                       const std::wstring& host_name,
+bool CefRegisterScheme(const CefString& scheme_name,
+                       const CefString& host_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
   // Verify that the context is already initialized
@@ -403,8 +402,7 @@ bool CefRegisterScheme(const std::wstring& scheme_name,
   // will call AddRef() and Release() on the object in debug mode, resulting in
   // the object being deleted if it doesn't already have a reference.
   CefRefPtr<SchemeRequestJobWrapper> wrapper(
-      new SchemeRequestJobWrapper(WideToUTF8(scheme_name),
-          WideToUTF8(host_name), factory));
+      new SchemeRequestJobWrapper(scheme_name, host_name, factory));
 
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper.get(),
       &SchemeRequestJobWrapper::RegisterScheme));

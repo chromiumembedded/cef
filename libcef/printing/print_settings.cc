@@ -75,11 +75,11 @@ void PrintSettings::ResetRequestedPageMargins() {
 void PrintSettings::Init(HDC hdc,
                          const DEVMODE& dev_mode,
                          const PageRanges& new_ranges,
-                         const std::wstring& new_device_name,
+                         const CefString& new_device_name,
                          bool print_selection_only,
                          bool print_to_file) {
   DCHECK(hdc);
-  printer_name_ = dev_mode.dmDeviceName;
+  printer_name_ = std::wstring(dev_mode.dmDeviceName);
   device_name_ = new_device_name;
   ranges = new_ranges;
   landscape = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;

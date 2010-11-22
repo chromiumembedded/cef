@@ -47,17 +47,13 @@ int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self)
 }
 
 int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
-    const wchar_t* fileName, int caseSensitive)
+    const cef_string_t* fileName, int caseSensitive)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring fileNameStr;
-  if (fileName)
-    fileNameStr = fileName;
-
-  return CefZipReaderCppToC::Get(self)->MoveToFile(fileNameStr,
+  return CefZipReaderCppToC::Get(self)->MoveToFile(CefString(fileName),
       caseSensitive ? true : false);
 }
 
@@ -70,16 +66,16 @@ int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self)
   return CefZipReaderCppToC::Get(self)->Close();
 }
 
-cef_string_t CEF_CALLBACK zip_reader_get_file_name(
+cef_string_userfree_t CEF_CALLBACK zip_reader_get_file_name(
     struct _cef_zip_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefZipReaderCppToC::Get(self)->GetFileName();
+  CefString retStr = CefZipReaderCppToC::Get(self)->GetFileName();
   if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
+    return retStr.DetachToUserFree();
   return NULL;
 }
 
@@ -103,17 +99,13 @@ time_t CEF_CALLBACK zip_reader_get_file_last_modified(
 }
 
 int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
-    const wchar_t* password)
+    const cef_string_t* password)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring passwordStr;
-  if (password)
-    passwordStr = password;
-
-  return CefZipReaderCppToC::Get(self)->OpenFile(passwordStr);
+  return CefZipReaderCppToC::Get(self)->OpenFile(CefString(password));
 }
 
 int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self)

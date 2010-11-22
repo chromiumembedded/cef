@@ -20,7 +20,6 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/utf_string_conversions.h"
 #include "gfx/gdi_util.h"
 #include "gfx/native_widget_types.h"
 #include "gfx/point.h"
@@ -205,7 +204,7 @@ static void AddMenuItem(CefRefPtr<CefBrowser> browser, HMENU menu, int index,
                         CefHandler::MenuId id, const wchar_t* label,
                         bool enabled, std::list<std::wstring>& label_list)
 {
-  std::wstring actual_label = label;
+  CefString actual_label(label);
   CefRefPtr<CefHandler> handler = browser->GetHandler();
   if(handler.get()) {
     // Let the handler change the label if desired
@@ -284,28 +283,30 @@ void BrowserWebViewDelegate::showContextMenu(
   if(handler.get()) {
     // Gather menu information
     CefHandler::MenuInfo menuInfo;
-    std::wstring linkStr, imageStr, pageStr, frameStr;
-    std::wstring selectedTextStr, misspelledWordStr, securityInfoStr;
-
-    linkStr = UTF16ToWideHack(data.linkURL.spec().utf16());
-    imageStr = UTF16ToWideHack(data.srcURL.spec().utf16());
-    pageStr = UTF16ToWideHack(data.pageURL.spec().utf16());
-    frameStr = UTF16ToWideHack(data.frameURL.spec().utf16());
-    selectedTextStr = UTF16ToWideHack(data.selectedText);
-    misspelledWordStr = UTF16ToWideHack(data.misspelledWord);
-    securityInfoStr = UTF16ToWideHack(data.securityInfo.utf16());
+    CefString linkStr(std::string(data.linkURL.spec()));
+    CefString imageStr(std::string(data.srcURL.spec()));
+    CefString pageStr(std::string(data.pageURL.spec()));
+    CefString frameStr(std::string(data.frameURL.spec()));
+    CefString selectedTextStr(string16(data.selectedText));
+    CefString misspelledWordStr(string16(data.misspelledWord));
+    CefString securityInfoStr(std::string(data.securityInfo));
     
     menuInfo.typeFlags = type_flags;
     menuInfo.x = screen_pt.x;
     menuInfo.y = screen_pt.y;
-    menuInfo.linkUrl = linkStr.c_str();
-    menuInfo.imageUrl = imageStr.c_str();
-    menuInfo.pageUrl = pageStr.c_str();
-    menuInfo.frameUrl = frameStr.c_str();
-    menuInfo.selectionText = selectedTextStr.c_str();
-    menuInfo.misspelledWord = misspelledWordStr.c_str();
+    cef_string_set(linkStr.c_str(), linkStr.length(), &menuInfo.linkUrl, false);
+    cef_string_set(imageStr.c_str(), imageStr.length(), &menuInfo.imageUrl,
+        false);
+    cef_string_set(pageStr.c_str(), pageStr.length(), &menuInfo.pageUrl, false);
+    cef_string_set(frameStr.c_str(), frameStr.length(), &menuInfo.frameUrl,
+        false);
+    cef_string_set(selectedTextStr.c_str(), selectedTextStr.length(),
+        &menuInfo.selectionText, false);
+    cef_string_set(misspelledWordStr.c_str(), misspelledWordStr.length(),
+        &menuInfo.misspelledWord, false);
     menuInfo.editFlags = edit_flags;
-    menuInfo.securityInfo = securityInfoStr.c_str();
+    cef_string_set(securityInfoStr.c_str(), securityInfoStr.length(),
+        &menuInfo.securityInfo, false);
    
     // Notify the handler that a context menu is requested
     CefHandler::RetVal rv = handler->HandleBeforeMenu(browser_, menuInfo);
@@ -383,27 +384,30 @@ end:
 // Private methods ------------------------------------------------------------
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
-                                                 const std::wstring& message)
+                                                 const CefString& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
-  MessageBox(browser_->GetMainWndHandle(), message.c_str(),
-             browser_->UIT_GetTitle().c_str(), MB_OK | MB_ICONWARNING);
+  std::wstring messageStr = message;
+  std::wstring titleStr = browser_->UIT_GetTitle();
+  MessageBox(browser_->GetMainWndHandle(), messageStr.c_str(), titleStr.c_str(),
+      MB_OK | MB_ICONWARNING);
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
-                                                   const std::wstring& message)
+                                                   const CefString& message)
 {
   // TODO(cef): Think about what we should be showing as the prompt caption
-  int rv = MessageBox(browser_->GetMainWndHandle(), message.c_str(),
-                      browser_->UIT_GetTitle().c_str(),
-                      MB_YESNO | MB_ICONQUESTION);
+  std::wstring messageStr = message;
+  std::wstring titleStr = browser_->UIT_GetTitle();
+  int rv = MessageBox(browser_->GetMainWndHandle(), messageStr.c_str(),
+      titleStr.c_str(), MB_YESNO | MB_ICONQUESTION);
   return (rv == IDYES);
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
-                                                  const std::wstring& message,
-                                                  const std::wstring& default_value,
-                                                  std::wstring* result)
+                                                  const CefString& message,
+                                                 const CefString& default_value,
+                                                  CefString* result)
 {
   // TODO(cef): Implement a default prompt dialog
   return false;
@@ -414,10 +418,7 @@ namespace
 
 // from chrome/browser/views/shell_dialogs_win.cc
 
-bool RunOpenFileDialog(
-    const std::wstring& filter,
-    HWND owner,
-    FilePath* path)
+bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path)
 {
   OPENFILENAME ofn;
 
@@ -446,10 +447,8 @@ bool RunOpenFileDialog(
   return success;
 }
 
-bool RunOpenMultiFileDialog(
-    const std::wstring& filter,
-    HWND owner,
-    std::vector<FilePath>* paths)
+bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
+                            std::vector<FilePath>* paths)
 {
   OPENFILENAME ofn;
 
@@ -509,12 +508,10 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
 {
   bool result = false;
   
-  if (multi_select)
-  {
-    result = RunOpenMultiFileDialog(L"", browser_->GetMainWndHandle(), &file_names);
-  }
-  else
-  {
+  if (multi_select) {
+    result = RunOpenMultiFileDialog(L"", browser_->GetMainWndHandle(),
+        &file_names);
+  } else {
     FilePath file_name;
     result = RunOpenFileDialog(L"", browser_->GetMainWndHandle(), &file_name);
     if (result)

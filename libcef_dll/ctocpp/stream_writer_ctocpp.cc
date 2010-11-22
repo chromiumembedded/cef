@@ -17,14 +17,14 @@
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   DCHECK(!fileName.empty());
   if(fileName.empty())
     return NULL;
 
   cef_stream_writer_t* impl =
-      cef_stream_writer_create_for_file(fileName.c_str());
+      cef_stream_writer_create_for_file(fileName.GetStruct());
   if(impl)
     return CefStreamWriterCToCpp::Wrap(impl);
   return NULL;

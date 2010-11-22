@@ -137,8 +137,8 @@ void CefDoMessageLoopWork();
 //   example.test.increment();
 //
 /*--cef()--*/
-bool CefRegisterExtension(const std::wstring& extension_name,
-                          const std::wstring& javascript_code,
+bool CefRegisterExtension(const CefString& extension_name,
+                          const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler);
 
 
@@ -147,8 +147,8 @@ bool CefRegisterExtension(const std::wstring& extension_name,
 // by CefSchemeHandler instances returned by the factory. Specify an empty
 // |host_name| value to match all host names.
 /*--cef()--*/
-bool CefRegisterScheme(const std::wstring& scheme_name,
-                       const std::wstring& host_name,
+bool CefRegisterScheme(const CefString& scheme_name,
+                       const CefString& host_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory);
 
 
@@ -215,9 +215,9 @@ public:
 //
 // class MyHandler : public CefThreadSafeBase<CefHandler>
 // {
-//    std::wstring m_title;
+//    CefString m_title;
 //
-//    virtual RetVal HandleTitleChange(const std::wstring& title)
+//    virtual RetVal HandleTitleChange(const CefString& title)
 //    {
 //       Lock();   // Begin protecting code
 //       m_title = title;
@@ -354,7 +354,7 @@ public:
   /*--cef()--*/
   static bool CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                             CefRefPtr<CefHandler> handler,
-                            const std::wstring& url);
+                            const CefString& url);
 
   // Create a new browser window using the window parameters specified
   // by |windowInfo|. The |popup| parameter should be true if the new window is
@@ -364,7 +364,7 @@ public:
   static CefRefPtr<CefBrowser> CreateBrowserSync(CefWindowInfo& windowInfo,
                                                  bool popup,
                                                  CefRefPtr<CefHandler> handler,
-                                                 const std::wstring& url);
+                                                 const CefString& url);
 
   // Returns true if the browser can navigate backwards.
   /*--cef()--*/
@@ -415,11 +415,11 @@ public:
 
   // Returns the frame with the specified name, or NULL if not found.
   /*--cef()--*/
-  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name) =0;
+  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) =0;
 
   // Returns the names of all existing frames.
   /*--cef()--*/
-  virtual void GetFrameNames(std::vector<std::wstring>& names) =0;
+  virtual void GetFrameNames(std::vector<CefString>& names) =0;
 
   // Search for |searchText|. |identifier| can be used to have multiple searches
   // running simultaniously. |forward| indicates whether to search forward or
@@ -427,7 +427,7 @@ public:
   // be case-sensitive. |findNext| indicates whether this is the first request
   // or a follow-up.
   /*--cef()--*/
-  virtual void Find(int identifier, const std::wstring& searchText,
+  virtual void Find(int identifier, const CefString& searchText,
                     bool forward, bool matchCase, bool findNext) =0;
 
   // Cancel all searches that are currently going on.
@@ -476,11 +476,11 @@ public:
 
   // Returns this frame's HTML source as a string.
   /*--cef()--*/
-  virtual std::wstring GetSource() =0;
+  virtual CefString GetSource() =0;
 
   // Returns this frame's display text as a string.
   /*--cef()--*/
-  virtual std::wstring GetText() =0;
+  virtual CefString GetText() =0;
 
   // Load the request represented by the |request| object.
   /*--cef()--*/
@@ -488,17 +488,17 @@ public:
 
   // Load the specified |url|.
   /*--cef()--*/
-  virtual void LoadURL(const std::wstring& url) =0;
+  virtual void LoadURL(const CefString& url) =0;
   
   // Load the contents of |string| with the optional dummy target |url|.
   /*--cef()--*/
-  virtual void LoadString(const std::wstring& string,
-                          const std::wstring& url) =0;
+  virtual void LoadString(const CefString& string,
+                          const CefString& url) =0;
 
   // Load the contents of |stream| with the optional dummy target |url|.
   /*--cef()--*/
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url) =0;
+                          const CefString& url) =0;
 
   // Execute a string of JavaScript code in this frame. The |script_url|
   // parameter is the URL where the script in question can be found, if any.
@@ -506,8 +506,8 @@ public:
   // error.  The |start_line| parameter is the base line number to use for error
   // reporting.
   /*--cef()--*/
-  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
-                                 const std::wstring& scriptUrl,
+  virtual void ExecuteJavaScript(const CefString& jsCode, 
+                                 const CefString& scriptUrl,
                                  int startLine) =0;
 
   // Returns true if this is the main frame.
@@ -520,11 +520,11 @@ public:
 
   // Returns this frame's name.
   /*--cef()--*/
-  virtual std::wstring GetName() =0;
+  virtual CefString GetName() =0;
 
   // Return the URL currently loaded in this frame.
   /*--cef()--*/
-  virtual std::wstring GetURL() =0;
+  virtual CefString GetURL() =0;
 };
 
 
@@ -557,7 +557,7 @@ public:
                                      CefWindowInfo& windowInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     std::wstring& url,
+                                     CefString& url,
                                      CefBrowserSettings& settings) =0;
 
   // Event called after a new window is created. The return value is currently
@@ -570,13 +570,13 @@ public:
   /*--cef()--*/
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
-                                     const std::wstring& url) =0;
+                                     const CefString& url) =0;
 
   // Event called when the page title changes. The return value is currently
   // ignored.
   /*--cef()--*/
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
-                                   const std::wstring& title) =0;
+                                   const CefString& title) =0;
 
   // Various browser navigation types supported by chrome.
   typedef cef_handler_navtype_t NavType;
@@ -618,8 +618,8 @@ public:
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
-                                 const std::wstring& failedUrl,
-                                 std::wstring& errorText) =0;
+                                 const CefString& failedUrl,
+                                 CefString& errorText) =0;
 
   // Event called before a resource is loaded.  To allow the resource to load
   // normally return RV_CONTINUE. To redirect the resource to a new url
@@ -631,11 +631,11 @@ public:
   // |redirectUrl| is also set, the URL in |request| will be used.
   /*--cef()--*/
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                          CefRefPtr<CefRequest> request,
-                                          std::wstring& redirectUrl,
-                                          CefRefPtr<CefStreamReader>& resourceStream,
-                                          std::wstring& mimeType,
-                                          int loadFlags) =0;
+                                     CefRefPtr<CefRequest> request,
+                                     CefString& redirectUrl,
+                                     CefRefPtr<CefStreamReader>& resourceStream,
+                                     CefString& mimeType,
+                                     int loadFlags) =0;
 
   // Called when a server indicates via the 'Content-Disposition' header that a
   // response represents a file to download. |mimeType| is the mime type for
@@ -646,8 +646,8 @@ public:
   // or RV_HANDLED to cancel the file download.
   /*--cef()--*/
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
-                                    const std::wstring& mimeType,
-                                    const std::wstring& fileName,
+                                    const CefString& mimeType,
+                                    const CefString& fileName,
                                     int64 contentLength,
                                     CefRefPtr<CefDownloadHandler>& handler) =0;
 
@@ -668,7 +668,7 @@ public:
   // alternate text.  The return value is currently ignored.
   /*--cef()--*/
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,
-                                    MenuId menuId, std::wstring& label) =0;
+                                    MenuId menuId, CefString& label) =0;
 
   // Event called when an option is selected from the default context menu.
   // Return RV_HANDLED to cancel default handling of the action.
@@ -703,22 +703,22 @@ public:
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
-                                         const std::wstring& url,
-                                         const std::wstring& title,
+                                         const CefString& url,
+                                         const CefString& title,
                                          int currentPage, int maxPages,
-                                         std::wstring& topLeft,
-                                         std::wstring& topCenter,
-                                         std::wstring& topRight,
-                                         std::wstring& bottomLeft,
-                                         std::wstring& bottomCenter,
-                                         std::wstring& bottomRight) =0;
+                                         CefString& topLeft,
+                                         CefString& topCenter,
+                                         CefString& topRight,
+                                         CefString& bottomLeft,
+                                         CefString& bottomCenter,
+                                         CefString& bottomRight) =0;
 
   // Run a JS alert message.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.
   /*--cef()--*/
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               const std::wstring& message) =0;
+                               const CefString& message) =0;
 
   // Run a JS confirm request.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.  If you handled the alert
@@ -726,7 +726,7 @@ public:
   /*--cef()--*/
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
-                                 const std::wstring& message, bool& retval) =0;
+                                 const CefString& message, bool& retval) =0;
 
   // Run a JS prompt request.  Return RV_CONTINUE to display the default prompt
   // or RV_HANDLED if you displayed a custom prompt.  If you handled the prompt
@@ -735,10 +735,10 @@ public:
   /*--cef()--*/
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                const std::wstring& message,
-                                const std::wstring& defaultValue,
+                                const CefString& message,
+                                const CefString& defaultValue,
                                 bool& retval,
-                                std::wstring& result) =0;
+                                CefString& result) =0;
 
   // Event called for adding values to a frame's JavaScript 'window' object. The
   // return value is currently ignored.
@@ -792,14 +792,14 @@ public:
   // the browser to display the tooltip.
   /*--cef()--*/
   virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
-                               std::wstring& text) =0;
+                               CefString& text) =0;
 
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.
   /*--cef()--*/
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
-                                      const std::wstring& message,
-                                      const std::wstring& source, int line) =0;
+                                      const CefString& message,
+                                      const CefString& source, int line) =0;
 
   // Called to report find results returned by CefBrowser::Find(). |identifer|
   // is the identifier passed to CefBrowser::Find(), |count| is the number of
@@ -820,7 +820,7 @@ public:
 class CefRequest : public CefBase
 {
 public:
-  typedef std::map<std::wstring,std::wstring> HeaderMap;
+  typedef std::map<CefString,CefString> HeaderMap;
 
   // Create a new CefRequest object.
   /*--cef()--*/
@@ -828,16 +828,16 @@ public:
 
   // Fully qualified URL to load.
   /*--cef()--*/
-  virtual std::wstring GetURL() =0;
+  virtual CefString GetURL() =0;
   /*--cef()--*/
-  virtual void SetURL(const std::wstring& url) =0;
+  virtual void SetURL(const CefString& url) =0;
 
   // Optional request method type, defaulting to POST if post data is provided
   // and GET otherwise.
   /*--cef()--*/
-  virtual std::wstring GetMethod() =0;
+  virtual CefString GetMethod() =0;
   /*--cef()--*/
-  virtual void SetMethod(const std::wstring& method) =0;
+  virtual void SetMethod(const CefString& method) =0;
 
   // Optional post data.
   /*--cef()--*/
@@ -853,8 +853,8 @@ public:
 
   // Set all values at one time.
   /*--cef()--*/
-  virtual void Set(const std::wstring& url,
-                   const std::wstring& method,
+  virtual void Set(const CefString& url,
+                   const CefString& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap) =0;
 };
@@ -912,7 +912,7 @@ public:
 
   // The post data element will represent a file.
   /*--cef()--*/
-  virtual void SetToFile(const std::wstring& fileName) =0;
+  virtual void SetToFile(const CefString& fileName) =0;
 
   // The post data element will represent bytes.  The bytes passed
   // in will be copied.
@@ -925,7 +925,7 @@ public:
 
   // Return the file name.
   /*--cef()--*/
-  virtual std::wstring GetFile() =0;
+  virtual CefString GetFile() =0;
 
   // Return the number of bytes.
   /*--cef()--*/
@@ -969,7 +969,7 @@ class CefStreamReader : public CefBase
 public:
   // Create a new CefStreamReader object.
   /*--cef()--*/
-  static CefRefPtr<CefStreamReader> CreateForFile(const std::wstring& fileName);
+  static CefRefPtr<CefStreamReader> CreateForFile(const CefString& fileName);
   /*--cef()--*/
   static CefRefPtr<CefStreamReader> CreateForData(void* data, size_t size);
    /*--cef()--*/
@@ -1026,7 +1026,7 @@ class CefStreamWriter : public CefBase
 public:
   // Create a new CefStreamWriter object.
   /*--cef()--*/
-  static CefRefPtr<CefStreamWriter> CreateForFile(const std::wstring& fileName);
+  static CefRefPtr<CefStreamWriter> CreateForFile(const CefString& fileName);
   /*--cef()--*/
   static CefRefPtr<CefStreamWriter> CreateForHandler(CefRefPtr<CefWriteHandler> handler);
 
@@ -1059,11 +1059,11 @@ public:
   // Execute with the specified argument list and return value.  Return true if
   // the method was handled.
   /*--cef()--*/
-  virtual bool Execute(const std::wstring& name,
+  virtual bool Execute(const CefString& name,
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       std::wstring& exception) =0;
+                       CefString& exception) =0;
 };
 
 
@@ -1087,13 +1087,13 @@ public:
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateDouble(double value);
   /*--cef()--*/
-  static CefRefPtr<CefV8Value> CreateString(const std::wstring& value);
+  static CefRefPtr<CefV8Value> CreateString(const CefString& value);
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateArray();
   /*--cef()--*/
-  static CefRefPtr<CefV8Value> CreateFunction(const std::wstring& name,
+  static CefRefPtr<CefV8Value> CreateFunction(const CefString& name,
                                               CefRefPtr<CefV8Handler> handler);
 
   // Check the value type.
@@ -1125,7 +1125,7 @@ public:
   /*--cef()--*/
   virtual double GetDoubleValue() =0;
   /*--cef()--*/
-  virtual std::wstring GetStringValue() =0;
+  virtual CefString GetStringValue() =0;
 
 
   // OBJECT METHODS - These methods are only available on objects. Arrays and
@@ -1135,32 +1135,32 @@ public:
 
   // Returns true if the object has a value with the specified identifier.
   /*--cef(capi_name=has_value_bykey)--*/
-  virtual bool HasValue(const std::wstring& key) =0;
+  virtual bool HasValue(const CefString& key) =0;
   /*--cef(capi_name=has_value_byindex)--*/
   virtual bool HasValue(int index) =0;
 
   // Delete the value with the specified identifier.
   /*--cef(capi_name=delete_value_bykey)--*/
-  virtual bool DeleteValue(const std::wstring& key) =0;
+  virtual bool DeleteValue(const CefString& key) =0;
   /*--cef(capi_name=delete_value_byindex)--*/
   virtual bool DeleteValue(int index) =0;
 
   // Returns the value with the specified identifier.
   /*--cef(capi_name=get_value_bykey)--*/
-  virtual CefRefPtr<CefV8Value> GetValue(const std::wstring& key) =0;
+  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) =0;
   /*--cef(capi_name=get_value_byindex)--*/
   virtual CefRefPtr<CefV8Value> GetValue(int index) =0;
 
   // Associate value with the specified identifier.
   /*--cef(capi_name=set_value_bykey)--*/
-  virtual bool SetValue(const std::wstring& key, CefRefPtr<CefV8Value> value) =0;
+  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value) =0;
   /*--cef(capi_name=set_value_byindex)--*/
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) =0;
 
   // Read the keys for the object's values into the specified vector. Integer-
   // based keys will also be returned as strings.
   /*--cef()--*/
-  virtual bool GetKeys(std::vector<std::wstring>& keys) =0;
+  virtual bool GetKeys(std::vector<CefString>& keys) =0;
 
   // Returns the user data, if any, specified when the object was created.
   /*--cef()--*/
@@ -1178,7 +1178,7 @@ public:
 
   // Returns the function name.
   /*--cef()--*/
-  virtual std::wstring GetFunctionName() =0;
+  virtual CefString GetFunctionName() =0;
 
   // Returns the function handler or NULL if not a CEF-created function.
   /*--cef()--*/
@@ -1189,7 +1189,7 @@ public:
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
-                               std::wstring& exception) =0;
+                               CefString& exception) =0;
 };
 
 
@@ -1220,7 +1220,7 @@ public:
   // |mime_type| to the mime type for the response.
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              std::wstring& mime_type, int* response_length) =0;
+                              CefString& mime_type, int* response_length) =0;
 
   // Cancel processing of the request.
   /*--cef()--*/
@@ -1265,7 +1265,7 @@ public:
   /*--cef()--*/
   static CefRefPtr<CefXmlReader> Create(CefRefPtr<CefStreamReader> stream,
                                         EncodingType encodingType,
-                                        const std::wstring& URI);
+                                        const CefString& URI);
 
   // Moves the cursor to the next node in the document. This method must be
   // called at least once to set the current cursor position. Returns true if
@@ -1284,7 +1284,7 @@ public:
 
   // Returns the error string.
   /*--cef()--*/
-  virtual std::wstring GetError() =0;
+  virtual CefString GetError() =0;
 
 
   // The below methods retrieve data for the node at the current cursor
@@ -1301,32 +1301,32 @@ public:
   // Returns the local name. See
   // http://www.w3.org/TR/REC-xml-names/#NT-LocalPart for additional details.
   /*--cef()--*/
-  virtual std::wstring GetLocalName() =0;
+  virtual CefString GetLocalName() =0;
 
   // Returns the namespace prefix. See http://www.w3.org/TR/REC-xml-names/ for
   // additional details.
   /*--cef()--*/
-  virtual std::wstring GetPrefix() =0;
+  virtual CefString GetPrefix() =0;
 
   // Returns the qualified name, equal to (Prefix:)LocalName. See
   // http://www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
   /*--cef()--*/
-  virtual std::wstring GetQualifiedName() =0;
+  virtual CefString GetQualifiedName() =0;
 
   // Returns the URI defining the namespace associated with the node. See
   // http://www.w3.org/TR/REC-xml-names/ for additional details.
   /*--cef()--*/
-  virtual std::wstring GetNamespaceURI() =0;
+  virtual CefString GetNamespaceURI() =0;
 
   // Returns the base URI of the node. See http://www.w3.org/TR/xmlbase/ for
   // additional details.
   /*--cef()--*/
-  virtual std::wstring GetBaseURI() =0;
+  virtual CefString GetBaseURI() =0;
 
   // Returns the xml:lang scope within which the node resides. See
   // http://www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
   /*--cef()--*/
-  virtual std::wstring GetXmlLang() =0;
+  virtual CefString GetXmlLang() =0;
 
   // Returns true if the node represents an empty element. <a/> is considered
   // empty but <a></a> is not.
@@ -1339,7 +1339,7 @@ public:
 
   // Returns the text value.
   /*--cef()--*/
-  virtual std::wstring GetValue() =0;
+  virtual CefString GetValue() =0;
 
   // Returns true if the node has attributes.
   /*--cef()--*/
@@ -1351,25 +1351,25 @@ public:
 
   // Returns the value of the attribute at the specified 0-based index.
   /*--cef(capi_name=get_attribute_byindex)--*/
-  virtual std::wstring GetAttribute(int index) =0;
+  virtual CefString GetAttribute(int index) =0;
 
   // Returns the value of the attribute with the specified qualified name.
   /*--cef(capi_name=get_attribute_byqname)--*/
-  virtual std::wstring GetAttribute(const std::wstring& qualifiedName) =0;
+  virtual CefString GetAttribute(const CefString& qualifiedName) =0;
 
   // Returns the value of the attribute with the specified local name and
   // namespace URI.
   /*--cef(capi_name=get_attribute_bylname)--*/
-  virtual std::wstring GetAttribute(const std::wstring& localName,
-                                    const std::wstring& namespaceURI) =0;
+  virtual CefString GetAttribute(const CefString& localName,
+                                    const CefString& namespaceURI) =0;
 
   // Returns an XML representation of the current node's children.
   /*--cef()--*/
-  virtual std::wstring GetInnerXml() =0;
+  virtual CefString GetInnerXml() =0;
 
   // Returns an XML representation of the current node including its children.
   /*--cef()--*/
-  virtual std::wstring GetOuterXml() =0;
+  virtual CefString GetOuterXml() =0;
 
   // Returns the line number for the current node.
   /*--cef()--*/
@@ -1389,13 +1389,13 @@ public:
   // Moves the cursor to the attribute with the specified qualified name.
   // Returns true if the cursor position was set successfully.
   /*--cef(capi_name=move_to_attribute_byqname)--*/
-  virtual bool MoveToAttribute(const std::wstring& qualifiedName) =0;
+  virtual bool MoveToAttribute(const CefString& qualifiedName) =0;
 
   // Moves the cursor to the attribute with the specified local name and
   // namespace URI. Returns true if the cursor position was set successfully.
   /*--cef(capi_name=move_to_attribute_bylname)--*/
-  virtual bool MoveToAttribute(const std::wstring& localName,
-                               const std::wstring& namespaceURI) =0;
+  virtual bool MoveToAttribute(const CefString& localName,
+                               const CefString& namespaceURI) =0;
 
   // Moves the cursor to the first attribute in the current element. Returns
   // true if the cursor position was set successfully.
@@ -1438,7 +1438,7 @@ public:
   // is true then the search will be case sensitive. Returns true if the cursor
   // position was set successfully. 
   /*--cef()--*/
-  virtual bool MoveToFile(const std::wstring& fileName, bool caseSensitive) =0;
+  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive) =0;
 
   // Closes the archive. This should be called directly to ensure that cleanup
   // occurs on the correct thread.
@@ -1450,7 +1450,7 @@ public:
 
   // Returns the name of the file.
   /*--cef()--*/
-  virtual std::wstring GetFileName() =0;
+  virtual CefString GetFileName() =0;
 
   // Returns the uncompressed size of the file.
   /*--cef()--*/
@@ -1463,7 +1463,7 @@ public:
   // Opens the file for reading of uncompressed data. A read password may
   // optionally be specified.
   /*--cef()--*/
-  virtual bool OpenFile(const std::wstring& password) =0;
+  virtual bool OpenFile(const CefString& password) =0;
 
   // Closes the file.
   /*--cef()--*/
@@ -1608,14 +1608,10 @@ public:
 
   void Reset()
   {
-    if(cache_path)
-      cef_string_free(cache_path);
-    if(user_agent)
-      cef_string_free(user_agent);
-    if(product_version)
-      cef_string_free(product_version);
-    if(locale)
-      cef_string_free(locale);
+    cef_string_clear(&cache_path);
+    cef_string_clear(&user_agent);
+    cef_string_clear(&product_version);
+    cef_string_clear(&locale);
     if(extra_plugin_paths)
       cef_string_list_free(extra_plugin_paths);
     Init();
@@ -1641,22 +1637,11 @@ public:
   {
     multi_threaded_message_loop = r.multi_threaded_message_loop;
 
-    if(cache_path)
-      cef_string_free(cache_path);
-    cache_path = r.cache_path ? cef_string_alloc(r.cache_path) : NULL;
-
-    if(user_agent)
-      cef_string_free(user_agent);
-    user_agent = r.user_agent ? cef_string_alloc(r.user_agent) : NULL;
-
-    if(product_version)
-      cef_string_free(product_version);
-    product_version = r.product_version ?
-        cef_string_alloc(r.product_version) : NULL;
-
-    if(locale)
-      cef_string_free(locale);
-    locale = r.locale ? cef_string_alloc(r.locale) : NULL;
+    cef_string_copy(r.cache_path.str, r.cache_path.length, &cache_path);
+    cef_string_copy(r.user_agent.str, r.user_agent.length, &user_agent);
+    cef_string_copy(r.product_version.str, r.product_version.length,
+        &product_version);
+    cef_string_copy(r.locale.str, r.locale.length, &locale);
 
     if(extra_plugin_paths)
       cef_string_list_free(extra_plugin_paths);
@@ -1701,22 +1686,14 @@ public:
 
   void Reset()
   {
-    if(standard_font_family)
-      cef_string_free(standard_font_family);
-    if(fixed_font_family)
-      cef_string_free(fixed_font_family);
-    if(serif_font_family)
-      cef_string_free(serif_font_family);
-    if(sans_serif_font_family)
-      cef_string_free(sans_serif_font_family);
-    if(cursive_font_family)
-      cef_string_free(cursive_font_family);
-    if(fantasy_font_family)
-      cef_string_free(fantasy_font_family);
-    if(default_encoding)
-      cef_string_free(default_encoding);
-    if(user_style_sheet_location)
-      cef_string_free(user_style_sheet_location);
+    cef_string_clear(&standard_font_family);
+    cef_string_clear(&fixed_font_family);
+    cef_string_clear(&serif_font_family);
+    cef_string_clear(&sans_serif_font_family);
+    cef_string_clear(&cursive_font_family);
+    cef_string_clear(&fantasy_font_family);
+    cef_string_clear(&default_encoding);
+    cef_string_clear(&user_style_sheet_location);
     Init();
   }
 
@@ -1740,35 +1717,18 @@ public:
   {
     drag_drop_disabled = r.drag_drop_disabled;
 
-    if(standard_font_family)
-      cef_string_free(standard_font_family);
-    standard_font_family = r.standard_font_family ?
-        cef_string_alloc(r.standard_font_family) : NULL;
-
-    if(fixed_font_family)
-      cef_string_free(fixed_font_family);
-    fixed_font_family = r.fixed_font_family ?
-        cef_string_alloc(r.fixed_font_family) : NULL;
-
-    if(serif_font_family)
-      cef_string_free(serif_font_family);
-    serif_font_family = r.serif_font_family ?
-        cef_string_alloc(r.serif_font_family) : NULL;
-
-    if(sans_serif_font_family)
-      cef_string_free(sans_serif_font_family);
-    serif_font_family = r.sans_serif_font_family ?
-        cef_string_alloc(r.sans_serif_font_family) : NULL;
-
-    if(cursive_font_family)
-      cef_string_free(cursive_font_family);
-    cursive_font_family = r.cursive_font_family ?
-        cef_string_alloc(r.cursive_font_family) : NULL;
-
-    if(fantasy_font_family)
-      cef_string_free(fantasy_font_family);
-    fantasy_font_family = r.fantasy_font_family ?
-        cef_string_alloc(r.fantasy_font_family) : NULL;
+    cef_string_copy(r.standard_font_family.str, r.standard_font_family.length,
+        &standard_font_family);
+    cef_string_copy(r.fixed_font_family.str, r.fixed_font_family.length,
+        &fixed_font_family);
+    cef_string_copy(r.serif_font_family.str, r.serif_font_family.length,
+        &serif_font_family);
+    cef_string_copy(r.sans_serif_font_family.str,
+        r.sans_serif_font_family.length, &sans_serif_font_family);
+    cef_string_copy(r.cursive_font_family.str, r.cursive_font_family.length,
+        &cursive_font_family);
+    cef_string_copy(r.fantasy_font_family.str, r.fantasy_font_family.length,
+        &fantasy_font_family);
 
     default_font_size = r.default_font_size;
     default_fixed_font_size = r.default_fixed_font_size;
@@ -1776,10 +1736,8 @@ public:
     minimum_logical_font_size = r.minimum_logical_font_size;
     remote_fonts_disabled = r.remote_fonts_disabled;
 
-    if(default_encoding)
-      cef_string_free(default_encoding);
-    default_encoding = r.default_encoding ?
-        cef_string_alloc(r.default_encoding) : NULL;
+    cef_string_copy(r.default_encoding.str, r.default_encoding.length,
+        &default_encoding);
 
     encoding_detector_enabled = r.encoding_detector_enabled;
     javascript_disabled = r.javascript_disabled;
@@ -1805,10 +1763,8 @@ public:
     hyperlink_auditing_disabled = r.hyperlink_auditing_disabled;
     user_style_sheet_enabled = r.user_style_sheet_enabled;
 
-    if(user_style_sheet_location)
-      cef_string_free(user_style_sheet_location);
-    user_style_sheet_location = r.user_style_sheet_location ?
-        cef_string_alloc(r.user_style_sheet_location) : NULL;
+    cef_string_copy(r.user_style_sheet_location.str,
+        r.user_style_sheet_location.length, &user_style_sheet_location);
 
     author_and_user_styles_disabled = r.author_and_user_styles_disabled;
     local_storage_disabled = r.local_storage_disabled;

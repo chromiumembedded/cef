@@ -31,7 +31,7 @@
 #ifndef _CEF_PLUGIN_H
 #define _CEF_PLUGIN_H
 
-#include <string>
+#include "cef_string.h"
 #include <vector>
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/nphostapi.h"
@@ -46,29 +46,29 @@
 // This structure describes a mime type entry for a plugin.
 struct CefPluginMimeType {
   // The actual mime type.
-  std::wstring mime_type;
+  CefString mime_type;
 
   // A list of all the file extensions for this mime type.
-  std::vector<std::wstring> file_extensions;
+  std::vector<CefString> file_extensions;
 
   // Description of the mime type.
-  std::wstring description;
+  CefString description;
 };
 
 // This structure provides attribute information and entry point functions for
 // a plugin.
 struct CefPluginInfo {
   // The unique name that identifies the plugin.
-  std::wstring unique_name;
+  CefString unique_name;
 
   // The friendly display name of the plugin.
-  std::wstring display_name;
+  CefString display_name;
 
   // The version string of the plugin.
-  std::wstring version;
+  CefString version;
 
   // A description of the plugin.
-  std::wstring description;
+  CefString description;
 
   // A list of all the mime types that this plugin supports.
   std::vector<CefPluginMimeType> mime_types;

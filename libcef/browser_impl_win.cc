@@ -8,7 +8,6 @@
 #include "browser_settings.h"
 #include "printing/units.h"
 
-#include "base/utf_string_conversions.h"
 #include "base/win_util.h"
 #include "skia/ext/vector_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
@@ -96,13 +95,15 @@ gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
   return window_info_.m_hWnd;
 }
 
-void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
+void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
+
+  std::wstring windowName(CefString(&window_info_.m_windowName));
   
   // Create the new browser window
   window_info_.m_hWnd = CreateWindowEx(window_info_.m_dwExStyle, GetWndClass(),
-      window_info_.m_windowName, window_info_.m_dwStyle,
+      windowName.c_str(), window_info_.m_dwStyle,
       window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
       window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
       ::GetModuleHandle(NULL), NULL);
@@ -140,10 +141,10 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
     handler_->HandleAfterCreated(this);
   }
 
-  if(url.size() > 0) {
+  if(url.length() > 0) {
     CefRefPtr<CefFrame> frame = GetMainFrame();
     frame->AddRef();
-    UIT_LoadURL(frame, url.c_str());
+    UIT_LoadURL(frame, url);
   }
 }
 
@@ -307,12 +308,11 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     printInfo.m_Rect = rect;
     printInfo.m_Scale = scale;
 
-    std::string spec = frame->url().spec();
-    std::wstring url = UTF8ToWide(spec);
-    std::wstring title = title_;
+    CefString url(frame->url().spec());
+    CefString title = title_;
 
-    std::wstring topLeft, topCenter, topRight;
-    std::wstring bottomLeft, bottomCenter, bottomRight;
+    CefString topLeft, topCenter, topRight;
+    CefString bottomLeft, bottomCenter, bottomRight;
 
     // allow the handler to format print header and/or footer
     CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this,
@@ -333,33 +333,39 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
       // TODO(cef): Keep the header strings inside a reasonable bounding box
       // so that they don't overlap each other.
-      if(topLeft.size() > 0) {
-        DrawText(hDC, topLeft.c_str(), topLeft.size(), &rect,
+      if(topLeft.length() > 0) {
+        std::wstring topLeftStr(topLeft);
+        DrawText(hDC, topLeftStr.c_str(), topLeftStr.length(), &rect,
           DT_LEFT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(topCenter.size() > 0) {
-        DrawText(hDC, topCenter.c_str(), topCenter.size(), &rect,
+      if(topCenter.length() > 0) {
+        std::wstring topCenterStr(topCenter);
+        DrawText(hDC, topCenterStr.c_str(), topCenterStr.length(), &rect,
           DT_CENTER | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(topRight.size() > 0) {
-        DrawText(hDC, topRight.c_str(), topRight.size(), &rect,
+      if(topRight.length() > 0) {
+        std::wstring topRightStr(topRight);
+        DrawText(hDC, topRightStr.c_str(), topRightStr.length(), &rect,
           DT_RIGHT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomLeft.size() > 0) {
-        DrawText(hDC, bottomLeft.c_str(), bottomLeft.size(), &rect,
+      if(bottomLeft.length() > 0) {
+        std::wstring bottomLeftStr(bottomLeft);
+        DrawText(hDC, bottomLeftStr.c_str(), bottomLeftStr.length(), &rect,
           DT_LEFT | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomCenter.size() > 0) {
-        DrawText(hDC, bottomCenter.c_str(), bottomCenter.size(), &rect,
+      if(bottomCenter.length() > 0) {
+        std::wstring bottomCenterStr(bottomCenter);
+        DrawText(hDC, bottomCenterStr.c_str(), bottomCenterStr.length(), &rect,
           DT_CENTER | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomRight.size() > 0) {
-        DrawText(hDC, bottomRight.c_str(), bottomRight.size(), &rect,
+      if(bottomRight.length() > 0) {
+        std::wstring bottomRightStr(bottomRight);
+        DrawText(hDC, bottomRightStr.c_str(), bottomRightStr.length(), &rect,
           DT_RIGHT | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }

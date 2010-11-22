@@ -30,13 +30,12 @@
 #ifndef _CEF_STRING_LIST_H
 #define _CEF_STRING_LIST_H
 
+#include "cef_export.h"
+#include "cef_string.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cef_export.h"
-#include "cef_string.h"
-#include <wchar.h>
 
 // CEF string maps are a set of key/value string pairs.
 typedef void* cef_string_list_t;
@@ -47,11 +46,14 @@ CEF_EXPORT cef_string_list_t cef_string_list_alloc();
 // Return the number of elements in the string list.
 CEF_EXPORT int cef_string_list_size(cef_string_list_t list);
 
-// Return the value at the specified zero-based string list index.
-CEF_EXPORT cef_string_t cef_string_list_value(cef_string_list_t list, int index);
+// Retrieve the value at the specified zero-based string list index. Returns
+// true (1) if the value was successfully retrieved.
+CEF_EXPORT int cef_string_list_value(cef_string_list_t list,
+                                     int index, cef_string_t* value);
 
-// Append a new key/value pair at the end of the string list.
-CEF_EXPORT void cef_string_list_append(cef_string_list_t list, const wchar_t* value);
+// Append a new value at the end of the string list.
+CEF_EXPORT void cef_string_list_append(cef_string_list_t list,
+                                       const cef_string_t* value);
 
 // Clear the string list.
 CEF_EXPORT void cef_string_list_clear(cef_string_list_t list);

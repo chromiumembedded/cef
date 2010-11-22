@@ -17,9 +17,9 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
-    const wchar_t* name, struct _cef_v8value_t* object, size_t argumentCount,
-    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-    cef_string_t* exception)
+    const cef_string_t* name, struct _cef_v8value_t* object,
+    size_t argumentCount, struct _cef_v8value_t* const* arguments,
+    struct _cef_v8value_t** retval, cef_string_t* exception)
 {
   DCHECK(self);
   if(!self)
@@ -29,22 +29,15 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
   if(object)
     objectPtr = CefV8ValueCToCpp::Wrap(object);
 
-  std::wstring nameStr;
-  if(name)
-    nameStr = name;
-
   CefV8ValueList list;
   for(size_t i = 0; i < argumentCount; ++i) {
     list.push_back(CefV8ValueCToCpp::Wrap(arguments[i]));
   }
 
   CefRefPtr<CefV8Value> retValPtr;
-  std::wstring exceptionStr;
-  bool rv = CefV8HandlerCppToC::Get(self)->Execute(nameStr, objectPtr,
-    list, retValPtr, exceptionStr);
+  bool rv = CefV8HandlerCppToC::Get(self)->Execute(CefString(name), objectPtr,
+      list, retValPtr, CefString(exception));
   if(rv) {
-    if(!exceptionStr.empty() && exception)
-      *exception = cef_string_alloc(exceptionStr.c_str());
     if(retValPtr.get() && retval)
       *retval = CefV8ValueCToCpp::Unwrap(retValPtr);
   }

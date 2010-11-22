@@ -1,4 +1,4 @@
-// Copyright (c) 2009 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -30,57 +30,83 @@
 #ifndef _CEF_STRING_H
 #define _CEF_STRING_H
 
+// The CEF interface is built with one string type as the default. Comment out
+// all but one of the CEF_STRING_TYPE_* defines below to specify the default.
+// If you change the default you MUST recompile all of CEF.
+
+// Build with the UTF8 string type as default.
+//#define CEF_STRING_TYPE_UTF8 1
+
+// Build with the UTF16 string type as default.
+#define CEF_STRING_TYPE_UTF16 1
+
+// Build with the wide string type as default.
+//#define CEF_STRING_TYPE_WIDE 1
+
+
+#include "cef_string_types.h"
+
 #ifdef __cplusplus
-extern "C" {
+#include "cef_string_wrappers.h"
+#if defined(CEF_STRING_TYPE_UTF8)
+typedef CefStringUTF8 CefString;
+#elif defined(CEF_STRING_TYPE_UTF16)
+typedef CefStringUTF16 CefString;
+#elif defined(CEF_STRING_TYPE_WIDE)
+typedef CefStringWide CefString;
 #endif
+#endif // __cplusplus
 
-#include "cef_export.h"
-#include <wchar.h>
-
-// CEF strings are NUL-terminated wide character strings prefixed with a size
-// value, similar to the Microsoft BSTR type.  Use the below API functions for
-// allocating, managing and freeing CEF strings.
-typedef wchar_t* cef_string_t;
-
-// Return the wide character length of the CEF string as allocated by
-// cef_string_alloc_len(). The returned value does not include the NUL
-// terminating character. This length may differ from the string length
-// as returned by wcslen().
-CEF_EXPORT size_t cef_string_length(cef_string_t str);
-
-// Allocate and return a new CEF string that is a copy of |str|.  If |str| is
-// NULL or if allocation fails NULL will be returned.  If |str| is of length
-// 0 a valid empty CEF string will be returned.
-CEF_EXPORT cef_string_t cef_string_alloc(const wchar_t* str);
-
-// Allocate and return a new CEF string that is a copy of |str|. |len| is the
-// wide character length of the new CEF string not including the NUL
-// terminating character. |str| will be copied without checking for a NUL
-// terminating character. If |str| is NULL or if allocation fails NULL will
-// be returned.  If |str| is of length 0 a valid empty CEF string will be
-// returned.
-CEF_EXPORT cef_string_t cef_string_alloc_length(const wchar_t* str,
-                                                size_t len);
-
-// Reallocate an existing CEF string.  The contents of |oldstr| will be
-// replaced with the contents of |newstr|; |newstr| may not be NULL. Returns 1
-// on success and 0 on failure.
-CEF_EXPORT int cef_string_realloc(cef_string_t* oldstr, const wchar_t* newstr);
-
-// Reallocate an existing CEF string.  If |newstr| is NULL the contents of
-// |oldstr| will remain unchanged; otherwise, they will be replaced with the
-// contents of |newstr|. |len| is the new wide character length of the string
-// not including the NUL terminating character.  Returns 1 on success and 0
-// on failure.
-CEF_EXPORT int cef_string_realloc_length(cef_string_t* oldstr,
-                                         const wchar_t* newstr,
-                                         size_t len);
-
-// Free a CEF string.  If |str| is NULL this function does nothing.
-CEF_EXPORT void cef_string_free(cef_string_t str);
-
-#ifdef __cplusplus
-}
+#if defined(CEF_STRING_TYPE_UTF8)
+typedef char cef_char_t;
+typedef cef_string_utf8_t cef_string_t;
+typedef cef_string_userfree_utf8_t cef_string_userfree_t;
+#define cef_string_set cef_string_utf8_set
+#define cef_string_copy cef_string_utf8_copy
+#define cef_string_clear cef_string_utf8_clear
+#define cef_string_userfree_alloc cef_string_userfree_utf8_alloc
+#define cef_string_userfree_free cef_string_userfree_utf8_free
+#define cef_string_from_ascii cef_string_utf8_copy
+#define cef_string_to_utf8 cef_string_utf8_copy
+#define cef_string_from_utf8 cef_string_utf8_copy
+#define cef_string_to_utf16 cef_string_utf8_to_utf16
+#define cef_string_from_utf16 cef_string_utf16_to_utf8
+#define cef_string_to_wide cef_string_utf8_to_wide
+#define cef_string_from_wide cef_string_wide_to_utf8
+#elif defined(CEF_STRING_TYPE_UTF16)
+typedef char16_t cef_char_t;
+typedef cef_string_userfree_utf16_t cef_string_userfree_t;
+typedef cef_string_utf16_t cef_string_t;
+#define cef_string_set cef_string_utf16_set
+#define cef_string_copy cef_string_utf16_copy
+#define cef_string_clear cef_string_utf16_clear
+#define cef_string_userfree_alloc cef_string_userfree_utf16_alloc
+#define cef_string_userfree_free cef_string_userfree_utf16_free
+#define cef_string_from_ascii cef_string_ascii_to_utf16
+#define cef_string_to_utf8 cef_string_utf16_to_utf8
+#define cef_string_from_utf8 cef_string_utf8_to_utf16
+#define cef_string_to_utf16 cef_string_utf16_copy
+#define cef_string_from_utf16 cef_string_utf16_copy
+#define cef_string_to_wide cef_string_utf16_to_wide
+#define cef_string_from_wide cef_string_wide_to_utf16
+#elif defined(CEF_STRING_TYPE_WIDE)
+typedef wchar_t cef_char_t;
+typedef cef_string_wide_t cef_string_t;
+typedef cef_string_userfree_wide_t cef_string_userfree_t;
+#define cef_string_set cef_string_wide_set
+#define cef_string_copy cef_string_wide_copy
+#define cef_string_clear cef_string_wide_clear
+#define cef_string_userfree_alloc cef_string_userfree_wide_alloc
+#define cef_string_userfree_free cef_string_userfree_wide_free
+#define cef_string_from_ascii cef_string_ascii_to_wide
+#define cef_string_to_utf8 cef_string_wide_to_utf8
+#define cef_string_from_utf8 cef_string_utf8_to_wide
+#define cef_string_to_utf16 cef_string_wide_to_utf16
+#define cef_string_from_utf16 cef_string_utf16_to_wide
+#define cef_string_to_wide cef_string_wide_copy
+#define cef_string_from_wide cef_string_wide_copy
+#else
+#error Please choose a string type.
 #endif
 
 #endif // _CEF_STRING_H

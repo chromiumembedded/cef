@@ -31,9 +31,9 @@ public:
   virtual ~CefV8HandlerCToCpp() {}
 
   // CefV8Handler methods
-  virtual bool Execute(const std::wstring& name, CefRefPtr<CefV8Value> object,
+  virtual bool Execute(const CefString& name, CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-      std::wstring& exception);
+      CefString& exception);
 };
 
 #endif // BUILDING_CEF_SHARED

@@ -8,7 +8,6 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/sys_string_conversions.h"
-#include "base/utf_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebCursorInfo.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
@@ -198,7 +197,7 @@ void BrowserWebViewDelegate::DidMovePlugin(
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const std::wstring& message) {
   NSString *text =
-      [NSString stringWithUTF8String:WideToUTF8(message).c_str()];
+      [NSString stringWithUTF8String:(std::string(message).c_str())];
   NSAlert *alert = [NSAlert alertWithMessageText:@"JavaScript Alert"
                                    defaultButton:@"OK"
                                  alternateButton:nil
@@ -234,7 +233,7 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
 /*
 void BrowserWebViewDelegate::SetPageTitle(const std::wstring& title) {
   [[browser_->GetWebViewHost()->view_handle() window]
-      setTitle:[NSString stringWithUTF8String:WideToUTF8(title).c_str()]];
+      setTitle:[NSString stringWithUTF8String:(std::string(title).c_str())]];
 }
 
 void BrowserWebViewDelegate::SetAddressBarURL(const GURL& url) {

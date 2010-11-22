@@ -17,12 +17,10 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
-    const wchar_t* fileName)
+    const cef_string_t* fileName)
 {
-  std::wstring filenamestr;
-  if(fileName)
-    filenamestr = fileName;
-  CefRefPtr<CefStreamReader> impl = CefStreamReader::CreateForFile(filenamestr);
+  CefRefPtr<CefStreamReader> impl =
+      CefStreamReader::CreateForFile(CefString(fileName));
   if(impl.get())
     return CefStreamReaderCppToC::Wrap(impl);
   return NULL;

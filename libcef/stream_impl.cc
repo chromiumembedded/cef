@@ -3,24 +3,18 @@
 // can be found in the LICENSE file.
 
 #include "stream_impl.h"
-
 #include "base/logging.h"
-#include "base/utf_string_conversions.h"
-
 
 // Static functions
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   CefRefPtr<CefStreamReader> reader;
-#if defined(OS_WIN)
-  FILE *f = _wfopen(fileName.c_str(), L"rb");
-#else
-  FILE *f = fopen(WideToUTF8(fileName).c_str(), "rb");
-#endif
-  if(f)
-    reader = new CefFileReader(f, true);
+  std::string fileNameStr = fileName;
+  FILE *file = fopen(fileNameStr.c_str(), "rb");
+  if(file)
+    reader = new CefFileReader(file, true);
   return reader;
 }
 
@@ -46,15 +40,12 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
 }
 
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   DCHECK(!fileName.empty());
   CefRefPtr<CefStreamWriter> writer;
-#if defined(OS_WIN)
-  FILE* file = _wfopen(fileName.c_str(), L"wb");
-#else
-  FILE* file = fopen(WideToUTF8(fileName).c_str(), "wb");
-#endif
+  std::string fileNameStr = fileName;
+  FILE *file = fopen(fileNameStr.c_str(), "wb");
   if(file)
     writer = new CefFileWriter(file, true);
   return writer;

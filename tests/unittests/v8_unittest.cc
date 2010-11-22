@@ -14,23 +14,23 @@ class V8TestV8Handler : public CefThreadSafeBase<CefV8Handler>
 public:
   V8TestV8Handler(bool bindingTest) { binding_test_ = bindingTest; }
 
-  virtual bool Execute(const std::wstring& name,
+  virtual bool Execute(const CefString& name,
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       std::wstring& exception)
+                       CefString& exception)
   {
     TestExecute(name, object, arguments, retval, exception);
     return true;
   }
 
-  void TestExecute(const std::wstring& name,
+  void TestExecute(const CefString& name,
                    CefRefPtr<CefV8Value> object,
                    const CefV8ValueList& arguments,
                    CefRefPtr<CefV8Value>& retval,
-                   std::wstring& exception)
+                   CefString& exception)
   {
-    if(name == L"execute") {
+    if(name == "execute") {
       g_V8TestV8HandlerExecuteCalled = true;
       
       ASSERT_EQ((size_t)8, arguments.size());
@@ -50,7 +50,7 @@ public:
       argct++;
 
       ASSERT_TRUE(arguments[argct]->IsString());
-      ASSERT_EQ(L"test string", arguments[argct]->GetStringValue());
+      ASSERT_EQ(arguments[argct]->GetStringValue(), "test string");
       argct++;
 
       CefRefPtr<CefV8Value> value;
@@ -81,7 +81,7 @@ public:
         value = arguments[argct]->GetValue(subargct);
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(L"another string", value->GetStringValue());
+        ASSERT_EQ(value->GetStringValue(), "another string");
         subargct++;
       }
       argct++;
@@ -89,25 +89,25 @@ public:
       // object
       ASSERT_TRUE(arguments[argct]->IsObject());
       {
-        value = arguments[argct]->GetValue(L"arg0");
+        value = arguments[argct]->GetValue("arg0");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsInt());
         ASSERT_EQ(2, value->GetIntValue());
 
-        value = arguments[argct]->GetValue(L"arg1");
+        value = arguments[argct]->GetValue("arg1");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsDouble());
         ASSERT_EQ(3.433, value->GetDoubleValue());
 
-        value = arguments[argct]->GetValue(L"arg2");
+        value = arguments[argct]->GetValue("arg2");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsBool());
         ASSERT_EQ(true, value->GetBoolValue());
 
-        value = arguments[argct]->GetValue(L"arg3");
+        value = arguments[argct]->GetValue("arg3");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(L"some string", value->GetStringValue());
+        ASSERT_EQ(value->GetStringValue(), "some string");
       }
       argct++;
 
@@ -118,9 +118,9 @@ public:
         args.push_back(CefV8Value::CreateInt(5));
         args.push_back(CefV8Value::CreateDouble(3.5));
         args.push_back(CefV8Value::CreateBool(true));
-        args.push_back(CefV8Value::CreateString(L"10"));
+        args.push_back(CefV8Value::CreateString("10"));
         CefRefPtr<CefV8Value> rv;
-        std::wstring exception;
+        CefString exception;
         ASSERT_TRUE(arguments[argct]->ExecuteFunction(
             arguments[argct], args, rv, exception));
         ASSERT_TRUE(rv.get() != NULL);
@@ -136,37 +136,37 @@ public:
         args.push_back(CefV8Value::CreateDouble(5));
         args.push_back(CefV8Value::CreateDouble(0));
         CefRefPtr<CefV8Value> rv;
-        std::wstring exception;
+        CefString exception;
         ASSERT_TRUE(arguments[argct]->ExecuteFunction(
             arguments[argct], args, rv, exception));
-        ASSERT_EQ(L"Uncaught My Exception", exception);
+        ASSERT_EQ(exception, "Uncaught My Exception");
       }
       argct++;
 
       if(binding_test_)
       {
         // values
-        value = object->GetValue(L"intVal");
+        value = object->GetValue("intVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsInt());
         ASSERT_EQ(12, value->GetIntValue());
 
-        value = object->GetValue(L"doubleVal");
+        value = object->GetValue("doubleVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsDouble());
         ASSERT_EQ(5.432, value->GetDoubleValue());
 
-        value = object->GetValue(L"boolVal");
+        value = object->GetValue("boolVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsBool());
         ASSERT_EQ(true, value->GetBoolValue());
 
-        value = object->GetValue(L"stringVal");
+        value = object->GetValue("stringVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(L"the string", value->GetStringValue());
+        ASSERT_EQ(value->GetStringValue(), "the string");
 
-        value = object->GetValue(L"arrayVal");
+        value = object->GetValue("arrayVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsArray());
         {
@@ -193,13 +193,13 @@ public:
           value2 = value->GetValue(subargct);
           ASSERT_TRUE(value2.get() != NULL);
           ASSERT_TRUE(value2->IsString());
-          ASSERT_EQ(L"a string", value2->GetStringValue());
+          ASSERT_EQ(value2->GetStringValue(), "a string");
           subargct++;
         }
       }
 
       retval = CefV8Value::CreateInt(5);
-    } else if(name == L"execute2") {
+    } else if(name == "execute2") {
       g_V8TestV8HandlerExecute2Called = true;
       
       // check the result of calling the "execute" function
@@ -242,8 +242,8 @@ public:
       "</script>"
       "</body></html>";
 	
-    AddResource(L"http://tests/run.html", testHtml.str(), L"text/html");
-    CreateBrowser(L"http://tests/run.html");
+    AddResource("http://tests/run.html", testHtml.str(), "text/html");
+    CreateBrowser("http://tests/run.html");
   }
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -272,7 +272,7 @@ public:
     // Create the new V8 object
     CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL);
     ASSERT_TRUE(testObj.get() != NULL);
-    ASSERT_TRUE(object->SetValue(L"test", testObj));
+    ASSERT_TRUE(object->SetValue("test", testObj));
 
     // Create an instance of V8ExecuteV8Handler
     CefRefPtr<CefV8Handler> testHandler(new V8TestV8Handler(true));
@@ -280,30 +280,30 @@ public:
 
     // Add the functions
     CefRefPtr<CefV8Value> testFunc;
-    testFunc = CefV8Value::CreateFunction(L"execute", testHandler);
+    testFunc = CefV8Value::CreateFunction("execute", testHandler);
     ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"execute", testFunc));
-    testFunc = CefV8Value::CreateFunction(L"execute2", testHandler);
+    ASSERT_TRUE(testObj->SetValue("execute", testFunc));
+    testFunc = CefV8Value::CreateFunction("execute2", testHandler);
     ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"execute2", testFunc));
+    ASSERT_TRUE(testObj->SetValue("execute2", testFunc));
 
     // Add the values
-    ASSERT_TRUE(testObj->SetValue(L"intVal",
+    ASSERT_TRUE(testObj->SetValue("intVal",
         CefV8Value::CreateInt(12)));
-    ASSERT_TRUE(testObj->SetValue(L"doubleVal",
+    ASSERT_TRUE(testObj->SetValue("doubleVal",
         CefV8Value::CreateDouble(5.432)));
-    ASSERT_TRUE(testObj->SetValue(L"boolVal",
+    ASSERT_TRUE(testObj->SetValue("boolVal",
         CefV8Value::CreateBool(true)));
-    ASSERT_TRUE(testObj->SetValue(L"stringVal",
-        CefV8Value::CreateString(L"the string")));
+    ASSERT_TRUE(testObj->SetValue("stringVal",
+        CefV8Value::CreateString("the string")));
 
     CefRefPtr<CefV8Value> testArray(CefV8Value::CreateArray());
     ASSERT_TRUE(testArray.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue(L"arrayVal", testArray));
+    ASSERT_TRUE(testObj->SetValue("arrayVal", testArray));
     ASSERT_TRUE(testArray->SetValue(0, CefV8Value::CreateInt(4)));
     ASSERT_TRUE(testArray->SetValue(1, CefV8Value::CreateDouble(120.43)));
     ASSERT_TRUE(testArray->SetValue(2, CefV8Value::CreateBool(true)));
-    ASSERT_TRUE(testArray->SetValue(3, CefV8Value::CreateString(L"a string")));
+    ASSERT_TRUE(testArray->SetValue(3, CefV8Value::CreateString("a string")));
   }
 
   bool binding_test_;
@@ -328,21 +328,21 @@ TEST(V8Test, Extension)
   g_V8TestV8HandlerExecuteCalled = false;
   g_V8TestV8HandlerExecute2Called = false;
 
-  std::wstring extensionCode =
-    L"var test;"
-    L"if (!test)"
-    L"  test = {};"
-    L"(function() {"
-    L"  test.execute = function(a,b,c,d,e,f,g,h) {"
-    L"    native function execute();"
-    L"    return execute(a,b,c,d,e,f,g,h);"
-    L"  };"
-    L"  test.execute2 = function(a) {"
-    L"    native function execute2();"
-    L"    return execute2(a);"
-    L"  };"
-    L"})();";
-  CefRegisterExtension(L"v8/test", extensionCode, new V8TestV8Handler(false));
+  std::string extensionCode =
+    "var test;"
+    "if (!test)"
+    "  test = {};"
+    "(function() {"
+    "  test.execute = function(a,b,c,d,e,f,g,h) {"
+    "    native function execute();"
+    "    return execute(a,b,c,d,e,f,g,h);"
+    "  };"
+    "  test.execute2 = function(a) {"
+    "    native function execute2();"
+    "    return execute2(a);"
+    "  };"
+    "})();";
+  CefRegisterExtension("v8/test", extensionCode, new V8TestV8Handler(false));
 
   CefRefPtr<V8TestHandler> handler = new V8TestHandler(false);
   handler->ExecuteTest();

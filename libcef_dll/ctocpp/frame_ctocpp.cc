@@ -89,31 +89,25 @@ void CefFrameCToCpp::ViewSource()
   struct_->view_source(struct_);
 }
 
-std::wstring CefFrameCToCpp::GetSource()
+CefString CefFrameCToCpp::GetSource()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_source))
     return str;
 
-  cef_string_t cef_str = struct_->get_source(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_source(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefFrameCToCpp::GetText()
+CefString CefFrameCToCpp::GetText()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_text))
     return str;
 
-  cef_string_t cef_str = struct_->get_text(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_text(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -125,41 +119,40 @@ void CefFrameCToCpp::LoadRequest(CefRefPtr<CefRequest> request)
   struct_->load_request(struct_, CefRequestCToCpp::Unwrap(request));
 }
 
-void CefFrameCToCpp::LoadURL(const std::wstring& url)
+void CefFrameCToCpp::LoadURL(const CefString& url)
 {
   if(CEF_MEMBER_MISSING(struct_, load_url))
     return;
 
-  struct_->load_url(struct_, url.c_str());
+  struct_->load_url(struct_, url.GetStruct());
 }
 
-void CefFrameCToCpp::LoadString(const std::wstring& string,
-    const std::wstring& url)
+void CefFrameCToCpp::LoadString(const CefString& string, const CefString& url)
 {
   if(CEF_MEMBER_MISSING(struct_, load_string))
     return;
   
-  struct_->load_string(struct_, string.c_str(), url.c_str());
+  struct_->load_string(struct_, string.GetStruct(), url.GetStruct());
 }
 
 void CefFrameCToCpp::LoadStream(CefRefPtr<CefStreamReader> stream,
-    const std::wstring& url)
+    const CefString& url)
 {
   if(CEF_MEMBER_MISSING(struct_, load_stream))
     return;
 
   struct_->load_stream(struct_, CefStreamReaderCToCpp::Unwrap(stream),
-      url.c_str());
+      url.GetStruct());
 }
 
-void CefFrameCToCpp::ExecuteJavaScript(const std::wstring& jsCode,
-    const std::wstring& scriptUrl, int startLine)
+void CefFrameCToCpp::ExecuteJavaScript(const CefString& jsCode,
+    const CefString& scriptUrl, int startLine)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_java_script))
     return;
 
-  struct_->execute_java_script(struct_, jsCode.c_str(), scriptUrl.c_str(),
-      startLine);
+  struct_->execute_java_script(struct_, jsCode.GetStruct(),
+      scriptUrl.GetStruct(), startLine);
 }
 
 bool CefFrameCToCpp::IsMain()
@@ -178,31 +171,25 @@ bool CefFrameCToCpp::IsFocused()
   return struct_->is_focused(struct_)?true:false;
 }
 
-std::wstring CefFrameCToCpp::GetName()
+CefString CefFrameCToCpp::GetName()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_name))
     return str;
 
-  cef_string_t cef_str = struct_->get_name(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_name(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-std::wstring CefFrameCToCpp::GetURL()
+CefString CefFrameCToCpp::GetURL()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_url))
     return str;
 
-  cef_string_t cef_str = struct_->get_url(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_url(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 

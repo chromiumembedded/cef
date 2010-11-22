@@ -16,9 +16,9 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefV8HandlerCToCpp::Execute(const std::wstring& name,
+bool CefV8HandlerCToCpp::Execute(const CefString& name,
     CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
-    CefRefPtr<CefV8Value>& retval, std::wstring& exception)
+    CefRefPtr<CefV8Value>& retval, CefString& exception)
 {
   if(CEF_MEMBER_MISSING(struct_, execute))
     return RV_CONTINUE;
@@ -32,17 +32,12 @@ bool CefV8HandlerCToCpp::Execute(const std::wstring& name,
   }
 
   cef_v8value_t* retvalStruct = NULL;
-  cef_string_t exceptionStr = NULL;
 
-  int rv = struct_->execute(struct_, name.c_str(),
+  int rv = struct_->execute(struct_, name.GetStruct(),
       CefV8ValueCppToC::Wrap(object), argsSize, argsStructPtr, &retvalStruct,
-      &exceptionStr);
+      exception.GetWritableStruct());
   if(retvalStruct)
     retval = CefV8ValueCppToC::Unwrap(retvalStruct);
-  if(exceptionStr) {
-    exception = exceptionStr;
-    cef_string_free(exceptionStr);
-  }
 
   if(argsStructPtr)
     delete [] argsStructPtr;

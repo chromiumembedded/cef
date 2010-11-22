@@ -22,12 +22,12 @@ public:
 
   virtual bool MoveToFirstFile();
   virtual bool MoveToNextFile();
-  virtual bool MoveToFile(const std::wstring& fileName, bool caseSensitive);
+  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive);
   virtual bool Close();
-  virtual std::wstring GetFileName();
+  virtual CefString GetFileName();
   virtual long GetFileSize();
   virtual time_t GetFileLastModified();
-  virtual bool OpenFile(const std::wstring& password);
+  virtual bool OpenFile(const CefString& password);
   virtual bool CloseFile();
   virtual int ReadFile(void* buffer, size_t bufferSize);
   virtual long Tell();
@@ -44,7 +44,7 @@ protected:
   unzFile reader_;
   bool has_fileopen_;
   bool has_fileinfo_;
-  std::wstring filename_;
+  CefString filename_;
   long filesize_;
   time_t filemodified_;
 };

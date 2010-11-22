@@ -61,30 +61,40 @@ void CefDoMessageLoopWork()
   cef_do_message_loop_work();
 }
 
-bool CefRegisterExtension(const std::wstring& extension_name,
-                          const std::wstring& javascript_code,
+bool CefRegisterExtension(const CefString& extension_name,
+                          const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler)
 {
-  return cef_register_extension(extension_name.c_str(), javascript_code.c_str(),
-      CefV8HandlerCppToC::Wrap(handler))?true:false;
+  return cef_register_extension(extension_name.GetStruct(),
+      javascript_code.GetStruct(), CefV8HandlerCppToC::Wrap(handler))?
+      true:false;
 }
 
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
 {
   cef_plugin_info_t pluginInfo;
+  memset(&pluginInfo, 0, sizeof(pluginInfo));
 
-  pluginInfo.unique_name = plugin_info.unique_name.c_str();
-  pluginInfo.display_name = plugin_info.display_name.c_str();
-  pluginInfo.version =plugin_info.version.c_str();
-  pluginInfo.description = plugin_info.description.c_str();
+  cef_string_set(plugin_info.unique_name.c_str(),
+      plugin_info.unique_name.length(),
+      &pluginInfo.unique_name, false);
+  cef_string_set(plugin_info.display_name.c_str(),
+      plugin_info.display_name.length(),
+      &pluginInfo.display_name, false);
+  cef_string_set(plugin_info.version.c_str(),
+      plugin_info.version.length(),
+      &pluginInfo.version, false);
+  cef_string_set(plugin_info.description.c_str(),
+      plugin_info.description.length(),
+      &pluginInfo.description, false);
   
-  std::wstring mimeTypes, fileExtensions, typeDescriptions;
+  std::string mimeTypes, fileExtensions, typeDescriptions;
 
   for(size_t i = 0; i < plugin_info.mime_types.size(); ++i) {
     if(i > 0) {
-      mimeTypes += L"|";
-      fileExtensions += L"|";
-      typeDescriptions += L"|";
+      mimeTypes += "|";
+      fileExtensions += "|";
+      typeDescriptions += "|";
     }
 
     mimeTypes += plugin_info.mime_types[i].mime_type;
@@ -93,28 +103,37 @@ bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
     for(size_t j = 0;
         j < plugin_info.mime_types[i].file_extensions.size(); ++j) {
       if(j > 0) {
-        fileExtensions += L",";
+        fileExtensions += ",";
       }
       fileExtensions += plugin_info.mime_types[i].file_extensions[j];
     }
   }
 
-  pluginInfo.mime_types = mimeTypes.c_str();
-  pluginInfo.file_extensions = fileExtensions.c_str();
-  pluginInfo.type_descriptions = typeDescriptions.c_str();
+  cef_string_from_utf8(mimeTypes.c_str(), mimeTypes.length(),
+      &pluginInfo.mime_types);
+  cef_string_from_utf8(fileExtensions.c_str(), fileExtensions.length(),
+      &pluginInfo.file_extensions);
+  cef_string_from_utf8(typeDescriptions.c_str(), typeDescriptions.length(),
+      &pluginInfo.type_descriptions);
 
   pluginInfo.np_getentrypoints = plugin_info.np_getentrypoints;
   pluginInfo.np_initialize = plugin_info.np_initialize;
   pluginInfo.np_shutdown = plugin_info.np_shutdown;
 
-  return (cef_register_plugin(&pluginInfo) ? true : false);
+  bool ret = cef_register_plugin(&pluginInfo) ? true : false;
+
+  cef_string_clear(&pluginInfo.mime_types);
+  cef_string_clear(&pluginInfo.file_extensions);
+  cef_string_clear(&pluginInfo.type_descriptions);
+
+  return ret;
 }
 
-bool CefRegisterScheme(const std::wstring& scheme_name,
-                       const std::wstring& host_name,
+bool CefRegisterScheme(const CefString& scheme_name,
+                       const CefString& host_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
-  return cef_register_scheme(scheme_name.c_str(), host_name.c_str(),
+  return cef_register_scheme(scheme_name.GetStruct(), host_name.GetStruct(),
       CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
 }
 

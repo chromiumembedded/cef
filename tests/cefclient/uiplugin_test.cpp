@@ -15,13 +15,13 @@ public:
 
   // Execute with the specified argument list and return value.  Return true if
   // the method was handled.
-  virtual bool Execute(const std::wstring& name,
+  virtual bool Execute(const CefString& name,
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       std::wstring& exception)
+                       CefString& exception)
   {
-    if(name == L"modifyRotation") {
+    if(name == "modifyRotation") {
       // This function requires one argument.
       if(arguments.size() != 1)
         return false;
@@ -40,11 +40,11 @@ public:
         ModifyRotation(increment);
         return true;
       }
-    } else if(name == L"resetRotation") {
+    } else if(name == "resetRotation") {
       // Reset the rotation value.
       ResetRotation();
       return true;
-    } else if(name == L"viewSource") {
+    } else if(name == "viewSource") {
       // View the page source.
       AppGetBrowser()->GetMainFrame()->ViewSource();
       return true;
@@ -58,14 +58,14 @@ void InitUIPluginTest()
 {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
-  plugin_info.display_name = L"Client UI Plugin";
-  plugin_info.unique_name = L"client_ui_plugin";
-  plugin_info.version = L"1, 0, 0, 1";
-  plugin_info.description = L"My Example Client UI Plugin";
+  plugin_info.display_name = "Client UI Plugin";
+  plugin_info.unique_name = "client_ui_plugin";
+  plugin_info.version = "1, 0, 0, 1";
+  plugin_info.description = "My Example Client UI Plugin";
 
   CefPluginMimeType mime_type;
-  mime_type.mime_type = L"application/x-client-ui-plugin";
-  mime_type.file_extensions.push_back(L"*");
+  mime_type.mime_type = "application/x-client-ui-plugin";
+  mime_type.file_extensions.push_back("*");
   plugin_info.mime_types.push_back(mime_type);
 
   plugin_info.np_getentrypoints = NP_UIGetEntryPoints;
@@ -77,29 +77,29 @@ void InitUIPluginTest()
 
   // Register a V8 extension with the below JavaScript code that calls native
   // methods implemented in ClientV8UIHandler.
-  std::wstring code = L"var cef;"
-    L"if (!cef)"
-    L"  cef = {};"
-    L"if (!cef.uiapp)"
-    L"  cef.uiapp = {};"
-    L"(function() {"
-    L"  cef.uiapp.modifyRotation = function(val) {"
-    L"    native function modifyRotation();"
-    L"    return modifyRotation(val);"
-    L"  };"
-    L"  cef.uiapp.resetRotation = function() {"
-    L"    native function resetRotation();"
-    L"    return resetRotation();"
-    L"  };"
-    L"  cef.uiapp.viewSource = function() {"
-    L"    native function viewSource();"
-    L"    return viewSource();"
-    L"  };"
-    L"})();";
-  CefRegisterExtension(L"uiplugin/test", code, new ClientV8UIHandler());
+  std::string code = "var cef;"
+    "if (!cef)"
+    "  cef = {};"
+    "if (!cef.uiapp)"
+    "  cef.uiapp = {};"
+    "(function() {"
+    "  cef.uiapp.modifyRotation = function(val) {"
+    "    native function modifyRotation();"
+    "    return modifyRotation(val);"
+    "  };"
+    "  cef.uiapp.resetRotation = function() {"
+    "    native function resetRotation();"
+    "    return resetRotation();"
+    "  };"
+    "  cef.uiapp.viewSource = function() {"
+    "    native function viewSource();"
+    "    return viewSource();"
+    "  };"
+    "})();";
+  CefRegisterExtension("uiplugin/test", code, new ClientV8UIHandler());
 }
 
 void RunUIPluginTest(CefRefPtr<CefBrowser> browser)
 {
-  browser->GetMainFrame()->LoadURL(L"http://tests/uiapp");
+  browser->GetMainFrame()->LoadURL("http://tests/uiapp");
 }

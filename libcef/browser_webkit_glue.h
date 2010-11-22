@@ -12,7 +12,6 @@
 
 namespace WebKit {
 class WebFrame;
-class WebString;
 class WebView;
 }
 
@@ -42,14 +41,6 @@ v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 
 // Clear all cached data.
 void ClearCache();
-
-WebKit::WebString StdStringToWebString(const std::string& str);
-
-std::string WebStringToStdString(const WebKit::WebString& str);
-
-WebKit::WebString StdWStringToWebString(const std::wstring& str);
-
-std::wstring WebStringToStdWString(const WebKit::WebString& str);
 
 // Returns true if the specified 'Content-Disposition' header value represents
 // an attachment download. Also returns the file name.

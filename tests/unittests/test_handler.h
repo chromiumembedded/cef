@@ -28,7 +28,7 @@ public:
                                      CefWindowInfo& createInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     std::wstring& url,
+                                     CefString& url,
                                      CefBrowserSettings& settings)
   {
     return RV_CONTINUE;
@@ -49,13 +49,13 @@ public:
 
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
-                                     const std::wstring& url)
+                                     const CefString& url)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
-                                   const std::wstring& title)
+                                   const CefString& title)
   {
     return RV_CONTINUE;
   }
@@ -83,22 +83,22 @@ public:
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
-                                 const std::wstring& failedUrl,
-                                 std::wstring& errorText)
+                                 const CefString& failedUrl,
+                                 CefString& errorText)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefRequest> request,
-                                          std::wstring& redirectUrl,
+                                          CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          std::wstring& mimeType,
+                                          CefString& mimeType,
                                           int loadFlags)
   {
     Lock();
     if(resource_map_.size() > 0) {
-      std::wstring url = request->GetURL();
+      CefString url = request->GetURL();
       ResourceMap::const_iterator it = resource_map_.find(url);
       if(it != resource_map_.end()) {
         // Return the previously mapped resource
@@ -113,8 +113,8 @@ public:
   }
 
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
-                                        const std::wstring& mimeType,
-                                        const std::wstring& fileName,
+                                        const CefString& mimeType,
+                                        const CefString& fileName,
                                         int64 contentLength,
                                         CefRefPtr<CefDownloadHandler>& handler)
   {
@@ -129,7 +129,7 @@ public:
 
 
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,
-                                    MenuId menuId, std::wstring& label)
+                                    MenuId menuId, CefString& label)
   {
     return RV_CONTINUE;
   }
@@ -149,39 +149,39 @@ public:
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
-                                         const std::wstring& url,
-                                         const std::wstring& title,
+                                         const CefString& url,
+                                         const CefString& title,
                                          int currentPage, int maxPages,
-                                         std::wstring& topLeft,
-                                         std::wstring& topCenter,
-                                         std::wstring& topRight,
-                                         std::wstring& bottomLeft,
-                                         std::wstring& bottomCenter,
-                                         std::wstring& bottomRight)
+                                         CefString& topLeft,
+                                         CefString& topCenter,
+                                         CefString& topRight,
+                                         CefString& bottomLeft,
+                                         CefString& bottomCenter,
+                                         CefString& bottomRight)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               const std::wstring& message)
+                               const CefString& message)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
-                                 const std::wstring& message, bool& retval)
+                                 const CefString& message, bool& retval)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                const std::wstring& message,
-                                const std::wstring& defaultValue,
+                                const CefString& message,
+                                const CefString& defaultValue,
                                 bool& retval,
-                                std::wstring& result)
+                                CefString& result)
   {
     return RV_CONTINUE;
   }
@@ -228,14 +228,14 @@ public:
   }
 
   virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
-                               std::wstring& text)
+                               CefString& text)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
-                                      const std::wstring& message,
-                                      const std::wstring& source, int line)
+                                      const CefString& message,
+                                      const CefString& source, int line)
   {
     return RV_CONTINUE;
   }
@@ -283,18 +283,18 @@ protected:
     Unlock();
   }
 
-  void CreateBrowser(const std::wstring& url)
+  void CreateBrowser(const CefString& url)
   {
     CefWindowInfo windowInfo;
 #if defined(OS_WIN)
-    windowInfo.SetAsPopup(NULL, L"CefUnitTest");
+    windowInfo.SetAsPopup(NULL, "CefUnitTest");
     windowInfo.m_dwStyle |= WS_VISIBLE;
 #endif
     CefBrowser::CreateBrowser(windowInfo, false, this, url);
   }
 
-  void AddResource(const std::wstring& key, const std::string& value,
-                   const std::wstring& mimeType)
+  void AddResource(const CefString& key, const std::string& value,
+                   const CefString& mimeType)
   {
     resource_map_.insert(std::make_pair(key, std::make_pair(value, mimeType)));
   }
@@ -315,7 +315,7 @@ private:
   base::WaitableEvent completion_event_;
 
   // Map of resources that can be automatically loaded
-  typedef std::map<std::wstring, std::pair<std::string, std::wstring> > ResourceMap;
+  typedef std::map<CefString, std::pair<std::string, CefString> > ResourceMap;
   ResourceMap resource_map_;
 };
 

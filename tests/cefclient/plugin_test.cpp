@@ -9,14 +9,14 @@ void InitPluginTest()
 {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
-  plugin_info.display_name = L"Client Plugin";
-  plugin_info.unique_name = L"client_plugin";
-  plugin_info.version = L"1, 0, 0, 1";
-  plugin_info.description = L"My Example Client Plugin";
+  plugin_info.display_name = "Client Plugin";
+  plugin_info.unique_name = "client_plugin";
+  plugin_info.version = "1, 0, 0, 1";
+  plugin_info.description = "My Example Client Plugin";
 
   CefPluginMimeType mime_type;
-  mime_type.mime_type = L"application/x-client-plugin";
-  mime_type.file_extensions.push_back(L"*");
+  mime_type.mime_type = "application/x-client-plugin";
+  mime_type.file_extensions.push_back("*");
   plugin_info.mime_types.push_back(mime_type);
 
   plugin_info.np_getentrypoints = NP_GetEntryPoints;
@@ -29,10 +29,10 @@ void InitPluginTest()
 
 void RunPluginTest(CefRefPtr<CefBrowser> browser)
 {
-  std::wstring html =
-    L"<html><body>Client Plugin:<br>"
-    L"<embed type=\"application/x-client-plugin\""
-    L"width=600 height=40>"
-    L"</body></html>";
-  browser->GetMainFrame()->LoadString(html, L"about:blank");
+  std::string html =
+    "<html><body>Client Plugin:<br>"
+    "<embed type=\"application/x-client-plugin\""
+    "width=600 height=40>"
+    "</body></html>";
+  browser->GetMainFrame()->LoadString(html, "about:blank");
 }

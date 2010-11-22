@@ -141,9 +141,9 @@ NPError API_CALL NP_UIShutdown(void)
 // Send the notification to the browser as a JavaScript function call.
 static void NotifyNewRotation(float value)
 {
-  std::wstringstream buf;
-  buf << L"notifyNewRotation(" << value << L");";
-  AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(buf.str(), std::wstring(),
+  std::stringstream buf;
+  buf << "notifyNewRotation(" << value << ");";
+  AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(buf.str(), CefString(),
       0);
 }
 

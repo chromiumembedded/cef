@@ -34,12 +34,12 @@ void CefPostDataElementCToCpp::SetToEmpty()
   return struct_->set_to_empty(struct_);
 }
 
-void CefPostDataElementCToCpp::SetToFile(const std::wstring& fileName)
+void CefPostDataElementCToCpp::SetToFile(const CefString& fileName)
 {
   if(CEF_MEMBER_MISSING(struct_, set_to_file))
     return;
 
-  return struct_->set_to_file(struct_, fileName.c_str());
+  return struct_->set_to_file(struct_, fileName.GetStruct());
 }
 
 void CefPostDataElementCToCpp::SetToBytes(size_t size, const void* bytes)
@@ -58,18 +58,14 @@ CefPostDataElement::Type CefPostDataElementCToCpp::GetType()
   return struct_->get_type(struct_);
 }
 
-std::wstring CefPostDataElementCToCpp::GetFile()
+CefString CefPostDataElementCToCpp::GetFile()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_file))
     return str;
 
-  cef_string_t cef_str = struct_->get_file(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_file(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 

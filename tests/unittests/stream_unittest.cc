@@ -71,7 +71,7 @@ static void VerifyStreamWriteBehavior(CefRefPtr<CefStreamWriter> stream,
 TEST(StreamTest, ReadFile)
 {
   const char* fileName = "StreamTest.VerifyReadFile.txt";
-  std::wstring fileNameStr = L"StreamTest.VerifyReadFile.txt";
+  CefString fileNameStr = "StreamTest.VerifyReadFile.txt";
   std::string contents = "This is my test\ncontents for the file";
   
   // Create the file
@@ -116,7 +116,7 @@ TEST(StreamTest, ReadData)
 TEST(StreamTest, WriteFile)
 {
   const char* fileName = "StreamTest.VerifyWriteFile.txt";
-  std::wstring fileNameStr = L"StreamTest.VerifyWriteFile.txt";
+  CefString fileNameStr = "StreamTest.VerifyWriteFile.txt";
   std::string contents = "This is my test\ncontents for the file";
 
   // Test the stream

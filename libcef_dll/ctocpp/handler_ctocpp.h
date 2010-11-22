@@ -34,12 +34,12 @@ public:
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
       CefWindowInfo& windowInfo, bool popup,
       const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
-      std::wstring& url, CefBrowserSettings& settings);
+      CefString& url, CefBrowserSettings& settings);
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const std::wstring& url);
+      CefRefPtr<CefFrame> frame, const CefString& url);
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
-      const std::wstring& title);
+      const CefString& title);
   virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       NavType navType, bool isRedirect);
@@ -49,34 +49,33 @@ public:
       CefRefPtr<CefFrame> frame);
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, ErrorCode errorCode,
-      const std::wstring& failedUrl, std::wstring& errorText);
+      const CefString& failedUrl, CefString& errorText);
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefRequest> request, std::wstring& redirectUrl,
-      CefRefPtr<CefStreamReader>& resourceStream, std::wstring& mimeType,
+      CefRefPtr<CefRequest> request, CefString& redirectUrl,
+      CefRefPtr<CefStreamReader>& resourceStream, CefString& mimeType,
       int loadFlags);
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
-      const std::wstring& mimeType, const std::wstring& fileName,
+      const CefString& mimeType, const CefString& fileName,
       int64 contentLength, CefRefPtr<CefDownloadHandler>& handler);
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
       const MenuInfo& menuInfo);
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,
-      MenuId menuId, std::wstring& label);
+      MenuId menuId, CefString& label);
   virtual RetVal HandleMenuAction(CefRefPtr<CefBrowser> browser, MenuId menuId);
   virtual RetVal HandlePrintOptions(CefRefPtr<CefBrowser> browser,
       CefPrintOptions& printOptions);
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefPrintInfo& printInfo,
-      const std::wstring& url, const std::wstring& title, int currentPage,
-      int maxPages, std::wstring& topLeft, std::wstring& topCenter,
-      std::wstring& topRight, std::wstring& bottomLeft,
-      std::wstring& bottomCenter, std::wstring& bottomRight);
+      CefRefPtr<CefFrame> frame, CefPrintInfo& printInfo, const CefString& url,
+      const CefString& title, int currentPage, int maxPages,
+      CefString& topLeft, CefString& topCenter, CefString& topRight,
+      CefString& bottomLeft, CefString& bottomCenter, CefString& bottomRight);
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const std::wstring& message);
+      CefRefPtr<CefFrame> frame, const CefString& message);
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const std::wstring& message, bool& retval);
+      CefRefPtr<CefFrame> frame, const CefString& message, bool& retval);
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const std::wstring& message,
-      const std::wstring& defaultValue, bool& retval, std::wstring& result);
+      CefRefPtr<CefFrame> frame, const CefString& message,
+      const CefString& defaultValue, bool& retval, CefString& result);
   virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object);
   virtual RetVal HandleBeforeWindowClose(CefRefPtr<CefBrowser> browser);
@@ -84,10 +83,9 @@ public:
   virtual RetVal HandleSetFocus(CefRefPtr<CefBrowser> browser, bool isWidget);
   virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
       KeyEventType type, int code, int modifiers, bool isSystemKey);
-  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
-      std::wstring& text);
+  virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser, CefString& text);
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
-      const std::wstring& message, const std::wstring& source, int line);
+      const CefString& message, const CefString& source, int line);
   virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser, int identifier,
       int count, const CefRect& selectionRect, int activeMatchOrdinal,
       bool finalUpdate);

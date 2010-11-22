@@ -38,17 +38,13 @@ void CEF_CALLBACK post_data_element_set_to_empty(
 }
 
 void CEF_CALLBACK post_data_element_set_to_file(
-    struct _cef_post_data_element_t* self, const wchar_t* fileName)
+    struct _cef_post_data_element_t* self, const cef_string_t* fileName)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring fileNameStr;
-  if(fileName)
-    fileNameStr = fileName;
-
-  CefPostDataElementCppToC::Get(self)->SetToFile(fileNameStr);
+  CefPostDataElementCppToC::Get(self)->SetToFile(CefString(fileName));
 }
 
 void CEF_CALLBACK post_data_element_set_to_bytes(
@@ -71,18 +67,15 @@ enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
   return CefPostDataElementCppToC::Get(self)->GetType();
 }
 
-cef_string_t CEF_CALLBACK post_data_element_get_file(
+cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
     struct _cef_post_data_element_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring fileNameStr =
-      CefPostDataElementCppToC::Get(self)->GetFile();
-  if(!fileNameStr.empty())
-    return cef_string_alloc(fileNameStr.c_str());
-  return NULL;
+  CefString fileNameStr = CefPostDataElementCppToC::Get(self)->GetFile();
+  return fileNameStr.DetachToUserFree();
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes_count(

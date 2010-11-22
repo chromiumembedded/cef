@@ -18,9 +18,9 @@ BrowserNavigationEntry::BrowserNavigationEntry()
 
 BrowserNavigationEntry::BrowserNavigationEntry(int page_id,
                                          const GURL& url,
-                                         const std::wstring& title,
-                                         const std::wstring& target_frame,
-                                         const std::wstring& method,
+                                         const CefString& title,
+                                         const CefString& target_frame,
+                                         const CefString& method,
                                          const WebKit::WebHTTPBody& upload,
                                          const CefRequest::HeaderMap& headers)
     : page_id_(page_id),

@@ -50,7 +50,7 @@ class ClientDownloadHandler : public CefThreadSafeBase<CefDownloadHandler>
 {
 public:
   ClientDownloadHandler(CefRefPtr<DownloadListener> listener,
-                        const std::wstring& fileName)
+                        const CefString& fileName)
     : listener_(listener), filename_(fileName), file_(NULL)
   {
     // Open the file on the FILE thread.
@@ -140,8 +140,9 @@ public:
     // Save the file in the user's "My Documents" folder.
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, 
                                  NULL, 0, szFolderPath))) {
-      LPWSTR name = PathFindFileName(filename_.c_str());
-      LPWSTR ext = PathFindExtension(filename_.c_str());
+      std::wstring fileNameStr = filename_;
+      LPWSTR name = PathFindFileName(fileNameStr.c_str());
+      LPWSTR ext = PathFindExtension(fileNameStr.c_str());
       int ct = 0;
       std::wstringstream ss;
 
@@ -222,13 +223,13 @@ public:
 
 private:
   CefRefPtr<DownloadListener> listener_;
-  std::wstring filename_;
+  CefString filename_;
   FILE* file_;
   std::vector<std::vector<char>*> pending_data_;
 };
 
 CefRefPtr<CefDownloadHandler> CreateDownloadHandler(
-    CefRefPtr<DownloadListener> listener, const std::wstring& fileName)
+    CefRefPtr<DownloadListener> listener, const CefString& fileName)
 {
   return new ClientDownloadHandler(listener, fileName);
 }

@@ -18,7 +18,7 @@ public:
 
   bool Load(CefRefPtr<CefStreamReader> stream,
             CefXmlReader::EncodingType encodingType,
-            const std::wstring& URI)
+            const CefString& URI)
   {
     CefRefPtr<CefXmlReader> reader(
         CefXmlReader::Create(stream, encodingType, URI));
@@ -31,7 +31,7 @@ public:
       CefXmlObject::ObjectVector queue;
       int cur_depth, value_depth = -1;
       CefXmlReader::NodeType cur_type;
-      std::wstringstream cur_value;
+      std::stringstream cur_value;
       bool last_has_ns = false;
       
       queue.push_back(root_object_);
@@ -47,17 +47,17 @@ public:
         if (cur_type == XML_NODE_ELEMENT_START) {
           if (cur_depth == value_depth) {
             // Add to the current value.
-            cur_value << reader->GetOuterXml();
+            cur_value << std::string(reader->GetOuterXml());
             continue;
           } else if(last_has_ns && reader->GetPrefix().empty()) {
             if (!cur_object->HasChildren()) {
               // Start a new value because the last element has a namespace and
               // this element does not.
               value_depth = cur_depth;
-              cur_value << reader->GetOuterXml();
+              cur_value << std::string(reader->GetOuterXml());
             } else {
               // Value following a child element is not allowed.
-              std::wstringstream ss;
+              std::stringstream ss;
               ss << L"Value following child element, line " <<
                   reader->GetLineNumber();
               load_error_ = ss.str();
@@ -93,7 +93,7 @@ public:
           } else if (cur_depth < value_depth) {
             // Done with parsing the value portion of the current element.
             cur_object->SetValue(cur_value.str());
-            cur_value.str(L"");
+            cur_value.str("");
             value_depth = -1;
           }
 
@@ -105,9 +105,10 @@ public:
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
             DCHECK(false);
-            std::wstringstream ss;
-            ss << L"Mismatched end tag for " << cur_object->GetName() <<
-                L", line " << reader->GetLineNumber();
+            std::stringstream ss;
+            ss << "Mismatched end tag for " <<
+                std::string(cur_object->GetName()) <<
+                ", line " << reader->GetLineNumber();
             load_error_ = ss.str();
             ret = false;
             break;
@@ -119,15 +120,15 @@ public:
                   cur_type == XML_NODE_ENTITY_REFERENCE) {
           if (cur_depth == value_depth) {
             // Add to the current value.
-            cur_value << reader->GetValue();
+            cur_value << std::string(reader->GetValue());
           } else if (!cur_object->HasChildren()) {
             // Start a new value.
             value_depth = cur_depth;
-            cur_value << reader->GetValue();
+            cur_value << std::string(reader->GetValue());
           } else {
             // Value following a child element is not allowed.
-            std::wstringstream ss;
-            ss << L"Value following child element, line " <<
+            std::stringstream ss;
+            ss << "Value following child element, line " <<
                 reader->GetLineNumber();
             load_error_ = ss.str();
             ret = false;
@@ -145,16 +146,16 @@ public:
     return ret;
   }
 
-  std::wstring GetLoadError() { return load_error_; }
+  CefString GetLoadError() { return load_error_; }
 
 private:
-  std::wstring load_error_;
+  CefString load_error_;
   CefRefPtr<CefXmlObject> root_object_;
 };
 
 } // namespace
 
-CefXmlObject::CefXmlObject(const std::wstring& name)
+CefXmlObject::CefXmlObject(const CefString& name)
   : name_(name), parent_(NULL)
 {
 }
@@ -165,7 +166,7 @@ CefXmlObject::~CefXmlObject()
 
 bool CefXmlObject::Load(CefRefPtr<CefStreamReader> stream,
                         CefXmlReader::EncodingType encodingType,
-                        const std::wstring& URI, std::wstring* loadError)
+                        const CefString& URI, CefString* loadError)
 {
   AutoLock lock_scope(this);
   Clear();
@@ -236,9 +237,9 @@ void CefXmlObject::Clear()
   ClearAttributes();
 }
 
-std::wstring CefXmlObject::GetName()
+CefString CefXmlObject::GetName()
 {
-  std::wstring name;
+  CefString name;
   {
     AutoLock lock_scope(this);
     name = name_;
@@ -246,7 +247,7 @@ std::wstring CefXmlObject::GetName()
   return name;
 }
 
-bool CefXmlObject::SetName(const std::wstring& name)
+bool CefXmlObject::SetName(const CefString& name)
 {
   DCHECK(!name.empty());
   if (name.empty())
@@ -279,9 +280,9 @@ bool CefXmlObject::HasValue()
   return !value_.empty();
 }
 
-std::wstring CefXmlObject::GetValue()
+CefString CefXmlObject::GetValue()
 {
-  std::wstring value;
+  CefString value;
   {
     AutoLock lock_scope(this);
     value = value_;
@@ -289,7 +290,7 @@ std::wstring CefXmlObject::GetValue()
   return value;
 }
 
-bool CefXmlObject::SetValue(const std::wstring& value)
+bool CefXmlObject::SetValue(const CefString& value)
 {
   AutoLock lock_scope(this);
   DCHECK(children_.empty());
@@ -311,7 +312,7 @@ size_t CefXmlObject::GetAttributeCount()
   return attributes_.size();
 }
 
-bool CefXmlObject::HasAttribute(const std::wstring& name)
+bool CefXmlObject::HasAttribute(const CefString& name)
 {
   if (name.empty())
     return false;
@@ -321,10 +322,10 @@ bool CefXmlObject::HasAttribute(const std::wstring& name)
   return (it != attributes_.end());
 }
 
-std::wstring CefXmlObject::GetAttributeValue(const std::wstring& name)
+CefString CefXmlObject::GetAttributeValue(const CefString& name)
 {
   DCHECK(!name.empty());
-  std::wstring value;
+  CefString value;
   if (!name.empty()) {
     AutoLock lock_scope(this);
     AttributeMap::const_iterator it = attributes_.find(name);
@@ -334,8 +335,8 @@ std::wstring CefXmlObject::GetAttributeValue(const std::wstring& name)
   return value;
 }
 
-bool CefXmlObject::SetAttributeValue(const std::wstring& name,
-                                     const std::wstring& value)
+bool CefXmlObject::SetAttributeValue(const CefString& name,
+                                     const CefString& value)
 {
   DCHECK(!name.empty());
   if (name.empty())
@@ -346,8 +347,7 @@ bool CefXmlObject::SetAttributeValue(const std::wstring& name,
   if (it != attributes_.end()) {
     it->second = value;
   } else {
-    attributes_.insert(
-        std::make_pair<std::wstring,std::wstring>(name, value));
+    attributes_.insert(std::make_pair(name, value));
   }
   return true;
 }
@@ -441,7 +441,7 @@ void CefXmlObject::ClearChildren()
   children_.clear();
 }
 
-CefRefPtr<CefXmlObject> CefXmlObject::FindChild(const std::wstring& name)
+CefRefPtr<CefXmlObject> CefXmlObject::FindChild(const CefString& name)
 {
   DCHECK(!name.empty());
   if (name.empty())
@@ -456,7 +456,7 @@ CefRefPtr<CefXmlObject> CefXmlObject::FindChild(const std::wstring& name)
   return NULL;
 }
 
-size_t CefXmlObject::FindChildren(const std::wstring& name,
+size_t CefXmlObject::FindChildren(const CefString& name,
                                   ObjectVector& children)
 {
   DCHECK(!name.empty());

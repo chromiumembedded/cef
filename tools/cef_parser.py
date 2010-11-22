@@ -1047,7 +1047,7 @@ class obj_analysis:
         
     def _get_basic(self, value):
         # check for string values
-        if value == "std::wstring":
+        if value == "CefString":
             return {
                 'result_type' : 'string',
                 'result_value' : None
@@ -1192,13 +1192,16 @@ class obj_analysis:
     
     def get_result_string_type(self):
         """ Return the string type. """
-        # if the string is a return value, or if the string is passed by
-        # reference or address then use the read-write string type
         if not self.has_name():
-            return 'cef_string_t'
+            # Return values are string structs that the user must free. Use
+            # the name of the structure as a hint.
+            return 'cef_string_userfree_t'
         elif not self.is_const() and (self.is_byref() or self.is_byaddr()):
+            # Parameters passed by reference or address. Use the normal
+            # non-const string struct.
             return 'cef_string_t*'
-        return 'const wchar_t*'
+        # Const parameters use the const string struct.
+        return 'const cef_string_t*'
 
     def is_result_vector(self):
         """ Returns true if this is a vector type. """

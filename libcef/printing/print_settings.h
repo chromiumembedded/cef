@@ -84,7 +84,7 @@ class PrintSettings {
   void Init(HDC hdc,
             const DEVMODE& dev_mode,
             const PageRanges& new_ranges,
-            const std::wstring& new_device_name,
+            const CefString& new_device_name,
             bool selection_only,
             bool to_file);
 #endif
@@ -102,11 +102,11 @@ class PrintSettings {
   // output.
   bool Equals(const PrintSettings& rhs) const;
 
-  const std::wstring& printer_name() const { return printer_name_; }
-  void set_device_name(const std::wstring& device_name) {
+  const CefString& printer_name() const { return printer_name_; }
+  void set_device_name(const CefString& device_name) {
     device_name_ = device_name;
   }
-  const std::wstring& device_name() const { return device_name_; }
+  const CefString& device_name() const { return device_name_; }
   int dpi() const { return dpi_; }
   const PageSetup& page_setup_pixels() const { return page_setup_pixels_; }
 
@@ -160,10 +160,10 @@ class PrintSettings {
   // Settings that can't be changed without side-effects.
 
   // Printer name as shown to the user.
-  std::wstring printer_name_;
+  CefString printer_name_;
 
   // Printer device name as opened by the OS.
-  std::wstring device_name_;
+  CefString device_name_;
 
   // Page setup in pixel units, dpi adjusted.
   PageSetup page_setup_pixels_;

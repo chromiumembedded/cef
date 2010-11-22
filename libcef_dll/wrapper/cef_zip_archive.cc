@@ -70,7 +70,7 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
       continue;
     }
 
-    if (!reader->OpenFile(L""))
+    if (!reader->OpenFile(CefString()))
       break;
     
     name = reader->GetFileName();
@@ -99,8 +99,7 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
     count++;
 
     // Add the file to the map.
-    contents_.insert(
-        std::make_pair<std::wstring, CefRefPtr<File> >(name, contents.get()));
+    contents_.insert(std::make_pair(name, contents.get()));
   } while (reader->MoveToNextFile());
 
   return count;
@@ -118,36 +117,36 @@ size_t CefZipArchive::GetFileCount()
   return contents_.size();
 }
 
-bool CefZipArchive::HasFile(const std::wstring& fileName)
+bool CefZipArchive::HasFile(const CefString& fileName)
 {
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
   AutoLock lock_scope(this);
-  FileMap::const_iterator it = contents_.find(str);
+  FileMap::const_iterator it = contents_.find(CefString(str));
   return (it != contents_.end());
 }
 
 CefRefPtr<CefZipArchive::File> CefZipArchive::GetFile(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
   AutoLock lock_scope(this);
-  FileMap::const_iterator it = contents_.find(str);
+  FileMap::const_iterator it = contents_.find(CefString(str));
   if (it != contents_.end())
     return it->second;
   return NULL;
 }
 
-bool CefZipArchive::RemoveFile(const std::wstring& fileName)
+bool CefZipArchive::RemoveFile(const CefString& fileName)
 {
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
   AutoLock lock_scope(this);
-  FileMap::iterator it = contents_.find(str);
+  FileMap::iterator it = contents_.find(CefString(str));
   if (it != contents_.end()) {
     contents_.erase(it);
     return true;

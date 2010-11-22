@@ -17,13 +17,10 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
-    enum cef_xml_encoding_type_t encodingType, const wchar_t* URI)
+    enum cef_xml_encoding_type_t encodingType, const cef_string_t* URI)
 {
-  std::wstring encodingTypeStr;
-  if(encodingType)
-    encodingTypeStr = encodingType;
   CefRefPtr<CefXmlReader> impl = CefXmlReader::Create(
-      CefStreamReaderCppToC::Unwrap(stream), encodingType, encodingTypeStr);
+      CefStreamReaderCppToC::Unwrap(stream), encodingType, CefString(URI));
   if(impl.get())
     return CefXmlReaderCppToC::Wrap(impl);
   return NULL;
@@ -59,16 +56,15 @@ int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self)
   return CefXmlReaderCppToC::Get(self)->HasError();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_error(struct _cef_xml_reader_t* self)
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
+    struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetError();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetError();
+  return retStr.DetachToUserFree();
 }
 
 enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
@@ -90,81 +86,70 @@ int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self)
   return CefXmlReaderCppToC::Get(self)->GetDepth();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_local_name(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_local_name(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetLocalName();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetLocalName();
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_prefix(struct _cef_xml_reader_t* self)
-{
-  DCHECK(self);
-  if(!self)
-    return NULL;
-
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetPrefix();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
-}
-
-cef_string_t CEF_CALLBACK xml_reader_get_qualified_name(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_prefix(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetQualifiedName();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetPrefix();
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_namespace_uri(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_qualified_name(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetNamespaceURI();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetQualifiedName();
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_base_uri(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_namespace_uri(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetBaseURI();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetNamespaceURI();
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_xml_lang(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_base_uri(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetXmlLang();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetBaseURI();
+  return retStr.DetachToUserFree();
+}
+
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_xml_lang(
+    struct _cef_xml_reader_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return NULL;
+
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetXmlLang();
+  return retStr.DetachToUserFree();
 }
 
 int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self)
@@ -185,16 +170,15 @@ int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self)
   return CefXmlReaderCppToC::Get(self)->HasValue();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_value(struct _cef_xml_reader_t* self)
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_value(
+    struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetValue();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetValue();
+  return retStr.DetachToUserFree();
 }
 
 int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self)
@@ -216,37 +200,33 @@ size_t CEF_CALLBACK xml_reader_get_attribute_count(
   return CefXmlReaderCppToC::Get(self)->GetAttributeCount();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_attribute_byindex(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
     struct _cef_xml_reader_t* self, int index)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(index);
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(index);
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_attribute_byqname(
-    struct _cef_xml_reader_t* self, const wchar_t* qualifiedName)
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byqname(
+    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
 {
   DCHECK(self);
   DCHECK(qualifiedName);
   if(!self || !qualifiedName)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(
-      qualifiedName);
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(
+      CefString(qualifiedName));
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_attribute_bylname(
-    struct _cef_xml_reader_t* self, const wchar_t* localName,
-    const wchar_t* namespaceURI)
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_bylname(
+    struct _cef_xml_reader_t* self, const cef_string_t* localName,
+    const cef_string_t* namespaceURI)
 {
   DCHECK(self);
   DCHECK(localName);
@@ -254,37 +234,31 @@ cef_string_t CEF_CALLBACK xml_reader_get_attribute_bylname(
   if(!self || !localName || !namespaceURI)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(
-      localName, namespaceURI);
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetAttribute(
+      CefString(localName), CefString(namespaceURI));
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_inner_xml(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_inner_xml(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetInnerXml();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetInnerXml();
+  return retStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK xml_reader_get_outer_xml(
+cef_string_userfree_t CEF_CALLBACK xml_reader_get_outer_xml(
     struct _cef_xml_reader_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring retStr = CefXmlReaderCppToC::Get(self)->GetOuterXml();
-  if(!retStr.empty())
-    return cef_string_alloc(retStr.c_str());
-  return NULL;
+  CefString retStr = CefXmlReaderCppToC::Get(self)->GetOuterXml();
+  return retStr.DetachToUserFree();
 }
 
 int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
@@ -307,19 +281,20 @@ int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
 }
 
 int CEF_CALLBACK xml_reader_move_to_attribute_byqname(
-    struct _cef_xml_reader_t* self, const wchar_t* qualifiedName)
+    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
 {
   DCHECK(self);
   DCHECK(qualifiedName);
   if(!self || !qualifiedName)
     return 0;
 
-  return CefXmlReaderCppToC::Get(self)->MoveToAttribute(qualifiedName);
+  return CefXmlReaderCppToC::Get(self)->MoveToAttribute(
+      CefString(qualifiedName));
 }
 
 int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
-    struct _cef_xml_reader_t* self, const wchar_t* localName,
-    const wchar_t* namespaceURI)
+    struct _cef_xml_reader_t* self, const cef_string_t* localName,
+    const cef_string_t* namespaceURI)
 {
   DCHECK(self);
   DCHECK(localName);
@@ -327,8 +302,8 @@ int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
   if(!self || !localName || !namespaceURI)
     return 0;
 
-  return CefXmlReaderCppToC::Get(self)->MoveToAttribute(localName,
-      namespaceURI);
+  return CefXmlReaderCppToC::Get(self)->MoveToAttribute(CefString(localName),
+      CefString(namespaceURI));
 }
 
 int CEF_CALLBACK xml_reader_move_to_first_attribute(

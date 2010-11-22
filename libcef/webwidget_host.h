@@ -5,13 +5,13 @@
 #ifndef _WEBWIDGET_HOST_H
 #define _WEBWIDGET_HOST_H
 
+#include "include/cef_string.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "gfx/native_widget_types.h"
 #include "gfx/rect.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include <string>
 
 namespace gfx {
 class Rect;
@@ -70,7 +70,7 @@ class WebWidgetHost {
 
   void PaintRect(const gfx::Rect& rect);
 
-  void SetTooltipText(const std::wstring& tooltip_text);
+  void SetTooltipText(const CefString& tooltip_text);
 
  protected:
   WebWidgetHost();
@@ -144,6 +144,7 @@ class WebWidgetHost {
 
 #if defined(OS_WIN)
   bool track_mouse_leave_;
+  std::wstring tooltip_text_;
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
@@ -154,7 +155,6 @@ class WebWidgetHost {
 
   WebKit::WebKeyboardEvent last_key_event_;
   gfx::NativeView tooltip_view_;
-  std::wstring tooltip_text_;
   bool tooltip_showing_;
 
 #ifndef NDEBUG

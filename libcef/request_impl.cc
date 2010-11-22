@@ -6,7 +6,6 @@
 #include "browser_webkit_glue.h"
 
 #include "base/logging.h"
-#include "base/utf_string_conversions.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
@@ -25,30 +24,30 @@ CefRequestImpl::CefRequestImpl()
 {
 }
 
-std::wstring CefRequestImpl::GetURL()
+CefString CefRequestImpl::GetURL()
 {
   Lock();
-  std::wstring url = url_;
+  CefString url = url_;
   Unlock();
   return url;
 }
 
-void CefRequestImpl::SetURL(const std::wstring& url)
+void CefRequestImpl::SetURL(const CefString& url)
 {
   Lock();
   url_ = url;
   Unlock();
 }
 
-std::wstring CefRequestImpl::GetMethod()
+CefString CefRequestImpl::GetMethod()
 {
   Lock();
-  std::wstring method = method_;
+  CefString method = method_;
   Unlock();
   return method;
 }
 
-void CefRequestImpl::SetMethod(const std::wstring& method)
+void CefRequestImpl::SetMethod(const CefString& method)
 {
   Lock();
   method_ = method;
@@ -84,8 +83,8 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& headerMap)
   Unlock();
 }
 
-void CefRequestImpl::Set(const std::wstring& url,
-                         const std::wstring& method,
+void CefRequestImpl::Set(const CefString& url,
+                         const CefString& method,
                          CefRefPtr<CefPostData> postData,
                          const HeaderMap& headerMap)
 {
@@ -99,14 +98,13 @@ void CefRequestImpl::Set(const std::wstring& url,
 
 void CefRequestImpl::Set(URLRequest* request)
 {
-  SetURL(UTF8ToWide(request->url().spec()));
-  SetMethod(UTF8ToWide(request->method()));
+  SetURL(request->url().spec());
+  SetMethod(request->method());
 
   // Transfer request headers
   HeaderMap headerMap;
   GetHeaderMap(request->extra_request_headers(), headerMap);
-  headerMap.insert(
-      std::make_pair(L"Referrer", UTF8ToWide(request->referrer())));
+  headerMap.insert(std::make_pair(L"Referrer", request->referrer()));
   SetHeaderMap(headerMap);
 
   // Transfer post data, if any
@@ -123,7 +121,7 @@ void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers, Header
 {
   net::HttpRequestHeaders::Iterator it(headers);
   do {
-    map[UTF8ToWide(it.name())] = UTF8ToWide(it.value());
+    map[it.name()] = it.value();
   } while (it.GetNext());
 }
 
@@ -136,10 +134,7 @@ void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
 
       virtual void visitHeader(const WebKit::WebString& name,
                                const WebKit::WebString& value) {
-        map_->insert(
-            std::make_pair(
-                UTF8ToWide(webkit_glue::WebStringToStdString(name)),
-                UTF8ToWide(webkit_glue::WebStringToStdString(value))));
+        map_->insert(std::make_pair(string16(name), string16(value)));
       }
 
     private:
@@ -154,11 +149,8 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
                                   WebKit::WebURLRequest& request)
 {
   HeaderMap::const_iterator it = map.begin();
-  for(; it != map.end(); ++it) {
-    request.setHTTPHeaderField(
-        webkit_glue::StdWStringToWebString(it->first.c_str()),
-        webkit_glue::StdWStringToWebString(it->second.c_str()));
-  }
+  for(; it != map.end(); ++it)
+    request.setHTTPHeaderField(string16(it->first), string16(it->second));
 }
 
 std::string CefRequestImpl::GenerateHeaders(const HeaderMap& map)
@@ -168,15 +160,15 @@ std::string CefRequestImpl::GenerateHeaders(const HeaderMap& map)
   for(HeaderMap::const_iterator header = map.begin();
       header != map.end();
       ++header) {
-    const std::wstring& key = header->first;
-    const std::wstring& value = header->second;
+    const CefString& key = header->first;
+    const CefString& value = header->second;
 
     if(!key.empty()) {
       // Delimit with "\r\n".
       if(!headers.empty())
         headers += "\r\n";
 
-      headers += WideToUTF8(key) + ": " + WideToUTF8(value);
+      headers += std::string(key) + ": " + std::string(value);
     }
   }
 
@@ -194,7 +186,7 @@ void CefRequestImpl::ParseHeaders(const std::string& header_str, HeaderMap& map)
   void* iter = NULL;
   std::string name, value;
   while(headers->EnumerateHeaderLines(&iter, &name, &value))
-    map.insert(std::make_pair(UTF8ToWide(name), UTF8ToWide(value)));
+    map.insert(std::make_pair(name, value));
 }
 
 CefRefPtr<CefPostData> CefPostData::CreatePostData()
@@ -351,6 +343,7 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement()
 CefPostDataElementImpl::CefPostDataElementImpl()
 {
   type_ = PDE_TYPE_EMPTY;
+  memset(&data_, 0, sizeof(data_));
 }
 
 CefPostDataElementImpl::~CefPostDataElementImpl()
@@ -364,31 +357,21 @@ void CefPostDataElementImpl::SetToEmpty()
   if(type_ == PDE_TYPE_BYTES)
     free(data_.bytes.bytes);
   else if(type_ == PDE_TYPE_FILE)
-    free(data_.filename);
+    cef_string_clear(&data_.filename);
   type_ = PDE_TYPE_EMPTY;
+  memset(&data_, 0, sizeof(data_));
   Unlock();
 }
 
-void CefPostDataElementImpl::SetToFile(const std::wstring& fileName)
+void CefPostDataElementImpl::SetToFile(const CefString& fileName)
 {
   Lock();
   // Clear any data currently in the element
   SetToEmpty();
 
-  // Assign the new file name
-  size_t size = fileName.size();
-  wchar_t* data = static_cast<wchar_t*>(malloc((size + 1) * sizeof(wchar_t)));
-  DCHECK(data != NULL);
-  if(data == NULL)
-    return;
-
-  memcpy(static_cast<void*>(data), static_cast<const void*>(fileName.c_str()),
-      size * sizeof(wchar_t));
-  data[size] = 0;
-
   // Assign the new data
   type_ = PDE_TYPE_FILE;
-  data_.filename = data;
+  cef_string_copy(fileName.c_str(), fileName.length(), &data_.filename);
   Unlock();
 }
 
@@ -420,13 +403,13 @@ CefPostDataElement::Type CefPostDataElementImpl::GetType()
   return type;
 }
 
-std::wstring CefPostDataElementImpl::GetFile()
+CefString CefPostDataElementImpl::GetFile()
 {
   Lock();
   DCHECK(type_ == PDE_TYPE_FILE);
-  std::wstring filename;
+  CefString filename;
   if(type_ == PDE_TYPE_FILE)
-    filename = data_.filename;
+    filename.FromString(data_.filename.str, data_.filename.length, false);
   Unlock();
   return filename;
 }
@@ -484,11 +467,8 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
   if(type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if(type_ == PDE_TYPE_FILE) {
-#if defined(OS_WIN)
-    element.SetToFilePath(FilePath(data_.filename));
-#else
-    element.SetToFilePath(FilePath(WideToUTF8(data_.filename)));
-#endif
+    FilePath path = FilePath(CefString(&data_.filename));
+    element.SetToFilePath(path);
   } else {
     NOTREACHED();
   }
@@ -504,7 +484,7 @@ void CefPostDataElementImpl::Set(const WebKit::WebHTTPBody::Element& element)
     SetToBytes(element.data.size(),
         static_cast<const void*>(element.data.data()));
   } else if(element.type == WebKit::WebHTTPBody::Element::TypeFile) {
-    SetToFile(UTF8ToWide(webkit_glue::WebStringToStdString(element.filePath)));
+    SetToFile(string16(element.filePath));
   } else {
     NOTREACHED();
   }
@@ -522,7 +502,7 @@ void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element)
         static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if(type_ == PDE_TYPE_FILE) {
     element.type = WebKit::WebHTTPBody::Element::TypeFile;
-    element.filePath.assign(webkit_glue::StdWStringToWebString(data_.filename));
+    element.filePath.assign(string16(CefString(&data_.filename)));
   } else {
     NOTREACHED();
   }

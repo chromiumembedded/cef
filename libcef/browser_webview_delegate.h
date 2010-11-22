@@ -251,13 +251,13 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,
-                           const std::wstring& message);
+                           const CefString& message);
   bool ShowJavaScriptConfirm(WebKit::WebFrame* webframe,
-                             const std::wstring& message);
+                             const CefString& message);
   bool ShowJavaScriptPrompt(WebKit::WebFrame* webframe,
-                            const std::wstring& message,
-                            const std::wstring& default_value,
-                            std::wstring* result);
+                            const CefString& message,
+                            const CefString& default_value,
+                            CefString* result);
 
   // Called to show the file chooser dialog.
   bool ShowFileChooser(std::vector<FilePath>& file_names, 

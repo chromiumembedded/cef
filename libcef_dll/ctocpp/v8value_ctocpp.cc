@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/base_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
@@ -57,9 +58,9 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
   return NULL;
 }
 
-CefRefPtr<CefV8Value> CefV8Value::CreateString(const std::wstring& value)
+CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 {
-  cef_v8value_t* impl = cef_v8value_create_string(value.c_str());
+  cef_v8value_t* impl = cef_v8value_create_string(value.GetStruct());
   if(impl)
     return CefV8ValueCToCpp::Wrap(impl);
   return NULL;
@@ -85,14 +86,14 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray()
   return NULL;
 }
 
-CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const std::wstring& name,
+CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
     CefRefPtr<CefV8Handler> handler)
 {
   cef_v8handler_t* handlerStruct = NULL;
   if(handler.get())
     handlerStruct = CefV8HandlerCppToC::Wrap(handler);
 
-  cef_v8value_t* impl = cef_v8value_create_function(name.c_str(),
+  cef_v8value_t* impl = cef_v8value_create_function(name.GetStruct(),
       handlerStruct);
   if(impl)
     return CefV8ValueCToCpp::Wrap(impl);
@@ -198,26 +199,23 @@ double CefV8ValueCToCpp::GetDoubleValue()
   return struct_->get_double_value(struct_);
 }
 
-std::wstring CefV8ValueCToCpp::GetStringValue()
+CefString CefV8ValueCToCpp::GetStringValue()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_string_value))
     return str;
 
-  cef_string_t cef_str = struct_->get_string_value(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_string_value(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-bool CefV8ValueCToCpp::HasValue(const std::wstring& key)
+bool CefV8ValueCToCpp::HasValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, has_value_bykey))
     return false;
 
-  return struct_->has_value_bykey(struct_, key.c_str())?true:false;
+  return struct_->has_value_bykey(struct_, key.GetStruct())?true:false;
 }
 
 bool CefV8ValueCToCpp::HasValue(int index)
@@ -228,12 +226,12 @@ bool CefV8ValueCToCpp::HasValue(int index)
   return struct_->has_value_byindex(struct_, index)?true:false;
 }
 
-bool CefV8ValueCToCpp::DeleteValue(const std::wstring& key)
+bool CefV8ValueCToCpp::DeleteValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, delete_value_bykey))
     return false;
 
-  return struct_->delete_value_bykey(struct_, key.c_str())?true:false;
+  return struct_->delete_value_bykey(struct_, key.GetStruct())?true:false;
 }
 
 bool CefV8ValueCToCpp::DeleteValue(int index)
@@ -244,12 +242,13 @@ bool CefV8ValueCToCpp::DeleteValue(int index)
   return struct_->delete_value_byindex(struct_, index)?true:false;
 }
 
-CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const std::wstring& key)
+CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, get_value_bykey))
     return false;
 
-  cef_v8value_t* valueStruct = struct_->get_value_bykey(struct_, key.c_str());
+  cef_v8value_t* valueStruct = struct_->get_value_bykey(struct_,
+      key.GetStruct());
   if(valueStruct)
     return CefV8ValueCToCpp::Wrap(valueStruct);
   return NULL;
@@ -266,13 +265,13 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
   return NULL;
 }
 
-bool CefV8ValueCToCpp::SetValue(const std::wstring& key,
+bool CefV8ValueCToCpp::SetValue(const CefString& key,
     CefRefPtr<CefV8Value> value)
 {
   if(CEF_MEMBER_MISSING(struct_, set_value_bykey))
     return false;
 
-  return struct_->set_value_bykey(struct_, key.c_str(),
+  return struct_->set_value_bykey(struct_, key.GetStruct(),
       CefV8ValueCToCpp::Unwrap(value))?true:false;
 }
 
@@ -285,20 +284,14 @@ bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
       CefV8ValueCToCpp::Unwrap(value))?true:false;
 }
 
-bool CefV8ValueCToCpp::GetKeys(std::vector<std::wstring>& keys)
+bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)
 {
   if(CEF_MEMBER_MISSING(struct_, get_keys))
     return false;
 
   cef_string_list_t list = cef_string_list_alloc();
   if(struct_->get_keys(struct_, list)) {
-    cef_string_t str;
-    int size = cef_string_list_size(list);
-    for(int i = 0; i < size; ++i) {
-      str = cef_string_list_value(list, i);
-      keys.push_back(str);
-      cef_string_free(str);
-    }
+    transfer_string_list_contents(list, keys);
     cef_string_list_free(list);
     return true;
   }
@@ -324,17 +317,14 @@ int CefV8ValueCToCpp::GetArrayLength()
   return struct_->get_array_length(struct_);
 }
 
-std::wstring CefV8ValueCToCpp::GetFunctionName()
+CefString CefV8ValueCToCpp::GetFunctionName()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_function_name))
     return str;
 
-  cef_string_t cef_str = struct_->get_function_name(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_function_name(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -351,7 +341,7 @@ CefRefPtr<CefV8Handler> CefV8ValueCToCpp::GetFunctionHandler()
 
 bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
     const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-    std::wstring& exception)
+    CefString& exception)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_function))
     return RV_CONTINUE;
@@ -365,16 +355,11 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
   }
 
   cef_v8value_t* retvalStruct = NULL;
-  cef_string_t exceptionStr = NULL;
 
   int rv = struct_->execute_function(struct_, CefV8ValueCToCpp::Unwrap(object),
-      argsSize, argsStructPtr, &retvalStruct, &exceptionStr);
+      argsSize, argsStructPtr, &retvalStruct, exception.GetWritableStruct());
   if(retvalStruct)
     retval = CefV8ValueCToCpp::Wrap(retvalStruct);
-  if(exceptionStr) {
-    exception = exceptionStr;
-    cef_string_free(exceptionStr);
-  }
 
   if(argsStructPtr)
     delete [] argsStructPtr;

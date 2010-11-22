@@ -22,7 +22,6 @@ MSVC_POP_WARNING();
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
-#include "base/utf_string_conversions.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
@@ -73,8 +72,8 @@ bool IsProtocolSupportedForMedia(const GURL& url) {
 
 std::string GetWebKitLocale() {
   const CefSettings& settings = _Context->settings();
-  if (settings.locale)
-    return WideToUTF8(settings.locale);
+  if (settings.locale.length > 0)
+    return CefString(&settings.locale);
   return "en-US";
 }
 
@@ -104,29 +103,11 @@ void ClearCache()
   WebCore::cache()->setDisabled(false);
 }
 
-WebKit::WebString StdStringToWebString(const std::string& str) {
-  return WebKit::WebString::fromUTF8(str.data(), str.size());
-}
-
-std::string WebStringToStdString(const WebKit::WebString& str) {
-  std::string ret;
-  if (!str.isNull())
-    UTF16ToUTF8(str.data(), str.length(), &ret);
-  return ret;
-}
-
-WebKit::WebString StdWStringToWebString(const std::wstring& str) {
-  return StdStringToWebString(WideToUTF8(str));
-}
-
-std::wstring WebStringToStdWString(const WebKit::WebString& str) {
-  return UTF8ToWide(WebStringToStdString(str));
-}
-
 std::string GetProductVersion() {
   const CefSettings& settings = _Context->settings();
-  if (settings.product_version)
-    return WideToUTF8(settings.product_version);
+  if (settings.product_version.length > 0) {
+    return CefString(&settings.product_version);
+  }
   return "Chrome/7.0.517.0";
 }
 

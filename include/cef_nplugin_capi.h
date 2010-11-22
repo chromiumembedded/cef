@@ -50,28 +50,28 @@ extern "C" {
 // a plugin.
 typedef struct _cef_plugin_info_t {
   // The unique name that identifies the plugin.
-  const wchar_t* unique_name;
+  cef_string_t unique_name;
 
   // The friendly display name of the plugin.
-  const wchar_t* display_name;
+  cef_string_t display_name;
 
   // The version string of the plugin.
-  const wchar_t* version;
+  cef_string_t version;
 
   // A description of the plugin.
-  const wchar_t* description;
+  cef_string_t description;
   
   // A pipe (|) delimited list of mime type values that the plugin supports.
-  const wchar_t* mime_types;
+  cef_string_t mime_types;
   
   // A pipe (|) delimited list of extension values. Each value is associated
   // with the mime type value at the same position. Multiple file extensions
   // for the same mime type may be delimited with commas (,).
-  const wchar_t* file_extensions;
+  cef_string_t file_extensions;
   
   // A pipe (|) delimited list of description values. Each value is associated
   // with the mime type value at the same position.
-  const wchar_t* type_descriptions;
+  cef_string_t type_descriptions;
 
   // Entry point function pointers.
   NP_GetEntryPointsFunc np_getentrypoints;

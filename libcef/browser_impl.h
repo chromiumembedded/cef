@@ -58,9 +58,9 @@ public:
   virtual CefRefPtr<CefHandler> GetHandler();
   virtual CefRefPtr<CefFrame> GetMainFrame();
   virtual CefRefPtr<CefFrame> GetFocusedFrame();
-  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
-  virtual void GetFrameNames(std::vector<std::wstring>& names);
-  virtual void Find(int identifier, const std::wstring& searchText,
+  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name);
+  virtual void GetFrameNames(std::vector<CefString>& names);
+  virtual void Find(int identifier, const CefString& searchText,
                     bool forward, bool matchCase, bool findNext);
   virtual void StopFinding(bool clearSelection);
   
@@ -70,7 +70,7 @@ public:
   // guarantee that the same CefFrame object will be returned across different
   // calls to this function.
   CefRefPtr<CefFrame> GetCefFrame(WebKit::WebFrame* frame);
-  void RemoveCefFrame(const std::wstring& name);
+  void RemoveCefFrame(const CefString& name);
 
   // Return the WebFrame object associated with the specified CefFrame.  This
   // may return NULL if no WebFrame with the CefFrame's name exists.
@@ -86,23 +86,23 @@ public:
   void SelectAll(CefRefPtr<CefFrame> frame);
   void Print(CefRefPtr<CefFrame> frame);
   void ViewSource(CefRefPtr<CefFrame> frame);
-  std::wstring GetSource(CefRefPtr<CefFrame> frame);
-  std::wstring GetText(CefRefPtr<CefFrame> frame);
+  CefString GetSource(CefRefPtr<CefFrame> frame);
+  CefString GetText(CefRefPtr<CefFrame> frame);
   void LoadRequest(CefRefPtr<CefFrame> frame,
                    CefRefPtr<CefRequest> request);
   void LoadURL(CefRefPtr<CefFrame> frame,
-               const std::wstring& url);
+               const CefString& url);
   void LoadString(CefRefPtr<CefFrame> frame,
-                  const std::wstring& string,
-                  const std::wstring& url);
+                  const CefString& string,
+                  const CefString& url);
   void LoadStream(CefRefPtr<CefFrame> frame,
                   CefRefPtr<CefStreamReader> stream,
-                  const std::wstring& url);
+                  const CefString& url);
   void ExecuteJavaScript(CefRefPtr<CefFrame> frame,
-                         const std::wstring& jsCode, 
-                         const std::wstring& scriptUrl,
+                         const CefString& jsCode, 
+                         const CefString& scriptUrl,
                          int startLine);
-  std::wstring GetURL(CefRefPtr<CefFrame> frame);
+  CefString GetURL(CefRefPtr<CefFrame> frame);
 
   WebKit::WebView* GetWebView() const {
     return webviewhost_.get() ? webviewhost_->webview() : NULL;
@@ -151,36 +151,36 @@ public:
     is_modal_ = val;
   }
 
-  void UIT_SetTitle(const std::wstring& title) {
+  void UIT_SetTitle(const CefString& title) {
     REQUIRE_UIT();
     title_ = title;
   }
-  std::wstring UIT_GetTitle() {
+  CefString UIT_GetTitle() {
     REQUIRE_UIT();
     return title_;
   }
 
-  void UIT_CreateBrowser(const std::wstring& url);
+  void UIT_CreateBrowser(const CefString& url);
   void UIT_DestroyBrowser();
 
   void UIT_LoadURL(CefFrame* frame,
-                   const std::wstring& url);
+                   const CefString& url);
   void UIT_LoadURLForRequest(CefFrame* frame,
-                             const std::wstring& url,
-                             const std::wstring& method,
+                             const CefString& url,
+                             const CefString& method,
                              const WebKit::WebHTTPBody& upload_data,
                              const CefRequest::HeaderMap& headers);
   void UIT_LoadURLForRequestRef(CefFrame* frame,
                                 CefRequest* request);
   void UIT_LoadHTML(CefFrame* frame,
-                    const std::wstring& html,
-                    const std::wstring& url);
+                    const CefString& html,
+                    const CefString& url);
   void UIT_LoadHTMLForStreamRef(CefFrame* frame,
                                 CefStreamReader* stream,
-                                const std::wstring& url);
+                                const CefString& url);
   void UIT_ExecuteJavaScript(CefFrame* frame,
-                             const std::wstring& js_code, 
-                             const std::wstring& script_url,
+                             const CefString& js_code, 
+                             const CefString& script_url,
                              int start_line);
   void UIT_GoBackOrForward(int offset);
   void UIT_Reload(bool ignoreCache);
@@ -189,7 +189,7 @@ public:
                     bool ignoreCahce);
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
 
-  CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const std::wstring& url,
+  CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const CefString& url,
       const CefPopupFeatures& features);
   WebKit::WebWidget* UIT_CreatePopupWidget();
   void UIT_ClosePopupWidget();
@@ -223,7 +223,7 @@ public:
   void UIT_SetUniqueID(int id) { unique_id_ = id; }
   int UIT_GetUniqueID() { return unique_id_; }
 
-  void UIT_Find(int identifier, const std::wstring& search_text,
+  void UIT_Find(int identifier, const CefString& search_text,
                 const WebKit::WebFindOptions& options);
   void UIT_StopFinding(bool clear_selection);
   void UIT_NotifyFindStatus(int identifier, int count,
@@ -247,14 +247,14 @@ protected:
   scoped_ptr<BrowserWebViewDelegate> popup_delegate_;
   scoped_ptr<BrowserNavigationController> nav_controller_;
 
-  std::wstring title_;
+  CefString title_;
 
 #if defined(OS_WIN)
   // Context object used to manage printing.
   printing::PrintingContext print_context_;
 #endif
 
-  typedef std::map<std::wstring, CefFrame*> FrameMap;
+  typedef std::map<CefString, CefFrame*> FrameMap;
   FrameMap frames_;
   CefFrame* frame_main_;
 
@@ -270,7 +270,7 @@ protected:
 class CefFrameImpl : public CefThreadSafeBase<CefFrame>
 {
 public:
-  CefFrameImpl(CefBrowserImpl* browser, const std::wstring& name)
+  CefFrameImpl(CefBrowserImpl* browser, const CefString& name)
     : browser_(browser), name_(name) {}
   virtual ~CefFrameImpl() { browser_->RemoveCefFrame(name_); }
 
@@ -284,30 +284,30 @@ public:
   virtual void SelectAll() { browser_->SelectAll(this); }
   virtual void Print() { browser_->Print(this); }
   virtual void ViewSource() { browser_->ViewSource(this); }
-  virtual std::wstring GetSource() { return browser_->GetSource(this); }
-  virtual std::wstring GetText() { return browser_->GetText(this); }
+  virtual CefString GetSource() { return browser_->GetSource(this); }
+  virtual CefString GetText() { return browser_->GetText(this); }
   virtual void LoadRequest(CefRefPtr<CefRequest> request)
     { return browser_->LoadRequest(this, request); }
-  virtual void LoadURL(const std::wstring& url)
+  virtual void LoadURL(const CefString& url)
     { return browser_->LoadURL(this, url); }
-  virtual void LoadString(const std::wstring& string,
-                          const std::wstring& url)
+  virtual void LoadString(const CefString& string,
+                          const CefString& url)
     { return browser_->LoadString(this, string, url); }
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const std::wstring& url)
+                          const CefString& url)
     { return browser_->LoadStream(this, stream, url); }
-  virtual void ExecuteJavaScript(const std::wstring& jsCode, 
-                                 const std::wstring& scriptUrl,
+  virtual void ExecuteJavaScript(const CefString& jsCode, 
+                                 const CefString& scriptUrl,
                                  int startLine) 
     { return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine); }
   virtual bool IsMain() { return name_.empty(); }
   virtual bool IsFocused();
-  virtual std::wstring GetName() { return name_; }
-  virtual std::wstring GetURL() { return browser_->GetURL(this); }
+  virtual CefString GetName() { return name_; }
+  virtual CefString GetURL() { return browser_->GetURL(this); }
 
 private:
   CefRefPtr<CefBrowserImpl> browser_;
-  std::wstring name_;
+  CefString name_;
 };
 
 #endif // _BROWSER_IMPL_H

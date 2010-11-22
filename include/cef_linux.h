@@ -99,8 +99,7 @@ public:
 
   void Reset()
   {
-    if(m_windowName)
-      cef_string_free(m_windowName);
+    cef_string_clear(&m_windowName);
     Init();
   }
 
@@ -121,12 +120,7 @@ public:
   }
   CefWindowInfo& operator=(const cef_window_info_t& r)
   {
-    if(m_windowName)
-      cef_string_free(m_windowName);
-    if(r.m_windowName)
-      m_windowName = cef_string_alloc(r.m_windowName);
-    else
-      m_windowName = NULL;
+    cef_string_copy(r.m_windowName.str, r.m_windowName.length, &m_windowName);
     m_x = r.m_x;
     m_y = r.m_y;
     m_nWidth = r.m_nWidth;
@@ -137,11 +131,7 @@ public:
 protected:
   void Init()
   {
-    m_windowName = NULL;
-    m_x = 0;
-    m_y = 0;
-    m_nWidth = 0;
-    m_nHeight = 0;
+    memset(static_cast<cef_window_info_t*>(this), 0, sizeof(cef_window_info_t));
   }
 };
 
@@ -168,11 +158,6 @@ public:
     *this = r;
   }
 
-  void Init()
-  {
-    m_Scale = 0;
-  }
-
   CefPrintInfo& operator=(const CefPrintInfo& r)
   {
     return operator=(static_cast<const cef_print_info_t&>(r));
@@ -181,6 +166,12 @@ public:
   {
     m_Scale = r.m_Scale;
     return *this;
+  }
+
+protected:
+  void Init()
+  {
+    m_Scale = 0;
   }
 };
 

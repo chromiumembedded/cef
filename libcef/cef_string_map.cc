@@ -7,7 +7,7 @@
 #include <map>
 
 
-typedef std::map<std::wstring, std::wstring> StringMap;
+typedef std::map<CefString, CefString> StringMap;
 
 CEF_EXPORT cef_string_map_t cef_string_map_alloc()
 {
@@ -21,23 +21,25 @@ CEF_EXPORT int cef_string_map_size(cef_string_map_t map)
   return impl->size();
 }
 
-CEF_EXPORT cef_string_t cef_string_map_find(cef_string_map_t map,
-    const wchar_t* key)
+CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
+                                   const cef_string_t* key,
+                                   cef_string_t* value)
 {
   DCHECK(map);
+  DCHECK(value);
   StringMap* impl = (StringMap*)map;
-  std::wstring keystr;
-  if(key)
-    keystr = key;
-  StringMap::const_iterator it = impl->find(keystr);
+  StringMap::const_iterator it = impl->find(CefString(key));
   if(it == impl->end())
     return NULL;
-  return cef_string_alloc(it->second.c_str());
+  const CefString& val = it->second;
+  return cef_string_set(val.c_str(), val.length(), value, true);
 }
 
-CEF_EXPORT cef_string_t cef_string_map_key(cef_string_map_t map, int index)
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map, int index,
+                                  cef_string_t* key)
 {
   DCHECK(map);
+  DCHECK(key);
   StringMap* impl = (StringMap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
@@ -45,37 +47,38 @@ CEF_EXPORT cef_string_t cef_string_map_key(cef_string_map_t map, int index)
   StringMap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
     if(ct == index)
-      return cef_string_alloc(it->first.c_str());
+      return cef_string_set(it->first.c_str(), it->first.length(), key, true);
   }
-  return NULL;
+  return 0;
 }
 
-CEF_EXPORT cef_string_t cef_string_map_value(cef_string_map_t map, int index)
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map, int index,
+                                    cef_string_t* value)
 {
   DCHECK(map);
+  DCHECK(value);
   StringMap* impl = (StringMap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
     return NULL;
   StringMap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
-    if(ct == index)
-      return cef_string_alloc(it->second.c_str());
+    if(ct == index) {
+      return cef_string_set(it->second.c_str(), it->second.length(), value,
+          true);
+    }
   }
-  return NULL;
+  return 0;
 }
 
-CEF_EXPORT void cef_string_map_append(cef_string_map_t map, const wchar_t* key,
-    const wchar_t* value)
+CEF_EXPORT int cef_string_map_append(cef_string_map_t map,
+                                     const cef_string_t* key,
+                                     const cef_string_t* value)
 {
   DCHECK(map);
   StringMap* impl = (StringMap*)map;
-  std::wstring keystr, valstr;
-  if(key)
-    keystr = key;
-  if(value)
-    valstr = value;
-  impl->insert(std::pair<std::wstring, std::wstring>(keystr, valstr));
+  impl->insert(std::make_pair(CefString(key), CefString(value)));
+  return 1;
 }
 
 CEF_EXPORT void cef_string_map_clear(cef_string_map_t map)

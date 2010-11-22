@@ -5,20 +5,21 @@
 #include "string_util.h"
 #include <sstream>
 
-void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
+void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str)
 {
-  std::wstringstream ss;
+  std::stringstream ss;
 
-  ss << L"URL: " << request->GetURL();
-  ss << L"\nMethod: " << request->GetMethod();
+  ss << "URL: " << std::string(request->GetURL());
+  ss << "\nMethod: " << std::string(request->GetMethod());
 
   CefRequest::HeaderMap headerMap;
   request->GetHeaderMap(headerMap);
   if(headerMap.size() > 0) {
-    ss << L"\nHeaders:";
+    ss << "\nHeaders:";
     CefRequest::HeaderMap::const_iterator it = headerMap.begin();
     for(; it != headerMap.end(); ++it) {
-      ss << L"\n\t" << (*it).first << L": " << (*it).second;
+      ss << "\n\t" << std::string((*it).first) << ": " <<
+          std::string((*it).second);
     }
   }
 
@@ -27,26 +28,26 @@ void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
     CefPostData::ElementVector elements;
     postData->GetElements(elements);
     if(elements.size() > 0) {
-      ss << L"\nPost Data:";
+      ss << "\nPost Data:";
       CefRefPtr<CefPostDataElement> element;
       CefPostData::ElementVector::const_iterator it = elements.begin();
       for(; it != elements.end(); ++it) {
         element = (*it);
         if(element->GetType() == PDE_TYPE_BYTES) {
           // the element is composed of bytes
-          ss << L"\n\tBytes: ";
+          ss << "\n\tBytes: ";
           if(element->GetBytesCount() == 0)
-            ss << L"(empty)";
+            ss << "(empty)";
           else {
             // retrieve the data.
             size_t size = element->GetBytesCount();
             char* bytes = new char[size];
             element->GetBytes(size, bytes);
-            ss << StringToWString(std::string(bytes, size));
+            ss << std::string(bytes, size);
             delete [] bytes;
           }
         } else if(element->GetType() == PDE_TYPE_FILE) {
-          ss << L"\n\tFile: " << element->GetFile();
+          ss << "\n\tFile: " << std::string(element->GetFile());
         }
       }
     }
@@ -55,19 +56,19 @@ void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str)
   str = ss.str();
 }
 
-std::wstring StringReplace(const std::wstring& str, const std::wstring& from,
-                           const std::wstring& to)
+std::string StringReplace(const std::string& str, const std::string& from,
+                          const std::string& to)
 {
-  std::wstring result = str;
-  std::wstring::size_type pos = 0;
-  std::wstring::size_type from_len = from.length();
-  std::wstring::size_type to_len = to.length();
+  std::string result = str;
+  std::string::size_type pos = 0;
+  std::string::size_type from_len = from.length();
+  std::string::size_type to_len = to.length();
   do {
     pos = result.find(from, pos);
-    if(pos != std::wstring::npos) {
+    if(pos != std::string::npos) {
       result.replace(pos, from_len, to);
       pos += to_len;
     }
-  } while(pos != std::wstring::npos);
+  } while(pos != std::string::npos);
   return result;
 }

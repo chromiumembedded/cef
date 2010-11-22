@@ -28,48 +28,42 @@ CefRefPtr<CefRequest> CefRequest::CreateRequest()
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-std::wstring CefRequestCToCpp::GetURL()
+CefString CefRequestCToCpp::GetURL()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_url))
     return str;
   
-  cef_string_t cef_str = struct_->get_url(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_url(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-void CefRequestCToCpp::SetURL(const std::wstring& url)
+void CefRequestCToCpp::SetURL(const CefString& url)
 {
   if(CEF_MEMBER_MISSING(struct_, set_url))
     return;
 
-  struct_->set_url(struct_, url.c_str());
+  struct_->set_url(struct_, url.GetStruct());
 }
 
-std::wstring CefRequestCToCpp::GetMethod()
+CefString CefRequestCToCpp::GetMethod()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_method))
     return str;
   
-  cef_string_t cef_str = struct_->get_method(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
+  cef_string_userfree_t strPtr = struct_->get_method(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
-void CefRequestCToCpp::SetMethod(const std::wstring& method)
+void CefRequestCToCpp::SetMethod(const CefString& method)
 {
   if(CEF_MEMBER_MISSING(struct_, set_method))
     return;
 
-  struct_->set_method(struct_, method.c_str());
+  struct_->set_method(struct_, method.GetStruct());
 }
 
 CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
@@ -128,7 +122,7 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
     cef_string_map_free(map);
 }
 
-void CefRequestCToCpp::Set(const std::wstring& url, const std::wstring& method,
+void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     CefRefPtr<CefPostData> postData, const HeaderMap& headerMap)
 {
   if(CEF_MEMBER_MISSING(struct_, set))
@@ -146,7 +140,8 @@ void CefRequestCToCpp::Set(const std::wstring& url, const std::wstring& method,
     transfer_string_map_contents(headerMap, map);
   }
 
-  struct_->set(struct_, url.c_str(), method.c_str(), postDataStruct, map);
+  struct_->set(struct_, url.GetStruct(), method.GetStruct(), postDataStruct,
+      map);
   
   if(map)
     cef_string_map_free(map);

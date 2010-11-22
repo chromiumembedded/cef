@@ -13,43 +13,40 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT int cef_browser_create(cef_window_info_t* windowInfo, int popup,
-    struct _cef_handler_t* handler, const wchar_t* url)
+    struct _cef_handler_t* handler, const cef_string_t* url)
 {
   DCHECK(windowInfo);
 
   CefRefPtr<CefHandler> handlerPtr;
-  std::wstring urlStr;
   CefWindowInfo wi = *windowInfo;
   
   if(handler)
     handlerPtr = CefHandlerCToCpp::Wrap(handler);
-  if(url)
-    urlStr = url;
   
-  return CefBrowser::CreateBrowser(wi, popup?true:false, handlerPtr, urlStr);
+  return CefBrowser::CreateBrowser(wi, popup?true:false, handlerPtr,
+      CefString(url));
 }
 
 CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
-    int popup, struct _cef_handler_t* handler, const wchar_t* url)
+    int popup, struct _cef_handler_t* handler, const cef_string_t* url)
 {
   DCHECK(windowInfo);
 
   CefRefPtr<CefHandler> handlerPtr;
-  std::wstring urlStr;
   CefWindowInfo wi = *windowInfo;
   
   if(handler)
     handlerPtr = CefHandlerCToCpp::Wrap(handler);
-  if(url)
-    urlStr = url;
   
   CefRefPtr<CefBrowser> browserPtr(
-	  CefBrowser::CreateBrowserSync(wi, popup?true:false, handlerPtr, urlStr));
+      CefBrowser::CreateBrowserSync(wi, popup?true:false, handlerPtr,
+          CefString(url)));
   if(browserPtr.get())
     return CefBrowserCppToC::Wrap(browserPtr);
   return NULL;
@@ -193,20 +190,14 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_focused_frame(
 }
 
 struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
-    const wchar_t* name)
+    const cef_string_t* name)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring nameStr;
-  if(name)
-    nameStr = name;
-  if(nameStr.empty())
-    return NULL;
-
   CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(self);
-  CefRefPtr<CefFrame> framePtr = browserPtr->GetFrame(nameStr);
+  CefRefPtr<CefFrame> framePtr = browserPtr->GetFrame(CefString(name));
   if(framePtr.get())
     return CefFrameCppToC::Wrap(framePtr);
   return NULL;
@@ -221,25 +212,19 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
     return;
 
   CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(self);
-  std::vector<std::wstring> stringList;
+  std::vector<CefString> stringList;
   browserPtr->GetFrameNames(stringList);
-  size_t size = stringList.size();
-  for(size_t i = 0; i < size; ++i)
-    cef_string_list_append(names, stringList[i].c_str());
+  transfer_string_list_contents(stringList, names);
 }
 
 void CEF_CALLBACK browser_find(struct _cef_browser_t* self, int identifier,
-    const wchar_t* searchText, int forward, int matchCase, int findNext)
+    const cef_string_t* searchText, int forward, int matchCase, int findNext)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring searchTextStr;
-  if(searchText)
-    searchTextStr = searchText;
-
-  CefBrowserCppToC::Get(self)->Find(identifier, searchTextStr,
+  CefBrowserCppToC::Get(self)->Find(identifier, CefString(searchText),
       forward?true:false, matchCase?true:false, findNext?true:false);
 }
 

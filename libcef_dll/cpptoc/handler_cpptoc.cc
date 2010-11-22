@@ -17,7 +17,6 @@
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
-#include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -54,17 +53,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   if(parentBrowser)
     browserPtr = CefBrowserCToCpp::Wrap(parentBrowser);
   
-  std::wstring urlStr;
-  if(*url)
-    urlStr = *url;
-
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleBeforeCreated(
-      browserPtr, wndInfo, popup?true:false, features, handlerPtr, urlStr,
-      browserSettings);
+      browserPtr, wndInfo, popup?true:false, features, handlerPtr,
+      CefString(url), browserSettings);
 
-  transfer_string_contents(urlStr, url);
-
-  if(handlerPtr.get() != origHandler) {
+ if(handlerPtr.get() != origHandler) {
     // The handler has been changed.
     *handler = CefHandlerCppToC::Wrap(handlerPtr);
   }
@@ -97,7 +90,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_after_created(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_address_change(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    const wchar_t* url)
+    const cef_string_t* url)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -105,28 +98,22 @@ enum cef_retval_t CEF_CALLBACK handler_handle_address_change(
   if(!self || !browser || !frame)
     return RV_CONTINUE;
 
-  std::wstring urlStr;
-  if(url)
-    urlStr = url;
-
   return CefHandlerCppToC::Get(self)->HandleAddressChange(
-    CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), urlStr);
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefString(url));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_title_change(
-    struct _cef_handler_t* self, cef_browser_t* browser, const wchar_t* title)
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* title)
 {
   DCHECK(self);
   DCHECK(browser);
   if(!self || !browser)
     return RV_CONTINUE;
 
-  std::wstring titleStr;
-  if(title)
-    titleStr = title;
-
   return CefHandlerCppToC::Get(self)->HandleTitleChange(
-      CefBrowserCToCpp::Wrap(browser), titleStr);
+      CefBrowserCToCpp::Wrap(browser), CefString(title));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_browse(
@@ -180,7 +167,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_end(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    enum cef_handler_errorcode_t errorCode, const wchar_t* failedUrl,
+    enum cef_handler_errorcode_t errorCode, const cef_string_t* failedUrl,
     cef_string_t* errorText)
 {
   DCHECK(self);
@@ -190,20 +177,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
   if(!self || !browser || !errorText || !frame)
     return RV_CONTINUE;
 
-  std::wstring failedUrlStr, errorTextStr;
-
-  if(failedUrl)
-    failedUrlStr = failedUrl;
-  if(*errorText)
-    errorTextStr = *errorText;
-
-  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleLoadError(
+  return CefHandlerCppToC::Get(self)->HandleLoadError(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), errorCode,
-      failedUrlStr, errorTextStr);
-
-  transfer_string_contents(errorTextStr, errorText);
-
-  return rv;
+      CefString(failedUrl), CefString(errorText));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
@@ -220,21 +196,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
   if(!self || !browser || !redirectUrl || !resourceStream || !mimeType)
     return RV_CONTINUE;
 
-  std::wstring redirectUrlStr, mimeTypeStr;
   CefRefPtr<CefStreamReader> streamPtr;
-
-  if(*redirectUrl)
-    redirectUrlStr = *redirectUrl;
-  if(*mimeType)
-    mimeTypeStr = *mimeType;
 
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
       HandleBeforeResourceLoad(CefBrowserCToCpp::Wrap(browser),
-      CefRequestCToCpp::Wrap(request), redirectUrlStr, streamPtr, mimeTypeStr,
-      loadFlags);
-
-  transfer_string_contents(redirectUrlStr, redirectUrl);
-  transfer_string_contents(mimeTypeStr, mimeType);
+      CefRequestCToCpp::Wrap(request), CefString(redirectUrl), streamPtr,
+      CefString(mimeType), loadFlags);
 
   if(streamPtr.get())
     *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);
@@ -244,8 +211,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_download_response(
     struct _cef_handler_t* self, cef_browser_t* browser,
-    const wchar_t* mimeType, const wchar_t* fileName, int64 contentLength,
-    struct _cef_download_handler_t** handler)
+    const cef_string_t* mimeType, const cef_string_t* fileName,
+    int64 contentLength, struct _cef_download_handler_t** handler)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -254,17 +221,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_download_response(
   if(!self || !browser || !mimeType || !fileName)
     return RV_CONTINUE;
 
-  std::wstring mimeTypeStr, fileNameStr;
   CefRefPtr<CefDownloadHandler> downloadPtr;
 
-  if(mimeType)
-    mimeTypeStr = mimeType;
-  if(fileName)
-    fileNameStr = fileName;
-
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
-      HandleDownloadResponse(CefBrowserCToCpp::Wrap(browser), mimeTypeStr,
-      fileNameStr, contentLength, downloadPtr);
+      HandleDownloadResponse(CefBrowserCToCpp::Wrap(browser),
+      CefString(mimeType), CefString(fileName), contentLength, downloadPtr);
 
   if(downloadPtr.get())
     *handler = CefDownloadHandlerCppToC::Wrap(downloadPtr);
@@ -296,16 +257,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
   if(!self || !browser || !label)
     return RV_CONTINUE;
 
-  std::wstring labelStr;
-  if(*label)
-    labelStr = *label;
-
-  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleGetMenuLabel(
-      CefBrowserCToCpp::Wrap(browser), menuId, labelStr);
-
-  transfer_string_contents(labelStr, label);
-
-  return rv;
+  return CefHandlerCppToC::Get(self)->HandleGetMenuLabel(
+      CefBrowserCToCpp::Wrap(browser), menuId, CefString(label));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_menu_action(
@@ -336,10 +289,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_options(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    cef_print_info_t* printInfo, const wchar_t* url, const wchar_t* title,
-    int currentPage, int maxPages, cef_string_t* topLeft,
-    cef_string_t* topCenter, cef_string_t* topRight, cef_string_t* bottomLeft,
-    cef_string_t* bottomCenter, cef_string_t* bottomRight)
+    cef_print_info_t* printInfo, const cef_string_t* url,
+    const cef_string_t* title, int currentPage, int maxPages,
+    cef_string_t* topLeft, cef_string_t* topCenter, cef_string_t* topRight,
+    cef_string_t* bottomLeft, cef_string_t* bottomCenter,
+    cef_string_t* bottomRight)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -351,47 +305,19 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
       || !topRight || !bottomLeft || !bottomCenter || !bottomRight)
     return RV_CONTINUE;
 
-  std::wstring urlStr, titleStr;
-  std::wstring topLeftStr, topCenterStr, topRightStr;
-  std::wstring bottomLeftStr, bottomCenterStr, bottomRightStr;
   CefPrintInfo info = *printInfo;
 
-  if(url)
-    urlStr = url;
-  if(title)
-    titleStr = title;
-  if(*topLeft)
-    topLeftStr = *topLeft;
-  if(*topCenter)
-    topCenterStr = *topCenter;
-  if(*topRight)
-    topRightStr = *topRight;
-  if(*bottomLeft)
-    bottomLeftStr = *bottomLeft;
-  if(*bottomCenter)
-    bottomCenterStr = *bottomCenter;
-  if(*bottomRight)
-    bottomRightStr = *bottomRight;
-
-  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
+  return CefHandlerCppToC::Get(self)->
       HandlePrintHeaderFooter(CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame), info, urlStr, titleStr, currentPage,
-      maxPages, topLeftStr, topCenterStr, topRightStr, bottomLeftStr,
-      bottomCenterStr, bottomRightStr);
-
-  transfer_string_contents(topLeftStr, topLeft);
-  transfer_string_contents(topCenterStr, topCenter);
-  transfer_string_contents(topRightStr, topRight);
-  transfer_string_contents(bottomLeftStr, bottomLeft);
-  transfer_string_contents(bottomCenterStr, bottomCenter);
-  transfer_string_contents(bottomRightStr, bottomRight);
-
-  return rv;
+      CefFrameCToCpp::Wrap(frame), info, CefString(url), CefString(title),
+      currentPage, maxPages, CefString(topLeft), CefString(topCenter),
+      CefString(topRight), CefString(bottomLeft), CefString(bottomCenter),
+      CefString(bottomRight));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsalert(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    const wchar_t* message)
+    const cef_string_t* message)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -399,17 +325,14 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsalert(
   if(!self || !browser || !frame)
     return RV_CONTINUE;
 
-  std::wstring messageStr;
-  if(message)
-    messageStr = message;
-
   return CefHandlerCppToC::Get(self)->HandleJSAlert(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr);
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefString(message));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsconfirm(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    const wchar_t* message, int* retval)
+    const cef_string_t* message, int* retval)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -418,14 +341,10 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsconfirm(
   if(!self || !browser || !retval || !frame)
     return RV_CONTINUE;
 
-  std::wstring messageStr;
-  if(message)
-    messageStr = message;
-
   bool ret = false;
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleJSConfirm(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr,
-      ret);
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefString(message), ret);
   *retval = (ret ? 1 : 0);
 
   return rv;
@@ -433,7 +352,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsconfirm(
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
-    const wchar_t* message, const wchar_t* defaultValue, int* retval,
+    const cef_string_t* message, const cef_string_t* defaultValue, int* retval,
     cef_string_t* result)
 {
   DCHECK(self);
@@ -444,22 +363,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
   if(!self || !browser || !frame || !retval || !result)
     return RV_CONTINUE;
 
-  std::wstring messageStr, defaultValueStr, resultStr;
-
-  if(message)
-    messageStr = message;
-  if(defaultValue)
-    defaultValueStr = defaultValue;
-  if(*result)
-    resultStr = *result;
-
   bool ret = false;
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleJSPrompt(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), messageStr,
-      defaultValueStr, ret, resultStr);
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefString(message), CefString(defaultValue), ret, CefString(result));
   *retval = (ret ? 1 : 0);
-
-  transfer_string_contents(resultStr, result);
 
   return rv;
 }
@@ -540,35 +448,22 @@ enum cef_retval_t CEF_CALLBACK handler_handle_tooltip(
   if(!self || !browser || !text)
     return RV_CONTINUE;
 
-  std::wstring textStr;
-  if(*text)
-    textStr = *text;
-
-  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleTooltip(
-      CefBrowserCToCpp::Wrap(browser), textStr);
-
-  transfer_string_contents(textStr, text);
-
-  return rv;
+  return CefHandlerCppToC::Get(self)->HandleTooltip(
+      CefBrowserCToCpp::Wrap(browser), CefString(text));
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_console_message(
-    struct _cef_handler_t* self, cef_browser_t* browser, const wchar_t* message,
-    const wchar_t* source, int line)
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* message, const cef_string_t* source, int line)
 {
   DCHECK(self);
   DCHECK(browser);
   if(!self || !browser)
     return RV_CONTINUE;
 
-  std::wstring messageStr, sourceStr;
-  if(message)
-    messageStr = message;
-  if(source)
-    sourceStr = source;
-
   return CefHandlerCppToC::Get(self)->HandleConsoleMessage(
-      CefBrowserCToCpp::Wrap(browser), messageStr, sourceStr, line);
+      CefBrowserCToCpp::Wrap(browser), CefString(message), CefString(source),
+      line);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_find_result(

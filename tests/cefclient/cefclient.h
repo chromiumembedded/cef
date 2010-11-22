@@ -20,10 +20,10 @@ public:
     ClientDownloadListener(ClientHandler* handler) : handler_(handler) {}
 
     // Called when the download is complete.
-    virtual void NotifyDownloadComplete(const std::wstring& fileName);
+    virtual void NotifyDownloadComplete(const CefString& fileName);
 
     // Called if the download fails.
-    virtual void NotifyDownloadError(const std::wstring& fileName);
+    virtual void NotifyDownloadError(const CefString& fileName);
 
   private:
     ClientHandler* handler_;
@@ -44,7 +44,7 @@ public:
                                      CefWindowInfo& createInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     std::wstring& url,
+                                     CefString& url,
                                      CefBrowserSettings& settings)
   {
     return RV_CONTINUE;
@@ -58,12 +58,12 @@ public:
   // ignored.
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
-                                     const std::wstring& url);
+                                     const CefString& url);
 
   // Event called when the page title changes. The return value is currently
   // ignored.
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
-                                   const std::wstring& title);
+                                   const CefString& title);
 
   // Event called before browser navigation. The client has an opportunity to
   // modify the |request| object if desired.  Return RV_HANDLED to cancel
@@ -97,8 +97,8 @@ public:
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  ErrorCode errorCode,
-                                 const std::wstring& failedUrl,
-                                 std::wstring& errorText);
+                                 const CefString& failedUrl,
+                                 CefString& errorText);
 
   // Event called before a resource is loaded.  To allow the resource to load
   // normally return RV_CONTINUE. To redirect the resource to a new url
@@ -108,9 +108,9 @@ public:
   // To cancel loading of the resource return RV_HANDLED.
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefRequest> request,
-                                          std::wstring& redirectUrl,
+                                          CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          std::wstring& mimeType,
+                                          CefString& mimeType,
                                           int loadFlags);
 
   // Called when a server indicates via the 'Content-Disposition' header that a
@@ -122,8 +122,8 @@ public:
   // or RV_HANDLED to cancel the file download.
   /*--cef()--*/
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
-                                        const std::wstring& mimeType,
-                                        const std::wstring& fileName,
+                                        const CefString& mimeType,
+                                        const CefString& fileName,
                                         int64 contentLength,
                                         CefRefPtr<CefDownloadHandler>& handler);
 
@@ -139,7 +139,7 @@ public:
   // item.  |label| contains the default text and may be modified to substitute
   // alternate text.  The return value is currently ignored.
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,
-                                    MenuId menuId, std::wstring& label)
+                                    MenuId menuId, CefString& label)
   {
     return RV_CONTINUE;
   }
@@ -177,21 +177,21 @@ public:
   virtual RetVal HandlePrintHeaderFooter(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefPrintInfo& printInfo,
-                                         const std::wstring& url,
-                                         const std::wstring& title,
+                                         const CefString& url,
+                                         const CefString& title,
                                          int currentPage, int maxPages,
-                                         std::wstring& topLeft,
-                                         std::wstring& topCenter,
-                                         std::wstring& topRight,
-                                         std::wstring& bottomLeft,
-                                         std::wstring& bottomCenter,
-                                         std::wstring& bottomRight);
+                                         CefString& topLeft,
+                                         CefString& topCenter,
+                                         CefString& topRight,
+                                         CefString& bottomLeft,
+                                         CefString& bottomCenter,
+                                         CefString& bottomRight);
 
   // Run a JS alert message.  Return RV_CONTINUE to display the default alert
   // or RV_HANDLED if you displayed a custom alert.
   virtual RetVal HandleJSAlert(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               const std::wstring& message)
+                               const CefString& message)
   {
     return RV_CONTINUE;
   }
@@ -201,7 +201,7 @@ public:
   // set |retval| to true if the user accepted the confirmation.
   virtual RetVal HandleJSConfirm(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
-                                 const std::wstring& message, bool& retval)
+                                 const CefString& message, bool& retval)
   {
     return RV_CONTINUE;
   }
@@ -212,10 +212,10 @@ public:
   // |result| to the resulting value.
   virtual RetVal HandleJSPrompt(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                const std::wstring& message,
-                                const std::wstring& defaultValue,
+                                const CefString& message,
+                                const CefString& defaultValue,
                                 bool& retval,
-                                std::wstring& result)
+                                CefString& result)
   {
     return RV_CONTINUE;
   }
@@ -254,7 +254,7 @@ public:
   // you can optionally modify |text| and then return RV_CONTINUE to allow
   // the browser to display the tooltip.
   virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
-                               std::wstring& text)
+                               CefString& text)
   {
     return RV_CONTINUE;
   }
@@ -279,8 +279,8 @@ public:
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.
   RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
-                              const std::wstring& message,
-                              const std::wstring& source, int line);
+                              const CefString& message,
+                              const CefString& source, int line);
 
   // Called to report find results returned by CefBrowser::Find(). |identifer|
   // is the identifier passed to CefBrowser::Find(), |count| is the number of
@@ -304,10 +304,10 @@ public:
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   CefWindowHandle GetBrowserHwnd() { return m_BrowserHwnd; }
 
-  std::wstring GetLogFile();
+  std::string GetLogFile();
 
-  void SetLastDownloadFile(const std::wstring& fileName);
-  std::wstring GetLastDownloadFile();
+  void SetLastDownloadFile(const std::string& fileName);
+  std::string GetLastDownloadFile();
 
   // Send a notification to the application. Notifications should not block the
   // caller.
@@ -339,11 +339,11 @@ protected:
   // True if the user can navigate forwards
   bool m_bCanGoForward;
 
-  std::wstring m_LogFile;
+  std::string m_LogFile;
 
   // Support for downloading files.
   CefRefPtr<DownloadListener> m_DownloadListener;
-  std::wstring m_LastDownloadFile;
+  std::string m_LastDownloadFile;
 };
 
 
@@ -354,7 +354,7 @@ CefRefPtr<CefBrowser> AppGetBrowser();
 CefWindowHandle AppGetMainHwnd();
 
 // Returns the application working directory.
-std::wstring AppGetWorkingDirectory();
+std::string AppGetWorkingDirectory();
 
 // Implementations for various tests.
 void RunGetSourceTest(CefRefPtr<CefFrame> frame);

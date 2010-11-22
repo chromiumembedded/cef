@@ -11,7 +11,6 @@
 #include "webwidget_host.h"
 
 #include "base/scoped_ptr.h"
-#include "base/utf_string_conversions.h"
 #include "gfx/rect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"

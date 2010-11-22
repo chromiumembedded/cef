@@ -57,13 +57,9 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
   return NULL;
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const wchar_t* value)
+CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
 {
-  std::wstring valueStr;
-  if(value)
-    valueStr = value;
-
-  CefRefPtr<CefV8Value> impl = CefV8Value::CreateString(valueStr);
+  CefRefPtr<CefV8Value> impl = CefV8Value::CreateString(CefString(value));
   if(impl.get())
     return CefV8ValueCppToC::Wrap(impl);
   return NULL;
@@ -89,17 +85,15 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array()
   return NULL;
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const wchar_t* name,
+CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
     cef_v8handler_t* handler)
 {
-  std::wstring nameStr;
-  if(name)
-    nameStr = name;
   CefRefPtr<CefV8Handler> handlerPtr;
   if(handler)
     handlerPtr = CefV8HandlerCToCpp::Wrap(handler);
 
-  CefRefPtr<CefV8Value> impl = CefV8Value::CreateFunction(nameStr, handlerPtr);
+  CefRefPtr<CefV8Value> impl =
+      CefV8Value::CreateFunction(CefString(name), handlerPtr);
   if(impl.get())
     return CefV8ValueCppToC::Wrap(impl);
   return NULL;
@@ -216,30 +210,25 @@ double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
   return CefV8ValueCppToC::Get(self)->GetDoubleValue();
 }
 
-cef_string_t CEF_CALLBACK v8value_get_string_value(struct _cef_v8value_t* self)
+cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
+    struct _cef_v8value_t* self)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring valueStr = CefV8ValueCppToC::Get(self)->GetStringValue();
-  if(!valueStr.empty())
-    return cef_string_alloc(valueStr.c_str());
-  return NULL;
+  CefString valueStr = CefV8ValueCppToC::Get(self)->GetStringValue();
+  return valueStr.DetachToUserFree();
 }
 
 int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
-    const wchar_t* key)
+    const cef_string_t* key)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring keyStr;
-  if(key)
-    keyStr = key;
-
-  return CefV8ValueCppToC::Get(self)->HasValue(keyStr);
+  return CefV8ValueCppToC::Get(self)->HasValue(CefString(key));
 }
 
 int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
@@ -253,17 +242,13 @@ int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
-    const wchar_t* key)
+    const cef_string_t* key)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring keyStr;
-  if(key)
-    keyStr = key;
-
-  return CefV8ValueCppToC::Get(self)->DeleteValue(keyStr);
+  return CefV8ValueCppToC::Get(self)->DeleteValue(CefString(key));
 }
 
 int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
@@ -277,18 +262,14 @@ int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
 }
 
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
-    struct _cef_v8value_t* self, const wchar_t* key)
+    struct _cef_v8value_t* self, const cef_string_t* key)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring keyStr;
-  if(key)
-    keyStr = key;
-
   CefRefPtr<CefV8Value> valuePtr =
-      CefV8ValueCppToC::Get(self)->GetValue(keyStr);
+      CefV8ValueCppToC::Get(self)->GetValue(CefString(key));
   return CefV8ValueCppToC::Wrap(valuePtr);
 }
 
@@ -305,18 +286,14 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
 }
 
 int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
-    const wchar_t* key, struct _cef_v8value_t* value)
+    const cef_string_t* key, struct _cef_v8value_t* value)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring keyStr;
-  if(key)
-    keyStr = key;
-
   CefRefPtr<CefV8Value> valuePtr = CefV8ValueCppToC::Unwrap(value);
-  return CefV8ValueCppToC::Get(self)->SetValue(keyStr, valuePtr);
+  return CefV8ValueCppToC::Get(self)->SetValue(CefString(key), valuePtr);
 }
 
 int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
@@ -337,11 +314,11 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
   if(!self)
     return 0;
 
-  std::vector<std::wstring> keysList;
+  std::vector<CefString> keysList;
   CefV8ValueCppToC::Get(self)->GetKeys(keysList);
   size_t size = keysList.size();
   for(size_t i = 0; i < size; ++i)
-    cef_string_list_append(keys, keysList[i].c_str());
+    cef_string_list_append(keys, keysList[i].GetStruct());
   return size;
 }
 
@@ -366,17 +343,15 @@ int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self)
   return CefV8ValueCppToC::Get(self)->GetArrayLength();
 }
 
-cef_string_t CEF_CALLBACK v8value_get_function_name(struct _cef_v8value_t* self)
+cef_string_userfree_t CEF_CALLBACK v8value_get_function_name(
+    struct _cef_v8value_t* self)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring functionNameStr =
-      CefV8ValueCppToC::Get(self)->GetFunctionName();
-  if(!functionNameStr.empty())
-    return cef_string_alloc(functionNameStr.c_str());
-  return NULL;
+  CefString functionNameStr = CefV8ValueCppToC::Get(self)->GetFunctionName();
+  return functionNameStr.DetachToUserFree();
 }
 
 cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
@@ -409,14 +384,11 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
     argsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
   }
   CefRefPtr<CefV8Value> retvalPtr;
-  std::wstring exceptionStr;
 
   bool rv = CefV8ValueCppToC::Get(self)->ExecuteFunction(objectPtr,
-      argsList, retvalPtr, exceptionStr);
+      argsList, retvalPtr, CefString(exception));
   if(retvalPtr.get() && retval)
     *retval = CefV8ValueCppToC::Wrap(retvalPtr);
-  if(!exceptionStr.empty() && exception)
-    *exception = cef_string_alloc(exceptionStr.c_str());
 
   return rv;
 }

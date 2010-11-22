@@ -17,10 +17,10 @@
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   cef_stream_reader_t* impl =
-      cef_stream_reader_create_for_file(fileName.c_str());
+      cef_stream_reader_create_for_file(fileName.GetStruct());
   if(impl)
     return CefStreamReaderCToCpp::Wrap(impl);
   return NULL;

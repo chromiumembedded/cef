@@ -34,10 +34,10 @@ public:
 
   // CefPostDataElement methods
   virtual void SetToEmpty();
-  virtual void SetToFile(const std::wstring& fileName);
+  virtual void SetToFile(const CefString& fileName);
   virtual void SetToBytes(size_t size, const void* bytes);
   virtual Type GetType();
-  virtual std::wstring GetFile();
+  virtual CefString GetFile();
   virtual size_t GetBytesCount();
   virtual size_t GetBytes(size_t size, void* bytes);
 };

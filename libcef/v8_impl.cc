@@ -6,7 +6,6 @@
 #include "cef_context.h"
 #include "tracker.h"
 #include "base/lazy_instance.h"
-#include "base/utf_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
 
@@ -56,25 +55,23 @@ static void TrackDestructor(v8::Persistent<v8::Value> object,
 
 
 // Convert a wide string to a V8 string.
-static v8::Handle<v8::String> GetV8String(const std::wstring& str)
+static v8::Handle<v8::String> GetV8String(const CefString& str)
 {
-  std::string tmpStr = WideToUTF8(str);
+  std::string tmpStr = str;
   return v8::String::New(tmpStr.c_str(), tmpStr.length());
 }
 
-// Convert a V8 string to a wide string.
-static std::wstring GetWString(v8::Handle<v8::String> str)
+// Convert a V8 string to a UTF8 string.
+static std::string GetString(v8::Handle<v8::String> str)
 {
   // Allocate enough space for a worst-case conversion.
-  size_t len = str->Length()*4;
-  char* buf = new char[len];
-  int newlen = str->WriteUtf8(buf, len);
-  std::wstring value;
-  UTF8ToWide(buf, newlen, &value);
+  int len = str->Utf8Length();
+  char* buf = new char[len+1];
+  str->WriteUtf8(buf, len+1);
+  std::string ret(buf, len);
   delete [] buf;
-  return value;
+  return ret;
 }
-
 
 // V8 function callback
 static v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args)
@@ -87,11 +84,11 @@ static v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args)
   for(int i = 0; i < args.Length(); i++)
     params.push_back(new CefV8ValueImpl(args[i]));
 
-  std::wstring func_name =
-      GetWString(v8::Handle<v8::String>::Cast(args.Callee()->GetName()));
+  CefString func_name =
+      GetString(v8::Handle<v8::String>::Cast(args.Callee()->GetName()));
   CefRefPtr<CefV8Value> object = new CefV8ValueImpl(args.This());
   CefRefPtr<CefV8Value> retval;
-  std::wstring exception;
+  CefString exception;
   v8::Handle<v8::Value> value = v8::Null();
 
   if(handler->Execute(func_name, object, params, retval, exception)) {
@@ -142,8 +139,8 @@ private:
   CefV8Handler* handler_;
 };
 
-bool CefRegisterExtension(const std::wstring& extension_name,
-                          const std::wstring& javascript_code,
+bool CefRegisterExtension(const CefString& extension_name,
+                          const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler)
 {
   // Verify that the context is already initialized
@@ -153,9 +150,9 @@ bool CefRegisterExtension(const std::wstring& extension_name,
   if(!handler.get())
     return false;
 
-  TrackString* name = new TrackString(WideToUTF8(extension_name));
+  TrackString* name = new TrackString(extension_name);
   TrackAdd(name);
-  TrackString* code = new TrackString(WideToUTF8(javascript_code));
+  TrackString* code = new TrackString(javascript_code);
   TrackAdd(name);
   
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
@@ -205,7 +202,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateString(const std::wstring& value)
+CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 {
   v8::HandleScope handle_scope;
   return new CefV8ValueImpl(GetV8String(value));
@@ -244,7 +241,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray()
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const std::wstring& name,
+CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
                                                  CefRefPtr<CefV8Handler> handler)
 {
   v8::HandleScope handle_scope;
@@ -324,9 +321,10 @@ v8::Handle<v8::Value> CefV8ValueImpl::GetValue()
   return rv;
 }
 
-bool CefV8ValueImpl::IsReservedKey(const std::wstring& key)
+bool CefV8ValueImpl::IsReservedKey(const CefString& key)
 {
-  return (key.find(L"Cef::") == 0 || key.find(L"v8::") == 0);
+  std::string str = key;
+  return (str.find("Cef::") == 0 || str.find("v8::") == 0);
 }
 
 bool CefV8ValueImpl::IsUndefined()
@@ -441,17 +439,17 @@ double CefV8ValueImpl::GetDoubleValue()
   return rv;
 }
 
-std::wstring CefV8ValueImpl::GetStringValue()
+CefString CefV8ValueImpl::GetStringValue()
 {
-  std::wstring rv;
+  CefString rv;
   Lock();
   v8::HandleScope handle_scope;
-  rv = GetWString(v8_value_->ToString());
+  rv = GetString(v8_value_->ToString());
   Unlock();
   return rv;
 }
 
-bool CefV8ValueImpl::HasValue(const std::wstring& key)
+bool CefV8ValueImpl::HasValue(const CefString& key)
 {
   if(IsReservedKey(key))
     return false;
@@ -480,7 +478,7 @@ bool CefV8ValueImpl::HasValue(int index)
   return rv;
 }
 
-bool CefV8ValueImpl::DeleteValue(const std::wstring& key)
+bool CefV8ValueImpl::DeleteValue(const CefString& key)
 {
   if(IsReservedKey(key))
     return false;
@@ -509,7 +507,7 @@ bool CefV8ValueImpl::DeleteValue(int index)
   return rv;
 }
 
-CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const std::wstring& key)
+CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key)
 {
   if(IsReservedKey(key))
     return false;
@@ -538,7 +536,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
   return rv;
 }
 
-bool CefV8ValueImpl::SetValue(const std::wstring& key,
+bool CefV8ValueImpl::SetValue(const CefString& key,
                               CefRefPtr<CefV8Value> value)
 {
   if(IsReservedKey(key))
@@ -574,7 +572,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
   return rv;
 }
 
-bool CefV8ValueImpl::GetKeys(std::vector<std::wstring>& keys)
+bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys)
 {
   bool rv = false;
   Lock();
@@ -585,7 +583,7 @@ bool CefV8ValueImpl::GetKeys(std::vector<std::wstring>& keys)
     uint32_t len = arr_keys->Length();
     for(uint32_t i = 0; i < len; ++i) {
       v8::Local<v8::Value> value = arr_keys->Get(v8::Integer::New(i));
-      std::wstring str = GetWString(value->ToString());
+      CefString str = GetString(value->ToString());
       if(!IsReservedKey(str))
         keys.push_back(str);
     }
@@ -624,15 +622,15 @@ int CefV8ValueImpl::GetArrayLength()
   return rv;
 }
 
-std::wstring CefV8ValueImpl::GetFunctionName()
+CefString CefV8ValueImpl::GetFunctionName()
 {
-  std::wstring rv;
+  CefString rv;
   Lock();
   if(v8_value_->IsFunction()) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = v8_value_->ToObject();
     v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(obj);
-    rv = GetWString(v8::Handle<v8::String>::Cast(func->GetName()));
+    rv = GetString(v8::Handle<v8::String>::Cast(func->GetName()));
   }
   Unlock();
   return rv;
@@ -656,7 +654,7 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler()
 bool CefV8ValueImpl::ExecuteFunction(CefRefPtr<CefV8Value> object,
                                      const CefV8ValueList& arguments,
                                      CefRefPtr<CefV8Value>& retval,
-                                     std::wstring& exception)
+                                     CefString& exception)
 {
   bool rv = false;
   Lock();
@@ -682,7 +680,7 @@ bool CefV8ValueImpl::ExecuteFunction(CefRefPtr<CefV8Value> object,
     v8::TryCatch try_catch;
     v8::Local<v8::Value> func_rv = func->Call(recv, argc, argv);
     if (try_catch.HasCaught())
-      exception = GetWString(try_catch.Message()->Get());
+      exception = GetString(try_catch.Message()->Get());
     else
       retval = new CefV8ValueImpl(func_rv);
 

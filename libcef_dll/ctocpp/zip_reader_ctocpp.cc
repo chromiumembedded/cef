@@ -44,13 +44,13 @@ bool CefZipReaderCToCpp::MoveToNextFile()
   return struct_->move_to_next_file(struct_) ? true : false;
 }
 
-bool CefZipReaderCToCpp::MoveToFile(const std::wstring& fileName,
+bool CefZipReaderCToCpp::MoveToFile(const CefString& fileName,
     bool caseSensitive)
 {
   if(CEF_MEMBER_MISSING(struct_, move_to_file))
     return false;
 
-  return struct_->move_to_file(struct_, fileName.c_str(), caseSensitive) ?
+  return struct_->move_to_file(struct_, fileName.GetStruct(), caseSensitive) ?
       true : false;
 }
 
@@ -62,18 +62,14 @@ bool CefZipReaderCToCpp::Close()
   return struct_->close(struct_) ? true : false;
 }
 
-std::wstring CefZipReaderCToCpp::GetFileName()
+CefString CefZipReaderCToCpp::GetFileName()
 {
-  std::wstring str;
+  CefString str;
   if(CEF_MEMBER_MISSING(struct_, get_file_name))
     return str;
 
-  cef_string_t cef_str = struct_->get_file_name(struct_);
-  if(cef_str) {
-    str = cef_str;
-    cef_string_free(cef_str);
-  }
-
+  cef_string_userfree_t strPtr = struct_->get_file_name(struct_);
+  str.AttachToUserFree(strPtr);
   return str;
 }
 
@@ -93,12 +89,12 @@ time_t CefZipReaderCToCpp::GetFileLastModified()
   return struct_->get_file_last_modified(struct_);
 }
 
-bool CefZipReaderCToCpp::OpenFile(const std::wstring& password)
+bool CefZipReaderCToCpp::OpenFile(const CefString& password)
 {
   if(CEF_MEMBER_MISSING(struct_, open_file))
     return 0;
 
-  return struct_->open_file(struct_, password.c_str()) ? true : false;
+  return struct_->open_file(struct_, password.GetStruct()) ? true : false;
 }
 
 bool CefZipReaderCToCpp::CloseFile()

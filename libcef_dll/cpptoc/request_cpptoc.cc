@@ -28,54 +28,45 @@ CEF_EXPORT cef_request_t* cef_request_create()
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_string_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
+cef_string_userfree_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring urlStr = CefRequestCppToC::Get(self)->GetURL();
-  if(!urlStr.empty())
-    return cef_string_alloc(urlStr.c_str());
-  return NULL;
+  CefString urlStr = CefRequestCppToC::Get(self)->GetURL();
+  return urlStr.DetachToUserFree();
 }
 
 void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
-    const wchar_t* url)
+    const cef_string_t* url)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring urlStr;
-  if(url)
-    urlStr = url;
-  CefRequestCppToC::Get(self)->SetURL(urlStr);
+  CefRequestCppToC::Get(self)->SetURL(CefString(url));
 }
 
-cef_string_t CEF_CALLBACK request_get_method(struct _cef_request_t* self)
+cef_string_userfree_t CEF_CALLBACK request_get_method(
+    struct _cef_request_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring methodStr = CefRequestCppToC::Get(self)->GetMethod();
-  if(!methodStr.empty())
-    return cef_string_alloc(methodStr.c_str());
-  return NULL;
+  CefString methodStr = CefRequestCppToC::Get(self)->GetMethod();
+  return methodStr.DetachToUserFree();
 }
 
 void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
-    const wchar_t* method)
+    const cef_string_t* method)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring methodStr;
-  if(method)
-    methodStr = method;
-  CefRequestCppToC::Get(self)->SetMethod(methodStr);
+  CefRequestCppToC::Get(self)->SetMethod(CefString(method));
 }
 
 struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
@@ -133,28 +124,24 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
   CefRequestCppToC::Get(self)->SetHeaderMap(map);
 }
 
-void CEF_CALLBACK request_set(struct _cef_request_t* self, const wchar_t* url,
-    const wchar_t* method, struct _cef_post_data_t* postData,
-    cef_string_map_t headerMap)
+void CEF_CALLBACK request_set(struct _cef_request_t* self,
+    const cef_string_t* url, const cef_string_t* method,
+    struct _cef_post_data_t* postData, cef_string_map_t headerMap)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring urlStr, methodStr;
   CefRefPtr<CefPostData> postDataPtr;
   CefRequest::HeaderMap map;
 
-  if(url)
-    urlStr = url;
-  if(method)
-    methodStr = method;  
   if(postData)
     postDataPtr = CefPostDataCppToC::Unwrap(postData);
   if(headerMap)
     transfer_string_map_contents(headerMap, map);
 
-  CefRequestCppToC::Get(self)->Set(urlStr, methodStr, postDataPtr, map);
+  CefRequestCppToC::Get(self)->Set(CefString(url), CefString(method),
+      postDataPtr, map);
 }
 
 

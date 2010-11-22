@@ -6,20 +6,12 @@
 #define _CEFCLIENT_STRING_UTIL_H
 
 #include "include/cef.h"
-#include <string>
-
-
-// Convert a std::string to a std::wstring
-std::wstring StringToWString(const std::string& s);
-
-// Convert a std::wstring to a std::string
-std::string WStringToString(const std::wstring& s);
 
 // Dump the contents of the request into a string.
-void DumpRequestContents(CefRefPtr<CefRequest> request, std::wstring& str);
+void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str);
 
 // Replace all instances of |from| with |to| in |str|.
-std::wstring StringReplace(const std::wstring& str, const std::wstring& from,
-                           const std::wstring& to);
+std::string StringReplace(const std::string& str, const std::string& from,
+                          const std::string& to);
 
 #endif // _CEFCLIENT_STRING_UTIL_H

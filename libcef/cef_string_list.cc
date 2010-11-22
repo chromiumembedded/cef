@@ -7,7 +7,7 @@
 #include <vector>
 
 
-typedef std::vector<std::wstring> StringList;
+typedef std::vector<CefString> StringList;
 
 CEF_EXPORT cef_string_list_t cef_string_list_alloc()
 {
@@ -21,24 +21,26 @@ CEF_EXPORT int cef_string_list_size(cef_string_list_t list)
   return impl->size();
 }
 
-CEF_EXPORT cef_string_t cef_string_list_value(cef_string_list_t list, int index)
+CEF_EXPORT int cef_string_list_value(cef_string_list_t list, int index,
+                                     cef_string_t* value)
 {
   DCHECK(list);
+  DCHECK(value);
   StringList* impl = (StringList*)list;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
-    return NULL;
-  return cef_string_alloc((*impl)[index].c_str());
+    return false;
+  const CefString& str = (*impl)[index];
+  return cef_string_copy(str.c_str(), str.length(), value);
 }
 
-CEF_EXPORT void cef_string_list_append(cef_string_list_t list, const wchar_t* value)
+CEF_EXPORT void cef_string_list_append(cef_string_list_t list,
+                                       const cef_string_t* value)
 {
   DCHECK(list);
+  DCHECK(value);
   StringList* impl = (StringList*)list;
-  std::wstring valstr;
-  if(value)
-    valstr = value;
-  impl->push_back(valstr);
+  impl->push_back(CefString(value));
 }
 
 CEF_EXPORT void cef_string_list_clear(cef_string_list_t list)

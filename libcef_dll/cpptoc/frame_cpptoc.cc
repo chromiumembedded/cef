@@ -98,28 +98,24 @@ void CEF_CALLBACK frame_view_source(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->ViewSource();
 }
 
-cef_string_t CEF_CALLBACK frame_get_source(struct _cef_frame_t* self)
+cef_string_userfree_t CEF_CALLBACK frame_get_source(struct _cef_frame_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring sourceStr = CefFrameCppToC::Get(self)->GetSource();
-  if(!sourceStr.empty())
-    return cef_string_alloc(sourceStr.c_str());
-  return NULL;
+  CefString sourceStr = CefFrameCppToC::Get(self)->GetSource();
+  return sourceStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK frame_get_text(struct _cef_frame_t* self)
+cef_string_userfree_t CEF_CALLBACK frame_get_text(struct _cef_frame_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring textStr = CefFrameCppToC::Get(self)->GetText();
-  if(!textStr.empty())
-    return cef_string_alloc(textStr.c_str());
-  return NULL;
+  CefString textStr = CefFrameCppToC::Get(self)->GetText();
+  return textStr.DetachToUserFree();
 }
 
 void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
@@ -134,64 +130,47 @@ void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
   CefFrameCppToC::Get(self)->LoadRequest(requestPtr);
 }
 
-void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self, const wchar_t* url)
+void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
+    const cef_string_t* url)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring urlStr;
-  if(url)
-    urlStr = url;
-  CefFrameCppToC::Get(self)->LoadURL(urlStr);
+  CefFrameCppToC::Get(self)->LoadURL(CefString(url));
 }
 
 void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
-    const wchar_t* string, const wchar_t* url)
+    const cef_string_t* string, const cef_string_t* url)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring stringStr, urlStr;
-  if(string)
-    stringStr = string;
-  if(url)
-    urlStr = url;
-  CefFrameCppToC::Get(self)->LoadString(stringStr, urlStr);
+  CefFrameCppToC::Get(self)->LoadString(CefString(string), CefString(url));
 }
 
 void CEF_CALLBACK frame_load_stream(struct _cef_frame_t* self,
-    struct _cef_stream_reader_t* stream, const wchar_t* url)
+    struct _cef_stream_reader_t* stream, const cef_string_t* url)
 {
   DCHECK(self);
   DCHECK(stream);
   if(!self || !stream)
     return;
 
-  CefRefPtr<CefStreamReader> streamPtr = CefStreamReaderCppToC::Unwrap(stream);
-  std::wstring urlStr;
-  if(url)
-    urlStr = url;
-  
-  CefFrameCppToC::Get(self)->LoadStream(streamPtr, urlStr);
+  CefFrameCppToC::Get(self)->LoadStream(CefStreamReaderCppToC::Unwrap(stream),
+      CefString(url));
 }
 
 void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
-    const wchar_t* jsCode, const wchar_t* scriptUrl, int startLine)
+    const cef_string_t* jsCode, const cef_string_t* scriptUrl, int startLine)
 {
   DCHECK(self);
   if(!self)
     return;
 
-  std::wstring jsCodeStr, scriptUrlStr;
-  if(jsCode)
-    jsCodeStr = jsCode;
-  if(scriptUrl)
-    scriptUrlStr = scriptUrl;
-
-  CefFrameCppToC::Get(self)->ExecuteJavaScript(jsCodeStr, scriptUrlStr,
-      startLine);
+  CefFrameCppToC::Get(self)->ExecuteJavaScript(CefString(jsCode),
+      CefString(scriptUrl), startLine);
 }
 
 int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self)
@@ -212,28 +191,24 @@ int CEF_CALLBACK frame_is_focused(struct _cef_frame_t* self)
   return CefFrameCppToC::Get(self)->IsFocused();
 }
 
-cef_string_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
+cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
-  std::wstring nameStr = CefFrameCppToC::Get(self)->GetName();
-  if(!nameStr.empty())
-    return cef_string_alloc(nameStr.c_str());
-  return NULL;
+  CefString nameStr = CefFrameCppToC::Get(self)->GetName();
+  return nameStr.DetachToUserFree();
 }
 
-cef_string_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
+cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
 {
   DCHECK(self);
   if(!self)
     return NULL;
 
-  std::wstring urlStr = CefFrameCppToC::Get(self)->GetURL();
-  if(!urlStr.empty())
-    return cef_string_alloc(urlStr.c_str());
-  return NULL;
+  CefString urlStr = CefFrameCppToC::Get(self)->GetURL();
+  return urlStr.DetachToUserFree();
 }
 
 

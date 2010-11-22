@@ -13,22 +13,23 @@
 #include "libcef_dll/cpptoc/handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
 
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
-    CefRefPtr<CefHandler> handler, const std::wstring& url)
+    CefRefPtr<CefHandler> handler, const CefString& url)
 {
   return cef_browser_create(&windowInfo, popup, CefHandlerCppToC::Wrap(handler),
-      url.c_str())?true:false;
+      url.GetStruct())?true:false;
 }
 
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
-    bool popup, CefRefPtr<CefHandler> handler, const std::wstring& url)
+    bool popup, CefRefPtr<CefHandler> handler, const CefString& url)
 {
   cef_browser_t* impl = cef_browser_create_sync(&windowInfo, popup,
-      CefHandlerCppToC::Wrap(handler), url.c_str());
+      CefHandlerCppToC::Wrap(handler), url.GetStruct());
   if(impl)
     return CefBrowserCToCpp::Wrap(impl);
   return NULL;
@@ -153,19 +154,19 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame()
   return NULL;
 }
 
-CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const std::wstring& name)
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name)
 {
   if(CEF_MEMBER_MISSING(struct_, get_main_frame))
     return NULL;
 
-  cef_frame_t* frameStruct = struct_->get_frame(struct_, name.c_str());
+  cef_frame_t* frameStruct = struct_->get_frame(struct_, name.GetStruct());
   if(frameStruct)
     return CefFrameCToCpp::Wrap(frameStruct);
 
   return NULL;
 }
 
-void CefBrowserCToCpp::GetFrameNames(std::vector<std::wstring>& names)
+void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names)
 {
   if(CEF_MEMBER_MISSING(struct_, get_frame_names))
     return;
@@ -173,24 +174,17 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<std::wstring>& names)
   cef_string_list_t list = cef_string_list_alloc();
   struct_->get_frame_names(struct_, list);
 
-  cef_string_t str;
-  int size = cef_string_list_size(list);
-  for(int i = 0; i < size; ++i) {
-    str = cef_string_list_value(list, i);
-    names.push_back(str);
-    cef_string_free(str);
-  }
-
+  transfer_string_list_contents(list, names);
   cef_string_list_free(list);
 }
 
-void CefBrowserCToCpp::Find(int identifier, const std::wstring& searchText,
+void CefBrowserCToCpp::Find(int identifier, const CefString& searchText,
     bool forward, bool matchCase, bool findNext)
 {
   if(CEF_MEMBER_MISSING(struct_, find))
     return;
 
-  struct_->find(struct_, identifier, searchText.c_str(), forward,
+  struct_->find(struct_, identifier, searchText.GetStruct(), forward,
       matchCase, findNext);
 }
 

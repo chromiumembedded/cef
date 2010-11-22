@@ -4,7 +4,6 @@
 
 #include "zip_reader_impl.h"
 #include "base/logging.h"
-#include "base/utf_string_conversions.h"
 #include <time.h>
 
 // Static functions
@@ -146,7 +145,7 @@ bool CefZipReaderImpl::MoveToNextFile()
   return (unzGoToNextFile(reader_) == UNZ_OK);
 }
 
-bool CefZipReaderImpl::MoveToFile(const std::wstring& fileName, bool caseSensitive)
+bool CefZipReaderImpl::MoveToFile(const CefString& fileName, bool caseSensitive)
 {
   if (!VerifyContext())
     return false;
@@ -156,7 +155,7 @@ bool CefZipReaderImpl::MoveToFile(const std::wstring& fileName, bool caseSensiti
 
   has_fileinfo_ = false;
 
-  std::string fileNameStr = WideToUTF8(fileName);
+  std::string fileNameStr = fileName;
   return (unzLocateFile(reader_, fileNameStr.c_str(),
                         (caseSensitive ? 1 : 2)) == UNZ_OK);
 }
@@ -174,10 +173,10 @@ bool CefZipReaderImpl::Close()
   return (result == UNZ_OK);
 }
 
-std::wstring CefZipReaderImpl::GetFileName()
+CefString CefZipReaderImpl::GetFileName()
 {
   if (!VerifyContext() || !GetFileInfo())
-    return std::wstring();
+    return CefString();
 
   return filename_;
 }
@@ -198,7 +197,7 @@ time_t CefZipReaderImpl::GetFileLastModified()
   return filemodified_;
 }
 
-bool CefZipReaderImpl::OpenFile(const std::wstring& password)
+bool CefZipReaderImpl::OpenFile(const CefString& password)
 {
   if (!VerifyContext())
     return false;
@@ -211,7 +210,7 @@ bool CefZipReaderImpl::OpenFile(const std::wstring& password)
   if (password.empty()) {
     ret = (unzOpenCurrentFile(reader_) == UNZ_OK);
   } else {
-    std::string passwordStr = WideToUTF8(password);
+    std::string passwordStr = password;
     ret = (unzOpenCurrentFilePassword(reader_, passwordStr.c_str()) == UNZ_OK);
   }
 
@@ -270,7 +269,7 @@ bool CefZipReaderImpl::GetFileInfo()
   }
 
   has_fileinfo_ = true;
-  UTF8ToWide(file_name, strlen(file_name), &filename_);
+  filename_ = std::string(file_name);
   filesize_ = file_info.uncompressed_size;
   
   struct tm time;

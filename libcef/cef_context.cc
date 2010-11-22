@@ -13,7 +13,6 @@
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "base/nss_util.h"
 #endif
-#include "base/utf_string_conversions.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
 // Global CefContext pointer
@@ -193,14 +192,7 @@ bool CefContext::Initialize(const CefSettings& settings,
   settings_ = settings;
   browser_defaults_ = browser_defaults;
 
-  std::wstring cachePathStr;
-  if(settings.cache_path)
-    cachePathStr = settings.cache_path;
-#if defined(OS_WIN)
-  cache_path_ = FilePath(cachePathStr);
-#else
-  cache_path_ = FilePath(WideToUTF8(cachePathStr));
-#endif
+  cache_path_ = FilePath(CefString(&settings.cache_path));
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
   // We want to be sure to init NSPR on the main thread.

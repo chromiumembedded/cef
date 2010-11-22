@@ -12,7 +12,6 @@
 
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
-#include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -28,16 +27,8 @@ int CEF_CALLBACK scheme_handler_process_request(
   if(!self || !request || !mime_type || !response_length)
     return 0;
 
-  std::wstring mimeTypeStr;
-  if(*mime_type)
-    mimeTypeStr = *mime_type;
-
-  bool rv = CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
-      CefRequestCToCpp::Wrap(request), mimeTypeStr, response_length);
-
-  transfer_string_contents(mimeTypeStr, mime_type);
-
-  return rv?1:0;
+  return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
+      CefRequestCToCpp::Wrap(request), CefString(mime_type), response_length);
 }
 
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)

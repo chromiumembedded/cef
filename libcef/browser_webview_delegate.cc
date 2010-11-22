@@ -21,7 +21,6 @@
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
-#include "base/utf_string_conversions.h"
 #include "gfx/point.h"
 #include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
@@ -152,10 +151,10 @@ void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
   if (webKitFeatures.additionalFeatures.size() > 0)   
      features.additionalFeatures = cef_string_list_alloc();
 
+  CefString str;
   for(unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
-    cef_string_list_append(features.additionalFeatures,
-        webkit_glue::WebStringToStdWString(
-            webKitFeatures.additionalFeatures[i]).c_str());
+    str = string16(webKitFeatures.additionalFeatures[i]);
+    cef_string_list_append(features.additionalFeatures, str.GetStruct());
   }
 }
 
@@ -191,21 +190,21 @@ WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
 void BrowserWebViewDelegate::didAddMessageToConsole(
     const WebConsoleMessage& message, const WebString& source_name,
     unsigned source_line) {
-  std::wstring wmessage = UTF16ToWideHack(message.text);
-  std::wstring wsource = UTF16ToWideHack(source_name);
+  std::string messageStr = message.text.utf8();
+  std::string sourceStr = source_name.utf8();
 
   CefHandler::RetVal rv = RV_CONTINUE;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
-    rv = handler->HandleConsoleMessage(browser_, wmessage, wsource,
-                                       source_line);
+    rv = handler->HandleConsoleMessage(browser_, messageStr, sourceStr,
+        source_line);
   }
 
   if(rv == RV_CONTINUE) {
     logging::LogMessage("CONSOLE", 0).stream() << "\""
-                                               << message.text.utf8().data()
+                                               << messageStr
                                                << ",\" source: "
-                                               << source_name.utf8().data()
+                                               << sourceStr
                                                << "("
                                                << source_line
                                                << ")";
@@ -357,8 +356,8 @@ bool BrowserWebViewDelegate::runFileChooser(
 
 void BrowserWebViewDelegate::runModalAlertDialog(
     WebFrame* frame, const WebString& message) {
-  std::wstring messageStr = UTF16ToWideHack(message);
   CefHandler::RetVal rv = RV_CONTINUE;
+  CefString messageStr = string16(message);
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     rv = handler->HandleJSAlert(browser_, browser_->GetCefFrame(frame),
@@ -370,8 +369,8 @@ void BrowserWebViewDelegate::runModalAlertDialog(
 
 bool BrowserWebViewDelegate::runModalConfirmDialog(
     WebFrame* frame, const WebString& message) {
-  std::wstring messageStr = UTF16ToWideHack(message);
   CefHandler::RetVal rv = RV_CONTINUE;
+  CefString messageStr = string16(message);
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
@@ -386,26 +385,26 @@ bool BrowserWebViewDelegate::runModalConfirmDialog(
 bool BrowserWebViewDelegate::runModalPromptDialog(
     WebFrame* frame, const WebString& message, const WebString& default_value,
     WebString* actual_value) {
-  std::wstring wmessage = UTF16ToWideHack(message);
-  std::wstring wdefault = UTF16ToWideHack(default_value);
-  std::wstring wresult;
-
+  CefString messageStr = string16(message);
+  CefString defaultValueStr = string16(default_value);
+  CefString actualValueStr;
   if(actual_value)
-    wresult = UTF16ToWideHack(*actual_value);
+    actualValueStr = string16(*actual_value);
 
   CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     rv = handler->HandleJSPrompt(browser_, browser_->GetCefFrame(frame),
-        wmessage, wdefault, retval, wresult);
+        messageStr, defaultValueStr, retval, actualValueStr);
   }
-  if(rv != RV_HANDLED)
-    retval = ShowJavaScriptPrompt(frame, wmessage, wdefault, &wresult);
-
-  if(actual_value && !wresult.empty())
-    *actual_value = WideToUTF16Hack(wresult);
-
+  if(rv != RV_HANDLED) {
+    retval = ShowJavaScriptPrompt(frame, messageStr, defaultValueStr,
+        &actualValueStr);
+  }
+  if (actual_value)
+    *actual_value = string16(actualValueStr);
+  
   return retval;
 }
 
@@ -426,12 +425,11 @@ void BrowserWebViewDelegate::setKeyboardFocusURL(const WebKit::WebURL& url) {
 void BrowserWebViewDelegate::setToolTipText(
     const WebString& text, WebTextDirection hint) 
 {
-  std::wstring tooltipText(UTF8ToWide(webkit_glue::WebStringToStdString(text)));
-   
+  CefString tooltipStr = string16(text);
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get() && handler->HandleTooltip(browser_, tooltipText)
+  if(handler.get() && handler->HandleTooltip(browser_, tooltipStr)
       == RV_CONTINUE){
-     GetWidgetHost()->SetTooltipText(tooltipText);
+     GetWidgetHost()->SetTooltipText(tooltipStr);
   }
 }
 
@@ -601,7 +599,7 @@ void BrowserWebViewDelegate::loadURLExternally(
     WebFrame* frame, const WebURLRequest& request,
     WebNavigationPolicy policy) {
   DCHECK_NE(policy, WebKit::WebNavigationPolicyCurrentTab);
-  browser_->UIT_CreatePopupWindow(UTF8ToWide(request.url().spec().data()),
+  browser_->UIT_CreatePopupWindow(std::string(request.url().spec().data()),
       CefPopupFeatures());
 }
 
@@ -618,9 +616,8 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
     if (!request_url.is_valid())
       return WebKit::WebNavigationPolicyIgnore;
 
-    req->SetURL(UTF8ToWide(request_url.spec()));
-    req->SetMethod(
-        UTF8ToWide(webkit_glue::WebStringToStdString(request.httpMethod())));
+    req->SetURL(request_url.spec());
+    req->SetMethod(string16(request.httpMethod()));
 
     const WebKit::WebHTTPBody& httpBody = request.httpBody();
     if(!httpBody.isNull()) {
@@ -717,13 +714,13 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // give the handler an opportunity to generate a custom error message
-    std::wstring error_str;
+    CefString errorStr;
     CefHandler::RetVal rv = handler->HandleLoadError(browser_,
         browser_->GetCefFrame(frame),
         static_cast<CefHandler::ErrorCode>(error.reason),
-        UTF8ToWide(failed_ds->request().url().spec().data()), error_str);
-    if(rv == RV_HANDLED && !error_str.empty())
-      error_text = WideToUTF8(error_str);
+        std::string(failed_ds->request().url().spec().data()), errorStr);
+    if(rv == RV_HANDLED && !errorStr.empty())
+      error_text = errorStr;
   } else {
     error_text = StringPrintf("Error %d when loading url %s",
         error.reason, failed_ds->request().url().spec().data());
@@ -767,13 +764,12 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
 
 void BrowserWebViewDelegate::didReceiveTitle(
     WebFrame* frame, const WebString& title) {
-  std::wstring wtitle = UTF16ToWideHack(title);
-
-  browser_->UIT_SetTitle(wtitle);
+  CefString titleStr = string16(title);
+  browser_->UIT_SetTitle(titleStr);
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Notify the handler of a page title change
-    handler->HandleTitleChange(browser_, wtitle);
+    handler->HandleTitleChange(browser_, titleStr);
   }
 }
 
@@ -971,7 +967,7 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     entry->SetURL(request.url());
   }
 
-  std::wstring url = UTF8ToWide(entry->GetURL().spec().c_str());
+  std::string url = std::string(entry->GetURL().spec().c_str());
 
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {

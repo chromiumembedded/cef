@@ -125,20 +125,17 @@ void CefProcessUIThread::Init() {
 
   const CefSettings& settings = _Context->settings();
   
-  if (settings.user_agent)
-    webkit_glue::SetUserAgent(WideToUTF8(settings.user_agent));
+  if (settings.user_agent.length > 0)
+    webkit_glue::SetUserAgent(CefString(&settings.user_agent));
   
   if (settings.extra_plugin_paths) {
     cef_string_t str;
     FilePath path;
     int size = cef_string_list_size(settings.extra_plugin_paths);
     for(int i = 0; i < size; ++i) {
-      str = cef_string_list_value(settings.extra_plugin_paths, i);
-#if defined(OS_WIN)
-      path = FilePath(str);
-#else
-      path = FilePath(WideToUTF8(str));
-#endif
+      if (!cef_string_list_value(settings.extra_plugin_paths, i, &str))
+        continue;
+      path = FilePath(CefString(&str));
       NPAPI::PluginList::Singleton()->AddExtraPluginPath(path);
     }
   }

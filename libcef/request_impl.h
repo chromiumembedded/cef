@@ -20,16 +20,16 @@ public:
   CefRequestImpl();
   ~CefRequestImpl() {}
 
-  virtual std::wstring GetURL();
-  virtual void SetURL(const std::wstring& url);
-  virtual std::wstring GetMethod();
-  virtual void SetMethod(const std::wstring& method);
+  virtual CefString GetURL();
+  virtual void SetURL(const CefString& url);
+  virtual CefString GetMethod();
+  virtual void SetMethod(const CefString& method);
   virtual CefRefPtr<CefPostData> GetPostData();
   virtual void SetPostData(CefRefPtr<CefPostData> postData);
   virtual void GetHeaderMap(HeaderMap& headerMap);
   virtual void SetHeaderMap(const HeaderMap& headerMap);
-  virtual void Set(const std::wstring& url,
-                   const std::wstring& method,
+  virtual void Set(const CefString& url,
+                   const CefString& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
 
@@ -46,8 +46,8 @@ public:
   static void ParseHeaders(const std::string& header_str, HeaderMap& map);
 
 protected:
-  std::wstring url_;
-  std::wstring method_;
+  CefString url_;
+  CefString method_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
 };
@@ -82,10 +82,10 @@ public:
   ~CefPostDataElementImpl();
 
   virtual void SetToEmpty();
-  virtual void SetToFile(const std::wstring& fileName);
+  virtual void SetToFile(const CefString& fileName);
   virtual void SetToBytes(size_t size, const void* bytes);
   virtual Type GetType();
-  virtual std::wstring GetFile();
+  virtual CefString GetFile();
   virtual size_t GetBytesCount();
   virtual size_t GetBytes(size_t size, void* bytes);
 
@@ -103,7 +103,7 @@ protected:
       void* bytes;
       size_t size;
     } bytes;
-    wchar_t* filename;
+    cef_string_t filename;
   } data_;
 };
 

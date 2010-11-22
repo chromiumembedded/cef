@@ -16,14 +16,14 @@
 // ClientHandler::ClientDownloadListener implementation
 
 void ClientHandler::ClientDownloadListener::NotifyDownloadComplete(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   handler_->SetLastDownloadFile(fileName);
   handler_->SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
 }
 
 void ClientHandler::ClientDownloadListener::NotifyDownloadError(
-    const std::wstring& fileName)
+    const CefString& fileName)
 {
   handler_->SetLastDownloadFile(fileName);
   handler_->SendNotification(NOTIFY_DOWNLOAD_ERROR);
@@ -90,36 +90,36 @@ CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
 
 CefHandler::RetVal ClientHandler::HandleLoadError(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, ErrorCode errorCode,
-    const std::wstring& failedUrl, std::wstring& errorText)
+    const CefString& failedUrl, CefString& errorText)
 {
   if(errorCode == ERR_CACHE_MISS)
   {
     // Usually caused by navigating to a page with POST data via back or
     // forward buttons.
-    errorText = L"<html><head><title>Expired Form Data</title></head>"
-                L"<body><h1>Expired Form Data</h1>"
-                L"<h2>Your form request has expired. "
-                L"Click reload to re-submit the form data.</h2></body>"
-                L"</html>";
+    errorText = "<html><head><title>Expired Form Data</title></head>"
+                "<body><h1>Expired Form Data</h1>"
+                "<h2>Your form request has expired. "
+                "Click reload to re-submit the form data.</h2></body>"
+                "</html>";
   }
   else
   {
     // All other messages.
-    std::wstringstream ss;
-    ss <<       L"<html><head><title>Load Failed</title></head>"
-                L"<body><h1>Load Failed</h1>"
-                L"<h2>Load of URL " << failedUrl <<
-                L" failed with error code " << static_cast<int>(errorCode) <<
-                L".</h2></body>"
-                L"</html>";
+    std::stringstream ss;
+    ss <<       "<html><head><title>Load Failed</title></head>"
+                "<body><h1>Load Failed</h1>"
+                "<h2>Load of URL " << std::string(failedUrl) <<
+                " failed with error code " << static_cast<int>(errorCode) <<
+                ".</h2></body>"
+                "</html>";
     errorText = ss.str();
   }
   return RV_HANDLED;
 }
 
 CefHandler::RetVal ClientHandler::HandleDownloadResponse(
-    CefRefPtr<CefBrowser> browser, const std::wstring& mimeType,
-    const std::wstring& fileName, int64 contentLength,
+    CefRefPtr<CefBrowser> browser, const CefString& mimeType,
+    const CefString& fileName, int64 contentLength,
     CefRefPtr<CefDownloadHandler>& handler)
 {
   // Create the handler for the file download.
@@ -129,10 +129,10 @@ CefHandler::RetVal ClientHandler::HandleDownloadResponse(
 
 CefHandler::RetVal ClientHandler::HandlePrintHeaderFooter(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefPrintInfo& printInfo, const std::wstring& url, const std::wstring& title,
-    int currentPage, int maxPages, std::wstring& topLeft,
-    std::wstring& topCenter, std::wstring& topRight, std::wstring& bottomLeft,
-    std::wstring& bottomCenter, std::wstring& bottomRight)
+    CefPrintInfo& printInfo, const CefString& url, const CefString& title,
+    int currentPage, int maxPages, CefString& topLeft,
+    CefString& topCenter, CefString& topRight, CefString& bottomLeft,
+    CefString& bottomCenter, CefString& bottomRight)
 {
   // Place the page title at top left
   topLeft = title;
@@ -140,8 +140,8 @@ CefHandler::RetVal ClientHandler::HandlePrintHeaderFooter(
   topRight = url;
   
   // Place "Page X of Y" at bottom center
-  std::wstringstream strstream;
-  strstream << L"Page " << currentPage << L" of " << maxPages;
+  std::stringstream strstream;
+  strstream << "Page " << currentPage << " of " << maxPages;
   bottomCenter = strstream.str();
 
   return RV_CONTINUE;
@@ -168,37 +168,32 @@ CefHandler::RetVal ClientHandler::HandleBeforeWindowClose(
 }
 
 CefHandler::RetVal ClientHandler::HandleConsoleMessage(
-    CefRefPtr<CefBrowser> browser, const std::wstring& message,
-    const std::wstring& source, int line)
+    CefRefPtr<CefBrowser> browser, const CefString& message,
+    const CefString& source, int line)
 {
   Lock();
   bool first_message = m_LogFile.empty();
   if(first_message) {
-    std::wstringstream ss;
+    std::stringstream ss;
     ss << AppGetWorkingDirectory();
 #ifdef _WIN32
-    ss << L"\\";
+    ss << "\\";
 #else
-    ss << L"/";
+    ss << "/";
 #endif
-    ss << L"console.log";
+    ss << "console.log";
     m_LogFile = ss.str();
   }
-  std::wstring logFile = m_LogFile;
+  std::string logFile = m_LogFile;
   Unlock();
   
-  FILE* file = NULL;
-#ifdef _WIN32
-  _wfopen_s(&file, logFile.c_str(), L"a, ccs=UTF-8");
-#else
-  file = fopen(WStringToString(logFile).c_str(), "a");
-#endif
-  
+  FILE* file = fopen(logFile.c_str(), "a");
   if(file) {
-    std::wstringstream ss;
-    ss << L"Message: " << message << L"\r\nSource: " << source <<
-        L"\r\nLine: " << line << L"\r\n-----------------------\r\n";
-    fputws(ss.str().c_str(), file);
+    std::stringstream ss;
+    ss << "Message: " << std::string(message) << "\r\nSource: " <<
+        std::string(source) << "\r\nLine: " << line <<
+        "\r\n-----------------------\r\n";
+    fputs(ss.str().c_str(), file);
     fclose(file);
 
     if(first_message)
@@ -232,24 +227,24 @@ void ClientHandler::SetEditHwnd(CefWindowHandle hwnd)
   Unlock();
 }
 
-std::wstring ClientHandler::GetLogFile()
+std::string ClientHandler::GetLogFile()
 {
   Lock();
-  std::wstring str = m_LogFile;
+  std::string str = m_LogFile;
   Unlock();
   return str;
 }
 
-void ClientHandler::SetLastDownloadFile(const std::wstring& fileName)
+void ClientHandler::SetLastDownloadFile(const std::string& fileName)
 {
   Lock();
   m_LastDownloadFile = fileName;
   Unlock();
 }
 
-std::wstring ClientHandler::GetLastDownloadFile()
+std::string ClientHandler::GetLastDownloadFile()
 {
-  std::wstring str;
+  std::string str;
   Lock();
   str = m_LastDownloadFile;
   Unlock();
@@ -278,25 +273,25 @@ CefWindowHandle AppGetMainHwnd()
 void RunGetSourceTest(CefRefPtr<CefFrame> frame)
 {
   // Retrieve the current page source and display.
-  std::wstring source = frame->GetSource();
-  source = StringReplace(source, L"<", L"&lt;");
-  source = StringReplace(source, L">", L"&gt;");
-  std::wstringstream ss;
-  ss << L"<html><body>Source:" << L"<pre>" << source
-      << L"</pre></body></html>";
-  frame->LoadString(ss.str(), L"http://tests/getsource");
+  std::string source = frame->GetSource();
+  source = StringReplace(source, "<", "&lt;");
+  source = StringReplace(source, ">", "&gt;");
+  std::stringstream ss;
+  ss << "<html><body>Source:" << "<pre>" << source
+      << "</pre></body></html>";
+  frame->LoadString(ss.str(), "http://tests/getsource");
 }
 
 void RunGetTextTest(CefRefPtr<CefFrame> frame)
 {
   // Retrieve the current page text and display.
-  std::wstring text = frame->GetText();
-  text = StringReplace(text, L"<", L"&lt;");
-  text = StringReplace(text, L">", L"&gt;");
-  std::wstringstream ss;
-  ss << L"<html><body>Text:" << L"<pre>" << text
-      << L"</pre></body></html>";
-  frame->LoadString(ss.str(), L"http://tests/gettext");
+  std::string text = frame->GetText();
+  text = StringReplace(text, "<", "&lt;");
+  text = StringReplace(text, ">", "&gt;");
+  std::stringstream ss;
+  ss << "<html><body>Text:" << "<pre>" << text
+      << "</pre></body></html>";
+  frame->LoadString(ss.str(), "http://tests/gettext");
 }
 
 void RunRequestTest(CefRefPtr<CefBrowser> browser)
@@ -305,7 +300,7 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser)
   CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
 
   // Set the request URL
-  request->SetURL(L"http://tests/request");
+  request->SetURL("http://tests/request");
 
   // Add post data to the request.  The correct method and content-
   // type headers will be set by CEF.
@@ -320,7 +315,7 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser)
   // Add a custom header
   CefRequest::HeaderMap headerMap;
   headerMap.insert(
-      std::make_pair(L"X-My-Header", L"My Header Value"));
+      std::make_pair("X-My-Header", "My Header Value"));
   request->SetHeaderMap(headerMap);
 
   // Load the request
@@ -330,16 +325,16 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser)
 void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->ExecuteJavaScript(
-      L"alert('JavaScript execute works!');", L"about:blank", 0);
+      "alert('JavaScript execute works!');", "about:blank", 0);
 }
 
 void RunPopupTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->ExecuteJavaScript(
-      L"window.open('http://www.google.com');", L"about:blank", 0);
+      "window.open('http://www.google.com');", "about:blank", 0);
 }
 
 void RunLocalStorageTest(CefRefPtr<CefBrowser> browser)
 {
-  browser->GetMainFrame()->LoadURL(L"http://tests/localstorage");
+  browser->GetMainFrame()->LoadURL("http://tests/localstorage");
 }

@@ -10,7 +10,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "base/utf_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
@@ -32,7 +31,7 @@ gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
   return (NSWindow*)window_info_.m_View;
 }
 
-void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
+void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
   
@@ -67,7 +66,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const std::wstring& url)
   if(url.size() > 0) {
     CefRefPtr<CefFrame> frame = GetMainFrame();
     frame->AddRef();
-    UIT_LoadURL(frame, url.c_str());
+    UIT_LoadURL(frame, url);
   }
 }
 

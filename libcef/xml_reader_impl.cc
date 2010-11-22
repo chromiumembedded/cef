@@ -4,14 +4,13 @@
 
 #include "xml_reader_impl.h"
 #include "base/logging.h"
-#include "base/utf_string_conversions.h"
 
 // Static functions
 
 //static
 CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
                                              EncodingType encodingType,
-                                             const std::wstring& URI)
+                                             const CefString& URI)
 {
   CefRefPtr<CefXmlReaderImpl> impl(new CefXmlReaderImpl());
   if (!impl->Initialize(stream, encodingType, URI))
@@ -55,14 +54,12 @@ void XMLCALL xml_error_callback(void *arg, const char *msg,
   if (!msg)
     return;
 
-  std::wstring error_str;
-  UTF8ToWide(msg, strlen(msg), &error_str);
-
+  std::string error_str(msg);
   if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
     error_str.resize(error_str.length()-1);
   
-  std::wstringstream ss;
-  ss << error_str << L", line " << xmlTextReaderLocatorLineNumber(locator);
+  std::stringstream ss;
+  ss << error_str << ", line " << xmlTextReaderLocatorLineNumber(locator);
 
   LOG(INFO) << ss.str();
   
@@ -83,14 +80,12 @@ void XMLCALL xml_structured_error_callback(void *userData, xmlErrorPtr error)
   if (!error->message)
     return;
 
-  std::wstring error_str;
-  UTF8ToWide(error->message, strlen(error->message), &error_str);
-  
+  std::string error_str(error->message);
   if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
     error_str.resize(error_str.length()-1);
   
-  std::wstringstream ss;
-  ss << error_str << L", line " << error->line;
+  std::stringstream ss;
+  ss << error_str << ", line " << error->line;
 
   LOG(INFO) << ss.str();
   
@@ -98,14 +93,13 @@ void XMLCALL xml_structured_error_callback(void *userData, xmlErrorPtr error)
   impl->AppendError(ss.str());
 }
 
-std::wstring xmlCharToWString(const xmlChar* xmlStr, bool free)
+CefString xmlCharToString(const xmlChar* xmlStr, bool free)
 {
   if (!xmlStr)
-    return std::wstring();
+    return CefString();
 
   const char* str = reinterpret_cast<const char*>(xmlStr);
-  std::wstring wstr;
-  UTF8ToWide(str, strlen(str), &wstr);
+  CefString wstr = std::string(str);
   
   if (free)
     xmlFree(const_cast<xmlChar*>(xmlStr));
@@ -135,7 +129,7 @@ CefXmlReaderImpl::~CefXmlReaderImpl()
 
 bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
                                   EncodingType encodingType,
-                                  const std::wstring& URI)
+                                  const CefString& URI)
 {
   xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
   switch (encodingType) {
@@ -164,7 +158,8 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
   input_buffer->readcallback = xml_read_callback;
 
   // Create the text reader.
-  reader_ = xmlNewTextReader(input_buffer, WideToUTF8(URI).c_str());
+  std::string uriStr = URI;
+  reader_ = xmlNewTextReader(input_buffer, uriStr.c_str());
   if (!reader_) {
     // Free the input buffer.
     xmlFreeParserInputBuffer(input_buffer);
@@ -209,10 +204,10 @@ bool CefXmlReaderImpl::HasError()
   return !error_buf_.str().empty();
 }
 
-std::wstring CefXmlReaderImpl::GetError()
+CefString CefXmlReaderImpl::GetError()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
   return error_buf_.str();
 }
@@ -259,52 +254,52 @@ int CefXmlReaderImpl::GetDepth()
   return xmlTextReaderDepth(reader_);
 }
 
-std::wstring CefXmlReaderImpl::GetLocalName()
+CefString CefXmlReaderImpl::GetLocalName()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstLocalName(reader_), false);
+  return xmlCharToString(xmlTextReaderConstLocalName(reader_), false);
 }
 
-std::wstring CefXmlReaderImpl::GetPrefix()
+CefString CefXmlReaderImpl::GetPrefix()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstPrefix(reader_), false);
+  return xmlCharToString(xmlTextReaderConstPrefix(reader_), false);
 }
 
-std::wstring CefXmlReaderImpl::GetQualifiedName()
+CefString CefXmlReaderImpl::GetQualifiedName()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstName(reader_), false);
+  return xmlCharToString(xmlTextReaderConstName(reader_), false);
 }
 
-std::wstring CefXmlReaderImpl::GetNamespaceURI()
+CefString CefXmlReaderImpl::GetNamespaceURI()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstNamespaceUri(reader_), false);
+  return xmlCharToString(xmlTextReaderConstNamespaceUri(reader_), false);
 }
 
-std::wstring CefXmlReaderImpl::GetBaseURI()
+CefString CefXmlReaderImpl::GetBaseURI()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstBaseUri(reader_), false);
+  return xmlCharToString(xmlTextReaderConstBaseUri(reader_), false);
 }
 
-std::wstring CefXmlReaderImpl::GetXmlLang()
+CefString CefXmlReaderImpl::GetXmlLang()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderConstXmlLang(reader_), false);
+  return xmlCharToString(xmlTextReaderConstXmlLang(reader_), false);
 }
 
 bool CefXmlReaderImpl::IsEmptyElement()
@@ -328,19 +323,19 @@ bool CefXmlReaderImpl::HasValue()
   }
 }
 
-std::wstring CefXmlReaderImpl::GetValue()
+CefString CefXmlReaderImpl::GetValue()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
   if (xmlTextReaderNodeType(reader_) == XML_READER_TYPE_ENTITY_REFERENCE) {
     // Provide special handling to return entity reference values.
     xmlNodePtr node = xmlTextReaderCurrentNode(reader_);
     if (node->content != NULL)
-      return xmlCharToWString(node->content, false);
-    return NULL;
+      return xmlCharToString(node->content, false);
+    return CefString();
   } else {
-    return xmlCharToWString(xmlTextReaderConstValue(reader_), false);
+    return xmlCharToString(xmlTextReaderConstValue(reader_), false);
   }
 }
 
@@ -360,50 +355,50 @@ size_t CefXmlReaderImpl::GetAttributeCount()
   return xmlTextReaderAttributeCount(reader_);
 }
 
-std::wstring CefXmlReaderImpl::GetAttribute(int index)
+CefString CefXmlReaderImpl::GetAttribute(int index)
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderGetAttributeNo(reader_, index), true);
+  return xmlCharToString(xmlTextReaderGetAttributeNo(reader_, index), true);
 }
 
-std::wstring CefXmlReaderImpl::GetAttribute(const std::wstring& qualifiedName)
+CefString CefXmlReaderImpl::GetAttribute(const CefString& qualifiedName)
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  std::string qualifiedNameStr = WideToUTF8(qualifiedName);
-  return xmlCharToWString(xmlTextReaderGetAttribute(reader_,
+  std::string qualifiedNameStr = qualifiedName;
+  return xmlCharToString(xmlTextReaderGetAttribute(reader_,
       BAD_CAST qualifiedNameStr.c_str()), true);
 }
 
-std::wstring CefXmlReaderImpl::GetAttribute(const std::wstring& localName,
-                                            const std::wstring& namespaceURI)
+CefString CefXmlReaderImpl::GetAttribute(const CefString& localName,
+                                         const CefString& namespaceURI)
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  std::string localNameStr = WideToUTF8(localName);
-  std::string namespaceURIStr = WideToUTF8(namespaceURI);
-  return xmlCharToWString(xmlTextReaderGetAttributeNs(reader_,
+  std::string localNameStr = localName;
+  std::string namespaceURIStr = namespaceURI;
+  return xmlCharToString(xmlTextReaderGetAttributeNs(reader_,
       BAD_CAST localNameStr.c_str(), BAD_CAST namespaceURIStr.c_str()), true);
 }
 
-std::wstring CefXmlReaderImpl::GetInnerXml()
+CefString CefXmlReaderImpl::GetInnerXml()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderReadInnerXml(reader_), true);
+  return xmlCharToString(xmlTextReaderReadInnerXml(reader_), true);
 }
 
-std::wstring CefXmlReaderImpl::GetOuterXml()
+CefString CefXmlReaderImpl::GetOuterXml()
 {
   if (!VerifyContext())
-    return std::wstring();
+    return CefString();
 
-  return xmlCharToWString(xmlTextReaderReadOuterXml(reader_), true);
+  return xmlCharToString(xmlTextReaderReadOuterXml(reader_), true);
 }
 
 int CefXmlReaderImpl::GetLineNumber()
@@ -422,24 +417,24 @@ bool CefXmlReaderImpl::MoveToAttribute(int index)
   return xmlTextReaderMoveToAttributeNo(reader_, index) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::MoveToAttribute(const std::wstring& qualifiedName)
+bool CefXmlReaderImpl::MoveToAttribute(const CefString& qualifiedName)
 {
   if (!VerifyContext())
     return false;
 
-  std::string qualifiedNameStr = WideToUTF8(qualifiedName);
+  std::string qualifiedNameStr = qualifiedName;
   return xmlTextReaderMoveToAttribute(reader_,
       BAD_CAST qualifiedNameStr.c_str()) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::MoveToAttribute(const std::wstring& localName,
-                                       const std::wstring& namespaceURI)
+bool CefXmlReaderImpl::MoveToAttribute(const CefString& localName,
+                                       const CefString& namespaceURI)
 {
   if (!VerifyContext())
     return false;
 
-  std::string localNameStr = WideToUTF8(localName);
-  std::string namespaceURIStr = WideToUTF8(namespaceURI);
+  std::string localNameStr = localName;
+  std::string namespaceURIStr = namespaceURI;
   return xmlTextReaderMoveToAttributeNs(reader_,
       BAD_CAST localNameStr.c_str(), BAD_CAST namespaceURIStr.c_str()) == 1 ?
       true : false;
@@ -469,7 +464,7 @@ bool CefXmlReaderImpl::MoveToCarryingElement()
   return xmlTextReaderMoveToElement(reader_) == 1 ? true : false;
 }
 
-void CefXmlReaderImpl::AppendError(const std::wstring& error_str)
+void CefXmlReaderImpl::AppendError(const CefString& error_str)
 {
   if (!error_buf_.str().empty())
     error_buf_ << L"\n";

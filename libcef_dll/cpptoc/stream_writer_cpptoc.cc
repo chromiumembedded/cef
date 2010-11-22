@@ -17,14 +17,14 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
-    const wchar_t* fileName)
+    const cef_string_t* fileName)
 {
   DCHECK(fileName);
   if(!fileName)
     return NULL;
 
-  std::wstring fileNameStr = fileName;
-  CefRefPtr<CefStreamWriter> impl = CefStreamWriter::CreateForFile(fileName);
+  CefRefPtr<CefStreamWriter> impl =
+      CefStreamWriter::CreateForFile(CefString(fileName));
   if(impl.get())
     return CefStreamWriterCppToC::Wrap(impl);
   return NULL;

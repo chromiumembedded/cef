@@ -12,27 +12,18 @@
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
-#include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    std::wstring& mime_type, int* response_length)
+    CefString& mime_type, int* response_length)
 {
   if(CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
-  cef_string_t mimeTypeRet = NULL;
-  if(!mime_type.empty())
-    mimeTypeRet = cef_string_alloc(mime_type.c_str());
-
-  int rv = struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
-      &mimeTypeRet, response_length);
-
-  transfer_string_contents(mimeTypeRet, mime_type, true);
-
-  return rv ? true : false;
+  return struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
+      mime_type.GetWritableStruct(), response_length) ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::Cancel()
@@ -49,8 +40,8 @@ bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
   if(CEF_MEMBER_MISSING(struct_, read_response))
     return false;
 
-  return struct_->read_response(struct_, data_out, bytes_to_read, bytes_read)
-	  ? true : false;
+  return struct_->read_response(struct_, data_out, bytes_to_read, bytes_read) ?
+      true : false;
 }
 
 

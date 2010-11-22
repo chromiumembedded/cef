@@ -33,12 +33,12 @@ public:
   // CefZipReader methods
   virtual bool MoveToFirstFile();
   virtual bool MoveToNextFile();
-  virtual bool MoveToFile(const std::wstring& fileName, bool caseSensitive);
+  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive);
   virtual bool Close();
-  virtual std::wstring GetFileName();
+  virtual CefString GetFileName();
   virtual long GetFileSize();
   virtual time_t GetFileLastModified();
-  virtual bool OpenFile(const std::wstring& password);
+  virtual bool OpenFile(const CefString& password);
   virtual bool CloseFile();
   virtual int ReadFile(void* buffer, size_t bufferSize);
   virtual long Tell();

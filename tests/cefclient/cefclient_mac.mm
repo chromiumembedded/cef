@@ -10,7 +10,6 @@
 #include "extension_test.h"
 #include "scheme_test.h"
 #include "string_util.h"
-#include "string_util_mac.h"
 #import <Cocoa/Cocoa.h>
 #include <sstream>
 
@@ -78,7 +77,7 @@ const int kWindowHeight = 600;
   if (tempUrl && ![tempUrl scheme])
     url = [@"http://" stringByAppendingString:url];
   
-  std::wstring urlStr = NSStringToWString(url);
+  std::string urlStr = [url UTF8String];
   g_handler->GetBrowser()->GetMainFrame()->LoadURL(urlStr);
 }
 
@@ -92,27 +91,27 @@ const int kWindowHeight = 600;
 }
 
 - (void)notifyConsoleMessage:(id)object {
-  std::wstringstream ss;
-  ss << L"Console messages will be written to " << g_handler->GetLogFile();
-  NSString* str = WStringToNSString(ss.str());
+  std::stringstream ss;
+  ss << "Console messages will be written to " << g_handler->GetLogFile();
+  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"Console Messages" withMessage:str];
   [str release];
 }
 
 - (void)notifyDownloadComplete:(id)object {
-  std::wstringstream ss;
-  ss << L"File \"" << g_handler->GetLastDownloadFile() <<
-      L"\" downloaded successfully.";
-  NSString* str = WStringToNSString(ss.str());
+  std::stringstream ss;
+  ss << "File \"" << g_handler->GetLastDownloadFile() <<
+      "\" downloaded successfully.";
+  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"File Download" withMessage:str];
   [str release];
 }
 
 - (void)notifyDownloadError:(id)object {
-  std::wstringstream ss;
-  ss << L"File \"" << g_handler->GetLastDownloadFile() <<
-      L"\" failed to download.";
-  NSString* str = WStringToNSString(ss.str());
+  std::stringstream ss;
+  ss << "File \"" << g_handler->GetLastDownloadFile() <<
+      "\" failed to download.";
+  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"File Download" withMessage:str];
   [str release];
 }
@@ -373,13 +372,14 @@ int main(int argc, char* argv[])
 
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    const std::wstring& url)
+    const CefString& url)
 {
   if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
     // Set the edit window text
     NSTextField* textField = (NSTextField*)m_EditHwnd;
-    NSString* str = WStringToNSString(url);
+    NSString* str =
+        [NSString stringWithUTF8String:(std::string(url).c_str())];
     [textField setStringValue:str];
     [str release];
   }
@@ -387,11 +387,12 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
 }
 
 CefHandler::RetVal ClientHandler::HandleTitleChange(
-    CefRefPtr<CefBrowser> browser, const std::wstring& title)
+    CefRefPtr<CefBrowser> browser, const CefString& title)
 {
   // Set the frame window title bar
   NSWindow* window = (NSWindow*)m_MainHwnd;
-  NSString* str = WStringToNSString(title);
+  NSString* str =
+      [NSString stringWithUTF8String:(std::string(title).c_str())];
   [window setTitle:str];
   [str release];
   return RV_CONTINUE;
@@ -399,17 +400,17 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
 
 CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
-    std::wstring& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    std::wstring& mimeType, int loadFlags)
+    CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
+    CefString& mimeType, int loadFlags)
 {
-  std::wstring url = request->GetURL();
-  if(url == L"http://tests/request") {
+  std::string url = request->GetURL();
+  if(url == "http://tests/request") {
     // Show the request contents
-    std::wstring dump;
+    std::string dump;
     DumpRequestContents(request, dump);
     resourceStream = CefStreamReader::CreateForData(
-        (void*)dump.c_str(), dump.size() * sizeof(wchar_t));
-    mimeType = L"text/plain";
+        (void*)dump.c_str(), dump.size());
+    mimeType = "text/plain";
   }
   return RV_CONTINUE;
 }
@@ -440,7 +441,7 @@ void ClientHandler::SendNotification(NotificationType type)
 
 // Global functions
 
-std::wstring AppGetWorkingDirectory()
+std::string AppGetWorkingDirectory()
 {
-  return StringToWString(szWorkingDir);
+  return szWorkingDir;
 }

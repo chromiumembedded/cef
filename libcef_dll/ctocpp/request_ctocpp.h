@@ -31,15 +31,15 @@ public:
   virtual ~CefRequestCToCpp() {}
 
   // CefRequest methods
-  virtual std::wstring GetURL();
-  virtual void SetURL(const std::wstring& url);
-  virtual std::wstring GetMethod();
-  virtual void SetMethod(const std::wstring& method);
+  virtual CefString GetURL();
+  virtual void SetURL(const CefString& url);
+  virtual CefString GetMethod();
+  virtual void SetMethod(const CefString& method);
   virtual CefRefPtr<CefPostData> GetPostData();
   virtual void SetPostData(CefRefPtr<CefPostData> postData);
   virtual void GetHeaderMap(HeaderMap& headerMap);
   virtual void SetHeaderMap(const HeaderMap& headerMap);
-  virtual void Set(const std::wstring& url, const std::wstring& method,
+  virtual void Set(const CefString& url, const CefString& method,
       CefRefPtr<CefPostData> postData, const HeaderMap& headerMap);
 };
 

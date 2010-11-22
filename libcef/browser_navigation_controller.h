@@ -43,9 +43,9 @@ class BrowserNavigationEntry {
   BrowserNavigationEntry();
   BrowserNavigationEntry(int page_id,
                       const GURL& url,
-                      const std::wstring& title,
-                      const std::wstring& target_frame,
-                      const std::wstring& method,
+                      const CefString& title,
+                      const CefString& target_frame,
+                      const CefString& method,
                       const WebKit::WebHTTPBody& upload,
                       const CefRequest::HeaderMap& headers);
   ~BrowserNavigationEntry();
@@ -55,8 +55,8 @@ class BrowserNavigationEntry {
   const GURL& GetURL() const { return url_; }
 
   // Set / Get the title
-  void SetTitle(const std::wstring& a_title) { title_ = a_title; }
-  const std::wstring& GetTitle() const { return title_; }
+  void SetTitle(const CefString& a_title) { title_ = a_title; }
+  const CefString& GetTitle() const { return title_; }
 
   // Set / Get opaque state.
   // WARNING: This state is saved to the database and used to restore previous
@@ -70,9 +70,9 @@ class BrowserNavigationEntry {
   void SetPageID(int page_id) { page_id_ = page_id; }
   int32 GetPageID() const { return page_id_; }
 
-  const std::wstring& GetTargetFrame() const { return target_frame_; }
+  const CefString& GetTargetFrame() const { return target_frame_; }
 
-  const std::wstring& GetMethod() const { return method_; }
+  const CefString& GetMethod() const { return method_; }
   const WebKit::WebHTTPBody& GetUploadData() const { return upload_; }
   const CefRequest::HeaderMap& GetHeaders() const { return headers_; }
 
@@ -82,13 +82,13 @@ private:
   int32 page_id_;
 
   GURL url_;
-  std::wstring title_;
+  CefString title_;
   std::string state_;
-  std::wstring method_;
+  CefString method_;
   WebKit::WebHTTPBody upload_;
   CefRequest::HeaderMap headers_;
 
-  std::wstring target_frame_;
+  CefString target_frame_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserNavigationEntry);
 };

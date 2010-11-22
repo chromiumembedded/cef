@@ -214,7 +214,7 @@ void WebWidgetHost::Paint() {
   }
 }
 
-void WebWidgetHost::SetTooltipText(const std::wstring& tooltip_text) {
+void WebWidgetHost::SetTooltipText(const std::string& tooltip_text) {
   // TODO(port): Implement this method.
 }
 

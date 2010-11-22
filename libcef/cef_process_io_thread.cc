@@ -11,7 +11,6 @@
 #include "browser_socket_stream_bridge.h"
 #include "browser_webblobregistry_impl.h"
 
-#include "base/utf_string_conversions.h"
 #include "build/build_config.h"
 
 #if defined(OS_WIN)

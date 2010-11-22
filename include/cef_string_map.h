@@ -30,13 +30,12 @@
 #ifndef _CEF_STRING_MAP_H
 #define _CEF_STRING_MAP_H
 
+#include "cef_export.h"
+#include "cef_string.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cef_export.h"
-#include "cef_string.h"
-#include <wchar.h>
 
 // CEF string maps are a set of key/value string pairs.
 typedef void* cef_string_map_t;
@@ -48,18 +47,22 @@ CEF_EXPORT cef_string_map_t cef_string_map_alloc();
 CEF_EXPORT int cef_string_map_size(cef_string_map_t map);
 
 // Return the value assigned to the specified key.
-CEF_EXPORT cef_string_t cef_string_map_find(cef_string_map_t map,
-    const wchar_t* key);
+CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
+                                   const cef_string_t* key,
+                                   cef_string_t* value);
 
 // Return the key at the specified zero-based string map index.
-CEF_EXPORT cef_string_t cef_string_map_key(cef_string_map_t map, int index);
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map, int index,
+                                  cef_string_t* key);
 
 // Return the value at the specified zero-based string map index.
-CEF_EXPORT cef_string_t cef_string_map_value(cef_string_map_t map, int index);
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map, int index,
+                                    cef_string_t* value);
 
 // Append a new key/value pair at the end of the string map.
-CEF_EXPORT void cef_string_map_append(cef_string_map_t map, const wchar_t* key,
-    const wchar_t* value);
+CEF_EXPORT int cef_string_map_append(cef_string_map_t map,
+                                     const cef_string_t* key,
+                                     const cef_string_t* value);
 
 // Clear the string map.
 CEF_EXPORT void cef_string_map_clear(cef_string_map_t map);

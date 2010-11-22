@@ -372,7 +372,8 @@ void WebWidgetHost::OnNotify(WPARAM wparam, NMHDR* header) {
   }
 }
 
-void WebWidgetHost::SetTooltipText(const std::wstring& new_tooltip_text) {
+void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
+  std::wstring new_tooltip_text(tooltip_text);
   if (new_tooltip_text != tooltip_text_) {
     tooltip_text_ = new_tooltip_text;
 

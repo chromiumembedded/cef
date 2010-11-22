@@ -44,10 +44,10 @@ public:
   virtual CefRefPtr<CefHandler> GetHandler();
   virtual CefRefPtr<CefFrame> GetMainFrame();
   virtual CefRefPtr<CefFrame> GetFocusedFrame();
-  virtual CefRefPtr<CefFrame> GetFrame(const std::wstring& name);
-  virtual void GetFrameNames(std::vector<std::wstring>& names);
-  virtual void Find(int identifier, const std::wstring& searchText,
-      bool forward, bool matchCase, bool findNext);
+  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name);
+  virtual void GetFrameNames(std::vector<CefString>& names);
+  virtual void Find(int identifier, const CefString& searchText, bool forward,
+      bool matchCase, bool findNext);
   virtual void StopFinding(bool clearSelection);
 };
 

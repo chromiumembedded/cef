@@ -40,11 +40,6 @@ using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebURLRequest;
 using WebKit::WebView;
-using webkit_glue::StdStringToWebString;
-using webkit_glue::StdWStringToWebString;
-using webkit_glue::WebStringToStdString;
-using webkit_glue::WebStringToStdWString;
-
 
 CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
                                const CefBrowserSettings& settings, bool popup,
@@ -187,19 +182,19 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame()
   return GetWebView() ? GetCefFrame(GetWebView()->focusedFrame()) : NULL;
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const std::wstring& name)
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name)
 {
   WebView* view = GetWebView();
   if (!view)
     return NULL;
 
-  WebFrame* frame = view->findFrameByName(StdWStringToWebString(name));
+  WebFrame* frame = view->findFrameByName(string16(name));
   if(frame)
     return GetCefFrame(frame);
   return NULL;
 }
 
-void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
+void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names)
 {
   WebView* view = GetWebView();
   if (!view)
@@ -208,13 +203,15 @@ void CefBrowserImpl::GetFrameNames(std::vector<std::wstring>& names)
   WebFrame* main_frame = view->mainFrame();
   WebFrame* it = main_frame;
   do {
-    if(it != main_frame)
-      names.push_back(UTF16ToWideHack(it->name()));
+    if(it != main_frame) {
+      string16 str = it->name();
+      names.push_back(str);
+    }
     it = it->traverseNext(true);
   } while (it != main_frame);
 }
 
-void CefBrowserImpl::Find(int identifier, const std::wstring& searchText,
+void CefBrowserImpl::Find(int identifier, const CefString& searchText,
                           bool forward, bool matchCase, bool findNext)
 {
   WebKit::WebFindOptions options;
@@ -244,11 +241,11 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
     if(frame == view->mainFrame()) {
       // Use or create the single main frame reference.
       if(frame_main_ == NULL)
-        frame_main_ = new CefFrameImpl(this, std::wstring());
+        frame_main_ = new CefFrameImpl(this, CefString());
       cef_frame = frame_main_;
     } else {
       // Locate or create the appropriate named reference.
-      std::wstring name = UTF16ToWideHack(frame->name());
+      CefString name = frame->name();
       DCHECK(!name.empty());
       FrameMap::const_iterator it = frames_.find(name);
       if(it != frames_.end())
@@ -264,7 +261,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
   return cef_frame;
 }
 
-void CefBrowserImpl::RemoveCefFrame(const std::wstring& name)
+void CefBrowserImpl::RemoveCefFrame(const CefString& name)
 {
   Lock();
 
@@ -285,10 +282,10 @@ WebFrame* CefBrowserImpl::GetWebFrame(CefRefPtr<CefFrame> frame)
   if (!view)
     return NULL;
 
-  std::wstring name = frame->GetName();
+  CefString name = frame->GetName();
   if(name.empty())
     return view ->mainFrame();
-  return view ->findFrameByName(StdWStringToWebString(name));
+  return view ->findFrameByName(string16(name));
 }
 
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
@@ -355,7 +352,7 @@ void CefBrowserImpl::ViewSource(CefRefPtr<CefFrame> frame)
       &CefBrowserImpl::UIT_HandleAction, MENU_ID_VIEWSOURCE, frame.get()));
 }
 
-std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
+CefString CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
 {
   if(!CefThread::CurrentlyOn(CefThread::UI))
   {
@@ -377,22 +374,19 @@ std::wstring CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
     // Wait for the UI thread callback to tell us that the data is available
     event.Wait();
 
-    return UTF8ToWide(
-        static_cast<CefBytesWriter*>(stream.get())->GetDataString());
+    return static_cast<CefBytesWriter*>(stream.get())->GetDataString();
   }
   else
   {
     // Retrieve the document string directly
     WebKit::WebFrame* web_frame = GetWebFrame(frame);
-    if(web_frame) {
-      std::string markup = web_frame->contentAsMarkup().utf8();
-      return UTF8ToWide(markup);
-    }
-    return std::wstring();
+    if(web_frame)
+      return web_frame->contentAsMarkup();
+    return CefString();
   }
 }
 
-std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
+CefString CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
 {
   if(!CefThread::CurrentlyOn(CefThread::UI))
   {
@@ -414,8 +408,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
     // Wait for the UI thread callback to tell us that the data is available
     event.Wait();
 
-    return UTF8ToWide(
-        static_cast<CefBytesWriter*>(stream.get())->GetDataString());
+    return static_cast<CefBytesWriter*>(stream.get())->GetDataString();
   }
   else
   {
@@ -423,7 +416,7 @@ std::wstring CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
     WebKit::WebFrame* web_frame = GetWebFrame(frame);
     if(web_frame)
       return webkit_glue::DumpDocumentText(web_frame);
-    return std::wstring();
+    return CefString();
   }
 }
 
@@ -438,7 +431,7 @@ void CefBrowserImpl::LoadRequest(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserImpl::LoadURL(CefRefPtr<CefFrame> frame,
-                             const std::wstring& url)
+                             const CefString& url)
 {
   frame->AddRef();
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
@@ -446,8 +439,8 @@ void CefBrowserImpl::LoadURL(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserImpl::LoadString(CefRefPtr<CefFrame> frame,
-                                const std::wstring& string,
-                                const std::wstring& url)
+                                const CefString& string,
+                                const CefString& url)
 {
   frame->AddRef();
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
@@ -456,7 +449,7 @@ void CefBrowserImpl::LoadString(CefRefPtr<CefFrame> frame,
 
 void CefBrowserImpl::LoadStream(CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefStreamReader> stream,
-                                const std::wstring& url)
+                                const CefString& url)
 {
   DCHECK(stream.get() != NULL);
   frame->AddRef();
@@ -467,8 +460,8 @@ void CefBrowserImpl::LoadStream(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
-                                       const std::wstring& jsCode, 
-                                       const std::wstring& scriptUrl,
+                                       const CefString& jsCode, 
+                                       const CefString& scriptUrl,
                                        int startLine)
 {
   frame->AddRef();
@@ -477,25 +470,23 @@ void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
       startLine));
 }
 
-std::wstring CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
+CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 {
   WebFrame* web_frame = GetWebFrame(frame);
-  if(web_frame) {
-    std::string spec = web_frame->url().spec();
-    return UTF8ToWide(spec);
-  }
-  return std::wstring();
+  if(web_frame)
+    return web_frame->url().spec();
+  return CefString();
 }
 
 // static
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
-                               const std::wstring& url)
+                               const CefString& url)
 {
   if(!_Context.get())
     return false;
 
-  std::wstring newUrl = url;
+  CefString newUrl = url;
   CefBrowserSettings settings(_Context->browser_defaults());
 
   if(handler.get())
@@ -517,12 +508,12 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
 
 // static
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
-    bool popup, CefRefPtr<CefHandler> handler, const std::wstring& url)
+    bool popup, CefRefPtr<CefHandler> handler, const CefString& url)
 {
   if(!_Context.get() || !CefThread::CurrentlyOn(CefThread::UI))
     return NULL;
 
-  std::wstring newUrl = url;
+  CefString newUrl = url;
   CefRefPtr<CefBrowser> alternateBrowser;
   CefBrowserSettings settings(_Context->browser_defaults());
 
@@ -563,17 +554,17 @@ void CefBrowserImpl::UIT_DestroyBrowser()
 }
 
 void CefBrowserImpl::UIT_LoadURL(CefFrame* frame,
-                                 const std::wstring& url)
+                                 const CefString& url)
 {
-  UIT_LoadURLForRequest(frame, url, std::wstring(), WebHTTPBody(),
+  UIT_LoadURLForRequest(frame, url, CefString(), WebHTTPBody(),
       CefRequest::HeaderMap());
 }
 
 void CefBrowserImpl::UIT_LoadURLForRequestRef(CefFrame* frame,
                                               CefRequest* request)
 {
-  std::wstring url = request->GetURL();
-  std::wstring method = request->GetMethod();
+  CefString url = request->GetURL();
+  CefString method = request->GetMethod();
 
   CefRequestImpl *impl = static_cast<CefRequestImpl*>(request);
 
@@ -593,8 +584,8 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefFrame* frame,
 }
 
 void CefBrowserImpl::UIT_LoadURLForRequest(CefFrame* frame,
-                                         const std::wstring& url,
-                                         const std::wstring& method,
+                                         const CefString& url,
+                                         const CefString& method,
                                          const WebKit::WebHTTPBody& upload_data,
                                          const CefRequest::HeaderMap& headers)
 {
@@ -603,58 +594,61 @@ void CefBrowserImpl::UIT_LoadURLForRequest(CefFrame* frame,
   if (url.empty())
       return;
 
-  GURL gurl(StdWStringToWebString(url));
+  std::string urlStr(url);
+  GURL gurl = GURL(urlStr);
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    std::wstring new_url = std::wstring(L"http://") + url;
-    gurl = GURL(StdWStringToWebString(new_url));
+    std::string new_url = std::string("http://") + urlStr;
+    gurl = GURL(new_url);
     if (!gurl.is_valid())
       return;
   }
 
   nav_controller_->LoadEntry(
-      new BrowserNavigationEntry(-1, gurl, std::wstring(), frame->GetName(),
+      new BrowserNavigationEntry(-1, gurl, CefString(), frame->GetName(),
           method, upload_data, headers));
 
   frame->Release();
 }
 
 void CefBrowserImpl::UIT_LoadHTML(CefFrame* frame,
-                                  const std::wstring& html,
-                                  const std::wstring& url)
+                                  const CefString& html,
+                                  const CefString& url)
 {
   REQUIRE_UIT();
-    
-  GURL gurl(StdWStringToWebString(url));
+
+  std::string urlStr(url);
+  GURL gurl = GURL(urlStr);
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    std::wstring new_url = std::wstring(L"http://") + url;
-    gurl = GURL(StdWStringToWebString(new_url));
+    std::string new_url = std::string("http://") + urlStr;
+    gurl = GURL(new_url);
     if (!gurl.is_valid())
       return;
   }
 
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame)
-    web_frame->loadHTMLString(WideToUTF8(html), gurl);
+    web_frame->loadHTMLString(std::string(html), gurl);
 
   frame->Release();
 }
 
 void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefFrame* frame,
                                               CefStreamReader* stream,
-                                              const std::wstring& url)
+                                              const CefString& url)
 {
   REQUIRE_UIT();
-    
-  GURL gurl(StdWStringToWebString(url));
+  
+  std::string urlStr(url);
+  GURL gurl = GURL(urlStr);
 
   if (!gurl.is_valid() && !gurl.has_scheme()) {
     // Try to add "http://" at the beginning
-    std::wstring new_url = std::wstring(L"http://") + url;
-    gurl = GURL(StdWStringToWebString(new_url));
+    std::string new_url = std::string("http://") + urlStr;
+    gurl = GURL(new_url);
     if (!gurl.is_valid())
       return;
   }
@@ -681,18 +675,16 @@ void CefBrowserImpl::UIT_LoadHTMLForStreamRef(CefFrame* frame,
 }
 
 void CefBrowserImpl::UIT_ExecuteJavaScript(CefFrame* frame,
-                                           const std::wstring& js_code, 
-                                           const std::wstring& script_url,
+                                           const CefString& js_code, 
+                                           const CefString& script_url,
                                            int start_line)
 {
   REQUIRE_UIT();
 
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
-    web_frame->executeScript(
-        WebScriptSource(StdWStringToWebString(js_code),
-            WebURL(GURL(StdWStringToWebString(script_url))),
-            start_line));
+    web_frame->executeScript(WebScriptSource(string16(js_code),
+        WebURL(GURL(std::string(script_url))), start_line));
   }
 
   frame->Release();
@@ -722,12 +714,10 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 
   // Get the right target frame for the entry.
   WebFrame* frame;
-  if (!entry.GetTargetFrame().empty()) {
-    frame = view->findFrameByName(
-        StdWStringToWebString(entry.GetTargetFrame()));
-  } else {
+  if (!entry.GetTargetFrame().empty())
+    frame = view->findFrameByName(string16(entry.GetTargetFrame()));
+  else
     frame = view->mainFrame();
-  }
 
   // TODO(mpcomplete): should we clear the target frame, or should
   // back/forward navigations maintain the target frame?
@@ -752,23 +742,22 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     DCHECK(entry.GetPageID() == -1);
     WebURLRequest request(entry.GetURL());
 
-    if(entry.GetMethod().size() > 0)
-      request.setHTTPMethod(StdWStringToWebString(entry.GetMethod()));
+    if(entry.GetMethod().length() > 0)
+      request.setHTTPMethod(string16(entry.GetMethod()));
 
     if(entry.GetHeaders().size() > 0)
       CefRequestImpl::SetHeaderMap(entry.GetHeaders(), request);
 
     if(!entry.GetUploadData().isNull())
     {
-      std::string method = WebStringToStdString(request.httpMethod());
-      if(method == "GET" || method == "HEAD") {
-        request.setHTTPMethod(StdStringToWebString("POST"));
-      }
-      if(request.httpHeaderField(StdStringToWebString("Content-Type")).length()
-          == 0) {
+      string16 method = request.httpMethod();
+      if(method == ASCIIToUTF16("GET") || method == ASCIIToUTF16("HEAD"))
+        request.setHTTPMethod(ASCIIToUTF16("POST"));
+
+      if(request.httpHeaderField(ASCIIToUTF16("Content-Type")).length() == 0) {
         request.setHTTPHeaderField(
-            StdStringToWebString("Content-Type"),
-            StdStringToWebString("application/x-www-form-urlencoded"));
+            ASCIIToUTF16("Content-Type"),
+            ASCIIToUTF16("application/x-www-form-urlencoded"));
       }
       request.setHTTPBody(entry.GetUploadData());
     }
@@ -797,16 +786,16 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 }
 
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
-    const std::wstring& url, const CefPopupFeatures& features)
+    const CefString& url, const CefPopupFeatures& features)
 {
   REQUIRE_UIT();
     
   CefWindowInfo info;
 #if defined(OS_WIN)
-  info.SetAsPopup(NULL, url.c_str());
+  info.SetAsPopup(NULL, CefString());
 #endif
   CefRefPtr<CefHandler> handler = handler_;
-  std::wstring newUrl = url;
+  CefString newUrl = url;
 
   // Start with the current browser window's settings.
   CefBrowserSettings settings(settings_);
@@ -938,10 +927,11 @@ void CefBrowserImpl::UIT_GetDocumentTextNotify(CefFrame* frame,
   WebKit::WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     // Retrieve the document string
-    std::wstring str = webkit_glue::DumpDocumentText(web_frame);
-    std::string cstr = WideToUTF8(str);
+    std::wstring wstr = webkit_glue::DumpDocumentText(web_frame);
+    std::string str;
+    WideToUTF8(wstr.c_str(), wstr.length(), &str);
     // Write the document string to the stream
-    writer->Write(cstr.c_str(), cstr.size(), 1);
+    writer->Write(str.c_str(), str.size(), 1);
   }
   
   // Notify the calling thread that the data is now available
@@ -973,7 +963,7 @@ void CefBrowserImpl::UIT_CanGoForwardNotify(bool *retVal,
   event->Signal();
 }
 
-void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
+void CefBrowserImpl::UIT_Find(int identifier, const CefString& search_text,
                               const WebKit::WebFindOptions& options)
 {
   WebView* view = GetWebView();
@@ -981,6 +971,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
     return;
 
   WebFrame* main_frame = view->mainFrame();
+  string16 searchText(search_text);
 
   if (main_frame->document().isPluginDocument()) {
     WebPlugin* plugin = main_frame->document().to<WebPluginDocument>().plugin();
@@ -990,8 +981,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       // Just navigate back/forward.
       delegate->SelectFindResult(options.forward);
     } else {
-      if (delegate->StartFind(StdWStringToWebString(search_text),
-          options.matchCase, identifier)) {
+      if (delegate->StartFind(searchText, options.matchCase, identifier)) {
       } else {
         // No find results.
         UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);
@@ -1018,8 +1008,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
   WebRange current_selection = focused_frame->selectionRange();
 
   do {
-    result = search_frame->find(identifier, StdWStringToWebString(search_text),
-        options, wrap_within_frame, &selection_rect);
+    result = search_frame->find(identifier, searchText, options,
+        wrap_within_frame, &selection_rect);
 
     if (!result) {
       // don't leave text selected as you move to the next frame.
@@ -1045,7 +1035,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       // match for the search word(s).
       if (multi_frame && search_frame == focused_frame) {
         result = search_frame->find(
-            identifier, StdWStringToWebString(search_text),
+            identifier, searchText,
             options, true,  // Force wrapping.
             &selection_rect);
       }
@@ -1086,9 +1076,7 @@ void CefBrowserImpl::UIT_Find(int identifier, const std::wstring& search_text,
       if (result) {
         // Start new scoping request. If the scoping function determines that it
         // needs to scope, it will defer until later.
-        search_frame->scopeStringMatches(identifier,
-                                         StdWStringToWebString(search_text),
-                                         options,
+        search_frame->scopeStringMatches(identifier, searchText, options,
                                          true);  // reset the tickmarks
       }
 

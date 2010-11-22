@@ -4,65 +4,44 @@
 
 #include "transfer_util.h"
 
+void transfer_string_list_contents(cef_string_list_t fromList,
+                                   StringList& toList)
+{
+  int size = cef_string_list_size(fromList);
+  CefString value;
+
+  for(int i = 0; i < size; i++) {
+     cef_string_list_value(fromList, i, value.GetWritableStruct());
+     toList.push_back(value);
+  }
+}
+
+void transfer_string_list_contents(const StringList& fromList,
+                                   cef_string_list_t toList)
+{
+  size_t size = fromList.size();
+  for(size_t i = 0; i < size; ++i)
+    cef_string_list_append(toList, fromList[i].GetStruct());
+}
 
 void transfer_string_map_contents(cef_string_map_t fromMap,
-                                  std::map<std::wstring, std::wstring>& toMap)
+                                  StringMap& toMap)
 {
   int size = cef_string_map_size(fromMap);
-  cef_string_t key, value;
-  std::wstring keystr, valuestr;
+  CefString key, value;
   
   for(int i = 0; i < size; ++i) {
-    key = cef_string_map_key(fromMap, i);
-    value = cef_string_map_value(fromMap, i);
+    cef_string_map_key(fromMap, i, key.GetWritableStruct());
+    cef_string_map_value(fromMap, i, value.GetWritableStruct());
     
-    if(key) {
-      keystr = key;
-      cef_string_free(key);
-    } else if(!keystr.empty())
-      keystr.clear();
-
-    if(value) {
-      valuestr = value;
-      cef_string_free(value);
-    } else if(!valuestr.empty())
-      valuestr.clear();
-
-    toMap.insert(std::pair<std::wstring, std::wstring>(keystr, valuestr));
+    toMap.insert(std::pair<CefString, CefString>(key, value));
   }
 }
 
-void transfer_string_map_contents(const std::map<std::wstring, std::wstring>& fromMap,
+void transfer_string_map_contents(const StringMap& fromMap,
                                   cef_string_map_t toMap)
 {
-  std::map<std::wstring, std::wstring>::const_iterator it = fromMap.begin();
-  for(; it != fromMap.end(); ++it) {
-    cef_string_map_append(toMap, it->first.c_str(), it->second.c_str());
-  }
-}
-
-void transfer_string_contents(const std::wstring& fromString,
-                              cef_string_t* toString)
-{
-  if(*toString == NULL || *toString != fromString) {
-    if(*toString) {
-      cef_string_free(*toString);
-      *toString = NULL;
-    }
-    if(!fromString.empty())
-      *toString = cef_string_alloc(fromString.c_str());
-  }
-}
-
-void transfer_string_contents(cef_string_t fromString, std::wstring& toString,
-                              bool freeFromString)
-{
-  if(fromString == NULL || fromString != toString) {
-    if(fromString) {
-      toString = fromString;
-      if(freeFromString)
-        cef_string_free(fromString);
-    } else if(!toString.empty())
-      toString.clear();
-  }
+  StringMap::const_iterator it = fromMap.begin();
+  for(; it != fromMap.end(); ++it)
+    cef_string_map_append(toMap, it->first.GetStruct(), it->second.GetStruct());
 }

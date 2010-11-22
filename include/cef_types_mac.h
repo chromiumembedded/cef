@@ -31,12 +31,12 @@
 #ifndef _CEF_TYPES_MAC_H
 #define _CEF_TYPES_MAC_H
 
+#if defined(__APPLE__)
+#include "cef_string.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#if defined(__APPLE__)
-#include "cef_string.h"
 
 // Window handle.
 #define cef_window_handle_t void*
@@ -64,10 +64,10 @@ typedef struct _cef_print_info_t
   double m_Scale;
 } cef_print_info_t;
 
-#endif // defined(__APPLE__)
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif // defined(__APPLE__)
 
 #endif // _CEF_TYPES_MAC_H

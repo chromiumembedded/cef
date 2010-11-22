@@ -31,13 +31,13 @@
 #ifndef _CEF_TYPES_WIN_H
 #define _CEF_TYPES_WIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 #include "cef_string.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Window handle.
 #define cef_window_handle_t HWND
@@ -68,10 +68,10 @@ typedef struct _cef_print_info_t
   double m_Scale;
 } cef_print_info_t;
 
-#endif // _WIN32
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif // _WIN32
 
 #endif // _CEF_TYPES_WIN_H

@@ -53,7 +53,6 @@
 #include "base/time.h"
 #include "base/timer.h"
 #include "base/thread.h"
-#include "base/utf_string_conversions.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_store.h"
 #include "net/base/file_stream.h"
@@ -178,8 +177,7 @@ class RequestProxy : public URLRequest::Delegate,
       CefRefPtr<CefHandler> handler = browser_->GetHandler();
       if (handler.get()) {
         CefRefPtr<CefDownloadHandler> dl_handler;
-        if (handler->HandleDownloadResponse(browser_,
-                UTF8ToWide(info.mime_type), UTF8ToWide(filename),
+        if (handler->HandleDownloadResponse(browser_, info.mime_type, filename,
                 info.content_length, dl_handler) == RV_CONTINUE) {
           download_handler_ = dl_handler;
         }
@@ -263,15 +261,14 @@ class RequestProxy : public URLRequest::Delegate,
         CefRefPtr<CefRequest> request(new CefRequestImpl());
         CefRequestImpl* requestimpl = static_cast<CefRequestImpl*>(request.get());
 
-        const std::wstring originalUrl = UTF8ToWide(params->url.spec());
+        std::string originalUrl(params->url.spec());
         requestimpl->SetURL(originalUrl);
-        requestimpl->SetMethod(UTF8ToWide(params->method));
+        requestimpl->SetMethod(params->method);
         
         // Transfer request headers
         CefRequest::HeaderMap headerMap;
         CefRequestImpl::ParseHeaders(params->headers, headerMap);
-        headerMap.insert(
-          std::make_pair(L"Referrer", UTF8ToWide(params->referrer.spec())));
+        headerMap.insert(std::make_pair("Referrer", params->referrer.spec()));
         requestimpl->SetHeaderMap(headerMap);
 
         // Transfer post data, if any
@@ -285,30 +282,33 @@ class RequestProxy : public URLRequest::Delegate,
         int loadFlags = params->load_flags;
 
         // Handler output will be returned in these variables
-        std::wstring redirectUrl;
+        CefString redirectUrl;
         CefRefPtr<CefStreamReader> resourceStream;
-        std::wstring mimeType;
+        CefString mimeType;
         
         CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
-            browser_, request, redirectUrl, resourceStream, mimeType, loadFlags);
+            browser_, request, redirectUrl, resourceStream, mimeType,
+            loadFlags);
 
         // Observe URL from request.
-        const std::wstring requestUrl = request->GetURL();
+        const std::string requestUrl(request->GetURL());
         if(requestUrl != originalUrl) {
-          params->url = GURL(WideToUTF8(requestUrl));
+          params->url = GURL(requestUrl);
           redirectUrl.clear(); // Request URL trumps redirect URL
         }
 
         // Observe method from request.
-        params->method = WideToUTF8(request->GetMethod());
+        params->method = request->GetMethod();
 
         // Observe headers from request.
         request->GetHeaderMap(headerMap);
-        CefRequest::HeaderMap::iterator referrer = headerMap.find(L"Referrer");
+        CefString referrerStr;
+        referrerStr.FromASCII("Referrer");
+        CefRequest::HeaderMap::iterator referrer = headerMap.find(referrerStr);
         if(referrer == headerMap.end()) {
           params->referrer = GURL();
         } else {
-          params->referrer = GURL(WideToUTF8(referrer->second));
+          params->referrer = GURL(std::string(referrer->second));
           headerMap.erase(referrer);
         }
         params->headers = CefRequestImpl::GenerateHeaders(headerMap);
@@ -328,7 +328,7 @@ class RequestProxy : public URLRequest::Delegate,
               std::string(), base::Time());
         } else if(!redirectUrl.empty()) {
           // redirect to the specified URL
-          params->url = GURL(WideToUTF8(redirectUrl));
+          params->url = GURL(std::string(redirectUrl));
           ResourceResponseInfo info;
           bool defer_redirect;
           OnReceivedRedirect(params->url, info, &defer_redirect);
@@ -345,7 +345,7 @@ class RequestProxy : public URLRequest::Delegate,
           ResourceResponseInfo info;
           info.content_length = static_cast<int64>(offset);
           if(!mimeType.empty())
-            info.mime_type = WideToUTF8(mimeType);
+            info.mime_type = mimeType;
           OnReceivedResponse(info, false);
           AsyncReadData();
         }

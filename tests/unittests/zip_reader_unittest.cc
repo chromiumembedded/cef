@@ -139,57 +139,57 @@ TEST(ZipReaderTest, Read)
 
   // Walk through the archive contents.
   ASSERT_TRUE(reader->MoveToFirstFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/");
   ASSERT_EQ(reader->GetFileSize(), 0);
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/file 1.txt");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/file 1.txt");
   ASSERT_EQ(reader->GetFileSize(), 19);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 19);
   ASSERT_TRUE(!strncmp(buff, "Contents of file 1.", 19));
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 1/");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/");
   ASSERT_EQ(reader->GetFileSize(), 0);
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 1/file 1a.txt");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/file 1a.txt");
   ASSERT_EQ(reader->GetFileSize(), 20);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 20);
   ASSERT_TRUE(reader->CloseFile());
   ASSERT_TRUE(!strncmp(buff, "Contents of file 1A.", 20));
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 1/file 1b.txt");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/file 1b.txt");
   ASSERT_EQ(reader->GetFileSize(), 20);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 20);
   ASSERT_TRUE(reader->CloseFile());
   ASSERT_TRUE(!strncmp(buff, "Contents of file 1B.", 20));
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 1/folder 1a/");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/folder 1a/");
   ASSERT_EQ(reader->GetFileSize(), 0);
 
   ASSERT_TRUE(reader->MoveToNextFile());
   ASSERT_EQ(reader->GetFileName(),
-      L"test_archive/folder 1/folder 1a/file 1a1.txt");
+      "test_archive/folder 1/folder 1a/file 1a1.txt");
   ASSERT_EQ(reader->GetFileSize(), 21);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 21);
   ASSERT_TRUE(reader->CloseFile());
   ASSERT_TRUE(!strncmp(buff, "Contents of file 1A1.", 21));
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 2/");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 2/");
   ASSERT_EQ(reader->GetFileSize(), 0);
 
   ASSERT_TRUE(reader->MoveToNextFile());
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 2/file 2a.txt");
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 2/file 2a.txt");
   ASSERT_EQ(reader->GetFileSize(), 20);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 20);
   ASSERT_TRUE(reader->CloseFile());
   ASSERT_TRUE(!strncmp(buff, "Contents of file 2A.", 20));
@@ -197,16 +197,16 @@ TEST(ZipReaderTest, Read)
   ASSERT_FALSE(reader->MoveToNextFile());
   
   // Try seeking a particular file
-  ASSERT_TRUE(reader->MoveToFile(L"TEST_ARCHIVE/FOLDER 1/FILE 1B.TXT", false));
-  ASSERT_EQ(reader->GetFileName(), L"test_archive/folder 1/file 1b.txt");
+  ASSERT_TRUE(reader->MoveToFile("TEST_ARCHIVE/FOLDER 1/FILE 1B.TXT", false));
+  ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/file 1b.txt");
   ASSERT_EQ(reader->GetFileSize(), 20);
-  ASSERT_TRUE(reader->OpenFile(L""));
+  ASSERT_TRUE(reader->OpenFile(""));
   ASSERT_EQ(reader->ReadFile(buff, sizeof(buff)), 20);
   ASSERT_TRUE(reader->CloseFile());
   ASSERT_TRUE(!strncmp(buff, "Contents of file 1B.", 20));
 
-  ASSERT_TRUE(reader->MoveToFile(L"test_archive/folder 1/file 1b.txt", true));
-  ASSERT_FALSE(reader->MoveToFile(L"test_archive/folder 1/FILE 1B.txt", true));
+  ASSERT_TRUE(reader->MoveToFile("test_archive/folder 1/file 1b.txt", true));
+  ASSERT_FALSE(reader->MoveToFile("test_archive/folder 1/FILE 1B.txt", true));
  
   ASSERT_TRUE(reader->Close());
 }
@@ -224,15 +224,15 @@ TEST(ZipReaderTest, ReadArchive)
 
   ASSERT_EQ(archive->Load(stream, false), (size_t)5);
 
-  ASSERT_TRUE(archive->HasFile(L"test_archive/file 1.txt"));
-  ASSERT_TRUE(archive->HasFile(L"test_archive/folder 1/file 1a.txt"));
-  ASSERT_TRUE(archive->HasFile(L"test_archive/FOLDER 1/file 1b.txt"));
-  ASSERT_TRUE(archive->HasFile(L"test_archive/folder 1/folder 1a/file 1a1.txt"));
-  ASSERT_TRUE(archive->HasFile(L"test_archive/folder 2/file 2a.txt"));
+  ASSERT_TRUE(archive->HasFile("test_archive/file 1.txt"));
+  ASSERT_TRUE(archive->HasFile("test_archive/folder 1/file 1a.txt"));
+  ASSERT_TRUE(archive->HasFile("test_archive/FOLDER 1/file 1b.txt"));
+  ASSERT_TRUE(archive->HasFile("test_archive/folder 1/folder 1a/file 1a1.txt"));
+  ASSERT_TRUE(archive->HasFile("test_archive/folder 2/file 2a.txt"));
   
   // Test content retrieval.
   CefRefPtr<CefZipArchive::File> file;
-  file = archive->GetFile(L"test_archive/folder 2/file 2a.txt");
+  file = archive->GetFile("test_archive/folder 2/file 2a.txt");
   ASSERT_TRUE(file.get());
 
   ASSERT_EQ(file->GetDataSize(), (size_t)20);
