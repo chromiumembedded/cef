@@ -53,9 +53,10 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   if(parentBrowser)
     browserPtr = CefBrowserCToCpp::Wrap(parentBrowser);
   
+  CefString urlStr(url);
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleBeforeCreated(
       browserPtr, wndInfo, popup?true:false, features, handlerPtr,
-      CefString(url), browserSettings);
+      urlStr, browserSettings);
 
  if(handlerPtr.get() != origHandler) {
     // The handler has been changed.
@@ -177,9 +178,10 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
   if(!self || !browser || !errorText || !frame)
     return RV_CONTINUE;
 
+  CefString errorTextStr(errorText);
   return CefHandlerCppToC::Get(self)->HandleLoadError(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), errorCode,
-      CefString(failedUrl), CefString(errorText));
+      CefString(failedUrl), errorTextStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
@@ -198,10 +200,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
 
   CefRefPtr<CefStreamReader> streamPtr;
 
+  CefString redirectUrlStr(redirectUrl);
+  CefString mimeTypeStr(mimeType);
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
       HandleBeforeResourceLoad(CefBrowserCToCpp::Wrap(browser),
-      CefRequestCToCpp::Wrap(request), CefString(redirectUrl), streamPtr,
-      CefString(mimeType), loadFlags);
+      CefRequestCToCpp::Wrap(request), redirectUrlStr, streamPtr, mimeTypeStr,
+      loadFlags);
 
   if(streamPtr.get())
     *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);
@@ -257,8 +261,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_get_menu_label(
   if(!self || !browser || !label)
     return RV_CONTINUE;
 
+  CefString labelStr(label);
   return CefHandlerCppToC::Get(self)->HandleGetMenuLabel(
-      CefBrowserCToCpp::Wrap(browser), menuId, CefString(label));
+      CefBrowserCToCpp::Wrap(browser), menuId, labelStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_menu_action(
@@ -307,12 +312,17 @@ enum cef_retval_t CEF_CALLBACK handler_handle_print_header_footer(
 
   CefPrintInfo info = *printInfo;
 
+  CefString topLeftStr(topLeft);
+  CefString topCenterStr(topCenter);
+  CefString topRightStr(topRight);
+  CefString bottomLeftStr(bottomLeft);
+  CefString bottomCenterStr(bottomCenter);
+  CefString bottomRightStr(bottomRight);
   return CefHandlerCppToC::Get(self)->
       HandlePrintHeaderFooter(CefBrowserCToCpp::Wrap(browser),
       CefFrameCToCpp::Wrap(frame), info, CefString(url), CefString(title),
-      currentPage, maxPages, CefString(topLeft), CefString(topCenter),
-      CefString(topRight), CefString(bottomLeft), CefString(bottomCenter),
-      CefString(bottomRight));
+      currentPage, maxPages, topLeftStr, topCenterStr, topRightStr,
+      bottomLeftStr, bottomCenterStr, bottomRightStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_jsalert(
@@ -364,9 +374,10 @@ enum cef_retval_t CEF_CALLBACK handler_handle_jsprompt(
     return RV_CONTINUE;
 
   bool ret = false;
+  CefString resultStr(result);
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleJSPrompt(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-      CefString(message), CefString(defaultValue), ret, CefString(result));
+      CefString(message), CefString(defaultValue), ret, resultStr);
   *retval = (ret ? 1 : 0);
 
   return rv;
@@ -448,8 +459,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_tooltip(
   if(!self || !browser || !text)
     return RV_CONTINUE;
 
+  CefString textStr(text);
   return CefHandlerCppToC::Get(self)->HandleTooltip(
-      CefBrowserCToCpp::Wrap(browser), CefString(text));
+      CefBrowserCToCpp::Wrap(browser), textStr);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_console_message(

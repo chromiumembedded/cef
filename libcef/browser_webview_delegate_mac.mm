@@ -195,27 +195,26 @@ void BrowserWebViewDelegate::DidMovePlugin(
 // Protected methods ----------------------------------------------------------
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
-    WebKit::WebFrame* webframe, const std::wstring& message) {
-  NSString *text =
-      [NSString stringWithUTF8String:(std::string(message).c_str())];
+    WebKit::WebFrame* webframe, const CefString& message) {
+  std::string messageStr(message);
+  NSString *text = [NSString stringWithUTF8String:messageStr.c_str()];
   NSAlert *alert = [NSAlert alertWithMessageText:@"JavaScript Alert"
                                    defaultButton:@"OK"
                                  alternateButton:nil
                                      otherButton:nil
                        informativeTextWithFormat:text];
   [alert runModal];
-  [text release];
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(
-    WebKit::WebFrame* webframe, const std::wstring& message) {
+    WebKit::WebFrame* webframe, const CefString& message) {
   NOTIMPLEMENTED();
   return false;
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
-    WebKit::WebFrame* webframe, const std::wstring& message,
-    const std::wstring& default_value, std::wstring* result) {
+    WebKit::WebFrame* webframe, const CefString& message,
+    const CefString& default_value, CefString* result) {
   NOTIMPLEMENTED();
   return false;
 }
@@ -228,17 +227,3 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
   NOTIMPLEMENTED();
   return false;
 }
-
-// Private methods ------------------------------------------------------------
-/*
-void BrowserWebViewDelegate::SetPageTitle(const std::wstring& title) {
-  [[browser_->GetWebViewHost()->view_handle() window]
-      setTitle:[NSString stringWithUTF8String:(std::string(title).c_str())]];
-}
-
-void BrowserWebViewDelegate::SetAddressBarURL(const GURL& url) {
-  const char* frameURL = url.spec().c_str();
-  NSString *address = [NSString stringWithUTF8String:frameURL];
-  [browser_->GetEditWnd() setStringValue:address];
-}
-*/

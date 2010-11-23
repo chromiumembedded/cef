@@ -13,7 +13,7 @@
 TEST(StringTest, UTF8)
 {
   CefStringUTF8 str1("Test String");
-  ASSERT_EQ(str1.length(), 11);
+  ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
   ASSERT_TRUE(str1.IsOwner());
 
@@ -52,7 +52,7 @@ TEST(StringTest, UTF8)
 TEST(StringTest, UTF16)
 {
   CefStringUTF16 str1("Test String");
-  ASSERT_EQ(str1.length(), 11);
+  ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
   ASSERT_TRUE(str1.IsOwner());
 
@@ -91,7 +91,7 @@ TEST(StringTest, UTF16)
 TEST(StringTest, Wide)
 {
   CefStringWide str1("Test String");
-  ASSERT_EQ(str1.length(), 11);
+  ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
   ASSERT_TRUE(str1.IsOwner());
 

@@ -283,6 +283,8 @@ void BrowserWebViewDelegate::showContextMenu(
   if(handler.get()) {
     // Gather menu information
     CefHandler::MenuInfo menuInfo;
+    memset(&menuInfo, 0, sizeof(menuInfo));
+
     CefString linkStr(std::string(data.linkURL.spec()));
     CefString imageStr(std::string(data.srcURL.spec()));
     CefString pageStr(std::string(data.pageURL.spec()));

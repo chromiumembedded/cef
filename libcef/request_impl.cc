@@ -448,11 +448,7 @@ void CefPostDataElementImpl::Set(const net::UploadData::Element& element)
             std::string(element.bytes().begin(),
             element.bytes().end()).c_str()));
   } else if (element.type() == net::UploadData::TYPE_FILE) {
-#if defined(OS_WIN)
     SetToFile(element.file_path().value());
-#else
-    SetToFile(UTF8ToWide(element.file_path().value()));
-#endif
   } else {
     NOTREACHED();
   }

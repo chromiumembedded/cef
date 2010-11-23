@@ -27,8 +27,9 @@ int CEF_CALLBACK scheme_handler_process_request(
   if(!self || !request || !mime_type || !response_length)
     return 0;
 
+  CefString mimeTypeStr(mime_type);
   return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
-      CefRequestCToCpp::Wrap(request), CefString(mime_type), response_length);
+      CefRequestCToCpp::Wrap(request), mimeTypeStr, response_length);
 }
 
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)

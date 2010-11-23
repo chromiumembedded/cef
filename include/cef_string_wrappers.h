@@ -250,7 +250,7 @@ struct CefStringTraitsUTF16 {
   {
     return string16(s->str, s->length);
   }
-  static inline bool FromString16(const string16& str, struct_type* s)
+  static inline bool from_string16(const string16& str, struct_type* s)
   {
     return cef_string_utf16_set(str.c_str(), str.length(), s, true) ?
         true : false;

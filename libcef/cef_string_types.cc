@@ -167,7 +167,8 @@ CEF_EXPORT int cef_string_utf16_cmp(const cef_string_utf16_t* str1,
   if (str1->length == 0 && str2->length == 0)
     return 0;
 #if defined(WCHAR_T_IS_UTF32)
-  int r = c16memcmp(str1->str, str2->str, std::min(str1->length, str2->length));
+  int r = base::c16memcmp(str1->str, str2->str, std::min(str1->length,
+                                                         str2->length));
 #else
   int r = wcsncmp(str1->str, str2->str, std::min(str1->length, str2->length));
 #endif

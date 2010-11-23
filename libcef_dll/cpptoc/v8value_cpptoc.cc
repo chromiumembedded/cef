@@ -385,8 +385,9 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
   }
   CefRefPtr<CefV8Value> retvalPtr;
 
+  CefString exceptionStr(exception);
   bool rv = CefV8ValueCppToC::Get(self)->ExecuteFunction(objectPtr,
-      argsList, retvalPtr, CefString(exception));
+      argsList, retvalPtr, exceptionStr);
   if(retvalPtr.get() && retval)
     *retval = CefV8ValueCppToC::Wrap(retvalPtr);
 

@@ -95,7 +95,6 @@ const int kWindowHeight = 600;
   ss << "Console messages will be written to " << g_handler->GetLogFile();
   NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"Console Messages" withMessage:str];
-  [str release];
 }
 
 - (void)notifyDownloadComplete:(id)object {
@@ -104,7 +103,6 @@ const int kWindowHeight = 600;
       "\" downloaded successfully.";
   NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"File Download" withMessage:str];
-  [str release];
 }
 
 - (void)notifyDownloadError:(id)object {
@@ -113,7 +111,6 @@ const int kWindowHeight = 600;
       "\" failed to download.";
   NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
   [self alert:@"File Download" withMessage:str];
-  [str release];
 }
 
 - (void)windowDidBecomeKey:(NSNotification*)notification {
@@ -236,7 +233,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   // Create the buttons.
   NSRect button_rect = [[mainWnd contentView] bounds];
   button_rect.origin.y = window_rect.size.height - URLBAR_HEIGHT +
-  (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
+      (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
   button_rect.size.height = BUTTON_HEIGHT;
   button_rect.origin.x += BUTTON_MARGIN;
   button_rect.size.width = BUTTON_WIDTH;
@@ -281,7 +278,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   window_info.SetAsChild((void*)[mainWnd contentView], 0, 0,
                          kWindowWidth, kWindowHeight);
   CefBrowser::CreateBrowser(window_info, false, g_handler.get(),
-                            L"http://www.google.com");
+                            "http://www.google.com");
   
   // Show the window.
   [mainWnd makeKeyAndOrderFront: nil];
@@ -378,10 +375,9 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
   {
     // Set the edit window text
     NSTextField* textField = (NSTextField*)m_EditHwnd;
-    NSString* str =
-        [NSString stringWithUTF8String:(std::string(url).c_str())];
+    std::string urlStr(url);
+    NSString* str = [NSString stringWithUTF8String:urlStr.c_str()];
     [textField setStringValue:str];
-    [str release];
   }
   return RV_CONTINUE;
 }
@@ -391,10 +387,9 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
 {
   // Set the frame window title bar
   NSWindow* window = (NSWindow*)m_MainHwnd;
-  NSString* str =
-      [NSString stringWithUTF8String:(std::string(title).c_str())];
+  std::string titleStr(title);
+  NSString* str = [NSString stringWithUTF8String:titleStr.c_str()];
   [window setTitle:str];
-  [str release];
   return RV_CONTINUE;
 }
 

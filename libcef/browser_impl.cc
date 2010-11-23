@@ -245,7 +245,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
       cef_frame = frame_main_;
     } else {
       // Locate or create the appropriate named reference.
-      CefString name = frame->name();
+      CefString name = string16(frame->name());
       DCHECK(!name.empty());
       FrameMap::const_iterator it = frames_.find(name);
       if(it != frames_.end())
@@ -381,7 +381,7 @@ CefString CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
     // Retrieve the document string directly
     WebKit::WebFrame* web_frame = GetWebFrame(frame);
     if(web_frame)
-      return web_frame->contentAsMarkup();
+      return string16(web_frame->contentAsMarkup());
     return CefString();
   }
 }
@@ -474,7 +474,7 @@ CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 {
   WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame)
-    return web_frame->url().spec();
+    return std::string(web_frame->url().spec());
   return CefString();
 }
 
