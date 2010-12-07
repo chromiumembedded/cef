@@ -35,6 +35,6 @@ CefTaskCppToC::CefTaskCppToC(CefTask* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefTaskCppToC, CefTask, cef_task_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefTaskCppToC, CefTask, cef_task_t>::DebugObjCt = 0;
 #endif
 

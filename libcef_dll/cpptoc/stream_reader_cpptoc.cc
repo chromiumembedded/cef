@@ -100,7 +100,7 @@ CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefStreamReaderCppToC, CefStreamReader,
+template<> long CefCppToC<CefStreamReaderCppToC, CefStreamReader,
     cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 

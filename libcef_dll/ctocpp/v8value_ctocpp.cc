@@ -369,6 +369,7 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefV8ValueCToCpp, CefV8Value, cef_v8value_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefV8ValueCToCpp, CefV8Value,
+    cef_v8value_t>::DebugObjCt = 0;
 #endif
 

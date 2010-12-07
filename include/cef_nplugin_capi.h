@@ -74,7 +74,9 @@ typedef struct _cef_plugin_info_t {
   cef_string_t type_descriptions;
 
   // Entry point function pointers.
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
   NP_GetEntryPointsFunc np_getentrypoints;
+#endif
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
 } cef_plugin_info_t;

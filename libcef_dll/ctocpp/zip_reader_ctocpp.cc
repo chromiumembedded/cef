@@ -131,7 +131,7 @@ bool CefZipReaderCToCpp::Eof()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::DebugObjCt =
-    0;
+template<> long CefCToCpp<CefZipReaderCToCpp, CefZipReader,
+    cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 

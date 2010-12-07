@@ -121,14 +121,14 @@ def make_ctocpp_impl(header, clsname, impl):
     result += includes+'\n'+resultingimpl+'\n'
     
     result += wrap_code('#ifdef _DEBUG\n'+ \
-              'long CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
+              'template<> long CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
               '#endif\n')
 
     return result
 
 
 def write_ctocpp_impl(header, clsname, dir, backup):
-    file = dir+'\\'+get_capi_name(clsname[3:], False)+'_ctocpp.cc'
+    file = dir+os.sep+get_capi_name(clsname[3:], False)+'_ctocpp.cc'
     
     if file_exists(file):
         oldcontents = read_file(file)

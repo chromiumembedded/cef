@@ -34,6 +34,7 @@
 #ifdef BUILDING_CEF_SHARED
 #include "base/string16.h"
 #endif
+#include <memory.h>
 #include <string>
 
 // Traits implementation for wide character strings.

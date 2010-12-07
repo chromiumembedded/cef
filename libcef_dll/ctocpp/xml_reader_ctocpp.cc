@@ -308,7 +308,7 @@ bool CefXmlReaderCToCpp::MoveToCarryingElement()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>::DebugObjCt =
-    0;
+template<> long CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
+    cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 

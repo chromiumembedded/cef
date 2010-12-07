@@ -82,7 +82,7 @@ int CefStreamReaderCToCpp::Eof()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
+template<> long CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
     cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 

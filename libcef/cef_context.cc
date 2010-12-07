@@ -91,7 +91,9 @@ static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
     }
   }
 
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
   info.entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
+#endif
   info.entry_points.np_initialize = plugin_info->np_initialize;
   info.entry_points.np_shutdown = plugin_info->np_shutdown;
 

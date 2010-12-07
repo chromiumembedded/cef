@@ -195,6 +195,7 @@ CefString CefFrameCToCpp::GetURL()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefFrameCToCpp, CefFrame, cef_frame_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefFrameCToCpp, CefFrame, cef_frame_t>::DebugObjCt =
+    0;
 #endif
 

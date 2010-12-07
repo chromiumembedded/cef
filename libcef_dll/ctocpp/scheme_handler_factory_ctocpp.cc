@@ -28,7 +28,7 @@ CefRefPtr<CefSchemeHandler> CefSchemeHandlerFactoryCToCpp::Create()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
-    cef_scheme_handler_factory_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefSchemeHandlerFactoryCToCpp,
+    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 

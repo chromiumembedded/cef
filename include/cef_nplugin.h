@@ -74,7 +74,9 @@ struct CefPluginInfo {
   std::vector<CefPluginMimeType> mime_types;
 
   // Entry point function pointers.
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
   NP_GetEntryPointsFunc np_getentrypoints;
+#endif
   NP_InitializeFunc np_initialize;
   NP_ShutdownFunc np_shutdown;
 };

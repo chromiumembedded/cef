@@ -47,7 +47,7 @@ CefDownloadHandlerCppToC::CefDownloadHandlerCppToC(CefDownloadHandler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefDownloadHandlerCppToC, CefDownloadHandler,
+template<> long CefCppToC<CefDownloadHandlerCppToC, CefDownloadHandler,
     cef_download_handler_t>::DebugObjCt = 0;
 #endif
 

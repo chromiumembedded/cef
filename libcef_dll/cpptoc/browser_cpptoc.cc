@@ -264,6 +264,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefBrowserCppToC, CefBrowser,
+    cef_browser_t>::DebugObjCt = 0;
 #endif
 

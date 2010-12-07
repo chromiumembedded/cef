@@ -80,6 +80,7 @@ void CefPostDataCToCpp::RemoveElements()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefPostDataCToCpp, CefPostData,
+    cef_post_data_t>::DebugObjCt = 0;
 #endif
 

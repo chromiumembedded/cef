@@ -37,7 +37,7 @@ CefSchemeHandlerFactoryCppToC::CefSchemeHandlerFactoryCppToC(
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefSchemeHandlerFactoryCppToC, CefSchemeHandlerFactory,
-    cef_scheme_handler_factory_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefSchemeHandlerFactoryCppToC,
+    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 

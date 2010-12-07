@@ -134,7 +134,7 @@ def make_cpptoc_impl(header, clsname, impl):
                 
     const += '}\n\n'+ \
              '#ifdef _DEBUG\n'+ \
-             'long CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
+             'template<> long CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
              '#endif\n'
     result += wrap_code(const)
 
@@ -142,7 +142,7 @@ def make_cpptoc_impl(header, clsname, impl):
 
 
 def write_cpptoc_impl(header, clsname, dir, backup):
-    file = dir+'\\'+get_capi_name(clsname[3:], False)+'_cpptoc.cc'
+    file = dir+os.sep+get_capi_name(clsname[3:], False)+'_cpptoc.cc'
     
     if file_exists(file):
         oldcontents = read_file(file)

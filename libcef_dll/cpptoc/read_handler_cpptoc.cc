@@ -66,7 +66,7 @@ CefReadHandlerCppToC::CefReadHandlerCppToC(CefReadHandler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefReadHandlerCppToC, CefReadHandler,
+template<> long CefCppToC<CefReadHandlerCppToC, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -240,6 +240,7 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>::DebugObjCt =
+    0;
 #endif
 

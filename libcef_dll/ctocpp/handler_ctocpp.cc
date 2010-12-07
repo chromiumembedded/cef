@@ -367,6 +367,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleFindResult(
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefHandlerCToCpp, CefHandler, cef_handler_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefHandlerCToCpp, CefHandler,
+    cef_handler_t>::DebugObjCt = 0;
 #endif
 

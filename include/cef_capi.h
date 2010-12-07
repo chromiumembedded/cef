@@ -710,7 +710,7 @@ typedef struct _cef_post_data_element_t
 } cef_post_data_element_t;
 
 
-// Create a new cef_post_data_tElement object.
+// Create a new cef_post_data_element_t object.
 CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create();
 
 

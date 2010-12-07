@@ -115,7 +115,7 @@ CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+template<> long CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
     cef_post_data_element_t>::DebugObjCt = 0;
 #endif
 

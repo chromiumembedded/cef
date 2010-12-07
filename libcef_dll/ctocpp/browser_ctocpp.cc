@@ -198,6 +198,7 @@ void CefBrowserCToCpp::StopFinding(bool clearSelection)
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefBrowserCToCpp, CefBrowser,
+    cef_browser_t>::DebugObjCt = 0;
 #endif
 

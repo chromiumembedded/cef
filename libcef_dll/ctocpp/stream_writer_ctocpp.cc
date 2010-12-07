@@ -82,7 +82,7 @@ int CefStreamWriterCToCpp::Flush()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
+template<> long CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
     cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 

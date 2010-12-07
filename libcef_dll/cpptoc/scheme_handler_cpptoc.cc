@@ -70,7 +70,7 @@ CefSchemeHandlerCppToC::CefSchemeHandlerCppToC(CefSchemeHandler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefSchemeHandlerCppToC, CefSchemeHandler,
+template<> long CefCppToC<CefSchemeHandlerCppToC, CefSchemeHandler,
     cef_scheme_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -73,7 +73,7 @@ def make_cpptoc_header(header, clsname):
 
 
 def write_cpptoc_header(header, clsname, dir, backup):
-    file = dir+'\\'+get_capi_name(clsname[3:], False)+'_cpptoc.h'
+    file = dir+os.sep+get_capi_name(clsname[3:], False)+'_cpptoc.h'
     
     if file_exists(file):
         oldcontents = read_file(file)

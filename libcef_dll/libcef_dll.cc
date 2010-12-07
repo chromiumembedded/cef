@@ -136,7 +136,9 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
     pluginInfo.mime_types.push_back(mimeType);
   }
   
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
   pluginInfo.np_getentrypoints = plugin_info->np_getentrypoints;
+#endif
   pluginInfo.np_initialize = plugin_info->np_initialize;
   pluginInfo.np_shutdown = plugin_info->np_shutdown;
   

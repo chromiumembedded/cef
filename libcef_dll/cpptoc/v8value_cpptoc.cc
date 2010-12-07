@@ -430,6 +430,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefV8ValueCppToC, CefV8Value,
+    cef_v8value_t>::DebugObjCt = 0;
 #endif
 

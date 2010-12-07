@@ -153,7 +153,6 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'sources': [
             'tests/cefclient/cefclient_gtk.cpp',
-            'tests/cefclient/string_util_gtk.cpp',
           ],
         }],
       ],

@@ -25,6 +25,6 @@ void CefTaskCToCpp::Execute(CefThreadId threadId)
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>::DebugObjCt = 0;
 #endif
 

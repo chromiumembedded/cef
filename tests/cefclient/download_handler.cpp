@@ -5,6 +5,7 @@
 #include "download_handler.h"
 #include "util.h"
 #include <sstream>
+#include <stdio.h>
 #include <vector>
 
 #ifdef _WIN32

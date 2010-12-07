@@ -149,6 +149,7 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefRequestCToCpp, CefRequest,
+    cef_request_t>::DebugObjCt = 0;
 #endif
 

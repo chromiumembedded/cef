@@ -46,7 +46,7 @@ bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefSchemeHandlerCToCpp, CefSchemeHandler,
+template<> long CefCToCpp<CefSchemeHandlerCToCpp, CefSchemeHandler,
     cef_scheme_handler_t>::DebugObjCt = 0;
 #endif
 

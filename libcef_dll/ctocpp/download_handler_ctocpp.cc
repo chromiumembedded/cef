@@ -33,7 +33,7 @@ void CefDownloadHandlerCToCpp::Complete()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
+template<> long CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
     cef_download_handler_t>::DebugObjCt = 0;
 #endif
 

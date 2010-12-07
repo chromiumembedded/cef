@@ -47,7 +47,7 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t>::DebugObjCt =
-    0;
+template<> long CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
+    cef_v8handler_t>::DebugObjCt = 0;
 #endif
 

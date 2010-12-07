@@ -162,6 +162,7 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefRequestCppToC, CefRequest,
+    cef_request_t>::DebugObjCt = 0;
 #endif
 

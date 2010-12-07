@@ -56,7 +56,7 @@ CefV8HandlerCppToC::CefV8HandlerCppToC(CefV8Handler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefV8HandlerCppToC, CefV8Handler, cef_v8handler_t>::DebugObjCt =
-    0;
+template<> long CefCppToC<CefV8HandlerCppToC, CefV8Handler,
+    cef_v8handler_t>::DebugObjCt = 0;
 #endif
 

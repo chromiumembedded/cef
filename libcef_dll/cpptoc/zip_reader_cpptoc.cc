@@ -166,7 +166,7 @@ CefZipReaderCppToC::CefZipReaderCppToC(CefZipReader* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t>::DebugObjCt =
-    0;
+template<> long CefCppToC<CefZipReaderCppToC, CefZipReader,
+    cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 

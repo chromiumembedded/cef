@@ -532,6 +532,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefHandlerCppToC, CefHandler,
+    cef_handler_t>::DebugObjCt = 0;
 #endif
 

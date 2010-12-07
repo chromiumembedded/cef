@@ -378,7 +378,7 @@ CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>::DebugObjCt =
-    0;
+template<> long CefCppToC<CefXmlReaderCppToC, CefXmlReader,
+    cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 

@@ -5,7 +5,7 @@
 
 #include "base/compiler_specific.h"
 
-#include "third_party/webkit/webcore/config.h"
+#include "third_party/WebKit/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "MemoryCache.h"
 #include "TextEncoding.h"

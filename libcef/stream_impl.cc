@@ -4,6 +4,7 @@
 
 #include "stream_impl.h"
 #include "base/logging.h"
+#include <stdlib.h>
 
 // Static functions
 

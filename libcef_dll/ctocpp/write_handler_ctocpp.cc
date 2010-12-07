@@ -49,7 +49,7 @@ int CefWriteHandlerCToCpp::Flush()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
+template<> long CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
     cef_write_handler_t>::DebugObjCt = 0;
 #endif
 

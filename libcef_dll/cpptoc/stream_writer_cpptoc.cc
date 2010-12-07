@@ -99,7 +99,7 @@ CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
+template<> long CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
     cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 

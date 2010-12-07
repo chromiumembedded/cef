@@ -6,6 +6,10 @@
 #include "libcef_dll/cef_logging.h"
 #include <algorithm>
 
+#if defined(__linux__)
+#include <wctype.h>
+#endif
+
 namespace {
 
 class CefZipFile : public CefThreadSafeBase<CefZipArchive::File>

@@ -67,7 +67,7 @@ CefWriteHandlerCppToC::CefWriteHandlerCppToC(CefWriteHandler* cls)
 }
 
 #ifdef _DEBUG
-long CefCppToC<CefWriteHandlerCppToC, CefWriteHandler,
+template<> long CefCppToC<CefWriteHandlerCppToC, CefWriteHandler,
     cef_write_handler_t>::DebugObjCt = 0;
 #endif
 

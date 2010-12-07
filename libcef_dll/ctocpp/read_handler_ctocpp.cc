@@ -49,7 +49,7 @@ int CefReadHandlerCToCpp::Eof()
 
 
 #ifdef _DEBUG
-long CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
+template<> long CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif
 

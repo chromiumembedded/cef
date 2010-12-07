@@ -116,7 +116,9 @@ bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
   cef_string_from_utf8(typeDescriptions.c_str(), typeDescriptions.length(),
       &pluginInfo.type_descriptions);
 
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
   pluginInfo.np_getentrypoints = plugin_info.np_getentrypoints;
+#endif
   pluginInfo.np_initialize = plugin_info.np_initialize;
   pluginInfo.np_shutdown = plugin_info.np_shutdown;
 
