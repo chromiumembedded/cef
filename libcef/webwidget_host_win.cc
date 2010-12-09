@@ -113,7 +113,6 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         host->CaptureLostEvent();
         break;
 
-      // TODO(darin): add WM_SYSKEY{DOWN/UP} to capture ALT key actions
       case WM_KEYDOWN:
       case WM_KEYUP:
       case WM_SYSKEYDOWN:
@@ -122,6 +121,12 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_SYSCHAR:
         host->KeyEvent(message, wparam, lparam);
         break;
+
+      // Necessary for text input of characters from east-asian languages. Do
+      // not pass to DefWindowProc or characters will be displayed twice.
+      case WM_IME_CHAR:
+        host->KeyEvent(message, wparam, lparam);
+        return 0;
 
       case WM_SETFOCUS:
         host->SetFocus(true);
