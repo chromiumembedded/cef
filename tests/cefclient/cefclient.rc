@@ -75,6 +75,10 @@ BEGIN
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
+        MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
+        MENUITEM "Accelerated Layers",          ID_TESTS_ACCELERATEDLAYERS
+        MENUITEM "WebGL",                       ID_TESTS_WEBGL
+        MENUITEM "HTML5 Video",                 ID_TESTS_HTML5VIDEO
    END
 END
 

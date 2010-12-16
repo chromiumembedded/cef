@@ -232,6 +232,56 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return WebKit::WebGraphicsContext3D::createDefault();
   }
 
+  WebKit::WebString queryLocalizedString(
+    WebKit::WebLocalizedString::Name name) {
+    switch (name) {
+      case WebKit::WebLocalizedString::ValidationValueMissing:
+      case WebKit::WebLocalizedString::ValidationValueMissingForCheckbox:
+      case WebKit::WebLocalizedString::ValidationValueMissingForFile:
+      case WebKit::WebLocalizedString::ValidationValueMissingForMultipleFile:
+      case WebKit::WebLocalizedString::ValidationValueMissingForRadio:
+      case WebKit::WebLocalizedString::ValidationValueMissingForSelect:
+        return ASCIIToUTF16("value missing");
+      case WebKit::WebLocalizedString::ValidationTypeMismatch:
+      case WebKit::WebLocalizedString::ValidationTypeMismatchForEmail:
+      case WebKit::WebLocalizedString::ValidationTypeMismatchForMultipleEmail:
+      case WebKit::WebLocalizedString::ValidationTypeMismatchForURL:
+        return ASCIIToUTF16("type mismatch");
+      case WebKit::WebLocalizedString::ValidationPatternMismatch:
+        return ASCIIToUTF16("pattern mismatch");
+      case WebKit::WebLocalizedString::ValidationTooLong:
+        return ASCIIToUTF16("too long");
+      case WebKit::WebLocalizedString::ValidationRangeUnderflow:
+        return ASCIIToUTF16("range underflow");
+      case WebKit::WebLocalizedString::ValidationRangeOverflow:
+        return ASCIIToUTF16("range overflow");
+      case WebKit::WebLocalizedString::ValidationStepMismatch:
+        return ASCIIToUTF16("step mismatch");
+      default:
+        return WebKitClientImpl::queryLocalizedString(name);
+    }
+  }
+  
+  WebKit::WebString queryLocalizedString(
+      WebKit::WebLocalizedString::Name name, const WebKit::WebString& value) {
+    if (name == WebKit::WebLocalizedString::ValidationRangeUnderflow)
+      return ASCIIToUTF16("range underflow");
+    if (name == WebKit::WebLocalizedString::ValidationRangeOverflow)
+      return ASCIIToUTF16("range overflow");
+    return WebKitClientImpl::queryLocalizedString(name, value);
+  }
+  
+  WebKit::WebString queryLocalizedString(
+      WebKit::WebLocalizedString::Name name,
+      const WebKit::WebString& value1,
+      const WebKit::WebString& value2) {
+    if (name == WebKit::WebLocalizedString::ValidationTooLong)
+      return ASCIIToUTF16("too long");
+    if (name == WebKit::WebLocalizedString::ValidationStepMismatch)
+      return ASCIIToUTF16("step mismatch");
+    return WebKitClientImpl::queryLocalizedString(name, value1, value2);
+  }
+
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;

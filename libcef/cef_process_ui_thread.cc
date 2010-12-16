@@ -36,8 +36,8 @@ static int kStatsFileCounters = 200;
 
 namespace {
 
-URLRequestJob* BlobURLRequestJobFactory(URLRequest* request,
-                                        const std::string& scheme) {
+net::URLRequestJob* BlobURLRequestJobFactory(net::URLRequest* request,
+                                             const std::string& scheme) {
   webkit_blob::BlobStorageController* blob_storage_controller =
       static_cast<BrowserRequestContext*>(request->context())->
           blob_storage_controller();
@@ -116,7 +116,7 @@ void CefProcessUIThread::Init() {
 
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 
-  URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
+  net::URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
 
   if (!_Context->cache_path().empty()) {
     // Create the storage context object.

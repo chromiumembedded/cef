@@ -96,7 +96,7 @@ void CefRequestImpl::Set(const CefString& url,
   Unlock();
 }
 
-void CefRequestImpl::Set(URLRequest* request)
+void CefRequestImpl::Set(net::URLRequest* request)
 {
   SetURL(request->url().spec());
   SetMethod(request->method());

@@ -25,7 +25,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/plugin_list.h"
 
 using WebKit::WebRect;
 using WebKit::WebSize;
@@ -68,10 +67,6 @@ base::StringPiece NetResourceProvider(int key) {
 
 base::StringPiece GetDataResource(int resource_id) {
   return NetResourceProvider(resource_id);
-}
-
-void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
 bool EnsureFontLoaded(HFONT font) {

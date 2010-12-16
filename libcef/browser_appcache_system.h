@@ -20,12 +20,12 @@ class WebApplicationCacheHostClient;
 }
 class BrowserBackendProxy;
 class BrowserFrontendProxy;
-class URLRequest;
+class net::URLRequest;
 class URLRequestContext;
 
 // A class that composes the constituent parts of an appcache system
 // together for use in a single process with two relavant threads,
-// a UI thread on which webkit runs and an IO thread on which URLRequests
+// a UI thread on which webkit runs and an IO thread on which net::URLRequests
 // are handled. This class conspires with BrowserResourceLoaderBridge to
 // retrieve resources from the appcache.
 class BrowserAppCacheSystem {
@@ -63,7 +63,7 @@ class BrowserAppCacheSystem {
   }
 
   // Called by BrowserResourceLoaderBridge to hook into resource loads.
-  static void SetExtraRequestInfo(URLRequest* request,
+  static void SetExtraRequestInfo(net::URLRequest* request,
                                   int host_id,
                                   ResourceType::Type resource_type) {
     if (instance_)
@@ -71,7 +71,7 @@ class BrowserAppCacheSystem {
   }
 
   // Called by BrowserResourceLoaderBridge extract extra response bits.
-  static void GetExtraResponseInfo(URLRequest* request,
+  static void GetExtraResponseInfo(net::URLRequest* request,
                             int64* cache_id,
                             GURL* manifest_url) {
     if (instance_)
@@ -116,10 +116,10 @@ class BrowserAppCacheSystem {
   void CleanupIOThread();
   WebKit::WebApplicationCacheHost* CreateCacheHostForWebKit(
       WebKit::WebApplicationCacheHostClient* client);
-  void SetExtraRequestBits(URLRequest* request,
+  void SetExtraRequestBits(net::URLRequest* request,
                            int host_id,
                            ResourceType::Type resource_type);
-  void GetExtraResponseBits(URLRequest* request,
+  void GetExtraResponseBits(net::URLRequest* request,
                             int64* cache_id,
                             GURL* manifest_url);
 

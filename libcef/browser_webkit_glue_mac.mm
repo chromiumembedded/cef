@@ -17,7 +17,6 @@
 #include "base/path_service.h"
 #include "grit/webkit_resources.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/plugin_list.h"
 
 namespace webkit_glue {
   
@@ -125,10 +124,6 @@ base::StringPiece GetDataResource(int resource_id) {
   }
   
   return base::StringPiece();
-}
-
-void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
 void DidLoadPlugin(const std::string& filename) {

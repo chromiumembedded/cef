@@ -363,5 +363,9 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser);
 void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser);
 void RunPopupTest(CefRefPtr<CefBrowser> browser);
 void RunLocalStorageTest(CefRefPtr<CefBrowser> browser);
+void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser);
+void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser);
+void RunWebGLTest(CefRefPtr<CefBrowser> browser);
+void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_H

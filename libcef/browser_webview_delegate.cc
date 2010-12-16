@@ -9,6 +9,7 @@
 
 #include "browser_webview_delegate.h"
 #include "browser_appcache_system.h"
+#include "browser_file_system.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
 #include "browser_web_worker.h"
@@ -22,6 +23,7 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "gfx/point.h"
+#include "media/base/filter_collection.h"
 #include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
@@ -553,30 +555,12 @@ WebWorker* BrowserWebViewDelegate::createWorker(
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
-  scoped_ptr<media::MediaFilterCollection> collection(
-      new media::MediaFilterCollection());
+  scoped_ptr<media::FilterCollection> collection(
+      new media::FilterCollection());
 
-  appcache::WebApplicationCacheHostImpl* appcache_host =
-      appcache::WebApplicationCacheHostImpl::FromFrame(frame);
-
-  // TODO(hclam): this is the same piece of code as in RenderView, maybe they
-  // should be grouped together.
-  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory_simple =
-      new webkit_glue::MediaResourceLoaderBridgeFactory(
-          GURL(frame->url()),  // referrer
-          "null",  // frame origin
-          "null",  // main_frame_origin
-          base::GetCurrentProcId(),
-          appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
-          0);
-  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory_buffered =
-      new webkit_glue::MediaResourceLoaderBridgeFactory(
-          GURL(frame->url()),  // referrer
-          "null",  // frame origin
-          "null",  // main_frame_origin
-          base::GetCurrentProcId(),
-          appcache_host ? appcache_host->host_id() : appcache::kNoHostId,
-          0);
+  // TODO(annacc): do we still need appcache_host?  http://crbug.com/65135
+  // appcache::WebApplicationCacheHostImpl* appcache_host =
+  //     appcache::WebApplicationCacheHostImpl::FromFrame(frame);
 
   scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer(
       new webkit_glue::VideoRendererImpl(false));
@@ -585,9 +569,11 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   // Add the audio renderer.
   collection->AddAudioRenderer(new media::AudioRendererImpl());
 
-  return new webkit_glue::WebMediaPlayerImpl(
-      client, collection.release(), bridge_factory_simple,
-      bridge_factory_buffered, false, video_renderer);
+  scoped_ptr<webkit_glue::WebMediaPlayerImpl> result(
+      new webkit_glue::WebMediaPlayerImpl(client, collection.release()));
+  if (!result->Initialize(frame, false, video_renderer))
+    return NULL;
+  return result.release();
 }
 
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
@@ -826,15 +812,9 @@ void BrowserWebViewDelegate::reportFindInPageSelection(
 void BrowserWebViewDelegate::openFileSystem(
     WebFrame* frame, WebFileSystem::Type type, long long size, bool create,
     WebFileSystemCallbacks* callbacks) {
-  if (browser_->file_system_root().empty()) {
-    // The FileSystem temp directory was not initialized successfully.
-    callbacks->didFail(WebKit::WebFileErrorSecurity);
-  } else {
-    // TODO(michaeln): need to put origin/type in the path.
-    callbacks->didOpenFileSystem(
-        "CefFileSystem",
-        webkit_glue::FilePathToWebString(browser_->file_system_root()));
-  }
+  BrowserFileSystem* fileSystem = static_cast<BrowserFileSystem*>(
+      WebKit::webKitClient()->fileSystem());
+  fileSystem->OpenFileSystem(frame, type, size, create, callbacks);
 }
 
 // Public methods ------------------------------------------------------------

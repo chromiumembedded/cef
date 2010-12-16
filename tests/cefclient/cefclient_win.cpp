@@ -548,6 +548,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunLocalStorageTest(browser);
           return 0;
+        case ID_TESTS_ACCELERATED2DCANVAS: // Test accelerated 2d canvas
+          if(browser.get())
+            RunAccelerated2DCanvasTest(browser);
+          return 0;
+        case ID_TESTS_ACCELERATEDLAYERS: // Test accelerated layers
+          if(browser.get())
+            RunAcceleratedLayersTest(browser);
+          return 0;
+        case ID_TESTS_WEBGL: // Test WebGL
+          if(browser.get())
+            RunWebGLTest(browser);
+          return 0;
+        case ID_TESTS_HTML5VIDEO: // Test HTML5 video
+          if(browser.get())
+            RunHTML5VideoTest(browser);
+          return 0;
         }
       }
 		  break;

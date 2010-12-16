@@ -8,16 +8,33 @@
 #include <vector>
 #include "base/file_util_proxy.h"
 #include "base/id_map.h"
+#include "base/scoped_temp_dir.h"
+#include "base/weak_ptr.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFileSystem.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFileSystemCallbacks.h"
-#include "webkit/fileapi/file_system_operation.h"
+#include "webkit/fileapi/file_system_types.h"
 
-class BrowserFileSystem : public WebKit::WebFileSystem {
+namespace WebKit {
+class WebFileSystemCallbacks;
+class WebFrame;
+}
+
+namespace fileapi {
+class SandboxedFileSystemContext;
+class SandboxedFileSystemOperation;
+}
+
+class BrowserFileSystem
+    : public WebKit::WebFileSystem,
+      public base::SupportsWeakPtr<BrowserFileSystem> {
  public:
-  BrowserFileSystem() {}
+  BrowserFileSystem();
   virtual ~BrowserFileSystem();
 
-  void RemoveCompletedOperation(int request_id);
+  void OpenFileSystem(WebKit::WebFrame* frame,
+                      WebKit::WebFileSystem::Type type,
+                      long long size,
+                      bool create,
+                      WebKit::WebFileSystemCallbacks* callbacks);
 
   // WebKit::WebFileSystem methods.
   virtual void move(const WebKit::WebString& src_path,
@@ -49,12 +66,13 @@ class BrowserFileSystem : public WebKit::WebFileSystem {
 
  private:
   // Helpers.
-  fileapi::FileSystemOperation* GetNewOperation(
+  fileapi::SandboxedFileSystemOperation* GetNewOperation(
       WebKit::WebFileSystemCallbacks* callbacks);
 
-  // Keeps ongoing file system operations.
-  typedef IDMap<fileapi::FileSystemOperation, IDMapOwnPointer> OperationsMap;
-  OperationsMap operations_;
+  // A temporary directory for FileSystem API.
+  ScopedTempDir file_system_dir_;
+
+  scoped_refptr<fileapi::SandboxedFileSystemContext> sandboxed_context_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserFileSystem);
 };

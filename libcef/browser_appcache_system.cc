@@ -431,7 +431,7 @@ WebApplicationCacheHost* BrowserAppCacheSystem::CreateCacheHostForWebKit(
 }
 
 void BrowserAppCacheSystem::SetExtraRequestBits(
-    URLRequest* request, int host_id, ResourceType::Type resource_type) {
+    net::URLRequest* request, int host_id, ResourceType::Type resource_type) {
   if (is_initialized()) {
     DCHECK(is_io_thread());
     AppCacheInterceptor::SetExtraRequestInfo(
@@ -440,7 +440,7 @@ void BrowserAppCacheSystem::SetExtraRequestBits(
 }
 
 void BrowserAppCacheSystem::GetExtraResponseBits(
-    URLRequest* request, int64* cache_id, GURL* manifest_url) {
+    net::URLRequest* request, int64* cache_id, GURL* manifest_url) {
   if (is_initialized()) {
     DCHECK(is_io_thread());
     AppCacheInterceptor::GetExtraResponseInfo(

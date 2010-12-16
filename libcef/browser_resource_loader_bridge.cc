@@ -4,12 +4,12 @@
 // found in the LICENSE file.
 //
 // This file contains an implementation of the ResourceLoaderBridge class.
-// The class is implemented using URLRequest, meaning it is a "simple" version
+// The class is implemented using net::URLRequest, meaning it is a "simple" version
 // that directly issues requests. The more complicated one used in the
 // browser uses IPC.
 //
-// Because URLRequest only provides an asynchronous resource loading API, this
-// file makes use of URLRequest from a background IO thread.  Requests for
+// Because net::URLRequest only provides an asynchronous resource loading API, this
+// file makes use of net::URLRequest from a background IO thread.  Requests for
 // cookies and synchronously loaded resources result in the main thread of the
 // application blocking until the IO thread completes the operation.  (See
 // GetCookies and SyncLoad)
@@ -17,9 +17,9 @@
 // Main thread                          IO thread
 // -----------                          ---------
 // ResourceLoaderBridge <---o---------> RequestProxy (normal case)
-//                           \            -> URLRequest
+//                           \            -> net::URLRequest
 //                            o-------> SyncRequestProxy (synchronous case)
-//                                        -> URLRequest
+//                                        -> net::URLRequest
 // SetCookie <------------------------> CookieSetter
 //                                        -> net_util::SetCookie
 // GetCookies <-----------------------> CookieGetter
@@ -27,7 +27,7 @@
 //
 // NOTE: The implementation in this file may be used to have WebKit fetch
 // resources in-process.  For example, it is handy for building a single-
-// process WebKit embedding (e.g., test_shell) that can use URLRequest to
+// process WebKit embedding (e.g., test_shell) that can use net::URLRequest to
 // perform URL loads.  See renderer/resource_dispatcher.h for details on an
 // alternate implementation that defers fetching to another process.
 
@@ -101,9 +101,9 @@ struct RequestParams {
 static const int kUpdateUploadProgressIntervalMsec = 100;
 
 // The RequestProxy does most of its work on the IO thread.  The Start and
-// Cancel methods are proxied over to the IO thread, where an URLRequest object
+// Cancel methods are proxied over to the IO thread, where an net::URLRequest object
 // is instantiated.
-class RequestProxy : public URLRequest::Delegate,
+class RequestProxy : public net::URLRequest::Delegate,
                      public base::RefCountedThreadSafe<RequestProxy> {
  public:
   // Takes ownership of the params.
@@ -149,7 +149,7 @@ class RequestProxy : public URLRequest::Delegate,
 
   // --------------------------------------------------------------------------
   // The following methods are called on the owner's thread in response to
-  // various URLRequest callbacks.  The event hooks, defined below, trigger
+  // various net::URLRequest callbacks.  The event hooks, defined below, trigger
   // these methods asynchronously.
 
   void NotifyReceivedRedirect(const GURL& new_url,
@@ -360,7 +360,7 @@ class RequestProxy : public URLRequest::Delegate,
             ResolveBlobReferencesInUploadData(params->upload.get());
       }
 
-      request_.reset(new URLRequest(params->url, this));
+      request_.reset(new net::URLRequest(params->url, this));
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
       request_->set_referrer(params->referrer.spec());
@@ -447,7 +447,7 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   // --------------------------------------------------------------------------
-  // The following methods are event hooks (corresponding to URLRequest
+  // The following methods are event hooks (corresponding to net::URLRequest
   // callbacks) that run on the IO thread.  They are designed to be overridden
   // by the SyncRequestProxy subclass.
 
@@ -491,9 +491,9 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   // --------------------------------------------------------------------------
-  // URLRequest::Delegate implementation:
+  // net::URLRequest::Delegate implementation:
 
-  virtual void OnReceivedRedirect(URLRequest* request,
+  virtual void OnReceivedRedirect(net::URLRequest* request,
                                   const GURL& new_url,
                                   bool* defer_redirect) {
     DCHECK(request->status().is_success());
@@ -502,7 +502,7 @@ class RequestProxy : public URLRequest::Delegate,
     OnReceivedRedirect(new_url, info, defer_redirect);
   }
 
-  virtual void OnResponseStarted(URLRequest* request) {
+  virtual void OnResponseStarted(net::URLRequest* request) {
     if (request->status().is_success()) {
       ResourceResponseInfo info;
       PopulateResponseInfo(request, &info);
@@ -513,14 +513,14 @@ class RequestProxy : public URLRequest::Delegate,
     }
   }
 
-  virtual void OnSSLCertificateError(URLRequest* request,
+  virtual void OnSSLCertificateError(net::URLRequest* request,
                                      int cert_error,
                                      net::X509Certificate* cert) {
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
   }
 
-  virtual void OnReadCompleted(URLRequest* request, int bytes_read) {
+  virtual void OnReadCompleted(net::URLRequest* request, int bytes_read) {
     if (request->status().is_success() && bytes_read > 0) {
       OnReceivedData(bytes_read);
     } else {
@@ -550,7 +550,7 @@ class RequestProxy : public URLRequest::Delegate,
 
   // Called on the IO thread.
   void MaybeUpdateUploadProgress() {
-    // If a redirect is received upload is cancelled in URLRequest, we should
+    // If a redirect is received upload is cancelled in net::URLRequest, we should
     // try to stop the |upload_progress_timer_| timer and return.
     if (!request_->has_upload()) {
       if (upload_progress_timer_.IsRunning())
@@ -583,7 +583,7 @@ class RequestProxy : public URLRequest::Delegate,
     }
   }
 
-  void PopulateResponseInfo(URLRequest* request,
+  void PopulateResponseInfo(net::URLRequest* request,
                             ResourceResponseInfo* info) const {
     info->request_time = request->request_time();
     info->response_time = request->response_time();
@@ -599,7 +599,7 @@ class RequestProxy : public URLRequest::Delegate,
         &info->appcache_manifest_url);
   }
 
-  scoped_ptr<URLRequest> request_;
+  scoped_ptr<net::URLRequest> request_;
   CefRefPtr<CefStreamReader> resource_stream_;
 
   // Support for request.download_to_file behavior.

@@ -37,6 +37,10 @@
 #define ID_TESTS_SCHEME_HANDLER         32777
 #define ID_TESTS_UIAPP                  32778
 #define ID_TESTS_LOCALSTORAGE           32779
+#define ID_TESTS_ACCELERATED2DCANVAS    32780
+#define ID_TESTS_ACCELERATEDLAYERS      32781
+#define ID_TESTS_WEBGL                  32782
+#define ID_TESTS_HTML5VIDEO             32783
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001

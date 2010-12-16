@@ -339,3 +339,27 @@ void RunLocalStorageTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->LoadURL("http://tests/localstorage");
 }
+
+void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL(
+      "http://mudcu.be/labs/JS1k/BreathingGalaxies.html");
+}
+
+void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL(
+      "http://webkit.org/blog-files/3d-transforms/poster-circle.html");
+}
+
+void RunWebGLTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL(
+      "http://webglsamples.googlecode.com/hg/field/field.html");
+}
+
+void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL(
+      "http://www.youtube.com/watch?v=siOHh0uzcuY&html5=True");
+}

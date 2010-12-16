@@ -11,7 +11,9 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 
+namespace net {
 class URLRequest;
+};
 
 // Implementation of CefRequest
 class CefRequestImpl : public CefThreadSafeBase<CefRequest>
@@ -33,7 +35,7 @@ public:
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
 
-  void Set(URLRequest* request);
+  void Set(net::URLRequest* request);
 
   static void GetHeaderMap(const net::HttpRequestHeaders& headers,
                            HeaderMap& map);

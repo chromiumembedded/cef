@@ -43,12 +43,12 @@ static void TrackAdd(CefTrackObject* object)
 
 
 
-// URLRequestJob implementation.
+// net::URLRequestJob implementation.
 
-class CefUrlRequestJob : public URLRequestJob {
+class CefUrlRequestJob : public net::URLRequestJob {
 public:
-  CefUrlRequestJob(URLRequest* request, CefRefPtr<CefSchemeHandler> handler)
-    : URLRequestJob(request),
+  CefUrlRequestJob(net::URLRequest* request, CefRefPtr<CefSchemeHandler> handler)
+    : net::URLRequestJob(request),
     handler_(handler),
     response_length_(0),
     url_(request->url()),
@@ -74,7 +74,7 @@ public:
       async_resolver_ = NULL;
     }
 
-    URLRequestJob::Kill();
+    net::URLRequestJob::Kill();
   }
 
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int *bytes_read)
@@ -229,7 +229,7 @@ private:
 };
 
 
-// URLRequestFilter clone that manages the CefSchemeHandlerFactory pointers.
+// net::URLRequestFilter clone that manages the CefSchemeHandlerFactory pointers.
 
 class CefUrlRequestFilter {
 public:
@@ -245,7 +245,7 @@ public:
     return shared_instance_;
   }
 
-  static URLRequestJob* Factory(URLRequest* request,
+  static net::URLRequestJob* Factory(net::URLRequest* request,
       const std::string& scheme)
   {
     // Returning null here just means that the built-in handler will be used.
@@ -259,7 +259,7 @@ public:
     handler_map_[make_pair(scheme, hostname)] = factory;
 
     // Register with the ProtocolFactory.
-    URLRequest::RegisterProtocolFactory(scheme,
+    net::URLRequest::RegisterProtocolFactory(scheme,
         &CefUrlRequestFilter::Factory);
   }
 
@@ -285,14 +285,14 @@ public:
     }
     for (std::set<std::string>::const_iterator scheme = schemes.begin();
         scheme != schemes.end(); ++scheme) {
-      URLRequest::RegisterProtocolFactory(*scheme, NULL);
+      net::URLRequest::RegisterProtocolFactory(*scheme, NULL);
     }
 
     handler_map_.clear();
     hit_count_ = 0;
   }
 
-  CefSchemeHandlerFactory* FindRequestHandlerFactory(URLRequest* request,
+  CefSchemeHandlerFactory* FindRequestHandlerFactory(net::URLRequest* request,
       const std::string& scheme)
   {
     CefSchemeHandlerFactory* factory = NULL;
@@ -323,10 +323,10 @@ protected:
   CefUrlRequestFilter() : hit_count_(0) { }
 
   // Helper method that looks up the request in the handler_map_.
-  URLRequestJob* FindRequestHandler(URLRequest* request,
+  net::URLRequestJob* FindRequestHandler(net::URLRequest* request,
       const std::string& scheme)
   {
-    URLRequestJob* job = NULL;
+    net::URLRequestJob* job = NULL;
     CefSchemeHandlerFactory* factory =
         FindRequestHandlerFactory(request, scheme);
     if (factory) {
@@ -336,7 +336,7 @@ protected:
     }
 
     if (job) {
-      DLOG(INFO) << "URLRequestFilter hit for " << request->url().spec();
+      DLOG(INFO) << "net::URLRequestFilter hit for " << request->url().spec();
       hit_count_++;
     }
     return job;
