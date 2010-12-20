@@ -3,6 +3,7 @@
 // be found in the LICENSE file.
 
 #include "../include/cef.h"
+#include "base/utf_string_conversions.h"
 #include "webkit/glue/webpreferences.h"
 
 void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
@@ -10,22 +11,22 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
   if (cef.standard_font_family.length > 0)
     web.standard_font_family = CefString(&cef.standard_font_family);
   else
-    web.standard_font_family = L"Times";
+    web.standard_font_family = ASCIIToUTF16("Times");
   
   if (cef.fixed_font_family.length > 0)
     web.fixed_font_family = CefString(&cef.fixed_font_family);
   else
-    web.fixed_font_family = L"Courier";
+    web.fixed_font_family = ASCIIToUTF16("Courier");
   
   if (cef.serif_font_family.length > 0)
     web.serif_font_family = CefString(&cef.serif_font_family);
   else
-    web.serif_font_family = L"Times";
+    web.serif_font_family = ASCIIToUTF16("Times");
 
   if (cef.sans_serif_font_family.length > 0)
     web.sans_serif_font_family = CefString(&cef.sans_serif_font_family);
   else
-    web.sans_serif_font_family = L"Helvetica";
+    web.sans_serif_font_family = ASCIIToUTF16("Helvetica");
 
   // These two fonts below are picked from the intersection of
   // Win XP font list and Vista font list :
@@ -42,9 +43,9 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
     web.cursive_font_family = CefString(&cef.cursive_font_family);
   } else {
 #if defined(OS_MACOSX)
-    web.cursive_font_family = L"Apple Chancery";
+    web.cursive_font_family = ASCIIToUTF16("Apple Chancery");
 #else
-    web.cursive_font_family = L"Comic Sans MS";
+    web.cursive_font_family = ASCIIToUTF16("Comic Sans MS");
 #endif
   }
 
@@ -52,9 +53,9 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
     web.fantasy_font_family = CefString(&cef.fantasy_font_family);
   } else {
 #if defined(OS_MACOSX)
-    web.fantasy_font_family = L"Papyrus";
+    web.fantasy_font_family = ASCIIToUTF16("Papyrus");
 #else
-    web.fantasy_font_family = L"Impact";
+    web.fantasy_font_family = ASCIIToUTF16("Impact");
 #endif
   }
 

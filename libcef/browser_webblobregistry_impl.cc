@@ -49,7 +49,7 @@ void BrowserWebBlobRegistryImpl::registerBlobURL(
       FROM_HERE,
       NewRunnableMethod(
           this, &BrowserWebBlobRegistryImpl::DoRegisterBlobUrl, url,
-          blob_data.release()));  // Released in DoRegisterBlobUrl.
+          blob_data));
 }
 
 void BrowserWebBlobRegistryImpl::registerBlobURL(
@@ -76,7 +76,6 @@ void BrowserWebBlobRegistryImpl::DoRegisterBlobUrl(
     const GURL& url, webkit_blob::BlobData* blob_data) {
   DCHECK(g_blob_storage_controller);
   g_blob_storage_controller->RegisterBlobUrl(url, blob_data);
-  blob_data->Release();
 }
 
 void BrowserWebBlobRegistryImpl::DoRegisterBlobUrlFrom(

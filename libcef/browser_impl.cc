@@ -927,9 +927,9 @@ void CefBrowserImpl::UIT_GetDocumentTextNotify(CefFrame* frame,
   WebKit::WebFrame* web_frame = GetWebFrame(frame);
   if(web_frame) {
     // Retrieve the document string
-    std::wstring wstr = webkit_glue::DumpDocumentText(web_frame);
+    string16 wstr = webkit_glue::DumpDocumentText(web_frame);
     std::string str;
-    WideToUTF8(wstr.c_str(), wstr.length(), &str);
+    UTF16ToUTF8(wstr.c_str(), wstr.length(), &str);
     // Write the document string to the stream
     writer->Write(str.c_str(), str.size(), 1);
   }
