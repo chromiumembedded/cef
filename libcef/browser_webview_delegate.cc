@@ -696,17 +696,20 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   }
 
   std::string error_text;
+  CefString errorStr;
 
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  CefHandler::RetVal rv = RV_CONTINUE;
   if(handler.get()) {
     // give the handler an opportunity to generate a custom error message
-    CefString errorStr;
-    CefHandler::RetVal rv = handler->HandleLoadError(browser_,
+    rv = handler->HandleLoadError(browser_,
         browser_->GetCefFrame(frame),
         static_cast<CefHandler::ErrorCode>(error.reason),
         std::string(failed_ds->request().url().spec().data()), errorStr);
-    if(rv == RV_HANDLED && !errorStr.empty())
-      error_text = errorStr;
+  }
+    
+  if(rv == RV_HANDLED && !errorStr.empty()) {
+    error_text = errorStr;
   } else {
     error_text = StringPrintf("Error %d when loading url %s",
         error.reason, failed_ds->request().url().spec().data());
