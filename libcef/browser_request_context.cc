@@ -72,10 +72,18 @@ void BrowserRequestContext::Init(
   // slow resource loading on Windows we only use the system proxy resolver if
   // auto-detection is unchecked.
   WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
-  if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config) &&
-      ie_config.fAutoDetect == TRUE) {
-    proxy_service_ = net::ProxyService::CreateWithoutProxyResolver(
-        new ProxyConfigServiceNull(), NULL);
+  if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
+    if (ie_config.fAutoDetect == TRUE) {
+      proxy_service_ = net::ProxyService::CreateWithoutProxyResolver(
+          new ProxyConfigServiceNull(), NULL);
+    }
+
+    if (ie_config.lpszAutoConfigUrl)
+      GlobalFree(ie_config.lpszAutoConfigUrl);
+    if (ie_config.lpszProxy)
+      GlobalFree(ie_config.lpszProxy);
+    if (ie_config.lpszProxyBypass)
+      GlobalFree(ie_config.lpszProxyBypass);
   }
 #endif // defined(OS_WIN)
   
