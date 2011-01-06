@@ -9,9 +9,12 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "MemoryCache.h"
 #include "TextEncoding.h"
-#include "third_party/WebKit/WebCore/platform/network/HTTPParsers.h"
 #include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
+#undef LOG
+#include "base/string_util.h"
+#include "net/base/mime_util.h"
+#include "webkit/glue/plugins/plugin_list.h"
 
 #include "browser_webkit_glue.h"
 
@@ -136,20 +139,52 @@ void EnableSpdy(bool enable) {
   // Used in benchmarking,  Ignored for CEF.
 }
 
-bool IsContentDispositionAttachment(const std::string& cd_header,
-                                    std::string& file_name) {
-  WTF::String cd_str(cd_header.c_str(), cd_header.length());
-  if (WebCore::contentDispositionType(cd_str) ==
-    WebCore::ContentDispositionAttachment) {
-    WTF::String name_str =
-        WebCore::filenameFromHTTPContentDisposition(cd_str);
-    if (!name_str.isEmpty()) {
-      WTF::CString cstr(name_str.utf8());
-      file_name = std::string(cstr.data(), cstr.length());
-    }
-    return true;
+// Adapted from Chromium's BufferedResourceHandler::ShouldDownload
+bool ShouldDownload(const std::string& content_disposition,
+                    const std::string& mime_type)
+{
+  std::string type = StringToLowerASCII(mime_type);
+  std::string disposition = StringToLowerASCII(content_disposition);
+
+  // First, examine content-disposition.
+  if (!disposition.empty()) {
+    bool should_download = true;
+
+    // Some broken sites just send ...
+    //    Content-Disposition: ; filename="file"
+    // ... screen those out here.
+    if (disposition[0] == ';')
+      should_download = false;
+
+    if (disposition.compare(0, 6, "inline") == 0)
+      should_download = false;
+
+    // Some broken sites just send ...
+    //    Content-Disposition: filename="file"
+    // ... without a disposition token... Screen those out.
+    if (disposition.compare(0, 8, "filename") == 0)
+      should_download = false;
+
+    // Also in use is Content-Disposition: name="file"
+    if (disposition.compare(0, 4, "name") == 0)
+      should_download = false;
+
+    // We have a content-disposition of "attachment" or unknown.
+    // RFC 2183, section 2.8 says that an unknown disposition
+    // value should be treated as "attachment".
+    if (should_download)
+      return true;
   }
-  return false;
+
+  // Mirrors WebViewImpl::CanShowMIMEType()
+  if (type.empty() || net::IsSupportedMimeType(type))
+    return false;
+
+  //// Finally, check the plugin list.
+  WebPluginInfo info;
+  bool allow_wildcard = false;
+  return !NPAPI::PluginList::Singleton()->GetPluginInfo(
+    GURL(), type, allow_wildcard, &info, NULL) || !info.enabled;
 }
 
 }  // namespace webkit_glue

@@ -42,9 +42,9 @@ v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 // Clear all cached data.
 void ClearCache();
 
-// Returns true if the specified 'Content-Disposition' header value represents
-// an attachment download. Also returns the file name.
-bool IsContentDispositionAttachment(const std::string& cd_header,
-                                    std::string& file_name);
+// Returns true if the request represents a download based on
+// the supplied Content-Type and Content-Disposition headers.
+bool ShouldDownload(const std::string& content_disposition,
+                    const std::string& mime_type);
 
 }  // namespace webkit_glue

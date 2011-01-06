@@ -4,14 +4,14 @@
 // found in the LICENSE file.
 //
 // This file contains an implementation of the ResourceLoaderBridge class.
-// The class is implemented using net::URLRequest, meaning it is a "simple" version
-// that directly issues requests. The more complicated one used in the
+// The class is implemented using net::URLRequest, meaning it is a "simple"
+// version that directly issues requests. The more complicated one used in the
 // browser uses IPC.
 //
-// Because net::URLRequest only provides an asynchronous resource loading API, this
-// file makes use of net::URLRequest from a background IO thread.  Requests for
-// cookies and synchronously loaded resources result in the main thread of the
-// application blocking until the IO thread completes the operation.  (See
+// Because net::URLRequest only provides an asynchronous resource loading API,
+// this file makes use of net::URLRequest from a background IO thread.  Requests
+// for cookies and synchronously loaded resources result in the main thread of
+// the application blocking until the IO thread completes the operation.  (See
 // GetCookies and SyncLoad)
 //
 // Main thread                          IO thread
@@ -100,9 +100,26 @@ struct RequestParams {
 // The interval for calls to RequestProxy::MaybeUpdateUploadProgress
 static const int kUpdateUploadProgressIntervalMsec = 100;
 
+class ExtraRequestInfo : public net::URLRequest::UserData {
+public:
+  ExtraRequestInfo(ResourceType::Type resource_type)
+    : resource_type_(resource_type),
+      allow_download_(resource_type == ResourceType::MAIN_FRAME || 
+                      resource_type == ResourceType::SUB_FRAME)
+  { }
+
+  // Identifies the type of resource, such as subframe, media, etc.
+  ResourceType::Type resource_type() const { return resource_type_; }
+  bool allow_download() const { return allow_download_; }
+
+private:
+  ResourceType::Type resource_type_;
+  bool allow_download_;
+};
+
 // The RequestProxy does most of its work on the IO thread.  The Start and
-// Cancel methods are proxied over to the IO thread, where an net::URLRequest object
-// is instantiated.
+// Cancel methods are proxied over to the IO thread, where an net::URLRequest
+// object is instantiated.
 class RequestProxy : public net::URLRequest::Delegate,
                      public base::RefCountedThreadSafe<RequestProxy> {
  public:
@@ -168,18 +185,26 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyReceivedResponse(const ResourceResponseInfo& info,
-                              bool content_filtered) {
-    std::string cd_header, filename;
-    if (info.headers && browser_.get() &&
-        info.headers->GetNormalizedHeader("Content-Disposition", &cd_header) &&
-        webkit_glue::IsContentDispositionAttachment(cd_header, filename)) {
-      // The response represents a download request.
+                              bool content_filtered,
+                              const GURL& url, bool allow_download) {
+
+    if (browser_.get() && info.headers.get()) {
       CefRefPtr<CefHandler> handler = browser_->GetHandler();
       if (handler.get()) {
-        CefRefPtr<CefDownloadHandler> dl_handler;
-        if (handler->HandleDownloadResponse(browser_, info.mime_type, filename,
-                info.content_length, dl_handler) == RV_CONTINUE) {
-          download_handler_ = dl_handler;
+        std::string content_disposition;
+        info.headers->GetNormalizedHeader("Content-Disposition",
+            &content_disposition);
+
+        if (allow_download &&
+            webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
+          FilePath path(net::GetSuggestedFilename(url, content_disposition,
+              info.charset, FilePath(L"download")));
+          CefRefPtr<CefDownloadHandler> dl_handler;
+          if (handler->HandleDownloadResponse(browser_, info.mime_type,
+                  path.value(), info.content_length, dl_handler) ==
+                  RV_CONTINUE) {
+            download_handler_ = dl_handler;
+          }
         }
       }
     }
@@ -259,7 +284,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       {
         // Build the request object for passing to the handler
         CefRefPtr<CefRequest> request(new CefRequestImpl());
-        CefRequestImpl* requestimpl = static_cast<CefRequestImpl*>(request.get());
+        CefRequestImpl* requestimpl =
+            static_cast<CefRequestImpl*>(request.get());
 
         std::string originalUrl(params->url.spec());
         requestimpl->SetURL(originalUrl);
@@ -370,6 +396,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
       request_->set_context(_Context->request_context());
+      request_->SetUserData(NULL, new ExtraRequestInfo(params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
           request_.get(), params->appcache_host_id, params->request_type);
 
@@ -389,7 +416,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       if (request_->has_upload() &&
           params->load_flags & net::LOAD_ENABLE_UPLOAD_PROGRESS) {
         upload_progress_timer_.Start(
-            base::TimeDelta::FromMilliseconds(kUpdateUploadProgressIntervalMsec),
+            base::TimeDelta::FromMilliseconds(
+                kUpdateUploadProgressIntervalMsec),
             this, &RequestProxy::MaybeUpdateUploadProgress);
       }
     }
@@ -463,8 +491,19 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual void OnReceivedResponse(
       const ResourceResponseInfo& info,
       bool content_filtered) {
+    GURL url;
+    bool allow_download(false);
+    if (request_.get()){
+      url = request_->url();
+      ExtraRequestInfo* info =
+          static_cast<ExtraRequestInfo*>(request_->GetUserData(NULL));
+      if (info)
+        allow_download = info->allow_download();
+    }
+
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyReceivedResponse, info, content_filtered));
+        this, &RequestProxy::NotifyReceivedResponse, info, content_filtered,
+        url, allow_download));
   }
 
   virtual void OnReceivedData(int bytes_read) {
@@ -550,8 +589,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   // Called on the IO thread.
   void MaybeUpdateUploadProgress() {
-    // If a redirect is received upload is cancelled in net::URLRequest, we should
-    // try to stop the |upload_progress_timer_| timer and return.
+    // If a redirect is received upload is cancelled in net::URLRequest, we
+    // should try to stop the |upload_progress_timer_| timer and return.
     if (!request_->has_upload()) {
       if (upload_progress_timer_.IsRunning())
         upload_progress_timer_.Stop();
