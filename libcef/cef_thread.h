@@ -8,7 +8,7 @@
 
 #include "base/lock.h"
 #include "base/task.h"
-#include "base/thread.h"
+#include "base/threading/thread.h"
 
 namespace base {
 class MessageLoopProxy;

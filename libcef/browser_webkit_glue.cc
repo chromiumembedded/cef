@@ -14,7 +14,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
-#include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/plugins/npapi/plugin_list.h"
 
 #include "browser_webkit_glue.h"
 
@@ -64,8 +64,9 @@ bool GetPluginFinderURL(std::string* plugin_finder_url) {
   return false;
 }
 
-void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
+void GetPlugins(bool refresh,
+                std::vector<webkit::npapi::WebPluginInfo>* plugins) {
+  webkit::npapi::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
 bool IsDefaultPluginEnabled() {
@@ -181,9 +182,9 @@ bool ShouldDownload(const std::string& content_disposition,
     return false;
 
   //// Finally, check the plugin list.
-  WebPluginInfo info;
+  webkit::npapi::WebPluginInfo info;
   bool allow_wildcard = false;
-  return !NPAPI::PluginList::Singleton()->GetPluginInfo(
+  return !webkit::npapi::PluginList::Singleton()->GetPluginInfo(
     GURL(), type, allow_wildcard, &info, NULL) || !info.enabled;
 }
 

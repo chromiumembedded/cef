@@ -7,21 +7,25 @@
 
 #include "base/file_path.h"
 #include "base/message_loop.h"
-#include "base/thread.h"
+#include "base/threading/thread.h"
 #include "webkit/appcache/appcache_backend_impl.h"
 #include "webkit/appcache/appcache_frontend_impl.h"
 #include "webkit/appcache/appcache_service.h"
 #include "webkit/appcache/appcache_thread.h"
 #include "webkit/glue/resource_type.h"
 
+namespace net {
+class URLRequest;
+class URLRequestContext;
+}
+
 namespace WebKit {
 class WebApplicationCacheHost;
 class WebApplicationCacheHostClient;
 }
+
 class BrowserBackendProxy;
 class BrowserFrontendProxy;
-class net::URLRequest;
-class URLRequestContext;
 
 // A class that composes the constituent parts of an appcache system
 // together for use in a single process with two relavant threads,
@@ -46,7 +50,7 @@ class BrowserAppCacheSystem {
   // at a time, but after IO thread termination a new one can be
   // started on which this method should be called. The instance
   // is assumed to outlive the IO thread.
-  static void InitializeOnIOThread(URLRequestContext* request_context) {
+  static void InitializeOnIOThread(net::URLRequestContext* request_context) {
     if (instance_)
       instance_->InitOnIOThread(request_context);
   }
@@ -112,7 +116,7 @@ class BrowserAppCacheSystem {
 
   // Instance methods called by our static public methods
   void InitOnUIThread(const FilePath& cache_directory);
-  void InitOnIOThread(URLRequestContext* request_context);
+  void InitOnIOThread(net::URLRequestContext* request_context);
   void CleanupIOThread();
   WebKit::WebApplicationCacheHost* CreateCacheHostForWebKit(
       WebKit::WebApplicationCacheHostClient* client);

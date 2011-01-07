@@ -80,7 +80,7 @@ int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream))
 } // namespace
 
 CefZipReaderImpl::CefZipReaderImpl()
-  : supported_thread_id_(PlatformThread::CurrentId()), reader_(NULL),
+  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL),
     has_fileopen_(false), has_fileinfo_(false), filesize_(0), filemodified_(0)
 {
 }
@@ -287,7 +287,7 @@ bool CefZipReaderImpl::GetFileInfo()
 
 bool CefZipReaderImpl::VerifyContext()
 {
-  if (PlatformThread::CurrentId() != supported_thread_id_) {
+  if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
     NOTREACHED();
     return false;

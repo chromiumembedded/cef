@@ -8,7 +8,7 @@
 #include "base/callback.h"
 #include "base/lock.h"
 #include "base/task.h"
-#include "base/waitable_event.h"
+#include "base/synchronization/waitable_event.h"
 #include "webkit/appcache/appcache_interceptor.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 
@@ -384,7 +384,8 @@ void BrowserAppCacheSystem::InitOnUIThread(const FilePath& cache_directory) {
   cache_directory_ = cache_directory;
 }
 
-void BrowserAppCacheSystem::InitOnIOThread(URLRequestContext* request_context) {
+void BrowserAppCacheSystem::InitOnIOThread(
+    net::URLRequestContext* request_context) {
   if (!is_initailized_on_ui_thread())
     return;
 

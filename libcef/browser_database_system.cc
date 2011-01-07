@@ -7,6 +7,7 @@
 #include "base/auto_reset.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
+#include "base/threading/platform_thread.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/sqlite/sqlite3.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
@@ -66,7 +67,7 @@ int BrowserDatabaseSystem::DeleteFile(
     error_code = VfsBackend::DeleteFile(file_name, sync_dir);
   } while ((++num_retries < kNumDeleteRetries) &&
            (error_code == SQLITE_IOERR_DELETE) &&
-           (PlatformThread::Sleep(10), 1));
+           (base::PlatformThread::Sleep(10), 1));
 
   return error_code;
 }

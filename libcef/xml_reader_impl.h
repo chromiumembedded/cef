@@ -6,7 +6,7 @@
 #define _XML_READER_IMPL_H
 
 #include "../include/cef.h"
-#include "base/platform_thread.h"
+#include "base/threading/platform_thread.h"
 #include <libxml/xmlreader.h>
 #include <sstream>
 
@@ -61,7 +61,7 @@ public:
   bool VerifyContext();
 
 protected:
-  PlatformThreadId supported_thread_id_;
+  base::PlatformThreadId supported_thread_id_;
   CefRefPtr<CefStreamReader> stream_;
   xmlTextReaderPtr reader_;
   std::stringstream error_buf_;

@@ -8,7 +8,7 @@
 #include "browser_settings.h"
 #include "printing/units.h"
 
-#include "base/win_util.h"
+#include "app/win/hwnd_util.h"
 #include "skia/ext/vector_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
@@ -34,7 +34,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
                                          WPARAM wParam, LPARAM lParam)
 {
   CefBrowserImpl* browser =
-      static_cast<CefBrowserImpl*>(win_util::GetWindowUserData(hwnd));
+      static_cast<CefBrowserImpl*>(app::win::GetWindowUserData(hwnd));
 
   switch (message) {
   case WM_COMMAND:
@@ -49,7 +49,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
   case WM_DESTROY:
     if (browser) {
       // Clear the user data pointer.
-      win_util::SetWindowUserData(hwnd, NULL);
+      app::win::SetWindowUserData(hwnd, NULL);
 
       // Destroy the browser.
       browser->UIT_DestroyBrowser();
@@ -111,7 +111,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   // Set window user data to this object for future reference from the window
   // procedure
-  win_util::SetWindowUserData(window_info_.m_hWnd, this);
+  app::win::SetWindowUserData(window_info_.m_hWnd, this);
   
   // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();

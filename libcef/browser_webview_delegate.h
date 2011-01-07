@@ -10,33 +10,35 @@
 #ifndef _BROWSER_WEBVIEW_DELEGATE_H
 #define _BROWSER_WEBVIEW_DELEGATE_H
 
-#include "build/build_config.h"
 
 #include <map>
-
-#if defined(OS_LINUX)
-#include <gdk/gdkcursor.h>
-#endif
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/weak_ptr.h"
+#include "build/build_config.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFileChooserParams.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFileSystem.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
+#include "webkit/glue/webcursor.h"
+#include "webkit/plugins/npapi/webplugin_page_delegate.h"
+#include "browser_navigation_controller.h"
+
 #if defined(OS_MACOSX)
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenuInfo.h"
 #endif
-#include "third_party/WebKit/WebKit/chromium/public/WebViewClient.h"
-#include "webkit/glue/webcursor.h"
-#include "webkit/glue/plugins/webplugin_page_delegate.h"
+
 #if defined(OS_WIN)
 #include "browser_drag_delegate.h"
 #include "browser_drop_delegate.h"
 #endif
-#include "browser_navigation_controller.h"
+
+#if defined(TOOLKIT_USES_GTK)
+#include <gdk/gdkcursor.h>
+#endif
 
 class CefBrowserImpl;
 class GURL;
@@ -45,7 +47,7 @@ class FilePath;
 
 class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
-    public webkit_glue::WebPluginPageDelegate,
+    public webkit::npapi::WebPluginPageDelegate,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
   // WebKit::WebViewClient
@@ -181,7 +183,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFileSystemCallbacks* callbacks);
 
   // webkit_glue::WebPluginPageDelegate
-  virtual webkit_glue::WebPluginDelegate* CreatePluginDelegate(
+  virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type);
   virtual void CreatedPluginWindow(
@@ -189,7 +191,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void WillDestroyPluginWindow(
       gfx::PluginWindowHandle handle);
   virtual void DidMovePlugin(
-      const webkit_glue::WebPluginGeometry& move);
+      const webkit::npapi::WebPluginGeometry& move);
   virtual void DidStartLoadingForPlugin() {}
   virtual void DidStopLoadingForPlugin() {}
   virtual void ShowModalHTMLDialogForPlugin(

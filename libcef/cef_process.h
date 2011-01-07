@@ -16,9 +16,9 @@
 
 #include "base/basictypes.h"
 #include "base/message_loop.h"
-#include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/threading/non_thread_safe.h"
 #include "ipc/ipc_message.h"
 
 namespace base {
@@ -32,7 +32,8 @@ class CefMessageLoopForUI;
 
 // NOT THREAD SAFE, call only from the main thread.
 // These functions shouldn't return NULL unless otherwise noted.
-class CefProcess : public base::RefCounted<CefProcess>, public NonThreadSafe {
+class CefProcess : public base::RefCounted<CefProcess>,
+                   public base::NonThreadSafe {
  public:
   CefProcess(bool multi_threaded_message_loop);
   virtual ~CefProcess();

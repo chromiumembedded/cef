@@ -10,10 +10,10 @@
 #include "browser_webkit_glue.h"
 
 #undef LOG
-#include "base/data_pack.h"
+#include "app/data_pack.h"
 #include "base/file_util.h"
 #include "base/logging.h"
-#include "base/mac_util.h"
+#include "base/mac/mac_util.h"
 #include "base/path_service.h"
 #include "grit/webkit_resources.h"
 #include "webkit/glue/webkit_glue.h"
@@ -21,14 +21,14 @@
 namespace webkit_glue {
   
 // Data pack resource. This is a pointer to the mmapped resources file.
-static base::DataPack* g_resource_data_pack = NULL;
+static app::DataPack* g_resource_data_pack = NULL;
   
 void InitializeDataPak() {
   // mmap the data pack which holds strings used by WebCore.
   // TODO(port): Allow the embedder to customize the pak name.
-  g_resource_data_pack = new base::DataPack;
+  g_resource_data_pack = new app::DataPack;
   NSString *resource_path =
-      [mac_util::MainAppBundle() pathForResource:@"cefclient" ofType:@"pak"];
+      [base::mac::MainAppBundle() pathForResource:@"cefclient" ofType:@"pak"];
   FilePath resources_pak_path([resource_path fileSystemRepresentation]);
   if (!g_resource_data_pack->Load(resources_pak_path))
     LOG(FATAL) << "failed to load cefclient.pak";
@@ -38,7 +38,7 @@ void InitializeDataPak() {
 FilePath GetResourcesFilePath() {
   FilePath path;
   // We need to know if we're bundled or not to know which path to use.
-  if (mac_util::AmIBundled()) {
+  if (base::mac::AmIBundled()) {
     PathService::Get(base::DIR_EXE, &path);
     path = path.Append(FilePath::kParentDirectory);
     return path.AppendASCII("Resources");

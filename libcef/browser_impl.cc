@@ -9,8 +9,8 @@
 #include "request_impl.h"
 #include "stream_impl.h"
 
+#include "base/synchronization/waitable_event.h"
 #include "base/utf_string_conversions.h"
-#include "base/waitable_event.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
@@ -24,8 +24,8 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebURLRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/plugins/webplugin_delegate.h"
-#include "webkit/glue/plugins/webplugin_impl.h"
+#include "webkit/plugins/npapi/webplugin_delegate.h"
+#include "webkit/plugins/npapi/webplugin_impl.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebDocument;
@@ -987,8 +987,8 @@ void CefBrowserImpl::UIT_Find(int identifier, const CefString& search_text,
 
   if (main_frame->document().isPluginDocument()) {
     WebPlugin* plugin = main_frame->document().to<WebPluginDocument>().plugin();
-    webkit_glue::WebPluginDelegate* delegate =
-        static_cast<webkit_glue::WebPluginImpl*>(plugin)->delegate();
+    webkit::npapi::WebPluginDelegate* delegate =
+        static_cast<webkit::npapi::WebPluginImpl*>(plugin)->delegate();
     if (options.findNext) {
       // Just navigate back/forward.
       delegate->SelectFindResult(options.forward);
@@ -1109,8 +1109,8 @@ void CefBrowserImpl::UIT_StopFinding(bool clear_selection)
   if (doc.isPluginDocument()) {
     WebPlugin* plugin = view->mainFrame()->document().
         to<WebPluginDocument>().plugin();
-    webkit_glue::WebPluginDelegate* delegate =
-        static_cast<webkit_glue::WebPluginImpl*>(plugin)->delegate();
+    webkit::npapi::WebPluginDelegate* delegate =
+        static_cast<webkit::npapi::WebPluginImpl*>(plugin)->delegate();
     delegate->StopFind();
     return;
   }

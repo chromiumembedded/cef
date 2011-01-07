@@ -31,11 +31,11 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/plugins/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
+#include "webkit/plugins/npapi/plugin_list.h"
+#include "webkit/plugins/npapi/webplugin.h"
+#include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 
 using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
@@ -146,7 +146,7 @@ void BrowserWebViewDelegate::runModal() {
 
 // WebPluginPageDelegate ------------------------------------------------------
 
-webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
+webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type)
 {
@@ -155,7 +155,7 @@ webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
   if (!hwnd)
     return NULL;
 
-  return WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
+  return webkit::npapi::WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
@@ -169,7 +169,7 @@ void BrowserWebViewDelegate::WillDestroyPluginWindow(
 }
 
 void BrowserWebViewDelegate::DidMovePlugin(
-    const webkit_glue::WebPluginGeometry& move) {
+    const webkit::npapi::WebPluginGeometry& move) {
   unsigned long flags = 0;
 
   if (move.rects_valid) {

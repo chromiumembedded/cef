@@ -6,7 +6,7 @@
 #define _ZIP_READER_IMPL_H
 
 #include "../include/cef.h"
-#include "base/platform_thread.h"
+#include "base/threading/platform_thread.h"
 #include "third_party/zlib/contrib/minizip/unzip.h"
 #include <sstream>
 
@@ -40,7 +40,7 @@ public:
   bool VerifyContext();
 
 protected:
-  PlatformThreadId supported_thread_id_;
+  base::PlatformThreadId supported_thread_id_;
   unzFile reader_;
   bool has_fileopen_;
   bool has_fileinfo_;

@@ -8,6 +8,7 @@
 #include "build/build_config.h"
 
 #include "base/file_path.h"
+#include "net/base/cert_verifier.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/host_resolver.h"
 #include "net/base/ssl_config_service.h"
@@ -99,6 +100,7 @@ void BrowserRequestContext::Init(
   host_resolver_ =
       net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
                                     NULL, NULL);
+  cert_verifier_ = new net::CertVerifier;
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
   http_auth_handler_factory_ =
@@ -109,9 +111,9 @@ void BrowserRequestContext::Init(
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
-      new net::HttpCache(host_resolver_, NULL, NULL, proxy_service_,
-                         ssl_config_service_, http_auth_handler_factory_, NULL,
-                         NULL, backend);
+      new net::HttpCache(host_resolver_, cert_verifier_, NULL, NULL,
+                         proxy_service_, ssl_config_service_,
+                         http_auth_handler_factory_, NULL, NULL, backend);
 
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;
@@ -126,6 +128,7 @@ BrowserRequestContext::~BrowserRequestContext() {
   delete http_transaction_factory_;
   delete http_auth_handler_factory_;
   delete static_cast<net::StaticCookiePolicy*>(cookie_policy_);
+  delete cert_verifier_;
   delete host_resolver_;
 }
 

@@ -5,9 +5,9 @@
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 
+#include "app/win/hwnd_util.h"
 #include "gfx/rect.h"
 #include "gfx/size.h"
-#include "base/win_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webpreferences.h"
 
@@ -40,7 +40,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 0,
                              0, 0, parent_view, NULL,
                              GetModuleHandle(NULL), NULL);
-  win_util::SetWindowUserData(host->view_, host);
+  app::win::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebView::create(delegate, dev_tools_client);
   prefs.Apply(host->webview());

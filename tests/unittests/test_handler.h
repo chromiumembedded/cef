@@ -6,7 +6,7 @@
 #define _TEST_HANDLER_H
 
 #include "include/cef.h"
-#include "base/waitable_event.h"
+#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Base implementation of CefHandler for unit tests.

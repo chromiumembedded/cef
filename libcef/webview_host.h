@@ -10,7 +10,7 @@
 #include "webwidget_host.h"
 
 #if defined(TOOLKIT_USES_GTK)
-#include "webkit/glue/plugins/gtk_plugin_container_manager.h"
+#include "webkit/plugins/npapi/gtk_plugin_container_manager.h"
 #endif
 
 struct WebPreferences;
@@ -42,7 +42,7 @@ class WebViewHost : public WebWidgetHost {
   // Destroy the plugin parent container when a plugin has been destroyed.
   void DestroyPluginContainer(gfx::PluginWindowHandle id);
 
-  GtkPluginContainerManager* plugin_container_manager() {
+  webkit::npapi::GtkPluginContainerManager* plugin_container_manager() {
     return &plugin_container_manager_;
   }
 #elif defined(OS_MACOSX)
@@ -58,7 +58,7 @@ class WebViewHost : public WebWidgetHost {
 
 #if defined(TOOLKIT_USES_GTK)
   // Helper class that creates and moves plugin containers.
-  GtkPluginContainerManager plugin_container_manager_;
+  webkit::npapi::GtkPluginContainerManager plugin_container_manager_;
 #endif
 };
 

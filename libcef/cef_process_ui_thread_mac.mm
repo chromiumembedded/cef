@@ -6,13 +6,34 @@
 #include "include/cef.h"
 #include "cef_process_ui_thread.h"
 #include "browser_webkit_glue.h"
-#include "base/chrome_application_mac.h"
+#include "base/message_pump_mac.h"
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 namespace {
   
 // Memory autorelease pool.
-NSAutoreleasePool* g_autopool;
+static NSAutoreleasePool* g_autopool = nil;
+
+// CrAppProtocol implementation.
+@interface CrApplication : NSApplication<CrAppProtocol> {
+ @private
+  BOOL handlingSendEvent_;
+}
+- (BOOL)isHandlingSendEvent;
+@end
+
+@implementation CrApplication
+- (BOOL)isHandlingSendEvent {
+  return handlingSendEvent_;
+}
+
+- (void)sendEvent:(NSEvent*)event {
+  BOOL wasHandlingSendEvent = handlingSendEvent_;
+  handlingSendEvent_ = YES;
+  [super sendEvent:event];
+  handlingSendEvent_ = wasHandlingSendEvent;
+}
+@end
 
 void RunLoopObserver(CFRunLoopObserverRef observer, CFRunLoopActivity activity,
                      void* info)

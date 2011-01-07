@@ -38,7 +38,6 @@ void CefShutdown()
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefDownloadHandlerCppToC::DebugObjCt == 0);
-  DCHECK(CefHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefReadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
@@ -53,6 +52,11 @@ void CefShutdown()
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
   DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefZipReaderCToCpp::DebugObjCt == 0);
+
+  // TODO: This breakpoint may be hit if content is still loading when CEF
+  // exits. Re-enable the breakpoint if/when CEF stops content loading before
+  // exit.
+  //DCHECK(CefHandlerCppToC::DebugObjCt == 0);
 #endif // _DEBUG
 }
 

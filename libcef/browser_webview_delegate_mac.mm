@@ -12,8 +12,8 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/plugins/npapi/plugin_list.h"
+#include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
 using WebKit::WebCursorInfo;
@@ -168,7 +168,7 @@ void BrowserWebViewDelegate::runModal() {
 
 // WebPluginPageDelegate ------------------------------------------------------
 
-webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
+webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     const FilePath& path,
     const std::string& mime_type) {
   WebWidgetHost *host = GetWidgetHost();
@@ -176,7 +176,8 @@ webkit_glue::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     return NULL;
 
   gfx::PluginWindowHandle containing_view = NULL;
-  return WebPluginDelegateImpl::Create(path, mime_type, containing_view);
+  return webkit::npapi::WebPluginDelegateImpl::Create(
+      path, mime_type, containing_view);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
@@ -188,7 +189,7 @@ void BrowserWebViewDelegate::WillDestroyPluginWindow(
 }
 
 void BrowserWebViewDelegate::DidMovePlugin(
-    const webkit_glue::WebPluginGeometry& move) {
+    const webkit::npapi::WebPluginGeometry& move) {
   // TODO(port): add me once plugins work.
 }
 

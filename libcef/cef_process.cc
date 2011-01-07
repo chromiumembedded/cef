@@ -8,8 +8,8 @@
 #include "cef_process_sub_thread.h"
 #include "cef_process_ui_thread.h"
 
-#include "base/thread.h"
-#include "base/waitable_event.h"
+#include "base/synchronization/waitable_event.h"
+#include "base/threading/thread.h"
 
 CefProcess* g_cef_process = NULL;
 

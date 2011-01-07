@@ -9,8 +9,9 @@
 #include "base/weak_ptr.h"
 #include "webkit/fileapi/webfilewriter_base.h"
 
+namespace net {
 class URLRequestContext;
-
+}
 
 // An implementation of WebFileWriter for use in test_shell and DRT.
 class BrowserFileWriter : public fileapi::WebFileWriterBase,
@@ -21,7 +22,7 @@ class BrowserFileWriter : public fileapi::WebFileWriterBase,
   virtual ~BrowserFileWriter();
 
   // Called by CefProcessIOThread when the thread is created and destroyed.
-  static void InitializeOnIOThread(URLRequestContext* request_context) {
+  static void InitializeOnIOThread(net::URLRequestContext* request_context) {
     request_context_ = request_context;
   }
   static void CleanupOnIOThread() {
@@ -38,7 +39,7 @@ class BrowserFileWriter : public fileapi::WebFileWriterBase,
  private:
   class IOThreadProxy;
   scoped_refptr<IOThreadProxy> io_thread_proxy_;
-  static URLRequestContext* request_context_;
+  static net::URLRequestContext* request_context_;
 };
 
 #endif  // BROWSER_FILE_WRITER_H_

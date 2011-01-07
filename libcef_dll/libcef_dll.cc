@@ -64,12 +64,16 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
   DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
   DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCToCpp::DebugObjCt == 0);
+
+  // TODO: This breakpoint may be hit if content is still loading when CEF
+  // exits. Re-enable the breakpoint if/when CEF stops content loading before
+  // exit.
+  //DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
 #endif // _DEBUG
 }
 

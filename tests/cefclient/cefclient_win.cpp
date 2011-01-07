@@ -69,6 +69,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify a cache path value.
   //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
 
+  // Disable accelerated compositing to view HTML5 video.
+  //browserDefaults.accelerated_compositing_disabled = true;
+
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
   // message loop.

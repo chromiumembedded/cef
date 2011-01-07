@@ -13,7 +13,7 @@
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "base/nss_util.h"
 #endif
-#include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/plugins/npapi/plugin_list.h"
 
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
@@ -80,7 +80,7 @@ static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
 {
   REQUIRE_UIT();
 
-  NPAPI::PluginVersionInfo info;
+  webkit::npapi::PluginVersionInfo info;
 
   info.path = FilePath(plugin_info->unique_name);
   info.product_name = plugin_info->display_name;
@@ -112,7 +112,7 @@ static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
   info.entry_points.np_initialize = plugin_info->np_initialize;
   info.entry_points.np_shutdown = plugin_info->np_shutdown;
 
-  NPAPI::PluginList::Singleton()->RegisterInternalPlugin(info);
+  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(info);
 
   delete plugin_info;
 }

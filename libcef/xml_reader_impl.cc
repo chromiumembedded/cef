@@ -110,7 +110,7 @@ CefString xmlCharToString(const xmlChar* xmlStr, bool free)
 } // namespace
 
 CefXmlReaderImpl::CefXmlReaderImpl()
-  : supported_thread_id_(PlatformThread::CurrentId()), reader_(NULL)
+  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL)
 {
 }
 
@@ -473,7 +473,7 @@ void CefXmlReaderImpl::AppendError(const CefString& error_str)
 
 bool CefXmlReaderImpl::VerifyContext()
 {
-  if (PlatformThread::CurrentId() != supported_thread_id_) {
+  if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
     NOTREACHED();
     return false;

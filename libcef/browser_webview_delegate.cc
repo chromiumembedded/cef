@@ -55,18 +55,15 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebWindowFeatures.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/media/buffered_data_source.h"
-#include "webkit/glue/media/media_resource_loader_bridge_factory.h"
-#include "webkit/glue/media/simple_data_source.h"
 #include "webkit/glue/media/video_renderer_impl.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/plugins/webplugin_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/window_open_disposition.h"
+#include "webkit/plugins/npapi/plugin_list.h"
+#include "webkit/plugins/npapi/webplugin_delegate_impl.h"
+#include "webkit/plugins/npapi/webplugin_impl.h"
 #include "browser_webkit_glue.h"
 
 #if defined(OS_WIN)
@@ -536,15 +533,15 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
 WebPlugin* BrowserWebViewDelegate::createPlugin(
     WebFrame* frame, const WebPluginParams& params) {
   bool allow_wildcard = true;
-  WebPluginInfo info;
+  webkit::npapi::WebPluginInfo info;
   std::string actual_mime_type;
-  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(
+  if (!webkit::npapi::PluginList::Singleton()->GetPluginInfo(
           params.url, params.mimeType.utf8(), allow_wildcard, &info,
           &actual_mime_type)) {
     return NULL;
   }
 
-  return new webkit_glue::WebPluginImpl(
+  return new webkit::npapi::WebPluginImpl(
       frame, params, info.path, actual_mime_type, AsWeakPtr());
 }
 
@@ -557,10 +554,6 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
   scoped_ptr<media::FilterCollection> collection(
       new media::FilterCollection());
-
-  // TODO(annacc): do we still need appcache_host?  http://crbug.com/65135
-  // appcache::WebApplicationCacheHostImpl* appcache_host =
-  //     appcache::WebApplicationCacheHostImpl::FromFrame(frame);
 
   scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer(
       new webkit_glue::VideoRendererImpl(false));

@@ -21,8 +21,8 @@
 #endif
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job.h"
-#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/extensions/v8/gc_extension.h"
+#include "webkit/plugins/npapi/plugin_list.h"
 #include "net/url_request/url_request.h"
 
 #if defined(OS_WIN)
@@ -130,13 +130,15 @@ void CefProcessUIThread::Init() {
   
   if (settings.extra_plugin_paths) {
     cef_string_t str;
+    memset(&str, 0, sizeof(str));
+
     FilePath path;
     int size = cef_string_list_size(settings.extra_plugin_paths);
     for(int i = 0; i < size; ++i) {
       if (!cef_string_list_value(settings.extra_plugin_paths, i, &str))
         continue;
       path = FilePath(CefString(&str));
-      NPAPI::PluginList::Singleton()->AddExtraPluginPath(path);
+      webkit::npapi::PluginList::Singleton()->AddExtraPluginPath(path);
     }
   }
 }
