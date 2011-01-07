@@ -57,6 +57,9 @@ public:
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
       const CefString& mimeType, const CefString& fileName,
       int64 contentLength, CefRefPtr<CefDownloadHandler>& handler);
+  virtual RetVal HandleAuthenticationRequest(CefRefPtr<CefBrowser> browser,
+      bool isProxy, const CefString& host, const CefString& realm,
+      const CefString& scheme, CefString& username, CefString& password);
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
       const MenuInfo& menuInfo);
   virtual RetVal HandleGetMenuLabel(CefRefPtr<CefBrowser> browser,

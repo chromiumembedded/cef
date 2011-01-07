@@ -120,12 +120,26 @@ public:
   // no size was provided. Set |handler| to the CefDownloadHandler instance that
   // will recieve the file contents.  Return RV_CONTINUE to download the file
   // or RV_HANDLED to cancel the file download.
-  /*--cef()--*/
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
                                         const CefString& mimeType,
                                         const CefString& fileName,
                                         int64 contentLength,
                                         CefRefPtr<CefDownloadHandler>& handler);
+
+  // Called when the browser needs credentials from the user. |isProxy|
+  // indicates whether the host is a proxy server. |host| contains the hostname
+  // and port number. Set |username| and |password| and return RV_HANDLED to
+  // handle the request.  Return RV_CONTINUE to cancel the request.
+  virtual RetVal HandleAuthenticationRequest(CefRefPtr<CefBrowser> browser,
+                                             bool isProxy,
+                                             const CefString& host,
+                                             const CefString& realm,
+                                             const CefString& scheme,
+                                             CefString& username,
+                                             CefString& password)
+  {
+    return RV_CONTINUE;
+  }
 
   // Event called before a context menu is displayed.  To cancel display of the
   // default context menu return RV_HANDLED.

@@ -237,6 +237,27 @@ enum cef_retval_t CEF_CALLBACK handler_handle_download_response(
   return rv;
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_authentication_request(
+    struct _cef_handler_t* self, cef_browser_t* browser, int isProxy,
+    const cef_string_t* host, const cef_string_t* realm,
+    const cef_string_t* scheme, cef_string_t* username,
+    cef_string_t* password)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(username && password);
+  if (!self || !browser || !username || !password)
+    return RV_CONTINUE;
+
+  CefString usernameStr(username);
+  CefString passwordStr(password);
+
+  return CefHandlerCppToC::Get(self)->
+      HandleAuthenticationRequest(CefBrowserCToCpp::Wrap(browser),
+      (isProxy ? true : false), CefString(host), CefString(realm),
+      CefString(scheme), usernameStr, passwordStr);
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_before_menu(
     struct _cef_handler_t* self, cef_browser_t* browser,
     const cef_handler_menuinfo_t* menuInfo)
@@ -511,6 +532,8 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_before_resource_load =
       handler_handle_before_resource_load;
   struct_.struct_.handle_download_response = handler_handle_download_response;
+  struct_.struct_.handle_authentication_request =
+      handler_handle_authentication_request;
   struct_.struct_.handle_before_menu = handler_handle_before_menu;
   struct_.struct_.handle_get_menu_label = handler_handle_get_menu_label;
   struct_.struct_.handle_menu_action = handler_handle_menu_action;

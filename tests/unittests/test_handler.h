@@ -121,6 +121,17 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleAuthenticationRequest(CefRefPtr<CefBrowser> browser,
+                                             bool isProxy,
+                                             const CefString& host,
+                                             const CefString& realm,
+                                             const CefString& scheme,
+                                             CefString& username,
+                                             CefString& password)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleBeforeMenu(CefRefPtr<CefBrowser> browser,
                                   const MenuInfo& menuInfo)
   {

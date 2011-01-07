@@ -178,6 +178,20 @@ CefHandler::RetVal CefHandlerCToCpp::HandleDownloadResponse(
   return rv;
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleAuthenticationRequest(
+    CefRefPtr<CefBrowser> browser, bool isProxy, const CefString& host,
+    const CefString& realm, const CefString& scheme, CefString& username,
+    CefString& password)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_authentication_request))
+    return RV_CONTINUE;
+
+  return struct_->handle_authentication_request(struct_,
+      CefBrowserCppToC::Wrap(browser), isProxy,
+      host.GetStruct(), realm.GetStruct(), scheme.GetStruct(),
+      username.GetWritableStruct(), password.GetWritableStruct());
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeMenu(
     CefRefPtr<CefBrowser> browser, const MenuInfo& menuInfo)
 {

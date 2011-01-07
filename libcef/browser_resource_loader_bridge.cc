@@ -54,6 +54,7 @@
 #include "base/timer.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
+#include "net/base/auth.h"
 #include "net/base/cookie_store.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
@@ -550,6 +551,26 @@ class RequestProxy : public net::URLRequest::Delegate,
     } else {
       Done();
     }
+  }
+
+  virtual void OnAuthRequired(net::URLRequest* request,
+                              net::AuthChallengeInfo* auth_info) {
+    if (browser_.get()) {
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if(handler.get()) {
+        CefString username, password;
+        CefHandler::RetVal rv = handler->HandleAuthenticationRequest(
+            browser_, auth_info->is_proxy,
+            auth_info->host_and_port, auth_info->realm,
+            auth_info->scheme, username, password);
+        if (rv == RV_HANDLED) {
+          request->SetAuth(username, password);
+          return;
+        }
+      }
+    }
+
+    request->CancelAuth();
   }
 
   virtual void OnSSLCertificateError(net::URLRequest* request,
