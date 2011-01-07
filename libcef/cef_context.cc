@@ -21,7 +21,7 @@ CefRefPtr<CefContext> _Context;
 bool CefInitialize(const CefSettings& settings,
                    const CefBrowserSettings& browser_defaults)
 {
-  // Return true if the context is already initialized
+  // Return true if the global context already exists.
   if(_Context.get())
     return true;
 
@@ -31,33 +31,48 @@ bool CefInitialize(const CefSettings& settings,
     return false;
   }
 
-  // Create the new global context object
+  // Create the new global context object.
   _Context = new CefContext();
 
-  // Initialize the global context
+  // Initialize the global context.
   return _Context->Initialize(settings, browser_defaults);
 }
 
 void CefShutdown()
 {
-  // Verify that the context is already initialized
-  if(!_Context.get())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return;
+  }
 
-  // Shut down the global context
+  // Must always be called on the same thread as Initialize.
+  if(!_Context->process()->CalledOnValidThread()) {
+    NOTREACHED();
+    return;
+  }
+
+  // Shut down the global context. This will block until shutdown is complete.
   _Context->Shutdown();
-  // Delete the global context object
+
+  // Delete the global context object.
   _Context = NULL;
 }
 
 void CefDoMessageLoopWork()
 {
-  // Verify that the context is already initialized.
-  if(!_Context.get() || !_Context->process())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return;
+  }
 
-  if(!_Context->process()->CalledOnValidThread())
+  // Must always be called on the same thread as Initialize.
+  if(!_Context->process()->CalledOnValidThread()) {
+    NOTREACHED();
     return;
+  }
+
   _Context->process()->DoMessageLoopIteration();
 }
 
@@ -104,8 +119,11 @@ static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
 
 bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
 {
-  if(!_Context.get())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return false;
+  }
 
   CefPluginInfo* pPluginInfo = new CefPluginInfo;
   *pPluginInfo = plugin_info;
@@ -173,15 +191,15 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
 
 // CefContext
 
-CefContext::CefContext() : process_(NULL)
+CefContext::CefContext() : initialized_(false), shutting_down_(false)
 {
   
 }
 
 CefContext::~CefContext()
 {
-  // Just in case CefShutdown() isn't called
-  Shutdown();
+  if(!shutting_down_)
+    Shutdown();
 }
 
 bool CefContext::Initialize(const CefSettings& settings,
@@ -200,18 +218,37 @@ bool CefContext::Initialize(const CefSettings& settings,
   process_ = new CefProcess(settings_.multi_threaded_message_loop);
   process_->CreateChildThreads();
 
+  initialized_ = true;
+
   return true;
 }
 
 void CefContext::Shutdown()
 {
-  // Remove all existing browsers.
-  //RemoveAllBrowsers();
+  // Must always be called on the same thread as Initialize.
+  DCHECK(process_->CalledOnValidThread());
+  
+  shutting_down_ = true;
 
-  // Deleting the process will destroy the child threads.
+  if(settings_.multi_threaded_message_loop) {
+    // Event that will be used to signal when shutdown is complete. Start in
+    // non-signaled mode so that the event will block.
+    base::WaitableEvent event(false, false);
+
+    // Finish shutdown on the UI thread.
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        NewRunnableMethod(this, &CefContext::UIT_FinishShutdown, &event));
+
+    // Block until shutdown is complete.
+    event.Wait();
+  } else {
+    // Finish shutdown on the current thread, which should be the UI thread.
+    UIT_FinishShutdown(NULL);
+  }
+
+  // Delete the process to destroy the child threads.
   process_ = NULL;
 }
-
 
 bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
 {
@@ -285,4 +322,28 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
   Unlock();
 
   return browser;
+}
+
+void CefContext::UIT_FinishShutdown(base::WaitableEvent* event)
+{
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+
+  BrowserList list;
+
+  Lock();
+  if (!browserlist_.empty()) {
+    list = browserlist_;
+    browserlist_.clear();
+  }
+  Unlock();
+
+  // Destroy any remaining browser windows.
+  if (!list.empty()) {
+    BrowserList::iterator it = list.begin();
+    for(; it != list.end(); ++it)
+      (*it)->UIT_DestroyBrowser();
+  }
+
+  if(event)
+    event->Signal();
 }

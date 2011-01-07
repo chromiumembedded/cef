@@ -33,6 +33,12 @@ public:
                   const CefBrowserSettings& browser_defaults);
   void Shutdown();
 
+  // Returns true if the context is initialized.
+  bool initialized() { return initialized_; }
+
+  // Returns true if the context is shutting down.
+  bool shutting_down() { return shutting_down_; }
+
   scoped_refptr<CefProcess> process() { return process_; }
 
   bool AddBrowser(CefRefPtr<CefBrowserImpl> browser);
@@ -59,7 +65,17 @@ public:
     { storage_context_.reset(storage_context); }
   DOMStorageContext* storage_context() { return storage_context_.get(); }
 
+  static bool ImplementsThreadSafeReferenceCounting() { return true; }
+
 private:
+  // Performs shutdown actions that need to occur on the UI thread before any
+  // threads are destroyed.
+  void UIT_FinishShutdown(base::WaitableEvent* event);
+
+  // Track context state.
+  bool initialized_;
+  bool shutting_down_;
+
   // Manages the various process threads.
   scoped_refptr<CefProcess> process_;
 
@@ -80,7 +96,11 @@ private:
   int next_browser_id_;
 };
 
-// Global context object pointer
+// Global context object pointer.
 extern CefRefPtr<CefContext> _Context;
+
+// Helper macro that returns true if the global context is in a valid state.
+#define CONTEXT_STATE_VALID() \
+    (_Context.get() && _Context->initialized() && !_Context->shutting_down())
 
 #endif // _CEF_CONTEXT_H

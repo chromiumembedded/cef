@@ -143,12 +143,16 @@ bool CefRegisterExtension(const CefString& extension_name,
                           const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler)
 {
-  // Verify that the context is already initialized
-  if(!_Context.get())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return false;
-  
-  if(!handler.get())
+  }
+
+  if(!handler.get()) {
+    NOTREACHED();
     return false;
+  }
 
   TrackString* name = new TrackString(extension_name);
   TrackAdd(name);

@@ -393,9 +393,11 @@ bool CefRegisterScheme(const CefString& scheme_name,
                        const CefString& host_name,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
-  // Verify that the context is already initialized
-  if(!_Context.get())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return false;
+  }
 
   // Use a smart pointer for the wrapper object because
   // RunnableMethodTraits::RetainCallee() (originating from NewRunnableMethod)

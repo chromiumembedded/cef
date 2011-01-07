@@ -483,8 +483,11 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
                                const CefString& url)
 {
-  if(!_Context.get())
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return false;
+  }
 
   CefString newUrl = url;
   CefBrowserSettings settings(_Context->browser_defaults());
@@ -510,8 +513,17 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
     bool popup, CefRefPtr<CefHandler> handler, const CefString& url)
 {
-  if(!_Context.get() || !CefThread::CurrentlyOn(CefThread::UI))
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
     return NULL;
+  }
+
+  // Verify that this method is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED();
+    return NULL;
+  }
 
   CefString newUrl = url;
   CefRefPtr<CefBrowser> alternateBrowser;
