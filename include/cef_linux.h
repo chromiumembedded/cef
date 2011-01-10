@@ -73,6 +73,9 @@ public:
   pthread_mutexattr_t attr_;
 };
 
+// Window handle.
+#define CefWindowHandle cef_window_handle_t
+
 // Class representing window information.
 class CefWindowInfo : public cef_window_info_t
 {
@@ -99,7 +102,6 @@ public:
 
   void Reset()
   {
-    cef_string_clear(&m_windowName);
     Init();
   }
 
@@ -114,17 +116,19 @@ public:
     Init();
   }
 
+  void SetAsChild(CefWindowHandle ParentWidget)
+  {
+    m_ParentWidget = ParentWidget;
+  }
+
   CefWindowInfo& operator=(const CefWindowInfo& r)
   {
     return operator=(static_cast<const cef_window_info_t&>(r));
   }
   CefWindowInfo& operator=(const cef_window_info_t& r)
   {
-    cef_string_copy(r.m_windowName.str, r.m_windowName.length, &m_windowName);
-    m_x = r.m_x;
-    m_y = r.m_y;
-    m_nWidth = r.m_nWidth;
-    m_nHeight = r.m_nHeight;
+    m_Widget = r.m_Widget;
+    m_ParentWidget = r.m_ParentWidget;
     return *this;
   }
 
@@ -175,8 +179,6 @@ protected:
   }
 };
 
-// Window handle.
-#define CefWindowHandle cef_window_handle_t
 #endif // defined(__linux__)
 
 #endif // _CEF_LINUX_H

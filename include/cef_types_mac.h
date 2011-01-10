@@ -44,7 +44,6 @@ extern "C" {
 // Class representing window information.
 typedef struct _cef_window_info_t
 {
-  // Standard parameters required by CreateWindowEx()
   cef_string_t m_windowName;
   int m_x;
   int m_y;

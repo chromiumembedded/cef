@@ -32,6 +32,7 @@
 #define _CEF_TYPES_LINUX_H
 
 #if defined(__linux__)
+#include <gtk/gtk.h>
 #include "cef_string.h"
 
 #ifdef __cplusplus
@@ -39,17 +40,16 @@ extern "C" {
 #endif
 
 // Window handle.
-#define cef_window_handle_t void*
+#define cef_window_handle_t GtkWidget*
 
 // Class representing window information.
 typedef struct _cef_window_info_t
 {
-  // Standard parameters required by CreateWindowEx()
-  cef_string_t m_windowName;
-  int m_x;
-  int m_y;
-  int m_nWidth;
-  int m_nHeight;
+  // Pointer for the parent GtkBox widget.
+  cef_window_handle_t m_ParentWidget;
+  
+  // Pointer for the new browser widget.
+  cef_window_handle_t m_Widget;
 } cef_window_info_t;
 
 // Class representing print context information.
