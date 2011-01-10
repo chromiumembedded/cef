@@ -9,11 +9,6 @@
 #include "base/message_pump_mac.h"
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
-namespace {
-  
-// Memory autorelease pool.
-static NSAutoreleasePool* g_autopool = nil;
-
 // CrAppProtocol implementation.
 @interface CrApplication : NSApplication<CrAppProtocol> {
  @private
@@ -34,6 +29,11 @@ static NSAutoreleasePool* g_autopool = nil;
   handlingSendEvent_ = wasHandlingSendEvent;
 }
 @end
+
+namespace {
+
+// Memory autorelease pool.
+static NSAutoreleasePool* g_autopool = nil;
 
 void RunLoopObserver(CFRunLoopObserverRef observer, CFRunLoopActivity activity,
                      void* info)

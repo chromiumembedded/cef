@@ -199,7 +199,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (allow_download &&
             webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
           FilePath path(net::GetSuggestedFilename(url, content_disposition,
-              info.charset, FilePath(L"download")));
+              info.charset, FilePath(FILE_PATH_LITERAL("download"))));
           CefRefPtr<CefDownloadHandler> dl_handler;
           if (handler->HandleDownloadResponse(browser_, info.mime_type,
                   path.value(), info.content_length, dl_handler) ==
