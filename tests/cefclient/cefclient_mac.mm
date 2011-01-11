@@ -367,6 +367,14 @@ int main(int argc, char* argv[])
 
 // ClientHandler implementation
 
+CefHandler::RetVal ClientHandler::HandleBeforeCreated(
+    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
+    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
+    CefString& url, CefBrowserSettings& settings)
+{
+  return RV_CONTINUE;
+}
+
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)

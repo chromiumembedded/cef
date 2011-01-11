@@ -45,10 +45,7 @@ public:
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
                                      CefString& url,
-                                     CefBrowserSettings& settings)
-  {
-    return RV_CONTINUE;
-  }
+                                     CefBrowserSettings& settings);
 
   // Event called after a new window is created. The return value is currently
   // ignored.
@@ -78,17 +75,22 @@ public:
 
   // Event called when the browser begins loading a page.  The |frame| pointer
   // will be empty if the event represents the overall load status and not the
-  // load status for a particular frame.  The return value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true if this
+  // load is for the main content area and not an iframe. This method may not
+  // be called if the load request fails. The return value is currently ignored.
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame);
+                                 CefRefPtr<CefFrame> frame,
+                                 bool isMainContent);
 
   // Event called when the browser is done loading a page. The |frame| pointer
   // will be empty if the event represents the overall load status and not the
-  // load status for a particular frame. This event will be generated
-  // irrespective of whether the request completes successfully. The return
-  // value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true if this
+  // load is for the main content area and not an iframe. This method will be
+  // called irrespective of whether the request completes successfully. The
+  // return value is currently ignored.
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame);
+                               CefRefPtr<CefFrame> frame,
+                               bool isMainContent);
 
   // Called when the browser fails to load a resource.  |errorCode| is the
   // error code number and |failedUrl| is the URL that failed to load.  To
@@ -381,5 +383,6 @@ void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser);
 void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser);
 void RunWebGLTest(CefRefPtr<CefBrowser> browser);
 void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser);
+void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_H

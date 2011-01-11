@@ -592,19 +592,24 @@ public:
 
   // Event called when the browser begins loading a page.  The |frame| pointer
   // will be empty if the event represents the overall load status and not the
-  // load status for a particular frame.  The return value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true if this
+  // load is for the main content area and not an iframe. This method may not
+  // be called if the load request fails. The return value is currently ignored.
   /*--cef()--*/
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame) =0;
+                                 CefRefPtr<CefFrame> frame,
+                                 bool isMainContent) =0;
 
   // Event called when the browser is done loading a page. The |frame| pointer
   // will be empty if the event represents the overall load status and not the
-  // load status for a particular frame. This event will be generated
-  // irrespective of whether the request completes successfully. The return
-  // value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true if this
+  // load is for the main content area and not an iframe. This method will be
+  // called irrespective of whether the request completes successfully. The
+  // return value is currently ignored.
   /*--cef()--*/
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame) =0;
+                               CefRefPtr<CefFrame> frame,
+                               bool isMainContent) =0;
 
   // Supported error code values. See net\base\net_error_list.h for complete
   // descriptions of the error codes.

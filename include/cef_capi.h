@@ -412,18 +412,23 @@ typedef struct _cef_handler_t
 
   // Event called when the browser begins loading a page.  The |frame| pointer
   // will be NULL if the event represents the overall load status and not the
-  // load status for a particular frame.  The return value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true (1) if
+  // this load is for the main content area and not an iframe. This function may
+  // not be called if the load request fails. The return value is currently
+  // ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_start)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame);
+      struct _cef_frame_t* frame, int isMainContent);
 
   // Event called when the browser is done loading a page. The |frame| pointer
   // will be NULL if the event represents the overall load status and not the
-  // load status for a particular frame. This event will be generated
-  // irrespective of whether the request completes successfully. The return
-  // value is currently ignored.
+  // load status for a particular frame. |isMainContent| will be true (1) if
+  // this load is for the main content area and not an iframe. This function
+  // will be called irrespective of whether the request completes successfully.
+  // The return value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_end)(struct _cef_handler_t* self,
-      struct _cef_browser_t* browser, struct _cef_frame_t* frame);
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      int isMainContent);
 
   // Called when the browser fails to load a resource.  |errorCode| is the error
   // code number and |failedUrl| is the URL that failed to load.  To provide

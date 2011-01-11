@@ -60,7 +60,7 @@ CefHandler::RetVal ClientHandler::HandleAfterCreated(
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame)
+    CefRefPtr<CefFrame> frame, bool isMainContent)
 {
   if(!browser->IsPopup() && !frame.get())
   {
@@ -75,7 +75,7 @@ CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame)
+    CefRefPtr<CefFrame> frame, bool isMainContent)
 {
   if(!browser->IsPopup() && !frame.get())
   {
@@ -362,4 +362,9 @@ void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->LoadURL(
       "http://www.youtube.com/watch?v=siOHh0uzcuY&html5=True");
+}
+
+void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
 }

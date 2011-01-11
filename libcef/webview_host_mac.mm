@@ -34,7 +34,11 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
   [parent_view addSubview:host->view_];
   [host->view_ release];
 
+#if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
+  host->webwidget_ = WebView::create(delegate, dev_tools_client, NULL);
+#else
   host->webwidget_ = WebView::create(delegate, dev_tools_client);
+#endif
   prefs.Apply(host->webview());
   host->webview()->initializeMainFrame(delegate);
   host->webwidget_->resize(WebSize(content_rect.size.width,

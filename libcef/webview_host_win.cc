@@ -42,7 +42,11 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              GetModuleHandle(NULL), NULL);
   app::win::SetWindowUserData(host->view_, host);
 
+#if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
+  host->webwidget_ = WebView::create(delegate, dev_tools_client, NULL);
+#else
   host->webwidget_ = WebView::create(delegate, dev_tools_client);
+#endif
   prefs.Apply(host->webview());
   host->webview()->initializeMainFrame(delegate);
 

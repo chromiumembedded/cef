@@ -51,9 +51,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
   // WebKit::WebViewClient
-  virtual WebKit::WebView* createView(WebKit::WebFrame* creator,
-                                      const WebKit::WebWindowFeatures& features,
-                                      const WebKit::WebString& name);
+  virtual WebKit::WebView* createView(
+      WebKit::WebFrame* creator, const WebKit::WebURLRequest& request,
+      const WebKit::WebWindowFeatures& features, const WebKit::WebString& name);
   virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type);
   virtual WebKit::WebWidget* createPopupMenu(
       const WebKit::WebPopupMenuInfo& info);
@@ -63,8 +63,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line);
   virtual void printPage(WebKit::WebFrame* frame);
-  virtual void didStartLoading();
-  virtual void didStopLoading();
   virtual bool shouldBeginEditing(const WebKit::WebRange& range);
   virtual bool shouldEndEditing(const WebKit::WebRange& range);
   virtual bool shouldInsertNode(
@@ -248,9 +246,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   CefBrowserImpl* GetBrowser() { return browser_; }
 
  protected:
-  // Called when the URL of the page changes.
-  void UpdateAddressBar(WebKit::WebView* webView);
-
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,
                            const CefString& message);
@@ -295,8 +290,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Non-owning pointer.  The delegate is owned by the host.
   CefBrowserImpl* browser_;
 
-  // This is non-NULL IFF a load is in progress.
+  // This is non-NULL if a load is in progress.
   WebKit::WebFrame* top_loading_frame_;
+  // This is true if the in-progress load is the main content.
+  bool is_main_content_;
 
   // For tracking session history.  See RenderView.
   int page_id_;

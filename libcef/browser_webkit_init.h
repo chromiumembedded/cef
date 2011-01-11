@@ -25,7 +25,6 @@
 #include "webkit/extensions/v8/gears_extension.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDatabase.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebGraphicsContext3D.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
@@ -43,6 +42,7 @@
 #include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
+#include "webkit/gpu/webgraphicscontext3d_in_process_impl.h"
 
 
 class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
@@ -229,7 +229,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {
-    return WebKit::WebGraphicsContext3D::createDefault();
+    return new webkit_gpu::WebGraphicsContext3DInProcessImpl();
   }
 
   WebKit::WebString queryLocalizedString(

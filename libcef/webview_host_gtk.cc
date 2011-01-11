@@ -29,7 +29,11 @@ WebViewHost* WebViewHost::Create(GtkWidget* parent_view,
   host->view_ = WebWidgetHost::CreateWidget(parent_view, host);
   host->plugin_container_manager_.set_host_widget(host->view_);
 
+#if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
+  host->webwidget_ = WebView::create(delegate, dev_tools_client, NULL);
+#else
   host->webwidget_ = WebView::create(delegate, dev_tools_client);
+#endif
   prefs.Apply(host->webview());
   host->webview()->initializeMainFrame(delegate);
   host->webwidget_->layout();

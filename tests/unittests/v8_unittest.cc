@@ -247,7 +247,8 @@ public:
   }
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame)
+                               CefRefPtr<CefFrame> frame,
+                               bool isMainContent)
   {
     if(!browser->IsPopup() && !frame.get())
       DestroyTest();

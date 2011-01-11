@@ -28,10 +28,11 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
-IDS_LOGO BINARY "res\logo.png"
-IDS_UIPLUGIN BINARY "res\uiplugin.html"
-IDS_LOGOBALL BINARY "res\logoball.png"
-IDS_LOCALSTORAGE BINARY "res\localstorage.html"
+IDS_LOGO BINARY "res\\logo.png"
+IDS_UIPLUGIN BINARY "res\\uiplugin.html"
+IDS_LOGOBALL BINARY "res\\logoball.png"
+IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
+IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -75,6 +76,7 @@ BEGIN
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
+        MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
         MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
         MENUITEM "Accelerated Layers",          ID_TESTS_ACCELERATEDLAYERS
         MENUITEM "WebGL",                       ID_TESTS_WEBGL

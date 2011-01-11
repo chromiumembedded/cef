@@ -1,0 +1,18 @@
+<html>
+<body>
+<script language="JavaScript">
+function execXMLHttpRequest()
+{
+  xhr = new XMLHttpRequest();
+  xhr.open("GET","request",false);
+  xhr.setRequestHeader('My-Custom-Header', 'Some Value');
+  xhr.send();
+  document.getElementById('ta').value = "Request\n\n"+xhr.responseText;
+}
+</script>
+<form>
+<input type="button" onclick="execXMLHttpRequest();" value="Execute XMLHttpRequest">
+<br/><textarea rows="10" cols="40" id="ta"></textarea>
+</form>
+</body>
+</html>

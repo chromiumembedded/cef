@@ -135,7 +135,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_browse(
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_start(
-    struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame)
+    struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
+    int isMainContent)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -147,11 +148,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_start(
     framePtr = CefFrameCToCpp::Wrap(frame);
 
   return CefHandlerCppToC::Get(self)->HandleLoadStart(
-      CefBrowserCToCpp::Wrap(browser), framePtr);
+      CefBrowserCToCpp::Wrap(browser), framePtr, isMainContent?true:false);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_end(
-    struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame)
+    struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
+    int isMainContent)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -163,7 +165,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_end(
     framePtr = CefFrameCToCpp::Wrap(frame);
 
   return CefHandlerCppToC::Get(self)->HandleLoadEnd(
-      CefBrowserCToCpp::Wrap(browser), framePtr);
+      CefBrowserCToCpp::Wrap(browser), framePtr, isMainContent?true:false);
 }
 
 enum cef_retval_t CEF_CALLBACK handler_handle_load_error(

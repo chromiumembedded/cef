@@ -98,7 +98,8 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeBrowse(
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadStart(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    bool isMainContent)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_start))
     return RV_CONTINUE;
@@ -108,11 +109,12 @@ CefHandler::RetVal CefHandlerCToCpp::HandleLoadStart(
     frameStruct = CefFrameCppToC::Wrap(frame);
 
   return struct_->handle_load_start(struct_, CefBrowserCppToC::Wrap(browser),
-      frameStruct);
+      frameStruct, isMainContent);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadEnd(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame)
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    bool isMainContent)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_end))
     return RV_CONTINUE;
@@ -122,7 +124,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleLoadEnd(
     frameStruct = CefFrameCppToC::Wrap(frame);
 
   return struct_->handle_load_end(struct_, CefBrowserCppToC::Wrap(browser),
-      frameStruct);
+      frameStruct, isMainContent);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadError(

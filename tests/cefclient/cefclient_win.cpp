@@ -69,9 +69,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify a cache path value.
   //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
 
-  // Disable accelerated compositing to view HTML5 video.
-  //browserDefaults.accelerated_compositing_disabled = true;
-
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
   // message loop.
@@ -567,6 +564,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunHTML5VideoTest(browser);
           return 0;
+        case ID_TESTS_XMLHTTPREQUEST: // Test XMLHttpRequest
+          if(browser.get())
+            RunXMLHTTPRequestTest(browser);
+          return 0;
         }
       }
 		  break;
@@ -648,6 +649,25 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 // ClientHandler implementation
 
+CefHandler::RetVal ClientHandler::HandleBeforeCreated(
+    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
+    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
+    CefString& url, CefBrowserSettings& settings)
+{
+  if(popup) {
+    if(popupFeatures.xSet)
+      createInfo.m_x = popupFeatures.x;
+    if(popupFeatures.ySet)
+      createInfo.m_y = popupFeatures.y;
+    if(popupFeatures.widthSet)
+      createInfo.m_nWidth = popupFeatures.width;
+    if(popupFeatures.heightSet)
+      createInfo.m_nHeight = popupFeatures.height;
+  }
+
+  return RV_CONTINUE;
+}
+
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)
@@ -687,8 +707,8 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     // Show the request contents
     std::string dump;
     DumpRequestContents(request, dump);
-    resourceStream = CefStreamReader::CreateForData((void*)dump.c_str(),
-        dump.size());
+    resourceStream =
+        CefStreamReader::CreateForData((void*)dump.c_str(), dump.size());
     mimeType = "text/plain";
   } else if(url == "http://tests/uiapp") {
     // Show the uiapp contents
@@ -700,6 +720,13 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
   } else if(url == "http://tests/localstorage") {
     // Show the localstorage contents
     if(LoadBinaryResource(IDS_LOCALSTORAGE, dwSize, pBytes)) {
+      resourceStream = CefStreamReader::CreateForHandler(
+          new CefByteReadHandler(pBytes, dwSize, NULL));
+      mimeType = "text/html";
+    }
+  } else if(url == "http://tests/xmlhttprequest") {
+    // Show the xmlhttprequest HTML contents
+    if(LoadBinaryResource(IDS_XMLHTTPREQUEST, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
       mimeType = "text/html";

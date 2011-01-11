@@ -44,9 +44,9 @@ public:
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       NavType navType, bool isRedirect);
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame);
+      CefRefPtr<CefFrame> frame, bool isMainContent);
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame);
+      CefRefPtr<CefFrame> frame, bool isMainContent);
   virtual RetVal HandleLoadError(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, ErrorCode errorCode,
       const CefString& failedUrl, CefString& errorText);

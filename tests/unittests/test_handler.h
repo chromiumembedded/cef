@@ -69,13 +69,15 @@ public:
   }
 
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame)
+                                 CefRefPtr<CefFrame> frame,
+                                 bool isMainContent)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame)
+                               CefRefPtr<CefFrame> frame,
+                               bool isMainContent)
   {
     return RV_CONTINUE;
   }

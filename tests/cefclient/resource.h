@@ -41,11 +41,13 @@
 #define ID_TESTS_ACCELERATEDLAYERS      32781
 #define ID_TESTS_WEBGL                  32782
 #define ID_TESTS_HTML5VIDEO             32783
+#define ID_TESTS_XMLHTTPREQUEST         32784
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
 #define IDS_LOGOBALL                    1002
 #define IDS_LOCALSTORAGE                1003
+#define IDS_XMLHTTPREQUEST              1004
 
 // Avoid files associated with MacOS
 #define _X86_
