@@ -453,6 +453,19 @@ typedef struct _cef_handler_t
       struct _cef_stream_reader_t** resourceStream, cef_string_t* mimeType,
       int loadFlags);
 
+  // Called to handle requests for URLs with an unknown protocol component.
+  // Return RV_HANDLED to indicate that the request should succeed because it
+  // was externally handled. Set |allow_os_execution| to true (1) and return
+  // RV_CONTINUE to attempt execution via the registered OS protocol handler, if
+  // any. If RV_CONTINUE is returned and either |allow_os_execution| is false
+  // (0) or OS protocol handler execution fails then the request will fail with
+  // an error condition. SECURITY WARNING: YOU SHOULD USE THIS METHOD TO ENFORCE
+  // RESTRICTIONS BASED ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS
+  // EXECUTION.
+  enum cef_retval_t (CEF_CALLBACK *handle_protocol_execution)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      const cef_string_t* url, int* allow_os_execution);
+
   // Called when a server indicates via the 'Content-Disposition' header that a
   // response represents a file to download. |mimeType| is the mime type for the
   // download, |fileName| is the suggested target file name and |contentLength|

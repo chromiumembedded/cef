@@ -40,6 +40,7 @@
 #include "cef_context.h"
 #include "cef_process.h"
 #include "cef_process_io_thread.h"
+#include "external_protocol_handler.h"
 #include "request_impl.h"
 
 #include "base/file_path.h"
@@ -281,8 +282,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     if (browser_.get()) {
       CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if(handler.get())
-      {
+      if(handler.get()) {
         // Build the request object for passing to the handler
         CefRefPtr<CefRequest> request(new CefRequestImpl());
         CefRequestImpl* requestimpl =
@@ -376,11 +376,29 @@ class RequestProxy : public net::URLRequest::Delegate,
           OnReceivedResponse(info, false);
           AsyncReadData();
         }
+
+        if(!handled && ResourceType::IsFrame(params->request_type) &&
+          !net::URLRequest::IsHandledProtocol(params->url.scheme())) {
+          bool allow_os_execution = false;
+          CefHandler::RetVal rv = handler->HandleProtocolExecution(browser_,
+              params->url.spec(), &allow_os_execution);
+          if(rv == RV_CONTINUE && allow_os_execution &&
+             ExternalProtocolHandler::HandleExternalProtocol(params->url)) {
+            handled = true;
+          } else if(rv == RV_HANDLED) {
+            handled = true;
+          }
+
+          if (handled) {
+            OnCompletedRequest(
+                URLRequestStatus(URLRequestStatus::HANDLED_EXTERNALLY, net::OK),
+                std::string(), base::Time()); 
+          }
+        }
       }
     }
 
-    if(!handled)
-    {
+    if(!handled) {
       // Might need to resolve the blob references in the upload data.
       if (params->upload) {
         _Context->request_context()->blob_storage_controller()->

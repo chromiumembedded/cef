@@ -215,6 +215,22 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
   return rv;
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_protocol_execution(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* url, int* allow_os_execution)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  bool allowExec = *allow_os_execution?true:false;
+  enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleProtocolExecution(
+      CefBrowserCToCpp::Wrap(browser), CefString(url), &allowExec);
+  *allow_os_execution = allowExec?true:false;
+  return rv;
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_download_response(
     struct _cef_handler_t* self, cef_browser_t* browser,
     const cef_string_t* mimeType, const cef_string_t* fileName,
@@ -533,6 +549,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_load_error = handler_handle_load_error;
   struct_.struct_.handle_before_resource_load =
       handler_handle_before_resource_load;
+  struct_.struct_.handle_protocol_execution = handler_handle_protocol_execution;
   struct_.struct_.handle_download_response = handler_handle_download_response;
   struct_.struct_.handle_authentication_request =
       handler_handle_authentication_request;

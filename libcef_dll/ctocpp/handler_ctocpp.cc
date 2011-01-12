@@ -160,6 +160,20 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
   return rv;
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleProtocolExecution(
+    CefRefPtr<CefBrowser> browser, const CefString& url,
+    bool* allow_os_execution)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_protocol_execution))
+    return RV_CONTINUE;
+
+  int allowExec = *allow_os_execution?1:0;
+  cef_retval_t rv = struct_->handle_protocol_execution(struct_,
+      CefBrowserCppToC::Wrap(browser), url.GetStruct(), &allowExec);
+  *allow_os_execution = allowExec?true:false;
+  return rv;
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandleDownloadResponse(
     CefRefPtr<CefBrowser> browser, const CefString& mimeType,
     const CefString& fileName, int64 contentLength,

@@ -114,6 +114,13 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
+                                         const CefString& url,
+                                         bool* allow_os_execution)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
                                         const CefString& mimeType,
                                         const CefString& fileName,

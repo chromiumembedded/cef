@@ -115,6 +115,22 @@ public:
                                           CefString& mimeType,
                                           int loadFlags);
 
+  // Called to handle requests for URLs with an unknown protocol component.
+  // Return RV_HANDLED to indicate that the request should succeed because it
+  // was externally handled. Set |allow_os_execution| to true and return
+  // RV_CONTINUE to attempt execution via the registered OS protocol handler,
+  // if any. If RV_CONTINUE is returned and either |allow_os_execution| is false
+  // or OS protocol handler execution fails then the request will fail with an
+  // error condition.
+  // SECURITY WARNING: YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED
+  // ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
+  virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
+                                         const CefString& url,
+                                         bool* allow_os_execution)
+  {
+    return RV_CONTINUE;
+  }
+
   // Called when a server indicates via the 'Content-Disposition' header that a
   // response represents a file to download. |mime_type| is the mime type for
   // the download, |file_name| is the suggested target file name and
