@@ -69,6 +69,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify a cache path value.
   //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
 
+#ifndef _DEBUG
+  // Only log error messages and higher in release build.
+  settings.log_severity = LOGSEVERITY_ERROR;
+#endif
+
 #ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
   // Initialize the CEF with messages processed using the current application's
   // message loop.

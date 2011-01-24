@@ -66,13 +66,28 @@ CefProcessUIThread::~CefProcessUIThread() {
 void CefProcessUIThread::Init() {
   PlatformInit();
 
-#ifndef _DEBUG
-  // Only log error messages and above in release build.
-  logging::SetMinLogLevel(logging::LOG_ERROR);
-#endif
-
   // Initialize the global CommandLine object.
   CommandLine::Init(0, NULL);
+
+  const CefSettings& settings = _Context->settings();
+
+  // Initialize logging.
+  logging::LoggingDestination logging_dest;
+  if (settings.log_severity == LOGSEVERITY_DISABLE) {
+    logging_dest = logging::LOG_NONE;
+  } else {
+#if defined(OS_WIN)
+    logging_dest = logging::LOG_ONLY_TO_FILE;
+#else
+    logging_dest = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+#endif
+    logging::SetMinLogLevel(settings.log_severity);
+  }
+
+  FilePath log_file = FilePath(CefString(&settings.log_file));
+  logging::InitLogging(log_file.value().c_str(), logging_dest,
+      logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
 
   // Initialize WebKit.
   webkit_init_ = new BrowserWebKitInit();
@@ -123,8 +138,6 @@ void CefProcessUIThread::Init() {
     _Context->set_storage_context(new DOMStorageContext());
   }
 
-  const CefSettings& settings = _Context->settings();
-  
   if (settings.user_agent.length > 0)
     webkit_glue::SetUserAgent(CefString(&settings.user_agent));
   

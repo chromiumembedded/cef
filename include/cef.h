@@ -1646,6 +1646,7 @@ public:
     cef_string_clear(&locale);
     if(extra_plugin_paths)
       cef_string_list_free(extra_plugin_paths);
+    cef_string_clear(&log_file);
     Init();
   }
 
@@ -1679,6 +1680,9 @@ public:
       cef_string_list_free(extra_plugin_paths);
     extra_plugin_paths = r.extra_plugin_paths ?
         cef_string_list_copy(r.extra_plugin_paths) : NULL;
+
+    cef_string_copy(r.log_file.str, r.log_file.length, &log_file);
+    log_severity = r.log_severity;
 
     return *this;
   }

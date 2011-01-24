@@ -54,6 +54,18 @@ typedef long long           int64;
 extern "C" {
 #endif
 
+// Log severity levels.
+enum cef_log_severity_t
+{
+  LOGSEVERITY_VERBOSE = -1,
+  LOGSEVERITY_INFO,
+  LOGSEVERITY_WARNING,
+  LOGSEVERITY_ERROR,
+  LOGSEVERITY_ERROR_REPORT,
+  // Disables logging completely.
+  LOGSEVERITY_DISABLE = 99
+};
+
 // Initialization settings. Specify NULL or 0 to get the recommended default
 // values.
 typedef struct _cef_settings_t
@@ -87,6 +99,15 @@ typedef struct _cef_settings_t
   // List of file system paths that will be searched by the browser to locate
   // plugins. This is in addition to the default search paths.
   cef_string_list_t extra_plugin_paths;
+
+  // The directory and file name to use for the debug log. If empty, the
+  // default name of "debug.log" will be used and the file will be written
+  // to the application directory.
+  cef_string_t log_file;
+
+  // The log severity. Only messages of this severity level or higher will be
+  // logged.
+  cef_log_severity_t log_severity;
 } cef_settings_t;
 
 // Browser initialization settings. Specify NULL or 0 to get the recommended
