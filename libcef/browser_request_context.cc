@@ -103,8 +103,22 @@ void BrowserRequestContext::Init(
   cert_verifier_ = new net::CertVerifier;
   ssl_config_service_ = net::SSLConfigService::CreateSystemSSLConfigService();
 
+  // Add support for single sign-on.
+  url_security_manager_.reset(net::URLSecurityManager::Create(NULL, NULL));
+
+  std::vector<std::string> supported_schemes;
+  supported_schemes.push_back("basic");
+  supported_schemes.push_back("digest");
+  supported_schemes.push_back("ntlm");
+  supported_schemes.push_back("negotiate");
+
   http_auth_handler_factory_ =
-      net::HttpAuthHandlerFactory::CreateDefault(host_resolver_);
+      net::HttpAuthHandlerRegistryFactory::Create(supported_schemes,
+                                                  url_security_manager_.get(),
+                                                  host_resolver_,
+                                                  std::string(),
+                                                  false,
+                                                  false);
 
   net::HttpCache::DefaultBackend* backend = new net::HttpCache::DefaultBackend(
       cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,

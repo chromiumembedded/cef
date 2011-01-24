@@ -7,6 +7,7 @@
 #define _BROWSER_REQUEST_CONTEXT_H
 
 #include "net/http/http_cache.h"
+#include "net/http/url_security_manager.h"
 #include "net/url_request/url_request_context.h"
 
 class FilePath;
@@ -40,6 +41,7 @@ class BrowserRequestContext : public URLRequestContext {
             bool no_proxy);
 
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
+  scoped_ptr<net::URLSecurityManager> url_security_manager_;
 };
 
 #endif  // _BROWSER_REQUEST_CONTEXT_H
