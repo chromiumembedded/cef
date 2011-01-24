@@ -59,7 +59,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableDatabase(true);
     WebKit::WebRuntimeFeatures::enableWebGL(true);
     WebKit::WebRuntimeFeatures::enablePushState(true);
-    WebKit::WebRuntimeFeatures::enableNotifications(true);
+    WebKit::WebRuntimeFeatures::enableNotifications(false);
     WebKit::WebRuntimeFeatures::enableTouch(true);
     WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
     WebKit::WebRuntimeFeatures::enableGeolocation(false);
