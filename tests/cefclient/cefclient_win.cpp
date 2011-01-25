@@ -573,6 +573,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunXMLHTTPRequestTest(browser);
           return 0;
+        case ID_TESTS_ZOOM_IN:
+          if(browser.get())
+            browser->SetZoomLevel(browser->GetZoomLevel() + 0.5);
+          return 0;
+        case ID_TESTS_ZOOM_OUT:
+          if(browser.get())
+            browser->SetZoomLevel(browser->GetZoomLevel() - 0.5);
+          return 0;
+        case ID_TESTS_ZOOM_RESET:
+          if(browser.get())
+            browser->SetZoomLevel(0.0);
+          return 0;
         }
       }
 		  break;

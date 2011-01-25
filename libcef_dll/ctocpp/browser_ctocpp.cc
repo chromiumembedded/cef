@@ -196,6 +196,22 @@ void CefBrowserCToCpp::StopFinding(bool clearSelection)
   struct_->stop_finding(struct_, clearSelection);
 }
 
+double CefBrowserCToCpp::GetZoomLevel()
+{
+  if(CEF_MEMBER_MISSING(struct_, get_zoom_level))
+    return 0.0;
+
+  return struct_->get_zoom_level(struct_);
+}
+
+void CefBrowserCToCpp::SetZoomLevel(double zoomLevel)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_zoom_level))
+    return;
+
+  return struct_->set_zoom_level(struct_, zoomLevel);
+}
+
 
 #ifdef _DEBUG
 template<> long CefCToCpp<CefBrowserCToCpp, CefBrowser,

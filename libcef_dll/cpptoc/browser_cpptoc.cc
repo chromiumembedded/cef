@@ -238,6 +238,25 @@ void CEF_CALLBACK browser_stop_finding(struct _cef_browser_t* self,
   CefBrowserCppToC::Get(self)->StopFinding(clearSelection?true:false);
 }
 
+double CEF_CALLBACK browser_get_zoom_level(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return 0.0;
+
+  return CefBrowserCppToC::Get(self)->GetZoomLevel();
+}
+
+void CEF_CALLBACK browser_set_zoom_level(struct _cef_browser_t* self,
+    double zoomLevel)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  return CefBrowserCppToC::Get(self)->SetZoomLevel(zoomLevel);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -261,6 +280,8 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.get_frame_names = browser_get_frame_names;
   struct_.struct_.find = browser_find;
   struct_.struct_.stop_finding = browser_stop_finding;
+  struct_.struct_.get_zoom_level = browser_get_zoom_level;
+  struct_.struct_.set_zoom_level = browser_set_zoom_level;
 }
 
 #ifdef _DEBUG

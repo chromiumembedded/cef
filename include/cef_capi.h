@@ -256,6 +256,13 @@ typedef struct _cef_browser_t
   void (CEF_CALLBACK *stop_finding)(struct _cef_browser_t* self,
       int clearSelection);
 
+  // Get the zoom level.
+  double (CEF_CALLBACK *get_zoom_level)(struct _cef_browser_t* self);
+
+  // Change the zoom level to the specified value.
+  void (CEF_CALLBACK *set_zoom_level)(struct _cef_browser_t* self,
+      double zoomLevel);
+
 } cef_browser_t;
 
 

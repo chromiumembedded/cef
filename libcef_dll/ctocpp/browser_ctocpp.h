@@ -49,6 +49,8 @@ public:
   virtual void Find(int identifier, const CefString& searchText, bool forward,
       bool matchCase, bool findNext);
   virtual void StopFinding(bool clearSelection);
+  virtual double GetZoomLevel();
+  virtual void SetZoomLevel(double zoomLevel);
 };
 
 #endif // USING_CEF_SHARED

@@ -433,6 +433,14 @@ public:
   // Cancel all searches that are currently going on.
   /*--cef()--*/
   virtual void StopFinding(bool clearSelection) =0;
+
+  // Get the zoom level.
+  /*--cef()--*/
+  virtual double GetZoomLevel() =0;
+
+  // Change the zoom level to the specified value.
+  /*--cef()--*/
+  virtual void SetZoomLevel(double zoomLevel) =0;
 };
 
 

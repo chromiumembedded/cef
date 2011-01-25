@@ -63,7 +63,9 @@ public:
   virtual void Find(int identifier, const CefString& searchText,
                     bool forward, bool matchCase, bool findNext);
   virtual void StopFinding(bool clearSelection);
-  
+  virtual double GetZoomLevel();
+  virtual void SetZoomLevel(double zoomLevel);
+
   // CefFrames are light-weight objects managed by the browser and loosely
   // coupled to a WebFrame object by name.  If a CefFrame object does not
   // already exist for the specified WebFrame one will be created.  There is no
@@ -229,6 +231,7 @@ public:
   void UIT_NotifyFindStatus(int identifier, int count,
                             const WebKit::WebRect& selection_rect,
                             int active_match_ordinal, bool final_update);
+  void UIT_SetZoomLevel(CefFrame* frame, double zoomLevel);
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 

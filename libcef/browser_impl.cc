@@ -6,6 +6,7 @@
 #include "cef_context.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
+#include "browser_zoom_map.h"
 #include "request_impl.h"
 #include "stream_impl.h"
 
@@ -476,6 +477,24 @@ CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
   if(web_frame)
     return std::string(web_frame->url().spec());
   return CefString();
+}
+
+double CefBrowserImpl::GetZoomLevel()
+{
+  WebKit::WebFrame* web_frame = GetWebFrame(this->GetMainFrame());
+
+  if(web_frame && web_frame->view())
+    return web_frame->view()->zoomLevel();
+
+  return 0.0;
+}
+
+void CefBrowserImpl::SetZoomLevel(double zoomLevel)
+{
+  CefRefPtr<CefFrame> frame = this->GetMainFrame();
+  frame->AddRef();
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SetZoomLevel, frame.get(), zoomLevel));
 }
 
 // static
@@ -1139,6 +1158,18 @@ void CefBrowserImpl::UIT_NotifyFindStatus(int identifier, int count,
   }
 }
 
+void CefBrowserImpl::UIT_SetZoomLevel(CefFrame* frame, double zoomLevel)
+{
+  REQUIRE_UIT();
+  WebKit::WebFrame* web_frame = GetWebFrame(frame);
+
+  if(web_frame && web_frame->view()) {
+    web_frame->view()->setZoomLevel(false, zoomLevel);
+    ZoomMap::GetInstance()->set(web_frame->url(), zoomLevel);
+  }
+
+  frame->Release();
+}
 
 // CefFrameImpl
 

@@ -13,6 +13,7 @@
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
 #include "browser_web_worker.h"
+#include "browser_zoom_map.h"
 #include "cef_context.h"
 #include "request_impl.h"
 #include "v8_impl.h"
@@ -722,6 +723,16 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
     handler->HandleLoadStart(browser_,
         (frame == top_loading_frame_) ? NULL : browser_->GetCefFrame(frame),
         is_main_content_);
+  }
+
+  // Apply zoom settings only on top-level frames.
+  if(frame->parent() == NULL) {
+    // Restore the zoom value that we have for this URL, if any.
+    double zoomLevel;
+    if(ZoomMap::GetInstance()->get(frame->url(), zoomLevel))
+      frame->view()->setZoomLevel(false, zoomLevel);
+    else
+      frame->view()->setZoomLevel(false, 0.0);
   }
 }
 

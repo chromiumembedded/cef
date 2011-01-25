@@ -502,6 +502,8 @@
         'libcef/browser_webkit_init.h',
         'libcef/browser_webview_delegate.cc',
         'libcef/browser_webview_delegate.h',
+        'libcef/browser_zoom_map.cc',
+        'libcef/browser_zoom_map.h',
         'libcef/cef_context.cc',
         'libcef/cef_context.h',
         'libcef/cef_process.cc',
