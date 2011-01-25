@@ -58,8 +58,8 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(
 void BrowserWebViewDelegate::show(WebNavigationPolicy) {
   if (WebWidgetHost* host = GetWidgetHost()) {
     HWND root = GetAncestor(host->view_handle(), GA_ROOT);
-    ShowWindow(root, SW_SHOW);
-    UpdateWindow(root);
+    ShowWindow(root, SW_SHOWNORMAL);
+    SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
   }
 }
 

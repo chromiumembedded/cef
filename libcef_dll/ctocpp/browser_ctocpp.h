@@ -51,6 +51,8 @@ public:
   virtual void StopFinding(bool clearSelection);
   virtual double GetZoomLevel();
   virtual void SetZoomLevel(double zoomLevel);
+  virtual void ShowDevTools();
+  virtual void CloseDevTools();
 };
 
 #endif // USING_CEF_SHARED

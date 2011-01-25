@@ -10,6 +10,8 @@
 #include "request_impl.h"
 #include "stream_impl.h"
 
+#include "base/file_path.h"
+#include "base/path_service.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDocument.h"
@@ -230,6 +232,18 @@ void CefBrowserImpl::StopFinding(bool clearSelection)
   // Execute the request on the UI thread.
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
       &CefBrowserImpl::UIT_StopFinding, clearSelection));
+}
+
+void CefBrowserImpl::ShowDevTools()
+{
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_ShowDevTools));
+}
+
+void CefBrowserImpl::CloseDevTools()
+{
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_CloseDevTools));
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(WebFrame* frame)
@@ -573,6 +587,12 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   }
   GetWebViewDelegate()->RevokeDragDrop();
   
+  if (dev_tools_agent_.get()) {
+    BrowserDevToolsClient* client = dev_tools_agent_->client();
+    if (client)
+      client->browser()->UIT_DestroyBrowser();
+  }
+
   // Clean up anything associated with the WebViewHost widget.
   GetWebViewHost()->webwidget()->close();
   webviewhost_.reset();
@@ -1170,6 +1190,38 @@ void CefBrowserImpl::UIT_SetZoomLevel(CefFrame* frame, double zoomLevel)
 
   frame->Release();
 }
+
+void CefBrowserImpl::UIT_ShowDevTools()
+{
+  REQUIRE_UIT();
+
+  if(!dev_tools_agent_.get())
+    return;
+
+  BrowserDevToolsClient* client = dev_tools_agent_->client();
+  if (!client) {
+    // Create the inspector window.
+    FilePath dir_exe;
+    PathService::Get(base::DIR_EXE, &dir_exe);
+    FilePath devtools_path =
+        dir_exe.AppendASCII("resources/inspector/devtools.html");
+
+    CefPopupFeatures features;
+    CefRefPtr<CefBrowserImpl> browser =
+        UIT_CreatePopupWindow(devtools_path.value(), features);
+    browser->CreateDevToolsClient(dev_tools_agent_.get());
+    browser->UIT_Show(WebKit::WebNavigationPolicyNewWindow);
+  } else {
+    // Give focus to the existing inspector window.
+    client->browser()->UIT_Show(WebKit::WebNavigationPolicyNewWindow);
+  }
+}
+
+void CefBrowserImpl::CreateDevToolsClient(BrowserDevToolsAgent *agent)
+{
+  dev_tools_client_.reset(new BrowserDevToolsClient(this, agent));
+}
+
 
 // CefFrameImpl
 

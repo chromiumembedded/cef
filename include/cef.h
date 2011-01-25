@@ -441,6 +441,15 @@ public:
   // Change the zoom level to the specified value.
   /*--cef()--*/
   virtual void SetZoomLevel(double zoomLevel) =0;
+
+  // Open developer tools in its own window.
+  /*--cef()--*/
+  virtual void ShowDevTools() =0;
+
+  // Explicitly close the developer tools window if one exists for this browser
+  // instance.
+  /*--cef()--*/
+  virtual void CloseDevTools() =0;
 };
 
 
@@ -1818,6 +1827,7 @@ public:
     accelerated_compositing_disabled = r.accelerated_compositing_disabled;
     accelerated_layers_disabled = r.accelerated_layers_disabled;
     accelerated_2d_canvas_disabled = r.accelerated_2d_canvas_disabled;
+    developer_tools_disabled = r.developer_tools_disabled;
 
     return *this;
   }

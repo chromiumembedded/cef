@@ -233,6 +233,9 @@ typedef struct _cef_browser_settings_t
 
   // Set to true (1) to disable accelerated 2d canvas.
   bool accelerated_2d_canvas_disabled;
+
+  // Set to true (1) to disable developer tools (WebKit inspector).
+  bool developer_tools_disabled;
 } cef_browser_settings_t;
 
 // Define handler return value types. Returning RV_HANDLED indicates

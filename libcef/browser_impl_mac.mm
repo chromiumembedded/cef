@@ -40,7 +40,10 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
-  
+
+  if (!settings_.developer_tools_disabled)
+    dev_tools_agent_.reset(new BrowserDevToolsAgent());
+
   NSView* parentView = (NSView*)window_info_.m_ParentView;
   gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
                         window_info_.m_nWidth, window_info_.m_nHeight);
@@ -51,9 +54,12 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(parentView, contentRect, delegate_.get(),
-                          NULL, prefs));
+                          dev_tools_agent_.get(), prefs));
   delegate_->RegisterDragDrop();
-  
+
+  if (!settings_.developer_tools_disabled)
+    dev_tools_agent_->SetWebView(webviewhost_->webview());
+
   BrowserWebView* browserView = (BrowserWebView*)webviewhost_->view_handle();
   browserView.browser = this;
   window_info_.m_View = (void*)browserView;
@@ -136,4 +142,15 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   // TODO(port): Add implementation.
   NOTIMPLEMENTED();
   return 0;
+}
+
+void CefBrowserImpl::UIT_CloseDevTools()
+{
+  REQUIRE_UIT();
+  
+  if(!dev_tools_agent_.get())
+    return;
+
+  // TODO(port): Add implementation.
+  NOTIMPLEMENTED();
 }

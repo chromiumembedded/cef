@@ -263,6 +263,13 @@ typedef struct _cef_browser_t
   void (CEF_CALLBACK *set_zoom_level)(struct _cef_browser_t* self,
       double zoomLevel);
 
+  // Open developer tools in its own window.
+  void (CEF_CALLBACK *show_dev_tools)(struct _cef_browser_t* self);
+
+  // Explicitly close the developer tools window if one exists for this browser
+  // instance.
+  void (CEF_CALLBACK *close_dev_tools)(struct _cef_browser_t* self);
+
 } cef_browser_t;
 
 

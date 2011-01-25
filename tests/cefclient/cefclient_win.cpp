@@ -389,23 +389,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       }
       return 0;
 
-	  case WM_COMMAND:
+      case WM_COMMAND:
       {
         CefRefPtr<CefBrowser> browser;
         if(g_handler.get())
           browser = g_handler->GetBrowser();
 
-		    wmId    = LOWORD(wParam);
-		    wmEvent = HIWORD(wParam);
-		    // Parse the menu selections:
-		    switch (wmId)
-		    {
-		    case IDM_ABOUT:
+        wmId    = LOWORD(wParam);
+        wmEvent = HIWORD(wParam);
+        // Parse the menu selections:
+        switch (wmId)
+        {
+        case IDM_ABOUT:
           DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			    return 0;
-		    case IDM_EXIT:
-			    DestroyWindow(hWnd);
-			    return 0;
+          return 0;
+        case IDM_EXIT:
+          DestroyWindow(hWnd);
+          return 0;
         case ID_WARN_CONSOLEMESSAGE:
           if(g_handler.get()) {
             std::wstringstream ss;
@@ -468,7 +468,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             browser->Reload();
           return 0;
         case IDC_NAV_STOP:  // Stop button
-		     if(browser.get())
+          if(browser.get())
             browser->StopLoad();
           return 0;
         case ID_TESTS_GETSOURCE: // Test the GetSource function
@@ -585,14 +585,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             browser->SetZoomLevel(0.0);
           return 0;
+        case ID_TESTS_DEVTOOLS_SHOW:
+          if (browser.get())
+            browser->ShowDevTools();
+          return 0;
+        case ID_TESTS_DEVTOOLS_CLOSE:
+          if (browser.get())
+            browser->CloseDevTools();
+          return 0;
         }
       }
-		  break;
+      break;
 
-	  case WM_PAINT:
-		  hdc = BeginPaint(hWnd, &ps);
-		  EndPaint(hWnd, &ps);
-		  return 0;
+    case WM_PAINT:
+      hdc = BeginPaint(hWnd, &ps);
+      EndPaint(hWnd, &ps);
+      return 0;
 
     case WM_SETFOCUS:
       if(g_handler.get() && g_handler->GetBrowserHwnd())

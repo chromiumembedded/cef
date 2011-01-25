@@ -112,7 +112,10 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Set window user data to this object for future reference from the window
   // procedure
   app::win::SetWindowUserData(window_info_.m_hWnd, this);
-  
+
+  if (!settings_.developer_tools_disabled)
+    dev_tools_agent_.reset(new BrowserDevToolsAgent());
+
   // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();
 
@@ -125,7 +128,10 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, gfx::Rect(), delegate_.get(),
-      NULL, prefs));
+      dev_tools_agent_.get(), prefs));
+
+  if (!settings_.developer_tools_disabled)
+    dev_tools_agent_->SetWebView(webviewhost_->webview());
 
   if (!settings_.drag_drop_disabled)
     delegate_->RegisterDragDrop();
@@ -480,4 +486,16 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   frame->printEnd();
 
   return page_count;
+}
+
+void CefBrowserImpl::UIT_CloseDevTools()
+{
+  REQUIRE_UIT();
+
+  if(!dev_tools_agent_.get())
+    return;
+
+  BrowserDevToolsClient* client = dev_tools_agent_->client();
+  if (client)
+    PostMessage(client->browser()->GetMainWndHandle(), WM_CLOSE, 0, 0);
 }

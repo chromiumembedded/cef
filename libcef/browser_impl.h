@@ -9,6 +9,8 @@
 #include "include/cef.h"
 
 #include "webview_host.h"
+#include "browser_devtools_agent.h"
+#include "browser_devtools_client.h"
 #include "browser_webview_delegate.h"
 #include "browser_navigation_controller.h"
 #include "cef_thread.h"
@@ -65,6 +67,8 @@ public:
   virtual void StopFinding(bool clearSelection);
   virtual double GetZoomLevel();
   virtual void SetZoomLevel(double zoomLevel);
+  virtual void ShowDevTools();
+  virtual void CloseDevTools();
 
   // CefFrames are light-weight objects managed by the browser and loosely
   // coupled to a WebFrame object by name.  If a CefFrame object does not
@@ -232,11 +236,16 @@ public:
                             const WebKit::WebRect& selection_rect,
                             int active_match_ordinal, bool final_update);
   void UIT_SetZoomLevel(CefFrame* frame, double zoomLevel);
+  void UIT_ShowDevTools();
+  void UIT_CloseDevTools();
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
   const CefBrowserSettings& settings() const { return settings_; }
   const FilePath& file_system_root() const { return file_system_root_.path(); }
+
+protected:
+  void CreateDevToolsClient(BrowserDevToolsAgent* agent);
 
 protected:
   CefWindowInfo window_info_;
@@ -249,6 +258,9 @@ protected:
   scoped_ptr<BrowserWebViewDelegate> delegate_;
   scoped_ptr<BrowserWebViewDelegate> popup_delegate_;
   scoped_ptr<BrowserNavigationController> nav_controller_;
+
+  scoped_ptr<BrowserDevToolsAgent> dev_tools_agent_;
+  scoped_ptr<BrowserDevToolsClient> dev_tools_client_;
 
   CefString title_;
 

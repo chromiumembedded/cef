@@ -84,6 +84,8 @@ BEGIN
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
         MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
         MENUITEM "Reset Zoom",                  ID_TESTS_ZOOM_RESET
+        MENUITEM "Show Developer Tools",        ID_TESTS_DEVTOOLS_SHOW
+        MENUITEM "Close Developer Tools",       ID_TESTS_DEVTOOLS_CLOSE
    END
 END
 

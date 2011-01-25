@@ -91,7 +91,7 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
   web.loads_images_automatically = !cef.image_load_disabled;
   web.plugins_enabled = !cef.plugins_disabled;
   web.dom_paste_enabled = !cef.dom_paste_disabled;
-  web.developer_extras_enabled = false;
+  web.developer_extras_enabled = !cef.developer_tools_disabled;
   web.inspector_settings.clear();
   web.site_specific_quirks_enabled = !cef.site_specific_quirks_disabled;
   web.shrinks_standalone_images_to_fit = cef.shrink_standalone_images_to_fit;

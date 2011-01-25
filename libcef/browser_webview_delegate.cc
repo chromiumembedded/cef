@@ -754,7 +754,8 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
 
 void BrowserWebViewDelegate::didReceiveTitle(
     WebFrame* frame, const WebString& title) {
-  if (frame == top_loading_frame_ && is_main_content_) {
+  if (top_loading_frame_ == NULL ||
+     (frame == top_loading_frame_ && is_main_content_)) {
     CefString titleStr = string16(title);
     browser_->UIT_SetTitle(titleStr);
     CefRefPtr<CefHandler> handler = browser_->GetHandler();
