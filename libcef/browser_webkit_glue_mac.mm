@@ -5,7 +5,7 @@
 
 #include "base/compiler_specific.h"
 
-#include "third_party/webkit/webcore/config.h"
+#include "third_party/WebKit/Source/WebCore/config.h"
 
 #include "browser_webkit_glue.h"
 
