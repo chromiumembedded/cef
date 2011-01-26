@@ -503,6 +503,19 @@ enum cef_retval_t CEF_CALLBACK handler_handle_tooltip(
       CefBrowserCToCpp::Wrap(browser), textStr);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_status(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* value, enum cef_handler_statustype_t type)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleStatus(
+      CefBrowserCToCpp::Wrap(browser), CefString(value), type);
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_console_message(
     struct _cef_handler_t* self, cef_browser_t* browser,
     const cef_string_t* message, const cef_string_t* source, int line)
@@ -569,6 +582,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_set_focus = handler_handle_set_focus;
   struct_.struct_.handle_key_event = handler_handle_key_event;
   struct_.struct_.handle_tooltip = handler_handle_tooltip;
+  struct_.struct_.handle_status = handler_handle_status;
   struct_.struct_.handle_console_message = handler_handle_console_message;
   struct_.struct_.handle_find_result = handler_handle_find_result;
 }

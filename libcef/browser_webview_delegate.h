@@ -262,6 +262,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                        const WebKit::WebString& title, 
                        const FilePath& default_file);
 
+  // Called to show status messages.
+  void ShowStatus(const WebKit::WebString& text, CefHandler::StatusType type);
+
   // In the Mac code, this is called to trigger the end of a test after the
   // page has finished loading.  From here, we can generate the dump for the
   // test.

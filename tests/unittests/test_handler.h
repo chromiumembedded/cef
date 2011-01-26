@@ -253,6 +253,12 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleStatus(CefRefPtr<CefBrowser> browser,
+                              const CefString& text, StatusType type)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
                                       const CefString& message,
                                       const CefString& source, int line)

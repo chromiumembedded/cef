@@ -291,6 +291,16 @@ public:
     return RV_CONTINUE;
   }
 
+  // Event called when the browser has a status message. |text| contains the
+  // text that will be displayed in the status message and |type| indicates the
+  // status message type. The return value is currently ignored.
+  /*--cef()--*/
+  virtual RetVal HandleStatus(CefRefPtr<CefBrowser> browser,
+                              const CefString& text, StatusType type)
+  {
+    return RV_CONTINUE;
+  }
+
   // Called when the browser component receives a keyboard event.
   // |type| is the type of keyboard event (see |KeyEventType|).
   // |code| is the windows scan-code for the event.

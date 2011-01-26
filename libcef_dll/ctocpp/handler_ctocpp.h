@@ -89,6 +89,8 @@ public:
   virtual RetVal HandleKeyEvent(CefRefPtr<CefBrowser> browser,
       KeyEventType type, int code, int modifiers, bool isSystemKey);
   virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser, CefString& text);
+  virtual RetVal HandleStatus(CefRefPtr<CefBrowser> browser,
+      const CefString& value, StatusType type);
   virtual RetVal HandleConsoleMessage(CefRefPtr<CefBrowser> browser,
       const CefString& message, const CefString& source, int line);
   virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser, int identifier,

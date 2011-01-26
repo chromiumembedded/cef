@@ -618,6 +618,13 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_tooltip)(struct _cef_handler_t* self,
       struct _cef_browser_t* browser, cef_string_t* text);
 
+  // Event called when the browser has a status message. |text| contains the
+  // text that will be displayed in the status message and |type| indicates the
+  // status message type. The return value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_status)(struct _cef_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* value,
+      enum cef_handler_statustype_t type);
+
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.
   enum cef_retval_t (CEF_CALLBACK *handle_console_message)(

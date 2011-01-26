@@ -389,12 +389,15 @@ bool BrowserWebViewDelegate::runModalBeforeUnloadDialog(
 }
 
 void BrowserWebViewDelegate::setStatusText(const WebString& text) {
+  ShowStatus(text, STATUSTYPE_TEXT);
 }
 
 void BrowserWebViewDelegate::setMouseOverURL(const WebURL& url) {
+  ShowStatus(url.spec().utf16(), STATUSTYPE_MOUSEOVER_URL);
 }
 
 void BrowserWebViewDelegate::setKeyboardFocusURL(const WebKit::WebURL& url) {
+  ShowStatus(url.spec().utf16(), STATUSTYPE_KEYBOARD_FOCUS_URL);
 }
 
 void BrowserWebViewDelegate::setToolTipText(
@@ -890,6 +893,16 @@ void BrowserWebViewDelegate::WaitForPolicyDelegate() {
 }
 
 // Private methods -----------------------------------------------------------
+
+void BrowserWebViewDelegate::ShowStatus(const WebString& text,
+                                        CefHandler::StatusType type)
+{
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if(handler.get()) {
+    CefString textStr = string16(text);
+    handler->HandleStatus(browser_, textStr, type);
+  }
+}
 
 void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();

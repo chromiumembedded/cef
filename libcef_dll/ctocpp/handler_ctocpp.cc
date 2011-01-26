@@ -371,6 +371,16 @@ CefHandler::RetVal CefHandlerCToCpp::HandleTooltip(
       CefBrowserCppToC::Wrap(browser), text.GetWritableStruct());
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleStatus(CefRefPtr<CefBrowser> browser,
+    const CefString& value, StatusType type)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_status))
+    return RV_CONTINUE;
+
+  return struct_->handle_status(struct_, 
+      CefBrowserCppToC::Wrap(browser), value.GetStruct(), type);
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandleConsoleMessage(
     CefRefPtr<CefBrowser> browser, const CefString& message,
     const CefString& source, int line)

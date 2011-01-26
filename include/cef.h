@@ -842,6 +842,17 @@ public:
   /*--cef()--*/
   virtual RetVal HandleTooltip(CefRefPtr<CefBrowser> browser,
                                CefString& text) =0;
+  
+  // Status message types.
+  typedef cef_handler_statustype_t StatusType;
+
+  // Event called when the browser has a status message. |text| contains the
+  // text that will be displayed in the status message and |type| indicates the
+  // status message type. The return value is currently ignored.
+  /*--cef()--*/
+  virtual RetVal HandleStatus(CefRefPtr<CefBrowser> browser,
+                              const CefString& value, 
+                              StatusType type) =0;
 
   // Called to display a console message. Return RV_HANDLED to stop the message
   // from being output to the console.
