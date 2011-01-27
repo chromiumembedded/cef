@@ -1,6 +1,2 @@
 #!/bin/sh
-echo Patching build configuration files...
-tools/patch_build.sh
-echo Generating project files...
-export CEF_DIRECTORY=$(basename `pwd`)
-../tools/gyp/gyp cef.gyp -I ../build/common.gypi -I ../build/features_override.gypi -I cef.gypi --no-circular-check
+python tools/gclient_hook.py
