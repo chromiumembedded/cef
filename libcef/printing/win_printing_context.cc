@@ -510,8 +510,8 @@ PrintingContext::Result PrintingContext::ParseDialogResultEx(
       }
       success = InitializeSettings(*dev_mode,
                                    device_name,
-                                   dialog_options.lpPageRanges,
-                                   dialog_options.nPageRanges,
+                                   page_ranges,
+                                   num_page_ranges,
                                    print_selection_only,
                                    print_to_file);
     }
