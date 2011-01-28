@@ -442,7 +442,7 @@ typedef struct _cef_handler_t
   // The return value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_end)(struct _cef_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      int isMainContent);
+      int isMainContent, int httpStatusCode);
 
   // Called when the browser fails to load a resource.  |errorCode| is the error
   // code number and |failedUrl| is the URL that failed to load.  To provide

@@ -77,7 +77,8 @@ public:
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent)
+                               bool isMainContent,
+                               int httpStatusCode)
   {
     return RV_CONTINUE;
   }

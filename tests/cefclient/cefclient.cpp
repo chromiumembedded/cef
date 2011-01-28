@@ -75,7 +75,7 @@ CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, bool isMainContent)
+    CefRefPtr<CefFrame> frame, bool isMainContent, int httpStatusCode)
 {
   if(!browser->IsPopup() && !frame.get())
   {
@@ -90,8 +90,8 @@ CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadError(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, ErrorCode errorCode,
-    const CefString& failedUrl, CefString& errorText)
+    CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& failedUrl,
+    CefString& errorText)
 {
   if(errorCode == ERR_CACHE_MISS)
   {

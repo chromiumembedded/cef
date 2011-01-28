@@ -924,8 +924,10 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
 
   if(handler.get()) {
     // Notify the handler that loading has ended.
+    int httpStatusCode = frame->dataSource()->response().httpStatusCode();
     handler->HandleLoadEnd(browser_,
-        (is_top_frame) ? NULL : browser_->GetCefFrame(frame), is_main_content_);
+        (is_top_frame) ? NULL : browser_->GetCefFrame(frame), is_main_content_,
+        httpStatusCode);
   }
 
   if (is_top_frame && is_main_content_)

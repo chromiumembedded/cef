@@ -114,7 +114,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleLoadStart(
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadEnd(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    bool isMainContent)
+    bool isMainContent, int httpStatusCode)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_load_end))
     return RV_CONTINUE;
@@ -124,7 +124,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleLoadEnd(
     frameStruct = CefFrameCppToC::Wrap(frame);
 
   return struct_->handle_load_end(struct_, CefBrowserCppToC::Wrap(browser),
-      frameStruct, isMainContent);
+      frameStruct, isMainContent, httpStatusCode);
 }
 
 CefHandler::RetVal CefHandlerCToCpp::HandleLoadError(

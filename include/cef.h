@@ -626,7 +626,8 @@ public:
   /*--cef()--*/
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent) =0;
+                               bool isMainContent,
+                               int httpStatusCode) =0;
 
   // Supported error code values. See net\base\net_error_list.h for complete
   // descriptions of the error codes.

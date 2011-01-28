@@ -90,7 +90,8 @@ public:
   // return value is currently ignored.
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent);
+                               bool isMainContent,
+                               int httpStatusCode);
 
   // Called when the browser fails to load a resource.  |errorCode| is the
   // error code number and |failedUrl| is the URL that failed to load.  To
