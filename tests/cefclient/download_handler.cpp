@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_runnable.h"
 #include "download_handler.h"
 #include "util.h"
 #include <sstream>
@@ -14,38 +15,6 @@
 #include <shlwapi.h>
 #endif // _WIN32
 
-
-namespace {
-
-// Template for creating a task that executes a method with no arguments.
-template <class T, class Method>
-class Task : public CefThreadSafeBase<CefTask>
-{
-public:
-  Task(T* object, Method method)
-    : object_(object), method_(method) {}
-
-  virtual void Execute(CefThreadId threadId)
-  {
-    (object_->*method_)();
-  }
-
-protected:
-  CefRefPtr<T> object_;
-  Method method_;
-};
-
-// Helper method for posting a task on a specific thread.
-template <class T, class Method>
-inline void PostOnThread(CefThreadId threadId,
-                         T* object,
-                         Method method) {
-  CefRefPtr<CefTask> task = new Task<T,Method>(object, method);
-  CefPostTask(threadId, task);
-}
-
-} // namespace
-
 // Implementation of the CefDownloadHandler interface.
 class ClientDownloadHandler : public CefThreadSafeBase<CefDownloadHandler>
 {
@@ -54,8 +23,6 @@ public:
                         const CefString& fileName)
     : listener_(listener), filename_(fileName), file_(NULL)
   {
-    // Open the file on the FILE thread.
-    PostOnThread(TID_FILE, this, &ClientDownloadHandler::OnOpen);
   }
 
   ~ClientDownloadHandler()
@@ -72,15 +39,9 @@ public:
     
     if(file_) {
       // Close the dangling file pointer on the FILE thread.
-      class TaskCloseFile : public CefThreadSafeBase<CefTask>
-      {
-      public:
-        TaskCloseFile(FILE* file) : file_(file) {}
-        virtual void Execute(CefThreadId threadId) { fclose(file_); }
-      private:
-        FILE* file_;
-      };
-      CefPostTask(TID_FILE, new TaskCloseFile(file_));
+      CefPostTask(TID_FILE,
+          NewCefRunnableFunction(&ClientDownloadHandler::CloseDanglingFile,
+                                 file_));
       
       // Notify the listener that the download failed.
       listener_->NotifyDownloadError(filename_);
@@ -90,6 +51,13 @@ public:
   // --------------------------------------------------
   // The following methods are called on the UI thread.
   // --------------------------------------------------
+
+  void Initialize()
+  {
+    // Open the file on the FILE thread.
+    CefPostTask(TID_FILE,
+        NewCefRunnableMethod(this, &ClientDownloadHandler::OnOpen));
+  }
 
   // A portion of the file contents have been received. This method will be
   // called multiple times until the download is complete. Return |true| to
@@ -111,7 +79,8 @@ public:
     Unlock();
 
     // Write data to file on the FILE thread.
-    PostOnThread(TID_FILE, this, &ClientDownloadHandler::OnReceivedData);
+    CefPostTask(TID_FILE,
+        NewCefRunnableMethod(this, &ClientDownloadHandler::OnReceivedData));
     return true;
   }
 
@@ -121,7 +90,8 @@ public:
     REQUIRE_UI_THREAD();
 
     // Flush and close the file on the FILE thread.
-    PostOnThread(TID_FILE, this, &ClientDownloadHandler::OnComplete);
+    CefPostTask(TID_FILE,
+        NewCefRunnableMethod(this, &ClientDownloadHandler::OnComplete));
   }
 
   // ----------------------------------------------------
@@ -222,6 +192,11 @@ public:
     data.clear();
   }
 
+  static void CloseDanglingFile(FILE *file)
+  {
+    fclose(file);
+  }
+
 private:
   CefRefPtr<DownloadListener> listener_;
   CefString filename_;
@@ -232,5 +207,8 @@ private:
 CefRefPtr<CefDownloadHandler> CreateDownloadHandler(
     CefRefPtr<DownloadListener> listener, const CefString& fileName)
 {
-  return new ClientDownloadHandler(listener, fileName);
+  CefRefPtr<ClientDownloadHandler> handler =
+      new ClientDownloadHandler(listener, fileName);
+  handler->Initialize();
+  return handler.get();
 }

@@ -180,25 +180,33 @@ public:
     title_ = title;
   }
 
+  // Create the native browser window and populate browser members.
   void UIT_CreateBrowser(const CefString& url);
+
+  // Destroy the browser members. This method should only be called after the
+  // native browser window is not longer processing messages.
   void UIT_DestroyBrowser();
 
-  void UIT_LoadURL(CefFrame* frame,
+  // Sends a message via the OS to close the native browser window.
+  // UIT_DestroyBrowser will be called after the native window has closed.
+  void UIT_CloseBrowser();
+
+  void UIT_LoadURL(CefRefPtr<CefFrame> frame,
                    const CefString& url);
-  void UIT_LoadURLForRequest(CefFrame* frame,
+  void UIT_LoadURLForRequest(CefRefPtr<CefFrame> frame,
                              const CefString& url,
                              const CefString& method,
                              const WebKit::WebHTTPBody& upload_data,
                              const CefRequest::HeaderMap& headers);
-  void UIT_LoadURLForRequestRef(CefFrame* frame,
-                                CefRequest* request);
-  void UIT_LoadHTML(CefFrame* frame,
+  void UIT_LoadURLForRequestRef(CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefRequest> request);
+  void UIT_LoadHTML(CefRefPtr<CefFrame> frame,
                     const CefString& html,
                     const CefString& url);
-  void UIT_LoadHTMLForStreamRef(CefFrame* frame,
-                                CefStreamReader* stream,
+  void UIT_LoadHTMLForStreamRef(CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefStreamReader> stream,
                                 const CefString& url);
-  void UIT_ExecuteJavaScript(CefFrame* frame,
+  void UIT_ExecuteJavaScript(CefRefPtr<CefFrame> frame,
                              const CefString& js_code, 
                              const CefString& script_url,
                              int start_line);
@@ -218,7 +226,7 @@ public:
   
   // Handles most simple browser actions
   void UIT_HandleActionView(CefHandler::MenuId menuId);
-  void UIT_HandleAction(CefHandler::MenuId menuId, CefFrame* frame);
+  void UIT_HandleAction(CefHandler::MenuId menuId, CefRefPtr<CefFrame> frame);
 
   // Save the document HTML to a temporary file and open in the default viewing
   // application
@@ -262,6 +270,7 @@ public:
 
 protected:
   void UIT_CreateDevToolsClient(BrowserDevToolsAgent* agent);
+  void UIT_DestroyDevToolsClient();
 
 protected:
   CefWindowInfo window_info_;

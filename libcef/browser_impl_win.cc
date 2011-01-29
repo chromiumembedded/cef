@@ -149,11 +149,16 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     handler_->HandleAfterCreated(this);
   }
 
-  if(url.length() > 0) {
-    CefRefPtr<CefFrame> frame = GetMainFrame();
-    frame->AddRef();
-    UIT_LoadURL(frame, url);
-  }
+  if(url.length() > 0)
+    UIT_LoadURL(GetMainFrame(), url);
+}
+
+void CefBrowserImpl::UIT_CloseBrowser()
+{
+  REQUIRE_UIT();
+  DCHECK(!_Context->shutting_down());
+
+  PostMessage(UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
 }
 
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
@@ -488,16 +493,4 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   frame->printEnd();
 
   return page_count;
-}
-
-void CefBrowserImpl::UIT_CloseDevTools()
-{
-  REQUIRE_UIT();
-
-  if(!dev_tools_agent_.get())
-    return;
-
-  BrowserDevToolsClient* client = dev_tools_agent_->client();
-  if (client)
-    PostMessage(client->browser()->UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
 }

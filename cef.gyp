@@ -25,6 +25,11 @@
         '..',
       ],
       'sources': [
+        'include/cef.h',
+        'include/cef_nplugin.h',
+        'include/cef_runnable.h',
+        'include/cef_tuple.h',
+        'include/cef_wrapper.h',
         'tests/cefclient/binding_test.cpp',
         'tests/cefclient/binding_test.h',
         'tests/cefclient/cefclient.cpp',

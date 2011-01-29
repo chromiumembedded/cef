@@ -371,9 +371,7 @@ void BrowserWebViewDelegate::showContextMenu(
 
       if(!handled) {
         // Execute the action
-        CefRefPtr<CefFrame> frame = browser_->GetFocusedFrame();
-        frame->AddRef();
-        browser_->UIT_HandleAction(menuId, frame.get());
+        browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
       }
     }
   }

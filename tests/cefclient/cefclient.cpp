@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef.h"
+#include "include/cef_runnable.h"
 #include "include/cef_wrapper.h"
 #include "cefclient.h"
 #include "binding_test.h"
@@ -289,52 +290,41 @@ CefWindowHandle AppGetMainHwnd()
   return g_handler->GetMainHwnd();
 }
 
+static void ExecuteGetSource(CefRefPtr<CefFrame> frame)
+{
+  // Retrieve the current page source and display.
+  std::string source = frame->GetSource();
+  source = StringReplace(source, "<", "&lt;");
+  source = StringReplace(source, ">", "&gt;");
+  std::stringstream ss;
+  ss << "<html><body>Source:" << "<pre>" << source
+      << "</pre></body></html>";
+  frame->LoadString(ss.str(), "http://tests/getsource");
+}
+
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser)
 {
   // Execute the GetSource() call on the UI thread.
-  class ExecTask : public CefThreadSafeBase<CefTask>
-  {
-  public:
-    ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-    virtual void Execute(CefThreadId threadId)
-    {
-      // Retrieve the current page source and display.
-      std::string source = m_Frame->GetSource();
-      source = StringReplace(source, "<", "&lt;");
-      source = StringReplace(source, ">", "&gt;");
-      std::stringstream ss;
-      ss << "<html><body>Source:" << "<pre>" << source
-          << "</pre></body></html>";
-      m_Frame->LoadString(ss.str(), "http://tests/getsource");
-    }
-  private:
-    CefRefPtr<CefFrame> m_Frame;
-  };
-  CefPostTask(TID_UI, new ExecTask(browser->GetMainFrame()));
+  CefPostTask(TID_UI,
+      NewCefRunnableFunction(&ExecuteGetSource, browser->GetMainFrame()));
+}
+
+static void ExecuteGetText(CefRefPtr<CefFrame> frame)
+{
+  std::string text = frame->GetText();
+  text = StringReplace(text, "<", "&lt;");
+  text = StringReplace(text, ">", "&gt;");
+  std::stringstream ss;
+  ss << "<html><body>Text:" << "<pre>" << text
+      << "</pre></body></html>";
+  frame->LoadString(ss.str(), "http://tests/gettext");
 }
 
 void RunGetTextTest(CefRefPtr<CefBrowser> browser)
 {
   // Execute the GetText() call on the UI thread.
-  class ExecTask : public CefThreadSafeBase<CefTask>
-  {
-  public:
-    ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-    virtual void Execute(CefThreadId threadId)
-    {
-      // Retrieve the current page text and display.
-      std::string text = m_Frame->GetText();
-      text = StringReplace(text, "<", "&lt;");
-      text = StringReplace(text, ">", "&gt;");
-      std::stringstream ss;
-      ss << "<html><body>Text:" << "<pre>" << text
-          << "</pre></body></html>";
-      m_Frame->LoadString(ss.str(), "http://tests/gettext");
-    }
-  private:
-    CefRefPtr<CefFrame> m_Frame;
-  };
-  CefPostTask(TID_UI, new ExecTask(browser->GetMainFrame()));
+  CefPostTask(TID_UI,
+      NewCefRunnableFunction(&ExecuteGetText, browser->GetMainFrame()));
 }
 
 void RunRequestTest(CefRefPtr<CefBrowser> browser)

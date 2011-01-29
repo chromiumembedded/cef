@@ -154,13 +154,15 @@ bool CefCurrentlyOn(CefThreadId threadId)
   return CefThread::CurrentlyOn(static_cast<CefThread::ID>(id));
 }
 
-class CefTaskHelper : public base::RefCountedThreadSafe<CefTaskHelper>
+class CefTaskHelper : public Task
 {
 public:
-  CefTaskHelper(CefRefPtr<CefTask> task) : task_(task) {}
-  void Execute(CefThreadId threadId) { task_->Execute(threadId); }
+  CefTaskHelper(CefRefPtr<CefTask> task, CefThreadId threadId)
+    : task_(task), thread_id_(threadId) {}
+  virtual void Run() { task_->Execute(thread_id_); }
 private:
   CefRefPtr<CefTask> task_;
+  CefThreadId thread_id_;
   DISALLOW_COPY_AND_ASSIGN(CefTaskHelper);
 };
 
@@ -170,9 +172,8 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
   if(id < 0)
     return false;
 
-  scoped_refptr<CefTaskHelper> helper(new CefTaskHelper(task));
   return CefThread::PostTask(static_cast<CefThread::ID>(id), FROM_HERE,
-      NewRunnableMethod(helper.get(), &CefTaskHelper::Execute, threadId));
+      new CefTaskHelper(task, threadId));
 }
 
 bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
@@ -182,10 +183,8 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
   if(id < 0)
     return false;
 
-  scoped_refptr<CefTaskHelper> helper(new CefTaskHelper(task));
   return CefThread::PostDelayedTask(static_cast<CefThread::ID>(id), FROM_HERE,
-      NewRunnableMethod(helper.get(), &CefTaskHelper::Execute, threadId),
-      delay_ms);
+      new CefTaskHelper(task, threadId), delay_ms);
 }
 
 
