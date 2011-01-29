@@ -48,6 +48,8 @@ ClientHandler::~ClientHandler()
 CefHandler::RetVal ClientHandler::HandleAfterCreated(
     CefRefPtr<CefBrowser> browser)
 {
+  REQUIRE_UI_THREAD();
+
   Lock();
   if(!browser->IsPopup())
   {
@@ -62,6 +64,8 @@ CefHandler::RetVal ClientHandler::HandleAfterCreated(
 CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, bool isMainContent)
 {
+  REQUIRE_UI_THREAD();
+
   if(!browser->IsPopup() && !frame.get())
   {
     Lock();
@@ -77,6 +81,8 @@ CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
 CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, bool isMainContent, int httpStatusCode)
 {
+  REQUIRE_UI_THREAD();
+
   if(!browser->IsPopup() && !frame.get())
   {
     Lock();
@@ -93,6 +99,8 @@ CefHandler::RetVal ClientHandler::HandleLoadError(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& failedUrl,
     CefString& errorText)
 {
+  REQUIRE_UI_THREAD();
+
   if(errorCode == ERR_CACHE_MISS)
   {
     // Usually caused by navigating to a page with POST data via back or
@@ -123,6 +131,8 @@ CefHandler::RetVal ClientHandler::HandleDownloadResponse(
     const CefString& fileName, int64 contentLength,
     CefRefPtr<CefDownloadHandler>& handler)
 {
+  REQUIRE_UI_THREAD();
+
   // Create the handler for the file download.
   handler = CreateDownloadHandler(m_DownloadListener, fileName);
   return RV_CONTINUE;
@@ -135,6 +145,8 @@ CefHandler::RetVal ClientHandler::HandlePrintHeaderFooter(
     CefString& topCenter, CefString& topRight, CefString& bottomLeft,
     CefString& bottomCenter, CefString& bottomRight)
 {
+  REQUIRE_UI_THREAD();
+
   // Place the page title at top left
   topLeft = title;
   // Place the page URL at top right
@@ -151,6 +163,8 @@ CefHandler::RetVal ClientHandler::HandlePrintHeaderFooter(
 CefHandler::RetVal ClientHandler::HandleJSBinding(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object)
 {
+  REQUIRE_UI_THREAD();
+
   // Add the V8 bindings.
   InitBindingTest(browser, frame, object);
   
@@ -160,6 +174,8 @@ CefHandler::RetVal ClientHandler::HandleJSBinding(CefRefPtr<CefBrowser> browser,
 CefHandler::RetVal ClientHandler::HandleBeforeWindowClose(
     CefRefPtr<CefBrowser> browser)
 {
+  REQUIRE_UI_THREAD();
+
   if(m_BrowserHwnd == browser->GetWindowHandle())
   {
     // Free the browser pointer so that the browser can be destroyed
@@ -172,6 +188,8 @@ CefHandler::RetVal ClientHandler::HandleConsoleMessage(
     CefRefPtr<CefBrowser> browser, const CefString& message,
     const CefString& source, int line)
 {
+  REQUIRE_UI_THREAD();
+
   Lock();
   bool first_message = m_LogFile.empty();
   if(first_message) {
@@ -271,28 +289,52 @@ CefWindowHandle AppGetMainHwnd()
   return g_handler->GetMainHwnd();
 }
 
-void RunGetSourceTest(CefRefPtr<CefFrame> frame)
+void RunGetSourceTest(CefRefPtr<CefBrowser> browser)
 {
-  // Retrieve the current page source and display.
-  std::string source = frame->GetSource();
-  source = StringReplace(source, "<", "&lt;");
-  source = StringReplace(source, ">", "&gt;");
-  std::stringstream ss;
-  ss << "<html><body>Source:" << "<pre>" << source
-      << "</pre></body></html>";
-  frame->LoadString(ss.str(), "http://tests/getsource");
+  // Execute the GetSource() call on the UI thread.
+  class ExecTask : public CefThreadSafeBase<CefTask>
+  {
+  public:
+    ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+    virtual void Execute(CefThreadId threadId)
+    {
+      // Retrieve the current page source and display.
+      std::string source = m_Frame->GetSource();
+      source = StringReplace(source, "<", "&lt;");
+      source = StringReplace(source, ">", "&gt;");
+      std::stringstream ss;
+      ss << "<html><body>Source:" << "<pre>" << source
+          << "</pre></body></html>";
+      m_Frame->LoadString(ss.str(), "http://tests/getsource");
+    }
+  private:
+    CefRefPtr<CefFrame> m_Frame;
+  };
+  CefPostTask(TID_UI, new ExecTask(browser->GetMainFrame()));
 }
 
-void RunGetTextTest(CefRefPtr<CefFrame> frame)
+void RunGetTextTest(CefRefPtr<CefBrowser> browser)
 {
-  // Retrieve the current page text and display.
-  std::string text = frame->GetText();
-  text = StringReplace(text, "<", "&lt;");
-  text = StringReplace(text, ">", "&gt;");
-  std::stringstream ss;
-  ss << "<html><body>Text:" << "<pre>" << text
-      << "</pre></body></html>";
-  frame->LoadString(ss.str(), "http://tests/gettext");
+  // Execute the GetText() call on the UI thread.
+  class ExecTask : public CefThreadSafeBase<CefTask>
+  {
+  public:
+    ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
+    virtual void Execute(CefThreadId threadId)
+    {
+      // Retrieve the current page text and display.
+      std::string text = m_Frame->GetText();
+      text = StringReplace(text, "<", "&lt;");
+      text = StringReplace(text, ">", "&gt;");
+      std::stringstream ss;
+      ss << "<html><body>Text:" << "<pre>" << text
+          << "</pre></body></html>";
+      m_Frame->LoadString(ss.str(), "http://tests/gettext");
+    }
+  private:
+    CefRefPtr<CefFrame> m_Frame;
+  };
+  CefPostTask(TID_UI, new ExecTask(browser->GetMainFrame()));
 }
 
 void RunRequestTest(CefRefPtr<CefBrowser> browser)

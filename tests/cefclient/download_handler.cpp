@@ -96,7 +96,7 @@ public:
   // continue receiving data and |false| to cancel.
   virtual bool ReceivedData(void* data, int data_size)
   {
-    ASSERT(CefCurrentlyOn(TID_UI));
+    REQUIRE_UI_THREAD();
 
     if(data_size == 0)
       return true;
@@ -118,7 +118,7 @@ public:
   // The download is complete.
   virtual void Complete()
   {
-    ASSERT(CefCurrentlyOn(TID_UI));
+    REQUIRE_UI_THREAD();
 
     // Flush and close the file on the FILE thread.
     PostOnThread(TID_FILE, this, &ClientDownloadHandler::OnComplete);
@@ -130,7 +130,7 @@ public:
 
   void OnOpen()
   {
-    ASSERT(CefCurrentlyOn(TID_FILE));
+    REQUIRE_FILE_THREAD();
 
     if(file_)
       return;
@@ -179,7 +179,7 @@ public:
 
   void OnComplete()
   {
-    ASSERT(CefCurrentlyOn(TID_FILE));
+    REQUIRE_FILE_THREAD();
 
     if(!file_)
       return;
@@ -196,7 +196,7 @@ public:
 
   void OnReceivedData()
   {
-    ASSERT(CefCurrentlyOn(TID_FILE));
+    REQUIRE_FILE_THREAD();
 
     std::vector<std::vector<char>*> data;
 

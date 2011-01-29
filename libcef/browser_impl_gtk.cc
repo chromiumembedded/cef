@@ -20,13 +20,12 @@ using WebKit::WebSize;
 
 CefWindowHandle CefBrowserImpl::GetWindowHandle()
 {
-  Lock();
-  CefWindowHandle handle = window_info_.m_Widget;
-  Unlock();
-  return handle;
+  AutoLock lock_scope(this);
+  return window_info_.m_Widget;
 }
 
-gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
+gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() const {
+  REQUIRE_UIT();
   GtkWidget* toplevel = gtk_widget_get_ancestor(window_info_.m_Widget,
       GTK_TYPE_WINDOW);
   return GTK_IS_WINDOW(toplevel) ? GTK_WINDOW(toplevel) : NULL;
@@ -35,7 +34,8 @@ gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
 void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
-  
+  Lock();
+
   // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();
 
@@ -58,7 +58,9 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
 
   window_info_.m_Widget = webviewhost_->view_handle();
-  
+
+  Unlock();
+
   if(handler_.get()) {
     // Notify the handler that we're done creating the new window
     handler_->HandleAfterCreated(this);

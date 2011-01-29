@@ -42,7 +42,7 @@ void BrowserWebViewDelegate::showContextMenu(
 void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
   if (!popup_menu_info_.get())
     return;
-  if (this != browser_->GetPopupDelegate())
+  if (this != browser_->UIT_GetPopupDelegate())
     return;
   // Display a HTML select menu.
 
@@ -59,7 +59,7 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
   const WebRect& bounds = popup_bounds_;
 
   // Set up the menu position.
-  NSView* web_view = browser_->GetWebViewWndHandle();
+  NSView* web_view = browser_->UIT_GetWebViewWndHandle();
   NSRect view_rect = [web_view bounds];
   int y_offset = bounds.y + bounds.height;
   NSRect position = NSMakeRect(bounds.x, view_rect.size.height - y_offset,
@@ -71,15 +71,15 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
                                                 fontSize:font_size
                                             rightAligned:right_aligned]);
 
-  [menu_runner runMenuInView:browser_->GetWebViewWndHandle()
+  [menu_runner runMenuInView:browser_->UIT_GetWebViewWndHandle()
                   withBounds:position
                 initialIndex:selected_index];
 
   // Get the selected item and forward to WebKit. WebKit expects an input event
   // (mouse down, keyboard activity) for this, so we calculate the proper
   // position based on the selected index and provided bounds.
-  WebWidgetHost* popup = browser_->GetPopupHost();
-  int window_num = [browser_->GetMainWndHandle() windowNumber];
+  WebWidgetHost* popup = browser_->UIT_GetPopupHost();
+  int window_num = [browser_->UIT_GetMainWndHandle() windowNumber];
   NSEvent* event =
       webkit_glue::EventWithMenuAction([menu_runner menuItemWasChosen],
                                        window_num, item_height,
@@ -98,10 +98,10 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
 }
 
 void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->GetWebViewDelegate()) {
-    NSWindow *win = browser_->GetMainWndHandle();
+  if (this == browser_->UIT_GetWebViewDelegate()) {
+    NSWindow *win = browser_->UIT_GetMainWndHandle();
     [win performSelector:@selector(performClose:) withObject:nil afterDelay:0];
-  } else if (this == browser_->GetPopupDelegate()) {
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
     browser_->UIT_ClosePopupWidget();
   }
 }
@@ -121,9 +121,9 @@ WebRect BrowserWebViewDelegate::windowRect() {
 }
 
 void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
-  if (this == browser_->GetWebViewDelegate()) {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
     // TODO(port): Set the window rectangle.
-  } else if (this == browser_->GetPopupDelegate()) {
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
     popup_bounds_ = rect;  // The initial position of the popup.
   }
 }

@@ -102,10 +102,10 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
 }
 
 void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->GetWebViewDelegate()) {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
     MessageLoop::current()->PostTask(FROM_HERE, NewRunnableFunction(
-        &gtk_widget_destroy, GTK_WIDGET(browser_->GetMainWndHandle())));
-  } else if (this == browser_->GetPopupDelegate()) {
+        &gtk_widget_destroy, GTK_WIDGET(browser_->UIT_GetMainWndHandle())));
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
     browser_->UIT_ClosePopupWidget();
   }
 }
@@ -132,7 +132,7 @@ void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
       gdk_cursor = gfx::GetCursor(cursor_type);
   }
   cursor_type_ = cursor_type;
-  gdk_window_set_cursor(browser_->GetWebViewWndHandle()->window, gdk_cursor);
+  gdk_window_set_cursor(browser_->UIT_GetWebViewWndHandle()->window, gdk_cursor);
 }
 
 WebRect BrowserWebViewDelegate::windowRect() {
@@ -152,9 +152,9 @@ WebRect BrowserWebViewDelegate::windowRect() {
 }
 
 void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
-  if (this == browser_->GetWebViewDelegate()) {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
     // TODO(port): Set the window rectangle.
-  } else if (this == browser_->GetPopupDelegate()) {
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
     WebWidgetHost* host = GetWidgetHost();
     GtkWidget* drawing_area = host->view_handle();
     GtkWidget* window =
@@ -198,7 +198,7 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
   // TODO(evanm): we probably shouldn't be doing this mapping to X ids at
   // this level.
   GdkNativeWindow plugin_parent =
-      GDK_WINDOW_XWINDOW(browser_->GetWebViewHost()->view_handle()->window);
+      GDK_WINDOW_XWINDOW(browser_->UIT_GetWebViewHost()->view_handle()->window);
 
   return webkit::npapi::WebPluginDelegateImpl::Create(path, mime_type,
       plugin_parent);
@@ -206,12 +206,12 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
     gfx::PluginWindowHandle id) {
-  browser_->GetWebViewHost()->CreatePluginContainer(id);
+  browser_->UIT_GetWebViewHost()->CreatePluginContainer(id);
 }
 
 void BrowserWebViewDelegate::WillDestroyPluginWindow(
     gfx::PluginWindowHandle id) {
-  browser_->GetWebViewHost()->DestroyPluginContainer(id);
+  browser_->UIT_GetWebViewHost()->DestroyPluginContainer(id);
 }
 
 void BrowserWebViewDelegate::DidMovePlugin(

@@ -29,7 +29,7 @@ BrowserDevToolsClient::BrowserDevToolsClient(CefBrowserImpl* browser,
     : ALLOW_THIS_IN_INITIALIZER_LIST(call_method_factory_(this)),
       browser_(browser),
       dev_tools_agent_(agent),
-      web_view_(browser->GetWebView()) {
+      web_view_(browser->UIT_GetWebView()) {
   web_tools_frontend_.reset(WebDevToolsFrontend::create(web_view_, this,
       WebString::fromUTF8("en-US")));
   dev_tools_agent_->attach(this);

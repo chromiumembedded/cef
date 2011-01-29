@@ -57,23 +57,23 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SIZE:
-    if (browser && browser->GetWebView()) {
+    if (browser && browser->UIT_GetWebView()) {
       // resize the web view window to the full size of the browser window
       RECT rc;
-      GetClientRect(browser->GetMainWndHandle(), &rc);
-      MoveWindow(browser->GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
+      GetClientRect(browser->UIT_GetMainWndHandle(), &rc);
+      MoveWindow(browser->UIT_GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
           TRUE);
     }
     return 0;
 
   case WM_SETFOCUS:
-    if (browser && browser->GetWebView())
-      browser->GetWebView()->setFocus(true);
+    if (browser && browser->UIT_GetWebView())
+      browser->UIT_GetWebView()->setFocus(true);
     return 0;
 
   case WM_KILLFOCUS:
-    if (browser && browser->GetWebView())
-      browser->GetWebView()->setFocus(false);
+    if (browser && browser->UIT_GetWebView())
+      browser->UIT_GetWebView()->setFocus(false);
     return 0;
 
   case WM_ERASEBKGND:
@@ -85,19 +85,19 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
 CefWindowHandle CefBrowserImpl::GetWindowHandle()
 {
-  Lock();
-  CefWindowHandle handle = window_info_.m_hWnd;
-  Unlock();
-  return handle;
+  AutoLock lock_scope(this);
+  return window_info_.m_hWnd;
 }
 
-gfx::NativeWindow CefBrowserImpl::GetMainWndHandle() const {
+gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() const {
+  REQUIRE_UIT();
   return window_info_.m_hWnd;
 }
 
 void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
+  Lock();
 
   std::wstring windowName(CefString(&window_info_.m_windowName));
   
@@ -136,10 +136,12 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   if (!settings_.drag_drop_disabled)
     delegate_->RegisterDragDrop();
 
+  Unlock();
+
   // Size the web view window to the browser window
   RECT cr;
   GetClientRect(window_info_.m_hWnd, &cr);
-  SetWindowPos(GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
+  SetWindowPos(UIT_GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
       cr.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
   if(handler_.get()) {
@@ -172,7 +174,7 @@ WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
   
   DCHECK(!popuphost_);
   popuphost_ = WebWidgetHost::Create(NULL, popup_delegate_.get());
-  ShowWindow(GetPopupWndHandle(), SW_SHOW);
+  ShowWindow(UIT_GetPopupWndHandle(), SW_SHOW);
 
   return popuphost_->webwidget();
 }
@@ -181,7 +183,7 @@ void CefBrowserImpl::UIT_ClosePopupWidget()
 {
   REQUIRE_UIT();
   
-  PostMessage(GetPopupWndHandle(), WM_CLOSE, 0, 0);
+  PostMessage(UIT_GetPopupWndHandle(), WM_CLOSE, 0, 0);
   popuphost_ = NULL;
 }
 
@@ -225,7 +227,7 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
   std::string markup = frame->contentAsMarkup().utf8();
   WriteTextToFile(markup, szTempName);
 
-  int errorCode = (int)ShellExecute(GetMainWndHandle(), L"open", szTempName,
+  int errorCode = (int)ShellExecute(UIT_GetMainWndHandle(), L"open", szTempName,
     NULL, NULL, SW_SHOWNORMAL);
   if(errorCode <= 32)
     return false;
@@ -322,7 +324,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
     // allow the handler to format print header and/or footer
     CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this,
-      GetCefFrame(frame), printInfo, url, title, page_number+1, total_pages,
+      UIT_GetCefFrame(frame), printInfo, url, title, page_number+1, total_pages,
       topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight);
 
     if(rv != RV_HANDLED) {
@@ -408,7 +410,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   }
 
   if(print_context_.AskUserForSettings(
-      GetMainWndHandle(), UIT_GetPagesCount(frame), false)
+      UIT_GetMainWndHandle(), UIT_GetPagesCount(frame), false)
       != printing::PrintingContext::OK)
     return;
 
@@ -497,5 +499,5 @@ void CefBrowserImpl::UIT_CloseDevTools()
 
   BrowserDevToolsClient* client = dev_tools_agent_->client();
   if (client)
-    PostMessage(client->browser()->GetMainWndHandle(), WM_CLOSE, 0, 0);
+    PostMessage(client->browser()->UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
 }

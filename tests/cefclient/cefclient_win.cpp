@@ -472,50 +472,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             browser->StopLoad();
           return 0;
         case ID_TESTS_GETSOURCE: // Test the GetSource function
-          if(browser.get()) {
-#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
-            RunGetSourceTest(browser->GetMainFrame());
-#else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-            // Execute the GetSource() call on the FILE thread to avoid blocking
-            // the UI thread when using a multi-threaded message loop
-            // (issue #79).
-            class ExecTask : public CefThreadSafeBase<CefTask>
-            {
-            public:
-              ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-              virtual void Execute(CefThreadId threadId)
-              {
-                RunGetSourceTest(m_Frame);
-              }
-            private:
-              CefRefPtr<CefFrame> m_Frame;
-            };
-            CefPostTask(TID_FILE, new ExecTask(browser->GetMainFrame()));
-#endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-          }
+          if(browser.get())
+            RunGetSourceTest(browser);
           return 0;
         case ID_TESTS_GETTEXT: // Test the GetText function
-          if(browser.get()) {
-#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
-            RunGetTextTest(browser->GetMainFrame());
-#else // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-            // Execute the GetText() call on the FILE thread to avoid blocking
-            // the UI thread when using a multi-threaded message loop
-            // (issue #79).
-            class ExecTask : public CefThreadSafeBase<CefTask>
-            {
-            public:
-              ExecTask(CefRefPtr<CefFrame> frame) : m_Frame(frame) {}
-              virtual void Execute(CefThreadId threadId)
-              {
-                RunGetTextTest(m_Frame);
-              }
-            private:
-              CefRefPtr<CefFrame> m_Frame;
-            };
-            CefPostTask(TID_FILE, new ExecTask(browser->GetMainFrame()));
-#endif // !TEST_SINGLE_THREADED_MESSAGE_LOOP
-          }
+          if(browser.get())
+            RunGetTextTest(browser);
           return 0;
         case ID_TESTS_JAVASCRIPT_BINDING: // Test the V8 binding handler
           if(browser.get())
@@ -679,6 +641,8 @@ CefHandler::RetVal ClientHandler::HandleBeforeCreated(
     const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
     CefString& url, CefBrowserSettings& settings)
 {
+  REQUIRE_UI_THREAD();
+
   if(popup) {
     if(popupFeatures.xSet)
       createInfo.m_x = popupFeatures.x;
@@ -697,6 +661,8 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)
 {
+  REQUIRE_UI_THREAD();
+
   if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
     // Set the edit window text
@@ -708,6 +674,8 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
 CefHandler::RetVal ClientHandler::HandleTitleChange(
     CefRefPtr<CefBrowser> browser, const CefString& title)
 {
+  REQUIRE_UI_THREAD();
+
   // Set the frame window title bar
   CefWindowHandle hwnd = browser->GetWindowHandle();
   if(!browser->IsPopup())
@@ -724,6 +692,8 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
     CefString& mimeType, int loadFlags)
 {
+  REQUIRE_IO_THREAD();
+
   DWORD dwSize;
   LPBYTE pBytes;
   

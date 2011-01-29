@@ -172,7 +172,7 @@ WebView* BrowserWebViewDelegate::createView(WebFrame* creator,
   TranslatePopupFeatures(features, cefFeatures);
   CefRefPtr<CefBrowserImpl> browser =
       browser_->UIT_CreatePopupWindow(url, cefFeatures);
-  return browser.get() ? browser->GetWebView() : NULL;
+  return browser.get() ? browser->UIT_GetWebView() : NULL;
 }
 
 WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
@@ -215,8 +215,11 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
 }
 
 void BrowserWebViewDelegate::printPage(WebFrame* frame) {
-  if (!frame)
-    frame = browser_->GetWebView() ? browser_->GetWebView()->mainFrame() : NULL;
+  if (!frame) {
+    WebView* view = browser_->UIT_GetWebView();
+    if (view)
+      frame = view->mainFrame();
+  }
   if (frame)
     browser_->UIT_PrintPages(frame);
 }
@@ -299,8 +302,10 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
   if (edit_command_name_.empty())
     return false;
 
-  WebFrame* frame = browser_->GetWebView() ?
-      browser_->GetWebView()->focusedFrame() : NULL;
+  WebView* view = browser_->UIT_GetWebView();
+  WebFrame* frame = NULL;
+  if (view)
+    frame = view->focusedFrame();
   if (!frame)
     return false;
 
@@ -335,7 +340,7 @@ void BrowserWebViewDelegate::runModalAlertDialog(
   CefString messageStr = string16(message);
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
-    rv = handler->HandleJSAlert(browser_, browser_->GetCefFrame(frame),
+    rv = handler->HandleJSAlert(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr);
   }
   if(rv != RV_HANDLED)
@@ -349,7 +354,7 @@ bool BrowserWebViewDelegate::runModalConfirmDialog(
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
-    rv = handler->HandleJSConfirm(browser_, browser_->GetCefFrame(frame),
+    rv = handler->HandleJSConfirm(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr, retval);
   }
   if(rv != RV_HANDLED)
@@ -370,7 +375,7 @@ bool BrowserWebViewDelegate::runModalPromptDialog(
   bool retval = false;
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
-    rv = handler->HandleJSPrompt(browser_, browser_->GetCefFrame(frame),
+    rv = handler->HandleJSPrompt(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr, defaultValueStr, retval, actualValueStr);
   }
   if(rv != RV_HANDLED) {
@@ -426,8 +431,9 @@ void BrowserWebViewDelegate::startDragging(
   //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
   //                         ok_effect, &effect);
   //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
-  if (browser_->GetWebView())
-    browser_->GetWebView()->dragSourceSystemDragEnded();
+  WebView* view = browser_->UIT_GetWebView();
+  if (view)
+    view->dragSourceSystemDragEnded();
 }
 
 void BrowserWebViewDelegate::focusNext() {
@@ -591,7 +597,7 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
 
     // Notify the handler of a browse request
     CefHandler::RetVal rv = handler->HandleBeforeBrowse(browser_,
-        browser_->GetCefFrame(frame), req, (CefHandler::NavType)type,
+        browser_->UIT_GetCefFrame(frame), req, (CefHandler::NavType)type,
         is_redirect);
     if(rv == RV_HANDLED)
       return WebKit::WebNavigationPolicyIgnore;
@@ -673,7 +679,7 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   if(handler.get()) {
     // give the handler an opportunity to generate a custom error message
     rv = handler->HandleLoadError(browser_,
-        browser_->GetCefFrame(frame),
+        browser_->UIT_GetCefFrame(frame),
         static_cast<CefHandler::ErrorCode>(error.reason),
         std::string(failed_ds->request().url().spec().data()), errorStr);
   }
@@ -724,18 +730,17 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   if(handler.get()) {
     // Notify the handler that loading has started.
     handler->HandleLoadStart(browser_,
-        (frame == top_loading_frame_) ? NULL : browser_->GetCefFrame(frame),
+        (frame == top_loading_frame_) ? NULL : browser_->UIT_GetCefFrame(frame),
         is_main_content_);
   }
 
   // Apply zoom settings only on top-level frames.
   if(frame->parent() == NULL) {
     // Restore the zoom value that we have for this URL, if any.
-    double zoomLevel;
-    if(ZoomMap::GetInstance()->get(frame->url(), zoomLevel))
-      frame->view()->setZoomLevel(false, zoomLevel);
-    else
-      frame->view()->setZoomLevel(false, 0.0);
+    double zoomLevel = 0.0;
+    ZoomMap::GetInstance()->get(frame->url(), zoomLevel);
+    frame->view()->setZoomLevel(false, zoomLevel);
+    browser_->set_zoom_level(zoomLevel);
   }
 }
 
@@ -749,7 +754,7 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
 
     v8::Context::Scope scope(context);
 
-    CefRefPtr<CefFrame> cframe(browser_->GetCefFrame(frame));
+    CefRefPtr<CefFrame> cframe(browser_->UIT_GetCefFrame(frame));
     CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
     handler->HandleJSBinding(browser_, cframe, object);
   }
@@ -869,15 +874,15 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
 #if defined(OS_WIN)
   // TODO(port): add me once drag and drop works.
   DCHECK(!drop_delegate_);
-  drop_delegate_ = new BrowserDropDelegate(browser_->GetWebViewWndHandle(),
-                                           browser_->GetWebView());
+  drop_delegate_ = new BrowserDropDelegate(browser_->UIT_GetWebViewWndHandle(),
+                                           browser_->UIT_GetWebView());
 #endif
 }
 
 void BrowserWebViewDelegate::RevokeDragDrop() {
 #if defined(OS_WIN)
   if (drop_delegate_.get())
-    ::RevokeDragDrop(browser_->GetWebViewWndHandle());
+    ::RevokeDragDrop(browser_->UIT_GetWebViewWndHandle());
 #endif
 }
 
@@ -926,8 +931,8 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
     // Notify the handler that loading has ended.
     int httpStatusCode = frame->dataSource()->response().httpStatusCode();
     handler->HandleLoadEnd(browser_,
-        (is_top_frame) ? NULL : browser_->GetCefFrame(frame), is_main_content_,
-        httpStatusCode);
+        (is_top_frame) ? NULL : browser_->UIT_GetCefFrame(frame),
+        is_main_content_, httpStatusCode);
   }
 
   if (is_top_frame && is_main_content_)
@@ -935,10 +940,10 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
 }
 
 WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
-  if (this == browser_->GetWebViewDelegate())
-    return browser_->GetWebViewHost();
-  if (this == browser_->GetPopupDelegate())
-    return browser_->GetPopupHost();
+  if (this == browser_->UIT_GetWebViewDelegate())
+    return browser_->UIT_GetWebViewHost();
+  if (this == browser_->UIT_GetPopupDelegate())
+    return browser_->UIT_GetPopupHost();
   return NULL;
 }
 
@@ -989,7 +994,8 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     if(handler.get()) {
       // Notify the handler of an address change
       std::string url = std::string(entry->GetURL().spec().c_str());
-      handler->HandleAddressChange(browser_, browser_->GetCefFrame(frame), url);
+      handler->HandleAddressChange(browser_, browser_->UIT_GetCefFrame(frame),
+          url);
     }
   }
 
@@ -997,7 +1003,10 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   if (!history_item.isNull())
     entry->SetContentState(webkit_glue::HistoryItemToString(history_item));
 
-  browser_->UIT_GetNavigationController()->DidNavigateToEntry(entry.release());
+  BrowserNavigationController* controller =
+      browser_->UIT_GetNavigationController();
+  controller->DidNavigateToEntry(entry.release());
+  browser_->set_nav_state(!controller->IsAtStart(), !controller->IsAtEnd());
 
   last_page_id_updated_ = std::max(last_page_id_updated_, page_id_);
 }
@@ -1014,11 +1023,11 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   if (!entry)
     return;
 
-  if (!browser_->GetWebView()) 
+  WebView* view = browser_->UIT_GetWebView();
+  if (!view) 
     return;
 
-  const WebHistoryItem& history_item =
-      browser_->GetWebView()->mainFrame()->previousHistoryItem();
+  const WebHistoryItem& history_item = view->mainFrame()->previousHistoryItem();
   if (history_item.isNull())
     return;
 

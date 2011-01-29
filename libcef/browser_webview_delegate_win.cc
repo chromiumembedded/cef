@@ -64,9 +64,9 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy) {
 }
 
 void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->GetWebViewDelegate()) {
-    PostMessage(browser_->GetMainWndHandle(), WM_CLOSE, 0, 0);
-  } else if (this == browser_->GetPopupDelegate()) {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
+    PostMessage(browser_->UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
     browser_->UIT_ClosePopupWidget();
   }
 }
@@ -91,10 +91,10 @@ WebRect BrowserWebViewDelegate::windowRect() {
 }
 
 void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
-  if (this == browser_->GetWebViewDelegate()) {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
     // ignored
-  } else if (this == browser_->GetPopupDelegate()) {
-    MoveWindow(browser_->GetPopupWndHandle(),
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
+    MoveWindow(browser_->UIT_GetPopupWndHandle(),
                rect.x, rect.y, rect.width, rect.height, FALSE);
   }
 }
@@ -129,7 +129,7 @@ void BrowserWebViewDelegate::runModal() {
   i = list->begin();
   for (; i != list->end(); ++i) {
     if (i->get()->IsPopup())
-      EnableWindow(i->get()->GetMainWndHandle(), FALSE);
+      EnableWindow(i->get()->UIT_GetMainWndHandle(), FALSE);
   }
   _Context->Unlock();
   
@@ -140,7 +140,7 @@ void BrowserWebViewDelegate::runModal() {
   list = _Context->GetBrowserList();
   i = list->begin();
   for (; i != list->end(); ++i)
-    EnableWindow(i->get()->GetMainWndHandle(), TRUE);
+    EnableWindow(i->get()->UIT_GetMainWndHandle(), TRUE);
   _Context->Unlock();
 }
 
@@ -150,12 +150,13 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type)
 {
-  HWND hwnd = browser_->GetWebViewHost() ?
-      browser_->GetWebViewHost()->view_handle() : NULL;
+  HWND hwnd = browser_->UIT_GetWebViewHost() ?
+      browser_->UIT_GetWebViewHost()->view_handle() : NULL;
   if (!hwnd)
     return NULL;
 
-  return webkit::npapi::WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
+  return webkit::npapi::WebPluginDelegateImpl::Create(file_path, mime_type,
+      hwnd);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
@@ -242,7 +243,7 @@ void BrowserWebViewDelegate::showContextMenu(
     WebFrame* frame, const WebContextMenuData& data)
 {
   POINT screen_pt = { data.mousePosition.x, data.mousePosition.y };
-  MapWindowPoints(browser_->GetMainWndHandle(), HWND_DESKTOP,
+  MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,
       &screen_pt, 1);
 
   HMENU menu = NULL;
@@ -356,7 +357,7 @@ void BrowserWebViewDelegate::showContextMenu(
     // show the context menu
     int selected_id = TrackPopupMenu(menu,
       TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
-      screen_pt.x, screen_pt.y, 0, browser_->GetMainWndHandle(), NULL);
+      screen_pt.x, screen_pt.y, 0, browser_->UIT_GetMainWndHandle(), NULL);
 
     if(selected_id != 0) {
       // An action was chosen
@@ -391,8 +392,8 @@ void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
   // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
   std::wstring titleStr = browser_->UIT_GetTitle();
-  MessageBox(browser_->GetMainWndHandle(), messageStr.c_str(), titleStr.c_str(),
-      MB_OK | MB_ICONWARNING);
+  MessageBox(browser_->UIT_GetMainWndHandle(), messageStr.c_str(),
+      titleStr.c_str(), MB_OK | MB_ICONWARNING);
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
@@ -401,7 +402,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
   // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
   std::wstring titleStr = browser_->UIT_GetTitle();
-  int rv = MessageBox(browser_->GetMainWndHandle(), messageStr.c_str(),
+  int rv = MessageBox(browser_->UIT_GetMainWndHandle(), messageStr.c_str(),
       titleStr.c_str(), MB_YESNO | MB_ICONQUESTION);
   return (rv == IDYES);
 }
@@ -511,11 +512,12 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
   bool result = false;
   
   if (multi_select) {
-    result = RunOpenMultiFileDialog(L"", browser_->GetMainWndHandle(),
+    result = RunOpenMultiFileDialog(L"", browser_->UIT_GetMainWndHandle(),
         &file_names);
   } else {
     FilePath file_name;
-    result = RunOpenFileDialog(L"", browser_->GetMainWndHandle(), &file_name);
+    result = RunOpenFileDialog(L"", browser_->UIT_GetMainWndHandle(),
+        &file_name);
     if (result)
       file_names.push_back(file_name);
   }

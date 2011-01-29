@@ -52,90 +52,90 @@
   CGContextSetRGBFillColor (context, 1, 0, 1, 1);
   CGContextFillRect(context, NSRectToCGRect(rect));
 
-  if (browser_ && browser_->GetWebView()) {
+  if (browser_ && browser_->UIT_GetWebView()) {
     gfx::Rect client_rect(NSRectToCGRect(rect));
     // flip from cocoa coordinates
     client_rect.set_y([self frame].size.height -
                       client_rect.height() - client_rect.y());
 
-    browser_->GetWebViewHost()->UpdatePaintRect(client_rect);
-    browser_->GetWebViewHost()->Paint();
+    browser_->UIT_GetWebViewHost()->UpdatePaintRect(client_rect);
+    browser_->UIT_GetWebViewHost()->Paint();
   }
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)otherMouseDown:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)otherMouseUp:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->WheelEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->WheelEvent(theEvent);
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)otherMouseDragged:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->MouseEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->KeyEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->KeyEvent(theEvent);
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
 }
 
 - (BOOL)isOpaque {
@@ -143,16 +143,16 @@
 }
 
 - (BOOL)canBecomeKeyView {
-  return browser_ && browser_->GetWebView();
+  return browser_ && browser_->UIT_GetWebView();
 }
 
 - (BOOL)acceptsFirstResponder {
-  return browser_ && browser_->GetWebView();
+  return browser_ && browser_->UIT_GetWebView();
 }
 
 - (BOOL)becomeFirstResponder {
-  if (browser_ && browser_->GetWebView()) {
-    browser_->GetWebViewHost()->SetFocus(YES);
+  if (browser_ && browser_->UIT_GetWebView()) {
+    browser_->UIT_GetWebViewHost()->SetFocus(YES);
     return YES;
   }
 
@@ -160,8 +160,8 @@
 }
 
 - (BOOL)resignFirstResponder {
-  if (browser_ && browser_->GetWebView()) {
-    browser_->GetWebViewHost()->SetFocus(NO);
+  if (browser_ && browser_->UIT_GetWebView()) {
+    browser_->UIT_GetWebViewHost()->SetFocus(NO);
     return YES;
   }
 
@@ -170,8 +170,8 @@
 
 - (void)setFrame:(NSRect)frameRect {
   [super setFrame:frameRect];
-  if (browser_ && browser_->GetWebView())
-    browser_->GetWebViewHost()->Resize(gfx::Rect(NSRectToCGRect(frameRect)));
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->Resize(gfx::Rect(NSRectToCGRect(frameRect)));
   [self setNeedsDisplay:YES];
 }
 

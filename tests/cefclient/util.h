@@ -1,10 +1,12 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors.
+// Copyright (c) 2011 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef _CEFCLIENT_UTIL_H
 #define _CEFCLIENT_UTIL_H
+
+#include "include/cef.h"
 
 #ifdef _WIN32
 
@@ -55,5 +57,9 @@
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 
 #endif // !_WIN32
+
+#define REQUIRE_UI_THREAD()   ASSERT(CefCurrentlyOn(TID_UI));
+#define REQUIRE_IO_THREAD()   ASSERT(CefCurrentlyOn(TID_IO));
+#define REQUIRE_FILE_THREAD() ASSERT(CefCurrentlyOn(TID_FILE));
 
 #endif // _CEFCLIENT_UTIL_H

@@ -3,9 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_wrapper.h"
+#include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
-#include "resource_util.h"
+#include "util.h"
 
 #ifdef _WIN32
 #include "resource.h"
@@ -30,6 +31,8 @@ public:
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefString& mime_type, int* response_length)
   {
+    REQUIRE_IO_THREAD();
+
     bool handled = false;
 
     Lock();
@@ -91,6 +94,7 @@ public:
   // Cancel processing of the request.
   virtual void Cancel()
   {
+    REQUIRE_IO_THREAD();
   }
 
   // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds
@@ -99,6 +103,8 @@ public:
   virtual bool ReadResponse(void* data_out, int bytes_to_read,
                             int* bytes_read)
   {
+    REQUIRE_IO_THREAD();
+
     bool has_data = false;
     *bytes_read = 0;
 
@@ -134,6 +140,7 @@ public:
   // Return a new scheme handler instance to handle the request.
   virtual CefRefPtr<CefSchemeHandler> Create()
   {
+    REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }
 };

@@ -292,12 +292,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
 - (IBAction)testGetSource:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
-    RunGetSourceTest(g_handler->GetBrowser()->GetMainFrame());
+    RunGetSourceTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testGetText:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
-    RunGetTextTest(g_handler->GetBrowser()->GetMainFrame());
+    RunGetTextTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSBinding:(id)sender {
@@ -372,6 +372,7 @@ CefHandler::RetVal ClientHandler::HandleBeforeCreated(
     const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
     CefString& url, CefBrowserSettings& settings)
 {
+  REQUIRE_UIT();
   return RV_CONTINUE;
 }
 
@@ -379,6 +380,8 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)
 {
+  REQUIRE_UIT();
+
   if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
     // Set the edit window text
@@ -393,6 +396,8 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
 CefHandler::RetVal ClientHandler::HandleTitleChange(
     CefRefPtr<CefBrowser> browser, const CefString& title)
 {
+  REQUIRE_UIT();
+
   // Set the frame window title bar
   NSWindow* window = (NSWindow*)m_MainHwnd;
   std::string titleStr(title);
@@ -406,6 +411,8 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
     CefString& mimeType, int loadFlags)
 {
+  REQUIRE_UIT();
+
   std::string url = request->GetURL();
   if(url == "http://tests/request") {
     // Show the request contents
