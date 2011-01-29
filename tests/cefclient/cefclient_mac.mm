@@ -372,7 +372,7 @@ CefHandler::RetVal ClientHandler::HandleBeforeCreated(
     const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
     CefString& url, CefBrowserSettings& settings)
 {
-  REQUIRE_UIT();
+  REQUIRE_UI_THREAD();
   return RV_CONTINUE;
 }
 
@@ -380,7 +380,7 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)
 {
-  REQUIRE_UIT();
+  REQUIRE_UI_THREAD();
 
   if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
@@ -396,7 +396,7 @@ CefHandler::RetVal ClientHandler::HandleAddressChange(
 CefHandler::RetVal ClientHandler::HandleTitleChange(
     CefRefPtr<CefBrowser> browser, const CefString& title)
 {
-  REQUIRE_UIT();
+  REQUIRE_UI_THREAD();
 
   // Set the frame window title bar
   NSWindow* window = (NSWindow*)m_MainHwnd;
@@ -411,7 +411,7 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
     CefString& mimeType, int loadFlags)
 {
-  REQUIRE_UIT();
+  REQUIRE_UI_THREAD();
 
   std::string url = request->GetURL();
   if(url == "http://tests/request") {
