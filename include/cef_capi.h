@@ -152,6 +152,17 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
     struct _cef_task_t* task, long delay_ms);
 
+// Parse the specified |url| into its component parts. Returns false (0) if the
+// URL is NULL or invalid.
+CEF_EXPORT int cef_parse_url(const cef_string_t* url,
+    struct _cef_urlparts_t* parts);
+
+// Creates a URL from the specified |parts|, which must contain a non-NULL spec
+// or a non-NULL host and path (at a minimum), but not both. Returns false (0)
+// if |parts| isn't initialized as described.
+CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
+    cef_string_t* url);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.

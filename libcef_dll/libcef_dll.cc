@@ -186,3 +186,57 @@ CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
 
   return CefPostDelayedTask(threadId, CefTaskCToCpp::Wrap(task), delay_ms);
 }
+
+CEF_EXPORT int cef_parse_url(const cef_string_t* url,
+    struct _cef_urlparts_t* parts)
+{
+  DCHECK(url && parts);
+  if(!url || !parts)
+    return 0;
+
+  CefURLParts urlParts;
+  bool ret = CefParseURL(CefString(url), urlParts);
+
+  // Clear the current structure values, if any.
+  cef_string_clear(&parts->spec);
+  cef_string_clear(&parts->scheme);
+  cef_string_clear(&parts->username);
+  cef_string_clear(&parts->password);
+  cef_string_clear(&parts->host);
+  cef_string_clear(&parts->port);
+  cef_string_clear(&parts->path);
+  cef_string_clear(&parts->query);
+
+  // Transfer ownership of the values from |urlParts| to the structure.
+  memcpy(parts, static_cast<cef_urlparts_t*>(&urlParts),
+      sizeof(cef_urlparts_t));
+  urlParts.Detach();
+
+  return ret;
+}
+
+CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
+    cef_string_t* url)
+{
+  DCHECK(parts && url);
+  if(!parts || !url)
+    return 0;
+
+  CefURLParts urlParts;
+
+  // Reference the existing structure values without copying.
+  cef_string_set(parts->spec.str, parts->spec.length, &urlParts.spec, false);
+  cef_string_set(parts->scheme.str, parts->scheme.length, &urlParts.scheme,
+      false);
+  cef_string_set(parts->username.str, parts->username.length,
+      &urlParts.username, false);
+  cef_string_set(parts->password.str, parts->password.length,
+      &urlParts.password, false);
+  cef_string_set(parts->host.str, parts->host.length, &urlParts.host, false);
+  cef_string_set(parts->port.str, parts->port.length, &urlParts.port, false);
+  cef_string_set(parts->path.str, parts->path.length, &urlParts.path, false);
+  cef_string_set(parts->query.str, parts->query.length, &urlParts.query, false);
+
+  CefString urlStr(url);
+  return CefCreateURL(urlParts, urlStr);
+}

@@ -238,6 +238,35 @@ typedef struct _cef_browser_settings_t
   bool developer_tools_disabled;
 } cef_browser_settings_t;
 
+// URL component parts.
+typedef struct _cef_urlparts_t
+{
+  // The complete URL specification.
+  cef_string_t spec;
+
+  // Scheme component not including the colon (e.g., "http").
+  cef_string_t scheme;
+
+  // User name component.
+  cef_string_t username;
+
+  // Password component.
+  cef_string_t password;
+
+  // Host component. This may be a hostname, an IPv4 address or an IPv6 literal
+  // surrounded by square brackets (e.g., "[2001:db8::1]").
+  cef_string_t host;
+
+  // Port number component.
+  cef_string_t port;
+
+  // Path component including the first slash following the host.
+  cef_string_t path;
+
+  // Query string component (i.e., everything following the '?').
+  cef_string_t query;
+} cef_urlparts_t;
+
 // Define handler return value types. Returning RV_HANDLED indicates
 // that the implementation completely handled the method and that no further
 // processing is required.  Returning RV_CONTINUE indicates that the

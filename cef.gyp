@@ -183,6 +183,7 @@
         'tests/unittests/string_unittest.cc',
         'tests/unittests/test_handler.h',
         'tests/unittests/test_suite.h',
+        'tests/unittests/url_unittest.cc',
         'tests/unittests/v8_unittest.cc',
         'tests/unittests/xml_reader_unittest.cc',
         'tests/unittests/zip_reader_unittest.cc',

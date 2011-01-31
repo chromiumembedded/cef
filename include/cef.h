@@ -59,6 +59,7 @@ class CefSettings;
 class CefStreamReader;
 class CefStreamWriter;
 class CefTask;
+class CefURLParts;
 class CefV8Handler;
 class CefV8Value;
 
@@ -179,6 +180,18 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
 bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
                         long delay_ms);
 
+// Parse the specified |url| into its component parts.
+// Returns false if the URL is empty or invalid.
+/*--cef()--*/
+bool CefParseURL(const CefString& url,
+                 CefURLParts& parts);
+
+// Creates a URL from the specified |parts|, which must contain a non-empty
+// spec or a non-empty host and path (at a minimum), but not both.
+// Returns false if |parts| isn't initialized as described.
+/*--cef()--*/
+bool CefCreateURL(const CefURLParts& parts,
+                  CefString& url);
 
 // Interface defining the the reference count implementation methods. All
 // framework classes must implement the CefBase class.
@@ -1883,6 +1896,79 @@ protected:
     memset(static_cast<cef_browser_settings_t*>(this), 0,
         sizeof(cef_browser_settings_t));
     size = sizeof(cef_browser_settings_t);
+  }
+};
+
+// Class used to represent a URL's component parts.
+class CefURLParts : public cef_urlparts_t
+{
+public:
+  CefURLParts()
+  {
+    Init();
+  }
+  virtual ~CefURLParts()
+  {
+    Reset();
+  }
+
+  CefURLParts(const CefURLParts& r)
+  {
+    Init();
+    *this = r;
+  }
+  CefURLParts(const cef_urlparts_t& r)
+  {
+    Init();
+    *this = r;
+  }
+
+  void Reset()
+  {
+    cef_string_clear(&spec);
+    cef_string_clear(&scheme);
+    cef_string_clear(&username);
+    cef_string_clear(&password);
+    cef_string_clear(&host);
+    cef_string_clear(&port);
+    cef_string_clear(&path);
+    cef_string_clear(&query);
+    Init();
+  }
+
+  void Attach(const cef_urlparts_t& r)
+  {
+    Reset();
+    *static_cast<cef_urlparts_t*>(this) = r;
+  }
+
+  void Detach()
+  {
+    Init();
+  }
+
+  CefURLParts& operator=(const CefURLParts& r)
+  {
+    return operator=(static_cast<const cef_urlparts_t&>(r));
+  }
+
+  CefURLParts& operator=(const cef_urlparts_t& r)
+  {
+    cef_string_copy(r.spec.str, r.spec.length, &spec);
+    cef_string_copy(r.scheme.str, r.scheme.length, &scheme);
+    cef_string_copy(r.username.str, r.username.length, &username);
+    cef_string_copy(r.password.str, r.password.length, &password);
+    cef_string_copy(r.host.str, r.host.length, &host);
+    cef_string_copy(r.port.str, r.port.length, &port);
+    cef_string_copy(r.path.str, r.path.length, &path);
+    cef_string_copy(r.query.str, r.query.length, &query);
+    return *this;
+  }
+
+protected:
+  void Init()
+  {
+    memset(static_cast<cef_urlparts_t*>(this), 0, sizeof(cef_urlparts_t));
   }
 };
 

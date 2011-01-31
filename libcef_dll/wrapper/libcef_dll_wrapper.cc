@@ -159,3 +159,15 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
   return cef_post_delayed_task(threadId, CefTaskCppToC::Wrap(task), delay_ms)?
       true:false;
 }
+
+bool CefParseURL(const CefString& url,
+                 CefURLParts& parts)
+{
+  return cef_parse_url(url.GetStruct(), &parts) ? true : false;
+}
+
+bool CefCreateURL(const CefURLParts& parts,
+                  CefString& url)
+{
+  return cef_create_url(&parts, url.GetWritableStruct()) ? true : false;
+}

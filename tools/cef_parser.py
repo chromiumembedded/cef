@@ -1060,6 +1060,7 @@ class obj_analysis:
             'CefPopupFeatures' : 'cef_popup_features_t',
             'CefSettings' : 'cef_settings_t',
             'CefBrowserSettings' : 'cef_browser_settings_t',
+            'CefURLParts' : 'cef_urlparts_t',
         }
         if value in structuretypes.keys():
             return {
