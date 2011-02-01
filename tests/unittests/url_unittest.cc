@@ -93,16 +93,16 @@ TEST(URLTest, ParseURL)
 
     CefString spec(&parts.spec);
     ASSERT_EQ(spec, "http://www.example.com/");
-    ASSERT_EQ(parts.username.length, 0);
-    ASSERT_EQ(parts.password.length, 0);
+    ASSERT_EQ(parts.username.length, (size_t)0);
+    ASSERT_EQ(parts.password.length, (size_t)0);
     CefString scheme(&parts.scheme);
     ASSERT_EQ(scheme, "http");
     CefString host(&parts.host);
     ASSERT_EQ(host, "www.example.com");
-    ASSERT_EQ(parts.port.length, 0);
+    ASSERT_EQ(parts.port.length, (size_t)0);
     CefString path(&parts.path);
     ASSERT_EQ(path, "/");
-    ASSERT_EQ(parts.query.length, 0);
+    ASSERT_EQ(parts.query.length, (size_t)0);
   }
 
   // Parse the URL using scheme, host and path.
@@ -114,16 +114,16 @@ TEST(URLTest, ParseURL)
 
     CefString spec(&parts.spec);
     ASSERT_EQ(spec, "http://www.example.com/path/to.html");
-    ASSERT_EQ(parts.username.length, 0);
-    ASSERT_EQ(parts.password.length, 0);
+    ASSERT_EQ(parts.username.length, (size_t)0);
+    ASSERT_EQ(parts.password.length, (size_t)0);
     CefString scheme(&parts.scheme);
     ASSERT_EQ(scheme, "http");
     CefString host(&parts.host);
     ASSERT_EQ(host, "www.example.com");
-    ASSERT_EQ(parts.port.length, 0);
+    ASSERT_EQ(parts.port.length, (size_t)0);
     CefString path(&parts.path);
     ASSERT_EQ(path, "/path/to.html");
-    ASSERT_EQ(parts.query.length, 0);
+    ASSERT_EQ(parts.query.length, (size_t)0);
   }
 
   // Parse the URL using scheme, host, path and query.
@@ -135,13 +135,13 @@ TEST(URLTest, ParseURL)
 
     CefString spec(&parts.spec);
     ASSERT_EQ(spec, "http://www.example.com/path/to.html?foo=test&bar=test2");
-    ASSERT_EQ(parts.username.length, 0);
-    ASSERT_EQ(parts.password.length, 0);
+    ASSERT_EQ(parts.username.length, (size_t)0);
+    ASSERT_EQ(parts.password.length, (size_t)0);
     CefString scheme(&parts.scheme);
     ASSERT_EQ(scheme, "http");
     CefString host(&parts.host);
     ASSERT_EQ(host, "www.example.com");
-    ASSERT_EQ(parts.port.length, 0);
+    ASSERT_EQ(parts.port.length, (size_t)0);
     CefString path(&parts.path);
     ASSERT_EQ(path, "/path/to.html");
     CefString query(&parts.query);
