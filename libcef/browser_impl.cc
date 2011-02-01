@@ -523,11 +523,12 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   if (dev_tools_agent_.get()) {
     BrowserDevToolsClient* client = dev_tools_agent_->client();
     if (client) {
+      CefBrowserImpl* browser = client->browser();
       // Destroy the client before freeing the agent.
-      client->browser()->UIT_DestroyDevToolsClient();
+      browser->UIT_DestroyDevToolsClient();
       if(!_Context->shutting_down()) {
         // Explicitly close the client browser window.
-        client->browser()->UIT_CloseBrowser();
+        browser->UIT_CloseBrowser();
       }
     }
     // Free the agent.
