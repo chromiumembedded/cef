@@ -545,6 +545,12 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   _Context->RemoveBrowser(this);
 }
 
+void CefBrowserImpl::UIT_CloseBrowser()
+{
+  REQUIRE_UIT();
+  UIT_CloseView(UIT_GetMainWndHandle());
+}
+
 void CefBrowserImpl::UIT_LoadURL(CefRefPtr<CefFrame> frame,
                                  const CefString& url)
 {
@@ -796,6 +802,25 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
   browser->UIT_CreateBrowser(newUrl);
 
   return browser;
+}
+
+WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
+{
+  REQUIRE_UIT();
+  
+  DCHECK(!popuphost_);
+  popuphost_ = WebWidgetHost::Create(UIT_GetMainWndHandle(),
+      popup_delegate_.get());
+  popuphost_->set_popup(true);
+  return popuphost_->webwidget();
+}
+
+void CefBrowserImpl::UIT_ClosePopupWidget()
+{
+  REQUIRE_UIT();
+  
+  UIT_CloseView(UIT_GetPopupWndHandle());
+  popuphost_ = NULL;
 }
 
 void CefBrowserImpl::UIT_Show(WebKit::WebNavigationPolicy policy)

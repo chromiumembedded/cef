@@ -72,6 +72,9 @@ class WebWidgetHost {
 
   void SetTooltipText(const CefString& tooltip_text);
 
+  void set_popup(bool popup) { popup_ = popup; }
+  bool popup() { return popup_; }
+
  protected:
   WebWidgetHost();
   ~WebWidgetHost();
@@ -126,13 +129,16 @@ class WebWidgetHost {
     painting_ = value;
 #endif
   }
-  
+
   void EnsureTooltip();
   void ResetTooltip();
 
   gfx::NativeView view_;
   WebKit::WebWidget* webwidget_;
   scoped_ptr<skia::PlatformCanvas> canvas_;
+
+  // True if this widget is a popup widget.
+  bool popup_;
 
   // specifies the portion of the webwidget that needs painting
   gfx::Rect paint_rect_;

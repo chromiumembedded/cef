@@ -101,15 +101,6 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
   gtk_widget_show_all(window);
 }
 
-void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->UIT_GetWebViewDelegate()) {
-    MessageLoop::current()->PostTask(FROM_HERE, NewRunnableFunction(
-        &gtk_widget_destroy, GTK_WIDGET(browser_->UIT_GetMainWndHandle())));
-  } else if (this == browser_->UIT_GetPopupDelegate()) {
-    browser_->UIT_ClosePopupWidget();
-  }
-}
-
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
   current_cursor_.InitFromCursorInfo(cursor_info);
   GdkCursorType cursor_type =

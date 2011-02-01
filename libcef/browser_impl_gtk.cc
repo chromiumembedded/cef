@@ -70,15 +70,6 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     UIT_LoadURL(GetMainFrame(), url);
 }
 
-void CefBrowserImpl::UIT_CloseBrowser()
-{
-  REQUIRE_UIT();
-  DCHECK(!_Context->shutting_down());
-
-  // TODO(port): Close the browser window.
-  NOTREACHED();
-}
-
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 {
   REQUIRE_UIT();
@@ -87,26 +78,6 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
   
   if(enable)
     gtk_widget_grab_focus(host->view_handle());
-}
-
-WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
-{
-  REQUIRE_UIT();
-  
-  DCHECK(!popuphost_);
-  popuphost_ = WebWidgetHost::Create(NULL, popup_delegate_.get());
-  
-  // TODO(port): Show window.
-
-  return popuphost_->webwidget();
-}
-
-void CefBrowserImpl::UIT_ClosePopupWidget()
-{
-  REQUIRE_UIT();
-  
-  // TODO(port): Close window.
-  popuphost_ = NULL;
 }
 
 bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
@@ -141,4 +112,11 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   // TODO(port): Add implementation.
   NOTIMPLEMENTED();
   return 0;
+}
+
+// static
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
+{
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableFunction(
+      &gtk_widget_destroy, GTK_WIDGET(view)));
 }

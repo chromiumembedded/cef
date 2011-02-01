@@ -153,14 +153,6 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     UIT_LoadURL(GetMainFrame(), url);
 }
 
-void CefBrowserImpl::UIT_CloseBrowser()
-{
-  REQUIRE_UIT();
-  DCHECK(!_Context->shutting_down());
-
-  PostMessage(UIT_GetMainWndHandle(), WM_CLOSE, 0, 0);
-}
-
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 {
   REQUIRE_UIT();
@@ -172,26 +164,6 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
   else if (::GetFocus() == host->view_handle())
     ::SetFocus(NULL);
 }
-
-WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
-{
-  REQUIRE_UIT();
-  
-  DCHECK(!popuphost_);
-  popuphost_ = WebWidgetHost::Create(NULL, popup_delegate_.get());
-  ShowWindow(UIT_GetPopupWndHandle(), SW_SHOW);
-
-  return popuphost_->webwidget();
-}
-
-void CefBrowserImpl::UIT_ClosePopupWidget()
-{
-  REQUIRE_UIT();
-  
-  PostMessage(UIT_GetPopupWndHandle(), WM_CLOSE, 0, 0);
-  popuphost_ = NULL;
-}
-
 
 static void WriteTextToFile(const std::string& data,
                             const std::wstring& file_path)
@@ -252,8 +224,10 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   const int src_size_x = canvas_size.width();
   const int src_size_y = canvas_size.height();
 
-  const int dest_size_x = settings.page_setup_pixels().printable_area().width();
-  const int dest_size_y = settings.page_setup_pixels().printable_area().height();
+  const int dest_size_x =
+      settings.page_setup_pixels().printable_area().width();
+  const int dest_size_y =
+      settings.page_setup_pixels().printable_area().height();
 
   print_context_.NewPage();
 
@@ -267,21 +241,25 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
   skia::VectorCanvas canvas(hDC, dest_size_x, dest_size_y);
 
-  //The hDC 0 coord is the left most printeable area and not physical area of the paper 
-  //so subtract that out of our canvas translate.
-  const int left_margin_offset = settings.page_setup_pixels().effective_margins().left - 
-     settings.page_setup_pixels().printable_area().x();
-  const int top_margin_offset = settings.page_setup_pixels().effective_margins().top - 
-     settings.page_setup_pixels().printable_area().y();
+  // The hDC 0 coord is the left most printeable area and not physical area of
+  // the paper so subtract that out of our canvas translate.
+  const int left_margin_offset =
+      settings.page_setup_pixels().effective_margins().left -
+      settings.page_setup_pixels().printable_area().x();
+  const int top_margin_offset =
+      settings.page_setup_pixels().effective_margins().top -
+      settings.page_setup_pixels().printable_area().y();
 
   // Adjust for the margin offset.
   canvas.translate(static_cast<float>(left_margin_offset), 
       static_cast<float>(top_margin_offset));
   
   // Apply the print scaling factor.
-  const float print_scale_x = static_cast<float>(settings.page_setup_pixels().content_area().width())
+  const float print_scale_x =
+      static_cast<float>(settings.page_setup_pixels().content_area().width())
       / src_size_x;
-  const float print_scale_y = static_cast<float>(settings.page_setup_pixels().content_area().height())
+  const float print_scale_y =
+      static_cast<float>(settings.page_setup_pixels().content_area().height())
       / src_size_y;
   canvas.scale(print_scale_x, print_scale_y);
 
@@ -306,7 +284,8 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     rect.left = left_margin_offset;
     rect.top = settings.page_setup_pixels().effective_margins().header -
         settings.page_setup_pixels().printable_area().y();
-    rect.right = left_margin_offset + settings.page_setup_pixels().content_area().width();
+    rect.right = left_margin_offset +
+        settings.page_setup_pixels().content_area().width();
     rect.bottom = settings.page_setup_pixels().printable_area().height() -
         (settings.page_setup_pixels().effective_margins().footer -
             (settings.page_setup_pixels().physical_size().height() -
@@ -408,7 +387,8 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     settings.UpdatePrintOptions(print_options);  
     
     // Ask the handler if they want to update the print options.
-    if (handler_.get() && RV_HANDLED == handler_->HandlePrintOptions(this, print_options)) {
+    if (handler_.get() && RV_HANDLED ==
+        handler_->HandlePrintOptions(this, print_options)) {
       settings.UpdateFromPrintOptions(print_options);
       print_context_.InitWithSettings(settings);
     }
@@ -465,7 +445,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
 
 int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 {
-	REQUIRE_UIT();
+  REQUIRE_UIT();
   
   printing::PrintParams params;
   const printing::PrintSettings &settings = print_context_.settings();
@@ -493,4 +473,10 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
   frame->printEnd();
 
   return page_count;
+}
+
+// static
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
+{
+  PostMessage(view, WM_CLOSE, 0, 0);
 }

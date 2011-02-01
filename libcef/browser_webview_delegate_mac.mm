@@ -97,15 +97,6 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
   }
 }
 
-void BrowserWebViewDelegate::closeWidgetSoon() {
-  if (this == browser_->UIT_GetWebViewDelegate()) {
-    NSWindow *win = browser_->UIT_GetMainWndHandle();
-    [win performSelector:@selector(performClose:) withObject:nil afterDelay:0];
-  } else if (this == browser_->UIT_GetPopupDelegate()) {
-    browser_->UIT_ClosePopupWidget();
-  }
-}
-
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
   NSCursor* ns_cursor = WebCursor(cursor_info).GetCursor();
   [ns_cursor set];

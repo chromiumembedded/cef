@@ -108,6 +108,13 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         host->WheelEvent(wparam, lparam);
         break;
 
+      case WM_MOUSEACTIVATE:
+        if (host->popup()) {
+          // Do not activate popup widgets on mouse click.
+          return MA_NOACTIVATE;
+        }
+        break;
+
       case WM_CAPTURECHANGED:
       case WM_CANCELMODE:
         host->CaptureLostEvent();
@@ -206,6 +213,7 @@ void WebWidgetHost::DiscardBackingStore() {
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       webwidget_(NULL),
+      popup_(false),
       track_mouse_leave_(false),
       scroll_dx_(0),
       scroll_dy_(0),
@@ -317,16 +325,20 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       TrackMouseLeave(false);
       break;
     case WebInputEvent::MouseDown:
-      SetCapture(view_);
-      // This mimics a temporary workaround in RenderWidgetHostViewWin 
-      // for bug 765011 to get focus when the mouse is clicked. This 
-      // happens after the mouse down event is sent to the renderer 
-      // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-      ::SetFocus(view_);
+      if (!popup()) {
+        SetCapture(view_);
+        // This mimics a temporary workaround in RenderWidgetHostViewWin 
+        // for bug 765011 to get focus when the mouse is clicked. This 
+        // happens after the mouse down event is sent to the renderer 
+        // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+        ::SetFocus(view_);
+      }
       break;
     case WebInputEvent::MouseUp:
-      if (GetCapture() == view_)
-        ReleaseCapture();
+      if (!popup()) {
+        if (GetCapture() == view_)
+          ReleaseCapture();
+      }
       break;
   }
   webwidget_->handleInputEvent(event);

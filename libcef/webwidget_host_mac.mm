@@ -140,6 +140,7 @@ void WebWidgetHost::DiscardBackingStore() {
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       webwidget_(NULL),
+      popup_(false),
       scroll_dx_(0),
       scroll_dy_(0) {
   set_painting(false);

@@ -269,6 +269,8 @@ public:
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 protected:
+  static void UIT_CloseView(gfx::NativeView view);
+
   void UIT_CreateDevToolsClient(BrowserDevToolsAgent* agent);
   void UIT_DestroyDevToolsClient();
 

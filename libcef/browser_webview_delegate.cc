@@ -506,6 +506,14 @@ void BrowserWebViewDelegate::didBlur() {
     browser_->UIT_SetFocus(host, false);
 }
 
+void BrowserWebViewDelegate::closeWidgetSoon() {
+  if (this == browser_->UIT_GetWebViewDelegate()) {
+    browser_->UIT_CloseBrowser();
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
+    browser_->UIT_ClosePopupWidget();
+  }
+}
+
 WebScreenInfo BrowserWebViewDelegate::screenInfo() {
   if (WebWidgetHost* host = GetWidgetHost())
     return host->GetScreenInfo();
