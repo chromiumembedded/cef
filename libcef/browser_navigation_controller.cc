@@ -105,7 +105,8 @@ void BrowserNavigationController::LoadEntry(BrowserNavigationEntry* entry) {
 }
 
 
-BrowserNavigationEntry* BrowserNavigationController::GetLastCommittedEntry() const {
+BrowserNavigationEntry* BrowserNavigationController::GetLastCommittedEntry()
+    const {
   if (last_committed_entry_index_ == -1)
     return NULL;
   return entries_[last_committed_entry_index_].get();
@@ -139,7 +140,8 @@ BrowserNavigationEntry* BrowserNavigationController::GetEntryWithPageID(
   return (index != -1) ? entries_[index].get() : NULL;
 }
 
-void BrowserNavigationController::DidNavigateToEntry(BrowserNavigationEntry* entry) {
+void BrowserNavigationController::DidNavigateToEntry(
+    BrowserNavigationEntry* entry) {
   // If the entry is that of a page with PageID larger than any this Tab has
   // seen before, then consider it a new navigation.
   if (entry->GetPageID() > GetMaxPageID()) {
@@ -218,7 +220,8 @@ int BrowserNavigationController::GetEntryIndexWithPageID(int32 page_id) const {
   return -1;
 }
 
-void BrowserNavigationController::NavigateToPendingEntry(bool reload, bool ignoreCache) {
+void BrowserNavigationController::NavigateToPendingEntry(bool reload,
+                                                         bool ignoreCache) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
     DCHECK(pending_entry_index_ != -1); 

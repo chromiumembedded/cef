@@ -97,6 +97,30 @@ v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame)
   return WebCore::V8Proxy::context(core_frame);
 }
 
+FrameLoadType GetFrameLoadType(WebKit::WebFrame* frame)
+{
+  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
+  WebCore::FrameLoader* loader = webFrameImpl->frame()->loader();
+  switch(loader->loadType()) {
+    case WebCore::FrameLoadTypeStandard:
+      return FLT_STANDARD;
+    case WebCore::FrameLoadTypeForward:
+    case WebCore::FrameLoadTypeBack:
+    case WebCore::FrameLoadTypeBackWMLDeckNotAccessible:
+    case WebCore::FrameLoadTypeIndexedBackForward:
+      return FLT_HISTORY;
+    case WebCore::FrameLoadTypeRedirectWithLockedBackForwardList:
+      return FLT_REDIRECT;
+    case WebCore::FrameLoadTypeReload:
+    case WebCore::FrameLoadTypeReloadFromOrigin:
+    case WebCore::FrameLoadTypeSame:
+    case WebCore::FrameLoadTypeReplace:
+      return FLT_RELOAD;
+  }
+
+  return FLT_UNKNOWN;
+}
+
 void CloseIdleConnections() {
   // Used in benchmarking,  Ignored for CEF.
 }

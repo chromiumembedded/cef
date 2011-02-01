@@ -718,12 +718,13 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
       // New navigations will be the main content.
       is_main_content_ = true;
     } else {
-      // Session history navigations will be the main content.
-      BrowserExtraData* extra_data = static_cast<BrowserExtraData*>(
-          frame->dataSource()->extraData());
-      if (extra_data && extra_data->pending_page_id != -1 &&
-          !extra_data->request_committed)
+      // Session history navigations and reloads will be the main content.
+      webkit_glue::FrameLoadType load_type =
+          webkit_glue::GetFrameLoadType(frame);
+      if (load_type == webkit_glue::FLT_HISTORY ||
+          load_type == webkit_glue::FLT_RELOAD) {
         is_main_content_ = true;
+      }
     }
 
     if (is_main_content_) {
