@@ -27,7 +27,7 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
 
 gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() const {
   REQUIRE_UIT();
-  return (NSView*)window_info_.m_View;
+  return window_info_.m_View;
 }
 
 void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
@@ -46,7 +46,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   NSWindow* newWnd = nil;
 
-  NSView* parentView = (NSView*)window_info_.m_ParentView;
+  NSView* parentView = window_info_.m_ParentView;
   gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
                         window_info_.m_nWidth, window_info_.m_nHeight);
   if (parentView == nil) {
@@ -70,7 +70,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
               backing:NSBackingStoreBuffered
               defer:NO];
     parentView = [newWnd contentView];
-    window_info_.m_ParentView = (void*)parentView;
+    window_info_.m_ParentView = parentView;
   }
 
   WebPreferences prefs;
@@ -87,7 +87,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   BrowserWebView* browserView = (BrowserWebView*)webviewhost_->view_handle();
   browserView.browser = this;
-  window_info_.m_View = (void*)browserView;
+  window_info_.m_View = browserView;
 
   Unlock();
 

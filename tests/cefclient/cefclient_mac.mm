@@ -255,66 +255,65 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                        defer:NO];
   [mainWnd setTitle:@"cefclient"];
   [mainWnd setDelegate:delegate];
-  
+
   // Rely on the window delegate to clean us up rather than immediately
   // releasing when the window gets closed. We use the delegate to do
   // everything from the autorelease pool so the window isn't on the stack
   // during cleanup (ie, a window close from javascript).
   [mainWnd setReleasedWhenClosed:NO];
-  
+
+  NSView* contentView = [mainWnd contentView];
+
   // Create the buttons.
-  NSRect button_rect = [[mainWnd contentView] bounds];
+  NSRect button_rect = [contentView bounds];
   button_rect.origin.y = window_rect.size.height - URLBAR_HEIGHT +
       (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
   button_rect.size.height = BUTTON_HEIGHT;
   button_rect.origin.x += BUTTON_MARGIN;
   button_rect.size.width = BUTTON_WIDTH;
-  
-  NSView* content = [mainWnd contentView];
-  
-  NSButton* button = MakeButton(&button_rect, @"Back", content);
+
+  NSButton* button = MakeButton(&button_rect, @"Back", contentView);
   [button setTarget:delegate];
   [button setAction:@selector(goBack:)];
-  
-  button = MakeButton(&button_rect, @"Forward", content);
+
+  button = MakeButton(&button_rect, @"Forward", contentView);
   [button setTarget:delegate];
   [button setAction:@selector(goForward:)];
-  
-  button = MakeButton(&button_rect, @"Reload", content);
+
+  button = MakeButton(&button_rect, @"Reload", contentView);
   [button setTarget:delegate];
   [button setAction:@selector(reload:)];
-  
-  button = MakeButton(&button_rect, @"Stop", content);
+
+  button = MakeButton(&button_rect, @"Stop", contentView);
   [button setTarget:delegate];
   [button setAction:@selector(stopLoading:)];
-  
+
   // Create the URL text field.
   button_rect.origin.x += BUTTON_MARGIN;
-  button_rect.size.width = [[mainWnd contentView] bounds].size.width -
-  button_rect.origin.x - BUTTON_MARGIN;
+  button_rect.size.width = [contentView bounds].size.width -
+      button_rect.origin.x - BUTTON_MARGIN;
   NSTextField* editWnd = [[NSTextField alloc] initWithFrame:button_rect];
-  [[mainWnd contentView] addSubview:editWnd];
+  [contentView addSubview:editWnd];
   [editWnd setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
   [editWnd setTarget:delegate];
   [editWnd setAction:@selector(takeURLStringValueFrom:)];
   [[editWnd cell] setWraps:NO];
   [[editWnd cell] setScrollable:YES];
-  
+
   // Create the handler.
   g_handler = new ClientHandler();
-  g_handler->SetMainHwnd(mainWnd);
+  g_handler->SetMainHwnd(contentView);
   g_handler->SetEditHwnd(editWnd);
-  
+
   // Create the browser view.
   CefWindowInfo window_info;
-  window_info.SetAsChild((void*)[mainWnd contentView], 0, 0,
-                         kWindowWidth, kWindowHeight);
+  window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
   CefBrowser::CreateBrowser(window_info, false, g_handler.get(),
                             "http://www.google.com");
-  
+
   // Show the window.
   [mainWnd makeKeyAndOrderFront: nil];
-  
+
   // Size the window.
   NSRect r = [mainWnd contentRectForFrameRect:[mainWnd frame]];
   r.size.width = kWindowWidth;
@@ -409,7 +408,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   // Shut down CEF.
   g_handler = NULL;
   CefShutdown();
-  
+
   [self release];
 }
 
@@ -420,24 +419,24 @@ int main(int argc, char* argv[])
 {
   // Retrieve the current working directory.
   getcwd(szWorkingDir, sizeof(szWorkingDir));
-  
+
   // Initialize CEF. This will also create the NSApplication instance.
   CefSettings settings;
   CefBrowserSettings browserDefaults;
   CefInitialize(settings, browserDefaults);
-  
+
   // Initialize tests.
   InitExtensionTest();
   InitSchemeTest();
-  
+
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];
   [delegate performSelectorOnMainThread:@selector(createApp:) withObject:nil
                           waitUntilDone:NO];
-  
+
   // Run the application message loop.
   [NSApp run];
-  
+
   // Don't put anything below this line because it won't be executed.
   return 0;
 }
@@ -509,11 +508,11 @@ void ClientHandler::SendNotification(NotificationType type)
       sel = @selector(notifyDownloadError:);
       break;
   }
-  
+
   if(sel == nil)
     return;
-  
-  NSWindow* window = (NSWindow*)g_handler->GetMainHwnd();
+
+  NSWindow* window = [g_handler->GetMainHwnd() window];
   NSObject* delegate = [window delegate];
   [delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];
 }

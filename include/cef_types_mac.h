@@ -34,12 +34,21 @@
 #if defined(__APPLE__)
 #include "cef_string.h"
 
+// Window handle.
+#ifdef __cplusplus
+#ifdef __OBJC__
+@class NSView;
+#else
+class NSView;
+#endif
+#define cef_window_handle_t NSView*
+#else
+#define cef_window_handle_t void*
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// Window handle.
-#define cef_window_handle_t void*
 
 // Class representing window information.
 typedef struct _cef_window_info_t
