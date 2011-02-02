@@ -25,9 +25,9 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return window_info_.m_View;
 }
 
-gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() const {
+gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() const {
   REQUIRE_UIT();
-  return (NSWindow*)window_info_.m_View;
+  return (NSView*)window_info_.m_View;
 }
 
 void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
@@ -44,9 +44,34 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_.reset(new BrowserDevToolsAgent());
 
+  NSWindow* newWnd = nil;
+
   NSView* parentView = (NSView*)window_info_.m_ParentView;
   gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
                         window_info_.m_nWidth, window_info_.m_nHeight);
+  if (parentView == nil) {
+    // Create a new window.
+    NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
+    NSRect window_rect = {{window_info_.m_x,
+                           screen_rect.size.height - window_info_.m_y},
+                          {window_info_.m_nWidth, window_info_.m_nHeight}};
+    if (window_rect.size.width == 0)
+      window_rect.size.width = 500;
+    if (window_rect.size.height == 0)
+      window_rect.size.height = 500;
+    contentRect.SetRect(0, 0, window_rect.size.width, window_rect.size.height);
+
+    newWnd = [[NSWindow alloc]
+              initWithContentRect:window_rect
+              styleMask:(NSTitledWindowMask |
+                         NSClosableWindowMask |
+                         NSMiniaturizableWindowMask |
+                         NSResizableWindowMask )
+              backing:NSBackingStoreBuffered
+              defer:NO];
+    parentView = [newWnd contentView];
+    window_info_.m_ParentView = (void*)parentView;
+  }
 
   WebPreferences prefs;
   BrowserToWebSettings(settings_, prefs);
@@ -65,6 +90,11 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   window_info_.m_View = (void*)browserView;
 
   Unlock();
+
+  if (newWnd != nil) {
+    // Show the window.
+    [newWnd makeKeyAndOrderFront: nil];
+  }
 
   if(handler_.get()) {
     // Notify the handler that we're done creating the new window

@@ -636,27 +636,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 // ClientHandler implementation
 
-CefHandler::RetVal ClientHandler::HandleBeforeCreated(
-    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
-    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
-    CefString& url, CefBrowserSettings& settings)
-{
-  REQUIRE_UI_THREAD();
-
-  if(popup) {
-    if(popupFeatures.xSet)
-      createInfo.m_x = popupFeatures.x;
-    if(popupFeatures.ySet)
-      createInfo.m_y = popupFeatures.y;
-    if(popupFeatures.widthSet)
-      createInfo.m_nWidth = popupFeatures.width;
-    if(popupFeatures.heightSet)
-      createInfo.m_nHeight = popupFeatures.height;
-  }
-
-  return RV_CONTINUE;
-}
-
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)

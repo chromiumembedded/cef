@@ -782,6 +782,17 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
 #if defined(OS_WIN)
   info.SetAsPopup(NULL, CefString());
 #endif
+
+  // Default to the size from the popup features.
+  if(features.xSet)
+    info.m_x = features.x;
+  if(features.ySet)
+    info.m_y = features.y;
+  if(features.widthSet)
+    info.m_nWidth = features.width;
+  if(features.heightSet)
+    info.m_nHeight = features.height;
+
   CefRefPtr<CefHandler> handler = handler_;
   CefString newUrl = url;
 
@@ -820,7 +831,10 @@ void CefBrowserImpl::UIT_ClosePopupWidget()
 {
   REQUIRE_UIT();
   
+#if !defined(OS_MACOSX)
+  // Mac uses a WebPopupMenu for select lists so no closing is necessary.
   UIT_CloseView(UIT_GetPopupWndHandle());
+#endif
   popuphost_ = NULL;
 }
 

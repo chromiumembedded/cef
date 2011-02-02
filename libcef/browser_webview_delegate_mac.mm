@@ -28,7 +28,7 @@ using WebKit::WebWidget;
 WebWidget* BrowserWebViewDelegate::createPopupMenu(
     const WebPopupMenuInfo& info) {
   WebWidget* webwidget = browser_->UIT_CreatePopupWidget();
-  popup_menu_info_.reset(new WebPopupMenuInfo(info));
+  browser_->UIT_GetPopupDelegate()->SetPopupMenuInfo(info);
   return webwidget;
 }
 
@@ -79,7 +79,8 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
   // (mouse down, keyboard activity) for this, so we calculate the proper
   // position based on the selected index and provided bounds.
   WebWidgetHost* popup = browser_->UIT_GetPopupHost();
-  int window_num = [browser_->UIT_GetMainWndHandle() windowNumber];
+  NSWindow* window = [browser_->UIT_GetMainWndHandle() window];
+  int window_num = [window windowNumber];
   NSEvent* event =
       webkit_glue::EventWithMenuAction([menu_runner menuItemWasChosen],
                                        window_num, item_height,
@@ -95,6 +96,8 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
     // forward that to WebKit.
     popup->KeyEvent(event);
   }
+
+  browser_->UIT_ClosePopupWidget();
 }
 
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
@@ -185,6 +188,10 @@ void BrowserWebViewDelegate::DidMovePlugin(
 }
 
 // Protected methods ----------------------------------------------------------
+
+void BrowserWebViewDelegate::SetPopupMenuInfo(const WebPopupMenuInfo& info) {
+  popup_menu_info_.reset(new WebPopupMenuInfo(info));
+}
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const CefString& message) {

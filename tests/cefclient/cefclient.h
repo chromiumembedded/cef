@@ -47,7 +47,11 @@ public:
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
                                      CefString& url,
-                                     CefBrowserSettings& settings);
+                                     CefBrowserSettings& settings)
+  {
+    REQUIRE_UI_THREAD();
+    return RV_CONTINUE;
+  }
 
   // Called on the UI thread after a new window is created. The return value is
   // currently ignored.

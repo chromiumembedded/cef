@@ -245,6 +245,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   CefBrowserImpl* GetBrowser() { return browser_; }
 
+#if defined(OS_MACOSX)
+  void SetPopupMenuInfo(const WebKit::WebPopupMenuInfo& info);
+#endif
+
  protected:
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,
@@ -319,8 +323,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #endif
 
 #if defined(OS_MACOSX)
-      scoped_ptr<WebKit::WebPopupMenuInfo> popup_menu_info_;
-      WebKit::WebRect popup_bounds_;
+  scoped_ptr<WebKit::WebPopupMenuInfo> popup_menu_info_;
+  WebKit::WebRect popup_bounds_;
 #endif
 
   // true if we want to enable smart insert/delete.

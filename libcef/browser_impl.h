@@ -152,7 +152,7 @@ public:
     REQUIRE_UIT();
     return popuphost_->view_handle();
   }
-  gfx::NativeWindow UIT_GetMainWndHandle() const;
+  gfx::NativeView UIT_GetMainWndHandle() const;
 
   BrowserNavigationController* UIT_GetNavigationController() {
     REQUIRE_UIT();

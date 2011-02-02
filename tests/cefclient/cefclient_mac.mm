@@ -164,6 +164,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
+- (IBAction)testPopupWindow:(id)sender;
+- (IBAction)testAccelerated2DCanvas:(id)sender;
+- (IBAction)testAcceleratedLayers:(id)sender;
+- (IBAction)testWebGL:(id)sender;
+- (IBAction)testHTML5Video:(id)sender;
+- (IBAction)testZoomIn:(id)sender;
+- (IBAction)testZoomOut:(id)sender;
+- (IBAction)testZoomReset:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -202,6 +210,30 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Scheme Handler"
                       action:@selector(testSchemeHandler:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Popup Window"
+                      action:@selector(testPopupWindow:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Accelerated 2D Canvas"
+                      action:@selector(testAccelerated2DCanvas:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Acceledated Layers"
+                      action:@selector(testAcceleratedLayers:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"WebGL"
+                      action:@selector(testWebGL:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"HTML5 Video"
+                      action:@selector(testHTML5Video:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom In"
+                      action:@selector(testZoomIn:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom Out"
+                      action:@selector(testZoomOut:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom Reset"
+                      action:@selector(testZoomReset:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -325,6 +357,52 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunSchemeTest(g_handler->GetBrowser());
 }
 
+- (IBAction)testPopupWindow:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunPopupTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testAccelerated2DCanvas:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunAccelerated2DCanvasTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testAcceleratedLayers:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunAcceleratedLayersTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testWebGL:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunWebGLTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testHTML5Video:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunHTML5VideoTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testZoomIn:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->SetZoomLevel(browser->GetZoomLevel() + 0.5);
+  }
+}
+
+- (IBAction)testZoomOut:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->SetZoomLevel(browser->GetZoomLevel() - 0.5);
+  }
+}
+
+- (IBAction)testZoomReset:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->SetZoomLevel(0.0);
+  }
+}
+
 // Sent by the default notification center immediately before the application
 // terminates.
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -367,15 +445,6 @@ int main(int argc, char* argv[])
 
 // ClientHandler implementation
 
-CefHandler::RetVal ClientHandler::HandleBeforeCreated(
-    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
-    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
-    CefString& url, CefBrowserSettings& settings)
-{
-  REQUIRE_UI_THREAD();
-  return RV_CONTINUE;
-}
-
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)
@@ -399,7 +468,8 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
   REQUIRE_UI_THREAD();
 
   // Set the frame window title bar
-  NSWindow* window = (NSWindow*)m_MainHwnd;
+  NSView* view = (NSView*)browser->GetWindowHandle();
+  NSWindow* window = [view window];
   std::string titleStr(title);
   NSString* str = [NSString stringWithUTF8String:titleStr.c_str()];
   [window setTitle:str];
