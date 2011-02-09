@@ -41,6 +41,10 @@ public:
   virtual void SetHeaderMap(const HeaderMap& headerMap);
   virtual void Set(const CefString& url, const CefString& method,
       CefRefPtr<CefPostData> postData, const HeaderMap& headerMap);
+  virtual RequestFlags GetFlags();
+  virtual void SetFlags(RequestFlags flags);
+  virtual CefString GetFirstPartyForCookies();
+  virtual void SetFirstPartyForCookies(const CefString& url);
 };
 
 #endif // USING_CEF_SHARED

@@ -144,6 +144,47 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
       postDataPtr, map);
 }
 
+enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
+    struct _cef_request_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return WUR_FLAG_NONE;
+
+  return CefRequestCppToC::Get(self)->GetFlags();
+}
+
+void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
+    enum cef_weburlrequest_flags_t flags)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefRequestCppToC::Get(self)->SetFlags(flags);
+}
+
+cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
+    struct _cef_request_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return NULL;
+
+  CefString urlStr = CefRequestCppToC::Get(self)->GetFirstPartyForCookies();
+  return urlStr.DetachToUserFree();
+}
+
+void CEF_CALLBACK request_set_first_party_for_cookies(
+    struct _cef_request_t* self, const cef_string_t* url)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefRequestCppToC::Get(self)->SetFirstPartyForCookies(CefString(url));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -159,6 +200,12 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
   struct_.struct_.get_header_map = request_get_header_map;
   struct_.struct_.set_header_map = request_set_header_map;
   struct_.struct_.set = request_set;
+  struct_.struct_.get_flags = request_get_flags;
+  struct_.struct_.set_flags = request_set_flags;
+  struct_.struct_.get_first_party_for_cookies =
+      request_get_first_party_for_cookies;
+  struct_.struct_.set_first_party_for_cookies =
+      request_set_first_party_for_cookies;
 }
 
 #ifdef _DEBUG

@@ -298,6 +298,9 @@ TEST(RequestTest, SendRecv)
   ASSERT_TRUE(g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled);
 }
 
+// Enable this test if you have applied the patches for issue #42.
+#if 0
+
 bool g_RequestHistoryNavTestDidLoadRequest;
 bool g_RequestHistoryNavTestDidReloadRequest;
 
@@ -430,3 +433,5 @@ TEST(RequestTest, HistoryNav)
   ASSERT_TRUE(g_RequestHistoryNavTestDidLoadRequest);
   ASSERT_TRUE(g_RequestHistoryNavTestDidReloadRequest);
 }
+
+#endif // 0

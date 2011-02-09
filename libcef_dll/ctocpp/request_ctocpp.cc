@@ -147,6 +147,41 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     cef_string_map_free(map);
 }
 
+CefRequest::RequestFlags CefRequestCToCpp::GetFlags()
+{
+  if(CEF_MEMBER_MISSING(struct_, get_flags))
+    return WUR_FLAG_NONE;
+
+  return struct_->get_flags(struct_);
+}
+
+void CefRequestCToCpp::SetFlags(RequestFlags flags)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_flags))
+    return;
+
+  struct_->set_flags(struct_, flags);
+}
+
+CefString CefRequestCToCpp::GetFirstPartyForCookies()
+{
+  CefString str;
+  if(CEF_MEMBER_MISSING(struct_, get_first_party_for_cookies))
+    return str;
+
+  cef_string_userfree_t strPtr = struct_->get_first_party_for_cookies(struct_);
+  str.AttachToUserFree(strPtr);
+  return str;
+}
+
+void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_first_party_for_cookies))
+    return;
+
+  struct_->set_first_party_for_cookies(struct_, url.GetStruct());
+}
+
 
 #ifdef _DEBUG
 template<> long CefCToCpp<CefRequestCToCpp, CefRequest,

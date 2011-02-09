@@ -5,7 +5,7 @@
 #ifndef _REQUEST_IMPL_H
 #define _REQUEST_IMPL_H
 
-#include "../include/cef.h"
+#include "include/cef.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_request_headers.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebHTTPBody.h"
@@ -34,8 +34,14 @@ public:
                    const CefString& method,
                    CefRefPtr<CefPostData> postData,
                    const HeaderMap& headerMap);
+  virtual RequestFlags GetFlags();
+  virtual void SetFlags(RequestFlags flags);
+  virtual CefString GetFirstPartyForCookies();
+  virtual void SetFirstPartyForCookies(const CefString& url);
 
   void Set(net::URLRequest* request);
+  void Set(const WebKit::WebURLRequest& request);
+  void Get(WebKit::WebURLRequest& request);
 
   static void GetHeaderMap(const net::HttpRequestHeaders& headers,
                            HeaderMap& map);
@@ -44,14 +50,15 @@ public:
   static void SetHeaderMap(const HeaderMap& map,
                            WebKit::WebURLRequest& request);
 
-  static std::string GenerateHeaders(const HeaderMap& map);
-  static void ParseHeaders(const std::string& header_str, HeaderMap& map);
-
 protected:
   CefString url_;
   CefString method_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
+
+  // The below methods are used by WebURLRequest.
+  RequestFlags flags_;
+  CefString first_party_for_cookies_;
 };
 
 // Implementation of CefPostData

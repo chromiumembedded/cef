@@ -1073,6 +1073,7 @@ class obj_analysis:
             'void' : 'void',
             'int' : 'int',
             'int64' : 'int64',
+            'uint64' : 'uint64',
             'double' : 'double',
             'long' : 'long',
             'unsigned long' : 'unsigned long',

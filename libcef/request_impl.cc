@@ -6,13 +6,13 @@
 #include "browser_webkit_glue.h"
 
 #include "base/logging.h"
-#include "net/http/http_response_headers.h"
-#include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebHTTPHeaderVisitor.h"
+#include "http_header_utils.h"
 
-using net::HttpResponseHeaders;
-
+using WebKit::WebHTTPBody;
+using WebKit::WebString;
+using WebKit::WebURL;
+using WebKit::WebURLRequest;
 
 CefRefPtr<CefRequest> CefRequest::CreateRequest()
 {
@@ -21,66 +21,56 @@ CefRefPtr<CefRequest> CefRequest::CreateRequest()
 }
 
 CefRequestImpl::CefRequestImpl()
+    : method_("GET"), flags_(WUR_FLAG_NONE)
 {
 }
 
 CefString CefRequestImpl::GetURL()
 {
-  Lock();
-  CefString url = url_;
-  Unlock();
-  return url;
+  AutoLock lock_scope(this);
+  return url_;
 }
 
 void CefRequestImpl::SetURL(const CefString& url)
 {
-  Lock();
+  AutoLock lock_scope(this);
   url_ = url;
-  Unlock();
 }
 
 CefString CefRequestImpl::GetMethod()
 {
-  Lock();
-  CefString method = method_;
-  Unlock();
-  return method;
+  AutoLock lock_scope(this);
+  return method_;
 }
 
 void CefRequestImpl::SetMethod(const CefString& method)
 {
-  Lock();
+  AutoLock lock_scope(this);
   method_ = method;
-  Unlock();
 }
 
 CefRefPtr<CefPostData> CefRequestImpl::GetPostData()
 {
-  Lock();
-  CefRefPtr<CefPostData> postData = postdata_;
-  Unlock();
-  return postData;
+  AutoLock lock_scope(this);
+  return postdata_;
 }
 
 void CefRequestImpl::SetPostData(CefRefPtr<CefPostData> postData)
 {
-  Lock();
+  AutoLock lock_scope(this);
   postdata_ = postData;
-  Unlock();
 }
 
 void CefRequestImpl::GetHeaderMap(HeaderMap& headerMap)
 {
-  Lock();
+  AutoLock lock_scope(this);
   headerMap = headermap_;
-  Unlock();
 }
 
 void CefRequestImpl::SetHeaderMap(const HeaderMap& headerMap)
 {
-  Lock();
+  AutoLock lock_scope(this);
   headermap_ = headerMap;
-  Unlock();
 }
 
 void CefRequestImpl::Set(const CefString& url,
@@ -88,36 +78,141 @@ void CefRequestImpl::Set(const CefString& url,
                          CefRefPtr<CefPostData> postData,
                          const HeaderMap& headerMap)
 {
-  Lock();
+  AutoLock lock_scope(this);
   url_ = url;
   method_ = method;
   postdata_ = postData;
   headermap_ = headerMap;
-  Unlock();
 }
 
 void CefRequestImpl::Set(net::URLRequest* request)
 {
-  SetURL(request->url().spec());
-  SetMethod(request->method());
+  AutoLock lock_scope(this);
+
+  url_ = request->url().spec();
+  method_ = request->method();
 
   // Transfer request headers
-  HeaderMap headerMap;
-  GetHeaderMap(request->extra_request_headers(), headerMap);
-  headerMap.insert(std::make_pair(L"Referrer", request->referrer()));
-  SetHeaderMap(headerMap);
-
+  GetHeaderMap(request->extra_request_headers(), headermap_);
+  headermap_.insert(std::make_pair(L"Referrer", request->referrer()));
+  
   // Transfer post data, if any
   net::UploadData* data = request->get_upload();
   if (data) {
-    CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
-    static_cast<CefPostDataImpl*>(postdata.get())->Set(*data);
-    SetPostData(postdata);
+    postdata_ = CefPostData::CreatePostData();
+    static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
   }
 }
 
+void CefRequestImpl::Set(const WebKit::WebURLRequest& request)
+{
+  DCHECK(!request.isNull());
+  AutoLock lock_scope(this);
 
-void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers, HeaderMap& map)
+  url_ = request.url().spec().utf16();
+  method_ = request.httpMethod();
+
+  WebHTTPBody& body = request.httpBody();
+  if (!body.isNull()) {
+    postdata_ = new CefPostDataImpl();
+    static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
+  } else if(postdata_.get()) {
+    postdata_ = NULL;
+  }
+
+  headermap_.clear();
+  GetHeaderMap(request, headermap_);
+
+  int flags = WUR_FLAG_NONE;
+  if (request.cachePolicy() == WebURLRequest::ReloadIgnoringCacheData)
+    flags |= WUR_FLAG_SKIP_CACHE;
+  if (request.allowStoredCredentials())
+    flags |= WUR_FLAG_ALLOW_CACHED_CREDENTIALS;
+  if (request.allowCookies())
+    flags |= WUR_FLAG_ALLOW_COOKIES;
+  if (request.reportUploadProgress())
+    flags |= WUR_FLAG_REPORT_UPLOAD_PROGRESS;
+  if (request.reportLoadTiming())
+    flags |= WUR_FLAG_REPORT_LOAD_TIMING;
+  if (request.reportRawHeaders())
+    flags |= WUR_FLAG_REPORT_RAW_HEADERS;
+  flags_ = static_cast<cef_weburlrequest_flags_t>(flags);
+
+  first_party_for_cookies_ = request.firstPartyForCookies().spec().utf16();
+}
+
+#define SETBOOLFLAG(obj, flags, method, FLAG) \
+    obj.method((flags & (FLAG)) == (FLAG))
+
+void CefRequestImpl::Get(WebKit::WebURLRequest& request)
+{
+  request.initialize();
+  AutoLock lock_scope(this);
+
+  std::string urlStr(url_);
+  GURL gurl = GURL(urlStr);
+  request.setURL(WebURL(gurl));
+
+  std::string method(method_);
+  request.setHTTPMethod(WebString::fromUTF8(method.c_str()));
+  request.setTargetType(WebURLRequest::TargetIsMainFrame);
+
+  WebHTTPBody body;
+  if (postdata_.get()) {
+    body.initialize();
+    static_cast<CefPostDataImpl*>(postdata_.get())->Get(body);
+    request.setHTTPBody(body);
+  }
+
+  SetHeaderMap(headermap_, request);
+
+  request.setCachePolicy((flags_ & WUR_FLAG_SKIP_CACHE) ?
+      WebURLRequest::ReloadIgnoringCacheData :
+      WebURLRequest::UseProtocolCachePolicy);
+
+  SETBOOLFLAG(request, flags_, setAllowStoredCredentials, 
+              WUR_FLAG_ALLOW_CACHED_CREDENTIALS);
+  SETBOOLFLAG(request, flags_, setAllowCookies, 
+              WUR_FLAG_ALLOW_COOKIES);
+  SETBOOLFLAG(request, flags_, setReportUploadProgress, 
+              WUR_FLAG_REPORT_UPLOAD_PROGRESS);
+  SETBOOLFLAG(request, flags_, setReportLoadTiming, 
+              WUR_FLAG_REPORT_LOAD_TIMING);
+  SETBOOLFLAG(request, flags_, setReportRawHeaders,
+              WUR_FLAG_REPORT_RAW_HEADERS);
+
+  if (!first_party_for_cookies_.empty()) {
+    std::string cookiesStr(first_party_for_cookies_);
+    GURL gurl = GURL(cookiesStr);
+    request.setFirstPartyForCookies(WebURL(gurl));
+  }
+}
+
+CefRequest::RequestFlags CefRequestImpl::GetFlags()
+{
+  AutoLock lock_scope(this);
+  return flags_;
+}
+void CefRequestImpl::SetFlags(RequestFlags flags)
+{
+  AutoLock lock_scope(this);
+  flags_ = flags;
+}
+
+CefString CefRequestImpl::GetFirstPartyForCookies()
+{
+  AutoLock lock_scope(this);
+  return first_party_for_cookies_;
+}
+void CefRequestImpl::SetFirstPartyForCookies(const CefString& url)
+{
+  AutoLock lock_scope(this);
+  first_party_for_cookies_ = url;
+}
+
+// static
+void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers, 
+                                  HeaderMap& map)
 {
   net::HttpRequestHeaders::Iterator it(headers);
   do {
@@ -125,68 +220,21 @@ void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers, Header
   } while (it.GetNext());
 }
 
+// static
 void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
                                   HeaderMap& map)
 {
-  class CefHTTPHeaderVisitor : public WebKit::WebHTTPHeaderVisitor {
-    public:
-      CefHTTPHeaderVisitor(HeaderMap* map) : map_(map) {}
-
-      virtual void visitHeader(const WebKit::WebString& name,
-                               const WebKit::WebString& value) {
-        map_->insert(std::make_pair(string16(name), string16(value)));
-      }
-
-    private:
-      HeaderMap* map_;
-  };
-
-  CefHTTPHeaderVisitor visitor(&map);
+  HttpHeaderUtils::HeaderVisitor visitor(&map);
   request.visitHTTPHeaderFields(&visitor);
 }
 
+// static
 void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
                                   WebKit::WebURLRequest& request)
 {
   HeaderMap::const_iterator it = map.begin();
   for(; it != map.end(); ++it)
     request.setHTTPHeaderField(string16(it->first), string16(it->second));
-}
-
-std::string CefRequestImpl::GenerateHeaders(const HeaderMap& map)
-{
-  std::string headers;
-
-  for(HeaderMap::const_iterator header = map.begin();
-      header != map.end();
-      ++header) {
-    const CefString& key = header->first;
-    const CefString& value = header->second;
-
-    if(!key.empty()) {
-      // Delimit with "\r\n".
-      if(!headers.empty())
-        headers += "\r\n";
-
-      headers += std::string(key) + ": " + std::string(value);
-    }
-  }
-
-  return headers;
-}
-
-void CefRequestImpl::ParseHeaders(const std::string& header_str, HeaderMap& map)
-{
-  // Parse the request header values
-  std::string headerStr = "HTTP/1.1 200 OK\n";
-  headerStr += header_str;
-  scoped_refptr<net::HttpResponseHeaders> headers =
-      new HttpResponseHeaders(net::HttpUtil::AssembleRawHeaders(
-          headerStr.c_str(), headerStr.length()));
-  void* iter = NULL;
-  std::string name, value;
-  while(headers->EnumerateHeaderLines(&iter, &name, &value))
-    map.insert(std::make_pair(name, value));
 }
 
 CefRefPtr<CefPostData> CefPostData::CreatePostData()
@@ -201,44 +249,36 @@ CefPostDataImpl::CefPostDataImpl()
 
 size_t CefPostDataImpl::GetElementCount()
 {
-  Lock();
-  size_t ct = elements_.size();
-  Unlock();
-  return ct;
+  AutoLock lock_scope(this);
+  return elements_.size();
 }
 
 void CefPostDataImpl::GetElements(ElementVector& elements)
 {
-  Lock();
+  AutoLock lock_scope(this);
   elements = elements_;
-  Unlock();
 }
 
 bool CefPostDataImpl::RemoveElement(CefRefPtr<CefPostDataElement> element)
 {
-  bool deleted = false;
-
-  Lock();
+  AutoLock lock_scope(this);
 
   ElementVector::iterator it = elements_.begin();
   for(; it != elements_.end(); ++it) {
     if(it->get() == element.get()) {
       elements_.erase(it);
-      deleted = true;
-      break;
+      return true;
     }
   }
 
-  Unlock();
-  
-  return deleted;
+  return false;
 }
 
 bool CefPostDataImpl::AddElement(CefRefPtr<CefPostDataElement> element)
 {
   bool found = false;
   
-  Lock();
+  AutoLock lock_scope(this);
   
   // check that the element isn't already in the list before adding
   ElementVector::const_iterator it = elements_.begin();
@@ -252,20 +292,18 @@ bool CefPostDataImpl::AddElement(CefRefPtr<CefPostDataElement> element)
   if(!found)
     elements_.push_back(element);
  
-  Unlock();
   return !found;
 }
 
 void CefPostDataImpl::RemoveElements()
 {
-  Lock();
+  AutoLock lock_scope(this);
   elements_.clear();
-  Unlock();
 }
 
 void CefPostDataImpl::Set(net::UploadData& data)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   CefRefPtr<CefPostDataElement> postelem;
 
@@ -276,13 +314,11 @@ void CefPostDataImpl::Set(net::UploadData& data)
     static_cast<CefPostDataElementImpl*>(postelem.get())->Set(*it);
     AddElement(postelem);
   }
-
-  Unlock();
 }
 
 void CefPostDataImpl::Get(net::UploadData& data)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   net::UploadData::Element element;
   std::vector<net::UploadData::Element> data_elements;
@@ -292,13 +328,11 @@ void CefPostDataImpl::Get(net::UploadData& data)
     data_elements.push_back(element);
   }
   data.SetElements(data_elements);
-
-  Unlock();
 }
 
 void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   CefRefPtr<CefPostDataElement> postelem;
   WebKit::WebHTTPBody::Element element;
@@ -310,13 +344,11 @@ void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data)
       AddElement(postelem);
     }
   }
-
-  Unlock();
 }
 
 void CefPostDataImpl::Get(WebKit::WebHTTPBody& data)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   WebKit::WebHTTPBody::Element element;
   ElementVector::iterator it = elements_.begin();
@@ -330,8 +362,6 @@ void CefPostDataImpl::Get(WebKit::WebHTTPBody& data)
       NOTREACHED();
     }
   }
-
-  Unlock();
 }
 
 CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement()
@@ -353,31 +383,29 @@ CefPostDataElementImpl::~CefPostDataElementImpl()
 
 void CefPostDataElementImpl::SetToEmpty()
 {
-  Lock();
+  AutoLock lock_scope(this);
   if(type_ == PDE_TYPE_BYTES)
     free(data_.bytes.bytes);
   else if(type_ == PDE_TYPE_FILE)
     cef_string_clear(&data_.filename);
   type_ = PDE_TYPE_EMPTY;
   memset(&data_, 0, sizeof(data_));
-  Unlock();
 }
 
 void CefPostDataElementImpl::SetToFile(const CefString& fileName)
 {
-  Lock();
+  AutoLock lock_scope(this);
   // Clear any data currently in the element
   SetToEmpty();
 
   // Assign the new data
   type_ = PDE_TYPE_FILE;
   cef_string_copy(fileName.c_str(), fileName.length(), &data_.filename);
-  Unlock();
 }
 
 void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes)
 {
-  Lock();
+  AutoLock lock_scope(this);
   // Clear any data currently in the element
   SetToEmpty();
 
@@ -392,55 +420,49 @@ void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes)
   type_ = PDE_TYPE_BYTES;
   data_.bytes.bytes = data;
   data_.bytes.size = size;
-  Unlock();
 }
 
 CefPostDataElement::Type CefPostDataElementImpl::GetType()
 {
-  Lock();
-  CefPostDataElement::Type type = type_;
-  Unlock();
-  return type;
+  AutoLock lock_scope(this);
+  return type_;
 }
 
 CefString CefPostDataElementImpl::GetFile()
 {
-  Lock();
+  AutoLock lock_scope(this);
   DCHECK(type_ == PDE_TYPE_FILE);
   CefString filename;
   if(type_ == PDE_TYPE_FILE)
     filename.FromString(data_.filename.str, data_.filename.length, false);
-  Unlock();
   return filename;
 }
 
 size_t CefPostDataElementImpl::GetBytesCount()
 {
-  Lock();
+  AutoLock lock_scope(this);
   DCHECK(type_ == PDE_TYPE_BYTES);
   size_t size = 0;
   if(type_ == PDE_TYPE_BYTES)
     size = data_.bytes.size;
-  Unlock();
   return size;
 }
 
 size_t CefPostDataElementImpl::GetBytes(size_t size, void* bytes)
 {
-  Lock();
+  AutoLock lock_scope(this);
   DCHECK(type_ == PDE_TYPE_BYTES);
   size_t rv = 0;
   if(type_ == PDE_TYPE_BYTES) {
     rv = (size < data_.bytes.size ? size : data_.bytes.size);
     memcpy(bytes, data_.bytes.bytes, rv);
   }
-  Unlock();
   return rv;
 }
 
 void CefPostDataElementImpl::Set(const net::UploadData::Element& element)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   if (element.type() == net::UploadData::TYPE_BYTES) {
     SetToBytes(element.bytes().size(),
@@ -452,13 +474,11 @@ void CefPostDataElementImpl::Set(const net::UploadData::Element& element)
   } else {
     NOTREACHED();
   }
-
-  Unlock();
 }
 
 void CefPostDataElementImpl::Get(net::UploadData::Element& element)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   if(type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
@@ -468,13 +488,11 @@ void CefPostDataElementImpl::Get(net::UploadData::Element& element)
   } else {
     NOTREACHED();
   }
-
-  Unlock();
 }
 
 void CefPostDataElementImpl::Set(const WebKit::WebHTTPBody::Element& element)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   if(element.type == WebKit::WebHTTPBody::Element::TypeData) {
     SetToBytes(element.data.size(),
@@ -484,13 +502,11 @@ void CefPostDataElementImpl::Set(const WebKit::WebHTTPBody::Element& element)
   } else {
     NOTREACHED();
   }
-
-  Unlock();
 }
 
 void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element)
 {
-  Lock();
+  AutoLock lock_scope(this);
 
   if(type_ == PDE_TYPE_BYTES) {
     element.type = WebKit::WebHTTPBody::Element::TypeData;
@@ -502,6 +518,4 @@ void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element)
   } else {
     NOTREACHED();
   }
-
-  Unlock();
 }

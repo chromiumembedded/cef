@@ -47,6 +47,7 @@
 #define ID_TESTS_ZOOM_RESET             32787
 #define ID_TESTS_DEVTOOLS_SHOW          32788
 #define ID_TESTS_DEVTOOLS_CLOSE         32789
+#define ID_TESTS_WEBURLREQUEST          32790
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001

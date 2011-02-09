@@ -717,6 +717,9 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
     if (is_new_navigation) {
       // New navigations will be the main content.
       is_main_content_ = true;
+    } else if(webkit_glue::FrameHasSubsituteData(frame)) {
+      // Loading from a string will be main content.
+      is_main_content_ = true;
     } else {
       // Session history navigations and reloads will be the main content.
       webkit_glue::FrameLoadType load_type =

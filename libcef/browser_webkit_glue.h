@@ -50,6 +50,9 @@ enum FrameLoadType {
 // Returns the frame load type.
 FrameLoadType GetFrameLoadType(WebKit::WebFrame* frame);
 
+// Returns true if the frame is loading substitute data.
+bool FrameHasSubsituteData(WebKit::WebFrame* frame);
+
 // Clear all cached data.
 void ClearCache();
 

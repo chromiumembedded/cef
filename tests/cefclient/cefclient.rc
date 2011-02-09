@@ -77,6 +77,7 @@ BEGIN
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
         MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
+        MENUITEM "WebURLRequest",               ID_TESTS_WEBURLREQUEST
         MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
         MENUITEM "Accelerated Layers",          ID_TESTS_ACCELERATEDLAYERS
         MENUITEM "WebGL",                       ID_TESTS_WEBGL

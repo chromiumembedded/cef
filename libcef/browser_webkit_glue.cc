@@ -7,6 +7,7 @@
 
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "DocumentLoader.h"
 #include "MemoryCache.h"
 #include "TextEncoding.h"
 #include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"
@@ -119,6 +120,14 @@ FrameLoadType GetFrameLoadType(WebKit::WebFrame* frame)
   }
 
   return FLT_UNKNOWN;
+}
+
+bool FrameHasSubsituteData(WebKit::WebFrame* frame)
+{
+  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
+  WebCore::DocumentLoader* docLoader =
+      webFrameImpl->frame()->loader()->documentLoader();
+  return docLoader->substituteData().isValid();
 }
 
 void CloseIdleConnections() {

@@ -400,3 +400,74 @@ void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
 }
+
+void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
+{
+  class RequestClient : public CefThreadSafeBase<CefWebURLRequestClient>
+  {
+  public:
+    RequestClient(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
+
+    virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester, 
+                               RequestState state)
+    {
+      REQUIRE_UI_THREAD();
+      if (state == WUR_STATE_DONE) {
+        buffer_ = StringReplace(buffer_, "<", "&lt;");
+        buffer_ = StringReplace(buffer_, ">", "&gt;");
+        std::stringstream ss;
+        ss << "<html><body>Source:<pre>" << buffer_ << "</pre></body></html>";
+
+        browser_->GetMainFrame()->LoadString(ss.str(),
+            "http://tests/weburlrequest");
+      }
+    }
+    
+    virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester, 
+                            CefRefPtr<CefRequest> request, 
+                            CefRefPtr<CefResponse> response)
+    {
+      REQUIRE_UI_THREAD();
+    }
+    
+    virtual void OnHeadersReceived(CefRefPtr<CefWebURLRequest> requester, 
+                                   CefRefPtr<CefResponse> response)
+    {
+      REQUIRE_UI_THREAD();
+    }
+    
+    virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester, 
+                            uint64 bytesSent, uint64 totalBytesToBeSent)
+    {
+      REQUIRE_UI_THREAD();
+    }
+    
+    virtual void OnData(CefRefPtr<CefWebURLRequest> requester, 
+                        const void* data, int dataLength)
+    {
+      REQUIRE_UI_THREAD();
+      buffer_.append(static_cast<const char*>(data), dataLength);
+    }
+    
+    virtual void OnError(CefRefPtr<CefWebURLRequest> requester, 
+                         ErrorCode errorCode)
+    {
+      REQUIRE_UI_THREAD();
+      std::stringstream ss;
+      ss << "Load failed with error code " << errorCode;
+      browser_->GetMainFrame()->LoadString(ss.str(),
+          "http://tests/weburlrequest");
+    }
+
+  protected:
+    CefRefPtr<CefBrowser> browser_;
+    std::string buffer_;
+  };
+
+  CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
+  request->SetURL("http://www.google.com");
+
+  CefRefPtr<CefWebURLRequestClient> client(new RequestClient(browser));
+  CefRefPtr<CefWebURLRequest> requester(
+      CefWebURLRequest::CreateWebURLRequest(request, client));
+}

@@ -42,6 +42,7 @@
 #include "cef_process_io_thread.h"
 #include "external_protocol_handler.h"
 #include "request_impl.h"
+#include "http_header_utils.h"
 
 #include "base/file_path.h"
 #include "base/file_util.h"
@@ -294,7 +295,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         
         // Transfer request headers
         CefRequest::HeaderMap headerMap;
-        CefRequestImpl::ParseHeaders(params->headers, headerMap);
+        HttpHeaderUtils::ParseHeaders(params->headers, headerMap);
         headerMap.insert(std::make_pair("Referrer", params->referrer.spec()));
         requestimpl->SetHeaderMap(headerMap);
 
@@ -338,7 +339,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           params->referrer = GURL(std::string(referrer->second));
           headerMap.erase(referrer);
         }
-        params->headers = CefRequestImpl::GenerateHeaders(headerMap);
+        params->headers = HttpHeaderUtils::GenerateHeaders(headerMap);
 
         // Observe post data from request.
         CefRefPtr<CefPostData> postData = request->GetPostData();
