@@ -54,7 +54,7 @@ public:
   // will occur since that state change is never fired.
   BrowserTestHandler(TestResults &tr, 
       cef_weburlrequest_state_t cancelAtState = WUR_STATE_UNSENT): 
-      test_results_(tr), cancelAtState_(cancelAtState) { }
+      cancelAtState_(cancelAtState), test_results_(tr) { }
 
   virtual void RunTest()
   {
@@ -94,7 +94,7 @@ class TestWebURLRequestClient:
 {
 public:
   TestWebURLRequestClient(TestResults& tr, BrowserTestHandler* browser): 
-      test_results_(tr), browser_(browser), cancelAtState_(WUR_STATE_UNSENT)
+      test_results_(tr), cancelAtState_(WUR_STATE_UNSENT), browser_(browser)
   {
   }
 
@@ -126,7 +126,7 @@ public:
     if (MaybeCancelRequest(requester, state)) 
       return;
 
-    switch ( state ) {
+    switch (state) {
     case WUR_STATE_STARTED:
       test_results_.got_started.yes();
       break;
@@ -150,6 +150,8 @@ public:
     case WUR_STATE_ABORT:
       test_results_.got_abort.yes();
       TestCompleted();
+      break;
+    default:
       break;
     }
   }
@@ -290,7 +292,7 @@ TEST(WebURLRequestTest, GET)
   };
 
   TestResults tr;
-  CefRefPtr<BrowserForTest> browser = new BrowserForTest(tr);
+  CefRefPtr<BrowserTestHandler> browser = new BrowserForTest(tr);
   browser->ExecuteTest();
 
   EXPECT_TRUE(tr.got_started);
@@ -353,7 +355,7 @@ TEST(WebURLRequestTest, POST)
   };
 
   TestResults tr;
-  CefRefPtr<BrowserForTest> browser = new BrowserForTest(tr);
+  CefRefPtr<BrowserTestHandler> browser = new BrowserForTest(tr);
   browser->ExecuteTest();
 
   EXPECT_TRUE(tr.got_started);
@@ -404,7 +406,7 @@ TEST(WebURLRequestTest, BADHOST)
   };
 
   TestResults tr;
-  CefRefPtr<BrowserForTest> browser = new BrowserForTest(tr);
+  CefRefPtr<BrowserTestHandler> browser = new BrowserForTest(tr);
   browser->ExecuteTest();
 
   // NOTE: THIS TEST WILL FAIL IF YOUR ISP REDIRECTS YOU TO 
@@ -469,9 +471,9 @@ TEST(WebURLRequestTest, CANCEL)
       WUR_STATE_LOADING
   };
 
-  for (int i=0; i < COUNTOF_(cancelAt); ++i) {
+  for (unsigned int i=0; i < COUNTOF_(cancelAt); ++i) {
     TestResults tr;
-    CefRefPtr<BrowserForTest> browser = new BrowserForTest(tr, cancelAt[i]);
+    CefRefPtr<BrowserTestHandler> browser = new BrowserForTest(tr, cancelAt[i]);
     browser->ExecuteTest();
     EXPECT_TRUE(tr.got_abort);
     EXPECT_TRUE(tr.got_deleted);

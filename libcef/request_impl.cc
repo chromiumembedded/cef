@@ -112,7 +112,7 @@ void CefRequestImpl::Set(const WebKit::WebURLRequest& request)
   url_ = request.url().spec().utf16();
   method_ = request.httpMethod();
 
-  WebHTTPBody& body = request.httpBody();
+  const WebHTTPBody& body = request.httpBody();
   if (!body.isNull()) {
     postdata_ = new CefPostDataImpl();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
