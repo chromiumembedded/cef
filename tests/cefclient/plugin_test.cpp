@@ -9,15 +9,10 @@ void InitPluginTest()
 {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
-  plugin_info.display_name = "Client Plugin";
-  plugin_info.unique_name = "client_plugin";
-  plugin_info.version = "1, 0, 0, 1";
-  plugin_info.description = "My Example Client Plugin";
-
-  CefPluginMimeType mime_type;
-  mime_type.mime_type = "application/x-client-plugin";
-  mime_type.file_extensions.push_back("*");
-  plugin_info.mime_types.push_back(mime_type);
+  CefString(&plugin_info.display_name).FromASCII("Client Plugin");
+  CefString(&plugin_info.unique_name).FromASCII("client_plugin");
+  CefString(&plugin_info.description).FromASCII("My Example Client Plugin");
+  CefString(&plugin_info.mime_type).FromASCII("application/x-client-plugin");
 
   plugin_info.np_getentrypoints = NP_GetEntryPoints;
   plugin_info.np_initialize = NP_Initialize;

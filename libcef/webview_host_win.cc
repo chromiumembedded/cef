@@ -5,10 +5,10 @@
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 
-#include "app/win/hwnd_util.h"
-#include "gfx/rect.h"
-#include "gfx/size.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/win/hwnd_util.h"
+#include "ui/gfx/rect.h"
+#include "ui/gfx/size.h"
 #include "webkit/glue/webpreferences.h"
 
 using namespace WebKit;
@@ -40,7 +40,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                              WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 0,
                              0, 0, parent_view, NULL,
                              GetModuleHandle(NULL), NULL);
-  app::win::SetWindowUserData(host->view_, host);
+  ui::SetWindowUserData(host->view_, host);
 
 #if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
   host->webwidget_ = WebView::create(delegate, dev_tools_client, NULL);

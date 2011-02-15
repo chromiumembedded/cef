@@ -7,7 +7,7 @@
 #include "cef_process_ui_thread.h"
 #include "browser_webkit_glue.h"
 #include "base/message_pump_mac.h"
-#include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
+#include "third_party/WebKit/Source/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 // CrAppProtocol implementation.
 @interface CrApplication : NSApplication<CrAppProtocol> {

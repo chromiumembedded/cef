@@ -7,8 +7,8 @@
 
 #include "base/logging.h"
 #include "http_header_utils.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURLResponse.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebURLResponse.h"
 
 CefResponseImpl::CefResponseImpl(const WebKit::WebURLResponse &response)
 {

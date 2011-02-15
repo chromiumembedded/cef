@@ -9,10 +9,10 @@
 
 #include <gtk/gtk.h>
 
-#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webpreferences.h"
 
 using WebKit::WebRect;
@@ -75,7 +75,7 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
   REQUIRE_UIT();
   if (!host)
     return;
-  
+
   if(enable)
     gtk_widget_grab_focus(host->view_handle());
 }
@@ -83,7 +83,7 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
 {
   REQUIRE_UIT();
-  
+
   // TODO(port): Add implementation.
   NOTIMPLEMENTED();
   return false;
@@ -107,8 +107,8 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
 
 int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 {
-	REQUIRE_UIT();
-  
+  REQUIRE_UIT();
+
   // TODO(port): Add implementation.
   NOTIMPLEMENTED();
   return 0;

@@ -7,15 +7,15 @@
 #include "webwidget_host.h"
 
 #include "base/logging.h"
-#include "gfx/rect.h"
-#include "gfx/size.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "ui/gfx/rect.h"
+#include "ui/gfx/size.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebInputEvent;
@@ -142,7 +142,8 @@ WebWidgetHost::WebWidgetHost()
       webwidget_(NULL),
       popup_(false),
       scroll_dx_(0),
-      scroll_dy_(0) {
+      scroll_dy_(0),
+      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
   set_painting(false);
 }
 
@@ -172,6 +173,8 @@ void WebWidgetHost::Paint() {
   [NSGraphicsContext setCurrentContext:
       [NSGraphicsContext graphicsContextWithGraphicsPort:bitmap_context
                                                  flipped:YES]];
+
+  webwidget_->animate();
 
   // This may result in more invalidation
   webwidget_->layout();

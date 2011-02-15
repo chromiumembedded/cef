@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors.
+// Copyright (c) 2011 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -52,10 +52,11 @@
 #include "base/nss_util.h"
 #endif
 #include "base/ref_counted.h"
+#include "base/synchronization/waitable_event.h"
 #include "base/time.h"
 #include "base/timer.h"
 #include "base/threading/thread.h"
-#include "base/synchronization/waitable_event.h"
+#include "base/utf_string_conversions.h"
 #include "net/base/auth.h"
 #include "net/base/cookie_store.h"
 #include "net/base/file_stream.h"
@@ -80,6 +81,7 @@
 
 using net::HttpResponseHeaders;
 using net::StaticCookiePolicy;
+using net::URLRequestStatus;
 using webkit_blob::DeletableFileReference;
 using webkit_glue::ResourceLoaderBridge;
 using webkit_glue::ResourceResponseInfo;
@@ -201,7 +203,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (allow_download &&
             webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
           FilePath path(net::GetSuggestedFilename(url, content_disposition,
-              info.charset, FilePath(FILE_PATH_LITERAL("download"))));
+              info.charset, ASCIIToUTF16("download")));
           CefRefPtr<CefDownloadHandler> dl_handler;
           if (handler->HandleDownloadResponse(browser_, info.mime_type,
                   path.value(), info.content_length, dl_handler) ==
@@ -255,7 +257,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     peer_->OnDownloadedData(bytes_read);
   }
 
-  void NotifyCompletedRequest(const URLRequestStatus& status,
+  void NotifyCompletedRequest(const net::URLRequestStatus& status,
                               const std::string& security_info,
                               const base::Time& complete_time) {
     if (download_handler_.get()) {
@@ -538,7 +540,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         this, &RequestProxy::NotifyReceivedData, bytes_read));
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status,
+  virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
                                   const base::Time& complete_time) {
     if (download_to_file_)
@@ -757,7 +759,7 @@ class SyncRequestProxy : public RequestProxy {
     AsyncReadData();  // read more (may recurse)
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status,
+  virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
                                   const base::Time& complete_time) {
     if (download_to_file_)

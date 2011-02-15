@@ -19,11 +19,11 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/logging.h"
 #include "base/resource_util.h"
-#include "gfx/gdi_util.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/gfx/gdi_util.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebRect;

@@ -58,15 +58,10 @@ void InitUIPluginTest()
 {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
-  plugin_info.display_name = "Client UI Plugin";
-  plugin_info.unique_name = "client_ui_plugin";
-  plugin_info.version = "1, 0, 0, 1";
-  plugin_info.description = "My Example Client UI Plugin";
-
-  CefPluginMimeType mime_type;
-  mime_type.mime_type = "application/x-client-ui-plugin";
-  mime_type.file_extensions.push_back("*");
-  plugin_info.mime_types.push_back(mime_type);
+  CefString(&plugin_info.display_name).FromASCII("Client UI Plugin");
+  CefString(&plugin_info.unique_name).FromASCII("client_ui_plugin");
+  CefString(&plugin_info.description).FromASCII("My Example Client UI Plugin");
+  CefString(&plugin_info.mime_type).FromASCII("application/x-client-ui-plugin");
 
   plugin_info.np_getentrypoints = NP_UIGetEntryPoints;
   plugin_info.np_initialize = NP_UIInitialize;

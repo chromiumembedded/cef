@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/cpptoc/web_urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
@@ -21,6 +22,7 @@
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/ctocpp/web_urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 
@@ -42,6 +44,7 @@ void CefShutdown()
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefWebURLRequestClientCppToC::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefBrowserCToCpp::DebugObjCt == 0);
   DCHECK(CefRequestCToCpp::DebugObjCt == 0);
@@ -50,6 +53,7 @@ void CefShutdown()
   DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
+  DCHECK(CefWebURLRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefZipReaderCToCpp::DebugObjCt == 0);
 
@@ -74,65 +78,9 @@ bool CefRegisterExtension(const CefString& extension_name,
       true:false;
 }
 
-bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
+bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {
-  cef_plugin_info_t pluginInfo;
-  memset(&pluginInfo, 0, sizeof(pluginInfo));
-
-  cef_string_set(plugin_info.unique_name.c_str(),
-      plugin_info.unique_name.length(),
-      &pluginInfo.unique_name, false);
-  cef_string_set(plugin_info.display_name.c_str(),
-      plugin_info.display_name.length(),
-      &pluginInfo.display_name, false);
-  cef_string_set(plugin_info.version.c_str(),
-      plugin_info.version.length(),
-      &pluginInfo.version, false);
-  cef_string_set(plugin_info.description.c_str(),
-      plugin_info.description.length(),
-      &pluginInfo.description, false);
-  
-  std::string mimeTypes, fileExtensions, typeDescriptions;
-
-  for(size_t i = 0; i < plugin_info.mime_types.size(); ++i) {
-    if(i > 0) {
-      mimeTypes += "|";
-      fileExtensions += "|";
-      typeDescriptions += "|";
-    }
-
-    mimeTypes += plugin_info.mime_types[i].mime_type;
-    typeDescriptions += plugin_info.mime_types[i].description;
-    
-    for(size_t j = 0;
-        j < plugin_info.mime_types[i].file_extensions.size(); ++j) {
-      if(j > 0) {
-        fileExtensions += ",";
-      }
-      fileExtensions += plugin_info.mime_types[i].file_extensions[j];
-    }
-  }
-
-  cef_string_from_utf8(mimeTypes.c_str(), mimeTypes.length(),
-      &pluginInfo.mime_types);
-  cef_string_from_utf8(fileExtensions.c_str(), fileExtensions.length(),
-      &pluginInfo.file_extensions);
-  cef_string_from_utf8(typeDescriptions.c_str(), typeDescriptions.length(),
-      &pluginInfo.type_descriptions);
-
-#if !defined(OS_POSIX) || defined(OS_MACOSX)
-  pluginInfo.np_getentrypoints = plugin_info.np_getentrypoints;
-#endif
-  pluginInfo.np_initialize = plugin_info.np_initialize;
-  pluginInfo.np_shutdown = plugin_info.np_shutdown;
-
-  bool ret = cef_register_plugin(&pluginInfo) ? true : false;
-
-  cef_string_clear(&pluginInfo.mime_types);
-  cef_string_clear(&pluginInfo.file_extensions);
-  cef_string_clear(&pluginInfo.type_descriptions);
-
-  return ret;
+  return cef_register_plugin(&plugin_info)?true:false;
 }
 
 bool CefRegisterScheme(const CefString& scheme_name,

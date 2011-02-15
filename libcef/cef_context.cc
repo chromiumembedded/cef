@@ -76,48 +76,31 @@ void CefDoMessageLoopWork()
   _Context->process()->DoMessageLoopIteration();
 }
 
-static void UIT_RegisterPlugin(struct CefPluginInfo* plugin_info)
+static void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
 {
   REQUIRE_UIT();
 
-  webkit::npapi::PluginVersionInfo info;
+  webkit::npapi::WebPluginInfo info;
 
-  info.path = FilePath(plugin_info->unique_name);
-  info.product_name = plugin_info->display_name;
-  info.file_description = plugin_info->description;
-  info.file_version =plugin_info->version;
+  FilePath filename = FilePath(CefString(&plugin_info->unique_name));
+  std::string name = CefString(&plugin_info->display_name);
+  std::string description = CefString(&plugin_info->description);
+  std::string mime_type = CefString(&plugin_info->mime_type);
 
-  for(size_t i = 0; i < plugin_info->mime_types.size(); ++i) {
-    if(i > 0) {
-      info.mime_types += L"|";
-      info.file_extensions += L"|";
-      info.type_descriptions += L"|";
-    }
-
-    info.mime_types += plugin_info->mime_types[i].mime_type;
-    info.type_descriptions += plugin_info->mime_types[i].description;
-    
-    for(size_t j = 0;
-        j < plugin_info->mime_types[i].file_extensions.size(); ++j) {
-      if(j > 0) {
-        info.file_extensions += L",";
-      }
-      info.file_extensions += plugin_info->mime_types[i].file_extensions[j];
-    }
-  }
-
+  webkit::npapi::PluginEntryPoints entry_points;
 #if !defined(OS_POSIX) || defined(OS_MACOSX)
-  info.entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
+  entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
 #endif
-  info.entry_points.np_initialize = plugin_info->np_initialize;
-  info.entry_points.np_shutdown = plugin_info->np_shutdown;
+  entry_points.np_initialize = plugin_info->np_initialize;
+  entry_points.np_shutdown = plugin_info->np_shutdown;
 
-  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(info);
+  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(filename,
+      name, description, mime_type, entry_points);
 
   delete plugin_info;
 }
 
-bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
+bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -125,11 +108,8 @@ bool CefRegisterPlugin(const struct CefPluginInfo& plugin_info)
     return false;
   }
 
-  CefPluginInfo* pPluginInfo = new CefPluginInfo;
-  *pPluginInfo = plugin_info;
-
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      NewRunnableFunction(UIT_RegisterPlugin, pPluginInfo));
+      NewRunnableFunction(UIT_RegisterPlugin, new CefPluginInfo(plugin_info)));
   
   return true;
 }

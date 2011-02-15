@@ -149,7 +149,7 @@ BrowserRequestContext::~BrowserRequestContext() {
 void BrowserRequestContext::SetAcceptAllCookies(bool accept_all_cookies) {
   net::StaticCookiePolicy::Type policy_type = accept_all_cookies ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
-      net::StaticCookiePolicy::BLOCK_THIRD_PARTY_COOKIES;
+      net::StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
   static_cast<net::StaticCookiePolicy*>(cookie_policy())->set_type(policy_type);
 }
 

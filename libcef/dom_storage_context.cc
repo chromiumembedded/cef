@@ -13,8 +13,8 @@
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "dom_storage_area.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSecurityOrigin.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/webkit_glue.h"
 
 const FilePath::CharType DOMStorageContext::kLocalStorageDirectory[] =

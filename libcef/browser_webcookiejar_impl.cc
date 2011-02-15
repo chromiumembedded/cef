@@ -5,7 +5,7 @@
 #include "browser_webcookiejar_impl.h"
 #include "browser_resource_loader_bridge.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebURL.h"
 
 using WebKit::WebString;
 using WebKit::WebURL;

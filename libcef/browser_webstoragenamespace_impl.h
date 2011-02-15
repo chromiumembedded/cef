@@ -8,7 +8,7 @@
 #include "dom_storage_common.h"
 
 #include "base/basictypes.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
 
 class BrowserWebStorageNamespaceImpl : public WebKit::WebStorageNamespace {
  public:

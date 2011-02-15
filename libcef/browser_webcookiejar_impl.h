@@ -6,8 +6,8 @@
 #define _BROWSER_SIMPLE_WEBCOOKIEJAR_IMPL_H
 
 // TODO(darin): WebCookieJar.h is missing a WebString.h include!
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCookieJar.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebCookieJar.h"
 
 class BrowserWebCookieJarImpl : public WebKit::WebCookieJar {
  public:

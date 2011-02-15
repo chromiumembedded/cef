@@ -19,7 +19,7 @@
 #endif
 
 #include "base/scoped_temp_dir.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFindOptions.h"
 
 namespace base {
 class WaitableEvent;

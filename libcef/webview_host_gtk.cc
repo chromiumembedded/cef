@@ -8,10 +8,10 @@
 #include "browser_webview_delegate.h"
 
 #include "base/logging.h"
-#include "gfx/rect.h"
-#include "gfx/size.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/gfx/rect.h"
+#include "ui/gfx/size.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/plugins/npapi/gtk_plugin_container.h"
 

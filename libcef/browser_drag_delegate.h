@@ -5,23 +5,23 @@
 #ifndef _BROWSER_DRAG_DELEGATE_H
 #define _BROWSER_DRAG_DELEGATE_H
 
-#include "app/win/drag_source.h"
+#include "ui/base/dragdrop/drag_source.h"
 
 namespace WebKit {
 class WebView;
 }
 
-// A class that implements app::win::DragSource for the browser webview
+// A class that implements ui::DragSource for the browser webview
 // delegate.
-class BrowserDragDelegate : public app::win::DragSource {
+class BrowserDragDelegate : public ui::DragSource {
  public:
   BrowserDragDelegate(HWND source_hwnd, WebKit::WebView* webview)
-      : app::win::DragSource(),
+      : ui::DragSource(),
         source_hwnd_(source_hwnd),
         webview_(webview) { }
 
  protected:
-  // app::win::DragSource
+  // ui::DragSource
   virtual void OnDragSourceCancel();
   virtual void OnDragSourceDrop();
   virtual void OnDragSourceMove();

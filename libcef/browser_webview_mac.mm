@@ -11,9 +11,9 @@
 #include "webwidget_host.h"
 
 #include "base/scoped_ptr.h"
-#include "gfx/rect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/gfx/rect.h"
 
 @implementation BrowserWebView
 

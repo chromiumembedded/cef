@@ -12,9 +12,9 @@
 #include "net/socket_stream/socket_stream_job.h"
 #include "net/websockets/websocket_job.h"
 #include "net/url_request/url_request_context.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSocketStreamHandle.h"
 #include "webkit/glue/websocketstreamhandle_bridge.h"
 #include "webkit/glue/websocketstreamhandle_delegate.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSocketStreamHandle.h"
 
 using webkit_glue::WebSocketStreamHandleBridge;
 
@@ -23,7 +23,7 @@ static const int kNoSocketId = 0;
 namespace {
 
 MessageLoop* g_io_thread;
-scoped_refptr<URLRequestContext> g_request_context;
+scoped_refptr<net::URLRequestContext> g_request_context;
 
 class WebSocketStreamHandleBridgeImpl
     : public WebSocketStreamHandleBridge,
@@ -220,7 +220,7 @@ void WebSocketStreamHandleBridgeImpl::DoOnClose() {
 
 /* static */
 void BrowserSocketStreamBridge::InitializeOnIOThread(
-    URLRequestContext* request_context) {
+    net::URLRequestContext* request_context) {
   g_io_thread = MessageLoop::current();
   g_request_context = request_context;
 }

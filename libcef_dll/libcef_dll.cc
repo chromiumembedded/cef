@@ -14,6 +14,7 @@
 #include "cpptoc/stream_reader_cpptoc.h"
 #include "cpptoc/stream_writer_cpptoc.h"
 #include "cpptoc/v8value_cpptoc.h"
+#include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
 #include "cpptoc/zip_reader_cpptoc.h"
 #include "ctocpp/download_handler_ctocpp.h"
@@ -23,6 +24,7 @@
 #include "ctocpp/scheme_handler_factory_ctocpp.h"
 #include "ctocpp/task_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
+#include "ctocpp/web_urlrequest_client_ctocpp.h"
 #include "ctocpp/write_handler_ctocpp.h"
 #include "base/string_split.h"
 
@@ -61,6 +63,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefStreamReaderCppToC::DebugObjCt == 0);
   DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
   DCHECK(CefV8ValueCppToC::DebugObjCt == 0);
+  DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
   DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
   DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
@@ -68,6 +71,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
+  DCHECK(CefWebURLRequestClientCToCpp::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCToCpp::DebugObjCt == 0);
 
   // TODO: This breakpoint may be hit if content is still loading when CEF
@@ -101,52 +105,8 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 
 CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
 {
-  CefPluginInfo pluginInfo;
-
-  pluginInfo.unique_name.FromString(plugin_info->unique_name.str,
-      plugin_info->unique_name.length, true);
-  pluginInfo.display_name.FromString(plugin_info->display_name.str,
-      plugin_info->display_name.length, true);
-  pluginInfo.version.FromString(plugin_info->version.str,
-      plugin_info->version.length, true);
-  pluginInfo.description.FromString(plugin_info->description.str,
-      plugin_info->description.length, true);
-
-  typedef std::vector<std::string> VectorType;
-  VectorType mime_types, file_extensions, descriptions, file_extensions_parts;
-  base::SplitString(CefString(&plugin_info->mime_types), '|',
-      &mime_types);
-  base::SplitString(CefString(&plugin_info->file_extensions), '|',
-      &file_extensions);
-  base::SplitString(CefString(&plugin_info->type_descriptions), '|',
-      &descriptions);
-
-  for (size_t i = 0; i < mime_types.size(); ++i) {
-    CefPluginMimeType mimeType;
-    
-    mimeType.mime_type = mime_types[i];
-    
-    if (file_extensions.size() > i) {
-      base::SplitString(file_extensions[i], ',', &file_extensions_parts);
-      VectorType::const_iterator it = file_extensions_parts.begin();
-      for(; it != file_extensions_parts.end(); ++it)
-        mimeType.file_extensions.push_back(*(it));
-      file_extensions_parts.clear();
-    }
-
-    if (descriptions.size() > i)
-      mimeType.description = descriptions[i];
-
-    pluginInfo.mime_types.push_back(mimeType);
-  }
-  
-#if !defined(OS_POSIX) || defined(OS_MACOSX)
-  pluginInfo.np_getentrypoints = plugin_info->np_getentrypoints;
-#endif
-  pluginInfo.np_initialize = plugin_info->np_initialize;
-  pluginInfo.np_shutdown = plugin_info->np_shutdown;
-  
-  return CefRegisterPlugin(pluginInfo);
+  DCHECK(plugin_info);
+  return CefRegisterPlugin(*plugin_info);
 }
 
 CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,

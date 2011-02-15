@@ -16,7 +16,7 @@ class BlobStorageController;
 }
 
 // A basic URLRequestContext that only provides an in-memory cookie store.
-class BrowserRequestContext : public URLRequestContext {
+class BrowserRequestContext : public net::URLRequestContext {
  public:
   // Use an in-memory cache
   BrowserRequestContext();

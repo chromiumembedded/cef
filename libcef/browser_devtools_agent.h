@@ -7,7 +7,7 @@
 
 #include "base/task.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebDevToolsAgentClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgentClient.h"
 
 namespace WebKit {
 

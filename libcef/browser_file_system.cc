@@ -12,17 +12,17 @@
 #include "base/time.h"
 #include "base/utf_string_conversions.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFileInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFileSystemCallbacks.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFileSystemEntry.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSecurityOrigin.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebVector.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemEntry.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebVector.h"
 #include "webkit/fileapi/file_system_callback_dispatcher.h"
+#include "webkit/fileapi/file_system_context.h"
+#include "webkit/fileapi/file_system_operation.h"
 #include "webkit/fileapi/file_system_path_manager.h"
 #include "webkit/fileapi/file_system_types.h"
-#include "webkit/fileapi/sandboxed_file_system_context.h"
-#include "webkit/fileapi/sandboxed_file_system_operation.h"
 #include "webkit/glue/webkit_glue.h"
 
 using base::WeakPtr;
@@ -39,8 +39,8 @@ using WebKit::WebString;
 using WebKit::WebVector;
 
 using fileapi::FileSystemCallbackDispatcher;
-using fileapi::SandboxedFileSystemContext;
-using fileapi::SandboxedFileSystemOperation;
+using fileapi::FileSystemContext;
+using fileapi::FileSystemOperation;
 
 namespace {
 
@@ -118,7 +118,7 @@ class BrowserFileSystemCallbackDispatcher
 
 BrowserFileSystem::BrowserFileSystem() {
   if (file_system_dir_.CreateUniqueTempDir()) {
-    sandboxed_context_ = new SandboxedFileSystemContext(
+    file_system_context_ = new FileSystemContext(
         base::MessageLoopProxy::CreateForCurrentThread(),
         base::MessageLoopProxy::CreateForCurrentThread(),
         file_system_dir_.path(),
@@ -138,7 +138,7 @@ void BrowserFileSystem::OpenFileSystem(
     WebFrame* frame, WebFileSystem::Type web_filesystem_type,
     long long, bool create,
     WebFileSystemCallbacks* callbacks) {
-  if (!frame || !sandboxed_context_.get()) {
+  if (!frame || !file_system_context_.get()) {
     // The FileSystem temp directory was not initialized successfully.
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
@@ -238,12 +238,12 @@ WebFileWriter* BrowserFileSystem::createFileWriter(
   return new BrowserFileWriter(path, client);
 }
 
-SandboxedFileSystemOperation* BrowserFileSystem::GetNewOperation(
+FileSystemOperation* BrowserFileSystem::GetNewOperation(
     WebFileSystemCallbacks* callbacks) {
   BrowserFileSystemCallbackDispatcher* dispatcher =
       new BrowserFileSystemCallbackDispatcher(AsWeakPtr(), callbacks);
-  SandboxedFileSystemOperation* operation = new SandboxedFileSystemOperation(
+  FileSystemOperation* operation = new FileSystemOperation(
       dispatcher, base::MessageLoopProxy::CreateForCurrentThread(),
-      sandboxed_context_.get());
+      file_system_context_.get());
   return operation;
 }

@@ -8,7 +8,7 @@
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebDevToolsFrontendClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontendClient.h"
 
 namespace WebKit {
 

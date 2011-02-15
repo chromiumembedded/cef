@@ -7,12 +7,12 @@
 
 #include "base/file_path.h"
 #include "base/hash_tables.h"
-#include "base/lock.h"
 #include "base/platform_file.h"
 #include "base/ref_counted.h"
 #include "base/scoped_temp_dir.h"
 #include "base/string16.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDatabaseObserver.h"
+#include "base/synchronization/lock.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabaseObserver.h"
 #include "webkit/database/database_connections.h"
 #include "webkit/database/database_tracker.h"
 
@@ -75,7 +75,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
 
   scoped_refptr<webkit_database::DatabaseTracker> db_tracker_;
 
-  Lock file_names_lock_;
+  base::Lock file_names_lock_;
   base::hash_map<string16, FilePath> file_names_;
 
   webkit_database::DatabaseConnections database_connections_;

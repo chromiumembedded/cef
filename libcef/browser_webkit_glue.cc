@@ -7,10 +7,12 @@
 
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "ApplicationCacheStorage.h"
+#include "CrossOriginPreflightResultCache.h"
 #include "DocumentLoader.h"
 #include "MemoryCache.h"
 #include "TextEncoding.h"
-#include "third_party/WebKit/WebKit/chromium/src/WebFrameImpl.h"
+#include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
 #undef LOG
 #include "base/string_util.h"
@@ -27,8 +29,8 @@ MSVC_POP_WARNING();
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "net/base/mime_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
@@ -140,9 +142,15 @@ void SetCacheMode(bool enabled) {
 
 void ClearCache()
 {
-  // Clear the cache by disabling it and then re-enabling it.
-  WebCore::cache()->setDisabled(true);
-  WebCore::cache()->setDisabled(false);
+  if (WebCore::memoryCache()->disabled())
+    return;
+
+  // Clear the memory cache by disabling and then re-enabling it.
+  WebCore::memoryCache()->setDisabled(true);
+  WebCore::memoryCache()->setDisabled(false);
+
+  // Empty the Cross-Origin Preflight cache
+  WebCore::CrossOriginPreflightResultCache::shared().empty();
 }
 
 std::string GetProductVersion() {

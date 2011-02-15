@@ -5,15 +5,15 @@
 
 #include "webwidget_host.h"
 
-#include "app/win/hwnd_util.h"
-#include "gfx/rect.h"
+#include "ui/gfx/rect.h"
 #include "base/logging.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPopupMenu.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#include "ui/base/win/hwnd_util.h"
 
 #include <commctrl.h>
 
@@ -54,7 +54,7 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
                                0, 0, 0, 0,
                                parent_view, NULL, GetModuleHandle(NULL), NULL);
 
-  app::win::SetWindowUserData(host->view_, host);
+  ui::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebPopupMenu::create(client);
 
@@ -63,7 +63,7 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
 
 /*static*/
 static WebWidgetHost* FromWindow(HWND view) {
-  return reinterpret_cast<WebWidgetHost*>(app::win::GetWindowUserData(view));
+  return reinterpret_cast<WebWidgetHost*>(ui::GetWindowUserData(view));
 }
 
 /*static*/
@@ -218,12 +218,13 @@ WebWidgetHost::WebWidgetHost()
       scroll_dx_(0),
       scroll_dy_(0),
       tooltip_view_(NULL),
-      tooltip_showing_(false) {
+      tooltip_showing_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
   set_painting(false);
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  app::win::SetWindowUserData(view_, 0);
+  ui::SetWindowUserData(view_, 0);
 
   TrackMouseLeave(false);
   ResetTooltip();
@@ -258,6 +259,8 @@ void WebWidgetHost::Paint() {
     canvas_.reset(new skia::PlatformCanvas(
         paint_rect_.width(), paint_rect_.height(), true));
   }
+
+  webwidget_->animate();
 
   // This may result in more invalidation
   webwidget_->layout();

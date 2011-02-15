@@ -10,7 +10,7 @@
 #include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 
 class DOMStorageArea;
 class DOMStorageContext;

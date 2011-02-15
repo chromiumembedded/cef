@@ -8,12 +8,12 @@
 #include "browser_settings.h"
 #include "printing/units.h"
 
-#include "app/win/hwnd_util.h"
 #include "skia/ext/vector_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/win/hwnd_util.h"
 #include "webkit/glue/webpreferences.h"
 
 #include <shellapi.h>
@@ -34,7 +34,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
                                          WPARAM wParam, LPARAM lParam)
 {
   CefBrowserImpl* browser =
-      static_cast<CefBrowserImpl*>(app::win::GetWindowUserData(hwnd));
+      static_cast<CefBrowserImpl*>(ui::GetWindowUserData(hwnd));
 
   switch (message) {
   case WM_COMMAND:
@@ -49,7 +49,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
   case WM_DESTROY:
     if (browser) {
       // Clear the user data pointer.
-      app::win::SetWindowUserData(hwnd, NULL);
+      ui::SetWindowUserData(hwnd, NULL);
 
       // Destroy the browser.
       browser->UIT_DestroyBrowser();
@@ -111,7 +111,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   // Set window user data to this object for future reference from the window
   // procedure
-  app::win::SetWindowUserData(window_info_.m_hWnd, this);
+  ui::SetWindowUserData(window_info_.m_hWnd, this);
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_.reset(new BrowserDevToolsAgent());

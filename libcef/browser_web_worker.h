@@ -7,9 +7,9 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebMessagePortChannel.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebMessagePortChannel.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorker.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerClient.h"
 
 namespace WebKit {
 class WebApplicationCacheHost;

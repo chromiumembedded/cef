@@ -6,8 +6,8 @@
 #include "cef_context.h"
 #include "tracker.h"
 #include "base/lazy_instance.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptController.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
 
 // Memory manager.
 

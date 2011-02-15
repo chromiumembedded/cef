@@ -10,7 +10,7 @@
 #include "base/id_map.h"
 #include "base/scoped_temp_dir.h"
 #include "base/weak_ptr.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFileSystem.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystem.h"
 #include "webkit/fileapi/file_system_types.h"
 
 namespace WebKit {
@@ -19,8 +19,8 @@ class WebFrame;
 }
 
 namespace fileapi {
-class SandboxedFileSystemContext;
-class SandboxedFileSystemOperation;
+class FileSystemContext;
+class FileSystemOperation;
 }
 
 class BrowserFileSystem
@@ -66,13 +66,13 @@ class BrowserFileSystem
 
  private:
   // Helpers.
-  fileapi::SandboxedFileSystemOperation* GetNewOperation(
+  fileapi::FileSystemOperation* GetNewOperation(
       WebKit::WebFileSystemCallbacks* callbacks);
 
   // A temporary directory for FileSystem API.
   ScopedTempDir file_system_dir_;
 
-  scoped_refptr<fileapi::SandboxedFileSystemContext> sandboxed_context_;
+  scoped_refptr<fileapi::FileSystemContext> file_system_context_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserFileSystem);
 };

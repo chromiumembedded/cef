@@ -174,7 +174,7 @@ private:
     }
 
     void Resolve(const GURL& url) {
-      AutoLock locked(lock_);
+      base::AutoLock locked(lock_);
       if (!owner_ || !owner_loop_)
         return;
 
@@ -205,7 +205,7 @@ private:
     void Cancel() {
       owner_->handler_->Cancel();
 
-      AutoLock locked(lock_);
+      base::AutoLock locked(lock_);
       owner_ = NULL;
       owner_loop_ = NULL;
     }
@@ -218,7 +218,7 @@ private:
 
     CefUrlRequestJob* owner_;
 
-    Lock lock_;
+    base::Lock lock_;
     MessageLoop* owner_loop_;
   };
 

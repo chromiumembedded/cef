@@ -11,7 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
 
 class DOMStorageNamespace;
 

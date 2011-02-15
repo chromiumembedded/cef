@@ -8,8 +8,8 @@
 
 #include "base/file_path.h"
 #include "base/logging.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebStorageArea.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebStorageNamespace.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebStorageArea;

@@ -7,9 +7,9 @@
 
 #include "include/cef_types.h"
 
-#include "gfx/rect.h"
 #include "printing/page_range.h"
 #include "printing/page_setup.h"
+#include "ui/gfx/rect.h"
 
 typedef struct HDC__* HDC;
 typedef struct _devicemodeW DEVMODE;

@@ -4,9 +4,9 @@
 
 #include "browser_drop_delegate.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webdropdata.h"
 
 using WebKit::WebDragOperation;
@@ -15,7 +15,7 @@ using WebKit::WebPoint;
 using WebKit::WebView;
 
 BrowserDropDelegate::BrowserDropDelegate(HWND source_hwnd, WebKit::WebView* webview)
-    : app::win::DropTarget(source_hwnd),
+    : ui::DropTarget(source_hwnd),
       webview_(webview) {
 }
 

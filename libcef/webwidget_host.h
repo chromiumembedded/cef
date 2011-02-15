@@ -8,10 +8,11 @@
 #include "include/cef_string.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "gfx/native_widget_types.h"
-#include "gfx/rect.h"
+#include "base/task.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "ui/gfx/native_widget_types.h"
+#include "ui/gfx/rect.h"
 
 namespace gfx {
 class Rect;
@@ -52,6 +53,7 @@ class WebWidgetHost {
   void DidInvalidateRect(const gfx::Rect& rect);
   void DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect);
   void ScheduleComposite();
+  void ScheduleAnimation();
 #if defined(OS_WIN)
   void SetCursor(HCURSOR cursor);
 #endif
@@ -166,6 +168,9 @@ class WebWidgetHost {
 #ifndef NDEBUG
   bool painting_;
 #endif
+
+ private:
+  ScopedRunnableMethodFactory<WebWidgetHost> factory_;
 };
 
 #endif  // _WEBWIDGET_HOST_H

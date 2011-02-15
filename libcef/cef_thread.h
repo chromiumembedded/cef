@@ -6,7 +6,7 @@
 #ifndef _CEF_THREAD_H
 #define _CEF_THREAD_H
 
-#include "base/lock.h"
+#include "base/synchronization/lock.h"
 #include "base/task.h"
 #include "base/threading/thread.h"
 
@@ -170,7 +170,7 @@ class CefThread : public base::Thread {
 
   // This lock protects |cef_threads_|.  Do not read or modify that array
   // without holding this lock.  Do not block while holding this lock.
-  static Lock lock_;
+  static base::Lock lock_;
 
   // An array of the CefThread objects.  This array is protected by |lock_|.
   // The threads are not owned by this array.  Typically, the threads are owned

@@ -7,13 +7,13 @@
 #ifndef _BROWSER_DROP_DELEGATE_H
 #define _BROWSER_DROP_DELEGATE_H
 
-#include "app/win/drop_target.h"
+#include "ui/base/dragdrop/drop_target.h"
 
 namespace WebKit {
 class WebView;
 }
 
-class BrowserDropDelegate : public app::win::DropTarget {
+class BrowserDropDelegate : public ui::DropTarget {
  public:
   BrowserDropDelegate(HWND source_hwnd, WebKit::WebView* webview);
 

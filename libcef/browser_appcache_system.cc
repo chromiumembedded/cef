@@ -6,7 +6,7 @@
 #include "browser_resource_loader_bridge.h"
 
 #include "base/callback.h"
-#include "base/lock.h"
+#include "base/synchronization/lock.h"
 #include "base/task.h"
 #include "base/synchronization/waitable_event.h"
 #include "webkit/appcache/appcache_interceptor.h"

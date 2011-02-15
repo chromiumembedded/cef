@@ -19,7 +19,7 @@ using WebKit::WebFileWriterClient;
 using WebKit::WebString;
 using WebKit::WebURL;
 
-URLRequestContext* BrowserFileWriter::request_context_ = NULL;
+net::URLRequestContext* BrowserFileWriter::request_context_ = NULL;
 
 // Helper class to proxy the write and truncate calls to the IO thread,
 // and to proxy the results back to the main thead. There is a one-to-one
@@ -116,7 +116,8 @@ class BrowserFileWriter::IOThreadProxy
 
   FileSystemOperation* GetNewOperation() {
     // The FileSystemOperation takes ownership of the CallbackDispatcher.
-    return new FileSystemOperation(new CallbackDispatcher(this), io_thread_);
+    return new FileSystemOperation(new CallbackDispatcher(this),
+                                   io_thread_, NULL);
   }
 
   void DidSucceed() {

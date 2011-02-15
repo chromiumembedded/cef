@@ -6,8 +6,8 @@
 
 #include "base/message_loop.h"
 #include "grit/webkit_chromium_resources.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDevToolsAgent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "browser_devtools_callargs.h"
 #include "browser_devtools_client.h"
 #include "webkit/glue/webkit_glue.h"

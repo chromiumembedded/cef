@@ -58,7 +58,7 @@ class CefThreadMessageLoopProxy : public MessageLoopProxy {
 };
 
 
-Lock CefThread::lock_;
+base::Lock CefThread::lock_;
 
 CefThread* CefThread::cef_threads_[ID_COUNT];
 
@@ -77,7 +77,7 @@ CefThread::CefThread(ID identifier, MessageLoop* message_loop)
 }
 
 void CefThread::Initialize() {
-  AutoLock lock(lock_);
+  base::AutoLock lock(lock_);
   DCHECK(identifier_ >= 0 && identifier_ < ID_COUNT);
   DCHECK(cef_threads_[identifier_] == NULL);
   cef_threads_[identifier_] = this;
@@ -89,7 +89,7 @@ CefThread::~CefThread() {
   // correct CefThread succeeds.
   Stop();
 
-  AutoLock lock(lock_);
+  base::AutoLock lock(lock_);
   cef_threads_[identifier_] = NULL;
 #ifndef NDEBUG
   // Double check that the threads are ordererd correctly in the enumeration.
@@ -102,14 +102,14 @@ CefThread::~CefThread() {
 
 // static
 bool CefThread::IsWellKnownThread(ID identifier) {
-  AutoLock lock(lock_);
+  base::AutoLock lock(lock_);
   return (identifier >= 0 && identifier < ID_COUNT &&
           cef_threads_[identifier]);
 }
 
 // static
 bool CefThread::CurrentlyOn(ID identifier) {
-  AutoLock lock(lock_);
+  base::AutoLock lock(lock_);
   DCHECK(identifier >= 0 && identifier < ID_COUNT);
   return cef_threads_[identifier] &&
          cef_threads_[identifier]->message_loop() == MessageLoop::current();
