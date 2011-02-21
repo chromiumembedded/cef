@@ -61,6 +61,7 @@ class CefStreamReader;
 class CefStreamWriter;
 class CefTask;
 class CefURLParts;
+class CefV8Context;
 class CefV8Handler;
 class CefV8Value;
 class CefWebURLRequest;
@@ -565,10 +566,14 @@ public:
   /*--cef()--*/
   virtual CefString GetName() =0;
 
-  // Return the URL currently loaded in this frame. This method should only be
+  // Returns the URL currently loaded in this frame. This method should only be
   // called on the UI thread.
   /*--cef()--*/
   virtual CefString GetURL() =0;
+
+  // Returns the browser that this frame belongs to.
+  /*--cef()--*/
+  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
 };
 
 
@@ -1190,6 +1195,33 @@ public:
 };
 
 
+// Class that encapsulates a V8 context handle.
+/*--cef(source=library)--*/
+class CefV8Context : public CefBase
+{
+public:
+  // Returns the current (top) context object in the V8 context stack.
+  /*--cef()--*/
+  static CefRefPtr<CefV8Context> GetCurrentContext();
+
+  // Returns the entered (bottom) context object in the V8 context stack.
+  /*--cef()--*/
+  static CefRefPtr<CefV8Context> GetEnteredContext();
+
+  // Returns the browser for this context.
+  /*--cef()--*/
+  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
+
+  // Returns the frame for this context.
+  /*--cef()--*/
+  virtual CefRefPtr<CefFrame> GetFrame() =0;
+
+  // Returns the global object for this context.
+  /*--cef()--*/
+  virtual CefRefPtr<CefV8Value> GetGlobal() =0;
+};
+
+
 typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 
 // Interface that should be implemented to handle V8 function calls. The methods
@@ -1198,8 +1230,10 @@ typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 class CefV8Handler : public CefBase
 {
 public:
-  // Execute with the specified argument list and return value.  Return true if
-  // the method was handled.
+  // Execute with the specified argument list and return value. Return true if
+  // the method was handled. To invoke V8 callback functions outside the scope
+  // of this method you need to keep references to the current V8 context
+  // (CefV8Context) along with any necessary callback objects.
   /*--cef()--*/
   virtual bool Execute(const CefString& name,
                        CefRefPtr<CefV8Value> object,
@@ -1215,10 +1249,7 @@ public:
 class CefV8Value : public CefBase
 {
 public:
-  // Create a new CefV8Value object of the specified type.  These methods
-  // should only be called from within the JavaScript context -- either in a
-  // CefV8Handler::Execute() callback or a CefHandler::HandleJSBinding()
-  // callback.
+  // Create a new CefV8Value object of the specified type.
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateUndefined();
   /*--cef()--*/
@@ -1327,12 +1358,21 @@ public:
   /*--cef()--*/
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() =0;
   
-  // Execute the function.
+  // Execute the function using the current V8 context.
   /*--cef()--*/
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
                                CefString& exception) =0;
+
+  // Execute the function using the specified V8 context.
+  /*--cef()--*/
+  virtual bool ExecuteFunctionWithContext(CefRefPtr<CefV8Context> context,
+                                          CefRefPtr<CefV8Value> object,
+                                          const CefV8ValueList& arguments,
+                                          CefRefPtr<CefV8Value>& retval,
+                                          CefString& exception) =0;
+
 };
 
 

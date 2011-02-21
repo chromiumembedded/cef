@@ -349,6 +349,7 @@ public:
   virtual bool IsFocused();
   virtual CefString GetName() { return name_; }
   virtual CefString GetURL() { return browser_->GetURL(this); }
+  virtual CefRefPtr<CefBrowser> GetBrowser() { return browser_.get(); }
 
 private:
   CefRefPtr<CefBrowserImpl> browser_;

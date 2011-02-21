@@ -10,6 +10,7 @@
 // tools directory for more information.
 //
 
+#include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
@@ -191,6 +192,19 @@ CefString CefFrameCToCpp::GetURL()
   cef_string_userfree_t strPtr = struct_->get_url(struct_);
   str.AttachToUserFree(strPtr);
   return str;
+}
+
+CefRefPtr<CefBrowser> CefFrameCToCpp::GetBrowser()
+{
+  CefRefPtr<CefBrowser> browser;
+  if(CEF_MEMBER_MISSING(struct_, get_browser))
+    return browser;
+
+  cef_browser_t* browserStruct = struct_->get_browser(struct_);
+  if(browserStruct)
+    return CefBrowserCToCpp::Wrap(browserStruct);
+
+  return browser;
 }
 
 

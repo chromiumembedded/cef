@@ -53,6 +53,7 @@ public:
   virtual bool IsFocused();
   virtual CefString GetName();
   virtual CefString GetURL();
+  virtual CefRefPtr<CefBrowser> GetBrowser();
 };
 
 #endif // USING_CEF_SHARED

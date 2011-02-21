@@ -390,10 +390,13 @@ typedef struct _cef_frame_t
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_name)(struct _cef_frame_t* self);
 
-  // Return the URL currently loaded in this frame. This function should only be
-  // called on the UI thread.
+  // Returns the URL currently loaded in this frame. This function should only
+  // be called on the UI thread.
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_url)(struct _cef_frame_t* self);
+
+  // Returns the browser that this frame belongs to.
+  struct _cef_browser_t* (CEF_CALLBACK *get_browser)(struct _cef_frame_t* self);
 
 } cef_frame_t;
 
@@ -949,6 +952,33 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
     cef_write_handler_t* handler);
 
 
+// Structure that encapsulates a V8 context handle.
+typedef struct _cef_v8context_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Returns the browser for this context.
+  struct _cef_browser_t* (CEF_CALLBACK *get_browser)(
+      struct _cef_v8context_t* self);
+
+  // Returns the frame for this context.
+  struct _cef_frame_t* (CEF_CALLBACK *get_frame)(struct _cef_v8context_t* self);
+
+  // Returns the global object for this context.
+  struct _cef_v8value_t* (CEF_CALLBACK *get_global)(
+      struct _cef_v8context_t* self);
+
+} cef_v8context_t;
+
+
+// Returns the current (top) context object in the V8 context stack.
+CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context();
+
+// Returns the entered (bottom) context object in the V8 context stack.
+CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context();
+
+
 // Structure that should be implemented to handle V8 function calls. The
 // functions of this structure will always be called on the UI thread.
 typedef struct _cef_v8handler_t
@@ -956,8 +986,10 @@ typedef struct _cef_v8handler_t
   // Base structure.
   cef_base_t base;
 
-  // Execute with the specified argument list and return value.  Return true (1)
-  // if the function was handled.
+  // Execute with the specified argument list and return value. Return true (1)
+  // if the function was handled. To invoke V8 callback functions outside the
+  // scope of this function you need to keep references to the current V8
+  // context (cef_v8context_t) along with any necessary callback objects.
   int (CEF_CALLBACK *execute)(struct _cef_v8handler_t* self,
       const cef_string_t* name, struct _cef_v8value_t* object,
       size_t argumentCount, struct _cef_v8value_t* const* arguments,
@@ -1049,19 +1081,22 @@ typedef struct _cef_v8value_t
   struct _cef_v8handler_t* (CEF_CALLBACK *get_function_handler)(
       struct _cef_v8value_t* self);
 
-  // Execute the function.
+  // Execute the function using the current V8 context.
   int (CEF_CALLBACK *execute_function)(struct _cef_v8value_t* self,
       struct _cef_v8value_t* object, size_t argumentCount,
       struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
       cef_string_t* exception);
 
+  // Execute the function using the specified V8 context.
+  int (CEF_CALLBACK *execute_function_with_context)(struct _cef_v8value_t* self,
+      struct _cef_v8context_t* context, struct _cef_v8value_t* object,
+      size_t argumentCount, struct _cef_v8value_t* const* arguments,
+      struct _cef_v8value_t** retval, cef_string_t* exception);
+
 } cef_v8value_t;
 
 
-// Create a new cef_v8value_t object of the specified type.  These functions
-// should only be called from within the JavaScript context -- either in a
-// cef_v8handler_t::execute() callback or a cef_handler_t::handle_jsbinding()
-// callback.
+// Create a new cef_v8value_t object of the specified type.
 CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_null();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value);

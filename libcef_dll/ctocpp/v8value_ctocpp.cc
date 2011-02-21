@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/base_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -344,7 +345,7 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
     CefString& exception)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_function))
-    return RV_CONTINUE;
+    return false;
 
   cef_v8value_t** argsStructPtr = NULL;
   int argsSize = arguments.size();
@@ -356,8 +357,41 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
 
   cef_v8value_t* retvalStruct = NULL;
 
-  int rv = struct_->execute_function(struct_, CefV8ValueCToCpp::Unwrap(object),
+  int rv = struct_->execute_function(struct_, 
+      object.get() ? CefV8ValueCToCpp::Unwrap(object): NULL,
       argsSize, argsStructPtr, &retvalStruct, exception.GetWritableStruct());
+  if(retvalStruct)
+    retval = CefV8ValueCToCpp::Wrap(retvalStruct);
+
+  if(argsStructPtr)
+    delete [] argsStructPtr;
+
+  return rv?true:false;
+}
+
+bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
+    CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object,
+    const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
+    CefString& exception)
+{
+  if(CEF_MEMBER_MISSING(struct_, execute_function_with_context))
+    return false;
+
+  cef_v8value_t** argsStructPtr = NULL;
+  int argsSize = arguments.size();
+  if(argsSize > 0) {
+    argsStructPtr = new cef_v8value_t*[argsSize];
+    for(int i = 0; i < argsSize; ++i)
+      argsStructPtr[i] = CefV8ValueCToCpp::Unwrap(arguments[i]);
+  }
+
+  cef_v8value_t* retvalStruct = NULL;
+
+  int rv = struct_->execute_function_with_context(struct_, 
+      context.get() ? CefV8ContextCToCpp::Unwrap(context): NULL, 
+      object.get() ? CefV8ValueCToCpp::Unwrap(object): NULL, 
+      argsSize, argsStructPtr, &retvalStruct, exception.GetWritableStruct());
+
   if(retvalStruct)
     retval = CefV8ValueCToCpp::Wrap(retvalStruct);
 

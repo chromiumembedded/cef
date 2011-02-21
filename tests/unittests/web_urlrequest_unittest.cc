@@ -6,17 +6,6 @@
 
 //#define WEB_URLREQUEST_DEBUG
 
-class TrackCallback
-{
-public:
-  TrackCallback(): gotit_(false) {}
-  void yes() { gotit_ = true; }
-  bool isSet() { return gotit_; }
-  operator bool() const { return gotit_; }
-protected:
-  bool gotit_;
-};
-
 class TestResults
 {
 public:

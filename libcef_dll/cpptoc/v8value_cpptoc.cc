@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/base_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -374,11 +375,12 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
     cef_string_t* exception)
 {
   DCHECK(self);
-  DCHECK(object);
-  if(!self || !object)
+  if(!self)
     return 0;
 
-  CefRefPtr<CefV8Value> objectPtr = CefV8ValueCppToC::Unwrap(object);
+  CefRefPtr<CefV8Value> objectPtr;
+  if(object)
+    objectPtr = CefV8ValueCppToC::Unwrap(object);
   CefV8ValueList argsList;
   for(size_t i = 0; i < argumentCount; i++) {
     argsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
@@ -388,6 +390,37 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
   CefString exceptionStr(exception);
   bool rv = CefV8ValueCppToC::Get(self)->ExecuteFunction(objectPtr,
       argsList, retvalPtr, exceptionStr);
+  if(retvalPtr.get() && retval)
+    *retval = CefV8ValueCppToC::Wrap(retvalPtr);
+
+  return rv;
+}
+
+int CEF_CALLBACK v8value_execute_function_with_context(
+    struct _cef_v8value_t* self, cef_v8context_t* context,
+    struct _cef_v8value_t* object, size_t argumentCount,
+    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
+    cef_string_t* exception)
+{
+  DCHECK(self);
+  if(!self)
+    return 0;
+
+  CefRefPtr<CefV8Context> contextPtr;
+  if(context)
+    contextPtr = CefV8ContextCppToC::Unwrap(context);
+  CefRefPtr<CefV8Value> objectPtr;
+  if(object)
+    objectPtr = CefV8ValueCppToC::Unwrap(object);
+  CefV8ValueList argsList;
+  for(size_t i = 0; i < argumentCount; i++) {
+    argsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
+  }
+  CefRefPtr<CefV8Value> retvalPtr;
+
+  CefString exceptionStr(exception);
+  bool rv = CefV8ValueCppToC::Get(self)->ExecuteFunctionWithContext(
+    contextPtr, objectPtr, argsList, retvalPtr, exceptionStr);
   if(retvalPtr.get() && retval)
     *retval = CefV8ValueCppToC::Wrap(retvalPtr);
 
@@ -427,6 +460,8 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.get_function_name = v8value_get_function_name;
   struct_.struct_.get_function_handler = v8value_get_function_handler;
   struct_.struct_.execute_function = v8value_execute_function;
+  struct_.struct_.execute_function_with_context =
+      v8value_execute_function_with_context;
 }
 
 #ifdef _DEBUG

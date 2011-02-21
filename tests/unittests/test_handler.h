@@ -9,6 +9,17 @@
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+class TrackCallback
+{
+public:
+  TrackCallback(): gotit_(false) {}
+  void yes() { gotit_ = true; }
+  bool isSet() { return gotit_; }
+  operator bool() const { return gotit_; }
+protected:
+  bool gotit_;
+};
+
 // Base implementation of CefHandler for unit tests.
 class TestHandler : public CefThreadSafeBase<CefHandler>
 {

@@ -22,6 +22,7 @@
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/web_urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -52,6 +53,7 @@ void CefShutdown()
   DCHECK(CefPostDataElementCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefStreamWriterCToCpp::DebugObjCt == 0);
+  DCHECK(CefV8ContextCToCpp::DebugObjCt == 0);
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);

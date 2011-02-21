@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
@@ -211,6 +212,19 @@ cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
   return urlStr.DetachToUserFree();
 }
 
+cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return NULL;
+
+  CefRefPtr<CefBrowser> browserPtr = 
+      CefFrameCppToC::Get(self)->GetBrowser();
+  if(browserPtr.get())
+    return CefBrowserCppToC::Wrap(browserPtr);
+  return NULL;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -237,6 +251,7 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
   struct_.struct_.is_focused = frame_is_focused;
   struct_.struct_.get_name = frame_get_name;
   struct_.struct_.get_url = frame_get_url;
+  struct_.struct_.get_browser = frame_get_browser;
 }
 
 #ifdef _DEBUG
