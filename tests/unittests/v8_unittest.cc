@@ -7,6 +7,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "test_handler.h"
 
+namespace {
+
 bool g_V8TestV8HandlerExecuteCalled;
 bool g_V8TestV8HandlerExecute2Called;
 
@@ -312,6 +314,8 @@ public:
   bool binding_test_;
 };
 
+} // namespace
+
 // Verify window binding
 TEST(V8Test, Binding)
 {
@@ -354,6 +358,8 @@ TEST(V8Test, Extension)
   ASSERT_TRUE(g_V8TestV8HandlerExecute2Called);
 }
 
+namespace {
+
 // Using a delegate so that the code below can remain inline.
 class CefV8HandlerDelegate
 {
@@ -365,336 +371,333 @@ public:
                        CefString& exception) = 0;
 };
 
+class DelegatingV8Handler : public CefThreadSafeBase<CefV8Handler>
+{
+public:
+  DelegatingV8Handler(CefV8HandlerDelegate *delegate): 
+  delegate_(delegate) { }
+  
+  ~DelegatingV8Handler()
+  {
+  }
+  
+  bool Execute(const CefString& name, 
+               CefRefPtr<CefV8Value> object,
+               const CefV8ValueList& arguments,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception)
+  {
+    return delegate_->Execute(name, object, arguments, retval, exception);
+  }
+  
+private:
+  CefV8HandlerDelegate *delegate_;
+};
+
+class TestContextHandler: public TestHandler, public CefV8HandlerDelegate
+{
+public:
+  TestContextHandler() {}
+  
+  virtual void RunTest()
+  {
+    // Test Flow: 
+    // load main.html.
+    // 1. main.html calls hello("main", callIFrame) in the execute handler.
+    //    The excute handler checks that "main" was called and saves 
+    //    the callIFrame function, context, and receiver object.
+    // 2. iframe.html calls hello("iframe") in the execute handler.
+    //    The execute handler checks that "iframe" was called. if both main 
+    //    and iframe were called, it calls CallIFrame()
+    // 3. CallIFrame calls "callIFrame" in main.html
+    // 4. which calls iframe.html "calledFromMain()".
+    // 5. which calls "fromIFrame()" in execute handler.
+    //    The execute handler checks that the entered and current urls are
+    //    what we expect: "main.html" and "iframe.html", respectively 
+    // 6. It then posts a task to call AsyncTestContext
+    //      you can validate the entered and current context are still the 
+    //      same here, but it is not checked by this test case.
+    // 7. AsyncTestContext tests to make sure that no context is set at 
+    //    this point and loads "begin.html"
+    // 8. begin.html calls "begin(func1, func2)" in the execute handler
+    //    The execute handler posts a tasks to call both of those functions 
+    //    when no context is defined. Both should work with the specified 
+    //    context. AsyncTestException should run first, followed by 
+    //    AsyncTestNavigate() which calls the func2 to do a document.location 
+    //    based loading of "end.html".
+    // 9. end.html calls "end()" in the execute handler.
+    //    which concludes the test.
+    
+    std::stringstream mainHtml;
+    mainHtml <<
+    "<html><body>"
+    "<h1>Hello From Main Frame</h1>"
+    "<script language=\"JavaScript\">"
+    "hello(\"main\", callIFrame);"
+    "function callIFrame() {"
+    " var iframe = document.getElementById('iframe');"
+    " iframe.contentWindow.calledFromMain();"
+    "}"
+    "</script>"
+    "<iframe id=\"iframe\" src=\"http://tests/iframe.html\""
+    " width=\"300\" height=\"300\">"
+    "</iframe>"
+    "</body></html>";
+    
+    AddResource("http://tests/main.html", mainHtml.str(), "text/html");
+    
+    std::stringstream iframeHtml;
+    iframeHtml <<
+    "<html><body>"
+    "<h1>Hello From IFRAME</h1>"
+    "<script language=\"JavaScript\">"
+    "hello(\"iframe\");"
+    "function calledFromMain() { fromIFrame(); }"
+    "</script>"
+    "</body></html>";
+    
+    AddResource("http://tests/iframe.html", iframeHtml.str(), "text/html");
+    
+    std::stringstream beginHtml;
+    beginHtml <<
+    "<html><body>"
+    "<h1>V8 Context Test</h1>"
+    "<script language=\"JavaScript\">"
+    "function TestException() { throw('My Exception'); }"
+    "function TestNavigate(a) { document.location = a; }"
+    "begin(TestException, TestNavigate);"
+    "</script>"
+    "</body></html>";
+  	
+    AddResource("http://tests/begin.html", beginHtml.str(), "text/html");
+    
+    std::stringstream endHtml;
+    endHtml <<
+    "<html><body>"
+    "<h1>Navigation Succeeded!</h1>"
+    "<script language=\"JavaScript\">"
+    "end();"
+    "</script>"
+    "</body></html>";
+    
+    AddResource("http://tests/end.html", endHtml.str(), "text/html");
+    
+    CreateBrowser("http://tests/main.html");
+  }
+  
+  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame,
+                               bool isMainContent,
+                               int httpStatusCode)
+  {
+    return RV_CONTINUE;
+  }
+  
+  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Value> object)
+  {
+    CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
+    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
+    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
+    CefString currentURL = currentFrame->GetURL();
+    
+    CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
+    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
+    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
+    CefString enteredURL = enteredFrame->GetURL();
+    
+    CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
+    CefRefPtr<CefV8Value> helloFunc = 
+    CefV8Value::CreateFunction("hello", funcHandler);
+    object->SetValue("hello", helloFunc);
+    
+    CefRefPtr<CefV8Value> fromIFrameFunc = 
+    CefV8Value::CreateFunction("fromIFrame", funcHandler);
+    object->SetValue("fromIFrame", fromIFrameFunc);
+    
+    CefRefPtr<CefV8Value> goFunc = 
+    CefV8Value::CreateFunction("begin", funcHandler);
+    object->SetValue("begin", goFunc);
+    
+    CefRefPtr<CefV8Value> doneFunc = 
+    CefV8Value::CreateFunction("end", funcHandler);
+    object->SetValue("end", doneFunc);
+    
+    return RV_HANDLED;
+  }
+  
+  void CallIFrame()
+  {
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> rv;
+    CefString exception;
+    CefRefPtr<CefV8Value> empty;
+    ASSERT_TRUE(funcIFrame_->ExecuteFunctionWithContext(contextIFrame_, empty,
+                                                        args, rv, exception));
+  }
+  
+  void AsyncTestContext(CefRefPtr<CefV8Context> ec, 
+                        CefRefPtr<CefV8Context> cc)
+  {
+    // we should not be in a context in this call.
+    CefRefPtr<CefV8Context> noContext = CefV8Context::GetCurrentContext();
+    if (!noContext.get())
+      got_no_context_.yes();
+    
+    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
+    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
+    CefString enteredURL = enteredFrame->GetURL();
+    CefString enteredName = enteredFrame->GetName();
+    CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
+    CefString enteredMainURL = enteredMainFrame->GetURL();
+    CefString enteredMainName = enteredMainFrame->GetName();
+    
+    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
+    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
+    CefString currentURL = currentFrame->GetURL();
+    CefString currentName = currentFrame->GetName();
+    CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
+    CefString currentMainURL = currentMainFrame->GetURL();
+    CefString currentMainName = currentMainFrame->GetName();
+    
+    CefRefPtr<CefBrowser> copyFromMainFrame = 
+    currentMainFrame->GetBrowser();
+    
+    currentMainFrame->LoadURL("http://tests/begin.html");
+  }
+  
+  void AsyncTestException(CefRefPtr<CefV8Context> context,
+                          CefRefPtr<CefV8Value> func)
+  {
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> rv;
+    CefString exception;
+    CefRefPtr<CefV8Value> empty;
+    ASSERT_TRUE(func->ExecuteFunctionWithContext(context, empty, args, rv,
+                                                 exception));
+    if(exception == "Uncaught My Exception")
+      got_exception_.yes();
+  }
+  
+  void AsyncTestNavigation(CefRefPtr<CefV8Context> context,
+                           CefRefPtr<CefV8Value> func)
+  {
+    CefV8ValueList args;
+    args.push_back(CefV8Value::CreateString("http://tests/end.html"));
+    CefRefPtr<CefV8Value> rv;
+    CefString exception;
+    CefRefPtr<CefV8Value> global = context->GetGlobal();
+    ASSERT_TRUE(func->ExecuteFunctionWithContext(context, global, args, rv,
+                                                 exception));
+    if(exception.empty())
+      got_navigation_.yes();
+  }
+  
+  bool Execute(const CefString& name, 
+               CefRefPtr<CefV8Value> object,
+               const CefV8ValueList& arguments,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception)
+  {
+    CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
+    CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
+    
+    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
+    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
+    CefString enteredURL = enteredFrame->GetURL();
+    CefString enteredName = enteredFrame->GetName();
+    CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
+    CefString enteredMainURL = enteredMainFrame->GetURL();
+    CefString enteredMainName = enteredMainFrame->GetName();
+    
+    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
+    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
+    CefString currentURL = currentFrame->GetURL();
+    CefString currentName = currentFrame->GetName();
+    CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
+    CefString currentMainURL = currentMainFrame->GetURL();
+    CefString currentMainName = currentMainFrame->GetName();
+    
+    if (name == "hello") {
+      if(arguments.size() == 2 && arguments[0]->IsString() &&
+         arguments[1]->IsFunction()) {
+        CefString msg = arguments[0]->GetStringValue();
+        if(msg == "main") {
+          got_hello_main_.yes();
+          contextIFrame_ = cc;
+          funcIFrame_ = arguments[1];
+        }
+      } else if(arguments.size() == 1 && arguments[0]->IsString()) {
+        CefString msg = arguments[0]->GetStringValue();
+        if(msg == "iframe")
+          got_hello_iframe_.yes();
+      }
+      else
+        return false;
+      
+      if(got_hello_main_ && got_hello_iframe_ && funcIFrame_->IsFunction()) {
+        // NB: At this point, enteredURL == http://tests/iframe.html which is
+        // expected since the iframe made the call on its own. The unexpected
+        // behavior is that in the call to fromIFrame (below) the enteredURL
+        // == http://tests/main.html even though the iframe.html context was 
+        // entered first.
+        //  -- Perhaps WebKit does something other than look at the bottom 
+        //     of stack for the entered context.
+        if(enteredURL == "http://tests/iframe.html")
+          got_iframe_as_entered_url_.yes();
+        CallIFrame();
+      }
+      return true;
+    } else if(name == "fromIFrame") {
+      if(enteredURL == "http://tests/main.html")
+        got_correct_entered_url_.yes();
+      if(currentURL == "http://tests/iframe.html")
+        got_correct_current_url_.yes();
+      CefPostTask(TID_UI, NewCefRunnableMethod(this, 
+          &TestContextHandler::AsyncTestContext, ec, cc));
+      return true;
+    } else if(name == "begin") {
+      if(arguments.size() == 2 && arguments[0]->IsFunction() &&
+         arguments[1]->IsFunction()) {
+        CefRefPtr<CefV8Value> funcException = arguments[0];
+        CefRefPtr<CefV8Value> funcNavigate  = arguments[1];
+        CefPostTask(TID_UI, NewCefRunnableMethod(this, 
+            &TestContextHandler::AsyncTestException, cc, funcException));
+        CefPostTask(TID_UI, NewCefRunnableMethod(this, 
+            &TestContextHandler::AsyncTestNavigation, cc, funcNavigate));
+        return true;
+      }
+    } else if (name == "end") {
+      got_testcomplete_.yes();
+      DestroyTest();
+      return true;
+    }
+    return false;
+  }
+  
+  // This function we will be called later to make it call into the
+  // IFRAME, which then calls "fromIFrame" so that we can check the 
+  // entered vs current contexts are working as expected.
+  CefRefPtr<CefV8Context> contextIFrame_;
+  CefRefPtr<CefV8Value> funcIFrame_;
+  
+  TrackCallback got_hello_main_;
+  TrackCallback got_hello_iframe_;
+  TrackCallback got_correct_entered_url_;
+  TrackCallback got_correct_current_url_;
+  TrackCallback got_iframe_as_entered_url_;
+  TrackCallback got_no_context_;
+  TrackCallback got_exception_;
+  TrackCallback got_navigation_;
+  TrackCallback got_testcomplete_;
+};
+
+} // namespace
+
 // Verify context works to allow async v8 callbacks
 TEST(V8Test, Context)
 {
-  class DelegatingV8Handler : public CefThreadSafeBase<CefV8Handler>
-  {
-  public:
-    DelegatingV8Handler(CefV8HandlerDelegate *delegate): 
-        delegate_(delegate) { }
-    
-    ~DelegatingV8Handler()
-    {
-    }
-
-    bool Execute(const CefString& name, 
-                 CefRefPtr<CefV8Value> object,
-                 const CefV8ValueList& arguments,
-                 CefRefPtr<CefV8Value>& retval,
-                 CefString& exception)
-    {
-      return delegate_->Execute(name, object, arguments, retval, exception);
-    }
-
-  private:
-    CefV8HandlerDelegate *delegate_;
-  };
-
-  class TestContextHandler: public TestHandler, public CefV8HandlerDelegate
-  {
-  public:
-    TestContextHandler() {}
-  
-    virtual void RunTest()
-    {
-      // Test Flow: 
-      // load main.html.
-      // 1. main.html calls hello("main", callIFrame) in the execute handler.
-      //    The excute handler checks that "main" was called and saves 
-      //    the callIFrame function, context, and receiver object.
-      // 2. iframe.html calls hello("iframe") in the execute handler.
-      //    The execute handler checks that "iframe" was called. if both main 
-      //    and iframe were called, it calls CallIFrame()
-      // 3. CallIFrame calls "callIFrame" in main.html
-      // 4. which calls iframe.html "calledFromMain()".
-      // 5. which calls "fromIFrame()" in execute handler.
-      //    The execute handler checks that the entered and current urls are
-      //    what we expect: "main.html" and "iframe.html", respectively 
-      // 6. It then posts a task to call AsyncTestContext
-      //      you can validate the entered and current context are still the 
-      //      same here, but it is not checked by this test case.
-      // 7. AsyncTestContext tests to make sure that no context is set at 
-      //    this point and loads "begin.html"
-      // 8. begin.html calls "begin(func1, func2)" in the execute handler
-      //    The execute handler posts a tasks to call both of those functions 
-      //    when no context is defined. Both should work with the specified 
-      //    context. AsyncTestException should run first, followed by 
-      //    AsyncTestNavigate() which calls the func2 to do a document.location 
-      //    based loading of "end.html".
-      // 9. end.html calls "end()" in the execute handler.
-      //    which concludes the test.
-
-      std::stringstream mainHtml;
-      mainHtml <<
-        "<html><body>"
-        "<h1>Hello From Main Frame</h1>"
-        "<script language=\"JavaScript\">"
-        "hello(\"main\", callIFrame);"
-        "function callIFrame() {"
-        " var iframe = document.getElementById('iframe');"
-        " iframe.contentWindow.calledFromMain();"
-        "}"
-        "</script>"
-        "<iframe id=\"iframe\" src=\"http://tests/iframe.html\""
-        " width=\"300\" height=\"300\">"
-        "</iframe>"
-        "</body></html>";
-
-      AddResource("http://tests/main.html", mainHtml.str(), "text/html");
-
-      std::stringstream iframeHtml;
-      iframeHtml <<
-        "<html><body>"
-        "<h1>Hello From IFRAME</h1>"
-        "<script language=\"JavaScript\">"
-        "hello(\"iframe\");"
-        "function calledFromMain() { fromIFrame(); }"
-        "</script>"
-        "</body></html>";
-
-      AddResource("http://tests/iframe.html", iframeHtml.str(), "text/html");
-
-      std::stringstream beginHtml;
-      beginHtml <<
-        "<html><body>"
-        "<h1>V8 Context Test</h1>"
-        "<script language=\"JavaScript\">"
-        "function TestException() { throw('My Exception'); }"
-        "function TestNavigate(a) { document.location = a; }"
-        "begin(TestException, TestNavigate);"
-        "</script>"
-        "</body></html>";
-  	
-      AddResource("http://tests/begin.html", beginHtml.str(), "text/html");
-
-      std::stringstream endHtml;
-      endHtml <<
-        "<html><body>"
-        "<h1>Navigation Succeeded!</h1>"
-        "<script language=\"JavaScript\">"
-        "end();"
-        "</script>"
-        "</body></html>";
-
-      AddResource("http://tests/end.html", endHtml.str(), "text/html");
-
-      CreateBrowser("http://tests/main.html");
-    }
-  
-    virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 bool isMainContent,
-                                 int httpStatusCode)
-    {
-      return RV_CONTINUE;
-    }
-
-    virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefV8Value> object)
-    {
-      CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
-      CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-      CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-      CefString currentURL = currentFrame->GetURL();
-
-      CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
-      CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-      CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-      CefString enteredURL = enteredFrame->GetURL();
-
-      CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
-      CefRefPtr<CefV8Value> helloFunc = 
-        CefV8Value::CreateFunction("hello", funcHandler);
-      object->SetValue("hello", helloFunc);
-
-      CefRefPtr<CefV8Value> fromIFrameFunc = 
-        CefV8Value::CreateFunction("fromIFrame", funcHandler);
-      object->SetValue("fromIFrame", fromIFrameFunc);
-
-      CefRefPtr<CefV8Value> goFunc = 
-        CefV8Value::CreateFunction("begin", funcHandler);
-      object->SetValue("begin", goFunc);
-
-      CefRefPtr<CefV8Value> doneFunc = 
-        CefV8Value::CreateFunction("end", funcHandler);
-      object->SetValue("end", doneFunc);
-
-      return RV_HANDLED;
-    }
-
-    void CallIFrame()
-    {
-      CefV8ValueList args;
-      CefRefPtr<CefV8Value> rv;
-      CefString exception;
-      CefRefPtr<CefV8Value> empty;
-      ASSERT_TRUE(funcIFrame_->ExecuteFunctionWithContext(
-          contextIFrame_, empty, args, rv, exception));
-    }
-
-    void AsyncTestContext(CefRefPtr<CefV8Context> ec, 
-                          CefRefPtr<CefV8Context> cc)
-    {
-      // we should not be in a context in this call.
-      CefRefPtr<CefV8Context> noContext = CefV8Context::GetCurrentContext();
-      if (!noContext.get())
-        got_no_context_.yes();
-
-      CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-      CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-      CefString enteredURL = enteredFrame->GetURL();
-      CefString enteredName = enteredFrame->GetName();
-      CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
-      CefString enteredMainURL = enteredMainFrame->GetURL();
-      CefString enteredMainName = enteredMainFrame->GetName();
-
-      CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-      CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-      CefString currentURL = currentFrame->GetURL();
-      CefString currentName = currentFrame->GetName();
-      CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
-      CefString currentMainURL = currentMainFrame->GetURL();
-      CefString currentMainName = currentMainFrame->GetName();
-
-      CefRefPtr<CefBrowser> copyFromMainFrame = 
-          currentMainFrame->GetBrowser();
-
-      currentMainFrame->LoadURL("http://tests/begin.html");
-    }
-
-    void AsyncTestException(
-      CefRefPtr<CefV8Context> context,
-      CefRefPtr<CefV8Value> func)
-    {
-      CefV8ValueList args;
-      CefRefPtr<CefV8Value> rv;
-      CefString exception;
-      CefRefPtr<CefV8Value> empty;
-      ASSERT_TRUE(func->ExecuteFunctionWithContext(
-          context, empty, args, rv, exception));
-      if(exception == "Uncaught My Exception")
-        got_exception_.yes();
-    }
-
-    void AsyncTestNavigation(
-      CefRefPtr<CefV8Context> context,
-      CefRefPtr<CefV8Value> func)
-    {
-      CefV8ValueList args;
-      args.push_back(CefV8Value::CreateString("http://tests/end.html"));
-      CefRefPtr<CefV8Value> rv;
-      CefString exception;
-      CefRefPtr<CefV8Value> global = context->GetGlobal();
-      ASSERT_TRUE(func->ExecuteFunctionWithContext(
-          context, global, args, rv, exception));
-      if(exception.empty())
-        got_navigation_.yes();
-    }
-
-    bool Execute(const CefString& name, 
-                 CefRefPtr<CefV8Value> object,
-                 const CefV8ValueList& arguments,
-                 CefRefPtr<CefV8Value>& retval,
-                 CefString& exception)
-    {
-      CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
-      CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
-
-      CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-      CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-      CefString enteredURL = enteredFrame->GetURL();
-      CefString enteredName = enteredFrame->GetName();
-      CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
-      CefString enteredMainURL = enteredMainFrame->GetURL();
-      CefString enteredMainName = enteredMainFrame->GetName();
-
-      CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-      CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-      CefString currentURL = currentFrame->GetURL();
-      CefString currentName = currentFrame->GetName();
-      CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
-      CefString currentMainURL = currentMainFrame->GetURL();
-      CefString currentMainName = currentMainFrame->GetName();
-
-      if (name == "hello") {
-        if(arguments.size() == 2 && arguments[0]->IsString() &&
-            arguments[1]->IsFunction()) {
-          CefString msg = arguments[0]->GetStringValue();
-          if(msg == "main") {
-            got_hello_main_.yes();
-            contextIFrame_ = cc;
-            funcIFrame_ = arguments[1];
-          }
-        } else if(arguments.size() == 1 && arguments[0]->IsString()) {
-          CefString msg = arguments[0]->GetStringValue();
-          if(msg == "iframe")
-            got_hello_iframe_.yes();
-        }
-        else
-          return false;
-
-        if(got_hello_main_ && got_hello_iframe_ && funcIFrame_->IsFunction())
-        {
-          // NB: At this point, enteredURL == http://tests/iframe.html which is
-          // expected since the iframe made the call on its own. The unexpected
-          // behavior is that in the call to fromIFrame (below) the enteredURL
-          // == http://tests/main.html even though the iframe.html context was 
-          // entered first.
-          //  -- Perhaps WebKit does something other than look at the bottom 
-          //     of stack for the entered context.
-          if(enteredURL == "http://tests/iframe.html")
-            got_iframe_as_entered_url_.yes();
-          CallIFrame();
-        }
-        return true;
-      } else if(name == "fromIFrame") {
-        if(enteredURL == "http://tests/main.html")
-          got_correct_entered_url_.yes();
-        if(currentURL == "http://tests/iframe.html")
-          got_correct_current_url_.yes();
-        CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-            &TestContextHandler::AsyncTestContext, ec, cc));
-        return true;
-      } else if(name == "begin") {
-        if(arguments.size() == 2 && arguments[0]->IsFunction() &&
-            arguments[1]->IsFunction()) {
-          CefRefPtr<CefV8Value> funcException = arguments[0];
-          CefRefPtr<CefV8Value> funcNavigate  = arguments[1];
-          CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-              &TestContextHandler::AsyncTestException, 
-              cc, funcException));
-          CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-              &TestContextHandler::AsyncTestNavigation, 
-              cc, funcNavigate));
-          return true;
-        }
-      } else if (name == "end") {
-        got_testcomplete_.yes();
-        DestroyTest();
-        return true;
-      }
-      return false;
-    }
-
-    // This function we will be called later to make it call into the
-    // IFRAME, which then calls "fromIFrame" so that we can check the 
-    // entered vs current contexts are working as expected.
-    CefRefPtr<CefV8Context> contextIFrame_;
-    CefRefPtr<CefV8Value> funcIFrame_;
-
-    TrackCallback got_hello_main_;
-    TrackCallback got_hello_iframe_;
-    TrackCallback got_correct_entered_url_;
-    TrackCallback got_correct_current_url_;
-    TrackCallback got_iframe_as_entered_url_;
-    TrackCallback got_no_context_;
-    TrackCallback got_exception_;
-    TrackCallback got_navigation_;
-    TrackCallback got_testcomplete_;
-  };
-
   CefRefPtr<TestContextHandler> handler = new TestContextHandler();
   handler->ExecuteTest();
 
