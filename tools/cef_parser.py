@@ -1054,21 +1054,6 @@ class obj_analysis:
             }
         
         # check for simple direct translations
-        structuretypes = {
-            'CefPrintInfo' : 'cef_print_info_t',
-            'CefWindowInfo' : 'cef_window_info_t',
-            'CefPopupFeatures' : 'cef_popup_features_t',
-            'CefSettings' : 'cef_settings_t',
-            'CefBrowserSettings' : 'cef_browser_settings_t',
-            'CefURLParts' : 'cef_urlparts_t',
-        }
-        if value in structuretypes.keys():
-            return {
-                'result_type' : 'structure',
-                'result_value' : structuretypes[value]
-            }
-        
-        # check for simple direct translations
         simpletypes = {
             'void' : 'void',
             'int' : 'int',
@@ -1104,6 +1089,13 @@ class obj_analysis:
             return {
                 'result_type' : 'refptr',
                 'result_value' : get_capi_name(list[0], True)+'*'
+            }
+
+        # check for CEF structure types
+        if value[0:3] == 'Cef' and value[-4:] != 'List':
+            return {
+                'result_type' : 'structure',
+                'result_value' : get_capi_name(value, True)
             }
         
         return None
