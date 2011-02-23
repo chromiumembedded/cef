@@ -48,12 +48,14 @@
 #define ID_TESTS_DEVTOOLS_SHOW          32788
 #define ID_TESTS_DEVTOOLS_CLOSE         32789
 #define ID_TESTS_WEBURLREQUEST          32790
+#define ID_TESTS_DOMACCESS              32791
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
 #define IDS_LOGOBALL                    1002
 #define IDS_LOCALSTORAGE                1003
 #define IDS_XMLHTTPREQUEST              1004
+#define IDS_DOMACCESS                   1005
 
 // Avoid files associated with MacOS
 #define _X86_

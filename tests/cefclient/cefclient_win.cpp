@@ -511,6 +511,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunUIPluginTest(browser);
           return 0;
+        case ID_TESTS_DOMACCESS: // Test DOM access
+          if(browser.get())
+            RunDOMAccessTest(browser);
+          return 0;
         case ID_TESTS_LOCALSTORAGE: // Test localStorage
           if(browser.get())
             RunLocalStorageTest(browser);
@@ -705,6 +709,13 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
   } else if(url == "http://tests/xmlhttprequest") {
     // Show the xmlhttprequest HTML contents
     if(LoadBinaryResource(IDS_XMLHTTPREQUEST, dwSize, pBytes)) {
+      resourceStream = CefStreamReader::CreateForHandler(
+          new CefByteReadHandler(pBytes, dwSize, NULL));
+      mimeType = "text/html";
+    }
+  } else if(url == "http://tests/domaccess") {
+    // Show the domaccess HTML contents
+    if(LoadBinaryResource(IDS_DOMACCESS, dwSize, pBytes)) {
       resourceStream = CefStreamReader::CreateForHandler(
           new CefByteReadHandler(pBytes, dwSize, NULL));
       mimeType = "text/html";

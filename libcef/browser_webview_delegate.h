@@ -138,6 +138,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*, WebKit::WebMediaPlayerClient*);
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
     WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client);
+  virtual void willClose(WebKit::WebFrame*);
   virtual void loadURLExternally(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
       WebKit::WebNavigationPolicy);

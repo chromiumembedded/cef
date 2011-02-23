@@ -8,6 +8,9 @@
 #include "include/cef_nplugin_capi.h"
 #include "cef_logging.h"
 #include "cpptoc/browser_cpptoc.h"
+#include "cpptoc/domdocument_cpptoc.h"
+#include "cpptoc/domevent_cpptoc.h"
+#include "cpptoc/domnode_cpptoc.h"
 #include "cpptoc/post_data_cpptoc.h"
 #include "cpptoc/post_data_element_cpptoc.h"
 #include "cpptoc/request_cpptoc.h"
@@ -17,6 +20,8 @@
 #include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
 #include "cpptoc/zip_reader_cpptoc.h"
+#include "ctocpp/domevent_listener_ctocpp.h"
+#include "ctocpp/domvisitor_ctocpp.h"
 #include "ctocpp/download_handler_ctocpp.h"
 #include "ctocpp/handler_ctocpp.h"
 #include "ctocpp/read_handler_ctocpp.h"
@@ -57,6 +62,9 @@ CEF_EXPORT void cef_shutdown()
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefBrowserCppToC::DebugObjCt == 0);
+  DCHECK(CefDOMDocumentCppToC::DebugObjCt == 0);
+  DCHECK(CefDOMEventCppToC::DebugObjCt == 0);
+  DCHECK(CefDOMNodeCppToC::DebugObjCt == 0);
   DCHECK(CefRequestCppToC::DebugObjCt == 0);
   DCHECK(CefPostDataCppToC::DebugObjCt == 0);
   DCHECK(CefPostDataElementCppToC::DebugObjCt == 0);
@@ -66,6 +74,8 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
   DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
+  DCHECK(CefDOMEventListenerCToCpp::DebugObjCt == 0);
+  DCHECK(CefDOMVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);

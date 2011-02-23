@@ -10,6 +10,7 @@
 // tools directory for more information.
 //
 
+#include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -205,6 +206,14 @@ CefRefPtr<CefBrowser> CefFrameCToCpp::GetBrowser()
     return CefBrowserCToCpp::Wrap(browserStruct);
 
   return browser;
+}
+
+void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
+{
+  if(CEF_MEMBER_MISSING(struct_, visit_dom))
+    return;
+
+  struct_->visit_dom(struct_, CefDOMVisitorCppToC::Wrap(visitor));
 }
 
 

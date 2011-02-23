@@ -33,8 +33,7 @@ std::string GenerateHeaders(const HeaderMap& map)
   return headers;
 }
 
-void ParseHeaders(const std::string& header_str, 
-                                   HeaderMap& map)
+void ParseHeaders(const std::string& header_str, HeaderMap& map)
 {
   // Parse the request header values
   std::string headerStr = "HTTP/1.1 200 OK\n";

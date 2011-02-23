@@ -579,6 +579,10 @@ WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
   return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
 }
 
+void BrowserWebViewDelegate::willClose(WebFrame* frame) {
+  browser_->UIT_BeforeFrameClosed(frame);
+}
+
 void BrowserWebViewDelegate::loadURLExternally(
     WebFrame* frame, const WebURLRequest& request,
     WebNavigationPolicy policy) {

@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -225,6 +226,17 @@ cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self)
   return NULL;
 }
 
+void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
+    struct _cef_domvisitor_t* visitor)
+{
+  DCHECK(self);
+  DCHECK(visitor);
+  if(!self || !visitor)
+    return;
+
+  CefFrameCppToC::Get(self)->VisitDOM(CefDOMVisitorCToCpp::Wrap(visitor));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -252,6 +264,7 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
   struct_.struct_.get_name = frame_get_name;
   struct_.struct_.get_url = frame_get_url;
   struct_.struct_.get_browser = frame_get_browser;
+  struct_.struct_.visit_dom = frame_visit_dom;
 }
 
 #ifdef _DEBUG

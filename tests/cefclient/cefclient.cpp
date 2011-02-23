@@ -91,6 +91,11 @@ CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
     m_bLoading = false;
     m_bCanGoBack = browser->CanGoBack();
     m_bCanGoForward = browser->CanGoForward();
+
+    CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+    CefRefPtr<CefDOMVisitor> visitor = GetDOMVisitor(frame->GetURL());
+    if(visitor.get())
+      frame->VisitDOM(visitor);
     Unlock();
   }
   return RV_CONTINUE;
@@ -269,6 +274,26 @@ std::string ClientHandler::GetLastDownloadFile()
   str = m_LastDownloadFile;
   Unlock();
   return str;
+}
+
+void ClientHandler::AddDOMVisitor(const std::string& path,
+                                  CefRefPtr<CefDOMVisitor> visitor)
+{
+  AutoLock lock_scope(this);
+  DOMVisitorMap::iterator it = m_DOMVisitors.find(path);
+  if (it == m_DOMVisitors.end())
+    m_DOMVisitors.insert(std::make_pair(path, visitor));
+  else
+    it->second = visitor;
+}
+
+CefRefPtr<CefDOMVisitor> ClientHandler::GetDOMVisitor(const std::string& path)
+{
+  AutoLock lock_scope(this);
+  DOMVisitorMap::iterator it = m_DOMVisitors.find(path);
+  if (it != m_DOMVisitors.end())
+    return it->second;
+  return NULL;
 }
 
 
@@ -470,4 +495,88 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
   CefRefPtr<CefWebURLRequestClient> client(new RequestClient(browser));
   CefRefPtr<CefWebURLRequest> requester(
       CefWebURLRequest::CreateWebURLRequest(request, client));
+}
+
+void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
+{
+  class Listener : public CefThreadSafeBase<CefDOMEventListener>
+  {
+  public:
+    Listener() {}
+    virtual void HandleEvent(CefRefPtr<CefDOMEvent> event)
+    {
+      CefRefPtr<CefDOMDocument> document = event->GetDocument();
+      ASSERT(document.get());
+      
+      std::stringstream ss;
+
+      CefRefPtr<CefDOMNode> button = event->GetTarget();
+      ASSERT(button.get());
+      std::string buttonValue = button->GetElementAttribute("value");
+      ss << "You clicked the " << buttonValue.c_str() << " button. ";
+      
+      if (document->HasSelection()) {
+        std::string startName, endName;
+      
+        // Determine the start name by first trying to locate the "id" attribute
+        // and then defaulting to the tag name.
+        {
+          CefRefPtr<CefDOMNode> node = document->GetSelectionStartNode();
+          if (!node->IsElement())
+            node = node->GetParent();
+          if (node->IsElement() && node->HasElementAttribute("id"))
+            startName = node->GetElementAttribute("id");
+          else
+            startName = node->GetName();
+        }
+
+        // Determine the end name by first trying to locate the "id" attribute
+        // and then defaulting to the tag name.
+        {
+          CefRefPtr<CefDOMNode> node = document->GetSelectionEndNode();
+          if (!node->IsElement())
+            node = node->GetParent();
+          if (node->IsElement() && node->HasElementAttribute("id"))
+            endName = node->GetElementAttribute("id");
+          else
+            endName = node->GetName();
+        }
+
+        ss << "The selection is from " <<
+            startName.c_str() << ":" << document->GetSelectionStartOffset() <<
+            " to " <<
+            endName.c_str() << ":" << document->GetSelectionEndOffset();
+      } else {
+        ss << "Nothing is selected.";
+      }
+      
+      // Update the description.
+      CefRefPtr<CefDOMNode> desc = document->GetElementById("description");
+      ASSERT(desc.get());
+      CefRefPtr<CefDOMNode> text = desc->GetFirstChild();
+      ASSERT(text.get());
+      ASSERT(text->IsText());
+      text->SetValue(ss.str());
+    }
+  };
+
+  class Visitor : public CefThreadSafeBase<CefDOMVisitor>
+  {
+  public:
+    Visitor() {}
+    virtual void Visit(CefRefPtr<CefDOMDocument> document)
+    {
+      // Register an click listener for the button.
+      CefRefPtr<CefDOMNode> button = document->GetElementById("button");
+      ASSERT(button.get());
+      button->AddEventListener("click", new Listener(), false);
+    }
+  };
+
+  // The DOM visitor will be called after the path is loaded.
+  CefRefPtr<CefHandler> handler = browser->GetHandler();
+  static_cast<ClientHandler*>(handler.get())->AddDOMVisitor(
+      "http://tests/domaccess", new Visitor());
+
+  browser->GetMainFrame()->LoadURL("http://tests/domaccess");
 }

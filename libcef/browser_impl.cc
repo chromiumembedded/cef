@@ -7,6 +7,7 @@
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "browser_zoom_map.h"
+#include "dom_document_impl.h"
 #include "request_impl.h"
 #include "stream_impl.h"
 
@@ -1127,6 +1128,61 @@ void CefBrowserImpl::UIT_CloseDevTools()
     client->browser()->UIT_CloseBrowser();
 }
 
+void CefBrowserImpl::UIT_VisitDOM(CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefDOMVisitor> visitor)
+{
+  REQUIRE_UIT();
+
+  WebKit::WebFrame* web_frame = UIT_GetWebFrame(frame);
+  if (!web_frame)
+    return;
+
+  // Create a CefDOMDocumentImpl object that is valid only for the scope of this
+  // method.
+  CefRefPtr<CefDOMDocumentImpl> documentImpl;
+  const WebKit::WebDocument& document = web_frame->document();
+  if (!document.isNull())
+    documentImpl = new CefDOMDocumentImpl(this, web_frame);
+
+  visitor->Visit(documentImpl.get());
+
+  if (documentImpl.get())
+    documentImpl->Detach();
+}
+
+void CefBrowserImpl::UIT_AddFrameObject(WebKit::WebFrame* frame,
+                                        CefTrackObject* tracked_object)
+{
+  REQUIRE_UIT();
+
+  CefRefPtr<CefTrackManager> manager;
+
+  if (!frame_objects_.empty()) {
+    FrameObjectMap::const_iterator it = frame_objects_.find(frame);
+    if (it != frame_objects_.end())
+      manager = it->second;
+  }
+
+  if (!manager.get()) {
+    manager = new CefTrackManager();
+    frame_objects_.insert(std::make_pair(frame, manager));
+  }
+
+  manager->Add(tracked_object);
+}
+
+void CefBrowserImpl::UIT_BeforeFrameClosed(WebKit::WebFrame* frame)
+{
+  REQUIRE_UIT();
+
+  if (!frame_objects_.empty()) {
+    // Remove any tracked objects associated with the frame.
+    FrameObjectMap::iterator it = frame_objects_.find(frame);
+    if (it != frame_objects_.end())
+      frame_objects_.erase(it);
+  }
+}
+
 void CefBrowserImpl::set_zoom_level(double zoomLevel)
 {
   AutoLock lock_scope(this);
@@ -1196,4 +1252,15 @@ bool CefFrameImpl::IsFocused()
   return (browser_->UIT_GetWebView() &&
          (browser_->UIT_GetWebFrame(this) ==
             browser_->UIT_GetWebView()->focusedFrame()));
+}
+
+void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
+{
+  if(!visitor.get()) {
+    NOTREACHED();
+    return;
+  }
+  CefRefPtr<CefFrame> framePtr(this);
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(
+      browser_.get(), &CefBrowserImpl::UIT_VisitDOM, framePtr, visitor));
 }

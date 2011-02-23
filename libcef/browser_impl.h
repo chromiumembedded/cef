@@ -14,6 +14,7 @@
 #include "browser_webview_delegate.h"
 #include "browser_navigation_controller.h"
 #include "cef_thread.h"
+#include "tracker.h"
 #if defined(OS_WIN)
 #include "printing/win_printing_context.h"
 #endif
@@ -254,6 +255,14 @@ public:
   void UIT_ShowDevTools();
   void UIT_CloseDevTools();
 
+  void UIT_VisitDOM(CefRefPtr<CefFrame> frame,
+                    CefRefPtr<CefDOMVisitor> visitor);
+
+  // Frame objects will be deleted immediately before the frame is closed.
+  void UIT_AddFrameObject(WebKit::WebFrame* frame,
+                                 CefTrackObject* tracked_object);
+  void UIT_BeforeFrameClosed(WebKit::WebFrame* frame);
+
   // These variables are read-only.
   const CefBrowserSettings& settings() const { return settings_; }
   const FilePath& file_system_root() const { return file_system_root_.path(); }
@@ -304,6 +313,10 @@ protected:
   FrameMap frames_;
   CefFrame* main_frame_;
 
+  typedef std::map<WebKit::WebFrame*, CefRefPtr<CefTrackManager> >
+      FrameObjectMap;
+  FrameObjectMap frame_objects_;
+
   // Unique browser ID assigned by the context.
   int unique_id_;
  
@@ -350,6 +363,7 @@ public:
   virtual CefString GetName() { return name_; }
   virtual CefString GetURL() { return browser_->GetURL(this); }
   virtual CefRefPtr<CefBrowser> GetBrowser() { return browser_.get(); }
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor);
 
 private:
   CefRefPtr<CefBrowserImpl> browser_;

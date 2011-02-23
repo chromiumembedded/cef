@@ -54,6 +54,7 @@ public:
   virtual CefString GetName();
   virtual CefString GetURL();
   virtual CefRefPtr<CefBrowser> GetBrowser();
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor);
 };
 
 #endif // USING_CEF_SHARED

@@ -379,6 +379,10 @@ public:
   void SetLastDownloadFile(const std::string& fileName);
   std::string GetLastDownloadFile();
 
+  // DOM visitors will be called after the associated path is loaded.
+  void AddDOMVisitor(const std::string& path, CefRefPtr<CefDOMVisitor> visitor);
+  CefRefPtr<CefDOMVisitor> GetDOMVisitor(const std::string& path);
+
   // Send a notification to the application. Notifications should not block the
   // caller.
   enum NotificationType
@@ -414,6 +418,9 @@ protected:
   // Support for downloading files.
   CefRefPtr<DownloadListener> m_DownloadListener;
   std::string m_LastDownloadFile;
+
+  typedef std::map<std::string, CefRefPtr<CefDOMVisitor> > DOMVisitorMap;
+  DOMVisitorMap m_DOMVisitors;
 };
 
 
@@ -439,5 +446,6 @@ void RunWebGLTest(CefRefPtr<CefBrowser> browser);
 void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser);
 void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser);
 void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser);
+void RunDOMAccessTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_H
