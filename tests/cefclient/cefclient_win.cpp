@@ -368,8 +368,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             static_cast<CefRefPtr<CefHandler> >(g_handler),
             "http://www.google.com");
 
-        // Start the timer that will be used to update child window state
-        SetTimer(hWnd, 1, 250, NULL);
+        // Start the timer that will be used to update child window state. The
+        // timer is also necessary in single-threaded message loop mode so that
+        // CefDoMessageLoopWork() is called frequently enough for things like
+        // smooth JavaScript animation.
+        SetTimer(hWnd, 1, USER_TIMER_MINIMUM, NULL);
       }
       return 0;
 
