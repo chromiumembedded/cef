@@ -580,3 +580,8 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
 
   browser->GetMainFrame()->LoadURL("http://tests/domaccess");
 }
+
+void RunDragDropTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL("http://html5demos.com/drag");
+}

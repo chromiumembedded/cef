@@ -233,7 +233,8 @@ bool CefCreateURL(const CefURLParts& parts,
 
 // CefContext
 
-CefContext::CefContext() : initialized_(false), shutting_down_(false)
+CefContext::CefContext()
+  : initialized_(false), shutting_down_(false), current_webviewhost_(NULL)
 {
   
 }

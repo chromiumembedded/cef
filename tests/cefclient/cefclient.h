@@ -447,5 +447,6 @@ void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser);
 void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser);
 void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser);
 void RunDOMAccessTest(CefRefPtr<CefBrowser> browser);
+void RunDragDropTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_H

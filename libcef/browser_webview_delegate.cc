@@ -38,6 +38,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHistoryItem.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKitClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
@@ -71,8 +72,8 @@
 
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
-#include "browser_drag_delegate.h"
-#include "browser_drop_delegate.h"
+#include "browser_drag_delegate_win.h"
+#include "web_drop_target_win.h"
 #endif
 
 using appcache::WebApplicationCacheHostImpl;
@@ -423,19 +424,14 @@ void BrowserWebViewDelegate::startDragging(
     WebDragOperationsMask mask,
     const WebImage& image,
     const WebPoint& image_offset) {
-  // TODO(tc): Drag and drop is disabled in the test shell because we need
-  // to be able to convert from WebDragData to an IDataObject.
-  //if (!drag_delegate_)
-  //  drag_delegate_ = new BrowserDragDelegate(shell_->webViewWnd(),
-  //                                        shell_->webView());
-  //const DWORD ok_effect = DROPEFFECT_COPY | DROPEFFECT_LINK | DROPEFFECT_MOVE;
-  //DWORD effect;
-  //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
-  //                         ok_effect, &effect);
-  //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
-  WebView* view = browser_->UIT_GetWebView();
-  if (view)
-    view->dragSourceSystemDragEnded();
+#if defined(OS_WIN)
+  drag_delegate_ = new BrowserDragDelegate(this);
+  drag_delegate_->StartDragging(WebDropData(data), mask, image.getSkBitmap(),
+                                image_offset);
+#else
+  // TODO(port): Support drag and drop.
+  EndDragging();
+#endif
 }
 
 void BrowserWebViewDelegate::focusNext() {
@@ -901,15 +897,15 @@ void BrowserWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
 void BrowserWebViewDelegate::RegisterDragDrop() {
 #if defined(OS_WIN)
   // TODO(port): add me once drag and drop works.
-  DCHECK(!drop_delegate_);
-  drop_delegate_ = new BrowserDropDelegate(browser_->UIT_GetWebViewWndHandle(),
-                                           browser_->UIT_GetWebView());
+  DCHECK(!drop_target_);
+  drop_target_ = new WebDropTarget(browser_->UIT_GetWebViewWndHandle(),
+                                   browser_->UIT_GetWebView());
 #endif
 }
 
 void BrowserWebViewDelegate::RevokeDragDrop() {
 #if defined(OS_WIN)
-  if (drop_delegate_.get())
+  if (drop_target_.get())
     ::RevokeDragDrop(browser_->UIT_GetWebViewWndHandle());
 #endif
 }
@@ -973,6 +969,13 @@ WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
   if (this == browser_->UIT_GetPopupDelegate())
     return browser_->UIT_GetPopupHost();
   return NULL;
+}
+
+void BrowserWebViewDelegate::EndDragging() {
+  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+#if defined(OS_WIN)
+  drag_delegate_ = NULL;
+#endif
 }
 
 void BrowserWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,

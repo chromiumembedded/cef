@@ -54,6 +54,7 @@ class WebViewHost : public WebWidgetHost {
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
     return false;
   }
+  virtual void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
 #endif
 
 #if defined(TOOLKIT_USES_GTK)

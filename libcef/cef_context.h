@@ -19,6 +19,7 @@
 
 class BrowserRequestContext;
 class CefBrowserImpl;
+class WebViewHost;
 
 class CefContext : public CefThreadSafeBase<CefBase>
 {
@@ -65,6 +66,13 @@ public:
     { storage_context_.reset(storage_context); }
   DOMStorageContext* storage_context() { return storage_context_.get(); }
 
+  // Used to keep track of the web view host we're dragging over. WARNING:
+  // this pointer should never be dereferenced.  Use it only for comparing
+  // pointers.
+  WebViewHost* current_webviewhost() { return current_webviewhost_; }
+  void set_current_webviewhost(WebViewHost* host)
+      { current_webviewhost_ = host; }
+
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 private:
@@ -94,6 +102,8 @@ private:
 
   // Used for assigning unique IDs to browser instances.
   int next_browser_id_;
+
+  WebViewHost* current_webviewhost_;
 };
 
 // Global context object pointer.

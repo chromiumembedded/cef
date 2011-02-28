@@ -8,8 +8,6 @@
 // have initialized a MessageLoop before these methods are called.
 
 #include "browser_webview_delegate.h"
-#include "browser_drag_delegate.h"
-#include "browser_drop_delegate.h"
 #include "browser_navigation_controller.h"
 #include "browser_impl.h"
 #include "cef_context.h"

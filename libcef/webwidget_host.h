@@ -86,7 +86,7 @@ class WebWidgetHost {
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
 
   void Resize(LPARAM lparam);
-  void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
+  virtual void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void WheelEvent(WPARAM wparam, LPARAM lparam);
   void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void CaptureLostEvent();

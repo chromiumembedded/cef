@@ -32,8 +32,8 @@
 #endif
 
 #if defined(OS_WIN)
-#include "browser_drag_delegate.h"
-#include "browser_drop_delegate.h"
+class BrowserDragDelegate;
+class WebDropTarget;
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
@@ -211,8 +211,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Additional accessors
   WebKit::WebFrame* top_loading_frame() { return top_loading_frame_; }
 #if defined(OS_WIN)
-  IDropTarget* drop_delegate() { return drop_delegate_.get(); }
-  IDropSource* drag_delegate() { return drag_delegate_.get(); }
+  BrowserDragDelegate* drag_delegate() { return drag_delegate_.get(); }
+  WebDropTarget* drop_target() { return drop_target_.get(); }
 #endif
 
   void set_pending_extra_data(BrowserExtraData* extra_data) {
@@ -250,6 +250,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #if defined(OS_MACOSX)
   void SetPopupMenuInfo(const WebKit::WebPopupMenuInfo& info);
 #endif
+
+  // Called after dragging has finished.
+  void EndDragging();
 
  protected:
   // Default handling of JavaScript messages.
@@ -314,7 +317,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #if defined(OS_WIN)
   // Classes needed by drag and drop.
   scoped_refptr<BrowserDragDelegate> drag_delegate_;
-  scoped_refptr<BrowserDropDelegate> drop_delegate_;
+  scoped_refptr<WebDropTarget> drop_target_;
 #endif
 
 #if defined(OS_LINUX)

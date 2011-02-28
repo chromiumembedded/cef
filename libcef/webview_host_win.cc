@@ -4,6 +4,7 @@
 
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
+#include "cef_context.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/win/hwnd_util.h"
@@ -57,3 +58,7 @@ WebView* WebViewHost::webview() const {
   return static_cast<WebView*>(webwidget_);
 }
 
+void WebViewHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
+  _Context->set_current_webviewhost(this);
+  WebWidgetHost::MouseEvent(message, wparam, lparam);
+}

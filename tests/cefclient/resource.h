@@ -49,6 +49,7 @@
 #define ID_TESTS_DEVTOOLS_CLOSE         32789
 #define ID_TESTS_WEBURLREQUEST          32790
 #define ID_TESTS_DOMACCESS              32791
+#define ID_TESTS_DRAGDROP               32792
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
@@ -66,7 +67,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_COMMAND_VALUE         32793
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
