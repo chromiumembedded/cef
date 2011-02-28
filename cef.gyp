@@ -262,7 +262,6 @@
         '../ui/gfx/gfx.gyp:gfx',
         '../ui/gfx/gfx.gyp:gfx_resources',
         '../ui/ui.gyp:ui_base',
-        '../views/views.gyp:views',
         '../webkit/support/webkit_support.gyp:appcache',
         '../webkit/support/webkit_support.gyp:blob',
         '../webkit/support/webkit_support.gyp:database',
@@ -366,6 +365,7 @@
         ['OS=="win"', {
           'dependencies': [
             '../breakpad/breakpad.gyp:breakpad_handler',
+            '../views/views.gyp:views',
           ],
           'sources': [
             '$(OutDir)/obj/global_intermediate/webkit/webkit_chromium_resources.rc',
@@ -503,7 +503,6 @@
         '../ui/gfx/gfx.gyp:gfx',
         '../ui/gfx/gfx.gyp:gfx_resources',
         '../ui/ui.gyp:ui_base',
-        '../views/views.gyp:views',
         '../webkit/support/webkit_support.gyp:appcache',
         '../webkit/support/webkit_support.gyp:blob',
         '../webkit/support/webkit_support.gyp:database',
@@ -624,6 +623,7 @@
         ['OS=="win"', {
           'dependencies': [
             '../breakpad/breakpad.gyp:breakpad_handler',
+            '../views/views.gyp:views',
           ],
           'sources': [
             'include/cef_types_win.h',
