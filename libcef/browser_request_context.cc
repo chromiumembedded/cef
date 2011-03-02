@@ -4,10 +4,12 @@
 // found in the LICENSE file.
 
 #include "browser_request_context.h"
+#include "browser_persistent_cookie_store.h"
 #include "browser_resource_loader_bridge.h"
 #include "build/build_config.h"
 
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "net/base/cert_verifier.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/host_resolver.h"
@@ -57,7 +59,22 @@ void BrowserRequestContext::Init(
     const FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy) {
-  cookie_store_ = new net::CookieMonster(NULL, NULL);
+  // Create the |cache_path| directory if necessary.
+  bool cache_path_valid = false;
+  if (!cache_path.empty()) {
+    if (file_util::CreateDirectory(cache_path))
+      cache_path_valid = true;
+    else
+      NOTREACHED() << "The cache_path directory could not be created";
+  }
+
+  scoped_refptr<BrowserPersistentCookieStore> persistent_store;
+  if (cache_path_valid) {
+    const FilePath& cookie_path = cache_path.AppendASCII("Cookies");
+    persistent_store = new BrowserPersistentCookieStore(cookie_path);
+  }
+
+  cookie_store_ = new net::CookieMonster(persistent_store.get(), NULL);
   cookie_policy_ = new net::StaticCookiePolicy();
 
   // hard-code A-L and A-C for test shells
@@ -121,7 +138,7 @@ void BrowserRequestContext::Init(
                                                   false);
 
   net::HttpCache::DefaultBackend* backend = new net::HttpCache::DefaultBackend(
-      cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
+      cache_path_valid ? net::DISK_CACHE : net::MEMORY_CACHE,
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
