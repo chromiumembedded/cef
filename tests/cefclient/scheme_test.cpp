@@ -142,7 +142,7 @@ public:
 
 void InitSchemeTest()
 {
-  CefRegisterScheme("client", "tests", new ClientSchemeHandlerFactory());
+  CefRegisterScheme("client", "tests", true, new ClientSchemeHandlerFactory());
 }
 
 void RunSchemeTest(CefRefPtr<CefBrowser> browser)

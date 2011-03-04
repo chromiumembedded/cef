@@ -97,10 +97,11 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 
 bool CefRegisterScheme(const CefString& scheme_name,
                        const CefString& host_name,
+                       bool is_standard,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
   return cef_register_scheme(scheme_name.GetStruct(), host_name.GetStruct(),
-      CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
+      is_standard, CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
 }
 
 bool CefCurrentlyOn(CefThreadId threadId)

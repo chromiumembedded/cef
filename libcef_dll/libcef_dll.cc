@@ -120,7 +120,7 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
 }
 
 CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,
-    const cef_string_t* host_name,
+    const cef_string_t* host_name, int is_standard,
     struct _cef_scheme_handler_factory_t* factory)
 {
   DCHECK(scheme_name);
@@ -129,7 +129,7 @@ CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,
     return 0;
 
   return CefRegisterScheme(CefString(scheme_name), CefString(host_name),
-      CefSchemeHandlerFactoryCToCpp::Wrap(factory));
+      (is_standard?true:false), CefSchemeHandlerFactoryCToCpp::Wrap(factory));
 }
 
 CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId)

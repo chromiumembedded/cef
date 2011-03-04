@@ -360,9 +360,11 @@ CefUrlRequestFilter* CefUrlRequestFilter::shared_instance_ = NULL;
 class SchemeRequestJobWrapper : public CefThreadSafeBase<CefBase> {
 public:
   SchemeRequestJobWrapper(const std::string& scheme_name,
-      const std::string& host_name,
-      CefSchemeHandlerFactory* factory)
-    : factory_(factory), scheme_name_(scheme_name), host_name_(host_name)
+                          const std::string& host_name,
+                          bool is_standard,
+                          CefSchemeHandlerFactory* factory)
+    : scheme_name_(scheme_name), host_name_(host_name),
+      is_standard_(is_standard), factory_(factory)
   {
     // The reference will be released when the application exits.
     TrackAdd(new TrackBase(factory));
@@ -370,10 +372,12 @@ public:
 
   void RegisterScheme()
   {
-    // Register the scheme as a standard scheme if it isn't already.
-    url_parse::Component scheme(0, scheme_name_.length());
-    if (!url_util::IsStandard(scheme_name_.c_str(), scheme))
-      url_util::AddStandardScheme(scheme_name_.c_str());
+    if(is_standard_) {
+      // Register the scheme as a standard scheme if it isn't already.
+      url_parse::Component scheme(0, scheme_name_.length());
+      if (!url_util::IsStandard(scheme_name_.c_str(), scheme))
+        url_util::AddStandardScheme(scheme_name_.c_str());
+    }
 
     // we need to store the pointer of this handler because
     // we can't pass it as a parameter to the factory method
@@ -384,13 +388,15 @@ public:
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 private:
-  CefSchemeHandlerFactory* factory_;
   std::string scheme_name_;
   std::string host_name_;
+  bool is_standard_;
+  CefSchemeHandlerFactory* factory_;
 };
 
 bool CefRegisterScheme(const CefString& scheme_name,
                        const CefString& host_name,
+                       bool is_standard,
                        CefRefPtr<CefSchemeHandlerFactory> factory)
 {
   // Verify that the context is in a valid state.
@@ -404,7 +410,9 @@ bool CefRegisterScheme(const CefString& scheme_name,
   // will call AddRef() and Release() on the object in debug mode, resulting in
   // the object being deleted if it doesn't already have a reference.
   CefRefPtr<SchemeRequestJobWrapper> wrapper(
-      new SchemeRequestJobWrapper(scheme_name, host_name, factory));
+      new SchemeRequestJobWrapper(scheme_name,
+                                  (is_standard?host_name:std::string()),
+                                  is_standard, factory));
 
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper.get(),
       &SchemeRequestJobWrapper::RegisterScheme));
