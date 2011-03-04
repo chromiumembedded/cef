@@ -166,6 +166,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testLocalStorage:(id)sender;
 - (IBAction)testXMLHttpRequest:(id)sender;
+- (IBAction)testWebURLRequest:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
@@ -223,6 +224,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"XMLHttpRequest"
                       action:@selector(testXMLHttpRequest:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"WebURLRequest"
+                      action:@selector(testWebURLRequest:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"DOM Access"
                       action:@selector(testDOMAccess:)
@@ -372,6 +376,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testXMLHttpRequest:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
     RunXMLHTTPRequestTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testWebURLRequest:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunWebURLRequestTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testDOMAccess:(id)sender {
