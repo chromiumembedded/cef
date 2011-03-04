@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "resource_util.h"
+#include "include/cef_wrapper.h"
 
 #ifdef _WIN32
 
@@ -24,6 +25,19 @@ bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 	}
 
 	return false;
+}
+
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId)
+{
+  DWORD dwSize;
+  LPBYTE pBytes;
+
+  if(LoadBinaryResource(binaryId, dwSize, pBytes)) {
+    return CefStreamReader::CreateForHandler(
+        new CefByteReadHandler(pBytes, dwSize, NULL));
+  }
+
+  return NULL;
 }
 
 #endif // _WIN32

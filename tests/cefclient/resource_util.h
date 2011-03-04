@@ -7,11 +7,20 @@
 
 #include "include/cef.h"
 
-#ifdef _WIN32
+#if defined(_WIN32)
 
 // Load a resource of type BINARY
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);
 
-#endif // _WIN32
+// end of _WIN32
+#elif defined(__APPLE__)
+
+// Load the resource with the specified name.
+bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
+
+// end of __APPLE__
+#endif
 
 #endif // _CEFCLIENT_RESOURCE_UTIL

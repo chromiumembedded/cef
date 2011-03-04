@@ -51,6 +51,10 @@
         'tests/cefclient/mac/English.lproj/InfoPlist.strings',
         'tests/cefclient/mac/English.lproj/MainMenu.xib',
         'tests/cefclient/mac/Info.plist',
+        'tests/cefclient/res/domaccess.html',
+        'tests/cefclient/res/localstorage.html',
+        'tests/cefclient/res/logo.png',
+        'tests/cefclient/res/xmlhttprequest.html',
       ],
       'mac_bundle_resources!': [
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
@@ -155,6 +159,7 @@
           },
           'sources': [
             'tests/cefclient/cefclient_mac.mm',
+            'tests/cefclient/resource_util_mac.mm',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {

@@ -688,9 +688,6 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
 {
   REQUIRE_IO_THREAD();
 
-  DWORD dwSize;
-  LPBYTE pBytes;
-  
   std::string url = request->GetURL();
   if(url == "http://tests/request") {
     // Show the request contents
@@ -699,48 +696,30 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     resourceStream =
         CefStreamReader::CreateForData((void*)dump.c_str(), dump.size());
     mimeType = "text/plain";
-  } else if(url == "http://tests/uiapp") {
-    // Show the uiapp contents
-    if(LoadBinaryResource(IDS_UIPLUGIN, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "text/html";
-    }
-  } else if(url == "http://tests/localstorage") {
-    // Show the localstorage contents
-    if(LoadBinaryResource(IDS_LOCALSTORAGE, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "text/html";
-    }
-  } else if(url == "http://tests/xmlhttprequest") {
-    // Show the xmlhttprequest HTML contents
-    if(LoadBinaryResource(IDS_XMLHTTPREQUEST, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "text/html";
-    }
-  } else if(url == "http://tests/domaccess") {
-    // Show the domaccess HTML contents
-    if(LoadBinaryResource(IDS_DOMACCESS, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "text/html";
-    }
   } else if(strstr(url.c_str(), "/ps_logo2.png") != NULL) {
     // Any time we find "ps_logo2.png" in the URL substitute in our own image
-    if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "image/png";
-    }
+    resourceStream = GetBinaryResourceReader(IDS_LOGO);
+    mimeType = "image/png";
+  } else if(url == "http://tests/uiapp") {
+    // Show the uiapp contents
+    resourceStream = GetBinaryResourceReader(IDS_UIPLUGIN);
+    mimeType = "text/html";
+  } else if(url == "http://tests/localstorage") {
+    // Show the localstorage contents
+    resourceStream = GetBinaryResourceReader(IDS_LOCALSTORAGE);
+    mimeType = "text/html";
+  } else if(url == "http://tests/xmlhttprequest") {
+    // Show the xmlhttprequest HTML contents
+    resourceStream = GetBinaryResourceReader(IDS_XMLHTTPREQUEST);
+    mimeType = "text/html";
+  } else if(url == "http://tests/domaccess") {
+    // Show the domaccess HTML contents
+    resourceStream = GetBinaryResourceReader(IDS_DOMACCESS);
+    mimeType = "text/html";
   } else if(strstr(url.c_str(), "/logoball.png") != NULL) {
     // Load the "logoball.png" image resource.
-    if(LoadBinaryResource(IDS_LOGOBALL, dwSize, pBytes)) {
-      resourceStream = CefStreamReader::CreateForHandler(
-          new CefByteReadHandler(pBytes, dwSize, NULL));
-      mimeType = "image/png";
-    }
+    resourceStream = GetBinaryResourceReader(IDS_LOGOBALL);
+    mimeType = "image/png";
   }
   return RV_CONTINUE;
 }

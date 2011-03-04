@@ -8,6 +8,7 @@
 #include "cefclient.h"
 #include "binding_test.h"
 #include "extension_test.h"
+#include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
 #import <Cocoa/Cocoa.h>
@@ -163,6 +164,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExtension:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testRequest:(id)sender;
+- (IBAction)testLocalStorage:(id)sender;
+- (IBAction)testXMLHttpRequest:(id)sender;
+- (IBAction)testDOMAccess:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testAccelerated2DCanvas:(id)sender;
@@ -205,14 +209,23 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"JavaScript Execute"
                       action:@selector(testJSExecute:)
                keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Popup Window"
+                      action:@selector(testPopupWindow:)
+               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Request"
                       action:@selector(testRequest:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Scheme Handler"
                       action:@selector(testSchemeHandler:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Popup Window"
-                      action:@selector(testPopupWindow:)
+  [testMenu addItemWithTitle:@"Local Storage"
+                      action:@selector(testLocalStorage:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"XMLHttpRequest"
+                      action:@selector(testXMLHttpRequest:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"DOM Access"
+                      action:@selector(testDOMAccess:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Accelerated 2D Canvas"
                       action:@selector(testAccelerated2DCanvas:)
@@ -349,6 +362,21 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testRequest:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
     RunRequestTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testLocalStorage:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunLocalStorageTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testXMLHttpRequest:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunXMLHTTPRequestTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testDOMAccess:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunDOMAccessTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testSchemeHandler:(id)sender {
@@ -490,7 +518,24 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     resourceStream = CefStreamReader::CreateForData(
         (void*)dump.c_str(), dump.size());
     mimeType = "text/plain";
+  } else if (strstr(url.c_str(), "/ps_logo2.png") != NULL) {
+    // Any time we find "ps_logo2.png" in the URL substitute in our own image
+    resourceStream = GetBinaryResourceReader("logo.png");
+    mimeType = "image/png";
+  } else if(url == "http://tests/localstorage") {
+    // Show the localstorage contents
+    resourceStream = GetBinaryResourceReader("localstorage.html");
+    mimeType = "text/html";
+  } else if(url == "http://tests/xmlhttprequest") {
+    // Show the xmlhttprequest HTML contents
+    resourceStream = GetBinaryResourceReader("xmlhttprequest.html");
+    mimeType = "text/html";
+  } else if(url == "http://tests/domaccess") {
+    // Show the domaccess HTML contents
+    resourceStream = GetBinaryResourceReader("domaccess.html");
+    mimeType = "text/html";
   }
+
   return RV_CONTINUE;
 }
 

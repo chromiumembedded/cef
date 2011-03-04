@@ -17,7 +17,7 @@
 class ClientSchemeHandler : public CefThreadSafeBase<CefSchemeHandler>
 {
 public:
-  ClientSchemeHandler() : size_(0), offset_(0), bytes_(NULL) {}
+  ClientSchemeHandler() : offset_(0) {}
 
   // Process the request. All response generation should take place in this
   // method. If there is no response set |response_length| to zero and
@@ -39,23 +39,18 @@ public:
     std::string url = request->GetURL();
     if(strstr(url.c_str(), "handler.html") != NULL) {
       // Build the response html
-      html_ = "<html><head><title>Client Scheme Handler</title></head><body>"
+      data_ = "<html><head><title>Client Scheme Handler</title></head><body>"
               "This contents of this page page are served by the "
-              "ClientSchemeHandler class handling the client:// protocol.";
-      
-#ifdef _WIN32
-      html_.append("<br/>You should see an image:"
-                   "<br/><img src=\"client://tests/client.gif\">");
-#endif // _WIN32
-      
-      html_.append("<pre>");
+              "ClientSchemeHandler class handling the client:// protocol."
+              "<br/>You should see an image:"
+              "<br/><img src=\"client://tests/client.png\"><pre>";
       
       // Output a string representation of the request
       std::string dump;
       DumpRequestContents(request, dump);
-      html_.append(dump);
+      data_.append(dump);
 
-      html_.append("</pre><br/>Try the test form:"
+      data_.append("</pre><br/>Try the test form:"
                    "<form method=\"POST\" action=\"handler.html\">"
                    "<input type=\"text\" name=\"field1\">"
                    "<input type=\"text\" name=\"field2\">"
@@ -63,29 +58,30 @@ public:
                    "</form></body></html>");
 
       handled = true;
-      size_ = html_.size();
-      bytes_ = html_.c_str();
 
       // Set the resulting mime type
       mime_type = "text/html";
     }
-#ifdef _WIN32
-    else if(strstr(url.c_str(), "client.gif") != NULL) {
+    else if(strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
+#if defined(_WIN32)
       DWORD dwSize;
       LPBYTE pBytes;
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
-        size_ = dwSize;
-        bytes_ = reinterpret_cast<const char*>(pBytes);
+        data_ = std::string(reinterpret_cast<const char*>(pBytes), dwSize);
         handled = true;
-        // Set the resulting mime type
-        mime_type = "image/jpg";
+        mime_type = "image/png";
       }
+#elif defined(__APPLE__)
+      if(LoadBinaryResource("logo.png", data_)) {
+        handled = true;
+        mime_type = "image/png";
+      }
+#endif
     }
-#endif // _WIN32
 
     // Set the resulting response length
-    *response_length = size_;
+    *response_length = data_.length();
     Unlock();
 
     return handled;
@@ -110,11 +106,11 @@ public:
 
     Lock();
 
-    if(offset_ < size_) {
+    if(offset_ < data_.length()) {
       // Copy the next block of data into the buffer.
       int transfer_size =
-          std::min(bytes_to_read, static_cast<int>(size_ - offset_));
-      memcpy(data_out, bytes_ + offset_, transfer_size);
+          std::min(bytes_to_read, static_cast<int>(data_.length() - offset_));
+      memcpy(data_out, data_.c_str() + offset_, transfer_size);
       offset_ += transfer_size;
 
       *bytes_read = transfer_size;
@@ -127,9 +123,8 @@ public:
   }
 
 private:
-  size_t size_, offset_;
-  const char* bytes_;
-  std::string html_;
+  std::string data_;
+  size_t offset_;
 };
 
 // Implementation of the factory for for creating schema handlers.
