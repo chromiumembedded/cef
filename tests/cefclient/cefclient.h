@@ -9,6 +9,10 @@
 #include "download_handler.h"
 #include "util.h"
 
+// Define this value to redirect all popup URLs to the main application browser
+// window.
+//s#define TEST_REDIRECT_POPUP_URLS
+
 // Client implementation of the browser handler class
 class ClientHandler : public CefThreadSafeBase<CefHandler>
 {
@@ -418,6 +422,41 @@ protected:
   typedef std::map<std::string, CefRefPtr<CefDOMVisitor> > DOMVisitorMap;
   DOMVisitorMap m_DOMVisitors;
 };
+
+
+#ifdef TEST_REDIRECT_POPUP_URLS
+// Handler for popup windows that loads the request in an existing browser
+// window.
+class ClientPopupHandler : public ClientHandler
+{
+public:
+  ClientPopupHandler(CefRefPtr<CefBrowser> parentBrowser)
+  : m_ParentBrowser(parentBrowser)
+  {
+  }
+  virtual ~ClientPopupHandler()
+  {
+  }
+  
+  virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    NavType navType, bool isRedirect)
+  {
+    REQUIRE_UI_THREAD();
+    
+    if (m_ParentBrowser.get()) {
+      m_ParentBrowser->GetMainFrame()->LoadRequest(request);
+      browser->CloseBrowser();
+      m_ParentBrowser = NULL;
+    }
+    return RV_HANDLED;
+  }
+  
+protected:
+  CefRefPtr<CefBrowser> m_ParentBrowser;
+};
+#endif // TEST_REDIRECT_POPUP_URLS
 
 
 // Returns the main browser window instance.

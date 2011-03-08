@@ -488,3 +488,9 @@ void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
 {
   PostMessage(view, WM_CLOSE, 0, 0);
 }
+
+// static
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
+{
+  return IsWindowVisible(view) ? true : false;
+}

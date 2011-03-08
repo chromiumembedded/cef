@@ -775,7 +775,7 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     view->setFocusedFrame(frame);
 
     // Give focus to the window if it is currently visible.
-    if(IsWindowVisible(UIT_GetMainWndHandle()))
+    if(UIT_IsViewVisible(UIT_GetMainWndHandle()))
       UIT_SetFocus(UIT_GetWebViewHost(), true);
   }
 

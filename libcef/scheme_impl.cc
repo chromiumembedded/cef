@@ -409,10 +409,12 @@ bool CefRegisterScheme(const CefString& scheme_name,
   // RunnableMethodTraits::RetainCallee() (originating from NewRunnableMethod)
   // will call AddRef() and Release() on the object in debug mode, resulting in
   // the object being deleted if it doesn't already have a reference.
+  std::string hostNameStr;
+  if (is_standard)
+    hostNameStr = host_name;
   CefRefPtr<SchemeRequestJobWrapper> wrapper(
-      new SchemeRequestJobWrapper(scheme_name,
-                                  (is_standard?host_name:std::string()),
-                                  is_standard, factory));
+      new SchemeRequestJobWrapper(scheme_name, hostNameStr, is_standard,
+                                  factory));
 
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper.get(),
       &SchemeRequestJobWrapper::RegisterScheme));

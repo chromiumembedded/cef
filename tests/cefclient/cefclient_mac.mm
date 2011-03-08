@@ -481,6 +481,27 @@ int main(int argc, char* argv[])
 
 // ClientHandler implementation
 
+CefHandler::RetVal ClientHandler::HandleBeforeCreated(
+    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
+    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
+    CefString& url, CefBrowserSettings& settings)
+{
+  REQUIRE_UI_THREAD();
+
+#ifdef TEST_REDIRECT_POPUP_URLS
+  if(popup) {
+    std::string urlStr = url;
+    if(urlStr.find("resources/inspector/devtools.html") == std::string::npos) {
+      // Show all popup windows excluding DevTools in the current window.
+      createInfo.m_bHidden = true;
+      handler = new ClientPopupHandler(m_Browser);
+    }
+  }
+#endif // TEST_REDIRECT_POPUP_URLS
+
+  return RV_CONTINUE;
+}
+
 CefHandler::RetVal ClientHandler::HandleAddressChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& url)

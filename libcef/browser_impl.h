@@ -280,6 +280,7 @@ public:
 
 protected:
   static void UIT_CloseView(gfx::NativeView view);
+  static bool UIT_IsViewVisible(gfx::NativeView view);
 
   void UIT_CreateDevToolsClient(BrowserDevToolsAgent* agent);
   void UIT_DestroyDevToolsClient();

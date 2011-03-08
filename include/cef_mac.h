@@ -125,6 +125,7 @@ public:
     m_y = y;
     m_nWidth = width;
     m_nHeight = height;
+    m_bHidden = false;
   }
 
   CefWindowInfo& operator=(const CefWindowInfo& r)
@@ -140,6 +141,7 @@ public:
     m_y = r.m_y;
     m_nWidth = r.m_nWidth;
     m_nHeight = r.m_nHeight;
+    m_bHidden = r.m_bHidden;
     return *this;
   }
 

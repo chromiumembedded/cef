@@ -91,7 +91,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   Unlock();
 
-  if (newWnd != nil) {
+  if (newWnd != nil && !window_info_.m_bHidden) {
     // Show the window.
     [newWnd makeKeyAndOrderFront: nil];
   }
@@ -156,5 +156,13 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 // static
 void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
 {
-  [view performSelector:@selector(performClose:) withObject:nil afterDelay:0];
+  [[view window] performSelector:@selector(performClose:)
+                      withObject:nil
+                      afterDelay:0];
+}
+
+// static
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
+{
+  return [[view window] isVisible];
 }
