@@ -80,25 +80,24 @@ public:
     return RV_CONTINUE;
   }
 
-  // Called on the UI thread when the browser begins loading a page. The |frame|
-  // pointer will be empty if the event represents the overall load status and
-  // not the load status for a particular frame. |isMainContent| will be true if
-  // this load is for the main content area and not an iframe. This method may
-  // not be called if the load request fails. The return value is currently
-  // ignored.
+  // Called on the UI thread when the browser begins loading a frame. The
+  // |frame| value will never be empty -- call the IsMain() method to check if
+  // this frame is the main frame. Multiple frames may be loading at the same
+  // time. Sub-frames may start or continue loading after the main frame load
+  // has ended. This method may not be called for a particular frame if the load
+  // request for that frame fails. The return value is currently ignored.
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 bool isMainContent);
+                                 CefRefPtr<CefFrame> frame);
 
-  // Called on the UI thread when the browser is done loading a page. The
-  // |frame| pointer will be empty if the event represents the overall load
-  // status and not the load status for a particular frame. |isMainContent| will
-  // be true if this load is for the main content area and not an iframe. This
-  // method will be called irrespective of whether the request completes
-  // successfully. The return value is currently ignored.
+  // Called on the UI thread when the browser is done loading a frame. The
+  // |frame| value will never be empty -- call the IsMain() method to check if
+  // this frame is the main frame. Multiple frames may be loading at the same
+  // time. Sub-frames may start or continue loading after the main frame load
+  // has ended. This method will always be called for all frames irrespective of
+  // whether the request completes successfully. The return value is currently
+  // ignored.
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode);
 
   // Called on the UI thread when the browser fails to load a resource.

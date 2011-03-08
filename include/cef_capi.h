@@ -481,25 +481,26 @@ typedef struct _cef_handler_t
       struct _cef_frame_t* frame, struct _cef_request_t* request,
       enum cef_handler_navtype_t navType, int isRedirect);
 
-  // Called on the UI thread when the browser begins loading a page. The |frame|
-  // pointer will be NULL if the event represents the overall load status and
-  // not the load status for a particular frame. |isMainContent| will be true
-  // (1) if this load is for the main content area and not an iframe. This
-  // function may not be called if the load request fails. The return value is
-  // currently ignored.
+  // Called on the UI thread when the browser begins loading a frame. The
+  // |frame| value will never be NULL -- call the is_main() function to check if
+  // this frame is the main frame. Multiple frames may be loading at the same
+  // time. Sub-frames may start or continue loading after the main frame load
+  // has ended. This function may not be called for a particular frame if the
+  // load request for that frame fails. The return value is currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_start)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame, int isMainContent);
+      struct _cef_frame_t* frame);
 
-  // Called on the UI thread when the browser is done loading a page. The
-  // |frame| pointer will be NULL if the event represents the overall load
-  // status and not the load status for a particular frame. |isMainContent| will
-  // be true (1) if this load is for the main content area and not an iframe.
-  // This function will be called irrespective of whether the request completes
-  // successfully. The return value is currently ignored.
+  // Called on the UI thread when the browser is done loading a frame. The
+  // |frame| value will never be NULL -- call the is_main() function to check if
+  // this frame is the main frame. Multiple frames may be loading at the same
+  // time. Sub-frames may start or continue loading after the main frame load
+  // has ended. This function will always be called for all frames irrespective
+  // of whether the request completes successfully. The return value is
+  // currently ignored.
   enum cef_retval_t (CEF_CALLBACK *handle_load_end)(struct _cef_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      int isMainContent, int httpStatusCode);
+      int httpStatusCode);
 
   // Called on the UI thread when the browser fails to load a resource.
   // |errorCode| is the error code number and |failedUrl| is the URL that failed

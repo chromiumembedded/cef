@@ -59,7 +59,6 @@ public:
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode)
   {
     StartTest();

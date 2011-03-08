@@ -63,11 +63,11 @@ CefHandler::RetVal ClientHandler::HandleAfterCreated(
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, bool isMainContent)
+    CefRefPtr<CefFrame> frame)
 {
   REQUIRE_UI_THREAD();
 
-  if(!browser->IsPopup() && !frame.get())
+  if(!browser->IsPopup() && frame->IsMain())
   {
     Lock();
     // We've just started loading a page
@@ -80,11 +80,11 @@ CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
 }
 
 CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, bool isMainContent, int httpStatusCode)
+    CefRefPtr<CefFrame> frame, int httpStatusCode)
 {
   REQUIRE_UI_THREAD();
 
-  if(!browser->IsPopup() && !frame.get())
+  if(!browser->IsPopup() && frame->IsMain())
   {
     Lock();
     // We've just finished loading a page
@@ -92,7 +92,6 @@ CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
     m_bCanGoBack = browser->CanGoBack();
     m_bCanGoForward = browser->CanGoForward();
 
-    CefRefPtr<CefFrame> frame = browser->GetMainFrame();
     CefRefPtr<CefDOMVisitor> visitor = GetDOMVisitor(frame->GetURL());
     if(visitor.get())
       frame->VisitDOM(visitor);

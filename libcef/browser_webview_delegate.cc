@@ -660,10 +660,6 @@ void BrowserWebViewDelegate::didCreateDataSource(
 }
 
 void BrowserWebViewDelegate::didStartProvisionalLoad(WebFrame* frame) {
-  if (!top_loading_frame_) {
-    top_loading_frame_ = frame;
-    is_main_content_ = true;
-  }
 }
 
 void BrowserWebViewDelegate::didReceiveServerRedirectForProvisionalLoad(
@@ -723,29 +719,10 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
 
 void BrowserWebViewDelegate::didCommitProvisionalLoad(
     WebFrame* frame, bool is_new_navigation) {
-  // Determine if this commit represents the main content.
-  if (frame == top_loading_frame_) {
-    is_main_content_ = false;
-    if (is_new_navigation) {
-      // New navigations will be the main content.
-      is_main_content_ = true;
-    } else if(webkit_glue::FrameHasSubsituteData(frame)) {
-      // Loading from a string will be main content.
-      is_main_content_ = true;
-    } else {
-      // Session history navigations and reloads will be the main content.
-      webkit_glue::FrameLoadType load_type =
-          webkit_glue::GetFrameLoadType(frame);
-      if (load_type == webkit_glue::FLT_HISTORY ||
-          load_type == webkit_glue::FLT_RELOAD) {
-        is_main_content_ = true;
-      }
-    }
-
-    if (is_main_content_) {
-      // Clear the title so we can tell if it wasn't provided by the page.
-      browser_->UIT_SetTitle(std::wstring());
-    }
+  bool is_main_frame = (frame->parent() == 0);
+  if (is_main_frame) {
+    // Clear the title so we can tell if it wasn't provided by the page.
+    browser_->UIT_SetTitle(std::wstring());
   }
 
   UpdateForCommittedLoad(frame, is_new_navigation);
@@ -753,13 +730,11 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Notify the handler that loading has started.
-    handler->HandleLoadStart(browser_,
-        (frame == top_loading_frame_) ? NULL : browser_->UIT_GetCefFrame(frame),
-        is_main_content_);
+    handler->HandleLoadStart(browser_, browser_->UIT_GetCefFrame(frame));
   }
 
   // Apply zoom settings only on top-level frames.
-  if(frame->parent() == NULL) {
+  if(is_main_frame) {
     // Restore the zoom value that we have for this URL, if any.
     double zoomLevel = 0.0;
     ZoomMap::GetInstance()->get(frame->url(), zoomLevel);
@@ -786,8 +761,8 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
 
 void BrowserWebViewDelegate::didReceiveTitle(
     WebFrame* frame, const WebString& title) {
-  if (top_loading_frame_ == NULL ||
-     (frame == top_loading_frame_ && is_main_content_)) {
+  bool is_main_frame = (frame->parent() == 0);
+  if (is_main_frame) {
     CefString titleStr = string16(title);
     browser_->UIT_SetTitle(titleStr);
     CefRefPtr<CefHandler> handler = browser_->GetHandler();
@@ -857,8 +832,6 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
       policy_delegate_is_permissive_(false),
       policy_delegate_should_notify_done_(false),
       browser_(browser),
-      top_loading_frame_(NULL),
-      is_main_content_(false),
       page_id_(-1),
       last_page_id_updated_(-1),
       smart_insert_delete_enabled_(true),
@@ -935,32 +908,23 @@ void BrowserWebViewDelegate::ShowStatus(const WebString& text,
 
 void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  bool is_top_frame = false;
+  if (!handler.get())
+    return;
 
-  if (frame == top_loading_frame_) {
-    top_loading_frame_ = NULL;
-    is_top_frame = true;
-
-    if(is_main_content_ && handler.get()) {
-      CefString title = browser_->UIT_GetTitle();
-      if (title.empty()) {
-        // No title was provided by the page, so send a blank string to the
-        // client.
-        handler->HandleTitleChange(browser_, title);
-      }
+  bool is_main_frame = (frame->parent() == 0);
+  if (is_main_frame) {
+    CefString title = browser_->UIT_GetTitle();
+    if (title.empty()) {
+      // No title was provided by the page, so send a blank string to the
+      // client.
+      handler->HandleTitleChange(browser_, title);
     }
   }
 
-  if(handler.get()) {
-    // Notify the handler that loading has ended.
-    int httpStatusCode = frame->dataSource()->response().httpStatusCode();
-    handler->HandleLoadEnd(browser_,
-        (is_top_frame) ? NULL : browser_->UIT_GetCefFrame(frame),
-        is_main_content_, httpStatusCode);
-  }
-
-  if (is_top_frame && is_main_content_)
-    is_main_content_ = false;
+  // Notify the handler that loading has ended.
+  int httpStatusCode = frame->dataSource()->response().httpStatusCode();
+  handler->HandleLoadEnd(browser_, browser_->UIT_GetCefFrame(frame),
+      httpStatusCode);
 }
 
 WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
@@ -1020,7 +984,8 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     entry->SetURL(request.url());
   }
 
-  if (is_main_content_) {
+  bool is_main_frame = (frame->parent() == 0);
+  if (is_main_frame) {
     CefRefPtr<CefHandler> handler = browser_->GetHandler();
     if(handler.get()) {
       // Notify the handler of an address change

@@ -39,20 +39,6 @@ base::StringPiece NetResourceProvider(int key);
 // Retrieve the V8 context associated with the frame.
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 
-enum FrameLoadType {
-  FLT_UNKNOWN = 0,
-  FLT_STANDARD,
-  FLT_HISTORY,
-  FLT_REDIRECT,
-  FLT_RELOAD,
-};
-
-// Returns the frame load type.
-FrameLoadType GetFrameLoadType(WebKit::WebFrame* frame);
-
-// Returns true if the frame is loading substitute data.
-bool FrameHasSubsituteData(WebKit::WebFrame* frame);
-
 // Clear all cached data.
 void ClearCache();
 

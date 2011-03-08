@@ -251,10 +251,9 @@ public:
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode)
   {
-    if(!browser->IsPopup() && !frame.get())
+    if(!browser->IsPopup() && frame->IsMain())
       DestroyTest();
     return RV_CONTINUE;
   }
@@ -487,7 +486,6 @@ public:
   
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode)
   {
     return RV_CONTINUE;

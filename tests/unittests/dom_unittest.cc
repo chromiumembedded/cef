@@ -228,10 +228,9 @@ public:
   
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode)
   {
-    if(!frame.get()) {
+    if(frame->IsMain()) {
       // The page is done loading so visit the DOM.
       browser->GetMainFrame()->VisitDOM(visitor_.get());
     }

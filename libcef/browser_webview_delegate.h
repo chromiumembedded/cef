@@ -209,7 +209,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   // Additional accessors
-  WebKit::WebFrame* top_loading_frame() { return top_loading_frame_; }
 #if defined(OS_WIN)
   BrowserDragDelegate* drag_delegate() { return drag_delegate_.get(); }
   WebDropTarget* drop_target() { return drop_target_.get(); }
@@ -301,11 +300,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // Non-owning pointer.  The delegate is owned by the host.
   CefBrowserImpl* browser_;
-
-  // This is non-NULL if a load is in progress.
-  WebKit::WebFrame* top_loading_frame_;
-  // This is true if the in-progress load is the main content.
-  bool is_main_content_;
 
   // For tracking session history.  See RenderView.
   int page_id_;

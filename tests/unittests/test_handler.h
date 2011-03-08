@@ -80,15 +80,13 @@ public:
   }
 
   virtual RetVal HandleLoadStart(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 bool isMainContent)
+                                 CefRefPtr<CefFrame> frame)
   {
     return RV_CONTINUE;
   }
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
-                               bool isMainContent,
                                int httpStatusCode)
   {
     return RV_CONTINUE;
