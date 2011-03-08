@@ -231,6 +231,9 @@ typedef struct _cef_browser_t
   // Base structure.
   cef_base_t base;
 
+  // Closes this browser window.
+  void (CEF_CALLBACK *close_browser)(struct _cef_browser_t* self);
+
   // Returns true (1) if the browser can navigate backwards.
   int (CEF_CALLBACK *can_go_back)(struct _cef_browser_t* self);
 

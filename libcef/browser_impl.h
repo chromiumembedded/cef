@@ -48,6 +48,7 @@ public:
 #endif
 
   // CefBrowser methods
+  virtual void CloseBrowser();
   virtual bool CanGoBack() { return can_go_back(); }
   virtual void GoBack();
   virtual bool CanGoForward() { return can_go_forward(); }

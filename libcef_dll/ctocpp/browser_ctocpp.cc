@@ -38,6 +38,14 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+void CefBrowserCToCpp::CloseBrowser()
+{
+  if(CEF_MEMBER_MISSING(struct_, close_browser))
+    return;
+
+  struct_->close_browser(struct_);
+}
+
 bool CefBrowserCToCpp::CanGoBack()
 {
   if(CEF_MEMBER_MISSING(struct_, can_go_back))

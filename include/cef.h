@@ -414,6 +414,10 @@ public:
                                                  CefRefPtr<CefHandler> handler,
                                                  const CefString& url);
 
+  // Closes this browser window.
+  /*--cef()--*/
+  virtual void CloseBrowser() =0;
+
   // Returns true if the browser can navigate backwards.
   /*--cef()--*/
   virtual bool CanGoBack() =0;

@@ -30,7 +30,7 @@ public:
   };
 
   ClientHandler();
-  ~ClientHandler();
+  virtual ~ClientHandler();
 
   // Called on the UI thread before a new window is created. The |parentBrowser|
   // parameter will point to the parent browser window, if any. The |popup|
@@ -47,11 +47,7 @@ public:
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
                                      CefString& url,
-                                     CefBrowserSettings& settings)
-  {
-    REQUIRE_UI_THREAD();
-    return RV_CONTINUE;
-  }
+                                     CefBrowserSettings& settings);
 
   // Called on the UI thread after a new window is created. The return value is
   // currently ignored.

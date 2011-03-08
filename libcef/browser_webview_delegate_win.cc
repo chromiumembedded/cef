@@ -55,10 +55,13 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(
 
 void BrowserWebViewDelegate::show(WebNavigationPolicy) {
   if (this == browser_->UIT_GetWebViewDelegate()) {
-    // Restore the window and bring it to the top.
+    // Restore the window and bring it to the top if the window is currently
+    // visible.
     HWND root = GetAncestor(browser_->UIT_GetMainWndHandle(), GA_ROOT);
-    ShowWindow(root, SW_SHOWNORMAL);
-    SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    if(IsWindowVisible(root)) {
+      ShowWindow(root, SW_SHOWNORMAL);
+      SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    }
   } else if (this == browser_->UIT_GetPopupDelegate()) {
     // Show popup widgets without activation.
     ShowWindow(browser_->UIT_GetPopupWndHandle(), SW_SHOWNA);

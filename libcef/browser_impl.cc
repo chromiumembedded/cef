@@ -146,6 +146,11 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   }
 }
 
+void CefBrowserImpl::CloseBrowser()
+{
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_CloseBrowser));
+}
 void CefBrowserImpl::GoBack()
 {
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
@@ -768,7 +773,10 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     // thread for additional details:
     // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
     view->setFocusedFrame(frame);
-    UIT_SetFocus(UIT_GetWebViewHost(), true);
+
+    // Give focus to the window if it is currently visible.
+    if(IsWindowVisible(UIT_GetMainWndHandle()))
+      UIT_SetFocus(UIT_GetWebViewHost(), true);
   }
 
   return true;

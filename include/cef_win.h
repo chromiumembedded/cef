@@ -126,8 +126,8 @@ public:
 
   void SetAsChild(HWND hWndParent, RECT windowRect)
   {
-    m_dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN
-        | WS_CLIPSIBLINGS | WS_TABSTOP;
+    m_dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_TABSTOP |
+                WS_VISIBLE;
     m_hWndParent = hWndParent;
     m_x = windowRect.left;
     m_y = windowRect.top;
@@ -137,7 +137,8 @@ public:
 
   void SetAsPopup(HWND hWndParent, const CefString& windowName)
   {
-    m_dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+    m_dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+                WS_VISIBLE;
     m_hWndParent = hWndParent;
     m_x = CW_USEDEFAULT;
     m_y = CW_USEDEFAULT;

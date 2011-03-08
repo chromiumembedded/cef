@@ -141,8 +141,16 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Size the web view window to the browser window
   RECT cr;
   GetClientRect(window_info_.m_hWnd, &cr);
+
+  // Respect the WS_VISIBLE window style when setting the window's position
+  UINT flags = SWP_NOZORDER;
+  if (window_info_.m_dwStyle & WS_VISIBLE)
+    flags |= SWP_SHOWWINDOW;
+  else
+    flags |= SWP_NOACTIVATE;
+
   SetWindowPos(UIT_GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
-      cr.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+               cr.bottom, flags);
 
   if(handler_.get()) {
     // Notify the handler that we're done creating the new window

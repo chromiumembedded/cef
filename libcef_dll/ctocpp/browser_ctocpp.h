@@ -31,6 +31,7 @@ public:
   virtual ~CefBrowserCToCpp() {}
 
   // CefBrowser methods
+  virtual void CloseBrowser();
   virtual bool CanGoBack();
   virtual void GoBack();
   virtual bool CanGoForward();

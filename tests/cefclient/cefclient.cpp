@@ -14,6 +14,40 @@
 #include <stdio.h>
 #include <string>
 
+// Define this value to redirect all popup URLs to the main application browser
+// window.
+//#define TEST_REDIRECT_POPUP_URLS
+
+#ifdef TEST_REDIRECT_POPUP_URLS
+// Handler for popup windows that loads the request in an existing browser
+// window.
+class ClientPopupHandler : public ClientHandler
+{
+public:
+  ClientPopupHandler(CefRefPtr<CefBrowser> parentBrowser)
+    : m_ParentBrowser(parentBrowser)
+  {
+  }
+  virtual ~ClientPopupHandler()
+  {
+  }
+
+  virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    NavType navType, bool isRedirect)
+  {
+    REQUIRE_UI_THREAD();
+
+    m_ParentBrowser->GetMainFrame()->LoadRequest(request);
+    browser->CloseBrowser();
+    return RV_HANDLED;
+  }
+
+protected:
+  CefRefPtr<CefBrowser> m_ParentBrowser;
+};
+#endif // TEST_REDIRECT_POPUP_URLS
 
 // ClientHandler::ClientDownloadListener implementation
 
@@ -44,6 +78,30 @@ ClientHandler::ClientHandler()
 
 ClientHandler::~ClientHandler()
 {
+}
+
+CefHandler::RetVal ClientHandler::HandleBeforeCreated(
+    CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
+    const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
+    CefString& url, CefBrowserSettings& settings)
+{
+  REQUIRE_UI_THREAD();
+
+#ifdef TEST_REDIRECT_POPUP_URLS
+  if(popup) {
+    std::string urlStr = url;
+    if(urlStr.find("resources/inspector/devtools.html") == std::string::npos) {
+      // Show all popup windows excluding DevTools in the current window.
+#ifdef _WIN32
+      // Make the popup window hidden.
+      createInfo.m_dwStyle &= ~WS_VISIBLE;
+#endif
+      handler = new ClientPopupHandler(m_Browser);
+    }
+  }
+#endif // TEST_REDIRECT_POPUP_URLS
+
+  return RV_CONTINUE;
 }
 
 CefHandler::RetVal ClientHandler::HandleAfterCreated(
