@@ -141,7 +141,6 @@
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
                 '<(PRODUCT_DIR)/libffmpegsumo.dylib',
-                'tests/cefclient/cefclient_mac_app.sh',
               ],
             },
             {
@@ -366,6 +365,9 @@
         'libcef_dll/transfer_util.cpp',
         'libcef_dll/transfer_util.h',
       ],
+      'xcode_settings': {
+        'INSTALL_PATH': '@executable_path',
+      },
       'conditions': [
         ['OS=="win"', {
           'dependencies': [
