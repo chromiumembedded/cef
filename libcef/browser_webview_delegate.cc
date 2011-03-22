@@ -782,7 +782,7 @@ void BrowserWebViewDelegate::didFinishLoad(WebFrame* frame) {
   LocationChangeDone(frame);
 }
 
-void BrowserWebViewDelegate::didChangeLocationWithinPage(
+void BrowserWebViewDelegate::didNavigateWithinPage(
     WebFrame* frame, bool is_new_navigation) {
   frame->dataSource()->setExtraData(pending_extra_data_.release());
   UpdateForCommittedLoad(frame, is_new_navigation);
