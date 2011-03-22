@@ -15,6 +15,10 @@
 #endif
 #include "webkit/plugins/npapi/plugin_list.h"
 
+// Both the CefContext constuctor and the CefContext::RemoveBrowser method need
+// to initialize or reset to the same value.
+const int kNextBrowserIdReset = 1;
+
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
 
@@ -234,9 +238,11 @@ bool CefCreateURL(const CefURLParts& parts,
 // CefContext
 
 CefContext::CefContext()
-  : initialized_(false), shutting_down_(false), current_webviewhost_(NULL)
+  : initialized_(false),
+    shutting_down_(false),
+    next_browser_id_(kNextBrowserIdReset),
+    current_webviewhost_(NULL)
 {
-  
 }
 
 CefContext::~CefContext()
@@ -335,7 +341,7 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
   }
 
   if (browserlist_.empty()) {
-    next_browser_id_ = 1;
+    next_browser_id_ = kNextBrowserIdReset;
     empty = true;
   }
 
