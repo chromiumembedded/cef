@@ -16,9 +16,11 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEventListener.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFormControlElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNamedNodeMap.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "webkit/glue/form_field.h"
 
 using WebKit::WebAttribute;
 using WebKit::WebDocument;
@@ -26,6 +28,7 @@ using WebKit::WebDOMEvent;
 using WebKit::WebDOMEventListener;
 using WebKit::WebElement;
 using WebKit::WebFrame;
+using WebKit::WebFormControlElement;
 using WebKit::WebNamedNodeMap;
 using WebKit::WebNode;
 using WebKit::WebString;
@@ -170,9 +173,23 @@ CefString CefDOMNodeImpl::GetValue()
   if (!VerifyContext())
     return str;
 
-  const WebString& value = node_.nodeValue();
-  if (!value.isNull())
-    str = value;
+  if (node_.isElementNode()) {
+    const WebElement& element = node_.to<WebKit::WebElement>();
+    if (element.isFormControlElement()) {
+      // Retrieve the value from the form control element.
+      const WebFormControlElement& formElement =
+          node_.to<WebKit::WebFormControlElement>();
+
+      webkit_glue::FormField formField(formElement);
+      str = formField.value();
+    }
+  }
+
+  if (str.empty()) {
+    const WebString& value = node_.nodeValue();
+    if (!value.isNull())
+      str = value;
+  }
 
   return str;
 }
