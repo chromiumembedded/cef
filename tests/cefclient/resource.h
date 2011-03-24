@@ -50,6 +50,7 @@
 #define ID_TESTS_WEBURLREQUEST          32790
 #define ID_TESTS_DOMACCESS              32791
 #define ID_TESTS_DRAGDROP               32792
+#define ID_TESTS_OSRAPP                 32793
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
@@ -57,6 +58,7 @@
 #define IDS_LOCALSTORAGE                1003
 #define IDS_XMLHTTPREQUEST              1004
 #define IDS_DOMACCESS                   1005
+#define IDS_OSRPLUGIN                   1006
 
 // Avoid files associated with MacOS
 #define _X86_

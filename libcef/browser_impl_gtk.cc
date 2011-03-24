@@ -24,7 +24,13 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return window_info_.m_Widget;
 }
 
-gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() const {
+bool CefBrowserImpl::IsWindowRenderingDisabled()
+{
+  // TODO(port): Add support for off-screen rendering.
+  return false;
+}
+
+gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() {
   REQUIRE_UIT();
   GtkWidget* toplevel = gtk_widget_get_ancestor(window_info_.m_Widget,
       GTK_TYPE_WINDOW);
@@ -51,7 +57,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_ParentWidget, gfx::Rect(),
-                          delegate_.get(), dev_tools_agent_.get(), prefs));
+                          delegate_.get(), NULL, dev_tools_agent_.get(),
+                          prefs));
   delegate_->RegisterDragDrop();
 
   if (!settings_.developer_tools_disabled)

@@ -80,6 +80,23 @@ void CefDoMessageLoopWork()
   _Context->process()->DoMessageLoopIteration();
 }
 
+void CefRunMessageLoop()
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return;
+  }
+
+  // Must always be called on the same thread as Initialize.
+  if(!_Context->process()->CalledOnValidThread()) {
+    NOTREACHED();
+    return;
+  }
+
+  _Context->process()->RunMessageLoop();
+}
+
 static void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
 {
   REQUIRE_UIT();

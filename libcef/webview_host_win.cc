@@ -20,28 +20,33 @@ static const wchar_t kWindowClassName[] = L"WebViewHost";
 WebViewHost* WebViewHost::Create(HWND parent_view,
                                  const gfx::Rect&,
                                  BrowserWebViewDelegate* delegate,
+                                 PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();
 
-  static bool registered_class = false;
-  if (!registered_class) {
-    WNDCLASSEX wcex = {0};
-    wcex.cbSize        = sizeof(wcex);
-    wcex.style         = CS_DBLCLKS;
-    wcex.lpfnWndProc   = WebWidgetHost::WndProc;
-    wcex.hInstance     = GetModuleHandle(NULL);
-    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wcex.lpszClassName = kWindowClassName;
-    RegisterClassEx(&wcex);
-    registered_class = true;
-  }
+  if (!paint_delegate) {
+    static bool registered_class = false;
+    if (!registered_class) {
+      WNDCLASSEX wcex = {0};
+      wcex.cbSize        = sizeof(wcex);
+      wcex.style         = CS_DBLCLKS;
+      wcex.lpfnWndProc   = WebWidgetHost::WndProc;
+      wcex.hInstance     = GetModuleHandle(NULL);
+      wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+      wcex.lpszClassName = kWindowClassName;
+      RegisterClassEx(&wcex);
+      registered_class = true;
+    }
 
-  host->view_ = CreateWindow(kWindowClassName, NULL,
-                             WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 0,
-                             0, 0, parent_view, NULL,
-                             GetModuleHandle(NULL), NULL);
-  ui::SetWindowUserData(host->view_, host);
+    host->view_ = CreateWindow(kWindowClassName, NULL,
+                               WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 0,
+                               0, 0, parent_view, NULL,
+                               GetModuleHandle(NULL), NULL);
+    ui::SetWindowUserData(host->view_, host);
+  } else {
+    host->paint_delegate_ = paint_delegate;
+  }
 
 #if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
   host->webwidget_ = WebView::create(delegate, dev_tools_client, NULL);

@@ -11,7 +11,7 @@
 
 // Define this value to redirect all popup URLs to the main application browser
 // window.
-//s#define TEST_REDIRECT_POPUP_URLS
+//#define TEST_REDIRECT_POPUP_URLS
 
 // Client implementation of the browser handler class
 class ClientHandler : public CefThreadSafeBase<CefHandler>
@@ -67,6 +67,11 @@ public:
   // currently ignored.
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
                                    const CefString& title);
+
+  // Called on the UI thread when the navigation state has changed. The return
+  // value is currently ignored.
+  virtual RetVal HandleNavStateChange(CefRefPtr<CefBrowser> browser,
+                                      bool canGoBack, bool canGoForward);
 
   // Called on the UI thread before browser navigation. The client has an
   // opportunity to modify the |request| object if desired.  Return RV_HANDLED
@@ -365,11 +370,82 @@ public:
     return RV_CONTINUE;
   }
 
+  // Called on the UI thread to retrieve either the simulated screen rectangle
+  // if |screen| is true or the view rectangle if |screen| is false. The view
+  // rectangle is relative to the screen coordinates. This method is only called
+  // if window rendering has been disabled. Return RV_CONTINUE if the rectangle
+  // was provided.
+  virtual RetVal HandleGetRect(CefRefPtr<CefBrowser> browser, bool screen,
+                               CefRect& rect)
+  {
+    // Only called when rendering off-screen.
+    ASSERT(false);
+    return RV_CONTINUE;
+  }
+
+  // Called on the UI thread retrieve the translation from view coordinates to
+  // actual screen coordinates. This method is only called if window rendering
+  // has been disabled. Return RV_CONTINUE if the screen coordinates were
+  // provided.
+  virtual RetVal HandleGetScreenPoint(CefRefPtr<CefBrowser> browser,
+                                      int viewX, int viewY, int& screenX,
+                                      int& screenY)
+  {
+    // Only called when rendering off-screen.
+    ASSERT(false);
+    return RV_CONTINUE;
+  }
+
+  // Called on the UI thread when the browser wants to show, hide, resize or
+  // move the popup. If |show| is true and |rect| is zero size then the popup
+  // should be shown. If |show| is true and |rect| is non-zero size then |rect|
+  // represents the popup location in view coordinates. If |show| is false
+  // then the popup should be hidden. This method is only called if window
+  // rendering has been disabled. The return value is currently ignored.
+  virtual RetVal HandlePopupChange(CefRefPtr<CefBrowser> browser, bool show,
+                                   const CefRect& rect)
+  {
+    // Only called when rendering off-screen.
+    ASSERT(false);
+    return RV_CONTINUE;
+  }
+  
+  // Called when an element should be painted. |type| indicates whether the
+  // element is the view or the popup. |buffer| contains the pixel data for the
+  // whole image. |dirtyRect| indicates the portion of the image that has been
+  // repainted. On Windows |buffer| will be width*height*4 bytes in size and
+  // represents a BGRA image with an upper-left origin. This method is only
+  // called if window rendering has been disabled. The return value is currently
+  // ignored.
+  virtual RetVal HandlePaint(CefRefPtr<CefBrowser> browser,
+                             PaintElementType type, const CefRect& dirtyRect,
+                             const void* buffer)
+  {
+    // Only called when rendering off-screen.
+    ASSERT(false);
+    return RV_CONTINUE;
+  }
+
+  // Called when the browser window's cursor has changed. This method is only
+  // called if window rendering has been disabled. The return value is currently
+  // ignored.
+  virtual RetVal HandleCursorChange(CefRefPtr<CefBrowser> browser,
+                                    CefCursorHandle cursor)
+  {
+    // Only called when rendering off-screen.
+    ASSERT(false);
+    return RV_CONTINUE;
+  }
+
   // Retrieve the current navigation state flags
-  void GetNavState(bool &isLoading, bool &canGoBack, bool &canGoForward);
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
   void SetEditHwnd(CefWindowHandle hwnd);
+  void SetButtonHwnds(CefWindowHandle backHwnd,
+                      CefWindowHandle forwardHwnd,
+                      CefWindowHandle reloadHwnd,
+                      CefWindowHandle stopHwnd);
+  
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   CefWindowHandle GetBrowserHwnd() { return m_BrowserHwnd; }
 
@@ -393,6 +469,9 @@ public:
   void SendNotification(NotificationType type);
 
 protected:
+  virtual void SetLoading(bool isLoading);
+  virtual void SetNavState(bool canGoBack, bool canGoForward);
+
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
 
@@ -405,12 +484,11 @@ protected:
   // The edit window handle
   CefWindowHandle m_EditHwnd;
 
-  // True if the page is currently loading
-  bool m_bLoading;
-  // True if the user can navigate backwards
-  bool m_bCanGoBack;
-  // True if the user can navigate forwards
-  bool m_bCanGoForward;
+  // The button window handles
+  CefWindowHandle m_BackHwnd;
+  CefWindowHandle m_ForwardHwnd;
+  CefWindowHandle m_StopHwnd;
+  CefWindowHandle m_ReloadHwnd;
 
   std::string m_LogFile;
 
@@ -422,8 +500,6 @@ protected:
   DOMVisitorMap m_DOMVisitors;
 };
 
-
-#ifdef TEST_REDIRECT_POPUP_URLS
 // Handler for popup windows that loads the request in an existing browser
 // window.
 class ClientPopupHandler : public ClientHandler
@@ -455,8 +531,6 @@ public:
 protected:
   CefRefPtr<CefBrowser> m_ParentBrowser;
 };
-#endif // TEST_REDIRECT_POPUP_URLS
-
 
 // Returns the main browser window instance.
 CefRefPtr<CefBrowser> AppGetBrowser();

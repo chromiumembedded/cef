@@ -57,9 +57,12 @@ class CefProcess : public base::RefCounted<CefProcess>,
     return ui_thread_.get();
   }
 
-  // Necessary to perform work on the UI thread if started without a multi
-  // threaded message loop.
+  // Do a single iteration of the UI message loop on the current thread. If
+  // RunMessageLoop() was called you do not need to call this method.
   void DoMessageLoopIteration();
+
+  // Run the UI message loop for the on the current thread.
+  void RunMessageLoop();
 
   // Returns the thread that we perform I/O coordination on (network requests,
   // communication with renderers, etc.

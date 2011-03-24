@@ -70,6 +70,29 @@ void UIT_CreateBrowserWithHelper(CreateBrowserHelper* helper)
 
 } // namespace
 
+
+CefBrowserImpl::PaintDelegate::PaintDelegate(CefBrowserImpl* browser)
+  : browser_(browser)
+{
+}
+CefBrowserImpl::PaintDelegate::~PaintDelegate()
+{
+}
+
+void CefBrowserImpl::PaintDelegate::Paint(bool popup,
+                                          const gfx::Rect& dirtyRect,
+                                          const void* buffer)
+{
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  if (!handler.get())
+    return;
+
+  CefRect rect(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(),
+               dirtyRect.height());
+  handler->HandlePaint(browser_, (popup?PET_POPUP:PET_VIEW), rect, buffer);
+}
+
+
 // static
 bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
                                CefRefPtr<CefHandler> handler,
@@ -282,6 +305,137 @@ void CefBrowserImpl::CloseDevTools()
       &CefBrowserImpl::UIT_CloseDevTools));
 }
 
+bool CefBrowserImpl::GetSize(PaintElementType type, int& width, int& height)
+{
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED();
+    return false;
+  }
+
+  width = height = 0;
+
+  if(type == PET_VIEW) {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host) {
+      host->GetSize(width, height);
+      return true;
+    }
+  } else if(type == PET_POPUP) {
+    if (popuphost_) {
+      popuphost_->GetSize(width, height);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void CefBrowserImpl::SetSize(PaintElementType type, int width, int height)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SetSize, type, width, height));
+}
+
+bool CefBrowserImpl::IsPopupVisible()
+{
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED();
+    return false;
+  }
+  
+  return (popuphost_ != NULL);
+}
+
+void CefBrowserImpl::HidePopup()
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_ClosePopupWidget));
+}
+
+void CefBrowserImpl::Invalidate(const CefRect& dirtyRect)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_Invalidate, dirtyRect));
+}
+
+bool CefBrowserImpl::GetImage(PaintElementType type, int width, int height,
+                              void* buffer)
+{
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED();
+    return false;
+  }
+
+  if(type == PET_VIEW) {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      return host->GetImage(width, height, buffer);
+  } else if(type == PET_POPUP) {
+    if (popuphost_)
+     return popuphost_->GetImage(width, height, buffer);
+  }
+
+  return false;
+}
+
+void CefBrowserImpl::SendKeyEvent(KeyType type, int key, int modifiers,
+                                  bool sysChar, bool imeChar)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendKeyEvent, type, key, modifiers, sysChar,
+      imeChar));
+}
+
+void CefBrowserImpl::SendMouseClickEvent(int x, int y, MouseButtonType type,
+                                         bool mouseUp, int clickCount)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendMouseClickEvent, x, y, type, mouseUp,
+      clickCount));
+}
+
+void CefBrowserImpl::SendMouseMoveEvent(int x, int y, bool mouseLeave)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendMouseMoveEvent, x, y, mouseLeave));
+}
+
+void CefBrowserImpl::SendMouseWheelEvent(int x, int y, int delta)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendMouseWheelEvent, x, y, delta));
+}
+
+void CefBrowserImpl::SendFocusEvent(bool setFocus)
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendFocusEvent, setFocus));
+}
+
+void CefBrowserImpl::SendCaptureLostEvent()
+{
+  // Intentially post event tasks in all cases so that painting tasks can be
+  // handled at sane times.
+  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+      &CefBrowserImpl::UIT_SendCaptureLostEvent));
+}
+
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame)
 {
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
@@ -474,17 +628,14 @@ CefRefPtr<CefFrame> CefBrowserImpl::UIT_GetCefFrame(WebFrame* frame)
 
   CefRefPtr<CefFrame> cef_frame;
 
-  WebView *view = UIT_GetWebView();
-  if(view) {
-    if(frame == view->mainFrame()) {
-      // Use the single main frame reference.
-      cef_frame = GetMainCefFrame();
-    } else {
-      // Locate or create the appropriate named reference.
-      CefString name = string16(frame->name());
-      DCHECK(!name.empty());
-      cef_frame = GetCefFrame(name);
-    }
+  if(frame->parent() == 0) {
+    // Use the single main frame reference.
+    cef_frame = GetMainCefFrame();
+  } else {
+    // Locate or create the appropriate named reference.
+    CefString name = string16(frame->name());
+    DCHECK(!name.empty());
+    cef_frame = GetCefFrame(name);
   }
 
   return cef_frame;
@@ -555,7 +706,10 @@ void CefBrowserImpl::UIT_DestroyBrowser()
 void CefBrowserImpl::UIT_CloseBrowser()
 {
   REQUIRE_UIT();
-  UIT_CloseView(UIT_GetMainWndHandle());
+  if (!IsWindowRenderingDisabled())
+    UIT_CloseView(UIT_GetMainWndHandle());
+  else
+    UIT_DestroyBrowser();
 }
 
 void CefBrowserImpl::UIT_LoadURL(CefRefPtr<CefFrame> frame,
@@ -775,11 +929,108 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
     view->setFocusedFrame(frame);
 
     // Give focus to the window if it is currently visible.
-    if(UIT_IsViewVisible(UIT_GetMainWndHandle()))
+    if (!IsWindowRenderingDisabled() &&
+        UIT_IsViewVisible(UIT_GetMainWndHandle()))
       UIT_SetFocus(UIT_GetWebViewHost(), true);
   }
 
   return true;
+}
+
+
+void CefBrowserImpl::UIT_SetSize(PaintElementType type, int width, int height)
+{
+  if(type == PET_VIEW) {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      host->SetSize(width, height);
+  } else if(type == PET_POPUP) {
+    if (popuphost_)
+      popuphost_->SetSize(width, height);
+  }
+}
+
+void CefBrowserImpl::UIT_Invalidate(const CefRect& dirtyRect)
+{
+  REQUIRE_UIT();
+  WebViewHost* host = UIT_GetWebViewHost();
+  if (host) {
+    host->InvalidateRect(gfx::Rect(dirtyRect.x, dirtyRect.y, dirtyRect.width,
+                                   dirtyRect.height));
+  }
+}
+
+void CefBrowserImpl::UIT_SendKeyEvent(KeyType type, int key, int modifiers,
+                                      bool sysChar, bool imeChar)
+{
+  REQUIRE_UIT();
+  if (popuphost_) {
+    // Send the event to the popup.
+    popuphost_->SendKeyEvent(type, key, modifiers, sysChar, imeChar);
+  } else {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      host->SendKeyEvent(type, key, modifiers, sysChar, imeChar);
+  }
+}
+
+void CefBrowserImpl::UIT_SendMouseClickEvent(int x, int y, MouseButtonType type,
+                                             bool mouseUp, int clickCount)
+{
+  REQUIRE_UIT();
+  if (popuphost_ && popup_rect_.Contains(x, y)) {
+    // Send the event to the popup.
+    popuphost_->SendMouseClickEvent(x - popup_rect_.x(), y - popup_rect_.y(),
+        type, mouseUp, clickCount);
+  } else {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      host->SendMouseClickEvent(x, y, type, mouseUp, clickCount);
+  }
+}
+
+void CefBrowserImpl::UIT_SendMouseMoveEvent(int x, int y, bool mouseLeave)
+{
+  REQUIRE_UIT();
+  if (popuphost_ && popup_rect_.Contains(x, y)) {
+    // Send the event to the popup.
+    popuphost_->SendMouseMoveEvent(x - popup_rect_.x(), y - popup_rect_.y(),
+        mouseLeave);
+  } else {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      host->SendMouseMoveEvent(x, y, mouseLeave);
+  }
+}
+
+void CefBrowserImpl::UIT_SendMouseWheelEvent(int x, int y, int delta)
+{
+  REQUIRE_UIT();
+  if (popuphost_ && popup_rect_.Contains(x, y)) {
+    // Send the event to the popup.
+    popuphost_->SendMouseWheelEvent(x - popup_rect_.x(), y - popup_rect_.y(),
+        delta);
+  } else {
+    WebViewHost* host = UIT_GetWebViewHost();
+    if (host)
+      host->SendMouseWheelEvent(x, y, delta);
+  }
+}
+
+void CefBrowserImpl::UIT_SendFocusEvent(bool setFocus)
+{
+  REQUIRE_UIT();
+  WebViewHost* host = UIT_GetWebViewHost();
+  if (host)
+    host->SendFocusEvent(setFocus);
+}
+
+void CefBrowserImpl::UIT_SendCaptureLostEvent()
+{
+  REQUIRE_UIT();
+  WebViewHost* host = UIT_GetWebViewHost();
+  if (host)
+    host->SendCaptureLostEvent();
 }
 
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
@@ -828,23 +1079,35 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
 WebKit::WebWidget* CefBrowserImpl::UIT_CreatePopupWidget()
 {
   REQUIRE_UIT();
-  
+
   DCHECK(!popuphost_);
-  popuphost_ = WebWidgetHost::Create(UIT_GetMainWndHandle(),
-      popup_delegate_.get());
+  popuphost_ = WebWidgetHost::Create(
+      (IsWindowRenderingDisabled()?NULL:UIT_GetMainWndHandle()),
+      popup_delegate_.get(), paint_delegate_.get());
   popuphost_->set_popup(true);
+
   return popuphost_->webwidget();
 }
 
 void CefBrowserImpl::UIT_ClosePopupWidget()
 {
   REQUIRE_UIT();
+
+  if (!popuphost_)
+    return;
   
 #if !defined(OS_MACOSX)
   // Mac uses a WebPopupMenu for select lists so no closing is necessary.
-  UIT_CloseView(UIT_GetPopupWndHandle());
+  if (!IsWindowRenderingDisabled())
+    UIT_CloseView(UIT_GetPopupWndHandle());
 #endif
   popuphost_ = NULL;
+  popup_rect_ = gfx::Rect();
+
+  if (IsWindowRenderingDisabled() && handler_.get()) {
+    // Notify the handler of popup visibility change.
+    handler_->HandlePopupChange(this, false, CefRect());
+  }
 }
 
 void CefBrowserImpl::UIT_Show(WebKit::WebNavigationPolicy policy)

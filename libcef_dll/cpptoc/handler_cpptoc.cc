@@ -117,6 +117,20 @@ enum cef_retval_t CEF_CALLBACK handler_handle_title_change(
       CefBrowserCToCpp::Wrap(browser), CefString(title));
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_nav_state_change(
+    struct _cef_handler_t* self, cef_browser_t* browser, int canGoBack,
+    int canGoForward)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleNavStateChange(
+      CefBrowserCToCpp::Wrap(browser), (canGoBack?true:false),
+      (canGoForward?true:false));
+}
+
 enum cef_retval_t CEF_CALLBACK handler_handle_before_browse(
     struct _cef_handler_t* self, cef_browser_t* browser, cef_frame_t* frame,
     struct _cef_request_t* request, enum cef_handler_navtype_t navType,
@@ -545,6 +559,81 @@ enum cef_retval_t CEF_CALLBACK handler_handle_find_result(
       activeMatchOrdinal, finalUpdate?true:false);
 }
 
+enum cef_retval_t CEF_CALLBACK handler_handle_get_rect(
+    struct _cef_handler_t* self, cef_browser_t* browser, int screen,
+    cef_rect_t* rect)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(rect);
+  if(!self || !browser || !rect)
+    return RV_CONTINUE;
+
+  CefRect changeRect(*rect);
+  cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleGetRect(
+      CefBrowserCToCpp::Wrap(browser), screen?true:false, changeRect);
+  *rect = changeRect;
+  return rv;
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_get_screen_point(
+    struct _cef_handler_t* self, cef_browser_t* browser, int viewX, int viewY,
+    int* screenX, int* screenY)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(screenX);
+  DCHECK(screenY);
+  if(!self || !browser || !screenX || !screenY)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleGetScreenPoint(
+      CefBrowserCToCpp::Wrap(browser), viewX, viewY, *screenX, *screenY);
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_popup_change(
+    struct _cef_handler_t* self, cef_browser_t* browser, int show,
+    const cef_rect_t* rect)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(rect);
+  if(!self || !browser || !rect)
+    return RV_CONTINUE;
+
+  CefRect changeRect(*rect);
+  return CefHandlerCppToC::Get(self)->HandlePopupChange(
+      CefBrowserCToCpp::Wrap(browser), show?true:false, changeRect);
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_paint(struct _cef_handler_t* self,
+    cef_browser_t* browser, enum cef_paint_element_type_t type,
+    const cef_rect_t* dirtyRect, const void* buffer)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(dirtyRect);
+  if(!self || !browser || !dirtyRect)
+    return RV_CONTINUE;
+
+  CefRect rect(*dirtyRect);
+  return CefHandlerCppToC::Get(self)->HandlePaint(
+      CefBrowserCToCpp::Wrap(browser), type, rect, buffer);
+}
+
+enum cef_retval_t CEF_CALLBACK handler_handle_cursor_change(
+    struct _cef_handler_t* self, cef_browser_t* browser,
+    cef_cursor_handle_t cursor)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if(!self || !browser)
+    return RV_CONTINUE;
+
+  return CefHandlerCppToC::Get(self)->HandleCursorChange(
+      CefBrowserCToCpp::Wrap(browser), cursor);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -555,6 +644,7 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_after_created = handler_handle_after_created;
   struct_.struct_.handle_address_change = handler_handle_address_change;
   struct_.struct_.handle_title_change = handler_handle_title_change;
+  struct_.struct_.handle_nav_state_change = handler_handle_nav_state_change;
   struct_.struct_.handle_before_browse = handler_handle_before_browse;
   struct_.struct_.handle_load_start = handler_handle_load_start;
   struct_.struct_.handle_load_end = handler_handle_load_end;
@@ -584,6 +674,11 @@ CefHandlerCppToC::CefHandlerCppToC(CefHandler* cls)
   struct_.struct_.handle_status = handler_handle_status;
   struct_.struct_.handle_console_message = handler_handle_console_message;
   struct_.struct_.handle_find_result = handler_handle_find_result;
+  struct_.struct_.handle_get_rect = handler_handle_get_rect;
+  struct_.struct_.handle_get_screen_point = handler_handle_get_screen_point;
+  struct_.struct_.handle_popup_change = handler_handle_popup_change;
+  struct_.struct_.handle_paint = handler_handle_paint;
+  struct_.struct_.handle_cursor_change = handler_handle_cursor_change;
 }
 
 #ifdef _DEBUG

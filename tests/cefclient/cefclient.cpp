@@ -35,8 +35,13 @@ void ClientHandler::ClientDownloadListener::NotifyDownloadError(
 // ClientHandler implementation
 
 ClientHandler::ClientHandler()
-  : m_MainHwnd(NULL), m_BrowserHwnd(NULL), m_EditHwnd(NULL), m_bLoading(false),
-    m_bCanGoBack(false), m_bCanGoForward(false),
+  : m_MainHwnd(NULL),
+    m_BrowserHwnd(NULL),
+    m_EditHwnd(NULL),
+    m_BackHwnd(NULL),
+    m_ForwardHwnd(NULL),
+    m_StopHwnd(NULL),
+    m_ReloadHwnd(NULL),
     ALLOW_THIS_IN_INITIALIZER_LIST(
         m_DownloadListener(new ClientDownloadListener(this)))
 {
@@ -62,6 +67,17 @@ CefHandler::RetVal ClientHandler::HandleAfterCreated(
   return RV_CONTINUE;
 }
 
+
+CefHandler::RetVal ClientHandler::HandleNavStateChange(
+    CefRefPtr<CefBrowser> browser, bool canGoBack, bool canGoForward)
+{
+  REQUIRE_UI_THREAD();
+
+  SetNavState(canGoBack, canGoForward);
+
+  return RV_CONTINUE;
+}
+
 CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame)
 {
@@ -69,12 +85,8 @@ CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
 
   if(!browser->IsPopup() && frame->IsMain())
   {
-    Lock();
     // We've just started loading a page
-    m_bLoading = true;
-    m_bCanGoBack = false;
-    m_bCanGoForward = false;
-    Unlock();
+    SetLoading(true);
   }
   return RV_CONTINUE;
 }
@@ -86,16 +98,12 @@ CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
 
   if(!browser->IsPopup() && frame->IsMain())
   {
-    Lock();
     // We've just finished loading a page
-    m_bLoading = false;
-    m_bCanGoBack = browser->CanGoBack();
-    m_bCanGoForward = browser->CanGoForward();
+    SetLoading(false);
 
     CefRefPtr<CefDOMVisitor> visitor = GetDOMVisitor(frame->GetURL());
     if(visitor.get())
       frame->VisitDOM(visitor);
-    Unlock();
   }
   return RV_CONTINUE;
 }
@@ -227,16 +235,6 @@ CefHandler::RetVal ClientHandler::HandleConsoleMessage(
   return RV_HANDLED;
 }
 
-void ClientHandler::GetNavState(bool &isLoading, bool &canGoBack,
-                                bool &canGoForward)
-{
-  Lock();
-  isLoading = m_bLoading;
-  canGoBack = m_bCanGoBack;
-  canGoForward = m_bCanGoForward;
-  Unlock();
-}
-
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd)
 {
   Lock();
@@ -248,6 +246,19 @@ void ClientHandler::SetEditHwnd(CefWindowHandle hwnd)
 {
   Lock();
   m_EditHwnd = hwnd;
+  Unlock();
+}
+
+void ClientHandler::SetButtonHwnds(CefWindowHandle backHwnd,
+                                   CefWindowHandle forwardHwnd,
+                                   CefWindowHandle stopHwnd,
+                                   CefWindowHandle reloadHwnd)
+{
+  Lock();
+  m_BackHwnd = backHwnd;
+  m_ForwardHwnd = forwardHwnd;
+  m_StopHwnd = stopHwnd;
+  m_ReloadHwnd = reloadHwnd;
   Unlock();
 }
 

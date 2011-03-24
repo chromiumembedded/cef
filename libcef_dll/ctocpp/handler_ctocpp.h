@@ -40,6 +40,8 @@ public:
       CefRefPtr<CefFrame> frame, const CefString& url);
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
       const CefString& title);
+  virtual RetVal HandleNavStateChange(CefRefPtr<CefBrowser> browser,
+      bool canGoBack, bool canGoForward);
   virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       NavType navType, bool isRedirect);
@@ -96,6 +98,16 @@ public:
   virtual RetVal HandleFindResult(CefRefPtr<CefBrowser> browser, int identifier,
       int count, const CefRect& selectionRect, int activeMatchOrdinal,
       bool finalUpdate);
+  virtual RetVal HandleGetRect(CefRefPtr<CefBrowser> browser, bool screen,
+      CefRect& rect);
+  virtual RetVal HandleGetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX,
+      int viewY, int& screenX, int& screenY);
+  virtual RetVal HandlePopupChange(CefRefPtr<CefBrowser> browser, bool show,
+      const CefRect& rect);
+  virtual RetVal HandlePaint(CefRefPtr<CefBrowser> browser,
+      PaintElementType type, const CefRect& dirtyRect, const void* buffer);
+  virtual RetVal HandleCursorChange(CefRefPtr<CefBrowser> browser,
+      CefCursorHandle cursor);
 };
 
 #endif // BUILDING_CEF_SHARED

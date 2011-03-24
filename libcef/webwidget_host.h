@@ -6,6 +6,7 @@
 #define _WEBWIDGET_HOST_H
 
 #include "include/cef_string.h"
+#include "include/cef_types.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -13,6 +14,8 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
+#include "webkit/plugins/npapi/webplugin.h"
+#include <map>
 
 namespace gfx {
 class Rect;
@@ -37,11 +40,20 @@ class NSEvent;
 // This class is a simple NativeView-based host for a WebWidget
 class WebWidgetHost {
  public:
+  class PaintDelegate {
+   public:
+    virtual void Paint(bool popup, const gfx::Rect& dirtyRect,
+                       const void* buffer) =0;
+  };
+
   // The new instance is deleted once the associated NativeView is destroyed.
   // The newly created window should be resized after it is created, using the
   // MoveWindow (or equivalent) function.
   static WebWidgetHost* Create(gfx::NativeView parent_view,
-                               WebKit::WebWidgetClient* client);
+                               WebKit::WebWidgetClient* client,
+                               PaintDelegate* paint_delegate);
+
+  virtual ~WebWidgetHost();
 
 #if defined(OS_MACOSX)
   static void HandleEvent(gfx::NativeView view, NSEvent* event);
@@ -62,7 +74,14 @@ class WebWidgetHost {
   // Allow clients to update the paint rect. For example, if we get a gdk
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
+
   void Paint();
+  void InvalidateRect(const gfx::Rect& rect);
+
+  bool GetImage(int width, int height, void* buffer);
+
+  void SetSize(int width, int height);
+  void GetSize(int& width, int& height);
 
   skia::PlatformCanvas* canvas() const { return canvas_.get(); }
 
@@ -74,12 +93,33 @@ class WebWidgetHost {
 
   void SetTooltipText(const CefString& tooltip_text);
 
+  void SendKeyEvent(cef_key_type_t type, int key, int modifiers, bool sysChar,
+                    bool imeChar);
+  void SendMouseClickEvent(int x, int y, cef_mouse_button_type_t type,
+                           bool mouseUp, int clickCount);
+  void SendMouseMoveEvent(int x, int y, bool mouseLeave);
+  void SendMouseWheelEvent(int x, int y, int delta);
+  void SendFocusEvent(bool setFocus);
+  void SendCaptureLostEvent();
+
+  // Manage windowed plugins when window rendering is disabled.
+  bool HasWindowedPlugins() { return !plugin_map_.empty(); }
+  void AddWindowedPlugin(gfx::PluginWindowHandle handle);
+  void RemoveWindowedPlugin(gfx::PluginWindowHandle handle);
+  void MoveWindowedPlugin(const webkit::npapi::WebPluginGeometry& geometry);
+  gfx::PluginWindowHandle GetWindowedPluginAt(int x, int y);
+
+  // If window rendering is disabled paint messages are generated after all
+  // other pending messages have been processed.
+  void DoPaint();
+
   void set_popup(bool popup) { popup_ = popup; }
   bool popup() { return popup_; }
 
+  PaintDelegate* paint_delegate() { return paint_delegate_; }
+
  protected:
   WebWidgetHost();
-  ~WebWidgetHost();
 
 #if defined(OS_WIN)
   // Per-class wndproc.  Returns true if the event should be swallowed.
@@ -136,23 +176,41 @@ class WebWidgetHost {
   void ResetTooltip();
 
   gfx::NativeView view_;
+
+  // The paint delegate is used instead of the view when window rendering is
+  // disabled.
+  PaintDelegate* paint_delegate_;
+
   WebKit::WebWidget* webwidget_;
   scoped_ptr<skia::PlatformCanvas> canvas_;
 
   // True if this widget is a popup widget.
   bool popup_;
 
-  // specifies the portion of the webwidget that needs painting
+  // Specifies the portion of the webwidget that needs painting.
   gfx::Rect paint_rect_;
 
-  // specifies the portion of the webwidget that needs scrolling
+  // Specifies the portion of the webwidget that needs scrolling.
   gfx::Rect scroll_rect_;
   int scroll_dx_;
   int scroll_dy_;
 
+  // Specifies the portion of the webwidget that has been invalidated when
+  // window rendering is disabled.
+  gfx::Rect update_rect_;
+  CancelableTask* update_task_;
+
+  // The map of windowed plugins that need to be drawn when window rendering is
+  // disabled.
+  typedef std::map<gfx::PluginWindowHandle,webkit::npapi::WebPluginGeometry>
+      PluginMap;
+  PluginMap plugin_map_;
+
 #if defined(OS_WIN)
   bool track_mouse_leave_;
   std::wstring tooltip_text_;
+  gfx::NativeView tooltip_view_;
+  bool tooltip_showing_;
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
@@ -162,8 +220,6 @@ class WebWidgetHost {
 #endif
 
   WebKit::WebKeyboardEvent last_key_event_;
-  gfx::NativeView tooltip_view_;
-  bool tooltip_showing_;
 
 #ifndef NDEBUG
   bool painting_;

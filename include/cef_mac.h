@@ -45,8 +45,9 @@ inline long CefAtomicDecrement(long volatile *pDest)
   return __sync_sub_and_fetch(pDest, 1);
 }
 
-// Window handle.
+// Handle types.
 #define CefWindowHandle cef_window_handle_t
+#define CefCursorHandle cef_cursor_handle_t
 
 // Critical section wrapper.
 class CefCriticalSection

@@ -89,9 +89,15 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return window_info_.m_hWnd;
 }
 
-gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() const {
+bool CefBrowserImpl::IsWindowRenderingDisabled()
+{
+  return (window_info_.m_bWindowRenderingDisabled ? true : false);
+}
+
+gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() {
   REQUIRE_UIT();
-  return window_info_.m_hWnd;
+  return window_info_.m_bWindowRenderingDisabled ?
+      window_info_.m_hWndParent : window_info_.m_hWnd;
 }
 
 void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
@@ -99,19 +105,24 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   REQUIRE_UIT();
   Lock();
 
-  std::wstring windowName(CefString(&window_info_.m_windowName));
-  
-  // Create the new browser window
-  window_info_.m_hWnd = CreateWindowEx(window_info_.m_dwExStyle, GetWndClass(),
-      windowName.c_str(), window_info_.m_dwStyle,
-      window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
-      window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
-      ::GetModuleHandle(NULL), NULL);
-  DCHECK(window_info_.m_hWnd != NULL);
+  if (!window_info_.m_bWindowRenderingDisabled) {
+    std::wstring windowName(CefString(&window_info_.m_windowName));
 
-  // Set window user data to this object for future reference from the window
-  // procedure
-  ui::SetWindowUserData(window_info_.m_hWnd, this);
+    // Create the new browser window
+    window_info_.m_hWnd = CreateWindowEx(window_info_.m_dwExStyle,
+        GetWndClass(), windowName.c_str(), window_info_.m_dwStyle,
+        window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
+        window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
+        ::GetModuleHandle(NULL), NULL);
+    DCHECK(window_info_.m_hWnd != NULL);
+
+    // Set window user data to this object for future reference from the window
+    // procedure
+    ui::SetWindowUserData(window_info_.m_hWnd, this);
+  } else {
+    // Create a new paint delegate.
+    paint_delegate_.reset(new PaintDelegate(this));
+  }
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_.reset(new BrowserDevToolsAgent());
@@ -128,29 +139,32 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(window_info_.m_hWnd, gfx::Rect(), delegate_.get(),
-      dev_tools_agent_.get(), prefs));
+                          paint_delegate_.get(), dev_tools_agent_.get(),
+                          prefs));
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
 
-  if (!settings_.drag_drop_disabled)
-    delegate_->RegisterDragDrop();
-
   Unlock();
 
-  // Size the web view window to the browser window
-  RECT cr;
-  GetClientRect(window_info_.m_hWnd, &cr);
+  if (!window_info_.m_bWindowRenderingDisabled) {
+    if (!settings_.drag_drop_disabled)
+      delegate_->RegisterDragDrop();
+    
+    // Size the web view window to the browser window
+    RECT cr;
+    GetClientRect(window_info_.m_hWnd, &cr);
 
-  // Respect the WS_VISIBLE window style when setting the window's position
-  UINT flags = SWP_NOZORDER;
-  if (window_info_.m_dwStyle & WS_VISIBLE)
-    flags |= SWP_SHOWWINDOW;
-  else
-    flags |= SWP_NOACTIVATE;
+    // Respect the WS_VISIBLE window style when setting the window's position
+    UINT flags = SWP_NOZORDER;
+    if (window_info_.m_dwStyle & WS_VISIBLE)
+      flags |= SWP_SHOWWINDOW;
+    else
+      flags |= SWP_NOACTIVATE;
 
-  SetWindowPos(UIT_GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
-               cr.bottom, flags);
+    SetWindowPos(UIT_GetWebViewWndHandle(), NULL, cr.left, cr.top, cr.right,
+                 cr.bottom, flags);
+  }
 
   if(handler_.get()) {
     // Notify the handler that we're done creating the new window

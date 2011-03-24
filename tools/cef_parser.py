@@ -1065,6 +1065,7 @@ class obj_analysis:
             'size_t' : 'size_t',
             'time_t' : 'time_t',
             'bool' : 'int',
+            'CefCursorHandle' : 'cef_cursor_handle_t',
             'CefWindowHandle' : 'cef_window_handle_t',
             'CefRect' : 'cef_rect_t',
             'CefThreadId' : 'cef_thread_id_t',

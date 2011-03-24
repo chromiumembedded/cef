@@ -54,6 +54,22 @@ public:
   virtual void SetZoomLevel(double zoomLevel);
   virtual void ShowDevTools();
   virtual void CloseDevTools();
+  virtual bool IsWindowRenderingDisabled();
+  virtual bool GetSize(PaintElementType type, int& width, int& height);
+  virtual void SetSize(PaintElementType type, int width, int height);
+  virtual bool IsPopupVisible();
+  virtual void HidePopup();
+  virtual void Invalidate(const CefRect& dirtyRect);
+  virtual bool GetImage(PaintElementType type, int width, int height,
+      void* buffer);
+  virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
+      bool imeChar);
+  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+      bool mouseUp, int clickCount);
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave);
+  virtual void SendMouseWheelEvent(int x, int y, int delta);
+  virtual void SendFocusEvent(bool setFocus);
+  virtual void SendCaptureLostEvent();
 };
 
 #endif // USING_CEF_SHARED

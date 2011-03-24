@@ -25,7 +25,13 @@ CefWindowHandle CefBrowserImpl::GetWindowHandle()
   return window_info_.m_View;
 }
 
-gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() const {
+bool CefBrowserImpl::IsWindowRenderingDisabled()
+{
+  // TODO(port): Add support for off-screen rendering.
+  return false;
+}
+
+gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() {
   REQUIRE_UIT();
   return window_info_.m_View;
 }
@@ -79,7 +85,7 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(parentView, contentRect, delegate_.get(),
-                          dev_tools_agent_.get(), prefs));
+                          NULL, dev_tools_agent_.get(), prefs));
   delegate_->RegisterDragDrop();
 
   if (!settings_.developer_tools_disabled)

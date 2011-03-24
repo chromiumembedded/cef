@@ -33,6 +33,7 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
   BEGIN_MSG_MAP(ClientPlugin)
     MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackGround)
     MESSAGE_HANDLER(WM_PAINT, OnPaint)
+    MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
     MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
   END_MSG_MAP()
 
@@ -74,6 +75,8 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
  protected:
   // Window message handlers.
   LRESULT OnPaint(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  LRESULT OnPrintClient(UINT message, WPARAM wparam, LPARAM lparam,
+                        BOOL& handled);
   LRESULT OnEraseBackGround(UINT message, WPARAM wparam, LPARAM lparam,
                             BOOL& handled);
   LRESULT OnLButtonDown(UINT message, WPARAM wparam, LPARAM lparam,
@@ -82,6 +85,8 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
   // Enables the plugin window if required and initiates an update of the
   // the plugin window.
   void RefreshDisplay();
+
+  void Paint(HDC hdc);
 
  private:
   // The plugins opaque instance handle

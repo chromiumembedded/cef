@@ -45,6 +45,7 @@ class NSView;
 #else
 #define cef_window_handle_t void*
 #endif
+#define cef_cursor_handle_t void*
 
 #ifdef __cplusplus
 extern "C" {

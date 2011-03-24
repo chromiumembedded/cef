@@ -36,6 +36,19 @@ class WebView;
 class CefBrowserImpl : public CefThreadSafeBase<CefBrowser>
 {
 public:
+  class PaintDelegate : public WebWidgetHost::PaintDelegate
+  {
+  public:
+    PaintDelegate(CefBrowserImpl* browser);
+    virtual ~PaintDelegate();
+
+    virtual void Paint(bool popup, const gfx::Rect& dirtyRect,
+                       const void* buffer);
+
+  protected:
+    CefBrowserImpl* browser_;
+  };
+
   CefBrowserImpl(const CefWindowInfo& windowInfo,
                  const CefBrowserSettings& settings, bool popup,
                  CefRefPtr<CefHandler> handler);
@@ -71,6 +84,22 @@ public:
   virtual void SetZoomLevel(double zoomLevel);
   virtual void ShowDevTools();
   virtual void CloseDevTools();
+  virtual bool IsWindowRenderingDisabled();
+  virtual bool GetSize(PaintElementType type, int& width, int& height);
+  virtual void SetSize(PaintElementType type, int width, int height);
+  virtual bool IsPopupVisible();
+  virtual void HidePopup();
+  virtual void Invalidate(const CefRect& dirtyRect);
+  virtual bool GetImage(PaintElementType type, int width, int height,
+                        void* buffer);
+  virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
+                            bool imeChar);
+  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+                                   bool mouseUp, int clickCount);
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave);
+  virtual void SendMouseWheelEvent(int x, int y, int delta);
+  virtual void SendFocusEvent(bool setFocus);
+  virtual void SendCaptureLostEvent();
 
   // Frame-related methods
   void Undo(CefRefPtr<CefFrame> frame);
@@ -134,8 +163,9 @@ public:
     REQUIRE_UIT();
     return delegate_.get();
   }
-  gfx::NativeView UIT_GetWebViewWndHandle() const {
+  gfx::NativeView UIT_GetWebViewWndHandle() {
     REQUIRE_UIT();
+    DCHECK(!IsWindowRenderingDisabled());
     return webviewhost_->view_handle();
   }
   WebKit::WebWidget* UIT_GetPopup() const {
@@ -150,11 +180,12 @@ public:
     REQUIRE_UIT();
     return popup_delegate_.get();
   }
-  gfx::NativeView UIT_GetPopupWndHandle() const {
+  gfx::NativeView UIT_GetPopupWndHandle() {
     REQUIRE_UIT();
+    DCHECK(!IsWindowRenderingDisabled());
     return popuphost_->view_handle();
   }
-  gfx::NativeView UIT_GetMainWndHandle() const;
+  gfx::NativeView UIT_GetMainWndHandle();
 
   BrowserNavigationController* UIT_GetNavigationController() {
     REQUIRE_UIT();
@@ -218,6 +249,16 @@ public:
                     bool reload,
                     bool ignoreCahce);
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
+  void UIT_SetSize(PaintElementType type, int width, int height);
+  void UIT_Invalidate(const CefRect& dirtyRect);
+  void UIT_SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
+                        bool imeChar);
+  void UIT_SendMouseClickEvent(int x, int y, MouseButtonType type,
+                               bool mouseUp, int clickCount);
+  void UIT_SendMouseMoveEvent(int x, int y, bool mouseLeave);
+  void UIT_SendMouseWheelEvent(int x, int y, int delta);
+  void UIT_SendFocusEvent(bool setFocus);
+  void UIT_SendCaptureLostEvent();
 
   CefRefPtr<CefBrowserImpl> UIT_CreatePopupWindow(const CefString& url,
       const CefPopupFeatures& features);
@@ -276,6 +317,8 @@ public:
   bool can_go_back();
   bool can_go_forward();
 
+  void set_popup_rect(const gfx::Rect& rect) { popup_rect_ = rect; }
+
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
 protected:
@@ -293,9 +336,11 @@ protected:
   CefRefPtr<CefHandler> handler_;
   scoped_ptr<WebViewHost> webviewhost_;
   WebWidgetHost* popuphost_;
+  gfx::Rect popup_rect_;
   scoped_ptr<BrowserWebViewDelegate> delegate_;
   scoped_ptr<BrowserWebViewDelegate> popup_delegate_;
   scoped_ptr<BrowserNavigationController> nav_controller_;
+  scoped_ptr<PaintDelegate> paint_delegate_;
 
   scoped_ptr<BrowserDevToolsAgent> dev_tools_agent_;
   scoped_ptr<BrowserDevToolsClient> dev_tools_client_;

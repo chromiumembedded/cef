@@ -43,7 +43,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKitClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPluginParams.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRange.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
@@ -102,7 +101,6 @@ using WebKit::WebNode;
 using WebKit::WebPlugin;
 using WebKit::WebPluginParams;
 using WebKit::WebPoint;
-using WebKit::WebPopupMenu;
 using WebKit::WebPopupType;
 using WebKit::WebRange;
 using WebKit::WebRect;
@@ -425,6 +423,12 @@ void BrowserWebViewDelegate::startDragging(
     const WebImage& image,
     const WebPoint& image_offset) {
 #if defined(OS_WIN)
+  // Dragging is not supported when window rendering is disabled.
+  if (browser_->IsWindowRenderingDisabled()) {
+    EndDragging();
+    return;
+  }
+
   drag_delegate_ = new BrowserDragDelegate(this);
   drag_delegate_->StartDragging(WebDropData(data), mask, image.getSkBitmap(),
                                 image_offset);
@@ -518,8 +522,22 @@ void BrowserWebViewDelegate::closeWidgetSoon() {
 }
 
 WebScreenInfo BrowserWebViewDelegate::screenInfo() {
-  if (WebWidgetHost* host = GetWidgetHost())
-    return host->GetScreenInfo();
+  if (WebWidgetHost* host = GetWidgetHost()) {
+    WebScreenInfo info = host->GetScreenInfo();
+
+    if (browser_->IsWindowRenderingDisabled()) {
+      // Retrieve the screen rectangle from the handler.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get()) {
+        CefRect rect(info.rect.x, info.rect.y, info.rect.width,
+                     info.rect.height);
+        if (handler->HandleGetRect(browser_, true, rect) == RV_CONTINUE) {
+          info.rect = WebRect(rect.x, rect.y, rect.width, rect.height);
+          info.availableRect = info.rect;
+        }
+      }
+    }
+  }
 
   return WebScreenInfo();
 }
@@ -985,14 +1003,13 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   }
 
   bool is_main_frame = (frame->parent() == 0);
-  if (is_main_frame) {
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if(handler.get()) {
-      // Notify the handler of an address change
-      std::string url = std::string(entry->GetURL().spec().c_str());
-      handler->HandleAddressChange(browser_, browser_->UIT_GetCefFrame(frame),
-          url);
-    }
+  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+
+  if (is_main_frame && handler.get()) {
+    // Notify the handler of an address change
+    std::string url = std::string(entry->GetURL().spec().c_str());
+    handler->HandleAddressChange(browser_, browser_->UIT_GetCefFrame(frame),
+        url);
   }
 
   const WebHistoryItem& history_item = frame->currentHistoryItem();
@@ -1001,10 +1018,24 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
 
   BrowserNavigationController* controller =
       browser_->UIT_GetNavigationController();
+
+  bool old_can_go_back = !controller->IsAtStart();
+  bool old_can_go_forward = !controller->IsAtEnd();
   controller->DidNavigateToEntry(entry.release());
-  browser_->set_nav_state(!controller->IsAtStart(), !controller->IsAtEnd());
+  bool new_can_go_back = !controller->IsAtStart();
+  bool new_can_go_forward = !controller->IsAtEnd();
 
   last_page_id_updated_ = std::max(last_page_id_updated_, page_id_);
+
+  if (old_can_go_back != new_can_go_back ||
+      old_can_go_forward != new_can_go_forward) {
+    browser_->set_nav_state(new_can_go_back, new_can_go_forward);
+    if (handler.get()) {
+      // Notify the handler of a navigation state change
+      handler->HandleNavStateChange(browser_, new_can_go_back,
+          new_can_go_forward);
+    }
+  }
 }
 
 void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {

@@ -24,10 +24,11 @@ void InitPluginTest()
 
 void RunPluginTest(CefRefPtr<CefBrowser> browser)
 {
+  // Add some extra space below the plugin to allow scrolling.
   std::string html =
     "<html><body>Client Plugin:<br>"
-    "<embed type=\"application/x-client-plugin\""
-    "width=600 height=40>"
+    "<embed type=\"application/x-client-plugin\" width=600 height=40>"
+    "<div style=\"height:1000px;\">&nbsp;</div>"
     "</body></html>";
   browser->GetMainFrame()->LoadString(html, "about:blank");
 }

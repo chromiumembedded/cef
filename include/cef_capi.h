@@ -58,10 +58,21 @@ CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
 // CEF before the application exits.
 CEF_EXPORT void cef_shutdown();
 
-// Perform message loop processing. This function must be called on the main
-// application thread if cef_initialize() is called with a
-// CefSettings.multi_threaded_message_loop value of false (0).
+// Perform a single iteration of CEF message loop processing. This function is
+// used to integrate the CEF message loop into an existing application message
+// loop. Care must be taken to balance performance against excessive CPU usage.
+// This function should only be called on the main application thread and only
+// if cef_initialize() is called with a CefSettings.multi_threaded_message_loop
+// value of false (0). This function will not block.
 CEF_EXPORT void cef_do_message_loop_work();
+
+// Run the CEF message loop. Use this function instead of an application-
+// provided message loop to get the best balance between performance and CPU
+// usage. This function should only be called on the main application thread and
+// only if cef_initialize() is called with a
+// CefSettings.multi_threaded_message_loop value of false (0). This function
+// will block until a quit message is received by the system.
+CEF_EXPORT void cef_run_message_loop();
 
 // Register a new V8 extension with the specified JavaScript extension code and
 // handler. Functions implemented by the handler are prototyped using the
@@ -316,6 +327,69 @@ typedef struct _cef_browser_t
   // instance.
   void (CEF_CALLBACK *close_dev_tools)(struct _cef_browser_t* self);
 
+  // Returns true (1) if window rendering is disabled.
+  int (CEF_CALLBACK *is_window_rendering_disabled)(struct _cef_browser_t* self);
+
+  // Get the size of the specified element. This function should only be called
+  // on the UI thread.
+  int (CEF_CALLBACK *get_size)(struct _cef_browser_t* self,
+      enum cef_paint_element_type_t type, int* width, int* height);
+
+  // Set the size of the specified element. This function is only used when
+  // window rendering is disabled.
+  void (CEF_CALLBACK *set_size)(struct _cef_browser_t* self,
+      enum cef_paint_element_type_t type, int width, int height);
+
+  // Returns true (1) if a popup is currently visible. This function should only
+  // be called on the UI thread.
+  int (CEF_CALLBACK *is_popup_visible)(struct _cef_browser_t* self);
+
+  // Hide the currently visible popup, if any.
+  void (CEF_CALLBACK *hide_popup)(struct _cef_browser_t* self);
+
+  // Invalidate the |dirtyRect| region of the view. This function is only used
+  // when window rendering is disabled and will result in a call to
+  // handle_paint().
+  void (CEF_CALLBACK *invalidate)(struct _cef_browser_t* self,
+      const cef_rect_t* dirtyRect);
+
+  // Get the raw image data contained in the specified element without
+  // performing validation. The specified |width| and |height| dimensions must
+  // match the current element size. On Windows |buffer| must be width*height*4
+  // bytes in size and represents a BGRA image with an upper-left origin. This
+  // function should only be called on the UI thread.
+  int (CEF_CALLBACK *get_image)(struct _cef_browser_t* self,
+      enum cef_paint_element_type_t type, int width, int height,
+      void* buffer);
+
+  // Send a key event to the browser.
+  void (CEF_CALLBACK *send_key_event)(struct _cef_browser_t* self,
+      enum cef_key_type_t type, int key, int modifiers, int sysChar,
+      int imeChar);
+
+  // Send a mouse click event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view.
+  void (CEF_CALLBACK *send_mouse_click_event)(struct _cef_browser_t* self,
+      int x, int y, enum cef_mouse_button_type_t type, int mouseUp,
+      int clickCount);
+
+  // Send a mouse move event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view.
+  void (CEF_CALLBACK *send_mouse_move_event)(struct _cef_browser_t* self, int x,
+      int y, int mouseLeave);
+
+  // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view.
+  void (CEF_CALLBACK *send_mouse_wheel_event)(struct _cef_browser_t* self,
+      int x, int y, int delta);
+
+  // Send a focus event to the browser.
+  void (CEF_CALLBACK *send_focus_event)(struct _cef_browser_t* self,
+      int setFocus);
+
+  // Send a capture lost event to the browser.
+  void (CEF_CALLBACK *send_capture_lost_event)(struct _cef_browser_t* self);
+
 } cef_browser_t;
 
 
@@ -472,6 +546,12 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_title_change)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       const cef_string_t* title);
+
+  // Called on the UI thread when the navigation state has changed. The return
+  // value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_nav_state_change)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      int canGoBack, int canGoForward);
 
   // Called on the UI thread before browser navigation. The client has an
   // opportunity to modify the |request| object if desired.  Return RV_HANDLED
@@ -702,6 +782,50 @@ typedef struct _cef_handler_t
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       int identifier, int count, const cef_rect_t* selectionRect,
       int activeMatchOrdinal, int finalUpdate);
+
+  // Called on the UI thread to retrieve either the simulated screen rectangle
+  // if |screen| is true (1) or the view rectangle if |screen| is false (0). The
+  // view rectangle is relative to the screen coordinates. This function is only
+  // called if window rendering has been disabled. Return RV_CONTINUE if the
+  // rectangle was provided.
+  enum cef_retval_t (CEF_CALLBACK *handle_get_rect)(struct _cef_handler_t* self,
+      struct _cef_browser_t* browser, int screen, cef_rect_t* rect);
+
+  // Called on the UI thread retrieve the translation from view coordinates to
+  // actual screen coordinates. This function is only called if window rendering
+  // has been disabled. Return RV_CONTINUE if the screen coordinates were
+  // provided.
+  enum cef_retval_t (CEF_CALLBACK *handle_get_screen_point)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser, int viewX,
+      int viewY, int* screenX, int* screenY);
+
+  // Called on the UI thread when the browser wants to show, hide, resize or
+  // move the popup. If |show| is true (1) and |rect| is zero size then the
+  // popup should be shown. If |show| is true (1) and |rect| is non-zero size
+  // then |rect| represents the popup location in view coordinates. If |show| is
+  // false (0) then the popup should be hidden. This function is only called if
+  // window rendering has been disabled. The return value is currently ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_popup_change)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser, int show,
+      const cef_rect_t* rect);
+
+  // Called when an element should be painted. |type| indicates whether the
+  // element is the view or the popup. |buffer| contains the pixel data for the
+  // whole image. |dirtyRect| indicates the portion of the image that has been
+  // repainted. On Windows |buffer| will be width*height*4 bytes in size and
+  // represents a BGRA image with an upper-left origin. This function is only
+  // called if window rendering has been disabled. The return value is currently
+  // ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_paint)(struct _cef_handler_t* self,
+      struct _cef_browser_t* browser, enum cef_paint_element_type_t type,
+      const cef_rect_t* dirtyRect, const void* buffer);
+
+  // Called when the browser window's cursor has changed. This function is only
+  // called if window rendering has been disabled. The return value is currently
+  // ignored.
+  enum cef_retval_t (CEF_CALLBACK *handle_cursor_change)(
+      struct _cef_handler_t* self, struct _cef_browser_t* browser,
+      cef_cursor_handle_t cursor);
 
 } cef_handler_t;
 

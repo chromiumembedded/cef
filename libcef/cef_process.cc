@@ -20,6 +20,7 @@ class CefMessageLoopForUI : public MessageLoopForUI
 
 public:
   CefMessageLoopForUI()
+    : is_iterating_(true)
   {
   }
 
@@ -32,10 +33,12 @@ public:
 
   virtual bool DoIdleWork() {
     bool valueToRet = inherited::DoIdleWork();
-    pump_->Quit();
+    if (is_iterating_)
+      pump_->Quit();
     return valueToRet;
   }
 
+  // Do a single interation of the UI message loop.
   void DoMessageLoopIteration() {
 #if defined(OS_MACOSX)
     Run();
@@ -44,7 +47,18 @@ public:
 #endif
   }
 
+  // Run the UI message loop.
+  void RunMessageLoop() {
+    is_iterating_ = false;
+    DoMessageLoopIteration();
+  }
+
+  bool is_iterating() { return is_iterating_; }
+
  private:
+  // True if the message loop is doing one iteration at a time.
+  bool is_iterating_;
+
   DISALLOW_COPY_AND_ASSIGN(CefMessageLoopForUI);
 };
 
@@ -79,7 +93,13 @@ CefProcess::~CefProcess() {
 
 void CefProcess::DoMessageLoopIteration() {
   DCHECK(CalledOnValidThread() && ui_message_loop_.get() != NULL);
+  DCHECK(ui_message_loop_->is_iterating());
   ui_message_loop_->DoMessageLoopIteration();
+}
+
+void CefProcess::RunMessageLoop() {
+  DCHECK(CalledOnValidThread() && ui_message_loop_.get() != NULL);
+  ui_message_loop_->RunMessageLoop();
 }
 
 void CefProcess::CreateUIThread() {

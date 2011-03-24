@@ -22,6 +22,7 @@ using WebKit::WebView;
 WebViewHost* WebViewHost::Create(GtkWidget* parent_view,
                                  const gfx::Rect& rect,
                                  BrowserWebViewDelegate* delegate,
+                                 PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();

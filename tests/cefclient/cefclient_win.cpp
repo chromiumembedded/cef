@@ -7,6 +7,7 @@
 #include "cefclient.h"
 #include "binding_test.h"
 #include "extension_test.h"
+#include "osrplugin_test.h"
 #include "plugin_test.h"
 #include "resource.h"
 #include "resource_util.h"
@@ -91,13 +92,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Register the internal UI client plugin.
   InitUIPluginTest();
 
+  // Register the internal OSR client plugin.
+  InitOSRPluginTest();
+
   // Register the V8 extension handler.
   InitExtensionTest();
 
   // Register the scheme handler.
   InitSchemeTest();
   
-  MSG msg;
   HACCEL hAccelTable;
 
   // Initialize global strings
@@ -116,29 +119,34 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Register the find event message.
   uFindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-  // Main message loop
-  while (GetMessage(&msg, NULL, 0, 0))
-  {
-#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
-    // Allow the CEF to do its message loop processing.
-    CefDoMessageLoopWork();
-#endif
+  int result = 0;
 
+#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
+  // Run the CEF message loop. This function will block until the application
+  // recieves a WM_QUIT message.
+  CefRunMessageLoop();
+#else
+  MSG msg;
+  
+  // Run the application message loop.
+  while (GetMessage(&msg, NULL, 0, 0)) {
     // Allow processing of find dialog messages.
-    if(hFindDlg && IsDialogMessage(hFindDlg, &msg))
+    if (hFindDlg && IsDialogMessage(hFindDlg, &msg))
       continue;
 
-    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-    {
+    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
   }
 
-  // Shut down the CEF
+  result = (int)msg.wParam;
+#endif
+
+  // Shut down CEF.
   CefShutdown();
 
-	return (int) msg.wParam;
+  return result;
 }
 
 //
@@ -355,6 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SetWindowLongPtr(editWnd, GWLP_WNDPROC,
             reinterpret_cast<LONG_PTR>(WndProc)); 
         g_handler->SetEditHwnd(editWnd);
+        g_handler->SetButtonHwnds(backWnd, forwardWnd, reloadWnd, stopWnd);
         
         rect.top += URLBAR_HEIGHT;
          
@@ -367,32 +376,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         CefBrowser::CreateBrowser(info, false,
             static_cast<CefRefPtr<CefHandler> >(g_handler),
             "http://www.google.com");
-
-        // Start the timer that will be used to update child window state. The
-        // timer is also necessary in single-threaded message loop mode so that
-        // CefDoMessageLoopWork() is called frequently enough for things like
-        // smooth JavaScript animation.
-        SetTimer(hWnd, 1, USER_TIMER_MINIMUM, NULL);
       }
       return 0;
 
-    case WM_TIMER:
-      if(g_handler.get() && g_handler->GetBrowserHwnd())
-      {
-        // Retrieve the current navigation state
-        bool isLoading, canGoBack, canGoForward;
-        g_handler->GetNavState(isLoading, canGoBack, canGoForward);
-
-        // Update the status of child windows
-        EnableWindow(editWnd, TRUE);
-        EnableWindow(backWnd, canGoBack);
-        EnableWindow(forwardWnd, canGoForward);
-        EnableWindow(reloadWnd, !isLoading);
-        EnableWindow(stopWnd, isLoading);
-      }
-      return 0;
-
-      case WM_COMMAND:
+    case WM_COMMAND:
       {
         CefRefPtr<CefBrowser> browser;
         if(g_handler.get())
@@ -514,6 +501,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunUIPluginTest(browser);
           return 0;
+        case ID_TESTS_OSRAPP: // Test the OSR app
+          if(browser.get())
+            RunOSRPluginTest(browser);
+          return 0;
         case ID_TESTS_DOMACCESS: // Test DOM access
           if(browser.get())
             RunDOMAccessTest(browser);
@@ -613,15 +604,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       {
         // Dont erase the background if the browser window has been loaded
         // (this avoids flashing)
-		    return 0;
+        return 0;
       }
       break;
     
-	  case WM_DESTROY:
+    case WM_DESTROY:
       // The frame window has exited
-      KillTimer(hWnd, 1);
-		  PostQuitMessage(0);
-		  return 0;
+      PostQuitMessage(0);
+      return 0;
     }
   	
     return DefWindowProc(hWnd, message, wParam, lParam);
@@ -725,6 +715,10 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     // Show the uiapp contents
     resourceStream = GetBinaryResourceReader(IDS_UIPLUGIN);
     mimeType = "text/html";
+  } else if(url == "http://tests/osrapp") {
+    // Show the osrapp contents
+    resourceStream = GetBinaryResourceReader(IDS_OSRPLUGIN);
+    mimeType = "text/html";
   } else if(url == "http://tests/localstorage") {
     // Show the localstorage contents
     resourceStream = GetBinaryResourceReader(IDS_LOCALSTORAGE);
@@ -765,6 +759,20 @@ void ClientHandler::SendNotification(NotificationType type)
   PostMessage(m_MainHwnd, WM_COMMAND, id, 0);
 }
 
+void ClientHandler::SetLoading(bool isLoading)
+{
+  ASSERT(m_EditHwnd != NULL && m_ReloadHwnd != NULL && m_StopHwnd != NULL);
+  EnableWindow(m_EditHwnd, TRUE);
+  EnableWindow(m_ReloadHwnd, !isLoading);
+  EnableWindow(m_StopHwnd, isLoading);
+}
+
+void ClientHandler::SetNavState(bool canGoBack, bool canGoForward)
+{
+  ASSERT(m_BackHwnd != NULL && m_ForwardHwnd != NULL);
+  EnableWindow(m_BackHwnd, canGoBack);
+  EnableWindow(m_ForwardHwnd, canGoForward);
+}
 
 // Global functions
 

@@ -35,6 +35,7 @@
 #include "webkit/plugins/npapi/webplugin.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 
+using webkit::npapi::WebPluginDelegateImpl;
 using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
 using WebKit::WebFrame;
@@ -42,6 +43,8 @@ using WebKit::WebNavigationPolicy;
 using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
+
+static const wchar_t kPluginWindowClassName[] = L"WebPluginHost";
 
 // WebViewClient --------------------------------------------------------------
 
@@ -55,16 +58,25 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(
 
 void BrowserWebViewDelegate::show(WebNavigationPolicy) {
   if (this == browser_->UIT_GetWebViewDelegate()) {
-    // Restore the window and bring it to the top if the window is currently
-    // visible.
-    HWND root = GetAncestor(browser_->UIT_GetMainWndHandle(), GA_ROOT);
-    if(IsWindowVisible(root)) {
-      ShowWindow(root, SW_SHOWNORMAL);
-      SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    if (!browser_->IsWindowRenderingDisabled()) {
+      // Restore the window and bring it to the top if the window is currently
+      // visible.
+      HWND root = GetAncestor(browser_->UIT_GetMainWndHandle(), GA_ROOT);
+      if(IsWindowVisible(root)) {
+        ShowWindow(root, SW_SHOWNORMAL);
+        SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      }
     }
   } else if (this == browser_->UIT_GetPopupDelegate()) {
-    // Show popup widgets without activation.
-    ShowWindow(browser_->UIT_GetPopupWndHandle(), SW_SHOWNA);
+    if (!browser_->IsWindowRenderingDisabled()) {
+      // Show popup widgets without activation.
+      ShowWindow(browser_->UIT_GetPopupWndHandle(), SW_SHOWNA);
+    } else {
+      // Notify the handler of popup visibility change.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get())
+        handler->HandlePopupChange(browser_, true, CefRect());
+    }
   }
 }
 
@@ -74,15 +86,34 @@ void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
     HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
     if(!hModule)
       hModule = ::GetModuleHandle(NULL);
-    host->SetCursor(current_cursor_.GetCursor(hModule));
+    HCURSOR hCursor = current_cursor_.GetCursor(hModule);
+
+    if (!browser_->IsWindowRenderingDisabled()) {
+      host->SetCursor(hCursor);
+    } else {
+      // Notify the handler of cursor change.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get())
+        handler->HandleCursorChange(browser_, hCursor);
+    }
   }
 }
 
 WebRect BrowserWebViewDelegate::windowRect() {
   if (WebWidgetHost* host = GetWidgetHost()) {
-    RECT rect;
-    ::GetWindowRect(host->view_handle(), &rect);
-    return gfx::Rect(rect);
+    if (!browser_->IsWindowRenderingDisabled()) {
+      RECT rect;
+      ::GetWindowRect(host->view_handle(), &rect);
+      return gfx::Rect(rect);
+    } else {
+      // Retrieve the view rectangle from the handler.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get()) {
+        CefRect rect(0, 0, 0, 0);
+        if (handler->HandleGetRect(browser_, false, rect) == RV_CONTINUE)
+          return WebRect(rect.x, rect.y, rect.width, rect.height);
+      }
+    }
   }
   return WebRect();
 }
@@ -91,8 +122,20 @@ void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
   if (this == browser_->UIT_GetWebViewDelegate()) {
     // ignored
   } else if (this == browser_->UIT_GetPopupDelegate()) {
-    MoveWindow(browser_->UIT_GetPopupWndHandle(),
-               rect.x, rect.y, rect.width, rect.height, FALSE);
+    if (!browser_->IsWindowRenderingDisabled()) {
+      MoveWindow(browser_->UIT_GetPopupWndHandle(), rect.x, rect.y, rect.width,
+          rect.height, FALSE);
+    } else {
+      browser_->set_popup_rect(rect);
+      browser_->UIT_GetPopupHost()->SetSize(rect.width, rect.height);
+        
+      // Notify the handler of popup size change.
+      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      if (handler.get()) {
+        handler->HandlePopupChange(browser_, true,
+            CefRect(rect.x, rect.y, rect.width, rect.height));
+      }
+    }
   }
 }
 
@@ -147,23 +190,66 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type)
 {
-  HWND hwnd = browser_->UIT_GetWebViewHost() ?
-      browser_->UIT_GetWebViewHost()->view_handle() : NULL;
-  if (!hwnd)
+  WebViewHost* host = browser_->UIT_GetWebViewHost();
+  if (!host)
     return NULL;
 
-  return webkit::npapi::WebPluginDelegateImpl::Create(file_path, mime_type,
-      hwnd);
+  HWND hwnd;
+
+  if (!browser_->IsWindowRenderingDisabled()) {
+    // Parent the plugin container to the existing browser window.
+    hwnd = browser_->UIT_GetWebViewHost()->view_handle();
+    DCHECK(hwnd != NULL);
+  } else {
+    // Parent the plugin container to the main window handle provided by the
+    // user.
+    hwnd = browser_->UIT_GetMainWndHandle();
+    DCHECK(hwnd != NULL);
+  }
+
+  return WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
     gfx::PluginWindowHandle handle) {
-  // ignored
+  if (browser_->IsWindowRenderingDisabled()) {
+    static bool registered_class = false;
+    if (!registered_class) {
+      WNDCLASSEX wcex = {0};
+      wcex.cbSize        = sizeof(wcex);
+      wcex.style         = CS_DBLCLKS;
+      wcex.lpfnWndProc   = DefWindowProc;
+      wcex.hInstance     = GetModuleHandle(NULL);
+      wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+      wcex.lpszClassName = kPluginWindowClassName;
+      RegisterClassEx(&wcex);
+      registered_class = true;
+    }
+
+    // Parent windowed plugin containers to a hidden window.
+    HWND parent = CreateWindow(kPluginWindowClassName, NULL,
+                               WS_OVERLAPPED|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,
+                               0, 0, 0, 0, NULL, NULL,
+                               GetModuleHandle(NULL), NULL);
+    DCHECK(parent != NULL);
+    SetParent(handle, parent);
+
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host)
+      host->AddWindowedPlugin(handle);
+  }
 }
 
 void BrowserWebViewDelegate::WillDestroyPluginWindow(
     gfx::PluginWindowHandle handle) {
-  // ignored
+  if (browser_->IsWindowRenderingDisabled()) {
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host)
+      host->RemoveWindowedPlugin(handle);
+
+    // Destroy the hidden parent window.
+    DestroyWindow(GetParent(handle));
+  }
 }
 
 void BrowserWebViewDelegate::DidMovePlugin(
@@ -196,6 +282,13 @@ void BrowserWebViewDelegate::DidMovePlugin(
                  move.window_rect.width(),
                  move.window_rect.height(),
                  flags);
+
+  if (browser_->IsWindowRenderingDisabled()) {
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host) {
+      host->MoveWindowedPlugin(move);
+    }
+  }
 }
 
 static void AddMenuItem(CefRefPtr<CefBrowser> browser, HMENU menu, int index,
@@ -239,22 +332,30 @@ static void AddMenuSeparator(HMENU menu, int index)
 void BrowserWebViewDelegate::showContextMenu(
     WebFrame* frame, const WebContextMenuData& data)
 {
-  POINT screen_pt = { data.mousePosition.x, data.mousePosition.y };
-  MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,
-      &screen_pt, 1);
+  int screenX = -1, screenY = -1;
+  
+  POINT mouse_pt = {data.mousePosition.x, data.mousePosition.y};
+  if (!browser_->IsWindowRenderingDisabled()) {
+    // Perform the conversion to screen coordinates only if window rendering is
+    // enabled.
+    MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,
+        &mouse_pt, 1);
+    screenX = mouse_pt.x;
+    screenY = mouse_pt.y;
+  }
 
   HMENU menu = NULL;
   std::list<std::wstring> label_list;
 
   // Enable recursive tasks on the message loop so we can get updates while
-	// the context menu is being displayed.
-	bool old_state = MessageLoop::current()->NestableTasksAllowed();
-	MessageLoop::current()->SetNestableTasksAllowed(true);
+  // the context menu is being displayed.
+  bool old_state = MessageLoop::current()->NestableTasksAllowed();
+  MessageLoop::current()->SetNestableTasksAllowed(true);
 
   int edit_flags = data.editFlags;
   if(browser_->UIT_CanGoBack())
     edit_flags |= MENU_CAN_GO_BACK;
-	if(browser_->UIT_CanGoForward())
+  if(browser_->UIT_CanGoForward())
     edit_flags |= MENU_CAN_GO_FORWARD;
 
   int type_flags = MENUTYPE_NONE;
@@ -276,7 +377,7 @@ void BrowserWebViewDelegate::showContextMenu(
     type_flags |= MENUTYPE_VIDEO;
   if(data.mediaType == WebContextMenuData::MediaTypeAudio)
     type_flags |= MENUTYPE_AUDIO;
-	
+
   CefRefPtr<CefHandler> handler = browser_->GetHandler();
   if(handler.get()) {
     // Gather menu information
@@ -290,10 +391,10 @@ void BrowserWebViewDelegate::showContextMenu(
     CefString selectedTextStr(string16(data.selectedText));
     CefString misspelledWordStr(string16(data.misspelledWord));
     CefString securityInfoStr(std::string(data.securityInfo));
-    
+
     menuInfo.typeFlags = type_flags;
-    menuInfo.x = screen_pt.x;
-    menuInfo.y = screen_pt.y;
+    menuInfo.x = mouse_pt.x;
+    menuInfo.y = mouse_pt.y;
     cef_string_set(linkStr.c_str(), linkStr.length(), &menuInfo.linkUrl, false);
     cef_string_set(imageStr.c_str(), imageStr.length(), &menuInfo.imageUrl,
         false);
@@ -307,11 +408,18 @@ void BrowserWebViewDelegate::showContextMenu(
     menuInfo.editFlags = edit_flags;
     cef_string_set(securityInfoStr.c_str(), securityInfoStr.length(),
         &menuInfo.securityInfo, false);
-   
+
     // Notify the handler that a context menu is requested
     CefHandler::RetVal rv = handler->HandleBeforeMenu(browser_, menuInfo);
     if(rv == RV_HANDLED)
       goto end;
+
+    if (browser_->IsWindowRenderingDisabled()) {
+      rv = handler->HandleGetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
+          screenX, screenY);
+      if(rv != RV_CONTINUE)
+        goto end;
+    }
   }
 
   // Build the correct default context menu
@@ -353,8 +461,8 @@ void BrowserWebViewDelegate::showContextMenu(
   if(menu) {
     // show the context menu
     int selected_id = TrackPopupMenu(menu,
-      TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
-      screen_pt.x, screen_pt.y, 0, browser_->UIT_GetMainWndHandle(), NULL);
+        TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
+        screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
 
     if(selected_id != 0) {
       // An action was chosen

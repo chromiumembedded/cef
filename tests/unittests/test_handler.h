@@ -65,6 +65,12 @@ public:
     return RV_CONTINUE;
   }
 
+  virtual RetVal HandleNavStateChange(CefRefPtr<CefBrowser> browser,
+                                      bool canGoBack, bool canGoForward)
+  {
+    return RV_CONTINUE;
+  }
+
   virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
                                    const CefString& title)
   {
@@ -280,6 +286,38 @@ public:
                                   int identifier, int count,
                                   const CefRect& selectionRect,
                                   int activeMatchOrdinal, bool finalUpdate)
+  {
+    return RV_CONTINUE;
+  }
+
+  virtual RetVal HandleGetRect(CefRefPtr<CefBrowser> browser, bool screen,
+                               CefRect& rect)
+  {
+    return RV_CONTINUE;
+  }
+
+  virtual RetVal HandleGetScreenPoint(CefRefPtr<CefBrowser> browser,
+                                      int viewX, int viewY, int& screenX,
+                                      int& screenY)
+  {
+    return RV_CONTINUE;
+  }
+
+  virtual RetVal HandlePopupChange(CefRefPtr<CefBrowser> browser, bool show,
+                                   const CefRect& rect)
+  {
+    return RV_CONTINUE;
+  }
+
+  virtual RetVal HandlePaint(CefRefPtr<CefBrowser> browser,
+                             PaintElementType type, const CefRect& dirtyRect,
+                             const void* buffer)
+  {
+    return RV_CONTINUE;
+  }
+
+  virtual RetVal HandleCursorChange(CefRefPtr<CefBrowser> browser,
+                                    CefCursorHandle cursor)
   {
     return RV_CONTINUE;
   }

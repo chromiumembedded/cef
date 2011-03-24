@@ -96,6 +96,11 @@ CEF_EXPORT void cef_do_message_loop_work()
   CefDoMessageLoopWork();
 }
 
+CEF_EXPORT void cef_run_message_loop()
+{
+  CefRunMessageLoop();
+}
+
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
                                       const cef_string_t* javascript_code,
                                       struct _cef_v8handler_t* handler)

@@ -73,8 +73,9 @@ public:
   pthread_mutexattr_t attr_;
 };
 
-// Window handle.
+// Handle types.
 #define CefWindowHandle cef_window_handle_t
+#define CefCursorHandle cef_cursor_handle_t
 
 // Class representing window information.
 class CefWindowInfo : public cef_window_info_t

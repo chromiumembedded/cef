@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "webwidget_host.h"
+#include "cef_thread.h"
 
 #include "ui/gfx/rect.h"
 #include "base/logging.h"
@@ -14,9 +15,11 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "ui/base/win/hwnd_util.h"
+#include "ui/gfx/gdi_util.h"
 
 #include <commctrl.h>
 
+using webkit::npapi::WebPluginGeometry;
 using WebKit::WebInputEvent;
 using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
@@ -31,30 +34,63 @@ using WebKit::WebWidgetClient;
 
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
+namespace {
+
+struct MessageInfo {
+  UINT message;
+  WPARAM wParam;
+  LPARAM lParam;
+};
+
+BOOL CALLBACK SendMessageFunc(HWND hwnd, LPARAM lParam)
+{
+  MessageInfo* info = reinterpret_cast<MessageInfo*>(lParam);
+  SendMessage(hwnd, info->message, info->wParam, info->lParam);
+  return TRUE;
+}
+
+// Plugins are hosted in a Chromium-created parent window so it's necessary to
+// send messages directly to the child window.
+void SendMessageToPlugin(HWND hwnd, UINT message, WPARAM wParam,
+                           LPARAM lParam)
+{
+  MessageInfo info = {message, wParam, lParam};
+  EnumChildWindows(hwnd, SendMessageFunc, reinterpret_cast<LPARAM>(&info));
+}
+
+} // namespace
+
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
-                                     WebWidgetClient* client) {
+                                     WebWidgetClient* client,
+                                     PaintDelegate* paint_delegate) {
   WebWidgetHost* host = new WebWidgetHost();
 
-  static bool registered_class = false;
-  if (!registered_class) {
-    WNDCLASSEX wcex = {0};
-    wcex.cbSize        = sizeof(wcex);
-    wcex.style         = CS_DBLCLKS;
-    wcex.lpfnWndProc   = WebWidgetHost::WndProc;
-    wcex.hInstance     = GetModuleHandle(NULL);
-    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wcex.lpszClassName = kWindowClassName;
-    RegisterClassEx(&wcex);
-    registered_class = true;
+  if (!paint_delegate) {
+    // Create a window for the host.
+    static bool registered_class = false;
+    if (!registered_class) {
+      WNDCLASSEX wcex = {0};
+      wcex.cbSize        = sizeof(wcex);
+      wcex.style         = CS_DBLCLKS;
+      wcex.lpfnWndProc   = WebWidgetHost::WndProc;
+      wcex.hInstance     = GetModuleHandle(NULL);
+      wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+      wcex.lpszClassName = kWindowClassName;
+      RegisterClassEx(&wcex);
+      registered_class = true;
+    }
+
+    host->view_ = CreateWindowEx(WS_EX_TOOLWINDOW,
+                                 kWindowClassName, kWindowClassName, WS_POPUP,
+                                 0, 0, 0, 0,
+                                 parent_view, NULL, GetModuleHandle(NULL),
+                                 NULL);
+
+    ui::SetWindowUserData(host->view_, host);
+  } else {
+    host->paint_delegate_ = paint_delegate;
   }
-
-  host->view_ = CreateWindowEx(WS_EX_TOOLWINDOW,
-                               kWindowClassName, kWindowClassName, WS_POPUP,
-                               0, 0, 0, 0,
-                               parent_view, NULL, GetModuleHandle(NULL), NULL);
-
-  ui::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebPopupMenu::create(client);
 
@@ -73,6 +109,7 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
   if (host && !host->WndProc(message, wparam, lparam)) {
     switch (message) {
       case WM_PAINT: {
+        // Paint to the window.
         RECT rect;
         if (GetUpdateRect(hwnd, &rect, FALSE)) {
           host->UpdatePaintRect(gfx::Rect(rect));
@@ -161,10 +198,8 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
     paint_rect_ = paint_rect_.Union(scroll_rect_);
     ResetScrollRect();
   }
-  paint_rect_ = paint_rect_.Union(damaged_rect);
 
-  RECT r = damaged_rect.ToRECT();
-  InvalidateRect(view_, &r, FALSE);
+  InvalidateRect(gfx::Rect(damaged_rect));
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
@@ -187,36 +222,32 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   scroll_dx_ = dx;
   scroll_dy_ = dy;
 
-  RECT r = clip_rect.ToRECT();
-  InvalidateRect(view_, &r, FALSE);
+  InvalidateRect(clip_rect);
 }
 
 void WebWidgetHost::ScheduleComposite() {
   if (!webwidget_)
     return;
   WebSize size = webwidget_->size();
-  gfx::Rect rect(0, 0, size.width, size.height);
-  RECT r = rect.ToRECT();
-  InvalidateRect(view_, &r, FALSE);
+  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
 }
 
 void WebWidgetHost::SetCursor(HCURSOR cursor) {
+  DCHECK(view_);
   SetClassLong(view_, GCL_HCURSOR,
       static_cast<LONG>(reinterpret_cast<LONG_PTR>(cursor)));
   ::SetCursor(cursor);
 }
 
-void WebWidgetHost::DiscardBackingStore() {
-  canvas_.reset();
-}
-
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
+      paint_delegate_(NULL),
       webwidget_(NULL),
       popup_(false),
       track_mouse_leave_(false),
       scroll_dx_(0),
       scroll_dy_(0),
+      update_task_(NULL),
       tooltip_view_(NULL),
       tooltip_showing_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
@@ -224,7 +255,8 @@ WebWidgetHost::WebWidgetHost()
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  ui::SetWindowUserData(view_, 0);
+  if (view_)
+    ui::SetWindowUserData(view_, 0);
 
   TrackMouseLeave(false);
   ResetTooltip();
@@ -243,15 +275,15 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
   return false;
 }
 
-void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
-  paint_rect_ = paint_rect_.Union(rect);
-}
-
 void WebWidgetHost::Paint() {
-  RECT r;
-  GetClientRect(view_, &r);
-  gfx::Rect client_rect(r);
-  
+  if (canvas_.get() && paint_rect_.IsEmpty())
+    return;
+
+  int width, height;
+  GetSize(width, height);
+  gfx::Rect client_rect(width, height);
+  gfx::Rect damaged_rect;
+
   // Allocate a canvas if necessary
   if (!canvas_.get()) {
     ResetScrollRect();
@@ -270,10 +302,10 @@ void WebWidgetHost::Paint() {
   if (!scroll_rect_.IsEmpty()) {
     HDC hdc = canvas_->getTopPlatformDevice().getBitmapDC();
 
-    RECT damaged_rect, r = scroll_rect_.ToRECT();
-    ScrollDC(hdc, scroll_dx_, scroll_dy_, NULL, &r, NULL, &damaged_rect);
+    RECT damaged_scroll_rect, r = scroll_rect_.ToRECT();
+    ScrollDC(hdc, scroll_dx_, scroll_dy_, NULL, &r, NULL, &damaged_scroll_rect);
 
-    PaintRect(gfx::Rect(damaged_rect));
+    PaintRect(gfx::Rect(damaged_scroll_rect));
   }
   ResetScrollRect();
 
@@ -282,6 +314,7 @@ void WebWidgetHost::Paint() {
   // objects update their layout only when painted.
   for (int i = 0; i < 2; ++i) {
     paint_rect_ = client_rect.Intersect(paint_rect_);
+    damaged_rect = damaged_rect.Union(paint_rect_);
     if (!paint_rect_.IsEmpty()) {
       gfx::Rect rect(paint_rect_);
       paint_rect_ = gfx::Rect();
@@ -292,17 +325,116 @@ void WebWidgetHost::Paint() {
   }
   DCHECK(paint_rect_.IsEmpty());
 
-  // Paint to the screen
-  PAINTSTRUCT ps;
-  BeginPaint(view_, &ps);
-  canvas_->getTopPlatformDevice().drawToHDC(ps.hdc,
-                                            ps.rcPaint.left,
-                                            ps.rcPaint.top,
-                                            &ps.rcPaint);
-  EndPaint(view_, &ps);
+  if (plugin_map_.size() > 0) {
+    typedef std::list<const WebPluginGeometry*> PluginList;
+    PluginList visible_plugins;
+    
+    // Identify the visible plugins.
+    PluginMap::const_iterator it = plugin_map_.begin();
+    for(; it != plugin_map_.end(); ++it) {
+      if (it->second.visible && client_rect.Intersects(it->second.window_rect))
+        visible_plugins.push_back(&it->second);
+    }
 
-  // Draw children
-  UpdateWindow(view_);
+    if (!visible_plugins.empty()) {
+      HDC drawDC = canvas_->beginPlatformPaint();
+      HRGN oldRGN, newRGN;
+      POINT oldViewport;
+
+      // Paint the plugin windows.
+      PluginList::const_iterator it = visible_plugins.begin();
+      for(; it != visible_plugins.end(); ++it) {
+        const WebPluginGeometry* geom = *(it);
+        
+        oldRGN = CreateRectRgn(0,0,1,1);
+        GetClipRgn(drawDC, oldRGN);
+
+        // Only paint inside the clip region.
+        newRGN = CreateRectRgn(geom->clip_rect.x(),
+                               geom->clip_rect.y(),
+                               geom->clip_rect.right(),
+                               geom->clip_rect.bottom());
+        gfx::SubtractRectanglesFromRegion(newRGN, geom->cutout_rects);
+        OffsetRgn(newRGN, geom->window_rect.x(), geom->window_rect.y());
+        SelectClipRgn(drawDC, newRGN);
+
+        // Change the viewport origin to the plugin window origin.
+        SetViewportOrgEx(drawDC, geom->window_rect.x(), geom->window_rect.y(),
+                         &oldViewport);
+
+        SendMessageToPlugin(geom->window, WM_PRINT,
+            reinterpret_cast<WPARAM>(drawDC),
+            PRF_OWNED | PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
+        
+        SetViewportOrgEx(drawDC, oldViewport.x, oldViewport.y, NULL);
+        SelectClipRgn(drawDC, oldRGN);
+
+        damaged_rect = damaged_rect.Union(geom->window_rect);
+      }
+
+      canvas_->endPlatformPaint();
+
+      // Make sure the damaged rectangle is inside the client rectangle.
+      damaged_rect = damaged_rect.Intersect(client_rect);
+    }
+  }
+
+  if (view_) {
+    // Paint to the window.
+    PAINTSTRUCT ps;
+    BeginPaint(view_, &ps);
+    canvas_->getTopPlatformDevice().drawToHDC(ps.hdc,
+                                              ps.rcPaint.left,
+                                              ps.rcPaint.top,
+                                              &ps.rcPaint);
+    EndPaint(view_, &ps);
+
+    // Draw children
+    UpdateWindow(view_);
+  } else {
+    // Paint to the delegate.
+    DCHECK(paint_delegate_);
+    const SkBitmap& bitmap =
+        canvas_->getTopPlatformDevice().accessBitmap(false);
+    DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
+    const void* pixels = bitmap.getPixels();
+    paint_delegate_->Paint(popup_, damaged_rect, pixels);
+  }
+}
+
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
+{
+  if (rect.IsEmpty())
+    return;
+  
+  if (view_) {
+    // Let the window handle painting.
+    RECT r = {rect.x(), rect.y(), rect.x() + rect.width(),
+              rect.y() + rect.height()};
+    ::InvalidateRect(view_, &r, FALSE);
+  } else {
+    // The update rectangle will be painted by DoPaint().
+    update_rect_ = update_rect_.Union(rect);
+    if (!update_task_) {
+      update_task_ = factory_.NewRunnableMethod(&WebWidgetHost::DoPaint);
+      CefThread::PostTask(CefThread::UI, FROM_HERE, update_task_);
+    }
+  }
+}
+
+bool WebWidgetHost::GetImage(int width, int height, void* buffer)
+{
+  if (!canvas_.get())
+    return false;
+
+  DCHECK(width == canvas_->getTopPlatformDevice().width());
+  DCHECK(height == canvas_->getTopPlatformDevice().height());
+
+  const SkBitmap& bitmap = canvas_->getTopPlatformDevice().accessBitmap(false);
+  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
+  const void* pixels = bitmap.getPixels();
+  memcpy(buffer, pixels, width * height * 4);
+  return true;
 }
 
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
@@ -310,11 +442,7 @@ WebScreenInfo WebWidgetHost::GetScreenInfo() {
 }
 
 void WebWidgetHost::Resize(LPARAM lparam) {
-  // Force an entire re-paint.  TODO(darin): Maybe reuse this memory buffer.
-  DiscardBackingStore();
-
-  webwidget_->resize(WebSize(LOWORD(lparam), HIWORD(lparam)));
-  EnsureTooltip();
+  SetSize(LOWORD(lparam), HIWORD(lparam));
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -393,6 +521,9 @@ void WebWidgetHost::OnNotify(WPARAM wparam, NMHDR* header) {
 }
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
+  if (!view_)
+    return;
+
   std::wstring new_tooltip_text(tooltip_text);
   if (new_tooltip_text != tooltip_text_) {
     tooltip_text_ = new_tooltip_text;
@@ -417,33 +548,43 @@ void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
 }
 
 void WebWidgetHost::EnsureTooltip() {
+  if (!view_)
+    return;
+
   UINT message = TTM_NEWTOOLRECT;
 
   TOOLINFO ti;
   ti.cbSize = sizeof(ti);
-  ti.hwnd = view_handle();
+  ti.hwnd = view_;
   ti.uId = 0;
   if (!::IsWindow(tooltip_view_)) {
     message = TTM_ADDTOOL;
     tooltip_view_ = CreateWindowEx(
         WS_EX_TRANSPARENT,
-        TOOLTIPS_CLASS, L"tooltip_view_", TTS_NOPREFIX, 0, 0, 0, 0, view_handle(), NULL,
+        TOOLTIPS_CLASS, L"tooltip_view_", TTS_NOPREFIX, 0, 0, 0, 0,
+        view_, NULL,
         NULL, NULL);
     ti.uFlags = TTF_SUBCLASS;
     ti.lpszText = LPSTR_TEXTCALLBACK;
   }
 
-  GetClientRect(view_handle(), &ti.rect);
+  GetClientRect(view_, &ti.rect);
   SendMessage(tooltip_view_, message, NULL, reinterpret_cast<LPARAM>(&ti));
 }
 
 void WebWidgetHost::ResetTooltip() {
+  if (!view_)
+    return;
+
   if (::IsWindow(tooltip_view_))
     ::DestroyWindow(tooltip_view_);
   tooltip_view_ = NULL;
 }
 
 void WebWidgetHost::TrackMouseLeave(bool track) {
+  if (!view_)
+    return;
+
   if (track == track_mouse_leave_)
     return;
   track_mouse_leave_ = track;
@@ -475,4 +616,169 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(true);
   webwidget_->paint(canvas_.get(), rect);
   set_painting(false);
+}
+
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
+                                 bool sysChar, bool imeChar)
+{
+  UINT message = 0;
+  WPARAM wparam = key;
+  LPARAM lparam = modifiers;
+
+  if (type == KT_KEYUP) {
+    if (sysChar)
+      message = WM_SYSKEYUP;
+    else if(imeChar)
+      message = WM_IME_KEYUP;
+    else
+      message = WM_KEYUP;
+  } else if(type == KT_KEYDOWN) {
+    if (sysChar)
+      message = WM_SYSKEYDOWN;
+    else if(imeChar)
+      message = WM_IME_KEYDOWN;
+    else
+      message = WM_KEYDOWN;
+  } else if(type == KT_CHAR) {
+    if (sysChar)
+      message = WM_SYSCHAR;
+    else if(imeChar)
+      message = WM_IME_CHAR;
+    else
+      message = WM_CHAR;
+  }
+
+  if (message == 0) {
+    NOTREACHED();
+    return;
+  }
+
+  const WebKeyboardEvent& event = WebInputEventFactory::keyboardEvent(
+      NULL, message, wparam, lparam);
+  last_key_event_ = event;
+
+  webwidget_->handleInputEvent(event);
+}
+
+void WebWidgetHost::SendMouseClickEvent(int x, int y,
+                                        cef_mouse_button_type_t type,
+                                        bool mouseUp, int clickCount)
+{
+  DCHECK(clickCount >=1 && clickCount <= 2);
+  
+  UINT message = 0;
+  WPARAM wparam = 0;
+  LPARAM lparam = MAKELPARAM(x, y);
+
+  if (type == MBT_LEFT) {
+    if (mouseUp)
+      message = (clickCount==1?WM_LBUTTONUP:WM_LBUTTONDBLCLK);
+    else
+      message = WM_LBUTTONDOWN;
+  } else if (type == MBT_MIDDLE) {
+    if (mouseUp)
+      message = (clickCount==1?WM_MBUTTONUP:WM_MBUTTONDBLCLK);
+    else
+      message = WM_MBUTTONDOWN;
+  }  else if (type == MBT_RIGHT) {
+    if (mouseUp)
+      message = (clickCount==1?WM_RBUTTONUP:WM_RBUTTONDBLCLK);
+    else
+      message = WM_RBUTTONDOWN;
+  }
+
+  if (message == 0) {
+    NOTREACHED();
+    return;
+  }
+  
+  if (GetKeyState(VK_CONTROL) & 0x8000)
+    wparam |= MK_CONTROL;
+  if (GetKeyState(VK_SHIFT) & 0x8000)
+    wparam |= MK_SHIFT;
+  if (GetKeyState(VK_LBUTTON) & 0x8000)
+    wparam |= MK_LBUTTON;
+  if (GetKeyState(VK_MBUTTON) & 0x8000)
+    wparam |= MK_MBUTTON;
+  if (GetKeyState(VK_RBUTTON) & 0x8000)
+    wparam |= MK_RBUTTON;
+
+  gfx::PluginWindowHandle plugin = GetWindowedPluginAt(x, y);
+  if (plugin) {
+    SendMessageToPlugin(plugin, message, wparam, lparam);
+  } else {
+    const WebMouseEvent& event = WebInputEventFactory::mouseEvent(NULL, message,
+        wparam, lparam);
+    webwidget_->handleInputEvent(event);
+  }
+}
+
+void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
+{
+  UINT message;
+  WPARAM wparam = 0;
+  LPARAM lparam = 0;
+  
+  if (mouseLeave) {
+    message = WM_MOUSELEAVE;
+  } else {
+    message = WM_MOUSEMOVE;
+    lparam = MAKELPARAM(x, y);
+  }
+
+  if (GetKeyState(VK_CONTROL) & 0x8000)
+    wparam |= MK_CONTROL;
+  if (GetKeyState(VK_SHIFT) & 0x8000)
+    wparam |= MK_SHIFT;
+  if (GetKeyState(VK_LBUTTON) & 0x8000)
+    wparam |= MK_LBUTTON;
+  if (GetKeyState(VK_MBUTTON) & 0x8000)
+    wparam |= MK_MBUTTON;
+  if (GetKeyState(VK_RBUTTON) & 0x8000)
+    wparam |= MK_RBUTTON;
+
+  gfx::PluginWindowHandle plugin = GetWindowedPluginAt(x, y);
+  if (plugin) {
+    SendMessageToPlugin(plugin, message, wparam, lparam);
+  } else {
+    const WebMouseEvent& event = WebInputEventFactory::mouseEvent(NULL, message,
+      wparam, lparam);
+    webwidget_->handleInputEvent(event);
+  }
+}
+
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
+{
+  WPARAM wparam = MAKEWPARAM(0, delta);
+  LPARAM lparam = MAKELPARAM(x, y);
+  
+  if (GetKeyState(VK_CONTROL) & 0x8000)
+    wparam |= MK_CONTROL;
+  if (GetKeyState(VK_SHIFT) & 0x8000)
+    wparam |= MK_SHIFT;
+  if (GetKeyState(VK_LBUTTON) & 0x8000)
+    wparam |= MK_LBUTTON;
+  if (GetKeyState(VK_MBUTTON) & 0x8000)
+    wparam |= MK_MBUTTON;
+  if (GetKeyState(VK_RBUTTON) & 0x8000)
+    wparam |= MK_RBUTTON;
+
+  gfx::PluginWindowHandle plugin = GetWindowedPluginAt(x, y);
+  if (plugin) {
+    SendMessageToPlugin(plugin, WM_MOUSEWHEEL, wparam, lparam);
+  } else {
+    const WebMouseWheelEvent& event = WebInputEventFactory::mouseWheelEvent(
+        NULL, WM_MOUSEWHEEL, wparam, lparam);
+    webwidget_->handleInputEvent(event);
+  }
+}
+
+void WebWidgetHost::SendFocusEvent(bool setFocus)
+{
+  SetFocus(setFocus);
+}
+
+void WebWidgetHost::SendCaptureLostEvent()
+{
+  CaptureLostEvent();
 }

@@ -285,6 +285,142 @@ void CEF_CALLBACK browser_close_dev_tools(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->CloseDevTools();
 }
 
+int CEF_CALLBACK browser_is_window_rendering_disabled(
+    struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return 0;
+
+  return CefBrowserCppToC::Get(self)->IsWindowRenderingDisabled();
+}
+
+int CEF_CALLBACK browser_get_size(struct _cef_browser_t* self,
+    enum cef_paint_element_type_t type, int* width, int* height)
+{
+  DCHECK(self);
+  DCHECK(width);
+  DCHECK(height);
+  if(!self || !width || !height)
+    return 0;
+
+  return CefBrowserCppToC::Get(self)->GetSize(type, *width, *height);
+}
+
+void CEF_CALLBACK browser_set_size(struct _cef_browser_t* self,
+    enum cef_paint_element_type_t type, int width, int height)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  return CefBrowserCppToC::Get(self)->SetSize(type, width, height);
+}
+
+int CEF_CALLBACK browser_is_popup_visible(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return 0;
+
+  return CefBrowserCppToC::Get(self)->IsPopupVisible();
+}
+
+void CEF_CALLBACK browser_hide_popup(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->HidePopup();
+}
+
+void CEF_CALLBACK browser_invalidate(struct _cef_browser_t* self,
+    const cef_rect_t* dirtyRect)
+{
+  DCHECK(self);
+  DCHECK(dirtyRect);
+  if(!self || !dirtyRect)
+    return;
+
+  CefRect rect(*dirtyRect);
+  CefBrowserCppToC::Get(self)->Invalidate(rect);
+}
+
+int CEF_CALLBACK browser_get_image(struct _cef_browser_t* self,
+    enum cef_paint_element_type_t type, int width, int height, void* buffer)
+{
+  DCHECK(self);
+  DCHECK(buffer);
+  if(!self || !buffer)
+    return 0;
+
+  return CefBrowserCppToC::Get(self)->GetImage(type, width, height, buffer);
+}
+
+void CEF_CALLBACK browser_send_key_event(struct _cef_browser_t* self,
+    enum cef_key_type_t type, int key, int modifiers, int sysChar,
+    int imeChar)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendKeyEvent(type, key, modifiers,
+      sysChar?true:false, imeChar?true:false);
+}
+
+void CEF_CALLBACK browser_send_mouse_click_event(struct _cef_browser_t* self,
+    int x, int y, enum cef_mouse_button_type_t type, int mouseUp,
+    int clickCount)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendMouseClickEvent(x, y, type,
+      mouseUp?true:false, clickCount);
+}
+
+void CEF_CALLBACK browser_send_mouse_move_event(struct _cef_browser_t* self,
+    int x, int y, int mouseLeave)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendMouseMoveEvent(x, y, mouseLeave?true:false);
+}
+
+void CEF_CALLBACK browser_send_mouse_wheel_event(struct _cef_browser_t* self,
+    int x, int y, int delta)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendMouseWheelEvent(x, y, delta);
+}
+
+void CEF_CALLBACK browser_send_focus_event(struct _cef_browser_t* self,
+    int setFocus)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendFocusEvent(setFocus?true:false);
+}
+
+void CEF_CALLBACK browser_send_capture_lost_event(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->SendCaptureLostEvent();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -313,6 +449,20 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.set_zoom_level = browser_set_zoom_level;
   struct_.struct_.show_dev_tools = browser_show_dev_tools;
   struct_.struct_.close_dev_tools = browser_close_dev_tools;
+  struct_.struct_.is_window_rendering_disabled =
+      browser_is_window_rendering_disabled;
+  struct_.struct_.get_size = browser_get_size;
+  struct_.struct_.set_size = browser_set_size;
+  struct_.struct_.is_popup_visible = browser_is_popup_visible;
+  struct_.struct_.hide_popup = browser_hide_popup;
+  struct_.struct_.invalidate = browser_invalidate;
+  struct_.struct_.get_image = browser_get_image;
+  struct_.struct_.send_key_event = browser_send_key_event;
+  struct_.struct_.send_mouse_click_event = browser_send_mouse_click_event;
+  struct_.struct_.send_mouse_move_event = browser_send_mouse_move_event;
+  struct_.struct_.send_mouse_wheel_event = browser_send_mouse_wheel_event;
+  struct_.struct_.send_focus_event = browser_send_focus_event;
+  struct_.struct_.send_capture_lost_event = browser_send_capture_lost_event;
 }
 
 #ifdef _DEBUG

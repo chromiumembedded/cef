@@ -30,6 +30,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDS_LOGO BINARY "res\\logo.png"
 IDS_UIPLUGIN BINARY "res\\uiplugin.html"
+IDS_OSRPLUGIN BINARY "res\\osrplugin.html"
 IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
 IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
@@ -76,6 +77,7 @@ BEGIN
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
+        MENUITEM "Off-Screen Rendering Example",ID_TESTS_OSRAPP
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
         MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
         MENUITEM "WebURLRequest",               ID_TESTS_WEBURLREQUEST

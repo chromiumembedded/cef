@@ -30,8 +30,11 @@ class WebViewHost : public WebWidgetHost {
   static WebViewHost* Create(gfx::NativeView parent_view,
                              const gfx::Rect& rect,
                              BrowserWebViewDelegate* delegate,
+                             PaintDelegate* paint_delegate,
                              WebKit::WebDevToolsAgentClient* devtools_client,
                              const WebPreferences& prefs);
+
+  virtual ~WebViewHost();
 
   WebKit::WebView* webview() const;
 
@@ -50,6 +53,8 @@ class WebViewHost : public WebWidgetHost {
 #endif
 
  protected:
+   WebViewHost();
+
 #if defined(OS_WIN)
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
     return false;

@@ -85,6 +85,16 @@ CefHandler::RetVal CefHandlerCToCpp::HandleTitleChange(
       title.GetStruct());
 }
 
+CefHandler::RetVal CefHandlerCToCpp::HandleNavStateChange(
+    CefRefPtr<CefBrowser> browser, bool canGoBack, bool canGoForward)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_nav_state_change))
+   return RV_CONTINUE;
+
+  return struct_->handle_nav_state_change(struct_,
+      CefBrowserCppToC::Wrap(browser), canGoBack, canGoForward);
+}
+
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeBrowse(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request, NavType navType, bool isRedirect)
@@ -402,6 +412,57 @@ CefHandler::RetVal CefHandlerCToCpp::HandleFindResult(
   return struct_->handle_find_result(struct_,
       CefBrowserCppToC::Wrap(browser), identifier, count, &selectionRect,
       activeMatchOrdinal, finalUpdate);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleGetRect(
+    CefRefPtr<CefBrowser> browser, bool screen, CefRect& rect)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_get_rect))
+    return RV_CONTINUE;
+
+  return struct_->handle_get_rect(struct_, CefBrowserCppToC::Wrap(browser),
+      screen, &rect);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleGetScreenPoint(
+    CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX,
+    int& screenY)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_get_screen_point))
+    return RV_CONTINUE;
+
+  return struct_->handle_get_screen_point(struct_,
+      CefBrowserCppToC::Wrap(browser), viewX, viewY, &screenX, &screenY);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandlePopupChange(
+    CefRefPtr<CefBrowser> browser, bool show, const CefRect& rect)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_popup_change))
+    return RV_CONTINUE;
+
+  return struct_->handle_popup_change(struct_, CefBrowserCppToC::Wrap(browser),
+      show, &rect);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandlePaint(CefRefPtr<CefBrowser> browser,
+    PaintElementType type, const CefRect& dirtyRect, const void* buffer)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_paint))
+    return RV_CONTINUE;
+
+  return struct_->handle_paint(struct_, CefBrowserCppToC::Wrap(browser), type,
+      &dirtyRect, buffer);
+}
+
+CefHandler::RetVal CefHandlerCToCpp::HandleCursorChange(
+    CefRefPtr<CefBrowser> browser, CefCursorHandle cursor)
+{
+  if(CEF_MEMBER_MISSING(struct_, handle_cursor_change))
+    return RV_CONTINUE;
+
+  return struct_->handle_cursor_change(struct_, CefBrowserCppToC::Wrap(browser),
+      cursor);
 }
 
 

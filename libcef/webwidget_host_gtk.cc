@@ -284,7 +284,8 @@ gfx::NativeView WebWidgetHost::CreateWidget(
 
 // static
 WebWidgetHost* WebWidgetHost::Create(GtkWidget* parent_view,
-                                     WebWidgetClient* client) {
+                                     WebWidgetClient* client,
+                                     PaintDelegate* paint_delegate) {
   WebWidgetHost* host = new WebWidgetHost();
   host->view_ = CreateWidget(parent_view, host);
   host->webwidget_ = WebPopupMenu::create(client);
@@ -293,10 +294,6 @@ WebWidgetHost* WebWidgetHost::Create(GtkWidget* parent_view,
   gtk_widget_set_double_buffered(GTK_WIDGET(host->view_), false);
 
   return host;
-}
-
-void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
-  paint_rect_ = paint_rect_.Union(rect);
 }
 
 void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
@@ -331,10 +328,12 @@ void WebWidgetHost::ScheduleComposite() {
 
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
+      paint_delegate_(NULL),
       webwidget_(NULL),
       popup_(false),
       scroll_dx_(0),
       scroll_dy_(0),
+      update_task_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
   set_painting(false);
 }
@@ -349,10 +348,8 @@ WebWidgetHost::~WebWidgetHost() {
 }
 
 void WebWidgetHost::Resize(const gfx::Size &newsize) {
-  // The pixel buffer backing us is now the wrong size
-  canvas_.reset();
   logical_size_ = newsize;
-  webwidget_->resize(newsize);
+  SetSize(newsize.width(), newsize.height());
 }
 
 void WebWidgetHost::Paint() {
@@ -419,6 +416,27 @@ void WebWidgetHost::Paint() {
   gdk_window_end_paint(window);
 }
 
+void WebWidgetHost::SetTooltipText(const CefString& tooltip_text)
+{
+  // TODO(port): Implement this method as part of tooltip support.
+}
+
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer)
+{
+  if (!canvas_.get())
+    return false;
+
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+  return false;
+}
+
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
   Display* display = GtkWidgetGetDisplay(view_);
   int screen_num = GtkWidgetGetScreenNum(view_);
@@ -438,4 +456,53 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
 
 void WebWidgetHost::WindowDestroyed() {
   delete this;
+}
+
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
+                                 bool sysChar, bool imeChar)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::SendMouseClickEvent(int x, int y,
+                                        cef_mouse_button_type_t type,
+                                        bool mouseUp, int clickCount)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::SendFocusEvent(bool setFocus)
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::SendCaptureLostEvent()
+{
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+}
+
+void WebWidgetHost::EnsureTooltip()
+{
+  // TODO(port): Implement this method as part of tooltip support.
+}
+
+void WebWidgetHost::ResetTooltip()
+{
+  // TODO(port): Implement this method as part of tooltip support.
 }

@@ -592,6 +592,16 @@ void ClientHandler::SendNotification(NotificationType type)
   [delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];
 }
 
+void ClientHandler::SetLoading(bool isLoading)
+{
+  // TODO(port): Change button status.
+}
+
+void ClientHandler::SetNavState(bool canGoBack, bool canGoForward)
+{
+  // TODO(port): Change button status.
+}
+
 
 // Global functions
 

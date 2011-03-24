@@ -41,6 +41,7 @@ extern "C" {
 
 // Window handle.
 #define cef_window_handle_t GtkWidget*
+#define cef_cursor_handle_t void*
 
 // Class representing window information.
 typedef struct _cef_window_info_t

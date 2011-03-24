@@ -81,6 +81,11 @@ void CefDoMessageLoopWork()
   cef_do_message_loop_work();
 }
 
+void CefRunMessageLoop()
+{
+  cef_run_message_loop();
+}
+
 bool CefRegisterExtension(const CefString& extension_name,
                           const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler)

@@ -64,6 +64,10 @@ public:
   CRITICAL_SECTION m_sec;
 };
 
+// Handle types.
+#define CefWindowHandle cef_window_handle_t
+#define CefCursorHandle cef_cursor_handle_t
+
 // Class representing window information.
 class CefWindowInfo : public cef_window_info_t
 {
@@ -120,6 +124,7 @@ public:
     m_nHeight = r.m_nHeight;
     m_hWndParent = r.m_hWndParent;
     m_hMenu = r.m_hMenu;
+    m_bWindowRenderingDisabled = r.m_bWindowRenderingDisabled;
     m_hWnd = r.m_hWnd;
     return *this;
   }
@@ -146,6 +151,12 @@ public:
     m_nHeight = CW_USEDEFAULT;
 
     cef_string_copy(windowName.c_str(), windowName.length(), &m_windowName);
+  }
+
+  void SetAsOffScreen(HWND hWndParent)
+  {
+    m_bWindowRenderingDisabled = TRUE;
+    m_hWndParent = hWndParent;
   }
 
 protected:
@@ -201,8 +212,6 @@ public:
   }
 };
 
-// Window handle.
-#define CefWindowHandle cef_window_handle_t
 #endif // _WIN32
 
 #endif // _CEF_WIN_H

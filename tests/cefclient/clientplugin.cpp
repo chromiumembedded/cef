@@ -135,28 +135,18 @@ void ClientPlugin::Shutdown()
 LRESULT ClientPlugin::OnPaint(UINT message, WPARAM wparam, LPARAM lparam,
                               BOOL& handled)
 {
-  static LPCWSTR text = L"Left click in the green area for a message box!";
-
   PAINTSTRUCT paint_struct;
   BeginPaint(&paint_struct);
-
-  RECT client_rect;
-  GetClientRect(&client_rect);
-
-  int old_mode = SetBkMode(paint_struct.hdc, TRANSPARENT);
-  COLORREF old_color = SetTextColor(paint_struct.hdc, RGB(0, 0, 255));
-
-  RECT text_rect = client_rect;
-  DrawText(paint_struct.hdc, text, -1, &text_rect, DT_CENTER | DT_CALCRECT);
-
-  client_rect.top = ((client_rect.bottom - client_rect.top)
-      - (text_rect.bottom - text_rect.top)) / 2;
-  DrawText(paint_struct.hdc, text, -1, &client_rect, DT_CENTER);
-
-  SetBkMode(paint_struct.hdc, old_mode);
-  SetTextColor(paint_struct.hdc, old_color);
-
+  Paint(paint_struct.hdc);
   EndPaint(&paint_struct);
+  return 0;
+}
+
+// PrintClient is necessary to support off-screen rendering.
+LRESULT ClientPlugin::OnPrintClient(UINT message, WPARAM wparam, LPARAM lparam,
+                                    BOOL& handled)
+{
+  Paint(reinterpret_cast<HDC>(wparam));
   return 0;
 }
 
@@ -185,6 +175,26 @@ void ClientPlugin::RefreshDisplay() {
 
   InvalidateRect(NULL, TRUE);
   UpdateWindow();
+}
+
+void ClientPlugin::Paint(HDC hdc) {
+  static LPCWSTR text = L"Left click in the green area for a message box!";
+
+  RECT client_rect;
+  GetClientRect(&client_rect);
+
+  int old_mode = SetBkMode(hdc, TRANSPARENT);
+  COLORREF old_color = SetTextColor(hdc, RGB(0, 0, 255));
+
+  RECT text_rect = client_rect;
+  DrawText(hdc, text, -1, &text_rect, DT_CENTER | DT_CALCRECT);
+
+  client_rect.top = ((client_rect.bottom - client_rect.top)
+      - (text_rect.bottom - text_rect.top)) / 2;
+  DrawText(hdc, text, -1, &client_rect, DT_CENTER);
+
+  SetBkMode(hdc, old_mode);
+  SetTextColor(hdc, old_color);
 }
 
 #endif // _WIN32
