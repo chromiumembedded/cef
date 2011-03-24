@@ -89,7 +89,7 @@
             'tests/cefclient/cefclient_win.cpp',
             'tests/cefclient/clientplugin.cpp',
             'tests/cefclient/clientplugin.h',
-            'tests/cefclient/osrlugin.cpp',
+            'tests/cefclient/osrplugin.cpp',
             'tests/cefclient/osrplugin.h',
             'tests/cefclient/osrplugin_test.cpp',
             'tests/cefclient/osrplugin_test.h',
