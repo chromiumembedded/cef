@@ -198,6 +198,7 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
     paint_rect_ = paint_rect_.Union(scroll_rect_);
     ResetScrollRect();
   }
+  paint_rect_ = paint_rect_.Union(damaged_rect);
 
   InvalidateRect(gfx::Rect(damaged_rect));
 }
