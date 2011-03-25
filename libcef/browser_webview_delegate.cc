@@ -537,6 +537,8 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
         }
       }
     }
+
+    return info;
   }
 
   return WebScreenInfo();
