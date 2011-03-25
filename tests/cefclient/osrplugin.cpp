@@ -520,7 +520,7 @@ LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
   {
   case WM_CREATE:
     // Start the timer that's used for redrawing.
-    SetTimer(hWnd, 1, USER_TIMER_MINIMUM, NULL);
+    SetTimer(hWnd, 1, 20, NULL);
     return 0;
     
   case WM_DESTROY:
