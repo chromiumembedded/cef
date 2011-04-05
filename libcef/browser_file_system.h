@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,8 +8,8 @@
 #include <vector>
 #include "base/file_util_proxy.h"
 #include "base/id_map.h"
-#include "base/scoped_temp_dir.h"
-#include "base/weak_ptr.h"
+#include "base/memory/scoped_temp_dir.h"
+#include "base/memory/weak_ptr.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystem.h"
 #include "webkit/fileapi/file_system_types.h"
 
@@ -35,6 +35,10 @@ class BrowserFileSystem
                       long long size,
                       bool create,
                       WebKit::WebFileSystemCallbacks* callbacks);
+
+  fileapi::FileSystemContext* file_system_context() {
+    return file_system_context_.get();
+  }
 
   // WebKit::WebFileSystem methods.
   virtual void move(const WebKit::WebString& src_path,

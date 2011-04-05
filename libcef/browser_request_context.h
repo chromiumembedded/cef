@@ -11,6 +11,11 @@
 #include "net/url_request/url_request_context.h"
 
 class FilePath;
+
+namespace fileapi {
+class FileSystemContext;
+}
+
 namespace webkit_blob {
 class BlobStorageController;
 }
@@ -36,11 +41,16 @@ class BrowserRequestContext : public net::URLRequestContext {
     return blob_storage_controller_.get();
   }
 
+  fileapi::FileSystemContext* file_system_context() const {
+    return file_system_context_.get();
+  }
+
  private:
   void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
 
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
+  scoped_refptr<fileapi::FileSystemContext> file_system_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
 };
 

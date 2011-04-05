@@ -34,7 +34,6 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
   virtual int hostIdentifier() { return routing_id_; }
   virtual void runtimePropertyChanged(const WebKit::WebString& name,
                                       const WebKit::WebString& value);
-  virtual WebKit::WebCString debuggerScriptSource();
 
   virtual WebKit::WebDevToolsAgentClient::WebKitClientMessageLoop*
       createClientMessageLoop();

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,9 +6,9 @@
 #include "browser_file_writer.h"
 
 #include "base/file_path.h"
+#include "base/memory/scoped_callback_factory.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
-#include "base/scoped_callback_factory.h"
 #include "base/time.h"
 #include "base/utf_string_conversions.h"
 #include "googleurl/src/gurl.h"
@@ -20,6 +20,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebVector.h"
 #include "webkit/fileapi/file_system_callback_dispatcher.h"
 #include "webkit/fileapi/file_system_context.h"
+#include "webkit/fileapi/file_system_file_util.h"
 #include "webkit/fileapi/file_system_operation.h"
 #include "webkit/fileapi/file_system_path_manager.h"
 #include "webkit/fileapi/file_system_types.h"
@@ -40,6 +41,7 @@ using WebKit::WebVector;
 
 using fileapi::FileSystemCallbackDispatcher;
 using fileapi::FileSystemContext;
+using fileapi::FileSystemFileUtil;
 using fileapi::FileSystemOperation;
 
 namespace {
@@ -62,13 +64,16 @@ class BrowserFileSystemCallbackDispatcher
     callbacks_->didSucceed();
   }
 
-  virtual void DidReadMetadata(const base::PlatformFileInfo& info) {
+  virtual void DidReadMetadata(const base::PlatformFileInfo& info,
+      const FilePath& platform_path) {
     DCHECK(file_system_);
     WebFileInfo web_file_info;
     web_file_info.length = info.size;
     web_file_info.modificationTime = info.last_modified.ToDoubleT();
     web_file_info.type = info.is_directory ?
         WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
+    web_file_info.platformPath =
+        webkit_glue::FilePathToWebString(platform_path);
     callbacks_->didReadMetadata(web_file_info);
   }
 
@@ -121,10 +126,11 @@ BrowserFileSystem::BrowserFileSystem() {
     file_system_context_ = new FileSystemContext(
         base::MessageLoopProxy::CreateForCurrentThread(),
         base::MessageLoopProxy::CreateForCurrentThread(),
+        NULL /* special storage policy */,
         file_system_dir_.path(),
         false /* incognito */,
         true /* allow_file_access */,
-        false /* unlimited_quota */);
+        true /* unlimited_quota */);
   } else {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
                     "FileSystem feature will be disabled.";
@@ -235,7 +241,7 @@ void BrowserFileSystem::readDirectory(
 
 WebFileWriter* BrowserFileSystem::createFileWriter(
     const WebString& path, WebFileWriterClient* client) {
-  return new BrowserFileWriter(path, client);
+  return new BrowserFileWriter(path, client, file_system_context_.get());
 }
 
 FileSystemOperation* BrowserFileSystem::GetNewOperation(
@@ -244,6 +250,6 @@ FileSystemOperation* BrowserFileSystem::GetNewOperation(
       new BrowserFileSystemCallbackDispatcher(AsWeakPtr(), callbacks);
   FileSystemOperation* operation = new FileSystemOperation(
       dispatcher, base::MessageLoopProxy::CreateForCurrentThread(),
-      file_system_context_.get());
+      file_system_context_.get(), NULL);
   return operation;
 }

@@ -62,7 +62,7 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
 
   // TODO(tc): PopulateWebDropData can be slow depending on what is in the
   // IDataObject.  Maybe we can do this in a background thread.
-  WebDropData drop_data(GetDragIdentity());
+  WebDropData drop_data;
   WebDropData::PopulateWebDropData(data_object, &drop_data);
 
   if (drop_data.url.is_empty())
@@ -74,7 +74,6 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
   ScreenToClient(GetHWND(), &client_pt);
   WebDragOperation operation = view_->dragTargetDragEnter(
       drop_data.ToDragData(),
-      drop_data.identity,
       WebPoint(client_pt.x, client_pt.y),
       WebPoint(cursor_position.x, cursor_position.y),
       web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));

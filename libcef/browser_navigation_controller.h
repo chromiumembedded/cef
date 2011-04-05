@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/linked_ptr.h"
-#include "base/ref_counted.h"
+#include "base/memory/linked_ptr.h"
+#include "base/memory/ref_counted.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHTTPBody.h"

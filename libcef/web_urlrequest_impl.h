@@ -6,7 +6,7 @@
 #define _WEB_URL_REQUEST_CLIENT_IMPL_H
 
 #include "include/cef.h"
-#include "base/ref_counted.h"
+#include "base/memory/ref_counted.h"
 
 class CefWebURLRequestImpl :
     public CefThreadSafeBase<CefWebURLRequest>

@@ -53,10 +53,14 @@ void ClipboardReadHTML(ui::Clipboard::Buffer buffer, string16* markup,
 }
 
 // TODO(dcheng): Implement.
-bool ClipboardReadAvailableTypes(ui::Clipboard::Buffer buffer,
+void ClipboardReadAvailableTypes(ui::Clipboard::Buffer buffer,
                                  std::vector<string16>* types,
                                  bool* contains_filenames) {
-  return false;
+  return;
+}
+
+void ClipboardReadImage(ui::Clipboard::Buffer buffer, std::string* data) {
+  ClipboardGetClipboard()->ReadImage(buffer, data);
 }
 
 bool ClipboardReadData(ui::Clipboard::Buffer buffer, const string16& type,

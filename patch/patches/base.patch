@@ -1,8 +1,8 @@
 Index: message_loop.cc
 ===================================================================
---- message_loop.cc	(revision 74933)
+--- message_loop.cc	(revision 80310)
 +++ message_loop.cc	(working copy)
-@@ -287,9 +287,13 @@
+@@ -295,9 +295,13 @@
  }
  
  void MessageLoop::AssertIdle() const {
@@ -19,15 +19,15 @@ Index: message_loop.cc
  //------------------------------------------------------------------------------
 Index: message_loop.h
 ===================================================================
---- message_loop.h	(revision 74933)
+--- message_loop.h	(revision 80310)
 +++ message_loop.h	(working copy)
-@@ -318,6 +318,9 @@
+@@ -320,6 +320,9 @@
    // Asserts that the MessageLoop is "idle".
    void AssertIdle() const;
  
 +  // Returns true if the MessageLoop is "idle".
 +  bool IsIdle() const;
 +
-   //----------------------------------------------------------------------------
-  protected:
-   struct RunState {
+ #if defined(OS_WIN)
+   void set_os_modal_loop(bool os_modal_loop) {
+     os_modal_loop_ = os_modal_loop;

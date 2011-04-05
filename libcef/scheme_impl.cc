@@ -121,14 +121,6 @@ public:
     return false;
   }
 
-  virtual bool GetContentEncodings(
-      std::vector<Filter::FilterType>* encoding_types)
-  {
-    DCHECK(encoding_types->empty());
-
-    return !encoding_types->empty();
-  }
-
   virtual bool GetMimeType(std::string* mime_type) const
   {
     DCHECK(request_);

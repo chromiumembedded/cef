@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,8 @@
 #include "base/auto_reset.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
+#include "base/message_loop_proxy.h"
+#include "base/synchronization/waitable_event.h"
 #include "base/threading/platform_thread.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/sqlite/sqlite3.h"
@@ -27,91 +29,138 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
 }
 
 BrowserDatabaseSystem::BrowserDatabaseSystem()
-    : waiting_for_dbs_to_close_(false) {
-  CHECK(temp_dir_.CreateUniqueTempDir());
-  db_tracker_ = new DatabaseTracker(temp_dir_.path(), false);
-  db_tracker_->AddObserver(this);
+    : db_thread_("SimpleDBThread"),
+      open_connections_(new webkit_database::DatabaseConnectionsWrapper) {
   DCHECK(!instance_);
   instance_ = this;
+  CHECK(temp_dir_.CreateUniqueTempDir());
+  db_tracker_ = new DatabaseTracker(temp_dir_.path(), false, NULL);
+  db_tracker_->AddObserver(this);
+  db_thread_.Start();
+  db_thread_proxy_ = db_thread_.message_loop_proxy();
 }
 
 BrowserDatabaseSystem::~BrowserDatabaseSystem() {
-  db_tracker_->RemoveObserver(this);
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::ThreadCleanup,
+                        &done_event));
+  done_event.Wait();
   instance_ = NULL;
+}
+
+void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) {
+  string16 origin_identifier = database.securityOrigin().databaseIdentifier();
+  string16 database_name = database.name();
+  open_connections_->AddOpenConnection(origin_identifier, database_name);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseOpened,
+                        origin_identifier,
+                        database_name, database.displayName(),
+                        database.estimatedSize()));
+}
+
+void BrowserDatabaseSystem::databaseModified(
+    const WebKit::WebDatabase& database) {
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseModified,
+                        database.securityOrigin().databaseIdentifier(),
+                        database.name()));
+}
+
+void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) {
+  string16 origin_identifier = database.securityOrigin().databaseIdentifier();
+  string16 database_name = database.name();
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseClosed,
+                        origin_identifier, database_name));
 }
 
 base::PlatformFile BrowserDatabaseSystem::OpenFile(
     const string16& vfs_file_name, int desired_flags) {
-  base::PlatformFile file_handle = base::kInvalidPlatformFileValue;
-  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
-  if (file_name.empty()) {
-    VfsBackend::OpenTempFileInDirectory(
-        db_tracker_->DatabaseDirectory(), desired_flags, &file_handle);
-  } else {
-    VfsBackend::OpenFile(file_name, desired_flags, &file_handle);
-  }
-
-  return file_handle;
+  base::PlatformFile result = base::kInvalidPlatformFileValue;
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsOpenFile,
+                        vfs_file_name, desired_flags,
+                        &result, &done_event));
+  done_event.Wait();
+  return result;
 }
 
 int BrowserDatabaseSystem::DeleteFile(
     const string16& vfs_file_name, bool sync_dir) {
-  // We try to delete the file multiple times, because that's what the default
-  // VFS does (apparently deleting a file can sometimes fail on Windows).
-  // We sleep for 10ms between retries for the same reason.
-  const int kNumDeleteRetries = 3;
-  int num_retries = 0;
-  int error_code = SQLITE_OK;
-  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
-  do {
-    error_code = VfsBackend::DeleteFile(file_name, sync_dir);
-  } while ((++num_retries < kNumDeleteRetries) &&
-           (error_code == SQLITE_IOERR_DELETE) &&
-           (base::PlatformThread::Sleep(10), 1));
-
-  return error_code;
+  int result = SQLITE_OK;
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsDeleteFile,
+                        vfs_file_name, sync_dir,
+                        &result, &done_event));
+  done_event.Wait();
+  return result;
 }
 
-long BrowserDatabaseSystem::GetFileAttributes(const string16& vfs_file_name) {
-  return VfsBackend::GetFileAttributes(
-      GetFullFilePathForVfsFile(vfs_file_name));
+uint32 BrowserDatabaseSystem::GetFileAttributes(const string16& vfs_file_name) {
+  uint32 result = 0;
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetFileAttributes,
+                        vfs_file_name, &result, &done_event));
+  done_event.Wait();
+  return result;
 }
 
-long long BrowserDatabaseSystem::GetFileSize(const string16& vfs_file_name) {
-  return VfsBackend::GetFileSize(GetFullFilePathForVfsFile(vfs_file_name));
+int64 BrowserDatabaseSystem::GetFileSize(const string16& vfs_file_name) {
+  int64 result = 0;
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetFileSize,
+                        vfs_file_name, &result, &done_event));
+  done_event.Wait();
+  return result;
+}
+
+void BrowserDatabaseSystem::ClearAllDatabases() {
+  open_connections_->WaitForAllDatabasesToClose();
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::ResetTracker));
+}
+
+void BrowserDatabaseSystem::SetDatabaseQuota(int64 quota) {
+  if (!db_thread_proxy_->BelongsToCurrentThread()) {
+    db_thread_proxy_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &BrowserDatabaseSystem::SetDatabaseQuota,
+                          quota));
+    return;
+  }
+  db_tracker_->SetDefaultQuota(quota);
 }
 
 void BrowserDatabaseSystem::DatabaseOpened(const string16& origin_identifier,
                                           const string16& database_name,
                                           const string16& description,
                                           int64 estimated_size) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   int64 database_size = 0;
   int64 space_available = 0;
-  database_connections_.AddConnection(origin_identifier, database_name);
-  db_tracker_->DatabaseOpened(origin_identifier, database_name, description,
-                              estimated_size, &database_size, &space_available);
-  SetFullFilePathsForVfsFile(origin_identifier, database_name);
-
+  db_tracker_->DatabaseOpened(
+      origin_identifier, database_name, description,
+      estimated_size, &database_size, &space_available);
   OnDatabaseSizeChanged(origin_identifier, database_name,
                         database_size, space_available);
 }
 
 void BrowserDatabaseSystem::DatabaseModified(const string16& origin_identifier,
                                             const string16& database_name) {
-  DCHECK(database_connections_.IsDatabaseOpened(
-      origin_identifier, database_name));
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   db_tracker_->DatabaseModified(origin_identifier, database_name);
 }
 
 void BrowserDatabaseSystem::DatabaseClosed(const string16& origin_identifier,
                                           const string16& database_name) {
-  DCHECK(database_connections_.IsDatabaseOpened(
-      origin_identifier, database_name));
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   db_tracker_->DatabaseClosed(origin_identifier, database_name);
-  database_connections_.RemoveConnection(origin_identifier, database_name);
-
-  if (waiting_for_dbs_to_close_ && database_connections_.IsEmpty())
-    MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+  open_connections_->RemoveOpenConnection(origin_identifier, database_name);
 }
 
 void BrowserDatabaseSystem::OnDatabaseSizeChanged(
@@ -119,83 +168,95 @@ void BrowserDatabaseSystem::OnDatabaseSizeChanged(
     const string16& database_name,
     int64 database_size,
     int64 space_available) {
-  if (database_connections_.IsOriginUsed(origin_identifier)) {
-    WebKit::WebDatabase::updateDatabaseSize(
-        origin_identifier, database_name, database_size, space_available);
-  }
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  // We intentionally call into webkit on our background db_thread_
+  // to better emulate what happens in chrome where this method is
+  // invoked on the background ipc thread.
+  WebKit::WebDatabase::updateDatabaseSize(
+      origin_identifier, database_name, database_size, space_available);
 }
 
 void BrowserDatabaseSystem::OnDatabaseScheduledForDeletion(
     const string16& origin_identifier,
     const string16& database_name) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  // We intentionally call into webkit on our background db_thread_
+  // to better emulate what happens in chrome where this method is
+  // invoked on the background ipc thread.
   WebKit::WebDatabase::closeDatabaseImmediately(
       origin_identifier, database_name);
 }
 
-void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) {
-  DatabaseOpened(database.securityOrigin().databaseIdentifier(),
-                 database.name(), database.displayName(),
-                 database.estimatedSize());
-}
-
-void BrowserDatabaseSystem::databaseModified(
-    const WebKit::WebDatabase& database) {
-  DatabaseModified(database.securityOrigin().databaseIdentifier(),
-                   database.name());
-}
-
-void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) {
-  DatabaseClosed(database.securityOrigin().databaseIdentifier(),
-                 database.name());
-}
-
-void BrowserDatabaseSystem::ClearAllDatabases() {
-  // Wait for all databases to be closed.
-  if (!database_connections_.IsEmpty()) {
-    AutoReset<bool> waiting_for_dbs_auto_reset(
-        &waiting_for_dbs_to_close_, true);
-    MessageLoop::ScopedNestableTaskAllower nestable(MessageLoop::current());
-    MessageLoop::current()->Run();
+void BrowserDatabaseSystem::VfsOpenFile(
+    const string16& vfs_file_name, int desired_flags,
+    base::PlatformFile* file_handle, base::WaitableEvent* done_event ) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
+  if (file_name.empty()) {
+    VfsBackend::OpenTempFileInDirectory(
+        db_tracker_->DatabaseDirectory(), desired_flags, file_handle);
+  } else {
+    VfsBackend::OpenFile(file_name, desired_flags, file_handle);
   }
-
-  db_tracker_->CloseTrackerDatabaseAndClearCaches();
-  file_util::Delete(db_tracker_->DatabaseDirectory(), true);
-  file_names_.clear();
+  done_event->Signal();
 }
 
-void BrowserDatabaseSystem::SetDatabaseQuota(int64 quota) {
-  db_tracker_->SetDefaultQuota(quota);
+void BrowserDatabaseSystem::VfsDeleteFile(
+    const string16& vfs_file_name, bool sync_dir,
+    int* result, base::WaitableEvent* done_event) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  // We try to delete the file multiple times, because that's what the default
+  // VFS does (apparently deleting a file can sometimes fail on Windows).
+  // We sleep for 10ms between retries for the same reason.
+  const int kNumDeleteRetries = 3;
+  int num_retries = 0;
+  *result = SQLITE_OK;
+  FilePath file_name = GetFullFilePathForVfsFile(vfs_file_name);
+  do {
+    *result = VfsBackend::DeleteFile(file_name, sync_dir);
+  } while ((++num_retries < kNumDeleteRetries) &&
+           (*result == SQLITE_IOERR_DELETE) &&
+           (base::PlatformThread::Sleep(10), 1));
+
+  done_event->Signal();
 }
 
-void BrowserDatabaseSystem::SetFullFilePathsForVfsFile(
-    const string16& origin_identifier,
-    const string16& database_name) {
-  string16 vfs_file_name = origin_identifier + ASCIIToUTF16("/") +
-      database_name + ASCIIToUTF16("#");
-  FilePath file_name =
-      DatabaseUtil::GetFullFilePathForVfsFile(db_tracker_, vfs_file_name);
+void BrowserDatabaseSystem::VfsGetFileAttributes(
+    const string16& vfs_file_name,
+    uint32* result, base::WaitableEvent* done_event) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  *result = VfsBackend::GetFileAttributes(
+      GetFullFilePathForVfsFile(vfs_file_name));
+  done_event->Signal();
+}
 
-  base::AutoLock file_names_auto_lock(file_names_lock_);
-  file_names_[vfs_file_name] = file_name;
-  file_names_[vfs_file_name + ASCIIToUTF16("-journal")] =
-      FilePath::FromWStringHack(file_name.ToWStringHack() +
-                                ASCIIToWide("-journal"));
+void BrowserDatabaseSystem::VfsGetFileSize(
+    const string16& vfs_file_name,
+    int64* result, base::WaitableEvent* done_event) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  *result = VfsBackend::GetFileSize(GetFullFilePathForVfsFile(vfs_file_name));
+  done_event->Signal();
 }
 
 FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
     const string16& vfs_file_name) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   if (vfs_file_name.empty())  // temp file, used for vacuuming
     return FilePath();
-
-  base::AutoLock file_names_auto_lock(file_names_lock_);
-  if(file_names_.find(vfs_file_name) != file_names_.end())
-    return file_names_[vfs_file_name];
-
-  // This method is getting called when an empty localStorage database is
-  // deleted. In that case, just return the path.
-#if defined(OS_WIN)
-  return FilePath(vfs_file_name);
-#else
-  return FilePath(UTF16ToUTF8(vfs_file_name));
-#endif
+  return DatabaseUtil::GetFullFilePathForVfsFile(
+      db_tracker_.get(), vfs_file_name);
 }
+
+void BrowserDatabaseSystem::ResetTracker() {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  db_tracker_->CloseTrackerDatabaseAndClearCaches();
+  file_util::Delete(db_tracker_->DatabaseDirectory(), true);
+}
+
+void BrowserDatabaseSystem::ThreadCleanup(base::WaitableEvent* done_event) {
+  ResetTracker();
+  db_tracker_->RemoveObserver(this);
+  db_tracker_ = NULL;
+  done_event->Signal();
+}
+

@@ -181,7 +181,7 @@ CefString CefDOMNodeImpl::GetValue()
           node_.to<WebKit::WebFormControlElement>();
 
       webkit_glue::FormField formField(formElement);
-      str = formField.value();
+      str = formField.value;
     }
   }
 

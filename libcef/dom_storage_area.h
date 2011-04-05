@@ -6,9 +6,9 @@
 #define _DOM_STORAGE_AREA_H
 
 #include "base/hash_tables.h"
+#include "base/memory/ref_counted.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/nullable_string16.h"
-#include "base/ref_counted.h"
-#include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"

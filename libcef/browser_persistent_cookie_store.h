@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "base/ref_counted.h"
+#include "base/memory/ref_counted.h"
 #include "net/base/cookie_monster.h"
 
 class FilePath;

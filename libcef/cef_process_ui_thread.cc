@@ -8,7 +8,6 @@
 #include "browser_webkit_init.h"
 #include "cef_context.h"
 
-#include "app/gfx/gl/gl_implementation.h"
 #include "base/command_line.h"
 #include "base/i18n/icu_util.h"
 #include "base/metrics/stats_table.h"
@@ -16,14 +15,15 @@
 #include "base/string_number_conversions.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
-#if defined(OS_WIN)
-#include "net/socket/ssl_client_socket_nss_factory.h"
-#endif
+#include "net/url_request/url_request.h"
+#include "ui/gfx/gl/gl_implementation.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job.h"
 #include "webkit/extensions/v8/gc_extension.h"
+#include "webkit/fileapi/file_system_context.h"
+#include "webkit/fileapi/file_system_dir_url_request_job.h"
+#include "webkit/fileapi/file_system_url_request_job.h"
 #include "webkit/plugins/npapi/plugin_list.h"
-#include "net/url_request/url_request.h"
 
 #if defined(OS_WIN)
 #include <commctrl.h>
@@ -44,7 +44,33 @@ net::URLRequestJob* BlobURLRequestJobFactory(net::URLRequest* request,
   return new webkit_blob::BlobURLRequestJob(
       request,
       blob_storage_controller->GetBlobDataFromUrl(request->url()),
-      NULL);
+      CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
+}
+
+net::URLRequestJob* FileSystemURLRequestJobFactory(net::URLRequest* request,
+                                                   const std::string& scheme) {
+  fileapi::FileSystemContext* fs_context =
+      static_cast<BrowserRequestContext*>(request->context())
+          ->file_system_context();
+  if (!fs_context) {
+    LOG(WARNING) << "No FileSystemContext found, ignoring filesystem: URL";
+    return NULL;
+  }
+
+  // If the path ends with a /, we know it's a directory. If the path refers
+  // to a directory and gets dispatched to FileSystemURLRequestJob, that class
+  // redirects back here, by adding a / to the URL.
+  const std::string path = request->url().path();
+  if (!path.empty() && path[path.size() - 1] == '/') {
+    return new fileapi::FileSystemDirURLRequestJob(
+        request,
+        fs_context->path_manager(),
+        CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
+  }
+  return new fileapi::FileSystemURLRequestJob(
+      request,
+      fs_context->path_manager(),
+      CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
 }
 
 } // namespace
@@ -122,16 +148,11 @@ void CefProcessUIThread::Init() {
   WebKit::WebScriptController::registerExtension(
       extensions_v8::GCExtension::Get());
 
-#if defined(OS_WIN)
-  // Use NSS for SSL on Windows.  TODO(wtc): this should eventually be hidden
-  // inside DefaultClientSocketFactory::CreateSSLClientSocket.
-  net::ClientSocketFactory::SetSSLClientSocketFactory(
-      net::SSLClientSocketNSSFactory);
-#endif
-
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 
   net::URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
+  net::URLRequest::RegisterProtocolFactory("filesystem",
+                                           &FileSystemURLRequestJobFactory);
 
   if (!_Context->cache_path().empty()) {
     // Create the storage context object.

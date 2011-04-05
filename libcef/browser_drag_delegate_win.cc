@@ -454,7 +454,7 @@ void BrowserDragDelegate::PrepareDragForFileContents(
     }
   }
   file_name = file_name.ReplaceExtension(drop_data.file_extension);
-  data->SetFileContents(file_name.value(), drop_data.file_contents);
+  data->SetFileContents(file_name, drop_data.file_contents);
 }
 
 void BrowserDragDelegate::PrepareDragForUrl(const WebDropData& drop_data,

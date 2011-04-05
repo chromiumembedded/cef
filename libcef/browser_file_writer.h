@@ -1,27 +1,33 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef BROWSER_FILE_WRITER_H_
 #define BROWSER_FILE_WRITER_H_
 
-#include "base/ref_counted.h"
-#include "base/weak_ptr.h"
+#include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "webkit/fileapi/webfilewriter_base.h"
 
 namespace net {
 class URLRequestContext;
+}  // namespace net
+
+namespace fileapi {
+class FileSystemContext;
 }
 
 // An implementation of WebFileWriter for use in test_shell and DRT.
 class BrowserFileWriter : public fileapi::WebFileWriterBase,
-                         public base::SupportsWeakPtr<BrowserFileWriter> {
+                          public base::SupportsWeakPtr<BrowserFileWriter> {
  public:
   BrowserFileWriter(
-      const WebKit::WebString& path, WebKit::WebFileWriterClient* client);
+      const WebKit::WebString& path,
+      WebKit::WebFileWriterClient* client,
+      fileapi::FileSystemContext* file_system_context);
   virtual ~BrowserFileWriter();
 
-  // Called by CefProcessIOThread when the thread is created and destroyed.
+  // Called by CefProcessIOThread when the context is created and destroyed.
   static void InitializeOnIOThread(net::URLRequestContext* request_context) {
     request_context_ = request_context;
   }

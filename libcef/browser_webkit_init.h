@@ -15,14 +15,13 @@
 #include "browser_webstoragenamespace_impl.h"
 
 #include "base/file_util.h"
+#include "base/memory/scoped_temp_dir.h"
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
-#include "base/scoped_temp_dir.h"
 #include "base/utf_string_conversions.h"
 #include "media/base/media.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/database/vfs_backend.h"
-#include "webkit/extensions/v8/gears_extension.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
@@ -52,12 +51,9 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
 
     WebKit::initialize(this);
     WebKit::setLayoutTestMode(false);
-    WebKit::WebScriptController::registerExtension(
-        extensions_v8::GearsExtension::Get());
     WebKit::WebRuntimeFeatures::enableSockets(true);
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
-    WebKit::WebRuntimeFeatures::enableWebGL(true);
     WebKit::WebRuntimeFeatures::enablePushState(true);
     WebKit::WebRuntimeFeatures::enableNotifications(false);
     WebKit::WebRuntimeFeatures::enableTouch(true);
@@ -226,6 +222,14 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
           values[i], WebKit::WebIDBKeyPath::create(keyPath));
     }
     keys_out.swap(keys);
+  }
+
+  virtual WebKit::WebSerializedScriptValue injectIDBKeyIntoSerializedValue(
+      const WebKit::WebIDBKey& key,
+      const WebKit::WebSerializedScriptValue& value,
+      const WebKit::WebString& keyPath) {
+    return WebKit::WebIDBKey::injectIDBKeyIntoSerializedValue(
+        key, value, WebKit::WebIDBKeyPath::create(keyPath));
   }
 
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {

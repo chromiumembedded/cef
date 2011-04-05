@@ -14,8 +14,8 @@
 #include <map>
 
 #include "base/basictypes.h"
+#include "base/memory/weak_ptr.h"
 #include "base/scoped_ptr.h"
-#include "base/weak_ptr.h"
 #include "build/build_config.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileChooserParams.h"

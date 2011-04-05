@@ -8,7 +8,7 @@
 #pragma once
 
 #include "base/file_path.h"
-#include "base/linked_ptr.h"
+#include "base/memory/linked_ptr.h"
 #include "base/message_loop.h"
 #include "googleurl/src/gurl.h"
 #include "ui/base/dragdrop/download_file_interface.h"

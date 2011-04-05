@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,11 +9,15 @@
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/fileapi/file_system_callback_dispatcher.h"
+#include "webkit/fileapi/file_system_context.h"
+#include "webkit/fileapi/file_system_file_util.h"
 #include "webkit/fileapi/file_system_operation.h"
 #include "webkit/glue/webkit_glue.h"
 
-using fileapi::FileSystemOperation;
 using fileapi::FileSystemCallbackDispatcher;
+using fileapi::FileSystemContext;
+using fileapi::FileSystemFileUtil;
+using fileapi::FileSystemOperation;
 using fileapi::WebFileWriterBase;
 using WebKit::WebFileWriterClient;
 using WebKit::WebString;
@@ -27,9 +31,11 @@ net::URLRequestContext* BrowserFileWriter::request_context_ = NULL;
 class BrowserFileWriter::IOThreadProxy
     : public base::RefCountedThreadSafe<BrowserFileWriter::IOThreadProxy> {
  public:
-  explicit IOThreadProxy(const base::WeakPtr<BrowserFileWriter>& simple_writer)
+  explicit IOThreadProxy(const base::WeakPtr<BrowserFileWriter>& simple_writer,
+                         FileSystemContext* file_system_context)
       : simple_writer_(simple_writer),
-        operation_(NULL) {
+        operation_(NULL),
+        file_system_context_(file_system_context) {
     io_thread_ = CefThread::GetMessageLoopProxyForThread(CefThread::IO);
     main_thread_ = base::MessageLoopProxy::CreateForCurrentThread();
   }
@@ -96,7 +102,9 @@ class BrowserFileWriter::IOThreadProxy
       proxy_->DidWrite(bytes, complete);
     }
 
-    virtual void DidReadMetadata(const base::PlatformFileInfo&) {
+    virtual void DidReadMetadata(
+        const base::PlatformFileInfo&,
+        const FilePath&) {
       NOTREACHED();
     }
 
@@ -106,8 +114,9 @@ class BrowserFileWriter::IOThreadProxy
       NOTREACHED();
     }
 
-    virtual void DidOpenFileSystem(const std::string& name,
-                                   const FilePath& root_path) {
+    virtual void DidOpenFileSystem(
+        const std::string& name,
+        const FilePath& root_path) {
       NOTREACHED();
     }
 
@@ -117,7 +126,8 @@ class BrowserFileWriter::IOThreadProxy
   FileSystemOperation* GetNewOperation() {
     // The FileSystemOperation takes ownership of the CallbackDispatcher.
     return new FileSystemOperation(new CallbackDispatcher(this),
-                                   io_thread_, NULL);
+                                   io_thread_, file_system_context_.get(),
+                                   NULL);
   }
 
   void DidSucceed() {
@@ -163,13 +173,17 @@ class BrowserFileWriter::IOThreadProxy
 
   // Only used on the io thread.
   FileSystemOperation* operation_;
+
+  scoped_refptr<FileSystemContext> file_system_context_;
 };
 
 
 BrowserFileWriter::BrowserFileWriter(
-     const WebString& path, WebFileWriterClient* client)
+    const WebString& path,
+    WebFileWriterClient* client,
+    FileSystemContext* file_system_context)
   : WebFileWriterBase(path, client),
-    io_thread_proxy_(new IOThreadProxy(AsWeakPtr())) {
+    io_thread_proxy_(new IOThreadProxy(AsWeakPtr(), file_system_context)) {
 }
 
 BrowserFileWriter::~BrowserFileWriter() {

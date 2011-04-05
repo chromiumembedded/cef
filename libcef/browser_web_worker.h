@@ -6,7 +6,7 @@
 #define _BROWSER_WEB_WORKER_H
 
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
+#include "base/memory/ref_counted.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebMessagePortChannel.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWorker.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerClient.h"

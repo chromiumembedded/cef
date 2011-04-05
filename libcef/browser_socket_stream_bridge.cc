@@ -6,8 +6,8 @@
 
 #include "browser_socket_stream_bridge.h"
 
+#include "base/memory/ref_counted.h"
 #include "base/message_loop.h"
-#include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
 #include "net/socket_stream/socket_stream_job.h"
 #include "net/websockets/websocket_job.h"

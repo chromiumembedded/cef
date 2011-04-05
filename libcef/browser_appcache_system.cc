@@ -197,6 +197,18 @@ class BrowserBackendProxy
     }
   }
 
+  virtual void SetSpawningHostId(int host_id, int spawning_host_id) {
+    if (system_->is_ui_thread()) {
+      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &BrowserBackendProxy::SetSpawningHostId,
+          host_id, spawning_host_id));
+    } else if (system_->is_io_thread()) {
+      system_->backend_impl_->SetSpawningHostId(host_id, spawning_host_id);
+    } else {
+      NOTREACHED();
+    }
+  }
+
   virtual void SelectCache(int host_id,
                            const GURL& document_url,
                            const int64 cache_document_was_loaded_from,
