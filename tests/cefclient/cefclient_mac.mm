@@ -538,7 +538,7 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
     CefString& mimeType, int loadFlags)
 {
-  REQUIRE_UI_THREAD();
+  REQUIRE_IO_THREAD();
 
   std::string url = request->GetURL();
   if(url == "http://tests/request") {
