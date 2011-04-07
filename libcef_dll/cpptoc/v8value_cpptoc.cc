@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/base_ctocpp.h"
+#include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 
 
@@ -73,6 +74,23 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data)
     basePtr = CefBaseCToCpp::Wrap(user_data);
 
   CefRefPtr<CefV8Value> impl = CefV8Value::CreateObject(basePtr);
+  if(impl.get())
+    return CefV8ValueCppToC::Wrap(impl);
+  return NULL;
+}
+
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
+    cef_base_t* user_data, cef_v8accessor_t* accessor)
+{
+  CefRefPtr<CefBase> basePtr;
+  if(user_data)
+    basePtr = CefBaseCToCpp::Wrap(user_data);
+
+  CefRefPtr<CefV8Accessor> accessorPtr;
+  if(accessor)
+    accessorPtr = CefV8AccessorCToCpp::Wrap(accessor);
+
+  CefRefPtr<CefV8Value> impl = CefV8Value::CreateObject(basePtr, accessorPtr);
   if(impl.get())
     return CefV8ValueCppToC::Wrap(impl);
   return NULL;
@@ -182,6 +200,17 @@ int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->IsFunction();
+}
+
+int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
+    struct _cef_v8value_t* that)
+{
+  DCHECK(self);
+  if(!self)
+    return 0;
+
+  CefRefPtr<CefV8Value> thatPtr = CefV8ValueCppToC::Unwrap(that);
+  return CefV8ValueCppToC::Get(self)->IsSame(thatPtr);
 }
 
 int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)
@@ -306,6 +335,18 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
 
   CefRefPtr<CefV8Value> valuePtr = CefV8ValueCppToC::Unwrap(value);
   return CefV8ValueCppToC::Get(self)->SetValue(index, valuePtr);
+}
+
+int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
+    const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
+    enum cef_v8_propertyattribute_t attribute)
+{
+  DCHECK(self);
+  if(!self)
+    return 0;
+
+  return CefV8ValueCppToC::Get(self)->SetValue(CefString(key), 
+      settings, attribute);
 }
 
 int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
@@ -442,6 +483,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.is_object = v8value_is_object;
   struct_.struct_.is_array = v8value_is_array;
   struct_.struct_.is_function = v8value_is_function;
+  struct_.struct_.is_same = v8value_is_same;
   struct_.struct_.get_bool_value = v8value_get_bool_value;
   struct_.struct_.get_int_value = v8value_get_int_value;
   struct_.struct_.get_double_value = v8value_get_double_value;
@@ -454,6 +496,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.get_value_byindex = v8value_get_value_byindex;
   struct_.struct_.set_value_bykey = v8value_set_value_bykey;
   struct_.struct_.set_value_byindex = v8value_set_value_byindex;
+  struct_.struct_.set_value_byaccessor = v8value_set_value_byaccessor;
   struct_.struct_.get_keys = v8value_get_keys;
   struct_.struct_.get_user_data = v8value_get_user_data;
   struct_.struct_.get_array_length = v8value_get_array_length;

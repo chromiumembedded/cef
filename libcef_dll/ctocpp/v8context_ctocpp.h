@@ -34,6 +34,8 @@ public:
   virtual CefRefPtr<CefBrowser> GetBrowser();
   virtual CefRefPtr<CefFrame> GetFrame();
   virtual CefRefPtr<CefV8Value> GetGlobal();
+  virtual bool Enter();
+  virtual bool Exit();
 };
 
 #endif // USING_CEF_SHARED

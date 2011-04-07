@@ -16,6 +16,7 @@
 #include "cpptoc/request_cpptoc.h"
 #include "cpptoc/stream_reader_cpptoc.h"
 #include "cpptoc/stream_writer_cpptoc.h"
+#include "cpptoc/v8context_cpptoc.h"
 #include "cpptoc/v8value_cpptoc.h"
 #include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
@@ -28,6 +29,7 @@
 #include "ctocpp/scheme_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_factory_ctocpp.h"
 #include "ctocpp/task_ctocpp.h"
+#include "ctocpp/v8accessor_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
 #include "ctocpp/web_urlrequest_client_ctocpp.h"
 #include "ctocpp/write_handler_ctocpp.h"
@@ -70,6 +72,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefPostDataElementCppToC::DebugObjCt == 0);
   DCHECK(CefStreamReaderCppToC::DebugObjCt == 0);
   DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
+  DCHECK(CefV8ContextCppToC::DebugObjCt == 0);
   DCHECK(CefV8ValueCppToC::DebugObjCt == 0);
   DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
@@ -80,6 +83,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
+  DCHECK(CefV8AccessorCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCToCpp::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCToCpp::DebugObjCt == 0);

@@ -1390,6 +1390,19 @@ public:
   // Returns the global object for this context.
   /*--cef()--*/
   virtual CefRefPtr<CefV8Value> GetGlobal() =0;
+
+  // Enter this context. A context must be explicitly entered before creating a
+  // V8 Object, Array or Function asynchronously. Exit() must be called the same
+  // number of times as Enter() before releasing this context. V8 objects belong
+  // to the context in which they are created. Returns true if the scope was
+  // entered successfully.
+  /*--cef()--*/
+  virtual bool Enter() =0;
+
+  // Exit this context. Call this method only after calling Enter(). Returns
+  // true if the scope was exited successfully.
+  /*--cef()--*/
+  virtual bool Exit() =0;
 };
 
 
@@ -1413,6 +1426,31 @@ public:
                        CefString& exception) =0;
 };
 
+// Interface that should be implemented to handle V8 accessor calls. Accessor
+// identifiers are registered by calling CefV8Value::SetValue(). The methods
+// of this class will always be called on the UI thread.
+/*--cef(source=client)--*/
+class CefV8Accessor : public CefBase
+{
+public:
+  // Called to get an accessor value. |name| is the name of the property being
+  // accessed. |object| is the This() object from V8's AccessorInfo structure.
+  // |retval| is the value to return for this property. Return true if handled.
+  /*--cef()--*/
+  virtual bool Get(const CefString& name,
+                   const CefRefPtr<CefV8Value> object,
+                   CefRefPtr<CefV8Value>& retval) =0;
+
+  // Called to set an accessor value. |name| is the name of the property being
+  // accessed. |value| is the new value being assigned to this property.
+  // |object| is the This() object from V8's AccessorInfo structure. Return true
+  // if handled.
+  /*--cef()--*/
+  virtual bool Set(const CefString& name,
+                   const CefRefPtr<CefV8Value> object,
+                   const CefRefPtr<CefV8Value> value) =0;
+};
+
 
 // Class representing a V8 value. The methods of this class should only be
 // called on the UI thread.
@@ -1420,6 +1458,9 @@ public:
 class CefV8Value : public CefBase
 {
 public:
+  typedef cef_v8_accesscontrol_t AccessControl;
+  typedef cef_v8_propertyattribute_t PropertyAttribute;
+
   // Create a new CefV8Value object of the specified type.
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateUndefined();
@@ -1435,6 +1476,9 @@ public:
   static CefRefPtr<CefV8Value> CreateString(const CefString& value);
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
+  /*--cef(capi_name=cef_v8value_create_object_with_accessor)--*/
+  static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data, 
+                                            CefRefPtr<CefV8Accessor> accessor);
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateArray();
   /*--cef()--*/
@@ -1460,6 +1504,11 @@ public:
   virtual bool IsArray() =0;
   /*--cef()--*/
   virtual bool IsFunction() =0;
+
+  // Returns true if this object is pointing to the same handle as |that|
+  // object.
+  /*--cef()--*/
+  virtual bool IsSame(CefRefPtr<CefV8Value> that) =0;
   
   // Return a primitive value type.  The underlying data will be converted to
   // the requested type if necessary.
@@ -1496,11 +1545,17 @@ public:
   /*--cef(capi_name=get_value_byindex)--*/
   virtual CefRefPtr<CefV8Value> GetValue(int index) =0;
 
-  // Associate value with the specified identifier.
+  // Associate a value with the specified identifier.
   /*--cef(capi_name=set_value_bykey)--*/
   virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value) =0;
   /*--cef(capi_name=set_value_byindex)--*/
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) =0;
+
+  // Register an identifier whose access will be forwarded to the CefV8Accessor
+  // instance passed to CefV8Value::CreateObject().
+  /*--cef(capi_name=set_value_byaccessor)--*/
+  virtual bool SetValue(const CefString& key, AccessControl settings, 
+                        PropertyAttribute attribute) =0;
 
   // Read the keys for the object's values into the specified vector. Integer-
   // based keys will also be returned as strings.

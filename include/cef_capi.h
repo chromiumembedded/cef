@@ -1124,6 +1124,17 @@ typedef struct _cef_v8context_t
   struct _cef_v8value_t* (CEF_CALLBACK *get_global)(
       struct _cef_v8context_t* self);
 
+  // Enter this context. A context must be explicitly entered before creating a
+  // V8 Object, Array or Function asynchronously. exit() must be called the same
+  // number of times as enter() before releasing this context. V8 objects belong
+  // to the context in which they are created. Returns true (1) if the scope was
+  // entered successfully.
+  int (CEF_CALLBACK *enter)(struct _cef_v8context_t* self);
+
+  // Exit this context. Call this function only after calling enter(). Returns
+  // true (1) if the scope was exited successfully.
+  int (CEF_CALLBACK *exit)(struct _cef_v8context_t* self);
+
 } cef_v8context_t;
 
 
@@ -1153,6 +1164,33 @@ typedef struct _cef_v8handler_t
 } cef_v8handler_t;
 
 
+// Structure that should be implemented to handle V8 accessor calls. Accessor
+// identifiers are registered by calling cef_v8value_t::set_value(). The
+// functions of this structure will always be called on the UI thread.
+typedef struct _cef_v8accessor_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Called to get an accessor value. |name| is the name of the property being
+  // accessed. |object| is the This() object from V8's AccessorInfo structure.
+  // |retval| is the value to return for this property. Return true (1) if
+  // handled.
+  int (CEF_CALLBACK *get)(struct _cef_v8accessor_t* self,
+      const cef_string_t* name, struct _cef_v8value_t* object,
+      struct _cef_v8value_t** retval);
+
+  // Called to set an accessor value. |name| is the name of the property being
+  // accessed. |value| is the new value being assigned to this property.
+  // |object| is the This() object from V8's AccessorInfo structure. Return true
+  // (1) if handled.
+  int (CEF_CALLBACK *set)(struct _cef_v8accessor_t* self,
+      const cef_string_t* name, struct _cef_v8value_t* object,
+      struct _cef_v8value_t* value);
+
+} cef_v8accessor_t;
+
+
 // Structure representing a V8 value. The functions of this structure should
 // only be called on the UI thread.
 typedef struct _cef_v8value_t
@@ -1170,6 +1208,11 @@ typedef struct _cef_v8value_t
   int (CEF_CALLBACK *is_object)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_array)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_function)(struct _cef_v8value_t* self);
+
+  // Returns true (1) if this object is pointing to the same handle as |that|
+  // object.
+  int (CEF_CALLBACK *is_same)(struct _cef_v8value_t* self,
+      struct _cef_v8value_t* that);
 
   // Return a primitive value type.  The underlying data will be converted to
   // the requested type if necessary.
@@ -1203,11 +1246,18 @@ typedef struct _cef_v8value_t
   struct _cef_v8value_t* (CEF_CALLBACK *get_value_byindex)(
       struct _cef_v8value_t* self, int index);
 
-  // Associate value with the specified identifier.
+  // Associate a value with the specified identifier.
   int (CEF_CALLBACK *set_value_bykey)(struct _cef_v8value_t* self,
       const cef_string_t* key, struct _cef_v8value_t* value);
   int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self, int index,
       struct _cef_v8value_t* value);
+
+  // Register an identifier whose access will be forwarded to the
+  // cef_v8accessor_t instance passed to
+  // cef_v8value_t::cef_v8value_create_object_with_accessor().
+  int (CEF_CALLBACK *set_value_byaccessor)(struct _cef_v8value_t* self,
+      const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
+      enum cef_v8_propertyattribute_t attribute);
 
   // Read the keys for the object's values into the specified vector. Integer-
   // based keys will also be returned as strings.
@@ -1259,6 +1309,8 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
+    cef_base_t* user_data, cef_v8accessor_t* accessor);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_array();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
     cef_v8handler_t* handler);

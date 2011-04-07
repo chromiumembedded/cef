@@ -79,6 +79,26 @@ struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
   return NULL;
 }
 
+int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return false;
+
+  CefRefPtr<CefV8Context> contextPtr = CefV8ContextCppToC::Get(self);
+  return contextPtr->Enter();
+}
+
+int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return false;
+
+  CefRefPtr<CefV8Context> contextPtr = CefV8ContextCppToC::Get(self);
+  return contextPtr->Exit();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -88,6 +108,8 @@ CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
   struct_.struct_.get_browser = v8context_get_browser;
   struct_.struct_.get_frame = v8context_get_frame;
   struct_.struct_.get_global = v8context_get_global;
+  struct_.struct_.enter = v8context_enter;
+  struct_.struct_.exit = v8context_exit;
 }
 
 #ifdef _DEBUG

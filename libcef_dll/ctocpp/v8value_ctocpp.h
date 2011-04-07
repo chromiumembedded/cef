@@ -40,6 +40,7 @@ public:
   virtual bool IsObject();
   virtual bool IsArray();
   virtual bool IsFunction();
+  virtual bool IsSame(CefRefPtr<CefV8Value> that);
   virtual bool GetBoolValue();
   virtual int GetIntValue();
   virtual double GetDoubleValue();
@@ -52,6 +53,8 @@ public:
   virtual CefRefPtr<CefV8Value> GetValue(int index);
   virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value);
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value);
+  virtual bool SetValue(const CefString& key, AccessControl settings,
+      PropertyAttribute attribute);
   virtual bool GetKeys(std::vector<CefString>& keys);
   virtual CefRefPtr<CefBase> GetUserData();
   virtual int GetArrayLength();

@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/base_cpptoc.h"
+#include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -74,6 +75,24 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
     baseStruct = CefBaseCppToC::Wrap(user_data);
 
   cef_v8value_t* impl = cef_v8value_create_object(baseStruct);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data,
+    CefRefPtr<CefV8Accessor> accessor)
+{
+  cef_base_t* baseStruct = NULL;
+  if(user_data)
+    baseStruct = CefBaseCppToC::Wrap(user_data);
+
+  cef_v8accessor_t* accessorStruct = NULL;
+  if(accessor)
+    accessorStruct = CefV8AccessorCppToC::Wrap(accessor);
+
+  cef_v8value_t* impl = cef_v8value_create_object_with_accessor(baseStruct, 
+                                                                accessorStruct);
   if(impl)
     return CefV8ValueCToCpp::Wrap(impl);
   return NULL;
@@ -174,6 +193,14 @@ bool CefV8ValueCToCpp::IsFunction()
     return false;
 
   return struct_->is_function(struct_)?true:false;
+}
+
+bool CefV8ValueCToCpp::IsSame(CefRefPtr<CefV8Value> that)
+{
+  if(CEF_MEMBER_MISSING(struct_, is_same))
+    return false;
+
+  return struct_->is_same(struct_, CefV8ValueCToCpp::Unwrap(that))?true:false;
 }
 
 bool CefV8ValueCToCpp::GetBoolValue()
@@ -283,6 +310,16 @@ bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
 
   return struct_->set_value_byindex(struct_, index,
       CefV8ValueCToCpp::Unwrap(value))?true:false;
+}
+
+bool CefV8ValueCToCpp::SetValue(const CefString& key, AccessControl settings,
+    PropertyAttribute attribute)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_value_byaccessor))
+    return false;
+
+  return struct_->set_value_byaccessor(struct_, key.GetStruct(), 
+      settings, attribute)?true:false;
 }
 
 bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)

@@ -73,6 +73,22 @@ CefRefPtr<CefV8Value> CefV8ContextCToCpp::GetGlobal()
   return NULL;
 }
 
+bool CefV8ContextCToCpp::Enter()
+{
+  if(CEF_MEMBER_MISSING(struct_, enter))
+    return false;
+
+  return struct_->enter(struct_)?true:false;
+}
+
+bool CefV8ContextCToCpp::Exit()
+{
+  if(CEF_MEMBER_MISSING(struct_, exit))
+    return false;
+
+  return struct_->exit(struct_)?true:false;
+}
+
 
 #ifdef _DEBUG
 template<> long CefCToCpp<CefV8ContextCToCpp, CefV8Context,

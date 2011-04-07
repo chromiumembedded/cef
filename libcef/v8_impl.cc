@@ -39,6 +39,17 @@ protected:
   CefRefPtr<CefBase> base_;
 };
 
+class TrackBase2 : public TrackBase
+{
+public:
+  TrackBase2(CefBase* base, CefBase* base2): TrackBase(base) { 
+    base2_ = base2; 
+  }
+
+protected:
+  CefRefPtr<CefBase> base2_;
+};
+
 class TrackString : public CefTrackObject
 {
 public:
@@ -140,6 +151,57 @@ v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args)
   return value;
 }
 
+// V8 Accessor callbacks
+v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
+                                                 const v8::AccessorInfo& info)
+{
+  v8::HandleScope handle_scope;
+
+  v8::Handle<v8::Value> value = v8::Undefined();
+  v8::Handle<v8::Object> obj = info.This();
+  v8::Handle<v8::String> key = v8::String::New("Cef::Accessor");
+
+  CefV8Accessor* accessorPtr = NULL;
+  if (obj->Has(key)) {
+    accessorPtr = static_cast<CefV8Accessor*>(v8::External::Unwrap(
+        obj->Get(key)));
+  }
+
+  if (accessorPtr) {
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Value> object = new CefV8ValueImpl(obj);
+    CefString name = GetString(property);
+    if (accessorPtr->Get(name, object, retval)) {
+      CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
+      if (rv)
+        value = rv->GetHandle();
+    }
+  }
+  return value;
+}
+
+void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
+                                v8::Local<v8::Value> value,
+                                const v8::AccessorInfo& info)
+{
+  v8::HandleScope handle_scope;
+
+  v8::Handle<v8::Object> obj = info.This();
+  v8::Handle<v8::String> key = v8::String::New("Cef::Accessor");
+
+  CefV8Accessor* accessorPtr = NULL;
+  if (obj->Has(key)) {
+    accessorPtr = static_cast<CefV8Accessor*>(v8::External::Unwrap(
+         obj->Get(key)));
+  }
+  
+  if (accessorPtr) {
+    CefRefPtr<CefV8Value> object = new CefV8ValueImpl(obj);
+    CefRefPtr<CefV8Value> cefValue = new CefV8ValueImpl(value);
+    CefString name = GetString(property);
+    accessorPtr->Set(name, object, cefValue);
+  }
+}
 
 // V8 extension registration.
 
@@ -231,12 +293,16 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
 // CefV8ContextImpl
 
 CefV8ContextImpl::CefV8ContextImpl(v8::Handle<v8::Context> context)
+#ifdef _DEBUG
+  : enter_count_(0)
+#endif
 {
   v8_context_ = new CefV8ContextHandle(context);
 }
 
 CefV8ContextImpl::~CefV8ContextImpl()
 {
+  DLOG_ASSERT(0 == enter_count_);
 }
 
 CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser()
@@ -274,6 +340,27 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal()
   v8::HandleScope handle_scope;
   v8::Context::Scope context_scope(v8_context_->GetHandle());
   return new CefV8ValueImpl(v8_context_->GetHandle()->Global());
+}
+
+bool CefV8ContextImpl::Enter()
+{
+  CEF_REQUIRE_UI_THREAD(false);
+  v8_context_->GetHandle()->Enter();
+#ifdef _DEBUG
+  ++enter_count_;
+#endif
+  return true;
+}
+
+bool CefV8ContextImpl::Exit()
+{
+  CEF_REQUIRE_UI_THREAD(false);
+  DLOG_ASSERT(enter_count_ > 0);
+  v8_context_->GetHandle()->Exit();
+#ifdef _DEBUG
+  --enter_count_;
+#endif
+  return true;
 }
 
 v8::Local<v8::Context> CefV8ContextImpl::GetContext()
@@ -362,6 +449,14 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
 {
+  CefRefPtr<CefV8Accessor> no_accessor;
+  return CreateObject(user_data, no_accessor);
+}
+
+// static
+CefRefPtr<CefV8Value> CefV8Value::CreateObject(
+    CefRefPtr<CefBase> user_data, CefRefPtr<CefV8Accessor> accessor)
+{
   CEF_REQUIRE_VALID_CONTEXT(NULL);
   CEF_REQUIRE_UI_THREAD(NULL);
 
@@ -370,15 +465,26 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
   // Create the new V8 object.
   v8::Local<v8::Object> obj = v8::Object::New();
 
+  // Provide a tracker object that will cause the user data and/or accessor
+  // reference to be released when the V8 object is destroyed.
   TrackBase *tracker = NULL;
+  if (user_data.get() && accessor.get()) {
+    tracker = new TrackBase2(user_data, accessor);
+  } else if (user_data.get() || accessor.get()) {
+    tracker = new TrackBase(user_data.get() ?
+      user_data : CefRefPtr<CefBase>(accessor.get()));
+  }
+
+  // Attach the user data to the V8 object.
   if (user_data.get()) {
-    // Attach the user data to the V8 object.
     v8::Local<v8::Value> data = v8::External::Wrap(user_data.get());
     obj->Set(v8::String::New("Cef::UserData"), data);
+  }
 
-    // Provide a tracker object that will cause the user data reference to be
-    // released when the V8 object is destroyed.
-    tracker = new TrackBase(user_data);
+  // Attach the accessor to the V8 object.
+  if (accessor.get()) {
+    v8::Local<v8::Value> data = v8::External::Wrap(accessor.get());
+    obj->Set(v8::String::New("Cef::Accessor"), data);
   }
 
   return new CefV8ValueImpl(obj, tracker);
@@ -489,6 +595,22 @@ bool CefV8ValueImpl::IsFunction()
 {
   CEF_REQUIRE_UI_THREAD(false);
   return GetHandle()->IsFunction();
+}
+
+bool CefV8ValueImpl::IsSame(CefRefPtr<CefV8Value> that)
+{
+  CEF_REQUIRE_UI_THREAD(false);
+
+  v8::HandleScope handle_scope;
+
+  v8::Handle<v8::Value> thatHandle;
+  v8::Handle<v8::Value> thisHandle = GetHandle();
+
+  CefV8ValueImpl *impl = static_cast<CefV8ValueImpl*>(that.get());
+  if (impl)
+    thatHandle = impl->GetHandle();
+
+  return (thisHandle == thatHandle);
 }
 
 bool CefV8ValueImpl::GetBoolValue()
@@ -653,6 +775,28 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
     NOTREACHED();
     return false;
   }
+}
+
+bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings, 
+                              PropertyAttribute attribute)
+{
+  CEF_REQUIRE_UI_THREAD(false);
+  if(!GetHandle()->IsObject()) {
+    NOTREACHED();
+    return false;
+  }
+
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+
+  v8::AccessorGetter getter = AccessorGetterCallbackImpl;
+  v8::AccessorSetter setter = (attribute & V8_PROPERTY_ATTRIBUTE_READONLY) ?
+      NULL : AccessorSetterCallbackImpl;
+
+  bool rv = obj->SetAccessor(GetV8String(key), getter, setter, obj,
+                             static_cast<v8::AccessControl>(settings),
+                             static_cast<v8::PropertyAttribute>(attribute));
+  return rv;
 }
 
 bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys)

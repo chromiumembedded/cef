@@ -368,6 +368,12 @@ public:
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
                        CefString& exception) = 0;
+
+  virtual bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
+                   CefRefPtr<CefV8Value>& retval) = 0;
+
+  virtual bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
+                   const CefRefPtr<CefV8Value> value) = 0;
 };
 
 class DelegatingV8Handler : public CefThreadSafeBase<CefV8Handler>
@@ -389,6 +395,28 @@ public:
     return delegate_->Execute(name, object, arguments, retval, exception);
   }
   
+private:
+  CefV8HandlerDelegate *delegate_;
+};
+
+class DelegatingV8Accessor: public CefThreadSafeBase<CefV8Accessor>
+{
+public:
+  DelegatingV8Accessor(CefV8HandlerDelegate *delegate)
+    : delegate_(delegate) { }
+
+  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
+           CefRefPtr<CefV8Value>& retval)
+  {
+    return delegate_->Get(name, object, retval);
+  }
+
+  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
+           const CefRefPtr<CefV8Value> value)
+  {
+    return delegate_->Set(name, object, value);
+  }
+
 private:
   CefV8HandlerDelegate *delegate_;
 };
@@ -426,12 +454,26 @@ public:
     //    based loading of "end.html".
     // 9. end.html calls "end()" in the execute handler.
     //    which concludes the test.
-    
+
+    y_ = 0;
+
     std::stringstream mainHtml;
     mainHtml <<
     "<html><body>"
     "<h1>Hello From Main Frame</h1>"
     "<script language=\"JavaScript\">"
+    "aaa = function(){}; bbb = function(a){ a=1; };"
+    "comp(false,{},{});\n"
+    "comp(true,aaa,aaa);\n"
+    "comp(true,bbb,bbb);\n"
+    "comp(false,aaa,bbb);\n"
+    "comp(false,{},bbb);\n"
+    "comp(false,{},bbb);\n"
+    "comp(true,0,0);\n"
+    "comp(true,\"a\",\"a\");\n"
+    "comp(false,\"a\",\"b\");\n"
+    "try { point.x = -1; } catch(e) {  }\n" // should not have any effect.
+    "try { point.y = point.x;  theY = point.y; } catch(e) { point.y = 4321; }\n"
     "hello(\"main\", callIFrame);"
     "function callIFrame() {"
     " var iframe = document.getElementById('iframe');"
@@ -463,7 +505,7 @@ public:
     "<h1>V8 Context Test</h1>"
     "<script language=\"JavaScript\">"
     "function TestException() { throw('My Exception'); }"
-    "function TestNavigate(a) { document.location = a; }"
+    "function TestNavigate(a) { document.location = a.url; }"
     "begin(TestException, TestNavigate);"
     "</script>"
     "</body></html>";
@@ -521,6 +563,22 @@ public:
     CefRefPtr<CefV8Value> doneFunc = 
     CefV8Value::CreateFunction("end", funcHandler);
     object->SetValue("end", doneFunc);
+
+    CefRefPtr<CefV8Value> compFunc = 
+    CefV8Value::CreateFunction("comp", funcHandler);
+    object->SetValue("comp", compFunc);
+
+    // Create an object with accessor based properties:
+    CefRefPtr<CefBase> blankBase;
+    CefRefPtr<CefV8Accessor> accessor(new DelegatingV8Accessor(this));
+    CefRefPtr<CefV8Value> point = CefV8Value::CreateObject(blankBase, accessor);
+
+    point->SetValue("x", V8_ACCESS_CONTROL_DEFAULT, 
+        V8_PROPERTY_ATTRIBUTE_READONLY);
+    point->SetValue("y", V8_ACCESS_CONTROL_DEFAULT, 
+        V8_PROPERTY_ATTRIBUTE_NONE);
+
+    object->SetValue("point", point);
     
     return RV_HANDLED;
   }
@@ -581,15 +639,37 @@ public:
   void AsyncTestNavigation(CefRefPtr<CefV8Context> context,
                            CefRefPtr<CefV8Value> func)
   {
-    CefV8ValueList args;
-    args.push_back(CefV8Value::CreateString("http://tests/end.html"));
-    CefRefPtr<CefV8Value> rv;
     CefString exception;
-    CefRefPtr<CefV8Value> global = context->GetGlobal();
-    ASSERT_TRUE(func->ExecuteFunctionWithContext(context, global, args, rv,
-                                                 exception));
-    if(exception.empty())
-      got_navigation_.yes();
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> rv, obj, url;
+
+    // Need to enter the context in order to create an Object, 
+    // Array, or Function. Simple types like String, Int, 
+    // Boolean, and Double don't require you to be in the 
+    // context before creating them.
+    if ( context->Enter() ) {
+      CefRefPtr<CefV8Value> global = context->GetGlobal();
+      CefRefPtr<CefV8Value> anArray = CefV8Value::CreateArray();
+      CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
+      CefRefPtr<CefV8Value> foobarFunc = 
+        CefV8Value::CreateFunction("foobar", funcHandler);
+
+      obj = CefV8Value::CreateObject(NULL);
+      url = CefV8Value::CreateString("http://tests/end.html");
+
+      obj->SetValue("url", url);
+      obj->SetValue("foobar", foobarFunc);
+      obj->SetValue("anArray", anArray);
+
+      args.push_back(obj);
+  
+      ASSERT_TRUE(func->ExecuteFunctionWithContext(context, global, args, rv,
+                                                   exception));
+      if(exception.empty())
+        got_navigation_.yes();
+  
+      context->Exit();
+    }
   }
   
   bool Execute(const CefString& name, 
@@ -666,6 +746,25 @@ public:
             &TestContextHandler::AsyncTestNavigation, cc, funcNavigate));
         return true;
       }
+    } else if (name == "comp") {
+      if(arguments.size() == 3)
+      {
+        CefRefPtr<CefV8Value> expected = arguments[0];
+        CefRefPtr<CefV8Value> one = arguments[1];
+        CefRefPtr<CefV8Value> two = arguments[2];
+
+        bool bExpected = expected->GetBoolValue();
+        bool bOne2Two = one->IsSame(two);
+        bool bTwo2One = two->IsSame(one);
+
+        // IsSame should match the expected
+        if ( bExpected != bOne2Two || bExpected != bTwo2One)
+          got_bad_is_same_.yes();
+      }
+      else
+      {
+        got_bad_is_same_.yes();
+      }
     } else if (name == "end") {
       got_testcomplete_.yes();
       DestroyTest();
@@ -673,13 +772,44 @@ public:
     }
     return false;
   }
-  
+
+  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
+           CefRefPtr<CefV8Value>& retval)
+  {
+    if(name == "x") {
+      got_point_x_read_.yes();
+      retval = CefV8Value::CreateInt(1234);
+      return true;
+    } else if(name == "y") {
+      got_point_y_read_.yes();
+      retval = CefV8Value::CreateInt(y_);
+      return true;
+    }
+    return false;
+  }
+
+  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
+           const CefRefPtr<CefV8Value> value)
+  {
+    if(name == "y") {
+      y_ = value->GetIntValue();
+      if( y_ == 1234)
+        got_point_y_write_.yes();
+      return true;
+    }
+    return false;
+  }
+
   // This function we will be called later to make it call into the
   // IFRAME, which then calls "fromIFrame" so that we can check the 
   // entered vs current contexts are working as expected.
   CefRefPtr<CefV8Context> contextIFrame_;
   CefRefPtr<CefV8Value> funcIFrame_;
   
+  TrackCallback got_point_x_read_;
+  TrackCallback got_point_y_read_;
+  TrackCallback got_point_y_write_;
+  TrackCallback got_bad_is_same_;
   TrackCallback got_hello_main_;
   TrackCallback got_hello_iframe_;
   TrackCallback got_correct_entered_url_;
@@ -689,6 +819,8 @@ public:
   TrackCallback got_exception_;
   TrackCallback got_navigation_;
   TrackCallback got_testcomplete_;
+
+  int y_;
 };
 
 } // namespace
@@ -699,6 +831,10 @@ TEST(V8Test, Context)
   CefRefPtr<TestContextHandler> handler = new TestContextHandler();
   handler->ExecuteTest();
 
+  EXPECT_TRUE(handler->got_point_x_read_);  
+  EXPECT_TRUE(handler->got_point_y_read_); 
+  EXPECT_TRUE(handler->got_point_y_write_); 
+  EXPECT_FALSE(handler->got_bad_is_same_);
   EXPECT_TRUE(handler->got_hello_main_);
   EXPECT_TRUE(handler->got_hello_iframe_);
   EXPECT_TRUE(handler->got_no_context_);

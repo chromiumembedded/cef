@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
+#include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/web_urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
@@ -51,6 +52,7 @@ void CefShutdown()
   DCHECK(CefReadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
+  DCHECK(CefV8AccessorCppToC::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCppToC::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCppToC::DebugObjCt == 0);

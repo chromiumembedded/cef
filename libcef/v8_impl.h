@@ -68,12 +68,19 @@ public:
   virtual CefRefPtr<CefBrowser> GetBrowser();
   virtual CefRefPtr<CefFrame> GetFrame();
   virtual CefRefPtr<CefV8Value> GetGlobal();
+  virtual bool Enter();
+  virtual bool Exit();
 
   v8::Local<v8::Context> GetContext();
   WebKit::WebFrame* GetWebFrame();
 
 protected:
   scoped_refptr<CefV8ContextHandle> v8_context_;
+
+#ifdef _DEBUG
+  // Used in debug builds to catch missing Exits in destructor.
+  int enter_count_;
+#endif
 };
 
 // Special class for a v8::Value to ensure that it is deleted from the UI
@@ -109,6 +116,7 @@ public:
   virtual bool IsObject();
   virtual bool IsArray();
   virtual bool IsFunction();
+  virtual bool IsSame(CefRefPtr<CefV8Value> value);
   virtual bool GetBoolValue();
   virtual int GetIntValue();
   virtual double GetDoubleValue();
@@ -121,6 +129,8 @@ public:
   virtual CefRefPtr<CefV8Value> GetValue(int index);
   virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value);
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value);
+  virtual bool SetValue(const CefString& key, AccessControl settings, 
+                        PropertyAttribute attribute);
   virtual bool GetKeys(std::vector<CefString>& keys);
   virtual CefRefPtr<CefBase> GetUserData();
   virtual int GetArrayLength();
