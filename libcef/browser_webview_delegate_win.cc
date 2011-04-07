@@ -161,27 +161,10 @@ void BrowserWebViewDelegate::runModal() {
 
   show(WebKit::WebNavigationPolicyNewWindow);
 
-  CefContext::BrowserList *list;
-  CefContext::BrowserList::const_iterator i;
-
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i) {
-    if (i->get()->IsPopup())
-      EnableWindow(i->get()->UIT_GetMainWndHandle(), FALSE);
-  }
-  _Context->Unlock();
-  
   browser_->UIT_SetIsModal(true);
-  MessageLoop::current()->Run();
 
-  _Context->Lock();
-  list = _Context->GetBrowserList();
-  i = list->begin();
-  for (; i != list->end(); ++i)
-    EnableWindow(i->get()->UIT_GetMainWndHandle(), TRUE);
-  _Context->Unlock();
+  // TODO(CEF): Add a handler notification for modal windows so the client can
+  // make the window behave modally.
 }
 
 // WebPluginPageDelegate ------------------------------------------------------
