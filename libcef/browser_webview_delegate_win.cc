@@ -38,6 +38,8 @@
 using webkit::npapi::WebPluginDelegateImpl;
 using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
+using WebKit::WebExternalPopupMenu;
+using WebKit::WebExternalPopupMenuClient;
 using WebKit::WebFrame;
 using WebKit::WebNavigationPolicy;
 using WebKit::WebPopupMenuInfo;
@@ -48,8 +50,9 @@ static const wchar_t kPluginWindowClassName[] = L"WebPluginHost";
 
 // WebViewClient --------------------------------------------------------------
 
-WebWidget* BrowserWebViewDelegate::createPopupMenu(
-    const WebPopupMenuInfo& info) {
+WebExternalPopupMenu* BrowserWebViewDelegate::createExternalPopupMenu(
+    const WebPopupMenuInfo& info,
+    WebExternalPopupMenuClient* client)  {
   NOTREACHED();
   return NULL;
 }

@@ -686,6 +686,8 @@
             'libcef/browser_webview_mac.h',
             'libcef/browser_webview_mac.mm',
             'libcef/cef_process_ui_thread_mac.mm',
+            'libcef/external_popup_menu_mac.h',
+            'libcef/external_popup_menu_mac.mm',
             'libcef/external_protocol_handler_mac.mm',
             'libcef/webview_host_mac.mm',
             'libcef/webwidget_host_mac.mm',

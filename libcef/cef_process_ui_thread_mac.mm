@@ -7,6 +7,7 @@
 #include "cef_process_ui_thread.h"
 #include "browser_webkit_glue.h"
 #include "base/message_pump_mac.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 // CrAppProtocol implementation.
@@ -53,7 +54,7 @@ void CefProcessUIThread::PlatformInit() {
   // Register the run loop observer.
   CFRunLoopObserverRef observer =
       CFRunLoopObserverCreate(NULL,
-                              kCFRunLoopBeforeTimers | kCFRunLoopBeforeWaiting,
+                              kCFRunLoopBeforeWaiting,
                               YES, /* repeat */
                               0,
                               &RunLoopObserver,
@@ -64,6 +65,9 @@ void CefProcessUIThread::PlatformInit() {
   }
 
   webkit_glue::InitializeDataPak();
+  
+  // On Mac, the select popup menus are rendered by the browser.
+  WebKit::WebView::setUseExternalPopupMenus(true);
 }
 
 void CefProcessUIThread::PlatformCleanUp() {

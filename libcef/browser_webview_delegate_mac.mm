@@ -17,19 +17,29 @@
 #include "webkit/glue/webmenurunner_mac.h"
 
 using WebKit::WebCursorInfo;
+using WebKit::WebExternalPopupMenu;
+using WebKit::WebExternalPopupMenuClient;
 using WebKit::WebNavigationPolicy;
-using WebKit::WebPopupMenu;
 using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
 
 // WebViewClient --------------------------------------------------------------
 
-WebWidget* BrowserWebViewDelegate::createPopupMenu(
-    const WebPopupMenuInfo& info) {
-  WebWidget* webwidget = browser_->UIT_CreatePopupWidget();
-  browser_->UIT_GetPopupDelegate()->SetPopupMenuInfo(info);
-  return webwidget;
+WebExternalPopupMenu* BrowserWebViewDelegate::createExternalPopupMenu(
+    const WebPopupMenuInfo& info,
+    WebExternalPopupMenuClient* client) {
+  DCHECK(!external_popup_menu_.get());
+  external_popup_menu_.reset(new ExternalPopupMenu(this, info, client));
+  return external_popup_menu_.get();
+}
+
+void BrowserWebViewDelegate::ClosePopupMenu() {
+  if (external_popup_menu_ == NULL) {
+    NOTREACHED();
+    return;
+  }
+  external_popup_menu_.reset();
 }
 
 void BrowserWebViewDelegate::showContextMenu(
@@ -40,64 +50,6 @@ void BrowserWebViewDelegate::showContextMenu(
 // WebWidgetClient ------------------------------------------------------------
 
 void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
-  if (!popup_menu_info_.get())
-    return;
-  if (this != browser_->UIT_GetPopupDelegate())
-    return;
-  // Display a HTML select menu.
-
-  std::vector<WebMenuItem> items;
-  for (size_t i = 0; i < popup_menu_info_->items.size(); ++i)
-    items.push_back(popup_menu_info_->items[i]);
-
-  int item_height = popup_menu_info_->itemHeight;
-  double font_size = popup_menu_info_->itemFontSize;
-  int selected_index = popup_menu_info_->selectedIndex;
-  bool right_aligned = popup_menu_info_->rightAligned;
-  popup_menu_info_.reset();  // No longer needed.
-
-  const WebRect& bounds = popup_bounds_;
-
-  // Set up the menu position.
-  NSView* web_view = browser_->UIT_GetWebViewWndHandle();
-  NSRect view_rect = [web_view bounds];
-  int y_offset = bounds.y + bounds.height;
-  NSRect position = NSMakeRect(bounds.x, view_rect.size.height - y_offset,
-                               bounds.width, bounds.height);
-
-  // Display the menu.
-  scoped_nsobject<WebMenuRunner> menu_runner;
-  menu_runner.reset([[WebMenuRunner alloc] initWithItems:items
-                                                fontSize:font_size
-                                            rightAligned:right_aligned]);
-
-  [menu_runner runMenuInView:browser_->UIT_GetWebViewWndHandle()
-                  withBounds:position
-                initialIndex:selected_index];
-
-  // Get the selected item and forward to WebKit. WebKit expects an input event
-  // (mouse down, keyboard activity) for this, so we calculate the proper
-  // position based on the selected index and provided bounds.
-  WebWidgetHost* popup = browser_->UIT_GetPopupHost();
-  NSWindow* window = [browser_->UIT_GetMainWndHandle() window];
-  int window_num = [window windowNumber];
-  NSEvent* event =
-      webkit_glue::EventWithMenuAction([menu_runner menuItemWasChosen],
-                                       window_num, item_height,
-                                       [menu_runner indexOfSelectedItem],
-                                       position, view_rect);
-
-  if ([menu_runner menuItemWasChosen]) {
-    // Construct a mouse up event to simulate the selection of an appropriate
-    // menu item.
-    popup->MouseEvent(event);
-  } else {
-    // Fake an ESC key event (keyCode = 0x1B, from webinputevent_mac.mm) and
-    // forward that to WebKit.
-    popup->KeyEvent(event);
-  }
-
-  browser_->UIT_ClosePopupWidget();
 }
 
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
@@ -117,8 +69,6 @@ WebRect BrowserWebViewDelegate::windowRect() {
 void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
   if (this == browser_->UIT_GetWebViewDelegate()) {
     // TODO(port): Set the window rectangle.
-  } else if (this == browser_->UIT_GetPopupDelegate()) {
-    popup_bounds_ = rect;  // The initial position of the popup.
   }
 }
 
@@ -188,10 +138,6 @@ void BrowserWebViewDelegate::DidMovePlugin(
 }
 
 // Protected methods ----------------------------------------------------------
-
-void BrowserWebViewDelegate::SetPopupMenuInfo(const WebPopupMenuInfo& info) {
-  popup_menu_info_.reset(new WebPopupMenuInfo(info));
-}
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const CefString& message) {

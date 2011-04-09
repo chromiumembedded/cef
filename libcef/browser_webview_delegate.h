@@ -29,6 +29,7 @@
 
 #if defined(OS_MACOSX)
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
+#include "external_popup_menu_mac.h"
 #endif
 
 #if defined(OS_WIN)
@@ -55,8 +56,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame* creator, const WebKit::WebURLRequest& request,
       const WebKit::WebWindowFeatures& features, const WebKit::WebString& name);
   virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type);
-  virtual WebKit::WebWidget* createPopupMenu(
-      const WebKit::WebPopupMenuInfo& info);
+  virtual WebKit::WebExternalPopupMenu* createExternalPopupMenu(
+      const WebKit::WebPopupMenuInfo& info,
+      WebKit::WebExternalPopupMenuClient* client);
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
       unsigned quota);
   virtual void didAddMessageToConsole(
@@ -247,7 +249,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   CefBrowserImpl* GetBrowser() { return browser_; }
 
 #if defined(OS_MACOSX)
-  void SetPopupMenuInfo(const WebKit::WebPopupMenuInfo& info);
+  // Called after the external popup menu has been dismissed.
+  void ClosePopupMenu();
 #endif
 
   // Called after dragging has finished.
@@ -322,8 +325,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #endif
 
 #if defined(OS_MACOSX)
-  scoped_ptr<WebKit::WebPopupMenuInfo> popup_menu_info_;
-  WebKit::WebRect popup_bounds_;
+  // The external popup menu for the currently showing select popup.
+  scoped_ptr<ExternalPopupMenu> external_popup_menu_;
 #endif
 
   // true if we want to enable smart insert/delete.
