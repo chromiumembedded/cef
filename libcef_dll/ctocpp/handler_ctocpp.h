@@ -57,7 +57,7 @@ public:
       CefRefPtr<CefStreamReader>& resourceStream, CefString& mimeType,
       int loadFlags);
   virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
-      const CefString& url, bool* allow_os_execution);
+      const CefString& url, bool& allow_os_execution);
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,
       const CefString& mimeType, const CefString& fileName,
       int64 contentLength, CefRefPtr<CefDownloadHandler>& handler);

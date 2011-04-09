@@ -34,6 +34,7 @@
 #if defined(__linux__)
 #include <pthread.h>
 #include "cef_types_linux.h"
+#include "cef_types_wrappers.h"
 
 // Atomic increment and decrement.
 inline long CefAtomicIncrement(long volatile *pDest)
@@ -77,108 +78,49 @@ public:
 #define CefWindowHandle cef_window_handle_t
 #define CefCursorHandle cef_cursor_handle_t
 
+struct CefWindowInfoTraits {
+  typedef cef_window_info_t struct_type;
+
+  static inline void init(struct_type* s) {}
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
+  {
+    target->m_Widget = src->m_Widget;
+    target->m_ParentWidget = src->m_ParentWidget;
+  }
+};
+
 // Class representing window information.
-class CefWindowInfo : public cef_window_info_t
+class CefWindowInfo : public CefStructBase<CefWindowInfoTraits>
 {
 public:
-  CefWindowInfo()
-  {
-    Init();
-  }
-  virtual ~CefWindowInfo()
-  {
-    Reset();
-  }
+  typedef CefStructBase<CefWindowInfoTraits> parent;
 
-  CefWindowInfo(const CefWindowInfo& r)
-  {
-    Init();
-    *this = r;
-  }
-  CefWindowInfo(const cef_window_info_t& r)
-  {
-    Init();
-    *this = r;
-  }
-
-  void Reset()
-  {
-    Init();
-  }
-
-  void Attach(const cef_window_info_t& r)
-  {
-    Reset();
-    *static_cast<cef_window_info_t*>(this) = r;
-  }
-
-  void Detach()
-  {
-    Init();
-  }
-
+  CefWindowInfo() : parent() {}
+  CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
+  CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
+  
   void SetAsChild(CefWindowHandle ParentWidget)
   {
     m_ParentWidget = ParentWidget;
   }
+};
 
-  CefWindowInfo& operator=(const CefWindowInfo& r)
-  {
-    return operator=(static_cast<const cef_window_info_t&>(r));
-  }
-  CefWindowInfo& operator=(const cef_window_info_t& r)
-  {
-    m_Widget = r.m_Widget;
-    m_ParentWidget = r.m_ParentWidget;
-    return *this;
-  }
+struct CefPrintInfoTraits {
+  typedef cef_print_info_t struct_type;
 
-protected:
-  void Init()
+  static inline void init(struct_type* s) {}
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
   {
-    memset(static_cast<cef_window_info_t*>(this), 0, sizeof(cef_window_info_t));
+    target->m_Scale = src->m_Scale;
   }
 };
 
 // Class representing print context information.
-class CefPrintInfo : public cef_print_info_t
-{
-public:
-  CefPrintInfo()
-  {
-    Init();
-  }
-  virtual ~CefPrintInfo()
-  {
-  }
-
-  CefPrintInfo(const CefPrintInfo& r)
-  {
-    Init();
-    *this = r;
-  }
-  CefPrintInfo(const cef_print_info_t& r)
-  {
-    Init();
-    *this = r;
-  }
-
-  CefPrintInfo& operator=(const CefPrintInfo& r)
-  {
-    return operator=(static_cast<const cef_print_info_t&>(r));
-  }
-  CefPrintInfo& operator=(const cef_print_info_t& r)
-  {
-    m_Scale = r.m_Scale;
-    return *this;
-  }
-
-protected:
-  void Init()
-  {
-    m_Scale = 0;
-  }
-};
+typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
 #endif // defined(__linux__)
 

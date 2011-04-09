@@ -21,6 +21,7 @@
 #include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
 #include "cpptoc/zip_reader_cpptoc.h"
+#include "ctocpp/cookie_visitor_ctocpp.h"
 #include "ctocpp/domevent_listener_ctocpp.h"
 #include "ctocpp/domvisitor_ctocpp.h"
 #include "ctocpp/download_handler_ctocpp.h"
@@ -42,17 +43,13 @@ CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
   CefSettings settingsObj;
   CefBrowserSettings browserDefaultsObj;
 
-  // Take ownership of the pointers instead of copying.
+  // Reference the values instead of copying.
   if (settings)
-    settingsObj.Attach(*settings);
+    settingsObj.Set(*settings, false);
   if (browser_defaults)
-    browserDefaultsObj.Attach(*browser_defaults);
+    browserDefaultsObj.Set(*browser_defaults, false);
 
   int ret = CefInitialize(settingsObj, browserDefaultsObj);
-
-  // Don't free the pointers.
-  settingsObj.Detach();
-  browserDefaultsObj.Detach();
 
   return ret;
 }
@@ -77,6 +74,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
   DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
+  DCHECK(CefCookieVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefDOMEventListenerCToCpp::DebugObjCt == 0);
   DCHECK(CefDOMVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
@@ -176,20 +174,7 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
   CefURLParts urlParts;
   bool ret = CefParseURL(CefString(url), urlParts);
 
-  // Clear the current structure values, if any.
-  cef_string_clear(&parts->spec);
-  cef_string_clear(&parts->scheme);
-  cef_string_clear(&parts->username);
-  cef_string_clear(&parts->password);
-  cef_string_clear(&parts->host);
-  cef_string_clear(&parts->port);
-  cef_string_clear(&parts->path);
-  cef_string_clear(&parts->query);
-
-  // Transfer ownership of the values from |urlParts| to the structure.
-  memcpy(parts, static_cast<cef_urlparts_t*>(&urlParts),
-      sizeof(cef_urlparts_t));
-  urlParts.Detach();
+  urlParts.DetachTo(*parts);
 
   return ret;
 }
@@ -201,21 +186,59 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
   if(!parts || !url)
     return 0;
 
+  // Reference the existing values without copying.
   CefURLParts urlParts;
-
-  // Reference the existing structure values without copying.
-  cef_string_set(parts->spec.str, parts->spec.length, &urlParts.spec, false);
-  cef_string_set(parts->scheme.str, parts->scheme.length, &urlParts.scheme,
-      false);
-  cef_string_set(parts->username.str, parts->username.length,
-      &urlParts.username, false);
-  cef_string_set(parts->password.str, parts->password.length,
-      &urlParts.password, false);
-  cef_string_set(parts->host.str, parts->host.length, &urlParts.host, false);
-  cef_string_set(parts->port.str, parts->port.length, &urlParts.port, false);
-  cef_string_set(parts->path.str, parts->path.length, &urlParts.path, false);
-  cef_string_set(parts->query.str, parts->query.length, &urlParts.query, false);
+  urlParts.Set(*parts, false);
 
   CefString urlStr(url);
   return CefCreateURL(urlParts, urlStr);
+}
+
+CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor)
+{
+  DCHECK(visitor);
+  if (!visitor)
+    return 0;
+
+  return CefVisitAllCookies(CefCookieVisitorCToCpp::Wrap(visitor));
+}
+
+CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
+    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor)
+{
+  DCHECK(url);
+  DCHECK(visitor);
+  if (!url || !visitor)
+    return 0;
+
+  return CefVisitUrlCookies(CefString(url), includeHttpOnly?true:false,
+      CefCookieVisitorCToCpp::Wrap(visitor));
+}
+
+CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
+    const struct _cef_cookie_t* cookie)
+{
+  DCHECK(url);
+  DCHECK(cookie);
+  if (!url || !cookie)
+    return 0;
+
+  // Reference the existing values without copying.
+  CefCookie cookieObj;
+  cookieObj.Set(*cookie, false);
+
+  return CefSetCookie(CefString(url), cookieObj);
+}
+
+CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
+    const cef_string_t* cookie_name)
+{
+  CefString urlStr, cookieNameStr;
+
+  if(url)
+    urlStr = url;
+  if(cookie_name)
+    cookieNameStr = cookie_name;
+
+  return CefDeleteCookies(urlStr, cookieNameStr);
 }

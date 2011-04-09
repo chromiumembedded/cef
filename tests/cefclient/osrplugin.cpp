@@ -158,7 +158,7 @@ public:
       popup_rect_ = rect;
     } else if(!show) {
       // Clear the popup buffer.
-      popup_rect_.set(0,0,0,0);
+      popup_rect_.Set(0,0,0,0);
       if (popup_buffer_) {
         delete [] popup_buffer_;
         popup_buffer_ = NULL;

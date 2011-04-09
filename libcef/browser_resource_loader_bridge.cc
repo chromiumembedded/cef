@@ -383,9 +383,9 @@ class RequestProxy : public net::URLRequest::Delegate,
           !net::URLRequest::IsHandledProtocol(params->url.scheme())) {
           bool allow_os_execution = false;
           CefHandler::RetVal rv = handler->HandleProtocolExecution(browser_,
-              params->url.spec(), &allow_os_execution);
-          if(rv == RV_CONTINUE && allow_os_execution &&
-             ExternalProtocolHandler::HandleExternalProtocol(params->url)) {
+              params->url.spec(), allow_os_execution);
+          if (rv == RV_CONTINUE && allow_os_execution &&
+              ExternalProtocolHandler::HandleExternalProtocol(params->url)) {
             handled = true;
           } else if(rv == RV_HANDLED) {
             handled = true;
@@ -885,7 +885,10 @@ class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
  public:
   void Set(const GURL& url, const std::string& cookie) {
     REQUIRE_IOT();
-    _Context->request_context()->cookie_store()->SetCookie(url, cookie);
+    net::CookieStore* cookie_store =
+        _Context->request_context()->cookie_store();
+    if (cookie_store)
+      cookie_store->SetCookie(url, cookie);
   }
 
  private:
@@ -900,7 +903,10 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
   void Get(const GURL& url) {
-    result_ = _Context->request_context()->cookie_store()->GetCookies(url);
+    net::CookieStore* cookie_store =
+        _Context->request_context()->cookie_store();
+    if (cookie_store)
+      result_ = cookie_store->GetCookies(url);
     event_.Signal();
   }
 
@@ -959,10 +965,9 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
 
 // static
 void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
-                                           const GURL& first_party_for_cookies,
-                                           const std::string& cookie) {
+                                            const GURL& first_party_for_cookies,
+                                            const std::string& cookie) {
   // Proxy to IO thread to synchronize w/ network loading.
-
   scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
   CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
       cookie_setter.get(), &CookieSetter::Set, url, cookie));
@@ -971,19 +976,18 @@ void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
 // static
 std::string BrowserResourceLoaderBridge::GetCookies(
     const GURL& url, const GURL& first_party_for_cookies) {
-  // Proxy to IO thread to synchronize w/ network loading
-
-  scoped_refptr<CookieGetter> getter = new CookieGetter();
-
+  // Proxy to IO thread to synchronize w/ network loading.
+  scoped_refptr<CookieGetter> cookie_getter = new CookieGetter();
   CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-      getter.get(), &CookieGetter::Get, url));
+      cookie_getter.get(), &CookieGetter::Get, url));
 
-  return getter->GetResult();
+  // Blocks until the result is available.
+  return cookie_getter->GetResult();
 }
 
 // static
 void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
-  // Proxy to IO thread to synchronize w/ network loading
+  // Proxy to IO thread to synchronize w/ network loading.
   CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
       _Context->request_context().get(),
       &BrowserRequestContext::SetAcceptAllCookies, accept_all_cookies));

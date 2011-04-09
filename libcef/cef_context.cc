@@ -13,6 +13,8 @@
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "base/nss_util.h"
 #endif
+#include "base/stringprintf.h"
+#include "net/base/cookie_monster.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
 // Both the CefContext constuctor and the CefContext::RemoveBrowser method need
@@ -21,6 +23,138 @@ const int kNextBrowserIdReset = 1;
 
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
+
+namespace {
+
+void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
+{
+  REQUIRE_UIT();
+
+  webkit::npapi::WebPluginInfo info;
+
+  FilePath filename = FilePath(CefString(&plugin_info->unique_name));
+  std::string name = CefString(&plugin_info->display_name);
+  std::string description = CefString(&plugin_info->description);
+  std::string mime_type = CefString(&plugin_info->mime_type);
+
+  webkit::npapi::PluginEntryPoints entry_points;
+#if !defined(OS_POSIX) || defined(OS_MACOSX)
+  entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
+#endif
+  entry_points.np_initialize = plugin_info->np_initialize;
+  entry_points.np_shutdown = plugin_info->np_shutdown;
+
+  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(filename,
+      name, description, mime_type, entry_points);
+
+  delete plugin_info;
+}
+
+int GetThreadId(CefThreadId threadId)
+{
+  switch(threadId) {
+  case TID_UI: return CefThread::UI;
+  case TID_IO: return CefThread::IO;
+  case TID_FILE: return CefThread::FILE;
+  };
+  NOTREACHED();
+  return -1;
+}
+
+void SetCefTime(cef_time_t& cef_time, const base::Time& base_time)
+{
+  base::Time::Exploded exploded;
+  base_time.UTCExplode(&exploded);
+  cef_time.year = exploded.year;
+  cef_time.month = exploded.month;
+  cef_time.day_of_week = exploded.day_of_week;
+  cef_time.day_of_month = exploded.day_of_month;
+  cef_time.hour = exploded.hour;
+  cef_time.minute = exploded.minute;
+  cef_time.second = exploded.second;
+  cef_time.millisecond = exploded.millisecond;
+}
+
+void SetBaseTime(base::Time& base_time, const cef_time_t& cef_time)
+{
+  base::Time::Exploded exploded;
+  exploded.year = cef_time.year;
+  exploded.month = cef_time.month;
+  exploded.day_of_week = cef_time.day_of_week;
+  exploded.day_of_month = cef_time.day_of_month;
+  exploded.hour = cef_time.hour;
+  exploded.minute = cef_time.minute;
+  exploded.second = cef_time.second;
+  exploded.millisecond = cef_time.millisecond;
+  base_time = base::Time::FromUTCExploded(exploded);
+}
+
+void IOT_VisitCookies(net::CookieMonster* cookie_monster,
+                      const net::CookieList& list,
+                      CefRefPtr<CefCookieVisitor> visitor)
+{
+  int total = list.size(), count = 0;
+  
+  net::CookieList::const_iterator it = list.begin();
+  for (; it != list.end(); ++it, ++count) {
+    CefCookie cookie;
+    const net::CookieMonster::CanonicalCookie& cc = *(it);
+    
+    CefString(&cookie.name).FromString(cc.Name());
+    CefString(&cookie.value).FromString(cc.Value());
+    CefString(&cookie.domain).FromString(cc.Domain());
+    CefString(&cookie.path).FromString(cc.Path());
+    cookie.secure = cc.IsSecure();
+    cookie.httponly = cc.IsHttpOnly();
+    SetCefTime(cookie.creation, cc.CreationDate());
+    SetCefTime(cookie.last_access, cc.LastAccessDate());
+    cookie.has_expires = cc.DoesExpire();
+    if (cookie.has_expires)
+      SetCefTime(cookie.expires, cc.ExpiryDate());
+
+    bool deleteCookie = false;
+    bool keepLooping = visitor->Visit(cookie, count, total, deleteCookie);
+    if (deleteCookie)
+      cookie_monster->DeleteCanonicalCookie(cc);
+    if (!keepLooping)
+      break;
+  }
+}
+
+void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
+{
+  REQUIRE_IOT();
+
+  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
+      _Context->request_context()->cookie_store());
+  if (!cookie_monster)
+    return;
+
+  net::CookieList list = cookie_monster->GetAllCookies();
+  if (!list.empty())
+    IOT_VisitCookies(cookie_monster, list, visitor);
+}
+
+void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
+                         CefRefPtr<CefCookieVisitor> visitor)
+{
+  REQUIRE_IOT();
+
+  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
+      _Context->request_context()->cookie_store());
+  if (!cookie_monster)
+    return;
+
+  net::CookieOptions options;
+  if (includeHttpOnly)
+    options.set_include_httponly();
+  net::CookieList list =
+      cookie_monster->GetAllCookiesForURLWithOptions(url, options);
+  if (!list.empty())
+    IOT_VisitCookies(cookie_monster, list, visitor);
+}
+
+} // anonymous
 
 bool CefInitialize(const CefSettings& settings,
                    const CefBrowserSettings& browser_defaults)
@@ -97,30 +231,6 @@ void CefRunMessageLoop()
   _Context->process()->RunMessageLoop();
 }
 
-static void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
-{
-  REQUIRE_UIT();
-
-  webkit::npapi::WebPluginInfo info;
-
-  FilePath filename = FilePath(CefString(&plugin_info->unique_name));
-  std::string name = CefString(&plugin_info->display_name);
-  std::string description = CefString(&plugin_info->description);
-  std::string mime_type = CefString(&plugin_info->mime_type);
-
-  webkit::npapi::PluginEntryPoints entry_points;
-#if !defined(OS_POSIX) || defined(OS_MACOSX)
-  entry_points.np_getentrypoints = plugin_info->np_getentrypoints;
-#endif
-  entry_points.np_initialize = plugin_info->np_initialize;
-  entry_points.np_shutdown = plugin_info->np_shutdown;
-
-  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(filename,
-      name, description, mime_type, entry_points);
-
-  delete plugin_info;
-}
-
 bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {
   // Verify that the context is in a valid state.
@@ -133,17 +243,6 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
       NewRunnableFunction(UIT_RegisterPlugin, new CefPluginInfo(plugin_info)));
   
   return true;
-}
-
-static int GetThreadId(CefThreadId threadId)
-{
-  switch(threadId) {
-  case TID_UI: return CefThread::UI;
-  case TID_IO: return CefThread::IO;
-  case TID_FILE: return CefThread::FILE;
-  };
-  NOTREACHED();
-  return -1;
 }
 
 bool CefCurrentlyOn(CefThreadId threadId)
@@ -249,6 +348,114 @@ bool CefCreateURL(const CefURLParts& parts,
   }
 
   return false;
+}
+
+bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return false;
+  }
+
+  return CefThread::PostTask(CefThread::IO, FROM_HERE,
+      NewRunnableFunction(IOT_VisitAllCookies, visitor));
+}
+
+bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
+                        CefRefPtr<CefCookieVisitor> visitor)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return false;
+  }
+
+  std::string urlStr = url;
+  GURL gurl = GURL(urlStr);
+  if (!gurl.is_valid())
+    return false;
+
+  return CefThread::PostTask(CefThread::IO, FROM_HERE,
+      NewRunnableFunction(IOT_VisitUrlCookies, gurl, includeHttpOnly, visitor));
+}
+
+bool CefSetCookie(const CefString& url, const CefCookie& cookie)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return false;
+  }
+
+  // Verify that this function is being called on the IO thread.
+  if (!CefThread::CurrentlyOn(CefThread::IO)) {
+    NOTREACHED();
+    return false;
+  }
+
+  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
+      _Context->request_context()->cookie_store());
+  if (!cookie_monster)
+    return false;
+
+  std::string urlStr = url;
+  GURL gurl = GURL(urlStr);
+  if (!gurl.is_valid())
+    return false;
+
+  std::string name = CefString(&cookie.name).ToString();
+  std::string value = CefString(&cookie.value).ToString();
+  std::string domain = CefString(&cookie.domain).ToString();
+  std::string path = CefString(&cookie.path).ToString();
+  
+  base::Time expiration_time;
+  if (cookie.has_expires)
+    SetBaseTime(expiration_time, cookie.expires);
+
+  return cookie_monster->SetCookieWithDetails(gurl, name, value, domain, path,
+                                              expiration_time, cookie.secure,
+                                              cookie.httponly);
+}
+
+bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return false;
+  }
+
+  // Verify that this function is being called on the IO thread.
+  if (!CefThread::CurrentlyOn(CefThread::IO)) {
+    NOTREACHED();
+    return false;
+  }
+
+  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
+      _Context->request_context()->cookie_store());
+  if (!cookie_monster)
+    return false;
+
+  if (url.empty()) {
+    // Delete all cookies.
+    cookie_monster->DeleteAll(true);
+    return true;
+  }
+
+  std::string urlStr = url;
+  GURL gurl = GURL(urlStr);
+  if (!gurl.is_valid())
+    return false;
+
+  if (cookie_name.empty()) {
+    // Delete all matching host cookies.
+    cookie_monster->DeleteAllForHost(gurl);
+  } else {
+    // Delete all matching host and domain cookies.
+    cookie_monster->DeleteCookie(gurl, cookie_name);
+  }
+  return true;
 }
 
 

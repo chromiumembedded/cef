@@ -197,6 +197,36 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
 CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
     cef_string_t* url);
 
+// Visit all cookies. The returned cookies are ordered by longest path, then by
+// earliest creation date. Returns false (0) if cookies cannot be accessed.
+CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor);
+
+// Visit a subset of cookies. The results are filtered by the given url scheme,
+// host, domain and path. If |includeHttpOnly| is true (1) HTTP-only cookies
+// will also be included in the results. The returned cookies are ordered by
+// longest path, then by earliest creation date. Returns false (0) if cookies
+// cannot be accessed.
+CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
+    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor);
+
+// Sets a cookie given a valid URL and explicit user-provided cookie attributes.
+// This function expects each attribute to be well-formed. It will check for
+// disallowed characters (e.g. the ';' character is disallowed within the cookie
+// value attribute) and will return false (0) without setting the cookie if such
+// characters are found. This function must be called on the IO thread.
+CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
+    const struct _cef_cookie_t* cookie);
+
+// Delete all cookies that match the specified parameters. If both |url| and
+// |cookie_name| are specified all host and domain cookies matching both values
+// will be deleted. If only |url| is specified all host cookies (but not domain
+// cookies) irrespective of path will be deleted. If |url| is NULL all cookies
+// for all hosts and domains will be deleted. Returns false (0) if a non-NULL
+// invalid URL is specified or if cookies cannot be accessed. This function must
+// be called on the IO thread.
+CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
+    const cef_string_t* cookie_name);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.
@@ -233,6 +263,25 @@ typedef struct _cef_task_t
       cef_thread_id_t threadId);
 
 } cef_task_t;
+
+
+// Structure to implement for visiting cookie values. The functions of this
+// structure will always be called on the IO thread.
+typedef struct _cef_cookie_visitor_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Method that will be called once for each cookie. |count| is the 0-based
+  // index for the current cookie. |total| is the total number of cookies. Set
+  // |deleteCookie| to true (1) to delete the cookie currently being visited.
+  // Return false (0) to stop visiting cookies. This function may never be
+  // called if no cookies are found.
+  int (CEF_CALLBACK *visit)(struct _cef_cookie_visitor_t* self,
+      const struct _cef_cookie_t* cookie, int count, int total,
+      int* deleteCookie);
+
+} cef_cookie_visitor_t;
 
 
 // Structure used to represent a browser window. The functions of this structure

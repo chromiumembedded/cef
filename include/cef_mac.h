@@ -34,6 +34,7 @@
 #if defined(__APPLE__)
 #include <pthread.h>
 #include "cef_types_mac.h"
+#include "cef_types_wrappers.h"
 
 // Atomic increment and decrement.
 inline long CefAtomicIncrement(long volatile *pDest)
@@ -77,47 +78,40 @@ public:
   pthread_mutexattr_t attr_;
 };
 
+struct CefWindowInfoTraits {
+  typedef cef_window_info_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s)
+  {
+    cef_string_clear(&s->m_windowName);
+  }
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
+  {
+    target->m_View = src->m_View;
+    target->m_ParentView = src->m_ParentView;
+    cef_string_set(src->m_windowName.str, src->m_windowName.length,
+        &target->m_windowName, copy);
+    target->m_x = src->m_x;
+    target->m_y = src->m_y;
+    target->m_nWidth = src->m_nWidth;
+    target->m_nHeight = src->m_nHeight;
+    target->m_bHidden = src->m_bHidden;
+  }
+};
+
 // Class representing window information.
-class CefWindowInfo : public cef_window_info_t
+class CefWindowInfo : public CefStructBase<CefWindowInfoTraits>
 {
 public:
-  CefWindowInfo()
-  {
-    Init();
-  }
-  virtual ~CefWindowInfo()
-  {
-    Reset();
-  }
+  typedef CefStructBase<CefWindowInfoTraits> parent;
 
-  CefWindowInfo(const CefWindowInfo& r)
-  {
-    Init();
-    *this = r;
-  }
-  CefWindowInfo(const cef_window_info_t& r)
-  {
-    Init();
-    *this = r;
-  }
-
-  void Reset()
-  {
-    cef_string_clear(&m_windowName);
-    Init();
-  }
-
-  void Attach(const cef_window_info_t& r)
-  {
-    Reset();
-    *static_cast<cef_window_info_t*>(this) = r;
-  }
-
-  void Detach()
-  {
-    Init();
-  }
-
+  CefWindowInfo() : parent() {}
+  CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
+  CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
+  
   void SetAsChild(CefWindowHandle ParentView, int x, int y, int width,
                   int height)
   {
@@ -128,70 +122,22 @@ public:
     m_nHeight = height;
     m_bHidden = false;
   }
+};
 
-  CefWindowInfo& operator=(const CefWindowInfo& r)
-  {
-    return operator=(static_cast<const cef_window_info_t&>(r));
-  }
-  CefWindowInfo& operator=(const cef_window_info_t& r)
-  {
-    m_View = r.m_View;
-    m_ParentView = r.m_ParentView;
-    cef_string_copy(r.m_windowName.str, r.m_windowName.length, &m_windowName);
-    m_x = r.m_x;
-    m_y = r.m_y;
-    m_nWidth = r.m_nWidth;
-    m_nHeight = r.m_nHeight;
-    m_bHidden = r.m_bHidden;
-    return *this;
-  }
+struct CefPrintInfoTraits {
+  typedef cef_print_info_t struct_type;
 
-protected:
-  void Init()
+  static inline void init(struct_type* s) {}
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
   {
-    memset(static_cast<cef_window_info_t*>(this), 0, sizeof(cef_window_info_t));
+    target->m_Scale = src->m_Scale;
   }
 };
 
 // Class representing print context information.
-class CefPrintInfo : public cef_print_info_t
-{
-public:
-  CefPrintInfo()
-  {
-    Init();
-  }
-  virtual ~CefPrintInfo()
-  {
-  }
-
-  CefPrintInfo(const CefPrintInfo& r)
-  {
-    Init();
-    *this = r;
-  }
-  CefPrintInfo(const cef_print_info_t& r)
-  {
-    Init();
-    *this = r;
-  }
-
-  CefPrintInfo& operator=(const CefPrintInfo& r)
-  {
-    return operator=(static_cast<const cef_print_info_t&>(r));
-  }
-  CefPrintInfo& operator=(const cef_print_info_t& r)
-  {
-    m_Scale = r.m_Scale;
-    return *this;
-  }
-
-protected:
-  void Init()
-  {
-    m_Scale = 0;
-  }
-};
+typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
 #endif // defined(__APPLE__)
 

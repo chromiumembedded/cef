@@ -6,6 +6,7 @@
 #include "include/cef_capi.h"
 #include "include/cef_nplugin.h"
 #include "include/cef_nplugin_capi.h"
+#include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
@@ -46,6 +47,7 @@ void CefShutdown()
 
 #ifdef _DEBUG
   // Check that all wrapper objects have been destroyed
+  DCHECK(CefCookieVisitorCppToC::DebugObjCt == 0);
   DCHECK(CefDOMEventListenerCppToC::DebugObjCt == 0);
   DCHECK(CefDOMVisitorCppToC::DebugObjCt == 0);
   DCHECK(CefDownloadHandlerCppToC::DebugObjCt == 0);
@@ -138,4 +140,28 @@ bool CefCreateURL(const CefURLParts& parts,
                   CefString& url)
 {
   return cef_create_url(&parts, url.GetWritableStruct()) ? true : false;
+}
+
+bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
+{
+  return cef_visit_all_cookies(CefCookieVisitorCppToC::Wrap(visitor)) ?
+      true : false;
+}
+
+bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
+                        CefRefPtr<CefCookieVisitor> visitor)
+{
+  return cef_visit_url_cookies(url.GetStruct(), includeHttpOnly,
+      CefCookieVisitorCppToC::Wrap(visitor)) ? true : false;
+}
+
+bool CefSetCookie(const CefString& url, const CefCookie& cookie)
+{
+  return cef_set_cookie(url.GetStruct(), &cookie) ? true : false;
+}
+
+bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
+{
+  return cef_delete_cookies(url.GetStruct(), cookie_name.GetStruct()) ?
+      true : false;
 }

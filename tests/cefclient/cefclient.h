@@ -142,7 +142,7 @@ public:
   // ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
   virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
                                          const CefString& url,
-                                         bool* allow_os_execution)
+                                         bool& allow_os_execution)
   {
     REQUIRE_IO_THREAD();
     return RV_CONTINUE;

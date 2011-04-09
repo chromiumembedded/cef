@@ -132,7 +132,7 @@ public:
 
   virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
                                          const CefString& url,
-                                         bool* allow_os_execution)
+                                         bool& allow_os_execution)
   {
     return RV_CONTINUE;
   }

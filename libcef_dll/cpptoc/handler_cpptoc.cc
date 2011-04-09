@@ -39,10 +39,12 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   CefBrowserSettings browserSettings;
   CefPopupFeatures features;
   
-  // Take ownership of the pointers instead of copying.
-  wndInfo.Attach(*windowInfo);
-  browserSettings.Attach(*settings);
-  features.Attach(*popupFeatures);
+  // Take ownership of the values.
+  wndInfo.AttachTo(*windowInfo);
+  browserSettings.AttachTo(*settings);
+  
+  // Reference the existing values instead of copying.
+  features.Set(*popupFeatures, false);
   
   // |newHandler| will start off pointing to the current handler.
   CefRefPtr<CefHandler> handlerPtr = CefHandlerCppToC::Unwrap(*handler);
@@ -63,16 +65,9 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     *handler = CefHandlerCppToC::Wrap(handlerPtr);
   }
 
-  // Window info may or may not have changed.
-  *windowInfo = wndInfo;
-  
-  // Browser settings may or may not have changed.
-  *settings = browserSettings;
-  
-  // Don't free the pointers.
-  features.Detach();
-  wndInfo.Detach();
-  browserSettings.Detach();
+  // Return the values to the structures.
+  wndInfo.DetachTo(*windowInfo);
+  browserSettings.DetachTo(*settings);
 
   return rv;
 }
@@ -239,8 +234,8 @@ enum cef_retval_t CEF_CALLBACK handler_handle_protocol_execution(
 
   bool allowExec = *allow_os_execution?true:false;
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleProtocolExecution(
-      CefBrowserCToCpp::Wrap(browser), CefString(url), &allowExec);
-  *allow_os_execution = allowExec?true:false;
+      CefBrowserCToCpp::Wrap(browser), CefString(url), allowExec);
+  *allow_os_execution = allowExec;
   return rv;
 }
 
