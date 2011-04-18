@@ -39,6 +39,17 @@ def make_cpptoc_impl_new(name, func, defined_names):
 
     result += '\n  // END DELETE BEFORE MODIFYING'
     
+    # NULL check all pointer arguments.
+    if len(parts['args']) > 0:
+        check = [];
+        for arg in parts['args']:
+            if arg.find('*') >= 0:
+                argname = string.split(arg)[-1];
+                result += '\n  DCHECK('+argname+');'
+                check.append('!'+argname);
+        result += '\n  if ('+string.join(check,' || ')+')'
+        result += '\n    return;'
+    
     result += '\n}\n\n'
     return result
 

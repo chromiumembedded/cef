@@ -46,6 +46,9 @@ def make_ctocpp_impl_new(clsname, name, func):
 
     result += '\n  // END DELETE BEFORE MODIFYING'
     
+    result += '\n  if (CEF_MEMBER_MISSING(struct_, '+func.get_capi_name()+'))'
+    result += '\n    return;'
+    
     result += '\n}\n\n'
     return result
 
