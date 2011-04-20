@@ -440,7 +440,7 @@ class obj_header:
         p = re.compile('\n'+_cre_attrib+
                        '\nclass'+_cre_space+_cre_cfname+_cre_space+
                        ':'+_cre_space+'public'+_cre_space+'CefBase'+
-                       '\n{(.*?)}', re.MULTILINE | re.DOTALL)
+                       '\n{(.*?)};', re.MULTILINE | re.DOTALL)
         list = p.findall(data)
         
         # build the class objects
