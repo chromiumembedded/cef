@@ -191,6 +191,7 @@
         'tests/unittests/dom_unittest.cc',
         'tests/unittests/request_unittest.cc',
         'tests/unittests/run_all_unittests.cc',
+        'tests/unittests/scheme_handler_unittest.cc',
         'tests/unittests/stream_unittest.cc',
         'tests/unittests/string_unittest.cc',
         'tests/unittests/test_handler.h',

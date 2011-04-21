@@ -32,9 +32,14 @@ public:
 
   // CefResponse methods
   virtual int GetStatus();
+  virtual void SetStatus(int status);
   virtual CefString GetStatusText();
+  virtual void SetStatusText(const CefString& statusText);
+  virtual CefString GetMimeType();
+  virtual void SetMimeType(const CefString& mimeType);
   virtual CefString GetHeader(const CefString& name);
   virtual void GetHeaderMap(HeaderMap& headerMap);
+  virtual void SetHeaderMap(const HeaderMap& headerMap);
 };
 
 #endif // USING_CEF_SHARED

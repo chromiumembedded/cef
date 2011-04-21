@@ -54,8 +54,8 @@ public:
       const CefString& failedUrl, CefString& errorText);
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefRequest> request, CefString& redirectUrl,
-      CefRefPtr<CefStreamReader>& resourceStream, CefString& mimeType,
-      int loadFlags);
+      CefRefPtr<CefStreamReader>& resourceStream,
+      CefRefPtr<CefResponse> response, int loadFlags);
   virtual RetVal HandleProtocolExecution(CefRefPtr<CefBrowser> browser,
       const CefString& url, bool& allow_os_execution);
   virtual RetVal HandleDownloadResponse(CefRefPtr<CefBrowser> browser,

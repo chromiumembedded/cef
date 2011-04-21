@@ -12,24 +12,25 @@
 
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/response_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK scheme_handler_process_request(
     struct _cef_scheme_handler_t* self, cef_request_t* request,
-    cef_string_t* mime_type, int* response_length)
+    cef_response_t* response, int* response_length)
 {
   DCHECK(self);
   DCHECK(request);
-  DCHECK(mime_type);
+  DCHECK(response);
   DCHECK(response_length);
-  if(!self || !request || !mime_type || !response_length)
+  if(!self || !request || !response || !response_length)
     return 0;
 
-  CefString mimeTypeStr(mime_type);
   return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
-      CefRequestCToCpp::Wrap(request), mimeTypeStr, response_length);
+      CefRequestCToCpp::Wrap(request), CefResponseCToCpp::Wrap(response),
+      response_length);
 }
 
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)

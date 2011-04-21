@@ -34,7 +34,7 @@ public:
 
   // CefSchemeHandler methods
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefString& mime_type, int* response_length);
+      CefRefPtr<CefResponse> response, int* response_length);
   virtual void Cancel();
   virtual bool ReadResponse(void* data_out, int bytes_to_read, int* bytes_read);
 };

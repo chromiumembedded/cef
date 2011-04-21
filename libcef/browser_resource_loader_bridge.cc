@@ -42,6 +42,7 @@
 #include "cef_process_io_thread.h"
 #include "external_protocol_handler.h"
 #include "request_impl.h"
+#include "response_impl.h"
 #include "http_header_utils.h"
 
 #include "base/file_path.h"
@@ -313,10 +314,10 @@ class RequestProxy : public net::URLRequest::Delegate,
         // Handler output will be returned in these variables
         CefString redirectUrl;
         CefRefPtr<CefStreamReader> resourceStream;
-        CefString mimeType;
-        
+        CefRefPtr<CefResponse> response(new CefResponseImpl());
+
         CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
-            browser_, request, redirectUrl, resourceStream, mimeType,
+            browser_, request, redirectUrl, resourceStream, response,
             loadFlags);
 
         // Observe URL from request.
@@ -371,10 +372,32 @@ class RequestProxy : public net::URLRequest::Delegate,
 
           resource_stream_ = resourceStream;
 
+          CefResponseImpl* responseImpl =
+              static_cast<CefResponseImpl*>(response.get());
+          scoped_refptr<net::HttpResponseHeaders> headers(
+              new net::HttpResponseHeaders(
+                  responseImpl->GenerateResponseLine()));
+
           ResourceResponseInfo info;
           info.content_length = static_cast<int64>(offset);
-          if(!mimeType.empty())
-            info.mime_type = mimeType;
+          info.mime_type = response->GetMimeType();
+          info.headers = headers;
+          OnReceivedResponse(info);
+          AsyncReadData();
+        } else if (response->GetStatus() != 0) {
+          // status set, but no resource stream
+          handled = true;
+
+          CefResponseImpl* responseImpl =
+              static_cast<CefResponseImpl*>(response.get());
+          scoped_refptr<net::HttpResponseHeaders> headers(
+              new net::HttpResponseHeaders(
+                  responseImpl->GenerateResponseLine()));
+
+          ResourceResponseInfo info;
+          info.content_length = 0;
+          info.mime_type = response->GetMimeType();
+          info.headers = headers;
           OnReceivedResponse(info);
           AsyncReadData();
         }

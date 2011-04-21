@@ -24,6 +24,14 @@ int CefResponseCToCpp::GetStatus()
   return struct_->get_status(struct_);
 }
 
+void CefResponseCToCpp::SetStatus(int status)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_status))
+    return;
+
+  struct_->set_status(struct_, status);
+}
+
 CefString CefResponseCToCpp::GetStatusText()
 {
   CefString str;
@@ -33,6 +41,33 @@ CefString CefResponseCToCpp::GetStatusText()
   cef_string_userfree_t strPtr = struct_->get_status_text(struct_);
   str.AttachToUserFree(strPtr);
   return str;
+}
+
+void CefResponseCToCpp::SetStatusText(const CefString& statusText)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_status_text))
+    return;
+
+  struct_->set_status_text(struct_, statusText.GetStruct());
+}
+
+CefString CefResponseCToCpp::GetMimeType()
+{
+  CefString str;
+  if(CEF_MEMBER_MISSING(struct_, get_mime_type))
+    return str;
+  
+  cef_string_userfree_t strPtr = struct_->get_mime_type(struct_);
+  str.AttachToUserFree(strPtr);
+  return str;
+}
+
+void CefResponseCToCpp::SetMimeType(const CefString& mimeType)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_mime_type))
+    return;
+
+  struct_->set_mime_type(struct_, mimeType.GetStruct());
 }
 
 CefString CefResponseCToCpp::GetHeader(const CefString& name)
@@ -58,6 +93,25 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap)
   struct_->get_header_map(struct_, map);
   transfer_string_map_contents(map, headerMap);
   cef_string_map_free(map);
+}
+
+void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap)
+{
+  if(CEF_MEMBER_MISSING(struct_, set_header_map))
+    return;
+
+  cef_string_map_t map = NULL;
+  if(!headerMap.empty()) {
+    map = cef_string_map_alloc();
+    if(!map)
+      return;
+    transfer_string_map_contents(headerMap, map);
+  }
+
+  struct_->set_header_map(struct_, map);
+  
+  if(map)
+    cef_string_map_free(map);
 }
 
 

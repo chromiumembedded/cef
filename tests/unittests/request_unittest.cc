@@ -259,7 +259,7 @@ public:
                                           CefRefPtr<CefRequest> request,
                                           CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          CefString& mimeType,
+                                          CefRefPtr<CefResponse> response,
                                           int loadFlags)
   {
     g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = true;

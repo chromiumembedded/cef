@@ -128,7 +128,7 @@ public:
                                           CefRefPtr<CefRequest> request,
                                           CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          CefString& mimeType,
+                                          CefRefPtr<CefResponse> response,
                                           int loadFlags);
 
   // Called on the IO thread to handle requests for URLs with an unknown

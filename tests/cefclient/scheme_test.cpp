@@ -29,7 +29,8 @@ public:
   // specified number of bytes have been read. If there is a response set
   // |mime_type| to the mime type for the response.
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefString& mime_type, int* response_length)
+                              CefRefPtr<CefResponse> response,
+                              int* response_length)
   {
     REQUIRE_IO_THREAD();
 
@@ -60,7 +61,8 @@ public:
       handled = true;
 
       // Set the resulting mime type
-      mime_type = "text/html";
+      response->SetMimeType("text/html");
+      response->SetStatus(200);
     }
     else if(strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
@@ -70,7 +72,9 @@ public:
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
         data_ = std::string(reinterpret_cast<const char*>(pBytes), dwSize);
         handled = true;
-        mime_type = "image/png";
+        // Set the resulting mime type
+        response->SetMimeType("image/jpg");
+        response->SetStatus(200);
       }
 #elif defined(__APPLE__)
       if(LoadBinaryResource("logo.png", data_)) {

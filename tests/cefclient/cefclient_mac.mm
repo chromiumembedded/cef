@@ -536,7 +536,7 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
 CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    CefString& mimeType, int loadFlags)
+    CefRefPtr<CefResponse> response, int loadFlags)
 {
   REQUIRE_IO_THREAD();
 
@@ -547,23 +547,28 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     DumpRequestContents(request, dump);
     resourceStream = CefStreamReader::CreateForData(
         (void*)dump.c_str(), dump.size());
-    mimeType = "text/plain";
+    response->SetMimeType("text/plain");
+    response->SetStatus(200);
   } else if (strstr(url.c_str(), "/ps_logo2.png") != NULL) {
     // Any time we find "ps_logo2.png" in the URL substitute in our own image
     resourceStream = GetBinaryResourceReader("logo.png");
-    mimeType = "image/png";
+    response->SetMimeType("image/png");
+    response->SetStatus(200);
   } else if(url == "http://tests/localstorage") {
     // Show the localstorage contents
     resourceStream = GetBinaryResourceReader("localstorage.html");
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/xmlhttprequest") {
     // Show the xmlhttprequest HTML contents
     resourceStream = GetBinaryResourceReader("xmlhttprequest.html");
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/domaccess") {
     // Show the domaccess HTML contents
     resourceStream = GetBinaryResourceReader("domaccess.html");
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   }
 
   return RV_CONTINUE;

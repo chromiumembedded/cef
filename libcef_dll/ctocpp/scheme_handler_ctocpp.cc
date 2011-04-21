@@ -11,19 +11,20 @@
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    CefString& mime_type, int* response_length)
+    CefRefPtr<CefResponse> response, int* response_length)
 {
   if(CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
   return struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
-      mime_type.GetWritableStruct(), response_length) ? true : false;
+      CefResponseCppToC::Wrap(response), response_length) ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::Cancel()

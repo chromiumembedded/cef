@@ -15,6 +15,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 
@@ -197,25 +198,24 @@ enum cef_retval_t CEF_CALLBACK handler_handle_load_error(
 enum cef_retval_t CEF_CALLBACK handler_handle_before_resource_load(
     struct _cef_handler_t* self, cef_browser_t* browser,
     struct _cef_request_t* request, cef_string_t* redirectUrl,
-    struct _cef_stream_reader_t** resourceStream, cef_string_t* mimeType,
-    int loadFlags)
+    struct _cef_stream_reader_t** resourceStream,
+    struct _cef_response_t* response, int loadFlags)
 {
   DCHECK(self);
   DCHECK(browser);
   DCHECK(redirectUrl);
   DCHECK(resourceStream);
-  DCHECK(mimeType);
-  if(!self || !browser || !redirectUrl || !resourceStream || !mimeType)
+  DCHECK(response);
+  if(!self || !browser || !redirectUrl || !resourceStream || !response)
     return RV_CONTINUE;
 
   CefRefPtr<CefStreamReader> streamPtr;
 
   CefString redirectUrlStr(redirectUrl);
-  CefString mimeTypeStr(mimeType);
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->
       HandleBeforeResourceLoad(CefBrowserCToCpp::Wrap(browser),
-      CefRequestCToCpp::Wrap(request), redirectUrlStr, streamPtr, mimeTypeStr,
-      loadFlags);
+      CefRequestCToCpp::Wrap(request), redirectUrlStr, streamPtr,
+      CefResponseCToCpp::Wrap(response), loadFlags);
 
   if(streamPtr.get())
     *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);

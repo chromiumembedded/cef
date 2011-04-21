@@ -15,6 +15,7 @@ public:
   TrackCallback(): gotit_(false) {}
   void yes() { gotit_ = true; }
   bool isSet() { return gotit_; }
+  void reset() { gotit_ = false; }
   operator bool() const { return gotit_; }
 protected:
   bool gotit_;
@@ -111,7 +112,7 @@ public:
                                           CefRefPtr<CefRequest> request,
                                           CefString& redirectUrl,
                                           CefRefPtr<CefStreamReader>& resourceStream,
-                                          CefString& mimeType,
+                                          CefRefPtr<CefResponse> response,
                                           int loadFlags)
   {
     Lock();
@@ -122,7 +123,8 @@ public:
         // Return the previously mapped resource
         resourceStream = CefStreamReader::CreateForData(
             (void*)it->second.first.c_str(), it->second.first.length());
-        mimeType = it->second.second;
+        response->SetMimeType(it->second.second);
+        response->SetStatus(200);
       }
     }
     Unlock();

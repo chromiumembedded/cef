@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -151,7 +152,7 @@ CefHandler::RetVal CefHandlerCToCpp::HandleLoadError(
 CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    CefString& mimeType, int loadFlags)
+    CefRefPtr<CefResponse> response, int loadFlags)
 {
   if(CEF_MEMBER_MISSING(struct_, handle_before_resource_load))
     return RV_CONTINUE;
@@ -160,8 +161,8 @@ CefHandler::RetVal CefHandlerCToCpp::HandleBeforeResourceLoad(
 
   cef_retval_t rv = struct_->handle_before_resource_load(struct_,
       CefBrowserCppToC::Wrap(browser), CefRequestCppToC::Wrap(request),
-      redirectUrl.GetWritableStruct(), &streamRet, mimeType.GetWritableStruct(),
-      loadFlags);
+      redirectUrl.GetWritableStruct(), &streamRet,
+      CefResponseCppToC::Wrap(response), loadFlags);
 
   if(streamRet)
     resourceStream = CefStreamReaderCppToC::Unwrap(streamRet);

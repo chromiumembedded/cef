@@ -7,7 +7,7 @@ function execXMLHttpRequest()
   xhr.open("GET",document.getElementById("url").value,false);
   xhr.setRequestHeader('My-Custom-Header', 'Some Value');
   xhr.send();
-  document.getElementById('ta').value = "Request\n\n"+xhr.responseText;
+  document.getElementById('ta').value = "Status Code: "+xhr.status+"\n\n"+xhr.responseText;
 }
 </script>
 <form>

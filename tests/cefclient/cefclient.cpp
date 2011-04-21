@@ -251,14 +251,14 @@ void ClientHandler::SetEditHwnd(CefWindowHandle hwnd)
 
 void ClientHandler::SetButtonHwnds(CefWindowHandle backHwnd,
                                    CefWindowHandle forwardHwnd,
-                                   CefWindowHandle stopHwnd,
-                                   CefWindowHandle reloadHwnd)
+                                   CefWindowHandle reloadHwnd,
+                                   CefWindowHandle stopHwnd)
 {
   Lock();
   m_BackHwnd = backHwnd;
   m_ForwardHwnd = forwardHwnd;
-  m_StopHwnd = stopHwnd;
   m_ReloadHwnd = reloadHwnd;
+  m_StopHwnd = stopHwnd;
   Unlock();
 }
 

@@ -15,18 +15,27 @@ class WebURLResponse;
 class CefResponseImpl : public CefThreadSafeBase<CefResponse>
 {
 public:
+  CefResponseImpl();
   CefResponseImpl(const WebKit::WebURLResponse& response);
   ~CefResponseImpl() {}
 
   // CefResponse API
   virtual int GetStatus();
+  virtual void SetStatus(int status);
   virtual CefString GetStatusText();
+  virtual void SetStatusText(const CefString& statusText);
+  virtual CefString GetMimeType();
+  virtual void SetMimeType(const CefString& mimeType);
   virtual CefString GetHeader(const CefString& name);
   virtual void GetHeaderMap(HeaderMap& headerMap);
+  virtual void SetHeaderMap(const HeaderMap& headerMap);
+
+  CefString GenerateResponseLine();
 
 protected:
   int status_code_;
   CefString status_text_;
+  CefString mime_type_;
   HeaderMap header_map_;
 };
 

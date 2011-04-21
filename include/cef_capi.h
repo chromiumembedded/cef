@@ -652,8 +652,8 @@ typedef struct _cef_handler_t
   enum cef_retval_t (CEF_CALLBACK *handle_before_resource_load)(
       struct _cef_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_request_t* request, cef_string_t* redirectUrl,
-      struct _cef_stream_reader_t** resourceStream, cef_string_t* mimeType,
-      int loadFlags);
+      struct _cef_stream_reader_t** resourceStream,
+      struct _cef_response_t* response, int loadFlags);
 
   // Called on the IO thread to handle requests for URLs with an unknown
   // protocol component. Return RV_HANDLED to indicate that the request should
@@ -1020,21 +1020,33 @@ typedef struct _cef_response_t
   // Base structure.
   cef_base_t base;
 
-  // Returns the response status code.
+  // Returns/sets the response status code.
   int (CEF_CALLBACK *get_status)(struct _cef_response_t* self);
+  void (CEF_CALLBACK *set_status)(struct _cef_response_t* self, int status);
 
-  // Returns the response status text.
+  // Returns/sets the response status text.
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_status_text)(
       struct _cef_response_t* self);
+  void (CEF_CALLBACK *set_status_text)(struct _cef_response_t* self,
+      const cef_string_t* statusText);
+
+  // Returns/sets the response mime type.
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_mime_type)(
+      struct _cef_response_t* self);
+  void (CEF_CALLBACK *set_mime_type)(struct _cef_response_t* self,
+      const cef_string_t* mimeType);
 
   // Returns the value for the specified response header field.
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_header)(struct _cef_response_t* self,
       const cef_string_t* name);
 
-  // Retrieves a map of all response header fields.
+  // Retrieves/sets a map of all response header fields.
   void (CEF_CALLBACK *get_header_map)(struct _cef_response_t* self,
+      cef_string_map_t headerMap);
+  void (CEF_CALLBACK *set_header_map)(struct _cef_response_t* self,
       cef_string_map_t headerMap);
 
 } cef_response_t;
@@ -1396,7 +1408,7 @@ typedef struct _cef_scheme_handler_t
   // to 0 or the specified number of bytes have been read. If there is a
   // response set |mime_type| to the mime type for the response.
   int (CEF_CALLBACK *process_request)(struct _cef_scheme_handler_t* self,
-      struct _cef_request_t* request, cef_string_t* mime_type,
+      struct _cef_request_t* request, struct _cef_response_t* response,
       int* response_length);
 
   // Cancel processing of the request.

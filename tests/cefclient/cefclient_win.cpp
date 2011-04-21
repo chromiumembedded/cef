@@ -695,7 +695,7 @@ CefHandler::RetVal ClientHandler::HandleTitleChange(
 CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    CefString& mimeType, int loadFlags)
+    CefRefPtr<CefResponse> response, int loadFlags)
 {
   REQUIRE_IO_THREAD();
 
@@ -706,35 +706,43 @@ CefHandler::RetVal ClientHandler::HandleBeforeResourceLoad(
     DumpRequestContents(request, dump);
     resourceStream =
         CefStreamReader::CreateForData((void*)dump.c_str(), dump.size());
-    mimeType = "text/plain";
+    response->SetMimeType("text/plain");
+    response->SetStatus(200);
   } else if(strstr(url.c_str(), "/ps_logo2.png") != NULL) {
     // Any time we find "ps_logo2.png" in the URL substitute in our own image
     resourceStream = GetBinaryResourceReader(IDS_LOGO);
-    mimeType = "image/png";
+    response->SetMimeType("image/png");
+    response->SetStatus(200);
   } else if(url == "http://tests/uiapp") {
     // Show the uiapp contents
     resourceStream = GetBinaryResourceReader(IDS_UIPLUGIN);
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/osrapp") {
     // Show the osrapp contents
     resourceStream = GetBinaryResourceReader(IDS_OSRPLUGIN);
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/localstorage") {
     // Show the localstorage contents
     resourceStream = GetBinaryResourceReader(IDS_LOCALSTORAGE);
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/xmlhttprequest") {
     // Show the xmlhttprequest HTML contents
     resourceStream = GetBinaryResourceReader(IDS_XMLHTTPREQUEST);
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(url == "http://tests/domaccess") {
     // Show the domaccess HTML contents
     resourceStream = GetBinaryResourceReader(IDS_DOMACCESS);
-    mimeType = "text/html";
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   } else if(strstr(url.c_str(), "/logoball.png") != NULL) {
     // Load the "logoball.png" image resource.
     resourceStream = GetBinaryResourceReader(IDS_LOGOBALL);
-    mimeType = "image/png";
+    response->SetMimeType("image/png");
+    response->SetStatus(200);
   }
   return RV_CONTINUE;
 }

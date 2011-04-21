@@ -10,6 +10,7 @@
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_filter.h"
@@ -19,6 +20,7 @@
 #include "tracker.h"
 #include "cef_context.h"
 #include "request_impl.h"
+#include "response_impl.h"
 
 #include <map>
 
@@ -61,6 +63,7 @@ public:
     handler_->Cancel();
     // Continue asynchronously.
     DCHECK(!async_resolver_);
+    response_ = new CefResponseImpl();
     async_resolver_ = new AsyncResolver(this);
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         async_resolver_.get(), &AsyncResolver::Resolve, url_));
@@ -116,6 +119,14 @@ public:
     }
   }
 
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) {
+    CefResponseImpl* responseImpl =
+        static_cast<CefResponseImpl*>(response_.get());
+    scoped_refptr<net::HttpResponseHeaders> headers(
+        new net::HttpResponseHeaders(responseImpl->GenerateResponseLine()));
+    info->headers = headers;
+  }
+
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
   {
     return false;
@@ -125,7 +136,7 @@ public:
   {
     DCHECK(request_);
     // call handler to get mime type
-    *mime_type = mime_type_;
+    *mime_type = response_->GetMimeType();
     return true;
   }
 
@@ -134,7 +145,7 @@ public:
   }
 
   CefRefPtr<CefSchemeHandler> handler_;
-  std::string mime_type_;
+  CefRefPtr<CefResponse> response_;
   int response_length_;
 
 protected:
@@ -178,15 +189,13 @@ private:
       static_cast<CefRequestImpl*>(req.get())->Set(owner_->request());
 
       owner_->handler_->Cancel();
-      CefString mime_type;
       int response_length = 0;
       // handler should complete content generation in ProcessRequest
-      bool res = owner_->handler_->ProcessRequest(req, mime_type,
+      bool res = owner_->handler_->ProcessRequest(req, owner_->response_,
           &response_length);
-      if (res) {
-        owner_->mime_type_ = mime_type;
+      if (res)
         owner_->response_length_ = response_length;
-      }
+
       //////////////////////////////////////////////////////////////////////////
       if (owner_loop_) {
         owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(

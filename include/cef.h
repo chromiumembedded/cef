@@ -818,7 +818,7 @@ public:
                                      CefRefPtr<CefRequest> request,
                                      CefString& redirectUrl,
                                      CefRefPtr<CefStreamReader>& resourceStream,
-                                     CefString& mimeType,
+                                     CefRefPtr<CefResponse> response,
                                      int loadFlags) =0;
 
   // Called on the IO thread to handle requests for URLs with an unknown
@@ -1235,21 +1235,33 @@ class CefResponse : public CefBase
 public:
   typedef std::map<CefString,CefString> HeaderMap;
 
-  // Returns the response status code.
+  // Returns/sets the response status code.
   /*--cef()--*/
   virtual int GetStatus() =0;
+  /*--cef()--*/
+  virtual void SetStatus(int status) = 0;
 
-  // Returns the response status text.
+  // Returns/sets the response status text.
   /*--cef()--*/
   virtual CefString GetStatusText() =0;
+  /*--cef()--*/
+  virtual void SetStatusText(const CefString& statusText) = 0;
+
+  // Returns/sets the response mime type.
+  /*--cef()--*/
+  virtual CefString GetMimeType() = 0;
+  /*--cef()--*/
+  virtual void SetMimeType(const CefString& mimeType) = 0;
 
   // Returns the value for the specified response header field.
   /*--cef()--*/
   virtual CefString GetHeader(const CefString& name) =0;
 
-  // Retrieves a map of all response header fields.
+  // Retrieves/sets a map of all response header fields.
   /*--cef()--*/
   virtual void GetHeaderMap(HeaderMap& headerMap) =0;
+  /*--cef()--*/
+  virtual void SetHeaderMap(const HeaderMap& headerMap) =0;
 };
 
 
@@ -1635,7 +1647,8 @@ public:
   // |mime_type| to the mime type for the response.
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefString& mime_type, int* response_length) =0;
+                              CefRefPtr<CefResponse> response,
+                              int* response_length) =0;
 
   // Cancel processing of the request.
   /*--cef()--*/

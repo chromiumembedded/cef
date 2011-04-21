@@ -25,6 +25,15 @@ int CEF_CALLBACK response_get_status(struct _cef_response_t* self)
   return CefResponseCppToC::Get(self)->GetStatus();
 }
 
+void CEF_CALLBACK response_set_status(struct _cef_response_t* self, int status)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefResponseCppToC::Get(self)->SetStatus(status);
+}
+
 cef_string_userfree_t CEF_CALLBACK response_get_status_text(
     struct _cef_response_t* self)
 {
@@ -34,6 +43,37 @@ cef_string_userfree_t CEF_CALLBACK response_get_status_text(
 
   CefString text = CefResponseCppToC::Get(self)->GetStatusText();
   return text.DetachToUserFree();
+}
+
+void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
+    const cef_string_t* statusText)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefResponseCppToC::Get(self)->SetStatusText(CefString(statusText));
+}
+
+cef_string_userfree_t CEF_CALLBACK response_get_mime_type(
+    struct _cef_response_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return NULL;
+
+  CefString text = CefResponseCppToC::Get(self)->GetMimeType();
+  return text.DetachToUserFree();
+}
+
+void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
+    const cef_string_t* mimeType)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefResponseCppToC::Get(self)->SetMimeType(CefString(mimeType));
 }
 
 cef_string_userfree_t CEF_CALLBACK response_get_header(
@@ -59,6 +99,20 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
   transfer_string_map_contents(map, headerMap);
 }
 
+void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
+    cef_string_map_t headerMap)
+{
+  DCHECK(self);
+  if(!self)
+    return;
+
+  CefResponse::HeaderMap map;
+  if(headerMap)
+    transfer_string_map_contents(headerMap, map);
+
+  CefResponseCppToC::Get(self)->SetHeaderMap(map);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -66,9 +120,14 @@ CefResponseCppToC::CefResponseCppToC(CefResponse* cls)
     : CefCppToC<CefResponseCppToC, CefResponse, cef_response_t>(cls)
 {
   struct_.struct_.get_status = response_get_status;
+  struct_.struct_.set_status = response_set_status;
   struct_.struct_.get_status_text = response_get_status_text;
+  struct_.struct_.set_status_text = response_set_status_text;
+  struct_.struct_.get_mime_type = response_get_mime_type;
+  struct_.struct_.set_mime_type = response_set_mime_type;
   struct_.struct_.get_header = response_get_header;
   struct_.struct_.get_header_map = response_get_header_map;
+  struct_.struct_.set_header_map = response_set_header_map;
 }
 
 #ifdef _DEBUG
