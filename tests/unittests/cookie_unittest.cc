@@ -72,9 +72,9 @@ TEST(CookieTest, DomainCookie)
   CefString(&cookie.domain).FromASCII(kTestDomain);
   CefString(&cookie.path).FromASCII(kTestPath);
   cookie.has_expires = true;
-  cookie.expires.year = 2011;
+  cookie.expires.year = 2200;
   cookie.expires.month = 4;
-  cookie.expires.day_of_week = 1;
+  cookie.expires.day_of_week = 5;
   cookie.expires.day_of_month = 11;
 
   CookieVector cookies;
@@ -129,9 +129,9 @@ TEST(CookieTest, HostCookie)
   CefString(&cookie.value).FromASCII("My Value");
   CefString(&cookie.path).FromASCII(kTestPath);
   cookie.has_expires = true;
-  cookie.expires.year = 2011;
+  cookie.expires.year = 2200;
   cookie.expires.month = 4;
-  cookie.expires.day_of_week = 1;
+  cookie.expires.day_of_week = 5;
   cookie.expires.day_of_month = 11;
 
   CookieVector cookies;
