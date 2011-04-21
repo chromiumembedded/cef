@@ -21,16 +21,19 @@ public:
     got_request.reset();
     got_read.reset();
     got_output.reset();
+    got_redirect.reset();
   }
 
   std::string url;
   std::string html;
   int status_code;
+  std::string redirect_url;
 
   TrackCallback 
     got_request,
     got_read,
-    got_output;
+    got_output,
+    got_redirect;
 };
 
 class TestSchemeHandler : public TestHandler
@@ -44,6 +47,28 @@ public:
   virtual void RunTest()
   {
     CreateBrowser(test_results_->url);
+  }
+
+  virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    NavType navType, bool isRedirect)
+  {
+    if (isRedirect) {
+      test_results_->got_redirect.yes();
+      std::string newUrl = request->GetURL();
+      EXPECT_EQ(newUrl, test_results_->redirect_url);
+
+      // No read should have occurred for the redirect.
+      EXPECT_TRUE(test_results_->got_request);
+      EXPECT_FALSE(test_results_->got_read);
+
+      // Now loading the redirect URL.
+      test_results_->url = test_results_->redirect_url;
+      test_results_->redirect_url.clear();
+    }
+    
+    return RV_CONTINUE;
   }
 
   virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -74,6 +99,7 @@ public:
     : test_results_(tr), offset_(0) {}
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request, 
+                              CefString& redirectUrl,
                               CefRefPtr<CefResponse> response, 
                               int* response_length)
   {
@@ -85,14 +111,17 @@ public:
     EXPECT_EQ(url, test_results_->url);
 
     response->SetStatus(test_results_->status_code);
-    
-    bool handled = !test_results_->html.empty();
-    if(handled) {
+
+    if (!test_results_->redirect_url.empty()) {
+      redirectUrl = test_results_->redirect_url;
+      return true;
+    } else if (!test_results_->html.empty()) {
       response->SetMimeType("text/html");
       *response_length = test_results_->html.size();
+      return true;
     }
 
-    return handled;
+    return false;
   }
 
   virtual void Cancel()
@@ -251,6 +280,24 @@ TEST(SchemeHandlerTest, StandardSchemeNoResponse)
   EXPECT_FALSE(g_TestResults.got_output);
 }
 
+// Test that a standard scheme can generate redirects.
+TEST(SchemeHandlerTest, StandardSchemeRedirect)
+{
+  CreateStandardTestScheme();
+  g_TestResults.url = "stdscheme://tests/run.html";
+  g_TestResults.redirect_url = "stdscheme://tests/redirect.html";
+  g_TestResults.html =
+      "<html><head></head><body><h1>Redirected</h1></body></html>";
+  
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_redirect);
+}
+
 // Test that a non-standard scheme can return normal results.
 TEST(SchemeHandlerTest, NonStandardSchemeNormalResponse)
 {
@@ -312,4 +359,22 @@ TEST(SchemeHandlerTest, NonStandardSchemeNoResponse)
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
   EXPECT_FALSE(g_TestResults.got_output);
+}
+
+// Test that a non-standard scheme can generate redirects.
+TEST(SchemeHandlerTest, NonStandardSchemeRedirect)
+{
+  CreateNonStandardTestScheme();
+  g_TestResults.url = "nonstdscheme:some%20value";
+  g_TestResults.redirect_url = "nonstdscheme:some%20other%20value";
+  g_TestResults.html =
+      "<html><head></head><body><h1>Redirected</h1></body></html>";
+  
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_redirect);
 }

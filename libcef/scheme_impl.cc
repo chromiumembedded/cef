@@ -129,6 +129,12 @@ public:
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
   {
+    if (redirect_url_.is_valid()) {
+      // Redirect to the new URL.
+      *http_status_code = 303;
+      location->Swap(&redirect_url_);
+      return true;
+    }
     return false;
   }
 
@@ -150,6 +156,7 @@ public:
 
 protected:
   GURL url_;
+  GURL redirect_url_;
 
 private:
   void DidResolve(const GURL& url)
@@ -189,12 +196,23 @@ private:
       static_cast<CefRequestImpl*>(req.get())->Set(owner_->request());
 
       owner_->handler_->Cancel();
+
       int response_length = 0;
+      CefString redirectUrl;
+
       // handler should complete content generation in ProcessRequest
-      bool res = owner_->handler_->ProcessRequest(req, owner_->response_,
-          &response_length);
-      if (res)
-        owner_->response_length_ = response_length;
+      bool res = owner_->handler_->ProcessRequest(req, redirectUrl,
+          owner_->response_, &response_length);
+      if (res) {
+        if (!redirectUrl.empty()) {
+          // Treat the request as a redirect.
+          std::string redirectUrlStr = redirectUrl;
+          owner_->redirect_url_ = GURL(redirectUrlStr);
+          owner_->response_length_ = 0;
+        } else {
+          owner_->response_length_ = response_length;
+        }
+      }
 
       //////////////////////////////////////////////////////////////////////////
       if (owner_loop_) {

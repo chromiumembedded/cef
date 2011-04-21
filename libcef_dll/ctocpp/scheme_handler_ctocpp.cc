@@ -18,13 +18,15 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response, int* response_length)
+    CefString& redirectUrl, CefRefPtr<CefResponse> response,
+    int* response_length)
 {
   if(CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
   return struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
-      CefResponseCppToC::Wrap(response), response_length) ? true : false;
+      redirectUrl.GetWritableStruct(), CefResponseCppToC::Wrap(response),
+      response_length) ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::Cancel()

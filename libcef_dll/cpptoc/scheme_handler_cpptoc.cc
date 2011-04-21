@@ -19,18 +19,20 @@
 
 int CEF_CALLBACK scheme_handler_process_request(
     struct _cef_scheme_handler_t* self, cef_request_t* request,
-    cef_response_t* response, int* response_length)
+    cef_string_t* redirectUrl, cef_response_t* response, int* response_length)
 {
   DCHECK(self);
   DCHECK(request);
+  DCHECK(redirectUrl);
   DCHECK(response);
   DCHECK(response_length);
-  if(!self || !request || !response || !response_length)
+  if(!self || !request || !redirectUrl || !response || !response_length)
     return 0;
 
+  CefString redirectUrlStr(redirectUrl);
   return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
-      CefRequestCToCpp::Wrap(request), CefResponseCToCpp::Wrap(response),
-      response_length);
+      CefRequestCToCpp::Wrap(request), redirectUrlStr,
+      CefResponseCToCpp::Wrap(response), response_length);
 }
 
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)

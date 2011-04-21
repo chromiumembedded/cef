@@ -808,11 +808,12 @@ public:
   // Called on the IO thread before a resource is loaded.  To allow the resource
   // to load normally return RV_CONTINUE. To redirect the resource to a new url
   // populate the |redirectUrl| value and return RV_CONTINUE.  To specify data
-  // for the resource return a CefStream object in |resourceStream|, set
-  // |mimeType| to the resource stream's mime type, and return RV_CONTINUE. To
-  // cancel loading of the resource return RV_HANDLED. Any modifications to
-  // |request| will be observed.  If the URL in |request| is changed and
-  // |redirectUrl| is also set, the URL in |request| will be used.
+  // for the resource return a CefStream object in |resourceStream|, use the
+  // |response| object to set mime type, HTTP status code and optional header
+  // values, and return RV_CONTINUE. To cancel loading of the resource return
+  // RV_HANDLED. Any modifications to |request| will be observed.  If the URL in
+  // |request| is changed and |redirectUrl| is also set, the URL in |request|
+  // will be used.
   /*--cef()--*/
   virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefRequest> request,
@@ -1637,16 +1638,19 @@ class CefSchemeHandler : public CefBase
 {
 public:
   // Process the request. All response generation should take place in this
-  // method. If there is no response set |response_length| to zero and
-  // ReadResponse() will not be called. If the response length is not known then
-  // set |response_length| to -1 and ReadResponse() will be called until it
-  // returns false or until the value of |bytes_read| is set to 0. Otherwise,
-  // set |response_length| to a positive value and ReadResponse() will be called
-  // until it returns false, the value of |bytes_read| is set to 0 or the
-  // specified number of bytes have been read. If there is a response set
-  // |mime_type| to the mime type for the response.
+  // method. If there is no response set |response_length| to zero or return
+  // false and ReadResponse() will not be called. If the response length is not
+  // known set |response_length| to -1 and ReadResponse() will be called until
+  // it returns false or until the value of |bytes_read| is set to 0. If the
+  // response length is known set |response_length| to a positive value and
+  // ReadResponse() will be called until it returns false, the value of
+  // |bytes_read| is set to 0 or the specified number of bytes have been read.
+  // Use the |response| object to set the mime type, http status code and
+  // optional header values for the response and return true. To redirect the
+  // request to a new URL set |redirectUrl| to the new URL and return true.
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
+                              CefString& redirectUrl,
                               CefRefPtr<CefResponse> response,
                               int* response_length) =0;
 
