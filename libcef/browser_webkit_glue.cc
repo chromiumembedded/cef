@@ -194,7 +194,8 @@ bool ShouldDownload(const std::string& content_disposition,
   webkit::npapi::WebPluginInfo info;
   bool allow_wildcard = false;
   return !webkit::npapi::PluginList::Singleton()->GetPluginInfo(
-    GURL(), type, allow_wildcard, &info, NULL) || !info.enabled;
+      GURL(), type, allow_wildcard, &info, NULL) ||
+      !webkit::npapi::IsPluginEnabled(info);
 }
 
 }  // namespace webkit_glue
