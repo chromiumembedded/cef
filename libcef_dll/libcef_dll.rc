@@ -10,6 +10,7 @@
 #define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
+#include "version.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -39,6 +40,7 @@ BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
     "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""version.h""\r\n"
     "\0"
 END
 
@@ -57,8 +59,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,0,SVN_REVISION,0
+ PRODUCTVERSION 1,0,SVN_REVISION,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -74,12 +76,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "Chromium Embedded Framework (CEF) Dynamic Link Library"
-            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "FileVersion", "1.0." MAKE_STRING(SVN_REVISION)
             VALUE "InternalName", "libcef"
-            VALUE "LegalCopyright", "Copyright (C) 2009 The Chromium Embedded Framework Authors"
+            VALUE "LegalCopyright", "Copyright (C) " MAKE_STRING(COPYRIGHT_YEAR) " The Chromium Embedded Framework Authors"
             VALUE "OriginalFilename", "libcef.dll"
             VALUE "ProductName", "Chromium Embedded Framework (CEF) Dynamic Link Library"
-            VALUE "ProductVersion", "1, 0, 0, 1"
+            VALUE "ProductVersion", "1.0." MAKE_STRING(SVN_REVISION)
         END
     END
     BLOCK "VarFileInfo"

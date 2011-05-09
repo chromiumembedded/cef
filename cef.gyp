@@ -223,6 +223,17 @@
               'tools/patch_source.bat.output',
             ],
             'action': ['', '<@(_inputs)'],
+          },
+          {
+            'action_name': 'make_version_header',
+            'msvs_cygwin_shell': 0,
+            'inputs': [
+              'tools/make_version_header.bat',
+            ],
+            'outputs': [
+              'tools/make_version_header.bat.output',
+            ],
+            'action': ['', '<@(_inputs)'],
           }],
         }, { # OS!="win"
           'actions': [{
