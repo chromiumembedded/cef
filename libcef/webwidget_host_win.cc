@@ -183,6 +183,9 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_NOTIFY:
         host->OnNotify(0, (NMHDR*)lparam);
         break;
+
+      case WM_GETDLGCODE:
+        return DLGC_WANTALLKEYS;
     }
   }
 
