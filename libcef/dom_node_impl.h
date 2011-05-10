@@ -20,6 +20,7 @@ public:
   virtual Type GetType();
   virtual bool IsText();
   virtual bool IsElement();
+  virtual bool IsSame(CefRefPtr<CefDOMNode> that);
   virtual CefString GetName();
   virtual CefString GetValue();
   virtual bool SetValue(const CefString& value);

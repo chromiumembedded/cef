@@ -46,6 +46,17 @@ int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self)
   return CefDOMNodeCppToC::Get(self)->IsElement();
 }
 
+int CEF_CALLBACK domnode_is_same(struct _cef_domnode_t* self,
+    struct _cef_domnode_t* that)
+{
+  DCHECK(self);
+  DCHECK(that);
+  if (!self || !that)
+    return 0;
+
+  return CefDOMNodeCppToC::Get(self)->IsSame(CefDOMNodeCppToC::Unwrap(that));
+}
+
 cef_string_userfree_t CEF_CALLBACK domnode_get_name(struct _cef_domnode_t* self)
 {
   DCHECK(self);
@@ -281,6 +292,7 @@ CefDOMNodeCppToC::CefDOMNodeCppToC(CefDOMNode* cls)
   struct_.struct_.get_type = domnode_get_type;
   struct_.struct_.is_text = domnode_is_text;
   struct_.struct_.is_element = domnode_is_element;
+  struct_.struct_.is_same = domnode_is_same;
   struct_.struct_.get_name = domnode_get_name;
   struct_.struct_.get_value = domnode_get_value;
   struct_.struct_.set_value = domnode_set_value;

@@ -1857,6 +1857,11 @@ typedef struct _cef_domnode_t
   // Returns true (1) if this is an element node.
   int (CEF_CALLBACK *is_element)(struct _cef_domnode_t* self);
 
+  // Returns true (1) if this object is pointing to the same handle as |that|
+  // object.
+  int (CEF_CALLBACK *is_same)(struct _cef_domnode_t* self,
+      struct _cef_domnode_t* that);
+
   // Returns the name of this node.
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_name)(struct _cef_domnode_t* self);

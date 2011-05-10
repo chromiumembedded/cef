@@ -154,6 +154,18 @@ bool CefDOMNodeImpl::IsElement()
   return node_.isElementNode();
 }
 
+bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that)
+{
+  if (!VerifyContext())
+    return false;
+
+  CefDOMNodeImpl* impl = static_cast<CefDOMNodeImpl*>(that.get());
+  if (!impl || !impl->VerifyContext())
+    return false;
+
+  return node_.equals(impl->node_);
+}
+
 CefString CefDOMNodeImpl::GetName()
 {
   CefString str;

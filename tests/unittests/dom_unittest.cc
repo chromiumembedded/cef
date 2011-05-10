@@ -33,6 +33,7 @@ public:
       EXPECT_FALSE(titleNode->IsText());
       EXPECT_EQ(titleNode->GetName(), "TITLE");
       EXPECT_EQ(titleNode->GetElementTagName(), "TITLE");
+      EXPECT_TRUE(titleNode->GetParent()->IsSame(headNode));
 
       EXPECT_FALSE(titleNode->GetNextSibling().get());
       EXPECT_FALSE(titleNode->GetPreviousSibling().get());
@@ -44,6 +45,7 @@ public:
       EXPECT_FALSE(textNode->IsElement());
       EXPECT_TRUE(textNode->IsText());
       EXPECT_EQ(textNode->GetValue(), "The Title");
+      EXPECT_TRUE(textNode->GetParent()->IsSame(titleNode));
 
       EXPECT_FALSE(textNode->GetNextSibling().get());
       EXPECT_FALSE(textNode->GetPreviousSibling().get());

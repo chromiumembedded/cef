@@ -32,8 +32,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   DCHECK(self);
   DCHECK(windowInfo);
   DCHECK(handler && *handler);
-  DCHECK(url);
-  if(!self || !windowInfo || !handler || !*handler || !url)
+  if(!self || !windowInfo || !handler || !*handler)
     return RV_CONTINUE;
 
   CefWindowInfo wndInfo;

@@ -206,11 +206,11 @@ int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
     struct _cef_v8value_t* that)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(that);
+  if(!self || !that)
     return 0;
 
-  CefRefPtr<CefV8Value> thatPtr = CefV8ValueCppToC::Unwrap(that);
-  return CefV8ValueCppToC::Get(self)->IsSame(thatPtr);
+  return CefV8ValueCppToC::Get(self)->IsSame(CefV8ValueCppToC::Unwrap(that));
 }
 
 int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)

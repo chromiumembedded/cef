@@ -42,6 +42,15 @@ bool CefDOMNodeCToCpp::IsElement()
   return struct_->is_element(struct_) ? true : false;
 }
 
+bool CefDOMNodeCToCpp::IsSame(CefRefPtr<CefDOMNode> that)
+{
+  if (CEF_MEMBER_MISSING(struct_, is_same))
+    return false;
+
+  return struct_->is_same(struct_, CefDOMNodeCToCpp::Unwrap(that)) ?
+      true : false;
+}
+
 CefString CefDOMNodeCToCpp::GetName()
 {
   CefString str;

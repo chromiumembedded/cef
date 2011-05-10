@@ -2105,6 +2105,11 @@ public:
   /*--cef()--*/
   virtual bool IsElement() =0;
 
+  // Returns true if this object is pointing to the same handle as |that|
+  // object.
+  /*--cef()--*/
+  virtual bool IsSame(CefRefPtr<CefDOMNode> that) =0;
+
   // Returns the name of this node.
   /*--cef()--*/
   virtual CefString GetName() =0;
