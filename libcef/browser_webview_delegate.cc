@@ -564,7 +564,7 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
                                        "application/x-silverlight", false);
 
     if (flash || silverlight) {
-      // Force Flash and Silverlight plugins to use opaque (windowless) mode.
+      // Force Flash and Silverlight plugins to use windowless mode.
       DCHECK(params.attributeNames.size() == params.attributeValues.size());
       size_t size = params.attributeNames.size();
 
@@ -575,8 +575,13 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
         new_values[i] = params.attributeValues[i];
       }
 
-      new_names[size] = "wmode";
-      new_values[size] = "opaque";
+      if (flash) {
+        new_names[size] = "wmode";
+        new_values[size] = "opaque";
+      } else if (silverlight) {
+        new_names[size] = "windowless";
+        new_values[size] = "true";
+      }
 
       WebPluginParams new_params = params;
       new_params.attributeNames.swap(new_names);
