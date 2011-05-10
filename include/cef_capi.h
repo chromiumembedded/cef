@@ -576,7 +576,7 @@ typedef struct _cef_handler_t
       struct _cef_handler_t* self, struct _cef_browser_t* parentBrowser,
       struct _cef_window_info_t* windowInfo, int popup,
       const struct _cef_popup_features_t* popupFeatures,
-      struct _cef_handler_t** handler, cef_string_t* url,
+      struct _cef_handler_t** handler, const cef_string_t* url,
       struct _cef_browser_settings_t* settings);
 
   // Called on the UI thread after a new window is created. The return value is

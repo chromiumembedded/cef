@@ -34,7 +34,7 @@ public:
   virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
       CefWindowInfo& windowInfo, bool popup,
       const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
-      CefString& url, CefBrowserSettings& settings);
+      const CefString& url, CefBrowserSettings& settings);
   virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser);
   virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const CefString& url);

@@ -484,7 +484,7 @@ int main(int argc, char* argv[])
 CefHandler::RetVal ClientHandler::HandleBeforeCreated(
     CefRefPtr<CefBrowser> parentBrowser, CefWindowInfo& createInfo, bool popup,
     const CefPopupFeatures& popupFeatures, CefRefPtr<CefHandler>& handler,
-    CefString& url, CefBrowserSettings& settings)
+    const CefString& url, CefBrowserSettings& settings)
 {
   REQUIRE_UI_THREAD();
 

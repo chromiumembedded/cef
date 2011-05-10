@@ -62,7 +62,7 @@ public:
                                      CefWindowInfo& createInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     CefString& url,
+                                     const CefString& url,
                                      CefBrowserSettings& settings)
   {
     REQUIRE_UI_THREAD();

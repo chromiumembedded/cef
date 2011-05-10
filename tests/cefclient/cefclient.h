@@ -50,7 +50,7 @@ public:
                                      CefWindowInfo& createInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     CefString& url,
+                                     const CefString& url,
                                      CefBrowserSettings& settings);
 
   // Called on the UI thread after a new window is created. The return value is

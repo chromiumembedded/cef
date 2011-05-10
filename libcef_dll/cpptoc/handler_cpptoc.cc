@@ -26,7 +26,7 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
     struct _cef_handler_t* self, cef_browser_t* parentBrowser,
     cef_window_info_t* windowInfo, int popup,
     const struct _cef_popup_features_t* popupFeatures,
-    struct _cef_handler_t** handler, cef_string_t* url,
+    struct _cef_handler_t** handler, const cef_string_t* url,
     struct _cef_browser_settings_t* settings)
 {
   DCHECK(self);
@@ -56,12 +56,11 @@ enum cef_retval_t CEF_CALLBACK handler_handle_before_created(
   if(parentBrowser)
     browserPtr = CefBrowserCToCpp::Wrap(parentBrowser);
   
-  CefString urlStr(url);
   enum cef_retval_t rv = CefHandlerCppToC::Get(self)->HandleBeforeCreated(
       browserPtr, wndInfo, popup?true:false, features, handlerPtr,
-      urlStr, browserSettings);
+      CefString(url), browserSettings);
 
- if(handlerPtr.get() != origHandler) {
+  if(handlerPtr.get() != origHandler) {
     // The handler has been changed.
     *handler = CefHandlerCppToC::Wrap(handlerPtr);
   }

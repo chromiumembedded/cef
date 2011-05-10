@@ -40,7 +40,7 @@ public:
                                      CefWindowInfo& createInfo, bool popup,
                                      const CefPopupFeatures& popupFeatures,
                                      CefRefPtr<CefHandler>& handler,
-                                     CefString& url,
+                                     const CefString& url,
                                      CefBrowserSettings& settings)
   {
     return RV_CONTINUE;
