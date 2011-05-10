@@ -557,6 +557,36 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
     return NULL;
   }
 
+  if (browser_->IsWindowRenderingDisabled()) {
+    bool flash = LowerCaseEqualsASCII(params.mimeType.utf8(),
+                                      "application/x-shockwave-flash");
+    bool silverlight = StartsWithASCII(params.mimeType.utf8(),
+                                       "application/x-silverlight", false);
+
+    if (flash || silverlight) {
+      // Force Flash and Silverlight plugins to use opaque (windowless) mode.
+      DCHECK(params.attributeNames.size() == params.attributeValues.size());
+      size_t size = params.attributeNames.size();
+
+      WebVector<WebString> new_names(size+1),  new_values(size+1);
+
+      for (size_t i = 0; i < size; ++i) {
+        new_names[i] = params.attributeNames[i];
+        new_values[i] = params.attributeValues[i];
+      }
+
+      new_names[size] = "wmode";
+      new_values[size] = "opaque";
+
+      WebPluginParams new_params = params;
+      new_params.attributeNames.swap(new_names);
+      new_params.attributeValues.swap(new_values);
+
+      return new webkit::npapi::WebPluginImpl(
+          frame, new_params, info.path, actual_mime_type, AsWeakPtr());
+    }
+  }
+
   return new webkit::npapi::WebPluginImpl(
       frame, params, info.path, actual_mime_type, AsWeakPtr());
 }
