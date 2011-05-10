@@ -1380,6 +1380,7 @@ void CefBrowserImpl::UIT_ShowDevTools()
     CefRefPtr<CefBrowserImpl> browser =
         UIT_CreatePopupWindow(devtools_path.value(), features);
     browser->UIT_CreateDevToolsClient(dev_tools_agent_.get());
+    browser->UIT_LoadURL(browser->GetMainFrame(), devtools_path.value());
     browser->UIT_Show(WebKit::WebNavigationPolicyNewWindow);
   } else {
     // Give focus to the existing inspector window.

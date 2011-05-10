@@ -638,8 +638,11 @@ void BrowserWebViewDelegate::loadURLExternally(
     WebFrame* frame, const WebURLRequest& request,
     WebNavigationPolicy policy) {
   DCHECK_NE(policy, WebKit::WebNavigationPolicyCurrentTab);
-  browser_->UIT_CreatePopupWindow(std::string(request.url().spec().data()),
-      CefPopupFeatures());
+  std::string url = request.url().spec().data();
+  CefRefPtr<CefBrowser> newBrowser =
+      browser_->UIT_CreatePopupWindow(url, CefPopupFeatures());
+  if (newBrowser.get() && !url.empty())
+    newBrowser->GetMainFrame()->LoadURL(url);
 }
 
 WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
