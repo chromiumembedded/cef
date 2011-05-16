@@ -157,7 +157,9 @@ void WebSocketStreamHandleBridgeImpl::OnClose(net::SocketStream* socket) {
 
 void WebSocketStreamHandleBridgeImpl::DoConnect(const GURL& url) {
   DCHECK(MessageLoop::current() == g_io_thread);
-  socket_ = net::SocketStreamJob::CreateSocketStreamJob(url, this);
+  socket_ = net::SocketStreamJob::CreateSocketStreamJob(
+      url, this, g_request_context->transport_security_state(),
+      g_request_context->ssl_config_service());
   socket_->set_context(g_request_context);
   socket_->Connect();
 }

@@ -268,6 +268,7 @@
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu/icu.gyp:icui18n',
         '../third_party/icu/icu.gyp:icuuc',
+        '../third_party/leveldb/leveldb.gyp:leveldb',
         '../third_party/libjpeg_turbo/libjpeg.gyp:libjpeg',
         '../third_party/libpng/libpng.gyp:libpng',
         '../third_party/libxml/libxml.gyp:libxml',
@@ -395,6 +396,8 @@
         ['OS=="win"', {
           'dependencies': [
             '../breakpad/breakpad.gyp:breakpad_handler',
+            '../third_party/angle/src/build_angle.gyp:libEGL',
+            '../third_party/angle/src/build_angle.gyp:libGLESv2',
             '../views/views.gyp:views',
           ],
           'sources': [
@@ -526,6 +529,7 @@
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu/icu.gyp:icui18n',
         '../third_party/icu/icu.gyp:icuuc',
+        '../third_party/leveldb/leveldb.gyp:leveldb',
         '../third_party/libjpeg_turbo/libjpeg.gyp:libjpeg',
         '../third_party/libpng/libpng.gyp:libpng',
         '../third_party/libxml/libxml.gyp:libxml',
@@ -662,6 +666,8 @@
         ['OS=="win"', {
           'dependencies': [
             '../breakpad/breakpad.gyp:breakpad_handler',
+            '../third_party/angle/src/build_angle.gyp:libEGL',
+            '../third_party/angle/src/build_angle.gyp:libGLESv2',
             '../views/views.gyp:views',
           ],
           'sources': [

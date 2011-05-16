@@ -29,12 +29,12 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
 }
 
 BrowserDatabaseSystem::BrowserDatabaseSystem()
-    : db_thread_("SimpleDBThread"),
+    : db_thread_("BrowserDBThread"),
       open_connections_(new webkit_database::DatabaseConnectionsWrapper) {
   DCHECK(!instance_);
   instance_ = this;
   CHECK(temp_dir_.CreateUniqueTempDir());
-  db_tracker_ = new DatabaseTracker(temp_dir_.path(), false, NULL);
+  db_tracker_ = new DatabaseTracker(temp_dir_.path(), false, NULL, NULL, NULL);
   db_tracker_->AddObserver(this);
   db_thread_.Start();
   db_thread_proxy_ = db_thread_.message_loop_proxy();

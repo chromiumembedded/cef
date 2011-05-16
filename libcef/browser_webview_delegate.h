@@ -164,7 +164,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*, bool is_new_navigation);
   virtual void didClearWindowObject(WebKit::WebFrame*);
   virtual void didReceiveTitle(
-      WebKit::WebFrame*, const WebKit::WebString& title);
+      WebKit::WebFrame*, const WebKit::WebString& title,
+      WebKit::WebTextDirection direction);
   virtual void didFailLoad(
       WebKit::WebFrame*, const WebKit::WebURLError&);
   virtual void didFinishLoad(WebKit::WebFrame*);

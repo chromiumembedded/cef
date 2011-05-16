@@ -36,6 +36,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSerializedScriptValue.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "ui/gfx/gl/gl_bindings_skia_in_process.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webfileutilities_impl.h"
@@ -233,6 +234,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {
+    gfx::BindSkiaToInProcessGL();
     return new webkit::gpu::WebGraphicsContext3DInProcessImpl();
   }
 

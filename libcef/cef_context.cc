@@ -10,12 +10,14 @@
 #include "../include/cef_nplugin.h"
 
 #include "base/file_util.h"
-#if defined(OS_MACOSX) || defined(OS_WIN)
-#include "base/nss_util.h"
-#endif
 #include "base/stringprintf.h"
+#include "base/synchronization/waitable_event.h"
 #include "net/base/cookie_monster.h"
 #include "webkit/plugins/npapi/plugin_list.h"
+
+#if defined(OS_MACOSX) || defined(OS_WIN)
+#include "crypto/nss_util.h"
+#endif
 
 // Both the CefContext constuctor and the CefContext::RemoveBrowser method need
 // to initialize or reset to the same value.
@@ -485,7 +487,7 @@ bool CefContext::Initialize(const CefSettings& settings,
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
   // We want to be sure to init NSPR on the main thread.
-  base::EnsureNSPRInit();
+  crypto::EnsureNSPRInit();
 #endif
 
   process_ = new CefProcess(settings_.multi_threaded_message_loop);

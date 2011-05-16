@@ -9,7 +9,7 @@
 #include "printing/units.h"
 
 #include "skia/ext/vector_canvas.h"
-#include "skia/ext/vector_platform_device_win.h"
+#include "skia/ext/vector_platform_device_emf_win.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
@@ -263,9 +263,9 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   DCHECK_NE(saved_state, 0);
 
   skia::PlatformDevice* device =
-      skia::VectorPlatformDeviceFactory::CreateDevice(dest_size_x,
-                                                      dest_size_y,
-                                                      true, hDC);
+      skia::VectorPlatformDeviceEmfFactory::CreateDevice(dest_size_x,
+                                                         dest_size_y,
+                                                         true, hDC);
   DCHECK(device);
   skia::VectorCanvas canvas(device);
 

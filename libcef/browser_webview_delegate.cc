@@ -818,7 +818,7 @@ void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
 }
 
 void BrowserWebViewDelegate::didReceiveTitle(
-    WebFrame* frame, const WebString& title) {
+    WebFrame* frame, const WebString& title, WebTextDirection direction) {
   bool is_main_frame = (frame->parent() == 0);
   if (is_main_frame) {
     CefString titleStr = string16(title);

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -50,11 +50,6 @@ NullableString16 DOMStorageArea::GetItem(const string16& key) {
 NullableString16 DOMStorageArea::SetItem(
     const string16& key, const string16& value,
     WebStorageArea::Result* result) {
-  if (!CheckContentSetting(key, value)) {
-    *result = WebStorageArea::ResultBlockedByPolicy;
-    return NullableString16(true);  // Ignored if the content was blocked.
-  }
-
   CreateWebStorageAreaIfNecessary();
   WebString old_value;
   storage_area_->setItem(key, value, WebURL(), *result, old_value);
@@ -82,10 +77,4 @@ void DOMStorageArea::PurgeMemory() {
 void DOMStorageArea::CreateWebStorageAreaIfNecessary() {
   if (!storage_area_.get())
     storage_area_.reset(owner_->CreateWebStorageArea(origin_));
-}
-
-bool DOMStorageArea::CheckContentSetting(
-    const string16& key, const string16& value) {
-  // TODO(cef): Potentially give the host an option to deny write access.
-  return true;
 }

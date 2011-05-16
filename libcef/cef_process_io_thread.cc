@@ -12,6 +12,7 @@
 #include "browser_webblobregistry_impl.h"
 
 #include "build/build_config.h"
+#include "net/socket/client_socket_pool_manager.h"
 
 #if defined(OS_WIN)
 #include <Objbase.h>
@@ -34,7 +35,11 @@ void CefProcessIOThread::Init() {
   // Initializes the COM library on the current thread.
   CoInitialize(NULL);
 #endif
-  
+
+  // Increase max sockets per group as a workaround for the SyncRequestProxy
+  // deadlock problem (issue #192).
+  net::ClientSocketPoolManager::set_max_sockets_per_group(15);
+
   FilePath cache_path(_Context->cache_path());
   request_context_ = new BrowserRequestContext(cache_path,
       net::HttpCache::NORMAL, false);

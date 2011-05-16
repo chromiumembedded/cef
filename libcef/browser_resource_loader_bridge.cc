@@ -50,9 +50,6 @@
 #include "base/memory/ref_counted.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
-#if defined(OS_MACOSX) || defined(OS_WIN)
-#include "base/nss_util.h"
-#endif
 #include "base/synchronization/waitable_event.h"
 #include "base/time.h"
 #include "base/timer.h"
@@ -79,6 +76,10 @@
 #include "webkit/fileapi/file_system_dir_url_request_job.h"
 #include "webkit/fileapi/file_system_url_request_job.h"
 #include "webkit/glue/resource_loader_bridge.h"
+
+#if defined(OS_MACOSX) || defined(OS_WIN)
+#include "crypto/nss_util.h"
+#endif
 
 using net::HttpResponseHeaders;
 using net::StaticCookiePolicy;
@@ -243,7 +244,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           this, &RequestProxy::AsyncCancel));
     }
 
-    peer_->OnReceivedData(buf_copy.get(), bytes_read);
+    peer_->OnReceivedData(buf_copy.get(), bytes_read, -1);
   }
 
   void NotifyDownloadedData(int bytes_read) {
@@ -620,6 +621,32 @@ class RequestProxy : public net::URLRequest::Delegate,
                                      net::X509Certificate* cert) {
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
+  }
+
+  virtual bool CanGetCookies(net::URLRequest* request) {
+    StaticCookiePolicy::Type policy_type =
+        _Context->request_context()->AcceptAllCookies() ?
+            StaticCookiePolicy::ALLOW_ALL_COOKIES :
+            StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
+
+    StaticCookiePolicy policy(policy_type);
+    int rv = policy.CanGetCookies(
+        request->url(), request->first_party_for_cookies());
+    return rv == net::OK;
+  }
+
+  virtual bool CanSetCookie(net::URLRequest* request,
+                            const std::string& cookie_line,
+                            net::CookieOptions* options) {
+    StaticCookiePolicy::Type policy_type =
+        _Context->request_context()->AcceptAllCookies() ?
+            StaticCookiePolicy::ALLOW_ALL_COOKIES :
+            StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
+
+    StaticCookiePolicy policy(policy_type);
+    int rv = policy.CanSetCookie(
+        request->url(), request->first_party_for_cookies(), cookie_line);
+    return rv == net::OK;
   }
 
   virtual void OnReadCompleted(net::URLRequest* request, int bytes_read) {

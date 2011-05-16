@@ -142,9 +142,8 @@ public:
   }
 
   // Called when a chunk of response data is received.
-  // FIXME(vsevik): rename once original didReceiveData() is removed.
-  virtual void didReceiveData2(WebURLLoader*, const char* data, int dataLength,
-                               int lengthReceived)
+  virtual void didReceiveData(WebURLLoader*, const char* data, int dataLength,
+                              int lengthReceived)
   {
     REQUIRE_UIT();
     if(!context_)

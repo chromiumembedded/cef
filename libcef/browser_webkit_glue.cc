@@ -45,12 +45,6 @@ bool IsMediaPlayerAvailable() {
   return true;
 }
 
-void PrecacheUrl(const char16* url, int url_length) {}
-
-void AppendToLog(const char* file, int line, const char* msg) {
-  logging::LogMessage(file, line).stream() << msg;
-}
-
 bool GetApplicationDirectory(FilePath* path) {
   return PathService::Get(base::DIR_EXE, path);
 }
@@ -126,7 +120,9 @@ std::string GetProductVersion() {
   if (settings.product_version.length > 0) {
     return CefString(&settings.product_version);
   }
-  return "Chrome/7.0.517.0";
+  // Keep synchronized with the newest Beta Channel release announced at
+  // http://googlechromereleases.blogspot.com/
+  return "Chrome/12.0.742.53";
 }
 
 bool IsSingleProcess() {

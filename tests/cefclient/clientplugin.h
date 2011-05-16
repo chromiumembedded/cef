@@ -17,9 +17,9 @@
 
 extern NPNetscapeFuncs* g_browser;
 
-NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* pFuncs);
-NPError API_CALL NP_Initialize(NPNetscapeFuncs* pFuncs);
-NPError API_CALL NP_Shutdown(void);
+NPError API_CALL NP_ClientGetEntryPoints(NPPluginFuncs* pFuncs);
+NPError API_CALL NP_ClientInitialize(NPNetscapeFuncs* pFuncs);
+NPError API_CALL NP_ClientShutdown(void);
 
 
 // Provides the client plugin functionality.

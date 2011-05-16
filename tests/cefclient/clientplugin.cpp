@@ -10,9 +10,10 @@
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_browser = NULL;
 
-static
-NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
-                char* argn[], char* argv[], NPSavedData* saved) {
+namespace {
+
+NPError NPP_ClientNew(NPMIMEType plugin_type, NPP instance, uint16_t mode,
+                int16_t argc, char* argn[], char* argv[], NPSavedData* saved) {
   if (instance == NULL)
     return NPERR_INVALID_INSTANCE_ERROR;
 
@@ -23,8 +24,7 @@ NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
   return NPERR_NO_ERROR;
 }
 
-static
-NPError NPP_Destroy(NPP instance, NPSavedData** save) {
+NPError NPP_ClientDestroy(NPP instance, NPSavedData** save) {
   ClientPlugin* plugin_impl = reinterpret_cast<ClientPlugin*>(instance->pdata);
 
   if (plugin_impl) {
@@ -35,8 +35,7 @@ NPError NPP_Destroy(NPP instance, NPSavedData** save) {
   return NPERR_NO_ERROR;
 }
 
-static
-NPError NPP_SetWindow(NPP instance, NPWindow* window_info) {
+NPError NPP_ClientSetWindow(NPP instance, NPWindow* window_info) {
   if (instance == NULL)
     return NPERR_INVALID_INSTANCE_ERROR;
 
@@ -57,21 +56,23 @@ NPError NPP_SetWindow(NPP instance, NPWindow* window_info) {
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+} // anonymous
+
+NPError API_CALL NP_ClientGetEntryPoints(NPPluginFuncs* pFuncs)
 {
-  pFuncs->newp = NPP_New;
-  pFuncs->destroy = NPP_Destroy;
-  pFuncs->setwindow = NPP_SetWindow;
+  pFuncs->newp = NPP_ClientNew;
+  pFuncs->destroy = NPP_ClientDestroy;
+  pFuncs->setwindow = NPP_ClientSetWindow;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_Initialize(NPNetscapeFuncs* pFuncs)
+NPError API_CALL NP_ClientInitialize(NPNetscapeFuncs* pFuncs)
 {
   g_browser = pFuncs;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_Shutdown(void)
+NPError API_CALL NP_ClientShutdown(void)
 {
   g_browser = NULL;
   return NPERR_NO_ERROR;

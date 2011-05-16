@@ -64,12 +64,12 @@ net::URLRequestJob* FileSystemURLRequestJobFactory(net::URLRequest* request,
   if (!path.empty() && path[path.size() - 1] == '/') {
     return new fileapi::FileSystemDirURLRequestJob(
         request,
-        fs_context->path_manager(),
+        fs_context,
         CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
   }
   return new fileapi::FileSystemURLRequestJob(
       request,
-      fs_context->path_manager(),
+      fs_context,
       CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
 }
 
@@ -148,7 +148,7 @@ void CefProcessUIThread::Init() {
   WebKit::WebScriptController::registerExtension(
       extensions_v8::GCExtension::Get());
 
-  gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
+  gfx::InitializeGLBindings(gfx::kGLImplementationEGLGLES2);
 
   net::URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
   net::URLRequest::RegisterProtocolFactory("filesystem",

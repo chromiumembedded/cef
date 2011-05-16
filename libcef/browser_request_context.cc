@@ -9,13 +9,13 @@
 #include "browser_resource_loader_bridge.h"
 #include "build/build_config.h"
 
+#include "base/compiler_specific.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "net/base/cert_verifier.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/host_resolver.h"
-#include "net/base/ssl_config_service.h"
-#include "net/base/static_cookie_policy.h"
+#include "net/base/ssl_config_service_defaults.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/proxy/proxy_config_service.h"
@@ -40,7 +40,9 @@ public:
   ProxyConfigServiceNull() {}
   virtual void AddObserver(Observer* observer) {}
   virtual void RemoveObserver(Observer* observer) {}
-  virtual bool GetLatestProxyConfig(net::ProxyConfig* config) { return true; }
+  virtual ProxyConfigService::ConfigAvailability
+      GetLatestProxyConfig(net::ProxyConfig* config)
+      { return ProxyConfigService::CONFIG_VALID; }
   virtual void OnLazyPoll() {}
 };
 
@@ -48,14 +50,18 @@ public:
 
 #endif // defined(OS_WIN)
 
-BrowserRequestContext::BrowserRequestContext() {
+BrowserRequestContext::BrowserRequestContext() 
+    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
+      accept_all_cookies_(true) {
   Init(FilePath(), net::HttpCache::NORMAL, false);
 }
 
 BrowserRequestContext::BrowserRequestContext(
     const FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
-    bool no_proxy) {
+    bool no_proxy)
+    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
+      accept_all_cookies_(true) {
   Init(cache_path, cache_mode, no_proxy);
 }
 
@@ -78,8 +84,8 @@ void BrowserRequestContext::Init(
     persistent_store = new BrowserPersistentCookieStore(cookie_path);
   }
 
-  set_cookie_store(new net::CookieMonster(persistent_store.get(), NULL));
-  set_cookie_policy(new net::StaticCookiePolicy());
+  storage_.set_cookie_store(
+      new net::CookieMonster(persistent_store.get(), NULL));
 
   // hard-code A-L and A-C for test shells
   set_accept_language("en-us,en");
@@ -96,7 +102,7 @@ void BrowserRequestContext::Init(
   WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
   if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
     if (ie_config.fAutoDetect == TRUE) {
-      set_proxy_service(net::ProxyService::CreateWithoutProxyResolver(
+      storage_.set_proxy_service(net::ProxyService::CreateWithoutProxyResolver(
           new ProxyConfigServiceNull(), NULL));
     }
 
@@ -114,15 +120,15 @@ void BrowserRequestContext::Init(
     scoped_ptr<net::ProxyConfigService> proxy_config_service(
         net::ProxyService::CreateSystemProxyConfigService(
             MessageLoop::current(), NULL));
-    set_proxy_service(net::ProxyService::CreateUsingSystemProxyResolver(
+    storage_.set_proxy_service(net::ProxyService::CreateUsingSystemProxyResolver(
         proxy_config_service.release(), 0, NULL));
   }
 
-  set_host_resolver(
+  storage_.set_host_resolver(
       net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
-                                    NULL, NULL));
-  set_cert_verifier(new net::CertVerifier);
-  set_ssl_config_service(net::SSLConfigService::CreateSystemSSLConfigService());
+                                    NULL));
+  storage_.set_cert_verifier(new net::CertVerifier);
+  storage_.set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
   // Add support for single sign-on.
   url_security_manager_.reset(net::URLSecurityManager::Create(NULL, NULL));
@@ -133,7 +139,7 @@ void BrowserRequestContext::Init(
   supported_schemes.push_back("ntlm");
   supported_schemes.push_back("negotiate");
 
-  set_http_auth_handler_factory(
+  storage_.set_http_auth_handler_factory(
       net::HttpAuthHandlerRegistryFactory::Create(supported_schemes,
                                                   url_security_manager_.get(),
                                                   host_resolver(),
@@ -151,9 +157,10 @@ void BrowserRequestContext::Init(
                          http_auth_handler_factory(), NULL, NULL, backend);
 
   cache->set_mode(cache_mode);
-  set_http_transaction_factory(cache);
+  storage_.set_http_transaction_factory(cache);
 
-  set_ftp_transaction_factory(new net::FtpNetworkLayer(host_resolver()));
+  storage_.set_ftp_transaction_factory(
+      new net::FtpNetworkLayer(host_resolver()));
 
   blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
   file_system_context_ = static_cast<BrowserFileSystem*>(
@@ -161,19 +168,14 @@ void BrowserRequestContext::Init(
 }
 
 BrowserRequestContext::~BrowserRequestContext() {
-  delete ftp_transaction_factory();
-  delete http_transaction_factory();
-  delete http_auth_handler_factory();
-  delete cookie_policy();
-  delete cert_verifier();
-  delete host_resolver();
 }
 
 void BrowserRequestContext::SetAcceptAllCookies(bool accept_all_cookies) {
-  net::StaticCookiePolicy::Type policy_type = accept_all_cookies ?
-      net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
-      net::StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
-  static_cast<net::StaticCookiePolicy*>(cookie_policy())->set_type(policy_type);
+  accept_all_cookies_ = accept_all_cookies;
+}
+
+bool BrowserRequestContext::AcceptAllCookies() {
+  return accept_all_cookies_;
 }
 
 const std::string& BrowserRequestContext::GetUserAgent(

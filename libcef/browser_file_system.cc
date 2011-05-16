@@ -64,6 +64,11 @@ class BrowserFileSystemCallbackDispatcher
     callbacks_->didSucceed();
   }
 
+  // Callback to report information for a file.
+  virtual void DidGetLocalPath(const FilePath& local_path) {
+    NOTREACHED();
+  }
+
   virtual void DidReadMetadata(const base::PlatformFileInfo& info,
       const FilePath& platform_path) {
     DCHECK(file_system_);
@@ -95,13 +100,13 @@ class BrowserFileSystemCallbackDispatcher
   }
 
   virtual void DidOpenFileSystem(
-      const std::string& name, const FilePath& path) {
+      const std::string& name, const GURL& root) {
     DCHECK(file_system_);
-    if (path.empty())
+    if (!root.is_valid())
       callbacks_->didFail(WebKit::WebFileErrorSecurity);
     else
       callbacks_->didOpenFileSystem(
-          UTF8ToUTF16(name), webkit_glue::FilePathToWebString(path));
+          WebString::fromUTF8(name), WebString::fromUTF8(root.spec()));
   }
 
   virtual void DidFail(base::PlatformFileError error_code) {
@@ -127,10 +132,12 @@ BrowserFileSystem::BrowserFileSystem() {
         base::MessageLoopProxy::CreateForCurrentThread(),
         base::MessageLoopProxy::CreateForCurrentThread(),
         NULL /* special storage policy */,
+        NULL /* quota manager */,
         file_system_dir_.path(),
         false /* incognito */,
         true /* allow_file_access */,
-        true /* unlimited_quota */);
+        true /* unlimited_quota */,
+        NULL);
   } else {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
                     "FileSystem feature will be disabled.";
@@ -155,6 +162,8 @@ void BrowserFileSystem::OpenFileSystem(
     type = fileapi::kFileSystemTypeTemporary;
   else if (web_filesystem_type == WebFileSystem::TypePersistent)
     type = fileapi::kFileSystemTypePersistent;
+  else if (web_filesystem_type == WebFileSystem::TypeExternal)
+    type = fileapi::kFileSystemTypeExternal;
   else {
     // Unknown type filesystem is requested.
     callbacks->didFail(WebKit::WebFileErrorSecurity);
@@ -168,80 +177,58 @@ void BrowserFileSystem::OpenFileSystem(
 void BrowserFileSystem::move(
     const WebString& src_path,
     const WebString& dest_path, WebFileSystemCallbacks* callbacks) {
-  FilePath dest_filepath(webkit_glue::WebStringToFilePath(dest_path));
-  FilePath src_filepath(webkit_glue::WebStringToFilePath(src_path));
-
-  GetNewOperation(callbacks)->Move(src_filepath, dest_filepath);
+  GetNewOperation(callbacks)->Move(GURL(src_path), GURL(dest_path));
 }
 
 void BrowserFileSystem::copy(
     const WebString& src_path, const WebString& dest_path,
     WebFileSystemCallbacks* callbacks) {
-  FilePath dest_filepath(webkit_glue::WebStringToFilePath(dest_path));
-  FilePath src_filepath(webkit_glue::WebStringToFilePath(src_path));
-
-  GetNewOperation(callbacks)->Copy(src_filepath, dest_filepath);
+  GetNewOperation(callbacks)->Copy(GURL(src_path), GURL(dest_path));
 }
 
 void BrowserFileSystem::remove(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->Remove(filepath, false /* recursive */);
+  GetNewOperation(callbacks)->Remove(GURL(path), false /* recursive */);
 }
 
 void BrowserFileSystem::removeRecursively(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->Remove(filepath, true /* recursive */);
+  GetNewOperation(callbacks)->Remove(GURL(path), true /* recursive */);
 }
 
 void BrowserFileSystem::readMetadata(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->GetMetadata(filepath);
+  GetNewOperation(callbacks)->GetMetadata(GURL(path));
 }
 
 void BrowserFileSystem::createFile(
     const WebString& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->CreateFile(filepath, exclusive);
+  GetNewOperation(callbacks)->CreateFile(GURL(path), exclusive);
 }
 
 void BrowserFileSystem::createDirectory(
     const WebString& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->CreateDirectory(filepath, exclusive, false);
+  GetNewOperation(callbacks)->CreateDirectory(GURL(path), exclusive, false);
 }
 
 void BrowserFileSystem::fileExists(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->FileExists(filepath);
+  GetNewOperation(callbacks)->FileExists(GURL(path));
 }
 
 void BrowserFileSystem::directoryExists(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->DirectoryExists(filepath);
+  GetNewOperation(callbacks)->DirectoryExists(GURL(path));
 }
 
 void BrowserFileSystem::readDirectory(
     const WebString& path, WebFileSystemCallbacks* callbacks) {
-  FilePath filepath(webkit_glue::WebStringToFilePath(path));
-
-  GetNewOperation(callbacks)->ReadDirectory(filepath);
+  GetNewOperation(callbacks)->ReadDirectory(GURL(path));
 }
 
 WebFileWriter* BrowserFileSystem::createFileWriter(
     const WebString& path, WebFileWriterClient* client) {
-  return new BrowserFileWriter(path, client, file_system_context_.get());
+  return new BrowserFileWriter(GURL(path), client, file_system_context_.get());
 }
 
 FileSystemOperation* BrowserFileSystem::GetNewOperation(

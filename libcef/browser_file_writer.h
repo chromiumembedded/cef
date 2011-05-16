@@ -19,10 +19,10 @@ class FileSystemContext;
 
 // An implementation of WebFileWriter for use in test_shell and DRT.
 class BrowserFileWriter : public fileapi::WebFileWriterBase,
-                          public base::SupportsWeakPtr<BrowserFileWriter> {
+                         public base::SupportsWeakPtr<BrowserFileWriter> {
  public:
   BrowserFileWriter(
-      const WebKit::WebString& path,
+      const GURL& path,
       WebKit::WebFileWriterClient* client,
       fileapi::FileSystemContext* file_system_context);
   virtual ~BrowserFileWriter();
@@ -37,8 +37,8 @@ class BrowserFileWriter : public fileapi::WebFileWriterBase,
 
  protected:
   // WebFileWriterBase overrides
-  virtual void DoTruncate(const FilePath& path, int64 offset);
-  virtual void DoWrite(const FilePath& path, const GURL& blob_url,
+  virtual void DoTruncate(const GURL& path, int64 offset);
+  virtual void DoWrite(const GURL& path, const GURL& blob_url,
                        int64 offset);
   virtual void DoCancel();
 

@@ -14,9 +14,9 @@ void InitPluginTest()
   CefString(&plugin_info.description).FromASCII("My Example Client Plugin");
   CefString(&plugin_info.mime_type).FromASCII("application/x-client-plugin");
 
-  plugin_info.np_getentrypoints = NP_GetEntryPoints;
-  plugin_info.np_initialize = NP_Initialize;
-  plugin_info.np_shutdown = NP_Shutdown;
+  plugin_info.np_getentrypoints = NP_ClientGetEntryPoints;
+  plugin_info.np_initialize = NP_ClientInitialize;
+  plugin_info.np_shutdown = NP_ClientShutdown;
 
   // Register the internal client plugin
   CefRegisterPlugin(plugin_info);

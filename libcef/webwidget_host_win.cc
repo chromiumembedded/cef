@@ -304,12 +304,13 @@ void WebWidgetHost::Paint() {
   // Scroll the canvas if necessary
   scroll_rect_ = client_rect.Intersect(scroll_rect_);
   if (!scroll_rect_.IsEmpty()) {
-    HDC hdc = canvas_->getTopPlatformDevice().getBitmapDC();
+    HDC hdc = canvas_->beginPlatformPaint();
 
     RECT damaged_scroll_rect, r = scroll_rect_.ToRECT();
     ScrollDC(hdc, scroll_dx_, scroll_dy_, NULL, &r, NULL, &damaged_scroll_rect);
 
     PaintRect(gfx::Rect(damaged_scroll_rect));
+    canvas_->endPlatformPaint();
   }
   ResetScrollRect();
 

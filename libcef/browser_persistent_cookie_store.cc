@@ -185,12 +185,14 @@ bool BrowserPersistentCookieStore::Backend::Load(
             smt.ColumnString(3),                            // value
             smt.ColumnString(1),                            // domain
             smt.ColumnString(4),                            // path
+            std::string(),  // TODO(abarth): Persist mac_key
+            std::string(),  // TODO(abarth): Persist mac_algorithm
+            Time::FromInternalValue(smt.ColumnInt64(0)),    // creation_utc
+            Time::FromInternalValue(smt.ColumnInt64(5)),    // expires_utc
+            Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
             smt.ColumnInt(6) != 0,                          // secure
             smt.ColumnInt(7) != 0,                          // httponly
-            Time::FromInternalValue(smt.ColumnInt64(0)),    // creation_utc
-            Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
-            true,                                           // has_expires
-            Time::FromInternalValue(smt.ColumnInt64(5))));  // expires_utc
+            true));                                         // has_
     DLOG_IF(WARNING,
             cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
     cookies->push_back(cc.release());

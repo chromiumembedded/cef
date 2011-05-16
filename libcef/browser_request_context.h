@@ -9,6 +9,7 @@
 #include "net/http/http_cache.h"
 #include "net/http/url_security_manager.h"
 #include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_context_storage.h"
 
 class FilePath;
 
@@ -36,6 +37,7 @@ class BrowserRequestContext : public net::URLRequestContext {
   virtual const std::string& GetUserAgent(const GURL& url) const;
 
   void SetAcceptAllCookies(bool accept_all_cookies);
+  bool AcceptAllCookies();
 
   webkit_blob::BlobStorageController* blob_storage_controller() const {
     return blob_storage_controller_.get();
@@ -49,9 +51,11 @@ class BrowserRequestContext : public net::URLRequestContext {
   void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
 
+  net::URLRequestContextStorage storage_;
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
   scoped_refptr<fileapi::FileSystemContext> file_system_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+  bool accept_all_cookies_;
 };
 
 #endif  // _BROWSER_REQUEST_CONTEXT_H

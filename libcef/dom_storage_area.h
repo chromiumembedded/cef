@@ -1,9 +1,10 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef _DOM_STORAGE_AREA_H
 #define _DOM_STORAGE_AREA_H
+#pragma once
 
 #include "base/hash_tables.h"
 #include "base/memory/ref_counted.h"
@@ -14,7 +15,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
 
 class DOMStorageNamespace;
-
 // Only use on the WebKit thread.  DOMStorageNamespace manages our registration
 // with DOMStorageContext.
 class DOMStorageArea {
@@ -41,9 +41,6 @@ class DOMStorageArea {
  private:
   // Creates the underlying WebStorageArea on demand.
   void CreateWebStorageAreaIfNecessary();
-
-  // Used to see if setItem has permission to do its thing.
-  bool CheckContentSetting(const string16& key, const string16& value);
 
   // The origin this storage area represents.
   string16 origin_;
