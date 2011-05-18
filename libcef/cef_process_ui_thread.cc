@@ -16,6 +16,7 @@
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #include "net/url_request/url_request.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
 #include "ui/gfx/gl/gl_implementation.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job.h"
@@ -175,6 +176,16 @@ void CefProcessUIThread::Init() {
       webkit::npapi::PluginList::Singleton()->AddExtraPluginPath(path);
     }
   }
+
+  // Create a network change notifier before starting the IO & File threads.
+  network_change_notifier_.reset(net::NetworkChangeNotifier::Create());
+
+  // Add a listener for OnOnlineStateChanged to notify WebKit of changes.
+  net::NetworkChangeNotifier::AddOnlineStateObserver(this);
+
+  // Initialize WebKit with the current state.
+  WebKit::WebNetworkStateNotifier::setOnLine(
+      !net::NetworkChangeNotifier::IsOffline());
 }
 
 void CefProcessUIThread::CleanUp() {
@@ -195,5 +206,15 @@ void CefProcessUIThread::CleanUp() {
   delete webkit_init_;
   webkit_init_ = NULL;
 
+  // Release the network change notifier after all other threads end.
+  net::NetworkChangeNotifier::RemoveOnlineStateObserver(this);
+  network_change_notifier_.reset();
+
   PlatformCleanUp();
 }
+
+void CefProcessUIThread::OnOnlineStateChanged(bool online) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  WebKit::WebNetworkStateNotifier::setOnLine(online);
+}
+
