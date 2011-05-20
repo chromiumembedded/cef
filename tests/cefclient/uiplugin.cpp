@@ -8,7 +8,7 @@
 #include <gl/gl.h>
 #include <sstream>
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_uibrowser = NULL;
@@ -290,4 +290,4 @@ void ResetRotation()
   NotifyNewRotation(g_rotationspeed);
 }
 
-#endif // _WIN32
+#endif // OS_WIN

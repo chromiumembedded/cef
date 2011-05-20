@@ -158,7 +158,7 @@ TEST(StreamTest, WriteFile)
 
 bool g_ReadHandlerTesterDeleted = false;
 
-class ReadHandlerTester : public CefThreadSafeBase<CefReadHandler>
+class ReadHandlerTester : public CefReadHandler
 {
 public:
   ReadHandlerTester()
@@ -213,6 +213,8 @@ public:
   bool tell_called_;
   
   bool eof_called_;
+
+  IMPLEMENT_REFCOUNTING(ReadHandlerTester);
 };
 
 TEST(StreamTest, ReadHandler)
@@ -262,7 +264,7 @@ TEST(StreamTest, ReadHandler)
 
 bool g_WriteHandlerTesterDeleted = false;
 
-class WriteHandlerTester : public CefThreadSafeBase<CefWriteHandler>
+class WriteHandlerTester : public CefWriteHandler
 {
 public:
   WriteHandlerTester()
@@ -317,6 +319,8 @@ public:
   bool tell_called_;
   
   bool flush_called_;
+
+  IMPLEMENT_REFCOUNTING(WriteHandlerTester);
 };
 
 TEST(StreamTest, WriteHandler)

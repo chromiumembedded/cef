@@ -12,7 +12,7 @@
 #include "include/cef.h"
 #include "include/cef_nplugin.h"
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 extern NPNetscapeFuncs* g_osrbrowser;
 
@@ -22,6 +22,6 @@ NPError API_CALL NP_OSRShutdown(void);
 
 CefRefPtr<CefBrowser> GetOffScreenBrowser();
 
-#endif // _WIN32
+#endif // OS_WIN
 
 #endif // _CEFCLIENT_OSRPLUGIN_H

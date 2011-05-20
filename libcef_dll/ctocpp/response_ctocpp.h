@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,15 +31,15 @@ public:
   virtual ~CefResponseCToCpp() {}
 
   // CefResponse methods
-  virtual int GetStatus();
-  virtual void SetStatus(int status);
-  virtual CefString GetStatusText();
-  virtual void SetStatusText(const CefString& statusText);
-  virtual CefString GetMimeType();
-  virtual void SetMimeType(const CefString& mimeType);
-  virtual CefString GetHeader(const CefString& name);
-  virtual void GetHeaderMap(HeaderMap& headerMap);
-  virtual void SetHeaderMap(const HeaderMap& headerMap);
+  virtual int GetStatus() OVERRIDE;
+  virtual void SetStatus(int status) OVERRIDE;
+  virtual CefString GetStatusText() OVERRIDE;
+  virtual void SetStatusText(const CefString& statusText) OVERRIDE;
+  virtual CefString GetMimeType() OVERRIDE;
+  virtual void SetMimeType(const CefString& mimeType) OVERRIDE;
+  virtual CefString GetHeader(const CefString& name) OVERRIDE;
+  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

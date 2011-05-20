@@ -39,20 +39,21 @@
 extern "C" {
 #endif
 
+#include "cef_build.h"
 #include "cef_export.h"
 #include <stddef.h>
 
 // CEF character type definitions. wchat_t is 2 bytes on Windows and 4 bytes on
 // most other platforms.
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 typedef wchar_t char16_t;
-#else // _WIN32
+#else // !OS_WIN
 typedef unsigned short char16_t;
 #ifndef WCHAR_T_IS_UTF32
 #define WCHAR_T_IS_UTF32
 #endif // WCHAR_T_IS_UTF32
-#endif // _WIN32
+#endif // !OS_WIN
 
 
 // CEF string type definitions. Whomever allocates |str| is responsible for

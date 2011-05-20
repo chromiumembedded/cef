@@ -11,7 +11,7 @@
 
 #include "include/cef_nplugin.h"
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 extern NPNetscapeFuncs* g_uibrowser;
 
@@ -24,6 +24,6 @@ void ModifyRotation(float value);
 // Function called to reset the rotation value.
 void ResetRotation();
 
-#endif // _WIN32
+#endif // OS_WIN
 
 #endif // _CEFCLIENT_UIPLUGIN_H

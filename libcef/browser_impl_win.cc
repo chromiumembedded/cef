@@ -167,9 +167,12 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
                  cr.bottom, flags);
   }
 
-  if(handler_.get()) {
-    // Notify the handler that we're done creating the new window
-    handler_->HandleAfterCreated(this);
+  if(client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+    if (handler.get()) {
+      // Notify the handler that we're done creating the new window
+      handler->OnAfterCreated(this);
+    }
   }
 
   if(url.length() > 0)
@@ -303,7 +306,11 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   res = RestoreDC(hDC, saved_state);
   DCHECK_NE(res, 0);
 
-  if(handler_.get()) {
+  CefRefPtr<CefPrintHandler> handler;
+  if (client_.get())
+    handler = client_->GetPrintHandler();
+
+  if(handler.get()) {
     saved_state = SaveDC(hDC);
     DCHECK_NE(saved_state, 0);
 
@@ -334,12 +341,12 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     CefString topLeft, topCenter, topRight;
     CefString bottomLeft, bottomCenter, bottomRight;
 
-    // allow the handler to format print header and/or footer
-    CefHandler::RetVal rv = handler_->HandlePrintHeaderFooter(this,
-      UIT_GetCefFrame(frame), printInfo, url, title, page_number+1, total_pages,
-      topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight);
+    // Allow the handler to format print header and/or footer.
+    bool handled = handler->GetPrintHeaderFooter(this, UIT_GetCefFrame(frame),
+      printInfo, url, title, page_number+1, total_pages, topLeft, topCenter,
+      topRight, bottomLeft, bottomCenter, bottomRight);
 
-    if(rv != RV_HANDLED) {
+    if (!handled) {
       // Draw handler-defined headers and/or footers.
       LOGFONT lf;
       memset(&lf, 0, sizeof(lf));
@@ -414,9 +421,12 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     memset(&print_options, 0, sizeof(print_options));
     settings.UpdatePrintOptions(print_options);  
     
+    CefRefPtr<CefPrintHandler> handler;
+    if (client_.get())
+      handler = client_->GetPrintHandler();
+    
     // Ask the handler if they want to update the print options.
-    if (handler_.get() && RV_HANDLED ==
-        handler_->HandlePrintOptions(this, print_options)) {
+    if (handler.get() && handler->GetPrintOptions(this, print_options)) {
       settings.UpdateFromPrintOptions(print_options);
       print_context_.InitWithSettings(settings);
     }

@@ -44,15 +44,16 @@ public:
   {
   }
 
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     CreateBrowser(test_results_->url);
   }
 
-  virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request,
-                                    NavType navType, bool isRedirect)
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              NavType navType,
+                              bool isRedirect) OVERRIDE
   {
     if (isRedirect) {
       test_results_->got_redirect.yes();
@@ -68,12 +69,12 @@ public:
       test_results_->redirect_url.clear();
     }
     
-    return RV_CONTINUE;
+    return false;
   }
 
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
   {
     // Test that the output is correct.
     std::string output = frame->GetSource();
@@ -84,15 +85,13 @@ public:
     EXPECT_EQ(httpStatusCode, test_results_->status_code);
 
     DestroyTest();
-
-    return RV_CONTINUE;
   }
 
 protected:
   TestResults* test_results_;
 };
 
-class ClientSchemeHandler : public CefThreadSafeBase<CefSchemeHandler>
+class ClientSchemeHandler : public CefSchemeHandler
 {
 public:
   ClientSchemeHandler(TestResults* tr)
@@ -138,7 +137,7 @@ public:
     bool has_data = false;
     *bytes_read = 0;
 
-    Lock();
+    AutoLock lock_scope(this);
 
     size_t size = test_results_->html.size();
     if(offset_ < size) {
@@ -151,18 +150,18 @@ public:
       has_data = true;
     }
 
-    Unlock();
-
     return has_data;
   }
 
 private:
   TestResults* test_results_;
   size_t offset_;
+
+  IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
+  IMPLEMENT_LOCKING(ClientSchemeHandler);
 };
 
-class ClientSchemeHandlerFactory :
-  public CefThreadSafeBase<CefSchemeHandlerFactory>
+class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory
 {
 public:
   ClientSchemeHandlerFactory(TestResults* tr)
@@ -175,6 +174,8 @@ public:
   }
 
   TestResults* test_results_;
+
+  IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
 };
 
 // Global test results object.

@@ -158,15 +158,13 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
 
 } // anonymous
 
-bool CefInitialize(const CefSettings& settings,
-                   const CefBrowserSettings& browser_defaults)
+bool CefInitialize(const CefSettings& settings)
 {
   // Return true if the global context already exists.
   if(_Context.get())
     return true;
 
-  if(settings.size != sizeof(cef_settings_t) ||
-    browser_defaults.size != sizeof(cef_browser_settings_t)) {
+  if(settings.size != sizeof(cef_settings_t)) {
     NOTREACHED();
     return false;
   }
@@ -175,7 +173,7 @@ bool CefInitialize(const CefSettings& settings,
   _Context = new CefContext();
 
   // Initialize the global context.
-  return _Context->Initialize(settings, browser_defaults);
+  return _Context->Initialize(settings);
 }
 
 void CefShutdown()
@@ -477,11 +475,9 @@ CefContext::~CefContext()
     Shutdown();
 }
 
-bool CefContext::Initialize(const CefSettings& settings,
-                            const CefBrowserSettings& browser_defaults)
+bool CefContext::Initialize(const CefSettings& settings)
 {
   settings_ = settings;
-  browser_defaults_ = browser_defaults;
 
   cache_path_ = FilePath(CefString(&settings.cache_path));
 
@@ -529,7 +525,7 @@ bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
 {
   bool found = false;
   
-  Lock();
+  AutoLock lock_scope(this);
   
   // check that the browser isn't already in the list before adding
   BrowserList::const_iterator it = browserlist_.begin();
@@ -545,8 +541,7 @@ bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
     browser->UIT_SetUniqueID(next_browser_id_++);
     browserlist_.push_back(browser);
   }
- 
-  Unlock();
+
   return !found;
 }
 
@@ -555,23 +550,23 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
   bool deleted = false;
   bool empty = false;
 
-  Lock();
+  {
+    AutoLock lock_scope(this);
 
-  BrowserList::iterator it = browserlist_.begin();
-  for(; it != browserlist_.end(); ++it) {
-    if(it->get() == browser.get()) {
-      browserlist_.erase(it);
-      deleted = true;
-      break;
+    BrowserList::iterator it = browserlist_.begin();
+    for(; it != browserlist_.end(); ++it) {
+      if(it->get() == browser.get()) {
+        browserlist_.erase(it);
+        deleted = true;
+        break;
+      }
+    }
+
+    if (browserlist_.empty()) {
+      next_browser_id_ = kNextBrowserIdReset;
+      empty = true;
     }
   }
-
-  if (browserlist_.empty()) {
-    next_browser_id_ = kNextBrowserIdReset;
-    empty = true;
-  }
-
-  Unlock();
 
   if (empty) {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
@@ -583,20 +578,15 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
 
 CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
 {
-  CefRefPtr<CefBrowserImpl> browser;
-  Lock();
+  AutoLock lock_scope(this);
 
   BrowserList::const_iterator it = browserlist_.begin();
   for(; it != browserlist_.end(); ++it) {
-    if(it->get()->UIT_GetUniqueID() == id) {
-      browser = it->get();
-      break;
-    }
+    if(it->get()->UIT_GetUniqueID() == id)
+      return it->get();
   }
 
-  Unlock();
-
-  return browser;
+  return NULL;
 }
 
 void CefContext::UIT_FinishShutdown(base::WaitableEvent* event)
@@ -605,12 +595,13 @@ void CefContext::UIT_FinishShutdown(base::WaitableEvent* event)
 
   BrowserList list;
 
-  Lock();
-  if (!browserlist_.empty()) {
-    list = browserlist_;
-    browserlist_.clear();
+  {
+    AutoLock lock_scope(this);
+    if (!browserlist_.empty()) {
+      list = browserlist_;
+      browserlist_.clear();
+    }
   }
-  Unlock();
 
   // Destroy any remaining browser windows.
   if (!list.empty()) {

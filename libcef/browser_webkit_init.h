@@ -95,78 +95,78 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::shutdown();
   }
 
-  virtual WebKit::WebMimeRegistry* mimeRegistry() {
+  virtual WebKit::WebMimeRegistry* mimeRegistry() OVERRIDE {
     return &mime_registry_;
   }
 
-  WebKit::WebClipboard* clipboard() {
+  virtual WebKit::WebClipboard* clipboard() OVERRIDE {
     return &clipboard_;
   }
 
-  virtual WebKit::WebFileUtilities* fileUtilities() {
+  virtual WebKit::WebFileUtilities* fileUtilities() OVERRIDE {
     return &file_utilities_;
   }
 
-  virtual WebKit::WebSandboxSupport* sandboxSupport() {
+  virtual WebKit::WebSandboxSupport* sandboxSupport() OVERRIDE {
     return NULL;
   }
 
-  virtual WebKit::WebBlobRegistry* blobRegistry() {
+  virtual WebKit::WebBlobRegistry* blobRegistry() OVERRIDE {
     return blob_registry_.get();
   }
 
-  virtual WebKit::WebCookieJar* cookieJar() {
+  virtual WebKit::WebCookieJar* cookieJar() OVERRIDE {
     return &cookie_jar_;
   }
 
-  virtual WebKit::WebFileSystem* fileSystem() {
+  virtual WebKit::WebFileSystem* fileSystem() OVERRIDE {
     return &file_system_;
   }
   
-  virtual bool sandboxEnabled() {
+  virtual bool sandboxEnabled() OVERRIDE {
     return true;
   }
 
   virtual WebKit::WebKitClient::FileHandle databaseOpenFile(
-      const WebKit::WebString& vfs_file_name, int desired_flags) {
+      const WebKit::WebString& vfs_file_name, int desired_flags) OVERRIDE {
     return BrowserDatabaseSystem::GetInstance()->OpenFile(
         vfs_file_name, desired_flags);
   }
 
   virtual int databaseDeleteFile(const WebKit::WebString& vfs_file_name,
-                                 bool sync_dir) {
+                                 bool sync_dir) OVERRIDE {
     return BrowserDatabaseSystem::GetInstance()->DeleteFile(
         vfs_file_name, sync_dir);
   }
 
   virtual long databaseGetFileAttributes(
-      const WebKit::WebString& vfs_file_name) {
+      const WebKit::WebString& vfs_file_name) OVERRIDE {
     return BrowserDatabaseSystem::GetInstance()->GetFileAttributes(
         vfs_file_name);
   }
 
   virtual long long databaseGetFileSize(
-      const WebKit::WebString& vfs_file_name) {
+      const WebKit::WebString& vfs_file_name) OVERRIDE {
     return BrowserDatabaseSystem::GetInstance()->GetFileSize(vfs_file_name);
   }
 
   virtual unsigned long long visitedLinkHash(const char* canonicalURL,
-                                             size_t length) {
+                                             size_t length) OVERRIDE {
     return 0;
   }
 
-  virtual bool isLinkVisited(unsigned long long linkHash) {
+  virtual bool isLinkVisited(unsigned long long linkHash) OVERRIDE {
     return false;
   }
 
-  virtual WebKit::WebMessagePortChannel* createMessagePortChannel() {
+  virtual WebKit::WebMessagePortChannel* createMessagePortChannel() OVERRIDE {
     return NULL;
   }
 
-  virtual void prefetchHostName(const WebKit::WebString&) {
+  virtual void prefetchHostName(const WebKit::WebString&) OVERRIDE {
   }
 
-  virtual WebKit::WebData loadResource(const char* name) {
+  virtual WebKit::WebData loadResource(const char* name) OVERRIDE {
     if (!strcmp(name, "deleteButton")) {
       // Create a red 30x30 square.
       const char red_square[] =
@@ -186,12 +186,12 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     return webkit_glue::WebKitClientImpl::loadResource(name);
   }
 
-  virtual WebKit::WebString defaultLocale() {
+  virtual WebKit::WebString defaultLocale() OVERRIDE {
     return ASCIIToUTF16("en-US");
   }
 
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
-      const WebKit::WebString& path, unsigned quota) {
+      const WebKit::WebString& path, unsigned quota) OVERRIDE {
     if (BrowserWebStorageNamespaceImpl::IsStorageActive()) {
       // Use the localStorage implementation that writes data to disk.
       return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
@@ -205,18 +205,18 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   void dispatchStorageEvent(const WebKit::WebString& key,
       const WebKit::WebString& old_value, const WebKit::WebString& new_value,
       const WebKit::WebString& origin, const WebKit::WebURL& url,
-      bool is_local_storage) {
+      bool is_local_storage) OVERRIDE {
     // The event is dispatched by the proxy.
   }
 
-  virtual WebKit::WebIDBFactory* idbFactory() {
+  virtual WebKit::WebIDBFactory* idbFactory() OVERRIDE {
     return WebKit::WebIDBFactory::create();
   }
 
   virtual void createIDBKeysFromSerializedValuesAndKeyPath(
       const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
       const WebKit::WebString& keyPath,
-      WebKit::WebVector<WebKit::WebIDBKey>& keys_out) {
+      WebKit::WebVector<WebKit::WebIDBKey>& keys_out) OVERRIDE {
     WebKit::WebVector<WebKit::WebIDBKey> keys(values.size());
     for (size_t i = 0; i < values.size(); ++i) {
       keys[i] = WebKit::WebIDBKey::createFromValueAndKeyPath(
@@ -228,18 +228,18 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebSerializedScriptValue injectIDBKeyIntoSerializedValue(
       const WebKit::WebIDBKey& key,
       const WebKit::WebSerializedScriptValue& value,
-      const WebKit::WebString& keyPath) {
+      const WebKit::WebString& keyPath) OVERRIDE {
     return WebKit::WebIDBKey::injectIDBKeyIntoSerializedValue(
         key, value, WebKit::WebIDBKeyPath::create(keyPath));
   }
 
-  virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() {
+  virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() OVERRIDE {
     gfx::BindSkiaToInProcessGL();
     return new webkit::gpu::WebGraphicsContext3DInProcessImpl();
   }
 
   WebKit::WebString queryLocalizedString(
-    WebKit::WebLocalizedString::Name name) {
+    WebKit::WebLocalizedString::Name name) OVERRIDE {
     switch (name) {
       case WebKit::WebLocalizedString::ValidationValueMissing:
       case WebKit::WebLocalizedString::ValidationValueMissingForCheckbox:
@@ -269,7 +269,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   }
   
   WebKit::WebString queryLocalizedString(
-      WebKit::WebLocalizedString::Name name, const WebKit::WebString& value) {
+      WebKit::WebLocalizedString::Name name, const WebKit::WebString& value)
+      OVERRIDE {
     if (name == WebKit::WebLocalizedString::ValidationRangeUnderflow)
       return ASCIIToUTF16("range underflow");
     if (name == WebKit::WebLocalizedString::ValidationRangeOverflow)
@@ -280,7 +281,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   WebKit::WebString queryLocalizedString(
       WebKit::WebLocalizedString::Name name,
       const WebKit::WebString& value1,
-      const WebKit::WebString& value2) {
+      const WebKit::WebString& value2) OVERRIDE {
     if (name == WebKit::WebLocalizedString::ValidationTooLong)
       return ASCIIToUTF16("too long");
     if (name == WebKit::WebLocalizedString::ValidationStepMismatch)

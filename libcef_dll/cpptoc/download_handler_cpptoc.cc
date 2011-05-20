@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -46,7 +46,7 @@ CefDownloadHandlerCppToC::CefDownloadHandlerCppToC(CefDownloadHandler* cls)
   struct_.struct_.complete = download_handler_complete;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefDownloadHandlerCppToC, CefDownloadHandler,
     cef_download_handler_t>::DebugObjCt = 0;
 #endif

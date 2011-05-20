@@ -10,21 +10,21 @@
 
 class CefDOMDocumentImpl;
 
-class CefDOMEventImpl : public CefThreadSafeBase<CefDOMEvent>
+class CefDOMEventImpl : public CefDOMEvent
 {
 public:
   CefDOMEventImpl(CefRefPtr<CefDOMDocumentImpl> document,
                   const WebKit::WebDOMEvent& event);
   virtual ~CefDOMEventImpl();
   
-  virtual CefString GetType();
-  virtual Category GetCategory();
-  virtual Phase GetPhase();
-  virtual bool CanBubble();
-  virtual bool CanCancel();
-  virtual CefRefPtr<CefDOMDocument> GetDocument();
-  virtual CefRefPtr<CefDOMNode> GetTarget();
-  virtual CefRefPtr<CefDOMNode> GetCurrentTarget();
+  virtual CefString GetType() OVERRIDE;
+  virtual Category GetCategory() OVERRIDE;
+  virtual Phase GetPhase() OVERRIDE;
+  virtual bool CanBubble() OVERRIDE;
+  virtual bool CanCancel() OVERRIDE;
+  virtual CefRefPtr<CefDOMDocument> GetDocument() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetTarget() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetCurrentTarget() OVERRIDE;
 
   // Will be called from CefDOMEventListenerWrapper::handleEvent().
   void Detach();
@@ -35,6 +35,8 @@ public:
 protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
   WebKit::WebDOMEvent event_;
+
+  IMPLEMENT_REFCOUNTING(CefDOMEventImpl);
 };
 
 #endif // _DOM_EVENT_IMPL_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,45 +31,45 @@ public:
   virtual ~CefBrowserCToCpp() {}
 
   // CefBrowser methods
-  virtual void CloseBrowser();
-  virtual bool CanGoBack();
-  virtual void GoBack();
-  virtual bool CanGoForward();
-  virtual void GoForward();
-  virtual void Reload();
-  virtual void ReloadIgnoreCache();
-  virtual void StopLoad();
-  virtual void SetFocus(bool enable);
-  virtual CefWindowHandle GetWindowHandle();
-  virtual bool IsPopup();
-  virtual CefRefPtr<CefHandler> GetHandler();
-  virtual CefRefPtr<CefFrame> GetMainFrame();
-  virtual CefRefPtr<CefFrame> GetFocusedFrame();
-  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name);
-  virtual void GetFrameNames(std::vector<CefString>& names);
+  virtual void CloseBrowser() OVERRIDE;
+  virtual bool CanGoBack() OVERRIDE;
+  virtual void GoBack() OVERRIDE;
+  virtual bool CanGoForward() OVERRIDE;
+  virtual void GoForward() OVERRIDE;
+  virtual void Reload() OVERRIDE;
+  virtual void ReloadIgnoreCache() OVERRIDE;
+  virtual void StopLoad() OVERRIDE;
+  virtual void SetFocus(bool enable) OVERRIDE;
+  virtual CefWindowHandle GetWindowHandle() OVERRIDE;
+  virtual bool IsPopup() OVERRIDE;
+  virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
+  virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
   virtual void Find(int identifier, const CefString& searchText, bool forward,
-      bool matchCase, bool findNext);
-  virtual void StopFinding(bool clearSelection);
-  virtual double GetZoomLevel();
-  virtual void SetZoomLevel(double zoomLevel);
-  virtual void ShowDevTools();
-  virtual void CloseDevTools();
-  virtual bool IsWindowRenderingDisabled();
-  virtual bool GetSize(PaintElementType type, int& width, int& height);
-  virtual void SetSize(PaintElementType type, int width, int height);
-  virtual bool IsPopupVisible();
-  virtual void HidePopup();
-  virtual void Invalidate(const CefRect& dirtyRect);
+      bool matchCase, bool findNext) OVERRIDE;
+  virtual void StopFinding(bool clearSelection) OVERRIDE;
+  virtual double GetZoomLevel() OVERRIDE;
+  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
+  virtual void ShowDevTools() OVERRIDE;
+  virtual void CloseDevTools() OVERRIDE;
+  virtual bool IsWindowRenderingDisabled() OVERRIDE;
+  virtual bool GetSize(PaintElementType type, int& width, int& height) OVERRIDE;
+  virtual void SetSize(PaintElementType type, int width, int height) OVERRIDE;
+  virtual bool IsPopupVisible() OVERRIDE;
+  virtual void HidePopup() OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
   virtual bool GetImage(PaintElementType type, int width, int height,
-      void* buffer);
+      void* buffer) OVERRIDE;
   virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-      bool imeChar);
+      bool imeChar) OVERRIDE;
   virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
-      bool mouseUp, int clickCount);
-  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave);
-  virtual void SendMouseWheelEvent(int x, int y, int delta);
-  virtual void SendFocusEvent(bool setFocus);
-  virtual void SendCaptureLostEvent();
+      bool mouseUp, int clickCount) OVERRIDE;
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(int x, int y, int delta) OVERRIDE;
+  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
+  virtual void SendCaptureLostEvent() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

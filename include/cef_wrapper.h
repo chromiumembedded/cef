@@ -60,7 +60,7 @@
 //     (b) Entity reference nodes are resolved to the corresponding entity
 //         value.
 //     (c) Element nodes are represented by their outer XML string.
-class CefXmlObject : public CefThreadSafeBase<CefBase>
+class CefXmlObject : public CefBase
 {
 public:
   typedef std::vector<CefRefPtr<CefXmlObject> > ObjectVector;
@@ -148,12 +148,15 @@ private:
   CefString value_;
   AttributeMap attributes_;
   ObjectVector children_;
+
+  IMPLEMENT_REFCOUNTING(CefXmlObject);
+  IMPLEMENT_LOCKING(CefXmlObject);
 };
 
 
 // Thread safe implementation of the CefReadHandler class for reading an
 // in-memory array of bytes.
-class CefByteReadHandler : public CefThreadSafeBase<CefReadHandler>
+class CefByteReadHandler : public CefReadHandler
 {
 public:
   // Create a new object for reading an array of bytes. An optional |source|
@@ -180,6 +183,9 @@ private:
   size_t size_;
   size_t offset_;
   CefRefPtr<CefBase> source_;
+
+  IMPLEMENT_REFCOUNTING(CefByteReadHandler);
+  IMPLEMENT_LOCKING(CefByteReadHandler);
 };
 
 
@@ -192,7 +198,7 @@ private:
 // (3) File ordering from the original zip archive is not maintained. This
 //     means that files from the same folder may not be located together in the
 //     file content map.
-class CefZipArchive : public CefThreadSafeBase<CefBase>
+class CefZipArchive : public CefBase
 {
 public:
   // Class representing a file in the archive. Accessing the file data from
@@ -241,6 +247,9 @@ public:
 
 private:
   FileMap contents_;
+
+  IMPLEMENT_REFCOUNTING(CefZipArchive);
+  IMPLEMENT_LOCKING(CefZipArchive);
 };
 
 #endif // _CEF_WRAPPER_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -122,7 +122,7 @@ CefDOMEventCppToC::CefDOMEventCppToC(CefDOMEvent* cls)
   struct_.struct_.get_current_target = domevent_get_current_target;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefDOMEventCppToC, CefDOMEvent,
     cef_domevent_t>::DebugObjCt = 0;
 #endif

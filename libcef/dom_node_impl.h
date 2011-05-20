@@ -10,39 +10,39 @@
 
 class CefDOMDocumentImpl;
 
-class CefDOMNodeImpl : public CefThreadSafeBase<CefDOMNode>
+class CefDOMNodeImpl : public CefDOMNode
 {
 public:
   CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                  const WebKit::WebNode& node);
   virtual ~CefDOMNodeImpl();
 
-  virtual Type GetType();
-  virtual bool IsText();
-  virtual bool IsElement();
-  virtual bool IsSame(CefRefPtr<CefDOMNode> that);
-  virtual CefString GetName();
-  virtual CefString GetValue();
-  virtual bool SetValue(const CefString& value);
-  virtual CefString GetAsMarkup();
-  virtual CefRefPtr<CefDOMDocument> GetDocument();
-  virtual CefRefPtr<CefDOMNode> GetParent();
-  virtual CefRefPtr<CefDOMNode> GetPreviousSibling();
-  virtual CefRefPtr<CefDOMNode> GetNextSibling();
-  virtual bool HasChildren();
-  virtual CefRefPtr<CefDOMNode> GetFirstChild();
-  virtual CefRefPtr<CefDOMNode> GetLastChild();
+  virtual Type GetType() OVERRIDE;
+  virtual bool IsText() OVERRIDE;
+  virtual bool IsElement() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefDOMNode> that) OVERRIDE;
+  virtual CefString GetName() OVERRIDE;
+  virtual CefString GetValue() OVERRIDE;
+  virtual bool SetValue(const CefString& value) OVERRIDE;
+  virtual CefString GetAsMarkup() OVERRIDE;
+  virtual CefRefPtr<CefDOMDocument> GetDocument() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetParent() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetPreviousSibling() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetNextSibling() OVERRIDE;
+  virtual bool HasChildren() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetFirstChild() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetLastChild() OVERRIDE;
   virtual void AddEventListener(const CefString& eventType,
                                 CefRefPtr<CefDOMEventListener> listener,
-                                bool useCapture);
-  virtual CefString GetElementTagName();
-  virtual bool HasElementAttributes();
-  virtual bool HasElementAttribute(const CefString& attrName);
-  virtual CefString GetElementAttribute(const CefString& attrName);
-  virtual void GetElementAttributes(AttributeMap& attrMap);
+                                bool useCapture) OVERRIDE;
+  virtual CefString GetElementTagName() OVERRIDE;
+  virtual bool HasElementAttributes() OVERRIDE;
+  virtual bool HasElementAttribute(const CefString& attrName) OVERRIDE;
+  virtual CefString GetElementAttribute(const CefString& attrName) OVERRIDE;
+  virtual void GetElementAttributes(AttributeMap& attrMap) OVERRIDE;
   virtual bool SetElementAttribute(const CefString& attrName,
-                                   const CefString& value);
-  virtual CefString GetElementInnerText();
+                                   const CefString& value) OVERRIDE;
+  virtual CefString GetElementInnerText() OVERRIDE;
 
   // Will be called from CefDOMDocumentImpl::Detach().
   void Detach();
@@ -53,6 +53,8 @@ public:
 protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
   WebKit::WebNode node_;
+
+  IMPLEMENT_REFCOUNTING(CefDOMNodeImpl);
 };
 
 #endif // _DOM_NODE_IMPL_H

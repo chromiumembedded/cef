@@ -8,8 +8,7 @@
 #include "include/cef.h"
 #include "base/memory/ref_counted.h"
 
-class CefWebURLRequestImpl :
-    public CefThreadSafeBase<CefWebURLRequest>
+class CefWebURLRequestImpl : public CefWebURLRequest
 {
 public:
   class Context;
@@ -19,8 +18,8 @@ public:
   virtual ~CefWebURLRequestImpl();
 
   // Can be called on any thread.
-  virtual RequestState GetState();
-  virtual void Cancel();
+  virtual RequestState GetState() OVERRIDE;
+  virtual void Cancel() OVERRIDE;
 
   // Can only be called on the UI thread.
   void DoSend(CefRefPtr<CefRequest> request);
@@ -37,6 +36,9 @@ protected:
   // The below parameters are only modified on the UI thread.
   RequestState state_;
   scoped_refptr<Context> context_;
+
+  IMPLEMENT_REFCOUNTING(CefWebURLRequestImpl);
+  IMPLEMENT_LOCKING(CefWebURLRequestImpl);
 };
 
 #endif // _WEB_URL_REQUEST_CLIENT_IMPL_H

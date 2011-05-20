@@ -9,11 +9,12 @@
 #ifndef _CEFCLIENT_CLIENTPLUGIN_H
 #define _CEFCLIENT_CLIENTPLUGIN_H
 
-#ifdef _WIN32
+#include "include/cef_nplugin.h"
+
+#if defined(OS_WIN)
 
 #include <atlbase.h>
 #include <atlwin.h>
-#include "include/cef_nplugin.h"
 
 extern NPNetscapeFuncs* g_browser;
 
@@ -95,6 +96,6 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
   int16 mode_;
 };
 
-#endif // _WIN32
+#endif // OS_WIN
 
 #endif // _CEFCLIENT_CLIENTPLUGIN_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,14 +31,14 @@ public:
   virtual ~CefDOMEventCToCpp() {}
 
   // CefDOMEvent methods
-  virtual CefString GetType();
-  virtual Category GetCategory();
-  virtual Phase GetPhase();
-  virtual bool CanBubble();
-  virtual bool CanCancel();
-  virtual CefRefPtr<CefDOMDocument> GetDocument();
-  virtual CefRefPtr<CefDOMNode> GetTarget();
-  virtual CefRefPtr<CefDOMNode> GetCurrentTarget();
+  virtual CefString GetType() OVERRIDE;
+  virtual Category GetCategory() OVERRIDE;
+  virtual Phase GetPhase() OVERRIDE;
+  virtual bool CanBubble() OVERRIDE;
+  virtual bool CanCancel() OVERRIDE;
+  virtual CefRefPtr<CefDOMDocument> GetDocument() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetTarget() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetCurrentTarget() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

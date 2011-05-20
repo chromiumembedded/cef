@@ -31,7 +31,7 @@
 #ifndef _CEF_TYPES_MAC_H
 #define _CEF_TYPES_MAC_H
 
-#if defined(__APPLE__)
+#if defined(OS_MACOSX)
 #include "cef_string.h"
 
 // Window handle.
@@ -78,6 +78,6 @@ typedef struct _cef_print_info_t
 }
 #endif
 
-#endif // defined(__APPLE__)
+#endif // OS_MACOSX
 
 #endif // _CEF_TYPES_MAC_H

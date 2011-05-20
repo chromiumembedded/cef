@@ -130,7 +130,7 @@ struct CefRunnableMethodTraits {
 // CefRunnableMethod and NewCefRunnableMethod implementation ------------------
 
 template <class T, class Method, class Params>
-class CefRunnableMethod : public CefThreadSafeBase<CefTask> {
+class CefRunnableMethod : public CefTask {
  public:
   CefRunnableMethod(T* obj, Method meth, const Params& params)
       : obj_(obj), meth_(meth), params_(params) {
@@ -154,6 +154,8 @@ class CefRunnableMethod : public CefThreadSafeBase<CefTask> {
   Method meth_;
   Params params_;
   CefRunnableMethodTraits<T> traits_;
+
+  IMPLEMENT_REFCOUNTING(CefRunnableMethod);
 };
 
 template <class T, class Method>
@@ -241,7 +243,7 @@ inline CefRefPtr<CefTask> NewCefRunnableMethod(T* object, Method method,
 // CefRunnableFunction and NewCefRunnableFunction implementation --------------
 
 template <class Function, class Params>
-class CefRunnableFunction : public CefThreadSafeBase<CefTask> {
+class CefRunnableFunction : public CefTask {
  public:
   CefRunnableFunction(Function function, const Params& params)
       : function_(function), params_(params) {
@@ -258,6 +260,8 @@ class CefRunnableFunction : public CefThreadSafeBase<CefTask> {
  private:
   Function function_;
   Params params_;
+
+  IMPLEMENT_REFCOUNTING(CefRunnableFunction);
 };
 
 template <class Function>

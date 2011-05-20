@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -34,17 +34,18 @@ public:
 
   // CefWebURLRequestClient methods
   virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester,
-      RequestState state);
+      RequestState state) OVERRIDE;
   virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester,
-      CefRefPtr<CefRequest> request, CefRefPtr<CefResponse> response);
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) OVERRIDE;
   virtual void OnHeadersReceived(CefRefPtr<CefWebURLRequest> requester,
-      CefRefPtr<CefResponse> response);
+      CefRefPtr<CefResponse> response) OVERRIDE;
   virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester,
-      uint64 bytesSent, uint64 totalBytesToBeSent);
+      uint64 bytesSent, uint64 totalBytesToBeSent) OVERRIDE;
   virtual void OnData(CefRefPtr<CefWebURLRequest> requester, const void* data,
-      int dataLength);
+      int dataLength) OVERRIDE;
   virtual void OnError(CefRefPtr<CefWebURLRequest> requester,
-      ErrorCode errorCode);
+      ErrorCode errorCode) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

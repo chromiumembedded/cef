@@ -9,14 +9,14 @@
 #include <stdio.h>
 #include <vector>
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
-#endif // _WIN32
+#endif // OS_WIN
 
 // Implementation of the CefDownloadHandler interface.
-class ClientDownloadHandler : public CefThreadSafeBase<CefDownloadHandler>
+class ClientDownloadHandler : public CefDownloadHandler
 {
 public:
   ClientDownloadHandler(CefRefPtr<DownloadListener> listener,
@@ -74,9 +74,10 @@ public:
     memcpy(&(*buffer)[0], data, data_size);
 
     // Add the new data vector to the pending data queue.
-    Lock();
-    pending_data_.push_back(buffer);
-    Unlock();
+    {
+      AutoLock lock_scope(this);
+      pending_data_.push_back(buffer);
+    }
 
     // Write data to file on the FILE thread.
     CefPostTask(TID_FILE,
@@ -105,7 +106,7 @@ public:
     if(file_)
       return;
     
-#ifdef _WIN32
+#if defined(OS_WIN)
     TCHAR szFolderPath[MAX_PATH];
 
     // Save the file in the user's "My Documents" folder.
@@ -134,9 +135,10 @@ public:
         ct++;
       } while(PathFileExists(ss.str().c_str()));
 
-      Lock();
-      filename_ = ss.str();
-      Unlock();
+      {
+        AutoLock lock_scope(this);
+        filename_ = ss.str();
+      }
 
       file_ = _wfopen(ss.str().c_str(), L"wb");
       ASSERT(file_ != NULL);
@@ -171,12 +173,13 @@ public:
     std::vector<std::vector<char>*> data;
 
     // Remove all data from the pending data queue.
-    Lock();
-    if(!pending_data_.empty()) {
-      data = pending_data_;
-      pending_data_.clear();
+    {
+      AutoLock lock_scope(this);
+      if(!pending_data_.empty()) {
+        data = pending_data_;
+        pending_data_.clear();
+      }
     }
-    Unlock();
 
     if(data.empty())
       return;
@@ -202,6 +205,9 @@ private:
   CefString filename_;
   FILE* file_;
   std::vector<std::vector<char>*> pending_data_;
+
+  IMPLEMENT_REFCOUNTING(ClientDownloadHandler);
+  IMPLEMENT_LOCKING(ClientDownloadHandler);
 };
 
 CefRefPtr<CefDownloadHandler> CreateDownloadHandler(

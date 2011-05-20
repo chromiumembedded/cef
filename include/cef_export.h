@@ -28,18 +28,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#if defined(_WIN32)
-#ifdef _MSC_VER // MSVC
+#include "cef_build.h"
+
+#if defined(COMPILER_MSVC)
+
 #ifdef BUILDING_CEF_SHARED
 #define CEF_EXPORT __declspec(dllexport)
 #elif USING_CEF_SHARED
 #define CEF_EXPORT __declspec(dllimport)
 #else
 #define CEF_EXPORT
-#endif  // BUILDING_CEF_SHARED
+#endif
 #define CEF_CALLBACK __stdcall
-#endif  // MSVC
-#elif defined(__GNUC__)
+
+#elif defined(COMPILER_GCC)
+
 #define CEF_EXPORT __attribute__ ((visibility("default")))
 #define CEF_CALLBACK
-#endif  // defined(__GNUC__)
+
+#endif  // COMPILER_GCC

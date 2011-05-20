@@ -21,7 +21,7 @@ class BrowserRequestContext;
 class CefBrowserImpl;
 class WebViewHost;
 
-class CefContext : public CefThreadSafeBase<CefBase>
+class CefContext : public CefBase
 {
 public:
   typedef std::list<CefRefPtr<CefBrowserImpl> > BrowserList;
@@ -30,8 +30,7 @@ public:
   ~CefContext();
 
   // These methods will be called on the main application thread.
-  bool Initialize(const CefSettings& settings,
-                  const CefBrowserSettings& browser_defaults);
+  bool Initialize(const CefSettings& settings);
   void Shutdown();
 
   // Returns true if the context is initialized.
@@ -52,8 +51,6 @@ public:
   const FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
-  const CefBrowserSettings& browser_defaults() const
-    { return browser_defaults_; }
 
   // The BrowserRequestContext object is managed by CefProcessIOThread.
   void set_request_context(BrowserRequestContext* request_context)
@@ -92,7 +89,6 @@ private:
   base::AtExitManager at_exit_manager_;
 
   CefSettings settings_;
-  CefBrowserSettings browser_defaults_;
   FilePath cache_path_;
   scoped_refptr<BrowserRequestContext> request_context_;
   scoped_ptr<DOMStorageContext> storage_context_;
@@ -104,6 +100,9 @@ private:
   int next_browser_id_;
 
   WebViewHost* current_webviewhost_;
+
+  IMPLEMENT_REFCOUNTING(CefContext);
+  IMPLEMENT_LOCKING(CefContext);
 };
 
 // Global context object pointer.

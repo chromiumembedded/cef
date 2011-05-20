@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -112,7 +112,7 @@ CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
   struct_.struct_.exit = v8context_exit;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefV8ContextCppToC, CefV8Context,
     cef_v8context_t>::DebugObjCt = 0;
 #endif

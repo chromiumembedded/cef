@@ -5,7 +5,7 @@
 
 #include "clientplugin.h"
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_browser = NULL;
@@ -198,4 +198,4 @@ void ClientPlugin::Paint(HDC hdc) {
   SetTextColor(hdc, old_color);
 }
 
-#endif // _WIN32
+#endif // OS_WIN

@@ -5,7 +5,7 @@
 #include "resource_util.h"
 #include "include/cef_wrapper.h"
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes)
 {
@@ -40,4 +40,4 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId)
   return NULL;
 }
 
-#endif // _WIN32
+#endif // OS_WIN

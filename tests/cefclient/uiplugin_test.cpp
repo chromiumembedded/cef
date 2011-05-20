@@ -8,7 +8,7 @@
 
 
 // Implementation of the V8 handler class for the "window.uiapp" functions.
-class ClientV8UIHandler : public CefThreadSafeBase<CefV8Handler>
+class ClientV8UIHandler : public CefV8Handler
 {
 public:
   ClientV8UIHandler() {}
@@ -52,6 +52,8 @@ public:
 
     return false;
   }
+
+  IMPLEMENT_REFCOUNTING(ClientV8UIHandler);
 };
 
 void InitUIPluginTest()

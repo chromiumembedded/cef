@@ -31,14 +31,16 @@
 #ifndef _CEF_TYPES_H
 #define _CEF_TYPES_H
 
+#include "cef_build.h"
+#include "cef_string.h"
 #include "cef_string_list.h"
 
 // Bring in platform-specific definitions.
-#if defined(_WIN32)
+#if defined(OS_WIN)
 #include "cef_types_win.h"
-#elif defined(__APPLE__)
+#elif defined(OS_MACOSX)
 #include "cef_types_mac.h"
-#elif defined(__linux__)
+#elif defined(OS_LINUX)
 #include "cef_types_linux.h"
 #endif
 
@@ -334,17 +336,6 @@ enum cef_key_type_t
   KT_KEYUP    = 0,
   KT_KEYDOWN,
   KT_CHAR,
-};
-
-// Define handler return value types. Returning RV_HANDLED indicates
-// that the implementation completely handled the method and that no further
-// processing is required.  Returning RV_CONTINUE indicates that the
-// implementation did not handle the method and that the default handler
-// should be called.
-enum cef_retval_t
-{
-  RV_HANDLED   = 0,
-  RV_CONTINUE  = 1,
 };
 
 // Various browser navigation types supported by chrome.

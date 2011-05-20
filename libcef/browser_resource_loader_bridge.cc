@@ -195,7 +195,11 @@ class RequestProxy : public net::URLRequest::Delegate,
                               const GURL& url, bool allow_download) {
 
     if (browser_.get() && info.headers.get()) {
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      CefRefPtr<CefRequestHandler> handler;
+      if (client.get())
+        handler = client->GetRequestHandler();
+      
       if (handler.get()) {
         std::string content_disposition;
         info.headers->GetNormalizedHeader("Content-Disposition",
@@ -206,9 +210,9 @@ class RequestProxy : public net::URLRequest::Delegate,
           string16 filename = net::GetSuggestedFilename(url,
               content_disposition, info.charset, ASCIIToUTF16("download"));
           CefRefPtr<CefDownloadHandler> dl_handler;
-          if (handler->HandleDownloadResponse(browser_, info.mime_type,
-                  filename, info.content_length, dl_handler) ==
-                  RV_CONTINUE) {
+          if (handler->GetDownloadHandler(browser_, info.mime_type,
+                                          filename, info.content_length,
+                                          dl_handler)) {
             download_handler_ = dl_handler;
           }
         }
@@ -285,7 +289,11 @@ class RequestProxy : public net::URLRequest::Delegate,
     bool handled = false;
 
     if (browser_.get()) {
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      CefRefPtr<CefRequestHandler> handler;
+      if (client.get())
+        handler = client->GetRequestHandler();
+      
       if(handler.get()) {
         // Build the request object for passing to the handler
         CefRefPtr<CefRequest> request(new CefRequestImpl());
@@ -317,53 +325,54 @@ class RequestProxy : public net::URLRequest::Delegate,
         CefRefPtr<CefStreamReader> resourceStream;
         CefRefPtr<CefResponse> response(new CefResponseImpl());
 
-        CefHandler::RetVal rv = handler->HandleBeforeResourceLoad(
-            browser_, request, redirectUrl, resourceStream, response,
-            loadFlags);
+        handled = handler->OnBeforeResourceLoad(browser_, request, redirectUrl,
+            resourceStream, response, loadFlags);
+        if (!handled) {
+          // Observe URL from request.
+          const std::string requestUrl(request->GetURL());
+          if(requestUrl != originalUrl) {
+            params->url = GURL(requestUrl);
+            redirectUrl.clear(); // Request URL trumps redirect URL
+          }
 
-        // Observe URL from request.
-        const std::string requestUrl(request->GetURL());
-        if(requestUrl != originalUrl) {
-          params->url = GURL(requestUrl);
-          redirectUrl.clear(); // Request URL trumps redirect URL
+          // Observe method from request.
+          params->method = request->GetMethod();
+
+          // Observe headers from request.
+          request->GetHeaderMap(headerMap);
+          CefString referrerStr;
+          referrerStr.FromASCII("Referrer");
+          CefRequest::HeaderMap::iterator referrer = headerMap.find(referrerStr);
+          if(referrer == headerMap.end()) {
+            params->referrer = GURL();
+          } else {
+            params->referrer = GURL(std::string(referrer->second));
+            headerMap.erase(referrer);
+          }
+          params->headers = HttpHeaderUtils::GenerateHeaders(headerMap);
+
+          // Observe post data from request.
+          CefRefPtr<CefPostData> postData = request->GetPostData();
+          if(postData.get()) {
+            params->upload = new net::UploadData();
+            static_cast<CefPostDataImpl*>(postData.get())->Get(*params->upload);
+          }
         }
 
-        // Observe method from request.
-        params->method = request->GetMethod();
-
-        // Observe headers from request.
-        request->GetHeaderMap(headerMap);
-        CefString referrerStr;
-        referrerStr.FromASCII("Referrer");
-        CefRequest::HeaderMap::iterator referrer = headerMap.find(referrerStr);
-        if(referrer == headerMap.end()) {
-          params->referrer = GURL();
-        } else {
-          params->referrer = GURL(std::string(referrer->second));
-          headerMap.erase(referrer);
-        }
-        params->headers = HttpHeaderUtils::GenerateHeaders(headerMap);
-
-        // Observe post data from request.
-        CefRefPtr<CefPostData> postData = request->GetPostData();
-        if(postData.get()) {
-          params->upload = new net::UploadData();
-          static_cast<CefPostDataImpl*>(postData.get())->Get(*params->upload);
-        }
-
-        if(rv == RV_HANDLED) {
+        if (handled) {
           // cancel the resource load
-          handled = true;
           OnCompletedRequest(
               URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
               std::string(), base::Time());
-        } else if(!redirectUrl.empty()) {
+        } else if (!redirectUrl.empty()) {
           // redirect to the specified URL
+          handled = true;
+
           params->url = GURL(std::string(redirectUrl));
           ResourceResponseInfo info;
           bool defer_redirect;
           OnReceivedRedirect(params->url, info, &defer_redirect);
-        } else if(resourceStream.get()) {
+        } else if (resourceStream.get()) {
           // load from the provided resource stream
           handled = true;
 
@@ -403,15 +412,13 @@ class RequestProxy : public net::URLRequest::Delegate,
           AsyncReadData();
         }
 
-        if(!handled && ResourceType::IsFrame(params->request_type) &&
-          !net::URLRequest::IsHandledProtocol(params->url.scheme())) {
+        if (!handled && ResourceType::IsFrame(params->request_type) &&
+            !net::URLRequest::IsHandledProtocol(params->url.scheme())) {
           bool allow_os_execution = false;
-          CefHandler::RetVal rv = handler->HandleProtocolExecution(browser_,
-              params->url.spec(), allow_os_execution);
-          if (rv == RV_CONTINUE && allow_os_execution &&
+          handled = handler->OnProtocolExecution(browser_, params->url.spec(),
+              allow_os_execution);
+          if (!handled && allow_os_execution &&
               ExternalProtocolHandler::HandleExternalProtocol(params->url)) {
-            handled = true;
-          } else if(rv == RV_HANDLED) {
             handled = true;
           }
 
@@ -599,16 +606,18 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual void OnAuthRequired(net::URLRequest* request,
                               net::AuthChallengeInfo* auth_info) {
     if (browser_.get()) {
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if(handler.get()) {
-        CefString username, password;
-        CefHandler::RetVal rv = handler->HandleAuthenticationRequest(
-            browser_, auth_info->is_proxy,
-            auth_info->host_and_port, auth_info->realm,
-            auth_info->scheme, username, password);
-        if (rv == RV_HANDLED) {
-          request->SetAuth(username, password);
-          return;
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+        if(handler.get()) {
+          CefString username, password;
+          if (handler->GetAuthCredentials(browser_, auth_info->is_proxy,
+                                          auth_info->host_and_port,
+                                          auth_info->realm, auth_info->scheme,
+                                          username, password)) {
+            request->SetAuth(username, password);
+            return;
+          }
         }
       }
     }

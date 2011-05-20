@@ -11,7 +11,7 @@ namespace {
 class TestDOMHandler : public TestHandler
 {
 public:
-  class Visitor : public CefThreadSafeBase<CefDOMVisitor>
+  class Visitor : public CefDOMVisitor
   {
   public:
     Visitor(TestDOMHandler* handler) : handler_(handler) {}
@@ -201,6 +201,8 @@ public:
 
   protected:
     TestDOMHandler* handler_;
+
+    IMPLEMENT_REFCOUNTING(Visitor);
   };
 
   enum TestType {
@@ -213,7 +215,7 @@ public:
     visitor_ = new Visitor(this);
   }
   
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     std::stringstream mainHtml;
     mainHtml <<
@@ -228,16 +230,14 @@ public:
     CreateBrowser("http://tests/main.html");
   }
   
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
   {
     if(frame->IsMain()) {
       // The page is done loading so visit the DOM.
       browser->GetMainFrame()->VisitDOM(visitor_.get());
     }
-
-    return RV_CONTINUE;
   }
 
   CefRefPtr<Visitor> visitor_;

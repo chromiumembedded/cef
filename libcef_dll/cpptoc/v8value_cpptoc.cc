@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -507,7 +507,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
       v8value_execute_function_with_context;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefV8ValueCppToC, CefV8Value,
     cef_v8value_t>::DebugObjCt = 0;
 #endif

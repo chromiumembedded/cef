@@ -8,13 +8,13 @@
 #include "string_util.h"
 #include "util.h"
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 #include "resource.h"
-#endif // _WIN32
+#endif
 
 
 // Implementation of the schema handler for client:// requests.
-class ClientSchemeHandler : public CefThreadSafeBase<CefSchemeHandler>
+class ClientSchemeHandler : public CefSchemeHandler
 {
 public:
   ClientSchemeHandler() : offset_(0) {}
@@ -39,7 +39,8 @@ public:
 
     bool handled = false;
 
-    Lock();
+    AutoLock lock_scope(this);
+    
     std::string url = request->GetURL();
     if(strstr(url.c_str(), "handler.html") != NULL) {
       // Build the response html
@@ -69,7 +70,7 @@ public:
     }
     else if(strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
-#if defined(_WIN32)
+#if defined(OS_WIN)
       DWORD dwSize;
       LPBYTE pBytes;
       if(LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
@@ -79,18 +80,18 @@ public:
         response->SetMimeType("image/jpg");
         response->SetStatus(200);
       }
-#elif defined(__APPLE__)
+#elif defined(OS_MACOSX)
       if(LoadBinaryResource("logo.png", data_)) {
         handled = true;
-        mime_type = "image/png";
+        response->SetMimeType("image/png");
+        response->SetStatus(200);
       }
 #endif
     }
 
     // Set the resulting response length
     *response_length = data_.length();
-    Unlock();
-
+   
     return handled;
   }
 
@@ -111,7 +112,7 @@ public:
     bool has_data = false;
     *bytes_read = 0;
 
-    Lock();
+    AutoLock lock_scope(this);
 
     if(offset_ < data_.length()) {
       // Copy the next block of data into the buffer.
@@ -124,19 +125,19 @@ public:
       has_data = true;
     }
 
-    Unlock();
-
     return has_data;
   }
 
 private:
   std::string data_;
   size_t offset_;
+
+  IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
+  IMPLEMENT_LOCKING(ClientSchemeHandler);
 };
 
 // Implementation of the factory for for creating schema handlers.
-class ClientSchemeHandlerFactory :
-  public CefThreadSafeBase<CefSchemeHandlerFactory>
+class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory
 {
 public:
   // Return a new scheme handler instance to handle the request.
@@ -145,6 +146,8 @@ public:
     REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }
+
+  IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
 };
 
 void InitSchemeTest()

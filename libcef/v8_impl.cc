@@ -83,22 +83,18 @@ void TrackDestructor(v8::Persistent<v8::Value> object, void* parameter)
 // Return the browser associated with the specified WebFrame.
 CefRefPtr<CefBrowserImpl> FindBrowserForFrame(WebKit::WebFrame *frame)
 {
-  CefRefPtr<CefBrowserImpl> browser;
-
-  CefContext::BrowserList *list;
+  CefContext::AutoLock lock_scope(_Context);
+  
+  CefContext::BrowserList *list = _Context->GetBrowserList();
   CefContext::BrowserList::const_iterator i;
-  _Context->Lock();
-  list = _Context->GetBrowserList();
   i = list->begin();
   for (; i != list->end(); ++i) {
     WebKit::WebFrame* thisframe = i->get()->UIT_GetMainWebFrame();
-    if (thisframe == frame) {
-      browser = i->get();
-      break;
-    }
+    if (thisframe == frame)
+      return i->get();
   }
-  _Context->Unlock();
-  return browser;
+
+  return NULL;
 }
 
 // Convert a wide string to a V8 string.
@@ -293,7 +289,7 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
 // CefV8ContextImpl
 
 CefV8ContextImpl::CefV8ContextImpl(v8::Handle<v8::Context> context)
-#ifdef _DEBUG
+#ifndef NDEBUG
   : enter_count_(0)
 #endif
 {
@@ -346,7 +342,7 @@ bool CefV8ContextImpl::Enter()
 {
   CEF_REQUIRE_UI_THREAD(false);
   v8_context_->GetHandle()->Enter();
-#ifdef _DEBUG
+#ifndef NDEBUG
   ++enter_count_;
 #endif
   return true;
@@ -357,7 +353,7 @@ bool CefV8ContextImpl::Exit()
   CEF_REQUIRE_UI_THREAD(false);
   DLOG_ASSERT(enter_count_ > 0);
   v8_context_->GetHandle()->Exit();
-#ifdef _DEBUG
+#ifndef NDEBUG
   --enter_count_;
 #endif
   return true;

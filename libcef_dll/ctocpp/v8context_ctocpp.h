@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,11 +31,11 @@ public:
   virtual ~CefV8ContextCToCpp() {}
 
   // CefV8Context methods
-  virtual CefRefPtr<CefBrowser> GetBrowser();
-  virtual CefRefPtr<CefFrame> GetFrame();
-  virtual CefRefPtr<CefV8Value> GetGlobal();
-  virtual bool Enter();
-  virtual bool Exit();
+  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
+  virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
+  virtual bool Enter() OVERRIDE;
+  virtual bool Exit() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

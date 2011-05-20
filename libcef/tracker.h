@@ -74,7 +74,7 @@ private:
 // manager object is destroyed.  A manager object can be created as either a
 // member variable of another class or by using lazy initialization:
 // base::LazyInstance<CefTrackManager> g_singleton(base::LINKER_INITIALIZED);
-class CefTrackManager : public CefThreadSafeBase<CefBase>
+class CefTrackManager : public CefBase
 {
 public:
   CefTrackManager() : object_count_(0) {}
@@ -131,6 +131,9 @@ public:
 private:
   CefTrackObject tracker_;
   long object_count_;
+
+  IMPLEMENT_REFCOUNTING(CefTrackManager);
+  IMPLEMENT_LOCKING(CefTrackManager);
 };
 
 #endif // _TRACKER_H

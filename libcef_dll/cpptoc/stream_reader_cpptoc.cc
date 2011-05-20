@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -99,7 +99,7 @@ CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
   struct_.struct_.eof = stream_reader_eof;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefStreamReaderCppToC, CefStreamReader,
     cef_stream_reader_t>::DebugObjCt = 0;
 #endif

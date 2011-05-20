@@ -31,7 +31,7 @@
 #ifndef _CEF_TYPES_LINUX_H
 #define _CEF_TYPES_LINUX_H
 
-#if defined(__linux__)
+#if defined(OS_LINUX)
 #include <gtk/gtk.h>
 #include "cef_string.h"
 
@@ -63,6 +63,6 @@ typedef struct _cef_print_info_t
 }
 #endif
 
-#endif // defined(__linux__)
+#endif // OS_LINUX
 
 #endif // _CEF_TYPES_LINUX_H

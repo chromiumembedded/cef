@@ -6,308 +6,14 @@
 #include "include/cef_runnable.h"
 #include "include/cef_wrapper.h"
 #include "cefclient.h"
+#include "client_handler.h"
 #include "binding_test.h"
-#include "download_handler.h"
 #include "string_util.h"
 #include "util.h"
 #include <sstream>
 #include <stdio.h>
 #include <string>
 
-
-// ClientHandler::ClientDownloadListener implementation
-
-void ClientHandler::ClientDownloadListener::NotifyDownloadComplete(
-    const CefString& fileName)
-{
-  handler_->SetLastDownloadFile(fileName);
-  handler_->SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
-}
-
-void ClientHandler::ClientDownloadListener::NotifyDownloadError(
-    const CefString& fileName)
-{
-  handler_->SetLastDownloadFile(fileName);
-  handler_->SendNotification(NOTIFY_DOWNLOAD_ERROR);
-}
-
-
-// ClientHandler implementation
-
-ClientHandler::ClientHandler()
-  : m_MainHwnd(NULL),
-    m_BrowserHwnd(NULL),
-    m_EditHwnd(NULL),
-    m_BackHwnd(NULL),
-    m_ForwardHwnd(NULL),
-    m_StopHwnd(NULL),
-    m_ReloadHwnd(NULL),
-    ALLOW_THIS_IN_INITIALIZER_LIST(
-        m_DownloadListener(new ClientDownloadListener(this)))
-{
-}
-
-ClientHandler::~ClientHandler()
-{
-}
-
-CefHandler::RetVal ClientHandler::HandleAfterCreated(
-    CefRefPtr<CefBrowser> browser)
-{
-  REQUIRE_UI_THREAD();
-
-  Lock();
-  if(!browser->IsPopup())
-  {
-    // We need to keep the main child window, but not popup windows
-    m_Browser = browser;
-    m_BrowserHwnd = browser->GetWindowHandle();
-  }
-  Unlock();
-  return RV_CONTINUE;
-}
-
-
-CefHandler::RetVal ClientHandler::HandleNavStateChange(
-    CefRefPtr<CefBrowser> browser, bool canGoBack, bool canGoForward)
-{
-  REQUIRE_UI_THREAD();
-
-  SetNavState(canGoBack, canGoForward);
-
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandleLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame)
-{
-  REQUIRE_UI_THREAD();
-
-  if(!browser->IsPopup() && frame->IsMain())
-  {
-    // We've just started loading a page
-    SetLoading(true);
-  }
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, int httpStatusCode)
-{
-  REQUIRE_UI_THREAD();
-
-  if(!browser->IsPopup() && frame->IsMain())
-  {
-    // We've just finished loading a page
-    SetLoading(false);
-
-    CefRefPtr<CefDOMVisitor> visitor = GetDOMVisitor(frame->GetURL());
-    if(visitor.get())
-      frame->VisitDOM(visitor);
-  }
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandleLoadError(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& failedUrl,
-    CefString& errorText)
-{
-  REQUIRE_UI_THREAD();
-
-  if(errorCode == ERR_CACHE_MISS)
-  {
-    // Usually caused by navigating to a page with POST data via back or
-    // forward buttons.
-    errorText = "<html><head><title>Expired Form Data</title></head>"
-                "<body><h1>Expired Form Data</h1>"
-                "<h2>Your form request has expired. "
-                "Click reload to re-submit the form data.</h2></body>"
-                "</html>";
-  }
-  else
-  {
-    // All other messages.
-    std::stringstream ss;
-    ss <<       "<html><head><title>Load Failed</title></head>"
-                "<body><h1>Load Failed</h1>"
-                "<h2>Load of URL " << std::string(failedUrl) <<
-                " failed with error code " << static_cast<int>(errorCode) <<
-                ".</h2></body>"
-                "</html>";
-    errorText = ss.str();
-  }
-  return RV_HANDLED;
-}
-
-CefHandler::RetVal ClientHandler::HandleDownloadResponse(
-    CefRefPtr<CefBrowser> browser, const CefString& mimeType,
-    const CefString& fileName, int64 contentLength,
-    CefRefPtr<CefDownloadHandler>& handler)
-{
-  REQUIRE_UI_THREAD();
-
-  // Create the handler for the file download.
-  handler = CreateDownloadHandler(m_DownloadListener, fileName);
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandlePrintHeaderFooter(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefPrintInfo& printInfo, const CefString& url, const CefString& title,
-    int currentPage, int maxPages, CefString& topLeft,
-    CefString& topCenter, CefString& topRight, CefString& bottomLeft,
-    CefString& bottomCenter, CefString& bottomRight)
-{
-  REQUIRE_UI_THREAD();
-
-  // Place the page title at top left
-  topLeft = title;
-  // Place the page URL at top right
-  topRight = url;
-  
-  // Place "Page X of Y" at bottom center
-  std::stringstream strstream;
-  strstream << "Page " << currentPage << " of " << maxPages;
-  bottomCenter = strstream.str();
-
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandleJSBinding(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object)
-{
-  REQUIRE_UI_THREAD();
-
-  // Add the V8 bindings.
-  InitBindingTest(browser, frame, object);
-  
-  return RV_HANDLED;
-}
-
-CefHandler::RetVal ClientHandler::HandleBeforeWindowClose(
-    CefRefPtr<CefBrowser> browser)
-{
-  REQUIRE_UI_THREAD();
-
-  if(m_BrowserHwnd == browser->GetWindowHandle())
-  {
-    // Free the browser pointer so that the browser can be destroyed
-    m_Browser = NULL;
-  }
-  return RV_CONTINUE;
-}
-
-CefHandler::RetVal ClientHandler::HandleConsoleMessage(
-    CefRefPtr<CefBrowser> browser, const CefString& message,
-    const CefString& source, int line)
-{
-  REQUIRE_UI_THREAD();
-
-  Lock();
-  bool first_message = m_LogFile.empty();
-  if(first_message) {
-    std::stringstream ss;
-    ss << AppGetWorkingDirectory();
-#ifdef _WIN32
-    ss << "\\";
-#else
-    ss << "/";
-#endif
-    ss << "console.log";
-    m_LogFile = ss.str();
-  }
-  std::string logFile = m_LogFile;
-  Unlock();
-  
-  FILE* file = fopen(logFile.c_str(), "a");
-  if(file) {
-    std::stringstream ss;
-    ss << "Message: " << std::string(message) << "\r\nSource: " <<
-        std::string(source) << "\r\nLine: " << line <<
-        "\r\n-----------------------\r\n";
-    fputs(ss.str().c_str(), file);
-    fclose(file);
-
-    if(first_message)
-      SendNotification(NOTIFY_CONSOLE_MESSAGE);
-  }
-
-  return RV_HANDLED;
-}
-
-void ClientHandler::SetMainHwnd(CefWindowHandle hwnd)
-{
-  Lock();
-  m_MainHwnd = hwnd;
-  Unlock();
-}
-
-void ClientHandler::SetEditHwnd(CefWindowHandle hwnd)
-{
-  Lock();
-  m_EditHwnd = hwnd;
-  Unlock();
-}
-
-void ClientHandler::SetButtonHwnds(CefWindowHandle backHwnd,
-                                   CefWindowHandle forwardHwnd,
-                                   CefWindowHandle reloadHwnd,
-                                   CefWindowHandle stopHwnd)
-{
-  Lock();
-  m_BackHwnd = backHwnd;
-  m_ForwardHwnd = forwardHwnd;
-  m_ReloadHwnd = reloadHwnd;
-  m_StopHwnd = stopHwnd;
-  Unlock();
-}
-
-std::string ClientHandler::GetLogFile()
-{
-  Lock();
-  std::string str = m_LogFile;
-  Unlock();
-  return str;
-}
-
-void ClientHandler::SetLastDownloadFile(const std::string& fileName)
-{
-  Lock();
-  m_LastDownloadFile = fileName;
-  Unlock();
-}
-
-std::string ClientHandler::GetLastDownloadFile()
-{
-  std::string str;
-  Lock();
-  str = m_LastDownloadFile;
-  Unlock();
-  return str;
-}
-
-void ClientHandler::AddDOMVisitor(const std::string& path,
-                                  CefRefPtr<CefDOMVisitor> visitor)
-{
-  AutoLock lock_scope(this);
-  DOMVisitorMap::iterator it = m_DOMVisitors.find(path);
-  if (it == m_DOMVisitors.end())
-    m_DOMVisitors.insert(std::make_pair(path, visitor));
-  else
-    it->second = visitor;
-}
-
-CefRefPtr<CefDOMVisitor> ClientHandler::GetDOMVisitor(const std::string& path)
-{
-  AutoLock lock_scope(this);
-  DOMVisitorMap::iterator it = m_DOMVisitors.find(path);
-  if (it != m_DOMVisitors.end())
-    return it->second;
-  return NULL;
-}
-
-
-// Global functions
 
 CefRefPtr<ClientHandler> g_handler;
 
@@ -438,7 +144,7 @@ void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser)
 
 void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
 {
-  class RequestClient : public CefThreadSafeBase<CefWebURLRequestClient>
+  class RequestClient : public CefWebURLRequestClient
   {
   public:
     RequestClient(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
@@ -497,6 +203,8 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
   protected:
     CefRefPtr<CefBrowser> browser_;
     std::string buffer_;
+
+    IMPLEMENT_REFCOUNTING(CefWebURLRequestClient);
   };
 
   CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
@@ -509,7 +217,7 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
 
 void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
 {
-  class Listener : public CefThreadSafeBase<CefDOMEventListener>
+  class Listener : public CefDOMEventListener
   {
   public:
     Listener() {}
@@ -568,9 +276,11 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
       ASSERT(text->IsText());
       text->SetValue(ss.str());
     }
+
+    IMPLEMENT_REFCOUNTING(Listener);
   };
 
-  class Visitor : public CefThreadSafeBase<CefDOMVisitor>
+  class Visitor : public CefDOMVisitor
   {
   public:
     Visitor() {}
@@ -581,11 +291,13 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
       ASSERT(button.get());
       button->AddEventListener("click", new Listener(), false);
     }
+
+    IMPLEMENT_REFCOUNTING(Visitor);
   };
 
   // The DOM visitor will be called after the path is loaded.
-  CefRefPtr<CefHandler> handler = browser->GetHandler();
-  static_cast<ClientHandler*>(handler.get())->AddDOMVisitor(
+  CefRefPtr<CefClient> client = browser->GetClient();
+  static_cast<ClientHandler*>(client.get())->AddDOMVisitor(
       "http://tests/domaccess", new Visitor());
 
   browser->GetMainFrame()->LoadURL("http://tests/domaccess");

@@ -32,7 +32,7 @@ void IOT_Delete(const CefString& url, const CefString& cookie_name,
   event->Signal();
 }
 
-class TestVisitor : public CefThreadSafeBase<CefCookieVisitor>
+class TestVisitor : public CefCookieVisitor
 {
 public:
   TestVisitor(CookieVector* cookies, bool deleteCookies,
@@ -57,6 +57,8 @@ public:
   CookieVector* cookies_;
   bool delete_cookies_;
   base::WaitableEvent* event_;
+
+  IMPLEMENT_REFCOUNTING(TestVisitor);
 };
 
 } // anonymous

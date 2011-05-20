@@ -11,7 +11,7 @@
 #include <sstream>
 
 // Implementation of CefZipReader
-class CefZipReaderImpl : public CefThreadSafeBase<CefZipReader>
+class CefZipReaderImpl : public CefZipReader
 {
 public:
   CefZipReaderImpl();
@@ -47,6 +47,8 @@ protected:
   CefString filename_;
   long filesize_;
   time_t filemodified_;
+
+  IMPLEMENT_REFCOUNTING(CefZipReaderImpl);
 };
 
 #endif // _ZIP_READER_IMPL_H

@@ -11,7 +11,7 @@
 
 
 // CefCppToC implementation for CefBase.
-class CefBaseCppToC : public CefThreadSafeBase<CefBase>
+class CefBaseCppToC : public CefBase
 {
 public:
   // Use this method to retrieve the underlying class instance from our
@@ -88,16 +88,20 @@ public:
 
   // CefBase methods increment/decrement reference counts on both this object
   // and the underlying wrapper class.
-  virtual int AddRef()
+  int AddRef()
   {
     UnderlyingAddRef();
-    return CefThreadSafeBase<CefBase>::AddRef();
+    return refct_.AddRef();
   }
-  virtual int Release()
+  int Release()
   {
     UnderlyingRelease();
-    return CefThreadSafeBase<CefBase>::Release();
+    int retval = refct_.Release();
+    if (retval == 0)
+      delete this;
+    return retval;
   }
+  int GetRefCt() { return refct_.GetRefCt(); }
 
   // Increment/decrement reference counts on only the underlying class.
   int UnderlyingAddRef() { return class_->AddRef(); }
@@ -136,6 +140,7 @@ private:
   }
 
 protected:
+  CefRefCount refct_;
   Struct struct_;
   CefBase* class_;
 };

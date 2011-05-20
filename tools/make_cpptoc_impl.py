@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -117,7 +117,7 @@ def make_cpptoc_impl(header, clsname, impl):
     
     # build the final output
     result = \
-"""// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+"""// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -144,7 +144,7 @@ def make_cpptoc_impl(header, clsname, impl):
         const += '  struct_.struct_.'+name+' = '+prefixname+'_'+name+';\n'
                 
     const += '}\n\n'+ \
-             '#ifdef _DEBUG\n'+ \
+             '#ifndef NDEBUG\n'+ \
              'template<> long CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
              '#endif\n'
     result += wrap_code(const)

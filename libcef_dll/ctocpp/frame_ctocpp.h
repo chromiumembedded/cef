@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,30 +31,31 @@ public:
   virtual ~CefFrameCToCpp() {}
 
   // CefFrame methods
-  virtual void Undo();
-  virtual void Redo();
-  virtual void Cut();
-  virtual void Copy();
-  virtual void Paste();
-  virtual void Delete();
-  virtual void SelectAll();
-  virtual void Print();
-  virtual void ViewSource();
-  virtual CefString GetSource();
-  virtual CefString GetText();
-  virtual void LoadRequest(CefRefPtr<CefRequest> request);
-  virtual void LoadURL(const CefString& url);
-  virtual void LoadString(const CefString& string, const CefString& url);
+  virtual void Undo() OVERRIDE;
+  virtual void Redo() OVERRIDE;
+  virtual void Cut() OVERRIDE;
+  virtual void Copy() OVERRIDE;
+  virtual void Paste() OVERRIDE;
+  virtual void Delete() OVERRIDE;
+  virtual void SelectAll() OVERRIDE;
+  virtual void Print() OVERRIDE;
+  virtual void ViewSource() OVERRIDE;
+  virtual CefString GetSource() OVERRIDE;
+  virtual CefString GetText() OVERRIDE;
+  virtual void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE;
+  virtual void LoadURL(const CefString& url) OVERRIDE;
+  virtual void LoadString(const CefString& string,
+      const CefString& url) OVERRIDE;
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-      const CefString& url);
+      const CefString& url) OVERRIDE;
   virtual void ExecuteJavaScript(const CefString& jsCode,
-      const CefString& scriptUrl, int startLine);
-  virtual bool IsMain();
-  virtual bool IsFocused();
-  virtual CefString GetName();
-  virtual CefString GetURL();
-  virtual CefRefPtr<CefBrowser> GetBrowser();
-  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor);
+      const CefString& scriptUrl, int startLine) OVERRIDE;
+  virtual bool IsMain() OVERRIDE;
+  virtual bool IsFocused() OVERRIDE;
+  virtual CefString GetName() OVERRIDE;
+  virtual CefString GetURL() OVERRIDE;
+  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

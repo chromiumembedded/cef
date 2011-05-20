@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -35,9 +35,10 @@ public:
   // CefSchemeHandler methods
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
       CefString& redirectUrl, CefRefPtr<CefResponse> response,
-      int* response_length);
-  virtual void Cancel();
-  virtual bool ReadResponse(void* data_out, int bytes_to_read, int* bytes_read);
+      int* response_length) OVERRIDE;
+  virtual void Cancel() OVERRIDE;
+  virtual bool ReadResponse(void* data_out, int bytes_to_read,
+      int* bytes_read) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

@@ -45,7 +45,7 @@ public:
       cef_weburlrequest_state_t cancelAtState = WUR_STATE_UNSENT): 
       cancelAtState_(cancelAtState), test_results_(tr) { }
 
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     std::stringstream testHtml;
     testHtml <<
@@ -57,12 +57,11 @@ public:
     CreateBrowser("http://tests/run.html");
   }
 
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode)
   {
     StartTest();
-    return RV_CONTINUE;
   }
 
   void TestCompleted()
@@ -77,8 +76,7 @@ public:
   TestResults& test_results_;
 };
 
-class TestWebURLRequestClient: 
-    public CefThreadSafeBase<CefWebURLRequestClient>
+class TestWebURLRequestClient : public CefWebURLRequestClient
 {
 public:
   TestWebURLRequestClient(TestResults& tr, BrowserTestHandler* browser): 
@@ -243,6 +241,8 @@ protected:
   CefRefPtr<CefWebURLRequest> requester_;
   CefRefPtr<CefRequest> request_;
   std::string contents_;
+
+  IMPLEMENT_REFCOUNTING(TestWebURLRequestClient);
 };
 
 TEST(WebURLRequestTest, GET)

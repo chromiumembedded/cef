@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -33,8 +33,8 @@ public:
   virtual ~CefDownloadHandlerCToCpp() {}
 
   // CefDownloadHandler methods
-  virtual bool ReceivedData(void* data, int data_size);
-  virtual void Complete();
+  virtual bool ReceivedData(void* data, int data_size) OVERRIDE;
+  virtual void Complete() OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

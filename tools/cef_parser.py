@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -439,14 +439,15 @@ class obj_header:
         # extract classes
         p = re.compile('\n'+_cre_attrib+
                        '\nclass'+_cre_space+_cre_cfname+_cre_space+
-                       ':'+_cre_space+'public'+_cre_space+'CefBase'+
+                       ':'+_cre_space+'public'+_cre_space+'virtual'+
+                       _cre_space+'CefBase'+
                        '\n{(.*?)};', re.MULTILINE | re.DOTALL)
         list = p.findall(data)
         
         # build the class objects
         self.classes = []
         for attrib, name, body in list:
-            comment = get_comment(data, name+' : public CefBase')
+            comment = get_comment(data, name+' : public virtual CefBase')
             self.classes.append(
                 obj_class(self, attrib, name, body, comment))
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -32,22 +32,22 @@ public:
   virtual ~CefDOMDocumentCToCpp() {}
 
   // CefDOMDocument methods
-  virtual Type GetType();
-  virtual CefRefPtr<CefDOMNode> GetDocument();
-  virtual CefRefPtr<CefDOMNode> GetBody();
-  virtual CefRefPtr<CefDOMNode> GetHead();
-  virtual CefString GetTitle();
-  virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id);
-  virtual CefRefPtr<CefDOMNode> GetFocusedNode();
-  virtual bool HasSelection();
-  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode();
-  virtual int GetSelectionStartOffset();
-  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode();
-  virtual int GetSelectionEndOffset();
-  virtual CefString GetSelectionAsMarkup();
-  virtual CefString GetSelectionAsText();
-  virtual CefString GetBaseURL();
-  virtual CefString GetCompleteURL(const CefString& partialURL);
+  virtual Type GetType() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
+  virtual CefString GetTitle() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
+  virtual bool HasSelection() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode() OVERRIDE;
+  virtual int GetSelectionStartOffset() OVERRIDE;
+  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode() OVERRIDE;
+  virtual int GetSelectionEndOffset() OVERRIDE;
+  virtual CefString GetSelectionAsMarkup() OVERRIDE;
+  virtual CefString GetSelectionAsText() OVERRIDE;
+  virtual CefString GetBaseURL() OVERRIDE;
+  virtual CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

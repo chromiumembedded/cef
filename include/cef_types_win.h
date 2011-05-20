@@ -31,7 +31,7 @@
 #ifndef _CEF_TYPES_WIN_H
 #define _CEF_TYPES_WIN_H
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 #include <windows.h>
 #include "cef_string.h"
 
@@ -78,6 +78,6 @@ typedef struct _cef_print_info_t
 }
 #endif
 
-#endif // _WIN32
+#endif // OS_WIN
 
 #endif // _CEF_TYPES_WIN_H

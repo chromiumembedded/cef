@@ -3,16 +3,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "include/cef.h"
 #include "osrplugin.h"
 #include "cefclient.h"
+#include "client_popup_handler.h"
 #include "string_util.h"
+#include "util.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <sstream>
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_osrbrowser = NULL;
@@ -42,15 +45,22 @@ public:
 };
 
 // Handler for off-screen rendering windows.
-class ClientOSRHandler : public ClientHandler
+class ClientOSRHandler : public CefClient,
+                         public CefLifeSpanHandler,
+                         public CefLoadHandler,
+                         public CefDisplayHandler,
+                         public CefRenderHandler
 {
 public:
   ClientOSRHandler(ClientPlugin* plugin)
-    : plugin_(plugin), view_buffer_(NULL), view_buffer_size_(0),
-      popup_buffer_(NULL), popup_buffer_size_(0)
+    : plugin_(plugin),
+      view_buffer_(NULL),
+      view_buffer_size_(0),
+      popup_buffer_(NULL),
+      popup_buffer_size_(0)
   {
   }
-  virtual ~ClientOSRHandler()
+  ~ClientOSRHandler()
   {
     if (view_buffer_)
       delete [] view_buffer_;
@@ -58,25 +68,33 @@ public:
       delete [] popup_buffer_;
   }
 
-  virtual RetVal HandleBeforeCreated(CefRefPtr<CefBrowser> parentBrowser,
-                                     CefWindowInfo& createInfo, bool popup,
-                                     const CefPopupFeatures& popupFeatures,
-                                     CefRefPtr<CefHandler>& handler,
-                                     const CefString& url,
-                                     CefBrowserSettings& settings)
+  // CefClient methods
+  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE
+      { return this; }
+
+  // CefLifeSpanHandler methods
+
+  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
+                             const CefPopupFeatures& popupFeatures,
+                             CefWindowInfo& windowInfo,
+                             const CefString& url,
+                             CefRefPtr<CefClient>& client,
+                             CefBrowserSettings& settings) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
-    // Popups will be redirected to this browser window.
-    if(popup) {
-      createInfo.m_bWindowRenderingDisabled = TRUE;
-      handler = new ClientPopupHandler(g_offscreenBrowser);
-    }
-
-    return RV_CONTINUE;
+    windowInfo.m_bWindowRenderingDisabled = TRUE;
+    client = new ClientPopupHandler(g_offscreenBrowser);
+    return false;
   }
 
-  virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser)
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -84,13 +102,58 @@ public:
     browser->SetSize(PET_VIEW, g_width, g_height);
 
     g_offscreenBrowser = browser;
-
-    return ClientHandler::HandleAfterCreated(browser);
   }
 
-  virtual RetVal HandleAddressChange(CefRefPtr<CefBrowser> browser,
-                                     CefRefPtr<CefFrame> frame,
-                                     const CefString& url)
+  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser)  OVERRIDE
+  {
+    g_offscreenBrowser = NULL;
+  }
+
+  // CefLoadHandler methods
+
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE
+  {
+    REQUIRE_UI_THREAD();
+
+    if(!browser->IsPopup() && frame->IsMain()) {
+      // We've just started loading a page
+      SetLoading(true);
+    }
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    REQUIRE_UI_THREAD();
+
+    if(!browser->IsPopup() && frame->IsMain()) {
+      // We've just finished loading a page
+      SetLoading(false);
+    }
+  }
+
+  // CefDisplayHandler methods
+
+  virtual void OnNavStateChange(CefRefPtr<CefBrowser> browser,
+                                bool canGoBack,
+                                bool canGoForward) OVERRIDE
+  {
+    REQUIRE_UI_THREAD();
+
+    // Set the "back" and "forward" button state in the HTML.
+    std::stringstream ss;
+    ss << "document.getElementById('back').disabled = "
+       << (canGoBack?"false":"true") << ";";
+    ss << "document.getElementById('forward').disabled = "
+       << (canGoForward?"false":"true") << ";";
+    AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
+  }
+
+  virtual void OnAddressChange(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefFrame> frame,
+                               const CefString& url) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -100,11 +163,10 @@ public:
     StringReplace(urlStr, "'", "\\'");
     ss << "document.getElementById('url').value = '" << urlStr.c_str() << "'";
     AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandleTitleChange(CefRefPtr<CefBrowser> browser,
-                                   const CefString& title)
+  virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
+                             const CefString& title) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -115,11 +177,12 @@ public:
     ss << "document.getElementById('title').innerHTML = '" <<
         titleStr.c_str() << "'";
     AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandleGetRect(CefRefPtr<CefBrowser> browser, bool screen,
-                               CefRect& rect)
+  // CefRenderHandler methods
+
+  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
+                           CefRect& rect) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -128,12 +191,20 @@ public:
     rect.x = rect.y = 0;
     rect.width = g_width;
     rect.height = g_height;
-    return RV_CONTINUE;
+    return true;
   }
-  
-  virtual RetVal HandleGetScreenPoint(CefRefPtr<CefBrowser> browser,
-                                      int viewX, int viewY, int& screenX,
-                                      int& screenY)
+
+  virtual bool GetScreenRect(CefRefPtr<CefBrowser> browser,
+                             CefRect& rect) OVERRIDE
+  {
+    return GetViewRect(browser, rect);
+  }
+
+  virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                              int viewX,
+                              int viewY,
+                              int& screenX,
+                              int& screenY) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -142,21 +213,15 @@ public:
     MapWindowPoints(plugin_->hWnd, HWND_DESKTOP, &screen_pt, 1);
     screenX = screen_pt.x;
     screenY = screen_pt.y;
-    return RV_CONTINUE;
+    return true;
   }
 
-  virtual RetVal HandlePopupChange(CefRefPtr<CefBrowser> browser, bool show,
-                                   const CefRect& rect)
+  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
+                           bool show) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
-    if (show && rect.width > 0) {
-      // Update the popup rectange. It will always be inside the view due to
-      // HandleGetRect().
-      ASSERT(rect.x + rect.width < g_width &&
-             rect.y + rect.height < g_height);
-      popup_rect_ = rect;
-    } else if(!show) {
+    if(!show) {
       // Clear the popup buffer.
       popup_rect_.Set(0,0,0,0);
       if (popup_buffer_) {
@@ -165,12 +230,26 @@ public:
         popup_buffer_size_ = 0;
       }
     }
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandlePaint(CefRefPtr<CefBrowser> browser,
-                             PaintElementType type, const CefRect& dirtyRect,
-                             const void* buffer)
+  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
+                           const CefRect& rect) OVERRIDE
+  {
+    REQUIRE_UI_THREAD();
+
+    if (rect.width > 0) {
+      // Update the popup rectange. It will always be inside the view due to
+      // HandleGetRect().
+      ASSERT(rect.x + rect.width < g_width &&
+             rect.y + rect.height < g_height);
+      popup_rect_ = rect;
+    }
+  }
+
+  virtual void OnPaint(CefRefPtr<CefBrowser> browser,
+                       PaintElementType type,
+                       const CefRect& dirtyRect,
+                       const void* buffer) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -201,12 +280,10 @@ public:
             popup_rect_.height, GL_RGB, GL_UNSIGNED_BYTE, popup_buffer_);
       }
     }
-
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandleCursorChange(CefRefPtr<CefBrowser> browser,
-                                    CefCursorHandle cursor)
+  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                              CefCursorHandle cursor) OVERRIDE
   {
     REQUIRE_UI_THREAD();
 
@@ -214,11 +291,10 @@ public:
     SetClassLong(plugin_->hWnd, GCL_HCURSOR,
         static_cast<LONG>(reinterpret_cast<LONG_PTR>(cursor)));
     SetCursor(cursor);
-    return RV_CONTINUE;
   }
 
-protected:
-  virtual void SetLoading(bool isLoading)
+private:
+  void SetLoading(bool isLoading)
   {
     // Set the "stop" and "reload" button state in the HTML.
     std::stringstream ss;
@@ -226,17 +302,6 @@ protected:
        << (isLoading?"false":"true") << ";"
        << "document.getElementById('reload').disabled = "
        << (isLoading?"true":"false") << ";";
-    AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
-  }
-
-  virtual void SetNavState(bool canGoBack, bool canGoForward)
-  {
-    // Set the "back" and "forward" button state in the HTML.
-    std::stringstream ss;
-    ss << "document.getElementById('back').disabled = "
-       << (canGoBack?"false":"true") << ";";
-    ss << "document.getElementById('forward').disabled = "
-       << (canGoForward?"false":"true") << ";";
     AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
   }
 
@@ -286,13 +351,15 @@ protected:
     }
   }
 
-private:
   ClientPlugin* plugin_;
   unsigned char* view_buffer_;
   int view_buffer_size_;
   unsigned char* popup_buffer_;
   int popup_buffer_size_;
   CefRect popup_rect_;
+
+  // Include the default reference counting implementation.
+  IMPLEMENT_REFCOUNTING(ClientOSRPlugin);
 };
 
 // Forward declarations of functions included in this code module:
@@ -487,9 +554,10 @@ NPError NPP_SetWindowImpl(NPP instance, NPWindow* window_info) {
 
     // Create the off-screen rendering window.
     CefWindowInfo windowInfo;
+    CefBrowserSettings settings;
     windowInfo.SetAsOffScreen(plugin->hWnd);
-    CefBrowser::CreateBrowser(windowInfo, false,
-        new ClientOSRHandler(plugin), "http://www.google.com");
+    CefBrowser::CreateBrowser(windowInfo, new ClientOSRHandler(plugin),
+        "http://www.google.com", settings);
   }
 
   // Position the plugin window and make sure it's visible.
@@ -703,4 +771,4 @@ CefRefPtr<CefBrowser> GetOffScreenBrowser()
   return g_offscreenBrowser;
 }
 
-#endif // _WIN32
+#endif // OS_WIN

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -235,7 +235,7 @@ CefDOMDocumentCppToC::CefDOMDocumentCppToC(CefDOMDocument* cls)
   struct_.struct_.get_complete_url = domdocument_get_complete_url;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
     cef_domdocument_t>::DebugObjCt = 0;
 #endif

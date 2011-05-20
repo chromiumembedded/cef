@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -72,7 +72,7 @@ CefSchemeHandlerCppToC::CefSchemeHandlerCppToC(CefSchemeHandler* cls)
   struct_.struct_.read_response = scheme_handler_read_response;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefSchemeHandlerCppToC, CefSchemeHandler,
     cef_scheme_handler_t>::DebugObjCt = 0;
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -165,7 +165,7 @@ CefZipReaderCppToC::CefZipReaderCppToC(CefZipReader* cls)
   struct_.struct_.eof = zip_reader_eof;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefZipReaderCppToC, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif

@@ -50,21 +50,25 @@ namespace {
 class CreateBrowserHelper
 {
 public:
-  CreateBrowserHelper(CefWindowInfo& windowInfo, bool popup,
-                      CefRefPtr<CefHandler> handler, const CefString& url)
-                      : window_info_(windowInfo), popup_(popup),
-                        handler_(handler), url_(url) {}
+  CreateBrowserHelper(CefWindowInfo& windowInfo,
+                      CefRefPtr<CefClient> client,
+                      const CefString& url,
+                      const CefBrowserSettings& settings)
+                      : window_info_(windowInfo),
+                        client_(client),
+                        url_(url),
+                        settings_(settings) {}
 
   CefWindowInfo window_info_;
-  bool popup_;
-  CefRefPtr<CefHandler> handler_;
+  CefRefPtr<CefClient> client_;
   CefString url_;
+  CefBrowserSettings settings_;
 };
 
 void UIT_CreateBrowserWithHelper(CreateBrowserHelper* helper)
 {
-  CefBrowser::CreateBrowserSync(helper->window_info_, helper->popup_,
-    helper->handler_, helper->url_);
+  CefBrowser::CreateBrowserSync(helper->window_info_, helper->client_,
+      helper->url_, helper->settings_);
   delete helper;
 }
 
@@ -83,20 +87,24 @@ void CefBrowserImpl::PaintDelegate::Paint(bool popup,
                                           const gfx::Rect& dirtyRect,
                                           const void* buffer)
 {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (!client.get())
+    return;
+  CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
   if (!handler.get())
     return;
 
   CefRect rect(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(),
                dirtyRect.height());
-  handler->HandlePaint(browser_, (popup?PET_POPUP:PET_VIEW), rect, buffer);
+  handler->OnPaint(browser_, (popup?PET_POPUP:PET_VIEW), rect, buffer);
 }
 
 
 // static
-bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
-                               CefRefPtr<CefHandler> handler,
-                               const CefString& url)
+bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo,
+                               CefRefPtr<CefClient> client,
+                               const CefString& url,
+                               const CefBrowserSettings& settings)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -104,20 +112,33 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
     return false;
   }
 
+  // Verify that the settings structure is a valid size.
+  if (settings.size != sizeof(cef_browser_settings_t)) {
+    NOTREACHED();
+    return false;
+  }
+
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
-      new CreateBrowserHelper(windowInfo, popup, handler, url);
+      new CreateBrowserHelper(windowInfo, client, url, settings);
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableFunction(
       UIT_CreateBrowserWithHelper, helper));
   return true;
 }
 
 // static
-CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
-    bool popup, CefRefPtr<CefHandler> handler, const CefString& url)
+CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(
+    CefWindowInfo& windowInfo, CefRefPtr<CefClient> client,
+    const CefString& url, const CefBrowserSettings& settings)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED();
+    return NULL;
+  }
+
+  // Verify that the settings structure is a valid size.
+  if (settings.size != sizeof(cef_browser_settings_t)) {
     NOTREACHED();
     return NULL;
   }
@@ -128,21 +149,8 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
     return NULL;
   }
 
-  CefRefPtr<CefBrowser> alternateBrowser;
-  CefBrowserSettings settings(_Context->browser_defaults());
-
-  if(handler.get())
-  {
-    // Give the handler an opportunity to modify window attributes, handler,
-    // or cancel the window creation.
-    CefHandler::RetVal rv = handler->HandleBeforeCreated(NULL, windowInfo,
-        popup, CefPopupFeatures(), handler, url, settings);
-    if(rv == RV_HANDLED)
-      return false;
-  }
-
   CefRefPtr<CefBrowser> browser(
-      new CefBrowserImpl(windowInfo, settings, popup, handler));
+      new CefBrowserImpl(windowInfo, settings, false, client));
   static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(url);
 
   return browser;
@@ -151,9 +159,9 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
 
 CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
                                const CefBrowserSettings& settings, bool popup,
-                               CefRefPtr<CefHandler> handler)
+                               CefRefPtr<CefClient> client)
   : window_info_(windowInfo), settings_(settings), is_popup_(popup),
-    is_modal_(false), handler_(handler), webviewhost_(NULL), popuphost_(NULL),
+    is_modal_(false), client_(client), webviewhost_(NULL), popuphost_(NULL),
     zoom_level_(0.0), can_go_back_(false), can_go_forward_(false),
     main_frame_(NULL), unique_id_(0)
 {
@@ -666,9 +674,12 @@ WebFrame* CefBrowserImpl::UIT_GetWebFrame(CefRefPtr<CefFrame> frame)
 
 void CefBrowserImpl::UIT_DestroyBrowser()
 {
-  if(handler_.get()) {
-    // Notify the handler that the window is about to be closed.
-    handler_->HandleBeforeWindowClose(this);
+  if(client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+    if (handler.get()) {
+      // Notify the handler that the window is about to be closed.
+      handler->OnBeforeClose(this);
+    }
   }
   UIT_GetWebViewDelegate()->RevokeDragDrop();
 
@@ -915,22 +926,25 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   // In case LoadRequest failed before DidCreateDataSource was called.
   delegate_->set_pending_extra_data(NULL);
 
-  if (handler_.get() && handler_->HandleSetFocus(this, false) == RV_CONTINUE) {
-    // Restore focus to the main frame prior to loading new request.
-    // This makes sure that we don't have a focused iframe. Otherwise, that
-    // iframe would keep focus when the SetFocus called immediately after
-    // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
-    // for more details).
-    // TODO(cef): The above comment may be wrong, or the below call to
-    // setFocusedFrame() may be unnecessary or in the wrong place.  See this
-    // thread for additional details:
-    // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
-    view->setFocusedFrame(frame);
+  if (client_.get()) {
+    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+    if (handler.get() && !handler->OnSetFocus(this, false)) {
+      // Restore focus to the main frame prior to loading new request.
+      // This makes sure that we don't have a focused iframe. Otherwise, that
+      // iframe would keep focus when the SetFocus called immediately after
+      // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
+      // for more details).
+      // TODO(cef): The above comment may be wrong, or the below call to
+      // setFocusedFrame() may be unnecessary or in the wrong place.  See this
+      // thread for additional details:
+      // http://groups.google.com/group/chromium-dev/browse_thread/thread/42bcd31b59e3a168
+      view->setFocusedFrame(frame);
 
-    // Give focus to the window if it is currently visible.
-    if (!IsWindowRenderingDisabled() &&
-        UIT_IsViewVisible(UIT_GetMainWndHandle()))
-      UIT_SetFocus(UIT_GetWebViewHost(), true);
+      // Give focus to the window if it is currently visible.
+      if (!IsWindowRenderingDisabled() &&
+          UIT_IsViewVisible(UIT_GetMainWndHandle()))
+        UIT_SetFocus(UIT_GetWebViewHost(), true);
+    }
   }
 
   return true;
@@ -1052,23 +1066,23 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
   if(features.heightSet)
     info.m_nHeight = features.height;
 
-  CefRefPtr<CefHandler> handler = handler_;
+  CefRefPtr<CefClient> client = client_;
 
   // Start with the current browser window's settings.
   CefBrowserSettings settings(settings_);
 
-  if(handler_.get())
-  {
+  if (client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
-    CefHandler::RetVal rv = handler_->HandleBeforeCreated(this, info, true,
-        features, handler, url, settings);
-    if(rv == RV_HANDLED)
+    if (handler.get() &&
+        handler->OnBeforePopup(this, features, info, url, client, settings)) {
       return NULL;
+    }
   }
 
   CefRefPtr<CefBrowserImpl> browser(
-      new CefBrowserImpl(info, settings, true, handler));
+      new CefBrowserImpl(info, settings, true, client));
   // Don't pass the URL to UIT_CreateBrowser for popup windows or the URL will
   // be loaded twice.
   browser->UIT_CreateBrowser(CefString());
@@ -1104,9 +1118,12 @@ void CefBrowserImpl::UIT_ClosePopupWidget()
   popuphost_ = NULL;
   popup_rect_ = gfx::Rect();
 
-  if (IsWindowRenderingDisabled() && handler_.get()) {
-    // Notify the handler of popup visibility change.
-    handler_->HandlePopupChange(this, false, CefRect());
+  if (IsWindowRenderingDisabled() && client_.get()) {
+    CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+    if (handler.get()) {
+      // Notify the handler of popup visibility change.
+      handler->OnPopupShow(this, false);
+    }
   }
 }
 
@@ -1116,12 +1133,12 @@ void CefBrowserImpl::UIT_Show(WebKit::WebNavigationPolicy policy)
   delegate_->show(policy);
 }
 
-void CefBrowserImpl::UIT_HandleActionView(CefHandler::MenuId menuId)
+void CefBrowserImpl::UIT_HandleActionView(cef_handler_menuid_t menuId)
 {
   return UIT_HandleAction(menuId, NULL);
 }
 
-void CefBrowserImpl::UIT_HandleAction(CefHandler::MenuId menuId,
+void CefBrowserImpl::UIT_HandleAction(cef_handler_menuid_t menuId,
                                       CefRefPtr<CefFrame> frame)
 {
   REQUIRE_UIT();
@@ -1342,11 +1359,14 @@ void CefBrowserImpl::UIT_NotifyFindStatus(int identifier, int count,
                                           int active_match_ordinal,
                                           bool final_update)
 {
-  if(handler_.get()) {
-    CefRect rect(selection_rect.x, selection_rect.y, selection_rect.width,
-        selection_rect.height);
-    handler_->HandleFindResult(this, identifier, count, rect,
-        active_match_ordinal, final_update);
+  if(client_.get()) {
+    CefRefPtr<CefFindHandler> handler = client_->GetFindHandler();
+    if (handler.get()) {
+      CefRect rect(selection_rect.x, selection_rect.y, selection_rect.width,
+          selection_rect.height);
+      handler->OnFindResult(this, identifier, count, rect, active_match_ordinal,
+          final_update);
+    }
   }
 }
 

@@ -197,14 +197,17 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
   std::string messageStr = message.text.utf8();
   std::string sourceStr = source_name.utf8();
 
-  CefHandler::RetVal rv = RV_CONTINUE;
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    rv = handler->HandleConsoleMessage(browser_, messageStr, sourceStr,
-        source_line);
+  bool handled = false;
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get()) {
+      handled = handler->OnConsoleMessage(browser_, messageStr, sourceStr,
+          source_line);
+    }
   }
 
-  if(rv == RV_CONTINUE) {
+  if(!handled) {
     logging::LogMessage("CONSOLE", 0).stream() << "\""
                                                << messageStr
                                                << ",\" source: "
@@ -269,8 +272,13 @@ bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
 }
 
 bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
-  CefHandler::RetVal rv = RV_CONTINUE;
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  bool handled = false;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefKeyboardHandler> handler;
+  if (client.get())
+    handler = client->GetKeyboardHandler();
+
   if (handler.get()) {
       WebWidgetHost* host = GetWidgetHost();
       if (host) {
@@ -278,17 +286,17 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
         switch (event.type)
         {
         case WebKeyboardEvent::RawKeyDown: 
-          rv = handler->HandleKeyEvent(browser_,
+          handled = handler->OnKeyEvent(browser_,
               KEYEVENT_RAWKEYDOWN, event.windowsKeyCode,
               event.modifiers, event.isSystemKey?true:false);
           break;
         case WebKeyboardEvent::KeyUp:
-          rv = handler->HandleKeyEvent(browser_,
+          handled = handler->OnKeyEvent(browser_,
               KEYEVENT_KEYUP, event.windowsKeyCode,
               event.modifiers, event.isSystemKey?true:false);
           break;
         case WebKeyboardEvent::Char:
-          rv = handler->HandleKeyEvent(browser_,
+          handled = handler->OnKeyEvent(browser_,
               KEYEVENT_CHAR, event.windowsKeyCode,
               event.modifiers, event.isSystemKey?true:false);
           break;
@@ -297,7 +305,7 @@ bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
       }
     }
   }
-  if (rv == RV_HANDLED)
+  if (handled)
     return true;
 
   if (edit_command_name_.empty())
@@ -337,28 +345,38 @@ bool BrowserWebViewDelegate::runFileChooser(
 
 void BrowserWebViewDelegate::runModalAlertDialog(
     WebFrame* frame, const WebString& message) {
-  CefHandler::RetVal rv = RV_CONTINUE;
   CefString messageStr = string16(message);
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    rv = handler->HandleJSAlert(browser_, browser_->UIT_GetCefFrame(frame),
+  bool handled = false;
+  
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefJSDialogHandler> handler;
+  if (client.get())
+    handler = client->GetJSDialogHandler();
+
+  if (handler.get()) {
+    handled = handler->OnJSAlert(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr);
   }
-  if(rv != RV_HANDLED)
+  if (!handled)
     ShowJavaScriptAlert(frame, messageStr);
 }
 
 bool BrowserWebViewDelegate::runModalConfirmDialog(
     WebFrame* frame, const WebString& message) {
-  CefHandler::RetVal rv = RV_CONTINUE;
   CefString messageStr = string16(message);
   bool retval = false;
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    rv = handler->HandleJSConfirm(browser_, browser_->UIT_GetCefFrame(frame),
+  bool handled = false;
+  
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefJSDialogHandler> handler;
+  if (client.get())
+    handler = client->GetJSDialogHandler();
+
+  if (handler.get()) {
+    handled = handler->OnJSConfirm(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr, retval);
   }
-  if(rv != RV_HANDLED)
+  if (!handled)
     retval = ShowJavaScriptConfirm(frame, messageStr);
   return retval;
 }
@@ -372,14 +390,19 @@ bool BrowserWebViewDelegate::runModalPromptDialog(
   if(actual_value)
     actualValueStr = string16(*actual_value);
 
-  CefHandler::RetVal rv = RV_CONTINUE;
   bool retval = false;
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    rv = handler->HandleJSPrompt(browser_, browser_->UIT_GetCefFrame(frame),
+  bool handled = false;
+  
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefJSDialogHandler> handler;
+  if (client.get())
+    handler = client->GetJSDialogHandler();
+
+  if (handler.get()) {
+    handled = handler->OnJSPrompt(browser_, browser_->UIT_GetCefFrame(frame),
         messageStr, defaultValueStr, retval, actualValueStr);
   }
-  if(rv != RV_HANDLED) {
+  if (!handled) {
     retval = ShowJavaScriptPrompt(frame, messageStr, defaultValueStr,
         &actualValueStr);
   }
@@ -410,11 +433,16 @@ void BrowserWebViewDelegate::setToolTipText(
     const WebString& text, WebTextDirection hint) 
 {
   CefString tooltipStr = string16(text);
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get() && handler->HandleTooltip(browser_, tooltipStr)
-      == RV_CONTINUE){
-     GetWidgetHost()->SetTooltipText(tooltipStr);
+  bool handled = false;
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get())
+      handled = handler->OnTooltip(browser_, tooltipStr);
   }
+
+  if (!handled)
+    GetWidgetHost()->SetTooltipText(tooltipStr);
 }
 
 void BrowserWebViewDelegate::startDragging(
@@ -439,18 +467,24 @@ void BrowserWebViewDelegate::startDragging(
 }
 
 void BrowserWebViewDelegate::focusNext() {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    // Notify the handler that it should take a focus
-    handler->HandleTakeFocus(browser_, false);
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+    if (handler.get()) {
+      // Notify the handler that it should take a focus
+      handler->OnTakeFocus(browser_, true);
+    }
   }
 }
 
 void BrowserWebViewDelegate::focusPrevious() {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    // Notify the handler that it should take a focus
-    handler->HandleTakeFocus(browser_, true);
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+    if (handler.get()) {
+      // Notify the handler that it should take a focus
+      handler->OnTakeFocus(browser_, false);
+    }
   }
 }
 
@@ -502,8 +536,15 @@ void BrowserWebViewDelegate::scheduleAnimation() {
 
 void BrowserWebViewDelegate::didFocus() {
   if (WebWidgetHost* host = GetWidgetHost()) {
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if (handler.get() && handler->HandleSetFocus(browser_, true) == RV_CONTINUE)
+    bool handled = false;
+    CefRefPtr<CefClient> client = browser_->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+      if (handler.get())
+        handled = handler->OnSetFocus(browser_, true);
+    }
+
+    if (!handled)
       browser_->UIT_SetFocus(host, true);
   }
 }
@@ -527,13 +568,16 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
 
     if (browser_->IsWindowRenderingDisabled()) {
       // Retrieve the screen rectangle from the handler.
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if (handler.get()) {
-        CefRect rect(info.rect.x, info.rect.y, info.rect.width,
-                     info.rect.height);
-        if (handler->HandleGetRect(browser_, true, rect) == RV_CONTINUE) {
-          info.rect = WebRect(rect.x, rect.y, rect.width, rect.height);
-          info.availableRect = info.rect;
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get()) {
+          CefRect rect(info.rect.x, info.rect.y, info.rect.width,
+                       info.rect.height);
+          if (handler->GetScreenRect(browser_, rect)) {
+            info.rect = WebRect(rect.x, rect.y, rect.width, rect.height);
+            info.availableRect = info.rect;
+          }
         }
       }
     }
@@ -639,7 +683,7 @@ void BrowserWebViewDelegate::loadURLExternally(
     WebNavigationPolicy policy) {
   DCHECK_NE(policy, WebKit::WebNavigationPolicyCurrentTab);
   std::string url = request.url().spec().data();
-  CefRefPtr<CefBrowser> newBrowser =
+  CefRefPtr<CefBrowserImpl> newBrowser =
       browser_->UIT_CreatePopupWindow(url, CefPopupFeatures());
   if (newBrowser.get() && !url.empty())
     newBrowser->GetMainFrame()->LoadURL(url);
@@ -649,37 +693,40 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
     WebFrame* frame, const WebURLRequest& request,
     WebNavigationType type, const WebNode& originating_node,
     WebNavigationPolicy default_policy, bool is_redirect) {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    // Gather browse request information
-    CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+    if (handler.get()) {
+      // Gather browse request information
+      CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
 
-    GURL request_url = request.url();
-    if (!request_url.is_valid())
-      return WebKit::WebNavigationPolicyIgnore;
+      GURL request_url = request.url();
+      if (!request_url.is_valid())
+        return WebKit::WebNavigationPolicyIgnore;
 
-    req->SetURL(request_url.spec());
-    req->SetMethod(string16(request.httpMethod()));
+      req->SetURL(request_url.spec());
+      req->SetMethod(string16(request.httpMethod()));
 
-    const WebKit::WebHTTPBody& httpBody = request.httpBody();
-    if(!httpBody.isNull()) {
-      CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
-      static_cast<CefPostDataImpl*>(postdata.get())->Set(httpBody);
-      req->SetPostData(postdata);
+      const WebKit::WebHTTPBody& httpBody = request.httpBody();
+      if(!httpBody.isNull()) {
+        CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
+        static_cast<CefPostDataImpl*>(postdata.get())->Set(httpBody);
+        req->SetPostData(postdata);
+      }
+
+      CefRequest::HeaderMap map;
+      CefRequestImpl::GetHeaderMap(request, map);
+      if(map.size() > 0)
+        static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
+
+      // Notify the handler of a browse request
+      bool handled = handler->OnBeforeBrowse(browser_,
+          browser_->UIT_GetCefFrame(frame), req, (cef_handler_navtype_t)type,
+          is_redirect);
+      if(handled)
+        return WebKit::WebNavigationPolicyIgnore;
     }
-
-    CefRequest::HeaderMap map;
-    CefRequestImpl::GetHeaderMap(request, map);
-    if(map.size() > 0)
-      static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
-
-    // Notify the handler of a browse request
-    CefHandler::RetVal rv = handler->HandleBeforeBrowse(browser_,
-        browser_->UIT_GetCefFrame(frame), req, (CefHandler::NavType)type,
-        is_redirect);
-    if(rv == RV_HANDLED)
-      return WebKit::WebNavigationPolicyIgnore;
-    }
+  }
 
   WebNavigationPolicy result;
   if (policy_delegate_enabled_) {
@@ -748,17 +795,21 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   std::string error_text;
   CefString errorStr;
 
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  CefHandler::RetVal rv = RV_CONTINUE;
-  if(handler.get()) {
-    // give the handler an opportunity to generate a custom error message
-    rv = handler->HandleLoadError(browser_,
-        browser_->UIT_GetCefFrame(frame),
-        static_cast<CefHandler::ErrorCode>(error.reason),
-        std::string(failed_ds->request().url().spec().data()), errorStr);
+  bool handled = false;
+  
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefLoadHandler> handler = client->GetLoadHandler();
+    if (handler.get()) {
+      // give the handler an opportunity to generate a custom error message
+      handled = handler->OnLoadError(browser_,
+          browser_->UIT_GetCefFrame(frame),
+          static_cast<cef_handler_errorcode_t>(error.reason),
+          std::string(failed_ds->request().url().spec().data()), errorStr);
+    }
   }
     
-  if(rv == RV_HANDLED && !errorStr.empty()) {
+  if(handled && !errorStr.empty()) {
     error_text = errorStr;
   } else {
     error_text = StringPrintf("Error %d when loading url %s",
@@ -785,14 +836,17 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
 
   UpdateForCommittedLoad(frame, is_new_navigation);
 
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    // Notify the handler that loading has started.
-    handler->HandleLoadStart(browser_, browser_->UIT_GetCefFrame(frame));
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefLoadHandler> handler = client->GetLoadHandler();
+    if (handler.get()) {
+      // Notify the handler that loading has started.
+      handler->OnLoadStart(browser_, browser_->UIT_GetCefFrame(frame));
+    }
   }
 
   // Apply zoom settings only on top-level frames.
-  if(is_main_frame) {
+  if (is_main_frame) {
     // Restore the zoom value that we have for this URL, if any.
     double zoomLevel = 0.0;
     ZoomMap::GetInstance()->get(frame->url(), zoomLevel);
@@ -802,18 +856,21 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
 }
 
 void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    v8::HandleScope handle_scope;
-    v8::Handle<v8::Context> context = webkit_glue::GetV8Context(frame);
-    if(context.IsEmpty())
-      return;
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefJSBindingHandler> handler = client->GetJSBindingHandler();
+    if (handler.get()) {
+      v8::HandleScope handle_scope;
+      v8::Handle<v8::Context> context = webkit_glue::GetV8Context(frame);
+      if(context.IsEmpty())
+        return;
 
-    v8::Context::Scope scope(context);
+      v8::Context::Scope scope(context);
 
-    CefRefPtr<CefFrame> cframe(browser_->UIT_GetCefFrame(frame));
-    CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
-    handler->HandleJSBinding(browser_, cframe, object);
+      CefRefPtr<CefFrame> cframe(browser_->UIT_GetCefFrame(frame));
+      CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
+      handler->OnJSBinding(browser_, cframe, object);
+    }
   }
 }
 
@@ -823,10 +880,13 @@ void BrowserWebViewDelegate::didReceiveTitle(
   if (is_main_frame) {
     CefString titleStr = string16(title);
     browser_->UIT_SetTitle(titleStr);
-    CefRefPtr<CefHandler> handler = browser_->GetHandler();
-    if(handler.get()) {
-      // Notify the handler of a page title change
-      handler->HandleTitleChange(browser_, titleStr);
+    CefRefPtr<CefClient> client = browser_->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+      if (handler.get()) {
+        // Notify the handler of a page title change
+        handler->OnTitleChange(browser_, titleStr);
+      }
     }
   }
 }
@@ -955,34 +1015,42 @@ void BrowserWebViewDelegate::WaitForPolicyDelegate() {
 // Private methods -----------------------------------------------------------
 
 void BrowserWebViewDelegate::ShowStatus(const WebString& text,
-                                        CefHandler::StatusType type)
+                                        cef_handler_statustype_t type)
 {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
-    CefString textStr = string16(text);
-    handler->HandleStatus(browser_, textStr, type);
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get()) {
+      CefString textStr = string16(text);
+      handler->OnStatusMessage(browser_, textStr, type);
+    }
   }
 }
 
 void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if (!handler.get())
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (!client.get())
     return;
-
+  
   bool is_main_frame = (frame->parent() == 0);
   if (is_main_frame) {
     CefString title = browser_->UIT_GetTitle();
     if (title.empty()) {
       // No title was provided by the page, so send a blank string to the
       // client.
-      handler->HandleTitleChange(browser_, title);
+      CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+      if (handler.get())
+        handler->OnTitleChange(browser_, title);
     }
   }
 
-  // Notify the handler that loading has ended.
-  int httpStatusCode = frame->dataSource()->response().httpStatusCode();
-  handler->HandleLoadEnd(browser_, browser_->UIT_GetCefFrame(frame),
-      httpStatusCode);
+  CefRefPtr<CefLoadHandler> handler = client->GetLoadHandler();
+  if (handler.get()) {
+    // Notify the handler that loading has ended.
+    int httpStatusCode = frame->dataSource()->response().httpStatusCode();
+    handler->OnLoadEnd(browser_, browser_->UIT_GetCefFrame(frame),
+        httpStatusCode);
+  }
 }
 
 WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
@@ -1043,13 +1111,15 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   }
 
   bool is_main_frame = (frame->parent() == 0);
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
+  CefRefPtr<CefClient> client = browser_->GetClient();
 
-  if (is_main_frame && handler.get()) {
-    // Notify the handler of an address change
-    std::string url = std::string(entry->GetURL().spec().c_str());
-    handler->HandleAddressChange(browser_, browser_->UIT_GetCefFrame(frame),
-        url);
+  if (is_main_frame && client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get()) {
+      // Notify the handler of an address change
+      std::string url = std::string(entry->GetURL().spec().c_str());
+      handler->OnAddressChange(browser_, browser_->UIT_GetCefFrame(frame), url);
+    }
   }
 
   const WebHistoryItem& history_item = frame->currentHistoryItem();
@@ -1070,10 +1140,10 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   if (old_can_go_back != new_can_go_back ||
       old_can_go_forward != new_can_go_forward) {
     browser_->set_nav_state(new_can_go_back, new_can_go_forward);
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
     if (handler.get()) {
       // Notify the handler of a navigation state change
-      handler->HandleNavStateChange(browser_, new_can_go_back,
-          new_can_go_forward);
+      handler->OnNavStateChange(browser_, new_can_go_back, new_can_go_forward);
     }
   }
 }

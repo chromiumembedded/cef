@@ -25,7 +25,6 @@
 #include "ctocpp/domevent_listener_ctocpp.h"
 #include "ctocpp/domvisitor_ctocpp.h"
 #include "ctocpp/download_handler_ctocpp.h"
-#include "ctocpp/handler_ctocpp.h"
 #include "ctocpp/read_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_factory_ctocpp.h"
@@ -37,19 +36,15 @@
 #include "base/string_split.h"
 
 
-CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
-    const struct _cef_browser_settings_t* browser_defaults)
+CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings)
 {
   CefSettings settingsObj;
-  CefBrowserSettings browserDefaultsObj;
 
   // Reference the values instead of copying.
   if (settings)
     settingsObj.Set(*settings, false);
-  if (browser_defaults)
-    browserDefaultsObj.Set(*browser_defaults, false);
 
-  int ret = CefInitialize(settingsObj, browserDefaultsObj);
+  int ret = CefInitialize(settingsObj);
 
   return ret;
 }
@@ -58,7 +53,7 @@ CEF_EXPORT void cef_shutdown()
 {
   CefShutdown();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefBrowserCppToC::DebugObjCt == 0);
   DCHECK(CefDOMDocumentCppToC::DebugObjCt == 0);
@@ -85,12 +80,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCToCpp::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCToCpp::DebugObjCt == 0);
-
-  // TODO: This breakpoint may be hit if content is still loading when CEF
-  // exits. Re-enable the breakpoint if/when CEF stops content loading before
-  // exit.
-  //DCHECK(CefHandlerCToCpp::DebugObjCt == 0);
-#endif // _DEBUG
+#endif // !NDEBUG
 }
 
 CEF_EXPORT void cef_do_message_loop_work()

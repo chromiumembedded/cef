@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,18 +31,19 @@ public:
   virtual ~CefZipReaderCToCpp() {}
 
   // CefZipReader methods
-  virtual bool MoveToFirstFile();
-  virtual bool MoveToNextFile();
-  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive);
-  virtual bool Close();
-  virtual CefString GetFileName();
-  virtual long GetFileSize();
-  virtual time_t GetFileLastModified();
-  virtual bool OpenFile(const CefString& password);
-  virtual bool CloseFile();
-  virtual int ReadFile(void* buffer, size_t bufferSize);
-  virtual long Tell();
-  virtual bool Eof();
+  virtual bool MoveToFirstFile() OVERRIDE;
+  virtual bool MoveToNextFile() OVERRIDE;
+  virtual bool MoveToFile(const CefString& fileName,
+      bool caseSensitive) OVERRIDE;
+  virtual bool Close() OVERRIDE;
+  virtual CefString GetFileName() OVERRIDE;
+  virtual long GetFileSize() OVERRIDE;
+  virtual time_t GetFileLastModified() OVERRIDE;
+  virtual bool OpenFile(const CefString& password) OVERRIDE;
+  virtual bool CloseFile() OVERRIDE;
+  virtual int ReadFile(void* buffer, size_t bufferSize) OVERRIDE;
+  virtual long Tell() OVERRIDE;
+  virtual bool Eof() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

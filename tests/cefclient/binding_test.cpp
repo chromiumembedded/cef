@@ -8,7 +8,7 @@
 
 // Implementation of the V8 handler class for the "window.cef_test.Dump"
 // function.
-class ClientV8FunctionHandler : public CefThreadSafeBase<CefV8Handler>
+class ClientV8FunctionHandler : public CefV8Handler
 {
 public:
   ClientV8FunctionHandler() {}
@@ -122,6 +122,8 @@ public:
       stream << "\n" << indent_str.c_str() << "]";
     }
   }
+
+  IMPLEMENT_REFCOUNTING(ClientV8FunctionHandler);
 };
 
 

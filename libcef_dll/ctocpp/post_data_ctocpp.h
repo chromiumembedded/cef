@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,11 +31,11 @@ public:
   virtual ~CefPostDataCToCpp() {}
 
   // CefPostData methods
-  virtual size_t GetElementCount();
-  virtual void GetElements(ElementVector& elements);
-  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element);
-  virtual bool AddElement(CefRefPtr<CefPostDataElement> element);
-  virtual void RemoveElements();
+  virtual size_t GetElementCount() OVERRIDE;
+  virtual void GetElements(ElementVector& elements) OVERRIDE;
+  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
+  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
+  virtual void RemoveElements() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

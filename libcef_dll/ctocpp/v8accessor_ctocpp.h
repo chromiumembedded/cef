@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -32,9 +32,9 @@ public:
 
   // CefV8Accessor methods
   virtual bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
-      CefRefPtr<CefV8Value>& retval);
+      CefRefPtr<CefV8Value>& retval) OVERRIDE;
   virtual bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
-      const CefRefPtr<CefV8Value> value);
+      const CefRefPtr<CefV8Value> value) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

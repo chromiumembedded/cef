@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -14,7 +14,7 @@ def make_ctocpp_header(header, clsname):
     capiname = cls.get_capi_name()
     
     result = \
-"""// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+"""// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -66,7 +66,7 @@ def make_ctocpp_header(header, clsname):
     
     funcs = cls.get_virtual_funcs()
     for func in funcs:
-        result += '  virtual '+func.get_cpp_proto()+';\n'
+        result += '  virtual '+func.get_cpp_proto()+' OVERRIDE;\n'
                 
     result +=   '};\n\n'
     

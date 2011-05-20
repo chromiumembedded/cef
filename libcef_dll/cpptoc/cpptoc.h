@@ -14,7 +14,7 @@
 // implementation exists on this side of the DLL boundary but will have methods
 // called from the other side of the DLL boundary.
 template <class ClassName, class BaseName, class StructName>
-class CefCppToC : public CefThreadSafeBase<CefBase>
+class CefCppToC : public CefBase
 {
 public:
   // Structure representation with pointer to the C++ class.
@@ -78,13 +78,13 @@ public:
     struct_.struct_.base.release = struct_release;
     struct_.struct_.base.get_refct = struct_get_refct;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     CefAtomicIncrement(&DebugObjCt);
 #endif
   }
   virtual ~CefCppToC()
   {
-#ifdef _DEBUG
+#ifndef NDEBUG
     CefAtomicDecrement(&DebugObjCt);
 #endif
   }
@@ -98,23 +98,27 @@ public:
 
   // CefBase methods increment/decrement reference counts on both this object
   // and the underlying wrapper class.
-  virtual int AddRef()
+  int AddRef()
   {
     UnderlyingAddRef();
-    return CefThreadSafeBase<CefBase>::AddRef();
+    return refct_.AddRef();
   }
-  virtual int Release()
+  int Release()
   {
     UnderlyingRelease();
-    return CefThreadSafeBase<CefBase>::Release();
+    int retval = refct_.Release();
+    if (retval == 0)
+      delete this;
+    return retval;
   }
+  int GetRefCt() { return refct_.GetRefCt(); }
 
   // Increment/decrement reference counts on only the underlying class.
   int UnderlyingAddRef() { return class_->AddRef(); }
   int UnderlyingRelease() { return class_->Release(); }
   int UnderlyingGetRefCt() { return class_->GetRefCt(); }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   // Simple tracking of allocated objects.
   static long DebugObjCt;
 #endif
@@ -151,6 +155,7 @@ private:
   }
 
 protected:
+  CefRefCount refct_;
   Struct struct_;
   BaseName* class_;
 };

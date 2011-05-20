@@ -12,7 +12,7 @@
 
 namespace {
 
-class CefZipFile : public CefThreadSafeBase<CefZipArchive::File>
+class CefZipFile : public CefZipArchive::File
 {
 public:
   CefZipFile(size_t size) : data_(size) {}
@@ -35,6 +35,8 @@ public:
 
 private:
   std::vector<unsigned char> data_;
+
+  IMPLEMENT_REFCOUNTING(CefZipFile);
 };
 
 } // namespace

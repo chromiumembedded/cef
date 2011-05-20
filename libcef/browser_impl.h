@@ -33,7 +33,7 @@ class WebView;
 
 
 // Implementation of CefBrowser.
-class CefBrowserImpl : public CefThreadSafeBase<CefBrowser>
+class CefBrowserImpl : public CefBrowser
 {
 public:
   class PaintDelegate : public WebWidgetHost::PaintDelegate
@@ -51,7 +51,7 @@ public:
 
   CefBrowserImpl(const CefWindowInfo& windowInfo,
                  const CefBrowserSettings& settings, bool popup,
-                 CefRefPtr<CefHandler> handler);
+                 CefRefPtr<CefClient> client);
   virtual ~CefBrowserImpl() {}
 
 #if defined(OS_WIN)
@@ -61,45 +61,46 @@ public:
 #endif
 
   // CefBrowser methods
-  virtual void CloseBrowser();
-  virtual bool CanGoBack() { return can_go_back(); }
-  virtual void GoBack();
-  virtual bool CanGoForward() { return can_go_forward(); }
-  virtual void GoForward();
-  virtual void Reload();
-  virtual void ReloadIgnoreCache();
-  virtual void StopLoad();
-  virtual void SetFocus(bool enable);
-  virtual CefWindowHandle GetWindowHandle();
-  virtual bool IsPopup() { return is_popup(); }
-  virtual CefRefPtr<CefHandler> GetHandler() { return handler_; }
-  virtual CefRefPtr<CefFrame> GetMainFrame() { return GetMainCefFrame(); }
-  virtual CefRefPtr<CefFrame> GetFocusedFrame();
-  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name);
-  virtual void GetFrameNames(std::vector<CefString>& names);
+  virtual void CloseBrowser() OVERRIDE;
+  virtual bool CanGoBack() OVERRIDE { return can_go_back(); }
+  virtual void GoBack() OVERRIDE;
+  virtual bool CanGoForward() OVERRIDE { return can_go_forward(); }
+  virtual void GoForward() OVERRIDE;
+  virtual void Reload() OVERRIDE;
+  virtual void ReloadIgnoreCache() OVERRIDE;
+  virtual void StopLoad() OVERRIDE;
+  virtual void SetFocus(bool enable) OVERRIDE;
+  virtual CefWindowHandle GetWindowHandle() OVERRIDE;
+  virtual bool IsPopup() OVERRIDE { return is_popup(); }
+  virtual CefRefPtr<CefClient> GetClient() OVERRIDE { return client_; }
+  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE
+      { return GetMainCefFrame(); }
+  virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
+  virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
   virtual void Find(int identifier, const CefString& searchText,
-                    bool forward, bool matchCase, bool findNext);
-  virtual void StopFinding(bool clearSelection);
-  virtual double GetZoomLevel() { return zoom_level(); }
-  virtual void SetZoomLevel(double zoomLevel);
-  virtual void ShowDevTools();
-  virtual void CloseDevTools();
-  virtual bool IsWindowRenderingDisabled();
-  virtual bool GetSize(PaintElementType type, int& width, int& height);
-  virtual void SetSize(PaintElementType type, int width, int height);
-  virtual bool IsPopupVisible();
-  virtual void HidePopup();
-  virtual void Invalidate(const CefRect& dirtyRect);
+                    bool forward, bool matchCase, bool findNext) OVERRIDE;
+  virtual void StopFinding(bool clearSelection) OVERRIDE;
+  virtual double GetZoomLevel() OVERRIDE { return zoom_level(); }
+  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
+  virtual void ShowDevTools() OVERRIDE;
+  virtual void CloseDevTools() OVERRIDE;
+  virtual bool IsWindowRenderingDisabled() OVERRIDE;
+  virtual bool GetSize(PaintElementType type, int& width, int& height) OVERRIDE;
+  virtual void SetSize(PaintElementType type, int width, int height) OVERRIDE;
+  virtual bool IsPopupVisible() OVERRIDE;
+  virtual void HidePopup() OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
   virtual bool GetImage(PaintElementType type, int width, int height,
-                        void* buffer);
+                        void* buffer) OVERRIDE;
   virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                            bool imeChar);
+                            bool imeChar) OVERRIDE;
   virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
-                                   bool mouseUp, int clickCount);
-  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave);
-  virtual void SendMouseWheelEvent(int x, int y, int delta);
-  virtual void SendFocusEvent(bool setFocus);
-  virtual void SendCaptureLostEvent();
+                                   bool mouseUp, int clickCount) OVERRIDE;
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(int x, int y, int delta) OVERRIDE;
+  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
+  virtual void SendCaptureLostEvent() OVERRIDE;
 
   // Frame-related methods
   void Undo(CefRefPtr<CefFrame> frame);
@@ -268,8 +269,8 @@ public:
   void UIT_Show(WebKit::WebNavigationPolicy policy);
   
   // Handles most simple browser actions
-  void UIT_HandleActionView(CefHandler::MenuId menuId);
-  void UIT_HandleAction(CefHandler::MenuId menuId, CefRefPtr<CefFrame> frame);
+  void UIT_HandleActionView(cef_handler_menuid_t menuId);
+  void UIT_HandleAction(cef_handler_menuid_t menuId, CefRefPtr<CefFrame> frame);
 
   // Save the document HTML to a temporary file and open in the default viewing
   // application
@@ -333,7 +334,7 @@ protected:
   CefBrowserSettings settings_;
   bool is_popup_;
   bool is_modal_;
-  CefRefPtr<CefHandler> handler_;
+  CefRefPtr<CefClient> client_;
   scoped_ptr<WebViewHost> webviewhost_;
   WebWidgetHost* popuphost_;
   gfx::Rect popup_rect_;
@@ -369,52 +370,57 @@ protected:
  
   // A temporary directory for FileSystem API.
   ScopedTempDir file_system_root_;
+
+  IMPLEMENT_REFCOUNTING(CefBrowserImpl);
+  IMPLEMENT_LOCKING(CefBrowserImpl);
 };
 
 
 // Implementation of CefFrame.
-class CefFrameImpl : public CefThreadSafeBase<CefFrame>
+class CefFrameImpl : public CefFrame
 {
 public:
   CefFrameImpl(CefBrowserImpl* browser, const CefString& name);
   virtual ~CefFrameImpl();
 
   // CefFrame methods
-  virtual void Undo() { browser_->Undo(this); }
-  virtual void Redo() { browser_->Redo(this); }
-  virtual void Cut() { browser_->Cut(this); }
-  virtual void Copy() { browser_->Copy(this); }
-  virtual void Paste() { browser_->Paste(this); }
-  virtual void Delete() { browser_->Delete(this); }
-  virtual void SelectAll() { browser_->SelectAll(this); }
-  virtual void Print() { browser_->Print(this); }
-  virtual void ViewSource() { browser_->ViewSource(this); }
-  virtual CefString GetSource() { return browser_->GetSource(this); }
-  virtual CefString GetText() { return browser_->GetText(this); }
-  virtual void LoadRequest(CefRefPtr<CefRequest> request)
+  virtual void Undo() OVERRIDE { browser_->Undo(this); }
+  virtual void Redo() OVERRIDE { browser_->Redo(this); }
+  virtual void Cut() OVERRIDE { browser_->Cut(this); }
+  virtual void Copy() OVERRIDE { browser_->Copy(this); }
+  virtual void Paste() OVERRIDE { browser_->Paste(this); }
+  virtual void Delete() OVERRIDE { browser_->Delete(this); }
+  virtual void SelectAll() OVERRIDE { browser_->SelectAll(this); }
+  virtual void Print() OVERRIDE { browser_->Print(this); }
+  virtual void ViewSource() OVERRIDE { browser_->ViewSource(this); }
+  virtual CefString GetSource() OVERRIDE { return browser_->GetSource(this); }
+  virtual CefString GetText() OVERRIDE { return browser_->GetText(this); }
+  virtual void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE
     { return browser_->LoadRequest(this, request); }
-  virtual void LoadURL(const CefString& url)
+  virtual void LoadURL(const CefString& url) OVERRIDE
     { return browser_->LoadURL(this, url); }
   virtual void LoadString(const CefString& string,
-                          const CefString& url)
+                          const CefString& url) OVERRIDE
     { return browser_->LoadString(this, string, url); }
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const CefString& url)
+                          const CefString& url) OVERRIDE
     { return browser_->LoadStream(this, stream, url); }
   virtual void ExecuteJavaScript(const CefString& jsCode, 
                                  const CefString& scriptUrl,
-                                 int startLine) 
+                                 int startLine) OVERRIDE
     { return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine); }
-  virtual bool IsMain() { return name_.empty(); }
-  virtual bool IsFocused();
-  virtual CefString GetName() { return name_; }
-  virtual CefString GetURL() { return browser_->GetURL(this); }
-  virtual CefRefPtr<CefBrowser> GetBrowser() { return browser_.get(); }
-  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor);
+  virtual bool IsMain() OVERRIDE { return name_.empty(); }
+  virtual bool IsFocused() OVERRIDE;
+  virtual CefString GetName() OVERRIDE { return name_; }
+  virtual CefString GetURL() OVERRIDE { return browser_->GetURL(this); }
+  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE { return browser_.get(); }
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
 
 private:
   CefRefPtr<CefBrowserImpl> browser_;
   CefString name_;
+
+  IMPLEMENT_REFCOUNTING(CefFrameImpl);
 };
 
 #endif // _BROWSER_IMPL_H

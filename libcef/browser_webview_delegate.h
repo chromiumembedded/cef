@@ -54,155 +54,156 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // WebKit::WebViewClient
   virtual WebKit::WebView* createView(
       WebKit::WebFrame* creator, const WebKit::WebURLRequest& request,
-      const WebKit::WebWindowFeatures& features, const WebKit::WebString& name);
-  virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type);
+      const WebKit::WebWindowFeatures& features, const WebKit::WebString& name)
+      OVERRIDE;
+  virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type)
+      OVERRIDE;
   virtual WebKit::WebExternalPopupMenu* createExternalPopupMenu(
       const WebKit::WebPopupMenuInfo& info,
-      WebKit::WebExternalPopupMenuClient* client);
+      WebKit::WebExternalPopupMenuClient* client) OVERRIDE;
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
-      unsigned quota);
+      unsigned quota) OVERRIDE;
   virtual void didAddMessageToConsole(
       const WebKit::WebConsoleMessage& message,
-      const WebKit::WebString& source_name, unsigned source_line);
-  virtual void printPage(WebKit::WebFrame* frame);
-  virtual bool shouldBeginEditing(const WebKit::WebRange& range);
-  virtual bool shouldEndEditing(const WebKit::WebRange& range);
+      const WebKit::WebString& source_name, unsigned source_line) OVERRIDE;
+  virtual void printPage(WebKit::WebFrame* frame) OVERRIDE;
+  virtual bool shouldBeginEditing(const WebKit::WebRange& range) OVERRIDE;
+  virtual bool shouldEndEditing(const WebKit::WebRange& range) OVERRIDE;
   virtual bool shouldInsertNode(
       const WebKit::WebNode& node, const WebKit::WebRange& range,
-      WebKit::WebEditingAction action);
+      WebKit::WebEditingAction action) OVERRIDE;
   virtual bool shouldInsertText(
       const WebKit::WebString& text, const WebKit::WebRange& range,
-      WebKit::WebEditingAction action);
+      WebKit::WebEditingAction action) OVERRIDE;
   virtual bool shouldChangeSelectedRange(
       const WebKit::WebRange& from, const WebKit::WebRange& to,
-      WebKit::WebTextAffinity affinity, bool still_selecting);
-  virtual bool shouldDeleteRange(const WebKit::WebRange& range);
+      WebKit::WebTextAffinity affinity, bool still_selecting) OVERRIDE;
+  virtual bool shouldDeleteRange(const WebKit::WebRange& range) OVERRIDE;
   virtual bool shouldApplyStyle(
-      const WebKit::WebString& style, const WebKit::WebRange& range);
-  virtual bool isSmartInsertDeleteEnabled();
-  virtual bool isSelectTrailingWhitespaceEnabled();
-  virtual bool handleCurrentKeyboardEvent();
+      const WebKit::WebString& style, const WebKit::WebRange& range) OVERRIDE;
+  virtual bool isSmartInsertDeleteEnabled() OVERRIDE;
+  virtual bool isSelectTrailingWhitespaceEnabled() OVERRIDE;
+  virtual bool handleCurrentKeyboardEvent() OVERRIDE;
   virtual bool runFileChooser(
       const WebKit::WebFileChooserParams& params,
-      WebKit::WebFileChooserCompletion* chooser_completion);
+      WebKit::WebFileChooserCompletion* chooser_completion) OVERRIDE;
   virtual void runModalAlertDialog(
-      WebKit::WebFrame* frame, const WebKit::WebString& message);
+      WebKit::WebFrame* frame, const WebKit::WebString& message) OVERRIDE;
   virtual bool runModalConfirmDialog(
-      WebKit::WebFrame* frame, const WebKit::WebString& message);
+      WebKit::WebFrame* frame, const WebKit::WebString& message) OVERRIDE;
   virtual bool runModalPromptDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message,
-      const WebKit::WebString& default_value, WebKit::WebString* actual_value);
+      const WebKit::WebString& default_value, WebKit::WebString* actual_value)
+      OVERRIDE;
   virtual bool runModalBeforeUnloadDialog(
-      WebKit::WebFrame* frame, const WebKit::WebString& message);
+      WebKit::WebFrame* frame, const WebKit::WebString& message) OVERRIDE;
   virtual void showContextMenu(
-      WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data);
-  virtual void setStatusText(const WebKit::WebString& text);
-  virtual void setMouseOverURL(const WebKit::WebURL& url);
-  virtual void setKeyboardFocusURL(const WebKit::WebURL& url);
+      WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data) OVERRIDE;
+  virtual void setStatusText(const WebKit::WebString& text) OVERRIDE;
+  virtual void setMouseOverURL(const WebKit::WebURL& url) OVERRIDE;
+  virtual void setKeyboardFocusURL(const WebKit::WebURL& url) OVERRIDE;
   virtual void setToolTipText(
-      const WebKit::WebString& text, WebKit::WebTextDirection hint);
+      const WebKit::WebString& text, WebKit::WebTextDirection hint) OVERRIDE;
   virtual void startDragging(
       const  WebKit::WebDragData& data,
        WebKit::WebDragOperationsMask mask,
       const  WebKit::WebImage& image,
-      const  WebKit::WebPoint& image_offset);
-  virtual bool acceptsLoadDrops() { return true; }
-  virtual void focusNext();
-  virtual void focusPrevious();
-  virtual void navigateBackForwardSoon(int offset);
-  virtual int historyBackListCount();
-  virtual int historyForwardListCount();
+      const  WebKit::WebPoint& image_offset) OVERRIDE;
+  virtual bool acceptsLoadDrops() OVERRIDE { return true; }
+  virtual void focusNext() OVERRIDE;
+  virtual void focusPrevious() OVERRIDE;
+  virtual void navigateBackForwardSoon(int offset) OVERRIDE;
+  virtual int historyBackListCount() OVERRIDE;
+  virtual int historyForwardListCount() OVERRIDE;
 
   // WebKit::WebWidgetClient
-  virtual void didInvalidateRect(const WebKit::WebRect& rect);
+  virtual void didInvalidateRect(const WebKit::WebRect& rect) OVERRIDE;
   virtual void didScrollRect(int dx, int dy,
-                             const WebKit::WebRect& clip_rect);
-  virtual void scheduleComposite();
-  virtual void scheduleAnimation();
-  virtual void didFocus();
-  virtual void didBlur();
-  virtual void didChangeCursor(const WebKit::WebCursorInfo& cursor);
-  virtual void closeWidgetSoon();
-  virtual void show(WebKit::WebNavigationPolicy policy);
-  virtual void runModal();
-  virtual WebKit::WebRect windowRect();
-  virtual void setWindowRect(const WebKit::WebRect& rect);
-  virtual WebKit::WebRect rootWindowRect();
-  virtual WebKit::WebRect windowResizerRect();
-  virtual WebKit::WebScreenInfo screenInfo();
+                             const WebKit::WebRect& clip_rect) OVERRIDE;
+  virtual void scheduleComposite() OVERRIDE;
+  virtual void scheduleAnimation() OVERRIDE;
+  virtual void didFocus() OVERRIDE;
+  virtual void didBlur() OVERRIDE;
+  virtual void didChangeCursor(const WebKit::WebCursorInfo& cursor) OVERRIDE;
+  virtual void closeWidgetSoon() OVERRIDE;
+  virtual void show(WebKit::WebNavigationPolicy policy) OVERRIDE;
+  virtual void runModal() OVERRIDE;
+  virtual WebKit::WebRect windowRect() OVERRIDE;
+  virtual void setWindowRect(const WebKit::WebRect& rect) OVERRIDE;
+  virtual WebKit::WebRect rootWindowRect() OVERRIDE;
+  virtual WebKit::WebRect windowResizerRect() OVERRIDE;
+  virtual WebKit::WebScreenInfo screenInfo() OVERRIDE;
 
   // WebKit::WebFrameClient
   virtual WebKit::WebPlugin* createPlugin(
-      WebKit::WebFrame*, const WebKit::WebPluginParams&);
+      WebKit::WebFrame*, const WebKit::WebPluginParams&) OVERRIDE;
   virtual WebKit::WebWorker* createWorker(
-      WebKit::WebFrame*, WebKit::WebWorkerClient*);
+      WebKit::WebFrame*, WebKit::WebWorkerClient*) OVERRIDE;
   virtual WebKit::WebMediaPlayer* createMediaPlayer(
-      WebKit::WebFrame*, WebKit::WebMediaPlayerClient*);
+      WebKit::WebFrame*, WebKit::WebMediaPlayerClient*) OVERRIDE;
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
-    WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client);
-  virtual void willClose(WebKit::WebFrame*);
+    WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client)
+    OVERRIDE;
+  virtual void willClose(WebKit::WebFrame*) OVERRIDE;
   virtual void loadURLExternally(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
-      WebKit::WebNavigationPolicy);
+      WebKit::WebNavigationPolicy) OVERRIDE;
   virtual WebKit::WebNavigationPolicy decidePolicyForNavigation(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
       WebKit::WebNavigationType, const WebKit::WebNode&,
-      WebKit::WebNavigationPolicy default_policy, bool isRedirect);
+      WebKit::WebNavigationPolicy default_policy, bool isRedirect) OVERRIDE;
   virtual bool canHandleRequest(
-      WebKit::WebFrame*, const WebKit::WebURLRequest&) { return true; }
+      WebKit::WebFrame*, const WebKit::WebURLRequest&) OVERRIDE { return true; }
   virtual WebKit::WebURLError cannotHandleRequestError(
-      WebKit::WebFrame*, const WebKit::WebURLRequest& request);
+      WebKit::WebFrame*, const WebKit::WebURLRequest& request) OVERRIDE;
   virtual WebKit::WebURLError cancelledError(
-      WebKit::WebFrame*, const WebKit::WebURLRequest& request);
+      WebKit::WebFrame*, const WebKit::WebURLRequest& request) OVERRIDE;
   virtual void didCreateDataSource(
-      WebKit::WebFrame*, WebKit::WebDataSource*);
-  virtual void didStartProvisionalLoad(WebKit::WebFrame*);
-  virtual void didReceiveServerRedirectForProvisionalLoad(WebKit::WebFrame*);
+      WebKit::WebFrame*, WebKit::WebDataSource*) OVERRIDE;
+  virtual void didStartProvisionalLoad(WebKit::WebFrame*) OVERRIDE;
+  virtual void didReceiveServerRedirectForProvisionalLoad(WebKit::WebFrame*)
+      OVERRIDE;
   virtual void didFailProvisionalLoad(
-      WebKit::WebFrame*, const WebKit::WebURLError&);
+      WebKit::WebFrame*, const WebKit::WebURLError&) OVERRIDE;
   virtual void didCommitProvisionalLoad(
-      WebKit::WebFrame*, bool is_new_navigation);
-  virtual void didClearWindowObject(WebKit::WebFrame*);
+      WebKit::WebFrame*, bool is_new_navigation) OVERRIDE;
+  virtual void didClearWindowObject(WebKit::WebFrame*) OVERRIDE;
   virtual void didReceiveTitle(
       WebKit::WebFrame*, const WebKit::WebString& title,
-      WebKit::WebTextDirection direction);
+      WebKit::WebTextDirection direction) OVERRIDE;
   virtual void didFailLoad(
-      WebKit::WebFrame*, const WebKit::WebURLError&);
-  virtual void didFinishLoad(WebKit::WebFrame*);
+      WebKit::WebFrame*, const WebKit::WebURLError&) OVERRIDE;
+  virtual void didFinishLoad(WebKit::WebFrame*) OVERRIDE;
   virtual void didNavigateWithinPage(
-      WebKit::WebFrame*, bool isNewNavigation);
+      WebKit::WebFrame*, bool isNewNavigation) OVERRIDE;
   virtual void willSendRequest(
       WebKit::WebFrame*, unsigned identifier, WebKit::WebURLRequest&,
-      const WebKit::WebURLResponse& redirectResponse);
+      const WebKit::WebURLResponse& redirectResponse) OVERRIDE;
   virtual void reportFindInPageMatchCount(
-      int request_id, int count, bool final_update);
+      int request_id, int count, bool final_update) OVERRIDE;
   virtual void reportFindInPageSelection(
-      int request_id, int active_match_ordinal, const WebKit::WebRect& sel);
+      int request_id, int active_match_ordinal, const WebKit::WebRect& sel)
+      OVERRIDE;
   virtual void openFileSystem(
       WebKit::WebFrame* frame,
       WebKit::WebFileSystem::Type type,
       long long size,
       bool create,
-      WebKit::WebFileSystemCallbacks* callbacks);
+      WebKit::WebFileSystemCallbacks* callbacks) OVERRIDE;
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(
       const FilePath& file_path,
-      const std::string& mime_type);
+      const std::string& mime_type) OVERRIDE;
   virtual void CreatedPluginWindow(
-      gfx::PluginWindowHandle handle);
+      gfx::PluginWindowHandle handle) OVERRIDE;
   virtual void WillDestroyPluginWindow(
-      gfx::PluginWindowHandle handle);
+      gfx::PluginWindowHandle handle) OVERRIDE;
   virtual void DidMovePlugin(
-      const webkit::npapi::WebPluginGeometry& move);
-  virtual void DidStartLoadingForPlugin() {}
-  virtual void DidStopLoadingForPlugin() {}
-  virtual void ShowModalHTMLDialogForPlugin(
-      const GURL& url,
-      const gfx::Size& size,
-      const std::string& json_arguments,
-      std::string* json_retval) {}
-  virtual WebKit::WebCookieJar* GetCookieJar();
+      const webkit::npapi::WebPluginGeometry& move) OVERRIDE;
+  virtual void DidStartLoadingForPlugin() OVERRIDE {}
+  virtual void DidStopLoadingForPlugin() OVERRIDE {}
+  virtual WebKit::WebCookieJar* GetCookieJar() OVERRIDE;
 
   BrowserWebViewDelegate(CefBrowserImpl* browser);
   ~BrowserWebViewDelegate();
@@ -275,7 +276,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                        const FilePath& default_file);
 
   // Called to show status messages.
-  void ShowStatus(const WebKit::WebString& text, CefHandler::StatusType type);
+  void ShowStatus(const WebKit::WebString& text, cef_handler_statustype_t type);
 
   // In the Mac code, this is called to trigger the end of a test after the
   // page has finished loading.  From here, we can generate the dump for the

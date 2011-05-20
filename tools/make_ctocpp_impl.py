@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -107,7 +107,7 @@ def make_ctocpp_impl(header, clsname, impl):
         
     # build the final output
     result = \
-"""// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+"""// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -123,7 +123,7 @@ def make_ctocpp_impl(header, clsname, impl):
     
     result += includes+'\n'+resultingimpl+'\n'
     
-    result += wrap_code('#ifdef _DEBUG\n'+ \
+    result += wrap_code('#ifndef NDEBUG\n'+ \
               'template<> long CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
               '#endif\n')
 

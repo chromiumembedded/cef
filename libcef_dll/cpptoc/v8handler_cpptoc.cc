@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -23,7 +23,7 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
 {
   DCHECK(self);
   if(!self)
-    return RV_CONTINUE;
+    return 0;
 
   CefRefPtr<CefV8Value> objectPtr;
   if(object)
@@ -55,7 +55,7 @@ CefV8HandlerCppToC::CefV8HandlerCppToC(CefV8Handler* cls)
   struct_.struct_.execute = v8handler_execute;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefV8HandlerCppToC, CefV8Handler,
     cef_v8handler_t>::DebugObjCt = 0;
 #endif

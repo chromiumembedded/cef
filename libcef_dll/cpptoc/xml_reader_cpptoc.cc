@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -377,7 +377,7 @@ CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
       xml_reader_move_to_carrying_element;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefXmlReaderCppToC, CefXmlReader,
     cef_xml_reader_t>::DebugObjCt = 0;
 #endif

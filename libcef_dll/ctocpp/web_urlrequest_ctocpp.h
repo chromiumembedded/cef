@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -33,8 +33,8 @@ public:
   virtual ~CefWebURLRequestCToCpp() {}
 
   // CefWebURLRequest methods
-  virtual void Cancel();
-  virtual RequestState GetState();
+  virtual void Cancel() OVERRIDE;
+  virtual RequestState GetState() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

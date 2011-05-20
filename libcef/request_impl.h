@@ -16,28 +16,28 @@ class URLRequest;
 };
 
 // Implementation of CefRequest
-class CefRequestImpl : public CefThreadSafeBase<CefRequest>
+class CefRequestImpl : public CefRequest
 {
 public:
   CefRequestImpl();
   ~CefRequestImpl() {}
 
-  virtual CefString GetURL();
-  virtual void SetURL(const CefString& url);
-  virtual CefString GetMethod();
-  virtual void SetMethod(const CefString& method);
-  virtual CefRefPtr<CefPostData> GetPostData();
-  virtual void SetPostData(CefRefPtr<CefPostData> postData);
-  virtual void GetHeaderMap(HeaderMap& headerMap);
-  virtual void SetHeaderMap(const HeaderMap& headerMap);
+  virtual CefString GetURL() OVERRIDE;
+  virtual void SetURL(const CefString& url) OVERRIDE;
+  virtual CefString GetMethod() OVERRIDE;
+  virtual void SetMethod(const CefString& method) OVERRIDE;
+  virtual CefRefPtr<CefPostData> GetPostData() OVERRIDE;
+  virtual void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
+  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
   virtual void Set(const CefString& url,
                    const CefString& method,
                    CefRefPtr<CefPostData> postData,
-                   const HeaderMap& headerMap);
-  virtual RequestFlags GetFlags();
-  virtual void SetFlags(RequestFlags flags);
-  virtual CefString GetFirstPartyForCookies();
-  virtual void SetFirstPartyForCookies(const CefString& url);
+                   const HeaderMap& headerMap) OVERRIDE;
+  virtual RequestFlags GetFlags() OVERRIDE;
+  virtual void SetFlags(RequestFlags flags) OVERRIDE;
+  virtual CefString GetFirstPartyForCookies() OVERRIDE;
+  virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
 
   void Set(net::URLRequest* request);
   void Set(const WebKit::WebURLRequest& request);
@@ -59,19 +59,22 @@ protected:
   // The below methods are used by WebURLRequest.
   RequestFlags flags_;
   CefString first_party_for_cookies_;
+
+  IMPLEMENT_REFCOUNTING(CefRequestImpl);
+  IMPLEMENT_LOCKING(CefRequestImpl);
 };
 
 // Implementation of CefPostData
-class CefPostDataImpl : public CefThreadSafeBase<CefPostData>
+class CefPostDataImpl : public CefPostData
 {
 public:
   CefPostDataImpl();
   ~CefPostDataImpl() {}
 
-  virtual size_t GetElementCount();
-  virtual void GetElements(ElementVector& elements);
-  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element);
-  virtual bool AddElement(CefRefPtr<CefPostDataElement> element);
+  virtual size_t GetElementCount() OVERRIDE;
+  virtual void GetElements(ElementVector& elements) OVERRIDE;
+  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
+  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
   virtual void RemoveElements();
 
   void Set(net::UploadData& data);
@@ -81,22 +84,25 @@ public:
 
 protected:
   ElementVector elements_;
+
+  IMPLEMENT_REFCOUNTING(CefPostDataImpl);
+  IMPLEMENT_LOCKING(CefPostDataImpl);
 };
 
 // Implementation of CefPostDataElement
-class CefPostDataElementImpl : public CefThreadSafeBase<CefPostDataElement>
+class CefPostDataElementImpl : public CefPostDataElement
 {
 public:
   CefPostDataElementImpl();
   ~CefPostDataElementImpl();
 
-  virtual void SetToEmpty();
-  virtual void SetToFile(const CefString& fileName);
-  virtual void SetToBytes(size_t size, const void* bytes);
-  virtual Type GetType();
-  virtual CefString GetFile();
-  virtual size_t GetBytesCount();
-  virtual size_t GetBytes(size_t size, void* bytes);
+  virtual void SetToEmpty() OVERRIDE;
+  virtual void SetToFile(const CefString& fileName) OVERRIDE;
+  virtual void SetToBytes(size_t size, const void* bytes) OVERRIDE;
+  virtual Type GetType() OVERRIDE;
+  virtual CefString GetFile() OVERRIDE;
+  virtual size_t GetBytesCount() OVERRIDE;
+  virtual size_t GetBytes(size_t size, void* bytes) OVERRIDE;
 
   void* GetBytes() { return data_.bytes.bytes; }
 
@@ -114,6 +120,9 @@ protected:
     } bytes;
     cef_string_t filename;
   } data_;
+
+  IMPLEMENT_REFCOUNTING(CefPostDataElementImpl);
+  IMPLEMENT_LOCKING(CefPostDataElementImpl);
 };
 
 #endif // _REQUEST_IMPL_H

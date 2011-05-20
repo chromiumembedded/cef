@@ -6,7 +6,7 @@
 
 
 // Implementation of the V8 handler class for the "cef.test" extension.
-class ClientV8ExtensionHandler : public CefThreadSafeBase<CefV8Handler>
+class ClientV8ExtensionHandler : public CefV8Handler
 {
 public:
   ClientV8ExtensionHandler() : test_param_("An initial string value.") {}
@@ -62,6 +62,8 @@ public:
 
 private:
   CefString test_param_;
+
+  IMPLEMENT_REFCOUNTING(ClientV8ExtensionHandler);
 };
 
 

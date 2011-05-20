@@ -76,9 +76,12 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy) {
       ShowWindow(browser_->UIT_GetPopupWndHandle(), SW_SHOWNA);
     } else {
       // Notify the handler of popup visibility change.
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if (handler.get())
-        handler->HandlePopupChange(browser_, true, CefRect());
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get())
+          handler->OnPopupShow(browser_, true);
+      }
     }
   }
 }
@@ -95,9 +98,12 @@ void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
       host->SetCursor(hCursor);
     } else {
       // Notify the handler of cursor change.
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if (handler.get())
-        handler->HandleCursorChange(browser_, hCursor);
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get())
+          handler->OnCursorChange(browser_, hCursor);
+      }
     }
   }
 }
@@ -110,11 +116,14 @@ WebRect BrowserWebViewDelegate::windowRect() {
       return gfx::Rect(rect);
     } else {
       // Retrieve the view rectangle from the handler.
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if (handler.get()) {
-        CefRect rect(0, 0, 0, 0);
-        if (handler->HandleGetRect(browser_, false, rect) == RV_CONTINUE)
-          return WebRect(rect.x, rect.y, rect.width, rect.height);
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get()) {
+          CefRect rect(0, 0, 0, 0);
+          if (handler->GetViewRect(browser_, rect))
+            return WebRect(rect.x, rect.y, rect.width, rect.height);
+        }
       }
     }
   }
@@ -133,10 +142,13 @@ void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
       browser_->UIT_GetPopupHost()->SetSize(rect.width, rect.height);
         
       // Notify the handler of popup size change.
-      CefRefPtr<CefHandler> handler = browser_->GetHandler();
-      if (handler.get()) {
-        handler->HandlePopupChange(browser_, true,
-            CefRect(rect.x, rect.y, rect.width, rect.height));
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get()) {
+          handler->OnPopupSize(browser_,
+              CefRect(rect.x, rect.y, rect.width, rect.height));
+        }
       }
     }
   }
@@ -278,14 +290,17 @@ void BrowserWebViewDelegate::DidMovePlugin(
 }
 
 static void AddMenuItem(CefRefPtr<CefBrowser> browser, HMENU menu, int index,
-                        CefHandler::MenuId id, const wchar_t* label,
+                        cef_handler_menuid_t id, const wchar_t* label,
                         bool enabled, std::list<std::wstring>& label_list)
 {
   CefString actual_label(label);
-  CefRefPtr<CefHandler> handler = browser->GetHandler();
-  if(handler.get()) {
-    // Let the handler change the label if desired
-    handler->HandleGetMenuLabel(browser, id, actual_label);
+  CefRefPtr<CefClient> client = browser->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefMenuHandler> handler = client->GetMenuHandler();
+    if(handler.get()) {
+      // Let the handler change the label if desired
+      handler->GetMenuLabel(browser, id, actual_label);
+    }
   }
   
   // store the label in a list to simplify memory management
@@ -364,10 +379,14 @@ void BrowserWebViewDelegate::showContextMenu(
   if(data.mediaType == WebContextMenuData::MediaTypeAudio)
     type_flags |= MENUTYPE_AUDIO;
 
-  CefRefPtr<CefHandler> handler = browser_->GetHandler();
-  if(handler.get()) {
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefMenuHandler> handler;
+  if (client.get())
+    handler = client->GetMenuHandler();
+
+  if (handler.get()) {
     // Gather menu information
-    CefHandler::MenuInfo menuInfo;
+    cef_handler_menuinfo_t menuInfo;
     memset(&menuInfo, 0, sizeof(menuInfo));
 
     CefString linkStr(std::string(data.linkURL.spec()));
@@ -396,15 +415,16 @@ void BrowserWebViewDelegate::showContextMenu(
         &menuInfo.securityInfo, false);
 
     // Notify the handler that a context menu is requested
-    CefHandler::RetVal rv = handler->HandleBeforeMenu(browser_, menuInfo);
-    if(rv == RV_HANDLED)
+    if (handler->OnBeforeMenu(browser_, menuInfo))
       goto end;
+  }
 
-    if (browser_->IsWindowRenderingDisabled()) {
-      rv = handler->HandleGetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
-          screenX, screenY);
-      if(rv != RV_CONTINUE)
-        goto end;
+  if (client.get() && browser_->IsWindowRenderingDisabled()) {
+    CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
+    if (render_handler.get() &&
+        !render_handler->GetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
+                                        screenX, screenY)) {
+      goto end;
     }
   }
 
@@ -444,20 +464,20 @@ void BrowserWebViewDelegate::showContextMenu(
       true, label_list);
   }
 
-  if(menu) {
+  if (menu) {
     // show the context menu
     int selected_id = TrackPopupMenu(menu,
         TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
         screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
 
-    if(selected_id != 0) {
+    if (selected_id != 0) {
       // An action was chosen
-      CefHandler::MenuId menuId = static_cast<CefHandler::MenuId>(selected_id);
+      cef_handler_menuid_t menuId =
+          static_cast<cef_handler_menuid_t>(selected_id);
       bool handled = false;
-      if(handler.get()) {
+      if (handler.get()) {
         // Ask the handler if it wants to handle the action
-        CefHandler::RetVal rv = handler->HandleMenuAction(browser_, menuId);
-        handled = (rv == RV_HANDLED);
+        handled = handler->OnMenuAction(browser_, menuId);
       }
 
       if(!handled) {

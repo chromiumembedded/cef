@@ -12,7 +12,7 @@ class WebURLResponse;
 };
 
 // Implementation of CefResponse.
-class CefResponseImpl : public CefThreadSafeBase<CefResponse>
+class CefResponseImpl : public CefResponse
 {
 public:
   CefResponseImpl();
@@ -37,6 +37,9 @@ protected:
   CefString status_text_;
   CefString mime_type_;
   HeaderMap header_map_;
+
+  IMPLEMENT_REFCOUNTING(CefResponseImpl);
+  IMPLEMENT_LOCKING(CefResponseImpl);
 };
 
 #endif // _RESPONSE_IMPL_H

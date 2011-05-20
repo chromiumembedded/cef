@@ -5,6 +5,7 @@
 #include "osrplugin_test.h"
 #include "osrplugin.h"
 #include "cefclient.h"
+#include "client_handler.h"
 #include "plugin_test.h"
 
 void InitOSRPluginTest()
@@ -27,7 +28,7 @@ void InitOSRPluginTest()
 
 void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
 {
-  class Listener : public CefThreadSafeBase<CefDOMEventListener>
+  class Listener : public CefDOMEventListener
   {
   public:
     Listener() {}
@@ -72,9 +73,11 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
         ASSERT(false);
       }
     }
+
+    IMPLEMENT_REFCOUNTING(Listener);
   };
 
-  class Visitor : public CefThreadSafeBase<CefDOMVisitor>
+  class Visitor : public CefDOMVisitor
   {
   public:
     Visitor() {}
@@ -102,6 +105,8 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
       RegisterClickListener(document, listener, "testWindowlessPlugin");
       RegisterClickListener(document, listener, "viewSource");
     }
+
+    IMPLEMENT_REFCOUNTING(Visitor);
   };
 
   // Center the window on the screen.
@@ -115,8 +120,8 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
       SWP_NOZORDER | SWP_SHOWWINDOW);
 
   // The DOM visitor will be called after the path is loaded.
-  CefRefPtr<CefHandler> handler = browser->GetHandler();
-  static_cast<ClientHandler*>(handler.get())->AddDOMVisitor(
+  CefRefPtr<CefClient> client = browser->GetClient();
+  static_cast<ClientHandler*>(client.get())->AddDOMVisitor(
       "http://tests/osrapp", new Visitor());
 
   browser->GetMainFrame()->LoadURL("http://tests/osrapp");

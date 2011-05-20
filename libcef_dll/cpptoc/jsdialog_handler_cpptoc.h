@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -8,8 +8,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-#ifndef _HANDLER_CPPTOC_H
-#define _HANDLER_CPPTOC_H
+#ifndef _JSDIALOGHANDLER_CPPTOC_H
+#define _JSDIALOGHANDLER_CPPTOC_H
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
@@ -21,14 +21,15 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefHandlerCppToC
-    : public CefCppToC<CefHandlerCppToC, CefHandler, cef_handler_t>
+class CefJSDialogHandlerCppToC
+    : public CefCppToC<CefJSDialogHandlerCppToC, CefJSDialogHandler,
+        cef_jsdialog_handler_t>
 {
 public:
-  CefHandlerCppToC(CefHandler* cls);
-  virtual ~CefHandlerCppToC() {}
+  CefJSDialogHandlerCppToC(CefJSDialogHandler* cls);
+  virtual ~CefJSDialogHandlerCppToC() {}
 };
 
 #endif // USING_CEF_SHARED
-#endif // _HANDLER_CPPTOC_H
+#endif // _JSDIALOGHANDLER_CPPTOC_H
 

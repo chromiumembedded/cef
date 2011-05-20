@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -33,10 +33,10 @@ public:
   virtual ~CefWriteHandlerCToCpp() {}
 
   // CefWriteHandler methods
-  virtual size_t Write(const void* ptr, size_t size, size_t n);
-  virtual int Seek(long offset, int whence);
-  virtual long Tell();
-  virtual int Flush();
+  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
+  virtual int Seek(long offset, int whence) OVERRIDE;
+  virtual long Tell() OVERRIDE;
+  virtual int Flush() OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

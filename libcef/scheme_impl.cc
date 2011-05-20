@@ -58,7 +58,7 @@ public:
 
   virtual ~CefUrlRequestJob(){}
 
-  virtual void Start()
+  virtual void Start() OVERRIDE
   {
     handler_->Cancel();
     // Continue asynchronously.
@@ -70,7 +70,7 @@ public:
     return;
   }
 
-  virtual void Kill()
+  virtual void Kill() OVERRIDE
   {
     if (async_resolver_) {
       async_resolver_->Cancel();
@@ -81,6 +81,7 @@ public:
   }
 
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int *bytes_read)
+      OVERRIDE
   {
     DCHECK_NE(dest_size, 0);
     DCHECK(bytes_read);
@@ -119,7 +120,7 @@ public:
     }
   }
 
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) {
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());
     scoped_refptr<net::HttpResponseHeaders> headers(
@@ -128,6 +129,7 @@ public:
   }
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
+      OVERRIDE
   {
     if (redirect_url_.is_valid()) {
       // Redirect to the new URL.
@@ -138,16 +140,12 @@ public:
     return false;
   }
 
-  virtual bool GetMimeType(std::string* mime_type) const
+  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE
   {
     DCHECK(request_);
     // call handler to get mime type
     *mime_type = response_->GetMimeType();
     return true;
-  }
-
-  virtual void SetExtraRequestHeaders(const std::string& headers)
-  {
   }
 
   CefRefPtr<CefSchemeHandler> handler_;
@@ -376,7 +374,7 @@ private:
 CefUrlRequestFilter* CefUrlRequestFilter::shared_instance_ = NULL;
 
 
-class SchemeRequestJobWrapper : public CefThreadSafeBase<CefBase> {
+class SchemeRequestJobWrapper : public CefBase {
 public:
   SchemeRequestJobWrapper(const std::string& scheme_name,
                           const std::string& host_name,
@@ -411,6 +409,8 @@ private:
   std::string host_name_;
   bool is_standard_;
   CefSchemeHandlerFactory* factory_;
+
+  IMPLEMENT_REFCOUNTING(SchemeRequestJobWrapper);
 };
 
 bool CefRegisterScheme(const CefString& scheme_name,

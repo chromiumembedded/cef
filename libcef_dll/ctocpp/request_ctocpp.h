@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,20 +31,20 @@ public:
   virtual ~CefRequestCToCpp() {}
 
   // CefRequest methods
-  virtual CefString GetURL();
-  virtual void SetURL(const CefString& url);
-  virtual CefString GetMethod();
-  virtual void SetMethod(const CefString& method);
-  virtual CefRefPtr<CefPostData> GetPostData();
-  virtual void SetPostData(CefRefPtr<CefPostData> postData);
-  virtual void GetHeaderMap(HeaderMap& headerMap);
-  virtual void SetHeaderMap(const HeaderMap& headerMap);
+  virtual CefString GetURL() OVERRIDE;
+  virtual void SetURL(const CefString& url) OVERRIDE;
+  virtual CefString GetMethod() OVERRIDE;
+  virtual void SetMethod(const CefString& method) OVERRIDE;
+  virtual CefRefPtr<CefPostData> GetPostData() OVERRIDE;
+  virtual void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
+  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
   virtual void Set(const CefString& url, const CefString& method,
-      CefRefPtr<CefPostData> postData, const HeaderMap& headerMap);
-  virtual RequestFlags GetFlags();
-  virtual void SetFlags(RequestFlags flags);
-  virtual CefString GetFirstPartyForCookies();
-  virtual void SetFirstPartyForCookies(const CefString& url);
+      CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) OVERRIDE;
+  virtual RequestFlags GetFlags() OVERRIDE;
+  virtual void SetFlags(RequestFlags flags) OVERRIDE;
+  virtual CefString GetFirstPartyForCookies() OVERRIDE;
+  virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

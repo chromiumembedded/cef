@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -31,41 +31,42 @@ public:
   virtual ~CefV8ValueCToCpp() {}
 
   // CefV8Value methods
-  virtual bool IsUndefined();
-  virtual bool IsNull();
-  virtual bool IsBool();
-  virtual bool IsInt();
-  virtual bool IsDouble();
-  virtual bool IsString();
-  virtual bool IsObject();
-  virtual bool IsArray();
-  virtual bool IsFunction();
-  virtual bool IsSame(CefRefPtr<CefV8Value> that);
-  virtual bool GetBoolValue();
-  virtual int GetIntValue();
-  virtual double GetDoubleValue();
-  virtual CefString GetStringValue();
-  virtual bool HasValue(const CefString& key);
-  virtual bool HasValue(int index);
-  virtual bool DeleteValue(const CefString& key);
-  virtual bool DeleteValue(int index);
-  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key);
-  virtual CefRefPtr<CefV8Value> GetValue(int index);
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value);
-  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value);
+  virtual bool IsUndefined() OVERRIDE;
+  virtual bool IsNull() OVERRIDE;
+  virtual bool IsBool() OVERRIDE;
+  virtual bool IsInt() OVERRIDE;
+  virtual bool IsDouble() OVERRIDE;
+  virtual bool IsString() OVERRIDE;
+  virtual bool IsObject() OVERRIDE;
+  virtual bool IsArray() OVERRIDE;
+  virtual bool IsFunction() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefV8Value> that) OVERRIDE;
+  virtual bool GetBoolValue() OVERRIDE;
+  virtual int GetIntValue() OVERRIDE;
+  virtual double GetDoubleValue() OVERRIDE;
+  virtual CefString GetStringValue() OVERRIDE;
+  virtual bool HasValue(const CefString& key) OVERRIDE;
+  virtual bool HasValue(int index) OVERRIDE;
+  virtual bool DeleteValue(const CefString& key) OVERRIDE;
+  virtual bool DeleteValue(int index) OVERRIDE;
+  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
+  virtual CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
+  virtual bool SetValue(const CefString& key,
+      CefRefPtr<CefV8Value> value) OVERRIDE;
+  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
   virtual bool SetValue(const CefString& key, AccessControl settings,
-      PropertyAttribute attribute);
-  virtual bool GetKeys(std::vector<CefString>& keys);
-  virtual CefRefPtr<CefBase> GetUserData();
-  virtual int GetArrayLength();
-  virtual CefString GetFunctionName();
-  virtual CefRefPtr<CefV8Handler> GetFunctionHandler();
+      PropertyAttribute attribute) OVERRIDE;
+  virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
+  virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
+  virtual int GetArrayLength() OVERRIDE;
+  virtual CefString GetFunctionName() OVERRIDE;
+  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-      CefString& exception);
+      CefString& exception) OVERRIDE;
   virtual bool ExecuteFunctionWithContext(CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
-      CefRefPtr<CefV8Value>& retval, CefString& exception);
+      CefRefPtr<CefV8Value>& retval, CefString& exception) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

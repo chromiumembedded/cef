@@ -10,7 +10,6 @@
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -35,17 +34,16 @@
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 
 
-bool CefInitialize(const CefSettings& settings,
-                   const CefBrowserSettings& browser_defaults)
+bool CefInitialize(const CefSettings& settings)
 {
-  return cef_initialize(&settings, &browser_defaults)?true:false;
+  return cef_initialize(&settings)?true:false;
 }
 
 void CefShutdown()
 {
   cef_shutdown();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK(CefCookieVisitorCppToC::DebugObjCt == 0);
   DCHECK(CefDOMEventListenerCppToC::DebugObjCt == 0);
@@ -72,12 +70,7 @@ void CefShutdown()
   DCHECK(CefWebURLRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefXmlReaderCToCpp::DebugObjCt == 0);
   DCHECK(CefZipReaderCToCpp::DebugObjCt == 0);
-
-  // TODO: This breakpoint may be hit if content is still loading when CEF
-  // exits. Re-enable the breakpoint if/when CEF stops content loading before
-  // exit.
-  //DCHECK(CefHandlerCppToC::DebugObjCt == 0);
-#endif // _DEBUG
+#endif // !NDEBUG
 }
 
 void CefDoMessageLoopWork()

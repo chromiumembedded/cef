@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -12,41 +12,55 @@
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/ctocpp/handler_ctocpp.h"
+#include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT int cef_browser_create(cef_window_info_t* windowInfo, int popup,
-    struct _cef_handler_t* handler, const cef_string_t* url)
+CEF_EXPORT int cef_browser_create(cef_window_info_t* windowInfo,
+    struct _cef_client_t* client, const cef_string_t* url,
+    const struct _cef_browser_settings_t* settings)
 {
   DCHECK(windowInfo);
+  if (!windowInfo)
+    return 0;
 
-  CefRefPtr<CefHandler> handlerPtr;
-  CefWindowInfo wi = *windowInfo;
+  CefRefPtr<CefClient> clientPtr;
+  CefWindowInfo windowInfoObj;
+  CefBrowserSettings browserSettingsObj;
   
-  if(handler)
-    handlerPtr = CefHandlerCToCpp::Wrap(handler);
-  
-  return CefBrowser::CreateBrowser(wi, popup?true:false, handlerPtr,
-      CefString(url));
+  windowInfoObj.Set(*windowInfo, false);
+  if(client)
+    clientPtr = CefClientCToCpp::Wrap(client);
+  if (settings)
+    browserSettingsObj.Set(*settings, false);
+ 
+  return CefBrowser::CreateBrowser(windowInfoObj, clientPtr, CefString(url),
+      browserSettingsObj);
 }
 
 CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
-    int popup, struct _cef_handler_t* handler, const cef_string_t* url)
+    struct _cef_client_t* client, const cef_string_t* url,
+    const struct _cef_browser_settings_t* settings)
 {
   DCHECK(windowInfo);
+  if (!windowInfo)
+    return NULL;
 
-  CefRefPtr<CefHandler> handlerPtr;
-  CefWindowInfo wi = *windowInfo;
+  CefRefPtr<CefClient> clientPtr;
+  CefWindowInfo windowInfoObj;
+  CefBrowserSettings browserSettingsObj;
   
-  if(handler)
-    handlerPtr = CefHandlerCToCpp::Wrap(handler);
+  windowInfoObj.Set(*windowInfo, false);
+  if(client)
+    clientPtr = CefClientCToCpp::Wrap(client);
+  if (settings)
+    browserSettingsObj.Set(*settings, false);
   
   CefRefPtr<CefBrowser> browserPtr(
-      CefBrowser::CreateBrowserSync(wi, popup?true:false, handlerPtr,
-          CefString(url)));
+      CefBrowser::CreateBrowserSync(windowInfoObj, clientPtr, CefString(url),
+                                    browserSettingsObj));
   if(browserPtr.get())
     return CefBrowserCppToC::Wrap(browserPtr);
   return NULL;
@@ -155,17 +169,16 @@ int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self)
   return CefBrowserCppToC::Get(self)->IsPopup();
 }
 
-struct _cef_handler_t* CEF_CALLBACK browser_get_handler(
+struct _cef_client_t* CEF_CALLBACK browser_get_client(
     struct _cef_browser_t* self)
 {
   DCHECK(self);
-  if(!self)
+  if (!self)
     return NULL;
 
-  CefRefPtr<CefBrowser> browserPtr = CefBrowserCppToC::Get(self);
-  CefRefPtr<CefHandler> handlerPtr = browserPtr->GetHandler();
-  if(handlerPtr.get())
-    return CefHandlerCToCpp::Unwrap(handlerPtr);
+  CefRefPtr<CefClient> clientPtr = CefBrowserCppToC::Get(self)->GetClient();
+  if(clientPtr.get())
+    return CefClientCToCpp::Unwrap(clientPtr);
 
   return NULL;
 }
@@ -438,7 +451,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.set_focus = browser_set_focus;
   struct_.struct_.get_window_handle = browser_get_window_handle;
   struct_.struct_.is_popup = browser_is_popup;
-  struct_.struct_.get_handler = browser_get_handler;
+  struct_.struct_.get_client = browser_get_client;
   struct_.struct_.get_main_frame = browser_get_main_frame;
   struct_.struct_.get_focused_frame = browser_get_focused_frame;
   struct_.struct_.get_frame = browser_get_frame;
@@ -465,7 +478,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.send_capture_lost_event = browser_send_capture_lost_event;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCppToC<CefBrowserCppToC, CefBrowser,
     cef_browser_t>::DebugObjCt = 0;
 #endif

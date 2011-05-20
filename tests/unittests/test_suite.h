@@ -21,9 +21,8 @@ class CefTestSuite : public TestSuite {
     TestSuite::Initialize();
     
     CefSettings settings;
-    CefBrowserSettings browserDefaults;
     settings.multi_threaded_message_loop = true;
-    CefInitialize(settings, browserDefaults);
+    CefInitialize(settings);
   }
 
   virtual void Shutdown() {

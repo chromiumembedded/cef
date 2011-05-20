@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -33,13 +33,13 @@ public:
   virtual ~CefPostDataElementCToCpp() {}
 
   // CefPostDataElement methods
-  virtual void SetToEmpty();
-  virtual void SetToFile(const CefString& fileName);
-  virtual void SetToBytes(size_t size, const void* bytes);
-  virtual Type GetType();
-  virtual CefString GetFile();
-  virtual size_t GetBytesCount();
-  virtual size_t GetBytes(size_t size, void* bytes);
+  virtual void SetToEmpty() OVERRIDE;
+  virtual void SetToFile(const CefString& fileName) OVERRIDE;
+  virtual void SetToBytes(size_t size, const void* bytes) OVERRIDE;
+  virtual Type GetType() OVERRIDE;
+  virtual CefString GetFile() OVERRIDE;
+  virtual size_t GetBytesCount() OVERRIDE;
+  virtual size_t GetBytes(size_t size, void* bytes) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

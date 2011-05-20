@@ -11,7 +11,7 @@
 #include <sstream>
 
 // Implementation of CefXmlReader
-class CefXmlReaderImpl : public CefThreadSafeBase<CefXmlReader>
+class CefXmlReaderImpl : public CefXmlReader
 {
 public:
   CefXmlReaderImpl();
@@ -65,6 +65,8 @@ protected:
   CefRefPtr<CefStreamReader> stream_;
   xmlTextReaderPtr reader_;
   std::stringstream error_buf_;
+
+  IMPLEMENT_REFCOUNTING(CefXMLReaderImpl);
 };
 
 #endif // _XML_READER_IMPL_H

@@ -72,42 +72,33 @@ CefFileReader::CefFileReader(FILE* file, bool close)
 
 CefFileReader::~CefFileReader()
 {
-  Lock();
+  AutoLock lock_scope(this);
   if(close_)
     fclose(file_);
-  Unlock();
 }
 
 size_t CefFileReader::Read(void* ptr, size_t size, size_t n)
 {
-  Lock();
-  size_t rv = fread(ptr, size, n, file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return fread(ptr, size, n, file_);
 }
 
 int CefFileReader::Seek(long offset, int whence)
 {
-  Lock();
-  int rv = fseek(file_, offset, whence);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return fseek(file_, offset, whence);
 }
 
 long CefFileReader::Tell()
 {
-  Lock();
-  long rv = ftell(file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return ftell(file_);
 }
 
 int CefFileReader::Eof()
 {
-  Lock();
-  int rv = feof(file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return feof(file_);
 }
 
 
@@ -120,42 +111,33 @@ CefFileWriter::CefFileWriter(FILE* file, bool close)
 
 CefFileWriter::~CefFileWriter()
 {
-  Lock();
+  AutoLock lock_scope(this);
   if(close_)
     fclose(file_);
-  Unlock();
 }
 
 size_t CefFileWriter::Write(const void* ptr, size_t size, size_t n)
 {
-  Lock();
-  size_t rv = (size_t)fwrite(ptr, size, n, file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return (size_t)fwrite(ptr, size, n, file_);
 }
 
 int CefFileWriter::Seek(long offset, int whence)
 {
-  Lock();
-  int rv = fseek(file_, offset, whence);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return fseek(file_, offset, whence);
 }
 
 long CefFileWriter::Tell()
 {
-  Lock();
-  long rv = ftell(file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return ftell(file_);
 }
 
 int CefFileWriter::Flush()
 {
-  Lock();
-  int rv = fflush(file_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return fflush(file_);
 }
 
 
@@ -174,19 +156,18 @@ CefBytesReader::~CefBytesReader()
 
 size_t CefBytesReader::Read(void* ptr, size_t size, size_t n)
 {
-  Lock();
+  AutoLock lock_scope(this);
   size_t s = (datasize_ - offset_) / size;
   size_t ret = (n < s ? n : s);
   memcpy(ptr, ((char*)data_) + offset_, ret * size);
   offset_ += ret * size;
-  Unlock();
-	return ret;
+  return ret;
 }
 
 int CefBytesReader::Seek(long offset, int whence)
 {
   int rv = -1L;
-  Lock();
+  AutoLock lock_scope(this);
   switch(whence) {
   case SEEK_CUR:
     if(offset_ + offset > datasize_) {
@@ -210,30 +191,25 @@ int CefBytesReader::Seek(long offset, int whence)
     rv = 0;
     break;
   }
-  Unlock();
-	
+  
 	return rv;
 }
 
 long CefBytesReader::Tell()
 {
-  Lock();
-  long rv = offset_;
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return offset_;
 }
 
 int CefBytesReader::Eof()
 {
-  Lock();
-  int rv = (offset_ >= datasize_);
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return (offset_ >= datasize_);
 }
 	
 void CefBytesReader::SetData(void* data, long datasize, bool copy)
 {
-  Lock();
+  AutoLock lock_scope(this);
   if(copy_)
     free(data_);
   
@@ -249,7 +225,6 @@ void CefBytesReader::SetData(void* data, long datasize, bool copy)
   } else {
     data_ = data;
   }
-  Unlock();
 }
 
 
@@ -265,15 +240,14 @@ CefBytesWriter::CefBytesWriter(size_t grow)
 
 CefBytesWriter::~CefBytesWriter()
 {
-  Lock();
+  AutoLock lock_scope(this);
   if(data_)
     free(data_);
-  Unlock();
 }
 
 size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n)
 {
-  Lock();
+  AutoLock lock_scope(this);
   size_t rv;
   if(offset_ + size * n >= datasize_ && Grow(size * n) == 0) {
     rv = 0;
@@ -282,14 +256,14 @@ size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n)
     offset_ += size * n;
     rv = n;
   }
-  Unlock();
+
   return rv;
 }
 
 int CefBytesWriter::Seek(long offset, int whence)
 {
   int rv = -1L;
-  Lock();
+  AutoLock lock_scope(this);
   switch(whence) {
   case SEEK_CUR:
     if(offset_ + offset > datasize_) {
@@ -312,17 +286,14 @@ int CefBytesWriter::Seek(long offset, int whence)
     rv = offset_;
     break;
   }
-  Unlock();
 	
 	return rv;
 }
 
 long CefBytesWriter::Tell()
 {
-  Lock();
-  long rv = offset_;
-  Unlock();
-  return rv;
+  AutoLock lock_scope(this);
+  return offset_;
 }
 
 int CefBytesWriter::Flush()
@@ -332,15 +303,14 @@ int CefBytesWriter::Flush()
 
 std::string CefBytesWriter::GetDataString()
 {
-  Lock();
+  AutoLock lock_scope(this);
   std::string str((char*)data_, offset_);
-  Unlock();
   return str;
 }
 
 size_t CefBytesWriter::Grow(size_t size)
 {
-  Lock();
+  AutoLock lock_scope(this);
   size_t rv;
   size_t s = (size > grow_ ? size : grow_);
 	void* tmp = realloc(data_, datasize_ + s);
@@ -352,6 +322,6 @@ size_t CefBytesWriter::Grow(size_t size)
   } else {
     rv = 0;
   }
-  Unlock();
+
 	return rv;
 }

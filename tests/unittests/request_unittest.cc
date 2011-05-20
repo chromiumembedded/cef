@@ -224,7 +224,7 @@ class RequestSendRecvTestHandler : public TestHandler
 public:
   RequestSendRecvTestHandler() {}
 
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     // Create the test request
     CreateRequest(request_);
@@ -233,34 +233,34 @@ public:
     CreateBrowser(CefString());
   }
 
-  virtual RetVal HandleAfterCreated(CefRefPtr<CefBrowser> browser)
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE
   {
-    TestHandler::HandleAfterCreated(browser);
+    TestHandler::OnAfterCreated(browser);
 
     // Load the test request
     browser->GetMainFrame()->LoadRequest(request_);
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandleBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request,
-                                    NavType navType, bool isRedirect)
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              NavType navType,
+                              bool isRedirect) OVERRIDE
   {
     g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled = true;
     
     // Verify that the request is the same
     VerifyRequestEqual(request_, request, true);
     
-    return RV_CONTINUE;
+    return false;
   }
 
-  virtual RetVal HandleBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                          CefRefPtr<CefRequest> request,
-                                          CefString& redirectUrl,
-                                          CefRefPtr<CefStreamReader>& resourceStream,
-                                          CefRefPtr<CefResponse> response,
-                                          int loadFlags)
+  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefRequest> request,
+                                    CefString& redirectUrl,
+                                    CefRefPtr<CefStreamReader>& resourceStream,
+                                    CefRefPtr<CefResponse> response,
+                                    int loadFlags) OVERRIDE
   {
     g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = true;
     
@@ -268,16 +268,15 @@ public:
     VerifyRequestEqual(request_, request, true);
 
     // No results
-    return RV_HANDLED;
+    return true;
   }
 
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
   {
     if(!browser->IsPopup() && frame->IsMain())
       DestroyTest();
-    return RV_CONTINUE;
   }
 
   CefRefPtr<CefRequest> request_;

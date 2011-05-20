@@ -12,7 +12,7 @@ namespace {
 bool g_V8TestV8HandlerExecuteCalled;
 bool g_V8TestV8HandlerExecute2Called;
 
-class V8TestV8Handler : public CefThreadSafeBase<CefV8Handler>
+class V8TestV8Handler : public CefV8Handler
 {
 public:
   V8TestV8Handler(bool bindingTest) { binding_test_ = bindingTest; }
@@ -213,6 +213,8 @@ public:
   }
 
   bool binding_test_;
+
+  IMPLEMENT_REFCOUNTING(V8TestV8Handler);
 };
 
 class V8TestHandler : public TestHandler
@@ -220,7 +222,7 @@ class V8TestHandler : public TestHandler
 public:
   V8TestHandler(bool bindingTest) { binding_test_ = bindingTest; }
 
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     std::string object;
     if(binding_test_) {
@@ -249,24 +251,20 @@ public:
     CreateBrowser("http://tests/run.html");
   }
 
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
   {
     if(!browser->IsPopup() && frame->IsMain())
       DestroyTest();
-    return RV_CONTINUE;
   }
 
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Value> object)
+  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Value> object) OVERRIDE
   {
-    if(binding_test_) {
+    if(binding_test_)
       TestHandleJSBinding(browser, frame, object);
-      return RV_HANDLED;
-    }
-    return RV_CONTINUE;
   }
 
   void TestHandleJSBinding(CefRefPtr<CefBrowser> browser,
@@ -376,7 +374,7 @@ public:
                    const CefRefPtr<CefV8Value> value) = 0;
 };
 
-class DelegatingV8Handler : public CefThreadSafeBase<CefV8Handler>
+class DelegatingV8Handler : public CefV8Handler
 {
 public:
   DelegatingV8Handler(CefV8HandlerDelegate *delegate): 
@@ -397,9 +395,11 @@ public:
   
 private:
   CefV8HandlerDelegate *delegate_;
+
+  IMPLEMENT_REFCOUNTING(DelegatingV8Handler);
 };
 
-class DelegatingV8Accessor: public CefThreadSafeBase<CefV8Accessor>
+class DelegatingV8Accessor: public CefV8Accessor
 {
 public:
   DelegatingV8Accessor(CefV8HandlerDelegate *delegate)
@@ -419,6 +419,8 @@ public:
 
 private:
   CefV8HandlerDelegate *delegate_;
+
+  IMPLEMENT_REFCOUNTING(DelegatingV8Accessor);
 };
 
 class TestContextHandler: public TestHandler, public CefV8HandlerDelegate
@@ -426,7 +428,7 @@ class TestContextHandler: public TestHandler, public CefV8HandlerDelegate
 public:
   TestContextHandler() {}
   
-  virtual void RunTest()
+  virtual void RunTest() OVERRIDE
   {
     // Test Flow: 
     // load main.html.
@@ -526,16 +528,15 @@ public:
     CreateBrowser("http://tests/main.html");
   }
   
-  virtual RetVal HandleLoadEnd(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame,
-                               int httpStatusCode)
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
   {
-    return RV_CONTINUE;
   }
   
-  virtual RetVal HandleJSBinding(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Value> object)
+  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Value> object) OVERRIDE
   {
     CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
     CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
@@ -579,8 +580,6 @@ public:
         V8_PROPERTY_ATTRIBUTE_NONE);
 
     object->SetValue("point", point);
-    
-    return RV_HANDLED;
   }
   
   void CallIFrame()

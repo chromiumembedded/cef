@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,7 +10,7 @@
 // tools directory for more information.
 //
 
-#include "libcef_dll/cpptoc/handler_cpptoc.h"
+#include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -18,18 +18,20 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo, bool popup,
-    CefRefPtr<CefHandler> handler, const CefString& url)
+bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient> client, const CefString& url,
+    const CefBrowserSettings& settings)
 {
-  return cef_browser_create(&windowInfo, popup, CefHandlerCppToC::Wrap(handler),
-      url.GetStruct())?true:false;
+  return cef_browser_create(&windowInfo, CefClientCppToC::Wrap(client),
+      url.GetStruct(), &settings)?true:false;
 }
 
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
-    bool popup, CefRefPtr<CefHandler> handler, const CefString& url)
+    CefRefPtr<CefClient> client, const CefString& url,
+    const CefBrowserSettings& settings)
 {
-  cef_browser_t* impl = cef_browser_create_sync(&windowInfo, popup,
-      CefHandlerCppToC::Wrap(handler), url.GetStruct());
+  cef_browser_t* impl = cef_browser_create_sync(&windowInfo,
+      CefClientCppToC::Wrap(client), url.GetStruct(), &settings);
   if(impl)
     return CefBrowserCToCpp::Wrap(impl);
   return NULL;
@@ -126,14 +128,14 @@ bool CefBrowserCToCpp::IsPopup()
   return struct_->is_popup(struct_)?true:false;
 }
 
-CefRefPtr<CefHandler> CefBrowserCToCpp::GetHandler()
+CefRefPtr<CefClient> CefBrowserCToCpp::GetClient()
 {
-  if(CEF_MEMBER_MISSING(struct_, get_handler))
+  if (CEF_MEMBER_MISSING(struct_, get_client))
     return NULL;
 
-  cef_handler_t* handlerStruct = struct_->get_handler(struct_);
-  if(handlerStruct)
-    return CefHandlerCppToC::Unwrap(handlerStruct);
+  cef_client_t* clientStruct = struct_->get_client(struct_);
+  if(clientStruct)
+    return CefClientCppToC::Unwrap(clientStruct);
 
   return NULL;
 }
@@ -341,7 +343,7 @@ void CefBrowserCToCpp::SendCaptureLostEvent()
 }
 
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 template<> long CefCToCpp<CefBrowserCToCpp, CefBrowser,
     cef_browser_t>::DebugObjCt = 0;
 #endif
