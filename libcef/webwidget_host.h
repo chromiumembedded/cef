@@ -5,8 +5,8 @@
 #ifndef _WEBWIDGET_HOST_H
 #define _WEBWIDGET_HOST_H
 
-#include "include/cef_string.h"
-#include "include/cef_types.h"
+#include "include/internal/cef_string.h"
+#include "include/internal/cef_types.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"

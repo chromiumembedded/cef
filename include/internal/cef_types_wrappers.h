@@ -30,6 +30,8 @@
 #ifndef _CEF_TYPES_WRAPPERS_H
 #define _CEF_TYPES_WRAPPERS_H
 
+#include "cef_string.h"
+#include "cef_string_list.h"
 #include "cef_types.h"
 
 // Template class that provides common functionality for CEF structure wrapping.

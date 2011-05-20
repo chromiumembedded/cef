@@ -5,7 +5,7 @@
 #ifndef _CEF_BROWSER_SETTINGS_H
 #define _CEF_BROWSER_SETTINGS_H
 
-#include "include/cef_types_wrappers.h"
+#include "include/internal/cef_types_wrappers.h"
 struct WebPreferences;
 
 void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web);

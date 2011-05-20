@@ -5,8 +5,8 @@
 #ifndef _TRANSFER_UTIL_H
 #define _TRANSFER_UTIL_H
 
-#include "include/cef_string_list.h"
-#include "include/cef_string_map.h"
+#include "include/internal/cef_string_list.h"
+#include "include/internal/cef_string_map.h"
 #include <map>
 #include <vector>
 

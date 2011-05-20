@@ -41,17 +41,17 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cef_build.h"
-#include "cef_ptr.h"
-#include "cef_types_wrappers.h"
+#include "internal/cef_build.h"
+#include "internal/cef_ptr.h"
+#include "internal/cef_types_wrappers.h"
 
 // Bring in platform-specific definitions.
 #if defined(OS_WIN)
-#include "cef_win.h"
+#include "internal/cef_win.h"
 #elif defined(OS_MACOSX)
-#include "cef_mac.h"
+#include "internal/cef_mac.h"
 #elif defined(OS_LINUX)
-#include "cef_linux.h"
+#include "internal/cef_linux.h"
 #endif
 
 class CefBrowser;

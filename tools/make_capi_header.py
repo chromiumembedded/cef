@@ -88,11 +88,11 @@ def make_capi_header(header):
 extern "C" {
 #endif
 
-#include "cef_export.h"
-#include "cef_string.h"
-#include "cef_string_list.h"
-#include "cef_string_map.h"
-#include "cef_types.h"
+#include "internal/cef_export.h"
+#include "internal/cef_string.h"
+#include "internal/cef_string_list.h"
+#include "internal/cef_string_map.h"
+#include "internal/cef_types.h"
 
 """
 

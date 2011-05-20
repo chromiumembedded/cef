@@ -31,7 +31,7 @@
 #ifndef _CEF_NPLUGIN_H
 #define _CEF_NPLUGIN_H
 
-#include "cef_nplugin_types.h"
+#include "internal/cef_nplugin_types.h"
 
 // Netscape plugins are normally built at separate DLLs that are loaded by the
 // browser when needed.  This interface supports the creation of plugins that

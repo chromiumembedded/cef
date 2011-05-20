@@ -38,7 +38,7 @@
 #ifdef BUILDING_CEF_SHARED
 #include "base/tuple.h"
 #else
-#include "cef_tuple.h"
+#include "internal/cef_tuple.h"
 #endif
 
 // CefRunnableMethodTraits -----------------------------------------------------

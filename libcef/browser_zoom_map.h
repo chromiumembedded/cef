@@ -5,7 +5,7 @@
 #ifndef _BROWSER_ZOOM_MAP_H
 #define _BROWSER_ZOOM_MAP_H
 
-#include "include/cef_string.h"
+#include "include/internal/cef_string.h"
 #include "base/memory/singleton.h"
 #include "googleurl/src/gurl.h"
 
