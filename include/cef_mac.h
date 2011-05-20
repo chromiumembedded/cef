@@ -31,7 +31,7 @@
 #ifndef _CEF_MAC_H
 #define _CEF_MAC_H
 
-#if defined(__APPLE__)
+#if defined(OS_MACOSX)
 #include <pthread.h>
 #include "cef_types_mac.h"
 #include "cef_types_wrappers.h"
@@ -139,6 +139,6 @@ struct CefPrintInfoTraits {
 // Class representing print context information.
 typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
-#endif // defined(__APPLE__)
+#endif // OS_MACOSX
 
 #endif // _CEF_MAC_H

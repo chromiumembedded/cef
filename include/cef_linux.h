@@ -31,7 +31,7 @@
 #ifndef _CEF_LINUX_H
 #define _CEF_LINUX_H
 
-#if defined(__linux__)
+#if defined(OS_LINUX)
 #include <pthread.h>
 #include "cef_types_linux.h"
 #include "cef_types_wrappers.h"
@@ -122,6 +122,6 @@ struct CefPrintInfoTraits {
 // Class representing print context information.
 typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
-#endif // defined(__linux__)
+#endif // OS_LINUX
 
 #endif // _CEF_LINUX_H

@@ -31,7 +31,7 @@
 #ifndef _CEF_WIN_H
 #define _CEF_WIN_H
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 #include <windows.h>
 #include "cef_types_win.h"
 #include "cef_types_wrappers.h"
@@ -156,6 +156,6 @@ struct CefPrintInfoTraits {
 // Class representing print context information.
 typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
-#endif // _WIN32
+#endif // OS_WIN
 
 #endif // _CEF_WIN_H
