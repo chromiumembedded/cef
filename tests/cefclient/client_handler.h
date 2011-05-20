@@ -148,8 +148,8 @@ public:
   void SendNotification(NotificationType type);
 
 protected:
-  virtual void SetLoading(bool isLoading);
-  virtual void SetNavState(bool canGoBack, bool canGoForward);
+  void SetLoading(bool isLoading);
+  void SetNavState(bool canGoBack, bool canGoForward);
 
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;

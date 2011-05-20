@@ -719,8 +719,8 @@
             '../views/views.gyp:views',
           ],
           'sources': [
-            'include/cef_types_win.h',
-            'include/cef_win.h',
+            'include/internal/cef_types_win.h',
+            'include/internal/cef_win.h',
             'libcef/browser_drag_delegate_win.cc',
             'libcef/browser_drag_delegate_win.h',
             'libcef/browser_impl_win.cc',
@@ -744,8 +744,8 @@
         }],
         [ 'OS=="mac"', {
           'sources': [
-            'include/cef_types_mac.h',
-            'include/cef_mac.h',
+            'include/internal/cef_types_mac.h',
+            'include/internal/cef_mac.h',
             'libcef/browser_impl_mac.mm',
             'libcef/browser_webkit_glue_mac.mm',
             'libcef/browser_webview_delegate_mac.mm',
@@ -761,8 +761,8 @@
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'sources': [
-            'include/cef_types_linux.h',
-            'include/cef_linux.h',
+            'include/internal/cef_types_linux.h',
+            'include/internal/cef_linux.h',
             'libcef/browser_impl_gtk.cc',
             'libcef/browser_webkit_glue_gtk.cc',
             'libcef/browser_webview_delegate_gtk.cc',

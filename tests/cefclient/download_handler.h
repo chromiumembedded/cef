@@ -8,7 +8,7 @@
 #include "include/cef.h"
 
 // Implement this interface to receive download notifications.
-class DownloadListener : public CefBase
+class DownloadListener : public virtual CefBase
 {
 public:
   // Called when the download is complete.

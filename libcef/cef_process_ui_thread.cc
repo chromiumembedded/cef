@@ -149,7 +149,11 @@ void CefProcessUIThread::Init() {
   WebKit::WebScriptController::registerExtension(
       extensions_v8::GCExtension::Get());
 
+#if defined(OS_WIN)
   gfx::InitializeGLBindings(gfx::kGLImplementationEGLGLES2);
+#else
+  gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
+#endif
 
   net::URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
   net::URLRequest::RegisterProtocolFactory("filesystem",

@@ -4,6 +4,7 @@
 
 #include "include/cef.h"
 #include "include/cef_wrapper.h"
+#include "cefclient.h"
 #include "client_handler.h"
 #include "resource_util.h"
 #include "string_util.h"
@@ -85,7 +86,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
 {
   REQUIRE_UI_THREAD();
 
-  ifm_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
+  if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
   {
     // Set the edit window text
     NSTextField* textField = (NSTextField*)m_EditHwnd;

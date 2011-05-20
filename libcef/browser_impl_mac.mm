@@ -102,9 +102,12 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     [newWnd makeKeyAndOrderFront: nil];
   }
 
-  if(handler_.get()) {
-    // Notify the handler that we're done creating the new window
-    handler_->HandleAfterCreated(this);
+  if (client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+    if(handler.get()) {
+      // Notify the handler that we're done creating the new window
+      handler->OnAfterCreated(this);
+    }
   }
 
   if(url.size() > 0)
