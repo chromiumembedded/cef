@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_string_types.h"
+#include "include/internal/cef_string_types.h"
 #include "base/logging.h"
 #include "base/string16.h"
 #include "base/utf_string_conversions.h"
