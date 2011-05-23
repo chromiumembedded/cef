@@ -655,6 +655,14 @@ typedef struct _cef_request_handler_t
       struct _cef_stream_reader_t** resourceStream,
       struct _cef_response_t* response, int loadFlags);
 
+  // Called on the UI thread after a response to the resource request is
+  // received. Set |filter| if response content needs to be monitored and/or
+  // modified as it arrives.
+  void (CEF_CALLBACK *on_resource_reponse)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* url,
+      struct _cef_response_t* response,
+      struct _cef_content_filter_t** filter);
+
   // Called on the IO thread to handle requests for URLs with an unknown
   // protocol component. Return true (1) to indicate that the request should
   // succeed because it was handled externally. Set |allowOSExecution| to true
@@ -2155,6 +2163,28 @@ typedef struct _cef_domevent_listener_t
       struct _cef_domevent_t* event);
 
 } cef_domevent_listener_t;
+
+
+// Structure to implement for filtering response content. The functions of this
+// structure will always be called on the UI thread.
+typedef struct _cef_content_filter_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  // Set |substitute_data| to the replacement for the data in |data| if data
+  // should be modified.
+  void (CEF_CALLBACK *process_data)(struct _cef_content_filter_t* self,
+      const void* data, int data_size,
+      struct _cef_stream_reader_t** substitute_data);
+
+  // Called when there is no more data to be processed. It is expected that
+  // whatever data was retained in the last process_data() call, it should be
+  // returned now by setting |remainder| if appropriate.
+  void (CEF_CALLBACK *drain)(struct _cef_content_filter_t* self,
+      struct _cef_stream_reader_t** remainder);
+
+} cef_content_filter_t;
 
 
 #ifdef __cplusplus

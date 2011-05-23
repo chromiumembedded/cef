@@ -6,6 +6,7 @@
 #include "include/cef_capi.h"
 #include "include/cef_nplugin.h"
 #include "include/cef_nplugin_capi.h"
+#include "libcef_dll/cpptoc/content_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
@@ -45,6 +46,7 @@ void CefShutdown()
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
+  DCHECK(CefContentFilterCppToC::DebugObjCt == 0);
   DCHECK(CefCookieVisitorCppToC::DebugObjCt == 0);
   DCHECK(CefDOMEventListenerCppToC::DebugObjCt == 0);
   DCHECK(CefDOMVisitorCppToC::DebugObjCt == 0);

@@ -21,6 +21,7 @@
 #include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
 #include "cpptoc/zip_reader_cpptoc.h"
+#include "ctocpp/content_filter_ctocpp.h"
 #include "ctocpp/cookie_visitor_ctocpp.h"
 #include "ctocpp/domevent_listener_ctocpp.h"
 #include "ctocpp/domvisitor_ctocpp.h"
@@ -69,6 +70,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
   DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
   DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
+  DCHECK(CefContentFilterCToCpp::DebugObjCt == 0);
   DCHECK(CefCookieVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefDOMEventListenerCToCpp::DebugObjCt == 0);
   DCHECK(CefDOMVisitorCToCpp::DebugObjCt == 0);

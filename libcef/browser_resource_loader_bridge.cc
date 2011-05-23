@@ -201,6 +201,25 @@ class RequestProxy : public net::URLRequest::Delegate,
         handler = client->GetRequestHandler();
       
       if (handler.get()) {
+        CefRefPtr<CefResponse> response = new CefResponseImpl();
+        // Transfer response headers
+        if (info.headers) {
+          CefResponse::HeaderMap headerMap;
+          void* header_index = NULL;
+          std::string name, value;
+          while (info.headers->EnumerateHeaderLines(&header_index, &name,
+                                                    &value)) {
+            if (!name.empty() && !value.empty())
+              headerMap[name] = value;
+          }
+          response->SetHeaderMap(headerMap);
+          response->SetStatusText(info.headers->GetStatusText());
+          response->SetStatus(info.headers->response_code());
+        }
+        response->SetMimeType(info.mime_type);
+        handler->OnResourceReponse(browser_, url.spec(), response,
+            content_filter_);
+
         std::string content_disposition;
         info.headers->GetNormalizedHeader("Content-Disposition",
             &content_disposition);
@@ -241,6 +260,21 @@ class RequestProxy : public net::URLRequest::Delegate,
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncReadData));
 
+    CefRefPtr<CefStreamReader> resourceStream;
+
+    if(content_filter_.get())
+      content_filter_->ProcessData(buf_copy.get(), bytes_read, resourceStream);
+    
+    if (resourceStream.get()) {
+      // The filter made some changes to the data in the buffer.
+      resourceStream->Seek(0, SEEK_END);
+      bytes_read = resourceStream->Tell();
+      resourceStream->Seek(0, SEEK_SET);
+
+      buf_copy.reset(new char[bytes_read]);
+      resourceStream->Read(buf_copy.get(), 1, bytes_read);
+    }
+
     if (download_handler_.get() &&
         !download_handler_->ReceivedData(buf_copy.get(), bytes_read)) {
       // Cancel loading by proxying over to the io thread.
@@ -265,6 +299,34 @@ class RequestProxy : public net::URLRequest::Delegate,
   void NotifyCompletedRequest(const net::URLRequestStatus& status,
                               const std::string& security_info,
                               const base::Time& complete_time) {
+
+    // Drain the content filter of all remaining data 
+    if (content_filter_.get()) {
+      CefRefPtr<CefStreamReader> remainder;
+      content_filter_->Drain(remainder);
+
+      if(remainder.get()) {
+        remainder->Seek(0, SEEK_END);
+        long size = remainder->Tell();
+        if (size) {
+          remainder->Seek(0, SEEK_SET);
+          scoped_array<char> buf(new char[size]);
+          remainder->Read(buf.get(), 1, size);
+
+          if (download_handler_.get() &&
+              !download_handler_->ReceivedData(buf.get(), size)) {
+            // Cancel loading by proxying over to the io thread.
+            CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
+                this, &RequestProxy::AsyncCancel));
+          }
+
+          if (peer_)
+            peer_->OnReceivedData(buf.get(), size, -1);
+        }
+      }
+      content_filter_ = NULL;
+    }
+
     if (download_handler_.get()) {
       download_handler_->Complete();
       download_handler_ = NULL;
@@ -392,7 +454,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           info.content_length = static_cast<int64>(offset);
           info.mime_type = response->GetMimeType();
           info.headers = headers;
-          OnReceivedResponse(info);
+          OnReceivedResponse(info, params->url);
           AsyncReadData();
         } else if (response->GetStatus() != 0) {
           // status set, but no resource stream
@@ -408,7 +470,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           info.content_length = 0;
           info.mime_type = response->GetMimeType();
           info.headers = headers;
-          OnReceivedResponse(info);
+          OnReceivedResponse(info, params->url);
           AsyncReadData();
         }
 
@@ -541,7 +603,9 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   virtual void OnReceivedResponse(
-      const ResourceResponseInfo& info) {
+      const ResourceResponseInfo& info,
+      // only used when loading from a resource stream
+      const GURL& simulated_url) {
     GURL url;
     bool allow_download(false);
     if (request_.get()){
@@ -550,6 +614,8 @@ class RequestProxy : public net::URLRequest::Delegate,
           static_cast<ExtraRequestInfo*>(request_->GetUserData(NULL));
       if (info)
         allow_download = info->allow_download();
+    } else if (!simulated_url.is_empty() && simulated_url.is_valid()) {
+      url = simulated_url;
     }
 
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
@@ -596,7 +662,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (request->status().is_success()) {
       ResourceResponseInfo info;
       PopulateResponseInfo(request, &info);
-      OnReceivedResponse(info);
+      OnReceivedResponse(info, GURL::EmptyGURL());
       AsyncReadData();  // start reading
     } else {
       Done();
@@ -768,6 +834,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   base::TimeTicks last_upload_ticks_;
 
   CefRefPtr<CefDownloadHandler> download_handler_;
+  CefRefPtr<CefContentFilter> content_filter_;
 };
 
 //-----------------------------------------------------------------------------
@@ -802,7 +869,8 @@ class SyncRequestProxy : public RequestProxy {
     result_->url = new_url;
   }
 
-  virtual void OnReceivedResponse(const ResourceResponseInfo& info) {
+  virtual void OnReceivedResponse(const ResourceResponseInfo& info,
+                                  const GURL&) {
     *static_cast<ResourceResponseInfo*>(result_) = info;
   }
 

@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/content_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -65,6 +66,29 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
     *resourceStream = CefStreamReaderCToCpp::Unwrap(streamPtr);
 
   return rv;
+}
+
+void CEF_CALLBACK request_handler_on_resource_reponse(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* url, struct _cef_response_t* response,
+    struct _cef_content_filter_t** filter)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(url);
+  DCHECK(response);
+  DCHECK(filter);
+  if (!self || !browser || !url || !response || !filter)
+    return;
+
+  CefRefPtr<CefContentFilter> filterPtr;
+
+  CefRequestHandlerCppToC::Get(self)->OnResourceReponse(
+      CefBrowserCToCpp::Wrap(browser), url, CefResponseCToCpp::Wrap(response),
+      filterPtr);
+
+  if(filterPtr.get())
+    *filter = CefContentFilterCppToC::Wrap(filterPtr);
 }
 
 int CEF_CALLBACK request_handler_on_protocol_execution(
@@ -145,6 +169,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_before_browse = request_handler_on_before_browse;
   struct_.struct_.on_before_resource_load =
       request_handler_on_before_resource_load;
+  struct_.struct_.on_resource_reponse = request_handler_on_resource_reponse;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.get_download_handler = request_handler_get_download_handler;
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;

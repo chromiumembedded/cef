@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/ctocpp/content_filter_ctocpp.h"
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 
@@ -52,6 +53,23 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     resourceStream = CefStreamReaderCppToC::Unwrap(streamRet);
 
   return (rv ? true : false);
+}
+
+void CefRequestHandlerCToCpp::OnResourceReponse(CefRefPtr<CefBrowser> browser,
+    const CefString& url, CefRefPtr<CefResponse> response,
+    CefRefPtr<CefContentFilter>& filter)
+{
+  if (CEF_MEMBER_MISSING(struct_, on_resource_reponse))
+    return;
+
+  cef_content_filter_t* filterRet = NULL;
+
+  struct_->on_resource_reponse(struct_,
+      CefBrowserCppToC::Wrap(browser), url.GetStruct(),
+      CefResponseCppToC::Wrap(response), &filterRet);
+ 
+  if(filterRet)
+    filter = CefContentFilterCToCpp::Wrap(filterRet);
 }
 
 bool CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
