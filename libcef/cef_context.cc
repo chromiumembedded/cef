@@ -6,6 +6,7 @@
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "cef_thread.h"
+#include "cef_time_util.h"
 #include "cef_process.h"
 #include "../include/cef_nplugin.h"
 
@@ -63,34 +64,6 @@ int GetThreadId(CefThreadId threadId)
   return -1;
 }
 
-void SetCefTime(cef_time_t& cef_time, const base::Time& base_time)
-{
-  base::Time::Exploded exploded;
-  base_time.UTCExplode(&exploded);
-  cef_time.year = exploded.year;
-  cef_time.month = exploded.month;
-  cef_time.day_of_week = exploded.day_of_week;
-  cef_time.day_of_month = exploded.day_of_month;
-  cef_time.hour = exploded.hour;
-  cef_time.minute = exploded.minute;
-  cef_time.second = exploded.second;
-  cef_time.millisecond = exploded.millisecond;
-}
-
-void SetBaseTime(base::Time& base_time, const cef_time_t& cef_time)
-{
-  base::Time::Exploded exploded;
-  exploded.year = cef_time.year;
-  exploded.month = cef_time.month;
-  exploded.day_of_week = cef_time.day_of_week;
-  exploded.day_of_month = cef_time.day_of_month;
-  exploded.hour = cef_time.hour;
-  exploded.minute = cef_time.minute;
-  exploded.second = cef_time.second;
-  exploded.millisecond = cef_time.millisecond;
-  base_time = base::Time::FromUTCExploded(exploded);
-}
-
 void IOT_VisitCookies(net::CookieMonster* cookie_monster,
                       const net::CookieList& list,
                       CefRefPtr<CefCookieVisitor> visitor)
@@ -108,11 +81,11 @@ void IOT_VisitCookies(net::CookieMonster* cookie_monster,
     CefString(&cookie.path).FromString(cc.Path());
     cookie.secure = cc.IsSecure();
     cookie.httponly = cc.IsHttpOnly();
-    SetCefTime(cookie.creation, cc.CreationDate());
-    SetCefTime(cookie.last_access, cc.LastAccessDate());
+    cef_time_from_basetime(cc.CreationDate(), cookie.creation);
+    cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
     cookie.has_expires = cc.DoesExpire();
     if (cookie.has_expires)
-      SetCefTime(cookie.expires, cc.ExpiryDate());
+      cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
 
     bool deleteCookie = false;
     bool keepLooping = visitor->Visit(cookie, count, total, deleteCookie);
@@ -411,7 +384,7 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
   
   base::Time expiration_time;
   if (cookie.has_expires)
-    SetBaseTime(expiration_time, cookie.expires);
+    cef_time_to_basetime(cookie.expires, expiration_time);
 
   return cookie_monster->SetCookieWithDetails(gurl, name, value, domain, path,
                                               expiration_time, cookie.secure,

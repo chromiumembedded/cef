@@ -36,6 +36,7 @@ public:
   virtual bool IsBool() OVERRIDE;
   virtual bool IsInt() OVERRIDE;
   virtual bool IsDouble() OVERRIDE;
+  virtual bool IsDate() OVERRIDE;
   virtual bool IsString() OVERRIDE;
   virtual bool IsObject() OVERRIDE;
   virtual bool IsArray() OVERRIDE;
@@ -44,6 +45,7 @@ public:
   virtual bool GetBoolValue() OVERRIDE;
   virtual int GetIntValue() OVERRIDE;
   virtual double GetDoubleValue() OVERRIDE;
+  virtual CefTime GetDateValue() OVERRIDE;
   virtual CefString GetStringValue() OVERRIDE;
   virtual bool HasValue(const CefString& key) OVERRIDE;
   virtual bool HasValue(int index) OVERRIDE;

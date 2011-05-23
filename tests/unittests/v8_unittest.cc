@@ -36,7 +36,7 @@ public:
     if(name == "execute") {
       g_V8TestV8HandlerExecuteCalled = true;
       
-      ASSERT_EQ((size_t)8, arguments.size());
+      ASSERT_EQ((size_t)9, arguments.size());
       int argct = 0;
       
       // basic types
@@ -50,6 +50,18 @@ public:
 
       ASSERT_TRUE(arguments[argct]->IsBool());
       ASSERT_EQ(true, arguments[argct]->GetBoolValue());
+      argct++;
+
+      ASSERT_TRUE(arguments[argct]->IsDate());
+      CefTime date = arguments[argct]->GetDateValue();
+      ASSERT_EQ(date.year, 2010);
+      ASSERT_EQ(date.month, 5);
+      ASSERT_EQ(date.day_of_month, 3);
+      ASSERT_EQ(date.day_of_week, 1);
+      ASSERT_EQ(date.hour, 12);
+      ASSERT_EQ(date.minute, 30);
+      ASSERT_EQ(date.second, 10);
+      ASSERT_EQ(date.millisecond, 100);
       argct++;
 
       ASSERT_TRUE(arguments[argct]->IsString());
@@ -169,6 +181,19 @@ public:
         ASSERT_TRUE(value->IsString());
         ASSERT_EQ(value->GetStringValue(), "the string");
 
+        value = object->GetValue("dateVal");
+        ASSERT_TRUE(value.get() != NULL);
+        ASSERT_TRUE(value->IsDate());
+        CefTime date = value->GetDateValue();
+        ASSERT_EQ(date.year, 2010);
+        ASSERT_EQ(date.month, 5);
+        ASSERT_EQ(date.day_of_week, 1);
+        ASSERT_EQ(date.day_of_month, 3);
+        ASSERT_EQ(date.hour, 12);
+        ASSERT_EQ(date.minute, 30);
+        ASSERT_EQ(date.second, 10);
+        ASSERT_EQ(date.millisecond, 100);
+
         value = object->GetValue("arrayVal");
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsArray());
@@ -240,7 +265,8 @@ public:
       "function func(a,b,c,d) { return a+b+(c?1:0)+parseFloat(d); }"
       "function func2(a,b) { throw('My Exception'); }"
       << object << ".execute2("
-      "  " << object << ".execute(5, 6.543, true, \"test string\","
+      "  " << object << ".execute(5, 6.543, true,"
+      "    new Date(Date.UTC(2010, 4, 3, 12, 30, 10, 100)), \"test string\","
       "    [7, 5.432, false, \"another string\"],"
       "    {arg0:2, arg1:3.433, arg2:true, arg3:\"some string\"}, func, func2)"
       ");"
@@ -299,6 +325,9 @@ public:
     ASSERT_TRUE(testObj->SetValue("stringVal",
         CefV8Value::CreateString("the string")));
 
+    cef_time_t date = {2010, 5, 1, 3, 12, 30, 10, 100};
+    ASSERT_TRUE(testObj->SetValue("dateVal", CefV8Value::CreateDate(date)));
+
     CefRefPtr<CefV8Value> testArray(CefV8Value::CreateArray());
     ASSERT_TRUE(testArray.get() != NULL);
     ASSERT_TRUE(testObj->SetValue("arrayVal", testArray));
@@ -337,9 +366,9 @@ TEST(V8Test, Extension)
     "if (!test)"
     "  test = {};"
     "(function() {"
-    "  test.execute = function(a,b,c,d,e,f,g,h) {"
+    "  test.execute = function(a,b,c,d,e,f,g,h,i) {"
     "    native function execute();"
-    "    return execute(a,b,c,d,e,f,g,h);"
+    "    return execute(a,b,c,d,e,f,g,h,i);"
     "  };"
     "  test.execute2 = function(a) {"
     "    native function execute2();"

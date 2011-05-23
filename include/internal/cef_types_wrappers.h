@@ -142,10 +142,7 @@ struct CefRectTraits {
 
   static inline void set(const struct_type* src, struct_type* target, bool copy)
   {
-    target->x = src->x;
-    target->y = src->y;
-    target->width = src->width;
-    target->height = src->height;
+    *target = *src;
   }
 };
 
@@ -408,6 +405,54 @@ struct CefURLPartsTraits {
 
 // Class representing a URL's component parts.
 typedef CefStructBase<CefURLPartsTraits> CefURLParts;
+
+
+struct CefTimeTraits {
+  typedef cef_time_t struct_type;
+
+  static inline void init(struct_type* s) {}
+  
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
+  {
+    *target = *src;
+  }
+};
+
+// Class representing a time.
+class CefTime : public CefStructBase<CefTimeTraits>
+{
+public:
+  typedef CefStructBase<CefTimeTraits> parent;
+
+  CefTime() : parent() {}
+  CefTime(const cef_time_t& r) : parent(r) {}
+  CefTime(time_t r) : parent() { SetTimeT(r); }
+  CefTime(double r) : parent() { SetDoubleT(r); }
+
+  // Converts to/from time_t.
+  void SetTimeT(time_t r) {
+    cef_time_from_timet(r, this);
+  }
+  time_t GetTimeT() const {
+    time_t time = 0;
+    cef_time_to_timet(this, &time);
+    return time;
+  }
+
+  // Converts to/from a double which is the number of seconds since epoch
+  // (Jan 1, 1970). Webkit uses this format to represent time. A value of 0
+  // means "not initialized".
+  void SetDoubleT(double r) {
+    cef_time_from_doublet(r, this);
+  }
+  double GetDoubleT() const {
+    double time = 0;
+    cef_time_to_doublet(this, &time);
+    return time;
+  }
+};
 
 
 struct CefCookieTraits {

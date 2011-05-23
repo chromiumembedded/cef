@@ -434,6 +434,16 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
 }
 
 // static
+CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& date)
+{
+  CEF_REQUIRE_VALID_CONTEXT(NULL);
+  CEF_REQUIRE_UI_THREAD(NULL);
+  v8::HandleScope handle_scope;
+  // Convert from seconds to milliseconds.
+  return new CefV8ValueImpl(v8::Date::New(date.GetDoubleT() * 1000));
+}
+
+// static
 CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 {
   CEF_REQUIRE_VALID_CONTEXT(NULL);
@@ -566,7 +576,13 @@ bool CefV8ValueImpl::IsInt()
 bool CefV8ValueImpl::IsDouble()
 {
   CEF_REQUIRE_UI_THREAD(false);
-  return (GetHandle()->IsNumber() || GetHandle()->IsDate());
+  return GetHandle()->IsNumber();
+}
+
+bool CefV8ValueImpl::IsDate()
+{
+  CEF_REQUIRE_UI_THREAD(false);
+  return GetHandle()->IsDate();
 }
 
 bool CefV8ValueImpl::IsString()
@@ -637,6 +653,15 @@ double CefV8ValueImpl::GetDoubleValue()
   v8::HandleScope handle_scope;
   v8::Local<v8::Number> val = GetHandle()->ToNumber();
   return val->Value();
+}
+
+CefTime CefV8ValueImpl::GetDateValue()
+{
+  CEF_REQUIRE_UI_THREAD(0.);
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Number> val = GetHandle()->ToNumber();
+  // Convert from milliseconds to seconds.
+  return CefTime(val->Value() / 1000);
 }
 
 CefString CefV8ValueImpl::GetStringValue()

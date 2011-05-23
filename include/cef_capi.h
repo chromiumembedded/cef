@@ -1407,6 +1407,7 @@ typedef struct _cef_v8value_t
   int (CEF_CALLBACK *is_bool)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_int)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_double)(struct _cef_v8value_t* self);
+  int (CEF_CALLBACK *is_date)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_string)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_object)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *is_array)(struct _cef_v8value_t* self);
@@ -1422,6 +1423,7 @@ typedef struct _cef_v8value_t
   int (CEF_CALLBACK *get_bool_value)(struct _cef_v8value_t* self);
   int (CEF_CALLBACK *get_int_value)(struct _cef_v8value_t* self);
   double (CEF_CALLBACK *get_double_value)(struct _cef_v8value_t* self);
+  cef_time_t (CEF_CALLBACK *get_date_value)(struct _cef_v8value_t* self);
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_string_value)(
       struct _cef_v8value_t* self);
@@ -1510,6 +1512,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_null();
 CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(

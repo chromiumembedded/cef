@@ -60,6 +60,14 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
   return NULL;
 }
 
+CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& date)
+{
+  cef_v8value_t* impl = cef_v8value_create_date(&date);
+  if(impl)
+    return CefV8ValueCToCpp::Wrap(impl);
+  return NULL;
+}
+
 CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 {
   cef_v8value_t* impl = cef_v8value_create_string(value.GetStruct());
@@ -163,6 +171,14 @@ bool CefV8ValueCToCpp::IsDouble()
   return struct_->is_double(struct_)?true:false;
 }
 
+bool CefV8ValueCToCpp::IsDate()
+{
+  if (CEF_MEMBER_MISSING(struct_, is_date))
+    return false;
+
+  return struct_->is_date(struct_)?true:false;
+}
+
 bool CefV8ValueCToCpp::IsString()
 {
   if(CEF_MEMBER_MISSING(struct_, is_string))
@@ -225,6 +241,14 @@ double CefV8ValueCToCpp::GetDoubleValue()
     return 0.;
 
   return struct_->get_double_value(struct_);
+}
+
+CefTime CefV8ValueCToCpp::GetDateValue()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_date_value))
+    return CefTime();
+
+  return struct_->get_date_value(struct_);
 }
 
 CefString CefV8ValueCToCpp::GetStringValue()

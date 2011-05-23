@@ -1070,6 +1070,7 @@ class obj_analysis:
             'CefWindowHandle' : 'cef_window_handle_t',
             'CefRect' : 'cef_rect_t',
             'CefThreadId' : 'cef_thread_id_t',
+            'CefTime' : 'cef_time_t',
         }
         if value in simpletypes.keys():
             return {

@@ -1591,6 +1591,8 @@ public:
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateDouble(double value);
   /*--cef()--*/
+  static CefRefPtr<CefV8Value> CreateDate(const CefTime& date);
+  /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateString(const CefString& value);
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
@@ -1615,6 +1617,8 @@ public:
   /*--cef()--*/
   virtual bool IsDouble() =0;
   /*--cef()--*/
+  virtual bool IsDate() =0;
+  /*--cef()--*/
   virtual bool IsString() =0;
   /*--cef()--*/
   virtual bool IsObject() =0;
@@ -1636,6 +1640,8 @@ public:
   virtual int GetIntValue() =0;
   /*--cef()--*/
   virtual double GetDoubleValue() =0;
+  /*--cef()--*/
+  virtual CefTime GetDateValue() =0;
   /*--cef()--*/
   virtual CefString GetStringValue() =0;
 

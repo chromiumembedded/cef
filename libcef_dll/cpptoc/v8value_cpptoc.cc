@@ -59,6 +59,18 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
   return NULL;
 }
 
+CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date)
+{
+  DCHECK(date);
+  if (!date)
+    return NULL;
+
+  CefRefPtr<CefV8Value> impl = CefV8Value::CreateDate(*date);
+  if(impl.get())
+    return CefV8ValueCppToC::Wrap(impl);
+  return NULL;
+}
+
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
 {
   CefRefPtr<CefV8Value> impl = CefV8Value::CreateString(CefString(value));
@@ -166,6 +178,15 @@ int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self)
   return CefV8ValueCppToC::Get(self)->IsDouble();
 }
 
+int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self)
+{
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  return CefV8ValueCppToC::Get(self)->IsDate();
+}
+
 int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self)
 {
   DCHECK(self);
@@ -238,6 +259,15 @@ double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->GetDoubleValue();
+}
+
+cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self)
+{
+  DCHECK(self);
+  if (!self)
+    return cef_time_t();
+
+  return CefV8ValueCppToC::Get(self)->GetDateValue();
 }
 
 cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
@@ -479,6 +509,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.is_bool = v8value_is_bool;
   struct_.struct_.is_int = v8value_is_int;
   struct_.struct_.is_double = v8value_is_double;
+  struct_.struct_.is_date = v8value_is_date;
   struct_.struct_.is_string = v8value_is_string;
   struct_.struct_.is_object = v8value_is_object;
   struct_.struct_.is_array = v8value_is_array;
@@ -487,6 +518,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.get_bool_value = v8value_get_bool_value;
   struct_.struct_.get_int_value = v8value_get_int_value;
   struct_.struct_.get_double_value = v8value_get_double_value;
+  struct_.struct_.get_date_value = v8value_get_date_value;
   struct_.struct_.get_string_value = v8value_get_string_value;
   struct_.struct_.has_value_bykey = v8value_has_value_bykey;
   struct_.struct_.has_value_byindex = v8value_has_value_byindex;
