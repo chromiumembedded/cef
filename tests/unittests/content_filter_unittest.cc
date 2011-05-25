@@ -25,6 +25,8 @@ public:
                              CefRefPtr<CefStreamReader>& substitute_data)
                              OVERRIDE
     {
+      EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
       g_ContentFilterProcessDataCalled = true;
 
       std::string in_out((char*)data, data_size);
@@ -94,6 +96,8 @@ public:
 
     virtual void Drain(CefRefPtr<CefStreamReader>& remainder) OVERRIDE
     {
+        EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+      
         g_ContentFilterDrainCalled = true;
 
         if (remainder_.empty())
@@ -133,6 +137,8 @@ public:
 
     virtual void Visit(CefRefPtr<CefDOMDocument> document) OVERRIDE
     {
+      EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+      
       handler_->got_visitor_called_.yes();
 
       TestContentReplaced(document);
@@ -165,6 +171,8 @@ public:
                                  CefRefPtr<CefResponse> response,
                                  CefRefPtr<CefContentFilter>& filter) OVERRIDE
   {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    
     g_ContentFilterTestHandlerHandleResourceResponseCalled = true;
 
     ASSERT_EQ(url, "http://tests/test_filter.html");
@@ -187,6 +195,8 @@ public:
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE
   {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    
     if(frame->IsMain()) {
       // The page is done loading so visit the DOM.
       browser->GetMainFrame()->VisitDOM(visitor_.get());
