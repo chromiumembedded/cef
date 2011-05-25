@@ -27,33 +27,32 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(parentBrowser);
   DCHECK(popupFeatures);
   DCHECK(windowInfo);
-  DCHECK(url);
   DCHECK(client);
   DCHECK(settings);
-  if (!self || !parentBrowser || !popupFeatures || !windowInfo || !url ||
-      !client || !settings)
+  if (!self || !parentBrowser || !popupFeatures || !windowInfo || !client ||
+      !settings)
     return 0;
 
   CefWindowInfo wndInfo;
   CefBrowserSettings browserSettings;
   CefPopupFeatures features;
-  
+
   // Take ownership of the values.
   wndInfo.AttachTo(*windowInfo);
   browserSettings.AttachTo(*settings);
-  
+
   // Reference the existing values instead of copying.
   features.Set(*popupFeatures, false);
-  
+
   // |newHandler| will start off pointing to the current handler.
   CefRefPtr<CefClient> clientPtr;
   if (*client)
     clientPtr = CefClientCppToC::Unwrap(*client);
   CefClient* origClient = clientPtr.get();
-  
+
   // |parentBrowser| will be NULL if this is a top-level browser window.
   CefRefPtr<CefBrowser> browserPtr(CefBrowserCToCpp::Wrap(parentBrowser));
-  
+
   bool rv = CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopup(
       browserPtr, features, wndInfo, CefString(url), clientPtr,
       browserSettings);
