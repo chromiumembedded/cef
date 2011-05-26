@@ -7,6 +7,9 @@
 
 #include "include/cef.h"
 
+namespace net {
+class HttpResponseHeaders;
+}
 namespace WebKit {
 class WebURLResponse;
 };
@@ -30,7 +33,7 @@ public:
   virtual void GetHeaderMap(HeaderMap& headerMap);
   virtual void SetHeaderMap(const HeaderMap& headerMap);
 
-  CefString GenerateResponseLine();
+  net::HttpResponseHeaders* GetResponseHeaders();
 
 protected:
   int status_code_;

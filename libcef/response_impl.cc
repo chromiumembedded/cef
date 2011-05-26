@@ -4,10 +4,11 @@
 
 #include "include/cef.h"
 #include "response_impl.h"
+#include "http_header_utils.h"
 
 #include "base/logging.h"
 #include "base/stringprintf.h"
-#include "http_header_utils.h"
+#include "net/http/http_response_headers.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebURLResponse.h"
 
@@ -92,11 +93,11 @@ void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap)
   header_map_ = headerMap;
 }
 
-CefString CefResponseImpl::GenerateResponseLine()
+net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders()
 {
   AutoLock lock_scope(this);
 
-  std::string response_line;
+  std::string response;
   std::string status_text;
 
   if(status_text_.empty())
@@ -104,10 +105,24 @@ CefString CefResponseImpl::GenerateResponseLine()
   else
     status_text = status_text_;
 
-  base::SStringPrintf(&response_line, "HTTP/1.1 %d %s", status_code_,
+  base::SStringPrintf(&response, "HTTP/1.1 %d %s", status_code_,
                       status_text.c_str());
+  if (header_map_.size() > 0) {
+    for(HeaderMap::const_iterator header = header_map_.begin();
+        header != header_map_.end();
+        ++header) {
+      const CefString& key = header->first;
+      const CefString& value = header->second;
 
-  CefString value(response_line);
+      if(!key.empty()) {
+        // Delimit with "\0" as required by net::HttpResponseHeaders.
+        std::string key_str(key);
+        std::string value_str(value);
+        base::StringAppendF(&response, "%c%s: %s", '\0', key_str.c_str(),
+                            value_str.c_str());
+      }
+    }
+  }
 
-  return value;
+  return new net::HttpResponseHeaders(response);
 }

@@ -446,14 +446,11 @@ class RequestProxy : public net::URLRequest::Delegate,
 
           CefResponseImpl* responseImpl =
               static_cast<CefResponseImpl*>(response.get());
-          scoped_refptr<net::HttpResponseHeaders> headers(
-              new net::HttpResponseHeaders(
-                  responseImpl->GenerateResponseLine()));
 
           ResourceResponseInfo info;
           info.content_length = static_cast<int64>(offset);
           info.mime_type = response->GetMimeType();
-          info.headers = headers;
+          info.headers = responseImpl->GetResponseHeaders();
           OnReceivedResponse(info, params->url);
           AsyncReadData();
         } else if (response->GetStatus() != 0) {
@@ -462,14 +459,11 @@ class RequestProxy : public net::URLRequest::Delegate,
 
           CefResponseImpl* responseImpl =
               static_cast<CefResponseImpl*>(response.get());
-          scoped_refptr<net::HttpResponseHeaders> headers(
-              new net::HttpResponseHeaders(
-                  responseImpl->GenerateResponseLine()));
 
           ResourceResponseInfo info;
           info.content_length = 0;
           info.mime_type = response->GetMimeType();
-          info.headers = headers;
+          info.headers = responseImpl->GetResponseHeaders();
           OnReceivedResponse(info, params->url);
           AsyncReadData();
         }

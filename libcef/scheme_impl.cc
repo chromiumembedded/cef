@@ -123,9 +123,7 @@ public:
   virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());
-    scoped_refptr<net::HttpResponseHeaders> headers(
-        new net::HttpResponseHeaders(responseImpl->GenerateResponseLine()));
-    info->headers = headers;
+    info->headers = responseImpl->GetResponseHeaders();
   }
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
