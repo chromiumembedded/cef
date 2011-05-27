@@ -12,17 +12,22 @@
 
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_scheme_handler_t* CEF_CALLBACK scheme_handler_factory_create(
-    struct _cef_scheme_handler_factory_t* self)
+    struct _cef_scheme_handler_factory_t* self, const cef_string_t* scheme_name,
+    cef_request_t* request)
 {
   CefRefPtr<CefSchemeHandler> rv =
-      CefSchemeHandlerFactoryCppToC::Get(self)->Create();
+      CefSchemeHandlerFactoryCppToC::Get(self)->Create(CefString(scheme_name),
+          CefRequestCToCpp::Wrap(request));
+  if (rv.get())
+    return CefSchemeHandlerCppToC::Wrap(rv);
 
-  return CefSchemeHandlerCppToC::Wrap(rv);
+  return NULL;
 }
 
 

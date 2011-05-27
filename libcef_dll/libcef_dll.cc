@@ -118,17 +118,71 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info)
   return CefRegisterPlugin(*plugin_info);
 }
 
-CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,
-    const cef_string_t* host_name, int is_standard,
+CEF_EXPORT int cef_register_custom_scheme(const cef_string_t* scheme_name,
+    int is_standard, int is_local, int is_display_isolated)
+{
+  DCHECK(scheme_name);
+  if (!scheme_name)
+    return 0;
+
+  return CefRegisterCustomScheme(CefString(scheme_name), is_standard?true:false,
+    is_local?true:false, is_display_isolated?true:false);
+}
+
+CEF_EXPORT int cef_register_scheme_handler_factory(
+    const cef_string_t* scheme_name, const cef_string_t* domain_name,
     struct _cef_scheme_handler_factory_t* factory)
 {
   DCHECK(scheme_name);
-  DCHECK(factory);
-  if(!scheme_name || !factory)
+  if (!scheme_name)
     return 0;
 
-  return CefRegisterScheme(CefString(scheme_name), CefString(host_name),
-      (is_standard?true:false), CefSchemeHandlerFactoryCToCpp::Wrap(factory));
+  CefRefPtr<CefSchemeHandlerFactory> factoryPtr;
+  if (factory)
+    factoryPtr = CefSchemeHandlerFactoryCToCpp::Wrap(factory);
+
+  return CefRegisterSchemeHandlerFactory(CefString(scheme_name),
+      CefString(domain_name), factoryPtr);
+}
+
+CEF_EXPORT int cef_clear_scheme_handler_factories()
+{
+  return CefClearSchemeHandlerFactories();
+}
+
+CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
+    const cef_string_t* source_origin, const cef_string_t* target_protocol,
+    const cef_string_t* target_domain, int allow_target_subdomains)
+{
+  DCHECK(source_origin);
+  DCHECK(target_protocol);
+  DCHECK(target_domain);
+  if (!source_origin || !target_protocol || !target_domain)
+    return 0;
+
+  return CefAddCrossOriginWhitelistEntry(CefString(source_origin),
+      CefString(target_protocol), CefString(target_domain),
+      allow_target_subdomains?true:false);
+}
+
+CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
+    const cef_string_t* source_origin, const cef_string_t* target_protocol,
+    const cef_string_t* target_domain, int allow_target_subdomains)
+{
+  DCHECK(source_origin);
+  DCHECK(target_protocol);
+  DCHECK(target_domain);
+  if (!source_origin || !target_protocol || !target_domain)
+    return 0;
+
+  return CefRemoveCrossOriginWhitelistEntry(CefString(source_origin),
+      CefString(target_protocol), CefString(target_domain),
+      allow_target_subdomains?true:false);
+}
+
+CEF_EXPORT int cef_clear_cross_origin_whitelist()
+{
+  return CefClearCrossOriginWhitelist();
 }
 
 CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId)

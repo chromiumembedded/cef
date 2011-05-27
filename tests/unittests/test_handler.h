@@ -123,6 +123,9 @@ public:
 
     // Wait for the test to complete
     completion_event_.Wait();
+
+    // Reset the event so the same test can be executed again.
+    completion_event_.Reset();
   }
 
 protected:

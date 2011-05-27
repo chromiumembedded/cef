@@ -99,13 +99,55 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
   return cef_register_plugin(&plugin_info)?true:false;
 }
 
-bool CefRegisterScheme(const CefString& scheme_name,
-                       const CefString& host_name,
-                       bool is_standard,
-                       CefRefPtr<CefSchemeHandlerFactory> factory)
+bool CefRegisterCustomScheme(const CefString& scheme_name,
+                             bool is_standard,
+                             bool is_local,
+                             bool is_display_isolated)
 {
-  return cef_register_scheme(scheme_name.GetStruct(), host_name.GetStruct(),
-      is_standard, CefSchemeHandlerFactoryCppToC::Wrap(factory))?true:false;
+  return cef_register_custom_scheme(scheme_name.GetStruct(), is_standard,
+      is_local, is_display_isolated)?true:false;
+}
+
+bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
+                                     const CefString& domain_name,
+                                     CefRefPtr<CefSchemeHandlerFactory> factory)
+{
+  cef_scheme_handler_factory_t* factory_struct = NULL;
+  if (factory.get())
+    factory_struct = CefSchemeHandlerFactoryCppToC::Wrap(factory);
+  
+  return cef_register_scheme_handler_factory(scheme_name.GetStruct(),
+      domain_name.GetStruct(), factory_struct)?true:false;
+}
+
+bool CefClearSchemeHandlerFactories()
+{
+  return cef_clear_scheme_handler_factories()?true:false;
+}
+
+bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
+                                     const CefString& target_protocol,
+                                     const CefString& target_domain,
+                                     bool allow_target_subdomains)
+{
+  return cef_add_cross_origin_whitelist_entry(source_origin.GetStruct(),
+      target_protocol.GetStruct(), target_domain.GetStruct(),
+      allow_target_subdomains)?true:false;
+}
+
+bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
+                                        const CefString& target_protocol,
+                                        const CefString& target_domain,
+                                        bool allow_target_subdomains)
+{
+  return cef_remove_cross_origin_whitelist_entry(source_origin.GetStruct(),
+      target_protocol.GetStruct(), target_domain.GetStruct(),
+      allow_target_subdomains)?true:false;
+}
+
+bool CefClearCrossOriginWhitelist()
+{
+  return cef_clear_cross_origin_whitelist()?true:false;
 }
 
 bool CefCurrentlyOn(CefThreadId threadId)

@@ -696,6 +696,7 @@
         'libcef/external_protocol_handler.h',
         'libcef/http_header_utils.cc',
         'libcef/http_header_utils.h',
+        'libcef/origin_whitelist_impl.cc',
         'libcef/request_impl.cc',
         'libcef/request_impl.h',
         'libcef/response_impl.cc',

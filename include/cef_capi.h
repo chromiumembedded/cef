@@ -133,8 +133,10 @@ CEF_EXPORT void cef_run_message_loop();
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
     const cef_string_t* javascript_code, struct _cef_v8handler_t* handler);
 
-// CEF supports two types of schemes, standard and non-standard.
+// Register a custom scheme. This function should not be called for the built-in
+// HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
 //
+// If |is_standard| is true (1) the scheme will be treated as a standard scheme.
 // Standard schemes are subject to URL canonicalization and parsing rules as
 // defined in the Common Internet Scheme Syntax RFC 1738 Section 3.1 available
 // at http://www.ietf.org/rfc/rfc1738.txt
@@ -155,15 +157,77 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 // For example, "scheme:///some%20text" will remain the same. Non-standard
 // scheme URLs cannot be used as a target for form submission.
 //
-// Register a custom scheme handler factory for the specified |scheme_name| and
-// optional |host_name|. Specifying an NULL |host_name| value for standard
-// schemes will match all host names. The |host_name| value will be ignored for
-// non-standard schemes. Set |is_standard| to true (1) to register as a standard
-// scheme or false (0) to register a non-standard scheme. This function may be
-// called on any thread.
-CEF_EXPORT int cef_register_scheme(const cef_string_t* scheme_name,
-    const cef_string_t* host_name, int is_standard,
+// If |is_local| is true (1) the scheme will be treated as local (i.e., with the
+// same security rules as those applied to "file" URLs). This means that normal
+// pages cannot link to or access URLs of this scheme.
+//
+// If |is_display_isolated| is true (1) the scheme will be treated as display-
+// isolated. This means that pages cannot display these URLs unless they are
+// from the same scheme. For example, pages in another origin cannot create
+// iframes or hyperlinks to URLs with this scheme.
+//
+// This function may be called on any thread. It should only be called once per
+// unique |scheme_name| value. If |scheme_name| is already registered or if an
+// error occurs this function will return false (0).
+CEF_EXPORT int cef_register_custom_scheme(const cef_string_t* scheme_name,
+    int is_standard, int is_local, int is_display_isolated);
+
+// Register a scheme handler factory for the specified |scheme_name| and
+// optional |domain_name|. An NULL |domain_name| value for a standard scheme
+// will cause the factory to match all domain names. The |domain_name| value
+// will be ignored for non-standard schemes. If |scheme_name| is a built-in
+// scheme and no handler is returned by |factory| then the built-in scheme
+// handler factory will be called. If |scheme_name| is a custom scheme the
+// cef_register_custom_scheme() function should be called for that scheme. This
+// function may be called multiple times to change or remove the factory that
+// matches the specified |scheme_name| and optional |domain_name|. Returns false
+// (0) if an error occurs. This function may be called on any thread.
+CEF_EXPORT int cef_register_scheme_handler_factory(
+    const cef_string_t* scheme_name, const cef_string_t* domain_name,
     struct _cef_scheme_handler_factory_t* factory);
+
+// Clear all registered scheme handler factories. Returns false (0) on error.
+// This function may be called on any thread.
+CEF_EXPORT int cef_clear_scheme_handler_factories();
+
+// Add an entry to the cross-origin access whitelist.
+//
+// The same-origin policy restricts how scripts hosted from different origins
+// (scheme + domain) can communicate. By default, scripts can only access
+// resources with the same origin. Scripts hosted on the HTTP and HTTPS schemes
+// (but no other schemes) can use the "Access-Control-Allow-Origin" header to
+// allow cross-origin requests. For example, https://source.example.com can make
+// XMLHttpRequest requests on http://target.example.com if the
+// http://target.example.com request returns an "Access-Control-Allow-Origin:
+// https://source.example.com" response header.
+//
+// Scripts in separate frames or iframes and hosted from the same protocol and
+// domain suffix can execute cross-origin JavaScript if both pages set the
+// document.domain value to the same domain suffix. For example,
+// scheme://foo.example.com and scheme://bar.example.com can communicate using
+// JavaScript if both domains set document.domain="example.com".
+//
+// This function is used to allow access to origins that would otherwise violate
+// the same-origin policy. Scripts hosted underneath the fully qualified
+// |source_origin| URL (like http://www.example.com) will be allowed access to
+// all resources hosted on the specified |target_protocol| and |target_domain|.
+// If |allow_target_subdomains| is true (1) access will also be allowed to all
+// subdomains of the target domain. This function may be called on any thread.
+// Returns false (0) if |source_origin| is invalid or the whitelist cannot be
+// accessed.
+CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
+    const cef_string_t* source_origin, const cef_string_t* target_protocol,
+    const cef_string_t* target_domain, int allow_target_subdomains);
+
+// Remove an entry from the cross-origin access whitelist. Returns false (0) if
+// |source_origin| is invalid or the whitelist cannot be accessed.
+CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
+    const cef_string_t* source_origin, const cef_string_t* target_protocol,
+    const cef_string_t* target_domain, int allow_target_subdomains);
+
+// Remove all entries from the cross-origin access whitelist. Returns false (0)
+// if the whitelist cannot be accessed.
+CEF_EXPORT int cef_clear_cross_origin_whitelist();
 
 // CEF maintains multiple internal threads that are used for handling different
 // types of tasks. The UI thread creates the browser window and is used for all
@@ -1539,7 +1603,8 @@ typedef struct _cef_scheme_handler_factory_t
 
   // Return a new scheme handler instance to handle the request.
   struct _cef_scheme_handler_t* (CEF_CALLBACK *create)(
-      struct _cef_scheme_handler_factory_t* self);
+      struct _cef_scheme_handler_factory_t* self,
+      const cef_string_t* scheme_name, struct _cef_request_t* request);
 
 } cef_scheme_handler_factory_t;
 

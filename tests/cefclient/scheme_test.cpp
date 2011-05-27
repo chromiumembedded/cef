@@ -141,7 +141,8 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory
 {
 public:
   // Return a new scheme handler instance to handle the request.
-  virtual CefRefPtr<CefSchemeHandler> Create()
+  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
+                                             CefRefPtr<CefRequest> request)
   {
     REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
@@ -152,7 +153,9 @@ public:
 
 void InitSchemeTest()
 {
-  CefRegisterScheme("client", "tests", true, new ClientSchemeHandlerFactory());
+  CefRegisterCustomScheme("client", true, false, false);
+  CefRegisterSchemeHandlerFactory("client", "tests",
+      new ClientSchemeHandlerFactory());
 }
 
 void RunSchemeTest(CefRefPtr<CefBrowser> browser)
