@@ -51,7 +51,9 @@ class NSView;
 extern "C" {
 #endif
 
+///
 // Class representing window information.
+///
 typedef struct _cef_window_info_t
 {
   cef_string_t m_windowName;
@@ -68,7 +70,9 @@ typedef struct _cef_window_info_t
   cef_window_handle_t m_View;
 } cef_window_info_t;
 
+///
 // Class representing print context information.
+///
 typedef struct _cef_print_info_t
 {
   double m_Scale;

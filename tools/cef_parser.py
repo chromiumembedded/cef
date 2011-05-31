@@ -189,7 +189,8 @@ def get_comment(body, name):
         elif line[0:2] == '/*':
             continue
         elif line[0:2] == '//':
-            result.append(line[3:])
+            # keep the comment line including any leading spaces
+            result.append(line[2:])
         else:
             break
     
@@ -202,7 +203,15 @@ def format_comment(comment, indent, translate_map = None, maxchars = 80):
     wrapme = ''
     hasemptyline = False
     for line in comment:
-        if line is None or len(line) == 0 or line[0:1] == ' ':
+        # if the line starts with a leading space, remove that space
+        if not line is None and len(line) > 0 and line[0:1] == ' ':
+            line = line[1:]
+            didremovespace = True
+        else:
+            didremovespace = False
+
+        if line is None or len(line) == 0 or line[0:1] == ' ' \
+            or line[0:1] == '/':
             # the previous paragraph, if any, has ended
             if len(wrapme) > 0:
                 if not translate_map is None:
@@ -214,12 +223,15 @@ def format_comment(comment, indent, translate_map = None, maxchars = 80):
                 wrapme = ''
         
         if not line is None:
-            if len(line) == 0 or line[0:1] == ' ':
+            if len(line) == 0 or line[0:1] == ' ' or line[0:1] == '/':
                 # blank lines or anything that's further indented should be
                 # output as-is
                 result += indent+'//'
                 if len(line) > 0:
-                    result += ' '+line
+                    if didremovespace:
+                        result += ' '+line
+                    else:
+                        result += line;
                 result += '\n'
             else:
                 # add to the current paragraph

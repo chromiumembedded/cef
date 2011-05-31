@@ -33,15 +33,17 @@
 
 #include "internal/cef_nplugin_types.h"
 
+///
 // Netscape plugins are normally built at separate DLLs that are loaded by the
 // browser when needed.  This interface supports the creation of plugins that
 // are an embedded component of the application.  Embedded plugins built using
 // this interface use the same Netscape Plugin API as DLL-based plugins.
 // See https://developer.mozilla.org/En/Gecko_Plugin_API_Reference for complete
 // documentation on how to use the Netscape Plugin API.
-
+//
 // This class provides attribute information and entry point functions for a
 // plugin.
+///
 class CefPluginInfo : public cef_plugin_info_t
 {
 public:
@@ -111,7 +113,9 @@ protected:
   }
 };
 
+///
 // Register a plugin with the system.
+///
 bool CefRegisterPlugin(const CefPluginInfo& plugin_info);
 
 #endif // _CEF_NPLUGIN_H

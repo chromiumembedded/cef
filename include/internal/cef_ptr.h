@@ -32,13 +32,14 @@
 #ifndef _CEF_PTR_H
 #define _CEF_PTR_H
 
+///
 // Smart pointer implementation borrowed from base/ref_counted.h
-//
+// <p>
 // A smart pointer class for reference counted objects.  Use this class instead
 // of calling AddRef and Release manually on a reference counted object to
 // avoid common memory leaks caused by forgetting to Release an object
 // reference.  Sample usage:
-//
+// <pre>
 //   class MyFoo : public CefBase {
 //    ...
 //   };
@@ -59,11 +60,11 @@
 //     if (foo)
 //       foo->Method(param);
 //   }
-//
+// </pre>
 // The above examples show how CefRefPtr<T> acts like a pointer to T.
 // Given two CefRefPtr<T> classes, it is also possible to exchange
 // references between the two objects, like so:
-//
+// <pre>
 //   {
 //     CefRefPtr<MyFoo> a = new MyFoo();
 //     CefRefPtr<MyFoo> b;
@@ -71,10 +72,10 @@
 //     b.swap(a);
 //     // now, |b| references the MyFoo object, and |a| references NULL.
 //   }
-//
+// </pre>
 // To make both |a| and |b| in the above example reference the same MyFoo
 // object, simply use the assignment operator:
-//
+// <pre>
 //   {
 //     CefRefPtr<MyFoo> a = new MyFoo();
 //     CefRefPtr<MyFoo> b;
@@ -83,10 +84,10 @@
 //     // now, |a| and |b| each own a reference to the same MyFoo object.
 //     // the reference count of the underlying MyFoo object will be 2.
 //   }
-//
+// </pre>
 // Reference counted objects can also be passed as function parameters and
 // used as function return values:
-//
+// <pre>
 //   void some_func_with_param(CefRefPtr<MyFoo> param) {
 //     // A reference is added to the MyFoo object that |param| represents
 //     // during the scope of some_func_with_param() and released when
@@ -121,9 +122,9 @@
 //     // return value, the MyFoo object created in some_func_with_retval()
 //     // will automatically be released.
 //   }
-//
+// </pre>
 // And in standard containers:
-//
+// <pre>
 //   {
 //      // Create a vector that holds MyFoo objects.
 //      std::vector<CefRefPtr<MyFoo> > MyFooVec;
@@ -136,7 +137,9 @@
 //     // is increased to 2.
 //     MyFooVec.push_back(foo);
 //   }
-//
+// </pre>
+// </p>
+///
 template <class T>
 class CefRefPtr {
  public:

@@ -43,7 +43,9 @@ extern "C" {
 #define cef_window_handle_t GtkWidget*
 #define cef_cursor_handle_t void*
 
+///
 // Class representing window information.
+///
 typedef struct _cef_window_info_t
 {
   // Pointer for the parent GtkBox widget.
@@ -53,7 +55,9 @@ typedef struct _cef_window_info_t
   cef_window_handle_t m_Widget;
 } cef_window_info_t;
 
+///
 // Class representing print context information.
+///
 typedef struct _cef_print_info_t
 {
   double m_Scale;

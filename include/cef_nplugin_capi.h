@@ -37,7 +37,9 @@ extern "C" {
 
 #include "internal/cef_nplugin_types.h"
 
+///
 // Register a plugin with the system.  Returns true (1) on success.
+///
 CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info);
 
 #ifdef __cplusplus
