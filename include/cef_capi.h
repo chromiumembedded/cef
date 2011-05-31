@@ -409,6 +409,7 @@ typedef struct _cef_browser_t
   ///
   int (CEF_CALLBACK *can_go_back)(struct _cef_browser_t* self);
 
+  ///
   // Navigate backwards.
   ///
   void (CEF_CALLBACK *go_back)(struct _cef_browser_t* self);
@@ -450,6 +451,7 @@ typedef struct _cef_browser_t
   cef_window_handle_t (CEF_CALLBACK *get_window_handle)(
       struct _cef_browser_t* self);
 
+  ///
   // Returns true (1) if the window is a popup window.
   ///
   int (CEF_CALLBACK *is_popup)(struct _cef_browser_t* self);

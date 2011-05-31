@@ -568,6 +568,7 @@ public:
   ///
   /*--cef()--*/
   virtual bool CanGoBack() =0;
+  ///
   // Navigate backwards.
   ///
   /*--cef()--*/
@@ -611,6 +612,7 @@ public:
   /*--cef()--*/
   virtual CefWindowHandle GetWindowHandle() =0;
 
+  ///
   // Returns true if the window is a popup window.
   ///
   /*--cef()--*/
