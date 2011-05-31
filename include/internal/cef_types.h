@@ -101,8 +101,8 @@ typedef struct _cef_settings_t
   // locale of "en-US" will be used.
   cef_string_t locale;
 
-  // List of file system paths that will be searched by the browser to locate
-  // plugins. This is in addition to the default search paths.
+  // List of fully qualified paths to plugins (including plugin name) that will
+  // be loaded in addition to any plugins found in the default search paths.
   cef_string_list_t extra_plugin_paths;
 
   // The directory and file name to use for the debug log. If empty, the
