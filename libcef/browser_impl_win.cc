@@ -38,15 +38,6 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       static_cast<CefBrowserImpl*>(ui::GetWindowUserData(hwnd));
 
   switch (message) {
-  case WM_COMMAND:
-    {
-      int wmId    = LOWORD(wParam);
-      int wmEvent = HIWORD(wParam);
-
-
-    }
-    break;
-
   case WM_DESTROY:
     if (browser) {
       // Clear the user data pointer.
@@ -68,13 +59,13 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SETFOCUS:
-    if (browser && browser->UIT_GetWebView())
-      browser->UIT_GetWebView()->setFocus(true);
+    if (browser)
+      browser->UIT_SetFocus(browser->UIT_GetWebViewHost(), true);
     return 0;
 
   case WM_KILLFOCUS:
-    if (browser && browser->UIT_GetWebView())
-      browser->UIT_GetWebView()->setFocus(false);
+    if (browser)
+      browser->UIT_SetFocus(browser->UIT_GetWebViewHost(), false);
     return 0;
 
   case WM_ERASEBKGND:
