@@ -928,7 +928,8 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-    if (handler.get() && !handler->OnSetFocus(this, false)) {
+    if (!handler.get() ||
+        (handler.get() && !handler->OnSetFocus(this, false))) {
       // Restore focus to the main frame prior to loading new request.
       // This makes sure that we don't have a focused iframe. Otherwise, that
       // iframe would keep focus when the SetFocus called immediately after
