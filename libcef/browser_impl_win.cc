@@ -63,11 +63,6 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       browser->UIT_SetFocus(browser->UIT_GetWebViewHost(), true);
     return 0;
 
-  case WM_KILLFOCUS:
-    if (browser)
-      browser->UIT_SetFocus(browser->UIT_GetWebViewHost(), false);
-    return 0;
-
   case WM_ERASEBKGND:
     return 0;
   }
