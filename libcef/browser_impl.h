@@ -50,7 +50,8 @@ public:
   };
 
   CefBrowserImpl(const CefWindowInfo& windowInfo,
-                 const CefBrowserSettings& settings, bool popup,
+                 const CefBrowserSettings& settings,
+                 gfx::NativeView opener,
                  CefRefPtr<CefClient> client);
   virtual ~CefBrowserImpl() {}
 
@@ -71,6 +72,8 @@ public:
   virtual void StopLoad() OVERRIDE;
   virtual void SetFocus(bool enable) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
+  virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE
+      { return opener_window(); }
   virtual bool IsPopup() OVERRIDE { return is_popup(); }
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE { return client_; }
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE
@@ -309,7 +312,8 @@ public:
   // These variables are read-only.
   const CefBrowserSettings& settings() const { return settings_; }
   const FilePath& file_system_root() const { return file_system_root_.path(); }
-  bool is_popup() { return is_popup_; }
+  gfx::NativeView opener_window() { return opener_; }
+  bool is_popup() { return (opener_ != NULL); }
   
   // These variables may be read/written from multiple threads.
   void set_zoom_level(double zoomLevel);
@@ -317,6 +321,17 @@ public:
   void set_nav_state(bool can_go_back, bool can_go_forward);
   bool can_go_back();
   bool can_go_forward();
+
+#if defined(OS_WIN)
+  void set_opener_was_disabled_by_modal_loop(bool disabled)
+  {
+    opener_was_disabled_by_modal_loop_ = disabled;
+  }
+  void set_internal_modal_message_loop_is_active(bool active)
+  {
+    internal_modal_message_loop_is_active_ = active;
+  }
+#endif
 
   void set_popup_rect(const gfx::Rect& rect) { popup_rect_ = rect; }
 
@@ -332,7 +347,8 @@ protected:
 protected:
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
-  bool is_popup_;
+  // Handle of the browser window that opened this window.
+  gfx::NativeView opener_;
   bool is_modal_;
   CefRefPtr<CefClient> client_;
   scoped_ptr<WebViewHost> webviewhost_;
@@ -355,6 +371,10 @@ protected:
 #if defined(OS_WIN)
   // Context object used to manage printing.
   printing::PrintingContext print_context_;
+
+  // Used to re-enable the opener when a modal window gets closed.
+  bool opener_was_disabled_by_modal_loop_;
+  bool internal_modal_message_loop_is_active_;
 #endif
 
   typedef std::map<CefString, CefFrame*> FrameMap;

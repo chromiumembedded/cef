@@ -160,6 +160,16 @@ cef_window_handle_t CEF_CALLBACK browser_get_window_handle(
   return CefBrowserCppToC::Get(self)->GetWindowHandle();
 }
 
+cef_window_handle_t CEF_CALLBACK browser_get_opener_window_handle(
+    struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if(!self)
+    return NULL;
+
+  return CefBrowserCppToC::Get(self)->GetOpenerWindowHandle();
+}
+
 int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self)
 {
   DCHECK(self);
@@ -450,6 +460,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.stop_load = browser_stop_load;
   struct_.struct_.set_focus = browser_set_focus;
   struct_.struct_.get_window_handle = browser_get_window_handle;
+  struct_.struct_.get_opener_window_handle = browser_get_opener_window_handle;
   struct_.struct_.is_popup = browser_is_popup;
   struct_.struct_.get_client = browser_get_client;
   struct_.struct_.get_main_frame = browser_get_main_frame;

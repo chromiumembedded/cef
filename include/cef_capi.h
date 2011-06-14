@@ -452,6 +452,14 @@ typedef struct _cef_browser_t
       struct _cef_browser_t* self);
 
   ///
+  // Retrieve the window handle of the browser that opened this browser. Will
+  // return NULL for non-popup windows. This function can be used in combination
+  // with custom handling of modal windows.
+  ///
+  cef_window_handle_t (CEF_CALLBACK *get_opener_window_handle)(
+      struct _cef_browser_t* self);
+
+  ///
   // Returns true (1) if the window is a popup window.
   ///
   int (CEF_CALLBACK *is_popup)(struct _cef_browser_t* self);
@@ -815,9 +823,27 @@ typedef struct _cef_life_span_handler_t
       struct _cef_browser_t* browser);
 
   ///
-  // Called just before a window is closed.
+  // Called just before a window is closed. If this is a modal window and you
+  // handled the run_modal() event you can use this callback to restore the
+  // opener window to a usable state.
   ///
   void (CEF_CALLBACK *on_before_close)(struct _cef_life_span_handler_t* self,
+      struct _cef_browser_t* browser);
+
+  ///
+  // Called to enter the modal loop. Provide your own modal loop here. Return
+  // true (1) if you ran your own modal loop and false (0) to use the default.
+  // You can also use this event to know when a modal window is about to start.
+  ///
+  int (CEF_CALLBACK *run_modal)(struct _cef_life_span_handler_t* self,
+      struct _cef_browser_t* browser);
+
+  ///
+  // Called when a modal browser window has been destroyed. You must implement
+  // this if you are handling run_modal(). You can also use this event to know
+  // when a modal window is about to be closed.
+  ///
+  void (CEF_CALLBACK *quit_modal)(struct _cef_life_span_handler_t* self,
       struct _cef_browser_t* browser);
 
 } cef_life_span_handler_t;

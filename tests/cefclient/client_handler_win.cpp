@@ -87,6 +87,14 @@ bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
     resourceStream = GetBinaryResourceReader(IDS_LOGOBALL);
     response->SetMimeType("image/png");
     response->SetStatus(200);
+  } else if(url == "http://tests/modalmain") {
+    resourceStream = GetBinaryResourceReader(IDS_MODALMAIN);
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
+  } else if(url == "http://tests/modaldialog") {
+    resourceStream = GetBinaryResourceReader(IDS_MODALDIALOG);
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   }
 
   return false;

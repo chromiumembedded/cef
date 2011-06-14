@@ -307,3 +307,8 @@ void RunDragDropTest(CefRefPtr<CefBrowser> browser)
 {
   browser->GetMainFrame()->LoadURL("http://html5demos.com/drag");
 }
+
+void RunModalDialogTest(CefRefPtr<CefBrowser> browser)
+{
+  browser->GetMainFrame()->LoadURL("http://tests/modalmain");
+}

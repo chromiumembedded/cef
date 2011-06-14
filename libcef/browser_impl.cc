@@ -150,7 +150,7 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(
   }
 
   CefRefPtr<CefBrowser> browser(
-      new CefBrowserImpl(windowInfo, settings, false, client));
+      new CefBrowserImpl(windowInfo, settings, NULL, client));
   static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(url);
 
   return browser;
@@ -158,12 +158,17 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(
 
 
 CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
-                               const CefBrowserSettings& settings, bool popup,
+                               const CefBrowserSettings& settings,
+                               gfx::NativeView opener,
                                CefRefPtr<CefClient> client)
-  : window_info_(windowInfo), settings_(settings), is_popup_(popup),
+  : window_info_(windowInfo), settings_(settings), opener_(opener),
     is_modal_(false), client_(client), webviewhost_(NULL), popuphost_(NULL),
     zoom_level_(0.0), can_go_back_(false), can_go_forward_(false),
     main_frame_(NULL), unique_id_(0)
+#if defined(OS_WIN)
+    , opener_was_disabled_by_modal_loop_(false),
+    internal_modal_message_loop_is_active_(false)
+#endif
 {
   delegate_.reset(new BrowserWebViewDelegate(this));
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
@@ -674,13 +679,28 @@ WebFrame* CefBrowserImpl::UIT_GetWebFrame(CefRefPtr<CefFrame> frame)
 
 void CefBrowserImpl::UIT_DestroyBrowser()
 {
-  if(client_.get()) {
-    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
-    if (handler.get()) {
-      // Notify the handler that the window is about to be closed.
-      handler->OnBeforeClose(this);
+#if defined(OS_WIN)
+  if (is_modal_) {
+    // Exit our own internal modal message loop now.
+    if (internal_modal_message_loop_is_active_) {
+      MessageLoop* message_loop = MessageLoop::current();
+      message_loop->QuitNow();
+    }
+
+    // If the client implemented its own modal loop then the above would not
+    // run, so this call is for the client to exit its loop. Otherwise, 
+    // QuitModal can be used to let clients know that the modal loop is about 
+    // to exit.
+    if (client_.get()) {
+      CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+      if (handler.get()) {
+        // Notify the handler that it can exit its modal loop if it was in one.
+        handler->QuitModal(this);
+      }
     }
   }
+#endif
+
   UIT_GetWebViewDelegate()->RevokeDragDrop();
 
   // If the current browser window is a dev tools client then disconnect from
@@ -705,7 +725,7 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   // Clean up anything associated with the WebViewHost widget.
   UIT_GetWebViewHost()->webwidget()->close();
   webviewhost_.reset();
-  
+
   // Remove the reference added in UIT_CreateBrowser().
   Release();
   
@@ -716,10 +736,20 @@ void CefBrowserImpl::UIT_DestroyBrowser()
 void CefBrowserImpl::UIT_CloseBrowser()
 {
   REQUIRE_UIT();
-  if (!IsWindowRenderingDisabled())
-    UIT_CloseView(UIT_GetMainWndHandle());
-  else
+  if (IsWindowRenderingDisabled()) {
+    // There is no window here so we need to notify the client that this
+    // browser instance is about to go away.
+    if (client_.get()) {
+      CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+      if (handler.get()) {
+        // Notify the handler that the window is about to be closed.
+        handler->OnBeforeClose(this);
+      }
+    }
     UIT_DestroyBrowser();
+  } else {
+    UIT_CloseView(UIT_GetMainWndHandle());
+  }
 }
 
 void CefBrowserImpl::UIT_LoadURL(CefRefPtr<CefFrame> frame,
@@ -1082,8 +1112,11 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
     }
   }
 
+  // Modal windows need to know which window is being suspended (the opener)
+  // so that it can be disabled while the modal window is open. 
   CefRefPtr<CefBrowserImpl> browser(
-      new CefBrowserImpl(info, settings, true, client));
+      new CefBrowserImpl(info, settings, UIT_GetMainWndHandle(), client));
+
   // Don't pass the URL to UIT_CreateBrowser for popup windows or the URL will
   // be loaded twice.
   browser->UIT_CreateBrowser(CefString());

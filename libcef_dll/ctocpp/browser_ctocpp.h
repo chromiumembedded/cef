@@ -41,6 +41,7 @@ public:
   virtual void StopLoad() OVERRIDE;
   virtual void SetFocus(bool enable) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
+  virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;

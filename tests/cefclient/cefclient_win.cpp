@@ -560,6 +560,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if (browser.get())
             browser->CloseDevTools();
           return 0;
+        case ID_TESTS_MODALDIALOG:
+          if(browser.get())
+            RunModalDialogTest(browser);
+          return 0;
         }
       }
       break;
@@ -604,6 +608,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Dont erase the background if the browser window has been loaded
         // (this avoids flashing)
         return 0;
+      }
+      break;
+
+    case WM_CLOSE:
+      // All clients must forward the WM_CLOSE call to all contained browser
+      // windows to give those windows a chance to cleanup before the window
+      // closes. Don't forward this message if you are cancelling the request.
+      if(g_handler.get())
+      {
+        HWND hWnd = g_handler->GetBrowserHwnd();
+        if (hWnd)
+          ::SendMessage(hWnd, WM_CLOSE, 0, 0);
       }
       break;
     

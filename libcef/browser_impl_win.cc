@@ -38,6 +38,35 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       static_cast<CefBrowserImpl*>(ui::GetWindowUserData(hwnd));
 
   switch (message) {
+  case WM_CLOSE:
+    // It is the responsibility of the client to send this message to this
+    // window if it is created as a child window of a client's frame window.
+    // This is particularly important when this window is modal.
+    if(browser) {
+      // Here the window really is about to get closed.
+      if (browser->client_.get()) {
+        CefRefPtr<CefLifeSpanHandler> handler = 
+            browser->client_->GetLifeSpanHandler();
+        if (handler.get()) {
+          // Notify the handler that the window is about to be closed.
+          handler->OnBeforeClose(browser);
+        }
+      }
+
+      // We must re-enable the opener (owner of the modal window)
+      // before we close the popup to avoid focus/activation/z-order issues.
+      if (browser->opener_ && browser->opener_was_disabled_by_modal_loop_) {
+        HWND owner = ::GetAncestor(browser->opener_, GA_ROOT);
+        ::EnableWindow(owner, TRUE);
+      }
+
+      // Don't do the default if this is a contained window as the destruction
+      // will occur when the parent frame window is destroyed.
+      if (::GetAncestor(hwnd, GA_ROOT) != hwnd)
+        return 0;
+    }
+    break;
+
   case WM_DESTROY:
     if (browser) {
       // Clear the user data pointer.

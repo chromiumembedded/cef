@@ -35,6 +35,8 @@ IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
 IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 IDS_DOMACCESS BINARY "res\\domaccess.html"
+IDS_MODALMAIN BINARY "res\\modalmain.html"
+IDS_MODALDIALOG BINARY "res\\modaldialog.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -92,6 +94,7 @@ BEGIN
         MENUITEM "Reset Zoom",                  ID_TESTS_ZOOM_RESET
         MENUITEM "Show Developer Tools",        ID_TESTS_DEVTOOLS_SHOW
         MENUITEM "Close Developer Tools",       ID_TESTS_DEVTOOLS_CLOSE
+        MENUITEM "Modal Dialog",                ID_TESTS_MODALDIALOG
    END
 END
 

@@ -120,6 +120,14 @@ CefWindowHandle CefBrowserCToCpp::GetWindowHandle()
   return struct_->get_window_handle(struct_);
 }
 
+CefWindowHandle CefBrowserCToCpp::GetOpenerWindowHandle()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_opener_window_handle))
+    return 0;
+  
+  return struct_->get_opener_window_handle(struct_);
+}
+
 bool CefBrowserCToCpp::IsPopup()
 {
   if(CEF_MEMBER_MISSING(struct_, is_popup))

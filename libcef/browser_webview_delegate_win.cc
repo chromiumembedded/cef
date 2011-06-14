@@ -178,8 +178,48 @@ void BrowserWebViewDelegate::runModal() {
 
   browser_->UIT_SetIsModal(true);
 
-  // TODO(CEF): Add a handler notification for modal windows so the client can
-  // make the window behave modally.
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefLifeSpanHandler> handler;
+
+  if( client.get())
+    handler = client->GetLifeSpanHandler();
+  
+  bool handled(false);
+
+  if (handler.get()) {
+    // Let the client override the modal message loop.
+    handled = handler->RunModal(browser_);
+  }
+
+  if (!handled) {
+    HWND child = ::GetAncestor(browser_->UIT_GetMainWndHandle(), GA_ROOT);
+    HWND owner = ::GetAncestor(browser_->opener_window(), GA_ROOT);
+
+    if (child && owner) {
+      // Set the owner so that Windows keeps this window above the owner.
+      ::SetWindowLong(child, GWL_HWNDPARENT, (LONG)owner);
+      // Disable the owner if it is enabled so that you can't interact with it.
+      // while this child window is open.
+      if (::IsWindowEnabled(owner)) {
+        ::EnableWindow(owner, FALSE);
+        browser_->set_opener_was_disabled_by_modal_loop(true);
+      }
+      DWORD dwStyle = ::GetWindowLong(child, GWL_STYLE);
+      DWORD dwNewStyle = dwStyle | WS_POPUP;
+      if(dwStyle != dwNewStyle)
+        ::SetWindowLong(child, GWL_STYLE, dwNewStyle);
+    }
+
+    // Tell the browser to exit this message loop when this window closes.
+    browser_->set_internal_modal_message_loop_is_active(true);
+
+    // Start a new message loop here and return when this window closes.
+    MessageLoop* message_loop = MessageLoop::current();
+    bool old_state = message_loop->NestableTasksAllowed();
+    message_loop->SetNestableTasksAllowed(true);
+    message_loop->Run();
+    message_loop->SetNestableTasksAllowed(old_state);
+  }
 }
 
 // WebPluginPageDelegate ------------------------------------------------------

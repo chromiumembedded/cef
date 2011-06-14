@@ -39,6 +39,8 @@ public:
       CefBrowserSettings& settings) OVERRIDE;
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool RunModal(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual void QuitModal(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

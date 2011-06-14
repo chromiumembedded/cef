@@ -97,6 +97,30 @@ void CEF_CALLBACK life_span_handler_on_before_close(
       CefBrowserCToCpp::Wrap(browser));
 }
 
+int CEF_CALLBACK life_span_handler_run_modal(
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if (!self || !browser)
+    return 0;
+
+  return CefLifeSpanHandlerCppToC::Get(self)->RunModal(
+      CefBrowserCToCpp::Wrap(browser));
+}
+
+void CEF_CALLBACK life_span_handler_quit_modal(
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  if (!self || !browser)
+    return;
+
+  CefLifeSpanHandlerCppToC::Get(self)->QuitModal( 
+      CefBrowserCToCpp::Wrap(browser));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -107,6 +131,8 @@ CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls)
   struct_.struct_.on_before_popup = life_span_handler_on_before_popup;
   struct_.struct_.on_after_created = life_span_handler_on_after_created;
   struct_.struct_.on_before_close = life_span_handler_on_before_close;
+  struct_.struct_.run_modal = life_span_handler_run_modal;
+  struct_.struct_.quit_modal = life_span_handler_quit_modal;
 }
 
 #ifndef NDEBUG
