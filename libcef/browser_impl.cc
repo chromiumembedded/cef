@@ -13,6 +13,7 @@
 
 #include "base/file_path.h"
 #include "base/path_service.h"
+#include "base/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
@@ -1430,11 +1431,14 @@ void CefBrowserImpl::UIT_ShowDevTools()
     FilePath devtools_path =
         dir_exe.AppendASCII("resources/inspector/devtools.html");
 
+    // Mac requires that the URL have a file:// prefix.
+    CefString path = devtools_path.value();
+    CefString url(base::StringPrintf("file://%s", path.ToString().c_str()));
+
     CefPopupFeatures features;
-    CefRefPtr<CefBrowserImpl> browser =
-        UIT_CreatePopupWindow(devtools_path.value(), features);
+    CefRefPtr<CefBrowserImpl> browser = UIT_CreatePopupWindow(url, features);
     browser->UIT_CreateDevToolsClient(dev_tools_agent_.get());
-    browser->UIT_LoadURL(browser->GetMainFrame(), devtools_path.value());
+    browser->UIT_LoadURL(browser->GetMainFrame(), url);
     browser->UIT_Show(WebKit::WebNavigationPolicyNewWindow);
   } else {
     // Give focus to the existing inspector window.
