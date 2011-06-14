@@ -8,12 +8,18 @@
 
 #include "ui/gfx/rect.h"
 #include "base/logging.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebCompositionUnderline.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebVector.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#include "ui/base/ime/composition_text.h"
+#include "ui/base/range/range.h"
 #include "ui/base/win/hwnd_util.h"
 #include "ui/gfx/gdi_util.h"
 
@@ -139,6 +145,12 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_MBUTTONDBLCLK:
       case WM_RBUTTONDBLCLK:
         host->MouseEvent(message, wparam, lparam);
+        // Finish the ongoing composition whenever a mouse click happens.
+        // It matches IE's behavior.
+        if (message == WM_LBUTTONDOWN || message == WM_MBUTTONDOWN ||
+            message == WM_RBUTTONDOWN) {
+          host->ime_input_.CleanupComposition(host->view_);
+        }
         break;
 
       case WM_MOUSEWHEEL:
@@ -172,6 +184,56 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         host->KeyEvent(message, wparam, lparam);
         return 0;
 
+      case WM_CREATE:
+        // Call the WM_INPUTLANGCHANGE message handler to initialize
+        // the input locale of a browser process.
+        host->OnInputLangChange(0, 0);
+        break;
+
+      case WM_INPUTLANGCHANGE:
+        host->OnInputLangChange(0, 0);
+        break;
+
+      case WM_IME_SETCONTEXT:
+        {
+          BOOL handled;
+          LRESULT ime_retval = host->OnImeSetContext(message, wparam,
+                                                     lparam, handled);
+          if (handled)
+            return ime_retval;
+        }
+        break;
+
+      case WM_IME_STARTCOMPOSITION:
+        {
+          BOOL handled;
+          LRESULT ime_retval = host->OnImeStartComposition(message, wparam,
+                                                           lparam, handled);
+          if (handled)
+            return ime_retval;
+        }
+        break;
+
+      case WM_IME_COMPOSITION:
+        {
+          BOOL handled;
+          LRESULT ime_retval = host->OnImeComposition(message, wparam,
+                                                      lparam, handled);
+          if (handled)
+            return ime_retval;
+        }
+        break;
+
+      case WM_IME_ENDCOMPOSITION:
+        {
+          BOOL handled;
+          LRESULT ime_retval = host->OnImeEndComposition(message, wparam,
+                                                         lparam, handled);
+          if (handled)
+            return ime_retval;
+        }
+        break;
+
       case WM_SETFOCUS:
         host->SetFocus(true);
         break;
@@ -204,6 +266,11 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   paint_rect_ = paint_rect_.Union(damaged_rect);
 
   InvalidateRect(gfx::Rect(damaged_rect));
+
+  if (!popup_ && view_) {
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableFunction(
+        &WebWidgetHost::UpdateInputMethod, view_));
+  }
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
@@ -249,6 +316,9 @@ WebWidgetHost::WebWidgetHost()
       webwidget_(NULL),
       popup_(false),
       track_mouse_leave_(false),
+      ime_notification_(false),
+      input_method_is_active_(false),
+      text_input_type_(WebKit::WebTextInputTypeNone),
       scroll_dx_(0),
       scroll_dy_(0),
       update_task_(NULL),
@@ -786,4 +856,210 @@ void WebWidgetHost::SendFocusEvent(bool setFocus)
 void WebWidgetHost::SendCaptureLostEvent()
 {
   CaptureLostEvent();
+}
+
+LRESULT WebWidgetHost::OnImeSetContext(UINT message, WPARAM wparam,
+                                       LPARAM lparam, BOOL& handled)
+{
+  if (!webwidget_)
+    return 0;
+
+  // We need status messages about the focused input control from a
+  // renderer process when:
+  //   * the current input context has IMEs, and;
+  //   * an application is activated.
+  // This seems to tell we should also check if the current input context has
+  // IMEs before sending a request, however, this WM_IME_SETCONTEXT is
+  // fortunately sent to an application only while the input context has IMEs.
+  // Therefore, we just start/stop status messages according to the activation
+  // status of this application without checks.
+  bool activated = (wparam == TRUE);
+  if (webwidget_) {
+    input_method_is_active_ = activated;
+    ime_notification_ = activated;
+  }
+
+  if (ime_notification_)
+    ime_input_.CreateImeWindow(view_);
+
+  ime_input_.CleanupComposition(view_);
+  ime_input_.SetImeWindowStyle(view_, message, wparam, lparam, &handled);
+  return 0;
+}
+
+LRESULT WebWidgetHost::OnImeStartComposition(UINT message, WPARAM wparam,
+                                             LPARAM lparam, BOOL& handled)
+{
+  if (!webwidget_)
+    return 0;
+
+  // Reset the composition status and create IME windows.
+  ime_input_.CreateImeWindow(view_);
+  ime_input_.ResetComposition(view_);
+  // We have to prevent WTL from calling ::DefWindowProc() because the function
+  // calls ::ImmSetCompositionWindow() and ::ImmSetCandidateWindow() to
+  // over-write the position of IME windows.
+  handled = TRUE;
+  return 0;
+}
+
+LRESULT WebWidgetHost::OnImeComposition(UINT message, WPARAM wparam,
+                                        LPARAM lparam, BOOL& handled)
+{
+  if (!webwidget_)
+    return 0;
+
+  // At first, update the position of the IME window.
+  ime_input_.UpdateImeWindow(view_);
+
+  // ui::CompositionUnderline should be identical to
+  // WebKit::WebCompositionUnderline, so that we can do reinterpret_cast safely.
+  COMPILE_ASSERT(sizeof(ui::CompositionUnderline) ==
+                 sizeof(WebKit::WebCompositionUnderline),
+                 ui_CompositionUnderline__WebKit_WebCompositionUnderline_diff);
+
+  // Retrieve the result string and its attributes of the ongoing composition
+  // and send it to a renderer process.
+  ui::CompositionText composition;
+  if (ime_input_.GetResult(view_, lparam, &composition.text)) {
+    webwidget_->setComposition(composition.text,
+                               std::vector<WebKit::WebCompositionUnderline>(),
+                               0, 0);
+    webwidget_->confirmComposition();
+    ime_input_.ResetComposition(view_);
+    // Fall though and try reading the composition string.
+    // Japanese IMEs send a message containing both GCS_RESULTSTR and
+    // GCS_COMPSTR, which means an ongoing composition has been finished
+    // by the start of another composition.
+  }
+  // Retrieve the composition string and its attributes of the ongoing
+  // composition and send it to a renderer process.
+  if (ime_input_.GetComposition(view_, lparam, &composition)) {
+    // TODO(suzhe): due to a bug of webkit, we can't use selection range with
+    // composition string. See: https://bugs.webkit.org/show_bug.cgi?id=37788
+    composition.selection = ui::Range(composition.selection.end());
+
+    // TODO(suzhe): convert both renderer_host and renderer to use
+    // ui::CompositionText.
+    const std::vector<WebKit::WebCompositionUnderline>& underlines =
+        reinterpret_cast<const std::vector<WebKit::WebCompositionUnderline>&>(
+            composition.underlines);
+    webwidget_->setComposition(
+        composition.text, underlines,
+        composition.selection.start(), composition.selection.end());
+  }
+  // We have to prevent WTL from calling ::DefWindowProc() because we do not
+  // want for the IMM (Input Method Manager) to send WM_IME_CHAR messages.
+  handled = TRUE;
+  return 0;
+}
+
+LRESULT WebWidgetHost::OnImeEndComposition(UINT message, WPARAM wparam,
+                                           LPARAM lparam, BOOL& handled)
+{
+  if (!webwidget_)
+    return 0;
+
+  if (ime_input_.is_composing()) {
+    // A composition has been ended while there is an ongoing composition,
+    // i.e. the ongoing composition has been canceled.
+    // We need to reset the composition status both of the ImeInput object and
+    // of the renderer process.
+    ime_input_.CancelIME(view_);
+    ime_input_.ResetComposition(view_);
+  }
+  ime_input_.DestroyImeWindow(view_);
+  // Let WTL call ::DefWindowProc() and release its resources.
+  handled = FALSE;
+  return 0;
+}
+
+void WebWidgetHost::OnInputLangChange(DWORD character_set,
+                                      HKL input_language_id)
+{
+  // Send the given Locale ID to the ImeInput object and retrieves whether
+  // or not the current input context has IMEs.
+  // If the current input context has IMEs, a browser process has to send a
+  // request to a renderer process that it needs status messages about
+  // the focused edit control from the renderer process.
+  // On the other hand, if the current input context does not have IMEs, the
+  // browser process also has to send a request to the renderer process that
+  // it does not need the status messages any longer.
+  // To minimize the number of this notification request, we should check if
+  // the browser process is actually retrieving the status messages (this
+  // state is stored in ime_notification_) and send a request only if the
+  // browser process has to update this status, its details are listed below:
+  // * If a browser process is not retrieving the status messages,
+  //   (i.e. ime_notification_ == false),
+  //   send this request only if the input context does have IMEs,
+  //   (i.e. ime_status == true);
+  //   When it successfully sends the request, toggle its notification status,
+  //   (i.e.ime_notification_ = !ime_notification_ = true).
+  // * If a browser process is retrieving the status messages
+  //   (i.e. ime_notification_ == true),
+  //   send this request only if the input context does not have IMEs,
+  //   (i.e. ime_status == false).
+  //   When it successfully sends the request, toggle its notification status,
+  //   (i.e.ime_notification_ = !ime_notification_ = false).
+  // To analyze the above actions, we can optimize them into the ones
+  // listed below:
+  // 1 Sending a request only if ime_status_ != ime_notification_, and;
+  // 2 Copying ime_status to ime_notification_ if it sends the request
+  //   successfully (because Action 1 shows ime_status = !ime_notification_.)
+  bool ime_status = ime_input_.SetInputLanguage();
+  if (ime_status != ime_notification_ && webwidget_) {
+    input_method_is_active_ = ime_status;
+    ime_notification_ = ime_status;
+  }
+}
+
+void WebWidgetHost::ImeUpdateTextInputState(WebKit::WebTextInputType type,
+                                            const gfx::Rect& caret_rect)
+{
+  if (text_input_type_ != type) {
+    text_input_type_ = type;
+    if (type == WebKit::WebTextInputTypeText)
+      ime_input_.EnableIME(view_);
+    else
+      ime_input_.DisableIME(view_);
+  }
+
+  // Only update caret position if the input method is enabled.
+  if (type == WebKit::WebTextInputTypeText)
+    ime_input_.UpdateCaretRect(view_, caret_rect);
+}
+
+/* static */
+void WebWidgetHost::UpdateInputMethod(HWND view)
+{
+  // Since we call this function asynchronously (via PostTask), we
+  // must ensure that we haven't destroyed the window by the time this
+  // function executes
+  if (!::IsWindow(view))
+    return;
+
+  WebWidgetHost* host = FromWindow(view);
+
+  if (!host->input_method_is_active_)
+    return;
+
+  if (!host->webwidget_ || !CefThread::CurrentlyOn(CefThread::UI))
+    return;
+
+  WebKit::WebTextInputType new_type = WebKit::WebTextInputTypeNone;
+  WebKit::WebRect new_caret_bounds;
+
+  if (host->webwidget_) {
+    new_type = host->webwidget_->textInputType();
+    new_caret_bounds = host->webwidget_->caretOrSelectionBounds();
+  }
+
+  // Only sends text input type and caret bounds to the browser process if they
+  // are changed.
+  if (host->text_input_type_ != new_type ||
+      host->caret_bounds_ != new_caret_bounds) {
+    host->text_input_type_ = new_type;
+    host->caret_bounds_ = new_caret_bounds;
+    host->ImeUpdateTextInputState(new_type, new_caret_bounds);
+  }
 }

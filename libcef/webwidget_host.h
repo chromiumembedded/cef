@@ -12,10 +12,16 @@
 #include "base/task.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebTextInputType.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
 #include "webkit/plugins/npapi/webplugin.h"
 #include <map>
+
+#if defined(OS_WIN)
+#include "ui/base/win/ime_input.h"
+#endif
 
 namespace gfx {
 class Rect;
@@ -134,6 +140,13 @@ class WebWidgetHost {
   void OnNotify(WPARAM wparam, NMHDR* header);
 
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+  LRESULT OnImeSetContext(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  LRESULT OnImeEndComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  void OnInputLangChange(DWORD character_set, HKL input_language_id);
+  void ImeUpdateTextInputState(WebKit::WebTextInputType type, const gfx::Rect& caret_rect);
+  static void UpdateInputMethod(HWND view);
 #elif defined(OS_MACOSX)
   // These need to be called from a non-subclass, so they need to be public.
  public:
@@ -211,6 +224,23 @@ class WebWidgetHost {
   std::wstring tooltip_text_;
   gfx::NativeView tooltip_view_;
   bool tooltip_showing_;
+
+  // Wrapper class for IME input.
+  ui::ImeInput ime_input_;
+
+  // Represents whether or not this browser process is receiving status
+  // messages about the focused edit control from a renderer process.
+  bool ime_notification_;
+
+  // Represents whether or not the IME of a browser process is active.
+  bool input_method_is_active_;
+
+  // Stores the current text input type received by ImeUpdateTextInputState()
+  // method.
+  WebKit::WebTextInputType text_input_type_;
+
+  // Stores the current caret bounds of input focus.
+  WebKit::WebRect caret_bounds_;
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
