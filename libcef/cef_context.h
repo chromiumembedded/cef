@@ -75,7 +75,8 @@ public:
 private:
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
-  void UIT_FinishShutdown(base::WaitableEvent* event);
+  void UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
+                          base::WaitableEvent* uithread_shutdown_event);
 
   // Track context state.
   bool initialized_;

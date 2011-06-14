@@ -129,6 +129,21 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
     IOT_VisitCookies(cookie_monster, list, visitor);
 }
 
+// Used in multi-threaded message loop mode to observe shutdown of the UI
+// thread.
+class DestructionObserver : public MessageLoop::DestructionObserver
+{
+public:
+  DestructionObserver(base::WaitableEvent *event) : event_(event) {}
+  virtual void WillDestroyCurrentMessageLoop() {
+    MessageLoop::current()->RemoveDestructionObserver(this);
+    event_->Signal();
+    delete this;
+  }
+private:
+  base::WaitableEvent *event_;
+};
+
 } // anonymous
 
 bool CefInitialize(const CefSettings& settings)
@@ -475,23 +490,31 @@ void CefContext::Shutdown()
   shutting_down_ = true;
 
   if(settings_.multi_threaded_message_loop) {
-    // Event that will be used to signal when shutdown is complete. Start in
+    // Events that will be used to signal when shutdown is complete. Start in
     // non-signaled mode so that the event will block.
-    base::WaitableEvent event(false, false);
+    base::WaitableEvent browser_shutdown_event(false, false);
+    base::WaitableEvent uithread_shutdown_event(false, false);
 
     // Finish shutdown on the UI thread.
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableMethod(this, &CefContext::UIT_FinishShutdown, &event));
+        NewRunnableMethod(this, &CefContext::UIT_FinishShutdown,
+            &browser_shutdown_event, &uithread_shutdown_event));
 
-    // Block until shutdown is complete.
-    event.Wait();
+    // Block until browser shutdown is complete.
+    browser_shutdown_event.Wait();
+
+    // Delete the process to destroy the child threads.
+    process_ = NULL;
+
+    // Block until UI thread shutdown is complete.
+    uithread_shutdown_event.Wait();
   } else {
     // Finish shutdown on the current thread, which should be the UI thread.
-    UIT_FinishShutdown(NULL);
-  }
+    UIT_FinishShutdown(NULL, NULL);
 
-  // Delete the process to destroy the child threads.
-  process_ = NULL;
+    // Delete the process to destroy the child threads.
+    process_ = NULL;
+  }
 }
 
 bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
@@ -562,7 +585,8 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
   return NULL;
 }
 
-void CefContext::UIT_FinishShutdown(base::WaitableEvent* event)
+void CefContext::UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
+                                   base::WaitableEvent* uithread_shutdown_event)
 {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
@@ -583,6 +607,13 @@ void CefContext::UIT_FinishShutdown(base::WaitableEvent* event)
       (*it)->UIT_DestroyBrowser();
   }
 
-  if(event)
-    event->Signal();
+  if (uithread_shutdown_event) {
+    // The destruction observer will signal the UI thread shutdown event when
+    // the UI thread has been destroyed.
+    MessageLoop::current()->AddDestructionObserver(
+        new DestructionObserver(uithread_shutdown_event));
+
+    // Signal the browser shutdown event now.
+    browser_shutdown_event->Signal();
+  }
 }

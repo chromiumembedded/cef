@@ -1040,7 +1040,7 @@ void WebWidgetHost::UpdateInputMethod(HWND view)
 
   WebWidgetHost* host = FromWindow(view);
 
-  if (!host->input_method_is_active_)
+  if (!host || !host->input_method_is_active_)
     return;
 
   if (!host->webwidget_ || !CefThread::CurrentlyOn(CefThread::UI))
