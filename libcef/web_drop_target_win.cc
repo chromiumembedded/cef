@@ -59,6 +59,7 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
                                  POINT cursor_position,
                                  DWORD effects) {
   current_wvh_ = _Context->current_webviewhost();
+  DCHECK(current_wvh_);
 
   // TODO(tc): PopulateWebDropData can be slow depending on what is in the
   // IDataObject.  Maybe we can do this in a background thread.

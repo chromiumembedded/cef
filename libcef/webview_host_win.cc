@@ -64,6 +64,17 @@ WebView* WebViewHost::webview() const {
   return static_cast<WebView*>(webwidget_);
 }
 
+bool WebViewHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
+  switch (message) {
+  case WM_SETFOCUS:
+    // Set the current WebViewHost in case a drag action is started before mouse
+    // events are detected for the window.
+    _Context->set_current_webviewhost(this);
+    break;
+  }
+  return false;
+}
+
 void WebViewHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
   _Context->set_current_webviewhost(this);
   WebWidgetHost::MouseEvent(message, wparam, lparam);

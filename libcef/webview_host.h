@@ -56,9 +56,7 @@ class WebViewHost : public WebWidgetHost {
    WebViewHost();
 
 #if defined(OS_WIN)
-  virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
-    return false;
-  }
+  virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
   virtual void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
 #endif
 
