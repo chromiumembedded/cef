@@ -166,10 +166,10 @@ public:
     CreateBrowser("http://tests/test_filter.html");
   }
 
-  virtual void OnResourceReponse(CefRefPtr<CefBrowser> browser,
-                                 const CefString& url,
-                                 CefRefPtr<CefResponse> response,
-                                 CefRefPtr<CefContentFilter>& filter) OVERRIDE
+  virtual void OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                                  const CefString& url,
+                                  CefRefPtr<CefResponse> response,
+                                  CefRefPtr<CefContentFilter>& filter) OVERRIDE
   {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     

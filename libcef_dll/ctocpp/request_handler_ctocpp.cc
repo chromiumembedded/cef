@@ -55,16 +55,16 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
   return (rv ? true : false);
 }
 
-void CefRequestHandlerCToCpp::OnResourceReponse(CefRefPtr<CefBrowser> browser,
+void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     const CefString& url, CefRefPtr<CefResponse> response,
     CefRefPtr<CefContentFilter>& filter)
 {
-  if (CEF_MEMBER_MISSING(struct_, on_resource_reponse))
+  if (CEF_MEMBER_MISSING(struct_, on_resource_response))
     return;
 
   cef_content_filter_t* filterRet = NULL;
 
-  struct_->on_resource_reponse(struct_,
+  struct_->on_resource_response(struct_,
       CefBrowserCppToC::Wrap(browser), url.GetStruct(),
       CefResponseCppToC::Wrap(response), &filterRet);
  

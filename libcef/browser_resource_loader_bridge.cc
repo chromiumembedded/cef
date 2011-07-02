@@ -217,7 +217,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           response->SetStatus(info.headers->response_code());
         }
         response->SetMimeType(info.mime_type);
-        handler->OnResourceReponse(browser_, url.spec(), response,
+        handler->OnResourceResponse(browser_, url.spec(), response,
             content_filter_);
 
         std::string content_disposition;
@@ -254,7 +254,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     // Note: Doing this before notifying our peer ensures our load events get
     // dispatched in a manner consistent with DumpRenderTree (and also avoids a
     // race condition).  If the order of the next 2 functions were reversed, the
-    // peer could generate new requests in reponse to the received data, which
+    // peer could generate new requests in response to the received data, which
     // when run on the io thread, could race against this function in doing
     // another InvokeLater.  See bug 769249.
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(

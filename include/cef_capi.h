@@ -937,7 +937,7 @@ typedef struct _cef_request_handler_t
   // received. Set |filter| if response content needs to be monitored and/or
   // modified as it arrives.
   ///
-  void (CEF_CALLBACK *on_resource_reponse)(struct _cef_request_handler_t* self,
+  void (CEF_CALLBACK *on_resource_response)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, const cef_string_t* url,
       struct _cef_response_t* response,
       struct _cef_content_filter_t** filter);

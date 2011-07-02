@@ -68,7 +68,7 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
   return rv;
 }
 
-void CEF_CALLBACK request_handler_on_resource_reponse(
+void CEF_CALLBACK request_handler_on_resource_response(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, struct _cef_response_t* response,
     struct _cef_content_filter_t** filter)
@@ -83,7 +83,7 @@ void CEF_CALLBACK request_handler_on_resource_reponse(
 
   CefRefPtr<CefContentFilter> filterPtr;
 
-  CefRequestHandlerCppToC::Get(self)->OnResourceReponse(
+  CefRequestHandlerCppToC::Get(self)->OnResourceResponse(
       CefBrowserCToCpp::Wrap(browser), url, CefResponseCToCpp::Wrap(response),
       filterPtr);
 
@@ -169,7 +169,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_before_browse = request_handler_on_before_browse;
   struct_.struct_.on_before_resource_load =
       request_handler_on_before_resource_load;
-  struct_.struct_.on_resource_reponse = request_handler_on_resource_reponse;
+  struct_.struct_.on_resource_response = request_handler_on_resource_response;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.get_download_handler = request_handler_get_download_handler;
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;

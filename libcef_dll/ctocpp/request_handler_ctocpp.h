@@ -40,7 +40,7 @@ public:
       CefRefPtr<CefRequest> request, CefString& redirectUrl,
       CefRefPtr<CefStreamReader>& resourceStream,
       CefRefPtr<CefResponse> response, int loadFlags) OVERRIDE;
-  virtual void OnResourceReponse(CefRefPtr<CefBrowser> browser,
+  virtual void OnResourceResponse(CefRefPtr<CefBrowser> browser,
       const CefString& url, CefRefPtr<CefResponse> response,
       CefRefPtr<CefContentFilter>& filter) OVERRIDE;
   virtual bool OnProtocolExecution(CefRefPtr<CefBrowser> browser,
