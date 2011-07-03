@@ -91,6 +91,9 @@ WebRect BrowserWebViewDelegate::windowResizerRect() {
   if (host) {
     NSView *view = host->view_handle();
     NSWindow* window = [view window];
+    if (window == nil)
+      return gfx::Rect();
+
     resize_rect = [window _growBoxRect];
     // The scrollbar assumes that the resizer goes all the way down to the
     // bottom corner, so we ignore any y offset to the rect itself and use the

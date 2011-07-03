@@ -700,6 +700,15 @@ void CefBrowserImpl::UIT_DestroyBrowser()
       }
     }
   }
+#else
+  // Call OnBeforeClose() here for platforms that don't support modal dialogs.
+  if (client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
+    if (handler.get()) {
+      // Notify the handler that the window is about to be closed.
+      handler->OnBeforeClose(this);
+    }
+  }
 #endif
 
   UIT_GetWebViewDelegate()->RevokeDragDrop();
