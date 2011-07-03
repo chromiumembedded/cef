@@ -54,7 +54,5 @@ RunAction(cef_dir, patcher);
 
 print "\nGenerating CEF project files..."
 os.environ['CEF_DIRECTORY'] = os.path.basename(cef_dir);
-gyper = [ 'python', '../tools/gyp/gyp', 'cef.gyp', '-I', '../build/common.gypi', 
-          '-I', '../build/features_override.gypi', '-I', 'cef.gypi', 
-          '--no-circular-check' ]
+gyper = [ 'python', 'tools/gyp_cef', 'cef.gyp', '-I', 'cef.gypi' ]
 RunAction(cef_dir, gyper);

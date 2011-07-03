@@ -28,6 +28,7 @@
 #include "net/base/file_stream.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "views/drag_utils.h"
@@ -259,6 +260,7 @@ void GenerateFileName(const GURL& url,
   string16 new_name = net::GetSuggestedFilename(GURL(url),
                                                 content_disposition,
                                                 referrer_charset,
+                                                "",
                                                 string16(L"download"));
 
   // TODO(evan): this code is totally wrong -- we should just generate
@@ -332,8 +334,9 @@ void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
   drag_source_ = new WebDragSource(browser->UIT_GetWebViewWndHandle(),
                                    web_view);
 
-  const GURL& page_url = web_view->mainFrame()->url();
-  const std::string& page_encoding = web_view->mainFrame()->encoding().utf8();
+  const GURL& page_url = web_view->mainFrame()->document().url();
+  const std::string& page_encoding =
+      web_view->mainFrame()->document().encoding().utf8();
 
   // If it is not drag-out, do the drag-and-drop in the current UI thread.
   if (drop_data.download_metadata.empty()) {
@@ -446,7 +449,7 @@ void BrowserDragDelegate::PrepareDragForFileContents(
   if (file_name.value().empty()) {
     // Retrieve the name from the URL.
     file_name = FilePath(
-        net::GetSuggestedFilename(drop_data.url, "", "", string16()));
+        net::GetSuggestedFilename(drop_data.url, "", "", "", string16()));
     if (file_name.value().size() + drop_data.file_extension.size() + 1 >
         MAX_PATH) {
       file_name = FilePath(file_name.value().substr(

@@ -366,7 +366,11 @@ void WebWidgetHost::Paint() {
         paint_rect_.width(), paint_rect_.height(), true));
   }
 
-  webwidget_->animate();
+#ifdef WEBWIDGET_HAS_ANIMATE_CHANGES
+  webwidget_->animate(0.0);
+#else
+   webwidget_->animate();
+#endif
 
   // This may result in more invalidation
   webwidget_->layout();
@@ -374,13 +378,13 @@ void WebWidgetHost::Paint() {
   // Scroll the canvas if necessary
   scroll_rect_ = client_rect.Intersect(scroll_rect_);
   if (!scroll_rect_.IsEmpty()) {
-    HDC hdc = canvas_->beginPlatformPaint();
+    skia::ScopedPlatformPaint scoped_platform_paint(canvas_.get());
+    HDC hdc = scoped_platform_paint.GetPlatformSurface();
 
     RECT damaged_scroll_rect, r = scroll_rect_.ToRECT();
     ScrollDC(hdc, scroll_dx_, scroll_dy_, NULL, &r, NULL, &damaged_scroll_rect);
 
     PaintRect(gfx::Rect(damaged_scroll_rect));
-    canvas_->endPlatformPaint();
   }
   ResetScrollRect();
 
@@ -412,7 +416,8 @@ void WebWidgetHost::Paint() {
     }
 
     if (!visible_plugins.empty()) {
-      HDC drawDC = canvas_->beginPlatformPaint();
+      skia::ScopedPlatformPaint scoped_platform_paint(canvas_.get());
+      HDC drawDC = scoped_platform_paint.GetPlatformSurface();
       HRGN oldRGN, newRGN;
       POINT oldViewport;
 
@@ -447,8 +452,6 @@ void WebWidgetHost::Paint() {
         damaged_rect = damaged_rect.Union(geom->window_rect);
       }
 
-      canvas_->endPlatformPaint();
-
       // Make sure the damaged rectangle is inside the client rectangle.
       damaged_rect = damaged_rect.Intersect(client_rect);
     }
@@ -458,10 +461,8 @@ void WebWidgetHost::Paint() {
     // Paint to the window.
     PAINTSTRUCT ps;
     BeginPaint(view_, &ps);
-    canvas_->getTopPlatformDevice().drawToHDC(ps.hdc,
-                                              ps.rcPaint.left,
-                                              ps.rcPaint.top,
-                                              &ps.rcPaint);
+    skia::DrawToNativeContext(canvas_.get(), ps.hdc, ps.rcPaint.left,
+                              ps.rcPaint.top, &ps.rcPaint);
     EndPaint(view_, &ps);
 
     // Draw children
@@ -469,8 +470,7 @@ void WebWidgetHost::Paint() {
   } else {
     // Paint to the delegate.
     DCHECK(paint_delegate_);
-    const SkBitmap& bitmap =
-        canvas_->getTopPlatformDevice().accessBitmap(false);
+    const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
     DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
     const void* pixels = bitmap.getPixels();
     paint_delegate_->Paint(popup_, damaged_rect, pixels);
@@ -502,10 +502,10 @@ bool WebWidgetHost::GetImage(int width, int height, void* buffer)
   if (!canvas_.get())
     return false;
 
-  DCHECK(width == canvas_->getTopPlatformDevice().width());
-  DCHECK(height == canvas_->getTopPlatformDevice().height());
+  DCHECK(width == canvas_->getDevice()->width());
+  DCHECK(height == canvas_->getDevice()->height());
 
-  const SkBitmap& bitmap = canvas_->getTopPlatformDevice().accessBitmap(false);
+  const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
   DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
   const void* pixels = bitmap.getPixels();
   memcpy(buffer, pixels, width * height * 4);

@@ -31,6 +31,7 @@ MSVC_POP_WARNING();
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
@@ -45,29 +46,9 @@ bool IsMediaPlayerAvailable() {
   return true;
 }
 
-bool GetApplicationDirectory(FilePath* path) {
-  return PathService::Get(base::DIR_EXE, path);
-}
-
-bool GetExeDirectory(FilePath* path) {
-  return PathService::Get(base::DIR_EXE, path);
-}
-
-bool IsPluginRunningInRendererProcess() {
-  return true;
-}
-
-bool GetPluginFinderURL(std::string* plugin_finder_url) {
-  return false;
-}
-
 void GetPlugins(bool refresh,
                 std::vector<webkit::npapi::WebPluginInfo>* plugins) {
   webkit::npapi::PluginList::Singleton()->GetPlugins(refresh, plugins);
-}
-
-bool IsDefaultPluginEnabled() {
-  return false;
 }
 
 bool IsProtocolSupportedForMedia(const GURL& url) {
@@ -115,14 +96,19 @@ void ClearCache()
   WebCore::CrossOriginPreflightResultCache::shared().empty();
 }
 
-std::string GetProductVersion() {
+std::string BuildUserAgent(bool mimic_windows) {
+  std::string product_version;
+
   const CefSettings& settings = _Context->settings();
   if (settings.product_version.length > 0) {
-    return CefString(&settings.product_version);
+    product_version = CefString(&settings.product_version).ToString();
+  } else {
+    // Keep synchronized with the newest Beta Channel release announced at
+    // http://googlechromereleases.blogspot.com/
+    product_version = "Chrome/13.0.782.41";
   }
-  // Keep synchronized with the newest Beta Channel release announced at
-  // http://googlechromereleases.blogspot.com/
-  return "Chrome/12.0.742.53";
+
+  return webkit_glue::BuildUserAgentHelper(mimic_windows, product_version);
 }
 
 bool IsSingleProcess() {

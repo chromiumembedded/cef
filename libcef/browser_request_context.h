@@ -26,7 +26,7 @@ class BrowserRequestContext : public net::URLRequestContext {
  public:
   // Use an in-memory cache
   BrowserRequestContext();
-  ~BrowserRequestContext();
+  virtual ~BrowserRequestContext();
 
   // Use an on-disk cache at the specified location.  Optionally, use the cache
   // in playback or record mode.

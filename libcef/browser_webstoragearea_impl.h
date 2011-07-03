@@ -23,7 +23,7 @@ class BrowserWebStorageAreaImpl : public WebKit::WebStorageArea {
   virtual void setItem(
       const WebKit::WebString& key, const WebKit::WebString& value,
       const WebKit::WebURL& url, WebStorageArea::Result& result,
-      WebKit::WebString& old_value, WebKit::WebFrame* web_view);
+      WebKit::WebString& old_value);
   virtual void removeItem(
       const WebKit::WebString& key, const WebKit::WebURL& url,
       WebKit::WebString& old_value);

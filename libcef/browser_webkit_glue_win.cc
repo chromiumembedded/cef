@@ -45,10 +45,6 @@ string16 GetLocalizedString(int message_id) {
   return string16(image->achString, image->nLength);
 }
 
-HCURSOR LoadCursor(int cursor_id) {
-  return NULL;
-}
-
 base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;

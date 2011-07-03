@@ -350,7 +350,7 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
                                          int number_ranges,
                                          bool selection_only,
                                          bool to_file) {
-  skia::PlatformDevice::InitializeDC(hdc_);
+  skia::InitializeDC(hdc_);
   DCHECK(GetDeviceCaps(hdc_, CLIPCAPS));
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_STRETCHDIB);
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_BITMAP64);

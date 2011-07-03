@@ -206,7 +206,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual WebKit::WebCookieJar* GetCookieJar() OVERRIDE;
 
   BrowserWebViewDelegate(CefBrowserImpl* browser);
-  ~BrowserWebViewDelegate();
+  virtual ~BrowserWebViewDelegate();
   void Reset();
 
   void SetSmartInsertDeleteEnabled(bool enabled);

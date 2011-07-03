@@ -94,4 +94,8 @@ bool ClipboardReadFilenames(ui::Clipboard::Buffer buffer,
   return false;
 }
 
+uint64 ClipboardGetSequenceNumber() {
+  return 0;
+}
+
 }  // namespace webkit_glue

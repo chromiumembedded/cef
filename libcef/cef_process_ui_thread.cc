@@ -15,15 +15,9 @@
 #include "base/string_number_conversions.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
-#include "net/url_request/url_request.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
 #include "ui/gfx/gl/gl_implementation.h"
-#include "webkit/blob/blob_storage_controller.h"
-#include "webkit/blob/blob_url_request_job.h"
 #include "webkit/extensions/v8/gc_extension.h"
-#include "webkit/fileapi/file_system_context.h"
-#include "webkit/fileapi/file_system_dir_url_request_job.h"
-#include "webkit/fileapi/file_system_url_request_job.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
 #if defined(OS_WIN)
@@ -34,48 +28,6 @@
 static const char* kStatsFilePrefix = "libcef_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
-
-namespace {
-
-net::URLRequestJob* BlobURLRequestJobFactory(net::URLRequest* request,
-                                             const std::string& scheme) {
-  webkit_blob::BlobStorageController* blob_storage_controller =
-      static_cast<BrowserRequestContext*>(request->context())->
-          blob_storage_controller();
-  return new webkit_blob::BlobURLRequestJob(
-      request,
-      blob_storage_controller->GetBlobDataFromUrl(request->url()),
-      CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
-}
-
-net::URLRequestJob* FileSystemURLRequestJobFactory(net::URLRequest* request,
-                                                   const std::string& scheme) {
-  fileapi::FileSystemContext* fs_context =
-      static_cast<BrowserRequestContext*>(request->context())
-          ->file_system_context();
-  if (!fs_context) {
-    LOG(WARNING) << "No FileSystemContext found, ignoring filesystem: URL";
-    return NULL;
-  }
-
-  // If the path ends with a /, we know it's a directory. If the path refers
-  // to a directory and gets dispatched to FileSystemURLRequestJob, that class
-  // redirects back here, by adding a / to the URL.
-  const std::string path = request->url().path();
-  if (!path.empty() && path[path.size() - 1] == '/') {
-    return new fileapi::FileSystemDirURLRequestJob(
-        request,
-        fs_context,
-        CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
-  }
-  return new fileapi::FileSystemURLRequestJob(
-      request,
-      fs_context,
-      CefThread::GetMessageLoopProxyForThread(CefThread::FILE));
-}
-
-} // namespace
-
 
 CefProcessUIThread::CefProcessUIThread()
       : CefThread(CefThread::UI), statstable_(NULL), webkit_init_(NULL) {}
@@ -154,10 +106,6 @@ void CefProcessUIThread::Init() {
 #else
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 #endif
-
-  net::URLRequest::RegisterProtocolFactory("blob", &BlobURLRequestJobFactory);
-  net::URLRequest::RegisterProtocolFactory("filesystem",
-                                           &FileSystemURLRequestJobFactory);
 
   if (!_Context->cache_path().empty()) {
     // Create the storage context object.

@@ -8,8 +8,8 @@
 #include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_temp_dir.h"
 #include "base/platform_file.h"
+#include "base/scoped_temp_dir.h"
 #include "base/string16.h"
 #include "base/synchronization/lock.h"
 #include "base/task.h"
@@ -29,7 +29,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   static BrowserDatabaseSystem* GetInstance();
 
   BrowserDatabaseSystem();
-  ~BrowserDatabaseSystem();
+  virtual ~BrowserDatabaseSystem();
 
   // WebDatabaseObserver implementation, these are called on the script
   // execution context thread on which the database is opened. This may be
@@ -44,6 +44,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   int DeleteFile(const string16& vfs_file_name, bool sync_dir);
   uint32 GetFileAttributes(const string16& vfs_file_name);
   int64 GetFileSize(const string16& vfs_file_name);
+  int64 GetSpaceAvailable(const string16& origin_identifier);
 
   // For use by LayoutTestController, called on the main thread.
   void ClearAllDatabases();
@@ -63,8 +64,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   // DatabaseTracker::Observer implementation
   virtual void OnDatabaseSizeChanged(const string16& origin_identifier,
                                      const string16& database_name,
-                                     int64 database_size,
-                                     int64 space_available);
+                                     int64 database_size);
   virtual void OnDatabaseScheduledForDeletion(const string16& origin_identifier,
                                               const string16& database_name);
 
@@ -77,6 +77,8 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
                             uint32* result, base::WaitableEvent* done_event);
   void VfsGetFileSize(const string16& vfs_file_name,
                       int64* result, base::WaitableEvent* done_event);
+  void VfsGetSpaceAvailable(const string16& origin_identifier,
+                            int64* result, base::WaitableEvent* done_event);
 
   FilePath GetFullFilePathForVfsFile(const string16& vfs_file_name);
 
@@ -91,6 +93,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   base::Thread db_thread_;
   scoped_refptr<base::MessageLoopProxy> db_thread_proxy_;
   scoped_refptr<webkit_database::DatabaseTracker> db_tracker_;
+  int64 quota_per_origin_;
 
   // Data members to support waiting for all connections to be closed.
   scoped_refptr<webkit_database::DatabaseConnectionsWrapper> open_connections_;

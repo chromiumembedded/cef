@@ -33,6 +33,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileError.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
@@ -849,7 +850,7 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   if (is_main_frame) {
     // Restore the zoom value that we have for this URL, if any.
     double zoomLevel = 0.0;
-    ZoomMap::GetInstance()->get(frame->url(), zoomLevel);
+    ZoomMap::GetInstance()->get(frame->document().url(), zoomLevel);
     frame->view()->setZoomLevel(false, zoomLevel);
     browser_->set_zoom_level(zoomLevel);
   }

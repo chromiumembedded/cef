@@ -369,7 +369,11 @@ void WebWidgetHost::Paint() {
     }
   }
 
-  webwidget_->animate();
+#ifdef WEBWIDGET_HAS_ANIMATE_CHANGES
+  webwidget_->animate(0.0);
+#else
+   webwidget_->animate();
+#endif
 
   // This may result in more invalidation
   webwidget_->layout();
@@ -406,7 +410,8 @@ void WebWidgetHost::Paint() {
   gdk_window_begin_paint_rect(window, &grect);
 
   // BitBlit to the gdk window.
-  cairo_t* source_surface = canvas_->beginPlatformPaint();
+  skia::ScopedPlatformPaint scoped_platform_paint(canvas_.get());
+  cairo_t* source_surface = scoped_platform_paint.GetPlatformSurface();
   cairo_t* cairo_drawable = gdk_cairo_create(window);
   cairo_set_source_surface(cairo_drawable, cairo_get_target(source_surface),
                            0, 0);

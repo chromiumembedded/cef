@@ -227,7 +227,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (allow_download &&
             webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
           string16 filename = net::GetSuggestedFilename(url,
-              content_disposition, info.charset, ASCIIToUTF16("download"));
+              content_disposition, info.charset, "", ASCIIToUTF16("download"));
           CefRefPtr<CefDownloadHandler> dl_handler;
           if (handler->GetDownloadHandler(browser_, info.mime_type,
                                           filename, info.content_length,
@@ -714,7 +714,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     StaticCookiePolicy policy(policy_type);
     int rv = policy.CanSetCookie(
-        request->url(), request->first_party_for_cookies(), cookie_line);
+        request->url(), request->first_party_for_cookies());
     return rv == net::OK;
   }
 

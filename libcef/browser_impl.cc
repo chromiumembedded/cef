@@ -586,7 +586,7 @@ CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 
   WebFrame* web_frame = UIT_GetWebFrame(frame);
   if(web_frame)
-    return std::string(web_frame->url().spec());
+    return std::string(web_frame->document().url().spec());
   return CefString();
 }
 
@@ -1411,7 +1411,7 @@ void CefBrowserImpl::UIT_SetZoomLevel(double zoomLevel)
   WebKit::WebFrame* web_frame = UIT_GetMainWebFrame();
   if(web_frame) {
     web_frame->view()->setZoomLevel(false, zoomLevel);
-    ZoomMap::GetInstance()->set(web_frame->url(), zoomLevel);
+    ZoomMap::GetInstance()->set(web_frame->document().url(), zoomLevel);
     set_zoom_level(zoomLevel);
   }
 }

@@ -40,8 +40,7 @@ WebString BrowserWebStorageAreaImpl::getItem(const WebString& key) {
 
 void BrowserWebStorageAreaImpl::setItem(
     const WebString& key, const WebString& value, const WebURL& url,
-    WebStorageArea::Result& result, WebString& old_value_webkit,
-    WebFrame* web_frame) {
+    WebStorageArea::Result& result, WebString& old_value_webkit) {
   old_value_webkit = area_->SetItem(key, value, &result);
 }
 

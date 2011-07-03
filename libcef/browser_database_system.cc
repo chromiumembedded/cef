@@ -19,6 +19,7 @@
 
 using webkit_database::DatabaseTracker;
 using webkit_database::DatabaseUtil;
+using webkit_database::OriginInfo;
 using webkit_database::VfsBackend;
 
 BrowserDatabaseSystem* BrowserDatabaseSystem::instance_ = NULL;
@@ -30,6 +31,7 @@ BrowserDatabaseSystem* BrowserDatabaseSystem::GetInstance() {
 
 BrowserDatabaseSystem::BrowserDatabaseSystem()
     : db_thread_("BrowserDBThread"),
+      quota_per_origin_(5 * 1024 * 1024),
       open_connections_(new webkit_database::DatabaseConnectionsWrapper) {
   DCHECK(!instance_);
   instance_ = this;
@@ -120,6 +122,17 @@ int64 BrowserDatabaseSystem::GetFileSize(const string16& vfs_file_name) {
   return result;
 }
 
+int64 BrowserDatabaseSystem::GetSpaceAvailable(
+    const string16& origin_identifier) {
+  int64 result = 0;
+  base::WaitableEvent done_event(false, false);
+  db_thread_proxy_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetSpaceAvailable,
+                        origin_identifier, &result, &done_event));
+  done_event.Wait();
+  return result;
+}
+
 void BrowserDatabaseSystem::ClearAllDatabases() {
   open_connections_->WaitForAllDatabasesToClose();
   db_thread_proxy_->PostTask(FROM_HERE,
@@ -133,7 +146,7 @@ void BrowserDatabaseSystem::SetDatabaseQuota(int64 quota) {
                           quota));
     return;
   }
-  db_tracker_->SetDefaultQuota(quota);
+  quota_per_origin_ = quota;
 }
 
 void BrowserDatabaseSystem::DatabaseOpened(const string16& origin_identifier,
@@ -142,12 +155,11 @@ void BrowserDatabaseSystem::DatabaseOpened(const string16& origin_identifier,
                                           int64 estimated_size) {
   DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   int64 database_size = 0;
-  int64 space_available = 0;
   db_tracker_->DatabaseOpened(
       origin_identifier, database_name, description,
-      estimated_size, &database_size, &space_available);
+      estimated_size, &database_size);
   OnDatabaseSizeChanged(origin_identifier, database_name,
-                        database_size, space_available);
+                        database_size);
 }
 
 void BrowserDatabaseSystem::DatabaseModified(const string16& origin_identifier,
@@ -166,14 +178,13 @@ void BrowserDatabaseSystem::DatabaseClosed(const string16& origin_identifier,
 void BrowserDatabaseSystem::OnDatabaseSizeChanged(
     const string16& origin_identifier,
     const string16& database_name,
-    int64 database_size,
-    int64 space_available) {
+    int64 database_size) {
   DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   // We intentionally call into webkit on our background db_thread_
   // to better emulate what happens in chrome where this method is
   // invoked on the background ipc thread.
   WebKit::WebDatabase::updateDatabaseSize(
-      origin_identifier, database_name, database_size, space_available);
+      origin_identifier, database_name, database_size);
 }
 
 void BrowserDatabaseSystem::OnDatabaseScheduledForDeletion(
@@ -235,6 +246,23 @@ void BrowserDatabaseSystem::VfsGetFileSize(
     int64* result, base::WaitableEvent* done_event) {
   DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   *result = VfsBackend::GetFileSize(GetFullFilePathForVfsFile(vfs_file_name));
+  done_event->Signal();
+}
+
+void BrowserDatabaseSystem::VfsGetSpaceAvailable(
+    const string16& origin_identifier,
+    int64* result, base::WaitableEvent* done_event) {
+  DCHECK(db_thread_proxy_->BelongsToCurrentThread());
+  // This method isn't actually part of the "vfs" interface, but it is
+  // used from within webcore and handled here in the same fashion.
+  OriginInfo info;
+  if (db_tracker_->GetOriginInfo(origin_identifier, &info)) {
+    int64 space_available = quota_per_origin_ - info.TotalSize();
+    *result = space_available < 0 ? 0 : space_available;
+  } else {
+    NOTREACHED();
+    *result = 0;
+  }
   done_event->Signal();
 }
 

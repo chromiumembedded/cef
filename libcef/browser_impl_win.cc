@@ -10,6 +10,7 @@
 
 #include "skia/ext/vector_canvas.h"
 #include "skia/ext/vector_platform_device_emf_win.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
@@ -350,7 +351,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     printInfo.m_Rect = rect;
     printInfo.m_Scale = scale;
 
-    CefString url(frame->url().spec());
+    CefString url(frame->document().url().spec());
     CefString title = title_;
 
     CefString topLeft, topCenter, topRight;

@@ -15,9 +15,9 @@
 #include "browser_webstoragenamespace_impl.h"
 
 #include "base/file_util.h"
-#include "base/memory/scoped_temp_dir.h"
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
+#include "base/scoped_temp_dir.h"
 #include "base/utf_string_conversions.h"
 #include "media/base/media.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
@@ -91,7 +91,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     file_utilities_.set_sandbox_enabled(false);
   }
 
-  ~BrowserWebKitInit() {
+  virtual ~BrowserWebKitInit() {
     WebKit::shutdown();
   }
 
@@ -148,6 +148,12 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual long long databaseGetFileSize(
       const WebKit::WebString& vfs_file_name) OVERRIDE {
     return BrowserDatabaseSystem::GetInstance()->GetFileSize(vfs_file_name);
+  }
+
+  virtual long long databaseGetSpaceAvailableForOrigin(
+    const WebKit::WebString& origin_identifier) {
+    return BrowserDatabaseSystem::GetInstance()->GetSpaceAvailable(
+        origin_identifier);
   }
 
   virtual unsigned long long visitedLinkHash(const char* canonicalURL,

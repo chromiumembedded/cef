@@ -5,17 +5,18 @@
 #ifndef BROWSER_FILE_SYSTEM_H_
 #define BROWSER_FILE_SYSTEM_H_
 
-#include <vector>
 #include "base/file_util_proxy.h"
 #include "base/id_map.h"
-#include "base/memory/scoped_temp_dir.h"
 #include "base/memory/weak_ptr.h"
+#include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystem.h"
 #include "webkit/fileapi/file_system_types.h"
+#include <vector>
 
 namespace WebKit {
 class WebFileSystemCallbacks;
 class WebFrame;
+class WebURL;
 }
 
 namespace fileapi {
@@ -40,7 +41,55 @@ class BrowserFileSystem
     return file_system_context_.get();
   }
 
-  // WebKit::WebFileSystem methods.
+  // New WebKit::WebFileSystem overrides.
+  virtual void move(
+      const WebKit::WebURL& src_path,
+      const WebKit::WebURL& dest_path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void copy(
+      const WebKit::WebURL& src_path,
+      const WebKit::WebURL& dest_path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void remove(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void removeRecursively(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void readMetadata(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void createFile(
+      const WebKit::WebURL& path,
+      bool exclusive,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void createDirectory(
+      const WebKit::WebURL& path,
+      bool exclusive,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void fileExists(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void directoryExists(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual void readDirectory(
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks*);
+
+  virtual WebKit::WebFileWriter* createFileWriter(
+      const WebKit::WebURL& path, WebKit::WebFileWriterClient*);
+
+  // Old WebKit::WebFileSystem overrides, soon to go away.
   virtual void move(const WebKit::WebString& src_path,
                     const WebKit::WebString& dest_path,
                     WebKit::WebFileSystemCallbacks* callbacks);

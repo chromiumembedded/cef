@@ -19,7 +19,7 @@
 #include "printing/win_printing_context.h"
 #endif
 
-#include "base/memory/scoped_temp_dir.h"
+#include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFindOptions.h"
 
 namespace base {
