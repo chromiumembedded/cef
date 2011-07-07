@@ -1067,9 +1067,8 @@ public:
   typedef cef_handler_navtype_t NavType;
 
   ///
-  // Called on the UI thread before browser navigation. The client has an
-  // opportunity to modify the |request| object if desired. Return true to
-  // cancel the navigation or false to allow the navigation to proceed.
+  // Called on the UI thread before browser navigation. Return true to cancel
+  // the navigation or false to allow the navigation to proceed.
   ///
   /*--cef()--*/
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

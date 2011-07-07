@@ -906,8 +906,7 @@ typedef struct _cef_request_handler_t
   cef_base_t base;
 
   ///
-  // Called on the UI thread before browser navigation. The client has an
-  // opportunity to modify the |request| object if desired. Return true (1) to
+  // Called on the UI thread before browser navigation. Return true (1) to
   // cancel the navigation or false (0) to allow the navigation to proceed.
   ///
   int (CEF_CALLBACK *on_before_browse)(struct _cef_request_handler_t* self,
