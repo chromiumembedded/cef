@@ -56,13 +56,13 @@ class BrowserWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::WebRuntimeFeatures::enableApplicationCache(true);
     WebKit::WebRuntimeFeatures::enableDatabase(true);
     WebKit::WebRuntimeFeatures::enablePushState(true);
-    WebKit::WebRuntimeFeatures::enableNotifications(false);
     WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
-    WebKit::WebRuntimeFeatures::enableGeolocation(false);
-    WebKit::WebRuntimeFeatures::enableSpeechInput(true);
     WebKit::WebRuntimeFeatures::enableFileSystem(true);
 
     // TODO: Enable these once the implementation supports it.
+    WebKit::WebRuntimeFeatures::enableNotifications(false);
+    WebKit::WebRuntimeFeatures::enableGeolocation(false);
+    WebKit::WebRuntimeFeatures::enableSpeechInput(false);
     WebKit::WebRuntimeFeatures::enableTouch(false);
     WebKit::WebRuntimeFeatures::enableDeviceMotion(false);
     WebKit::WebRuntimeFeatures::enableDeviceOrientation(false);
