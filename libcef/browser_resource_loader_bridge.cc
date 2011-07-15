@@ -102,6 +102,7 @@ struct RequestParams {
   int appcache_host_id;
   bool download_to_file;
   scoped_refptr<net::UploadData> upload;
+  net::RequestPriority priority;
 };
 
 // The interval for calls to RequestProxy::MaybeUpdateUploadProgress
@@ -147,6 +148,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     peer_ = peer;
     owner_loop_ = MessageLoop::current();
 
+    InitializeParams(params);
+
     // proxy over to the io thread
     CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
         this, &RequestProxy::AsyncStart, params));
@@ -169,6 +172,10 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual ~RequestProxy() {
     // If we have a request, then we'd better be on the io thread!
     DCHECK(!request_.get() || CefThread::CurrentlyOn(CefThread::IO));
+  }
+
+  virtual void InitializeParams(RequestParams* params) {
+    params->priority = net::MEDIUM;
   }
 
   // --------------------------------------------------------------------------
@@ -495,6 +502,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       }
 
       request_.reset(new net::URLRequest(params->url, this));
+      request_->set_priority(params->priority);
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
       request_->set_referrer(params->referrer.spec());
@@ -884,6 +892,14 @@ class SyncRequestProxy : public RequestProxy {
     
     result_->status = status;
     event_.Signal();
+  }
+
+ protected:
+  virtual void InitializeParams(RequestParams* params) {
+    // For synchronous requests ignore load limits to avoid a deadlock problem
+    // in SyncRequestProxy (issue #192).
+    params->load_flags |= net::LOAD_IGNORE_LIMITS;
+    params->priority = net::HIGHEST;
   }
 
  private:
