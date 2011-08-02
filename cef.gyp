@@ -165,6 +165,7 @@
             ],
           },
           'sources': [
+            'include/cef_application_mac.h',
             'tests/cefclient/cefclient_mac.mm',
             'tests/cefclient/client_handler_mac.mm',
             'tests/cefclient/resource_util_mac.mm',
@@ -413,6 +414,11 @@
       ],
       'xcode_settings': {
         'INSTALL_PATH': '@executable_path',
+        # The libcef_static target contains ObjC categories. Passing the -ObjC flag
+        # is necessary to properly load them and avoid a "selector not recognized"
+        # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
+        # for more information.
+        'OTHER_LDFLAGS': ['-Wl,-ObjC'],
       },
       'conditions': [
         ['OS=="win"', {
@@ -680,6 +686,8 @@
         'libcef/cef_time_util.h',
         'libcef/drag_download_file.cc',
         'libcef/drag_download_file.h',
+        'libcef/drag_download_util.cc',
+        'libcef/drag_download_util.h',
         'libcef/dom_storage_area.cc',
         'libcef/dom_storage_area.h',
         'libcef/dom_storage_common.h',
@@ -693,6 +701,8 @@
         'libcef/dom_event_impl.h',
         'libcef/dom_node_impl.cc',
         'libcef/dom_node_impl.h',
+        'libcef/download_util.cc',
+        'libcef/download_util.h',
         'libcef/external_protocol_handler.h',
         'libcef/http_header_utils.cc',
         'libcef/http_header_utils.h',
@@ -753,6 +763,7 @@
         }],
         [ 'OS=="mac"', {
           'sources': [
+            'include/cef_application_mac.h',
             'include/internal/cef_types_mac.h',
             'include/internal/cef_mac.h',
             'libcef/browser_impl_mac.mm',
@@ -766,6 +777,19 @@
             'libcef/external_protocol_handler_mac.mm',
             'libcef/webview_host_mac.mm',
             'libcef/webwidget_host_mac.mm',
+            'libcef/web_drag_source_mac.h',
+            'libcef/web_drag_source_mac.mm',
+            'libcef/web_drag_utils_mac.h',
+            'libcef/web_drag_utils_mac.mm',
+            'libcef/web_drop_target_mac.h',
+            'libcef/web_drop_target_mac.mm',
+            # Build necessary Mozilla sources
+            '../third_party/mozilla/NSPasteboard+Utils.h',
+            '../third_party/mozilla/NSPasteboard+Utils.mm',
+            '../third_party/mozilla/NSString+Utils.h',
+            '../third_party/mozilla/NSString+Utils.mm',
+            '../third_party/mozilla/NSURL+Utils.h',
+            '../third_party/mozilla/NSURL+Utils.m',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {

@@ -151,10 +151,10 @@ class WebWidgetHost {
   // These need to be called from a non-subclass, so they need to be public.
  public:
   void Resize(const gfx::Rect& rect);
-  void MouseEvent(NSEvent *);
+  virtual void MouseEvent(NSEvent *);
   void WheelEvent(NSEvent *);
   void KeyEvent(NSEvent *);
-  void SetFocus(bool enable);
+  virtual void SetFocus(bool enable);
  protected:
 #elif defined(TOOLKIT_USES_GTK)
  public:

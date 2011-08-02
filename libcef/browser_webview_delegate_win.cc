@@ -1,4 +1,4 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
+// Copyright (c) 2011 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -7,10 +7,12 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "browser_webview_delegate.h"
+#include "browser_drag_delegate_win.h"
 #include "browser_navigation_controller.h"
 #include "browser_impl.h"
+#include "browser_webview_delegate.h"
 #include "cef_context.h"
+#include "web_drop_target_win.h"
 
 #include <objidl.h>
 #include <shlobj.h>
@@ -21,7 +23,10 @@
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/gdi_util.h"
@@ -38,10 +43,14 @@
 using webkit::npapi::WebPluginDelegateImpl;
 using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
+using WebKit::WebDragData;
+using WebKit::WebDragOperationsMask;
 using WebKit::WebExternalPopupMenu;
 using WebKit::WebExternalPopupMenuClient;
 using WebKit::WebFrame;
+using WebKit::WebImage;
 using WebKit::WebNavigationPolicy;
+using WebKit::WebPoint;
 using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
@@ -167,6 +176,22 @@ WebRect BrowserWebViewDelegate::rootWindowRect() {
 WebRect BrowserWebViewDelegate::windowResizerRect() {
   // Not necessary on Windows.
   return WebRect();
+}
+
+void BrowserWebViewDelegate::startDragging(
+    const WebDragData& data,
+    WebDragOperationsMask mask,
+    const WebImage& image,
+    const WebPoint& image_offset) {
+  // Dragging is not supported when window rendering is disabled.
+  if (browser_->IsWindowRenderingDisabled()) {
+    EndDragging();
+    return;
+  }
+
+  drag_delegate_ = new BrowserDragDelegate(this);
+  drag_delegate_->StartDragging(WebDropData(data), mask, image.getSkBitmap(),
+                                image_offset);
 }
 
 void BrowserWebViewDelegate::runModal() {
@@ -534,6 +559,22 @@ end:
 }
 
 // Private methods ------------------------------------------------------------
+
+void BrowserWebViewDelegate::RegisterDragDrop() {
+  DCHECK(!drop_target_);
+  drop_target_ = new WebDropTarget(browser_->UIT_GetWebViewWndHandle(),
+                                   browser_->UIT_GetWebView());
+}
+
+void BrowserWebViewDelegate::RevokeDragDrop() {
+  if (drop_target_.get())
+    ::RevokeDragDrop(browser_->UIT_GetWebViewWndHandle());
+}
+
+void BrowserWebViewDelegate::EndDragging() {
+  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+  drag_delegate_ = NULL;
+}
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
                                                  const CefString& message)

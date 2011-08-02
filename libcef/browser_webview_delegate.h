@@ -214,6 +214,13 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // Additional accessors
 #if defined(OS_WIN)
+  // Sets the webview as a drop target.
+  void RegisterDragDrop();
+  void RevokeDragDrop();
+
+  // Called after dragging has finished.
+  void EndDragging();
+
   BrowserDragDelegate* drag_delegate() { return drag_delegate_.get(); }
   WebDropTarget* drop_target() { return drop_target_.get(); }
 #endif
@@ -221,12 +228,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void set_pending_extra_data(BrowserExtraData* extra_data) {
     pending_extra_data_.reset(extra_data);
   }
-
-  // Sets the webview as a drop target.
-  void RegisterDragDrop();
-  void RevokeDragDrop();
-
-  void ResetDragDrop();
 
   void SetCustomPolicyDelegate(bool is_custom, bool is_permissive);
   void WaitForPolicyDelegate();
@@ -254,9 +255,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Called after the external popup menu has been dismissed.
   void ClosePopupMenu();
 #endif
-
-  // Called after dragging has finished.
-  void EndDragging();
 
  protected:
   // Default handling of JavaScript messages.

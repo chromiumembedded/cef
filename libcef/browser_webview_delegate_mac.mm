@@ -3,23 +3,35 @@
 // found in the LICENSE file.
 
 #include "browser_webview_delegate.h"
+#import "browser_webview_mac.h"
 #include "browser_impl.h"
+#import "include/cef_application_mac.h"
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/mac/mac_util.h"
 #include "base/sys_string_conversions.h"
+#include "skia/ext/skia_utils_mac.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit/glue/webdropdata.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
 using WebKit::WebCursorInfo;
+using WebKit::WebDragData;
+using WebKit::WebDragOperationsMask;
 using WebKit::WebExternalPopupMenu;
 using WebKit::WebExternalPopupMenuClient;
+using WebKit::WebImage;
 using WebKit::WebNavigationPolicy;
+using WebKit::WebPoint;
 using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
@@ -107,6 +119,39 @@ WebRect BrowserWebViewDelegate::windowResizerRect() {
         resize_rect.size.height;
   }
   return gfx::Rect(NSRectToCGRect(resize_rect));
+}
+
+void BrowserWebViewDelegate::startDragging(const WebDragData& data,
+                                           WebDragOperationsMask mask,
+                                           const WebImage& image,
+                                           const WebPoint& image_offset) {
+  WebWidgetHost* host = GetWidgetHost();
+  if (!host)
+    return;
+  
+  BrowserWebView *view = static_cast<BrowserWebView*>(host->view_handle());
+  if (!view)
+    return;
+  
+  // By allowing nested tasks, the code below also allows Close(),
+  // which would deallocate |this|.  The same problem can occur while
+  // processing -sendEvent:, so Close() is deferred in that case.
+  // Drags from web content do not come via -sendEvent:, this sets the
+  // same flag -sendEvent: would.
+  CefScopedSendingEvent sendingEventScoper;
+  
+  // The drag invokes a nested event loop, arrange to continue
+  // processing events.
+  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  NSDragOperation op_mask = static_cast<NSDragOperation>(mask);
+  const SkBitmap& bitmap = gfx::CGImageToSkBitmap(image.getCGImageRef());
+  CGColorSpaceRef color_space = base::mac::GetSystemColorSpace();
+  NSImage* ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
+  NSPoint offset = NSPointFromCGPoint(gfx::Point(image_offset).ToCGPoint());
+  [view startDragWithDropData:WebDropData(data)
+            dragOperationMask:op_mask
+                        image:ns_image
+                       offset:offset];
 }
 
 void BrowserWebViewDelegate::runModal() {

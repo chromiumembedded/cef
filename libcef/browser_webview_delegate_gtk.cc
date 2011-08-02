@@ -177,6 +177,15 @@ WebRect BrowserWebViewDelegate::windowResizerRect() {
   return WebRect();
 }
 
+void BrowserWebViewDelegate::startDragging(
+    const WebDragData& data,
+    WebDragOperationsMask mask,
+    const WebImage& image,
+    const WebPoint& image_offset) {
+  // TODO(port): Support drag and drop.
+  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+}
+
 void BrowserWebViewDelegate::runModal() {
   NOTIMPLEMENTED();
 }

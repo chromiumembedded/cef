@@ -34,12 +34,10 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileError.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHistoryItem.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKitClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
@@ -61,7 +59,6 @@
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/media/video_renderer_impl.h"
-#include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webmediaplayer_impl.h"
@@ -71,7 +68,6 @@
 #include "webkit/plugins/npapi/webplugin_impl.h"
 
 #if defined(OS_WIN)
-// TODO(port): make these files work everywhere.
 #include "browser_drag_delegate_win.h"
 #include "web_drop_target_win.h"
 #endif
@@ -84,8 +80,6 @@ using WebKit::WebContextMenuData;
 using WebKit::WebCookieJar;
 using WebKit::WebData;
 using WebKit::WebDataSource;
-using WebKit::WebDragData;
-using WebKit::WebDragOperationsMask;
 using WebKit::WebEditingAction;
 using WebKit::WebFileChooserParams;
 using WebKit::WebFileSystem;
@@ -93,7 +87,6 @@ using WebKit::WebFileSystemCallbacks;
 using WebKit::WebFormElement;
 using WebKit::WebFrame;
 using WebKit::WebHistoryItem;
-using WebKit::WebImage;
 using WebKit::WebMediaPlayer;
 using WebKit::WebMediaPlayerClient;
 using WebKit::WebNavigationType;
@@ -444,27 +437,6 @@ void BrowserWebViewDelegate::setToolTipText(
 
   if (!handled)
     GetWidgetHost()->SetTooltipText(tooltipStr);
-}
-
-void BrowserWebViewDelegate::startDragging(
-    const WebDragData& data,
-    WebDragOperationsMask mask,
-    const WebImage& image,
-    const WebPoint& image_offset) {
-#if defined(OS_WIN)
-  // Dragging is not supported when window rendering is disabled.
-  if (browser_->IsWindowRenderingDisabled()) {
-    EndDragging();
-    return;
-  }
-
-  drag_delegate_ = new BrowserDragDelegate(this);
-  drag_delegate_->StartDragging(WebDropData(data), mask, image.getSkBitmap(),
-                                image_offset);
-#else
-  // TODO(port): Support drag and drop.
-  EndDragging();
-#endif
 }
 
 void BrowserWebViewDelegate::focusNext() {
@@ -986,22 +958,6 @@ void BrowserWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
   // allows both.
 }
 
-void BrowserWebViewDelegate::RegisterDragDrop() {
-#if defined(OS_WIN)
-  // TODO(port): add me once drag and drop works.
-  DCHECK(!drop_target_);
-  drop_target_ = new WebDropTarget(browser_->UIT_GetWebViewWndHandle(),
-                                   browser_->UIT_GetWebView());
-#endif
-}
-
-void BrowserWebViewDelegate::RevokeDragDrop() {
-#if defined(OS_WIN)
-  if (drop_target_.get())
-    ::RevokeDragDrop(browser_->UIT_GetWebViewWndHandle());
-#endif
-}
-
 void BrowserWebViewDelegate::SetCustomPolicyDelegate(bool is_custom,
                                                   bool is_permissive) {
   policy_delegate_enabled_ = is_custom;
@@ -1060,13 +1016,6 @@ WebWidgetHost* BrowserWebViewDelegate::GetWidgetHost() {
   if (this == browser_->UIT_GetPopupDelegate())
     return browser_->UIT_GetPopupHost();
   return NULL;
-}
-
-void BrowserWebViewDelegate::EndDragging() {
-  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
-#if defined(OS_WIN)
-  drag_delegate_ = NULL;
-#endif
 }
 
 void BrowserWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,

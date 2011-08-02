@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "include/cef.h"
+#import "include/cef_application_mac.h"
 #include "cefclient.h"
 #include "binding_test.h"
 #include "client_handler.h"
@@ -28,6 +29,31 @@ char szWorkingDir[512];   // The current working directory
 // Content area size for newly created windows.
 const int kWindowWidth = 800;
 const int kWindowHeight = 600;
+
+// Memory AutoRelease pool.
+static NSAutoreleasePool* g_autopool = nil;
+
+// Provide the CefAppProtocol implementation required by CEF.
+@interface ClientApplication : NSApplication<CefAppProtocol> {
+@private
+  BOOL handlingSendEvent_;
+}
+@end
+
+@implementation ClientApplication
+- (BOOL)isHandlingSendEvent {
+  return handlingSendEvent_;
+}
+
+- (void)setHandlingSendEvent:(BOOL)handlingSendEvent {
+  handlingSendEvent_ = handlingSendEvent;
+}
+
+- (void)sendEvent:(NSEvent*)event {
+  CefScopedSendingEvent sendingEventScoper;
+  [super sendEvent:event];
+}
+@end
 
 
 // Receives notifications from controls and the browser window. Will delete
@@ -174,6 +200,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testAcceleratedLayers:(id)sender;
 - (IBAction)testWebGL:(id)sender;
 - (IBAction)testHTML5Video:(id)sender;
+- (IBAction)testDragDrop:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
@@ -242,6 +269,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"HTML5 Video"
                       action:@selector(testHTML5Video:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Drag & Drop"
+                      action:@selector(testDragDrop:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom In"
                       action:@selector(testZoomIn:)
@@ -419,6 +449,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunHTML5VideoTest(g_handler->GetBrowser());
 }
 
+- (IBAction)testDragDrop:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunDragDropTest(g_handler->GetBrowser());
+}
+
 - (IBAction)testZoomIn:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -448,6 +483,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   CefShutdown();
 
   [self release];
+
+  // Release the AutoRelease pool.
+  [g_autopool release];
 }
 
 @end
@@ -458,7 +496,13 @@ int main(int argc, char* argv[])
   // Retrieve the current working directory.
   getcwd(szWorkingDir, sizeof(szWorkingDir));
 
-  // Initialize CEF. This will also create the NSApplication instance.
+  // Initialize the AutoRelease pool.
+  g_autopool = [[NSAutoreleasePool alloc] init];
+
+  // Initialize the ClientApplication instance.
+  [ClientApplication sharedApplication];
+
+  // Initialize CEF.
   CefSettings settings;
   CefInitialize(settings);
 
@@ -472,7 +516,7 @@ int main(int argc, char* argv[])
                           waitUntilDone:NO];
 
   // Run the application message loop.
-  [NSApp run];
+  CefRunMessageLoop();
 
   // Don't put anything below this line because it won't be executed.
   return 0;

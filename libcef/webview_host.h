@@ -50,6 +50,8 @@ class WebViewHost : public WebWidgetHost {
   }
 #elif defined(OS_MACOSX)
   void SetIsActive(bool active);
+  virtual void MouseEvent(NSEvent *);
+  virtual void SetFocus(bool enable);
 #endif
 
  protected:

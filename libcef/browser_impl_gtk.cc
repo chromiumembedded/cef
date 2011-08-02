@@ -59,7 +59,6 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
       WebViewHost::Create(window_info_.m_ParentWidget, gfx::Rect(),
                           delegate_.get(), NULL, dev_tools_agent_.get(),
                           prefs));
-  delegate_->RegisterDragDrop();
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());

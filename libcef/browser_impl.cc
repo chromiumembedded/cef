@@ -700,6 +700,8 @@ void CefBrowserImpl::UIT_DestroyBrowser()
       }
     }
   }
+
+  UIT_GetWebViewDelegate()->RevokeDragDrop();
 #else
   // Call OnBeforeClose() here for platforms that don't support modal dialogs.
   if (client_.get()) {
@@ -710,8 +712,6 @@ void CefBrowserImpl::UIT_DestroyBrowser()
     }
   }
 #endif
-
-  UIT_GetWebViewDelegate()->RevokeDragDrop();
 
   // If the current browser window is a dev tools client then disconnect from
   // the agent and destroy the client before destroying the window.

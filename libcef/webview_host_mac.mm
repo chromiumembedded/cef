@@ -7,6 +7,7 @@
 #include "webview_host.h"
 #include "browser_webview_delegate.h"
 #include "browser_webview_mac.h"
+#include "cef_context.h"
 
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
@@ -55,4 +56,18 @@ WebView* WebViewHost::webview() const {
 
 void WebViewHost::SetIsActive(bool active) {
   webview()->setIsActive(active);
+}
+
+void WebViewHost::MouseEvent(NSEvent* event) {
+  _Context->set_current_webviewhost(this);
+  WebWidgetHost::MouseEvent(event);
+}
+
+void WebViewHost::SetFocus(bool enable) {
+  if (enable) {
+    // Set the current WebViewHost in case a drag action is started before mouse
+    // events are detected for the window.
+    _Context->set_current_webviewhost(this);
+  }
+  WebWidgetHost::SetFocus(enable);
 }
