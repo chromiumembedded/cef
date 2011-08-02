@@ -125,6 +125,11 @@ void BrowserWebViewDelegate::startDragging(const WebDragData& data,
                                            WebDragOperationsMask mask,
                                            const WebImage& image,
                                            const WebPoint& image_offset) {
+  if (browser_->settings().drag_drop_disabled) {
+    browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+    return;
+  }
+
   WebWidgetHost* host = GetWidgetHost();
   if (!host)
     return;

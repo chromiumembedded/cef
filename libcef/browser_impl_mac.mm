@@ -94,6 +94,9 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   browserView.browser = this;
   window_info_.m_View = browserView;
 
+  if (!settings_.drag_drop_disabled)
+    [browserView registerDragDrop];
+
   Unlock();
 
   if (newWnd != nil && !window_info_.m_bHidden) {

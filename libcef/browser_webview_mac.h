@@ -40,6 +40,9 @@ struct WebDropData;
 - (BOOL)isOpaque;
 - (void)setFrame:(NSRect)frameRect;
 
+// Register this WebView as a drag/drop target.
+- (void)registerDragDrop;
+
 // Called from BrowserWebViewDelegate::startDragging() to initiate dragging.
 - (void)startDragWithDropData:(const WebDropData&)dropData
             dragOperationMask:(NSDragOperation)operationMask

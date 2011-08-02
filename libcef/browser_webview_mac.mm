@@ -25,13 +25,6 @@
 - (id)initWithFrame:(NSRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    dropTarget_.reset([[WebDropTarget alloc] initWithWebView:self]);
-
-    // Register the view to handle the appropriate drag types.
-    NSArray* types = [NSArray arrayWithObjects:NSStringPboardType,
-                      NSHTMLPboardType, NSURLPboardType, nil];
-    [self registerForDraggedTypes:types];
-
     trackingArea_ =
         [[NSTrackingArea alloc] initWithRect:frame
                                      options:NSTrackingMouseMoved |
@@ -185,6 +178,15 @@
         gfx::Rect(NSRectToCGRect(frameRect)));
   }
   [self setNeedsDisplay:YES];
+}
+
+- (void)registerDragDrop {
+  dropTarget_.reset([[WebDropTarget alloc] initWithWebView:self]);
+
+  // Register the view to handle the appropriate drag types.
+  NSArray* types = [NSArray arrayWithObjects:NSStringPboardType,
+                    NSHTMLPboardType, NSURLPboardType, nil];
+  [self registerForDraggedTypes:types]; 
 }
 
 - (void)startDragWithDropData:(const WebDropData&)dropData
