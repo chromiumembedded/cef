@@ -565,8 +565,12 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
   }
 
   if (empty) {
-    CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(webkit_glue::ClearCache));
+    if (CefThread::CurrentlyOn(CefThread::UI)) {
+      webkit_glue::ClearCache();
+    } else {
+      CefThread::PostTask(CefThread::UI, FROM_HERE,
+          NewRunnableFunction(webkit_glue::ClearCache));
+    }
   }
 
   return deleted;
