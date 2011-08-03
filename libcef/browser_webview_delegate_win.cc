@@ -184,7 +184,8 @@ void BrowserWebViewDelegate::startDragging(
     const WebImage& image,
     const WebPoint& image_offset) {
   // Dragging is not supported when window rendering is disabled.
-  if (browser_->IsWindowRenderingDisabled()) {
+  if (browser_->settings().drag_drop_disabled ||
+      browser_->IsWindowRenderingDisabled()) {
     EndDragging();
     return;
   }
