@@ -680,30 +680,6 @@ WebFrame* CefBrowserImpl::UIT_GetWebFrame(CefRefPtr<CefFrame> frame)
 
 void CefBrowserImpl::UIT_DestroyBrowser()
 {
-#if defined(OS_WIN)
-  if (is_modal_) {
-    // Exit our own internal modal message loop now.
-    if (internal_modal_message_loop_is_active_) {
-      MessageLoop* message_loop = MessageLoop::current();
-      message_loop->QuitNow();
-    }
-
-    // If the client implemented its own modal loop then the above would not
-    // run, so this call is for the client to exit its loop. Otherwise, 
-    // QuitModal can be used to let clients know that the modal loop is about 
-    // to exit.
-    if (client_.get()) {
-      CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
-      if (handler.get()) {
-        // Notify the handler that it can exit its modal loop if it was in one.
-        handler->QuitModal(this);
-      }
-    }
-  }
-
-  UIT_GetWebViewDelegate()->RevokeDragDrop();
-#else
-  // Call OnBeforeClose() here for platforms that don't support modal dialogs.
   if (client_.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
     if (handler.get()) {
@@ -711,6 +687,17 @@ void CefBrowserImpl::UIT_DestroyBrowser()
       handler->OnBeforeClose(this);
     }
   }
+
+#if defined(OS_WIN)
+  if (is_modal_) {
+    // Exit our own internal modal message loop now.
+    if (internal_modal_message_loop_is_active_) {
+      MessageLoop* message_loop = MessageLoop::current();
+      message_loop->QuitNow();
+    }
+  }
+
+  UIT_GetWebViewDelegate()->RevokeDragDrop();
 #endif
 
   // If the current browser window is a dev tools client then disconnect from
@@ -747,15 +734,6 @@ void CefBrowserImpl::UIT_CloseBrowser()
 {
   REQUIRE_UIT();
   if (IsWindowRenderingDisabled()) {
-    // There is no window here so we need to notify the client that this
-    // browser instance is about to go away.
-    if (client_.get()) {
-      CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
-      if (handler.get()) {
-        // Notify the handler that the window is about to be closed.
-        handler->OnBeforeClose(this);
-      }
-    }
     UIT_DestroyBrowser();
   } else {
     UIT_CloseView(UIT_GetMainWndHandle());

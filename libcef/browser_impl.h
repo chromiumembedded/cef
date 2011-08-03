@@ -71,6 +71,7 @@ public:
   virtual void ReloadIgnoreCache() OVERRIDE;
   virtual void StopLoad() OVERRIDE;
   virtual void SetFocus(bool enable) OVERRIDE;
+  virtual void ParentWindowWillClose() OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE
       { return opener_window(); }

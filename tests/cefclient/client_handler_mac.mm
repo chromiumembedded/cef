@@ -141,3 +141,8 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward)
 {
   // TODO(port): Change button status.
 }
+
+void ClientHandler::CloseMainWindow()
+{
+  // TODO(port): Close window
+}

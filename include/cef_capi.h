@@ -400,6 +400,13 @@ typedef struct _cef_browser_t
   cef_base_t base;
 
   ///
+  // Call this function before destroying a contained browser window. This
+  // function performs any internal cleanup that may be needed before the
+  // browser window is destroyed.
+  ///
+  void (CEF_CALLBACK *parent_window_will_close)(struct _cef_browser_t* self);
+
+  ///
   // Closes this browser window.
   ///
   void (CEF_CALLBACK *close_browser)(struct _cef_browser_t* self);
@@ -420,7 +427,7 @@ typedef struct _cef_browser_t
   int (CEF_CALLBACK *can_go_forward)(struct _cef_browser_t* self);
 
   ///
-  // Navigate backwards.
+  // Navigate forwards.
   ///
   void (CEF_CALLBACK *go_forward)(struct _cef_browser_t* self);
 
@@ -823,27 +830,29 @@ typedef struct _cef_life_span_handler_t
       struct _cef_browser_t* browser);
 
   ///
-  // Called just before a window is closed. If this is a modal window and you
-  // handled the run_modal() event you can use this callback to restore the
-  // opener window to a usable state.
-  ///
-  void (CEF_CALLBACK *on_before_close)(struct _cef_life_span_handler_t* self,
-      struct _cef_browser_t* browser);
-
-  ///
-  // Called to enter the modal loop. Provide your own modal loop here. Return
-  // true (1) if you ran your own modal loop and false (0) to use the default.
-  // You can also use this event to know when a modal window is about to start.
+  // Called when a modal window is about to display and the modal loop should
+  // begin running. Return false (0) to use the default modal loop
+  // implementation or true (1) to use a custom implementation.
   ///
   int (CEF_CALLBACK *run_modal)(struct _cef_life_span_handler_t* self,
       struct _cef_browser_t* browser);
 
   ///
-  // Called when a modal browser window has been destroyed. You must implement
-  // this if you are handling run_modal(). You can also use this event to know
-  // when a modal window is about to be closed.
+  // Called when a window has recieved a request to close. Return false (0) to
+  // proceed with the window close or true (1) to cancel the window close. If
+  // this is a modal window and a custom modal loop implementation was provided
+  // in run_modal() this callback should be used to restore the opener window to
+  // a usable state.
   ///
-  void (CEF_CALLBACK *quit_modal)(struct _cef_life_span_handler_t* self,
+  int (CEF_CALLBACK *do_close)(struct _cef_life_span_handler_t* self,
+      struct _cef_browser_t* browser);
+
+  ///
+  // Called just before a window is closed. If this is a modal window and a
+  // custom modal loop implementation was provided in run_modal() this callback
+  // should be used to exit the custom modal loop.
+  ///
+  void (CEF_CALLBACK *on_before_close)(struct _cef_life_span_handler_t* self,
       struct _cef_browser_t* browser);
 
 } cef_life_span_handler_t;

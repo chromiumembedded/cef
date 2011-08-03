@@ -31,6 +31,7 @@ public:
   virtual ~CefBrowserCToCpp() {}
 
   // CefBrowser methods
+  virtual void ParentWindowWillClose() OVERRIDE;
   virtual void CloseBrowser() OVERRIDE;
   virtual bool CanGoBack() OVERRIDE;
   virtual void GoBack() OVERRIDE;

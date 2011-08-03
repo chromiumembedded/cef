@@ -19,6 +19,11 @@
 using WebKit::WebRect;
 using WebKit::WebSize;
 
+void CefBrowserImpl::ParentWindowWillClose()
+{
+  // TODO(port): Implement this method if necessary.
+}
+
 CefWindowHandle CefBrowserImpl::GetWindowHandle()
 {
   AutoLock lock_scope(this);

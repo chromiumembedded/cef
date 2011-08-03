@@ -51,8 +51,9 @@ public:
                                CefRefPtr<CefClient>& client,
                                CefBrowserSettings& settings) OVERRIDE;
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  
+
   // CefLoadHandler methods
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame) OVERRIDE;
@@ -146,6 +147,7 @@ public:
     NOTIFY_DOWNLOAD_ERROR,
   };
   void SendNotification(NotificationType type);
+  void CloseMainWindow();
 
 protected:
   void SetLoading(bool isLoading);

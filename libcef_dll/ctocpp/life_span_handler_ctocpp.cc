@@ -55,14 +55,6 @@ void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser)
   struct_->on_after_created(struct_, CefBrowserCppToC::Wrap(browser));
 }
 
-void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser)
-{
-  if (CEF_MEMBER_MISSING(struct_, on_before_close))
-    return;
-
-  struct_->on_before_close(struct_, CefBrowserCppToC::Wrap(browser));
-}
-
 bool CefLifeSpanHandlerCToCpp::RunModal(CefRefPtr<CefBrowser> browser)
 {
   if (CEF_MEMBER_MISSING(struct_, run_modal))
@@ -73,12 +65,22 @@ bool CefLifeSpanHandlerCToCpp::RunModal(CefRefPtr<CefBrowser> browser)
   return (rv ? true : false);
 }
 
-void CefLifeSpanHandlerCToCpp::QuitModal(CefRefPtr<CefBrowser> browser)
+bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser)
 {
-  if (CEF_MEMBER_MISSING(struct_, quit_modal))
+  if (CEF_MEMBER_MISSING(struct_, do_close))
+    return false;
+
+  int rv = struct_->do_close(struct_, CefBrowserCppToC::Wrap(browser));
+
+  return (rv ? true : false);
+}
+
+void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser)
+{
+  if (CEF_MEMBER_MISSING(struct_, on_before_close))
     return;
 
-  struct_->quit_modal(struct_, CefBrowserCppToC::Wrap(browser));
+  struct_->on_before_close(struct_, CefBrowserCppToC::Wrap(browser));
 }
 
 

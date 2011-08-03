@@ -69,6 +69,15 @@ CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+void CEF_CALLBACK browser_parent_window_will_close(struct _cef_browser_t* self)
+{
+  DCHECK(self);
+  if (!self)
+    return;
+
+  CefBrowserCppToC::Get(self)->ParentWindowWillClose();
+}
+
 void CEF_CALLBACK browser_close_browser(struct _cef_browser_t* self)
 {
   DCHECK(self);
@@ -450,6 +459,7 @@ void CEF_CALLBACK browser_send_capture_lost_event(struct _cef_browser_t* self)
 CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
     : CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>(cls)
 {
+  struct_.struct_.parent_window_will_close = browser_parent_window_will_close;
   struct_.struct_.close_browser = browser_close_browser;
   struct_.struct_.can_go_back = browser_can_go_back;
   struct_.struct_.go_back = browser_go_back;

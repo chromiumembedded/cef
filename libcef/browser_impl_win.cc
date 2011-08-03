@@ -40,31 +40,23 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
   switch (message) {
   case WM_CLOSE:
-    // It is the responsibility of the client to send this message to this
-    // window if it is created as a child window of a client's frame window.
-    // This is particularly important when this window is modal.
     if(browser) {
-      // Here the window really is about to get closed.
+      bool handled(false);
+
       if (browser->client_.get()) {
-        CefRefPtr<CefLifeSpanHandler> handler = 
+        CefRefPtr<CefLifeSpanHandler> handler =
             browser->client_->GetLifeSpanHandler();
         if (handler.get()) {
-          // Notify the handler that the window is about to be closed.
-          handler->OnBeforeClose(browser);
+          // Give the client a chance to handle this one.
+          handled = handler->DoClose(browser);
         }
       }
 
-      // We must re-enable the opener (owner of the modal window)
-      // before we close the popup to avoid focus/activation/z-order issues.
-      if (browser->opener_ && browser->opener_was_disabled_by_modal_loop_) {
-        HWND owner = ::GetAncestor(browser->opener_, GA_ROOT);
-        ::EnableWindow(owner, TRUE);
-      }
-
-      // Don't do the default if this is a contained window as the destruction
-      // will occur when the parent frame window is destroyed.
-      if (::GetAncestor(hwnd, GA_ROOT) != hwnd)
+      if (handled)
         return 0;
+
+      // We are our own parent in this case.
+      browser->ParentWindowWillClose();
     }
     break;
 
@@ -82,7 +74,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     if (browser && browser->UIT_GetWebView()) {
       // resize the web view window to the full size of the browser window
       RECT rc;
-      GetClientRect(browser->UIT_GetMainWndHandle(), &rc);
+      GetClientRect(hwnd, &rc);
       MoveWindow(browser->UIT_GetWebViewWndHandle(), 0, 0, rc.right, rc.bottom,
           TRUE);
     }
@@ -98,6 +90,16 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+void CefBrowserImpl::ParentWindowWillClose()
+{
+  // We must re-enable the opener (owner of the modal window) before we close
+  // the popup to avoid focus/activation/z-order issues.
+  if (opener_ && opener_was_disabled_by_modal_loop_) {
+    HWND owner = ::GetAncestor(opener_, GA_ROOT);
+    ::EnableWindow(owner, TRUE);
+  }
 }
 
 CefWindowHandle CefBrowserImpl::GetWindowHandle()

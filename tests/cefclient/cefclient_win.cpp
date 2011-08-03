@@ -612,17 +612,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       break;
 
     case WM_CLOSE:
-      // All clients must forward the WM_CLOSE call to all contained browser
-      // windows to give those windows a chance to cleanup before the window
-      // closes. Don't forward this message if you are cancelling the request.
-      if(g_handler.get())
-      {
-        HWND hWnd = g_handler->GetBrowserHwnd();
-        if (hWnd)
-          ::SendMessage(hWnd, WM_CLOSE, 0, 0);
+      if (g_handler.get()) {
+        CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+        if (browser.get()) {
+          // Let the browser window know we are about to destroy it.
+          browser->ParentWindowWillClose();
+        }
       }
       break;
-    
+
     case WM_DESTROY:
       // The frame window has exited
       PostQuitMessage(0);

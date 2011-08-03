@@ -404,7 +404,7 @@ void BrowserWebViewDelegate::showContextMenu(
   if (!browser_->IsWindowRenderingDisabled()) {
     // Perform the conversion to screen coordinates only if window rendering is
     // enabled.
-    MapWindowPoints(browser_->UIT_GetMainWndHandle(), HWND_DESKTOP,
+    MapWindowPoints(browser_->UIT_GetWebViewWndHandle(), HWND_DESKTOP,
         &mouse_pt, 1);
     screenX = mouse_pt.x;
     screenY = mouse_pt.y;
