@@ -38,7 +38,8 @@
 }
 
 - (void) dealloc {
-  browser_->UIT_DestroyBrowser();
+  if (browser)
+    browser_->UIT_DestroyBrowser();
 
   [self removeTrackingArea:trackingArea_];
   [trackingArea_ release];
@@ -156,7 +157,7 @@
 - (BOOL)becomeFirstResponder {
   if (browser_ && browser_->UIT_GetWebView()) {
     browser_->UIT_GetWebViewHost()->SetFocus(YES);
-    return YES;
+    return [super becomeFirstResponder];
   }
 
   return NO;
@@ -165,7 +166,7 @@
 - (BOOL)resignFirstResponder {
   if (browser_ && browser_->UIT_GetWebView()) {
     browser_->UIT_GetWebViewHost()->SetFocus(NO);
-    return YES;
+    return [super resignFirstResponder];
   }
 
   return NO;

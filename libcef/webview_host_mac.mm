@@ -50,6 +50,11 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
   return host;
 }
 
+WebViewHost::~WebViewHost() {
+  BrowserWebView* webView = static_cast<BrowserWebView*>(view_);
+  webView.browser = NULL;
+}
+
 WebView* WebViewHost::webview() const {
   return static_cast<WebView*>(webwidget_);
 }

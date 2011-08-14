@@ -21,10 +21,6 @@ class WebViewHost;
   // Our associated WebView. Weak reference.
   BrowserWebView* view_;
 
-  // Updated asynchronously during a drag to tell us whether or not we should
-  // allow the drop.
-  NSDragOperation current_operation_;
-
   // Keep track of the WebViewHost we're dragging over.  If it changes during a
   // drag, we need to re-send the DragEnter message.
   WebViewHost* current_wvh_;
@@ -34,11 +30,6 @@ class WebViewHost;
 // drag&drop messages to WebCore and handle navigation on a successful drop
 // (if necessary).
 - (id)initWithWebView:(BrowserWebView*)view;
-
-// Sets the current operation negotiated by the source and destination,
-// which determines whether or not we should allow the drop. Takes effect the
-// next time |-draggingUpdated:| is called.
-- (void)setCurrentOperation: (NSDragOperation)operation;
 
 // Messages to send during the tracking of a drag, ususally upon receiving
 // calls from the view system. Communicates the drag messages to WebCore.

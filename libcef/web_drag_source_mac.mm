@@ -288,10 +288,6 @@ void PromiseWriterTask::Run() {
   if (operation == (NSDragOperationMove | NSDragOperationCopy))
     operation &= ~NSDragOperationMove;
 
-  // TODO: Figure out why |operation| is always NSDragOperationNone.
-  if (operation == NSDragOperationNone)
-    operation = NSDragOperationCopy;
-  
   WebView* webview = view_.browser->UIT_GetWebView();
   
   gfx::Point client(localPoint.x, localPoint.y);

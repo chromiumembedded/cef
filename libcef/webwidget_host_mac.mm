@@ -45,46 +45,6 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
   return host;
 }
 
-/*static*/
-void WebWidgetHost::HandleEvent(NSView* view, NSEvent* event) {
-  /* TODO(port): rig up a way to get to the host */
-  WebWidgetHost* host = NULL;
-  if (host) {
-    switch ([event type]) {
-      case NSLeftMouseDown:
-      case NSLeftMouseUp:
-      case NSRightMouseDown:
-      case NSRightMouseUp:
-      case NSOtherMouseDown:
-      case NSOtherMouseUp:
-      case NSMouseEntered:
-      case NSMouseExited:
-        host->MouseEvent(event);
-        break;
-
-      case NSScrollWheel:
-        host->WheelEvent(event);
-        break;
-
-      case NSKeyDown:
-      case NSKeyUp:
-        host->KeyEvent(event);
-        break;
-
-      case NSAppKitDefined:
-        switch ([event subtype]) {
-          case NSApplicationActivatedEventType:
-            host->SetFocus(true);
-            break;
-          case NSApplicationDeactivatedEventType:
-            host->SetFocus(false);
-            break;
-        }
-        break;
-    }
-  }
-}
-
 void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 #ifndef NDEBUG
   DLOG_IF(WARNING, painting_) << "unexpected invalidation while painting";

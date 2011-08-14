@@ -8,6 +8,8 @@ WebViewHost::WebViewHost()
 {
 }
 
+#if !defined(OS_MACOSX)
 WebViewHost::~WebViewHost()
 {
 }
+#endif

@@ -61,10 +61,6 @@ class WebWidgetHost {
 
   virtual ~WebWidgetHost();
 
-#if defined(OS_MACOSX)
-  static void HandleEvent(gfx::NativeView view, NSEvent* event);
-#endif
-
   gfx::NativeView view_handle() const { return view_; }
   WebKit::WebWidget* webwidget() const { return webwidget_; }
 

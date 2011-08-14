@@ -19,6 +19,7 @@
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/window_open_disposition.h"
 
+using WebKit::WebDragOperation;
 using WebKit::WebDragOperationsMask;
 using WebKit::WebPoint;
 using WebKit::WebView;
@@ -32,12 +33,6 @@ using WebKit::WebView;
   if ((self = [super init]))
     view_ = view;
   return self;
-}
-
-// Call to set whether or not we should allow the drop. Takes effect the
-// next time |-draggingUpdated:| is called.
-- (void)setCurrentOperation: (NSDragOperation)operation {
-  current_operation_ = operation;
 }
 
 // Given a point in window coordinates and a view in that window, return a
@@ -100,15 +95,12 @@ using WebKit::WebView;
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint view:view];
   NSPoint screenPoint = [self flipWindowPointToScreen:windowPoint view:view];
   NSDragOperation mask = [info draggingSourceOperationMask];
-  webview->dragTargetDragEnter(data.ToDragData(),
-                               WebPoint(viewPoint.x, viewPoint.y),
-                               WebPoint(screenPoint.x, screenPoint.y),
-                               static_cast<WebDragOperationsMask>(mask));
-
-  // We won't know the true operation (whether the drag is allowed) until we
-  // hear back from the renderer. For now, be optimistic:
-  current_operation_ = NSDragOperationCopy;
-  return current_operation_;
+  WebDragOperation op =
+      webview->dragTargetDragEnter(data.ToDragData(),
+                                   WebPoint(viewPoint.x, viewPoint.y),
+                                   WebPoint(screenPoint.x, screenPoint.y),
+                                   static_cast<WebDragOperationsMask>(mask));
+  return static_cast<NSDragOperation>(op);
 }
 
 - (void)draggingExited:(id<NSDraggingInfo>)info {
@@ -143,11 +135,11 @@ using WebKit::WebView;
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint view:view];
   NSPoint screenPoint = [self flipWindowPointToScreen:windowPoint view:view];
   NSDragOperation mask = [info draggingSourceOperationMask];
-  webview->dragTargetDragOver(WebPoint(viewPoint.x, viewPoint.y),
-                              WebPoint(screenPoint.x, screenPoint.y),
-                              static_cast<WebDragOperationsMask>(mask));
-
-  return current_operation_;
+  WebDragOperation op =
+      webview->dragTargetDragOver(WebPoint(viewPoint.x, viewPoint.y),
+                                  WebPoint(screenPoint.x, screenPoint.y),
+                                  static_cast<WebDragOperationsMask>(mask));
+  return static_cast<NSDragOperation>(op);
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)info
