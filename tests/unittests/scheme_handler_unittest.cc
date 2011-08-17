@@ -12,7 +12,8 @@ class TestResults
 public:
   TestResults()
       : status_code(0),
-        sub_status_code(0)
+        sub_status_code(0),
+        delay(0)
   {
   }
 
@@ -27,6 +28,7 @@ public:
     sub_status_code = 0;
     sub_allow_origin.clear();
     exit_url.clear();
+    delay = 0;
     got_request.reset();
     got_read.reset();
     got_output.reset();
@@ -50,6 +52,9 @@ public:
   int sub_status_code;
   std::string sub_allow_origin;
   std::string exit_url;
+
+  // Delay for returning scheme handler results.
+  int delay;
 
   TrackCallback 
     got_request,
@@ -149,14 +154,16 @@ class ClientSchemeHandler : public CefSchemeHandler
 {
 public:
   ClientSchemeHandler(TestResults* tr)
-    : test_results_(tr), offset_(0), is_sub_(false) {}
+    : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request, 
+  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefString& redirectUrl,
-                              CefRefPtr<CefResponse> response, 
-                              int* response_length)
+                              CefRefPtr<CefSchemeHandlerCallback> callback)
+                              OVERRIDE
   {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    bool handled = false;
 
     std::string url = request->GetURL();
     is_sub_ = (!test_results_->sub_url.empty() &&
@@ -164,6 +171,40 @@ public:
 
     if (is_sub_) {
       test_results_->got_sub_request.yes();
+      
+      if (!test_results_->sub_html.empty())
+        handled = true;
+   } else {
+      EXPECT_EQ(url, test_results_->url);
+      
+      test_results_->got_request.yes();
+      
+      if (!test_results_->redirect_url.empty()) {
+        redirectUrl = test_results_->redirect_url;
+        return true; // don't call Continue() for URL redirects.
+      } else if (!test_results_->html.empty()) {
+        handled = true;
+      }
+    }
+
+    if (handled) {
+      if (test_results_->delay > 0) {
+        // Continue after the delay.
+        CefPostDelayedTask(TID_IO, NewCefRunnableMethod(callback.get(),
+            &CefSchemeHandlerCallback::HeadersAvailable), test_results_->delay);
+      } else {
+        // Continue immediately.
+        callback->HeadersAvailable();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                                  int64& response_length) OVERRIDE
+  {
+    if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
 
       if (!test_results_->sub_allow_origin.empty()) {
@@ -177,37 +218,44 @@ public:
  
       if (!test_results_->sub_html.empty()) {
         response->SetMimeType("text/html");
-        *response_length = test_results_->sub_html.size();
-        return true;
+        response_length = test_results_->sub_html.size();
       }
    } else {
-      EXPECT_EQ(url, test_results_->url);
-      
-      test_results_->got_request.yes();
-      
       response->SetStatus(test_results_->status_code);
 
-      if (!test_results_->redirect_url.empty()) {
-        redirectUrl = test_results_->redirect_url;
-        return true;
-      } else if (!test_results_->html.empty()) {
+      if (!test_results_->html.empty()) {
         response->SetMimeType("text/html");
-        *response_length = test_results_->html.size();
-        return true;
+        response_length = test_results_->html.size();
       }
     }
-
-    return false;
   }
 
-  virtual void Cancel()
+  virtual void Cancel() OVERRIDE
   {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
-  virtual bool ReadResponse(void* data_out, int bytes_to_read, int* bytes_read)
+  virtual bool ReadResponse(void* data_out,
+                            int bytes_to_read,
+                            int& bytes_read,
+                            CefRefPtr<CefSchemeHandlerCallback> callback)
+                            OVERRIDE
   {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    if (test_results_->delay > 0) {
+      if (!has_delayed_) {
+        // Continue after a delay.
+        CefPostDelayedTask(TID_IO,
+            NewCefRunnableMethod(this,
+            &ClientSchemeHandler::ContinueAfterDelay, callback),
+            test_results_->delay);
+         bytes_read = 0;
+         return true;
+      }
+
+      has_delayed_ = false;
+    }
 
     std::string* data;
 
@@ -220,7 +268,7 @@ public:
     }
 
     bool has_data = false;
-    *bytes_read = 0;
+    bytes_read = 0;
 
     AutoLock lock_scope(this);
 
@@ -231,7 +279,7 @@ public:
       memcpy(data_out, data->c_str() + offset_, transfer_size);
       offset_ += transfer_size;
 
-      *bytes_read = transfer_size;
+      bytes_read = transfer_size;
       has_data = true;
     }
 
@@ -239,9 +287,16 @@ public:
   }
 
 private:
+  void ContinueAfterDelay(CefRefPtr<CefSchemeHandlerCallback> callback)
+  {
+    has_delayed_ = true;
+    callback->BytesAvailable();
+  }
+
   TestResults* test_results_;
   size_t offset_;
   bool is_sub_;
+  bool has_delayed_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
   IMPLEMENT_LOCKING(ClientSchemeHandler);
@@ -455,6 +510,27 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponse)
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
   g_TestResults.status_code = 200;
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can return normal results with delayed
+// responses.
+TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed)
+{
+  RegisterTestScheme("customstd", "test");
+  g_TestResults.url = "customstd://test/run.html";
+  g_TestResults.html =
+      "<html><head></head><body><h1>Success!</h1></body></html>";
+  g_TestResults.status_code = 200;
+  g_TestResults.delay = 100;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();

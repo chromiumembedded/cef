@@ -33,6 +33,7 @@
 
 #include <map>
 
+using net::URLRequestStatus;
 using WebKit::WebSecurityPolicy;
 using WebKit::WebString;
 
@@ -104,30 +105,53 @@ public:
   CefUrlRequestJob(net::URLRequest* request,
                    CefRefPtr<CefSchemeHandler> handler)
     : net::URLRequestJob(request),
-    handler_(handler),
-    response_length_(0),
-    url_(request->url()),
-    remaining_bytes_(0) {  }
+      handler_(handler),
+      remaining_bytes_(0)
+  {
+  }
 
-  virtual ~CefUrlRequestJob(){}
+  virtual ~CefUrlRequestJob()
+  {
+  }
 
   virtual void Start() OVERRIDE
   {
-    handler_->Cancel();
-    // Continue asynchronously.
-    DCHECK(!async_resolver_);
-    response_ = new CefResponseImpl();
-    async_resolver_ = new AsyncResolver(this);
-    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-        async_resolver_.get(), &AsyncResolver::Resolve, url_));
+    REQUIRE_IOT();
+
+    if (!callback_)
+      callback_ = new Callback(this);
+
+    CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
+    CefString redirectUrl;
+    
+    // Populate the request data.
+    static_cast<CefRequestImpl*>(req.get())->Set(request());
+    
+    // Handler can decide whether to process the request.
+    bool rv = handler_->ProcessRequest(req, redirectUrl, callback_.get());
+    if (!rv) {
+      // Cancel the request.
+      NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, ERR_ABORTED));
+    } else if (!redirectUrl.empty()) {
+      // Treat the request as a redirect.
+      std::string redirectUrlStr = redirectUrl;
+      redirect_url_ = GURL(redirectUrlStr);
+      NotifyHeadersComplete();
+    }
+    
     return;
   }
 
   virtual void Kill() OVERRIDE
   {
-    if (async_resolver_) {
-      async_resolver_->Cancel();
-      async_resolver_ = NULL;
+    REQUIRE_IOT();
+
+    // Notify the handler that the request has been canceled.
+    handler_->Cancel();
+
+    if (callback_) {
+      callback_->Detach();
+      callback_ = NULL;
     }
 
     net::URLRequestJob::Kill();
@@ -136,52 +160,62 @@ public:
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int *bytes_read)
       OVERRIDE
   {
+    REQUIRE_IOT();
+
     DCHECK_NE(dest_size, 0);
     DCHECK(bytes_read);
 
-    // When remaining_bytes_>=0, it means the handler knows the content size
-    // before hand. We continue to read until 
-    if (remaining_bytes_>=0) {
-      if (remaining_bytes_ < dest_size)
-        dest_size = static_cast<int>(remaining_bytes_);
-
-      // If we should copy zero bytes because |remaining_bytes_| is zero, short
-      // circuit here.
-      if (!dest_size) {
-        *bytes_read = 0;
-        return true;
-      }
-
-      // remaining_bytes > 0
-      bool rv = handler_->ReadResponse(dest->data(), dest_size, bytes_read);
-      remaining_bytes_ -= *bytes_read;
-      if (!rv) {
-        // handler indicated no further data to read
-        *bytes_read = 0;
-      }
+    if (remaining_bytes_ == 0) {
+      // No more data to read.
+      *bytes_read = 0;
       return true;
-    } else {
-      // The handler returns -1 for GetResponseLength, this means the handler
-      // doesn't know the content size before hand. We do basically the same
-      // thing, except for checking the return value for handler_->ReadResponse,
-      // which is an indicator for no further data to be read.
-      bool rv = handler_->ReadResponse(dest->data(), dest_size, bytes_read);
-      if (!rv)
-        // handler indicated no further data to read
-        *bytes_read = 0;
-      return true;
+    } else if (remaining_bytes_ > 0 && remaining_bytes_ < dest_size) {
+      // The handler knows the content size beforehand.
+      dest_size = static_cast<int>(remaining_bytes_);
     }
+
+    // Read response data from the handler.
+    bool rv = handler_->ReadResponse(dest->data(), dest_size, *bytes_read,
+                                     callback_.get());
+    if (!rv) {
+      // The handler has indicated completion of the request.
+      *bytes_read = 0;
+      return true;
+    } else if(*bytes_read == 0) {
+      if (!GetStatus().is_io_pending()) {
+        // Report our status as IO pending.
+        SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
+        callback_->SetDestination(dest, dest_size);
+      }
+      return false;
+    } else if(*bytes_read > dest_size) {
+      // Normalize the return value.
+      *bytes_read = dest_size;
+    }
+
+    if(remaining_bytes_ > 0)
+      remaining_bytes_ -= *bytes_read;
+
+    // Continue calling this method.
+    return true;
   }
 
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
-    CefResponseImpl* responseImpl =
-        static_cast<CefResponseImpl*>(response_.get());
-    info->headers = responseImpl->GetResponseHeaders();
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE
+  {
+    REQUIRE_IOT();
+
+    if (response_.get()) {
+      CefResponseImpl* responseImpl =
+          static_cast<CefResponseImpl*>(response_.get());
+      info->headers = responseImpl->GetResponseHeaders();
+    }
   }
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
       OVERRIDE
   {
+    REQUIRE_IOT();
+
     if (redirect_url_.is_valid()) {
       // Redirect to the new URL.
       *http_status_code = 303;
@@ -193,105 +227,132 @@ public:
 
   virtual bool GetMimeType(std::string* mime_type) const OVERRIDE
   {
-    DCHECK(request_);
-    // call handler to get mime type
-    *mime_type = response_->GetMimeType();
+    REQUIRE_IOT();
+
+    if (response_.get())
+      *mime_type = response_->GetMimeType();
     return true;
   }
 
   CefRefPtr<CefSchemeHandler> handler_;
   CefRefPtr<CefResponse> response_;
-  int response_length_;
-
-protected:
-  GURL url_;
-  GURL redirect_url_;
 
 private:
-  void DidResolve(const GURL& url)
+  void SendHeaders()
   {
-    async_resolver_ = NULL;
+    REQUIRE_IOT();
 
     // We may have been orphaned...
-    if (!request_)
+    if (!request())
       return;
 
-    remaining_bytes_ = response_length_;
-    if (remaining_bytes_>0)
+    response_ = new CefResponseImpl();
+    remaining_bytes_ = 0;
+
+    // Get header information from the handler.
+    handler_->GetResponseHeaders(response_, remaining_bytes_);
+
+    if (remaining_bytes_ > 0)
       set_expected_content_size(remaining_bytes_);
+
+    // Continue processing the request.
     NotifyHeadersComplete();
   }
 
-  int64 remaining_bytes_;
-  std::string m_response;
-
-  class AsyncResolver :
-    public base::RefCountedThreadSafe<AsyncResolver> {
+  // Client callback for asynchronous response continuation.
+  class Callback : public CefSchemeHandlerCallback
+  {
   public:
-    explicit AsyncResolver(CefUrlRequestJob* owner)
-      : owner_(owner), owner_loop_(MessageLoop::current()) {
-    }
+    Callback(CefUrlRequestJob* job)
+      : job_(job),
+        dest_(NULL),
+        dest_size_() {}
 
-    void Resolve(const GURL& url) {
-      base::AutoLock locked(lock_);
-      if (!owner_ || !owner_loop_)
-        return;
-
-      //////////////////////////////////////////////////////////////////////////
-      // safe to perform long operation here
-      CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-
-      // populate the request data
-      static_cast<CefRequestImpl*>(req.get())->Set(owner_->request());
-
-      owner_->handler_->Cancel();
-
-      int response_length = 0;
-      CefString redirectUrl;
-
-      // handler should complete content generation in ProcessRequest
-      bool res = owner_->handler_->ProcessRequest(req, redirectUrl,
-          owner_->response_, &response_length);
-      if (res) {
-        if (!redirectUrl.empty()) {
-          // Treat the request as a redirect.
-          std::string redirectUrlStr = redirectUrl;
-          owner_->redirect_url_ = GURL(redirectUrlStr);
-          owner_->response_length_ = 0;
-        } else {
-          owner_->response_length_ = response_length;
+    virtual void HeadersAvailable() OVERRIDE
+    {
+      if (CefThread::CurrentlyOn(CefThread::IO)) {
+        // Currently on IO thread.
+        if (job_ && !job_->has_response_started()) {
+          // Send header information.
+          job_->SendHeaders();
         }
-      }
-
-      //////////////////////////////////////////////////////////////////////////
-      if (owner_loop_) {
-        owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-            this, &AsyncResolver::ReturnResults, url));
+      } else {
+        // Execute this method on the IO thread.
+        CefThread::PostTask(CefThread::IO, FROM_HERE,
+            NewRunnableMethod(this, &Callback::HeadersAvailable));
       }
     }
 
-    void Cancel() {
-      owner_->handler_->Cancel();
+    virtual void BytesAvailable() OVERRIDE
+    {
+      if (CefThread::CurrentlyOn(CefThread::IO)) {
+        // Currently on IO thread.
+        if (job_ && job_->has_response_started() &&
+            job_->GetStatus().is_io_pending()) {
+          // Read the bytes. They should be available but, if not, wait again.
+          int bytes_read = 0;
+          if (job_->ReadRawData(dest_, dest_size_, &bytes_read)) {
+            if (bytes_read > 0) {
+              // Clear the IO_PENDING status.
+              job_->SetStatus(URLRequestStatus());
 
-      base::AutoLock locked(lock_);
-      owner_ = NULL;
-      owner_loop_ = NULL;
+              // Notify about the available bytes.
+              job_->NotifyReadComplete(bytes_read);
+
+              dest_ = NULL;
+              dest_size_ = NULL;
+            }
+          } else {
+            // All done.
+            job_->NotifyDone(URLRequestStatus());
+          }
+        }
+      } else {
+        // Execute this method on the IO thread.
+        CefThread::PostTask(CefThread::IO, FROM_HERE,
+            NewRunnableMethod(this, &Callback::BytesAvailable));
+      }
     }
+
+    virtual void Cancel() OVERRIDE
+    {
+      if (CefThread::CurrentlyOn(CefThread::IO)) {
+        // Currently on IO thread.
+        if (job_)
+          job_->Kill();
+      } else {
+        // Execute this method on the IO thread.
+        CefThread::PostTask(CefThread::IO, FROM_HERE,
+            NewRunnableMethod(this, &Callback::Cancel));
+      }
+    }
+
+    void Detach()
+    {
+      REQUIRE_IOT();
+      job_ = NULL;
+    }
+
+    void SetDestination(net::IOBuffer* dest, int dest_size)
+    {
+      dest_ = dest;
+      dest_size_ = dest_size;
+    }
+
+    static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
   private:
-    void ReturnResults(const GURL& url) {
-      if (owner_)
-        owner_->DidResolve(url);
-    }
+    CefUrlRequestJob* job_;
 
-    CefUrlRequestJob* owner_;
+    net::IOBuffer* dest_;
+    int dest_size_;
 
-    base::Lock lock_;
-    MessageLoop* owner_loop_;
+    IMPLEMENT_REFCOUNTING(Callback);
   };
 
-  friend class AsyncResolver;
-  scoped_refptr<AsyncResolver> async_resolver_;
+  GURL redirect_url_;
+  int64 remaining_bytes_;
+  CefRefPtr<Callback> callback_;
 
   DISALLOW_COPY_AND_ASSIGN(CefUrlRequestJob);
 };

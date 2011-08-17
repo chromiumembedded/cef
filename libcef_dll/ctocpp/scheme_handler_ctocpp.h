@@ -34,11 +34,13 @@ public:
 
   // CefSchemeHandler methods
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefString& redirectUrl, CefRefPtr<CefResponse> response,
-      int* response_length) OVERRIDE;
+      CefString& redirectUrl,
+      CefRefPtr<CefSchemeHandlerCallback> callback) OVERRIDE;
+  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
+      int64& response_length) OVERRIDE;
+  virtual bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read,
+      CefRefPtr<CefSchemeHandlerCallback> callback) OVERRIDE;
   virtual void Cancel() OVERRIDE;
-  virtual bool ReadResponse(void* data_out, int bytes_to_read,
-      int* bytes_read) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

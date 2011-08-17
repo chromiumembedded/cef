@@ -13,26 +13,54 @@
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
+#include "libcef_dll/ctocpp/scheme_handler_callback_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK scheme_handler_process_request(
     struct _cef_scheme_handler_t* self, cef_request_t* request,
-    cef_string_t* redirectUrl, cef_response_t* response, int* response_length)
+    cef_string_t* redirectUrl, cef_scheme_handler_callback_t* callback)
 {
   DCHECK(self);
   DCHECK(request);
   DCHECK(redirectUrl);
-  DCHECK(response);
-  DCHECK(response_length);
-  if(!self || !request || !redirectUrl || !response || !response_length)
+  if(!self || !request || !redirectUrl)
     return 0;
 
   CefString redirectUrlStr(redirectUrl);
   return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
       CefRequestCToCpp::Wrap(request), redirectUrlStr,
-      CefResponseCToCpp::Wrap(response), response_length);
+      CefSchemeHandlerCallbackCToCpp::Wrap(callback));
+}
+
+void CEF_CALLBACK scheme_handler_get_response_headers(
+    struct _cef_scheme_handler_t* self, cef_response_t* response,
+    int64* response_length)
+{
+  DCHECK(self);
+  DCHECK(response);
+  DCHECK(response_length);
+  if (!self || !response || !response_length)
+    return;
+
+  CefSchemeHandlerCppToC::Get(self)->GetResponseHeaders(
+      CefResponseCToCpp::Wrap(response), *response_length);
+}
+
+int CEF_CALLBACK scheme_handler_read_response(
+    struct _cef_scheme_handler_t* self, void* data_out, int bytes_to_read,
+    int* bytes_read, cef_scheme_handler_callback_t* callback)
+{
+  DCHECK(self);
+  DCHECK(data_out);
+  DCHECK(bytes_read);
+  if(!self || !data_out || !bytes_read)
+    return 0;
+
+  return CefSchemeHandlerCppToC::Get(self)->ReadResponse(
+      data_out, bytes_to_read, *bytes_read,
+      CefSchemeHandlerCallbackCToCpp::Wrap(callback)) ? 1 : 0;
 }
 
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)
@@ -44,22 +72,6 @@ void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)
   CefSchemeHandlerCppToC::Get(self)->Cancel();
 }
 
-int CEF_CALLBACK scheme_handler_read_response(
-    struct _cef_scheme_handler_t* self, void* data_out, int bytes_to_read,
-    int* bytes_read)
-{
-  DCHECK(self);
-  DCHECK(data_out);
-  DCHECK(bytes_read);
-  if(!self || !data_out || !bytes_read)
-    return 0;
-
-  bool rv = CefSchemeHandlerCppToC::Get(self)->ReadResponse(
-      data_out, bytes_to_read, bytes_read);
-
-  return rv?1:0;
-}
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -68,8 +80,9 @@ CefSchemeHandlerCppToC::CefSchemeHandlerCppToC(CefSchemeHandler* cls)
         cls)
 {
   struct_.struct_.process_request = scheme_handler_process_request;
-  struct_.struct_.cancel = scheme_handler_cancel;
+  struct_.struct_.get_response_headers = scheme_handler_get_response_headers;
   struct_.struct_.read_response = scheme_handler_read_response;
+  struct_.struct_.cancel = scheme_handler_cancel;
 }
 
 #ifndef NDEBUG

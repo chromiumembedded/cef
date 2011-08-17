@@ -19,21 +19,10 @@ class ClientSchemeHandler : public CefSchemeHandler
 public:
   ClientSchemeHandler() : offset_(0) {}
 
-  // Process the request. All response generation should take place in this
-  // method. If there is no response set |response_length| to zero or return
-  // false and ReadResponse() will not be called. If the response length is not
-  // known set |response_length| to -1 and ReadResponse() will be called until
-  // it returns false or until the value of |bytes_read| is set to 0. If the
-  // response length is known set |response_length| to a positive value and
-  // ReadResponse() will be called until it returns false, the value of
-  // |bytes_read| is set to 0 or the specified number of bytes have been read.
-  // Use the |response| object to set the mime type, http status code and
-  // optional header values for the response and return true. To redirect the
-  // request to a new URL set |redirectUrl| to the new URL and return true.
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefString& redirectUrl,
-                              CefRefPtr<CefResponse> response,
-                              int* response_length)
+                              CefRefPtr<CefSchemeHandlerCallback> callback)
+                              OVERRIDE
   {
     REQUIRE_IO_THREAD();
 
@@ -65,8 +54,7 @@ public:
       handled = true;
 
       // Set the resulting mime type
-      response->SetMimeType("text/html");
-      response->SetStatus(200);
+      mime_type_ = "text/html";
     }
     else if(strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
@@ -77,40 +65,55 @@ public:
         data_ = std::string(reinterpret_cast<const char*>(pBytes), dwSize);
         handled = true;
         // Set the resulting mime type
-        response->SetMimeType("image/jpg");
-        response->SetStatus(200);
+        mime_type_ = "image/jpg";
       }
 #elif defined(OS_MACOSX)
       if(LoadBinaryResource("logo.png", data_)) {
         handled = true;
-        response->SetMimeType("image/png");
-        response->SetStatus(200);
+        // Set the resulting mime type
+        mime_type_ = "image/png";
       }
 #endif
     }
 
-    // Set the resulting response length
-    *response_length = data_.length();
-   
-    return handled;
+    if (handled) {
+      // Indicate the headers are available.
+      callback->HeadersAvailable();
+      return true;
+    }
+
+    return false;
   }
 
-  // Cancel processing of the request.
-  virtual void Cancel()
+  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                                  int64& response_length) OVERRIDE
+  {
+    REQUIRE_IO_THREAD();
+
+    ASSERT(!data_.empty());
+
+    response->SetMimeType(mime_type_);
+    response->SetStatus(200);
+
+    // Set the resulting response length
+    response_length = data_.length();
+  }
+
+  virtual void Cancel() OVERRIDE
   {
     REQUIRE_IO_THREAD();
   }
 
-  // Copy up to |bytes_to_read| bytes into |data_out|. If the copy succeeds
-  // set |bytes_read| to the number of bytes copied and return true. If the
-  // copy fails return false and ReadResponse() will not be called again.
-  virtual bool ReadResponse(void* data_out, int bytes_to_read,
-                            int* bytes_read)
+  virtual bool ReadResponse(void* data_out,
+                            int bytes_to_read,
+                            int& bytes_read,
+                            CefRefPtr<CefSchemeHandlerCallback> callback)
+                            OVERRIDE
   {
     REQUIRE_IO_THREAD();
 
     bool has_data = false;
-    *bytes_read = 0;
+    bytes_read = 0;
 
     AutoLock lock_scope(this);
 
@@ -121,7 +124,7 @@ public:
       memcpy(data_out, data_.c_str() + offset_, transfer_size);
       offset_ += transfer_size;
 
-      *bytes_read = transfer_size;
+      bytes_read = transfer_size;
       has_data = true;
     }
 
@@ -130,6 +133,7 @@ public:
 
 private:
   std::string data_;
+  std::string mime_type_;
   size_t offset_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);

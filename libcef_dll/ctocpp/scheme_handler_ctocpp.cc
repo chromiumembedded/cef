@@ -12,21 +12,41 @@
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    CefString& redirectUrl, CefRefPtr<CefResponse> response,
-    int* response_length)
+    CefString& redirectUrl, CefRefPtr<CefSchemeHandlerCallback> callback)
 {
   if(CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
   return struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
-      redirectUrl.GetWritableStruct(), CefResponseCppToC::Wrap(response),
-      response_length) ? true : false;
+      redirectUrl.GetWritableStruct(),
+      CefSchemeHandlerCallbackCppToC::Wrap(callback)) ? true : false;
+}
+
+void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
+    int64& response_length)
+{
+  if (CEF_MEMBER_MISSING(struct_, get_response_headers))
+    return;
+
+  struct_->get_response_headers(struct_, CefResponseCppToC::Wrap(response),
+      &response_length);
+}
+
+bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
+    int& bytes_read, CefRefPtr<CefSchemeHandlerCallback> callback)
+{
+  if(CEF_MEMBER_MISSING(struct_, read_response))
+    return false;
+
+  return struct_->read_response(struct_, data_out, bytes_to_read, &bytes_read,
+      CefSchemeHandlerCallbackCppToC::Wrap(callback)) ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::Cancel()
@@ -35,16 +55,6 @@ void CefSchemeHandlerCToCpp::Cancel()
     return;
 
   struct_->cancel(struct_);
-}
-
-bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
-    int* bytes_read)
-{
-  if(CEF_MEMBER_MISSING(struct_, read_response))
-    return false;
-
-  return struct_->read_response(struct_, data_out, bytes_to_read, bytes_read) ?
-      true : false;
 }
 
 
