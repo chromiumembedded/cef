@@ -38,7 +38,7 @@
 }
 
 - (void) dealloc {
-  if (browser)
+  if (browser_)
     browser_->UIT_DestroyBrowser();
 
   [self removeTrackingArea:trackingArea_];
