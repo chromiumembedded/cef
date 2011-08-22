@@ -11,9 +11,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
 #include "ui/base/dragdrop/drop_target.h"
 
-namespace WebKit {
-class WebView;
-};
+class CefBrowserImpl;
 class WebViewHost;
 
 // A helper object that provides drop capabilities to a WebView. The
@@ -23,7 +21,7 @@ class WebDropTarget : public ui::DropTarget {
  public:
   // Create a new WebDropTarget associating it with the given HWND and
   // WebView.
-  WebDropTarget(HWND source_hwnd, WebKit::WebView* view);
+  WebDropTarget(CefBrowserImpl* browser);
   virtual ~WebDropTarget();
 
   void set_drag_cursor(WebKit::WebDragOperation op) {
@@ -49,8 +47,8 @@ class WebDropTarget : public ui::DropTarget {
                        DWORD effect);
 
  private:
-  // Our associated WebView.
-  WebKit::WebView* view_;
+  // Our associated CefBrowserImpl.
+  CefBrowserImpl* browser_;
 
   // We keep track of the web view host we're dragging over.  If it changes
   // during a drag, we need to re-send the DragEnter message.  WARNING:
@@ -61,6 +59,9 @@ class WebDropTarget : public ui::DropTarget {
   // Used to determine what cursor we should display when dragging over web
   // content area.  This can be updated async during a drag operation.
   WebKit::WebDragOperation drag_cursor_;
+
+  // True if the drag has been canceled.
+  bool canceled_;
 
   DISALLOW_COPY_AND_ASSIGN(WebDropTarget);
 };

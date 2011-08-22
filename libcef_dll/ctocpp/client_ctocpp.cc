@@ -12,6 +12,7 @@
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsbinding_handler_ctocpp.h"
@@ -171,6 +172,18 @@ CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler()
   cef_render_handler_t* handlerStruct = struct_->get_render_handler(struct_);
   if(handlerStruct)
     return CefRenderHandlerCToCpp::Wrap(handlerStruct);
+
+  return NULL;
+}
+
+CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_drag_handler))
+    return NULL;
+
+  cef_drag_handler_t* handlerStruct = struct_->get_drag_handler(struct_);
+  if(handlerStruct)
+    return CefDragHandlerCToCpp::Wrap(handlerStruct);
 
   return NULL;
 }

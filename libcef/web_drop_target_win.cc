@@ -3,9 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "web_drop_target_win.h"
+#include "browser_impl.h"
 #include "cef_context.h"
+#include "drag_data_impl.h"
 #include "web_drag_utils_win.h"
+#include "web_drop_target_win.h"
 
 #include <windows.h>
 #include <shlobj.h>
@@ -28,6 +30,7 @@ using WebKit::WebDragOperationLink;
 using WebKit::WebDragOperationMove;
 using WebKit::WebDragOperationGeneric;
 using WebKit::WebPoint;
+using WebKit::WebView;
 
 namespace {
 
@@ -44,11 +47,12 @@ DWORD GetPreferredDropEffect(DWORD effect) {
 
 }  // namespace
 
-WebDropTarget::WebDropTarget(HWND source_hwnd, WebKit::WebView* view)
-    : ui::DropTarget(source_hwnd),
-      view_(view),
+WebDropTarget::WebDropTarget(CefBrowserImpl* browser)
+    : ui::DropTarget(browser->UIT_GetWebViewWndHandle()),
+      browser_(browser),
       current_wvh_(NULL),
-      drag_cursor_(WebDragOperationNone) {
+      drag_cursor_(WebDragOperationNone),
+      canceled_(false) {
 }
 
 WebDropTarget::~WebDropTarget() {
@@ -69,15 +73,33 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
   if (drop_data.url.is_empty())
     ui::OSExchangeDataProviderWin::GetPlainTextURL(data_object, &drop_data.url);
 
+  WebKit::WebDragOperationsMask mask =
+      web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects);
+
+  canceled_ = false;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDragHandler> handler = client->GetDragHandler();
+    if (handler.get()) {
+      CefRefPtr<CefDragData> data(new CefDragDataImpl(drop_data));
+      if (handler->OnDragEnter(browser_, data,
+              static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+        canceled_ = true;
+        return DROPEFFECT_NONE;
+      }
+    }
+  }
+
   drag_cursor_ = WebDragOperationNone;
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  WebDragOperation operation = view_->dragTargetDragEnter(
+  WebDragOperation operation = browser_->UIT_GetWebView()->dragTargetDragEnter(
       drop_data.ToDragData(),
       WebPoint(client_pt.x, client_pt.y),
       WebPoint(cursor_position.x, cursor_position.y),
-      web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
+      mask);
 
   return web_drag_utils_win::WebDragOpToWinDragOp(operation);
 }
@@ -90,9 +112,12 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
   if (current_wvh_ != _Context->current_webviewhost())
     OnDragEnter(data_object, key_state, cursor_position, effects);
 
+  if (canceled_)
+    return DROPEFFECT_NONE;
+
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  WebDragOperation operation = view_->dragTargetDragOver(
+  WebDragOperation operation = browser_->UIT_GetWebView()->dragTargetDragOver(
       WebPoint(client_pt.x, client_pt.y),
       WebPoint(cursor_position.x, cursor_position.y),
       web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
@@ -105,7 +130,10 @@ void WebDropTarget::OnDragLeave(IDataObject* data_object) {
   if (current_wvh_ != _Context->current_webviewhost())
     return;
 
-  view_->dragTargetDragLeave();
+  if (canceled_)
+    return;
+
+  browser_->UIT_GetWebView()->dragTargetDragLeave();
 }
 
 DWORD WebDropTarget::OnDrop(IDataObject* data_object,
@@ -118,7 +146,7 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  view_->dragTargetDrop(
+  browser_->UIT_GetWebView()->dragTargetDrop(
       WebPoint(client_pt.x, client_pt.y),
       WebPoint(cursor_position.x, cursor_position.y));
 

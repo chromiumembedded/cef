@@ -6,6 +6,7 @@
 #include "browser_impl.h"
 #import "browser_webview_mac.h"
 #include "cef_context.h"
+#include "drag_data_impl.h"
 #import "web_drop_target_mac.h"
 #import "web_drag_utils_mac.h"
 
@@ -30,8 +31,10 @@ using WebKit::WebView;
 // drag&drop messages to WebCore and handle navigation on a successful drop
 // (if necessary).
 - (id)initWithWebView:(BrowserWebView*)view {
-  if ((self = [super init]))
+  if ((self = [super init])) {
     view_ = view;
+    canceled_ = false;
+  }
   return self;
 }
 
@@ -86,17 +89,34 @@ using WebKit::WebView;
   WebView* webview = view_.browser->UIT_GetWebView();
 
   // Fill out a WebDropData from pasteboard.
-  WebDropData data;
-  [self populateWebDropData:&data fromPasteboard:[info draggingPasteboard]];
+  WebDropData drop_data;
+  [self populateWebDropData:&drop_data
+             fromPasteboard:[info draggingPasteboard]];
+  
+  NSDragOperation mask = [info draggingSourceOperationMask];
+  
+  canceled_ = false;
+  
+  CefRefPtr<CefClient> client = view_.browser->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDragHandler> handler = client->GetDragHandler();
+    if (handler.get()) {
+      CefRefPtr<CefDragData> data(new CefDragDataImpl(drop_data));
+      if (handler->OnDragEnter(view_.browser, data,
+              static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+        canceled_ = true;
+        return NSDragOperationNone;
+      }
+    }
+  }
 
   // Create the appropriate mouse locations for WebCore. The draggingLocation
   // is in window coordinates. Both need to be flipped.
   NSPoint windowPoint = [info draggingLocation];
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint view:view];
   NSPoint screenPoint = [self flipWindowPointToScreen:windowPoint view:view];
-  NSDragOperation mask = [info draggingSourceOperationMask];
   WebDragOperation op =
-      webview->dragTargetDragEnter(data.ToDragData(),
+      webview->dragTargetDragEnter(drop_data.ToDragData(),
                                    WebPoint(viewPoint.x, viewPoint.y),
                                    WebPoint(screenPoint.x, screenPoint.y),
                                    static_cast<WebDragOperationsMask>(mask));
@@ -106,6 +126,9 @@ using WebKit::WebView;
 - (void)draggingExited:(id<NSDraggingInfo>)info {
   DCHECK(current_wvh_);
   if (current_wvh_ != _Context->current_webviewhost())
+    return;
+
+  if (canceled_)
     return;
 
   WebView* webview = view_.browser->UIT_GetWebView();
@@ -126,6 +149,9 @@ using WebKit::WebView;
       return NSDragOperationCopy;
     return NSDragOperationNone;
   }
+
+  if (canceled_)
+    return NSDragOperationNone;
 
   WebView* webview = view_.browser->UIT_GetWebView();
   

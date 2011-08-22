@@ -235,6 +235,35 @@ void ClientHandler::OnJSBinding(CefRefPtr<CefBrowser> browser,
   InitBindingTest(browser, frame, object);
 }
 
+bool ClientHandler::OnDragStart(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefDragData> dragData,
+                                DragOperationsMask mask)
+{
+  REQUIRE_UI_THREAD();
+
+  // Forbid dragging of image files.
+  if (dragData->IsFile()) {
+    std::string fileExt = dragData->GetFileExtension();
+    if (fileExt == ".png" || fileExt == ".jpg" || fileExt == ".gif")
+      return true;
+  }
+
+  return false;
+}
+
+bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefDragData> dragData,
+                                DragOperationsMask mask)
+{
+  REQUIRE_UI_THREAD();
+
+  // Forbid dragging of link URLs.
+  if (dragData->IsLink())
+    return true;
+
+  return false;
+}
+
 void ClientHandler::NotifyDownloadComplete(const CefString& fileName)
 {
   SetLastDownloadFile(fileName);

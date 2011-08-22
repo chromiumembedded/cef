@@ -15,6 +15,10 @@ class WebFrame;
 class WebView;
 }
 
+#if defined(OS_MACOSX)
+class FilePath;
+#endif
+
 namespace webkit_glue {
 
 #if defined(OS_WIN)
@@ -28,6 +32,7 @@ BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
   
 #if defined(OS_MACOSX)
 void InitializeDataPak();
+FilePath GetResourcesFilePath();
 #endif
 
 // Text encoding objects must be initialized on the main thread.

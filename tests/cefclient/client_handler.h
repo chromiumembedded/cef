@@ -23,6 +23,7 @@ class ClientHandler : public CefClient,
                       public CefDisplayHandler,
                       public CefPrintHandler,
                       public CefJSBindingHandler,
+                      public CefDragHandler,
                       public DownloadListener
 {
 public:
@@ -41,6 +42,8 @@ public:
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefJSBindingHandler> GetJSBindingHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE
       { return this; }
 
   // CefLifeSpanHandler methods
@@ -113,6 +116,14 @@ public:
   virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefV8Value> object) OVERRIDE;
+
+  // CefDragHandler methods.
+  virtual bool OnDragStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefDragData> dragData,
+                           DragOperationsMask mask) OVERRIDE;
+  virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefDragData> dragData,
+                           DragOperationsMask mask) OVERRIDE;
 
   // DownloadListener methods
   virtual void NotifyDownloadComplete(const CefString& fileName) OVERRIDE;

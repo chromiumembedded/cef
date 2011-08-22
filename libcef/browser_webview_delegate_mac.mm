@@ -5,6 +5,7 @@
 #include "browser_webview_delegate.h"
 #import "browser_webview_mac.h"
 #include "browser_impl.h"
+#include "drag_data_impl.h"
 #import "include/cef_application_mac.h"
 
 #import <Cocoa/Cocoa.h>
@@ -138,6 +139,21 @@ void BrowserWebViewDelegate::startDragging(const WebDragData& data,
   if (!view)
     return;
   
+  WebDropData drop_data(data);
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDragHandler> handler = client->GetDragHandler();
+    if (handler.get()) {
+      CefRefPtr<CefDragData> data(new CefDragDataImpl(drop_data));
+      if (handler->OnDragStart(browser_, data,
+              static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+        browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+        return;
+      }
+    }
+  }
+
   // By allowing nested tasks, the code below also allows Close(),
   // which would deallocate |this|.  The same problem can occur while
   // processing -sendEvent:, so Close() is deferred in that case.
@@ -148,13 +164,16 @@ void BrowserWebViewDelegate::startDragging(const WebDragData& data,
   // The drag invokes a nested event loop, arrange to continue
   // processing events.
   MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
-  NSDragOperation op_mask = static_cast<NSDragOperation>(mask);
-  const SkBitmap& bitmap = gfx::CGImageToSkBitmap(image.getCGImageRef());
-  CGColorSpaceRef color_space = base::mac::GetSystemColorSpace();
-  NSImage* ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
+  
+  NSImage* ns_image = nil;
+  if (!image.isNull()) {
+    const SkBitmap& bitmap = gfx::CGImageToSkBitmap(image.getCGImageRef());
+    CGColorSpaceRef color_space = base::mac::GetSystemColorSpace();
+    ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
+  }
   NSPoint offset = NSPointFromCGPoint(gfx::Point(image_offset).ToCGPoint());
-  [view startDragWithDropData:WebDropData(data)
-            dragOperationMask:op_mask
+  [view startDragWithDropData:drop_data
+            dragOperationMask:static_cast<NSDragOperation>(mask)
                         image:ns_image
                        offset:offset];
 }

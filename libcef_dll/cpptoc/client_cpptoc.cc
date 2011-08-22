@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsbinding_handler_cpptoc.h"
@@ -207,6 +208,21 @@ cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
   return NULL;
 }
 
+cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
+    struct _cef_client_t* self)
+{
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  CefRefPtr<CefDragHandler> handlerPtr =
+      CefClientCppToC::Get(self)->GetDragHandler();
+  if(handlerPtr.get())
+    return CefDragHandlerCppToC::Wrap(handlerPtr);
+
+  return NULL;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -225,6 +241,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;
   struct_.struct_.get_jsbinding_handler = client_get_jsbinding_handler;
   struct_.struct_.get_render_handler = client_get_render_handler;
+  struct_.struct_.get_drag_handler = client_get_drag_handler;
 }
 
 #ifndef NDEBUG

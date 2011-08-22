@@ -1336,6 +1336,38 @@ typedef struct _cef_render_handler_t
 
 
 ///
+// Implement this structure to handle events related to dragging. The functions
+// of this structure will be called on the UI thread.
+///
+typedef struct _cef_drag_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Called when the browser window initiates a drag event. |dragData| contains
+  // the drag event data and |mask| represents the type of drag operation.
+  // Return false (0) for default drag handling behavior or true (1) to cancel
+  // the drag event.
+  ///
+  int (CEF_CALLBACK *on_drag_start)(struct _cef_drag_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_drag_data_t* dragData,
+      enum cef_drag_operations_mask_t mask);
+
+  ///
+  // Called when an external drag event enters the browser window. |dragData|
+  // contains the drag event data and |mask| represents the type of drag
+  // operation. Return false (0) for default drag handling behavior or true (1)
+  // to cancel the drag event.
+  ///
+  int (CEF_CALLBACK *on_drag_enter)(struct _cef_drag_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_drag_data_t* dragData,
+      enum cef_drag_operations_mask_t mask);
+
+} cef_drag_handler_t;
+
+
+///
 // Implement this structure to provide handler implementations.
 ///
 typedef struct _cef_client_t
@@ -1413,6 +1445,12 @@ typedef struct _cef_client_t
   // Return the handler for off-screen rendering events.
   ///
   struct _cef_render_handler_t* (CEF_CALLBACK *get_render_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for drag events.
+  ///
+  struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
       struct _cef_client_t* self);
 
 } cef_client_t;
@@ -3188,6 +3226,97 @@ typedef struct _cef_content_filter_t
       struct _cef_stream_reader_t** remainder);
 
 } cef_content_filter_t;
+
+
+///
+// Structure used to represent drag data. The functions of this structure may be
+// called on any thread.
+///
+typedef struct _cef_drag_data_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Returns true (1) if the drag data is a link.
+  ///
+  int (CEF_CALLBACK *is_link)(struct _cef_drag_data_t* self);
+
+  ///
+  // Returns true (1) if the drag data is a text or html fragment.
+  ///
+  int (CEF_CALLBACK *is_fragment)(struct _cef_drag_data_t* self);
+
+  ///
+  // Returns true (1) if the drag data is a file.
+  ///
+  int (CEF_CALLBACK *is_file)(struct _cef_drag_data_t* self);
+
+  ///
+  // Return the link URL that is being dragged.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_link_url)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the title associated with the link being dragged.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_link_title)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the metadata, if any, associated with the link being dragged.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_link_metadata)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the plain text fragment that is being dragged.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_fragment_text)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the text/html fragment that is being dragged.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_fragment_html)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the base URL that the fragment came from. This value is used for
+  // resolving relative URLs and may be NULL.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_fragment_base_url)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the extension of the file being dragged out of the browser window.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_file_extension)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Return the name of the file being dragged out of the browser window.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_file_name)(
+      struct _cef_drag_data_t* self);
+
+  ///
+  // Retrieve the list of file names that are being dragged into the browser
+  // window.
+  ///
+  int (CEF_CALLBACK *get_file_names)(struct _cef_drag_data_t* self,
+      cef_string_list_t names);
+
+} cef_drag_data_t;
 
 
 #ifdef __cplusplus

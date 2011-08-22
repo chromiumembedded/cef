@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "browser_impl.h"
+#include "browser_webkit_glue.h"
 #import "browser_webview_mac.h"
 #include "drag_download_util.h"
 #include "download_util.h"
@@ -139,6 +140,14 @@ void PromiseWriterTask::Run() {
     
     dropData_.reset(new WebDropData(*dropData));
     DCHECK(dropData_.get());
+
+    if (image == nil) {
+      // No drag image was provided so create one.
+      FilePath path = webkit_glue::GetResourcesFilePath();
+      path = path.AppendASCII("urlIcon.png");
+      image = [[NSImage alloc]
+               initWithContentsOfFile:SysUTF8ToNSString(path.value())];
+    }
 
     dragImage_.reset([image retain]);
     imageOffset_ = offset;

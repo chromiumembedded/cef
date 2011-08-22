@@ -12,6 +12,7 @@
 #include "browser_impl.h"
 #include "browser_webview_delegate.h"
 #include "cef_context.h"
+#include "drag_data_impl.h"
 #include "web_drop_target_win.h"
 
 #include <objidl.h>
@@ -190,8 +191,23 @@ void BrowserWebViewDelegate::startDragging(
     return;
   }
 
+  WebDropData drop_data(data);
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDragHandler> handler = client->GetDragHandler();
+    if (handler.get()) {
+      CefRefPtr<CefDragData> data(new CefDragDataImpl(drop_data));
+      if (handler->OnDragStart(browser_, data,
+              static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+        EndDragging();
+        return;
+      }
+    }
+  }
+
   drag_delegate_ = new BrowserDragDelegate(this);
-  drag_delegate_->StartDragging(WebDropData(data), mask, image.getSkBitmap(),
+  drag_delegate_->StartDragging(drop_data, mask, image.getSkBitmap(),
                                 image_offset);
 }
 
@@ -563,8 +579,7 @@ end:
 
 void BrowserWebViewDelegate::RegisterDragDrop() {
   DCHECK(!drop_target_);
-  drop_target_ = new WebDropTarget(browser_->UIT_GetWebViewWndHandle(),
-                                   browser_->UIT_GetWebView());
+  drop_target_ = new WebDropTarget(browser_);
 }
 
 void BrowserWebViewDelegate::RevokeDragDrop() {
