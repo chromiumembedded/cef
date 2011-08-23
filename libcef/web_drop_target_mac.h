@@ -24,6 +24,9 @@ class WebViewHost;
   // Keep track of the WebViewHost we're dragging over.  If it changes during a
   // drag, we need to re-send the DragEnter message.
   WebViewHost* current_wvh_;
+
+  // True if the drag has been canceled.
+  bool canceled_;
 }
 
 // |view| is the WebView representing this browser window, used to communicate
