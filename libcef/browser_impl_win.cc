@@ -81,8 +81,21 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SETFOCUS:
-    if (browser)
-      browser->UIT_SetFocus(browser->UIT_GetWebViewHost(), true);
+    if (browser) {
+      WebViewHost* host = browser->UIT_GetWebViewHost();
+      if (host) {
+        bool handled = false;
+        CefRefPtr<CefClient> client = browser->GetClient();
+        if (client.get()) {
+          CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+          if (handler.get())
+            handled = handler->OnSetFocus(browser, false);
+        }
+
+        if (!handled)
+          browser->UIT_SetFocus(host, true);
+      }
+    }
     return 0;
 
   case WM_ERASEBKGND:

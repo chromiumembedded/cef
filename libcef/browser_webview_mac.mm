@@ -156,6 +156,13 @@
 
 - (BOOL)becomeFirstResponder {
   if (browser_ && browser_->UIT_GetWebView()) {
+    CefRefPtr<CefClient> client = browser_->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+      if (handler.get() && handler->OnSetFocus(browser_, false))
+        return NO;
+    }
+
     browser_->UIT_GetWebViewHost()->SetFocus(YES);
     return [super becomeFirstResponder];
   }
@@ -179,6 +186,41 @@
         gfx::Rect(NSRectToCGRect(frameRect)));
   }
   [self setNeedsDisplay:YES];
+}
+
+- (void)undo:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Undo();
+}
+
+- (void)redo:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Redo();
+}
+
+- (void)cut:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Cut();
+}
+
+- (void)copy:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Copy();
+}
+
+- (void)paste:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Paste();
+}
+
+- (void)delete:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->Delete();
+}
+
+- (void)selectAll:(id)sender {
+  if (browser_)
+    browser_->GetFocusedFrame()->SelectAll();
 }
 
 - (void)registerDragDrop {

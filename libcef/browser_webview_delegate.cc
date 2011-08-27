@@ -507,6 +507,12 @@ void BrowserWebViewDelegate::scheduleAnimation() {
     host->ScheduleAnimation();
 }
 
+// This method is called when:
+// A. A request is loaded in a window other than the source window
+//    (FrameLoader::loadFrameRequest), or
+// B. A request is loaded in an already existing popup window
+//    (FrameLoader::createWindow), or
+// C. A DOM window receives a focus event (DOMWindow::focus)
 void BrowserWebViewDelegate::didFocus() {
   if (WebWidgetHost* host = GetWidgetHost()) {
     bool handled = false;
@@ -522,6 +528,8 @@ void BrowserWebViewDelegate::didFocus() {
   }
 }
 
+// This method is called when a DOM window receives a blur event
+// (DOMWindow::blur).
 void BrowserWebViewDelegate::didBlur() {
   if (WebWidgetHost* host = GetWidgetHost())
     browser_->UIT_SetFocus(host, false);
