@@ -76,6 +76,7 @@ public:
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE
       { return opener_window(); }
   virtual bool IsPopup() OVERRIDE { return is_popup(); }
+  virtual bool HasDocument() OVERRIDE { return has_document(); }
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE { return client_; }
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE
       { return GetMainCefFrame(); }
@@ -322,6 +323,8 @@ public:
   void set_nav_state(bool can_go_back, bool can_go_forward);
   bool can_go_back();
   bool can_go_forward();
+  void set_has_document(bool has_document);
+  bool has_document();
 
 #if defined(OS_WIN)
   void set_opener_was_disabled_by_modal_loop(bool disabled)
@@ -368,6 +371,7 @@ protected:
   double zoom_level_;
   bool can_go_back_;
   bool can_go_forward_;
+  bool has_document_;
 
 #if defined(OS_WIN)
   // Context object used to manage printing.

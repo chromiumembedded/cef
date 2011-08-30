@@ -635,6 +635,10 @@ public:
   /*--cef()--*/
   virtual bool IsPopup() =0;
 
+  // Returns true if a document has been loaded in the browser.
+  /*--cef()--*/
+  virtual bool HasDocument() =0;
+
   ///
   // Returns the client for this browser.
   ///

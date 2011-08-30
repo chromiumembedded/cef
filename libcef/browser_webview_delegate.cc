@@ -1055,6 +1055,14 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   DCHECK(ds);
 
   const WebURLRequest& request = ds->request();
+  BrowserNavigationController* controller =
+      browser_->UIT_GetNavigationController();
+
+  if (controller->GetEntryCount() == 0) {
+    // This is the first navigation for the browser. Indicate that the browser
+    // now has a document.
+    browser_->set_has_document(true);
+  }
 
   // Type is unused.
   scoped_ptr<BrowserNavigationEntry> entry(new BrowserNavigationEntry);
@@ -1083,9 +1091,6 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   const WebHistoryItem& history_item = frame->currentHistoryItem();
   if (!history_item.isNull())
     entry->SetContentState(webkit_glue::HistoryItemToString(history_item));
-
-  BrowserNavigationController* controller =
-      browser_->UIT_GetNavigationController();
 
   bool old_can_go_back = !controller->IsAtStart();
   bool old_can_go_forward = !controller->IsAtEnd();

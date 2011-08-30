@@ -165,7 +165,7 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   : window_info_(windowInfo), settings_(settings), opener_(opener),
     is_modal_(false), client_(client), webviewhost_(NULL), popuphost_(NULL),
     zoom_level_(0.0), can_go_back_(false), can_go_forward_(false),
-    main_frame_(NULL), unique_id_(0)
+    has_document_(false), main_frame_(NULL), unique_id_(0)
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
     internal_modal_message_loop_is_active_(false)
@@ -1531,6 +1531,18 @@ bool CefBrowserImpl::can_go_forward()
 {
   AutoLock lock_scope(this);
   return can_go_forward_;
+}
+
+void CefBrowserImpl::set_has_document(bool has_document)
+{
+  AutoLock lock_scope(this);
+  has_document_ = has_document;
+}
+
+bool CefBrowserImpl::has_document()
+{
+  AutoLock lock_scope(this);
+  return has_document_;
 }
 
 void CefBrowserImpl::UIT_CreateDevToolsClient(BrowserDevToolsAgent *agent)

@@ -140,6 +140,11 @@ bool ClientHandler::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
 
   // Create the handler for the file download.
   handler = CreateDownloadHandler(this, fileName);
+
+  // Close the browser window if it is a popup with no other document contents.
+  if (browser->IsPopup() && !browser->HasDocument())
+    browser->CloseBrowser();
+
   return true;
 }
 

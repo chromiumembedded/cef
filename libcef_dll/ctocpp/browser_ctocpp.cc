@@ -144,6 +144,14 @@ bool CefBrowserCToCpp::IsPopup()
   return struct_->is_popup(struct_)?true:false;
 }
 
+bool CefBrowserCToCpp::HasDocument()
+{
+  if(CEF_MEMBER_MISSING(struct_, has_document))
+    return false;
+  
+  return struct_->has_document(struct_)?true:false;
+}
+
 CefRefPtr<CefClient> CefBrowserCToCpp::GetClient()
 {
   if (CEF_MEMBER_MISSING(struct_, get_client))

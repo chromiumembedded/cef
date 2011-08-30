@@ -44,6 +44,7 @@ public:
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
+  virtual bool HasDocument() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;

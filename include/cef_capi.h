@@ -471,6 +471,9 @@ typedef struct _cef_browser_t
   ///
   int (CEF_CALLBACK *is_popup)(struct _cef_browser_t* self);
 
+  // Returns true (1) if a document has been loaded in the browser.
+  int (CEF_CALLBACK *has_document)(struct _cef_browser_t* self);
+
   ///
   // Returns the client for this browser.
   ///
