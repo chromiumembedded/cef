@@ -416,6 +416,9 @@ public:
   // Return the current number of references.
   ///
   virtual int GetRefCt() =0;
+
+protected:
+  virtual ~CefBase() {}
 };
 
 
