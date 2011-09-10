@@ -171,7 +171,7 @@ bool ShouldDownload(const std::string& content_disposition,
     return false;
 
   // Finally, check the plugin list.
-  bool allow_wildcard = true;
+  bool allow_wildcard = false;
   std::vector<webkit::WebPluginInfo> plugins;
   webkit::npapi::PluginList::Singleton()->GetPluginInfoArray(
       GURL(), type, allow_wildcard, NULL, &plugins, NULL);
