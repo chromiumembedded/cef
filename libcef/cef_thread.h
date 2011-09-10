@@ -65,11 +65,14 @@ class CefThread : public base::Thread {
 
   virtual ~CefThread();
 
-  // These are the same methods in message_loop.h, but are guaranteed to either
-  // get posted to the MessageLoop if it's still alive, or be deleted otherwise.
+  // These methods are the same as in message_loop.h, but are guaranteed to
+  // either post the Task to the MessageLoop (if it's still alive), or to
+  // delete the Task otherwise.
   // They return true if the thread existed and the task was posted.  Note that
-  // even if the task is posted, there's no guarantee that it will run, since
-  // the target thread may already have a Quit message in its queue.
+  // even if the task is posted, there's no guarantee that it will run; for
+  // example the target loop may already be quitting, or in the case of a
+  // delayed task a Quit message may preempt it in the message loop queue.
+  // Conversely, a return value of false is a guarantee the task will not run.
   static bool PostTask(ID identifier,
                        const tracked_objects::Location& from_here,
                        Task* task);
@@ -84,6 +87,29 @@ class CefThread : public base::Thread {
       ID identifier,
       const tracked_objects::Location& from_here,
       Task* task,
+      int64 delay_ms);
+  
+  // TODO(ajwong): Remove the functions above once the Task -> Closure migration
+  // is complete.
+  //
+  // There are 2 sets of Post*Task functions, one which takes the older Task*
+  // function object representation, and one that takes the newer base::Closure.
+  // We have this overload to allow a staged transition between the two systems.
+  // Once the transition is done, the functions above should be deleted.
+  static bool PostTask(ID identifier,
+                       const tracked_objects::Location& from_here,
+                       const base::Closure& task);
+  static bool PostDelayedTask(ID identifier,
+                              const tracked_objects::Location& from_here,
+                              const base::Closure& task,
+                              int64 delay_ms);
+  static bool PostNonNestableTask(ID identifier,
+                                  const tracked_objects::Location& from_here,
+                                  const base::Closure& task);
+  static bool PostNonNestableDelayedTask(
+      ID identifier,
+      const tracked_objects::Location& from_here,
+      const base::Closure& task,
       int64 delay_ms);
 
   template <class T>
@@ -161,6 +187,13 @@ class CefThread : public base::Thread {
       ID identifier,
       const tracked_objects::Location& from_here,
       Task* task,
+      int64 delay_ms,
+      bool nestable);
+
+  static bool PostTaskHelper(
+      ID identifier,
+      const tracked_objects::Location& from_here,
+      const base::Closure& task,
       int64 delay_ms,
       bool nestable);
 

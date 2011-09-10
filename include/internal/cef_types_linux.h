@@ -44,6 +44,15 @@ extern "C" {
 #define cef_cursor_handle_t void*
 
 ///
+// Supported graphics implementations.
+///
+enum cef_graphics_implementation_t
+{
+  DESKTOP_IN_PROCESS = 0,
+  DESKTOP_IN_PROCESS_COMMAND_BUFFER,
+};
+
+///
 // Class representing window information.
 ///
 typedef struct _cef_window_info_t

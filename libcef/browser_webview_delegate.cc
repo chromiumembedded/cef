@@ -24,7 +24,9 @@
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
+#include "base/stringprintf.h"
 #include "media/base/filter_collection.h"
+#include "media/base/media_log.h"
 #include "media/base/message_loop_factory_impl.h"
 #include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
@@ -39,7 +41,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHistoryItem.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebKitClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebKitPlatformSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPluginParams.h"
@@ -481,7 +483,7 @@ int BrowserWebViewDelegate::historyForwardListCount() {
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
-  return WebKit::webKitClient()->cookieJar();
+  return WebKit::webKitPlatformSupport()->cookieJar();
 }
 
 // WebWidgetClient -----------------------------------------------------------
@@ -574,15 +576,22 @@ WebScreenInfo BrowserWebViewDelegate::screenInfo() {
 WebPlugin* BrowserWebViewDelegate::createPlugin(
     WebFrame* frame, const WebPluginParams& params) {
   bool allow_wildcard = true;
-  webkit::npapi::WebPluginInfo info;
-  std::string actual_mime_type;
-  if (!webkit::npapi::PluginList::Singleton()->GetPluginInfo(
-          params.url, params.mimeType.utf8(), allow_wildcard, &info,
-          &actual_mime_type) || !webkit::npapi::IsPluginEnabled(info)) {
+  std::vector<webkit::WebPluginInfo> plugins;
+  std::vector<std::string> mime_types;
+  webkit::npapi::PluginList::Singleton()->GetPluginInfoArray(
+      params.url, params.mimeType.utf8(), allow_wildcard,
+      NULL, &plugins, &mime_types);
+  if (plugins.empty())
     return NULL;
-  }
+  
+#if defined(OS_MACOSX)
+  // Mac does not supported windowed plugins.
+  bool force_windowless = true;
+#else
+  bool force_windowless = browser_->IsWindowRenderingDisabled();
+#endif
 
-  if (browser_->IsWindowRenderingDisabled()) {
+  if (force_windowless) {
     bool flash = LowerCaseEqualsASCII(params.mimeType.utf8(),
                                       "application/x-shockwave-flash");
     bool silverlight = StartsWithASCII(params.mimeType.utf8(),
@@ -613,12 +622,13 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
       new_params.attributeValues.swap(new_values);
 
       return new webkit::npapi::WebPluginImpl(
-          frame, new_params, info.path, actual_mime_type, AsWeakPtr());
+          frame, new_params, plugins.front().path, mime_types.front(),
+          AsWeakPtr());
     }
   }
 
   return new webkit::npapi::WebPluginImpl(
-      frame, params, info.path, actual_mime_type, AsWeakPtr());
+      frame, params, plugins.front().path, mime_types.front(), AsWeakPtr());
 }
 
 WebWorker* BrowserWebViewDelegate::createWorker(
@@ -644,7 +654,9 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   scoped_ptr<webkit_glue::WebMediaPlayerImpl> result(
       new webkit_glue::WebMediaPlayerImpl(client,
                                           collection.release(),
-                                          message_loop_factory.release()));
+                                          message_loop_factory.release(),
+                                          NULL,
+                                          new media::MediaLog()));
   if (!result->Initialize(frame, false, video_renderer))
     return NULL;
   return result.release();
@@ -793,7 +805,7 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   if(handled && !errorStr.empty()) {
     error_text = errorStr;
   } else {
-    error_text = StringPrintf("Error %d when loading url %s",
+    error_text = base::StringPrintf("Error %d when loading url %s",
         error.reason, failed_ds->request().url().spec().data());
   }
 
@@ -920,7 +932,7 @@ void BrowserWebViewDelegate::openFileSystem(
     WebFrame* frame, WebFileSystem::Type type, long long size, bool create,
     WebFileSystemCallbacks* callbacks) {
   BrowserFileSystem* fileSystem = static_cast<BrowserFileSystem*>(
-      WebKit::webKitClient()->fileSystem());
+      WebKit::webKitPlatformSupport()->fileSystem());
   fileSystem->OpenFileSystem(frame, type, size, create, callbacks);
 }
 

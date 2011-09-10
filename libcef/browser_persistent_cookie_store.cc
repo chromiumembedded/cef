@@ -8,9 +8,9 @@
 #include <list>
 
 #include "cef_thread.h"
-#include "app/sql/meta_table.h"
-#include "app/sql/statement.h"
-#include "app/sql/transaction.h"
+#include "sql/meta_table.h"
+#include "sql/statement.h"
+#include "sql/transaction.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "googleurl/src/gurl.h"

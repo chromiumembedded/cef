@@ -1238,19 +1238,19 @@ void CefBrowserImpl::UIT_Find(int identifier, const CefString& search_text,
 
   if (main_frame->document().isPluginDocument()) {
     WebPlugin* plugin = main_frame->document().to<WebPluginDocument>().plugin();
-    webkit::npapi::WebPluginDelegate* delegate =
-        static_cast<webkit::npapi::WebPluginImpl*>(plugin)->delegate();
-    if (options.findNext) {
-      // Just navigate back/forward.
-      delegate->SelectFindResult(options.forward);
-    } else {
-      if (delegate->StartFind(searchText, options.matchCase, identifier)) {
+    if (plugin) {
+      if (options.findNext) {
+        // Just navigate back/forward.
+        plugin->selectFindResult(options.forward);
       } else {
-        // No find results.
-        UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);
+        if (plugin->startFind(searchText, options.matchCase, identifier)) {
+        } else {
+          // No find results.
+          UIT_NotifyFindStatus(identifier, 0, gfx::Rect(), 0, true);
+        }
       }
+      return;
     }
-    return;
   }
 
   WebFrame* frame_after_main = main_frame->traverseNext(true);
@@ -1358,11 +1358,10 @@ void CefBrowserImpl::UIT_StopFinding(bool clear_selection)
 
   WebDocument doc = view->mainFrame()->document();
   if (doc.isPluginDocument()) {
-    WebPlugin* plugin = view->mainFrame()->document().
-        to<WebPluginDocument>().plugin();
-    webkit::npapi::WebPluginDelegate* delegate =
-        static_cast<webkit::npapi::WebPluginImpl*>(plugin)->delegate();
-    delegate->StopFind();
+    WebPlugin* plugin =
+        view->mainFrame()->document().to<WebPluginDocument>().plugin();
+    if (plugin)
+      plugin->stopFind();
     return;
   }
 

@@ -75,7 +75,7 @@ class WebWidgetHostGtkWidget {
                                   GDK_BUTTON_RELEASE_MASK |
                                   GDK_KEY_PRESS_MASK |
                                   GDK_KEY_RELEASE_MASK);
-    GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus(widget, TRUE);
     g_signal_connect(widget, "size-request",
                      G_CALLBACK(&HandleSizeRequest), host);
     g_signal_connect(widget, "size-allocate",

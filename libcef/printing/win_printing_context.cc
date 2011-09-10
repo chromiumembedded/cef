@@ -10,7 +10,7 @@
 #include "base/i18n/time_formatting.h"
 #include "base/message_loop.h"
 #include "base/time.h"
-#include "skia/ext/platform_device_win.h"
+#include "skia/ext/bitmap_platform_device_win.h"
 
 #include "printing/units.h"
 

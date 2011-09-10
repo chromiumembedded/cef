@@ -10,6 +10,8 @@
 #include "tracker.h"
 
 #include "base/logging.h"
+#include "base/string_util.h"
+#include "base/utf_string_conversions.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebAttribute.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
@@ -17,10 +19,11 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFormControlElement.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNamedNodeMap.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSelectElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
-#include "webkit/glue/form_field.h"
 
 using WebKit::WebAttribute;
 using WebKit::WebDocument;
@@ -29,8 +32,10 @@ using WebKit::WebDOMEventListener;
 using WebKit::WebElement;
 using WebKit::WebFrame;
 using WebKit::WebFormControlElement;
+using WebKit::WebInputElement;
 using WebKit::WebNamedNodeMap;
 using WebKit::WebNode;
+using WebKit::WebSelectElement;
 using WebKit::WebString;
 
 
@@ -186,14 +191,26 @@ CefString CefDOMNodeImpl::GetValue()
     return str;
 
   if (node_.isElementNode()) {
-    const WebElement& element = node_.to<WebKit::WebElement>();
+    const WebElement& element = node_.toConst<WebElement>();
     if (element.isFormControlElement()) {
       // Retrieve the value from the form control element.
       const WebFormControlElement& formElement =
-          node_.to<WebKit::WebFormControlElement>();
+          node_.toConst<WebFormControlElement>();
 
-      webkit_glue::FormField formField(formElement);
-      str = formField.value;
+      string16 value;
+      const string16& form_control_type = formElement.formControlType();
+      if (form_control_type == ASCIIToUTF16("text")) {
+        const WebInputElement& input_element =
+            formElement.toConst<WebInputElement>();
+        value = input_element.value();
+      } else if (form_control_type == ASCIIToUTF16("select-one")) {
+        const WebSelectElement& select_element =
+            formElement.toConst<WebSelectElement>();
+        value = select_element.value();
+      }
+
+      TrimWhitespace(value, TRIM_LEADING, &value);
+      str = value;
     }
   }
 
@@ -310,7 +327,7 @@ CefString CefDOMNodeImpl::GetElementTagName()
     return str;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<WebKit::WebElement>();
   const WebString& tagname = element.tagName();
   if (!tagname.isNull())
     str = tagname;
@@ -328,7 +345,7 @@ bool CefDOMNodeImpl::HasElementAttributes()
     return false;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<WebKit::WebElement>();
   return (element.attributes().length() > 0);
 }
 
@@ -342,7 +359,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName)
     return false;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<WebKit::WebElement>();
   return element.hasAttribute(string16(attrName));
 }
 
@@ -357,7 +374,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName)
     return str;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<WebKit::WebElement>();
   const WebString& attr = element.getAttribute(string16(attrName));
   if (!attr.isNull())
     str = attr;
@@ -375,7 +392,7 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap)
     return;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<WebKit::WebElement>();
   const WebNamedNodeMap& map = element.attributes();
   unsigned int len = map.length();
   if (len == 0)
@@ -423,7 +440,7 @@ CefString CefDOMNodeImpl::GetElementInnerText()
     return str;
   }
 
-  const WebElement& element = node_.to<WebKit::WebElement>();
+  WebElement element = node_.to<WebKit::WebElement>();
   const WebString& text = element.innerText();
   if (!text.isNull())
     str = text;

@@ -87,7 +87,6 @@
             ],
           },
           'sources': [
-            'tests/cefclient/cefclient.ico',
             'tests/cefclient/cefclient.rc',
             'tests/cefclient/cefclient_win.cpp',
             'tests/cefclient/client_handler_win.cpp',
@@ -101,8 +100,8 @@
             'tests/cefclient/plugin_test.h',
             'tests/cefclient/Resource.h',
             'tests/cefclient/res/cefclient.ico',
-            'tests/cefclient/res/logo.jpg',
-            'tests/cefclient/res/logoball.jpg',
+            'tests/cefclient/res/logo.png',
+            'tests/cefclient/res/logoball.png',
             'tests/cefclient/res/small.ico',
             'tests/cefclient/res/uiplugin.html',
             'tests/cefclient/resource_util_win.cpp',
@@ -115,7 +114,7 @@
         [ 'OS=="mac"', {
           'product_name': 'cefclient',
           'variables': {
-            'repack_path': '../tools/data_pack/repack.py',
+            'repack_path': '../tools/grit/grit/format/repack.py',
           },
           'actions': [
             {
@@ -148,7 +147,7 @@
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
-                '<(PRODUCT_DIR)/libffmpegsumo.dylib',
+                '<(PRODUCT_DIR)/ffmpegsumo.so',
               ],
             },
             {
@@ -215,53 +214,10 @@
       ],
     },
     {
-      'target_name': 'patcher',
-      'type': 'none',
-      'msvs_guid': 'A6D0953E-899E-4C60-AB6B-CAE75A44B8E6',
-      'conditions': [
-        ['OS=="win"', {
-          'actions': [{
-            'action_name': 'patch_source',
-            'msvs_cygwin_shell': 0,
-            'inputs': [
-              'tools/patch_source.bat',
-            ],
-            'outputs': [
-              'tools/patch_source.bat.output',
-            ],
-            'action': ['', '<@(_inputs)'],
-          },
-          {
-            'action_name': 'make_version_header',
-            'msvs_cygwin_shell': 0,
-            'inputs': [
-              'tools/make_version_header.bat',
-            ],
-            'outputs': [
-              'tools/make_version_header.bat.output',
-            ],
-            'action': ['', '<@(_inputs)'],
-          }],
-        }, { # OS!="win"
-          'actions': [{
-            'action_name': 'patch_source',
-            'inputs': [
-              'tools/patch_source.sh',
-            ],
-            'outputs': [
-              'tools/patch_source.sh.output',
-            ],
-            'action': ['<@(_inputs)'],
-          }],
-        }],
-      ],
-    },
-    {
       'target_name': 'libcef',
       'type': 'shared_library',
       'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
       'dependencies': [
-        '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -275,7 +231,7 @@
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu/icu.gyp:icui18n',
         '../third_party/icu/icu.gyp:icuuc',
-        '../third_party/leveldb/leveldb.gyp:leveldb',
+        '../third_party/leveldatabase/leveldatabase.gyp:leveldatabase',
         '../third_party/libjpeg_turbo/libjpeg.gyp:libjpeg',
         '../third_party/libpng/libpng.gyp:libpng',
         '../third_party/libxml/libxml.gyp:libxml',
@@ -289,8 +245,8 @@
         '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
         '../third_party/zlib/zlib.gyp:zlib',
         '../ui/ui.gyp:gfx_resources',
-        '../ui/ui.gyp:ui_base',
-        '../ui/ui.gyp:ui_gfx',
+        '../ui/ui.gyp:ui',
+        '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/support/webkit_support.gyp:appcache',
         '../webkit/support/webkit_support.gyp:blob',
         '../webkit/support/webkit_support.gyp:database',
@@ -438,8 +394,8 @@
             '$(OutDir)/obj/global_intermediate/webkit/webkit_chromium_resources.rc',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_strings_en-US.rc',
-            'include/cef_types_win.h',
-            'include/cef_win.h',
+            'include/internal/cef_types_win.h',
+            'include/internal/cef_win.h',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {
@@ -585,7 +541,6 @@
         '../third_party/WebKit/Source/WebKit/chromium/public'
       ],
       'dependencies': [
-        '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -599,7 +554,7 @@
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu/icu.gyp:icui18n',
         '../third_party/icu/icu.gyp:icuuc',
-        '../third_party/leveldb/leveldb.gyp:leveldb',
+        '../third_party/leveldatabase/leveldatabase.gyp:leveldatabase',
         '../third_party/libjpeg_turbo/libjpeg.gyp:libjpeg',
         '../third_party/libpng/libpng.gyp:libpng',
         '../third_party/libxml/libxml.gyp:libxml',
@@ -609,8 +564,8 @@
         '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
         '../third_party/zlib/zlib.gyp:zlib',
         '../ui/ui.gyp:gfx_resources',
-        '../ui/ui.gyp:ui_base',
-        '../ui/ui.gyp:ui_gfx',
+        '../ui/ui.gyp:ui',
+        '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/support/webkit_support.gyp:appcache',
         '../webkit/support/webkit_support.gyp:blob',
         '../webkit/support/webkit_support.gyp:database',
@@ -674,6 +629,7 @@
         'libcef/browser_webstoragenamespace_impl.h',
         'libcef/browser_webkit_glue.cc',
         'libcef/browser_webkit_glue.h',
+        'libcef/browser_webkit_init.cc',
         'libcef/browser_webkit_init.h',
         'libcef/browser_webview_delegate.cc',
         'libcef/browser_webview_delegate.h',

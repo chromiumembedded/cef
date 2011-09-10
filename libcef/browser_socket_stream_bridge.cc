@@ -6,6 +6,7 @@
 
 #include "browser_socket_stream_bridge.h"
 
+#include "base/atomicops.h"
 #include "base/memory/ref_counted.h"
 #include "base/message_loop.h"
 #include "googleurl/src/gurl.h"
@@ -69,7 +70,7 @@ class WebSocketStreamHandleBridgeImpl
 
   scoped_refptr<net::SocketStreamJob> socket_;
   // Number of pending tasks to handle net::SocketStream::Delegate methods.
-  int num_pending_tasks_;
+  base::subtle::Atomic32 num_pending_tasks_;
 
   DISALLOW_COPY_AND_ASSIGN(WebSocketStreamHandleBridgeImpl);
 };
@@ -119,7 +120,7 @@ void WebSocketStreamHandleBridgeImpl::Close() {
 
 void WebSocketStreamHandleBridgeImpl::OnConnected(
     net::SocketStream* socket, int max_pending_send_allowed) {
-  ++num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
       NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoOnConnected,
@@ -128,7 +129,7 @@ void WebSocketStreamHandleBridgeImpl::OnConnected(
 
 void WebSocketStreamHandleBridgeImpl::OnSentData(
     net::SocketStream* socket, int amount_sent) {
-  ++num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
       NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoOnSentData,
@@ -137,7 +138,7 @@ void WebSocketStreamHandleBridgeImpl::OnSentData(
 
 void WebSocketStreamHandleBridgeImpl::OnReceivedData(
     net::SocketStream* socket, const char* data, int len) {
-  ++num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
       NewRunnableMethod(this,
@@ -146,7 +147,7 @@ void WebSocketStreamHandleBridgeImpl::OnReceivedData(
 }
 
 void WebSocketStreamHandleBridgeImpl::OnClose(net::SocketStream* socket) {
-  ++num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   // Release socket_ on IO thread.
   socket_ = NULL;
   socket_id_ = kNoSocketId;
@@ -183,14 +184,14 @@ void WebSocketStreamHandleBridgeImpl::DoClose() {
 void WebSocketStreamHandleBridgeImpl::DoOnConnected(
     int max_pending_send_allowed) {
   DCHECK(MessageLoop::current() == message_loop_);
-  --num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, -1);
   if (delegate_)
     delegate_->DidOpenStream(handle_, max_pending_send_allowed);
 }
 
 void WebSocketStreamHandleBridgeImpl::DoOnSentData(int amount_sent) {
   DCHECK(MessageLoop::current() == message_loop_);
-  --num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, -1);
   if (delegate_)
     delegate_->DidSendData(handle_, amount_sent);
 }
@@ -198,7 +199,7 @@ void WebSocketStreamHandleBridgeImpl::DoOnSentData(int amount_sent) {
 void WebSocketStreamHandleBridgeImpl::DoOnReceivedData(
     std::vector<char>* data) {
   DCHECK(MessageLoop::current() == message_loop_);
-  --num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, -1);
   scoped_ptr<std::vector<char> > scoped_data(data);
   if (delegate_)
     delegate_->DidReceiveData(handle_, &(data->at(0)), data->size());
@@ -206,7 +207,7 @@ void WebSocketStreamHandleBridgeImpl::DoOnReceivedData(
 
 void WebSocketStreamHandleBridgeImpl::DoOnClose() {
   DCHECK(MessageLoop::current() == message_loop_);
-  --num_pending_tasks_;
+  base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, -1);
   // Don't handle OnClose if there are pending tasks.
   DCHECK_EQ(num_pending_tasks_, 0);
   DCHECK(!socket_);

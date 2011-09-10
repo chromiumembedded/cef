@@ -33,7 +33,7 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
 {
   REQUIRE_UIT();
 
-  webkit::npapi::WebPluginInfo info;
+  webkit::WebPluginInfo info;
 
   FilePath filename = FilePath(CefString(&plugin_info->unique_name));
   std::string name = CefString(&plugin_info->display_name);

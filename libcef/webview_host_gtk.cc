@@ -8,7 +8,6 @@
 #include "browser_webview_delegate.h"
 
 #include "base/logging.h"
-#include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"

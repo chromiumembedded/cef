@@ -41,81 +41,43 @@ class BrowserFileSystem
     return file_system_context_.get();
   }
 
-  // New WebKit::WebFileSystem overrides.
+  // WebKit::WebFileSystem implementation.
   virtual void move(
       const WebKit::WebURL& src_path,
       const WebKit::WebURL& dest_path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void copy(
       const WebKit::WebURL& src_path,
       const WebKit::WebURL& dest_path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void remove(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void removeRecursively(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void readMetadata(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void createFile(
       const WebKit::WebURL& path,
       bool exclusive,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void createDirectory(
       const WebKit::WebURL& path,
       bool exclusive,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void fileExists(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void directoryExists(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual void readDirectory(
       const WebKit::WebURL& path,
-      WebKit::WebFileSystemCallbacks*);
-
+      WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual WebKit::WebFileWriter* createFileWriter(
-      const WebKit::WebURL& path, WebKit::WebFileWriterClient*);
-
-  // Old WebKit::WebFileSystem overrides, soon to go away.
-  virtual void move(const WebKit::WebString& src_path,
-                    const WebKit::WebString& dest_path,
-                    WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void copy(const WebKit::WebString& src_path,
-                    const WebKit::WebString& dest_path,
-                    WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void remove(const WebKit::WebString& path,
-                      WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void removeRecursively(const WebKit::WebString& path,
-                                 WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void readMetadata(const WebKit::WebString& path,
-                            WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void createFile(const WebKit::WebString& path,
-                          bool exclusive,
-                          WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void createDirectory(const WebKit::WebString& path,
-                               bool exclusive,
-                               WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void fileExists(const WebKit::WebString& path,
-                          WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void directoryExists(const WebKit::WebString& path,
-                               WebKit::WebFileSystemCallbacks* callbacks);
-  virtual void readDirectory(const WebKit::WebString& path,
-                             WebKit::WebFileSystemCallbacks* callbacks);
-  virtual WebKit::WebFileWriter* createFileWriter(
-      const WebKit::WebString& path, WebKit::WebFileWriterClient* client);
+      const WebKit::WebURL& path, WebKit::WebFileWriterClient*) OVERRIDE;
 
  private:
   // Helpers.

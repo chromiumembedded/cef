@@ -25,6 +25,7 @@
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
+using webkit::npapi::WebPluginDelegateImpl;
 using WebKit::WebCursorInfo;
 using WebKit::WebDragData;
 using WebKit::WebDragOperationsMask;
@@ -192,8 +193,11 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
     return NULL;
 
   gfx::PluginWindowHandle containing_view = NULL;
-  return webkit::npapi::WebPluginDelegateImpl::Create(
+  WebPluginDelegateImpl* delegate = WebPluginDelegateImpl::Create(
       path, mime_type, containing_view);
+  if (delegate)
+    delegate->SetNoBufferContext();
+  return delegate;
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(

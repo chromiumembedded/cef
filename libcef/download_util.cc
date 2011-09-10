@@ -168,6 +168,7 @@ void GenerateFileName(const GURL& url,
                                                 content_disposition,
                                                 referrer_charset,
                                                 suggested_name,
+                                                mime_type,
                                                 ASCIIToUTF16("download"));
   
   // TODO(evan): this code is totally wrong -- we should just generate

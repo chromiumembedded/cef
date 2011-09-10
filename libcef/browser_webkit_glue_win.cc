@@ -18,7 +18,7 @@ MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
-#include "base/resource_util.h"
+#include "base/win/resource_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
@@ -48,8 +48,8 @@ string16 GetLocalizedString(int message_id) {
 base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;
-  return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
-                                         &data_size)
+  return base::win::GetDataResourceFromModule(module, resource_id, &data_ptr,
+                                              &data_size)
       ? base::StringPiece(static_cast<char*>(data_ptr), data_size)
       : base::StringPiece();
 }

@@ -28,6 +28,7 @@
 #include "net/url_request/url_request_ftp_job.h"
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
+#include "net/url_request/url_request_job_factory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 
@@ -360,6 +361,27 @@ private:
 
 // Class that manages the CefSchemeHandlerFactory instances.
 class CefUrlRequestManager {
+protected:
+  // Class used for creating URLRequestJob instances. The lifespan of this
+  // object is managed by URLRequestJobFactory.
+  class ProtocolHandler : public net::URLRequestJobFactory::ProtocolHandler {
+  public:
+    ProtocolHandler(const std::string& scheme)
+      : scheme_(scheme) {}
+
+    // From net::URLRequestJobFactory::ProtocolHandler
+    virtual net::URLRequestJob* MaybeCreateJob(
+        net::URLRequest* request) const OVERRIDE
+    {
+      REQUIRE_IOT();
+      return CefUrlRequestManager::GetInstance()->GetRequestJob(request,
+                                                                scheme_);
+    }
+
+  private:
+    std::string scheme_;
+  };
+
 public:
   CefUrlRequestManager() {}
 
@@ -386,9 +408,12 @@ public:
 
     handler_map_[make_pair(scheme_lower, domain_lower)] = factory;
 
-    // Register with the ProtocolFactory.
-    net::URLRequest::RegisterProtocolFactory(scheme_lower,
-        &CefUrlRequestManager::Factory);
+    net::URLRequestJobFactory* job_factory =
+        const_cast<net::URLRequestJobFactory*>(
+            _Context->request_context()->job_factory());
+
+    job_factory->SetProtocolHandler(scheme_lower,
+                                    new ProtocolHandler(scheme_lower));
 
     return true;
   }
@@ -416,6 +441,10 @@ public:
   {
     REQUIRE_IOT();
 
+    net::URLRequestJobFactory* job_factory =
+        const_cast<net::URLRequestJobFactory*>(
+            _Context->request_context()->job_factory());
+
     // Unregister with the ProtocolFactory.
     std::set<std::string> schemes;
     for (HandlerMap::const_iterator i = handler_map_.begin();
@@ -424,7 +453,7 @@ public:
     }
     for (std::set<std::string>::const_iterator scheme = schemes.begin();
         scheme != schemes.end(); ++scheme) {
-      net::URLRequest::RegisterProtocolFactory(*scheme, NULL);
+      job_factory->SetProtocolHandler(*scheme, NULL);
     }
 
     handler_map_.clear();
@@ -530,15 +559,6 @@ private:
       DLOG(INFO) << "CefUrlRequestManager hit for " << request->url().spec();
     
     return job;
-  }
-
-  // Factory method called by the ProtocolFactory. |scheme| will already be in
-  // lower case.
-  static net::URLRequestJob* Factory(net::URLRequest* request,
-                                     const std::string& scheme)
-  {
-    REQUIRE_IOT();
-    return GetInstance()->GetRequestJob(request, scheme);
   }
 
   // Map (scheme, domain) to factories. This map will only be accessed on the IO

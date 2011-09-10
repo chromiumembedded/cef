@@ -296,10 +296,9 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   int saved_state = SaveDC(hDC);
   DCHECK_NE(saved_state, 0);
 
-  skia::PlatformDevice* device =
-      skia::VectorPlatformDeviceEmfFactory::CreateDevice(dest_size_x,
-                                                         dest_size_y,
-                                                         true, hDC);
+  SkDevice* device = skia::VectorPlatformDeviceEmf::CreateDevice(dest_size_x,
+                                                                 dest_size_y,
+                                                                 true, hDC);
   DCHECK(device);
   skia::VectorCanvas canvas(device);
 

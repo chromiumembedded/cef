@@ -28,7 +28,7 @@ webkit_blob::BlobStorageController* g_blob_storage_controller;
 // "Normal" copying of WebURL results in a copy that is not thread-safe.
 // This method creates a deep copy of WebURL.
 WebURL GetWebURLThreadsafeCopy(const WebURL& source) {
-  const WebKit::WebCString spec(source.spec());
+  const WebKit::WebCString spec(source.spec().data(), source.spec().length());
   const url_parse::Parsed& parsed(source.parsed());
   const bool is_valid = source.isValid();
   return WebURL(spec, parsed, is_valid);

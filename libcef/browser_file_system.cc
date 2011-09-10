@@ -22,7 +22,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebVector.h"
 #include "webkit/fileapi/file_system_callback_dispatcher.h"
 #include "webkit/fileapi/file_system_context.h"
-#include "webkit/fileapi/file_system_file_util.h"
 #include "webkit/fileapi/file_system_operation.h"
 #include "webkit/fileapi/file_system_path_manager.h"
 #include "webkit/fileapi/file_system_types.h"
@@ -44,7 +43,6 @@ using WebKit::WebVector;
 
 using fileapi::FileSystemCallbackDispatcher;
 using fileapi::FileSystemContext;
-using fileapi::FileSystemFileUtil;
 using fileapi::FileSystemOperation;
 
 namespace {
@@ -103,13 +101,7 @@ class BrowserFileSystemCallbackDispatcher
     if (!root.is_valid())
       callbacks_->didFail(WebKit::WebFileErrorSecurity);
     else
-// Temporary hack to ease a 4-phase Chromium/WebKit commit.
-#ifdef WEBFILESYSTEMCALLBACKS_USE_URL_NOT_STRING
       callbacks_->didOpenFileSystem(WebString::fromUTF8(name), root);
-#else
-      callbacks_->didOpenFileSystem(
-          WebString::fromUTF8(name), WebString::fromUTF8(root.spec()));
-#endif
   }
 
   virtual void DidFail(base::PlatformFileError error_code) {
@@ -132,8 +124,8 @@ class BrowserFileSystemCallbackDispatcher
 BrowserFileSystem::BrowserFileSystem() {
   if (file_system_dir_.CreateUniqueTempDir()) {
     file_system_context_ = new FileSystemContext(
-        base::MessageLoopProxy::CreateForCurrentThread(),
-        base::MessageLoopProxy::CreateForCurrentThread(),
+        base::MessageLoopProxy::current(),
+        base::MessageLoopProxy::current(),
         NULL /* special storage policy */,
         NULL /* quota manager */,
         file_system_dir_.path(),
@@ -175,65 +167,6 @@ void BrowserFileSystem::OpenFileSystem(
 
   GURL origin_url(frame->document().securityOrigin().toString());
   GetNewOperation(callbacks)->OpenFileSystem(origin_url, type, create);
-}
-
-void BrowserFileSystem::move(const WebString& src_path,
-                            const WebString& dest_path,
-                            WebFileSystemCallbacks* callbacks) {
-  move(GURL(src_path), GURL(dest_path), callbacks);
-}
-
-void BrowserFileSystem::copy(const WebString& src_path,
-                            const WebString& dest_path,
-                            WebFileSystemCallbacks* callbacks) {
-  copy(GURL(src_path), GURL(dest_path), callbacks);
-}
-
-void BrowserFileSystem::remove(const WebString& path,
-                              WebFileSystemCallbacks* callbacks) {
-  remove(GURL(path), callbacks);
-}
-
-void BrowserFileSystem::removeRecursively(const WebString& path,
-                                         WebFileSystemCallbacks* callbacks) {
-  removeRecursively(GURL(path), callbacks);
-}
-
-void BrowserFileSystem::readMetadata(const WebString& path,
-                                    WebFileSystemCallbacks* callbacks) {
-  readMetadata(GURL(path), callbacks);
-}
-
-void BrowserFileSystem::createFile(const WebString& path,
-                                  bool exclusive,
-                                  WebFileSystemCallbacks* callbacks) {
-  createFile(GURL(path), exclusive, callbacks);
-}
-
-void BrowserFileSystem::createDirectory(const WebString& path,
-                                       bool exclusive,
-                                       WebFileSystemCallbacks* callbacks) {
-  createDirectory(GURL(path), exclusive, callbacks);
-}
-
-void BrowserFileSystem::fileExists(const WebString& path,
-                                  WebFileSystemCallbacks* callbacks) {
-  fileExists(GURL(path), callbacks);
-}
-
-void BrowserFileSystem::directoryExists(const WebString& path,
-                                       WebFileSystemCallbacks* callbacks) {
-  directoryExists(GURL(path), callbacks);
-}
-
-void BrowserFileSystem::readDirectory(const WebString& path,
-                                     WebFileSystemCallbacks* callbacks) {
-  readDirectory(GURL(path), callbacks);
-}
-
-WebKit::WebFileWriter* BrowserFileSystem::createFileWriter(
-    const WebString& path, WebKit::WebFileWriterClient* client) {
-  return createFileWriter(GURL(path), client);
 }
 
 void BrowserFileSystem::move(
@@ -298,7 +231,7 @@ FileSystemOperation* BrowserFileSystem::GetNewOperation(
   BrowserFileSystemCallbackDispatcher* dispatcher =
       new BrowserFileSystemCallbackDispatcher(AsWeakPtr(), callbacks);
   FileSystemOperation* operation = new FileSystemOperation(
-      dispatcher, base::MessageLoopProxy::CreateForCurrentThread(),
+      dispatcher, base::MessageLoopProxy::current(),
       file_system_context_.get(), NULL);
   return operation;
 }

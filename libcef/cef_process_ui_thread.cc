@@ -16,8 +16,10 @@
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
 #include "ui/gfx/gl/gl_implementation.h"
 #include "webkit/extensions/v8/gc_extension.h"
+#include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
 #if defined(OS_WIN)
@@ -102,7 +104,12 @@ void CefProcessUIThread::Init() {
       extensions_v8::GCExtension::Get());
 
 #if defined(OS_WIN)
-  gfx::InitializeGLBindings(gfx::kGLImplementationEGLGLES2);
+  if (settings.graphics_implementation == ANGLE_IN_PROCESS ||
+      settings.graphics_implementation == ANGLE_IN_PROCESS_COMMAND_BUFFER) {
+    gfx::InitializeGLBindings(gfx::kGLImplementationEGLGLES2);
+  } else {
+    gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
+  }
 #else
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 #endif

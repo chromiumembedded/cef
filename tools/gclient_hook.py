@@ -47,9 +47,9 @@ def RunAction(dir, command):
     print >> sys.stderr, 'Error: %s' % str(e)
     sys.exit(2)
 
-print "\nPatching build configuration files for CEF..."
+print "\nPatching build configuration and source files for CEF..."
 patcher = [ 'python', 'tools/patcher.py', 
-            '--patch-config', 'patch/patch_build.cfg' ];
+            '--patch-config', 'patch/patch.cfg' ];
 RunAction(cef_dir, patcher);
 
 print "\nGenerating CEF project files..."

@@ -234,7 +234,8 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (allow_download &&
             webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
           string16 filename = net::GetSuggestedFilename(url,
-              content_disposition, info.charset, "", ASCIIToUTF16("download"));
+              content_disposition, info.charset, "", info.mime_type,
+              ASCIIToUTF16("download"));
           CefRefPtr<CefDownloadHandler> dl_handler;
           if (handler->GetDownloadHandler(browser_, info.mime_type,
                                           filename, info.content_length,
@@ -521,7 +522,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         FilePath path;
         if (file_util::CreateTemporaryFile(&path)) {
           downloaded_file_ = DeletableFileReference::GetOrCreate(
-              path, base::MessageLoopProxy::CreateForCurrentThread());
+              path, base::MessageLoopProxy::current());
           file_stream_.Open(
               path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
         }
@@ -531,7 +532,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
       if (request_.get() && request_->has_upload() &&
           params->load_flags & net::LOAD_ENABLE_UPLOAD_PROGRESS) {
-        upload_progress_timer_.Start(
+        upload_progress_timer_.Start(FROM_HERE,
             base::TimeDelta::FromMilliseconds(
                 kUpdateUploadProgressIntervalMsec),
             this, &RequestProxy::MaybeUpdateUploadProgress);
@@ -653,14 +654,14 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnReceivedRedirect(net::URLRequest* request,
                                   const GURL& new_url,
-                                  bool* defer_redirect) {
+                                  bool* defer_redirect) OVERRIDE {
     DCHECK(request->status().is_success());
     ResourceResponseInfo info;
     PopulateResponseInfo(request, &info);
     OnReceivedRedirect(new_url, info, defer_redirect);
   }
 
-  virtual void OnResponseStarted(net::URLRequest* request) {
+  virtual void OnResponseStarted(net::URLRequest* request) OVERRIDE {
     if (request->status().is_success()) {
       ResourceResponseInfo info;
       PopulateResponseInfo(request, &info);
@@ -672,7 +673,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   virtual void OnAuthRequired(net::URLRequest* request,
-                              net::AuthChallengeInfo* auth_info) {
+                              net::AuthChallengeInfo* auth_info) OVERRIDE {
     if (browser_.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
       if (client.get()) {
@@ -695,12 +696,14 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnSSLCertificateError(net::URLRequest* request,
                                      int cert_error,
-                                     net::X509Certificate* cert) {
+                                     net::X509Certificate* cert) OVERRIDE {
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
   }
 
-  virtual bool CanGetCookies(net::URLRequest* request) {
+  virtual bool CanGetCookies(
+      const net::URLRequest* request,
+      const net::CookieList& cookie_list) const OVERRIDE {
     StaticCookiePolicy::Type policy_type =
         _Context->request_context()->AcceptAllCookies() ?
             StaticCookiePolicy::ALLOW_ALL_COOKIES :
@@ -712,9 +715,9 @@ class RequestProxy : public net::URLRequest::Delegate,
     return rv == net::OK;
   }
 
-  virtual bool CanSetCookie(net::URLRequest* request,
+  virtual bool CanSetCookie(const net::URLRequest* request,
                             const std::string& cookie_line,
-                            net::CookieOptions* options) {
+                            net::CookieOptions* options) const OVERRIDE {
     StaticCookiePolicy::Type policy_type =
         _Context->request_context()->AcceptAllCookies() ?
             StaticCookiePolicy::ALLOW_ALL_COOKIES :
@@ -726,7 +729,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     return rv == net::OK;
   }
 
-  virtual void OnReadCompleted(net::URLRequest* request, int bytes_read) {
+  virtual void OnReadCompleted(net::URLRequest* request,
+                               int bytes_read) OVERRIDE {
     if (request->status().is_success() && bytes_read > 0) {
       OnReceivedData(bytes_read);
     } else {
@@ -938,7 +942,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   // --------------------------------------------------------------------------
   // ResourceLoaderBridge implementation:
 
-  virtual void AppendDataToUpload(const char* data, int data_len) {
+  virtual void AppendDataToUpload(const char* data, int data_len) OVERRIDE {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -949,7 +953,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
       const FilePath& file_path,
       uint64 offset,
       uint64 length,
-      const base::Time& expected_modification_time) {
+      const base::Time& expected_modification_time) OVERRIDE {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -957,21 +961,21 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
                                      expected_modification_time);
   }
 
-  virtual void AppendBlobToUpload(const GURL& blob_url) {
+  virtual void AppendBlobToUpload(const GURL& blob_url) OVERRIDE {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
     params_->upload->AppendBlob(blob_url);
   }
 
-  virtual void SetUploadIdentifier(int64 identifier) {
+  virtual void SetUploadIdentifier(int64 identifier) OVERRIDE {
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
     params_->upload->set_identifier(identifier);
   }
 
-  virtual bool Start(Peer* peer) {
+  virtual bool Start(Peer* peer) OVERRIDE {
     DCHECK(!proxy_);
 
     proxy_ = new RequestProxy(browser_);
@@ -982,16 +986,16 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     return true;  // Any errors will be reported asynchronously.
   }
 
-  virtual void Cancel() {
+  virtual void Cancel() OVERRIDE {
     DCHECK(proxy_);
     proxy_->Cancel();
   }
 
-  virtual void SetDefersLoading(bool value) {
+  virtual void SetDefersLoading(bool value) OVERRIDE {
     // TODO(darin): implement me
   }
 
-  virtual void SyncLoad(SyncLoadResponse* response) {
+  virtual void SyncLoad(SyncLoadResponse* response) OVERRIDE {
     DCHECK(!proxy_);
 
     // this may change as the result of a redirect
@@ -1004,6 +1008,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 
     static_cast<SyncRequestProxy*>(proxy_)->WaitForCompletion();
   }
+
+  virtual void UpdateRoutingId(int new_routing_id) OVERRIDE {}
 
  private:
   CefRefPtr<CefBrowser> browser_;
@@ -1074,26 +1080,6 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
   CefRefPtr<CefBrowserImpl> browser =
       _Context->GetBrowserByID(request_info.routing_id);
   return new ResourceLoaderBridgeImpl(browser.get(), request_info);
-}
-
-// Issue the proxy resolve request on the io thread, and wait 
-// for the result.
-bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
-  DCHECK(_Context->request_context());
-
-  scoped_refptr<net::SyncProxyServiceHelper> sync_proxy_service(
-      new net::SyncProxyServiceHelper(
-      _Context->process()->io_thread()->message_loop(),
-      _Context->request_context()->proxy_service()));
-
-  net::ProxyInfo proxy_info;
-  int rv = sync_proxy_service->ResolveProxy(url, &proxy_info,
-                                            net::BoundNetLog());
-  if (rv == net::OK) {
-    *proxy_list = proxy_info.ToPacString();
-  }
-
-  return rv == net::OK;
 }
 
 }  // namespace webkit_glue
