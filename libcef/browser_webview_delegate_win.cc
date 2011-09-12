@@ -56,7 +56,52 @@ using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
 
+namespace {
+
 static const wchar_t kPluginWindowClassName[] = L"WebPluginHost";
+
+void AddMenuItem(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefMenuHandler> handler,
+                 HMENU menu,
+                 cef_handler_menuid_t menuId,
+                 const wchar_t* label,
+                 bool enabled,
+                 std::list<std::wstring>& label_list)
+{
+  CefString actual_label(label);
+  if (handler.get()) {
+    // Let the handler change the label if desired,
+    handler->GetMenuLabel(browser, menuId, actual_label);
+  }
+
+  // Store the label in a list to simplify memory management.
+  label_list.push_back(actual_label);
+
+  MENUITEMINFO mii;
+  mii.cbSize = sizeof(mii);
+  mii.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STRING;
+  mii.fType = MFT_STRING;
+  if (!enabled) {
+    mii.fMask |= MIIM_STATE;
+    mii.fState = MFS_GRAYED;
+  }
+  mii.wID = menuId;
+  mii.dwTypeData = const_cast<wchar_t*>(label_list.back().c_str());
+
+  InsertMenuItem(menu, -1, TRUE, &mii);
+}
+
+void AddMenuSeparator(HMENU menu)
+{
+  MENUITEMINFO mii;
+  mii.cbSize = sizeof(mii);
+  mii.fMask = MIIM_FTYPE;
+  mii.fType = MFT_SEPARATOR;
+
+  InsertMenuItem(menu, -1, TRUE, &mii);
+}
+
+} // namespace
 
 // WebViewClient --------------------------------------------------------------
 
@@ -371,47 +416,6 @@ void BrowserWebViewDelegate::DidMovePlugin(
   }
 }
 
-static void AddMenuItem(CefRefPtr<CefBrowser> browser, HMENU menu, int index,
-                        cef_handler_menuid_t id, const wchar_t* label,
-                        bool enabled, std::list<std::wstring>& label_list)
-{
-  CefString actual_label(label);
-  CefRefPtr<CefClient> client = browser->GetClient();
-  if (client.get()) {
-    CefRefPtr<CefMenuHandler> handler = client->GetMenuHandler();
-    if(handler.get()) {
-      // Let the handler change the label if desired
-      handler->GetMenuLabel(browser, id, actual_label);
-    }
-  }
-  
-  // store the label in a list to simplify memory management
-  label_list.push_back(actual_label);
-  
-  MENUITEMINFO mii;
-  mii.cbSize = sizeof(mii);
-  mii.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STRING;
-  mii.fType = MFT_STRING;
-  if(!enabled) {
-    mii.fMask |= MIIM_STATE;
-    mii.fState = MFS_GRAYED;
-  }
-  mii.wID = id;
-  mii.dwTypeData = const_cast<wchar_t*>(label_list.back().c_str());
-
-  InsertMenuItem(menu, index, TRUE, &mii);
-}
-
-static void AddMenuSeparator(HMENU menu, int index)
-{
-  MENUITEMINFO mii;
-  mii.cbSize = sizeof(mii);
-  mii.fMask = MIIM_FTYPE;
-  mii.fType = MFT_SEPARATOR;
-
-  InsertMenuItem(menu, index, TRUE, &mii);
-}
-
 void BrowserWebViewDelegate::showContextMenu(
     WebFrame* frame, const WebContextMenuData& data)
 {
@@ -427,152 +431,94 @@ void BrowserWebViewDelegate::showContextMenu(
     screenY = mouse_pt.y;
   }
 
+  int edit_flags = 0;
+  int type_flags = 0;
   HMENU menu = NULL;
   std::list<std::wstring> label_list;
 
-  // Enable recursive tasks on the message loop so we can get updates while
-  // the context menu is being displayed.
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
+  // Make sure events can be pumped while the menu is up.
+  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
 
-  int edit_flags = data.editFlags;
-  if(browser_->UIT_CanGoBack())
-    edit_flags |= MENU_CAN_GO_BACK;
-  if(browser_->UIT_CanGoForward())
-    edit_flags |= MENU_CAN_GO_FORWARD;
-
-  int type_flags = MENUTYPE_NONE;
-  if(!data.pageURL.isEmpty())
-    type_flags |= MENUTYPE_PAGE;
-  if(!data.frameURL.isEmpty())
-    type_flags |= MENUTYPE_FRAME;
-  if(!data.linkURL.isEmpty())
-    type_flags |= MENUTYPE_LINK;
-  if(data.mediaType == WebContextMenuData::MediaTypeImage)
-    type_flags |= MENUTYPE_IMAGE;
-  if(!data.selectedText.isEmpty())
-    type_flags |= MENUTYPE_SELECTION;
-  if(data.isEditable)
-    type_flags |= MENUTYPE_EDITABLE;
-  if(data.isSpellCheckingEnabled && !data.misspelledWord.isEmpty())
-    type_flags |= MENUTYPE_MISSPELLED_WORD;
-  if(data.mediaType == WebContextMenuData::MediaTypeVideo)
-    type_flags |= MENUTYPE_VIDEO;
-  if(data.mediaType == WebContextMenuData::MediaTypeAudio)
-    type_flags |= MENUTYPE_AUDIO;
+  // Give the client a chance to handle the menu.
+  if (OnBeforeMenu(data, mouse_pt.x, mouse_pt.y, edit_flags, type_flags))
+    return;
 
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefMenuHandler> handler;
   if (client.get())
     handler = client->GetMenuHandler();
 
-  if (handler.get()) {
-    // Gather menu information
-    cef_handler_menuinfo_t menuInfo;
-    memset(&menuInfo, 0, sizeof(menuInfo));
-
-    CefString linkStr(std::string(data.linkURL.spec()));
-    CefString imageStr(std::string(data.srcURL.spec()));
-    CefString pageStr(std::string(data.pageURL.spec()));
-    CefString frameStr(std::string(data.frameURL.spec()));
-    CefString selectedTextStr(string16(data.selectedText));
-    CefString misspelledWordStr(string16(data.misspelledWord));
-    CefString securityInfoStr(std::string(data.securityInfo));
-
-    menuInfo.typeFlags = type_flags;
-    menuInfo.x = mouse_pt.x;
-    menuInfo.y = mouse_pt.y;
-    cef_string_set(linkStr.c_str(), linkStr.length(), &menuInfo.linkUrl, false);
-    cef_string_set(imageStr.c_str(), imageStr.length(), &menuInfo.imageUrl,
-        false);
-    cef_string_set(pageStr.c_str(), pageStr.length(), &menuInfo.pageUrl, false);
-    cef_string_set(frameStr.c_str(), frameStr.length(), &menuInfo.frameUrl,
-        false);
-    cef_string_set(selectedTextStr.c_str(), selectedTextStr.length(),
-        &menuInfo.selectionText, false);
-    cef_string_set(misspelledWordStr.c_str(), misspelledWordStr.length(),
-        &menuInfo.misspelledWord, false);
-    menuInfo.editFlags = edit_flags;
-    cef_string_set(securityInfoStr.c_str(), securityInfoStr.length(),
-        &menuInfo.securityInfo, false);
-
-    // Notify the handler that a context menu is requested
-    if (handler->OnBeforeMenu(browser_, menuInfo))
-      goto end;
-  }
-
   if (client.get() && browser_->IsWindowRenderingDisabled()) {
+    // Retrieve the screen coordinates.
     CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
     if (render_handler.get() &&
         !render_handler->GetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
                                         screenX, screenY)) {
-      goto end;
+      return;
     }
   }
 
   // Build the correct default context menu
   if (type_flags &  MENUTYPE_EDITABLE) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, MENU_ID_UNDO, L"Undo",
+    AddMenuItem(browser_, handler, menu, MENU_ID_UNDO, L"Undo",
       !!(edit_flags & MENU_CAN_UNDO), label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_REDO, L"Redo",
+    AddMenuItem(browser_, handler, menu, MENU_ID_REDO, L"Redo",
       !!(edit_flags & MENU_CAN_REDO), label_list);
-    AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, MENU_ID_CUT, L"Cut",
+    AddMenuSeparator(menu);
+    AddMenuItem(browser_, handler, menu, MENU_ID_CUT, L"Cut",
       !!(edit_flags & MENU_CAN_CUT), label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
+    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, L"Copy",
       !!(edit_flags & MENU_CAN_COPY), label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_PASTE, L"Paste",
+    AddMenuItem(browser_, handler, menu, MENU_ID_PASTE, L"Paste",
       !!(edit_flags & MENU_CAN_PASTE), label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_DELETE, L"Delete",
+    AddMenuItem(browser_, handler, menu, MENU_ID_DELETE, L"Delete",
       !!(edit_flags & MENU_CAN_DELETE), label_list);
-    AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, MENU_ID_SELECTALL, L"Select All",
+    AddMenuSeparator(menu);
+    AddMenuItem(browser_, handler, menu, MENU_ID_SELECTALL, L"Select All",
       !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
   } else if(type_flags & MENUTYPE_SELECTION) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, MENU_ID_COPY, L"Copy",
+    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, L"Copy",
       !!(edit_flags & MENU_CAN_COPY), label_list);
   } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = CreatePopupMenu();
-    AddMenuItem(browser_, menu, -1, MENU_ID_NAV_BACK, L"Back",
+    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_BACK, L"Back",
       !!(edit_flags & MENU_CAN_GO_BACK), label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_NAV_FORWARD, L"Forward",
+    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_FORWARD, L"Forward",
       !!(edit_flags & MENU_CAN_GO_FORWARD), label_list);
-    AddMenuSeparator(menu, -1);
-    AddMenuItem(browser_, menu, -1, MENU_ID_PRINT, L"Print",
+    AddMenuSeparator(menu);
+    AddMenuItem(browser_, handler, menu, MENU_ID_PRINT, L"Print",
       true, label_list);
-    AddMenuItem(browser_, menu, -1, MENU_ID_VIEWSOURCE, L"View Source",
+    AddMenuItem(browser_, handler, menu, MENU_ID_VIEWSOURCE, L"View Source",
       true, label_list);
   }
 
-  if (menu) {
-    // show the context menu
-    int selected_id = TrackPopupMenu(menu,
-        TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
-        screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
+  if (!menu)
+    return;
 
-    if (selected_id != 0) {
-      // An action was chosen
-      cef_handler_menuid_t menuId =
-          static_cast<cef_handler_menuid_t>(selected_id);
-      bool handled = false;
-      if (handler.get()) {
-        // Ask the handler if it wants to handle the action
-        handled = handler->OnMenuAction(browser_, menuId);
-      }
+  // Show the context menu
+  int selected_id = TrackPopupMenu(menu,
+      TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
+      screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
 
-      if(!handled) {
-        // Execute the action
-        browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
-      }
+  if (selected_id != 0) {
+    // An action was chosen
+    cef_handler_menuid_t menuId =
+        static_cast<cef_handler_menuid_t>(selected_id);
+    bool handled = false;
+    if (handler.get()) {
+      // Ask the handler if it wants to handle the action
+      handled = handler->OnMenuAction(browser_, menuId);
+    }
+
+    if(!handled) {
+      // Execute the action
+      browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
     }
   }
 
   DestroyMenu(menu);
-
-end:
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
 // Private methods ------------------------------------------------------------

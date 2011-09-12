@@ -13,6 +13,7 @@
 #include "base/mac/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "skia/ext/skia_utils_mac.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
@@ -26,6 +27,7 @@
 #include "webkit/glue/webmenurunner_mac.h"
 
 using webkit::npapi::WebPluginDelegateImpl;
+using WebKit::WebContextMenuData;
 using WebKit::WebCursorInfo;
 using WebKit::WebDragData;
 using WebKit::WebDragOperationsMask;
@@ -37,6 +39,42 @@ using WebKit::WebPoint;
 using WebKit::WebPopupMenuInfo;
 using WebKit::WebRect;
 using WebKit::WebWidget;
+
+
+namespace {
+
+void AddMenuItem(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefMenuHandler> handler,
+                 NSMenu* menu,
+                 cef_handler_menuid_t menuId,
+                 const std::string& label,
+                 bool enabled) {
+  std::string disp_str;
+  if (handler.get()) {
+    // Let the handler change the label if desired.
+    CefString actual_label(label);
+    handler->GetMenuLabel(browser, menuId, actual_label);
+    disp_str = actual_label;
+  } else {
+    disp_str = label;
+  }
+
+  NSString* str = base::SysUTF8ToNSString(disp_str);
+  NSMenuItem* item =
+      [[[NSMenuItem alloc] initWithTitle:str
+                                 action:enabled?@selector(menuItemSelected:):nil
+                           keyEquivalent:@""] autorelease]; 
+  [item setTag:menuId];
+  [menu addItem:item];
+}
+
+void AddMenuSeparator(NSMenu* menu) {
+  NSMenuItem* item = [NSMenuItem separatorItem]; 
+  [menu addItem:item];
+}
+
+} // namespace
+
 
 // WebViewClient --------------------------------------------------------------
 
@@ -58,7 +96,97 @@ void BrowserWebViewDelegate::ClosePopupMenu() {
 
 void BrowserWebViewDelegate::showContextMenu(
     WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data) {
-  NOTIMPLEMENTED();
+  WebWidgetHost* host = GetWidgetHost();
+  if (!host)
+    return;
+
+  BrowserWebView *view = static_cast<BrowserWebView*>(host->view_handle());
+  if (!view)
+    return;
+
+  NSWindow* window = [view window];
+  NSPoint position = [window mouseLocationOutsideOfEventStream];
+
+  int edit_flags = 0;
+  int type_flags = 0;
+  NSMenu* menu = nil;
+
+  // Make sure events can be pumped while the menu is up.
+  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+
+  // Give the client a chance to handle the menu.
+  if (OnBeforeMenu(data, position.x, position.y, edit_flags, type_flags))
+    return;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefMenuHandler> handler;
+  if (client.get())
+    handler = client->GetMenuHandler();
+
+  // Build the correct default context menu
+  if (type_flags &  MENUTYPE_EDITABLE) {
+    menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
+
+    AddMenuItem(browser_, handler, menu, MENU_ID_UNDO, "Undo",
+                !!(edit_flags & MENU_CAN_UNDO));
+    AddMenuItem(browser_, handler, menu, MENU_ID_REDO, "Redo",
+                !!(edit_flags & MENU_CAN_REDO));
+    AddMenuSeparator(menu);
+    AddMenuItem(browser_, handler, menu, MENU_ID_CUT, "Cut",
+                !!(edit_flags & MENU_CAN_CUT));
+    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, "Copy",
+                !!(edit_flags & MENU_CAN_COPY));
+    AddMenuItem(browser_, handler, menu, MENU_ID_PASTE, "Paste",
+                !!(edit_flags & MENU_CAN_PASTE));
+    AddMenuItem(browser_, handler, menu, MENU_ID_DELETE, "Delete",
+                !!(edit_flags & MENU_CAN_DELETE));
+    AddMenuSeparator(menu);
+    AddMenuItem(browser_, handler, menu, MENU_ID_SELECTALL, "Select All",
+                !!(edit_flags & MENU_CAN_SELECT_ALL));
+  } else if(type_flags & MENUTYPE_SELECTION) {
+    menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
+
+    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, "Copy",
+                !!(edit_flags & MENU_CAN_COPY));
+  } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
+    menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
+
+    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_BACK, "Back",
+                !!(edit_flags & MENU_CAN_GO_BACK));
+    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_FORWARD, "Forward",
+                !!(edit_flags & MENU_CAN_GO_FORWARD));
+    // TODO(port): Enable the below menu items when supported.
+    //AddMenuSeparator(menu);
+    //AddMenuItem(browser_, handler, menu, MENU_ID_PRINT, "Print", true);
+    //AddMenuItem(browser_, handler, menu, MENU_ID_VIEWSOURCE, "View Source",
+    //            true);
+  }
+
+  if (!menu)
+    return;
+
+  // Synthesize an event for the click, as there is no certainty that
+  // [NSApp currentEvent] will return a valid event.
+  NSEvent* currentEvent = [NSApp currentEvent];
+  NSTimeInterval eventTime = [currentEvent timestamp];
+  NSEvent* clickEvent = [NSEvent mouseEventWithType:NSRightMouseDown
+                                          location:position
+                                     modifierFlags:NSRightMouseDownMask
+                                         timestamp:eventTime
+                                      windowNumber:[window windowNumber]
+                                           context:nil
+                                       eventNumber:0
+                                        clickCount:1
+                                          pressure:1.0];
+    
+
+  // Menu selection events go to the BrowserWebView.
+  [menu setDelegate:view];
+
+  // Show the menu.
+  [NSMenu popUpContextMenu:menu
+                 withEvent:clickEvent
+                   forView:view];
 }
 
 // WebWidgetClient ------------------------------------------------------------

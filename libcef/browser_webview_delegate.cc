@@ -1145,3 +1145,77 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
 
   entry->SetContentState(webkit_glue::HistoryItemToString(history_item));
 }
+
+bool BrowserWebViewDelegate::OnBeforeMenu(
+    const WebKit::WebContextMenuData& data, int mouse_x, int mouse_y,
+    int& edit_flags, int& type_flags) {
+  // Populate the edit flags values.
+  edit_flags = data.editFlags;
+  if(browser_->UIT_CanGoBack())
+    edit_flags |= MENU_CAN_GO_BACK;
+  if(browser_->UIT_CanGoForward())
+    edit_flags |= MENU_CAN_GO_FORWARD;
+
+  // Populate the type flags values.
+  type_flags = MENUTYPE_NONE;
+  if(!data.pageURL.isEmpty())
+    type_flags |= MENUTYPE_PAGE;
+  if(!data.frameURL.isEmpty())
+    type_flags |= MENUTYPE_FRAME;
+  if(!data.linkURL.isEmpty())
+    type_flags |= MENUTYPE_LINK;
+  if(data.mediaType == WebContextMenuData::MediaTypeImage)
+    type_flags |= MENUTYPE_IMAGE;
+  if(!data.selectedText.isEmpty())
+    type_flags |= MENUTYPE_SELECTION;
+  if(data.isEditable)
+    type_flags |= MENUTYPE_EDITABLE;
+  if(data.isSpellCheckingEnabled && !data.misspelledWord.isEmpty())
+    type_flags |= MENUTYPE_MISSPELLED_WORD;
+  if(data.mediaType == WebContextMenuData::MediaTypeVideo)
+    type_flags |= MENUTYPE_VIDEO;
+  if(data.mediaType == WebContextMenuData::MediaTypeAudio)
+    type_flags |= MENUTYPE_AUDIO;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefMenuHandler> handler;
+  if (client.get())
+    handler = client->GetMenuHandler();
+
+  if (handler.get()) {
+    // Gather menu information.
+    cef_handler_menuinfo_t menuInfo;
+    memset(&menuInfo, 0, sizeof(menuInfo));
+
+    CefString linkStr(std::string(data.linkURL.spec()));
+    CefString imageStr(std::string(data.srcURL.spec()));
+    CefString pageStr(std::string(data.pageURL.spec()));
+    CefString frameStr(std::string(data.frameURL.spec()));
+    CefString selectedTextStr(string16(data.selectedText));
+    CefString misspelledWordStr(string16(data.misspelledWord));
+    CefString securityInfoStr(std::string(data.securityInfo));
+
+    menuInfo.typeFlags = type_flags;
+    menuInfo.x = mouse_x;
+    menuInfo.y = mouse_y;
+    cef_string_set(linkStr.c_str(), linkStr.length(), &menuInfo.linkUrl, false);
+    cef_string_set(imageStr.c_str(), imageStr.length(), &menuInfo.imageUrl,
+                   false);
+    cef_string_set(pageStr.c_str(), pageStr.length(), &menuInfo.pageUrl, false);
+    cef_string_set(frameStr.c_str(), frameStr.length(), &menuInfo.frameUrl,
+                   false);
+    cef_string_set(selectedTextStr.c_str(), selectedTextStr.length(),
+                   &menuInfo.selectionText, false);
+    cef_string_set(misspelledWordStr.c_str(), misspelledWordStr.length(),
+                   &menuInfo.misspelledWord, false);
+    menuInfo.editFlags = edit_flags;
+    cef_string_set(securityInfoStr.c_str(), securityInfoStr.length(),
+                   &menuInfo.securityInfo, false);
+
+    // Notify the handler that a context menu is requested.
+    if (handler->OnBeforeMenu(browser_, menuInfo))
+      return true;
+  }
+  
+  return false;
+}

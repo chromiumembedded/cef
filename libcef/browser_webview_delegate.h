@@ -288,6 +288,12 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void UpdateURL(WebKit::WebFrame* frame);
   void UpdateSessionHistory(WebKit::WebFrame* frame);
 
+  bool OnBeforeMenu(const WebKit::WebContextMenuData& data,
+                    int mouse_x,
+                    int mouse_y,
+                    int& edit_flags,
+                    int& type_flags);
+
  private:
   // Causes navigation actions just printout the intended navigation instead 
   // of taking you to the page. This is used for cases like mailto, where you

@@ -40,6 +40,9 @@ struct WebDropData;
 - (BOOL)isOpaque;
 - (void)setFrame:(NSRect)frameRect;
 
+// Called when a context menu item is selected by the user.
+- (void)menuItemSelected:(id)sender;
+
 // Register this WebView as a drag/drop target.
 - (void)registerDragDrop;
 
