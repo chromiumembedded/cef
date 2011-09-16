@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
+#import "base/mac/cocoa_protocols.h"
 #include "base/memory/scoped_nsobject.h"
 
 class CefBrowserImpl;
@@ -13,7 +14,7 @@ struct WebDropData;
 // A view to wrap the WebCore view and help it live in a Cocoa world. The
 // (rough) equivalent of Apple's WebView.
 
-@interface BrowserWebView : NSView {
+@interface BrowserWebView : NSView <NSMenuDelegate> {
  @private
   CefBrowserImpl *browser_; // weak
   NSTrackingArea *trackingArea_;

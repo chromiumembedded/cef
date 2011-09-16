@@ -40,15 +40,53 @@
 // Use the existing CrAppProtocol definition.
 #include "base/message_pump_mac.h"
 
+// Use the existing empty protocol definitions.
+#import "base/mac/cocoa_protocols.h"
+
 #else // BUILDING_CEF_SHARED
 
 #import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 // Copy of CrAppProtocol definition from base/message_pump_mac.h.
 @protocol CrAppProtocol
 // Must return true if -[NSApplication sendEvent:] is currently on the stack.
 - (BOOL)isHandlingSendEvent;
 @end
+
+// The Mac OS X 10.6 SDK introduced new protocols used for delegates.  These
+// protocol defintions were not present in earlier releases of the Mac OS X
+// SDK.  In order to support building against the new SDK, which requires
+// delegates to conform to these protocols, and earlier SDKs, which do not
+// define these protocols at all, this file will provide empty protocol
+// definitions when used with earlier SDK versions.
+
+#if !defined(MAC_OS_X_VERSION_10_6) || \
+MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6
+
+#define DEFINE_EMPTY_PROTOCOL(p) \
+@protocol p \
+@end
+
+DEFINE_EMPTY_PROTOCOL(NSAlertDelegate)
+DEFINE_EMPTY_PROTOCOL(NSApplicationDelegate)
+DEFINE_EMPTY_PROTOCOL(NSControlTextEditingDelegate)
+DEFINE_EMPTY_PROTOCOL(NSMatrixDelegate)
+DEFINE_EMPTY_PROTOCOL(NSMenuDelegate)
+DEFINE_EMPTY_PROTOCOL(NSOpenSavePanelDelegate)
+DEFINE_EMPTY_PROTOCOL(NSOutlineViewDataSource)
+DEFINE_EMPTY_PROTOCOL(NSOutlineViewDelegate)
+DEFINE_EMPTY_PROTOCOL(NSSpeechSynthesizerDelegate)
+DEFINE_EMPTY_PROTOCOL(NSSplitViewDelegate)
+DEFINE_EMPTY_PROTOCOL(NSTableViewDataSource)
+DEFINE_EMPTY_PROTOCOL(NSTableViewDelegate)
+DEFINE_EMPTY_PROTOCOL(NSTextFieldDelegate)
+DEFINE_EMPTY_PROTOCOL(NSTextViewDelegate)
+DEFINE_EMPTY_PROTOCOL(NSWindowDelegate)
+
+#undef DEFINE_EMPTY_PROTOCOL
+
+#endif
 
 #endif // BUILDING_CEF_SHARED
 

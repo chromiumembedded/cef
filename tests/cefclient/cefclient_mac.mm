@@ -58,7 +58,7 @@ static NSAutoreleasePool* g_autopool = nil;
 
 // Receives notifications from controls and the browser window. Will delete
 // itself when done.
-@interface ClientWindowDelegate : NSObject
+@interface ClientWindowDelegate : NSObject <NSWindowDelegate>
 - (IBAction)goBack:(id)sender;
 - (IBAction)goForward:(id)sender;
 - (IBAction)reload:(id)sender;
@@ -286,7 +286,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [menubar addItem:testItem];
   
   // Create the delegate for control and browser window events.
-  NSObject* delegate = [[ClientWindowDelegate alloc] init];
+  ClientWindowDelegate* delegate = [[ClientWindowDelegate alloc] init];
   
   // Create the main application window.
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
