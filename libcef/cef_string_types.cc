@@ -19,7 +19,7 @@ void string_utf8_dtor(char* str)
   delete [] str;
 }
 
-void string_utf16_dtor(char16_t* str)
+void string_utf16_dtor(char16* str)
 {
   delete [] str;
 }
@@ -74,24 +74,24 @@ CEF_EXPORT int cef_string_utf8_set(const char* src, size_t src_len,
   return 1;
 }
 
-CEF_EXPORT int cef_string_utf16_set(const char16_t* src, size_t src_len,
+CEF_EXPORT int cef_string_utf16_set(const char16* src, size_t src_len,
                                     cef_string_utf16_t* output, int copy)
 {
   cef_string_utf16_clear(output);
   
   if (copy) {
     if (src && src_len > 0) {
-      output->str = new char16_t[src_len+1];
+      output->str = new char16[src_len+1];
       if (!output->str)
         return 0;
 
-      memcpy(output->str, src, src_len * sizeof(char16_t));
+      memcpy(output->str, src, src_len * sizeof(char16));
       output->str[src_len] = 0;
       output->length = src_len;
       output->dtor = string_utf16_dtor;
     }
   } else {
-    output->str = const_cast<char16_t*>(src);
+    output->str = const_cast<char16*>(src);
     output->length = src_len;
     output->dtor = NULL;
   }
@@ -211,7 +211,7 @@ CEF_EXPORT int cef_string_wide_to_utf16(const wchar_t* src, size_t src_len,
   return ret;
 }
 
-CEF_EXPORT int cef_string_utf16_to_wide(const char16_t* src, size_t src_len,
+CEF_EXPORT int cef_string_utf16_to_wide(const char16* src, size_t src_len,
                                         cef_string_wide_t* output)
 {
   std::wstring str;
@@ -231,7 +231,7 @@ CEF_EXPORT int cef_string_utf8_to_utf16(const char* src, size_t src_len,
   return ret;
 }
 
-CEF_EXPORT int cef_string_utf16_to_utf8(const char16_t* src, size_t src_len,
+CEF_EXPORT int cef_string_utf16_to_utf8(const char16* src, size_t src_len,
                                         cef_string_utf8_t* output)
 {
   std::string str;
