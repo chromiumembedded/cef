@@ -204,6 +204,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
+- (IBAction)testDevToolsShow:(id)sender;
+- (IBAction)testDevToolsClose:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -281,6 +283,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom Reset"
                       action:@selector(testZoomReset:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Show DevTools"
+                      action:@selector(testDevToolsShow:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Close DevTools"
+                      action:@selector(testDevToolsClose:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -472,6 +480,20 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   if(g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(0.0);
+  }
+}
+
+- (IBAction)testDevToolsShow:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->ShowDevTools();
+  }
+}
+
+- (IBAction)testDevToolsClose:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->CloseDevTools();
   }
 }
 

@@ -143,11 +143,12 @@
           ],
           'copies': [
             {
-              # Add library dependencies and app launcher script to the bundle.
+              # Add library dependencies and inspector resources to the bundle.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
+                '<(PRODUCT_DIR)/resources/',
               ],
             },
             {
