@@ -396,11 +396,15 @@ public:
                        CefRefPtr<CefV8Value>& retval,
                        CefString& exception) = 0;
 
-  virtual bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
-                   CefRefPtr<CefV8Value>& retval) = 0;
+  virtual bool Get(const CefString& name,
+                   const CefRefPtr<CefV8Value> object, 
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) = 0;
 
-  virtual bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
-                   const CefRefPtr<CefV8Value> value) = 0;
+  virtual bool Set(const CefString& name,
+                   const CefRefPtr<CefV8Value> object, 
+                   const CefRefPtr<CefV8Value> value,
+                   CefString& exception) = 0;
 };
 
 class DelegatingV8Handler : public CefV8Handler
@@ -417,7 +421,7 @@ public:
                CefRefPtr<CefV8Value> object,
                const CefV8ValueList& arguments,
                CefRefPtr<CefV8Value>& retval,
-               CefString& exception)
+               CefString& exception) OVERRIDE
   {
     return delegate_->Execute(name, object, arguments, retval, exception);
   }
@@ -434,16 +438,20 @@ public:
   DelegatingV8Accessor(CefV8HandlerDelegate *delegate)
     : delegate_(delegate) { }
 
-  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
-           CefRefPtr<CefV8Value>& retval)
+  bool Get(const CefString& name,
+           const CefRefPtr<CefV8Value> object, 
+           CefRefPtr<CefV8Value>& retval,
+           CefString& exception) OVERRIDE
   {
-    return delegate_->Get(name, object, retval);
+    return delegate_->Get(name, object, retval, exception);
   }
 
-  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
-           const CefRefPtr<CefV8Value> value)
+  bool Set(const CefString& name,
+           const CefRefPtr<CefV8Value> object, 
+           const CefRefPtr<CefV8Value> value,
+           CefString& exception) OVERRIDE
   {
-    return delegate_->Set(name, object, value);
+    return delegate_->Set(name, object, value, exception);
   }
 
 private:
@@ -505,6 +513,11 @@ public:
     "comp(false,\"a\",\"b\");\n"
     "try { point.x = -1; } catch(e) {  }\n" // should not have any effect.
     "try { point.y = point.x;  theY = point.y; } catch(e) { point.y = 4321; }\n"
+    // Test get and set exceptions.
+    "try { exceptObj.makeException = 1; }"
+    " catch(e) { gotSetException(e.toString()); }\n"
+    "try { var x = exceptObj.makeException; }"
+    " catch(e) { gotGetException(e.toString()); }\n"
     "hello(\"main\", callIFrame);"
     "function callIFrame() {"
     " var iframe = document.getElementById('iframe');"
@@ -579,24 +592,32 @@ public:
     
     CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
     CefRefPtr<CefV8Value> helloFunc = 
-    CefV8Value::CreateFunction("hello", funcHandler);
+        CefV8Value::CreateFunction("hello", funcHandler);
     object->SetValue("hello", helloFunc);
     
     CefRefPtr<CefV8Value> fromIFrameFunc = 
-    CefV8Value::CreateFunction("fromIFrame", funcHandler);
+        CefV8Value::CreateFunction("fromIFrame", funcHandler);
     object->SetValue("fromIFrame", fromIFrameFunc);
     
     CefRefPtr<CefV8Value> goFunc = 
-    CefV8Value::CreateFunction("begin", funcHandler);
+        CefV8Value::CreateFunction("begin", funcHandler);
     object->SetValue("begin", goFunc);
     
     CefRefPtr<CefV8Value> doneFunc = 
-    CefV8Value::CreateFunction("end", funcHandler);
+        CefV8Value::CreateFunction("end", funcHandler);
     object->SetValue("end", doneFunc);
 
     CefRefPtr<CefV8Value> compFunc = 
-    CefV8Value::CreateFunction("comp", funcHandler);
+        CefV8Value::CreateFunction("comp", funcHandler);
     object->SetValue("comp", compFunc);
+
+    // Used for testing exceptions returned from accessors.
+    CefRefPtr<CefV8Value> gotGetExceptionFunc = 
+        CefV8Value::CreateFunction("gotGetException", funcHandler);
+    object->SetValue("gotGetException", gotGetExceptionFunc);
+    CefRefPtr<CefV8Value> gotSetExceptionFunc = 
+        CefV8Value::CreateFunction("gotSetException", funcHandler);
+    object->SetValue("gotSetException", gotSetExceptionFunc);
 
     // Create an object with accessor based properties:
     CefRefPtr<CefBase> blankBase;
@@ -609,6 +630,15 @@ public:
         V8_PROPERTY_ATTRIBUTE_NONE);
 
     object->SetValue("point", point);
+
+    // Create another object with accessor based properties:
+    CefRefPtr<CefV8Value> exceptObj =
+        CefV8Value::CreateObject(NULL, new DelegatingV8Accessor(this));
+
+    exceptObj->SetValue("makeException", V8_ACCESS_CONTROL_DEFAULT, 
+        V8_PROPERTY_ATTRIBUTE_NONE);
+
+    object->SetValue("exceptObj", exceptObj);
   }
   
   void CallIFrame()
@@ -704,7 +734,7 @@ public:
                CefRefPtr<CefV8Value> object,
                const CefV8ValueList& arguments,
                CefRefPtr<CefV8Value>& retval,
-               CefString& exception)
+               CefString& exception) OVERRIDE
   {
     CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
     CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
@@ -797,12 +827,26 @@ public:
       got_testcomplete_.yes();
       DestroyTest();
       return true;
+    } else if (name == "gotGetException") {
+      if (arguments.size() == 1 &&
+          arguments[0]->GetStringValue() == "Error: My Get Exception") {
+        got_getexception_.yes();
+      }
+      return true;
+    } else if (name == "gotSetException") {
+      if (arguments.size() == 1 &&
+          arguments[0]->GetStringValue() == "Error: My Set Exception") {
+        got_setexception_.yes();
+      }
+      return true;
     }
     return false;
   }
 
-  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object, 
-           CefRefPtr<CefV8Value>& retval)
+  bool Get(const CefString& name,
+           const CefRefPtr<CefV8Value> object, 
+           CefRefPtr<CefV8Value>& retval,
+           CefString& exception) OVERRIDE
   {
     if(name == "x") {
       got_point_x_read_.yes();
@@ -812,17 +856,25 @@ public:
       got_point_y_read_.yes();
       retval = CefV8Value::CreateInt(y_);
       return true;
+    } else if(name == "makeException") {
+      exception = "My Get Exception";
+      return true;
     }
     return false;
   }
 
-  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object, 
-           const CefRefPtr<CefV8Value> value)
+  bool Set(const CefString& name,
+           const CefRefPtr<CefV8Value> object, 
+           const CefRefPtr<CefV8Value> value,
+           CefString& exception) OVERRIDE
   {
     if(name == "y") {
       y_ = value->GetIntValue();
       if( y_ == 1234)
         got_point_y_write_.yes();
+      return true;
+    } else if(name == "makeException") {
+      exception = "My Set Exception";
       return true;
     }
     return false;
@@ -845,6 +897,8 @@ public:
   TrackCallback got_iframe_as_entered_url_;
   TrackCallback got_no_context_;
   TrackCallback got_exception_;
+  TrackCallback got_getexception_;
+  TrackCallback got_setexception_;
   TrackCallback got_navigation_;
   TrackCallback got_testcomplete_;
 
@@ -870,6 +924,8 @@ TEST(V8Test, Context)
   EXPECT_TRUE(handler->got_correct_entered_url_);
   EXPECT_TRUE(handler->got_correct_current_url_);
   EXPECT_TRUE(handler->got_exception_);
+  EXPECT_TRUE(handler->got_getexception_);
+  EXPECT_TRUE(handler->got_setexception_);
   EXPECT_TRUE(handler->got_navigation_);
   EXPECT_TRUE(handler->got_testcomplete_);
 }

@@ -97,54 +97,102 @@ CefRefPtr<CefBrowserImpl> FindBrowserForFrame(WebKit::WebFrame *frame)
   return NULL;
 }
 
-// Convert a wide string to a V8 string.
+// Convert a CefString to a V8::String.
 v8::Handle<v8::String> GetV8String(const CefString& str)
 {
+#if defined(CEF_STRING_TYPE_UTF16)
+  // Already a UTF16 string.
+  return v8::String::New(
+      reinterpret_cast<uint16_t*>(
+          const_cast<CefString::char_type*>(str.c_str())),
+      str.length());
+#elif defined(CEF_STRING_TYPE_UTF8)
+  // Already a UTF8 string.
+  return v8::String::New(const_cast<char*>(str.c_str()), str.length());
+#else
+  // Convert the string to UTF8.
   std::string tmpStr = str;
   return v8::String::New(tmpStr.c_str(), tmpStr.length());
+#endif
 }
 
-// Convert a V8 string to a UTF8 string.
-std::string GetString(v8::Handle<v8::String> str)
+#if defined(CEF_STRING_TYPE_UTF16)
+void v8impl_string_dtor(char16* str)
 {
+    delete [] str;
+}
+#elif defined(CEF_STRING_TYPE_UTF8)
+void v8impl_string_dtor(char* str)
+{
+    delete [] str;
+}
+#endif
+
+// Convert a v8::String to CefString.
+void GetCefString(v8::Handle<v8::String> str, CefString& out)
+{
+#if defined(CEF_STRING_TYPE_WIDE)
   // Allocate enough space for a worst-case conversion.
   int len = str->Utf8Length();
-  char* buf = new char[len+1];
-  str->WriteUtf8(buf, len+1);
-  std::string ret(buf, len);
+  char* buf = new char[len + 1];
+  str->WriteUtf8(buf, len + 1);
+  
+  // Perform conversion to the wide type.
+  cef_string_t* retws = out.GetWritableStruct();
+  cef_string_utf8_to_wide(buf, len, retws);
+  
   delete [] buf;
-  return ret;
+#else // !defined(CEF_STRING_TYPE_WIDE)
+#if defined(CEF_STRING_TYPE_UTF16)
+  int len = str->Length();
+  char16* buf = new char16[len + 1];
+  str->Write(reinterpret_cast<uint16_t*>(buf), 0, len + 1);
+#else
+  // Allocate enough space for a worst-case conversion.
+  int len = str->Utf8Length();
+  char* buf = new char[len + 1];
+  str->WriteUtf8(buf, len + 1);
+#endif
+
+  // Don't perform an extra string copy.
+  out.clear();
+  cef_string_t* retws = out.GetWritableStruct();
+  retws->str = buf;
+  retws->length = len;
+  retws->dtor = v8impl_string_dtor;
+#endif // !defined(CEF_STRING_TYPE_WIDE)
 }
 
 // V8 function callback.
 v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args)
 {
   v8::HandleScope handle_scope;
+
   CefV8Handler* handler =
       static_cast<CefV8Handler*>(v8::External::Unwrap(args.Data()));
-  
+
   CefV8ValueList params;
   for(int i = 0; i < args.Length(); i++)
     params.push_back(new CefV8ValueImpl(args[i]));
 
-  CefString func_name =
-      GetString(v8::Handle<v8::String>::Cast(args.Callee()->GetName()));
+  CefString func_name;
+  GetCefString(v8::Handle<v8::String>::Cast(args.Callee()->GetName()),
+               func_name);
   CefRefPtr<CefV8Value> object = new CefV8ValueImpl(args.This());
   CefRefPtr<CefV8Value> retval;
   CefString exception;
-  v8::Handle<v8::Value> value = v8::Null();
 
   if(handler->Execute(func_name, object, params, retval, exception)) {
-    if(!exception.empty())
-      value = v8::ThrowException(GetV8String(exception));
+    if (!exception.empty())
+      return v8::ThrowException(v8::Exception::Error(GetV8String(exception)));
     else {
       CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
-      if(rv)
-        value = rv->GetHandle();
+      if (rv)
+        return rv->GetHandle();
     }
   }
 
-  return value;
+  return v8::Undefined();
 }
 
 // V8 Accessor callbacks
@@ -153,7 +201,6 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
 {
   v8::HandleScope handle_scope;
 
-  v8::Handle<v8::Value> value = v8::Undefined();
   v8::Handle<v8::Object> obj = info.This();
   v8::Handle<v8::String> key = v8::String::New("Cef::Accessor");
 
@@ -166,14 +213,21 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
   if (accessorPtr) {
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Value> object = new CefV8ValueImpl(obj);
-    CefString name = GetString(property);
-    if (accessorPtr->Get(name, object, retval)) {
-      CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
-      if (rv)
-        value = rv->GetHandle();
+    CefString name, exception;
+    GetCefString(property, name);
+    if (accessorPtr->Get(name, object, retval, exception)) {
+      if (!exception.empty()) {
+          return v8::ThrowException(
+              v8::Exception::Error(GetV8String(exception)));
+      } else {
+          CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
+          if (rv)
+            return rv->GetHandle();
+      }
     }
   }
-  return value;
+
+  return v8::Undefined();
 }
 
 void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
@@ -190,12 +244,17 @@ void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
     accessorPtr = static_cast<CefV8Accessor*>(v8::External::Unwrap(
          obj->Get(key)));
   }
-  
+
   if (accessorPtr) {
     CefRefPtr<CefV8Value> object = new CefV8ValueImpl(obj);
     CefRefPtr<CefV8Value> cefValue = new CefV8ValueImpl(value);
-    CefString name = GetString(property);
-    accessorPtr->Set(name, object, cefValue);
+    CefString name, exception;
+    GetCefString(property, name);
+    accessorPtr->Set(name, object, cefValue, exception);
+    if (!exception.empty()) {
+      v8::ThrowException(v8::Exception::Error(GetV8String(exception)));
+      return;
+    }
   }
 }
 
@@ -216,7 +275,7 @@ public:
     v8::Handle<v8::String> name)
   {
     return v8::FunctionTemplate::New(FunctionCallbackImpl,
-                                     v8::External::New(handler_));
+                                     v8::External::Wrap(handler_));
   }
 
   void UIT_RegisterExtension()
@@ -379,9 +438,13 @@ WebKit::WebFrame* CefV8ContextImpl::GetWebFrame()
 // thread.
 CefV8ValueHandle::~CefV8ValueHandle()
 {
-  if(tracker_)
+  if(tracker_) {
     TrackAdd(tracker_);
-  v8_handle_.MakeWeak(tracker_, TrackDestructor);
+    v8_handle_.MakeWeak(tracker_, TrackDestructor);
+  } else {
+    v8_handle_.Dispose();
+    v8_handle_.Clear();
+  }
   tracker_ = NULL;
 }
 
@@ -669,7 +732,7 @@ CefString CefV8ValueImpl::GetStringValue()
   CefString rv;
   CEF_REQUIRE_UI_THREAD(rv);
   v8::HandleScope handle_scope;
-  rv = GetString(GetHandle()->ToString());
+  GetCefString(GetHandle()->ToString(), rv);
   return rv;
 }
 
@@ -782,6 +845,10 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
 bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
 {
   CEF_REQUIRE_UI_THREAD(false);
+
+  if (index < 0)
+    return false;
+
   if(!GetHandle()->IsObject()) {
     NOTREACHED();
     return false;
@@ -791,7 +858,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
   if(impl) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
-    return obj->Set(v8::Number::New(index), impl->GetHandle());
+    return obj->Set(index, impl->GetHandle());
   } else {
     NOTREACHED();
     return false;
@@ -834,7 +901,8 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys)
   uint32_t len = arr_keys->Length();
   for(uint32_t i = 0; i < len; ++i) {
     v8::Local<v8::Value> value = arr_keys->Get(v8::Integer::New(i));
-    CefString str = GetString(value->ToString());
+    CefString str;
+    GetCefString(value->ToString(), str);
     if(!IsReservedKey(str))
       keys.push_back(str);
   }
@@ -883,7 +951,7 @@ CefString CefV8ValueImpl::GetFunctionName()
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
   v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(obj);
-  rv = GetString(v8::Handle<v8::String>::Cast(func->GetName()));
+  GetCefString(v8::Handle<v8::String>::Cast(func->GetName()), rv);
   return rv;
 }
 
@@ -963,7 +1031,7 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
   v8::TryCatch try_catch;
   v8::Local<v8::Value> func_rv = func->Call(recv, argc, argv);
   if (try_catch.HasCaught())
-    exception = GetString(try_catch.Message()->Get());
+    GetCefString(try_catch.Message()->Get(), exception);
   else
     retval = new CefV8ValueImpl(func_rv);
 

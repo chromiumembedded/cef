@@ -476,6 +476,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunExtensionTest(browser);
           return 0;
+        case ID_TESTS_JAVASCRIPT_PERFORMANCE: // Test the V8 performance
+          if(browser.get())
+            RunExtensionPerfTest(browser);
+          return 0;
         case ID_TESTS_JAVASCRIPT_EXECUTE: // Test execution of javascript
           if(browser.get())
             RunJavaScriptExecuteTest(browser);

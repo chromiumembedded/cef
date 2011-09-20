@@ -32,9 +32,9 @@ public:
 
   // CefV8Accessor methods
   virtual bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
-      CefRefPtr<CefV8Value>& retval) OVERRIDE;
+      CefRefPtr<CefV8Value>& retval, CefString& exception) OVERRIDE;
   virtual bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
-      const CefRefPtr<CefV8Value> value) OVERRIDE;
+      const CefRefPtr<CefV8Value> value, CefString& exception) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

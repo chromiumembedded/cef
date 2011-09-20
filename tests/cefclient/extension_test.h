@@ -12,5 +12,6 @@ void InitExtensionTest();
 
 // Run the test.
 void RunExtensionTest(CefRefPtr<CefBrowser> browser);
+void RunExtensionPerfTest(CefRefPtr<CefBrowser> browser);
 
 #endif // _CEFCLIENT_EXTENSION_TEST_H

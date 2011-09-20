@@ -55,6 +55,7 @@
         'tests/cefclient/mac/English.lproj/MainMenu.xib',
         'tests/cefclient/mac/Info.plist',
         'tests/cefclient/res/domaccess.html',
+        'tests/cefclient/res/extensionperf.html',
         'tests/cefclient/res/localstorage.html',
         'tests/cefclient/res/logo.png',
         'tests/cefclient/res/xmlhttprequest.html',

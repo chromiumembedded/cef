@@ -9,6 +9,8 @@
 
 #if defined(OS_WIN)
 
+#include "resource.h"
+
 // Load a resource of type BINARY
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);

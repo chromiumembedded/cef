@@ -1,9 +1,9 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
 #include "extension_test.h"
-
+#include "resource_util.h"
 
 // Implementation of the V8 handler class for the "cef.test" extension.
 class ClientV8ExtensionHandler : public CefV8Handler
@@ -20,7 +20,12 @@ public:
                        CefRefPtr<CefV8Value>& retval,
                        CefString& exception)
   {
-    if(name == "SetTestParam")
+    if(name == "Dummy")
+    {
+      // Used for performance testing.
+      return true;
+    }
+    else if(name == "SetTestParam")
     {
       // Handle the SetTestParam native function by saving the string argument
       // into the local member.
@@ -89,6 +94,10 @@ void InitExtensionTest()
     "    native function GetTestObject();"
     "    return GetTestObject();"
     "  };"
+    "  cef.test.dummy = function() {"
+    "    native function Dummy();"
+    "    return Dummy();"
+    "  };"
     "})();";
   CefRegisterExtension("v8/test", code, new ClientV8ExtensionHandler());
 }
@@ -110,4 +119,15 @@ void RunExtensionTest(CefRefPtr<CefBrowser> browser)
     "</script>"
     "</pre></body></html>";
   browser->GetMainFrame()->LoadString(html, "about:blank");
+}
+
+void RunExtensionPerfTest(CefRefPtr<CefBrowser> browser)
+{
+  CefRefPtr<CefStreamReader> resourceStream;
+#if defined(OS_WIN)
+  resourceStream = GetBinaryResourceReader(IDS_EXTENSIONPERF);
+#elif defined(OS_MACOSX)
+  resourceStream = GetBinaryResourceReader("extensionperf.html");
+#endif
+  browser->GetMainFrame()->LoadStream(resourceStream, "about:blank");
 }

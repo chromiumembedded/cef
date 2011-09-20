@@ -2002,7 +2002,7 @@ typedef struct _cef_v8accessor_t
   ///
   int (CEF_CALLBACK *get)(struct _cef_v8accessor_t* self,
       const cef_string_t* name, struct _cef_v8value_t* object,
-      struct _cef_v8value_t** retval);
+      struct _cef_v8value_t** retval, cef_string_t* exception);
 
   ///
   // Called to set an accessor value. |name| is the name of the property being
@@ -2012,7 +2012,7 @@ typedef struct _cef_v8accessor_t
   ///
   int (CEF_CALLBACK *set)(struct _cef_v8accessor_t* self,
       const cef_string_t* name, struct _cef_v8value_t* object,
-      struct _cef_v8value_t* value);
+      struct _cef_v8value_t* value, cef_string_t* exception);
 
 } cef_v8accessor_t;
 

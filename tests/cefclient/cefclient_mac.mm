@@ -188,6 +188,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testGetText:(id)sender;
 - (IBAction)testJSBinding:(id)sender;
 - (IBAction)testJSExtension:(id)sender;
+- (IBAction)testJSExtensionPerf:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testLocalStorage:(id)sender;
@@ -235,6 +236,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Extension Handler"
                       action:@selector(testJSExtension:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"JavaScript Extension Performance"
+                      action:@selector(testJSExtensionPerf:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Execute"
                       action:@selector(testJSExecute:)
@@ -395,6 +399,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExtension:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
     RunExtensionTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testJSExtensionPerf:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunExtensionPerfTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSExecute:(id)sender {

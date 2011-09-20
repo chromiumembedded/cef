@@ -17,7 +17,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefV8AccessorCToCpp::Get(const CefString& name,
-    const CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Value>& retval)
+    const CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Value>& retval,
+    CefString& exception)
 {
   if(CEF_MEMBER_MISSING(struct_, get))
     return false;
@@ -25,7 +26,8 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
   cef_v8value_t* retvalStruct = NULL;
 
   int rv = struct_->get(struct_, name.GetStruct(), 
-                        CefV8ValueCppToC::Wrap(object), &retvalStruct);
+                        CefV8ValueCppToC::Wrap(object), &retvalStruct,
+                        exception.GetWritableStruct());
   if(retvalStruct)
     retval = CefV8ValueCppToC::Unwrap(retvalStruct);
 
@@ -33,14 +35,16 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
 }
 
 bool CefV8AccessorCToCpp::Set(const CefString& name,
-    const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value)
+    const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value,
+    CefString& exception)
 {
   if(CEF_MEMBER_MISSING(struct_, set))
     return false;
 
   int rv = struct_->set(struct_, name.GetStruct(), 
                         CefV8ValueCppToC::Wrap(object), 
-                        CefV8ValueCppToC::Wrap(value));
+                        CefV8ValueCppToC::Wrap(value),
+                        exception.GetWritableStruct());
 
   return rv ? true : false;
 }

@@ -18,7 +18,7 @@
 
 int CEF_CALLBACK v8accessor_get(struct _cef_v8accessor_t* self,
     const cef_string_t* name, struct _cef_v8value_t* object,
-    struct _cef_v8value_t** retval)
+    struct _cef_v8value_t** retval, cef_string_t* exception)
 {
   DCHECK(self);
   if(!self)
@@ -29,8 +29,9 @@ int CEF_CALLBACK v8accessor_get(struct _cef_v8accessor_t* self,
     objectPtr = CefV8ValueCToCpp::Wrap(object);
 
   CefRefPtr<CefV8Value> retValPtr;
+  CefString exceptionStr(exception);
   bool rv = CefV8AccessorCppToC::Get(self)->Get(CefString(name), objectPtr,
-                                                retValPtr);
+                                                retValPtr, exceptionStr);
   if(rv) {
     if(retValPtr.get() && retval)
       *retval = CefV8ValueCToCpp::Unwrap(retValPtr);
@@ -41,7 +42,7 @@ int CEF_CALLBACK v8accessor_get(struct _cef_v8accessor_t* self,
 
 int CEF_CALLBACK v8accessor_set(struct _cef_v8accessor_t* self,
     const cef_string_t* name, struct _cef_v8value_t* object,
-    struct _cef_v8value_t* value)
+    struct _cef_v8value_t* value, cef_string_t* exception)
 {
   DCHECK(self);
   if(!self)
@@ -55,8 +56,9 @@ int CEF_CALLBACK v8accessor_set(struct _cef_v8accessor_t* self,
   if(value)
     valuePtr = CefV8ValueCToCpp::Wrap(value);
 
+  CefString exceptionStr(exception);
   bool rv = CefV8AccessorCppToC::Get(self)->Set(CefString(name), objectPtr,
-                                                valuePtr);
+                                                valuePtr, exceptionStr);
   return rv;
 }
 
