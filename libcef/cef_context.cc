@@ -10,6 +10,7 @@
 #include "cef_process.h"
 #include "../include/cef_nplugin.h"
 
+#include "base/bind.h"
 #include "base/file_util.h"
 #include "base/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
@@ -64,37 +65,56 @@ int GetThreadId(CefThreadId threadId)
   return -1;
 }
 
-void IOT_VisitCookies(net::CookieMonster* cookie_monster,
-                      const net::CookieList& list,
-                      CefRefPtr<CefCookieVisitor> visitor)
-{
-  int total = list.size(), count = 0;
-  
-  net::CookieList::const_iterator it = list.begin();
-  for (; it != list.end(); ++it, ++count) {
-    CefCookie cookie;
-    const net::CookieMonster::CanonicalCookie& cc = *(it);
-    
-    CefString(&cookie.name).FromString(cc.Name());
-    CefString(&cookie.value).FromString(cc.Value());
-    CefString(&cookie.domain).FromString(cc.Domain());
-    CefString(&cookie.path).FromString(cc.Path());
-    cookie.secure = cc.IsSecure();
-    cookie.httponly = cc.IsHttpOnly();
-    cef_time_from_basetime(cc.CreationDate(), cookie.creation);
-    cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
-    cookie.has_expires = cc.DoesExpire();
-    if (cookie.has_expires)
-      cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
-
-    bool deleteCookie = false;
-    bool keepLooping = visitor->Visit(cookie, count, total, deleteCookie);
-    if (deleteCookie)
-      cookie_monster->DeleteCanonicalCookie(cc);
-    if (!keepLooping)
-      break;
+// Callback class for visiting cookies.
+class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
+public:
+  VisitCookiesCallback(CefRefPtr<CefCookieVisitor> visitor)
+    : visitor_(visitor)
+  {
   }
-}
+
+  void Run(const net::CookieList& list)
+  {
+    REQUIRE_IOT();
+
+    net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
+        _Context->request_context()->cookie_store());
+    if (!cookie_monster)
+      return;
+
+    int total = list.size(), count = 0;
+  
+    net::CookieList::const_iterator it = list.begin();
+    for (; it != list.end(); ++it, ++count) {
+      CefCookie cookie;
+      const net::CookieMonster::CanonicalCookie& cc = *(it);
+    
+      CefString(&cookie.name).FromString(cc.Name());
+      CefString(&cookie.value).FromString(cc.Value());
+      CefString(&cookie.domain).FromString(cc.Domain());
+      CefString(&cookie.path).FromString(cc.Path());
+      cookie.secure = cc.IsSecure();
+      cookie.httponly = cc.IsHttpOnly();
+      cef_time_from_basetime(cc.CreationDate(), cookie.creation);
+      cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
+      cookie.has_expires = cc.DoesExpire();
+      if (cookie.has_expires)
+        cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
+
+      bool deleteCookie = false;
+      bool keepLooping = visitor_->Visit(cookie, count, total, deleteCookie);
+      if (deleteCookie) {
+        cookie_monster->DeleteCanonicalCookieAsync(cc,
+            net::CookieMonster::DeleteCookieCallback());
+      }
+      if (!keepLooping)
+        break;
+    }
+  }
+
+private:
+  CefRefPtr<CefCookieVisitor> visitor_;
+};
 
 void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
 {
@@ -105,9 +125,11 @@ void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
   if (!cookie_monster)
     return;
 
-  net::CookieList list = cookie_monster->GetAllCookies();
-  if (!list.empty())
-    IOT_VisitCookies(cookie_monster, list, visitor);
+  scoped_refptr<VisitCookiesCallback> callback(
+      new VisitCookiesCallback(visitor));
+
+  cookie_monster->GetAllCookiesAsync(
+      base::Bind(&VisitCookiesCallback::Run, callback.get()));
 }
 
 void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
@@ -123,10 +145,12 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
   net::CookieOptions options;
   if (includeHttpOnly)
     options.set_include_httponly();
-  net::CookieList list =
-      cookie_monster->GetAllCookiesForURLWithOptions(url, options);
-  if (!list.empty())
-    IOT_VisitCookies(cookie_monster, list, visitor);
+  
+  scoped_refptr<VisitCookiesCallback> callback(
+      new VisitCookiesCallback(visitor));
+
+  cookie_monster->GetAllCookiesForURLWithOptionsAsync(url, options,
+      base::Bind(&VisitCookiesCallback::Run, callback.get()));
 }
 
 // Used in multi-threaded message loop mode to observe shutdown of the UI
@@ -401,9 +425,10 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
-  return cookie_monster->SetCookieWithDetails(gurl, name, value, domain, path,
-                                              expiration_time, cookie.secure,
-                                              cookie.httponly);
+  cookie_monster->SetCookieWithDetailsAsync(gurl, name, value, domain, path,
+      expiration_time, cookie.secure, cookie.httponly,
+      net::CookieStore::SetCookiesCallback());
+  return true;
 }
 
 bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
@@ -427,7 +452,7 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
 
   if (url.empty()) {
     // Delete all cookies.
-    cookie_monster->DeleteAll(true);
+    cookie_monster->DeleteAllAsync(net::CookieMonster::DeleteCallback());
     return true;
   }
 
@@ -438,10 +463,11 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
 
   if (cookie_name.empty()) {
     // Delete all matching host cookies.
-    cookie_monster->DeleteAllForHost(gurl);
+    cookie_monster->DeleteAllForHostAsync(gurl,
+        net::CookieMonster::DeleteCallback());
   } else {
     // Delete all matching host and domain cookies.
-    cookie_monster->DeleteCookie(gurl, cookie_name);
+    cookie_monster->DeleteCookieAsync(gurl, cookie_name, base::Closure());
   }
   return true;
 }

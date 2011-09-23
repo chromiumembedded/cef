@@ -105,14 +105,14 @@ bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-    bool isProxy, const CefString& host, const CefString& realm,
+    bool isProxy, const CefString& host, int port, const CefString& realm,
     const CefString& scheme, CefString& username, CefString& password)
 {
   if (CEF_MEMBER_MISSING(struct_, get_auth_credentials))
     return false;
 
   return struct_->get_auth_credentials(struct_, CefBrowserCppToC::Wrap(browser),
-      isProxy, host.GetStruct(), realm.GetStruct(), scheme.GetStruct(),
+      isProxy, host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
       username.GetWritableStruct(), password.GetWritableStruct()) ?
       true : false;
 }

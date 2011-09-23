@@ -14,6 +14,7 @@
 #include "base/logging.h"
 #include "base/mac/mac_util.h"
 #include "base/path_service.h"
+#include "base/utf_string_conversions.h"
 #include "grit/webkit_resources.h"
 #include "ui/base/resource/data_pack.h"
 #include "webkit/glue/webkit_glue.h"
@@ -58,9 +59,10 @@ string16 GetLocalizedString(int message_id) {
   if (!g_resource_data_pack->GetStringPiece(message_id, &res)) {
     LOG(FATAL) << "failed to load webkit string with id " << message_id;
   }
-  
-  return string16(reinterpret_cast<const char16*>(res.data()),
-                  res.length() / 2);
+
+  string16 result;
+  UTF8ToUTF16(res.data(), res.length(), &result);
+  return result;
 }
   
   

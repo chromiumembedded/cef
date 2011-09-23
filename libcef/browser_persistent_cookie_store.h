@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -31,16 +31,20 @@ class BrowserPersistentCookieStore
   explicit BrowserPersistentCookieStore(const FilePath& path);
   virtual ~BrowserPersistentCookieStore();
 
-  virtual bool Load(std::vector<net::CookieMonster::CanonicalCookie*>* cookies);
+  virtual bool Load(const LoadedCallback& loaded_callback) OVERRIDE;
 
-  virtual void AddCookie(const net::CookieMonster::CanonicalCookie& cc);
+  virtual void AddCookie(
+      const net::CookieMonster::CanonicalCookie& cc) OVERRIDE;
+
   virtual void UpdateCookieAccessTime(
-      const net::CookieMonster::CanonicalCookie& cc);
-  virtual void DeleteCookie(const net::CookieMonster::CanonicalCookie& cc);
+      const net::CookieMonster::CanonicalCookie& cc) OVERRIDE;
 
-  virtual void SetClearLocalStateOnExit(bool clear_local_state);
+  virtual void DeleteCookie(
+      const net::CookieMonster::CanonicalCookie& cc) OVERRIDE;
 
-  virtual void Flush(Task* completion_task);
+  virtual void SetClearLocalStateOnExit(bool clear_local_state) OVERRIDE;
+
+  virtual void Flush(Task* completion_task) OVERRIDE;
 
  private:
   class Backend;

@@ -1167,6 +1167,7 @@ public:
   virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
                                   bool isProxy,
                                   const CefString& host,
+                                  int port,
                                   const CefString& realm,
                                   const CefString& scheme,
                                   CefString& username,

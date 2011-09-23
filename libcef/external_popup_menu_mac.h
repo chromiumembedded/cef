@@ -20,6 +20,7 @@ class ExternalPopupMenu : public WebKit::WebExternalPopupMenu {
   ExternalPopupMenu(BrowserWebViewDelegate* delegate,
                     const WebKit::WebPopupMenuInfo& popup_menu_info,
                     WebKit::WebExternalPopupMenuClient* popup_menu_client);
+  virtual ~ExternalPopupMenu() {}
 
   // WebKit::WebExternalPopupMenu implementation:
   virtual void show(const WebKit::WebRect& bounds);

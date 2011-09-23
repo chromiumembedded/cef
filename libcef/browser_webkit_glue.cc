@@ -20,8 +20,8 @@ MSVC_POP_WARNING();
 #include "cef_context.h"
 
 #include "base/logging.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/string16.h"
 #include "net/base/mime_util.h"
@@ -55,13 +55,6 @@ bool IsProtocolSupportedForMedia(const GURL& url) {
   return false;
 }
 
-std::string GetWebKitLocale() {
-  const CefSettings& settings = _Context->settings();
-  if (settings.locale.length > 0)
-    return CefString(&settings.locale);
-  return "en-US";
-}
-
 void InitializeTextEncoding() {
   WebCore::UTF8Encoding();
 }
@@ -71,14 +64,6 @@ v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame)
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
   WebCore::Frame* core_frame = webFrameImpl->frame();
   return WebCore::V8Proxy::context(core_frame);
-}
-
-void CloseIdleConnections() {
-  // Used in benchmarking,  Ignored for CEF.
-}
-
-void SetCacheMode(bool enabled) {
-  // Used in benchmarking,  Ignored for CEF.
 }
 
 void ClearCache()
@@ -109,10 +94,6 @@ std::string BuildUserAgent(bool mimic_windows) {
   return webkit_glue::BuildUserAgentHelper(mimic_windows, product_version);
 }
 
-bool IsSingleProcess() {
-  return true;
-}
-
 #if defined(OS_LINUX)
 int MatchFontWithFallback(const std::string& face, bool bold,
                           bool italic, int charset) {
@@ -124,10 +105,6 @@ bool GetFontTable(int fd, uint32_t table, uint8_t* output,
   return false;
 }
 #endif
-
-void EnableSpdy(bool enable) {
-  // Used in benchmarking,  Ignored for CEF.
-}
 
 // Adapted from Chromium's BufferedResourceHandler::ShouldDownload
 bool ShouldDownload(const std::string& content_disposition,
@@ -180,11 +157,15 @@ bool ShouldDownload(const std::string& content_disposition,
   if (!plugins.empty()) {
     std::vector<webkit::WebPluginInfo>::const_iterator it = plugins.begin();
     for (; it != plugins.end(); ++it) {
-      if (webkit::IsPluginEnabled(*it))
+      if (webkit_glue::IsPluginEnabled(*it))
         return false;
     }
   }
 
+  return true;
+}
+
+bool IsPluginEnabled(const webkit::WebPluginInfo& plugin) {
   return true;
 }
 

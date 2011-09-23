@@ -137,7 +137,7 @@ int CEF_CALLBACK request_handler_get_download_handler(
 
 int CEF_CALLBACK request_handler_get_auth_credentials(
     struct _cef_request_handler_t* self, cef_browser_t* browser, int isProxy,
-    const cef_string_t* host, const cef_string_t* realm,
+    const cef_string_t* host, int port, const cef_string_t* realm,
     const cef_string_t* scheme, cef_string_t* username,
     cef_string_t* password)
 {
@@ -155,7 +155,7 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
   CefString passwordStr(password);
   return CefRequestHandlerCppToC::Get(self)->GetAuthCredentials(
       CefBrowserCToCpp::Wrap(browser), (isProxy ? true : false),
-      CefString(host), CefString(realm), CefString(scheme), usernameStr,
+      CefString(host), port, CefString(realm), CefString(scheme), usernameStr,
       passwordStr);
 }
 

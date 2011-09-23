@@ -14,6 +14,9 @@ namespace WebKit {
 class WebFrame;
 class WebView;
 }
+namespace webkit {
+struct WebPluginInfo;
+}
 
 #if defined(OS_MACOSX)
 class FilePath;
@@ -51,5 +54,8 @@ void ClearCache();
 // the supplied Content-Type and Content-Disposition headers.
 bool ShouldDownload(const std::string& content_disposition,
                     const std::string& mime_type);
+
+// Checks whether a plugin is enabled either by the user or by policy.
+bool IsPluginEnabled(const webkit::WebPluginInfo& plugin);
 
 }  // namespace webkit_glue

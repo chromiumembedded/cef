@@ -990,7 +990,7 @@ typedef struct _cef_request_handler_t
   ///
   int (CEF_CALLBACK *get_auth_credentials)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, int isProxy, const cef_string_t* host,
-      const cef_string_t* realm, const cef_string_t* scheme,
+      int port, const cef_string_t* realm, const cef_string_t* scheme,
       cef_string_t* username, cef_string_t* password);
 
 } cef_request_handler_t;

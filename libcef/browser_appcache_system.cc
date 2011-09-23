@@ -1,12 +1,14 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "browser_appcache_system.h"
 #include "browser_resource_loader_bridge.h"
 
+#include <string>
+#include <vector>
+
 #include "base/callback.h"
-#include "base/synchronization/lock.h"
 #include "base/task.h"
 #include "base/synchronization/waitable_event.h"
 #include "webkit/appcache/appcache_interceptor.h"
@@ -17,34 +19,6 @@ using WebKit::WebApplicationCacheHostClient;
 using appcache::WebApplicationCacheHostImpl;
 using appcache::AppCacheBackendImpl;
 using appcache::AppCacheInterceptor;
-using appcache::AppCacheThread;
-
-namespace appcache {
-
-// An impl of AppCacheThread we need to provide to the appcache lib.
-
-bool AppCacheThread::PostTask(
-    int id,
-    const tracked_objects::Location& from_here,
-    Task* task) {
-  if (BrowserAppCacheSystem::thread_provider()) {
-    return BrowserAppCacheSystem::thread_provider()->PostTask(
-        id, from_here, task);
-  }
-  scoped_ptr<Task> task_ptr(task);
-  MessageLoop* loop = BrowserAppCacheSystem::GetMessageLoop(id);
-  if (loop)
-    loop->PostTask(from_here, task_ptr.release());
-  return loop ? true : false;
-}
-
-bool AppCacheThread::CurrentlyOn(int id) {
-  if (BrowserAppCacheSystem::thread_provider())
-    return BrowserAppCacheSystem::thread_provider()->CurrentlyOn(id);
-  return MessageLoop::current() == BrowserAppCacheSystem::GetMessageLoop(id);
-}
-
-}  // namespace appcache
 
 // BrowserFrontendProxy --------------------------------------------------------
 // Proxies method calls from the backend IO thread to the frontend UI thread.
@@ -63,15 +37,15 @@ class BrowserFrontendProxy
       const appcache::AppCacheInfo& info) {
     if (!system_)
       return;
-    if (system_->is_io_thread())
+    if (system_->is_io_thread()) {
       system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
           this, &BrowserFrontendProxy::OnCacheSelected,
           host_id, info));
-    else if (system_->is_ui_thread()) {
+    } else if (system_->is_ui_thread()) {
       system_->frontend_impl_.OnCacheSelected(host_id, info);
-    }
-    else
+    } else {
       NOTREACHED();
+    }
   }
 
   virtual void OnStatusChanged(const std::vector<int>& host_ids,
@@ -364,8 +338,7 @@ BrowserAppCacheSystem::BrowserAppCacheSystem()
           backend_proxy_(new BrowserBackendProxy(this))),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           frontend_proxy_(new BrowserFrontendProxy(this))),
-      backend_impl_(NULL), service_(NULL), db_thread_("AppCacheDBThread"),
-      thread_provider_(NULL) {
+      backend_impl_(NULL), service_(NULL), db_thread_("AppCacheDBThread") {
   DCHECK(!instance_);
   instance_ = this;
 }
@@ -391,7 +364,6 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
 
 void BrowserAppCacheSystem::InitOnUIThread(const FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
-  AppCacheThread::Init(DB_THREAD_ID, IO_THREAD_ID);
   ui_message_loop_ = MessageLoop::current();
   cache_directory_ = cache_directory;
 }
@@ -411,6 +383,7 @@ void BrowserAppCacheSystem::InitOnIOThread(
   service_ = new appcache::AppCacheService(NULL);
   backend_impl_ = new appcache::AppCacheBackendImpl();
   service_->Initialize(cache_directory_,
+                       db_thread_.message_loop_proxy(),
                        BrowserResourceLoaderBridge::GetCacheThread());
   service_->set_request_context(request_context);
   backend_impl_->Initialize(service_, frontend_proxy_.get(), kSingleProcessId);

@@ -49,8 +49,9 @@ public:
       const CefString& mimeType, const CefString& fileName,
       int64 contentLength, CefRefPtr<CefDownloadHandler>& handler) OVERRIDE;
   virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser, bool isProxy,
-      const CefString& host, const CefString& realm, const CefString& scheme,
-      CefString& username, CefString& password) OVERRIDE;
+      const CefString& host, int port, const CefString& realm,
+      const CefString& scheme, CefString& username,
+      CefString& password) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

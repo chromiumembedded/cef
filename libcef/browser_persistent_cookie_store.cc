@@ -1,24 +1,38 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
-// Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "browser_persistent_cookie_store.h"
+#include "cef_thread.h"
 
 #include <list>
 
-#include "cef_thread.h"
+#include "base/basictypes.h"
+#include "base/bind.h"
+#include "base/file_path.h"
+#include "base/file_util.h"
+#include "base/logging.h"
+#include "base/memory/ref_counted.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/metrics/histogram.h"
+#include "base/string_util.h"
+#include "base/threading/thread.h"
+#include "base/threading/thread_restrictions.h"
+#include "googleurl/src/gurl.h"
 #include "sql/meta_table.h"
 #include "sql/statement.h"
 #include "sql/transaction.h"
-#include "base/file_path.h"
-#include "base/file_util.h"
-#include "googleurl/src/gurl.h"
 
 using base::Time;
 
 // This class is designed to be shared between any calling threads and the
 // database thread.  It batches operations and commits them on a timer.
+// This class expects to be Load()'ed once on any thread. Loading occurs
+// asynchronously on the DB thread and the caller will be notified on the IO
+// thread. Subsequent to loading, mutations may be queued by any thread using
+// AddCookie, UpdateCookieAccessTime, and DeleteCookie. These are flushed to
+// disk on the DB thread every 30 seconds, 512 operations, or call to Flush(),
+// whichever occurs first.
 class BrowserPersistentCookieStore::Backend
     : public base::RefCountedThreadSafe<BrowserPersistentCookieStore::Backend> {
  public:
@@ -30,7 +44,7 @@ class BrowserPersistentCookieStore::Backend
   }
 
   // Creates or load the SQLite database.
-  bool Load(std::vector<net::CookieMonster::CanonicalCookie*>* cookies);
+  bool Load(const LoadedCallback& loaded_callback);
 
   // Batch a cookie addition.
   void AddCookie(const net::CookieMonster::CanonicalCookie& cc);
@@ -83,6 +97,18 @@ class BrowserPersistentCookieStore::Backend
   };
 
  private:
+  // Creates or load the SQLite database on DB thread.
+  void LoadAndNotifyOnDBThread(const LoadedCallback& loaded_callback);
+  // Notify the CookieMonster when loading complete.
+  void NotifyOnIOThread(
+      const LoadedCallback& loaded_callback,
+      bool load_success,
+      const std::vector<net::CookieMonster::CanonicalCookie*>& cookies);
+  // Initialize the data base.
+  bool InitializeDatabase();
+  // Load cookies to the data base, and read cookies.
+  bool LoadInternal(std::vector<net::CookieMonster::CanonicalCookie*>* cookies);
+
   // Batch a cookie operation (add or delete)
   void BatchOperation(PendingOperation::OperationType op,
                       const net::CookieMonster::CanonicalCookie& cc);
@@ -138,16 +164,49 @@ bool InitTable(sql::Connection* db) {
 
   // Try to create the index every time. Older versions did not have this index,
   // so we want those people to get it. Ignore errors, since it may exist.
-  db->Execute("CREATE INDEX cookie_times ON cookies (creation_utc)");
+  db->Execute("CREATE INDEX IF NOT EXISTS cookie_times ON cookies"
+              " (creation_utc)");
   return true;
 }
 
 }  // namespace
 
 bool BrowserPersistentCookieStore::Backend::Load(
-    std::vector<net::CookieMonster::CanonicalCookie*>* cookies) {
+    const LoadedCallback& loaded_callback) {
   // This function should be called only once per instance.
   DCHECK(!db_.get());
+  CefThread::PostTask(
+      CefThread::FILE, FROM_HERE,
+      base::Bind(&Backend::LoadAndNotifyOnDBThread, base::Unretained(this),
+                 loaded_callback));
+  return true;
+}
+
+void BrowserPersistentCookieStore::Backend::LoadAndNotifyOnDBThread(
+    const LoadedCallback& loaded_callback) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+  std::vector<net::CookieMonster::CanonicalCookie*> cookies;
+
+  bool load_success = LoadInternal(&cookies);
+
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
+      base::Unretained(this), loaded_callback, load_success, cookies));
+}
+
+void BrowserPersistentCookieStore::Backend::NotifyOnIOThread(
+    const LoadedCallback& loaded_callback,
+    bool load_success,
+    const std::vector<net::CookieMonster::CanonicalCookie*>& cookies) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+  loaded_callback.Run(cookies);
+}
+
+bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
+  const FilePath dir = path_.DirName();
+  if (!file_util::PathExists(dir) && !file_util::CreateDirectory(dir)) {
+    return false;
+  }
 
   db_.reset(new sql::Connection);
   if (!db_->Open(path_)) {
@@ -165,6 +224,14 @@ bool BrowserPersistentCookieStore::Backend::Load(
   }
 
   db_->Preload();
+  return true;
+}
+
+bool BrowserPersistentCookieStore::Backend::LoadInternal(
+    std::vector<net::CookieMonster::CanonicalCookie*>* cookies) {
+  if (!InitializeDatabase()) {
+    return false;
+  }
 
   // Slurp all the cookies into the out-vector.
   sql::Statement smt(db_->GetUniqueStatement(
@@ -192,7 +259,7 @@ bool BrowserPersistentCookieStore::Backend::Load(
             Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
             smt.ColumnInt(6) != 0,                          // secure
             smt.ColumnInt(7) != 0,                          // httponly
-            true));                                         // has_
+            true));                                         // has_expires
     DLOG_IF(WARNING,
             cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
     cookies->push_back(cc.release());
@@ -406,7 +473,6 @@ void BrowserPersistentCookieStore::Backend::Commit() {
         break;
     }
   }
-
   transaction.Commit();
 }
 
@@ -426,11 +492,14 @@ void BrowserPersistentCookieStore::Backend::Flush(Task* completion_task) {
 // pending commit timer that will be holding a reference on us, but if/when
 // this fires we will already have been cleaned up and it will be ignored.
 void BrowserPersistentCookieStore::Backend::Close() {
-  DCHECK(!CefThread::CurrentlyOn(CefThread::FILE));
-  // Must close the backend on the background thread.
-  CefThread::PostTask(
-      CefThread::FILE, FROM_HERE,
-      NewRunnableMethod(this, &Backend::InternalBackgroundClose));
+  if (CefThread::CurrentlyOn(CefThread::FILE)) {
+    InternalBackgroundClose();
+  } else {
+    // Must close the backend on the background thread.
+    CefThread::PostTask(
+        CefThread::FILE, FROM_HERE,
+        NewRunnableMethod(this, &Backend::InternalBackgroundClose));
+  }
 }
 
 void BrowserPersistentCookieStore::Backend::InternalBackgroundClose() {
@@ -462,9 +531,8 @@ BrowserPersistentCookieStore::~BrowserPersistentCookieStore() {
   }
 }
 
-bool BrowserPersistentCookieStore::Load(
-    std::vector<net::CookieMonster::CanonicalCookie*>* cookies) {
-  return backend_->Load(cookies);
+bool BrowserPersistentCookieStore::Load(const LoadedCallback& loaded_callback) {
+  return backend_->Load(loaded_callback);
 }
 
 void BrowserPersistentCookieStore::AddCookie(

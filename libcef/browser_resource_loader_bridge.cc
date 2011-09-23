@@ -45,6 +45,7 @@
 #include "response_impl.h"
 #include "http_header_utils.h"
 
+#include "base/bind.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/memory/ref_counted.h"
@@ -680,9 +681,12 @@ class RequestProxy : public net::URLRequest::Delegate,
         CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
         if(handler.get()) {
           CefString username, password;
-          if (handler->GetAuthCredentials(browser_, auth_info->is_proxy,
-                                          auth_info->host_and_port,
-                                          auth_info->realm, auth_info->scheme,
+          if (handler->GetAuthCredentials(browser_,
+                                          auth_info->is_proxy,
+                                          auth_info->challenger.host(),
+                                          auth_info->challenger.port(),
+                                          auth_info->realm,
+                                          auth_info->scheme,
                                           username, password)) {
             request->SetAuth(username, password);
             return;
@@ -1030,8 +1034,11 @@ class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
     REQUIRE_IOT();
     net::CookieStore* cookie_store =
         _Context->request_context()->cookie_store();
-    if (cookie_store)
-      cookie_store->SetCookie(url, cookie);
+    if (cookie_store) {
+      cookie_store->SetCookieWithOptionsAsync(
+          url, cookie, net::CookieOptions(),
+          net::CookieStore::SetCookiesCallback());
+    }
   }
 
  private:
@@ -1048,9 +1055,11 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   void Get(const GURL& url) {
     net::CookieStore* cookie_store =
         _Context->request_context()->cookie_store();
-    if (cookie_store)
-      result_ = cookie_store->GetCookies(url);
-    event_.Signal();
+    if (cookie_store) {
+      cookie_store->GetCookiesWithOptionsAsync(
+          url, net::CookieOptions(),
+          base::Bind(&CookieGetter::OnGetCookies, this));
+    }
   }
 
   std::string GetResult() {
@@ -1060,6 +1069,10 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
  private:
+  void OnGetCookies(const std::string& cookie_line) {
+    result_ = cookie_line;
+    event_.Signal();
+  }
   friend class base::RefCountedThreadSafe<CookieGetter>;
 
   ~CookieGetter() {}

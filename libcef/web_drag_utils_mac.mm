@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "browser_webkit_glue.h"
 #import "web_drag_utils_mac.h"
 
 #include "base/basictypes.h"
@@ -87,7 +88,7 @@ static BOOL IsSupportedFileURL(const GURL& url) {
   if (!plugins.empty()) {
     std::vector<webkit::WebPluginInfo>::const_iterator it = plugins.begin();
     for (; it != plugins.end(); ++it) {
-      if (webkit::IsPluginEnabled(*it))
+      if (webkit_glue::IsPluginEnabled(*it))
         return YES;
     }
   }

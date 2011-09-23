@@ -5,7 +5,7 @@
 #ifndef _BROWSER_DEVTOOLS_CLIENT_H
 #define _BROWSER_DEVTOOLS_CLIENT_H
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/task.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontendClient.h"

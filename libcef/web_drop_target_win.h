@@ -7,7 +7,7 @@
 #define _WEB_DROP_TARGET_WIN_H
 #pragma once
 
-#include "base/scoped_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
 #include "ui/base/dragdrop/drop_target.h"
 
