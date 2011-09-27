@@ -1,14 +1,15 @@
-# Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from glob import iglob
 import os
 import shutil
 import sys
 import time
 
 def read_file(name, normalize = True):
-    """ Function for reading a file. """
+    """ Read a file. """
     try:
         f = open(name, 'r')
         # read the data
@@ -18,13 +19,13 @@ def read_file(name, normalize = True):
             data = data.replace("\r\n", "\n")
         return data
     except IOError, (errno, strerror):
-        sys.stderr.write('Failed to read file '+filename+': '+strerror)
+        sys.stderr.write('Failed to read file '+name+': '+strerror)
         raise
     else:
         f.close()
  
 def write_file(name, data):
-    """ Function for writing a file. """
+    """ Write a file. """
     try:
         f = open(name, 'w')
         # write the data
@@ -35,10 +36,68 @@ def write_file(name, data):
     else:
         f.close()
         
-def file_exists(name):
-    """ Returns true if the file currently exists. """
+def path_exists(name):
+    """ Returns true if the path currently exists. """
     return os.path.exists(name)
 
 def backup_file(name):
-    """ Renames the file to a name that includes the current time stamp. """
-    shutil.move(name, name+'.'+time.strftime('%Y-%m-%d-%H-%M-%S'))
+    """ Rename the file to a name that includes the current time stamp. """
+    move_file(name, name+'.'+time.strftime('%Y-%m-%d-%H-%M-%S'))
+
+def copy_file(src, dst, quiet = True):
+    """ Copy a file. """
+    try:
+        shutil.copy(src, dst)
+        if not quiet:
+            sys.stdout.write('Transferring '+src+' file.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to copy file from '+src+' to '+dst+': '+strerror)
+        raise
+
+def move_file(src, dst, quiet = True):
+    """ Move a file. """
+    try:
+        shutil.move(src, dst)
+        if not quiet:
+            sys.stdout.write('Moving '+src+' file.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to move file from '+src+' to '+dst+': '+strerror)
+        raise
+
+def copy_files(src_glob, dst_folder, quiet = True):
+    """ Copy multiple files. """
+    for fname in iglob(src_glob):
+        copy_file(fname, os.path.join(dst_folder, os.path.basename(fname)), quiet)
+
+def copy_dir(src, dst, quiet = True):
+    """ Copy a directory tree. """
+    try:
+        remove_dir(dst, quiet)
+        shutil.copytree(src, dst)
+        if not quiet:
+            sys.stdout.write('Transferring '+src+' directory.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to copy directory from '+src+' to '+dst+': '+strerror)
+        raise
+
+def remove_dir(name, quiet = True):
+    """ Remove the specified directory. """
+    try:
+        if path_exists(name):
+            shutil.rmtree(name)
+            if not quiet:
+                sys.stdout.write('Removing '+name+' directory.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to remove directory '+name+': '+strerror)
+        raise
+
+def make_dir(name, quiet = True):
+    """ Create the specified directory. """
+    try:
+        if not path_exists(name):
+            if not quiet:
+                sys.stdout.write('Creating '+name+' directory.\n')
+            os.makedirs(name)
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to create directory '+name+': '+strerror)
+        raise

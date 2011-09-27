@@ -163,7 +163,7 @@ typedef struct _cef_base_t
 
 
 def write_capi_header(header, file, backup):
-    if file_exists(file):
+    if path_exists(file):
         oldcontents = read_file(file)
     else:
         oldcontents = ''

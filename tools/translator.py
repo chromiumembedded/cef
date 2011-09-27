@@ -60,7 +60,7 @@ if options.cppheader is None:
     sys.exit()
 
 # make sure the header exists
-if not file_exists(options.cppheader):
+if not path_exists(options.cppheader):
     sys.stderr.write('File '+options.cppheader+' does not exist.')
     sys.exit()
 

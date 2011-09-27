@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from file_util import *
 import os
 import re
 import shutil
@@ -14,46 +15,6 @@ import time
 def notify(msg):
     """ Display a message. """
     sys.stdout.write('  NOTE: '+msg+'\n')
-    
-
-def read_file(name, normalize = True):
-    """ Function for reading a file. """
-    try:
-        f = open(name, 'r')
-        # read the data
-        data = f.read()
-        if normalize:
-            # normalize line endings
-            data = data.replace("\r\n", "\n")
-        return data
-    except IOError, (errno, strerror):
-        sys.stderr.write('Failed to read file '+filename+': '+strerror)
-        raise
-    else:
-        f.close()
- 
-def write_file(name, data):
-    """ Function for writing a file. """
-    notify('Writing file '+name)
-    try:
-        f = open(name, 'w')
-        # write the data
-        f.write(data)
-    except IOError, (errno, strerror):
-       sys.stderr.write('Failed to write file '+name+': '+strerror)
-       raise
-    else:
-        f.close()
-        
-def file_exists(name):
-    """ Returns true if the file currently exists. """
-    return os.path.exists(name)
-
-def backup_file(name):
-    """ Renames the file to a name that includes the current time stamp. """
-    notify('Creating a backup of file '+name)
-    shutil.move(name, name+'.'+time.strftime('%Y-%m-%d-%H-%M-%S'))
-
 
 def wrap_text(text, indent = '', maxchars = 80):
     """ Wrap the text to the specified number of characters. If

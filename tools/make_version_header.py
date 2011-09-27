@@ -2,11 +2,10 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-from cef_parser import *
-import datetime
+from date_util import *
+from file_util import *
 from optparse import OptionParser
-import os
-import shutil
+from svn_util import *
 import sys
 
 # cannot be loaded as a module
@@ -33,26 +32,10 @@ if options.header is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-def get_revision():
-    """ Retrieves the revision number from stdin. """
-    try:
-        # read the revision number
-        for line in sys.stdin:
-            if line[0:9] == "Revision:":
-                return line[10:-1];
-        raise IOError("Revision line not found.")
-    except IOError, (errno, strerror):
-        sys.stderr.write('Failed to read revision from stdin: ' + strerror)
-        raise
-
-def get_year():
-    """ Returns the current year. """
-    return str(datetime.datetime.now().year)
-
 def write_svn_header(file):
     """ Creates the header file for the current revision if the revision has
         changed or if the file doesn't already exist. """
-    if file_exists(file):
+    if path_exists(file):
         oldcontents = read_file(file)
     else:
         oldcontents = ''
