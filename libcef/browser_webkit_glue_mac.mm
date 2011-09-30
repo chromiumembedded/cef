@@ -16,24 +16,11 @@
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
 #include "grit/webkit_resources.h"
-#include "ui/base/resource/data_pack.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "webkit/glue/webkit_glue.h"
 
+
 namespace webkit_glue {
-  
-// Data pack resource. This is a pointer to the mmapped resources file.
-static ui::DataPack* g_resource_data_pack = NULL;
-  
-void InitializeDataPak() {
-  // mmap the data pack which holds strings used by WebCore.
-  // TODO(port): Allow the embedder to customize the pak name.
-  g_resource_data_pack = new ui::DataPack;
-  NSString *resource_path =
-      [base::mac::MainAppBundle() pathForResource:@"cefclient" ofType:@"pak"];
-  FilePath resources_pak_path([resource_path fileSystemRepresentation]);
-  if (!g_resource_data_pack->Load(resources_pak_path))
-    LOG(FATAL) << "failed to load cefclient.pak";
-}
   
 // Helper method for getting the path to the CEF resources directory.
 FilePath GetResourcesFilePath() {
@@ -53,37 +40,6 @@ FilePath GetResourcesFilePath() {
     return path.AppendASCII("res");
   }
 }
-  
-string16 GetLocalizedString(int message_id) {
-  base::StringPiece res;
-  if (!g_resource_data_pack->GetStringPiece(message_id, &res)) {
-    LOG(FATAL) << "failed to load webkit string with id " << message_id;
-  }
-
-  // Data packs hold strings as either UTF8 or UTF16.
-  string16 msg;
-  switch (g_resource_data_pack->GetTextEncodingType()) {
-  case ui::DataPack::UTF8:
-    msg = UTF8ToUTF16(res);
-    break;
-  case ui::DataPack::UTF16:
-    msg = string16(reinterpret_cast<const char16*>(res.data()),
-                   res.length() / 2);
-    break;
-  case ui::DataPack::BINARY:
-  default:
-    break;
-  }
-
-  return msg;
-}
-  
-  
-base::StringPiece NetResourceProvider(int key) {
-  base::StringPiece res;
-  g_resource_data_pack->GetStringPiece(key, &res);
-  return res;
-}  
 
 base::StringPiece GetDataResource(int resource_id) {
   switch (resource_id) {
@@ -116,29 +72,15 @@ base::StringPiece GetDataResource(int resource_id) {
       }
       return resize_corner_data;
     }
-      
-    case IDR_SEARCH_CANCEL:
-    case IDR_SEARCH_CANCEL_PRESSED:
-    case IDR_SEARCH_MAGNIFIER:
-    case IDR_SEARCH_MAGNIFIER_RESULTS:
-    case IDR_MEDIA_PAUSE_BUTTON:
-    case IDR_MEDIA_PLAY_BUTTON:
-    case IDR_MEDIA_PLAY_BUTTON_DISABLED:
-    case IDR_MEDIA_SOUND_FULL_BUTTON:
-    case IDR_MEDIA_SOUND_NONE_BUTTON:
-    case IDR_MEDIA_SOUND_DISABLED:
-    case IDR_MEDIA_SLIDER_THUMB:
-    case IDR_MEDIA_VOLUME_SLIDER_THUMB:
-    case IDR_INPUT_SPEECH:
-    case IDR_INPUT_SPEECH_RECORDING:
-    case IDR_INPUT_SPEECH_WAITING:
-      return NetResourceProvider(resource_id);
-      
+
     default:
       break;
   }
-  
-  return base::StringPiece();
+
+  base::StringPiece piece =
+      ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
+  DCHECK(!piece.empty());
+  return piece;
 }
 
 void DidLoadPlugin(const std::string& filename) {

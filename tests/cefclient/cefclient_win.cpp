@@ -68,6 +68,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify a cache path value.
   //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
 
+  // Use the Chinese language locale.
+  // CefString(&settings.locale).FromASCII("zh-cn");
+
 #ifdef NDEBUG
   // Only log error messages and higher in release build.
   settings.log_severity = LOGSEVERITY_ERROR;

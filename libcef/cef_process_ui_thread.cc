@@ -8,15 +8,18 @@
 #include "browser_webkit_init.h"
 #include "cef_context.h"
 
+#include "base/bind.h"
 #include "base/command_line.h"
 #include "base/i18n/icu_util.h"
 #include "base/metrics/stats_table.h"
 #include "base/rand_util.h"
 #include "base/string_number_conversions.h"
+#include "browser_devtools_scheme_handler.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
+#include "ui/base/ui_base_paths.h"
 #include "ui/gfx/gl/gl_implementation.h"
 #include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/glue/webkit_glue.h"
@@ -45,8 +48,6 @@ CefProcessUIThread::~CefProcessUIThread() {
 }
 
 void CefProcessUIThread::Init() {
-  PlatformInit();
-
   // Initialize the global CommandLine object.
   CommandLine::Init(0, NULL);
 
@@ -70,24 +71,34 @@ void CefProcessUIThread::Init() {
       logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
       logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
 
+  // Load ICU data tables.
+  bool ret = icu_util::Initialize();
+  if(!ret) {
+#if defined(OS_WIN)
+    MessageBox(NULL, L"Failed to load the required icudt library",
+      L"CEF Initialization Error", MB_ICONERROR | MB_OK);
+#endif
+    return;
+  }
+
+  // Provides path resolution required for locating locale pack files.
+  ui::RegisterPathProvider();
+
+  std::string localeStr = CefString(&settings.locale);
+  if (localeStr.empty())
+    localeStr = "en-US";
+  webkit_glue::InitializeDataPak(localeStr);
+
+  PlatformInit();
+
   // Initialize WebKit.
   webkit_init_ = new BrowserWebKitInit();
 
   // Initialize WebKit encodings
   webkit_glue::InitializeTextEncoding();
 
-  // Load ICU data tables.
-  bool ret = icu_util::Initialize();
-  if(!ret) {
-#if defined(OS_WIN)
-    MessageBox(NULL, L"Failed to load the required icudt38 library",
-      L"CEF Initialization Error", MB_ICONERROR | MB_OK);
-#endif
-    return;
-  }
-
   // Config the network module so it has access to a limited set of resources.
-  net::NetModule::SetResourceProvider(webkit_glue::NetResourceProvider);
+  net::NetModule::SetResourceProvider(webkit_glue::GetDataResource);
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
@@ -145,6 +156,10 @@ void CefProcessUIThread::Init() {
   // Initialize WebKit with the current state.
   WebKit::WebNetworkStateNotifier::setOnLine(
       !net::NetworkChangeNotifier::IsOffline());
+
+  // Perform DevTools scheme registration when CEF initialization is complete.
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+                      base::Bind(&RegisterDevToolsSchemeHandler));
 }
 
 void CefProcessUIThread::CleanUp() {

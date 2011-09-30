@@ -23,6 +23,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/gdi_util.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -31,19 +32,6 @@ using WebKit::WebSize;
 using WebKit::WebView;
 
 namespace webkit_glue {
-
-string16 GetLocalizedString(int message_id) {
-  // Localized resources are provided via webkit_resources.rc and
-  // webkit_strings_en-US.rc.
-  const ATLSTRINGRESOURCEIMAGE* image =
-      AtlGetStringResourceImage(_AtlBaseModule.GetModuleInstance(),
-                                message_id);
-  if (!image) {
-    NOTREACHED();
-    return L"No string for this identifier!";
-  }
-  return string16(image->achString, image->nLength);
-}
 
 base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
@@ -54,15 +42,21 @@ base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
       : base::StringPiece();
 }
 
-base::StringPiece NetResourceProvider(int key) {
+base::StringPiece GetDataResource(int resource_id) {
+  base::StringPiece piece;
+
+  // Try to load the resource from the DLL.
   HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
   if(!hModule)
     hModule = ::GetModuleHandle(NULL);
-  return GetRawDataResource(hModule, key);
-}
+  piece = GetRawDataResource(hModule, resource_id);
 
-base::StringPiece GetDataResource(int resource_id) {
-  return NetResourceProvider(resource_id);
+  // Try to load the resource from the resource pack.
+  if (piece.empty())
+    piece = ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
+
+  DCHECK(!piece.empty()) << "Resource "<<resource_id<<" could not be loaded";
+  return piece;
 }
 
 bool EnsureFontLoaded(HFONT font) {

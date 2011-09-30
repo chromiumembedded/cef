@@ -169,42 +169,50 @@ if sys.platform == 'win32':
   # transfer cefclient files
   transfer_gypi_files(cef_dir, cef_paths['cefclient_sources_win'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
-                      
+
   # transfer build/Debug files
   dst_dir = os.path.join(output_dir, 'Debug')
   make_dir(dst_dir, options.quiet)
   copy_files(os.path.join(cef_dir, 'Debug/*.dll'), dst_dir, options.quiet)
   copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-  
+  copy_file(os.path.join(cef_dir, 'Debug/cefclient.exe'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
+  copy_dir(os.path.join(cef_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), \
+           options.quiet)
+
   # transfer build/Release files
   dst_dir = os.path.join(output_dir, 'Release')
   make_dir(dst_dir, options.quiet)
   copy_files(os.path.join(cef_dir, 'Release/*.dll'), dst_dir, options.quiet)
   copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-  
+  copy_file(os.path.join(cef_dir, 'Release/cefclient.exe'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
+  copy_dir(os.path.join(cef_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), \
+           options.quiet)
+
   # transfer lib/Debug files
   dst_dir = os.path.join(output_dir, 'lib/Debug')
   make_dir(dst_dir, options.quiet)
   copy_file(os.path.join(cef_dir, 'Debug/lib/libcef.lib'), dst_dir, options.quiet)
-  
+
   # transfer lib/Release files
   dst_dir = os.path.join(output_dir, 'lib/Release')
   make_dir(dst_dir, options.quiet)
   copy_file(os.path.join(cef_dir, 'Release/lib/libcef.lib'), dst_dir, options.quiet)
-  
+
   # generate doc files
   os.popen('make_cppdocs.bat '+cef_rev)
-  
+
   # transfer docs files
   dst_dir = os.path.join(output_dir, 'docs')
   src_dir = os.path.join(cef_dir, 'docs')
   if path_exists(dst_dir):
     copy_dir(src_dir, dst_dir, options.quiet)
-  
+
   # transfer additional files, if any
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
                 output_dir, options.quiet)
-  
+
   # generate the project files
   generate_msvs_projects('2005');
   generate_msvs_projects('2008');

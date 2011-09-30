@@ -5,6 +5,8 @@
 {
   'variables': {
     'chromium_code': 1,
+    'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
+    'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
   },
   'includes': [
     # Bring in the source file lists for cefclient.
@@ -55,6 +57,65 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'variables': {
+            'repack_path': '../tools/grit/grit/format/repack.py',
+          },
+          'actions': [
+            {
+              'action_name': 'repack_locales',
+              'inputs': [
+                'tools/repack_locales.py',
+                # NOTE: Ideally the common command args would be shared
+                # amongst inputs/outputs/action, but the args include shell
+                # variables which need to be passed intact, and command
+                # expansion wants to expand the shell variables. Adding the
+                # explicit quoting here was the only way it seemed to work.
+                '>!@(<(repack_locales_cmd) -i -g \"<(grit_out_dir)\" -s \"<(SHARED_INTERMEDIATE_DIR)\" -x \"<(INTERMEDIATE_DIR)\" <(locales))',
+              ],
+              'outputs': [
+                '>!@(<(repack_locales_cmd) -o -g \"<(grit_out_dir)\" -s \"<(SHARED_INTERMEDIATE_DIR)\" -x \"<(INTERMEDIATE_DIR)\" <(locales))',
+              ],
+              'action': [
+                '<@(repack_locales_cmd)',
+                '-g', '<(grit_out_dir)',
+                '-s', '<(SHARED_INTERMEDIATE_DIR)',
+                '-x', '<(INTERMEDIATE_DIR)',
+                '<@(locales)',
+              ],
+            },
+            {
+              # On Windows chrome.pak will contain only the inspector resources.
+              # Other resources are built into libcef.dll.
+              'action_name': 'repack_resources',
+              'variables': {
+                'pak_inputs': [
+                  '<(grit_out_dir)/devtools_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+            },
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/locales',
+              'files': [
+                '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))'
+              ],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak'
+              ],
+            },
+          ],
           'msvs_settings': {
             'VCLinkerTool': {
               # Set /SUBSYSTEM:WINDOWS.
@@ -83,15 +144,37 @@
           },
           'actions': [
             {
-              # TODO(mark): Make this work with more languages than the
-              # hardcoded en-US.
-              'action_name': 'repack_locale',
+              'action_name': 'repack_locales',
+              'process_outputs_as_mac_bundle_resources': 1,
+              'inputs': [
+                'tools/repack_locales.py',
+                # NOTE: Ideally the common command args would be shared
+                # amongst inputs/outputs/action, but the args include shell
+                # variables which need to be passed intact, and command
+                # expansion wants to expand the shell variables. Adding the
+                # explicit quoting here was the only way it seemed to work.
+                '>!@(<(repack_locales_cmd) -i -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'outputs': [
+                '>!@(<(repack_locales_cmd) -o -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'action': [
+                '<@(repack_locales_cmd)',
+                '-g', '<(grit_out_dir)',
+                '-s', '<(SHARED_INTERMEDIATE_DIR)',
+                '-x', '<(INTERMEDIATE_DIR)',
+                '<@(locales)',
+              ],
+            },
+            {
+              'action_name': 'repack_resources',
+              'process_outputs_as_mac_bundle_resources': 1,
               'variables': {
                 'pak_inputs': [
+                  '<(grit_out_dir)/devtools_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
                 ],
               },
@@ -100,20 +183,18 @@
                 '<@(pak_inputs)',
               ],
               'outputs': [
-                '<(INTERMEDIATE_DIR)/repack/cefclient.pak',
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
               ],
               'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
-              'process_outputs_as_mac_bundle_resources': 1,
             },
           ],
           'copies': [
             {
-              # Add library dependencies and inspector resources to the bundle.
+              # Add library dependencies to the bundle.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
-                '<(PRODUCT_DIR)/resources/',
               ],
             },
             {
@@ -203,10 +284,6 @@
         '../third_party/libxslt/libxslt.gyp:libxslt',
         '../third_party/modp_b64/modp_b64.gyp:modp_b64',
         '../third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
-        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:concatenated_devtools_css',
-        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:concatenated_devtools_js',
-        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:devtools_html',
-        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:inspector_resources',
         '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
         '../third_party/zlib/zlib.gyp:zlib',
         '../ui/ui.gyp:gfx_resources',
@@ -356,7 +433,6 @@
             '<@(includes_win)',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_chromium_resources.rc',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_strings_en-US.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {
@@ -364,7 +440,7 @@
               '-lcomctl32.lib',
             ],
           },
-        }]
+        }],
       ],
     },
     {
@@ -388,6 +464,45 @@
       ],
     },
     {
+      'target_name': 'cef_extra_resources',
+      'type': 'none',
+      'dependencies': [
+        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:generate_devtools_grd',
+      ],
+      # These resources end up in chrome.pak because they are resources
+      # used by internal pages.  Putting them in a spearate pak file makes
+      # it easier for us to reference them internally.
+      'actions': [
+        {
+          'action_name': 'devtools_resources',
+          # This can't use ../build/grit_action.gypi because the grd file
+          # is generated a build time, so the trick of using grit_info to get
+          # the real inputs/outputs at GYP time isn't possible.
+          'variables': {
+            'grit_cmd': ['python', '../tools/grit/grit.py'],
+            'grit_grd_file': '<(SHARED_INTERMEDIATE_DIR)/devtools/devtools_resources.grd',
+          },
+          'inputs': [
+            '<(grit_grd_file)',
+            '<!@pymod_do_main(grit_info --inputs)',
+          ],
+          'outputs': [
+            '<(grit_out_dir)/grit/devtools_resources.h',
+            '<(grit_out_dir)/devtools_resources.pak',
+            '<(grit_out_dir)/grit/devtools_resources_map.cc',
+            '<(grit_out_dir)/grit/devtools_resources_map.h',
+          ],
+          'action': ['<@(grit_cmd)',
+                     '-i', '<(grit_grd_file)', 'build',
+                     '-o', '<(grit_out_dir)',
+                     '-D', 'SHARED_INTERMEDIATE_DIR=<(SHARED_INTERMEDIATE_DIR)',
+                     '<@(grit_defines)' ],
+          'message': 'Generating resources from <(grit_grd_file)',
+        },
+      ],
+      'includes': [ '../build/grit_target.gypi' ],
+    },
+    {
       'target_name': 'libcef_static',
       'type': 'static_library',
       'msvs_guid': 'FA39524D-3067-4141-888D-28A86C66F2B9',
@@ -397,9 +512,11 @@
       'include_dirs': [
         '.',
         '..',
-        '../third_party/WebKit/Source/WebKit/chromium/public'
+        '../third_party/WebKit/Source/WebKit/chromium/public',
+        '<(grit_out_dir)',
       ],
       'dependencies': [
+        'cef_extra_resources',
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -447,6 +564,8 @@
         'libcef/browser_devtools_callargs.h',
         'libcef/browser_devtools_client.cc',
         'libcef/browser_devtools_client.h',
+        'libcef/browser_devtools_scheme_handler.cc',
+        'libcef/browser_devtools_scheme_handler.h',
         'libcef/browser_file_system.cc',
         'libcef/browser_file_system.h',
         'libcef/browser_file_writer.cc',
@@ -545,6 +664,8 @@
         'libcef/xml_reader_impl.h',
         'libcef/zip_reader_impl.cc',
         'libcef/zip_reader_impl.h',
+        # DevTools resource IDs generated by grit
+        '<(grit_out_dir)/grit/devtools_resources_map.cc',
       ],
       'conditions': [
         ['OS=="win"', {

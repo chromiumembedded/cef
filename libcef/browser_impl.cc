@@ -3,10 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_context.h"
+#include "browser_devtools_scheme_handler.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "browser_zoom_map.h"
+#include "cef_context.h"
 #include "dom_document_impl.h"
 #include "request_impl.h"
 #include "stream_impl.h"
@@ -1412,14 +1413,7 @@ void CefBrowserImpl::UIT_ShowDevTools()
   BrowserDevToolsClient* client = dev_tools_agent_->client();
   if (!client) {
     // Create the inspector window.
-    FilePath dir_exe;
-    PathService::Get(base::DIR_EXE, &dir_exe);
-    FilePath devtools_path =
-        dir_exe.AppendASCII("resources/inspector/devtools.html");
-
-    // Mac requires that the URL have a file:// prefix.
-    CefString path = devtools_path.value();
-    CefString url(base::StringPrintf("file://%s", path.ToString().c_str()));
+    CefString url(base::StringPrintf("%sdevtools.html", kChromeDevToolsURL));
 
     CefPopupFeatures features;
     CefRefPtr<CefBrowserImpl> browser = UIT_CreatePopupWindow(url, features);

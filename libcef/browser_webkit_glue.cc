@@ -19,6 +19,7 @@ MSVC_POP_WARNING();
 #include "browser_webkit_glue.h"
 #include "cef_context.h"
 
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
@@ -27,6 +28,7 @@ MSVC_POP_WARNING();
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
@@ -37,6 +39,28 @@ MSVC_POP_WARNING();
 using WebKit::WebFrameImpl;
 
 namespace webkit_glue {
+
+void InitializeDataPak(const std::string& locale) {
+  // Load chrome.pak (on Mac) and the appropiate locale pack.
+  const std::string loaded_locale =
+      ResourceBundle::InitSharedInstance(locale);
+  CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
+
+#if defined(OS_WIN)
+  // Explicitly load chrome.pak on Windows.
+  FilePath chrome_pack_path;
+  PathService::Get(base::DIR_EXE, &chrome_pack_path);
+  chrome_pack_path = chrome_pack_path.AppendASCII("chrome.pak");
+  if (file_util::PathExists(chrome_pack_path))
+    ResourceBundle::AddDataPackToSharedInstance(chrome_pack_path);
+  else
+    NOTREACHED() << "Could not load chrome.pak";
+#endif
+}
+
+string16 GetLocalizedString(int message_id) {
+  return ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
+}
 
 bool IsMediaPlayerAvailable() {
   return true;

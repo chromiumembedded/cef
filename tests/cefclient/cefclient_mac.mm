@@ -535,6 +535,10 @@ int main(int argc, char* argv[])
 
   // Initialize CEF.
   CefSettings settings;
+
+  // Use the Chinese language locale.
+  // CefString(&settings.locale).FromASCII("zh-cn");
+
   CefInitialize(settings);
 
   // Initialize tests.

@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
@@ -33,16 +35,14 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
   
+void InitializeDataPak(const std::string& locale);
+
 #if defined(OS_MACOSX)
-void InitializeDataPak();
 FilePath GetResourcesFilePath();
 #endif
 
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();
-
-// This is called indirectly by the network layer to access resources.
-base::StringPiece NetResourceProvider(int key);
 
 // Retrieve the V8 context associated with the frame.
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
