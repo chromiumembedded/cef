@@ -35,16 +35,7 @@
         '<@(cefclient_sources_common)',
       ],
       'mac_bundle_resources': [
-        'tests/cefclient/mac/cefclient.icns',
-        'tests/cefclient/mac/data/',
-        'tests/cefclient/mac/English.lproj/InfoPlist.strings',
-        'tests/cefclient/mac/English.lproj/MainMenu.xib',
-        'tests/cefclient/mac/Info.plist',
-        'tests/cefclient/res/domaccess.html',
-        'tests/cefclient/res/extensionperf.html',
-        'tests/cefclient/res/localstorage.html',
-        'tests/cefclient/res/logo.png',
-        'tests/cefclient/res/xmlhttprequest.html',
+        '<@(cefclient_bundle_resources_mac)',
       ],
       'mac_bundle_resources!': [
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)

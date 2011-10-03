@@ -11,6 +11,16 @@ import re
 from svn_util import *
 import sys
 
+def create_readme(src, output_dir, cef_rev, chromium_rev, date):
+  """ Creates the README.TXT file. """
+  data = read_file(src)
+  data = data.replace('$CEF_REV$', cef_rev)
+  data = data.replace('$CHROMIUM_REV$', chromium_rev)
+  data = data.replace('$DATE$', date)
+  write_file(os.path.join(output_dir, 'README.TXT'), data)
+  if not options.quiet:
+    sys.stdout.write('Creating README.TXT file.\n')
+
 def eval_file(src):
   """ Loads and evaluates the contents of the specified file. """
   return eval(read_file(src), {'__builtins__': None}, None)
@@ -55,12 +65,13 @@ def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
       open(readme, 'a').write(cfg['source']+"\n")
     
     # perform any required post-processing
-    post = cfg['post-process']
-    if post == 'normalize_headers':
-      new_path = ''
-      if cfg.has_key('new_header_path'):
-        new_path = cfg['new_header_path']
-      normalize_headers(dst, new_path)
+    if 'post-process' in cfg:
+      post = cfg['post-process']
+      if post == 'normalize_headers':
+        new_path = ''
+        if cfg.has_key('new_header_path'):
+          new_path = cfg['new_header_path']
+        normalize_headers(dst, new_path)
 
 def generate_msvs_projects(version):
   """ Generate MSVS projects for the specified version. """
@@ -110,15 +121,6 @@ output_dir = os.path.abspath(os.path.join(options.outputdir, 'cef_binary_r'+cef_
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
-# write the README.TXT file
-data = read_file(os.path.join(script_dir, 'distrib/README.TXT'))
-data = data.replace('$CEF_REV$', cef_rev)
-data = data.replace('$CHROMIUM_REV$', chromium_rev)
-data = data.replace('$DATE$', date)
-write_file(os.path.join(output_dir, 'README.TXT'), data)
-if not options.quiet:
-  sys.stdout.write('Creating README.TXT file.\n')
-
 # transfer the LICENSE.TXT file
 copy_file(os.path.join(cef_dir, 'LICENSE.TXT'), output_dir, options.quiet)
 
@@ -162,7 +164,11 @@ transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.c
                output_dir, options.quiet)
 
 if sys.platform == 'win32':
-   # transfer include files
+  # create the README.TXT file
+  create_readme(os.path.join(script_dir, 'distrib/win/README.TXT'), output_dir, cef_rev, \
+                chromium_rev, date)
+
+  # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_win'], \
                       'include/', include_dir, options.quiet)
 
@@ -219,7 +225,11 @@ if sys.platform == 'win32':
   generate_msvs_projects('2010');
 
 elif sys.platform == 'darwin':
-   # transfer include files
+  # create the README.TXT file
+  create_readme(os.path.join(script_dir, 'distrib/mac/README.TXT'), output_dir, cef_rev, \
+                chromium_rev, date)
+  
+  # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_mac'], \
                       'include/', include_dir, options.quiet)
 
@@ -227,9 +237,45 @@ elif sys.platform == 'darwin':
   transfer_gypi_files(cef_dir, cef_paths['cefclient_sources_mac'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
 
+  # transfer cefclient/mac files
+  copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac/'), os.path.join(output_dir, 'cefclient/mac/'), \
+           options.quiet)
+  
+  # transfer xcodebuild/Debug files
+  dst_dir = os.path.join(output_dir, 'Debug')
+  make_dir(dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/ffmpegsumo.so'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/libcef.dylib'), dst_dir, options.quiet)
+  
+  # transfer xcodebuild/Release files
+  dst_dir = os.path.join(output_dir, 'Release')
+  make_dir(dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
+  
+  # transfer resource files
+  dst_dir = os.path.join(output_dir, 'Resources')
+  make_dir(dst_dir, options.quiet)
+  copy_files(os.path.join(cef_dir, '../third_party/WebKit/Source/WebCore/Resources/*.*'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/cefclient.app/Contents/Resources/chrome.pak'), dst_dir, options.quiet)
+  copy_files(os.path.join(cef_dir, '../xcodebuild/Release/cefclient.app/Contents/Resources/*.lproj'), dst_dir, options.quiet)
+  remove_dir(os.path.join(dst_dir, 'English.lproj'))
+  
   # transfer additional files, if any
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
                 output_dir, options.quiet)
+
+  # Generate Xcode project files
+  sys.stdout.write('Generating Xcode project files...')
+  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+  RunAction(cef_dir, gyper);
+
+  # Post-process the Xcode project to fix file paths
+  src_file = os.path.join(output_dir, 'cefclient.xcodeproj/project.pbxproj')
+  data = read_file(src_file)
+  data = data.replace('../../../build/mac/', 'tools/')
+  data = data.replace('../../../', '')
+  write_file(src_file, data)
 
 elif sys.platform == 'linux2':
    # transfer include files

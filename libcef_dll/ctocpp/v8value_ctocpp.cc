@@ -297,7 +297,7 @@ bool CefV8ValueCToCpp::DeleteValue(int index)
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, get_value_bykey))
-    return false;
+    return NULL;
 
   cef_v8value_t* valueStruct = struct_->get_value_bykey(struct_,
       key.GetStruct());
@@ -309,7 +309,7 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
 {
   if(CEF_MEMBER_MISSING(struct_, get_value_byindex))
-    return false;
+    return NULL;
 
   cef_v8value_t* valueStruct = struct_->get_value_byindex(struct_, index);
   if(valueStruct)
@@ -363,7 +363,7 @@ bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)
 CefRefPtr<CefBase> CefV8ValueCToCpp::GetUserData()
 {
   if(CEF_MEMBER_MISSING(struct_, get_user_data))
-    return false;
+    return NULL;
 
   cef_base_t* baseStruct = struct_->get_user_data(struct_);
   if(baseStruct)
@@ -393,7 +393,7 @@ CefString CefV8ValueCToCpp::GetFunctionName()
 CefRefPtr<CefV8Handler> CefV8ValueCToCpp::GetFunctionHandler()
 {
   if(CEF_MEMBER_MISSING(struct_, get_function_handler))
-    return false;
+    return NULL;
 
   cef_v8handler_t* handlerStruct = struct_->get_function_handler(struct_);
   if(handlerStruct)

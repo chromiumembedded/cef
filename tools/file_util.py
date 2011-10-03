@@ -67,7 +67,11 @@ def move_file(src, dst, quiet = True):
 def copy_files(src_glob, dst_folder, quiet = True):
     """ Copy multiple files. """
     for fname in iglob(src_glob):
-        copy_file(fname, os.path.join(dst_folder, os.path.basename(fname)), quiet)
+      dst = os.path.join(dst_folder, os.path.basename(fname))
+      if os.path.isdir(fname):
+        copy_dir(fname, dst, quiet)
+      else:
+        copy_file(fname, dst, quiet)
 
 def copy_dir(src, dst, quiet = True):
     """ Copy a directory tree. """
