@@ -821,8 +821,9 @@ class RequestProxy : public net::URLRequest::Delegate,
   net::FileStream file_stream_;
   scoped_refptr<DeletableFileReference> downloaded_file_;
 
-  // Size of our async IO data buffers
-  static const int kDataSize = 16*1024;
+  // Size of our async IO data buffers. Limited by the sanity check in
+  // URLRequestJob::Read().
+  static const int kDataSize = 1000000-1;
 
   // read buffer for async IO
   scoped_refptr<net::IOBuffer> buf_;
