@@ -314,16 +314,18 @@ WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       paint_delegate_(NULL),
       webwidget_(NULL),
+      canvas_w_(0),
+      canvas_h_(0),
       popup_(false),
       track_mouse_leave_(false),
-      ime_notification_(false),
-      input_method_is_active_(false),
-      text_input_type_(WebKit::WebTextInputTypeNone),
       scroll_dx_(0),
       scroll_dy_(0),
       update_task_(NULL),
       tooltip_view_(NULL),
       tooltip_showing_(false),
+      ime_notification_(false),
+      input_method_is_active_(false),
+      text_input_type_(WebKit::WebTextInputTypeNone),
       ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
   set_painting(false);
 }
@@ -358,12 +360,34 @@ void WebWidgetHost::Paint() {
   gfx::Rect client_rect(width, height);
   gfx::Rect damaged_rect;
 
-  // Allocate a canvas if necessary
-  if (!canvas_.get()) {
+  if (view_) {
+    // Number of pixels that the canvas is allowed to differ from the client
+    // area.
+    const int kCanvasGrowSize = 128;
+
+    if (!canvas_.get() ||
+        canvas_w_ < client_rect.width() ||
+        canvas_h_ < client_rect.height() ||
+        canvas_w_ > client_rect.width() + kCanvasGrowSize * 2 ||
+        canvas_h_ > client_rect.height() + kCanvasGrowSize * 2) {
+      ResetScrollRect();
+      paint_rect_ = client_rect;
+
+      // Resize the canvas to be within a reasonable size of the client area.
+      canvas_w_ = client_rect.width() + kCanvasGrowSize;
+      canvas_h_ = client_rect.height() + kCanvasGrowSize;
+      canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+    }
+  } else if(!canvas_.get() || canvas_w_ != client_rect.width() ||
+           canvas_h_ != client_rect.height()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new skia::PlatformCanvas(
-        paint_rect_.width(), paint_rect_.height(), true));
+             
+    // For non-window-based rendering the canvas must be the exact size of the
+    // client area.
+    canvas_w_ = client_rect.width();
+    canvas_h_ = client_rect.height();
+    canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
   }
 
 #ifdef WEBWIDGET_HAS_ANIMATE_CHANGES

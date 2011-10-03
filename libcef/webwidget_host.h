@@ -72,7 +72,6 @@ class WebWidgetHost {
   void SetCursor(HCURSOR cursor);
 #endif
 
-  void DiscardBackingStore();
   // Allow clients to update the paint rect. For example, if we get a gdk
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
@@ -192,6 +191,8 @@ class WebWidgetHost {
 
   WebKit::WebWidget* webwidget_;
   scoped_ptr<skia::PlatformCanvas> canvas_;
+  int canvas_w_;
+  int canvas_h_;
 
   // True if this widget is a popup widget.
   bool popup_;

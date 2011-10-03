@@ -330,6 +330,8 @@ WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       paint_delegate_(NULL),
       webwidget_(NULL),
+      canvas_w_(0),
+      canvas_h_(0),
       popup_(false),
       scroll_dx_(0),
       scroll_dy_(0),
@@ -357,11 +359,21 @@ void WebWidgetHost::Paint() {
   int height = logical_size_.height();
   gfx::Rect client_rect(width, height);
 
-  // Allocate a canvas if necessary
-  if (!canvas_.get()) {
+  // Number of pixels that the canvas is allowed to differ from the client area.
+  const int kCanvasGrowSize = 128;
+
+  if (!canvas_.get() ||
+      canvas_w_ < client_rect.width() ||
+      canvas_h_ < client_rect.height() ||
+      canvas_w_ > client_rect.width() + kCanvasGrowSize * 2 ||
+      canvas_h_ > client_rect.height() + kCanvasGrowSize * 2) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new skia::PlatformCanvas(width, height, true));
+
+    // Resize the canvas to be within a reasonable size of the client area.
+    canvas_w_ = client_rect.width() + kCanvasGrowSize;
+    canvas_h_ = client_rect.height() + kCanvasGrowSize;
+    canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
     if (!canvas_.get()) {
       // memory allocation failed, we can't paint.
       LOG(ERROR) << "Failed to allocate memory for " << width << "x" << height;

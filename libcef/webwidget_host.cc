@@ -18,18 +18,11 @@ void WebWidgetHost::ScheduleAnimation() {
       factory_.NewRunnableMethod(&WebWidgetHost::ScheduleComposite), 10);
 }
 
-void WebWidgetHost::DiscardBackingStore() {
-  canvas_.reset();
-}
-
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
   paint_rect_ = paint_rect_.Union(rect);
 }
 
 void WebWidgetHost::SetSize(int width, int height) {
-  // Force an entire re-paint.  TODO(darin): Maybe reuse this memory buffer.
-  DiscardBackingStore();
-
   webwidget_->resize(WebSize(width, height));
   EnsureTooltip();
 }

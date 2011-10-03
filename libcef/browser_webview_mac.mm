@@ -48,6 +48,7 @@
 }
 
 - (void)drawRect:(NSRect)rect {
+#ifndef NDEBUG
   CGContextRef context =
       reinterpret_cast<CGContextRef>([[NSGraphicsContext currentContext]
                                       graphicsPort]);
@@ -55,13 +56,11 @@
   // start by filling the rect with magenta, so that we can see what's drawn
   CGContextSetRGBFillColor (context, 1, 0, 1, 1);
   CGContextFillRect(context, NSRectToCGRect(rect));
+#endif
 
   if (browser_ && browser_->UIT_GetWebView()) {
     gfx::Rect client_rect(NSRectToCGRect(rect));
-    // flip from cocoa coordinates
-    client_rect.set_y([self frame].size.height -
-                      client_rect.height() - client_rect.y());
-
+    client_rect.set_y(NSHeight([self bounds]) - client_rect.bottom());
     browser_->UIT_GetWebViewHost()->UpdatePaintRect(client_rect);
     browser_->UIT_GetWebViewHost()->Paint();
   }
