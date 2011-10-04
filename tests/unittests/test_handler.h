@@ -24,6 +24,7 @@ protected:
 // Base implementation of CefClient for unit tests. Add new interfaces as needed
 // by test cases.
 class TestHandler : public CefClient,
+                    public CefDisplayHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
                     public CefRequestHandler,
@@ -42,6 +43,8 @@ public:
   virtual void RunTest() =0;
 
   // CefClient methods. Add new methods as needed by test cases.
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
+      { return this; }
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE

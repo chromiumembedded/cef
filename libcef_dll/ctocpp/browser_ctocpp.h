@@ -55,6 +55,7 @@ public:
   virtual void StopFinding(bool clearSelection) OVERRIDE;
   virtual double GetZoomLevel() OVERRIDE;
   virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
+  virtual void ClearHistory() OVERRIDE;
   virtual void ShowDevTools() OVERRIDE;
   virtual void CloseDevTools() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;

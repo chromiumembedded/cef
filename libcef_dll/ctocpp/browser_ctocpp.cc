@@ -246,6 +246,14 @@ void CefBrowserCToCpp::SetZoomLevel(double zoomLevel)
   return struct_->set_zoom_level(struct_, zoomLevel);
 }
 
+void CefBrowserCToCpp::ClearHistory()
+{
+  if (CEF_MEMBER_MISSING(struct_, clear_history))
+    return;
+
+  struct_->clear_history(struct_);
+}
+
 void CefBrowserCToCpp::ShowDevTools()
 {
   if (CEF_MEMBER_MISSING(struct_, show_dev_tools))

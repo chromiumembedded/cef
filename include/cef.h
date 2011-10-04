@@ -705,6 +705,12 @@ public:
   virtual void SetZoomLevel(double zoomLevel) =0;
 
   ///
+  // Clear the back/forward browsing history.
+  ///
+  /*--cef()--*/
+  virtual void ClearHistory() =0;
+
+  ///
   // Open developer tools in its own window.
   ///
   /*--cef()--*/

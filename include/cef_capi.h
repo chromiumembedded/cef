@@ -535,6 +535,11 @@ typedef struct _cef_browser_t
       double zoomLevel);
 
   ///
+  // Clear the back/forward browsing history.
+  ///
+  void (CEF_CALLBACK *clear_history)(struct _cef_browser_t* self);
+
+  ///
   // Open developer tools in its own window.
   ///
   void (CEF_CALLBACK *show_dev_tools)(struct _cef_browser_t* self);

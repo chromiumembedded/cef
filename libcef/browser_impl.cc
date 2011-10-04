@@ -307,6 +307,29 @@ void CefBrowserImpl::SetZoomLevel(double zoomLevel)
       &CefBrowserImpl::UIT_SetZoomLevel, zoomLevel));
 }
 
+void CefBrowserImpl::ClearHistory()
+{
+  if (CefThread::CurrentlyOn(CefThread::UI)) {
+    bool old_can_go_back = !nav_controller_->IsAtStart();
+    bool old_can_go_forward = !nav_controller_->IsAtEnd();
+    nav_controller_->Reset();
+
+    if (old_can_go_back || old_can_go_forward) {
+      set_nav_state(false, false);
+      if (client_.get()) {
+        CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+        if (handler.get()) {
+          // Notify the handler of a navigation state change
+          handler->OnNavStateChange(this, false, false);
+        }
+      }
+    }
+  } else {
+    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
+        &CefBrowserImpl::ClearHistory));
+  }
+}
+
 void CefBrowserImpl::ShowDevTools()
 {
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,

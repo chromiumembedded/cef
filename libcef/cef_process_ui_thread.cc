@@ -14,7 +14,6 @@
 #include "base/metrics/stats_table.h"
 #include "base/rand_util.h"
 #include "base/string_number_conversions.h"
-#include "browser_devtools_scheme_handler.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
@@ -156,10 +155,6 @@ void CefProcessUIThread::Init() {
   // Initialize WebKit with the current state.
   WebKit::WebNetworkStateNotifier::setOnLine(
       !net::NetworkChangeNotifier::IsOffline());
-
-  // Perform DevTools scheme registration when CEF initialization is complete.
-  CefThread::PostTask(CefThread::UI, FROM_HERE,
-                      base::Bind(&RegisterDevToolsSchemeHandler));
 }
 
 void CefProcessUIThread::CleanUp() {

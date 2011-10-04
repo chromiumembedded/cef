@@ -3,6 +3,7 @@
 // be found in the LICENSE file.
 
 #include "cef_context.h"
+#include "browser_devtools_scheme_handler.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
 #include "cef_thread.h"
@@ -504,6 +505,10 @@ bool CefContext::Initialize(const CefSettings& settings)
   process_->CreateChildThreads();
 
   initialized_ = true;
+
+  // Perform DevTools scheme registration when CEF initialization is complete.
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+                      base::Bind(&RegisterDevToolsSchemeHandler));
 
   return true;
 }
