@@ -37,6 +37,7 @@ class DOMStorageArea {
   int64 id() const { return id_; }
 
   DOMStorageNamespace* owner() const { return owner_; }
+  const string16& origin() const { return origin_; }
 
  private:
   // Creates the underlying WebStorageArea on demand.

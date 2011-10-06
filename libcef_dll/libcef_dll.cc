@@ -29,6 +29,7 @@
 #include "ctocpp/read_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_ctocpp.h"
 #include "ctocpp/scheme_handler_factory_ctocpp.h"
+#include "ctocpp/storage_visitor_ctocpp.h"
 #include "ctocpp/task_ctocpp.h"
 #include "ctocpp/v8accessor_ctocpp.h"
 #include "ctocpp/v8handler_ctocpp.h"
@@ -78,6 +79,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
+  DCHECK(CefStorageVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefV8AccessorCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCToCpp::DebugObjCt == 0);
@@ -287,4 +289,48 @@ CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
     cookieNameStr = cookie_name;
 
   return CefDeleteCookies(urlStr, cookieNameStr);
+}
+
+CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key,
+    struct _cef_storage_visitor_t* visitor)
+{
+  CefString originStr, keyStr;
+
+  if (origin)
+    originStr = origin;
+  if (key)
+    keyStr = key;
+
+  return CefVisitStorage(type, originStr, keyStr,
+      CefStorageVisitorCToCpp::Wrap(visitor));
+}
+
+CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key,
+    const cef_string_t* value)
+{
+  CefString originStr, keyStr, valueStr;
+
+  if (origin)
+    originStr = origin;
+  if (key)
+    keyStr = key;
+  if (value)
+    valueStr = value;
+
+  return CefSetStorage(type, originStr, keyStr, valueStr);
+}
+
+CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key)
+{
+  CefString originStr, keyStr;
+
+  if (origin)
+    originStr = origin;
+  if (key)
+    keyStr = key;
+
+  return CefDeleteStorage(type, origin, key);
 }

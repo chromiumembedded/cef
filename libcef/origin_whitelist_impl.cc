@@ -4,6 +4,7 @@
 
 #include "include/cef.h"
 #include "cef_context.h"
+#include "cef_thread.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"

@@ -5,21 +5,22 @@
 #ifndef _CEF_CONTEXT_H
 #define _CEF_CONTEXT_H
 
-#include "../include/cef.h"
+#include "include/cef.h"
 #include "browser_request_context.h"
 #include "cef_process.h"
-#include "cef_thread.h"
 #include "dom_storage_context.h"
 
 #include "base/at_exit.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/message_loop.h"
 #include <map>
 
-class BrowserRequestContext;
 class CefBrowserImpl;
 class WebViewHost;
+
+namespace base {
+class WaitableEvent;
+}
 
 class CefContext : public CefBase
 {

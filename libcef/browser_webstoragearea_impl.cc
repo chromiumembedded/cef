@@ -18,8 +18,8 @@ using WebKit::WebView;
 
 BrowserWebStorageAreaImpl::BrowserWebStorageAreaImpl(
     int64 namespace_id, const WebString& origin) {
-  area_ = _Context->storage_context()->GetStorageNamespace(namespace_id, true)->
-      GetStorageArea(origin);
+  area_ =
+      _Context->storage_context()->GetStorageArea(namespace_id, origin, true);
   DCHECK(area_ != NULL);
 }
 

@@ -16,14 +16,12 @@ BrowserWebStorageNamespaceImpl::BrowserWebStorageNamespaceImpl(
     DOMStorageType storage_type)
     : storage_type_(storage_type),
       namespace_id_(kLocalStorageNamespaceId) {
-  DCHECK(storage_type == DOM_STORAGE_LOCAL);
 }
 
 BrowserWebStorageNamespaceImpl::BrowserWebStorageNamespaceImpl(
     DOMStorageType storage_type, int64 namespace_id)
     : storage_type_(storage_type),
       namespace_id_(namespace_id) {
-  DCHECK(storage_type == DOM_STORAGE_SESSION);
 }
 
 BrowserWebStorageNamespaceImpl::~BrowserWebStorageNamespaceImpl() {
@@ -49,9 +47,4 @@ WebStorageNamespace* BrowserWebStorageNamespaceImpl::copy() {
 void BrowserWebStorageNamespaceImpl::close() {
   // This is called only on LocalStorage namespaces when WebKit thinks its
   // shutting down.  This has no impact on Chromium.
-}
-
-//static
-bool BrowserWebStorageNamespaceImpl::IsStorageActive() {
-  return (_Context->storage_context() != NULL);
 }

@@ -325,6 +325,35 @@ CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
 CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
     const cef_string_t* cookie_name);
 
+///
+// Visit storage of the specified type. If |origin| is non-NULL only data
+// matching that origin will be visited. If |key| is non-NULL only data matching
+// that key will be visited. Otherwise, all data for the storage type will be
+// visited. Returns false (0) if the storage cannot be accessed. Origin should
+// be of the form scheme://domain.
+///
+CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key,
+    struct _cef_storage_visitor_t* visitor);
+
+///
+// Sets storage of the specified type, origin, key and value. Returns false (0)
+// if storage cannot be accessed. This function must be called on the UI thread.
+///
+CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key,
+    const cef_string_t* value);
+
+///
+// Deletes all storage of the specified type. If |origin| is non-NULL only data
+// matching that origin will be cleared. If |key| is non-NULL only data matching
+// that key will be cleared. Otherwise, all data for the storage type will be
+// cleared. Returns false (0) if storage cannot be accessed. This function must
+// be called on the UI thread.
+///
+CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
+    const cef_string_t* origin, const cef_string_t* key);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.
@@ -388,6 +417,30 @@ typedef struct _cef_cookie_visitor_t
       int* deleteCookie);
 
 } cef_cookie_visitor_t;
+
+
+///
+// Structure to implement for visiting storage. The functions of this structure
+// will always be called on the UI thread.
+///
+typedef struct _cef_storage_visitor_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Method that will be called once for each key/value data pair in storage.
+  // |count| is the 0-based index for the current pair. |total| is the total
+  // number of pairs. Set |deleteData| to true (1) to delete the pair currently
+  // being visited. Return false (0) to stop visiting pairs. This function may
+  // never be called if no data is found.
+  ///
+  int (CEF_CALLBACK *visit)(struct _cef_storage_visitor_t* self,
+      enum cef_storage_type_t type, const cef_string_t* origin,
+      const cef_string_t* key, const cef_string_t* value, int count, int total,
+      int* deleteData);
+
+} cef_storage_visitor_t;
 
 
 ///

@@ -158,6 +158,8 @@
       'libcef_dll/cpptoc/scheme_handler_cpptoc.h',
       'libcef_dll/cpptoc/scheme_handler_factory_cpptoc.cc',
       'libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h',
+      'libcef_dll/cpptoc/storage_visitor_cpptoc.cc',
+      'libcef_dll/cpptoc/storage_visitor_cpptoc.h',
       'libcef_dll/cpptoc/task_cpptoc.cc',
       'libcef_dll/cpptoc/task_cpptoc.h',
       'libcef_dll/cpptoc/v8accessor_cpptoc.cc',

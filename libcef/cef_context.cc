@@ -2,14 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "cef_context.h"
+#include "include/cef_nplugin.h"
 #include "browser_devtools_scheme_handler.h"
 #include "browser_impl.h"
 #include "browser_webkit_glue.h"
-#include "cef_thread.h"
+#include "cef_context.h"
 #include "cef_time_util.h"
-#include "cef_process.h"
-#include "../include/cef_nplugin.h"
+#include "dom_storage_common.h"
+#include "dom_storage_namespace.h"
+#include "dom_storage_area.h"
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -169,6 +170,124 @@ private:
   base::WaitableEvent *event_;
 };
 
+void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
+                      const CefString& key,
+                      CefRefPtr<CefStorageVisitor> visitor)
+{
+  REQUIRE_UIT();
+
+  DOMStorageContext* context = _Context->storage_context();
+  
+  DOMStorageNamespace* ns =
+      context->GetStorageNamespace(namespace_id, false);
+  if (!ns)
+    return;
+
+  typedef std::vector<DOMStorageArea*> AreaList;
+  AreaList areas;
+
+  if (!origin.empty()) {
+    // Visit only the area with the specified origin.
+    DOMStorageArea* area = ns->GetStorageArea(origin, false);
+    if (area)
+      areas.push_back(area);
+  } else {
+    // Visit all areas.
+    ns->GetStorageAreas(areas, true);
+  }
+
+  if (areas.empty())
+    return;
+
+  // Count the total number of matching keys.
+  unsigned int total = 0;
+  {
+    NullableString16 value;
+    AreaList::iterator it = areas.begin();
+    for (; it != areas.end(); ) {
+      DOMStorageArea* area = (*it);
+      if (!key.empty()) {
+        value = area->GetItem(key);
+        if (value.is_null()) {
+          it = areas.erase(it);
+          // Don't increment the iterator.
+          continue;
+        } else {
+          total++;
+        }
+      } else {
+        total += area->Length();
+      }
+      ++it;
+    }
+  }
+
+  if (total == 0)
+    return;
+
+  DOMStorageArea* area;
+  bool stop = false, deleteData;
+  unsigned int count = 0, i, len;
+  NullableString16 keyVal, valueVal;
+  string16 keyStr, valueStr;
+  typedef std::vector<string16> String16List;
+  String16List delete_keys;
+
+  // Visit all matching pairs.
+  AreaList::iterator it = areas.begin();
+  for (; it != areas.end() && !stop; ++it) {
+    // Each area.
+    area = *(it);
+    if (!key.empty()) {
+      // Visit only the matching key.
+      valueVal = area->GetItem(key);
+      if (valueVal.is_null())
+        valueStr.clear();
+      else
+        valueStr = valueVal.string();
+
+      deleteData = false;
+      stop = !visitor->Visit(static_cast<CefStorageType>(namespace_id),
+          area->origin(), key, valueStr, count, total, deleteData);
+      if (deleteData)
+        area->RemoveItem(key);
+      count++;
+    } else {
+      // Visit all keys.
+      len = area->Length();
+      for(i = 0; i < len && !stop; ++i) {
+        keyVal = area->Key(i);
+        if (keyVal.is_null()) {
+          keyStr.clear();
+          valueStr.clear();
+        } else {
+          keyStr = keyVal.string();
+          valueVal = area->GetItem(keyStr);
+          if (valueVal.is_null())
+            valueStr.clear();
+          else
+            valueStr = valueVal.string();
+        }
+
+        deleteData = false;
+        stop = !visitor->Visit(static_cast<CefStorageType>(namespace_id),
+            area->origin(), keyStr, valueStr, count, total, deleteData);
+        if (deleteData)
+          delete_keys.push_back(keyStr);
+        count++;
+      }
+
+      // Delete the requested keys.
+      if (!delete_keys.empty()) {
+        String16List::const_iterator it = delete_keys.begin();
+        for (; it != delete_keys.end(); ++it)
+          area->RemoveItem(*it);
+        delete_keys.clear();
+      }
+    }
+  }
+}
+
 } // anonymous
 
 bool CefInitialize(const CefSettings& settings)
@@ -178,7 +297,7 @@ bool CefInitialize(const CefSettings& settings)
     return true;
 
   if(settings.size != sizeof(cef_settings_t)) {
-    NOTREACHED();
+    NOTREACHED() << "invalid CefSettings structure size";
     return false;
   }
 
@@ -193,13 +312,13 @@ void CefShutdown()
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if(!_Context->process()->CalledOnValidThread()) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return;
   }
 
@@ -214,13 +333,13 @@ void CefDoMessageLoopWork()
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if(!_Context->process()->CalledOnValidThread()) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return;
   }
 
@@ -231,13 +350,13 @@ void CefRunMessageLoop()
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if(!_Context->process()->CalledOnValidThread()) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return;
   }
 
@@ -248,7 +367,7 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
@@ -367,7 +486,7 @@ bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
@@ -380,7 +499,7 @@ bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
@@ -397,13 +516,13 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
   // Verify that this function is being called on the IO thread.
   if (!CefThread::CurrentlyOn(CefThread::IO)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
 
@@ -436,13 +555,13 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
   // Verify that this function is being called on the IO thread.
   if (!CefThread::CurrentlyOn(CefThread::IO)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
 
@@ -470,6 +589,132 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
     // Delete all matching host and domain cookies.
     cookie_monster->DeleteCookieAsync(gurl, cookie_name, base::Closure());
   }
+  return true;
+}
+
+bool CefVisitStorage(CefStorageType type, const CefString& origin,
+                     const CefString& key,
+                     CefRefPtr<CefStorageVisitor> visitor)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return false;
+  }
+
+  int64 namespace_id;
+  if (type == ST_LOCALSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId;
+  } else if(type == ST_SESSIONSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId + 1;
+  } else {
+    NOTREACHED() << "invalid type";
+    return false;
+  }
+
+  if (CefThread::CurrentlyOn(CefThread::UI)) {
+    UIT_VisitStorage(namespace_id, origin, key, visitor);
+  } else {
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(&UIT_VisitStorage, namespace_id, origin, key, visitor));
+  }
+
+  return true;
+}
+
+bool CefSetStorage(CefStorageType type, const CefString& origin,
+                   const CefString& key, const CefString& value)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return false;
+  }
+
+  // Verify that this function is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  int64 namespace_id;
+  if (type == ST_LOCALSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId;
+  } else if(type == ST_SESSIONSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId + 1;
+  } else {
+    NOTREACHED() << "invalid type";
+    return false;
+  }
+
+  if (origin.empty()) {
+    NOTREACHED() << "invalid origin";
+    return false;
+  }
+
+  DOMStorageArea* area =
+      _Context->storage_context()->GetStorageArea(namespace_id, origin, true);
+  if (!area)
+    return false;
+
+  WebKit::WebStorageArea::Result result;
+  area->SetItem(key, value, &result);
+  return (result ==  WebKit::WebStorageArea::ResultOK);
+}
+
+bool CefDeleteStorage(CefStorageType type, const CefString& origin,
+                      const CefString& key)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return false;
+  }
+
+  // Verify that this function is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  int64 namespace_id;
+  if (type == ST_LOCALSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId;
+  } else if(type == ST_SESSIONSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId + 1;
+  } else {
+    NOTREACHED() << "invalid type";
+    return false;
+  }
+
+  DOMStorageContext* context = _Context->storage_context();
+
+  if (origin.empty()) {
+    // Delete all storage for the namespace.
+    if (namespace_id == kLocalStorageNamespaceId)
+      context->DeleteAllLocalStorageFiles();
+    else
+      context->PurgeMemory(namespace_id);
+  } else if(key.empty()) {
+    // Clear the storage area for the specified origin.
+    if (namespace_id == kLocalStorageNamespaceId) {
+      context->DeleteLocalStorageForOrigin(origin);
+    } else {
+      DOMStorageArea* area =
+          context->GetStorageArea(namespace_id, origin, false);
+      if (area) {
+        // Calling Clear() is necessary to remove the data from the namespace.
+        area->Clear();
+        area->PurgeMemory();
+      }
+    }
+  } else {
+    // Delete the specified key.
+    DOMStorageArea* area = context->GetStorageArea(namespace_id, origin, false);
+    if (area)
+      area->RemoveItem(key);
+  }
+
   return true;
 }
 

@@ -21,8 +21,11 @@ DOMStorageNamespace* DOMStorageNamespace::CreateLocalStorageNamespace(
     DOMStorageContext* dom_storage_context, const FilePath& data_dir_path) {
   int64 id = kLocalStorageNamespaceId;
   DCHECK(!dom_storage_context->GetStorageNamespace(id, false));
-  return new DOMStorageNamespace(dom_storage_context, id,
-      webkit_glue::FilePathToWebString(data_dir_path), DOM_STORAGE_LOCAL);
+  WebString path;
+  if (!data_dir_path.empty())
+    path = webkit_glue::FilePathToWebString(data_dir_path);
+  return new DOMStorageNamespace(dom_storage_context, id, path,
+                                 DOM_STORAGE_LOCAL);
 }
 
 /* static */
@@ -55,11 +58,14 @@ DOMStorageNamespace::~DOMStorageNamespace() {
 }
 
 DOMStorageArea* DOMStorageNamespace::GetStorageArea(
-    const string16& origin) {
+    const string16& origin, bool allocation_allowed) {
   // We may have already created it for another dispatcher host.
   OriginToStorageAreaMap::iterator iter = origin_to_storage_area_.find(origin);
   if (iter != origin_to_storage_area_.end())
     return iter->second;
+
+  if (!allocation_allowed)
+    return NULL;
 
   // We need to create a new one.
   int64 id = dom_storage_context_->AllocateStorageAreaId();
@@ -81,8 +87,16 @@ DOMStorageNamespace* DOMStorageNamespace::Copy(int64 id) {
   return new_storage_namespace;
 }
 
+void DOMStorageNamespace::GetStorageAreas(std::vector<DOMStorageArea*>& areas,
+    bool skip_empty) const {
+  OriginToStorageAreaMap::const_iterator iter = origin_to_storage_area_.begin();
+  for (;  iter != origin_to_storage_area_.end(); ++iter) {
+    if (!skip_empty || iter->second->Length() > 0)
+      areas.push_back(iter->second);
+  }
+}
+
 void DOMStorageNamespace::PurgeMemory() {
-  DCHECK(dom_storage_type_ == DOM_STORAGE_LOCAL);
   for (OriginToStorageAreaMap::iterator iter(origin_to_storage_area_.begin());
        iter != origin_to_storage_area_.end(); ++iter)
     iter->second->PurgeMemory();
@@ -102,9 +116,9 @@ void DOMStorageNamespace::CreateWebStorageNamespaceIfNecessary() {
   if (dom_storage_type_ == DOM_STORAGE_LOCAL) {
     storage_namespace_.reset(
         WebStorageNamespace::createLocalStorageNamespace(data_dir_path_,
-            WebStorageNamespace::m_localStorageQuota));
+            DOMStorageContext::local_storage_quota()));
   } else {
     storage_namespace_.reset(WebStorageNamespace::createSessionStorageNamespace(
-        WebStorageNamespace::m_sessionStorageQuota));
+        DOMStorageContext::session_storage_quota()));
   }
 }

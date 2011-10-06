@@ -14,6 +14,7 @@
 #include "browser_navigation_controller.h"
 #include "browser_web_worker.h"
 #include "browser_webkit_glue.h"
+#include "browser_webstoragenamespace_impl.h"
 #include "browser_zoom_map.h"
 #include "cef_context.h"
 #include "request_impl.h"
@@ -180,11 +181,9 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
 
 WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
     unsigned quota) {
-  // Enforce quota, ignoring the parameter from WebCore as in Chrome. We could
-  // potentially use DOMStorageContext to manage session storage but there's
-  // currently no need since session storage data is not written to disk.
-  return WebKit::WebStorageNamespace::createSessionStorageNamespace(
-      WebStorageNamespace::m_sessionStorageQuota);
+  // Ignore the quota parameter from WebCore as in Chrome.
+  return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_SESSION,
+                                            kLocalStorageNamespaceId + 1);
 }
 
 void BrowserWebViewDelegate::didAddMessageToConsole(

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "dom_storage_context.h"
-#include "cef_context.h"
 #include "cef_thread.h"
 #include "dom_storage_namespace.h"
 
@@ -14,7 +13,9 @@
 #include "base/string_util.h"
 #include "dom_storage_area.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "webkit/database/database_util.h"
 #include "webkit/glue/webkit_glue.h"
 
 const FilePath::CharType DOMStorageContext::kLocalStorageDirectory[] =
@@ -23,8 +24,15 @@ const FilePath::CharType DOMStorageContext::kLocalStorageDirectory[] =
 const FilePath::CharType DOMStorageContext::kLocalStorageExtension[] =
     FILE_PATH_LITERAL(".localstorage");
 
-DOMStorageContext::DOMStorageContext()
-    : last_storage_area_id_(0),
+// Use WebStorageNamespace quota sizes as the default.
+unsigned int DOMStorageContext::local_storage_quota_ =
+    WebKit::WebStorageNamespace::m_localStorageQuota;
+unsigned int DOMStorageContext::session_storage_quota_ =
+    WebKit::WebStorageNamespace::m_sessionStorageQuota;
+
+DOMStorageContext::DOMStorageContext(const FilePath& local_storage_path)
+    : local_storage_path_(local_storage_path),
+      last_storage_area_id_(0),
       last_session_storage_namespace_id_on_ui_thread_(kLocalStorageNamespaceId),
       last_session_storage_namespace_id_on_io_thread_(kLocalStorageNamespaceId){
 }
@@ -103,15 +111,20 @@ DOMStorageNamespace* DOMStorageContext::GetStorageNamespace(
   return CreateSessionStorage(id);
 }
 
-void DOMStorageContext::PurgeMemory() {
-  // It is only safe to purge the memory from the LocalStorage namespace,
-  // because it is backed by disk and can be reloaded later.  If we purge a
-  // SessionStorage namespace, its data will be gone forever, because it isn't
-  // currently backed by disk.
-  DOMStorageNamespace* local_storage =
-      GetStorageNamespace(kLocalStorageNamespaceId, false);
-  if (local_storage)
-    local_storage->PurgeMemory();
+DOMStorageArea* DOMStorageContext::GetStorageArea(int64 namespace_id,
+    const string16& origin, bool allocation_allowed) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  DOMStorageNamespace* ns =
+      GetStorageNamespace(namespace_id, allocation_allowed);
+  if (ns)
+    return ns->GetStorageArea(origin, allocation_allowed);
+  return NULL;
+}
+
+void DOMStorageContext::PurgeMemory(int64 namespace_id) {
+  DOMStorageNamespace* ns = GetStorageNamespace(namespace_id, false);
+  if (ns)
+    ns->PurgeMemory();
 }
 
 void DOMStorageContext::DeleteDataModifiedSince(
@@ -120,11 +133,13 @@ void DOMStorageContext::DeleteDataModifiedSince(
     const std::vector<string16>& protected_origins) {
   // Make sure that we don't delete a database that's currently being accessed
   // by unloading all of the databases temporarily.
-  PurgeMemory();
+  PurgeMemory(kLocalStorageNamespaceId);
 
-  FilePath data_path(_Context->cache_path());
+  if (local_storage_path_.empty())
+    return;
+
   file_util::FileEnumerator file_enumerator(
-      data_path.Append(kLocalStorageDirectory), false,
+      local_storage_path_.Append(kLocalStorageDirectory), false,
       file_util::FileEnumerator::FILES);
   for (FilePath path = file_enumerator.Next(); !path.value().empty();
        path = file_enumerator.Next()) {
@@ -147,21 +162,24 @@ void DOMStorageContext::DeleteDataModifiedSince(
   }
 }
 
-void DOMStorageContext::DeleteLocalStorageFile(const FilePath& file_path) {
+void DOMStorageContext::DeleteLocalStorageForOrigin(const string16& origin) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  
+  DOMStorageArea* area =
+      GetStorageArea(kLocalStorageNamespaceId, origin, false);
+  if (!area)
+    return;
 
-  // Make sure that we don't delete a database that's currently being accessed
-  // by unloading all of the databases temporarily.
-  // TODO(bulach): both this method and DeleteDataModifiedSince could purge
-  // only the memory used by the specific file instead of all memory at once.
-  // See http://crbug.com/32000
-  PurgeMemory();
-  file_util::Delete(file_path, false);
-}
+  // Calling Clear() is necessary to remove the data from the namespace.
+  area->Clear();
+  area->PurgeMemory();
 
-void DOMStorageContext::DeleteLocalStorageForOrigin(const string16& origin_id) {
-  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
-  DeleteLocalStorageFile(GetLocalStorageFilePath(origin_id));
+  if (local_storage_path_.empty())
+    return;
+  
+  FilePath file_path = GetLocalStorageFilePath(origin);
+  if (!file_path.empty())
+    file_util::Delete(file_path, false);
 }
 
 void DOMStorageContext::DeleteAllLocalStorageFiles() {
@@ -169,11 +187,13 @@ void DOMStorageContext::DeleteAllLocalStorageFiles() {
 
   // Make sure that we don't delete a database that's currently being accessed
   // by unloading all of the databases temporarily.
-  PurgeMemory();
+  PurgeMemory(kLocalStorageNamespaceId);
 
-  FilePath data_path(_Context->cache_path());
+  if (local_storage_path_.empty())
+    return;
+
   file_util::FileEnumerator file_enumerator(
-      data_path.Append(kLocalStorageDirectory), false,
+      local_storage_path_.Append(kLocalStorageDirectory), false,
       file_util::FileEnumerator::FILES);
   for (FilePath file_path = file_enumerator.Next(); !file_path.empty();
        file_path = file_enumerator.Next()) {
@@ -183,11 +203,9 @@ void DOMStorageContext::DeleteAllLocalStorageFiles() {
 }
 
 DOMStorageNamespace* DOMStorageContext::CreateLocalStorage() {
-  FilePath data_path(_Context->cache_path());
   FilePath dir_path;
-  if (!data_path.empty())
-    dir_path = data_path.Append(kLocalStorageDirectory);
-
+  if (!local_storage_path_.empty())
+    dir_path = local_storage_path_.Append(kLocalStorageDirectory);
   DOMStorageNamespace* new_namespace =
       DOMStorageNamespace::CreateLocalStorageNamespace(this, dir_path);
   RegisterStorageNamespace(new_namespace);
@@ -240,9 +258,13 @@ void DOMStorageContext::ClearLocalState(const FilePath& profile_path,
 }
 
 FilePath DOMStorageContext::GetLocalStorageFilePath(
-    const string16& origin_id) const {
-  FilePath data_path(_Context->cache_path());
-  FilePath storageDir = data_path.Append(
+    const string16& origin) const {
+  DCHECK(!local_storage_path_.empty());
+      
+  string16 origin_id =
+      webkit_database::DatabaseUtil::GetOriginIdentifier(GURL(origin));
+
+  FilePath storageDir = local_storage_path_.Append(
       DOMStorageContext::kLocalStorageDirectory);
   FilePath::StringType id =
       webkit_glue::WebStringToFilePathString(origin_id);

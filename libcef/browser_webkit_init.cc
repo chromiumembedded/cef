@@ -175,14 +175,7 @@ WebKit::WebString BrowserWebKitInit::defaultLocale() {
 
 WebKit::WebStorageNamespace* BrowserWebKitInit::createLocalStorageNamespace(
     const WebKit::WebString& path, unsigned quota) {
-  if (BrowserWebStorageNamespaceImpl::IsStorageActive()) {
-    // Use the localStorage implementation that writes data to disk.
-    return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
-  }
-
-  // Use the default localStorage implementation.
-  return WebKit::WebStorageNamespace::createLocalStorageNamespace(path,
-      WebKit::WebStorageNamespace::m_localStorageQuota);
+  return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
 }
 
 void BrowserWebKitInit::dispatchStorageEvent(const WebKit::WebString& key,

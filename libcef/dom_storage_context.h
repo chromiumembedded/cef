@@ -24,7 +24,7 @@ class DOMStorageNamespace;
 // NOTE: Virtual methods facilitate mocking functions for testing.
 class DOMStorageContext {
  public:
-  DOMStorageContext();
+  DOMStorageContext(const FilePath& local_storage_path);
   virtual ~DOMStorageContext();
 
   // Allocate a new storage area id.  Only call on the WebKit thread.
@@ -51,8 +51,14 @@ class DOMStorageContext {
   // namespace if it hasn't been already.
   DOMStorageNamespace* GetStorageNamespace(int64 id, bool allocation_allowed);
 
+  // Get a storage area with the specified namespace_id and origin. If
+  // allocation_allowed is true this function will create a new namespace and/or
+  // storage area if it doesn't already exist.
+  DOMStorageArea* GetStorageArea(int64 namespace_id, const string16& origin,
+      bool allocation_allowed);
+
   // Tells storage namespaces to purge any memory they do not need.
-  virtual void PurgeMemory();
+  virtual void PurgeMemory(int64 namespace_id);
 
   // Delete any local storage files that have been touched since the cutoff
   // date that's supplied.
@@ -60,11 +66,8 @@ class DOMStorageContext {
                                const char* url_scheme_to_be_skipped,
                                const std::vector<string16>& protected_origins);
 
-  // Deletes a single local storage file.
-  void DeleteLocalStorageFile(const FilePath& file_path);
-
   // Deletes the local storage file for the given origin.
-  void DeleteLocalStorageForOrigin(const string16& origin_id);
+  void DeleteLocalStorageForOrigin(const string16& origin);
 
   // Deletes all local storage files.
   void DeleteAllLocalStorageFiles();
@@ -80,7 +83,16 @@ class DOMStorageContext {
                               const char* url_scheme_to_be_skipped);
 
   // Get the file name of the local storage file for the given origin.
-  FilePath GetLocalStorageFilePath(const string16& origin_id) const;
+  FilePath GetLocalStorageFilePath(const string16& origin) const;
+
+  // Set the quota limits for localStorage and sessionStorage respectively.
+  // Changes will only take affect if made before creation of the namespaces.
+  static void set_local_storage_quota(unsigned int quota)
+      { local_storage_quota_ = quota; }
+  static void set_session_storage_quota(unsigned int quota)
+      { session_storage_quota_ = quota; }
+  static unsigned int local_storage_quota() { return local_storage_quota_; }
+  static unsigned int session_storage_quota() { return session_storage_quota_; }
 
  private:
   // Get the local storage instance.  The object is owned by this class.
@@ -99,6 +111,10 @@ class DOMStorageContext {
   static void CompleteCloningSessionStorage(DOMStorageContext* context,
                                             int64 existing_id, int64 clone_id);
 
+  // Location where localStorage files will be stored on disk. This may be empty
+  // in which case localStorage data will be stored in-memory only.
+  FilePath local_storage_path_;
+
   // The last used storage_area_id and storage_namespace_id's.  For the storage
   // namespaces, IDs allocated on the UI thread are positive and count up while
   // IDs allocated on the IO thread are negative and count down.  This allows us
@@ -116,6 +132,10 @@ class DOMStorageContext {
   // Maps ids to StorageNamespaces.  We own these objects.
   typedef std::map<int64, DOMStorageNamespace*> StorageNamespaceMap;
   StorageNamespaceMap storage_namespace_map_;
+
+  // Quota limits for localStorage and sessionStorage respectively.
+  static unsigned int local_storage_quota_;
+  static unsigned int session_storage_quota_;
 };
 
 #endif  // _DOM_STORAGE_CONTEXT_H

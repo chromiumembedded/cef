@@ -31,8 +31,12 @@ class DOMStorageNamespace {
 
   ~DOMStorageNamespace();
 
-  DOMStorageArea* GetStorageArea(const string16& origin);
+  DOMStorageArea* GetStorageArea(const string16& origin,
+      bool allocation_allowed);
   DOMStorageNamespace* Copy(int64 clone_namespace_id);
+
+  void GetStorageAreas(std::vector<DOMStorageArea*>& areas,
+      bool skip_empty) const;
 
   void PurgeMemory();
 

@@ -23,9 +23,6 @@ class BrowserWebStorageNamespaceImpl : public WebKit::WebStorageNamespace {
   virtual WebKit::WebStorageNamespace* copy();
   virtual void close();
 
-  // Returns true if storage data is being cached to disk.
-  static bool IsStorageActive();
-
  private:
   // Used during lazy initialization of namespace_id_.
   const DOMStorageType storage_type_;

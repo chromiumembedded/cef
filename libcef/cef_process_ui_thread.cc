@@ -124,10 +124,14 @@ void CefProcessUIThread::Init() {
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 #endif
 
-  if (!_Context->cache_path().empty()) {
-    // Create the storage context object.
-    _Context->set_storage_context(new DOMStorageContext());
-  }
+  // Set storage quota limits.
+  if (settings.local_storage_quota != 0)
+    DOMStorageContext::set_local_storage_quota(settings.local_storage_quota);
+  if (settings.session_storage_quota != 0)
+    DOMStorageContext::set_session_storage_quota(settings.session_storage_quota);
+
+  // Create the storage context object.
+  _Context->set_storage_context(new DOMStorageContext(_Context->cache_path()));
 
   if (settings.user_agent.length > 0)
     webkit_glue::SetUserAgent(CefString(&settings.user_agent));

@@ -141,6 +141,16 @@ typedef struct _cef_settings_t
   // content like WebGL, accelerated layers and 3D CSS.
   ///
   cef_graphics_implementation_t graphics_implementation;
+
+  ///
+  // Quota limit for localStorage data across all origins. Default size is 5MB.
+  ///
+  unsigned int local_storage_quota;
+
+  ///
+  // Quota limit for sessionStorage data per namespace. Default size is 5MB.
+  ///
+  unsigned int session_storage_quota;
 } cef_settings_t;
 
 ///
@@ -468,6 +478,15 @@ typedef struct _cef_cookie_t
   bool has_expires;
   cef_time_t expires;
 } cef_cookie_t;
+
+///
+// Storage types.
+///
+enum cef_storage_type_t
+{
+  ST_LOCALSTORAGE = 0,
+  ST_SESSIONSTORAGE,
+};
 
 ///
 // Mouse button types.

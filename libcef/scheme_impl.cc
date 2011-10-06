@@ -5,6 +5,7 @@
 
 #include "include/cef.h"
 #include "cef_context.h"
+#include "cef_thread.h"
 #include "request_impl.h"
 #include "response_impl.h"
 

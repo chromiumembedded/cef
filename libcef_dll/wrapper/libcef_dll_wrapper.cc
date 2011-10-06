@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/storage_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -54,6 +55,7 @@ void CefShutdown()
   DCHECK(CefReadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefSchemeHandlerFactoryCppToC::DebugObjCt == 0);
+  DCHECK(CefStorageVisitorCppToC::DebugObjCt == 0);
   DCHECK(CefV8AccessorCppToC::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCppToC::DebugObjCt == 0);
@@ -200,5 +202,27 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
 bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
 {
   return cef_delete_cookies(url.GetStruct(), cookie_name.GetStruct()) ?
+      true : false;
+}
+
+bool CefVisitStorage(CefStorageType type, const CefString& origin,
+                     const CefString& key,
+                     CefRefPtr<CefStorageVisitor> visitor)
+{
+  return cef_visit_storage(type, origin.GetStruct(), key.GetStruct(),
+      CefStorageVisitorCppToC::Wrap(visitor)) ? true : false;
+}
+
+bool CefSetStorage(CefStorageType type, const CefString& origin,
+                   const CefString& key, const CefString& value)
+{
+  return cef_set_storage(type, origin.GetStruct(), key.GetStruct(),
+      value.GetStruct()) ? true : false;
+}
+
+bool CefDeleteStorage(CefStorageType type, const CefString& origin,
+                      const CefString& key)
+{
+  return cef_delete_storage(type, origin.GetStruct(), key.GetStruct()) ?
       true : false;
 }
