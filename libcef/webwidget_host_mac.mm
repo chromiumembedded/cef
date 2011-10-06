@@ -244,6 +244,7 @@ void WebWidgetHost::WheelEvent(NSEvent *event) {
 
 void WebWidgetHost::KeyEvent(NSEvent *event) {
   WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
+  last_key_event_ = keyboard_event;
   webwidget_->handleInputEvent(keyboard_event);
   if ([event type] == NSKeyDown &&
       !([event modifierFlags] & NSNumericPadKeyMask)) {
@@ -252,6 +253,7 @@ void WebWidgetHost::KeyEvent(NSEvent *event) {
     // TODO(hbono): Bug 20852 <http://crbug.com/20852> implement the
     // NSTextInput protocol and remove this code.
     keyboard_event.type = WebInputEvent::Char;
+    last_key_event_ = keyboard_event;
     webwidget_->handleInputEvent(keyboard_event);
   }
 }
