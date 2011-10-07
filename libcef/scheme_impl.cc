@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "include/cef.h"
+#include "browser_resource_loader_bridge.h"
 #include "cef_context.h"
 #include "cef_thread.h"
 #include "request_impl.h"
@@ -546,7 +547,10 @@ private:
       // Call the handler factory to create the handler for the request.
       CefRefPtr<CefRequest> requestPtr(new CefRequestImpl());
       static_cast<CefRequestImpl*>(requestPtr.get())->Set(request);
-      CefRefPtr<CefSchemeHandler> handler = factory->Create(scheme, requestPtr);
+      CefRefPtr<CefBrowser> browser =
+          BrowserResourceLoaderBridge::GetBrowserForRequest(request);
+      CefRefPtr<CefSchemeHandler> handler =
+          factory->Create(browser, scheme, requestPtr);
       if (handler.get())
         job = new CefUrlRequestJob(request, handler);
     }

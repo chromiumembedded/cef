@@ -77,7 +77,8 @@ class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory
 public:
   DevToolsSchemeHandlerFactory() {}
 
-  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+                                             const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
                                              OVERRIDE
   {

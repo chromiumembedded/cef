@@ -2359,11 +2359,14 @@ typedef struct _cef_scheme_handler_factory_t
   cef_base_t base;
 
   ///
-  // Return a new scheme handler instance to handle the request.
+  // Return a new scheme handler instance to handle the request. |browser| will
+  // be the browser window that initiated the request. If the request was
+  // initiated using the cef_web_urlrequest_t API |browser| will be NULL.
   ///
   struct _cef_scheme_handler_t* (CEF_CALLBACK *create)(
       struct _cef_scheme_handler_factory_t* self,
-      const cef_string_t* scheme_name, struct _cef_request_t* request);
+      struct _cef_browser_t* browser, const cef_string_t* scheme_name,
+      struct _cef_request_t* request);
 
 } cef_scheme_handler_factory_t;
 

@@ -2575,10 +2575,13 @@ class CefSchemeHandlerFactory : public virtual CefBase
 {
 public:
   ///
-  // Return a new scheme handler instance to handle the request.
+  // Return a new scheme handler instance to handle the request. |browser| will
+  // be the browser window that initiated the request. If the request was
+  // initiated using the CefWebURLRequest API |browser| will be NULL.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+                                             const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request) =0;
 };
 

@@ -33,8 +33,8 @@ public:
   virtual ~CefSchemeHandlerFactoryCToCpp() {}
 
   // CefSchemeHandlerFactory methods
-  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE;
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+      const CefString& scheme_name, CefRefPtr<CefRequest> request) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

@@ -145,8 +145,10 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory
 {
 public:
   // Return a new scheme handler instance to handle the request.
-  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+                                             const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
+                                             OVERRIDE
   {
     REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();

@@ -10,6 +10,7 @@
 // tools directory for more information.
 //
 
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -18,13 +19,18 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefRefPtr<CefSchemeHandler> CefSchemeHandlerFactoryCToCpp::Create(
-    const CefString& scheme_name, CefRefPtr<CefRequest> request)
+    CefRefPtr<CefBrowser> browser, const CefString& scheme_name,
+    CefRefPtr<CefRequest> request)
 {
   if(CEF_MEMBER_MISSING(struct_, create))
     return NULL;
 
-  cef_scheme_handler_t* rv = struct_->create(struct_, scheme_name.GetStruct(),
-      CefRequestCppToC::Wrap(request));
+  cef_browser_t* browserStruct = NULL;
+  if (browser.get())
+    browserStruct = CefBrowserCppToC::Wrap(browser);
+
+  cef_scheme_handler_t* rv = struct_->create(struct_, browserStruct,
+      scheme_name.GetStruct(), CefRequestCppToC::Wrap(request));
   if (rv)
     return CefSchemeHandlerCToCpp::Wrap(rv);
 

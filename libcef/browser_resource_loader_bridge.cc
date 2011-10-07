@@ -111,17 +111,24 @@ static const int kUpdateUploadProgressIntervalMsec = 100;
 
 class ExtraRequestInfo : public net::URLRequest::UserData {
 public:
-  ExtraRequestInfo(ResourceType::Type resource_type)
-    : resource_type_(resource_type),
+  ExtraRequestInfo(CefBrowser* browser, ResourceType::Type resource_type)
+    : browser_(browser),
+      resource_type_(resource_type),
       allow_download_(resource_type == ResourceType::MAIN_FRAME || 
                       resource_type == ResourceType::SUB_FRAME)
   { }
+
+  // The browser pointer is guaranteed to be valid for the lifespan of the
+  // request. The pointer will be NULL in cases where the request was
+  // initiated via the CefWebURLRequest API instead of by a browser window.
+  CefBrowser* browser() const { return browser_; }
 
   // Identifies the type of resource, such as subframe, media, etc.
   ResourceType::Type resource_type() const { return resource_type_; }
   bool allow_download() const { return allow_download_; }
 
 private:
+  CefBrowser* browser_;
   ResourceType::Type resource_type_;
   bool allow_download_;
 };
@@ -514,7 +521,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
       request_->set_context(_Context->request_context());
-      request_->SetUserData(NULL, new ExtraRequestInfo(params->request_type));
+      request_->SetUserData(NULL,
+          new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
           request_.get(), params->appcache_host_id, params->request_type);
 
@@ -1128,6 +1136,17 @@ void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
   CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
       _Context->request_context().get(),
       &BrowserRequestContext::SetAcceptAllCookies, accept_all_cookies));
+}
+
+// static
+CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(
+    net::URLRequest* request) {
+  REQUIRE_IOT();
+  ExtraRequestInfo* extra_info =
+      static_cast<ExtraRequestInfo*>(request->GetUserData(NULL));
+  if (extra_info)
+    return extra_info->browser();
+  return NULL;
 }
 
 //static

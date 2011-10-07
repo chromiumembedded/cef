@@ -308,8 +308,10 @@ public:
   ClientSchemeHandlerFactory(TestResults* tr)
     : test_results_(tr){}
 
-  virtual CefRefPtr<CefSchemeHandler> Create(const CefString& scheme_name,
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+                                             const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
+                                             OVERRIDE
   {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     return new ClientSchemeHandler(test_results_);
