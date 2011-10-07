@@ -1311,6 +1311,8 @@ public:
 class CefFocusHandler : public virtual CefBase
 {
 public:
+  typedef cef_handler_focus_source_t FocusSource;
+
   ///
   // Called when the browser component is about to loose focus. For instance, if
   // focus was on the last HTML element and the user pressed the TAB key. |next|
@@ -1322,14 +1324,13 @@ public:
                            bool next) {}
 
   ///
-  // Called when the browser component is requesting focus. |isWidget| will be
-  // true if the focus is requested for a child widget of the browser window.
-  // Return false to allow the focus to be set or true to cancel setting the
-  // focus.
+  // Called when the browser component is requesting focus. |source| indicates
+  // where the focus request is originating from. Return false to allow the
+  // focus to be set or true to cancel setting the focus.
   ///
   /*--cef()--*/
   virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
-                          bool isWidget) { return false; }
+                          FocusSource source) { return false; }
 };
 
 

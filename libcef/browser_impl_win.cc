@@ -89,7 +89,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
         if (client.get()) {
           CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
           if (handler.get())
-            handled = handler->OnSetFocus(browser, false);
+            handled = handler->OnSetFocus(browser, FOCUS_SOURCE_SYSTEM);
         }
 
         if (!handled)

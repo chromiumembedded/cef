@@ -521,7 +521,7 @@ void BrowserWebViewDelegate::didFocus() {
     if (client.get()) {
       CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
       if (handler.get())
-        handled = handler->OnSetFocus(browser_, true);
+        handled = handler->OnSetFocus(browser_, FOCUS_SOURCE_WIDGET);
     }
 
     if (!handled)

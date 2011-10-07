@@ -778,6 +778,25 @@ enum cef_weburlrequest_state_t
 };
 
 ///
+// Focus sources.
+///
+enum cef_handler_focus_source_t
+{
+  ///
+  // The source is explicit navigation via the API (LoadURL(), etc).
+  ///
+  FOCUS_SOURCE_NAVIGATION = 0,
+  ///
+  // The source is a system-generated focus event.
+  ///
+  FOCUS_SOURCE_SYSTEM,
+  ///
+  // The source is a child widget of the browser window requesting focus.
+  ///
+  FOCUS_SOURCE_WIDGET,
+};
+
+///
 // Key event types.
 ///
 enum cef_handler_keyevent_type_t

@@ -158,8 +158,10 @@
     CefRefPtr<CefClient> client = browser_->GetClient();
     if (client.get()) {
       CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
-      if (handler.get() && handler->OnSetFocus(browser_, false))
+      if (handler.get() &&
+          handler->OnSetFocus(browser_, FOCUS_SOURCE_SYSTEM)) {
         return NO;
+      }
     }
 
     browser_->UIT_GetWebViewHost()->SetFocus(YES);

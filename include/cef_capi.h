@@ -1131,13 +1131,12 @@ typedef struct _cef_focus_handler_t
       struct _cef_browser_t* browser, int next);
 
   ///
-  // Called when the browser component is requesting focus. |isWidget| will be
-  // true (1) if the focus is requested for a child widget of the browser
-  // window. Return false (0) to allow the focus to be set or true (1) to cancel
-  // setting the focus.
+  // Called when the browser component is requesting focus. |source| indicates
+  // where the focus request is originating from. Return false (0) to allow the
+  // focus to be set or true (1) to cancel setting the focus.
   ///
   int (CEF_CALLBACK *on_set_focus)(struct _cef_focus_handler_t* self,
-      struct _cef_browser_t* browser, int isWidget);
+      struct _cef_browser_t* browser, enum cef_handler_focus_source_t source);
 
 } cef_focus_handler_t;
 

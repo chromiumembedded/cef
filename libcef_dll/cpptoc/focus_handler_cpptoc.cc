@@ -29,7 +29,7 @@ void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
 }
 
 int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
-    cef_browser_t* browser, int isWidget)
+    cef_browser_t* browser, enum cef_handler_focus_source_t source)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -37,7 +37,7 @@ int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
     return 0;
 
   return CefFocusHandlerCppToC::Get(self)->OnSetFocus(
-      CefBrowserCToCpp::Wrap(browser), isWidget?true:false);
+      CefBrowserCToCpp::Wrap(browser), source);
 }
 
 

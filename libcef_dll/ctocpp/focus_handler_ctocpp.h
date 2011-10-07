@@ -35,7 +35,7 @@ public:
   // CefFocusHandler methods
   virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
   virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
-      bool isWidget) OVERRIDE;
+      FocusSource source) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

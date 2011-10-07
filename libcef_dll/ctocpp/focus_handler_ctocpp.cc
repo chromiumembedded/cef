@@ -26,13 +26,13 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
-    bool isWidget)
+    FocusSource source)
 {
   if (CEF_MEMBER_MISSING(struct_, on_set_focus))
     return false;
 
   return struct_->on_set_focus(struct_, CefBrowserCppToC::Wrap(browser),
-      isWidget) ? true : false;
+      source) ? true : false;
 }
 
 
