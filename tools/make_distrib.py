@@ -116,8 +116,18 @@ script_dir = os.path.dirname(__file__)
 # CEF root directory
 cef_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 
+# Test the operating system.
+platform = '';
+if sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform == 'linux2':
+  platform = 'linux'
+
 # output directory
-output_dir = os.path.abspath(os.path.join(options.outputdir, 'cef_binary_r'+cef_rev))
+output_dir = os.path.abspath(os.path.join(options.outputdir, \
+                                          'cef_binary_r'+cef_rev+'_'+platform))
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
@@ -163,7 +173,7 @@ write_file(os.path.join(output_dir, 'cef_paths.gypi'), data)
 transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.cfg'), \
                output_dir, options.quiet)
 
-if sys.platform == 'win32':
+if platform == 'windows':
   # create the README.TXT file
   create_readme(os.path.join(script_dir, 'distrib/win/README.TXT'), output_dir, cef_rev, \
                 chromium_rev, date)
@@ -212,7 +222,7 @@ if sys.platform == 'win32':
   # transfer docs files
   dst_dir = os.path.join(output_dir, 'docs')
   src_dir = os.path.join(cef_dir, 'docs')
-  if path_exists(dst_dir):
+  if path_exists(src_dir):
     copy_dir(src_dir, dst_dir, options.quiet)
 
   # transfer additional files, if any
@@ -224,7 +234,7 @@ if sys.platform == 'win32':
   generate_msvs_projects('2008');
   generate_msvs_projects('2010');
 
-elif sys.platform == 'darwin':
+elif platform == 'macosx':
   # create the README.TXT file
   create_readme(os.path.join(script_dir, 'distrib/mac/README.TXT'), output_dir, cef_rev, \
                 chromium_rev, date)
@@ -277,7 +287,7 @@ elif sys.platform == 'darwin':
   data = data.replace('../../../', '')
   write_file(src_file, data)
 
-elif sys.platform == 'linux2':
+elif platform == 'linux':
    # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_linux'], \
                       'include/', include_dir, options.quiet)
