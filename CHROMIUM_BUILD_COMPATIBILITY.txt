@@ -9,8 +9,8 @@
 # To update to a specific Chromium revision:
 #   gclient sync --revision src@chromium_revision --jobs 8 --force
 #
-# This file is integrated with the CEF auto_build tool. See the README.txt
-# file in the auto_build directory for more information.
+# This file is integrated with the CEF Automation Tool. See the
+# tools/automate/automate.README.txt file for more information.
 #
 # For general gclient usage information visit:
 # http://dev.chromium.org/developers/how-tos/get-the-code
