@@ -47,9 +47,10 @@ void InitializeDataPak(const std::string& locale) {
   CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
 #if defined(OS_WIN)
-  // Explicitly load chrome.pak on Windows.
+  // Explicitly load chrome.pak on Windows. Use the module (libcef.dll)
+  // directory to match the location of the locale folder.
   FilePath chrome_pack_path;
-  PathService::Get(base::DIR_EXE, &chrome_pack_path);
+  PathService::Get(base::DIR_MODULE, &chrome_pack_path);
   chrome_pack_path = chrome_pack_path.AppendASCII("chrome.pak");
   if (file_util::PathExists(chrome_pack_path))
     ResourceBundle::AddDataPackToSharedInstance(chrome_pack_path);
