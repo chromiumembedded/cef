@@ -24,22 +24,33 @@ def run(command_line, working_dir, depot_tools_dir=None):
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
                    working_dir+'"...'+"\n")
   args = shlex.split(command_line.replace('\\', '\\\\'))
-  return subprocess.check_call(args, cwd=working_dir, env=env, shell=True)
+  return subprocess.check_call(args, cwd=working_dir, env=env,
+                               shell=(sys.platform == 'win32'))
 
+def check_url(url):
+  """ Check the URL and raise an exception if invalid. """
+  if ':' in url[:7]:
+    parts = url.split(':', 1)
+    if (parts[0] == 'http' or parts[0] == 'https') and \
+        parts[1] == urllib.quote(parts[1]):
+      return url
+  sys.stderr.write('Invalid URL: '+url+"\n")
+  raise Exception('Invalid URL: '+url)
+                               
 def get_svn_info(path):
   """ Retrieves the URL and revision from svn info. """
-  url = None;
-  rev = None;
+  url = 'None'
+  rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      stream = os.popen('svn info '+path);
+      stream = os.popen('svn info '+path)
       for line in stream:
         if line[0:4] == "URL:":
-          url = line[5:-1];
+          url = check_url(line[5:-1])
         elif line[0:9] == "Revision:":
-          rev = line[10:-1];
+          rev = str(int(line[10:-1]))
     except IOError, (errno, strerror):
-      sys.stderr.write('Failed to read revision from "svn info": ' + strerror)
+      sys.stderr.write('Failed to read svn info: '+strerror+"\n")
       raise
   return {'url': url, 'revision': rev}
   
@@ -100,7 +111,7 @@ script_dir = os.path.dirname(__file__)
 
 if not options.url is None:
   # set the CEF URL
-  cef_url = options.url
+  cef_url = check_url(options.url)
 
 if not options.revision is None:
   # set the CEF revision
@@ -109,6 +120,9 @@ else:
   # retrieve the CEF revision from the remote repo
   info = get_svn_info(cef_url)
   cef_rev = info['revision']
+  if cef_rev == 'None':
+    sys.stderr.write('No SVN info for: '+cef_url+"\n")
+    raise Exception('No SVN info for: '+cef_url)
 
 # Retrieve the Chromium URL and revision from the CEF repo
 compat_url = cef_url + "/CHROMIUM_BUILD_COMPATIBILITY.txt?r="+cef_rev
@@ -127,8 +141,8 @@ try:
   if not 'chromium_revision' in config:
     raise Exception("Missing chromium_revision value")
   
-  chromium_url = config['chromium_url']
-  chromium_rev = config['chromium_revision']
+  chromium_url = check_url(config['chromium_url'])
+  chromium_rev = str(int(config['chromium_revision']))
 except Exception, e:
   sys.stderr.write('Failed to read URL and revision information from '+ \
                    compat_url+"\n")
@@ -139,24 +153,17 @@ if not os.path.exists(download_dir):
   # create the download directory
   os.makedirs(download_dir)
 
-# check the operating system
-platform = '';
-script_ext = '';
+# set the expected script extension
 if sys.platform == 'win32':
-  platform = 'windows'
   script_ext = '.bat'
-elif sys.platform == 'darwin':
-  platform = 'macosx'
-  script_ext = '.sh'
-elif sys.platform == 'linux2':
-  platform = 'linux'
+else:
   script_ext = '.sh'
 
 # check if the "depot_tools" directory exists
 depot_tools_dir = os.path.join(download_dir, 'depot_tools')
 if not os.path.exists(depot_tools_dir):
   # checkout depot_tools
-  run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir);
+  run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
 
 # check if the "chromium" directory exists
 chromium_dir = os.path.join(download_dir, 'chromium')
@@ -263,18 +270,22 @@ elif cef_rev_changed or options.forceupdate:
 
 if any_changed or options.forceupdate:
   # create CEF projects
-  run('cef_create_projects'+script_ext, cef_src_dir, depot_tools_dir)
+  path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
+  run(path, cef_src_dir, depot_tools_dir)
 
 if any_changed or options.forcebuild:
+  path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
+
   if not options.nodebugbuild:
     # make CEF Debug build
-    run('build_projects'+script_ext+' Debug', cef_tools_dir, depot_tools_dir)
+    run(path+' Debug', cef_tools_dir, depot_tools_dir)
   
   if not options.noreleasebuild:
     # make CEF Release build
-    run('build_projects'+script_ext+' Release', cef_tools_dir, depot_tools_dir)
+    run(path+' Release', cef_tools_dir, depot_tools_dir)
   
 if any_changed or options.forcedistrib:
   if not options.nodistrib:
     # make CEF binary distribution
-    run('make_distrib'+script_ext, cef_tools_dir, depot_tools_dir)
+    path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+    run(path, cef_tools_dir, depot_tools_dir)
