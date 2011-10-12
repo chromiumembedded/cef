@@ -95,6 +95,9 @@ This utility builds the CEF Binary Distribution.
 parser = OptionParser(description=disc)
 parser.add_option('--output-dir', dest='outputdir', metavar='DIR',
                   help='output directory [required]')
+parser.add_option('--allow-partial',
+                  action='store_true', dest='allowpartial', default=False,
+                  help='allow creation of partial distributions')
 parser.add_option('-q', '--quiet',
                   action='store_true', dest='quiet', default=False,
                   help='do not output detailed status information')
@@ -187,34 +190,40 @@ if platform == 'windows':
                       'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer build/Debug files
-  dst_dir = os.path.join(output_dir, 'Debug')
-  make_dir(dst_dir, options.quiet)
-  copy_files(os.path.join(cef_dir, 'Debug/*.dll'), dst_dir, options.quiet)
-  copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Debug/cefclient.exe'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
-  copy_dir(os.path.join(cef_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), \
-           options.quiet)
+  if not options.allowpartial or path_exists(os.path.join(cef_dir, 'Debug')):
+    dst_dir = os.path.join(output_dir, 'Debug')
+    make_dir(dst_dir, options.quiet)
+    copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+    copy_files(os.path.join(cef_dir, 'Debug/*.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/cefclient.exe'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(cef_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), \
+             options.quiet)
+  
+    # transfer lib/Debug files
+    dst_dir = os.path.join(output_dir, 'lib/Debug')
+    make_dir(dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/lib/libcef.lib'), dst_dir, options.quiet)
+  else:
+    sys.stderr.write("No Debug build files.\n")
 
   # transfer build/Release files
-  dst_dir = os.path.join(output_dir, 'Release')
-  make_dir(dst_dir, options.quiet)
-  copy_files(os.path.join(cef_dir, 'Release/*.dll'), dst_dir, options.quiet)
-  copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Release/cefclient.exe'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
-  copy_dir(os.path.join(cef_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), \
-           options.quiet)
+  if not options.allowpartial or path_exists(os.path.join(cef_dir, 'Release')):
+    dst_dir = os.path.join(output_dir, 'Release')
+    make_dir(dst_dir, options.quiet)
+    copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+    copy_files(os.path.join(cef_dir, 'Release/*.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/cefclient.exe'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(cef_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), \
+             options.quiet)
 
-  # transfer lib/Debug files
-  dst_dir = os.path.join(output_dir, 'lib/Debug')
-  make_dir(dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Debug/lib/libcef.lib'), dst_dir, options.quiet)
-
-  # transfer lib/Release files
-  dst_dir = os.path.join(output_dir, 'lib/Release')
-  make_dir(dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, 'Release/lib/libcef.lib'), dst_dir, options.quiet)
+    # transfer lib/Release files
+    dst_dir = os.path.join(output_dir, 'lib/Release')
+    make_dir(dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/lib/libcef.lib'), dst_dir, options.quiet)
+  else:
+    sys.stderr.write("No Release build files.\n")
 
   # generate doc files
   os.popen('make_cppdocs.bat '+cef_rev)
@@ -227,7 +236,7 @@ if platform == 'windows':
 
   # transfer additional files, if any
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
-                output_dir, options.quiet)
+                 output_dir, options.quiet)
 
   # generate the project files
   generate_msvs_projects('2005');
@@ -252,16 +261,18 @@ elif platform == 'macosx':
            options.quiet)
   
   # transfer xcodebuild/Debug files
-  dst_dir = os.path.join(output_dir, 'Debug')
-  make_dir(dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/ffmpegsumo.so'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/libcef.dylib'), dst_dir, options.quiet)
+  if not options.allowpartial or path_exists(os.path.join(cef_dir, '../xcodebuild/Debug')):
+    dst_dir = os.path.join(output_dir, 'Debug')
+    make_dir(dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/ffmpegsumo.so'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/libcef.dylib'), dst_dir, options.quiet)
   
   # transfer xcodebuild/Release files
-  dst_dir = os.path.join(output_dir, 'Release')
-  make_dir(dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
-  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
+  if not options.allowpartial or path_exists(os.path.join(cef_dir, '../xcodebuild/Release')):
+    dst_dir = os.path.join(output_dir, 'Release')
+    make_dir(dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
   
   # transfer resource files
   dst_dir = os.path.join(output_dir, 'Resources')

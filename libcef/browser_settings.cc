@@ -125,6 +125,7 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
   web.experimental_webgl_enabled = !cef.webgl_disabled;
   web.show_composited_layer_borders = false;
   web.accelerated_compositing_enabled = cef.accelerated_compositing_enabled;
+  web.threaded_compositing_enabled = cef.threaded_compositing_enabled;
   web.accelerated_layers_enabled = !cef.accelerated_layers_disabled;
   web.accelerated_video_enabled = !cef.accelerated_video_disabled;
   web.accelerated_2d_canvas_enabled = !cef.accelerated_2d_canvas_disabled;

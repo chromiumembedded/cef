@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -56,9 +56,11 @@ void ClipboardReadAsciiText(ui::Clipboard::Buffer buffer, std::string* result) {
 }
 
 void ClipboardReadHTML(ui::Clipboard::Buffer buffer, string16* markup,
-                       GURL* url) {
+                       GURL* url, uint32* fragment_start,
+                       uint32* fragment_end) {
   std::string url_str;
-  ClipboardGetClipboard()->ReadHTML(buffer, markup, url ? &url_str : NULL);
+  ClipboardGetClipboard()->ReadHTML(buffer, markup, url ? &url_str : NULL,
+                                    fragment_start, fragment_end);
   if (url)
     *url = GURL(url_str);
 }

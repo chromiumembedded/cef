@@ -5,6 +5,7 @@
 #include "browser_file_writer.h"
 #include "cef_thread.h"
 
+#include "base/bind.h"
 #include "base/logging.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request_context.h"
@@ -43,8 +44,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void Truncate(const GURL& path, int64 offset) {
     if (!io_thread_->BelongsToCurrentThread()) {
-      io_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::Truncate, path, offset));
+      io_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::Truncate, this, path, offset));
       return;
     }
     DCHECK(!operation_);
@@ -54,8 +56,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void Write(const GURL& path, const GURL& blob_url, int64 offset) {
     if (!io_thread_->BelongsToCurrentThread()) {
-      io_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::Write, path, blob_url, offset));
+      io_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::Write, this, path, blob_url, offset));
       return;
     }
     DCHECK(request_context_);
@@ -66,8 +69,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void Cancel() {
     if (!io_thread_->BelongsToCurrentThread()) {
-      io_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::Cancel));
+      io_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::Cancel, this));
       return;
     }
     if (!operation_) {
@@ -130,8 +134,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void DidSucceed() {
     if (!main_thread_->BelongsToCurrentThread()) {
-      main_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::DidSucceed));
+      main_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::DidSucceed, this));
       return;
     }
     if (simple_writer_)
@@ -140,8 +145,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void DidFail(base::PlatformFileError error_code) {
     if (!main_thread_->BelongsToCurrentThread()) {
-      main_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::DidFail, error_code));
+      main_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::DidFail, this, error_code));
       return;
     }
     if (simple_writer_)
@@ -150,8 +156,9 @@ class BrowserFileWriter::IOThreadProxy
 
   void DidWrite(int64 bytes, bool complete) {
     if (!main_thread_->BelongsToCurrentThread()) {
-      main_thread_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &IOThreadProxy::DidWrite, bytes, complete));
+      main_thread_->PostTask(
+          FROM_HERE,
+          base::Bind(&IOThreadProxy::DidWrite, this, bytes, complete));
       return;
     }
     if (simple_writer_)

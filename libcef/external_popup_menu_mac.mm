@@ -6,8 +6,6 @@
 #include "external_popup_menu_mac.h"
 #include "browser_impl.h"
 
-#include "content/common/view_messages.h"
-#include "content/renderer/render_view.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebExternalPopupMenuClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"

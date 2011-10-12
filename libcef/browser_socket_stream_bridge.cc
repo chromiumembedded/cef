@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,7 @@
 #include "browser_socket_stream_bridge.h"
 
 #include "base/atomicops.h"
+#include "base/bind.h"
 #include "base/memory/ref_counted.h"
 #include "base/message_loop.h"
 #include "googleurl/src/gurl.h"
@@ -47,7 +48,6 @@ class WebSocketStreamHandleBridgeImpl
   virtual void OnReceivedData(net::SocketStream* req,
                               const char* data, int len);
   virtual void OnClose(net::SocketStream* req);
-
 
  private:
   virtual ~WebSocketStreamHandleBridgeImpl();
@@ -95,8 +95,7 @@ void WebSocketStreamHandleBridgeImpl::Connect(const GURL& url) {
   AddRef();  // Released in DoOnClose().
   g_io_thread->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoConnect,
-                        url));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoConnect, this, url));
   if (delegate_)
     delegate_->WillOpenStream(handle_, url);
 }
@@ -106,8 +105,8 @@ bool WebSocketStreamHandleBridgeImpl::Send(
   DCHECK(g_io_thread);
   g_io_thread->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoSend,
-                        new std::vector<char>(data)));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoSend, this,
+                 new std::vector<char>(data)));
   return true;
 }
 
@@ -115,7 +114,7 @@ void WebSocketStreamHandleBridgeImpl::Close() {
   DCHECK(g_io_thread);
   g_io_thread->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoClose));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoClose, this));
 }
 
 void WebSocketStreamHandleBridgeImpl::OnConnected(
@@ -123,8 +122,8 @@ void WebSocketStreamHandleBridgeImpl::OnConnected(
   base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoOnConnected,
-                        max_pending_send_allowed));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoOnConnected, this,
+                 max_pending_send_allowed));
 }
 
 void WebSocketStreamHandleBridgeImpl::OnSentData(
@@ -132,8 +131,8 @@ void WebSocketStreamHandleBridgeImpl::OnSentData(
   base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoOnSentData,
-                        amount_sent));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoOnSentData, this,
+                 amount_sent));
 }
 
 void WebSocketStreamHandleBridgeImpl::OnReceivedData(
@@ -141,9 +140,8 @@ void WebSocketStreamHandleBridgeImpl::OnReceivedData(
   base::subtle::NoBarrier_AtomicIncrement(&num_pending_tasks_, 1);
   message_loop_->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this,
-                        &WebSocketStreamHandleBridgeImpl::DoOnReceivedData,
-                        new std::vector<char>(data, data + len)));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoOnReceivedData, this,
+                 new std::vector<char>(data, data + len)));
 }
 
 void WebSocketStreamHandleBridgeImpl::OnClose(net::SocketStream* socket) {
@@ -153,7 +151,7 @@ void WebSocketStreamHandleBridgeImpl::OnClose(net::SocketStream* socket) {
   socket_id_ = kNoSocketId;
   message_loop_->PostTask(
       FROM_HERE,
-      NewRunnableMethod(this, &WebSocketStreamHandleBridgeImpl::DoOnClose));
+      base::Bind(&WebSocketStreamHandleBridgeImpl::DoOnClose, this));
 }
 
 void WebSocketStreamHandleBridgeImpl::DoConnect(const GURL& url) {

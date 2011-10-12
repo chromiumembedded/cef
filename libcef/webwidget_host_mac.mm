@@ -123,8 +123,8 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
-      update_task_(NULL),
-      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
+      has_update_task_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
   set_painting(false);
 }
 
@@ -135,19 +135,30 @@ void WebWidgetHost::Paint() {
   gfx::Rect client_rect(NSRectToCGRect([view_ bounds]));
   gfx::Rect update_rect;
   
-  // Number of pixels that the canvas is allowed to differ from the client area.
-  const int kCanvasGrowSize = 128;
-  
-  if (!canvas_.get() ||
-      canvas_w_ < client_rect.width() ||
-      canvas_h_ < client_rect.height() ||
-      canvas_w_ > client_rect.width() + kCanvasGrowSize * 2 ||
-      canvas_h_ > client_rect.height() + kCanvasGrowSize * 2) {
+  if (!webwidget_->isAcceleratedCompositingActive()) {
+    // Number of pixels that the canvas is allowed to differ from the client
+    // area.
+    const int kCanvasGrowSize = 128;
+
+    if (!canvas_.get() ||
+        canvas_w_ < client_rect.width() ||
+        canvas_h_ < client_rect.height() ||
+        canvas_w_ > client_rect.width() + kCanvasGrowSize * 2 ||
+        canvas_h_ > client_rect.height() + kCanvasGrowSize * 2) {
+      paint_rect_ = client_rect;
+
+      // Resize the canvas to be within a reasonable size of the client area.
+      canvas_w_ = client_rect.width() + kCanvasGrowSize;
+      canvas_h_ = client_rect.height() + kCanvasGrowSize;
+      canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+    }
+  } else if(!canvas_.get() || canvas_w_ != client_rect.width() ||
+            canvas_h_ != client_rect.height()) {
     paint_rect_ = client_rect;
-    
-    // Resize the canvas to be within a reasonable size of the client area.
-    canvas_w_ = client_rect.width() + kCanvasGrowSize;
-    canvas_h_ = client_rect.height() + kCanvasGrowSize;
+
+    // The canvas must be the exact size of the client area.
+    canvas_w_ = client_rect.width();
+    canvas_h_ = client_rect.height();
     canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
   }
 
@@ -161,11 +172,7 @@ void WebWidgetHost::Paint() {
   [NSGraphicsContext saveGraphicsState];
   [NSGraphicsContext setCurrentContext:paint_context];
 
-#ifdef WEBWIDGET_HAS_ANIMATE_CHANGES
   webwidget_->animate(0.0);
-#else
-   webwidget_->animate();
-#endif
 
   // This may result in more invalidation
   webwidget_->layout();

@@ -6,7 +6,7 @@
 #include "webwidget_host.h"
 #include "cef_thread.h"
 
-#include "ui/gfx/rect.h"
+#include "base/bind.h"
 #include "base/logging.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCompositionUnderline.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
@@ -22,6 +22,7 @@
 #include "ui/base/range/range.h"
 #include "ui/base/win/hwnd_util.h"
 #include "ui/gfx/gdi_util.h"
+#include "ui/gfx/rect.h"
 
 #include <commctrl.h>
 
@@ -320,13 +321,13 @@ WebWidgetHost::WebWidgetHost()
       track_mouse_leave_(false),
       scroll_dx_(0),
       scroll_dy_(0),
-      update_task_(NULL),
+      has_update_task_(false),
       tooltip_view_(NULL),
       tooltip_showing_(false),
       ime_notification_(false),
       input_method_is_active_(false),
       text_input_type_(WebKit::WebTextInputTypeNone),
-      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
   set_painting(false);
 }
 
@@ -360,7 +361,7 @@ void WebWidgetHost::Paint() {
   gfx::Rect client_rect(width, height);
   gfx::Rect damaged_rect;
 
-  if (view_) {
+  if (view_ && !webwidget_->isAcceleratedCompositingActive()) {
     // Number of pixels that the canvas is allowed to differ from the client
     // area.
     const int kCanvasGrowSize = 128;
@@ -382,19 +383,14 @@ void WebWidgetHost::Paint() {
            canvas_h_ != client_rect.height()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-             
-    // For non-window-based rendering the canvas must be the exact size of the
-    // client area.
+
+    // The canvas must be the exact size of the client area.
     canvas_w_ = client_rect.width();
     canvas_h_ = client_rect.height();
     canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
   }
 
-#ifdef WEBWIDGET_HAS_ANIMATE_CHANGES
   webwidget_->animate(0.0);
-#else
-   webwidget_->animate();
-#endif
 
   // This may result in more invalidation
   webwidget_->layout();
@@ -514,9 +510,10 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
   } else {
     // The update rectangle will be painted by DoPaint().
     update_rect_ = update_rect_.Union(rect);
-    if (!update_task_) {
-      update_task_ = factory_.NewRunnableMethod(&WebWidgetHost::DoPaint);
-      CefThread::PostTask(CefThread::UI, FROM_HERE, update_task_);
+    if (!has_update_task_) {
+      has_update_task_ = true;
+      CefThread::PostTask(CefThread::UI, FROM_HERE,
+          base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
     }
   }
 }

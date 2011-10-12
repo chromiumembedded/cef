@@ -21,6 +21,7 @@
 #include "net/base/ssl_config_service_defaults.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
+#include "net/http/http_server_properties_impl.h"
 #include "net/proxy/proxy_config_service.h"
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_service.h"
@@ -155,6 +156,7 @@ void BrowserRequestContext::Init(
                                                   std::string(),
                                                   false,
                                                   false));
+  storage_.set_http_server_properties(new net::HttpServerPropertiesImpl);
 
   net::HttpCache::DefaultBackend* backend = new net::HttpCache::DefaultBackend(
       cache_path_valid ? net::DISK_CACHE : net::MEMORY_CACHE,
@@ -164,7 +166,8 @@ void BrowserRequestContext::Init(
       new net::HttpCache(host_resolver(), cert_verifier(),
                          origin_bound_cert_service(), NULL, NULL,
                          proxy_service(), ssl_config_service(),
-                         http_auth_handler_factory(), NULL, NULL, backend);
+                         http_auth_handler_factory(), NULL,
+                         http_server_properties(), NULL, backend);
 
   cache->set_mode(cache_mode);
   storage_.set_http_transaction_factory(cache);

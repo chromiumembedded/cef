@@ -6,6 +6,7 @@
 #define _BROWSER_DEVTOOLS_CLIENT_H
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "base/task.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontendClient.h"
@@ -47,7 +48,7 @@ class BrowserDevToolsClient: public WebKit::WebDevToolsFrontendClient {
  private:
   void Call(const BrowserDevToolsCallArgs& args);
 
-  ScopedRunnableMethodFactory<BrowserDevToolsClient> call_method_factory_;
+  base::WeakPtrFactory<BrowserDevToolsClient> weak_factory_;
   CefBrowserImpl* browser_;
   BrowserDevToolsAgent* dev_tools_agent_;
   WebKit::WebView* web_view_;

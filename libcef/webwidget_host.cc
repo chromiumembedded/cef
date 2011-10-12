@@ -5,6 +5,7 @@
 #include "webwidget_host.h"
 #include "cef_thread.h"
 
+#include "base/bind.h"
 #include "base/message_loop.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWidget.h"
@@ -15,7 +16,8 @@ using WebKit::WebSize;
 
 void WebWidgetHost::ScheduleAnimation() {
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      factory_.NewRunnableMethod(&WebWidgetHost::ScheduleComposite), 10);
+      base::Bind(&WebWidgetHost::ScheduleComposite, weak_factory_.GetWeakPtr()),
+      10);
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
@@ -75,7 +77,7 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y)
 }
 
 void WebWidgetHost::DoPaint() {
-  update_task_ = NULL;
+  has_update_task_ = false;
 
   if (update_rect_.IsEmpty())
     return;
@@ -92,8 +94,9 @@ void WebWidgetHost::DoPaint() {
     Paint();
   } else {
     // Try again later.
-    update_task_ = factory_.NewRunnableMethod(&WebWidgetHost::DoPaint);
-    CefThread::PostTask(CefThread::UI, FROM_HERE, update_task_);
+    has_update_task_ = true;
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
   }
 #else
   NOTIMPLEMENTED();

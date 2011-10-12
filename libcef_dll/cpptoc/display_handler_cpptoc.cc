@@ -92,8 +92,7 @@ int CEF_CALLBACK display_handler_on_console_message(
 {
   DCHECK(self);
   DCHECK(browser);
-  DCHECK(message);
-  if (!self || !browser || !message)
+  if (!self || !browser)
     return 0;
 
   return CefDisplayHandlerCppToC::Get(self)->OnConsoleMessage(

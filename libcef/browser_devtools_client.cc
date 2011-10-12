@@ -15,6 +15,7 @@
 #include "browser_devtools_client.h"
 #include "browser_impl.h"
 
+#include "base/bind.h"
 #include "base/command_line.h"
 #include "base/message_loop.h"
 
@@ -26,7 +27,7 @@ using WebKit::WebView;
 
 BrowserDevToolsClient::BrowserDevToolsClient(CefBrowserImpl* browser,
                                              BrowserDevToolsAgent *agent)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(call_method_factory_(this)),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)),
       browser_(browser),
       dev_tools_agent_(agent),
       web_view_(browser->UIT_GetWebView()) {
@@ -38,7 +39,7 @@ BrowserDevToolsClient::BrowserDevToolsClient(CefBrowserImpl* browser,
 BrowserDevToolsClient::~BrowserDevToolsClient() {
   // It is a chance that page will be destroyed at detach step of
   // dev_tools_agent_ and we should clean pending requests a bit earlier.
-  call_method_factory_.RevokeAll();
+  weak_factory_.InvalidateWeakPtrs();
   if (dev_tools_agent_)
     dev_tools_agent_->detach();
 }
@@ -76,9 +77,10 @@ void BrowserDevToolsClient::undockWindow() {
 }
 
 void BrowserDevToolsClient::AsyncCall(const BrowserDevToolsCallArgs &args) {
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      call_method_factory_.NewRunnableMethod(&BrowserDevToolsClient::Call,
-                                             args), 0);
+  MessageLoop::current()->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDevToolsClient::Call, weak_factory_.GetWeakPtr(),
+                 args));
 }
 
 void BrowserDevToolsClient::Call(const BrowserDevToolsCallArgs &args) {

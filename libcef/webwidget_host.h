@@ -9,6 +9,7 @@
 #include "include/internal/cef_types.h"
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "base/task.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
@@ -208,7 +209,7 @@ class WebWidgetHost {
   // Specifies the portion of the webwidget that has been invalidated when
   // window rendering is disabled.
   gfx::Rect update_rect_;
-  CancelableTask* update_task_;
+  bool has_update_task_;
 
   // The map of windowed plugins that need to be drawn when window rendering is
   // disabled.
@@ -253,7 +254,7 @@ class WebWidgetHost {
 #endif
 
  private:
-  ScopedRunnableMethodFactory<WebWidgetHost> factory_;
+  base::WeakPtrFactory<WebWidgetHost> weak_factory_;
 };
 
 #endif  // _WEBWIDGET_HOST_H

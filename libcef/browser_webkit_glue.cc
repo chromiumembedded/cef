@@ -104,21 +104,6 @@ void ClearCache()
   WebCore::CrossOriginPreflightResultCache::shared().empty();
 }
 
-std::string BuildUserAgent(bool mimic_windows) {
-  std::string product_version;
-
-  const CefSettings& settings = _Context->settings();
-  if (settings.product_version.length > 0) {
-    product_version = CefString(&settings.product_version).ToString();
-  } else {
-    // Keep synchronized with the newest Beta Channel release announced at
-    // http://googlechromereleases.blogspot.com/
-    product_version = "Chrome/13.0.782.41";
-  }
-
-  return webkit_glue::BuildUserAgentHelper(mimic_windows, product_version);
-}
-
 #if defined(OS_LINUX)
 int MatchFontWithFallback(const std::string& face, bool bold,
                           bool italic, int charset) {

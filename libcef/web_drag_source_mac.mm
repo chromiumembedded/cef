@@ -110,7 +110,7 @@ void PromiseWriterTask::Run() {
   CHECK(file_stream_.get());
   file_stream_->Write(drop_data_.file_contents.data(),
                       drop_data_.file_contents.length(),
-                      NULL);
+                      net::CompletionCallback());
 
   // Let our destructor take care of business.
 }

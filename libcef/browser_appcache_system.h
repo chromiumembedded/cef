@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_TOOLS_TEST_SHELL_Browser_APPCACHE_SYSTEM_H_
+#ifndef _BROWSER_APPCACHE_SYSTEM_H
 #define _BROWSER_APPCACHE_SYSTEM_H
 
 #include "base/file_path.h"

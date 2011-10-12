@@ -21,6 +21,7 @@
 #include "ui/base/ui_base_paths.h"
 #include "ui/gfx/gl/gl_implementation.h"
 #include "webkit/extensions/v8/gc_extension.h"
+#include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
@@ -133,8 +134,22 @@ void CefProcessUIThread::Init() {
   // Create the storage context object.
   _Context->set_storage_context(new DOMStorageContext(_Context->cache_path()));
 
-  if (settings.user_agent.length > 0)
-    webkit_glue::SetUserAgent(CefString(&settings.user_agent));
+  if (settings.user_agent.length > 0) {
+    webkit_glue::SetUserAgent(CefString(&settings.user_agent), false);
+  } else {
+    std::string product_version;
+
+    if (settings.product_version.length > 0) {
+      product_version = CefString(&settings.product_version).ToString();
+    } else {
+      // Keep synchronized with the newest Dev Channel release announced at
+      // http://googlechromereleases.blogspot.com/
+      product_version = "Chrome/16.0.904.0";
+    }
+
+    webkit_glue::SetUserAgent(
+        webkit_glue::BuildUserAgentFromProduct(product_version), false);
+  }
   
   if (settings.extra_plugin_paths) {
     cef_string_t str;

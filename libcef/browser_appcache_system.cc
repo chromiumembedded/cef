@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "base/bind.h"
+#include "base/bind_helpers.h"
 #include "base/callback.h"
 #include "base/task.h"
 #include "base/synchronization/waitable_event.h"
@@ -38,9 +40,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread()) {
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnCacheSelected,
-          host_id, info));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnCacheSelected, this, host_id,
+                     info));
     } else if (system_->is_ui_thread()) {
       system_->frontend_impl_.OnCacheSelected(host_id, info);
     } else {
@@ -53,8 +56,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread())
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnStatusChanged, host_ids, status));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnStatusChanged, this, host_ids,
+                     status));
     else if (system_->is_ui_thread())
       system_->frontend_impl_.OnStatusChanged(host_ids, status);
     else
@@ -66,8 +71,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread())
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnEventRaised, host_ids, event_id));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnEventRaised, this, host_ids,
+                     event_id));
     else if (system_->is_ui_thread())
       system_->frontend_impl_.OnEventRaised(host_ids, event_id);
     else
@@ -80,9 +87,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread())
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnProgressEventRaised,
-          host_ids, url, num_total, num_complete));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnProgressEventRaised, this,
+                     host_ids, url, num_total, num_complete));
     else if (system_->is_ui_thread())
       system_->frontend_impl_.OnProgressEventRaised(
           host_ids, url, num_total, num_complete);
@@ -95,9 +103,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread())
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnErrorEventRaised,
-          host_ids, message));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnErrorEventRaised, this, host_ids,
+                     message));
     else if (system_->is_ui_thread())
       system_->frontend_impl_.OnErrorEventRaised(
           host_ids, message);
@@ -111,9 +120,10 @@ class BrowserFrontendProxy
     if (!system_)
       return;
     if (system_->is_io_thread())
-      system_->ui_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserFrontendProxy::OnLogMessage,
-          host_id, log_level, message));
+      system_->ui_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserFrontendProxy::OnLogMessage, this, host_id,
+                     log_level, message));
     else if (system_->is_ui_thread())
       system_->frontend_impl_.OnLogMessage(
           host_id, log_level, message);
@@ -141,18 +151,22 @@ class BrowserBackendProxy
  public:
   explicit BrowserBackendProxy(BrowserAppCacheSystem* appcache_system)
       : system_(appcache_system), event_(true, false) {
-    get_status_callback_.reset(
-        NewCallback(this, &BrowserBackendProxy::GetStatusCallback));
-    start_update_callback_.reset(
-        NewCallback(this, &BrowserBackendProxy::StartUpdateCallback));
-    swap_cache_callback_.reset(
-        NewCallback(this, &BrowserBackendProxy::SwapCacheCallback));
+    get_status_callback_ =
+        base::Bind(&BrowserBackendProxy::GetStatusCallback,
+                   base::Unretained(this));
+    start_update_callback_ =
+        base::Bind(&BrowserBackendProxy::StartUpdateCallback,
+                   base::Unretained(this));
+    swap_cache_callback_=
+        base::Bind(&BrowserBackendProxy::SwapCacheCallback,
+                   base::Unretained(this));
   }
 
   virtual void RegisterHost(int host_id) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::RegisterHost, host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::RegisterHost, this, host_id));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->RegisterHost(host_id);
     } else {
@@ -162,8 +176,9 @@ class BrowserBackendProxy
 
   virtual void UnregisterHost(int host_id) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::UnregisterHost, host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::UnregisterHost, this, host_id));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->UnregisterHost(host_id);
     } else {
@@ -173,9 +188,10 @@ class BrowserBackendProxy
 
   virtual void SetSpawningHostId(int host_id, int spawning_host_id) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::SetSpawningHostId,
-          host_id, spawning_host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::SetSpawningHostId, this, host_id,
+                     spawning_host_id));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->SetSpawningHostId(host_id, spawning_host_id);
     } else {
@@ -188,9 +204,11 @@ class BrowserBackendProxy
                            const int64 cache_document_was_loaded_from,
                            const GURL& manifest_url) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::SelectCache, host_id, document_url,
-              cache_document_was_loaded_from, manifest_url));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::SelectCache, this, host_id,
+                     document_url, cache_document_was_loaded_from,
+                     manifest_url));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->SelectCache(host_id, document_url,
                                           cache_document_was_loaded_from,
@@ -204,9 +222,10 @@ class BrowserBackendProxy
       int host_id,
       std::vector<appcache::AppCacheResourceInfo>* resource_infos) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::GetResourceList,
-          host_id, resource_infos));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::GetResourceList, this, host_id,
+                     resource_infos));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->GetResourceList(host_id, resource_infos);
     } else {
@@ -230,9 +249,10 @@ class BrowserBackendProxy
   virtual void MarkAsForeignEntry(int host_id, const GURL& document_url,
                                   int64 cache_document_was_loaded_from) {
     if (system_->is_ui_thread()) {
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::MarkAsForeignEntry, host_id, document_url,
-          cache_document_was_loaded_from));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          base::Bind(&BrowserBackendProxy::MarkAsForeignEntry, this, host_id,
+                     document_url, cache_document_was_loaded_from));
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->MarkAsForeignEntry(
                                   host_id, document_url,
@@ -246,12 +266,13 @@ class BrowserBackendProxy
     if (system_->is_ui_thread()) {
       status_result_ = appcache::UNCACHED;
       event_.Reset();
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::GetStatus, host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          NewRunnableMethod(this, &BrowserBackendProxy::GetStatus, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->GetStatusWithCallback(
-          host_id, get_status_callback_.get(), NULL);
+          host_id, get_status_callback_, NULL);
     } else {
       NOTREACHED();
     }
@@ -262,12 +283,13 @@ class BrowserBackendProxy
     if (system_->is_ui_thread()) {
       bool_result_ = false;
       event_.Reset();
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::StartUpdate, host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          NewRunnableMethod(this, &BrowserBackendProxy::StartUpdate, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->StartUpdateWithCallback(
-          host_id, start_update_callback_.get(), NULL);
+          host_id, start_update_callback_, NULL);
     } else {
       NOTREACHED();
     }
@@ -278,12 +300,13 @@ class BrowserBackendProxy
     if (system_->is_ui_thread()) {
       bool_result_ = false;
       event_.Reset();
-      system_->io_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &BrowserBackendProxy::SwapCache, host_id));
+      system_->io_message_loop()->PostTask(
+          FROM_HERE,
+          NewRunnableMethod(this, &BrowserBackendProxy::SwapCache, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->SwapCacheWithCallback(
-          host_id, swap_cache_callback_.get(), NULL);
+          host_id, swap_cache_callback_, NULL);
     } else {
       NOTREACHED();
     }
@@ -318,9 +341,9 @@ class BrowserBackendProxy
   base::WaitableEvent event_;
   bool bool_result_;
   appcache::Status status_result_;
-  scoped_ptr<appcache::GetStatusCallback> get_status_callback_;
-  scoped_ptr<appcache::StartUpdateCallback> start_update_callback_;
-  scoped_ptr<appcache::SwapCacheCallback> swap_cache_callback_;
+  appcache::GetStatusCallback get_status_callback_;
+  appcache::StartUpdateCallback start_update_callback_;
+  appcache::SwapCacheCallback swap_cache_callback_;
 };
 
 
@@ -356,8 +379,8 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
     // We pump a task thru the db thread to ensure any tasks previously
     // scheduled on that thread have been performed prior to return.
     base::WaitableEvent event(false, false);
-    db_thread_.message_loop()->PostTask(FROM_HERE,
-        NewRunnableFunction(&SignalEvent, &event));
+    db_thread_.message_loop()->PostTask(
+        FROM_HERE, base::Bind(&SignalEvent, &event));
     event.Wait();
   }
 }

@@ -221,10 +221,12 @@ WebKit::WebGraphicsContext3D* BrowserWebKitInit::createGraphicsContext3D() {
       (settings.graphics_implementation == DESKTOP_IN_PROCESS_COMMAND_BUFFER);
 #endif
 
-  if (use_command_buffer)
+  if (use_command_buffer) {
     return new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl();
-  else
-    return new webkit::gpu::WebGraphicsContext3DInProcessImpl();
+  } else {
+    return new webkit::gpu::WebGraphicsContext3DInProcessImpl(
+        gfx::kNullPluginWindow);
+  }
 }
 
 WebKit::WebString BrowserWebKitInit::queryLocalizedString(

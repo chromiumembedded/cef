@@ -1,9 +1,10 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "browser_devtools_agent.h"
 
+#include "base/bind.h"
 #include "base/message_loop.h"
 #include "grit/webkit_chromium_resources.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgent.h"
@@ -52,7 +53,7 @@ void BrowserDevToolsAgent::DispatchMessageLoop() {
 }
 
 BrowserDevToolsAgent::BrowserDevToolsAgent()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(call_method_factory_(this)),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)),
       dev_tools_client_(NULL) {
   static int dev_tools_agent_counter;
   routing_id_ = ++dev_tools_agent_counter;
@@ -86,11 +87,10 @@ WebKit::WebDevToolsAgentClient::WebKitClientMessageLoop*
 }
 
 void BrowserDevToolsAgent::AsyncCall(const BrowserDevToolsCallArgs &args) {
-  MessageLoop::current()->PostDelayedTask(
+  MessageLoop::current()->PostTask(
       FROM_HERE,
-      call_method_factory_.NewRunnableMethod(&BrowserDevToolsAgent::Call,
-                                             args),
-      0);
+      base::Bind(&BrowserDevToolsAgent::Call, weak_factory_.GetWeakPtr(),
+                 args));
 }
 
 void BrowserDevToolsAgent::Call(const BrowserDevToolsCallArgs &args) {
@@ -130,11 +130,10 @@ void BrowserDevToolsAgent::detach() {
 }
 
 void BrowserDevToolsAgent::frontendLoaded() {
-  MessageLoop::current()->PostDelayedTask(
+  MessageLoop::current()->PostTask(
       FROM_HERE,
-      call_method_factory_.NewRunnableMethod(
-          &BrowserDevToolsAgent::DelayedFrontendLoaded),
-      0);
+      base::Bind(&BrowserDevToolsAgent::DelayedFrontendLoaded,
+                 weak_factory_.GetWeakPtr()));
 }
 
 bool BrowserDevToolsAgent::evaluateInWebInspector(

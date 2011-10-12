@@ -29,7 +29,7 @@
 #include "media/base/filter_collection.h"
 #include "media/base/media_log.h"
 #include "media/base/message_loop_factory_impl.h"
-#include "media/filters/audio_renderer_impl.h"
+#include "media/filters/reference_audio_renderer.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
@@ -591,21 +591,25 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 #endif
 
   if (force_windowless) {
-    bool flash = LowerCaseEqualsASCII(params.mimeType.utf8(),
+    WebPluginParams params_copy = params;
+    params_copy.mimeType = WebString::fromUTF8(mime_types.front());
+
+    bool flash = LowerCaseEqualsASCII(params_copy.mimeType.utf8(),
                                       "application/x-shockwave-flash");
-    bool silverlight = StartsWithASCII(params.mimeType.utf8(),
+    bool silverlight = StartsWithASCII(params_copy.mimeType.utf8(),
                                        "application/x-silverlight", false);
 
     if (flash || silverlight) {
       // Force Flash and Silverlight plugins to use windowless mode.
-      DCHECK(params.attributeNames.size() == params.attributeValues.size());
-      size_t size = params.attributeNames.size();
+      DCHECK(params_copy.attributeNames.size() ==
+             params_copy.attributeValues.size());
+      size_t size = params_copy.attributeNames.size();
 
       WebVector<WebString> new_names(size+1),  new_values(size+1);
 
       for (size_t i = 0; i < size; ++i) {
-        new_names[i] = params.attributeNames[i];
-        new_values[i] = params.attributeValues[i];
+        new_names[i] = params_copy.attributeNames[i];
+        new_values[i] = params_copy.attributeValues[i];
       }
 
       if (flash) {
@@ -616,18 +620,16 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
         new_values[size] = "true";
       }
 
-      WebPluginParams new_params = params;
-      new_params.attributeNames.swap(new_names);
-      new_params.attributeValues.swap(new_values);
+      params_copy.attributeNames.swap(new_names);
+      params_copy.attributeValues.swap(new_values);
 
       return new webkit::npapi::WebPluginImpl(
-          frame, new_params, plugins.front().path, mime_types.front(),
-          AsWeakPtr());
+          frame, params_copy, plugins.front().path, AsWeakPtr());
     }
   }
 
   return new webkit::npapi::WebPluginImpl(
-      frame, params, plugins.front().path, mime_types.front(), AsWeakPtr());
+      frame, params, plugins.front().path, AsWeakPtr());
 }
 
 WebWorker* BrowserWebViewDelegate::createWorker(
@@ -648,7 +650,7 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   collection->AddVideoRenderer(video_renderer);
 
   // Add the audio renderer.
-  collection->AddAudioRenderer(new media::AudioRendererImpl());
+  collection->AddAudioRenderer(new media::ReferenceAudioRenderer());
 
   scoped_ptr<webkit_glue::WebMediaPlayerImpl> result(
       new webkit_glue::WebMediaPlayerImpl(client,

@@ -159,8 +159,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     InitializeParams(params);
 
     // proxy over to the io thread
-    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::AsyncStart, params));
+    CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+        &RequestProxy::AsyncStart, this, params));
   }
 
   void Cancel() {
@@ -170,8 +170,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     }
 
     // proxy over to the io thread
-    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::AsyncCancel));
+    CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+        &RequestProxy::AsyncCancel, this));
   }
 
  protected:
@@ -198,8 +198,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (peer_ && peer_->OnReceivedRedirect(new_url, info,
                                            &has_new_first_party_for_cookies,
                                            &new_first_party_for_cookies)) {
-      CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-          this, &RequestProxy::AsyncFollowDeferredRedirect,
+      CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+          &RequestProxy::AsyncFollowDeferredRedirect, this,
           has_new_first_party_for_cookies, new_first_party_for_cookies));
     } else {
       Cancel();
@@ -273,8 +273,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     // peer could generate new requests in response to the received data, which
     // when run on the io thread, could race against this function in doing
     // another InvokeLater.  See bug 769249.
-    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::AsyncReadData));
+    CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+        &RequestProxy::AsyncReadData, this));
 
     CefRefPtr<CefStreamReader> resourceStream;
 
@@ -294,8 +294,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (download_handler_.get() &&
         !download_handler_->ReceivedData(buf_copy.get(), bytes_read)) {
       // Cancel loading by proxying over to the io thread.
-      CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-          this, &RequestProxy::AsyncCancel));
+      CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+          &RequestProxy::AsyncCancel, this));
     }
 
     peer_->OnReceivedData(buf_copy.get(), bytes_read, -1);
@@ -306,8 +306,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       return;
 
     // Continue reading more data, see the comment in NotifyReceivedData.
-    CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::AsyncReadData));
+    CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+        &RequestProxy::AsyncReadData, this));
 
     peer_->OnDownloadedData(bytes_read);
   }
@@ -332,8 +332,8 @@ class RequestProxy : public net::URLRequest::Delegate,
           if (download_handler_.get() &&
               !download_handler_->ReceivedData(buf.get(), size)) {
             // Cancel loading by proxying over to the io thread.
-            CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-                this, &RequestProxy::AsyncCancel));
+            CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+                &RequestProxy::AsyncCancel, this));
           }
 
           if (peer_)
@@ -610,8 +610,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       const ResourceResponseInfo& info,
       bool* defer_redirect) {
     *defer_redirect = true;  // See AsyncFollowDeferredRedirect
-    owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyReceivedRedirect, new_url, info));
+    owner_loop_->PostTask(FROM_HERE, base::Bind(
+        &RequestProxy::NotifyReceivedRedirect, this, new_url, info));
   }
 
   virtual void OnReceivedResponse(
@@ -630,21 +630,21 @@ class RequestProxy : public net::URLRequest::Delegate,
       url = simulated_url;
     }
 
-    owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyReceivedResponse, info, url,
+    owner_loop_->PostTask(FROM_HERE, base::Bind(
+        &RequestProxy::NotifyReceivedResponse, this, info, url,
         allow_download));
   }
 
   virtual void OnReceivedData(int bytes_read) {
     if (download_to_file_) {
-      file_stream_.Write(buf_->data(), bytes_read, NULL);
-      owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &RequestProxy::NotifyDownloadedData, bytes_read));
+      file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
+      owner_loop_->PostTask(FROM_HERE, base::Bind(
+          &RequestProxy::NotifyDownloadedData, this, bytes_read));
       return;
     }
     
-    owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyReceivedData, bytes_read));
+    owner_loop_->PostTask(FROM_HERE, base::Bind(
+        &RequestProxy::NotifyReceivedData, this, bytes_read));
   }
 
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
@@ -653,8 +653,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (download_to_file_)
       file_stream_.Close();
 
-    owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyCompletedRequest, status, security_info,
+    owner_loop_->PostTask(FROM_HERE, base::Bind(
+        &RequestProxy::NotifyCompletedRequest, this, status, security_info,
         complete_time));
   }
 
@@ -707,8 +707,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   virtual void OnSSLCertificateError(net::URLRequest* request,
-                                     int cert_error,
-                                     net::X509Certificate* cert) OVERRIDE {
+                                     const net::SSLInfo& ssl_info,
+                                     bool is_hsts_host) OVERRIDE {
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
   }
@@ -798,8 +798,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     bool too_much_time_passed = time_since_last > kOneSecond;
 
     if (is_finished || enough_new_progress || too_much_time_passed) {
-      owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &RequestProxy::NotifyUploadProgress, position, size));
+      owner_loop_->PostTask(FROM_HERE, base::Bind(
+          &RequestProxy::NotifyUploadProgress, this, position, size));
       last_upload_ticks_ = base::TimeTicks::Now();
       last_upload_position_ = position;
     }
@@ -866,8 +866,7 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   void WaitForCompletion() {
-    if (!event_.Wait())
-      NOTREACHED();
+    event_.Wait();
   }
 
   // --------------------------------------------------------------------------
@@ -895,7 +894,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnReceivedData(int bytes_read) {
     if (download_to_file_)
-      file_stream_.Write(buf_->data(), bytes_read, NULL);
+      file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
     else
       result_->data.append(buf_->data(), bytes_read);
     AsyncReadData();  // read more (may recurse)
@@ -1072,8 +1071,7 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
   std::string GetResult() {
-    if (!event_.Wait())
-      NOTREACHED();
+    event_.Wait();
     return result_;
   }
 
@@ -1114,8 +1112,8 @@ void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
                                             const std::string& cookie) {
   // Proxy to IO thread to synchronize w/ network loading.
   scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
-  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-      cookie_setter.get(), &CookieSetter::Set, url, cookie));
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &CookieSetter::Set, cookie_setter.get(), url, cookie));
 }
 
 // static
@@ -1123,8 +1121,8 @@ std::string BrowserResourceLoaderBridge::GetCookies(
     const GURL& url, const GURL& first_party_for_cookies) {
   // Proxy to IO thread to synchronize w/ network loading.
   scoped_refptr<CookieGetter> cookie_getter = new CookieGetter();
-  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-      cookie_getter.get(), &CookieGetter::Get, url));
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &CookieGetter::Get, cookie_getter.get(), url));
 
   // Blocks until the result is available.
   return cookie_getter->GetResult();
@@ -1133,9 +1131,9 @@ std::string BrowserResourceLoaderBridge::GetCookies(
 // static
 void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
   // Proxy to IO thread to synchronize w/ network loading.
-  CefThread::PostTask(CefThread::IO, FROM_HERE, NewRunnableMethod(
-      _Context->request_context().get(),
-      &BrowserRequestContext::SetAcceptAllCookies, accept_all_cookies));
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &BrowserRequestContext::SetAcceptAllCookies,
+      _Context->request_context().get(), accept_all_cookies));
 }
 
 // static
