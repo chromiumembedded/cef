@@ -21,6 +21,8 @@ class ClientHandler : public CefClient,
                       public CefLoadHandler,
                       public CefRequestHandler,
                       public CefDisplayHandler,
+                      public CefFocusHandler,
+                      public CefKeyboardHandler,
                       public CefPrintHandler,
                       public CefJSBindingHandler,
                       public CefDragHandler,
@@ -38,6 +40,10 @@ public:
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE
       { return this; }
@@ -97,6 +103,18 @@ public:
                                 const CefString& source,
                                 int line) OVERRIDE;
   
+  // CefFocusHandler methods.
+  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefDOMNode> node) OVERRIDE;
+
+  // CefKeyboardHandler methods.
+  virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
+                          KeyEventType type,
+                          int code,
+                          int modifiers,
+                          bool isSystemKey) OVERRIDE;
+
   // CefPrintHandler methods.
   virtual bool GetPrintHeaderFooter(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
@@ -191,6 +209,9 @@ protected:
   // Support for DOM visitors.
   typedef std::map<std::string, CefRefPtr<CefDOMVisitor> > DOMVisitorMap;
   DOMVisitorMap m_DOMVisitors;
+
+  // True if a form element currently has focus
+  bool m_bFormElementHasFocus;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

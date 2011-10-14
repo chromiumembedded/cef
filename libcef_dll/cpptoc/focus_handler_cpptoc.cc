@@ -12,6 +12,8 @@
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/domnode_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -40,6 +42,21 @@ int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
       CefBrowserCToCpp::Wrap(browser), source);
 }
 
+void CEF_CALLBACK focus_handler_on_focused_node_changed(
+    struct _cef_focus_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, struct _cef_domnode_t* node)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(frame);
+  if (!self || !browser || !frame)
+    return;
+
+  return CefFocusHandlerCppToC::Get(self)->OnFocusedNodeChanged(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefDOMNodeCToCpp::Wrap(node));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -49,6 +66,8 @@ CefFocusHandlerCppToC::CefFocusHandlerCppToC(CefFocusHandler* cls)
 {
   struct_.struct_.on_take_focus = focus_handler_on_take_focus;
   struct_.struct_.on_set_focus = focus_handler_on_set_focus;
+  struct_.struct_.on_focused_node_changed =
+      focus_handler_on_focused_node_changed;
 }
 
 #ifndef NDEBUG

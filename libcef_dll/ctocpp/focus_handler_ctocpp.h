@@ -36,6 +36,8 @@ public:
   virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
   virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
       FocusSource source) OVERRIDE;
+  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

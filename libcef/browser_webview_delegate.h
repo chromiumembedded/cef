@@ -112,6 +112,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual bool acceptsLoadDrops() OVERRIDE { return true; }
   virtual void focusNext() OVERRIDE;
   virtual void focusPrevious() OVERRIDE;
+  virtual void focusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;
   virtual void navigateBackForwardSoon(int offset) OVERRIDE;
   virtual int historyBackListCount() OVERRIDE;
   virtual int historyForwardListCount() OVERRIDE;

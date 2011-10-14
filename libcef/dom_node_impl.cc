@@ -159,6 +159,40 @@ bool CefDOMNodeImpl::IsElement()
   return node_.isElementNode();
 }
 
+bool CefDOMNodeImpl::IsFormControlElement()
+{
+  if (!VerifyContext())
+    return false;
+
+  if (node_.isElementNode()) {
+    const WebElement& element = node_.toConst<WebElement>();
+    return element.isFormControlElement();
+  }
+
+  return false;
+}
+
+CefString CefDOMNodeImpl::GetFormControlElementType()
+{
+  CefString str;
+  if (!VerifyContext())
+    return str;
+
+  if (node_.isElementNode()) {
+    const WebElement& element = node_.toConst<WebElement>();
+    if (element.isFormControlElement()) {
+      // Retrieve the type from the form control element.
+      const WebFormControlElement& formElement =
+          node_.toConst<WebFormControlElement>();
+
+      const string16& form_control_type = formElement.formControlType();
+      str = form_control_type;
+    }
+  }
+
+  return str;
+}
+
 bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that)
 {
   if (!VerifyContext())

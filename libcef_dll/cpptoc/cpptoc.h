@@ -40,6 +40,9 @@ public:
   // instance to the other side.
   static StructName* Wrap(CefRefPtr<BaseName> c)
   {
+    if (!c.get())
+      return NULL;
+
     // Wrap our object with the CefCppToC class.
     ClassName* wrapper = new ClassName(c);
     // Add a reference to our wrapper object that will be released once our
@@ -53,6 +56,8 @@ public:
   // our wrapper structure back from the other side.
   static CefRefPtr<BaseName> Unwrap(StructName* s)
   {
+    DCHECK(s);
+
     // Cast our structure to the wrapper structure type.
     Struct* wrapperStruct = reinterpret_cast<Struct*>(s);
     // Add the underlying object instance to a smart pointer.

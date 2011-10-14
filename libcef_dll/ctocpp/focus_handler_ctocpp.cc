@@ -11,6 +11,8 @@
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/domnode_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 
 
@@ -33,6 +35,17 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
 
   return struct_->on_set_focus(struct_, CefBrowserCppToC::Wrap(browser),
       source) ? true : false;
+}
+
+void CefFocusHandlerCToCpp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node)
+{
+  if (CEF_MEMBER_MISSING(struct_, on_focused_node_changed))
+    return;
+
+  struct_->on_focused_node_changed(struct_,
+      CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefDOMNodeCppToC::Wrap(node));
 }
 
 

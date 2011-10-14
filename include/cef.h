@@ -1331,6 +1331,19 @@ public:
   /*--cef()--*/
   virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
                           FocusSource source) { return false; }
+
+  ///
+  // Called when a new node in the the browser gets focus. The |node| value may
+  // be empty if no specific node has gained focus. The node object passed to
+  // this method represents a snapshot of the DOM at the time this method is
+  // executed. DOM objects are only valid for the scope of this method. Do not
+  // keep references to or attempt to access any DOM objects outside the scope
+  // of this method.
+  ///
+  /*--cef()--*/
+  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefDOMNode> node) {}
 };
 
 
@@ -1345,10 +1358,11 @@ public:
   typedef cef_handler_keyevent_type_t KeyEventType;
 
   ///
-  // Called when the browser component receives a keyboard event. |type| is the
-  // type of keyboard event, |code| is the windows scan-code for the event,
-  // |modifiers| is a set of bit-flags describing any pressed modifier keys and
-  // |isSystemKey| is true if Windows considers this a 'system key' message (see
+  // Called when the browser component receives a keyboard event that has not
+  // been intercepted via JavaScript. |type| is the type of keyboard event,
+  // |code| is the windows scan-code for the event, |modifiers| is a set of bit-
+  // flags describing any pressed modifier keys and |isSystemKey| is true if
+  // Windows considers this a 'system key' message (see
   // http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx). Return
   // true if the keyboard event was handled or false to allow the browser
   // component to handle the event.
@@ -3266,6 +3280,18 @@ public:
   ///
   /*--cef()--*/
   virtual bool IsElement() =0;
+
+  ///
+  // Returns true if this is a form control element node.
+  ///
+  /*--cef()--*/
+  virtual bool IsFormControlElement() =0;
+
+  ///
+  // Returns the type of this form control element node.
+  ///
+  /*--cef()--*/
+  virtual CefString GetFormControlElementType() =0;
 
   ///
   // Returns true if this object is pointing to the same handle as |that|

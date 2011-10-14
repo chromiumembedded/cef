@@ -20,7 +20,8 @@ ClientHandler::ClientHandler()
     m_BackHwnd(NULL),
     m_ForwardHwnd(NULL),
     m_StopHwnd(NULL),
-    m_ReloadHwnd(NULL)
+    m_ReloadHwnd(NULL),
+    m_bFormElementHasFocus(false)
 {
 }
 
@@ -196,6 +197,37 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
 
     if(first_message)
       SendNotification(NOTIFY_CONSOLE_MESSAGE);
+  }
+
+  return false;
+}
+
+void ClientHandler::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
+                                         CefRefPtr<CefDOMNode> node)
+{
+  REQUIRE_UI_THREAD();
+
+  // Set to true if a form element has focus.
+  m_bFormElementHasFocus = (node.get() && node->IsFormControlElement());
+}
+
+bool ClientHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser,
+                               KeyEventType type,
+                               int code,
+                               int modifiers,
+                               bool isSystemKey)
+{
+  REQUIRE_UI_THREAD();
+
+  if (!m_bFormElementHasFocus && code == 0x20) {
+    // Special handling for the space character if a form element does not have
+    // focus.
+    if (type == KEYEVENT_RAWKEYDOWN) {
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "alert('You pressed the space bar!');", "", 0);
+    }
+    return true;
   }
 
   return false;

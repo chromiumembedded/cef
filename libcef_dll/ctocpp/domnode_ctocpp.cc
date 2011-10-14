@@ -42,6 +42,26 @@ bool CefDOMNodeCToCpp::IsElement()
   return struct_->is_element(struct_) ? true : false;
 }
 
+bool CefDOMNodeCToCpp::IsFormControlElement()
+{
+  if (CEF_MEMBER_MISSING(struct_, is_form_control_element))
+    return false;
+
+  return struct_->is_form_control_element(struct_) ? true : false;
+}
+
+CefString CefDOMNodeCToCpp::GetFormControlElementType()
+{
+  CefString str;
+  if (CEF_MEMBER_MISSING(struct_, get_form_control_element_type))
+    return str;
+
+  cef_string_userfree_t strPtr =
+      struct_->get_form_control_element_type(struct_);
+  str.AttachToUserFree(strPtr);
+  return str;
+}
+
 bool CefDOMNodeCToCpp::IsSame(CefRefPtr<CefDOMNode> that)
 {
   if (CEF_MEMBER_MISSING(struct_, is_same))

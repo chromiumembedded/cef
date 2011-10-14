@@ -1138,6 +1138,18 @@ typedef struct _cef_focus_handler_t
   int (CEF_CALLBACK *on_set_focus)(struct _cef_focus_handler_t* self,
       struct _cef_browser_t* browser, enum cef_handler_focus_source_t source);
 
+  ///
+  // Called when a new node in the the browser gets focus. The |node| value may
+  // be NULL if no specific node has gained focus. The node object passed to
+  // this function represents a snapshot of the DOM at the time this function is
+  // executed. DOM objects are only valid for the scope of this function. Do not
+  // keep references to or attempt to access any DOM objects outside the scope
+  // of this function.
+  ///
+  void (CEF_CALLBACK *on_focused_node_changed)(
+      struct _cef_focus_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, struct _cef_domnode_t* node);
+
 } cef_focus_handler_t;
 
 
@@ -1151,13 +1163,14 @@ typedef struct _cef_keyboard_handler_t
   cef_base_t base;
 
   ///
-  // Called when the browser component receives a keyboard event. |type| is the
-  // type of keyboard event, |code| is the windows scan-code for the event,
-  // |modifiers| is a set of bit-flags describing any pressed modifier keys and
-  // |isSystemKey| is true (1) if Windows considers this a 'system key' message
-  // (see http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx). Return
-  // true (1) if the keyboard event was handled or false (0) to allow the
-  // browser component to handle the event.
+  // Called when the browser component receives a keyboard event that has not
+  // been intercepted via JavaScript. |type| is the type of keyboard event,
+  // |code| is the windows scan-code for the event, |modifiers| is a set of bit-
+  // flags describing any pressed modifier keys and |isSystemKey| is true (1) if
+  // Windows considers this a 'system key' message (see
+  // http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx). Return true
+  // (1) if the keyboard event was handled or false (0) to allow the browser
+  // component to handle the event.
   ///
   int (CEF_CALLBACK *on_key_event)(struct _cef_keyboard_handler_t* self,
       struct _cef_browser_t* browser, enum cef_handler_keyevent_type_t type,
@@ -3044,6 +3057,18 @@ typedef struct _cef_domnode_t
   // Returns true (1) if this is an element node.
   ///
   int (CEF_CALLBACK *is_element)(struct _cef_domnode_t* self);
+
+  ///
+  // Returns true (1) if this is a form control element node.
+  ///
+  int (CEF_CALLBACK *is_form_control_element)(struct _cef_domnode_t* self);
+
+  ///
+  // Returns the type of this form control element node.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_form_control_element_type)(
+      struct _cef_domnode_t* self);
 
   ///
   // Returns true (1) if this object is pointing to the same handle as |that|

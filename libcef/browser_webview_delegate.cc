@@ -17,6 +17,7 @@
 #include "browser_webstoragenamespace_impl.h"
 #include "browser_zoom_map.h"
 #include "cef_context.h"
+#include "dom_document_impl.h"
 #include "request_impl.h"
 #include "v8_impl.h"
 
@@ -458,6 +459,30 @@ void BrowserWebViewDelegate::focusPrevious() {
     if (handler.get()) {
       // Notify the handler that it should take a focus
       handler->OnTakeFocus(browser_, false);
+    }
+  }
+}
+
+void BrowserWebViewDelegate::focusedNodeChanged(const WebKit::WebNode& node) {
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+    if (handler.get()) {
+      if (node.isNull()) {
+        handler->OnFocusedNodeChanged(browser_, browser_->GetFocusedFrame(),
+            NULL);
+      } else {
+        const WebKit::WebDocument& document = node.document();
+        if (!document.isNull()) {
+          WebKit::WebFrame* frame = document.frame();
+          CefRefPtr<CefDOMDocumentImpl> documentImpl =
+              new CefDOMDocumentImpl(browser_, frame);
+          handler->OnFocusedNodeChanged(browser_,
+              browser_->UIT_GetCefFrame(frame),
+              documentImpl->GetOrCreateNode(node));
+          documentImpl->Detach();
+        }
+      }
     }
   }
 }
