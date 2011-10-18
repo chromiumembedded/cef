@@ -22,21 +22,35 @@ This utility creates the version header file.
 parser = OptionParser(description=disc)
 parser.add_option('--header', dest='header', metavar='FILE',
                   help='output version header file [required]')
+parser.add_option('--version', dest='version', metavar='FILE',
+                  help='input Chrome version config file [required]')
 parser.add_option('-q', '--quiet',
                   action='store_true', dest='quiet', default=False,
                   help='do not output detailed status information')
 (options, args) = parser.parse_args()
 
 # the header option is required
-if options.header is None:
+if options.header is None or options.version is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-def write_svn_header(file):
-    """ Creates the header file for the current revision if the revision has
-        changed or if the file doesn't already exist. """
-    if path_exists(file):
-        oldcontents = read_file(file)
+def write_svn_header(header, version):
+    """ Creates the header file for the current revision and Chrome version information
+       if the information has changed or if the file doesn't already exist. """
+
+    if not path_exists(version):
+      raise Exception('Version file '+version+' does not exist.')
+
+    # Read and parse the version file (key=value pairs, one per line)
+    chrome = {}
+    lines = read_file(version).split("\n")
+    for line in lines:
+      parts = line.split('=', 1)
+      if len(parts) == 2:
+        chrome[parts[0]] = parts[1]
+
+    if path_exists(header):
+        oldcontents = read_file(header)
     else:
         oldcontents = ''
 
@@ -44,20 +58,25 @@ def write_svn_header(file):
                   '#ifndef _VERSION_H\n'+\
                   '#define _VERSION_H\n'+\
                   '\n'+\
-                  '#define SVN_REVISION ' + get_revision() + '\n'+\
+                  '#define CEF_REVISION ' + get_revision() + '\n'+\
                   '#define COPYRIGHT_YEAR ' + get_year() + '\n'+\
+                  '\n'+\
+                  '#define CHROME_VERSION_MAJOR ' + chrome['MAJOR'] + '\n'+\
+                  '#define CHROME_VERSION_MINOR ' + chrome['MINOR'] + '\n'+\
+                  '#define CHROME_VERSION_BUILD ' + chrome['BUILD'] + '\n'+\
+                  '#define CHROME_VERSION_PATCH ' + chrome['PATCH'] + '\n'+\
                   '\n'+\
                   '#define DO_MAKE_STRING(p) #p\n'+\
                   '#define MAKE_STRING(p) DO_MAKE_STRING(p)\n'+\
                   '\n'+\
                   '#endif\n'
     if newcontents != oldcontents:
-        write_file(file, newcontents)
+        write_file(header, newcontents)
         return True
 
     return False
 
-written = write_svn_header(options.header)
+written = write_svn_header(options.header, options.version)
 if not options.quiet:
   if written:
     sys.stdout.write('File '+options.header+' updated.\n')

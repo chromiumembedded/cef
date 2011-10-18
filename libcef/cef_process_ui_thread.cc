@@ -7,6 +7,7 @@
 #include "browser_webkit_glue.h"
 #include "browser_webkit_init.h"
 #include "cef_context.h"
+#include "../version.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -14,6 +15,7 @@
 #include "base/metrics/stats_table.h"
 #include "base/rand_util.h"
 #include "base/string_number_conversions.h"
+#include "base/stringprintf.h"
 #include "build/build_config.h"
 #include "net/base/net_module.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
@@ -142,9 +144,9 @@ void CefProcessUIThread::Init() {
     if (settings.product_version.length > 0) {
       product_version = CefString(&settings.product_version).ToString();
     } else {
-      // Keep synchronized with the newest Dev Channel release announced at
-      // http://googlechromereleases.blogspot.com/
-      product_version = "Chrome/16.0.904.0";
+      product_version = base::StringPrintf("Chrome/%d.%d.%d.%d",
+          CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+          CHROME_VERSION_PATCH);
     }
 
     webkit_glue::SetUserAgent(
