@@ -61,8 +61,8 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DCHECK(dx || dy);
 
-  gfx::Rect client_rect(NSRectToCGRect([view_ bounds]));
-  gfx::Rect rect = clip_rect.Intersect(client_rect);
+  const gfx::Rect client_rect(NSRectToCGRect([view_ bounds]));
+  const gfx::Rect rect = clip_rect.Intersect(client_rect);
   
   // Convert scroll rectangle to the view's coordinate system, and perform the
   // scroll directly, without invalidating the view. In theory this could cause
@@ -105,6 +105,16 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
     paint_rect_ = gfx::Rect(rect.x(), rect.y() + dy, rect.width(), -dx);
   Paint();
 
+  // If any part of the scrolled rect was marked as dirty, make sure to redraw
+  // it in the new scrolled-to location. Otherwise we can end up with artifacts
+  // for overlapping elements.
+  gfx::Rect moved_paint_rect = saved_paint_rect.Intersect(clip_rect);
+  if (!moved_paint_rect.IsEmpty()) {
+    moved_paint_rect.Offset(dx, dy);
+    paint_rect_ = moved_paint_rect;
+    Paint();
+  }
+  
   paint_rect_ = saved_paint_rect;
 }
 
