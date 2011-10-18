@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 if "%1" == "" (
 echo ERROR: Please specify a build target: Debug or Release
@@ -24,3 +25,4 @@ echo Building %1 target for %PROJECT_NAME% project...
 devenv.com /build %1 ..\cef.sln /project %PROJECT_NAME%%PROJECT_EXT%
 
 :end
+endlocal
