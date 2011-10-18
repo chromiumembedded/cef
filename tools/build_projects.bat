@@ -21,8 +21,16 @@ call "%VS100COMNTOOLS%vsvars32.bat"
 set PROJECT_EXT=.vcxproj
 )
 
+if exist "%DevEnvDir%\devenv.com" (
 echo Building %1 target for %PROJECT_NAME% project...
-devenv.com /build %1 ..\cef.sln /project %PROJECT_NAME%%PROJECT_EXT%
+"%DevEnvDir%\devenv.com" /build %1 ..\cef.sln /project %PROJECT_NAME%%PROJECT_EXT%
+) else if exist "%VCINSTALLDIR%\vcpackages\vcbuild.exe" (
+echo Building %1 target for all projects...
+"%VCINSTALLDIR%\vcpackages\vcbuild.exe" ..\cef.sln "%1|Win32"
+) else (
+echo ERROR: Cannot find Visual Studio builder
+goto end
+)
 
 :end
 endlocal
