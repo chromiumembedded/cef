@@ -10,6 +10,21 @@ import os
 import re
 from svn_util import *
 import sys
+import zipfile
+
+def create_archive(input_dir, zip_file):
+  """ Creates a zip archive of the specified input directory. """
+  zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
+  def addDir(dir):
+    for f in os.listdir(dir):
+      full_path = os.path.join(dir, f)
+      if os.path.isdir(full_path):
+        addDir(full_path)
+      else:
+        zf.write(full_path, os.path.relpath(full_path, \
+                 os.path.join(input_dir, os.pardir)))
+  addDir(input_dir)
+  zf.close()
 
 def create_readme(src, output_dir, cef_rev, chromium_rev, date):
   """ Creates the README.TXT file. """
@@ -310,3 +325,9 @@ elif platform == 'linux':
   # transfer additional files, if any
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
                 output_dir, options.quiet)
+
+# Create an archive of the output directory
+zip_file = os.path.split(output_dir)[1] + '.zip'
+if not options.quiet:
+  sys.stdout.write('Creating '+zip_file+"...\n")
+create_archive(output_dir, os.path.join(output_dir, os.pardir, zip_file))
