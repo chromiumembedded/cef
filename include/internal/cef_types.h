@@ -525,6 +525,7 @@ enum cef_handler_navtype_t
   NAVTYPE_RELOAD,
   NAVTYPE_FORMRESUBMITTED,
   NAVTYPE_OTHER,
+  NAVTYPE_LINKDROPPED,
 };
 
 ///

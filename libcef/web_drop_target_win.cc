@@ -146,9 +146,12 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
+
+  browser_->set_is_dropping(true);
   browser_->UIT_GetWebView()->dragTargetDrop(
       WebPoint(client_pt.x, client_pt.y),
       WebPoint(cursor_position.x, cursor_position.y));
+  browser_->set_is_dropping(false);
 
   current_wvh_ = NULL;
 

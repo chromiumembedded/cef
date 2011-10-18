@@ -327,6 +327,9 @@ public:
   void set_has_document(bool has_document);
   bool has_document();
 
+  void set_is_dropping(bool is_dropping) { is_dropping_ = is_dropping; }
+  bool is_dropping() { return is_dropping_; }
+
 #if defined(OS_WIN)
   void set_opener_was_disabled_by_modal_loop(bool disabled)
   {
@@ -373,6 +376,9 @@ protected:
   bool can_go_back_;
   bool can_go_forward_;
   bool has_document_;
+
+  // True if a drop action is occuring.
+  bool is_dropping_;
 
 #if defined(OS_WIN)
   // Context object used to manage printing.

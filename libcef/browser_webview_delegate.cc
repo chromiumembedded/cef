@@ -738,9 +738,15 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
       if(map.size() > 0)
         static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
 
+      cef_handler_navtype_t navType;
+      if (browser_->is_dropping())
+        navType = NAVTYPE_LINKDROPPED;
+      else
+        navType = (cef_handler_navtype_t)type;
+
       // Notify the handler of a browse request
       bool handled = handler->OnBeforeBrowse(browser_,
-          browser_->UIT_GetCefFrame(frame), req, (cef_handler_navtype_t)type,
+          browser_->UIT_GetCefFrame(frame), req, navType,
           is_redirect);
       if(handled)
         return WebKit::WebNavigationPolicyIgnore;

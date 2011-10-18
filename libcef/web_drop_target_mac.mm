@@ -195,8 +195,11 @@ using WebKit::WebView;
   NSPoint windowPoint = [info draggingLocation];
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint view:view];
   NSPoint screenPoint = [self flipWindowPointToScreen:windowPoint view:view];
+
+  view_.browser->set_is_dropping(true);
   webview->dragTargetDrop(gfx::Point(viewPoint.x, viewPoint.y),
                           gfx::Point(screenPoint.x, screenPoint.y));
+  view_.browser->set_is_dropping(false);
 
   return YES;
 }

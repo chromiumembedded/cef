@@ -163,10 +163,20 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
                                const CefBrowserSettings& settings,
                                gfx::NativeView opener,
                                CefRefPtr<CefClient> client)
-  : window_info_(windowInfo), settings_(settings), opener_(opener),
-    is_modal_(false), client_(client), webviewhost_(NULL), popuphost_(NULL),
-    zoom_level_(0.0), can_go_back_(false), can_go_forward_(false),
-    has_document_(false), main_frame_(NULL), unique_id_(0)
+  : window_info_(windowInfo),
+    settings_(settings),
+    opener_(opener),
+    is_modal_(false),
+    client_(client),
+    webviewhost_(NULL),
+    popuphost_(NULL),
+    zoom_level_(0.0),
+    can_go_back_(false),
+    can_go_forward_(false),
+    has_document_(false),
+    is_dropping_(false),
+    main_frame_(NULL),
+    unique_id_(0)
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
     internal_modal_message_loop_is_active_(false)
