@@ -594,6 +594,9 @@ LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
   case WM_DESTROY:
     // Stop the timer that's used for redrawing.
     KillTimer(hWnd, 1);
+
+    // Explicitly close the offscreen browser and release the reference.
+    g_offscreenBrowser->CloseBrowser();
     g_offscreenBrowser = NULL;
     return 0;
 
