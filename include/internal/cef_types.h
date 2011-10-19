@@ -170,6 +170,11 @@ typedef struct _cef_browser_settings_t
   ///
   bool drag_drop_disabled;
 
+  ///
+  // Disable default navigation resulting from drag & drop of URLs.
+  ///
+  bool load_drops_disabled;
+
   // The below values map to WebPreferences settings.
 
   ///

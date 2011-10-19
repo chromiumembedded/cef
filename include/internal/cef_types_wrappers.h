@@ -313,6 +313,7 @@ struct CefBrowserSettingsTraits {
   static inline void set(const struct_type* src, struct_type* target, bool copy)
   {
     target->drag_drop_disabled = src->drag_drop_disabled;
+    target->load_drops_disabled = src->load_drops_disabled;
 
     cef_string_set(src->standard_font_family.str,
         src->standard_font_family.length, &target->standard_font_family, copy);

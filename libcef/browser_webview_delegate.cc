@@ -441,6 +441,10 @@ void BrowserWebViewDelegate::setToolTipText(
     GetWidgetHost()->SetTooltipText(tooltipStr);
 }
 
+bool BrowserWebViewDelegate::acceptsLoadDrops() {
+  return !browser_->settings().load_drops_disabled;
+}
+
 void BrowserWebViewDelegate::focusNext() {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {

@@ -248,7 +248,7 @@ void BrowserDragDelegate::PrepareDragForFileContents(
 }
 
 void BrowserDragDelegate::PrepareDragForUrl(const WebDropData& drop_data,
-                                               ui::OSExchangeData* data) {
+                                            ui::OSExchangeData* data) {
   if (drop_data.url.SchemeIs("javascript")) {
     // We don't want to allow javascript URLs to be dragged to the desktop.
   } else {
@@ -257,11 +257,11 @@ void BrowserDragDelegate::PrepareDragForUrl(const WebDropData& drop_data,
 }
 
 void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
-                                    WebDragOperationsMask ops,
-                                    const GURL& page_url,
-                                    const std::string& page_encoding,
-                                    const SkBitmap& image,
-                                    const gfx::Point& image_offset) {
+                                     WebDragOperationsMask ops,
+                                     const GURL& page_url,
+                                     const std::string& page_encoding,
+                                     const SkBitmap& image,
+                                     const gfx::Point& image_offset) {
   ui::OSExchangeData data;
 
   if (!drop_data.download_metadata.empty()) {

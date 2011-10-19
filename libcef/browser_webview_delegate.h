@@ -109,7 +109,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
        WebKit::WebDragOperationsMask mask,
       const  WebKit::WebImage& image,
       const  WebKit::WebPoint& image_offset) OVERRIDE;
-  virtual bool acceptsLoadDrops() OVERRIDE { return true; }
+  virtual bool acceptsLoadDrops() OVERRIDE;
   virtual void focusNext() OVERRIDE;
   virtual void focusPrevious() OVERRIDE;
   virtual void focusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;
