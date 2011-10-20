@@ -65,7 +65,7 @@ FilePath GetFileNameFromDragData(const WebDropData& drop_data) {
   if (file_name.empty()) {
     // Retrieve the name from the URL.
     string16 suggested_filename =
-        net::GetSuggestedFilename(drop_data.url, "", "", "", "", string16());
+        net::GetSuggestedFilename(drop_data.url, "", "", "", "", "");
     file_name = FilePathFromFilename(suggested_filename);
   }
 

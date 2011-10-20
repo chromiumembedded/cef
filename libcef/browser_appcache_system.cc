@@ -267,8 +267,8 @@ class BrowserBackendProxy
       status_result_ = appcache::UNCACHED;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE,
-          NewRunnableMethod(this, &BrowserBackendProxy::GetStatus, host_id));
+          FROM_HERE, base::IgnoreReturn<appcache::Status>(
+              base::Bind(&BrowserBackendProxy::GetStatus, this, host_id)));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->GetStatusWithCallback(
@@ -284,8 +284,8 @@ class BrowserBackendProxy
       bool_result_ = false;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE,
-          NewRunnableMethod(this, &BrowserBackendProxy::StartUpdate, host_id));
+          FROM_HERE, base::IgnoreReturn<bool>(
+              base::Bind(&BrowserBackendProxy::StartUpdate, this, host_id)));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->StartUpdateWithCallback(
@@ -301,8 +301,8 @@ class BrowserBackendProxy
       bool_result_ = false;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE,
-          NewRunnableMethod(this, &BrowserBackendProxy::SwapCache, host_id));
+          FROM_HERE, base::IgnoreReturn<bool>(
+              base::Bind(&BrowserBackendProxy::SwapCache, this, host_id)));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->SwapCacheWithCallback(

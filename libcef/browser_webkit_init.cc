@@ -225,7 +225,7 @@ WebKit::WebGraphicsContext3D* BrowserWebKitInit::createGraphicsContext3D() {
     return new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl();
   } else {
     return new webkit::gpu::WebGraphicsContext3DInProcessImpl(
-        gfx::kNullPluginWindow);
+        gfx::kNullPluginWindow, NULL);
   }
 }
 

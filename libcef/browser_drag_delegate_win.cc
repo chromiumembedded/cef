@@ -236,7 +236,7 @@ void BrowserDragDelegate::PrepareDragForFileContents(
   if (file_name.value().empty()) {
     // Retrieve the name from the URL.
     file_name = FilePath(
-        net::GetSuggestedFilename(drop_data.url, "", "", "", "", string16()));
+        net::GetSuggestedFilename(drop_data.url, "", "", "", "", ""));
     if (file_name.value().size() + drop_data.file_extension.size() + 1 >
         MAX_PATH) {
       file_name = FilePath(file_name.value().substr(

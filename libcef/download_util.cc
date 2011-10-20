@@ -169,7 +169,7 @@ void GenerateFileName(const GURL& url,
                                                 referrer_charset,
                                                 suggested_name,
                                                 mime_type,
-                                                ASCIIToUTF16("download"));
+                                                "download");
   
   // TODO(evan): this code is totally wrong -- we should just generate
   // Unicode filenames and do all this encoding switching at the end.

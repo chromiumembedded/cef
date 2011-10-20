@@ -683,6 +683,7 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
 
   scoped_ptr<webkit_glue::WebMediaPlayerImpl> result(
       new webkit_glue::WebMediaPlayerImpl(client,
+                                          NULL,
                                           collection.release(),
                                           message_loop_factory.release(),
                                           NULL,

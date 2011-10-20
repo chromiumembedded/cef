@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -32,15 +32,14 @@ class BrowserWebBlobRegistryImpl
                                const WebKit::WebURL& src_url);
   virtual void unregisterBlobURL(const WebKit::WebURL& url);
 
-  // Run on I/O thread.
-  void DoRegisterBlobUrl(const GURL& url, webkit_blob::BlobData* blob_data);
-  void DoRegisterBlobUrlFrom(const GURL& url, const GURL& src_url);
-  void DoUnregisterBlobUrl(const GURL& url);
-
- protected:
+ private:
   friend class base::RefCountedThreadSafe<BrowserWebBlobRegistryImpl>;
 
- private:
+  // Run on I/O thread.
+  void AddFinishedBlob(const GURL& url, webkit_blob::BlobData* blob_data);
+  void CloneBlob(const GURL& url, const GURL& src_url);
+  void RemoveBlob(const GURL& url);
+
   DISALLOW_COPY_AND_ASSIGN(BrowserWebBlobRegistryImpl);
 };
 

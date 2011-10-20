@@ -1,4 +1,5 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Portions copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,6 +7,9 @@
 #include "cef_thread.h"
 
 #include <list>
+#include <map>
+#include <set>
+#include <utility>
 
 #include "base/basictypes.h"
 #include "base/bind.h"
@@ -16,9 +20,11 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/metrics/histogram.h"
 #include "base/string_util.h"
+#include "base/synchronization/lock.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/registry_controlled_domain.h"
 #include "sql/meta_table.h"
 #include "sql/statement.h"
 #include "sql/transaction.h"
@@ -26,10 +32,24 @@
 using base::Time;
 
 // This class is designed to be shared between any calling threads and the
-// database thread.  It batches operations and commits them on a timer.
-// This class expects to be Load()'ed once on any thread. Loading occurs
-// asynchronously on the DB thread and the caller will be notified on the IO
-// thread. Subsequent to loading, mutations may be queued by any thread using
+// database thread. It batches operations and commits them on a timer.
+//
+// BrowserPersistentCookieStore::Load is called to load all cookies.  It
+// delegates to Backend::Load, which posts a Backend::LoadAndNotifyOnDBThread
+// task to the DB thread.  This task calls Backend::ChainLoadCookies(), which
+// repeatedly posts itself to the DB thread to load each eTLD+1's cookies in
+// separate tasks.  When this is complete, Backend::NotifyOnIOThread is posted
+// to the IO thread, which notifies the caller of BrowserPersistentCookieStore::
+// Load that the load is complete.
+//
+// If a priority load request is invoked via BrowserPersistentCookieStore::
+// LoadCookiesForKey, it is delegated to Backend::LoadCookiesForKey, which posts
+// Backend::LoadKeyAndNotifyOnDBThread to the DB thread. That routine loads just
+// that single domain key (eTLD+1)'s cookies, and posts a Backend::
+// NotifyOnIOThread to the IO thread to notify the caller of
+// BrowserPersistentCookieStore::LoadCookiesForKey that that load is complete.
+//
+// Subsequent to loading, mutations may be queued by any thread using
 // AddCookie, UpdateCookieAccessTime, and DeleteCookie. These are flushed to
 // disk on the DB thread every 30 seconds, 512 operations, or call to Flush(),
 // whichever occurs first.
@@ -40,11 +60,16 @@ class BrowserPersistentCookieStore::Backend
       : path_(path),
         db_(NULL),
         num_pending_(0),
-        clear_local_state_on_exit_(false) {
+        clear_local_state_on_exit_(false),
+        initialized_(false) {
   }
 
-  // Creates or load the SQLite database.
-  bool Load(const LoadedCallback& loaded_callback);
+  // Creates or loads the SQLite database.
+  void Load(const LoadedCallback& loaded_callback);
+
+  // Loads cookies for the domain key (eTLD+1).
+  void LoadCookiesForKey(const std::string& domain,
+      const LoadedCallback& loaded_callback);
 
   // Batch a cookie addition.
   void AddCookie(const net::CookieMonster::CanonicalCookie& cc);
@@ -97,17 +122,30 @@ class BrowserPersistentCookieStore::Backend
   };
 
  private:
-  // Creates or load the SQLite database on DB thread.
+  // Creates or loads the SQLite database on DB thread.
   void LoadAndNotifyOnDBThread(const LoadedCallback& loaded_callback);
-  // Notify the CookieMonster when loading complete.
+
+  // Loads cookies for the domain key (eTLD+1) on DB thread.
+  void LoadKeyAndNotifyOnDBThread(const std::string& domains,
+      const LoadedCallback& loaded_callback);
+
+  // Notifies the CookieMonster when loading completes for a specific domain key
+  // or for all domain keys. Triggers the callback and passes it all cookies
+  // that have been loaded from DB since last IO notification.
   void NotifyOnIOThread(
       const LoadedCallback& loaded_callback,
-      bool load_success,
-      const std::vector<net::CookieMonster::CanonicalCookie*>& cookies);
+      bool load_success);
+
   // Initialize the data base.
   bool InitializeDatabase();
-  // Load cookies to the data base, and read cookies.
-  bool LoadInternal(std::vector<net::CookieMonster::CanonicalCookie*>* cookies);
+
+  // Loads cookies for the next domain key from the DB, then either reschedules
+  // itself or schedules the provided callback to run on the IO thread (if all
+  // domains are loaded).
+  void ChainLoadCookies(const LoadedCallback& loaded_callback);
+
+  // Load all cookies for a set of domains/hosts
+  bool LoadCookiesForDomains(const std::set<std::string>& key);
 
   // Batch a cookie operation (add or delete)
   void BatchOperation(PendingOperation::OperationType op,
@@ -126,8 +164,20 @@ class BrowserPersistentCookieStore::Backend
   PendingOperationsList::size_type num_pending_;
   // True if the persistent store should be deleted upon destruction.
   bool clear_local_state_on_exit_;
-  // Guard |pending_|, |num_pending_| and |clear_local_state_on_exit_|.
+  // Guard |cookies_|, |pending_|, |num_pending_| and
+  // |clear_local_state_on_exit_|.
   base::Lock lock_;
+
+  // Temporary buffer for cookies loaded from DB. Accumulates cookies to reduce
+  // the number of messages sent to the IO thread. Sent back in response to
+  // individual load requests for domain keys or when all loading completes.
+  std::vector<net::CookieMonster::CanonicalCookie*> cookies_;
+
+  // Map of domain keys(eTLD+1) to domains/hosts that are to be loaded from DB.
+  std::map<std::string, std::set<std::string> > keys_to_load_;
+
+  // Indicates if DB has been initialized.
+  bool initialized_;
 
   DISALLOW_COPY_AND_ASSIGN(Backend);
 };
@@ -166,43 +216,91 @@ bool InitTable(sql::Connection* db) {
   // so we want those people to get it. Ignore errors, since it may exist.
   db->Execute("CREATE INDEX IF NOT EXISTS cookie_times ON cookies"
               " (creation_utc)");
+
+  db->Execute("CREATE INDEX IF NOT EXISTS domain ON cookies(host_key)");
+
   return true;
 }
 
 }  // namespace
 
-bool BrowserPersistentCookieStore::Backend::Load(
+void BrowserPersistentCookieStore::Backend::Load(
     const LoadedCallback& loaded_callback) {
   // This function should be called only once per instance.
   DCHECK(!db_.get());
   CefThread::PostTask(
       CefThread::FILE, FROM_HERE,
-      base::Bind(&Backend::LoadAndNotifyOnDBThread, base::Unretained(this),
-                 loaded_callback));
-  return true;
+      base::Bind(&Backend::LoadAndNotifyOnDBThread, this, loaded_callback));
+}
+
+void BrowserPersistentCookieStore::Backend::LoadCookiesForKey(
+    const std::string& key,
+    const LoadedCallback& loaded_callback) {
+  CefThread::PostTask(
+    CefThread::FILE, FROM_HERE,
+    base::Bind(&Backend::LoadKeyAndNotifyOnDBThread, this,
+    key,
+    loaded_callback));
 }
 
 void BrowserPersistentCookieStore::Backend::LoadAndNotifyOnDBThread(
     const LoadedCallback& loaded_callback) {
   DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
-  std::vector<net::CookieMonster::CanonicalCookie*> cookies;
 
-  bool load_success = LoadInternal(&cookies);
+  if (!InitializeDatabase()) {
+    CefThread::PostTask(
+      CefThread::IO, FROM_HERE,
+      base::Bind(&BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
+                 this, loaded_callback, false));
+  } else {
+    ChainLoadCookies(loaded_callback);
+  }
+}
 
-  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
-      &BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
-      base::Unretained(this), loaded_callback, load_success, cookies));
+void BrowserPersistentCookieStore::Backend::LoadKeyAndNotifyOnDBThread(
+    const std::string& key,
+    const LoadedCallback& loaded_callback) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+
+  bool success = false;
+  if (InitializeDatabase()) {
+    std::map<std::string, std::set<std::string> >::iterator
+      it = keys_to_load_.find(key);
+    if (it != keys_to_load_.end()) {
+      success = LoadCookiesForDomains(it->second);
+      keys_to_load_.erase(it);
+    } else {
+      success = true;
+    }
+  }
+
+  CefThread::PostTask(
+    CefThread::IO, FROM_HERE,
+    base::Bind(&BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
+    this, loaded_callback, success));
 }
 
 void BrowserPersistentCookieStore::Backend::NotifyOnIOThread(
     const LoadedCallback& loaded_callback,
-    bool load_success,
-    const std::vector<net::CookieMonster::CanonicalCookie*>& cookies) {
+    bool load_success) {
   DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
+  std::vector<net::CookieMonster::CanonicalCookie*> cookies;
+  {
+    base::AutoLock locked(lock_);
+    cookies.swap(cookies_);
+  }
+
   loaded_callback.Run(cookies);
 }
 
 bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+
+  if (initialized_) {
+    return true;
+  }
+
   const FilePath dir = path_.DirName();
   if (!file_util::PathExists(dir) && !file_util::CreateDirectory(dir)) {
     return false;
@@ -224,47 +322,108 @@ bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
   }
 
   db_->Preload();
-  return true;
-}
 
-bool BrowserPersistentCookieStore::Backend::LoadInternal(
-    std::vector<net::CookieMonster::CanonicalCookie*>* cookies) {
-  if (!InitializeDatabase()) {
-    return false;
-  }
-
-  // Slurp all the cookies into the out-vector.
+  // Retrieve all the domains
   sql::Statement smt(db_->GetUniqueStatement(
-      "SELECT creation_utc, host_key, name, value, path, expires_utc, secure, "
-      "httponly, last_access_utc FROM cookies"));
+    "SELECT DISTINCT host_key FROM cookies"));
+
   if (!smt) {
     NOTREACHED() << "select statement prep failed";
     db_.reset();
     return false;
   }
 
+  // Build a map of domain keys (always eTLD+1) to domains.
   while (smt.Step()) {
-    scoped_ptr<net::CookieMonster::CanonicalCookie> cc(
-        new net::CookieMonster::CanonicalCookie(
-            // The "source" URL is not used with persisted cookies.
-            GURL(),                                         // Source
-            smt.ColumnString(2),                            // name
-            smt.ColumnString(3),                            // value
-            smt.ColumnString(1),                            // domain
-            smt.ColumnString(4),                            // path
-            std::string(),  // TODO(abarth): Persist mac_key
-            std::string(),  // TODO(abarth): Persist mac_algorithm
-            Time::FromInternalValue(smt.ColumnInt64(0)),    // creation_utc
-            Time::FromInternalValue(smt.ColumnInt64(5)),    // expires_utc
-            Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
-            smt.ColumnInt(6) != 0,                          // secure
-            smt.ColumnInt(7) != 0,                          // httponly
-            true));                                         // has_expires
-    DLOG_IF(WARNING,
-            cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
-    cookies->push_back(cc.release());
+    std::string domain = smt.ColumnString(0);
+    std::string key =
+      net::RegistryControlledDomainService::GetDomainAndRegistry(domain);
+
+    std::map<std::string, std::set<std::string> >::iterator it =
+      keys_to_load_.find(key);
+    if (it == keys_to_load_.end())
+      it = keys_to_load_.insert(std::make_pair
+                                (key, std::set<std::string>())).first;
+    it->second.insert(domain);
   }
 
+  initialized_ = true;
+  return true;
+}
+
+void BrowserPersistentCookieStore::Backend::ChainLoadCookies(
+    const LoadedCallback& loaded_callback) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+
+  bool load_success = true;
+
+  if (keys_to_load_.size() > 0) {
+    // Load cookies for the first domain key.
+    std::map<std::string, std::set<std::string> >::iterator
+      it = keys_to_load_.begin();
+    load_success = LoadCookiesForDomains(it->second);
+    keys_to_load_.erase(it);
+  }
+
+  // If load is successful and there are more domain keys to be loaded,
+  // then post a DB task to continue chain-load;
+  // Otherwise notify on IO thread.
+  if (load_success && keys_to_load_.size() > 0) {
+    CefThread::PostTask(
+      CefThread::FILE, FROM_HERE,
+      base::Bind(&Backend::ChainLoadCookies, this, loaded_callback));
+  } else {
+    CefThread::PostTask(
+      CefThread::IO, FROM_HERE,
+      base::Bind(&BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
+                 this, loaded_callback, load_success));
+  }
+}
+
+bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
+  const std::set<std::string>& domains) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+
+  sql::Statement smt(db_->GetCachedStatement(SQL_FROM_HERE,
+    "SELECT creation_utc, host_key, name, value, path, expires_utc, secure, "
+    "httponly, last_access_utc FROM cookies WHERE host_key = ?"));
+  if (!smt) {
+    NOTREACHED() << "select statement prep failed";
+    db_.reset();
+    return false;
+  }
+
+  std::vector<net::CookieMonster::CanonicalCookie*> cookies;
+  std::set<std::string>::const_iterator it = domains.begin();
+  for (; it != domains.end(); ++it) {
+    smt.BindString(0, *it);
+    while (smt.Step()) {
+      scoped_ptr<net::CookieMonster::CanonicalCookie> cc(
+          new net::CookieMonster::CanonicalCookie(
+              // The "source" URL is not used with persisted cookies.
+              GURL(),                                         // Source
+              smt.ColumnString(2),                            // name
+              smt.ColumnString(3),                            // value
+              smt.ColumnString(1),                            // domain
+              smt.ColumnString(4),                            // path
+              std::string(),  // TODO(abarth): Persist mac_key
+              std::string(),  // TODO(abarth): Persist mac_algorithm
+              Time::FromInternalValue(smt.ColumnInt64(0)),    // creation_utc
+              Time::FromInternalValue(smt.ColumnInt64(5)),    // expires_utc
+              Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
+              smt.ColumnInt(6) != 0,                          // secure
+              smt.ColumnInt(7) != 0,                          // httponly
+              true));                                         // has_expires
+      DLOG_IF(WARNING,
+              cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
+      cookies.push_back(cc.release());
+    }
+    smt.Reset();
+  }
+  {
+    base::AutoLock locked(lock_);
+    cookies_.insert(cookies_.end(), cookies.begin(), cookies.end());
+  }
   return true;
 }
 
@@ -379,13 +538,13 @@ void BrowserPersistentCookieStore::Backend::BatchOperation(
   if (num_pending == 1) {
     // We've gotten our first entry for this batch, fire off the timer.
     CefThread::PostDelayedTask(
-      CefThread::FILE, FROM_HERE,
-      NewRunnableMethod(this, &Backend::Commit), kCommitIntervalMs);
+        CefThread::FILE, FROM_HERE,
+        NewRunnableMethod(this, &Backend::Commit), kCommitIntervalMs);
   } else if (num_pending == kCommitAfterBatchSize) {
     // We've reached a big enough batch, fire off a commit now.
     CefThread::PostTask(
-      CefThread::FILE, FROM_HERE,
-      NewRunnableMethod(this, &Backend::Commit));
+        CefThread::FILE, FROM_HERE,
+        NewRunnableMethod(this, &Backend::Commit));
   }
 }
 
@@ -531,8 +690,14 @@ BrowserPersistentCookieStore::~BrowserPersistentCookieStore() {
   }
 }
 
-bool BrowserPersistentCookieStore::Load(const LoadedCallback& loaded_callback) {
-  return backend_->Load(loaded_callback);
+void BrowserPersistentCookieStore::Load(const LoadedCallback& loaded_callback) {
+  backend_->Load(loaded_callback);
+}
+
+void BrowserPersistentCookieStore::LoadCookiesForKey(
+    const std::string& key,
+    const LoadedCallback& loaded_callback) {
+  backend_->LoadCookiesForKey(key, loaded_callback);
 }
 
 void BrowserPersistentCookieStore::AddCookie(

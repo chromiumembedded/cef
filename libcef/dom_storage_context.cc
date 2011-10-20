@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "base/bind.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
@@ -59,9 +60,9 @@ int64 DOMStorageContext::CloneSessionStorage(int64 original_id) {
   DCHECK(!CefThread::CurrentlyOn(CefThread::UI));
   int64 clone_id = AllocateSessionStorageNamespaceId();
   CefThread::PostTask(
-      CefThread::UI, FROM_HERE, NewRunnableFunction(
-          &DOMStorageContext::CompleteCloningSessionStorage,
-          this, original_id, clone_id));
+      CefThread::UI, FROM_HERE,
+      base::Bind(&DOMStorageContext::CompleteCloningSessionStorage, this,
+                 original_id, clone_id));
   return clone_id;
 }
 

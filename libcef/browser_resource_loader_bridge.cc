@@ -243,7 +243,7 @@ class RequestProxy : public net::URLRequest::Delegate,
             webkit_glue::ShouldDownload(content_disposition, info.mime_type)) {
           string16 filename = net::GetSuggestedFilename(url,
               content_disposition, info.charset, "", info.mime_type,
-              ASCIIToUTF16("download"));
+              "download");
           CefRefPtr<CefDownloadHandler> dl_handler;
           if (handler->GetDownloadHandler(browser_, info.mime_type,
                                           filename, info.content_length,

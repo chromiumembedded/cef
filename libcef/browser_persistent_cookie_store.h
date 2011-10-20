@@ -1,5 +1,4 @@
 // Copyright (c) 2011 The Chromium Authors. All rights reserved.
-// Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,10 +16,12 @@
 #include <string>
 #include <vector>
 
+#include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "net/base/cookie_monster.h"
 
 class FilePath;
+class Task;
 
 // Implements the PersistentCookieStore interface in terms of a SQLite database.
 // For documentation about the actual member functions consult the documentation
@@ -31,7 +32,10 @@ class BrowserPersistentCookieStore
   explicit BrowserPersistentCookieStore(const FilePath& path);
   virtual ~BrowserPersistentCookieStore();
 
-  virtual bool Load(const LoadedCallback& loaded_callback) OVERRIDE;
+  virtual void Load(const LoadedCallback& loaded_callback) OVERRIDE;
+
+  virtual void LoadCookiesForKey(const std::string& key,
+      const LoadedCallback& callback) OVERRIDE;
 
   virtual void AddCookie(
       const net::CookieMonster::CanonicalCookie& cc) OVERRIDE;
