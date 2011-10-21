@@ -11,6 +11,6 @@
 void InitOSRPluginTest();
 
 // Run the test.
-void RunOSRPluginTest(CefRefPtr<CefBrowser> browser);
+void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent);
 
 #endif // _CEFCLIENT_OSRPLUGIN_TEST_H

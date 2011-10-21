@@ -24,7 +24,7 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
 
 #ifdef TEST_REDIRECT_POPUP_URLS
   std::string urlStr = url;
-  if(urlStr.find("resources/inspector/devtools.html") == std::string::npos) {
+  if(urlStr.find("chrome-devtools:") == std::string::npos) {
     // Show all popup windows excluding DevTools in the current window.
     windowInfo.m_dwStyle &= ~WS_VISIBLE;
     client = new ClientPopupHandler(m_Browser);
@@ -95,6 +95,10 @@ bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
     resourceStream = GetBinaryResourceReader(IDS_MODALDIALOG);
     response->SetMimeType("text/html");
     response->SetStatus(200);
+  } else if(url == "http://tests/transparency") {
+    resourceStream = GetBinaryResourceReader(IDS_TRANSPARENCY);
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   }
 
   return false;
@@ -120,7 +124,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
   // Set the frame window title bar
   CefWindowHandle hwnd = browser->GetWindowHandle();
-  if(!browser->IsPopup())
+  if(m_BrowserHwnd == hwnd)
   {
     // The frame window will be the parent of the browser window
     hwnd = GetParent(hwnd);

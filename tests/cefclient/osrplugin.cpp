@@ -4,9 +4,11 @@
 // found in the LICENSE file.
 
 #include "include/cef.h"
-#include "osrplugin.h"
 #include "cefclient.h"
 #include "client_popup_handler.h"
+#include "osrplugin.h"
+#include "resource.h"
+#include "resource_util.h"
 #include "string_util.h"
 #include "util.h"
 #include <gl/gl.h>
@@ -28,6 +30,12 @@ float g_spinY = 0.0f;
 int g_width = -1, g_height = -1;
 CefRefPtr<CefBrowser> g_offscreenBrowser;
 
+// If set to true alpha transparency will be used.
+bool g_offscreenTransparent = false;
+
+#define GL_IMAGE_FORMAT (g_offscreenTransparent?GL_RGBA:GL_RGB)
+#define GL_BYTE_COUNT (g_offscreenTransparent?4:3)
+
 // Class holding pointers for the client plugin window.
 class ClientPlugin
 {
@@ -48,6 +56,7 @@ public:
 class ClientOSRHandler : public CefClient,
                          public CefLifeSpanHandler,
                          public CefLoadHandler,
+                         public CefRequestHandler,
                          public CefDisplayHandler,
                          public CefRenderHandler
 {
@@ -72,6 +81,8 @@ public:
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
       { return this; }
@@ -132,6 +143,27 @@ public:
       // We've just finished loading a page
       SetLoading(false);
     }
+  }
+
+  // CefRequestHandler methods
+
+  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefRequest> request,
+                                    CefString& redirectUrl,
+                                    CefRefPtr<CefStreamReader>& resourceStream,
+                                    CefRefPtr<CefResponse> response,
+                                    int loadFlags) OVERRIDE
+  {
+    REQUIRE_IO_THREAD();
+
+    std::string url = request->GetURL();
+    if(url == "http://tests/transparency") {
+      resourceStream = GetBinaryResourceReader(IDS_TRANSPARENCY);
+      response->SetMimeType("text/html");
+      response->SetStatus(200);
+    }
+
+    return false;
   }
 
   // CefDisplayHandler methods
@@ -254,31 +286,54 @@ public:
     REQUIRE_UI_THREAD();
 
     wglMakeCurrent(plugin_->hDC, plugin_->hRC);
-    
+
+    if (g_offscreenTransparent) {
+      // Enable alpha blending.
+      glEnable(GL_BLEND);
+    }
+
+    // Enable 2D textures.
+    glEnable(GL_TEXTURE_2D);
+
     glBindTexture(GL_TEXTURE_2D, g_textureID);
     
     if (type == PET_VIEW) {
       // Paint the view.
-      SetRGB(buffer, g_width, g_height, true);
+      if (g_offscreenTransparent)
+        SetRGBA(buffer, g_width, g_height, true);
+      else
+        SetRGB(buffer, g_width, g_height, true);
 
       // Update the whole texture. This is done for simplicity instead of
       // updating just the dirty region.
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, g_width, g_height, GL_RGB,
-          GL_UNSIGNED_BYTE, view_buffer_);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, g_width, g_height,
+          GL_IMAGE_FORMAT, GL_UNSIGNED_BYTE, view_buffer_);
     }
     
     if(popup_rect_.width > 0) {
       if (type == PET_POPUP) {
         // Paint the popup.
-        SetRGB(buffer, popup_rect_.width, popup_rect_.height, false);
+        if (g_offscreenTransparent)
+          SetRGBA(buffer, popup_rect_.width, popup_rect_.height, false);
+        else
+          SetRGB(buffer, popup_rect_.width, popup_rect_.height, false);
       }
 
       if (popup_buffer_) {
         // Update the popup region.
         glTexSubImage2D(GL_TEXTURE_2D, 0, popup_rect_.x,
             g_height-popup_rect_.y-popup_rect_.height, popup_rect_.width,
-            popup_rect_.height, GL_RGB, GL_UNSIGNED_BYTE, popup_buffer_);
+            popup_rect_.height, GL_IMAGE_FORMAT, GL_UNSIGNED_BYTE,
+            popup_buffer_);
       }
+    }
+
+    // Disable 2D textures.
+    glDisable(GL_TEXTURE_2D);
+
+    if (g_offscreenTransparent) {
+      // Disable alpha blending.
+      glDisable(GL_BLEND);
     }
   }
 
@@ -305,18 +360,10 @@ private:
     AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(ss.str(), "", 0);
   }
 
-  // Set the contents of the RGB buffer.
-  void SetRGB(const void* src, int width, int height, bool view)
-  {
-    SetBufferSize(width, height, view);
-    ConvertToRGB((unsigned char*)src, view?view_buffer_:popup_buffer_, width,
-        height);
-  }
-
   // Size the RGB buffer.
   void SetBufferSize(int width, int height, bool view)
   {
-    int dst_size = width * height * 3;
+    int dst_size = width * height * GL_BYTE_COUNT;
       
     // Allocate a new buffer if necesary.
     if (view) {
@@ -334,6 +381,38 @@ private:
         popup_buffer_size_ = dst_size;
       }
     }
+  }
+
+  // Set the contents of the RGBA buffer.
+  void SetRGBA(const void* src, int width, int height, bool view)
+  {
+    SetBufferSize(width, height, view);
+    ConvertToRGBA((unsigned char*)src, view?view_buffer_:popup_buffer_, width,
+        height);
+  }
+
+  // Convert from BGRA to RGBA format and from upper-left to lower-left origin.
+  static void ConvertToRGBA(const unsigned char* src, unsigned char* dst,
+                           int width, int height)
+  {
+    int sp = 0, dp = (height-1) * width * 4;
+    for(int i = 0; i < height; i++) {
+      for(int j = 0; j < width; j++, dp += 4, sp += 4) {
+        dst[dp] = src[sp+2]; // R
+        dst[dp+1] = src[sp+1]; // G
+        dst[dp+2] = src[sp]; // B
+        dst[dp+3] = src[sp+3]; // A
+      }
+      dp -= width * 8;
+    }
+  }
+
+  // Set the contents of the RGB buffer.
+  void SetRGB(const void* src, int width, int height, bool view)
+  {
+    SetBufferSize(width, height, view);
+    ConvertToRGB((unsigned char*)src, view?view_buffer_:popup_buffer_, width,
+        height);
   }
 
   // Convert from BGRA to RGB format and from upper-left to lower-left origin.
@@ -392,10 +471,14 @@ void EnableGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
   wglMakeCurrent(*hDC, *hRC);
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glEnable(GL_TEXTURE_2D);
 
   // Necessary for non-power-of-2 textures to render correctly.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  if (g_offscreenTransparent) {
+    // Alpha blending style.
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
 }
 
 // Disable GL.
@@ -424,6 +507,14 @@ void SizeGL(ClientPlugin* plugin, int width, int height)
   glLoadIdentity();
   glOrtho(0, 0, width, height, 0.1, 100.0);
 
+  if (g_offscreenTransparent) {
+    // Enable alpha blending.
+    glEnable(GL_BLEND);
+  }
+
+  // Enable 2D textures.
+  glEnable(GL_TEXTURE_2D);
+
   // Delete the existing exture.
   if(g_textureID != -1)
     glDeleteTextures(1, &g_textureID);
@@ -435,12 +526,20 @@ void SizeGL(ClientPlugin* plugin, int width, int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   // Start with all white contents.
-  int size = width * height * 3;
+  int size = width * height * GL_BYTE_COUNT;
   unsigned char* buffer = new unsigned char[size];
   memset(buffer, 255, size);
-  
+
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-      GL_RGB, GL_UNSIGNED_BYTE, buffer);
+      GL_IMAGE_FORMAT, GL_UNSIGNED_BYTE, buffer);
+
+  // Disable 2D textures.
+  glDisable(GL_TEXTURE_2D);
+
+  if (g_offscreenTransparent) {
+    // Disable alpha blending.
+    glDisable(GL_BLEND);
+  }
 
   delete [] buffer;
   
@@ -468,21 +567,43 @@ void RenderGL(ClientPlugin* plugin)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   //glTranslatef(0.0f, 0.0f, -3.0f);
+
+  // Draw the background gradient.
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glBegin(GL_QUADS);
+  glColor4f(1.0,0.0,0.0,1.0); // red
+  glVertex2f(-1.0,-1.0);
+  glVertex2f(1.0,-1.0);
+  glColor4f(0.0,0.0,1.0,1.0); // blue
+  glVertex2f(1.0, 1.0);
+  glVertex2f(-1.0, 1.0);
+  glEnd();
+  glPopAttrib();
   
   // Rotate the view based on the mouse spin.
   glRotatef(-g_spinX, 1.0f, 0.0f, 0.0f);
   glRotatef(-g_spinY, 0.0f, 1.0f, 0.0f);
 
-  // Enable alpha blending.
-  //glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  if (g_offscreenTransparent) {
+    // Enable alpha blending.
+    glEnable(GL_BLEND);
+  }
+
+  // Enable 2D textures.
+  glEnable(GL_TEXTURE_2D);
 
   // Draw the facets with the texture.
   glBindTexture(GL_TEXTURE_2D, g_textureID);
   glInterleavedArrays(GL_T2F_V3F, 0, vertices);
   glDrawArrays(GL_QUADS, 0, 4);
 
-  //glDisable(GL_BLEND);
+  // Disable 2D textures.
+  glDisable(GL_TEXTURE_2D);
+
+  if (g_offscreenTransparent) {
+    // Disable alpha blending.
+    glDisable(GL_BLEND);
+  }
 
   SwapBuffers(plugin->hDC);
 }
@@ -556,6 +677,8 @@ NPError NPP_SetWindowImpl(NPP instance, NPWindow* window_info) {
     CefWindowInfo windowInfo;
     CefBrowserSettings settings;
     windowInfo.SetAsOffScreen(plugin->hWnd);
+    if (g_offscreenTransparent)
+      windowInfo.SetTransparentPainting(TRUE);
     CefBrowser::CreateBrowser(windowInfo, new ClientOSRHandler(plugin),
         "http://www.google.com", settings);
   }
@@ -772,6 +895,11 @@ NPError API_CALL NP_OSRShutdown(void)
 CefRefPtr<CefBrowser> GetOffScreenBrowser()
 {
   return g_offscreenBrowser;
+}
+
+void SetOffScreenTransparent(bool transparent)
+{
+  g_offscreenTransparent = transparent;
 }
 
 #endif // OS_WIN

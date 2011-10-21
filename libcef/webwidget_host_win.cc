@@ -16,6 +16,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebVector.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "ui/base/ime/composition_text.h"
@@ -708,6 +709,17 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   DCHECK(!painting_);
 #endif
   DCHECK(canvas_.get());
+
+  if (!popup() && ((WebKit::WebView*)webwidget_)->isTransparent()) {
+    // When using transparency mode clear the rectangle before painting.
+    SkPaint clearpaint;
+    clearpaint.setARGB(0,0,0,0);
+    clearpaint.setXfermodeMode(SkXfermode::kClear_Mode);
+
+    SkRect skrc;
+    skrc.set(rect.x(), rect.y(), rect.right(), rect.bottom());
+    canvas_->drawRect(skrc, clearpaint);
+  }
 
   set_painting(true);
   webwidget_->paint(canvas_.get(), rect);

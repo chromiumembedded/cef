@@ -374,7 +374,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Initialize window info to the defaults for a child window
         info.SetAsChild(hWnd, rect);
 
-        // Creat the new child child browser window
+        // Creat the new child browser window
         CefBrowser::CreateBrowser(info,
             static_cast<CefRefPtr<CefClient> >(g_handler),
             "http://www.google.com", settings);
@@ -495,6 +495,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunPopupTest(browser);
           return 0;
+        case ID_TESTS_TRANSPARENT_POPUP: // Test a transparent popup window
+          if(browser.get())
+            RunTransparentPopupTest(browser);
+          return 0;
         case ID_TESTS_REQUEST: // Test a request
           if(browser.get())
             RunRequestTest(browser);
@@ -509,7 +513,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           return 0;
         case ID_TESTS_OSRAPP: // Test the OSR app
           if(browser.get())
-            RunOSRPluginTest(browser);
+            RunOSRPluginTest(browser, false);
+          return 0;
+        case ID_TESTS_TRANSPARENT_OSRAPP: // Test the OSR app with transparency
+          if(browser.get())
+            RunOSRPluginTest(browser, true);
           return 0;
         case ID_TESTS_DOMACCESS: // Test DOM access
           if(browser.get())
@@ -664,4 +672,21 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 std::string AppGetWorkingDirectory()
 {
 	return szWorkingDir;
+}
+
+void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser)
+{
+  CefWindowInfo info;
+  CefBrowserSettings settings;
+
+  // Initialize window info to the defaults for a popup window
+  info.SetAsPopup(NULL, "TransparentPopup");
+  info.SetTransparentPainting(TRUE);
+  info.m_nWidth = 500;
+  info.m_nHeight = 500;
+
+  // Creat the popup browser window
+  CefBrowser::CreateBrowser(info,
+      static_cast<CefRefPtr<CefClient> >(g_handler),
+      "http://tests/transparency", settings);
 }

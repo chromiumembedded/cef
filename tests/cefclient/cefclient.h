@@ -33,4 +33,8 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser);
 void RunDragDropTest(CefRefPtr<CefBrowser> browser);
 void RunModalDialogTest(CefRefPtr<CefBrowser> browser);
 
+#if defined(OS_WIN)
+void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
+#endif
+
 #endif // _CEFCLIENT_H

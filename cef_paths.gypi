@@ -82,6 +82,7 @@
       'tests/cefclient/res/modalmain.html',
       'tests/cefclient/res/osrplugin.html',
       'tests/cefclient/res/small.ico',
+      'tests/cefclient/res/transparency.html',
       'tests/cefclient/res/uiplugin.html',
       'tests/cefclient/resource_util_win.cpp',
       'tests/cefclient/uiplugin.cpp',

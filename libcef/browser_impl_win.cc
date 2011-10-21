@@ -8,6 +8,7 @@
 #include "browser_settings.h"
 #include "printing/units.h"
 
+#include "base/win/windows_version.h"
 #include "skia/ext/vector_canvas.h"
 #include "skia/ext/vector_platform_device_emf_win.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
@@ -18,14 +19,37 @@
 #include "ui/base/win/hwnd_util.h"
 #include "webkit/glue/webpreferences.h"
 
+#include <dwmapi.h>
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <wininet.h>
 #include <winspool.h>
 
+#pragma comment(lib, "dwmapi.lib")
+
 using WebKit::WebRect;
 using WebKit::WebSize;
 
+namespace {
+
+bool IsAeroGlassEnabled() {
+  if (base::win::GetVersion() < base::win::VERSION_VISTA)
+    return false;
+  
+  BOOL enabled = FALSE;
+  return SUCCEEDED(DwmIsCompositionEnabled(&enabled)) && enabled;
+}
+
+void SetAeroGlass(HWND hWnd) {
+  if (!IsAeroGlassEnabled())
+    return;
+
+  // Make the whole window transparent.
+  MARGINS mgMarInset = { -1, -1, -1, -1 };
+  DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
+}
+
+} // namespace
 
 LPCTSTR CefBrowserImpl::GetWndClass()
 {
@@ -100,6 +124,13 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_ERASEBKGND:
     return 0;
+
+  case WM_DWMCOMPOSITIONCHANGED:
+    // Message sent to top-level windows when composition has been enabled or
+    // disabled.
+    if (browser->window_info_.m_bTransparentPainting)
+      SetAeroGlass(hwnd);
+    break;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -148,6 +179,12 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
         ::GetModuleHandle(NULL), NULL);
     DCHECK(window_info_.m_hWnd != NULL);
 
+    if (window_info_.m_bTransparentPainting &&
+        !(window_info_.m_dwStyle & WS_CHILD)) {
+      // Transparent top-level windows will be given "sheet of glass" effect.
+      SetAeroGlass(window_info_.m_hWnd);
+    }
+
     // Set window user data to this object for future reference from the window
     // procedure
     ui::SetWindowUserData(window_info_.m_hWnd, this);
@@ -173,6 +210,9 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
       WebViewHost::Create(window_info_.m_hWnd, gfx::Rect(), delegate_.get(),
                           paint_delegate_.get(), dev_tools_agent_.get(),
                           prefs));
+
+  if (window_info_.m_bTransparentPainting)
+    webviewhost_->webview()->setIsTransparent(true);
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());

@@ -26,7 +26,7 @@ void InitOSRPluginTest()
   CefRegisterPlugin(plugin_info);
 }
 
-void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
+void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
 {
   class Listener : public CefDOMEventListener
   {
@@ -58,9 +58,10 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
         CefString value = url->GetValue();
         if (!value.empty())
           browser->GetMainFrame()->LoadURL(value);
-      } else if(elementId == "testWindowedPlugin") {
-        // Run the windowed plugin test.
-        RunPluginTest(browser);
+      } else if(elementId == "testTransparency") {
+        // Transparency test.
+        browser->GetMainFrame()->LoadURL(
+            "http://tests/transparency");
       } else if(elementId == "testWindowlessPlugin") {
         // Load flash, which is a windowless plugin.
         browser->GetMainFrame()->LoadURL(
@@ -101,7 +102,7 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
       RegisterClickListener(document, listener, "stop");
       RegisterClickListener(document, listener, "reload");
       RegisterClickListener(document, listener, "go");
-      RegisterClickListener(document, listener, "testWindowedPlugin");
+      RegisterClickListener(document, listener, "testTransparency");
       RegisterClickListener(document, listener, "testWindowlessPlugin");
       RegisterClickListener(document, listener, "viewSource");
     }
@@ -124,5 +125,6 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser)
   static_cast<ClientHandler*>(client.get())->AddDOMVisitor(
       "http://tests/osrapp", new Visitor());
 
+  SetOffScreenTransparent(transparent);
   browser->GetMainFrame()->LoadURL("http://tests/osrapp");
 }

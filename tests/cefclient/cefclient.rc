@@ -38,6 +38,7 @@ IDS_DOMACCESS BINARY "res\\domaccess.html"
 IDS_MODALMAIN BINARY "res\\modalmain.html"
 IDS_MODALDIALOG BINARY "res\\modaldialog.html"
 IDS_EXTENSIONPERF BINARY "res\\extensionperf.html"
+IDS_TRANSPARENCY BINARY "res\\transparency.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -78,10 +79,12 @@ BEGIN
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP
+        MENUITEM "Transparent Popup Window",    ID_TESTS_TRANSPARENT_POPUP
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
         MENUITEM "Off-Screen Rendering Example",ID_TESTS_OSRAPP
+        MENUITEM "Transparent Off-Screen Rendering Example",ID_TESTS_TRANSPARENT_OSRAPP
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
         MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
         MENUITEM "WebURLRequest",               ID_TESTS_WEBURLREQUEST

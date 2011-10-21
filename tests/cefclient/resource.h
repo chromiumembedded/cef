@@ -53,6 +53,8 @@
 #define ID_TESTS_OSRAPP                 32793
 #define ID_TESTS_MODALDIALOG            32794
 #define ID_TESTS_JAVASCRIPT_PERFORMANCE 32795
+#define ID_TESTS_TRANSPARENT_POPUP      32796
+#define ID_TESTS_TRANSPARENT_OSRAPP     32797
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
@@ -64,6 +66,7 @@
 #define IDS_MODALMAIN                   1007
 #define IDS_MODALDIALOG                 1008
 #define IDS_EXTENSIONPERF               1009
+#define IDS_TRANSPARENCY                1010
 
 // Avoid files associated with MacOS
 #define _X86_

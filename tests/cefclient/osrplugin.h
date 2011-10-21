@@ -22,6 +22,8 @@ NPError API_CALL NP_OSRShutdown(void);
 
 CefRefPtr<CefBrowser> GetOffScreenBrowser();
 
+void SetOffScreenTransparent(bool transparent);
+
 #endif // OS_WIN
 
 #endif // _CEFCLIENT_OSRPLUGIN_H

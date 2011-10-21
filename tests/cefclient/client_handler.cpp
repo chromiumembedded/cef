@@ -35,7 +35,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser)
   REQUIRE_UI_THREAD();
 
   AutoLock lock_scope(this);
-  if(!browser->IsPopup())
+  if(!m_Browser.get())
   {
     // We need to keep the main child window, but not popup windows
     m_Browser = browser;
@@ -47,7 +47,7 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser)
 {
   REQUIRE_UI_THREAD();
 
-  if (!browser->IsPopup()) {
+  if (m_BrowserHwnd == browser->GetWindowHandle()) {
     // Since the main window contains the browser window, we need to close
     // the parent window instead of the browser window.
     CloseMainWindow();
@@ -78,7 +78,7 @@ void ClientHandler::OnLoadStart(CefRefPtr<CefBrowser> browser,
 {
   REQUIRE_UI_THREAD();
 
-  if(!browser->IsPopup() && frame->IsMain()) {
+  if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain()) {
     // We've just started loading a page
     SetLoading(true);
   }
@@ -90,7 +90,7 @@ void ClientHandler::OnLoadEnd(CefRefPtr<CefBrowser> browser,
 {
   REQUIRE_UI_THREAD();
 
-  if(!browser->IsPopup() && frame->IsMain()) {
+  if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain()) {
     // We've just finished loading a page
     SetLoading(false);
 
