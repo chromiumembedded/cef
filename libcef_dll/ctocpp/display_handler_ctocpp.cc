@@ -37,6 +37,17 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame), url.GetStruct());
 }
 
+void CefDisplayHandlerCToCpp::OnContentsSizeChange(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int width,
+    int height)
+{
+  if (CEF_MEMBER_MISSING(struct_, on_contents_size_change))
+    return;
+
+  struct_->on_contents_size_change(struct_, CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame), width, height);
+}
+
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
     const CefString& title)
 {

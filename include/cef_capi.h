@@ -1077,6 +1077,13 @@ typedef struct _cef_display_handler_t
       const cef_string_t* url);
 
   ///
+  // Called when the size of the content area has changed.
+  ///
+  void (CEF_CALLBACK *on_contents_size_change)(
+      struct _cef_display_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, int width, int height);
+
+  ///
   // Called when the page title changes.
   ///
   void (CEF_CALLBACK *on_title_change)(struct _cef_display_handler_t* self,

@@ -950,11 +950,23 @@ void BrowserWebViewDelegate::willSendRequest(
   request.setRequestorID(browser_->UIT_GetUniqueID());
 }
 
+void BrowserWebViewDelegate::didChangeContentsSize(
+    WebFrame* frame, const WebSize& size) {
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get()) {
+      handler->OnContentsSizeChange(browser_, browser_->UIT_GetCefFrame(frame),
+          size.width, size.height);
+    }
+  }
+}
+
 void BrowserWebViewDelegate::reportFindInPageMatchCount(
     int request_id, int count, bool final_update)
 {
   browser_->UIT_NotifyFindStatus(request_id, count, gfx::Rect(),
-      -1,  // // Don't update active match ordinal.
+      -1,  // Don't update active match ordinal.
       final_update);
 }
 

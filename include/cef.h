@@ -1265,6 +1265,15 @@ public:
                                const CefString& url) {}
 
   ///
+  // Called when the size of the content area has changed.
+  ///
+  /*--cef()--*/
+  virtual void OnContentsSizeChange(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    int width,
+                                    int height) {}
+
+  ///
   // Called when the page title changes.
   ///
   /*--cef()--*/

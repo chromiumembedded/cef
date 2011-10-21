@@ -180,6 +180,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void willSendRequest(
       WebKit::WebFrame*, unsigned identifier, WebKit::WebURLRequest&,
       const WebKit::WebURLResponse& redirectResponse) OVERRIDE;
+  virtual void didChangeContentsSize(
+      WebKit::WebFrame*, const WebKit::WebSize&) OVERRIDE;
   virtual void reportFindInPageMatchCount(
       int request_id, int count, bool final_update) OVERRIDE;
   virtual void reportFindInPageSelection(

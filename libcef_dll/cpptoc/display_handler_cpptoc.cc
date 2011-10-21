@@ -47,6 +47,21 @@ void CEF_CALLBACK display_handler_on_address_change(
       CefString(url));
 }
 
+void CEF_CALLBACK display_handler_on_contents_size_change(
+    struct _cef_display_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, int width, int height)
+{
+  DCHECK(self);
+  DCHECK(browser);
+  DCHECK(frame);
+  if (!self || !browser || !frame)
+    return;
+
+  CefDisplayHandlerCppToC::Get(self)->OnContentsSizeChange(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), width,
+      height);
+}
+
 void CEF_CALLBACK display_handler_on_title_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
     const cef_string_t* title)
@@ -109,6 +124,8 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC(CefDisplayHandler* cls)
 {
   struct_.struct_.on_nav_state_change = display_handler_on_nav_state_change;
   struct_.struct_.on_address_change = display_handler_on_address_change;
+  struct_.struct_.on_contents_size_change =
+      display_handler_on_contents_size_change;
   struct_.struct_.on_title_change = display_handler_on_title_change;
   struct_.struct_.on_tooltip = display_handler_on_tooltip;
   struct_.struct_.on_status_message = display_handler_on_status_message;
