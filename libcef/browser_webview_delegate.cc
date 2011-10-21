@@ -803,8 +803,6 @@ void BrowserWebViewDelegate::didReceiveServerRedirectForProvisionalLoad(
 
 void BrowserWebViewDelegate::didFailProvisionalLoad(
     WebFrame* frame, const WebURLError& error) {
-  LocationChangeDone(frame);
-
   // error codes are defined in net\base\net_error_list.h
 
   // Don't display an error page if this is simply a cancelled load.  Aside
