@@ -1030,10 +1030,15 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
 
   v8::TryCatch try_catch;
   v8::Local<v8::Value> func_rv = func->Call(recv, argc, argv);
-  if (try_catch.HasCaught())
-    GetCefString(try_catch.Message()->Get(), exception);
-  else
+  if (try_catch.HasCaught()) {
+    v8::Local<v8::Message> msg = try_catch.Message();
+    if (msg.IsEmpty())
+      exception = "CEF received an empty exception message.";
+    else
+      GetCefString(msg->Get(), exception);
+  } else {
     retval = new CefV8ValueImpl(func_rv);
+  }
 
   return true;
 }
