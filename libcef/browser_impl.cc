@@ -153,7 +153,8 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(
 
   CefRefPtr<CefBrowser> browser(
       new CefBrowserImpl(windowInfo, settings, NULL, client));
-  static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(url);
+  if (!static_cast<CefBrowserImpl*>(browser.get())->UIT_CreateBrowser(url))
+    return NULL;
 
   return browser;
 }
@@ -1142,7 +1143,8 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
 
   // Don't pass the URL to UIT_CreateBrowser for popup windows or the URL will
   // be loaded twice.
-  browser->UIT_CreateBrowser(CefString());
+  if (!browser->UIT_CreateBrowser(CefString()))
+    return NULL;
 
   return browser;
 }

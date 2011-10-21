@@ -163,7 +163,7 @@ gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() {
       window_info_.m_hWndParent : window_info_.m_hWnd;
 }
 
-void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
   Lock();
@@ -177,7 +177,14 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
         window_info_.m_x, window_info_.m_y, window_info_.m_nWidth,
         window_info_.m_nHeight, window_info_.m_hWndParent, window_info_.m_hMenu,
         ::GetModuleHandle(NULL), NULL);
+
+    // It's possible for CreateWindowEx to fail if the parent window was
+    // destroyed between the call to CreateBrowser and the above one.
     DCHECK(window_info_.m_hWnd != NULL);
+    if (!window_info_.m_hWnd) {
+      Unlock();
+      return false;
+    }
 
     if (window_info_.m_bTransparentPainting &&
         !(window_info_.m_dwStyle & WS_CHILD)) {
@@ -248,6 +255,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   if(url.length() > 0)
     UIT_LoadURL(GetMainFrame(), url);
+
+  return true;
 }
 
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)

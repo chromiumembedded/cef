@@ -41,7 +41,7 @@ gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() {
   return window_info_.m_View;
 }
 
-void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
   Lock();
@@ -119,6 +119,8 @@ void CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   if(url.size() > 0)
     UIT_LoadURL(GetMainFrame(), url);
+
+  return true;
 }
 
 void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)

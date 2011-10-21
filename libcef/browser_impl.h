@@ -221,7 +221,7 @@ public:
   }
 
   // Create the native browser window and populate browser members.
-  void UIT_CreateBrowser(const CefString& url);
+  bool UIT_CreateBrowser(const CefString& url);
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
