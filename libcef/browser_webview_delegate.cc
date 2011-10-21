@@ -848,7 +848,7 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   frame->enableViewSourceMode(false);
 
   frame->loadHTMLString(
-      error_text, GURL("testshell-error:"), error.unreachableURL, false);
+      error_text, GURL("cef-error:"), error.unreachableURL, false);
 
   // In case loadHTMLString failed before DidCreateDataSource was called.
   set_pending_extra_data(NULL);
