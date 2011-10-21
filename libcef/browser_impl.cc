@@ -234,7 +234,7 @@ void CefBrowserImpl::SetFocus(bool enable)
     UIT_SetFocus(UIT_GetWebViewHost(), enable);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-        &CefBrowserImpl::UIT_SetFocus, UIT_GetWebViewHost(), enable));
+        &CefBrowserImpl::SetFocus, enable));
   }
 }
 
