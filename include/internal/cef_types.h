@@ -151,6 +151,15 @@ typedef struct _cef_settings_t
   // Quota limit for sessionStorage data per namespace. Default size is 5MB.
   ///
   unsigned int session_storage_quota;
+
+#if defined(OS_WIN)
+  ///
+  // Set to true (1) to use the system proxy resolver on Windows when 
+  // "Automatically detect settings" is checked. This setting is disabled
+  // by default for performance reasons.
+  ///
+  bool auto_detect_proxy_settings_enabled;
+#endif
 } cef_settings_t;
 
 ///

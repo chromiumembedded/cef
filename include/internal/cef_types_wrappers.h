@@ -281,6 +281,13 @@ struct CefSettingsTraits {
         copy);
     target->log_severity = src->log_severity;
     target->graphics_implementation = src->graphics_implementation;
+    target->local_storage_quota = src->local_storage_quota;
+    target->session_storage_quota = src->session_storage_quota;
+
+#if defined(OS_WIN)
+    target->auto_detect_proxy_settings_enabled =
+        src->auto_detect_proxy_settings_enabled;
+#endif
   }
 };
 

@@ -7,6 +7,7 @@
 #include "browser_file_system.h"
 #include "browser_persistent_cookie_store.h"
 #include "browser_resource_loader_bridge.h"
+#include "cef_context.h"
 #include "cef_thread.h"
 
 #include "base/compiler_specific.h"
@@ -101,26 +102,29 @@ void BrowserRequestContext::Init(
   set_accept_charset("iso-8859-1,*,utf-8");
 
 #if defined(OS_WIN)
-  // Using the system proxy resolver on Windows when "Automatically detect
-  // settings" (auto-detection) is checked under LAN Settings can hurt resource
-  // loading performance because the call to WinHttpGetProxyForUrl in
-  // proxy_resolver_winhttp.cc will block the IO thread.  This is especially
-  // true for Windows 7 where auto-detection is checked by default. To avoid
-  // slow resource loading on Windows we only use the system proxy resolver if
-  // auto-detection is unchecked.
-  WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
-  if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
-    if (ie_config.fAutoDetect == TRUE) {
-      storage_.set_proxy_service(net::ProxyService::CreateWithoutProxyResolver(
-          new ProxyConfigServiceNull(), NULL));
-    }
+  const CefSettings& settings = _Context->settings();
+  if (!settings.auto_detect_proxy_settings_enabled) {
+    // Using the system proxy resolver on Windows when "Automatically detect
+    // settings" (auto-detection) is checked under LAN Settings can hurt
+    // resource loading performance because the call to WinHttpGetProxyForUrl in
+    // proxy_resolver_winhttp.cc will block the IO thread.  This is especially
+    // true for Windows 7 where auto-detection is checked by default. To avoid
+    // slow resource loading on Windows we only use the system proxy resolver if
+    // auto-detection is unchecked.
+    WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
+    if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
+      if (ie_config.fAutoDetect == TRUE) {
+        storage_.set_proxy_service(net::ProxyService::CreateWithoutProxyResolver(
+            new ProxyConfigServiceNull(), NULL));
+      }
 
-    if (ie_config.lpszAutoConfigUrl)
-      GlobalFree(ie_config.lpszAutoConfigUrl);
-    if (ie_config.lpszProxy)
-      GlobalFree(ie_config.lpszProxy);
-    if (ie_config.lpszProxyBypass)
-      GlobalFree(ie_config.lpszProxyBypass);
+      if (ie_config.lpszAutoConfigUrl)
+        GlobalFree(ie_config.lpszAutoConfigUrl);
+      if (ie_config.lpszProxy)
+        GlobalFree(ie_config.lpszProxy);
+      if (ie_config.lpszProxyBypass)
+        GlobalFree(ie_config.lpszProxyBypass);
+    }
   }
 #endif // defined(OS_WIN)
   
