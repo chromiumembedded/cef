@@ -303,7 +303,7 @@ private:
               job_->NotifyReadComplete(bytes_read);
 
               dest_ = NULL;
-              dest_size_ = NULL;
+              dest_size_ = 0;
             }
           } else {
             // All done.

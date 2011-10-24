@@ -90,7 +90,7 @@ public:
         value = arguments[argct]->GetValue(subargct);
         ASSERT_TRUE(value.get() != NULL);
         ASSERT_TRUE(value->IsBool());
-        ASSERT_EQ(false, value->GetBoolValue());
+        ASSERT_FALSE(value->GetBoolValue());
         subargct++;
 
         value = arguments[argct]->GetValue(subargct);

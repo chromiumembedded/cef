@@ -110,7 +110,7 @@ int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self)
 {
   DCHECK(self);
   if(!self)
-    return NULL;
+    return 0;
 
   return CefDOMDocumentCppToC::Get(self)->HasSelection();
 }
@@ -134,7 +134,7 @@ int CEF_CALLBACK domdocument_get_selection_start_offset(
 {
   DCHECK(self);
   if(!self)
-    return NULL;
+    return 0;
 
   return CefDOMDocumentCppToC::Get(self)->GetSelectionStartOffset();
 }
@@ -158,7 +158,7 @@ int CEF_CALLBACK domdocument_get_selection_end_offset(
 {
   DCHECK(self);
   if(!self)
-    return NULL;
+    return 0;
 
   return CefDOMDocumentCppToC::Get(self)->GetSelectionEndOffset();
 }

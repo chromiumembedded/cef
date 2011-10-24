@@ -110,6 +110,8 @@
     ],
     'cefclient_sources_linux': [
       'tests/cefclient/cefclient_gtk.cpp',
+      'tests/cefclient/client_handler_gtk.cpp',
+      'tests/cefclient/resource_util_linux.cpp',
     ],
     'libcef_dll_wrapper_sources_common': [
       'libcef_dll/cef_logging.h',

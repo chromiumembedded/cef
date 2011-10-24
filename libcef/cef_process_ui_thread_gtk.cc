@@ -6,7 +6,7 @@
 #include "browser_impl.h"
 
 void CefProcessUIThread::PlatformInit() {
-  
+
 }
 
 void CefProcessUIThread::PlatformCleanUp() {

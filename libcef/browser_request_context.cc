@@ -129,10 +129,24 @@ void BrowserRequestContext::Init(
 #endif // defined(OS_WIN)
   
   if (!proxy_service()) {
-    // Use the system proxy resolver.
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+    // Use no proxy to avoid ProxyConfigServiceLinux.
+    // Enabling use of the ProxyConfigServiceLinux requires:
+    // -Calling from a thread with a TYPE_UI MessageLoop,
+    // -If at all possible, passing in a pointer to the IO thread's MessageLoop,
+    // -Keep in mind that proxy auto configuration is also
+    //  non-functional on linux in this context because of v8 threading
+    //  issues.
+    // TODO(port): rename "linux" to some nonspecific unix.
+    scoped_ptr<net::ProxyConfigService> proxy_config_service(
+        new net::ProxyConfigServiceFixed(net::ProxyConfig()));
+#else
+    // Use the system proxy settings.
     scoped_ptr<net::ProxyConfigService> proxy_config_service(
         net::ProxyService::CreateSystemProxyConfigService(
             MessageLoop::current(), NULL));
+#endif
+
     storage_.set_proxy_service(net::ProxyService::CreateUsingSystemProxyResolver(
         proxy_config_service.release(), 0, NULL));
   }

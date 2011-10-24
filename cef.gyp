@@ -4,6 +4,7 @@
 
 {
   'variables': {
+    'pkg-config': 'pkg-config',
     'chromium_code': 1,
     'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
@@ -210,6 +211,67 @@
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
+          ],
+          'variables': {
+            'repack_path': '../tools/grit/grit/format/repack.py',
+          },
+          'actions': [
+            {
+              'action_name': 'repack_locales',
+              'inputs': [
+                'tools/repack_locales.py',
+                # NOTE: Ideally the common command args would be shared
+                # amongst inputs/outputs/action, but the args include shell
+                # variables which need to be passed intact, and command
+                # expansion wants to expand the shell variables. Adding the
+                # explicit quoting here was the only way it seemed to work.
+                '>!@(<(repack_locales_cmd) -i -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'outputs': [
+                '>!@(<(repack_locales_cmd) -o -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'action': [
+                '<@(repack_locales_cmd)',
+                '-g', '<(grit_out_dir)',
+                '-s', '<(SHARED_INTERMEDIATE_DIR)',
+                '-x', '<(INTERMEDIATE_DIR)',
+                '<@(locales)',
+              ],
+            },
+            {
+              'action_name': 'repack_resources',
+              'variables': {
+                'pak_inputs': [
+                  '<(grit_out_dir)/devtools_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+            },
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/locales',
+              'files': [
+                '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))'
+              ],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak'
+              ],
+            },
           ],
         }],
       ],
@@ -437,6 +499,24 @@
             ],
           },
         }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+         'dependencies':[
+            '../base/allocator/allocator.gyp:allocator',
+          ],
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(<(pkg-config) --cflags gtk+-2.0 gthread-2.0)',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(<(pkg-config) --libs-only-L --libs-only-other gtk+-2.0 gthread-2.0)',
+            ],
+            'libraries': [
+              '<!@(<(pkg-config) --libs-only-l gtk+-2.0 gthread-2.0)',
+            ],
+          },
+      	}],
       ],
     },
     {

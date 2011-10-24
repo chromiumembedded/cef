@@ -67,12 +67,14 @@ public:
         // Set the resulting mime type
         mime_type_ = "image/jpg";
       }
-#elif defined(OS_MACOSX)
+#elif (defined(OS_MACOSX) || defined(OS_LINUX))
       if(LoadBinaryResource("logo.png", data_)) {
         handled = true;
         // Set the resulting mime type
         mime_type_ = "image/png";
       }
+#else
+#error "Unsupported platform"
 #endif
     }
 

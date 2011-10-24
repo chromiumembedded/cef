@@ -1111,6 +1111,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
   info.SetAsPopup(NULL, CefString());
 #endif
 
+#if (defined(OS_WIN) || defined(OS_MACOSX))
   // Default to the size from the popup features.
   if(features.xSet)
     info.m_x = features.x;
@@ -1120,6 +1121,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
     info.m_nWidth = features.width;
   if(features.heightSet)
     info.m_nHeight = features.height;
+#endif
 
   CefRefPtr<CefClient> client = client_;
 

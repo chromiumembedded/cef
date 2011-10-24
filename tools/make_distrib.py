@@ -140,7 +140,7 @@ if sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
   platform = 'macosx'
-elif sys.platform == 'linux2':
+elif sys.platform.startswith('linux'):
   platform = 'linux'
 
 # output directory
@@ -149,8 +149,8 @@ output_dir = os.path.abspath(os.path.join(options.outputdir, \
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
-# transfer the LICENSE.TXT file
-copy_file(os.path.join(cef_dir, 'LICENSE.TXT'), output_dir, options.quiet)
+# transfer the LICENSE.txt file
+copy_file(os.path.join(cef_dir, 'LICENSE.txt'), output_dir, options.quiet)
 
 # read the variables list from cef_paths.gypi
 cef_paths = eval_file(os.path.join(cef_dir, 'cef_paths.gypi'))
@@ -314,6 +314,31 @@ elif platform == 'macosx':
   write_file(src_file, data)
 
 elif platform == 'linux':
+  linux_build_dir = os.path.join(cef_dir, os.pardir, 'out')
+  # transfer build/Debug files
+  if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Debug')):
+    dst_dir = os.path.join(output_dir, 'Debug')
+    make_dir(dst_dir, options.quiet)
+    copy_files(os.path.join(linux_build_dir, 'Debug/lib.target/*'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Debug/cefclient'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(linux_build_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
+
+  else:
+    sys.stderr.write("No Debug build files.\n")
+
+  # transfer build/Release files
+  if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Release')):
+    dst_dir = os.path.join(output_dir, 'Release')
+    make_dir(dst_dir, options.quiet)
+    copy_files(os.path.join(linux_build_dir, 'Release/lib.target/*'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Release/cefclient'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(linux_build_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
+
+  else:
+    sys.stderr.write("No Release build files.\n")
+
    # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_linux'], \
                       'include/', include_dir, options.quiet)

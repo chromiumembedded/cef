@@ -174,7 +174,7 @@ TEST(NavigationTest, History)
       new HistoryNavTestHandler();
   handler->ExecuteTest();
 
-  for (int i = 0; i < NAV_LIST_SIZE(); ++i) {
+  for (size_t i = 0; i < NAV_LIST_SIZE(); ++i) {
     if (kNavList[i].action != NA_CLEAR) {
       ASSERT_TRUE(handler->got_before_browse_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_target_[i]) << "i = " << i;

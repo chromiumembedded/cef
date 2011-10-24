@@ -30,7 +30,7 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
   StringMap* impl = (StringMap*)map;
   StringMap::const_iterator it = impl->find(CefString(key));
   if(it == impl->end())
-    return NULL;
+    return 0;
   const CefString& val = it->second;
   return cef_string_set(val.c_str(), val.length(), value, true);
 }
@@ -43,7 +43,7 @@ CEF_EXPORT int cef_string_map_key(cef_string_map_t map, int index,
   StringMap* impl = (StringMap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
-    return NULL;
+    return 0;
   StringMap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
     if(ct == index)
@@ -60,7 +60,7 @@ CEF_EXPORT int cef_string_map_value(cef_string_map_t map, int index,
   StringMap* impl = (StringMap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
-    return NULL;
+    return 0;
   StringMap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
     if(ct == index) {

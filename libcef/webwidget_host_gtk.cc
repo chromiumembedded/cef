@@ -227,6 +227,9 @@ class WebWidgetHostGtkWidget {
       return FALSE;  // We do not forward any other buttons to the renderer.
     if (event->type == GDK_2BUTTON_PRESS || event->type == GDK_3BUTTON_PRESS)
       return FALSE;
+
+    gtk_widget_grab_focus(widget);
+
     host->webwidget()->handleInputEvent(
         WebInputEventFactory::mouseEvent(event));
     return FALSE;
@@ -346,7 +349,8 @@ WebWidgetHost::~WebWidgetHost() {
   g_object_set_data(G_OBJECT(view_), kWebWidgetHostKey, NULL);
   g_signal_handlers_disconnect_matched(view_,
       G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, this);
-  webwidget_->close();
+  // TODO(port): Figure out why we can't do this without crashing.
+  // webwidget_->close();
 }
 
 void WebWidgetHost::Resize(const gfx::Size &newsize) {

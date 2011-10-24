@@ -259,6 +259,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void ClosePopupMenu();
 #endif
 
+#ifdef OS_LINUX
+  void HandleContextMenu(int selected_id);
+#endif
+
  protected:
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,
