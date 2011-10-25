@@ -51,11 +51,11 @@ Please visit the CEF Website for additional usage information.
 http://code.google.com/p/chromiumembedded
 
 
-DISTRIBUTION
-------------
+REDISTRIBUTION
+--------------
 
 This binary distribution contains the below components. Components listed under
-the "required" section must be distributed with all applications using CEF.
+the "required" section must be redistributed with all applications using CEF.
 Components listed under the "optional" section may be excluded if the related
 features will not be used.
 
