@@ -4,7 +4,7 @@
 
 import pickle
 from optparse import OptionParser
-import os.path
+import os
 import sys
 from file_util import *
 from patch_util import *
@@ -51,16 +51,25 @@ else:
     execfile(options.patchconfig, scope)
     patches = scope["patches"]
     
-    for name in patches.keys():
-        file = patchdir+'patches/'+name+'.patch'
-        if not os.path.isfile(file):
-            sys.stderr.write('Patch file '+file+' does not exist.\n')
-        else:
-            sys.stderr.write('Reading patch file '+file+'\n')
-            dir = patches[name]
-            patchObj = from_file(file)
-            patchObj.apply(dir)
-        
+    for patch in patches:
+        file = patchdir+'patches/'+patch['name']+'.patch'
+        dopatch = True
+
+        if 'condition' in patch:
+          # Check that the environment variable is set.
+          if patch['condition'] not in os.environ:
+            sys.stderr.write('Skipping patch file '+file+'\n')
+            dopatch = False
+
+        if dopatch:
+          if not os.path.isfile(file):
+              sys.stderr.write('Patch file '+file+' does not exist.\n')
+          else:
+              sys.stderr.write('Reading patch file '+file+'\n')
+              dir = patch['path']
+              patchObj = from_file(file)
+              patchObj.apply(dir)
+
 # read the current include file, if any
 incfile = patchdir + 'patch_state.h'
 if nopatch:

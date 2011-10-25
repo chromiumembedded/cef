@@ -20,7 +20,9 @@ __version__ = "8.12-1"
 
 import copy
 import logging
+import os
 import re
+from stat import *
 # cStringIO doesn't support unicode in 2.5
 from StringIO import StringIO
 from logging import debug, info, warning
@@ -500,6 +502,9 @@ def patch_stream(instream, hunks):
 
 
 def patch_hunks(srcname, tgtname, hunks):
+  # get the current file mode
+  mode = os.stat(srcname)[ST_MODE]
+
   src = open(srcname, "rb")
   tgt = open(tgtname, "wb")
 
@@ -509,6 +514,10 @@ def patch_hunks(srcname, tgtname, hunks):
 
   tgt.close()
   src.close()
+
+  # restore the file mode
+  os.chmod(tgtname, mode)
+
   return True
  
 
