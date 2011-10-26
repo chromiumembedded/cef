@@ -176,9 +176,7 @@ class WebWidgetHost {
   void ResetScrollRect();
 
   void set_painting(bool value) {
-#ifndef NDEBUG
     painting_ = value;
-#endif
   }
 
   void EnsureTooltip();
@@ -249,9 +247,8 @@ class WebWidgetHost {
 
   WebKit::WebKeyboardEvent last_key_event_;
 
-#ifndef NDEBUG
   bool painting_;
-#endif
+  bool layouting_;
 
  private:
   base::WeakPtrFactory<WebWidgetHost> weak_factory_;
