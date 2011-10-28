@@ -15,6 +15,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/v8context_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -214,6 +215,18 @@ void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
     return;
 
   struct_->visit_dom(struct_, CefDOMVisitorCppToC::Wrap(visitor));
+}
+
+CefRefPtr<CefV8Context> CefFrameCToCpp::GetV8Context()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_v8context))
+    return NULL;
+
+  cef_v8context_t* v8ContextStruct = struct_->get_v8context(struct_);
+  if (v8ContextStruct)
+    return CefV8ContextCToCpp::Wrap(v8ContextStruct);
+
+  return NULL;
 }
 
 

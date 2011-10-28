@@ -77,6 +77,7 @@ BEGIN
         MENUITEM "JavaScript Extension Handler",ID_TESTS_JAVASCRIPT_EXTENSION
         MENUITEM "JavaScript Extension Performance",ID_TESTS_JAVASCRIPT_PERFORMANCE
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
+        MENUITEM "JavaScript Invoke",           ID_TESTS_JAVASCRIPT_INVOKE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP
         MENUITEM "Transparent Popup Window",    ID_TESTS_TRANSPARENT_POPUP

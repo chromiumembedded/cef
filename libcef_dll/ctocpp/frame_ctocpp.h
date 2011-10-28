@@ -56,6 +56,7 @@ public:
   virtual CefString GetURL() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
+  virtual CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

@@ -854,6 +854,13 @@ typedef struct _cef_frame_t
   void (CEF_CALLBACK *visit_dom)(struct _cef_frame_t* self,
       struct _cef_domvisitor_t* visitor);
 
+  ///
+  // Get the V8 context associated with the frame. This function should only be
+  // called on the UI thread.
+  ///
+  struct _cef_v8context_t* (CEF_CALLBACK *get_v8context)(
+      struct _cef_frame_t* self);
+
 } cef_frame_t;
 
 

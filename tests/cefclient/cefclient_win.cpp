@@ -487,6 +487,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunJavaScriptExecuteTest(browser);
           return 0;
+        case ID_TESTS_JAVASCRIPT_INVOKE:
+          if(browser.get())
+            RunJavaScriptInvokeTest(browser);
+          return 0;
         case ID_TESTS_PLUGIN: // Test the custom plugin
           if(browser.get())
             RunPluginTest(browser);

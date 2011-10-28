@@ -1022,6 +1022,13 @@ public:
   ///
   /*--cef()--*/
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) =0;
+
+  ///
+  // Get the V8 context associated with the frame. This method should only be
+  // called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefV8Context> GetV8Context() =0;
 };
 
 

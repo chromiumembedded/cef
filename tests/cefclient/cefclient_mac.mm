@@ -190,6 +190,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExtension:(id)sender;
 - (IBAction)testJSExtensionPerf:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
+- (IBAction)testJSInvoke:(id)sender;
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testLocalStorage:(id)sender;
 - (IBAction)testXMLHttpRequest:(id)sender;
@@ -242,6 +243,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Execute"
                       action:@selector(testJSExecute:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"JavaScript Invoke"
+                      action:@selector(testJSInvoke:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Popup Window"
                       action:@selector(testPopupWindow:)
@@ -409,6 +413,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExecute:(id)sender {
   if(g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testJSInvoke:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunJavaScriptInvokeTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testRequest:(id)sender {

@@ -11,6 +11,7 @@
 #include "dom_document_impl.h"
 #include "request_impl.h"
 #include "stream_impl.h"
+#include "v8_impl.h"
 
 #include "base/file_path.h"
 #include "base/path_service.h"
@@ -110,13 +111,13 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo,
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
-    NOTREACHED();
+    NOTREACHED() << "invalid CefBrowserSettings structure size";
     return false;
   }
 
@@ -135,19 +136,19 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return NULL;
   }
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
-    NOTREACHED();
+    NOTREACHED() << "invalid CefBrowserSettings structure size";
     return NULL;
   }
 
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return NULL;
   }
 
@@ -243,7 +244,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame()
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return NULL;
   }
   
@@ -255,7 +256,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name)
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return NULL;
   }
   
@@ -273,7 +274,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names)
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return;
   }
   
@@ -356,7 +357,7 @@ void CefBrowserImpl::CloseDevTools()
 bool CefBrowserImpl::GetSize(PaintElementType type, int& width, int& height)
 {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
 
@@ -389,7 +390,7 @@ void CefBrowserImpl::SetSize(PaintElementType type, int width, int height)
 bool CefBrowserImpl::IsPopupVisible()
 {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
   
@@ -416,7 +417,7 @@ bool CefBrowserImpl::GetImage(PaintElementType type, int width, int height,
                               void* buffer)
 {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
 
@@ -543,7 +544,7 @@ CefString CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame)
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return CefString();
   }
   
@@ -558,7 +559,7 @@ CefString CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame)
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return CefString();
   }
   
@@ -615,7 +616,7 @@ CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return CefString();
   }
 
@@ -1607,7 +1608,7 @@ bool CefFrameImpl::IsFocused()
 {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED();
+    NOTREACHED() << "called on invalid thread";
     return false;
   }
 
@@ -1619,10 +1620,27 @@ bool CefFrameImpl::IsFocused()
 void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
 {
   if(!visitor.get()) {
-    NOTREACHED();
+    NOTREACHED() << "invalid parameter";
     return;
   }
   CefRefPtr<CefFrame> framePtr(this);
   CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(
       browser_.get(), &CefBrowserImpl::UIT_VisitDOM, framePtr, visitor));
+}
+
+CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context()
+{
+  // Verify that this method is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED() << "called on invalid thread";
+    return NULL;
+  }
+
+  WebKit::WebFrame* frame = browser_->UIT_GetWebFrame(this);
+  if (frame) {
+    v8::HandleScope handle_scope;
+    return new CefV8ContextImpl(webkit_glue::GetV8Context(frame));
+  } else {
+    return NULL;
+  }
 }

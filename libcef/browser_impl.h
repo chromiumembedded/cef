@@ -447,6 +447,7 @@ public:
   virtual CefString GetURL() OVERRIDE { return browser_->GetURL(this); }
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE { return browser_.get(); }
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
+  virtual CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
 
 private:
   CefRefPtr<CefBrowserImpl> browser_;

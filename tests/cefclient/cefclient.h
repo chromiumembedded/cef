@@ -21,6 +21,7 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser);
 void RunGetTextTest(CefRefPtr<CefBrowser> browser);
 void RunRequestTest(CefRefPtr<CefBrowser> browser);
 void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser);
+void RunJavaScriptInvokeTest(CefRefPtr<CefBrowser> browser);
 void RunPopupTest(CefRefPtr<CefBrowser> browser);
 void RunLocalStorageTest(CefRefPtr<CefBrowser> browser);
 void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser);

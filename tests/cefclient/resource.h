@@ -55,6 +55,7 @@
 #define ID_TESTS_JAVASCRIPT_PERFORMANCE 32795
 #define ID_TESTS_TRANSPARENT_POPUP      32796
 #define ID_TESTS_TRANSPARENT_OSRAPP     32797
+#define ID_TESTS_JAVASCRIPT_INVOKE      32798
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001
