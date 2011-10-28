@@ -267,16 +267,10 @@ public:
     // Verify that the request is the same
     VerifyRequestEqual(request_, request, true);
 
+    DestroyTest();
+
     // No results
     return true;
-  }
-
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    if(!browser->IsPopup() && frame->IsMain())
-      DestroyTest();
   }
 
   CefRefPtr<CefRequest> request_;

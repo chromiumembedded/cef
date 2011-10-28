@@ -67,17 +67,30 @@ public:
     got_sub_success;
 };
 
+// Current scheme handler object. Used when destroying the test from
+// ClientSchemeHandler::ProcessRequest().
+class TestSchemeHandler;
+TestSchemeHandler* g_current_handler = NULL;
+
 class TestSchemeHandler : public TestHandler
 {
 public:
   TestSchemeHandler(TestResults* tr)
     : test_results_(tr)
   {
+    g_current_handler = this;
   }
 
   virtual void RunTest() OVERRIDE
   {
     CreateBrowser(test_results_->url);
+  }
+
+  // Necessary to make the method public in order to destroy the test from
+  // ClientSchemeHandler::ProcessRequest().
+  void DestroyTest()
+  {
+    TestHandler::DestroyTest();
   }
 
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -198,6 +211,10 @@ public:
       }
       return true;
     }
+
+    // Response was canceled.
+    if (g_current_handler)
+      g_current_handler->DestroyTest();
     return false;
   }
 
