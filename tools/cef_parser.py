@@ -1009,6 +1009,17 @@ class obj_analysis:
                     self._get_basic(string.strip(vals[1]))
                 ]
                 return True
+
+        # check for multimaps
+        if value.find('std::multimap') == 0:
+            self.result_type = 'multimap'
+            vals = string.split(value[14:-1], ',')
+            if len(vals) == 2:
+                self.result_value = [
+                    self._get_basic(string.strip(vals[0])),
+                    self._get_basic(string.strip(vals[1]))
+                ]
+                return True
         
         # check for basic types
         basic = self._get_basic(value)
@@ -1216,7 +1227,7 @@ class obj_analysis:
     
     def is_result_map(self):
         """ Returns true if this is a map type. """
-        return (self.result_type == 'map')
+        return (self.result_type == 'map' or self.result_type == 'multimap')
     
     def get_result_map_type(self, defined_structs = []):
         """ Return the map type. """
@@ -1224,10 +1235,16 @@ class obj_analysis:
             raise Exception('Cannot use map as a return type')
         if self.result_value[0]['result_type'] == 'string' \
             and self.result_value[1]['result_type'] == 'string':
-            return {
-                'value' : 'cef_string_map_t',
-                'format' : 'single'
-            }
+            if self.result_type == 'map':
+                return {
+                    'value' : 'cef_string_map_t',
+                    'format' : 'single'
+                }
+            elif self.result_type == 'multimap':
+                return {
+                    'value' : 'cef_string_multimap_t',
+                    'format' : 'multi'
+                }
         raise Exception('Only mappings of strings to strings are supported')
 
     def get_capi(self, defined_structs = []):
@@ -1244,10 +1261,10 @@ class obj_analysis:
             result += self.get_result_string_type()
         elif self.is_result_map():
             resdict = self.get_result_map_type(defined_structs)
-            if resdict['format'] == 'single':
+            if resdict['format'] == 'single' or resdict['format'] == 'multi':
                 result += resdict['value']
             else:
-                raise Exception('Only single-value map types are supported')
+                raise Exception('Unsupported map type')
         elif self.is_result_vector():
             resdict = self.get_result_vector_type(defined_structs)
             if resdict['format'] != 'single':

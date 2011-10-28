@@ -5,6 +5,7 @@
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
+#include "include/internal/cef_string_multimap.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include <map>
 #include <vector>
@@ -249,4 +250,97 @@ TEST(StringTest, Map)
   ASSERT_EQ(cef_string_map_size(mapPtr), 0);
 
   cef_string_map_free(mapPtr);
+}
+
+// Test string maps.
+TEST(StringTest, Multimap)
+{
+  typedef std::multimap<CefString,CefString> MapType;
+  MapType map;
+  map.insert(std::make_pair("Key 1", "String 1"));
+  map.insert(std::make_pair("Key 2", "String 2"));
+  map.insert(std::make_pair("Key 2", "String 2.1"));
+  map.insert(std::make_pair("Key 3", "String 3"));
+
+  MapType::const_iterator it;
+
+  it = map.find("Key 2");
+  ASSERT_TRUE(it != map.end());
+  ASSERT_EQ(it->first, "Key 2");
+  ASSERT_EQ(it->second, "String 2");
+
+  std::pair<MapType::const_iterator, MapType::const_iterator>
+      range_it = map.equal_range("Key 2");
+  ASSERT_TRUE(range_it.first != range_it.second);
+  MapType::const_iterator same_key_it = range_it.first;
+  // Either of "String 2" or "String 2.1" is fine since
+  // std::multimap provides no guarantee wrt the order of
+  // values with the same key.
+  ASSERT_EQ(same_key_it->second.ToString().find("String 2"), (size_t)0);
+  ASSERT_EQ((++same_key_it)->second.ToString().find("String 2"), (size_t)0);
+  ASSERT_EQ(map.count("Key 2"), (size_t)2);
+
+  ASSERT_EQ(map.find("Key 1")->second, "String 1");
+  ASSERT_EQ(map.find("Key 3")->second, "String 3");
+
+  cef_string_multimap_t mapPtr = cef_string_multimap_alloc();
+
+  it = map.begin();
+  for(; it != map.end(); ++it) {
+    cef_string_multimap_append(mapPtr, it->first.GetStruct(),
+        it->second.GetStruct());
+  }
+
+  CefString str;
+  int ret;
+
+  ASSERT_EQ(cef_string_multimap_size(mapPtr), 4);
+
+  ret = cef_string_multimap_key(mapPtr, 0, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "Key 1");
+  ret = cef_string_multimap_value(mapPtr, 0, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "String 1");
+
+  ret = cef_string_multimap_key(mapPtr, 1, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "Key 2");
+  ret = cef_string_multimap_value(mapPtr, 1, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str.ToString().find("String 2"), (size_t)0);
+
+  ret = cef_string_multimap_key(mapPtr, 2, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "Key 2");
+  ret = cef_string_multimap_value(mapPtr, 2, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str.ToString().find("String 2"), (size_t)0);
+
+  ret = cef_string_multimap_key(mapPtr, 3, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "Key 3");
+  ret = cef_string_multimap_value(mapPtr, 3, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str, "String 3");
+
+  CefString key;
+  key.FromASCII("Key 2");
+  ret = cef_string_multimap_find_count(mapPtr, key.GetStruct());
+  ASSERT_EQ(ret, 2);
+
+  ret = cef_string_multimap_enumerate(mapPtr,
+                    key.GetStruct(), 0, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str.ToString().find("String 2"), (size_t)0);
+
+  ret = cef_string_multimap_enumerate(mapPtr,
+                    key.GetStruct(), 1, str.GetWritableStruct());
+  ASSERT_TRUE(ret);
+  ASSERT_EQ(str.ToString().find("String 2"), (size_t)0);
+
+  cef_string_multimap_clear(mapPtr);
+  ASSERT_EQ(cef_string_multimap_size(mapPtr), 0);
+
+  cef_string_multimap_free(mapPtr);
 }

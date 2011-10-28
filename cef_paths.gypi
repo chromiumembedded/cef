@@ -18,6 +18,7 @@
       'include/internal/cef_string.h',
       'include/internal/cef_string_list.h',
       'include/internal/cef_string_map.h',
+      'include/internal/cef_string_multimap.h',
       'include/internal/cef_string_types.h',
       'include/internal/cef_string_wrappers.h',
       'include/internal/cef_time.h',

@@ -1773,7 +1773,7 @@ public:
 class CefRequest : public virtual CefBase
 {
 public:
-  typedef std::map<CefString,CefString> HeaderMap;
+  typedef std::multimap<CefString,CefString> HeaderMap;
   typedef cef_weburlrequest_flags_t RequestFlags;
 
   ///
@@ -1984,7 +1984,7 @@ public:
 class CefResponse : public virtual CefBase
 {
 public:
-  typedef std::map<CefString,CefString> HeaderMap;
+  typedef std::multimap<CefString,CefString> HeaderMap;
 
   ///
   // Get the response status code.

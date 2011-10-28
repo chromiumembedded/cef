@@ -689,6 +689,7 @@
         'libcef/cef_process_ui_thread.h',
         'libcef/cef_string_list.cc',
         'libcef/cef_string_map.cc',
+        'libcef/cef_string_multimap.cc',
         'libcef/cef_string_types.cc',
         'libcef/cef_thread.cc',
         'libcef/cef_thread.h',

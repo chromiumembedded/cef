@@ -88,7 +88,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_header(
 }
 
 void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
-    cef_string_map_t headerMap)
+    cef_string_multimap_t headerMap)
 {
   DCHECK(self);
   if(!self)
@@ -96,11 +96,11 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
 
   CefResponse::HeaderMap map;
   CefResponseCppToC::Get(self)->GetHeaderMap(map);
-  transfer_string_map_contents(map, headerMap);
+  transfer_string_multimap_contents(map, headerMap);
 }
 
 void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
-    cef_string_map_t headerMap)
+    cef_string_multimap_t headerMap)
 {
   DCHECK(self);
   if(!self)
@@ -108,7 +108,7 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
 
   CefResponse::HeaderMap map;
   if(headerMap)
-    transfer_string_map_contents(headerMap, map);
+    transfer_string_multimap_contents(headerMap, map);
 
   CefResponseCppToC::Get(self)->SetHeaderMap(map);
 }

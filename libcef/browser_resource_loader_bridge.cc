@@ -225,7 +225,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           while (info.headers->EnumerateHeaderLines(&header_index, &name,
                                                     &value)) {
             if (!name.empty() && !value.empty())
-              headerMap[name] = value;
+              headerMap.insert(std::make_pair(name, value));
           }
           response->SetHeaderMap(headerMap);
           response->SetStatusText(info.headers->GetStatusText());

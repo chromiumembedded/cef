@@ -7,6 +7,7 @@
 
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
+#include "include/internal/cef_string_multimap.h"
 #include <map>
 #include <vector>
 
@@ -23,5 +24,12 @@ void transfer_string_map_contents(cef_string_map_t fromMap,
                                   StringMap& toMap);
 void transfer_string_map_contents(const StringMap& fromMap,
                                   cef_string_map_t toMap);
+
+// Copy contents from one map type to another.
+typedef std::multimap<CefString, CefString> StringMultimap;
+void transfer_string_multimap_contents(cef_string_multimap_t fromMap,
+                                       StringMultimap& toMap);
+void transfer_string_multimap_contents(const StringMultimap& fromMap,
+                                       cef_string_multimap_t toMap);
 
 #endif // _TRANSFER_UTIL_H

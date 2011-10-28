@@ -34,7 +34,7 @@ void transfer_string_map_contents(cef_string_map_t fromMap,
     cef_string_map_key(fromMap, i, key.GetWritableStruct());
     cef_string_map_value(fromMap, i, value.GetWritableStruct());
     
-    toMap.insert(std::pair<CefString, CefString>(key, value));
+    toMap.insert(std::make_pair(key, value));
   }
 }
 
@@ -44,4 +44,29 @@ void transfer_string_map_contents(const StringMap& fromMap,
   StringMap::const_iterator it = fromMap.begin();
   for(; it != fromMap.end(); ++it)
     cef_string_map_append(toMap, it->first.GetStruct(), it->second.GetStruct());
+}
+
+void transfer_string_multimap_contents(cef_string_multimap_t fromMap,
+                                       StringMultimap& toMap)
+{
+  int size = cef_string_multimap_size(fromMap);
+  CefString key, value;
+
+  for(int i = 0; i < size; ++i) {
+    cef_string_multimap_key(fromMap, i, key.GetWritableStruct());
+    cef_string_multimap_value(fromMap, i, value.GetWritableStruct());
+    
+    toMap.insert(std::make_pair(key, value));
+  }
+}
+
+void transfer_string_multimap_contents(const StringMultimap& fromMap,
+                                       cef_string_multimap_t toMap)
+{
+  StringMultimap::const_iterator it = fromMap.begin();
+  for(; it != fromMap.end(); ++it) {
+    cef_string_multimap_append(toMap,
+        it->first.GetStruct(),
+        it->second.GetStruct());
+  }
 }

@@ -99,7 +99,7 @@ void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
 }
 
 void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
-    cef_string_map_t headerMap)
+    cef_string_multimap_t headerMap)
 {
   DCHECK(self);
   if(!self)
@@ -107,11 +107,11 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
 
   CefRequest::HeaderMap map;
   CefRequestCppToC::Get(self)->GetHeaderMap(map);
-  transfer_string_map_contents(map, headerMap);
+  transfer_string_multimap_contents(map, headerMap);
 }
 
 void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
-    cef_string_map_t headerMap)
+    cef_string_multimap_t headerMap)
 {
   DCHECK(self);
   if(!self)
@@ -119,14 +119,14 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
 
   CefRequest::HeaderMap map;
   if(headerMap)
-    transfer_string_map_contents(headerMap, map);
+    transfer_string_multimap_contents(headerMap, map);
 
   CefRequestCppToC::Get(self)->SetHeaderMap(map);
 }
 
 void CEF_CALLBACK request_set(struct _cef_request_t* self,
     const cef_string_t* url, const cef_string_t* method,
-    struct _cef_post_data_t* postData, cef_string_map_t headerMap)
+    struct _cef_post_data_t* postData, cef_string_multimap_t headerMap)
 {
   DCHECK(self);
   if(!self)
@@ -138,7 +138,7 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
   if(postData)
     postDataPtr = CefPostDataCppToC::Unwrap(postData);
   if(headerMap)
-    transfer_string_map_contents(headerMap, map);
+    transfer_string_multimap_contents(headerMap, map);
 
   CefRequestCppToC::Get(self)->Set(CefString(url), CefString(method),
       postDataPtr, map);

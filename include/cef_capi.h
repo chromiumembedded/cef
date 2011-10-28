@@ -45,6 +45,7 @@ extern "C" {
 #include "internal/cef_string.h"
 #include "internal/cef_string_list.h"
 #include "internal/cef_string_map.h"
+#include "internal/cef_string_multimap.h"
 #include "internal/cef_types.h"
 
 
@@ -1593,20 +1594,20 @@ typedef struct _cef_request_t
   // Get the header values.
   ///
   void (CEF_CALLBACK *get_header_map)(struct _cef_request_t* self,
-      cef_string_map_t headerMap);
+      cef_string_multimap_t headerMap);
 
   ///
   // Set the header values.
   ///
   void (CEF_CALLBACK *set_header_map)(struct _cef_request_t* self,
-      cef_string_map_t headerMap);
+      cef_string_multimap_t headerMap);
 
   ///
   // Set all values at one time.
   ///
   void (CEF_CALLBACK *set)(struct _cef_request_t* self, const cef_string_t* url,
       const cef_string_t* method, struct _cef_post_data_t* postData,
-      cef_string_map_t headerMap);
+      cef_string_multimap_t headerMap);
 
   ///
   // Get the flags used in combination with cef_web_urlrequest_t.
@@ -1808,13 +1809,13 @@ typedef struct _cef_response_t
   // Get all response header fields.
   ///
   void (CEF_CALLBACK *get_header_map)(struct _cef_response_t* self,
-      cef_string_map_t headerMap);
+      cef_string_multimap_t headerMap);
 
   ///
   // Set all response header fields.
   ///
   void (CEF_CALLBACK *set_header_map)(struct _cef_response_t* self,
-      cef_string_map_t headerMap);
+      cef_string_multimap_t headerMap);
 
 } cef_response_t;
 

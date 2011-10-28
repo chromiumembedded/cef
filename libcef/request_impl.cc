@@ -216,7 +216,7 @@ void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers,
 {
   net::HttpRequestHeaders::Iterator it(headers);
   do {
-    map[it.name()] = it.value();
+    map.insert(std::make_pair(it.name(), it.value()));
   } while (it.GetNext());
 }
 

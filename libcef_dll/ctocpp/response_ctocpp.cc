@@ -86,13 +86,13 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap)
   if(CEF_MEMBER_MISSING(struct_, get_header_map))
     return;
 
-  cef_string_map_t map = cef_string_map_alloc();
+  cef_string_multimap_t map = cef_string_multimap_alloc();
   if(!map)
     return;
 
   struct_->get_header_map(struct_, map);
-  transfer_string_map_contents(map, headerMap);
-  cef_string_map_free(map);
+  transfer_string_multimap_contents(map, headerMap);
+  cef_string_multimap_free(map);
 }
 
 void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap)
@@ -100,18 +100,18 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap)
   if(CEF_MEMBER_MISSING(struct_, set_header_map))
     return;
 
-  cef_string_map_t map = NULL;
+  cef_string_multimap_t map = NULL;
   if(!headerMap.empty()) {
-    map = cef_string_map_alloc();
+    map = cef_string_multimap_alloc();
     if(!map)
       return;
-    transfer_string_map_contents(headerMap, map);
+    transfer_string_multimap_contents(headerMap, map);
   }
 
   struct_->set_header_map(struct_, map);
   
   if(map)
-    cef_string_map_free(map);
+    cef_string_multimap_free(map);
 }
 
 
