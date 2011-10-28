@@ -43,7 +43,7 @@ public:
 #if defined(OS_MACOSX)
     Run();
 #else
-    Run(NULL);
+    RunWithDispatcher(NULL);
 #endif
   }
 

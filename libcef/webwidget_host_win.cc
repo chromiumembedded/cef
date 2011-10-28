@@ -1084,7 +1084,14 @@ void WebWidgetHost::UpdateInputMethod(HWND view)
 
   if (host->webwidget_) {
     new_type = host->webwidget_->textInputType();
-    new_caret_bounds = host->webwidget_->caretOrSelectionBounds();
+    
+    WebKit::WebRect startRect, endRect;
+    if (host->webwidget_->selectionBounds(startRect, endRect)) {
+      new_caret_bounds.x = startRect.x;
+      new_caret_bounds.y = startRect.y;
+      new_caret_bounds.width = endRect.x + endRect.width - startRect.x;
+      new_caret_bounds.height = endRect.y + endRect.height - startRect.y;
+    }
   }
 
   // Only sends text input type and caret bounds to the browser process if they
