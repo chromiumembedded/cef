@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "include/cef.h"
+#include "browser_devtools_scheme_handler.h"
 #include "browser_resource_loader_bridge.h"
 #include "cef_context.h"
 #include "cef_thread.h"
@@ -560,8 +561,10 @@ private:
       job = GetBuiltinSchemeRequestJob(request, scheme);
     }
 
+#ifndef NDEBUG
     if (job)
       DLOG(INFO) << "CefUrlRequestManager hit for " << request->url().spec();
+#endif
     
     return job;
   }
@@ -597,7 +600,7 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
@@ -625,7 +628,7 @@ bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
@@ -645,12 +648,15 @@ bool CefClearSchemeHandlerFactories()
 {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    NOTREACHED() << "context not valid";
     return false;
   }
 
   if (CefThread::CurrentlyOn(CefThread::IO)) {
     CefUrlRequestManager::GetInstance()->ClearFactories();
+
+    // Re-register the DevTools scheme handler.
+    RegisterDevToolsSchemeHandler(false);
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
         NewRunnableFunction(&CefClearSchemeHandlerFactories));

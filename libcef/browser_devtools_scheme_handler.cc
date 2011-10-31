@@ -118,9 +118,10 @@ public:
 } // namespace
 
 // Register the DevTools scheme handler.
-void RegisterDevToolsSchemeHandler()
+void RegisterDevToolsSchemeHandler(bool firstTime)
 {
-  CefRegisterCustomScheme(kChromeDevToolsScheme, true, false, true);
+  if (firstTime)
+    CefRegisterCustomScheme(kChromeDevToolsScheme, true, false, true);
   CefRegisterSchemeHandlerFactory(kChromeDevToolsScheme, kChromeDevToolsHost,
                                   new DevToolsSchemeHandlerFactory());
 }
