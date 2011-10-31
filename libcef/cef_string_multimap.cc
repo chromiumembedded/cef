@@ -46,7 +46,7 @@ CEF_EXPORT int cef_string_multimap_enumerate(cef_string_multimap_t map,
   DCHECK(value_index >= 0 && value_index < (int)impl->count(key_str));
 
   if(value_index < 0 || value_index >= (int)impl->count(key_str))
-    return NULL;
+    return 0;
 
   std::pair<StringMultimap::iterator, StringMultimap::iterator> range_it =
       impl->equal_range(key_str);
@@ -56,7 +56,7 @@ CEF_EXPORT int cef_string_multimap_enumerate(cef_string_multimap_t map,
     range_it.first++;
 
   if (range_it.first == range_it.second)
-    return NULL;
+    return 0;
 
   const CefString& val = range_it.first->second;
   return cef_string_set(val.c_str(), val.length(), value, true);
@@ -70,7 +70,7 @@ CEF_EXPORT int cef_string_multimap_key(cef_string_multimap_t map, int index,
   StringMultimap* impl = (StringMultimap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
-    return NULL;
+    return 0;
   StringMultimap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
     if(ct == index)
@@ -87,7 +87,7 @@ CEF_EXPORT int cef_string_multimap_value(cef_string_multimap_t map, int index,
   StringMultimap* impl = (StringMultimap*)map;
   DCHECK(index >= 0 && index < (int)impl->size());
   if(index < 0 || index >= (int)impl->size())
-    return NULL;
+    return 0;
   StringMultimap::const_iterator it = impl->begin();
   for(int ct = 0; it != impl->end(); ++it, ct++) {
     if(ct == index) {
