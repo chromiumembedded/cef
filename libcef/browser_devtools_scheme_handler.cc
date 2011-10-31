@@ -82,7 +82,15 @@ public:
                                              CefRefPtr<CefRequest> request)
                                              OVERRIDE
   {
-    std::string url = request->GetURL();
+    // Remove the query component of the URL, if any.
+    CefURLParts parts;
+    CefParseURL(request->GetURL(), parts);
+    cef_string_clear(&parts.spec);
+    cef_string_clear(&parts.query);
+    CefString urlStr;
+    CefCreateURL(parts, urlStr);
+
+    std::string url = urlStr;
     const char* path = &url.c_str()[strlen(kChromeDevToolsURL)];
 
     int size = -1;

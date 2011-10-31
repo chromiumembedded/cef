@@ -27,7 +27,7 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
 
 #ifdef TEST_REDIRECT_POPUP_URLS
   std::string urlStr = url;
-  if(urlStr.find("resources/inspector/devtools.html") == std::string::npos) {
+  if(urlStr.find("chrome-devtools:") == std::string::npos) {
     // Show all popup windows excluding DevTools in the current window.
     windowInfo.m_bHidden = true;
     client = new ClientPopupHandler(m_Browser);

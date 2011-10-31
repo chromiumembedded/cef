@@ -1452,7 +1452,10 @@ void CefBrowserImpl::UIT_ShowDevTools()
   BrowserDevToolsClient* client = dev_tools_agent_->client();
   if (!client) {
     // Create the inspector window.
-    CefString url(base::StringPrintf("%sdevtools.html", kChromeDevToolsURL));
+    CefString url(base::StringPrintf(
+        "%sdevtools.html?docked=false&toolbarColor=rgba(223,223,223,1)&"
+            "textColor=rgba(18,50,114,1)",
+        kChromeDevToolsURL));
 
     CefPopupFeatures features;
     CefRefPtr<CefBrowserImpl> browser = UIT_CreatePopupWindow(url, features);
