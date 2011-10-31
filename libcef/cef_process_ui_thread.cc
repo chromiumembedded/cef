@@ -89,7 +89,7 @@ void CefProcessUIThread::Init() {
   std::string localeStr = CefString(&settings.locale);
   if (localeStr.empty())
     localeStr = "en-US";
-  webkit_glue::InitializeDataPak(localeStr);
+  webkit_glue::InitializeResourceBundle(localeStr);
 
   PlatformInit();
 
@@ -201,6 +201,8 @@ void CefProcessUIThread::CleanUp() {
   network_change_notifier_.reset();
 
   PlatformCleanUp();
+
+  webkit_glue::CleanupResourceBundle();
 }
 
 void CefProcessUIThread::OnOnlineStateChanged(bool online) {

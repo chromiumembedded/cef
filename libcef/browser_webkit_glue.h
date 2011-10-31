@@ -35,7 +35,8 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
   
-void InitializeDataPak(const std::string& locale);
+void InitializeResourceBundle(const std::string& locale);
+void CleanupResourceBundle();
 
 #if defined(OS_MACOSX)
 FilePath GetResourcesFilePath();

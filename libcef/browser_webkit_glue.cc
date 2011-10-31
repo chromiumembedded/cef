@@ -40,7 +40,7 @@ using WebKit::WebFrameImpl;
 
 namespace webkit_glue {
 
-void InitializeDataPak(const std::string& locale) {
+void InitializeResourceBundle(const std::string& locale) {
   // Load chrome.pak (on Mac) and the appropiate locale pack.
   const std::string loaded_locale =
       ResourceBundle::InitSharedInstance(locale);
@@ -57,6 +57,10 @@ void InitializeDataPak(const std::string& locale) {
   else
     NOTREACHED() << "Could not load chrome.pak";
 #endif
+}
+
+void CleanupResourceBundle() {
+  ResourceBundle::CleanupSharedInstance();
 }
 
 string16 GetLocalizedString(int message_id) {
