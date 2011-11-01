@@ -71,8 +71,11 @@ public:
   {
     cef_string_clear(&unique_name);
     cef_string_clear(&display_name);
+    cef_string_clear(&version);
     cef_string_clear(&description);
-    cef_string_clear(&mime_type);
+    cef_string_clear(&mime_types);
+    cef_string_clear(&file_extensions);
+    cef_string_clear(&type_descriptions);
     Init();
   }
 
@@ -96,8 +99,13 @@ public:
   {
     cef_string_copy(r.unique_name.str, r.unique_name.length, &unique_name);
     cef_string_copy(r.display_name.str, r.display_name.length, &display_name);
+    cef_string_copy(r.version.str, r.version.length, &version);
     cef_string_copy(r.description.str, r.description.length, &description);
-    cef_string_copy(r.mime_type.str, r.mime_type.length, &mime_type);
+    cef_string_copy(r.mime_types.str, r.mime_types.length, &mime_types);
+    cef_string_copy(r.file_extensions.str, r.file_extensions.length,
+        &file_extensions);
+    cef_string_copy(r.type_descriptions.str, r.type_descriptions.length,
+        &type_descriptions);
 #if !defined(OS_POSIX) || defined(OS_MACOSX)
     np_getentrypoints = r.np_getentrypoints;
 #endif

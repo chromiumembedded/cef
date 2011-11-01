@@ -63,7 +63,8 @@ void InitUIPluginTest()
   CefString(&plugin_info.display_name).FromASCII("Client UI Plugin");
   CefString(&plugin_info.unique_name).FromASCII("client_ui_plugin");
   CefString(&plugin_info.description).FromASCII("My Example Client UI Plugin");
-  CefString(&plugin_info.mime_type).FromASCII("application/x-client-ui-plugin");
+  CefString(&plugin_info.mime_types).FromASCII(
+      "application/x-client-ui-plugin");
 
   plugin_info.np_getentrypoints = NP_UIGetEntryPoints;
   plugin_info.np_initialize = NP_UIInitialize;

@@ -12,7 +12,8 @@ void InitPluginTest()
   CefString(&plugin_info.display_name).FromASCII("Client Plugin");
   CefString(&plugin_info.unique_name).FromASCII("client_plugin");
   CefString(&plugin_info.description).FromASCII("My Example Client Plugin");
-  CefString(&plugin_info.mime_type).FromASCII("application/x-client-plugin");
+  CefString(&plugin_info.mime_types).FromASCII("application/x-client-plugin");
+  CefString(&plugin_info.file_extensions).FromASCII("xcp");
 
   plugin_info.np_getentrypoints = NP_ClientGetEntryPoints;
   plugin_info.np_initialize = NP_ClientInitialize;
@@ -24,11 +25,6 @@ void InitPluginTest()
 
 void RunPluginTest(CefRefPtr<CefBrowser> browser)
 {
-  // Add some extra space below the plugin to allow scrolling.
-  std::string html =
-    "<html><body>Client Plugin:<br>"
-    "<embed type=\"application/x-client-plugin\" width=600 height=40>"
-    "<div style=\"height:1000px;\">&nbsp;</div>"
-    "</body></html>";
-  browser->GetMainFrame()->LoadString(html, "about:blank");
+  // Page content is provided in ClientHandler::OnBeforeResourceLoad().
+  browser->GetMainFrame()->LoadURL("http://tests/plugin");
 }

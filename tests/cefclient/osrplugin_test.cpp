@@ -15,7 +15,7 @@ void InitOSRPluginTest()
   CefString(&plugin_info.display_name).FromASCII("Client OSR Plugin");
   CefString(&plugin_info.unique_name).FromASCII("client_osr_plugin");
   CefString(&plugin_info.description).FromASCII("My Example Client OSR Plugin");
-  CefString(&plugin_info.mime_type).FromASCII(
+  CefString(&plugin_info.mime_types).FromASCII(
       "application/x-client-osr-plugin");
 
   plugin_info.np_getentrypoints = NP_OSRGetEntryPoints;

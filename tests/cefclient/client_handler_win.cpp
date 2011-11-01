@@ -99,6 +99,21 @@ bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
     resourceStream = GetBinaryResourceReader(IDS_TRANSPARENCY);
     response->SetMimeType("text/html");
     response->SetStatus(200);
+  } else if(url == "http://tests/plugin") {
+    std::string html =
+        "<html><body>\n"
+        "Client Plugin loaded by Mime Type:<br>\n"
+        "<embed type=\"application/x-client-plugin\" width=600 height=40>\n"
+        "<br><br>Client Plugin loaded by File Extension:<br>\n"
+        "<embed src=\"test.xcp\" width=600 height=40>\n"
+        // Add some extra space below the plugin to allow scrolling.
+        "<div style=\"height:1000px;\">&nbsp;</div>\n"
+        "</body></html>";
+  
+    resourceStream =
+        CefStreamReader::CreateForData((void*)html.c_str(), html.size());
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   }
 
   return false;

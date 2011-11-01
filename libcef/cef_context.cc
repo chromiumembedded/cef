@@ -15,7 +15,9 @@
 #include "base/bind.h"
 #include "base/file_util.h"
 #include "base/stringprintf.h"
+#include "base/string_split.h"
 #include "base/synchronization/waitable_event.h"
+#include "base/utf_string_conversions.h"
 #include "net/base/cookie_monster.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
@@ -38,10 +40,37 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
 
   webkit::WebPluginInfo info;
 
-  FilePath filename = FilePath(CefString(&plugin_info->unique_name));
-  std::string name = CefString(&plugin_info->display_name);
-  std::string description = CefString(&plugin_info->description);
-  std::string mime_type = CefString(&plugin_info->mime_type);
+  info.path = FilePath(CefString(&plugin_info->unique_name));
+  info.name = CefString(&plugin_info->display_name);
+  info.version = CefString(&plugin_info->version);
+  info.desc = CefString(&plugin_info->description);
+
+  typedef std::vector<std::string> VectorType;
+  VectorType mime_types, file_extensions, descriptions, file_extensions_parts;
+  base::SplitString(CefString(&plugin_info->mime_types), '|', &mime_types);
+  base::SplitString(CefString(&plugin_info->file_extensions), '|',
+      &file_extensions);
+  base::SplitString(CefString(&plugin_info->type_descriptions), '|',
+      &descriptions);
+
+  for (size_t i = 0; i < mime_types.size(); ++i) {
+    webkit::WebPluginMimeType mimeType;
+    
+    mimeType.mime_type = mime_types[i];
+    
+    if (file_extensions.size() > i) {
+      base::SplitString(file_extensions[i], ',', &file_extensions_parts);
+      VectorType::const_iterator it = file_extensions_parts.begin();
+      for(; it != file_extensions_parts.end(); ++it)
+        mimeType.file_extensions.push_back(*(it));
+      file_extensions_parts.clear();
+    }
+
+    if (descriptions.size() > i)
+      mimeType.description = UTF8ToUTF16(descriptions[i]);
+
+    info.mime_types.push_back(mimeType);
+  }
 
   webkit::npapi::PluginEntryPoints entry_points;
 #if !defined(OS_POSIX) || defined(OS_MACOSX)
@@ -50,8 +79,8 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
   entry_points.np_initialize = plugin_info->np_initialize;
   entry_points.np_shutdown = plugin_info->np_shutdown;
 
-  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(filename,
-      name, description, mime_type, entry_points);
+  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(
+      info, entry_points, true);
 
   delete plugin_info;
 }

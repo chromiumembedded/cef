@@ -1,0 +1,72 @@
+Index: plugin_list.cc
+===================================================================
+--- plugin_list.cc	(revision 107708)
++++ plugin_list.cc	(working copy)
+@@ -223,26 +223,22 @@
+     default_plugin_enabled_ = true;
+ }
+ 
+-void PluginList::RegisterInternalPlugin(const FilePath& filename,
+-                                        const std::string& name,
+-                                        const std::string& description,
+-                                        const std::string& mime_type_str,
+-                                        const PluginEntryPoints& entry_points) {
+-  InternalPlugin plugin;
+-  plugin.info.path = filename;
+-  plugin.info.name = ASCIIToUTF16(name);
+-  plugin.info.version = ASCIIToUTF16("1");
+-  plugin.info.desc = ASCIIToUTF16(description);
++void PluginList::RegisterInternalPlugin(const webkit::WebPluginInfo& info,
++                                        const PluginEntryPoints& entry_points,
++                                        bool add_at_beginning) {
++  InternalPlugin plugin = { info, entry_points };
+ 
+-  webkit::WebPluginMimeType mime_type;
+-  mime_type.mime_type = mime_type_str;
+-  plugin.info.mime_types.push_back(mime_type);
++  base::AutoLock lock(lock_);
+ 
+-  plugin.entry_points = entry_points;
++  if (add_at_beginning) {
++    // Newer registrations go earlier in the list so they can override the MIME
++    // types of older registrations.
++    internal_plugins_.insert(internal_plugins_.begin(), plugin);
++  } else {
++    internal_plugins_.push_back(plugin);
++  }
+ 
+-  base::AutoLock lock(lock_);
+-  internal_plugins_.push_back(plugin);
+-  if (filename.value() == kDefaultPluginLibraryName)
++  if (info.path.value() == kDefaultPluginLibraryName)
+     default_plugin_enabled_ = true;
+ }
+ 
+Index: plugin_list.h
+===================================================================
+--- plugin_list.h	(revision 107708)
++++ plugin_list.h	(working copy)
+@@ -85,16 +85,13 @@
+   // be loaded using PluginList::LoadPlugin().
+   void RegisterInternalPlugin(const webkit::WebPluginInfo& info);
+ 
+-  // This second version is for "plugins" that have been compiled
+-  // directly into the binary -- callers must provide the metadata and
+-  // the entry points.
+-  // TODO(evan): we use file names here, but they're not really files, they're
+-  // actually a string that uniquely identifies the plugin.
+-  void RegisterInternalPlugin(const FilePath& filename,
+-                              const std::string& name,
+-                              const std::string& description,
+-                              const std::string& mime_type,
+-                              const PluginEntryPoints& entry_points);
++  // This second version is for "plugins" that have been compiled directly into
++  // the binary -- callers must provide the plugin information and the entry
++  // points. If |add_at_beginning| is true the plugin will be added earlier in
++  // the list so that it can override the MIME types of older registrations.
++  void RegisterInternalPlugin(const webkit::WebPluginInfo& info,
++                              const PluginEntryPoints& entry_points,
++                              bool add_at_beginning);
+ 
+   // Removes a specified internal plugin from the list. The search will match
+   // on the path from the version info previously registered.

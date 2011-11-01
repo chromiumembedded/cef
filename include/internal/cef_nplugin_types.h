@@ -56,11 +56,23 @@ typedef struct _cef_plugin_info_t {
   // The friendly display name of the plugin.
   cef_string_t display_name;
 
+  // The version string of the plugin.
+  cef_string_t version;
+
   // A description of the plugin.
   cef_string_t description;
   
-  // The mime type that the plugin supports.
-  cef_string_t mime_type;
+  // A pipe (|) delimited list of mime type values that the plugin supports.
+  cef_string_t mime_types;
+  
+  // A pipe (|) delimited list of extension values. Each value is associated
+  // with the mime type value at the same position. Multiple file extensions
+  // for the same mime type may be delimited with commas (,).
+  cef_string_t file_extensions;
+  
+  // A pipe (|) delimited list of description values. Each value is associated
+  // with the mime type value at the same position.
+  cef_string_t type_descriptions;
 
   // Entry point function pointers.
 #if !defined(OS_POSIX) || defined(OS_MACOSX)
