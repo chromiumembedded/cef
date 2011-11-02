@@ -86,14 +86,8 @@ void BrowserRequestContext::Init(
       NOTREACHED() << "The cache_path directory could not be created";
   }
 
-  scoped_refptr<BrowserPersistentCookieStore> persistent_store;
-  if (cache_path_valid) {
-    const FilePath& cookie_path = cache_path.AppendASCII("Cookies");
-    persistent_store = new BrowserPersistentCookieStore(cookie_path);
-  }
+  SetCookieStoragePath(cache_path);
 
-  storage_.set_cookie_store(
-      new net::CookieMonster(persistent_store.get(), NULL));
   storage_.set_origin_bound_cert_service(new net::OriginBoundCertService(
       new net::DefaultOriginBoundCertStore(NULL)));
 
@@ -222,8 +216,34 @@ bool BrowserRequestContext::AcceptAllCookies() {
   return accept_all_cookies_;
 }
 
+void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
+  REQUIRE_IOT();
+  
+  if (cookie_store() && ((cookie_store_path_.empty() && path.empty()) ||
+                         cookie_store_path_ == path)) {
+    // The path has not changed so don't do anything.
+    return;
+  }
+
+  scoped_refptr<BrowserPersistentCookieStore> persistent_store;
+  if (!path.empty()) {
+    if (file_util::CreateDirectory(path)) {
+      const FilePath& cookie_path = path.AppendASCII("Cookies");
+      persistent_store = new BrowserPersistentCookieStore(cookie_path);
+    } else {
+      NOTREACHED() << "The cookie storage directory could not be created";
+    }
+  }
+
+  // Set the new cookie store that will be used for all new requests. The old
+  // cookie store, if any, will be automatically flushed and closed when no
+  // longer referenced.
+  storage_.set_cookie_store(
+      new net::CookieMonster(persistent_store.get(), NULL));
+  cookie_store_path_ = path;
+}
+
 const std::string& BrowserRequestContext::GetUserAgent(
     const GURL& url) const {
   return webkit_glue::GetUserAgent(url);
 }
-

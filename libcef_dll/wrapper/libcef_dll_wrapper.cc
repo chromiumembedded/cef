@@ -205,6 +205,11 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
       true : false;
 }
 
+bool CefSetCookiePath(const CefString& path)
+{
+  return cef_set_cookie_path(path.GetStruct()) ? true : false;
+}
+
 bool CefVisitStorage(CefStorageType type, const CefString& origin,
                      const CefString& key,
                      CefRefPtr<CefStorageVisitor> visitor)
@@ -225,4 +230,9 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
 {
   return cef_delete_storage(type, origin.GetStruct(), key.GetStruct()) ?
       true : false;
+}
+
+bool CefSetStoragePath(CefStorageType type, const CefString& path)
+{
+  return cef_set_storage_path(type, path.GetStruct()) ? true : false;
 }

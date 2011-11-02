@@ -1061,6 +1061,7 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
   }
 
   void Get(const GURL& url) {
+    REQUIRE_IOT();
     net::CookieStore* cookie_store =
         _Context->request_context()->cookie_store();
     if (cookie_store) {

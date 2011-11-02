@@ -283,12 +283,22 @@ CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
 {
   CefString urlStr, cookieNameStr;
 
-  if(url)
+  if (url)
     urlStr = url;
-  if(cookie_name)
+  if (cookie_name)
     cookieNameStr = cookie_name;
 
   return CefDeleteCookies(urlStr, cookieNameStr);
+}
+
+CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path)
+{
+  CefString pathStr;
+
+  if (path)
+    pathStr = path;
+
+  return CefSetCookiePath(pathStr);
 }
 
 CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
@@ -333,4 +343,15 @@ CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
     keyStr = key;
 
   return CefDeleteStorage(type, origin, key);
+}
+
+CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
+    const cef_string_t* path)
+{
+  CefString pathStr;
+
+  if (path)
+    pathStr = path;
+
+  return CefSetStoragePath(type, pathStr);
 }

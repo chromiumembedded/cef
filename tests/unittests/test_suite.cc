@@ -20,9 +20,9 @@ void CefTestSuite::Initialize() {
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
 
-  if (command_line->HasSwitch("cache_path")) {
+  std::string cache_path;
+  if (GetCachePath(cache_path)) {
     // Set the cache_path value.
-    std::string cache_path = command_line->GetSwitchValueASCII("cache_path");
     CefString(&settings.cache_path).FromASCII(cache_path.c_str());
   }
 
@@ -36,4 +36,17 @@ void CefTestSuite::Shutdown() {
 
   CefShutdown();
   TestSuite::Shutdown();
+}
+
+// static
+bool CefTestSuite::GetCachePath(std::string& path) {
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+
+  if (command_line->HasSwitch("cache_path")) {
+    // Set the cache_path value.
+    path = command_line->GetSwitchValueASCII("cache_path");
+    return true;
+  }
+
+  return false;
 }

@@ -46,6 +46,9 @@ class DOMStorageContext {
   // Called on WebKit thread when a session storage namespace can be deleted.
   void DeleteSessionStorageNamespace(int64 namespace_id);
 
+  // Called on WebKit thread when the local storage namespace can be deleted.
+  void DeleteLocalStorageNamespace();
+
   // Get a namespace from an id.  What's returned is owned by this class.  If
   // allocation_allowed is true, then this function will create the storage
   // namespace if it hasn't been already.
@@ -71,6 +74,10 @@ class DOMStorageContext {
 
   // Deletes all local storage files.
   void DeleteAllLocalStorageFiles();
+
+  // Sets the path that will be used for local storage. If |local_storage_path|
+  // is empty in-memory storage will be used.
+  void SetLocalStoragePath(const FilePath& local_storage_path);
 
   // The local storage directory.
   static const FilePath::CharType kLocalStorageDirectory[];

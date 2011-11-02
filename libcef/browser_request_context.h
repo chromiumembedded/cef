@@ -39,6 +39,11 @@ class BrowserRequestContext : public net::URLRequestContext {
   void SetAcceptAllCookies(bool accept_all_cookies);
   bool AcceptAllCookies();
 
+  // Set the path used for cookie storage. If |path| is empty memory only
+  // storage will be used. If the old cookie data is being stored on disk it
+  // will be flushed and closed.
+  void SetCookieStoragePath(const FilePath& path);
+
   webkit_blob::BlobStorageController* blob_storage_controller() const {
     return blob_storage_controller_.get();
   }
@@ -55,6 +60,7 @@ class BrowserRequestContext : public net::URLRequestContext {
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
   scoped_refptr<fileapi::FileSystemContext> file_system_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+  FilePath cookie_store_path_;
   bool accept_all_cookies_;
 };
 

@@ -327,11 +327,19 @@ CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
     const cef_string_t* cookie_name);
 
 ///
+// Sets the directory path that will be used for storing cookie data. If |path|
+// is NULL data will be stored in memory only. By default the cookie path is the
+// same as the cache path. Returns false (0) if cookies cannot be accessed.
+///
+CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path);
+
+///
 // Visit storage of the specified type. If |origin| is non-NULL only data
 // matching that origin will be visited. If |key| is non-NULL only data matching
 // that key will be visited. Otherwise, all data for the storage type will be
-// visited. Returns false (0) if the storage cannot be accessed. Origin should
-// be of the form scheme://domain.
+// visited. Origin should be of the form scheme://domain. If no origin is
+// specified only data currently in memory will be returned. Returns false (0)
+// if the storage cannot be accessed.
 ///
 CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
     const cef_string_t* origin, const cef_string_t* key,
@@ -354,6 +362,16 @@ CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
 ///
 CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
     const cef_string_t* origin, const cef_string_t* key);
+
+///
+// Sets the directory path that will be used for storing data of the specified
+// type. Currently only the ST_LOCALSTORAGE type is supported by this function.
+// If |path| is NULL data will be stored in memory only. By default the storage
+// path is the same as the cache path. Returns false (0) if the storage cannot
+// be accessed.
+///
+CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
+    const cef_string_t* path);
 
 typedef struct _cef_base_t
 {

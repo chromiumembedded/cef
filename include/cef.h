@@ -389,6 +389,14 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie);
 /*--cef()--*/
 bool CefDeleteCookies(const CefString& url, const CefString& cookie_name);
 
+///
+// Sets the directory path that will be used for storing cookie data. If |path|
+// is empty data will be stored in memory only. By default the cookie path is
+// the same as the cache path. Returns false if cookies cannot be accessed.
+///
+/*--cef()--*/
+bool CefSetCookiePath(const CefString& path);
+
 
 typedef cef_storage_type_t CefStorageType;
 
@@ -396,8 +404,9 @@ typedef cef_storage_type_t CefStorageType;
 // Visit storage of the specified type. If |origin| is non-empty only data
 // matching that origin will be visited. If |key| is non-empty only data
 // matching that key will be visited. Otherwise, all data for the storage
-// type will be visited. Returns false if the storage cannot be accessed.
-// Origin should be of the form scheme://domain.
+// type will be visited. Origin should be of the form scheme://domain. If no
+// origin is specified only data currently in memory will be returned. Returns
+// false if the storage cannot be accessed.
 ///
 /*--cef()--*/
 bool CefVisitStorage(CefStorageType type, const CefString& origin,
@@ -422,6 +431,16 @@ bool CefSetStorage(CefStorageType type, const CefString& origin,
 /*--cef()--*/
 bool CefDeleteStorage(CefStorageType type, const CefString& origin,
                       const CefString& key);
+
+///
+// Sets the directory path that will be used for storing data of the specified
+// type. Currently only the ST_LOCALSTORAGE type is supported by this method.
+// If |path| is empty data will be stored in memory only. By default the storage
+// path is the same as the cache path. Returns false if the storage cannot be
+// accessed.
+///
+/*--cef()--*/
+bool CefSetStoragePath(CefStorageType type, const CefString& path);
 
 
 ///

@@ -2,9 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "base/scoped_temp_dir.h"
 #include "include/cef.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "test_handler.h"
+#include "test_suite.h"
 
 namespace {
 
@@ -111,11 +113,22 @@ public:
     IMPLEMENT_REFCOUNTING(StorageVisitor);
   };
 
-  StorageTestHandler(CefStorageType type)
-    : type_(type), nav_(0) {}
+  StorageTestHandler(CefStorageType type, bool expectKeysSet, bool leaveKeysSet)
+    : type_(type),
+      expect_keys_set_(expectKeysSet),
+      leave_keys_set_(leaveKeysSet),
+      nav_(0) {}
 
   virtual void RunTest() OVERRIDE
   {
+    // Verify the key status.
+    CefVisitStorage(type_, kOrigin, "",
+        new StorageVisitor(this, "startupvisit",
+                            StorageVisitor::VisitKey,
+                            &got_cpp_startupvisit_fail_,
+                            &got_cpp_startupvisit_fail_,
+                            expect_keys_set_?2:0));
+
     std::stringstream ss;
 
     std::string func = (type_==ST_LOCALSTORAGE?"localStorage":"sessionStorage");
@@ -293,6 +306,19 @@ public:
       // Verify JS read after navigation.
       frame->LoadURL(kNav2);
     } else {
+      if (!leave_keys_set_) {
+        // Delete all values by origin.
+        CefDeleteStorage(type_, kOrigin, "");
+      }
+
+      // Verify the key status.
+      CefVisitStorage(type_, kOrigin, "",
+          new StorageVisitor(this, "shutdownvisit",
+                              StorageVisitor::VisitKey,
+                              &got_cpp_shutdownvisit_fail_,
+                              &got_cpp_shutdownvisit_fail_,
+                              leave_keys_set_?2:0));
+
       DestroyTest();
     }
   }
@@ -308,8 +334,11 @@ public:
   }
 
   CefStorageType type_;
+  bool expect_keys_set_;
+  bool leave_keys_set_;
   int nav_;
 
+  TrackCallback got_cpp_startupvisit_fail_;
   TrackCallback got_cpp_all_read1_;
   TrackCallback got_cpp_all_read2_;
   TrackCallback got_cpp_origin_read1_;
@@ -340,12 +369,19 @@ public:
   TrackCallback got_cpp_all_reset2d_;
   TrackCallback got_js_read1_;
   TrackCallback got_js_read2_;
+  TrackCallback got_cpp_shutdownvisit_fail_;
 };
 
-void StorageTest(CefStorageType type)
+void StorageTest(CefStorageType type, bool expectKeysSet, bool leaveKeysSet)
 {
-  CefRefPtr<StorageTestHandler> handler = new StorageTestHandler(type);
+  CefRefPtr<StorageTestHandler> handler =
+      new StorageTestHandler(type, expectKeysSet, leaveKeysSet);
   handler->ExecuteTest();
+
+  if (expectKeysSet)
+    EXPECT_TRUE(handler->got_cpp_startupvisit_fail_);
+  else
+    EXPECT_FALSE(handler->got_cpp_startupvisit_fail_);
 
   EXPECT_TRUE(handler->got_cpp_all_read1_);
   EXPECT_TRUE(handler->got_cpp_all_read2_);
@@ -377,6 +413,11 @@ void StorageTest(CefStorageType type)
   EXPECT_TRUE(handler->got_cpp_all_reset2d_);
   EXPECT_TRUE(handler->got_js_read1_);
   EXPECT_TRUE(handler->got_js_read2_);
+
+  if (leaveKeysSet)
+    EXPECT_TRUE(handler->got_cpp_shutdownvisit_fail_);
+  else
+    EXPECT_FALSE(handler->got_cpp_shutdownvisit_fail_);
 }
 
 } // namespace
@@ -384,11 +425,46 @@ void StorageTest(CefStorageType type)
 // Test localStorage.
 TEST(StorageTest, Local)
 {
-  StorageTest(ST_LOCALSTORAGE);
+  StorageTest(ST_LOCALSTORAGE, false, false);
 }
 
 // Test sessionStorage.
 TEST(StorageTest, Session)
 {
-  StorageTest(ST_SESSIONSTORAGE);
+  StorageTest(ST_SESSIONSTORAGE, false, false);
+}
+
+// Test changing the localStorage directory.
+TEST(StorageTest, LocalChangeDirectory)
+{
+  std::string cache_path;
+  CefTestSuite::GetCachePath(cache_path);
+
+  ScopedTempDir temp_dir;
+
+  // Create a new temporary directory.
+  EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
+
+  // Set the new temporary directory as the storage location.
+  EXPECT_TRUE(CefSetStoragePath(ST_LOCALSTORAGE, temp_dir.path().value()));
+
+  // Run the test leaving behind the set keys.
+  StorageTest(ST_LOCALSTORAGE, false, true);
+
+  // Restore the original storage location.
+  EXPECT_TRUE(CefSetStoragePath(ST_LOCALSTORAGE, cache_path));
+
+  // Run the test. It will fail if the set keys exist in the original storage
+  // location.
+  StorageTest(ST_LOCALSTORAGE, false, false);
+
+  // Set the new temporary directory as the storage location.
+  EXPECT_TRUE(CefSetStoragePath(ST_LOCALSTORAGE, temp_dir.path().value()));
+
+  // Run the test verifying that the keys set previously still exist in the
+  // temporary directory.
+  StorageTest(ST_LOCALSTORAGE, true, false);
+
+  // Restore the original storage directory.
+  EXPECT_TRUE(CefSetStoragePath(ST_LOCALSTORAGE, cache_path));
 }

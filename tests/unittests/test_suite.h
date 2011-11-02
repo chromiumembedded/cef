@@ -11,6 +11,8 @@ class CefTestSuite : public TestSuite {
 public:
   CefTestSuite(int argc, char** argv);
 
+  static bool GetCachePath(std::string& path);
+
 protected:
   virtual void Initialize();
   virtual void Shutdown();

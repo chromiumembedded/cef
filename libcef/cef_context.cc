@@ -184,6 +184,17 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
       base::Bind(&VisitCookiesCallback::Run, callback.get()));
 }
 
+void IOT_SetCookiePath(const CefString& path)
+{
+  REQUIRE_IOT();
+
+  FilePath cookie_path;
+  if (!path.empty())
+    cookie_path = FilePath(path);
+
+  _Context->request_context()->SetCookieStoragePath(cookie_path);
+}
+
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
 class DestructionObserver : public MessageLoop::DestructionObserver
@@ -206,9 +217,13 @@ void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
   REQUIRE_UIT();
 
   DOMStorageContext* context = _Context->storage_context();
-  
+
+  // Allow storage to be allocated for localStorage so that on-disk data, if
+  // any, will be available.
+  bool allocation_allowed = (namespace_id == kLocalStorageNamespaceId);
+
   DOMStorageNamespace* ns =
-      context->GetStorageNamespace(namespace_id, false);
+      context->GetStorageNamespace(namespace_id, allocation_allowed);
   if (!ns)
     return;
 
@@ -217,7 +232,7 @@ void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
 
   if (!origin.empty()) {
     // Visit only the area with the specified origin.
-    DOMStorageArea* area = ns->GetStorageArea(origin, false);
+    DOMStorageArea* area = ns->GetStorageArea(origin, allocation_allowed);
     if (area)
       areas.push_back(area);
   } else {
@@ -315,6 +330,20 @@ void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
       }
     }
   }
+}
+
+void UIT_SetStoragePath(int64 namespace_id, const CefString& path)
+{
+  REQUIRE_UIT();
+
+  if (namespace_id != kLocalStorageNamespaceId)
+    return;
+
+  FilePath file_path;
+  if (!path.empty())
+    file_path = FilePath(path);
+
+  _Context->storage_context()->SetLocalStoragePath(file_path);
 }
 
 } // anonymous
@@ -621,6 +650,24 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
   return true;
 }
 
+bool CefSetCookiePath(const CefString& path)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return false;
+  }
+
+  if (CefThread::CurrentlyOn(CefThread::IO)) {
+    IOT_SetCookiePath(path);
+  } else {
+    CefThread::PostTask(CefThread::IO, FROM_HERE,
+        base::Bind(&IOT_SetCookiePath, path));
+  }
+
+  return true;
+}
+
 bool CefVisitStorage(CefStorageType type, const CefString& origin,
                      const CefString& key,
                      CefRefPtr<CefStorageVisitor> visitor)
@@ -718,6 +765,10 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
 
   DOMStorageContext* context = _Context->storage_context();
 
+  // Allow storage to be allocated for localStorage so that on-disk data, if
+  // any, will be available.
+  bool allocation_allowed = (namespace_id == kLocalStorageNamespaceId);
+
   if (origin.empty()) {
     // Delete all storage for the namespace.
     if (namespace_id == kLocalStorageNamespaceId)
@@ -730,7 +781,7 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
       context->DeleteLocalStorageForOrigin(origin);
     } else {
       DOMStorageArea* area =
-          context->GetStorageArea(namespace_id, origin, false);
+          context->GetStorageArea(namespace_id, origin, allocation_allowed);
       if (area) {
         // Calling Clear() is necessary to remove the data from the namespace.
         area->Clear();
@@ -739,9 +790,36 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
     }
   } else {
     // Delete the specified key.
-    DOMStorageArea* area = context->GetStorageArea(namespace_id, origin, false);
+    DOMStorageArea* area =
+        context->GetStorageArea(namespace_id, origin, allocation_allowed);
     if (area)
       area->RemoveItem(key);
+  }
+
+  return true;
+}
+
+bool CefSetStoragePath(CefStorageType type, const CefString& path)
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return false;
+  }
+
+  int64 namespace_id;
+  if (type == ST_LOCALSTORAGE) {
+    namespace_id = kLocalStorageNamespaceId;
+  } else {
+    NOTREACHED() << "invalid type";
+    return false;
+  }
+
+  if (CefThread::CurrentlyOn(CefThread::UI)) {
+    UIT_SetStoragePath(namespace_id, path);
+  } else {
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(&UIT_SetStoragePath, namespace_id, path));
   }
 
   return true;

@@ -99,6 +99,17 @@ void DOMStorageContext::DeleteSessionStorageNamespace(int64 namespace_id) {
   storage_namespace_map_.erase(iter);
 }
 
+void DOMStorageContext::DeleteLocalStorageNamespace() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  StorageNamespaceMap::iterator iter =
+      storage_namespace_map_.find(kLocalStorageNamespaceId);
+  if (iter == storage_namespace_map_.end())
+    return;
+  DCHECK(iter->second->dom_storage_type() == DOM_STORAGE_LOCAL);
+  delete iter->second;
+  storage_namespace_map_.erase(iter);
+}
+
 DOMStorageNamespace* DOMStorageContext::GetStorageNamespace(
     int64 id, bool allocation_allowed) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
@@ -201,6 +212,25 @@ void DOMStorageContext::DeleteAllLocalStorageFiles() {
     if (file_path.Extension() == kLocalStorageExtension)
       file_util::Delete(file_path, false);
   }
+}
+
+void DOMStorageContext::SetLocalStoragePath(
+    const FilePath& local_storage_path) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+      
+  if ((local_storage_path.empty() && local_storage_path_.empty()) ||
+      local_storage_path == local_storage_path_)
+    return;
+
+  // Make sure that we don't swap out a database that's currently being accessed
+  // by unloading all of the databases temporarily.
+  PurgeMemory(kLocalStorageNamespaceId);
+
+  // Delete the current namespace, if any. It will be recreated using the new
+  // path when needed.
+  DeleteLocalStorageNamespace();
+
+  local_storage_path_ = local_storage_path;
 }
 
 DOMStorageNamespace* DOMStorageContext::CreateLocalStorage() {

@@ -2,10 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "base/scoped_temp_dir.h"
+#include "base/synchronization/waitable_event.h"
 #include "include/cef.h"
 #include "include/cef_runnable.h"
-#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "test_suite.h"
 #include <vector>
 
 namespace {
@@ -61,125 +63,123 @@ public:
   IMPLEMENT_REFCOUNTING(TestVisitor);
 };
 
+// Create a test cookie. If |withDomain| is true a domain cookie will be
+// created, otherwise a host cookie will be created.
+void CreateCookie(CefCookie& cookie, bool withDomain,
+                 base::WaitableEvent& event)
+{
+  CefString(&cookie.name).FromASCII("my_cookie");
+  CefString(&cookie.value).FromASCII("My Value");
+  if (withDomain)
+    CefString(&cookie.domain).FromASCII(kTestDomain);
+  CefString(&cookie.path).FromASCII(kTestPath);
+  cookie.has_expires = true;
+  cookie.expires.year = 2200;
+  cookie.expires.month = 4;
+  cookie.expires.day_of_week = 5;
+  cookie.expires.day_of_month = 11;
+
+  CookieVector cookies;
+  cookies.push_back(cookie);
+  
+  // Set the cookie.
+  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Set, kTestUrl, &cookies,
+                                             &event));
+  event.Wait();
+}
+
+// Retrieve the test cookie. If |withDomain| is true check that the cookie
+// is a domain cookie, otherwise a host cookie. if |deleteCookies| is true
+// the cookie will be deleted when it's retrieved.
+void GetCookie(const CefCookie& cookie, bool withDomain,
+               base::WaitableEvent& event, bool deleteCookies)
+{
+  CookieVector cookies;
+  
+  // Get the cookie and delete it.
+  EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
+      new TestVisitor(&cookies, deleteCookies, &event)));
+  event.Wait();
+
+  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
+  
+  const CefCookie& cookie_read = cookies[0];
+  EXPECT_EQ(CefString(&cookie_read.name), "my_cookie");
+  EXPECT_EQ(CefString(&cookie_read.value), "My Value");
+  if (withDomain)
+    EXPECT_EQ(CefString(&cookie_read.domain), ".www.test.com");
+  else
+    EXPECT_EQ(CefString(&cookie_read.domain), kTestDomain);
+  EXPECT_EQ(CefString(&cookie_read.path), kTestPath);
+  EXPECT_TRUE(cookie_read.has_expires);
+  EXPECT_EQ(cookie.expires.year, cookie_read.expires.year);
+  EXPECT_EQ(cookie.expires.month, cookie_read.expires.month);
+  EXPECT_EQ(cookie.expires.day_of_week, cookie_read.expires.day_of_week);
+  EXPECT_EQ(cookie.expires.day_of_month, cookie_read.expires.day_of_month);
+  EXPECT_EQ(cookie.expires.hour, cookie_read.expires.hour);
+  EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);
+  EXPECT_EQ(cookie.expires.second, cookie_read.expires.second);
+  EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
+}
+
+// Verify that no cookies exist. If |withUrl| is true it will only check for
+// cookies matching the URL.
+void VerifyNoCookies(base::WaitableEvent& event, bool withUrl)
+{
+  CookieVector cookies;
+
+  // Verify that the cookie has been deleted.
+  if (withUrl) {
+    EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
+        new TestVisitor(&cookies, false, &event)));
+  } else {
+    EXPECT_TRUE(CefVisitAllCookies(new TestVisitor(&cookies, false, &event)));
+  }
+  event.Wait();
+
+  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+}
+
+// Delete all system cookies.
+void DeleteAllCookies(base::WaitableEvent& event)
+{
+  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, CefString(),
+                                             CefString(), &event));
+  event.Wait();
+}
+
 } // anonymous
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookie)
 {
   base::WaitableEvent event(false, false);
-
   CefCookie cookie;
-  CefString(&cookie.name).FromASCII("my_cookie");
-  CefString(&cookie.value).FromASCII("My Value");
-  CefString(&cookie.domain).FromASCII(kTestDomain);
-  CefString(&cookie.path).FromASCII(kTestPath);
-  cookie.has_expires = true;
-  cookie.expires.year = 2200;
-  cookie.expires.month = 4;
-  cookie.expires.day_of_week = 5;
-  cookie.expires.day_of_month = 11;
 
-  CookieVector cookies;
-  cookies.push_back(cookie);
-  
-  // Set the cookie.
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Set, kTestUrl, &cookies,
-                                             &event));
-  event.Wait();
-  cookies.clear();
-  
-  // Get the cookie and delete it.
-  EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
-      new TestVisitor(&cookies, true, &event)));
-  event.Wait();
+  // Create a domain cookie.
+  CreateCookie(cookie, true, event);
 
-  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
-  
-  const CefCookie& cookie_read = cookies[0];
-  EXPECT_EQ(CefString(&cookie_read.name), "my_cookie");
-  EXPECT_EQ(CefString(&cookie_read.value), "My Value");
-  EXPECT_EQ(CefString(&cookie_read.domain), ".www.test.com");
-  EXPECT_EQ(CefString(&cookie_read.path), kTestPath);
-  EXPECT_TRUE(cookie_read.has_expires);
-  EXPECT_EQ(cookie.expires.year, cookie_read.expires.year);
-  EXPECT_EQ(cookie.expires.month, cookie_read.expires.month);
-  EXPECT_EQ(cookie.expires.day_of_week, cookie_read.expires.day_of_week);
-  EXPECT_EQ(cookie.expires.day_of_month, cookie_read.expires.day_of_month);
-  EXPECT_EQ(cookie.expires.hour, cookie_read.expires.hour);
-  EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);
-  EXPECT_EQ(cookie.expires.second, cookie_read.expires.second);
-  EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
+  // Retrieve, verify and delete the domain cookie.
+  GetCookie(cookie, true, event, true);
 
-  cookies.clear();
-
-  // Verify that the cookie has been deleted.
-  EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
-      new TestVisitor(&cookies, false, &event)));
-  event.Wait();
-
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  // Verify that the cookie was deleted.
+  VerifyNoCookies(event, true);
 }
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookie)
 {
   base::WaitableEvent event(false, false);
+  CefCookie cookie;
 
   // Create a host cookie.
-  CefCookie cookie;
-  CefString(&cookie.name).FromASCII("my_cookie");
-  CefString(&cookie.value).FromASCII("My Value");
-  CefString(&cookie.path).FromASCII(kTestPath);
-  cookie.has_expires = true;
-  cookie.expires.year = 2200;
-  cookie.expires.month = 4;
-  cookie.expires.day_of_week = 5;
-  cookie.expires.day_of_month = 11;
+  CreateCookie(cookie, false, event);
 
-  CookieVector cookies;
-  cookies.push_back(cookie);
-  
-  // Set the cookie.
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Set, kTestUrl, &cookies,
-                                             &event));
-  event.Wait();
-  cookies.clear();
-  
-  // Get the cookie.
-  EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
-      new TestVisitor(&cookies, false, &event)));
-  event.Wait();
+  // Retrieve, verify and delete the host cookie.
+  GetCookie(cookie, false, event, true);
 
-  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
-  
-  const CefCookie& cookie_read = cookies[0];
-  EXPECT_EQ(CefString(&cookie_read.name), "my_cookie");
-  EXPECT_EQ(CefString(&cookie_read.value), "My Value");
-  EXPECT_EQ(CefString(&cookie_read.domain), kTestDomain);
-  EXPECT_EQ(CefString(&cookie_read.path), kTestPath);
-  EXPECT_TRUE(cookie_read.has_expires);
-  EXPECT_EQ(cookie.expires.year, cookie_read.expires.year);
-  EXPECT_EQ(cookie.expires.month, cookie_read.expires.month);
-  EXPECT_EQ(cookie.expires.day_of_week, cookie_read.expires.day_of_week);
-  EXPECT_EQ(cookie.expires.day_of_month, cookie_read.expires.day_of_month);
-  EXPECT_EQ(cookie.expires.hour, cookie_read.expires.hour);
-  EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);
-  EXPECT_EQ(cookie.expires.second, cookie_read.expires.second);
-  EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
-
-  cookies.clear();
-
-  // Delete the cookie.
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, kTestUrl,
-                                             CefString("my_cookie"), &event));
-  event.Wait();
-
-  // Verify that the cookie has been deleted.
-  EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
-      new TestVisitor(&cookies, false, &event)));
-  event.Wait();
-
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  // Verify that the cookie was deleted.
+  VerifyNoCookies(event, true);
 }
 
 // Test creation of multiple cookies.
@@ -365,13 +365,52 @@ TEST(CookieTest, AllCookies)
   cookies.clear();
 
   // Delete all of the system cookies.
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, CefString(),
-                                             CefString(), &event));
-  event.Wait();
+  DeleteAllCookies(event);
 
   // Verify that all system cookies have been deleted.
-  EXPECT_TRUE(CefVisitAllCookies(new TestVisitor(&cookies, false, &event)));
-  event.Wait();
+  VerifyNoCookies(event, false);
+}
 
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+TEST(CookieTest, ChangeDirectory)
+{
+  base::WaitableEvent event(false, false);
+  CefCookie cookie;
+
+  std::string cache_path;
+  CefTestSuite::GetCachePath(cache_path);
+
+  ScopedTempDir temp_dir;
+
+  // Create a new temporary directory.
+  EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
+
+  // Delete all of the system cookies.
+  DeleteAllCookies(event);
+
+  // Set the new temporary directory as the storage location.
+  EXPECT_TRUE(CefSetCookiePath(temp_dir.path().value()));
+
+  // Verify that no cookies exist.
+  VerifyNoCookies(event, true);
+
+  // Create a domain cookie.
+  CreateCookie(cookie, true, event);
+
+  // Retrieve and verify the domain cookie.
+  GetCookie(cookie, true, event, false);
+
+  // Restore the original storage location.
+  EXPECT_TRUE(CefSetCookiePath(cache_path));
+
+  // Verify that no cookies exist.
+  VerifyNoCookies(event, true);
+
+  // Set the new temporary directory as the storage location.
+  EXPECT_TRUE(CefSetCookiePath(temp_dir.path().value()));
+
+  // Retrieve and verify the domain cookie that was set previously.
+  GetCookie(cookie, true, event, false);
+
+  // Restore the original storage location.
+  EXPECT_TRUE(CefSetCookiePath(cache_path));
 }
