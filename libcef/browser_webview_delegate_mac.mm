@@ -10,8 +10,10 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/file_util.h"
 #include "base/mac/mac_util.h"
 #include "base/sys_string_conversions.h"
+#include "base/threading/thread_restrictions.h"
 #include "skia/ext/skia_utils_mac.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
@@ -373,6 +375,47 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
                                              const bool multi_select,
                                              const WebKit::WebString& title,
                                              const FilePath& default_file) {
-  NOTIMPLEMENTED();
-  return false;
+  NSOpenPanel* dialog = [NSOpenPanel openPanel];
+  if (!title.isNull())
+    [dialog setTitle:base::SysUTF16ToNSString(title)];
+
+  NSString* default_dir = nil;
+  NSString* default_filename = nil;
+  if (!default_file.empty()) {
+    // The file dialog is going to do a ton of stats anyway. Not much
+    // point in eliminating this one.
+    base::ThreadRestrictions::ScopedAllowIO allow_io;
+    if (file_util::DirectoryExists(default_file)) {
+      default_dir = base::SysUTF8ToNSString(default_file.value());
+    } else {
+      default_dir = base::SysUTF8ToNSString(default_file.DirName().value());
+      default_filename =
+          base::SysUTF8ToNSString(default_file.BaseName().value());
+    }
+  }
+
+  if (default_dir != nil) {
+    [dialog setDirectoryURL:[NSURL fileURLWithPath:default_dir
+                                       isDirectory:true]];
+  }
+  if (default_filename != nil)
+    [dialog setNameFieldStringValue:default_filename];
+
+  [dialog setAllowsOtherFileTypes:YES];
+  [dialog setAllowsMultipleSelection:multi_select];
+  [dialog setCanChooseFiles:YES];
+  [dialog setCanChooseDirectories:NO];
+
+  if ([dialog runModal] == NSFileHandlingPanelCancelButton)
+    return false;
+
+  NSArray *urls = [dialog URLs];
+  int i, count = [urls count];
+  for (i=0; i<count; i++) {
+    NSURL* url = [urls objectAtIndex:i];
+    if ([url isFileURL])
+      file_names.push_back(FilePath(base::SysNSStringToUTF8([url path])));
+  }
+
+  return true;
 }
