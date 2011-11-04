@@ -19,7 +19,7 @@
 int CEF_CALLBACK keyboard_handler_on_key_event(
     struct _cef_keyboard_handler_t* self, cef_browser_t* browser,
     enum cef_handler_keyevent_type_t type, int code, int modifiers,
-    int isSystemKey)
+    int isSystemKey, int isAfterJavaScript)
 {
   DCHECK(self);
   DCHECK(browser);
@@ -28,7 +28,7 @@ int CEF_CALLBACK keyboard_handler_on_key_event(
 
   return CefKeyboardHandlerCppToC::Get(self)->OnKeyEvent(
       CefBrowserCToCpp::Wrap(browser), type, code,
-      modifiers, isSystemKey?true:false);
+      modifiers, isSystemKey?true:false, isAfterJavaScript?true:false);
 }
 
 

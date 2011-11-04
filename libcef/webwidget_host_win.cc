@@ -156,7 +156,14 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         break;
 
       case WM_MOUSEWHEEL:
-        host->WheelEvent(wparam, lparam);
+        {
+          // Only send mouse wheel events if the cursor is over the window.
+          POINT mousePt = { LOWORD(lparam), HIWORD(lparam) };
+          RECT wndRect;
+          GetWindowRect(hwnd, &wndRect);
+          if (PtInRect(&wndRect, mousePt))
+            host->WheelEvent(wparam, lparam);
+        }
         break;
 
       case WM_MOUSEACTIVATE:

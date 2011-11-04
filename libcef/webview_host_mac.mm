@@ -10,6 +10,8 @@
 #include "cef_context.h"
 
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/rect.h"
@@ -17,6 +19,9 @@
 #include "webkit/glue/webpreferences.h"
 
 using WebKit::WebDevToolsAgentClient;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
 using WebKit::WebSize;
 using WebKit::WebView;
 
@@ -27,7 +32,7 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
                                  PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
-  WebViewHost* host = new WebViewHost();
+  WebViewHost* host = new WebViewHost(delegate);
 
   NSRect content_rect = {{rect.x(), rect.y()}, {rect.width(), rect.height()}};
   host->view_ = [[BrowserWebView alloc] initWithFrame:content_rect];
@@ -66,6 +71,14 @@ void WebViewHost::SetIsActive(bool active) {
 void WebViewHost::MouseEvent(NSEvent* event) {
   _Context->set_current_webviewhost(this);
   WebWidgetHost::MouseEvent(event);
+}
+
+void WebViewHost::KeyEvent(NSEvent *event) {
+  WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
+  if (delegate_->OnKeyboardEvent(keyboard_event, false))
+    return;
+
+  WebWidgetHost::KeyEvent(event);
 }
 
 void WebViewHost::SetFocus(bool enable) {

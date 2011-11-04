@@ -113,7 +113,8 @@ public:
                           KeyEventType type,
                           int code,
                           int modifiers,
-                          bool isSystemKey) OVERRIDE;
+                          bool isSystemKey,
+                          bool isAfterJavaScript) OVERRIDE;
 
   // CefPrintHandler methods.
   virtual bool GetPrintHeaderFooter(CefRefPtr<CefBrowser> browser,

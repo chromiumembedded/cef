@@ -34,7 +34,8 @@ public:
 
   // CefKeyboardHandler methods
   virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser, KeyEventType type,
-      int code, int modifiers, bool isSystemKey) OVERRIDE;
+      int code, int modifiers, bool isSystemKey,
+      bool isAfterJavaScript) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

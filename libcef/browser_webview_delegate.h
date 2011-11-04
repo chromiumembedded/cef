@@ -263,6 +263,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void HandleContextMenu(int selected_id);
 #endif
 
+  bool OnKeyboardEvent(const WebKit::WebKeyboardEvent& event,
+                       bool isAfterJavaScript);
+
  protected:
   // Default handling of JavaScript messages.
   void ShowJavaScriptAlert(WebKit::WebFrame* webframe,

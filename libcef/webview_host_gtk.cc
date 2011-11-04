@@ -8,6 +8,8 @@
 #include "browser_webview_delegate.h"
 
 #include "base/logging.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"
@@ -15,6 +17,9 @@
 #include "webkit/plugins/npapi/gtk_plugin_container.h"
 
 using WebKit::WebDevToolsAgentClient;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
 using WebKit::WebView;
 
 // static
@@ -24,7 +29,7 @@ WebViewHost* WebViewHost::Create(GtkWidget* parent_view,
                                  PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
-  WebViewHost* host = new WebViewHost();
+  WebViewHost* host = new WebViewHost(delegate);
 
   host->view_ = WebWidgetHost::CreateWidget(parent_view, host);
   host->plugin_container_manager_.set_host_widget(host->view_);
@@ -52,4 +57,12 @@ void WebViewHost::CreatePluginContainer(gfx::PluginWindowHandle id) {
 
 void WebViewHost::DestroyPluginContainer(gfx::PluginWindowHandle id) {
   plugin_container_manager_.DestroyPluginContainer(id);
+}
+
+void WebViewHost::KeyEvent(GdkEventKey* event) {
+  WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
+  if (delegate_->OnKeyboardEvent(keyboard_event, false))
+    return;
+
+  WebWidgetHost::KeyEvent(event);
 }

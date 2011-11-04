@@ -48,24 +48,31 @@ class WebViewHost : public WebWidgetHost {
   webkit::npapi::GtkPluginContainerManager* plugin_container_manager() {
     return &plugin_container_manager_;
   }
+
+  virtual void KeyEvent(GdkEventKey* event);
 #elif defined(OS_MACOSX)
   void SetIsActive(bool active);
   virtual void MouseEvent(NSEvent *);
+  virtual void KeyEvent(NSEvent *);
   virtual void SetFocus(bool enable);
 #endif
 
  protected:
-   WebViewHost();
+   WebViewHost(BrowserWebViewDelegate* delegate);
 
 #if defined(OS_WIN)
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
   virtual void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
+  virtual void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
   // Helper class that creates and moves plugin containers.
   webkit::npapi::GtkPluginContainerManager plugin_container_manager_;
 #endif
+
+  // The delegate pointer will always outlive the WebViewHost object.
+  BrowserWebViewDelegate* delegate_;
 };
 
 #endif  // _WEBVIEW_HOST_H

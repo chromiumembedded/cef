@@ -168,21 +168,7 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleKeyPress(GtkWidget* widget,
                                  GdkEventKey* event,
                                  WebWidgetHost* host) {
-    host->webwidget()->handleInputEvent(
-        WebInputEventFactory::keyboardEvent(event));
-
-    // In the browser we do a ton of work with IMEs.  This is some minimal
-    // code to make basic text work in test_shell, but doesn't cover IME.
-    // This is a copy of the logic in ProcessUnfilteredKeyPressEvent in
-    // render_widget_host_view_gtk.cc .
-    if (event->type == GDK_KEY_PRESS) {
-      WebKeyboardEvent wke = WebInputEventFactory::keyboardEvent(event);
-      if (wke.text[0]) {
-        wke.type = WebKit::WebInputEvent::Char;
-        host->webwidget()->handleInputEvent(wke);
-      }
-    }
-
+    host->KeyEvent(event);
     return FALSE;
   }
 
@@ -522,4 +508,21 @@ void WebWidgetHost::EnsureTooltip()
 void WebWidgetHost::ResetTooltip()
 {
   // TODO(port): Implement this method as part of tooltip support.
+}
+
+void WebWidgetHost::KeyEvent(GdkEventKey* event)
+{
+  WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
+  last_key_event_ = keyboard_event;
+  webwidget()->handleInputEvent(keyboard_event);
+
+  // In the browser we do a ton of work with IMEs.  This is some minimal
+  // code to make basic text work in test_shell, but doesn't cover IME.
+  // This is a copy of the logic in ProcessUnfilteredKeyPressEvent in
+  // render_widget_host_view_gtk.cc .
+  if (event->type == GDK_KEY_PRESS && keyboard_event.text[0]) {
+    keyboard_event.type = WebKit::WebInputEvent::Char;
+    last_key_event_ = keyboard_event;
+    webwidget()->handleInputEvent(keyboard_event);
+  }
 }

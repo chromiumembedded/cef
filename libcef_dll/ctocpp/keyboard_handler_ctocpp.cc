@@ -17,13 +17,14 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
-    KeyEventType type, int code, int modifiers, bool isSystemKey)
+    KeyEventType type, int code, int modifiers, bool isSystemKey,
+    bool isAfterJavaScript)
 {
   if (CEF_MEMBER_MISSING(struct_, on_key_event))
     return false;
 
   return struct_->on_key_event(struct_, CefBrowserCppToC::Wrap(browser),
-      type, code, modifiers, isSystemKey) ? true : false;
+      type, code, modifiers, isSystemKey, isAfterJavaScript) ? true : false;
 }
 
 

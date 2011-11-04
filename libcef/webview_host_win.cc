@@ -6,13 +6,19 @@
 #include "browser_webview_delegate.h"
 #include "cef_context.h"
 
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "ui/base/win/hwnd_util.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"
 #include "webkit/glue/webpreferences.h"
 
-using namespace WebKit;
+using WebKit::WebDevToolsAgentClient;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebView;
 
 static const wchar_t kWindowClassName[] = L"WebViewHost";
 
@@ -23,7 +29,7 @@ WebViewHost* WebViewHost::Create(HWND parent_view,
                                  PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
                                  const WebPreferences& prefs) {
-  WebViewHost* host = new WebViewHost();
+  WebViewHost* host = new WebViewHost(delegate);
 
   if (!paint_delegate) {
     static bool registered_class = false;
@@ -78,4 +84,15 @@ bool WebViewHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
 void WebViewHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
   _Context->set_current_webviewhost(this);
   WebWidgetHost::MouseEvent(message, wparam, lparam);
+}
+
+void WebViewHost::KeyEvent(UINT message, WPARAM wparam, LPARAM lparam) {
+  // Give the client a chance to handle keyboard events before they're passed
+  // to WebKit.
+  const WebKeyboardEvent& event = WebInputEventFactory::keyboardEvent(
+      view_, message, wparam, lparam);
+  if (delegate_->OnKeyboardEvent(event, false))
+    return;
+
+  WebWidgetHost::KeyEvent(message, wparam, lparam);
 }

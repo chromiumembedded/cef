@@ -4,7 +4,8 @@
 
 #include "webview_host.h"
 
-WebViewHost::WebViewHost()
+WebViewHost::WebViewHost(BrowserWebViewDelegate* delegate)
+  : delegate_(delegate)
 {
 }
 

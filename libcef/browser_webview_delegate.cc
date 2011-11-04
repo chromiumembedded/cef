@@ -268,40 +268,8 @@ bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
 }
 
 bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
-  bool handled = false;
-
-  CefRefPtr<CefClient> client = browser_->GetClient();
-  CefRefPtr<CefKeyboardHandler> handler;
-  if (client.get())
-    handler = client->GetKeyboardHandler();
-
-  if (handler.get()) {
-      WebWidgetHost* host = GetWidgetHost();
-      if (host) {
-        WebKeyboardEvent event = host->GetLastKeyEvent();
-        switch (event.type)
-        {
-        case WebKeyboardEvent::RawKeyDown: 
-          handled = handler->OnKeyEvent(browser_,
-              KEYEVENT_RAWKEYDOWN, event.windowsKeyCode,
-              event.modifiers, event.isSystemKey?true:false);
-          break;
-        case WebKeyboardEvent::KeyUp:
-          handled = handler->OnKeyEvent(browser_,
-              KEYEVENT_KEYUP, event.windowsKeyCode,
-              event.modifiers, event.isSystemKey?true:false);
-          break;
-        case WebKeyboardEvent::Char:
-          handled = handler->OnKeyEvent(browser_,
-              KEYEVENT_CHAR, event.windowsKeyCode,
-              event.modifiers, event.isSystemKey?true:false);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  if (handled)
+  WebWidgetHost* host = GetWidgetHost();
+  if (host && OnKeyboardEvent(host->GetLastKeyEvent(), true))
     return true;
 
   if (edit_command_name_.empty())
@@ -1038,6 +1006,38 @@ void BrowserWebViewDelegate::WaitForPolicyDelegate() {
 }
 
 // Private methods -----------------------------------------------------------
+
+bool BrowserWebViewDelegate::OnKeyboardEvent(
+    const WebKit::WebKeyboardEvent& event, bool isAfterJavaScript)
+{
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  CefRefPtr<CefKeyboardHandler> handler;
+  if (client.get())
+    handler = client->GetKeyboardHandler();
+  if (!handler.get())
+    return false;
+
+  CefKeyboardHandler::KeyEventType eventType;
+  switch (event.type) {
+  case WebKeyboardEvent::RawKeyDown: 
+    eventType = KEYEVENT_RAWKEYDOWN;
+    break;
+  case WebKeyboardEvent::KeyDown: 
+    eventType = KEYEVENT_KEYDOWN;
+    break;
+  case WebKeyboardEvent::KeyUp:
+    eventType = KEYEVENT_KEYUP;
+    break;
+  case WebKeyboardEvent::Char:
+    eventType = KEYEVENT_CHAR;
+    break;
+  default:
+    return false;
+  }
+
+  return handler->OnKeyEvent(browser_, eventType, event.windowsKeyCode,
+      event.modifiers, event.isSystemKey?true:false, isAfterJavaScript);
+}
 
 void BrowserWebViewDelegate::ShowStatus(const WebString& text,
                                         cef_handler_statustype_t type)

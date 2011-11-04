@@ -24,6 +24,10 @@
 #include "ui/base/win/ime_input.h"
 #endif
 
+#if defined(TOOLKIT_USES_GTK)
+#include <gtk/gtk.h>
+#endif
+
 namespace gfx {
 class Rect;
 class Size;
@@ -130,7 +134,7 @@ class WebWidgetHost {
   void Resize(LPARAM lparam);
   virtual void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void WheelEvent(WPARAM wparam, LPARAM lparam);
-  void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
+  virtual void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void CaptureLostEvent();
   void SetFocus(bool enable);
   void OnNotify(WPARAM wparam, NMHDR* header);
@@ -149,7 +153,7 @@ class WebWidgetHost {
   void Resize(const gfx::Rect& rect);
   virtual void MouseEvent(NSEvent *);
   void WheelEvent(NSEvent *);
-  void KeyEvent(NSEvent *);
+  virtual void KeyEvent(NSEvent *);
   virtual void SetFocus(bool enable);
  protected:
 #elif defined(TOOLKIT_USES_GTK)
@@ -167,6 +171,7 @@ class WebWidgetHost {
                                       WebWidgetHost* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
+  virtual void KeyEvent(GdkEventKey* event);
 #endif
 
 #if defined(OS_WIN)

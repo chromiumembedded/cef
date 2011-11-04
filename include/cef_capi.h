@@ -1196,18 +1196,22 @@ typedef struct _cef_keyboard_handler_t
   cef_base_t base;
 
   ///
-  // Called when the browser component receives a keyboard event that has not
-  // been intercepted via JavaScript. |type| is the type of keyboard event,
-  // |code| is the windows scan-code for the event, |modifiers| is a set of bit-
-  // flags describing any pressed modifier keys and |isSystemKey| is true (1) if
-  // Windows considers this a 'system key' message (see
-  // http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx). Return true
-  // (1) if the keyboard event was handled or false (0) to allow the browser
-  // component to handle the event.
+  // Called when the browser component receives a keyboard event. This function
+  // is called both before the event is passed to the renderer and after
+  // JavaScript in the page has had a chance to handle the event. |type| is the
+  // type of keyboard event, |code| is the windows scan-code for the event,
+  // |modifiers| is a set of bit- flags describing any pressed modifier keys and
+  // |isSystemKey| is true (1) if Windows considers this a 'system key' message
+  // (see http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx). If
+  // |isAfterJavaScript| is true (1) then JavaScript in the page has had a
+  // chance to handle the event and has chosen not to. Only RAWKEYDOWN, KEYDOWN
+  // and CHAR events will be sent with |isAfterJavaScript| set to true (1).
+  // Return true (1) if the keyboard event was handled or false (0) to allow
+  // continued handling of the event by the renderer.
   ///
   int (CEF_CALLBACK *on_key_event)(struct _cef_keyboard_handler_t* self,
       struct _cef_browser_t* browser, enum cef_handler_keyevent_type_t type,
-      int code, int modifiers, int isSystemKey);
+      int code, int modifiers, int isSystemKey, int isAfterJavaScript);
 
 } cef_keyboard_handler_t;
 
