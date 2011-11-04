@@ -696,7 +696,7 @@ class RequestProxy : public net::URLRequest::Delegate,
                                           auth_info->realm,
                                           auth_info->scheme,
                                           username, password)) {
-            request->SetAuth(username, password);
+            request->SetAuth(net::AuthCredentials(username, password));
             return;
           }
         }

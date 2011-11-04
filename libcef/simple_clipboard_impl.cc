@@ -35,16 +35,20 @@ ui::Clipboard* ClipboardGetClipboard() {
   return clipboard.Pointer();
 }
 
+uint64 ClipboardGetSequenceNumber() {
+  return ClipboardGetClipboard()->GetSequenceNumber();
+}
+
 bool ClipboardIsFormatAvailable(const ui::Clipboard::FormatType& format,
                                 ui::Clipboard::Buffer buffer) {
   return ClipboardGetClipboard()->IsFormatAvailable(format, buffer);
 }
 
-// TODO(dcheng): Implement.
 void ClipboardReadAvailableTypes(ui::Clipboard::Buffer buffer,
                                  std::vector<string16>* types,
                                  bool* contains_filenames) {
-  return;
+  return ClipboardGetClipboard()->ReadAvailableTypes(buffer, types,
+                                                     contains_filenames);
 }
 
 void ClipboardReadText(ui::Clipboard::Buffer buffer, string16* result) {
@@ -84,20 +88,6 @@ void ClipboardReadImage(ui::Clipboard::Buffer buffer, std::string* data) {
     data->assign(reinterpret_cast<char*>(vector_as_array(&png_data)),
                  png_data.size());
   }
-}
-
-bool ClipboardReadData(ui::Clipboard::Buffer buffer, const string16& type,
-                       string16* data, string16* metadata) {
-  return false;
-}
-
-bool ClipboardReadFilenames(ui::Clipboard::Buffer buffer,
-                            std::vector<string16>* filenames) {
-  return false;
-}
-
-uint64 ClipboardGetSequenceNumber() {
-  return 0;
 }
 
 }  // namespace webkit_glue
