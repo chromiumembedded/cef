@@ -67,9 +67,9 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
                            screen_rect.size.height - window_info_.m_y},
                           {window_info_.m_nWidth, window_info_.m_nHeight}};
     if (window_rect.size.width == 0)
-      window_rect.size.width = 500;
+      window_rect.size.width = 750;
     if (window_rect.size.height == 0)
-      window_rect.size.height = 500;
+      window_rect.size.height = 750;
     contentRect.SetRect(0, 0, window_rect.size.width, window_rect.size.height);
 
     newWnd = [[NSWindow alloc]
@@ -77,7 +77,8 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
               styleMask:(NSTitledWindowMask |
                          NSClosableWindowMask |
                          NSMiniaturizableWindowMask |
-                         NSResizableWindowMask )
+                         NSResizableWindowMask |
+                         NSUnifiedTitleAndToolbarWindowMask )
               backing:NSBackingStoreBuffered
               defer:NO];
     parentView = [newWnd contentView];
