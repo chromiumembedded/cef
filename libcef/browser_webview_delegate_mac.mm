@@ -394,19 +394,14 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
     }
   }
 
-  if (default_dir != nil) {
-    [dialog setDirectoryURL:[NSURL fileURLWithPath:default_dir
-                                       isDirectory:true]];
-  }
-  if (default_filename != nil)
-    [dialog setNameFieldStringValue:default_filename];
-
   [dialog setAllowsOtherFileTypes:YES];
   [dialog setAllowsMultipleSelection:multi_select];
   [dialog setCanChooseFiles:YES];
   [dialog setCanChooseDirectories:NO];
 
-  if ([dialog runModal] == NSFileHandlingPanelCancelButton)
+  NSInteger result = [dialog runModalForDirectory:default_dir
+                                             file:default_filename];
+  if (result == NSFileHandlingPanelCancelButton)
     return false;
 
   NSArray *urls = [dialog URLs];
