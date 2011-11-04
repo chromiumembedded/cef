@@ -49,10 +49,12 @@ public:
       retval = CefV8Value::CreateObject(NULL);
       // Add a string parameter to the new V8 object.
       retval->SetValue("param", CefV8Value::CreateString(
-          "Retrieving a parameter on a native object succeeded."));
+          "Retrieving a parameter on a native object succeeded."),
+          V8_PROPERTY_ATTRIBUTE_NONE);
       // Add a function to the new V8 object.
       retval->SetValue("GetMessage",
-          CefV8Value::CreateFunction("GetMessage", this));
+          CefV8Value::CreateFunction("GetMessage", this),
+          V8_PROPERTY_ATTRIBUTE_NONE);
       return true;
     }
     else if(name == "GetMessage")

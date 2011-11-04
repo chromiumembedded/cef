@@ -26,6 +26,13 @@
 
 namespace {
 
+static const char kCefAccessor[] = "Cef::Accessor";
+static const char kCefHandler[] = "Cef::Handler";
+static const char kCefUserData[] = "Cef::UserData";
+static const v8::PropertyAttribute kInternalAttributes =
+    static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontEnum |
+                                       v8::DontDelete);
+
 // Memory manager.
 
 base::LazyInstance<CefTrackManager> g_v8_tracker(base::LINKER_INITIALIZED);
@@ -202,7 +209,7 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
   v8::HandleScope handle_scope;
 
   v8::Handle<v8::Object> obj = info.This();
-  v8::Handle<v8::String> key = v8::String::New("Cef::Accessor");
+  v8::Handle<v8::String> key = v8::String::New(kCefAccessor);
 
   CefV8Accessor* accessorPtr = NULL;
   if (obj->Has(key)) {
@@ -237,7 +244,7 @@ void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
   v8::HandleScope handle_scope;
 
   v8::Handle<v8::Object> obj = info.This();
-  v8::Handle<v8::String> key = v8::String::New("Cef::Accessor");
+  v8::Handle<v8::String> key = v8::String::New(kCefAccessor);
 
   CefV8Accessor* accessorPtr = NULL;
   if (obj->Has(key)) {
@@ -547,13 +554,13 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
   // Attach the user data to the V8 object.
   if (user_data.get()) {
     v8::Local<v8::Value> data = v8::External::Wrap(user_data.get());
-    obj->Set(v8::String::New("Cef::UserData"), data);
+    obj->Set(v8::String::New(kCefUserData), data, kInternalAttributes);
   }
 
   // Attach the accessor to the V8 object.
   if (accessor.get()) {
     v8::Local<v8::Value> data = v8::External::Wrap(accessor.get());
-    obj->Set(v8::String::New("Cef::Accessor"), data);
+    obj->Set(v8::String::New(kCefAccessor), data, kInternalAttributes);
   }
 
   return new CefV8ValueImpl(obj, tracker);
@@ -591,7 +598,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
   func->SetName(GetV8String(name));
 
   // Attach the handler instance to the V8 object.
-  func->Set(v8::String::New("Cef::Handler"), data);
+  func->Set(v8::String::New(kCefHandler), data, kInternalAttributes);
 
   // Create the CefV8ValueImpl and provide a tracker object that will cause
   // the handler reference to be released when the V8 object is destroyed.
@@ -821,7 +828,8 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
 }
 
 bool CefV8ValueImpl::SetValue(const CefString& key,
-                              CefRefPtr<CefV8Value> value)
+                              CefRefPtr<CefV8Value> value,
+                              PropertyAttribute attribute)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(IsReservedKey(key))
@@ -835,7 +843,8 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   if(impl) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
-    return obj->Set(GetV8String(key), impl->GetHandle());
+    return obj->Set(GetV8String(key), impl->GetHandle(),
+                    static_cast<v8::PropertyAttribute>(attribute));
   } else {
     NOTREACHED();
     return false;
@@ -919,7 +928,7 @@ CefRefPtr<CefBase> CefV8ValueImpl::GetUserData()
   
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
-  v8::Local<v8::String> key = v8::String::New("Cef::UserData");
+  v8::Local<v8::String> key = v8::String::New(kCefUserData);
   if(obj->Has(key))
     return static_cast<CefBase*>(v8::External::Unwrap(obj->Get(key)));
   return NULL;
@@ -965,7 +974,7 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler()
 
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
-  v8::Local<v8::String> key = v8::String::New("Cef::Handler");
+  v8::Local<v8::String> key = v8::String::New(kCefHandler);
   if (obj->Has(key))
     return static_cast<CefV8Handler*>(v8::External::Unwrap(obj->Get(key)));
   return NULL;

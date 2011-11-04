@@ -131,8 +131,8 @@ public:
   virtual bool DeleteValue(int index) OVERRIDE;
   virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
   virtual CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value)
-      OVERRIDE;
+  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
+                        PropertyAttribute attribute) OVERRIDE;
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
   virtual bool SetValue(const CefString& key, AccessControl settings, 
                         PropertyAttribute attribute) OVERRIDE;

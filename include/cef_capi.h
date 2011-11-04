@@ -2267,7 +2267,8 @@ typedef struct _cef_v8value_t
   // Associate a value with the specified identifier.
   ///
   int (CEF_CALLBACK *set_value_bykey)(struct _cef_v8value_t* self,
-      const cef_string_t* key, struct _cef_v8value_t* value);
+      const cef_string_t* key, struct _cef_v8value_t* value,
+      enum cef_v8_propertyattribute_t attribute);
 
   ///
   // Associate a value with the specified identifier.

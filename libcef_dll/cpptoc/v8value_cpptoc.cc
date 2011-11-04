@@ -346,14 +346,16 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
 }
 
 int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
-    const cef_string_t* key, struct _cef_v8value_t* value)
+    const cef_string_t* key, struct _cef_v8value_t* value,
+    enum cef_v8_propertyattribute_t attribute)
 {
   DCHECK(self);
   if(!self)
     return 0;
 
   CefRefPtr<CefV8Value> valuePtr = CefV8ValueCppToC::Unwrap(value);
-  return CefV8ValueCppToC::Get(self)->SetValue(CefString(key), valuePtr);
+  return CefV8ValueCppToC::Get(self)->SetValue(CefString(key), valuePtr,
+      attribute);
 }
 
 int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,

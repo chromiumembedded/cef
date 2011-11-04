@@ -329,8 +329,9 @@ public:
   {
     CefRefPtr<CefV8Handler> handler = new V8Handler(this);
     CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL, NULL);
-    testObj->SetValue("result", CefV8Value::CreateFunction("result", handler));
-    object->SetValue("test", testObj);
+    testObj->SetValue("result", CefV8Value::CreateFunction("result", handler),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("test", testObj, V8_PROPERTY_ATTRIBUTE_NONE);
   }
 
   CefStorageType type_;

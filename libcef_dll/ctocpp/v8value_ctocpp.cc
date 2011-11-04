@@ -318,13 +318,13 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
 }
 
 bool CefV8ValueCToCpp::SetValue(const CefString& key,
-    CefRefPtr<CefV8Value> value)
+    CefRefPtr<CefV8Value> value, PropertyAttribute attribute)
 {
   if(CEF_MEMBER_MISSING(struct_, set_value_bykey))
     return false;
 
   return struct_->set_value_bykey(struct_, key.GetStruct(),
-      CefV8ValueCToCpp::Unwrap(value))?true:false;
+      CefV8ValueCToCpp::Unwrap(value), attribute)?true:false;
 }
 
 bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)

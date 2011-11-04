@@ -300,7 +300,7 @@ public:
     // Create the new V8 object
     CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL);
     ASSERT_TRUE(testObj.get() != NULL);
-    ASSERT_TRUE(object->SetValue("test", testObj));
+    ASSERT_TRUE(object->SetValue("test", testObj, V8_PROPERTY_ATTRIBUTE_NONE));
 
     // Create an instance of V8ExecuteV8Handler
     CefRefPtr<CefV8Handler> testHandler(new V8TestV8Handler(true));
@@ -310,27 +310,31 @@ public:
     CefRefPtr<CefV8Value> testFunc;
     testFunc = CefV8Value::CreateFunction("execute", testHandler);
     ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("execute", testFunc));
+    ASSERT_TRUE(testObj->SetValue("execute", testFunc,
+        V8_PROPERTY_ATTRIBUTE_NONE));
     testFunc = CefV8Value::CreateFunction("execute2", testHandler);
     ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("execute2", testFunc));
+    ASSERT_TRUE(testObj->SetValue("execute2", testFunc,
+        V8_PROPERTY_ATTRIBUTE_NONE));
 
     // Add the values
     ASSERT_TRUE(testObj->SetValue("intVal",
-        CefV8Value::CreateInt(12)));
+        CefV8Value::CreateInt(12), V8_PROPERTY_ATTRIBUTE_NONE));
     ASSERT_TRUE(testObj->SetValue("doubleVal",
-        CefV8Value::CreateDouble(5.432)));
+        CefV8Value::CreateDouble(5.432), V8_PROPERTY_ATTRIBUTE_NONE));
     ASSERT_TRUE(testObj->SetValue("boolVal",
-        CefV8Value::CreateBool(true)));
+        CefV8Value::CreateBool(true), V8_PROPERTY_ATTRIBUTE_NONE));
     ASSERT_TRUE(testObj->SetValue("stringVal",
-        CefV8Value::CreateString("the string")));
+        CefV8Value::CreateString("the string"), V8_PROPERTY_ATTRIBUTE_NONE));
 
     cef_time_t date = {2010, 5, 1, 3, 12, 30, 10, 100};
-    ASSERT_TRUE(testObj->SetValue("dateVal", CefV8Value::CreateDate(date)));
+    ASSERT_TRUE(testObj->SetValue("dateVal", CefV8Value::CreateDate(date),
+        V8_PROPERTY_ATTRIBUTE_NONE));
 
     CefRefPtr<CefV8Value> testArray(CefV8Value::CreateArray());
     ASSERT_TRUE(testArray.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("arrayVal", testArray));
+    ASSERT_TRUE(testObj->SetValue("arrayVal", testArray,
+        V8_PROPERTY_ATTRIBUTE_NONE));
     ASSERT_TRUE(testArray->SetValue(0, CefV8Value::CreateInt(4)));
     ASSERT_TRUE(testArray->SetValue(1, CefV8Value::CreateDouble(120.43)));
     ASSERT_TRUE(testArray->SetValue(2, CefV8Value::CreateBool(true)));
@@ -593,31 +597,33 @@ public:
     CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
     CefRefPtr<CefV8Value> helloFunc = 
         CefV8Value::CreateFunction("hello", funcHandler);
-    object->SetValue("hello", helloFunc);
+    object->SetValue("hello", helloFunc, V8_PROPERTY_ATTRIBUTE_NONE);
     
     CefRefPtr<CefV8Value> fromIFrameFunc = 
         CefV8Value::CreateFunction("fromIFrame", funcHandler);
-    object->SetValue("fromIFrame", fromIFrameFunc);
+    object->SetValue("fromIFrame", fromIFrameFunc, V8_PROPERTY_ATTRIBUTE_NONE);
     
     CefRefPtr<CefV8Value> goFunc = 
         CefV8Value::CreateFunction("begin", funcHandler);
-    object->SetValue("begin", goFunc);
+    object->SetValue("begin", goFunc, V8_PROPERTY_ATTRIBUTE_NONE);
     
     CefRefPtr<CefV8Value> doneFunc = 
         CefV8Value::CreateFunction("end", funcHandler);
-    object->SetValue("end", doneFunc);
+    object->SetValue("end", doneFunc, V8_PROPERTY_ATTRIBUTE_NONE);
 
     CefRefPtr<CefV8Value> compFunc = 
         CefV8Value::CreateFunction("comp", funcHandler);
-    object->SetValue("comp", compFunc);
+    object->SetValue("comp", compFunc, V8_PROPERTY_ATTRIBUTE_NONE);
 
     // Used for testing exceptions returned from accessors.
     CefRefPtr<CefV8Value> gotGetExceptionFunc = 
         CefV8Value::CreateFunction("gotGetException", funcHandler);
-    object->SetValue("gotGetException", gotGetExceptionFunc);
+    object->SetValue("gotGetException", gotGetExceptionFunc,
+        V8_PROPERTY_ATTRIBUTE_NONE);
     CefRefPtr<CefV8Value> gotSetExceptionFunc = 
         CefV8Value::CreateFunction("gotSetException", funcHandler);
-    object->SetValue("gotSetException", gotSetExceptionFunc);
+    object->SetValue("gotSetException", gotSetExceptionFunc,
+        V8_PROPERTY_ATTRIBUTE_NONE);
 
     // Create an object with accessor based properties:
     CefRefPtr<CefBase> blankBase;
@@ -629,7 +635,7 @@ public:
     point->SetValue("y", V8_ACCESS_CONTROL_DEFAULT, 
         V8_PROPERTY_ATTRIBUTE_NONE);
 
-    object->SetValue("point", point);
+    object->SetValue("point", point, V8_PROPERTY_ATTRIBUTE_NONE);
 
     // Create another object with accessor based properties:
     CefRefPtr<CefV8Value> exceptObj =
@@ -638,7 +644,7 @@ public:
     exceptObj->SetValue("makeException", V8_ACCESS_CONTROL_DEFAULT, 
         V8_PROPERTY_ATTRIBUTE_NONE);
 
-    object->SetValue("exceptObj", exceptObj);
+    object->SetValue("exceptObj", exceptObj, V8_PROPERTY_ATTRIBUTE_NONE);
   }
   
   void CallIFrame()
@@ -715,9 +721,9 @@ public:
       obj = CefV8Value::CreateObject(NULL);
       url = CefV8Value::CreateString("http://tests/end.html");
 
-      obj->SetValue("url", url);
-      obj->SetValue("foobar", foobarFunc);
-      obj->SetValue("anArray", anArray);
+      obj->SetValue("url", url, V8_PROPERTY_ATTRIBUTE_NONE);
+      obj->SetValue("foobar", foobarFunc, V8_PROPERTY_ATTRIBUTE_NONE);
+      obj->SetValue("anArray", anArray, V8_PROPERTY_ATTRIBUTE_NONE);
 
       args.push_back(obj);
   

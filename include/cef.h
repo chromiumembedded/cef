@@ -2547,7 +2547,8 @@ public:
   // Associate a value with the specified identifier.
   ///
   /*--cef(capi_name=set_value_bykey)--*/
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value) =0;
+  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
+                        PropertyAttribute attribute) =0;
   ///
   // Associate a value with the specified identifier.
   ///
