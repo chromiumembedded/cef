@@ -152,6 +152,12 @@ typedef struct _cef_settings_t
   ///
   unsigned int session_storage_quota;
 
+  ///
+  // Custom flags that will be used when initializing the V8 JavaScript engine.
+  // The consequences of using custom flags may not be well tested.
+  ///
+  cef_string_t javascript_flags;
+
 #if defined(OS_WIN)
   ///
   // Set to true (1) to use the system proxy resolver on Windows when 

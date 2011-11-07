@@ -111,7 +111,11 @@ void CefProcessUIThread::Init() {
   base::StatsTable::set_current(statstable_);
 
   // CEF always exposes the GC.
-  webkit_glue::SetJavaScriptFlags("--expose-gc");
+  std::string javascript_flags = "--expose-gc";
+  if (settings.javascript_flags.length > 0)
+    javascript_flags += " " + CefString(&settings.javascript_flags).ToString();
+  webkit_glue::SetJavaScriptFlags(javascript_flags);
+
   // Expose GCController to JavaScript.
   WebKit::WebScriptController::registerExtension(
       extensions_v8::GCExtension::Get());
