@@ -2508,7 +2508,6 @@ public:
   // OBJECT METHODS - These methods are only available on objects. Arrays and
   // functions are also objects. String- and integer-based keys can be used
   // interchangably with the framework converting between them as necessary.
-  // Keys beginning with "Cef::" and "v8::" are reserved by the system.
 
   ///
   // Returns true if the object has a value with the specified identifier.

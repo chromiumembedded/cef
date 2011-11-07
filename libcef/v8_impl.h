@@ -158,7 +158,8 @@ public:
     return v8_value_->GetHandle();
   }
 
-  bool IsReservedKey(const CefString& key);
+  // Returns the accessor assigned for the specified object, if any.
+  static CefV8Accessor* GetAccessor(v8::Handle<v8::Object> object);
 
 protected:
   scoped_refptr<CefV8ValueHandle> v8_value_;

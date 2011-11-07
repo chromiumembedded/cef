@@ -935,3 +935,472 @@ TEST(V8Test, Context)
   EXPECT_TRUE(handler->got_navigation_);
   EXPECT_TRUE(handler->got_testcomplete_);
 }
+
+namespace {
+
+class TestInternalHandler : public TestHandler
+{
+public:
+  class UserData : public CefBase
+  {
+  public:
+    UserData(CefRefPtr<TestInternalHandler> test)
+      : test_(test)
+    {
+    }
+
+    void Test(const std::string& name)
+    {
+      if (name == "obj1-before") {
+        if (test_->nav_ == 0)
+          test_->got_userdata_obj1_before_test1_fail_.yes();
+        else
+          test_->got_userdata_obj1_before_test2_fail_.yes();
+      } else if (name == "obj2-before") {
+        if (test_->nav_ == 0)
+          test_->got_userdata_obj2_before_test1_.yes();
+        else
+          test_->got_userdata_obj2_before_test2_fail_.yes();
+      }else if (name == "obj1-after") {
+        if (test_->nav_ == 0)
+          test_->got_userdata_obj1_after_test1_fail_.yes();
+        else
+          test_->got_userdata_obj1_after_test2_fail_.yes();
+      } else if (name == "obj2-after") {
+        if (test_->nav_ == 0)
+          test_->got_userdata_obj2_after_test1_.yes();
+        else
+          test_->got_userdata_obj2_after_test2_fail_.yes();
+      }
+    }
+
+    CefRefPtr<TestInternalHandler> test_;
+
+    IMPLEMENT_REFCOUNTING(UserData);
+  };
+
+  class Accessor : public CefV8Accessor
+  {
+  public:
+    Accessor(CefRefPtr<TestInternalHandler> test)
+      : test_(test)
+    {
+    }
+
+    virtual bool Get(const CefString& name,
+                     const CefRefPtr<CefV8Value> object,
+                     CefRefPtr<CefV8Value>& retval,
+                     CefString& exception) OVERRIDE
+    {
+      if (test_->nav_ == 0)
+        test_->got_accessor_get1_.yes();
+      else
+        test_->got_accessor_get2_fail_.yes();
+      
+      retval = CefV8Value::CreateString("default2");
+      return true;
+    }
+
+    virtual bool Set(const CefString& name,
+                     const CefRefPtr<CefV8Value> object,
+                     const CefRefPtr<CefV8Value> value,
+                     CefString& exception) OVERRIDE
+    {
+      if (test_->nav_ == 0)
+        test_->got_accessor_set1_.yes();
+      else
+        test_->got_accessor_set2_fail_.yes();
+      
+      return true;
+    }
+
+    CefRefPtr<TestInternalHandler> test_;
+
+    IMPLEMENT_REFCOUNTING(Accessor);
+  };
+
+  class Handler : public CefV8Handler
+  {
+  public:
+    Handler(CefRefPtr<TestInternalHandler> test)
+      : test_(test),
+        execute_ct_(0)
+    {
+    }
+
+    virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE
+    {
+      CefRefPtr<CefV8Handler> handler =
+          object->GetValue("func")->GetFunctionHandler();
+           
+      if (execute_ct_ == 0) {
+        if (handler.get() == this)
+          test_->got_execute1_.yes();
+        else
+          test_->got_execute1_fail_.yes();
+      } else {
+        if (handler.get() == this)
+          test_->got_execute2_.yes();
+        else
+          test_->got_execute2_fail_.yes();
+      }
+
+      execute_ct_++;
+
+      return true;
+    }
+
+    CefRefPtr<TestInternalHandler> test_;
+    int execute_ct_;
+
+    IMPLEMENT_REFCOUNTING(Accessor);
+  };
+
+  class TestHandler : public CefV8Handler
+  {
+  public:
+    TestHandler(CefRefPtr<TestInternalHandler> test)
+      : test_(test)
+    {
+    }
+
+    virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE
+    {
+      if (name == "store") {
+        // Store a JSON value.
+        if (arguments.size() == 2 && arguments[0]->IsString() &&
+            arguments[1]->IsString()) {
+          std::string name = arguments[0]->GetStringValue();
+          std::string val = arguments[1]->GetStringValue();
+          if (name == "obj1") {
+            test_->obj1_json_ = val;
+            if (val == "{\"value\":\"testval1\",\"value2\":\"default1\"}")
+              test_->got_obj1_json_.yes();
+          } else if (name == "obj2") {
+            test_->obj2_json_ = val;
+            if (val == "{\"value\":\"testval2\",\"value2\":\"default2\"}")
+              test_->got_obj2_json_.yes();
+          } else {
+            return false;
+          }
+          retval = CefV8Value::CreateBool(true);
+          return true;
+        }
+      } else if (name == "retrieve") {
+        // Retrieve a JSON value.
+        if (arguments.size() == 1 && arguments[0]->IsString()) {
+          std::string name = arguments[0]->GetStringValue();
+          std::string val;
+          if (name == "obj1")
+            val = test_->obj1_json_;
+          else if (name == "obj2")
+            val = test_->obj2_json_;
+          if (!val.empty()) {
+            retval = CefV8Value::CreateString(val);
+            return true;
+          }
+        }
+      } else if (name == "userdata") {
+        if (arguments.size() == 2 && arguments[0]->IsString() &&
+            arguments[1]->IsObject()) {
+          std::string name = arguments[0]->GetStringValue();
+          CefRefPtr<UserData> userData =
+              reinterpret_cast<UserData*>(arguments[1]->GetUserData().get());
+          if (!userData.get()) {
+            // No UserData object.
+            if (name == "obj1-before") {
+              if (test_->nav_ == 0)
+                test_->got_userdata_obj1_before_null1_.yes();
+              else
+                test_->got_userdata_obj1_before_null2_.yes();
+            } else if (name == "obj2-before") {
+              if (test_->nav_ == 0)
+                test_->got_userdata_obj2_before_null1_fail_.yes();
+              else
+                test_->got_userdata_obj2_before_null2_.yes();
+            } else if (name == "obj1-after") {
+              if (test_->nav_ == 0)
+                test_->got_userdata_obj1_after_null1_.yes();
+              else
+                test_->got_userdata_obj1_after_null2_.yes();
+            } else if (name == "obj2-after") {
+              if (test_->nav_ == 0)
+                test_->got_userdata_obj2_after_null1_fail_.yes();
+              else
+                test_->got_userdata_obj2_after_null2_.yes();
+            }
+          } else {
+            // Call the test function.
+            userData->Test(name);
+          }
+          return true;
+        }
+      }  else if (name == "record") {
+        if (arguments.size() == 1 && arguments[0]->IsString()) {
+          std::string name = arguments[0]->GetStringValue();
+          if (name == "userdata-obj1-set-succeed") {
+            if (test_->nav_ == 0)
+              test_->got_userdata_obj1_set_succeed1_.yes();
+            else
+              test_->got_userdata_obj1_set_succeed2_.yes();
+          } else if (name == "userdata-obj1-set-except") {
+            if (test_->nav_ == 0)
+              test_->got_userdata_obj1_set_except1_fail_.yes();
+            else
+              test_->got_userdata_obj1_set_except2_fail_.yes();
+          } else if (name == "userdata-obj2-set-succeed") {
+            if (test_->nav_ == 0)
+              test_->got_userdata_obj2_set_succeed1_.yes();
+            else
+              test_->got_userdata_obj2_set_succeed2_.yes();
+          } else if (name == "userdata-obj2-set-except") {
+            if (test_->nav_ == 0)
+              test_->got_userdata_obj2_set_except1_fail_.yes();
+            else
+              test_->got_userdata_obj2_set_except2_fail_.yes();
+          } else if (name == "func-set-succeed") {
+            test_->got_func_set_succeed_.yes();
+          } else if (name == "func-set-except") {
+            test_->got_func_set_except_fail_.yes();
+          }
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    CefRefPtr<TestInternalHandler> test_;
+
+    IMPLEMENT_REFCOUNTING(Handler);
+  };
+  
+  TestInternalHandler()
+    : nav_(0)
+  {
+  }
+
+  virtual void RunTest() OVERRIDE
+  {
+    std::string tests =
+        // Test userdata retrieval.
+        "window.test.userdata('obj1-before', window.obj1);\n"
+        "window.test.userdata('obj2-before', window.obj2);\n"
+        // Test accessors.
+        "window.obj1.value2 = 'newval1';\n"
+        "window.obj2.value2 = 'newval2';\n"
+        "val1 = window.obj1.value2;\n"
+        "val2 = window.obj2.value2;\n"
+        // Test setting the hidden internal values.
+        "try { window.obj1['Cef::UserData'] = 1;\n"
+              "window.obj1['Cef::Accessor'] = 1;\n"
+              "window.test.record('userdata-obj1-set-succeed'); }\n"
+        "catch(e) { window.test.record('userdata-obj1-set-except'); }\n"
+        "try { window.obj2['Cef::UserData'] = 1;\n"
+              "window.obj2['Cef::Accessor'] = 1;\n"
+              "window.test.record('userdata-obj2-set-succeed'); }\n"
+        "catch(e) { window.test.record('userdata-obj2-set-except'); }\n"
+        // Test userdata retrieval after messing with the internal values.
+        "window.test.userdata('obj1-after', window.obj1);\n"
+        "window.test.userdata('obj2-after', window.obj2);\n"
+        // Test accessors after messing with the internal values.
+        "window.obj1.value2 = 'newval1';\n"
+        "window.obj2.value2 = 'newval2';\n"
+        "val1 = window.obj1.value2;\n"
+        "val2 = window.obj2.value2;\n";
+
+    std::stringstream testHtml;
+
+    testHtml <<
+        "<html><body>\n"
+        "<script language=\"JavaScript\">\n"
+        // Serialize the bound values.
+        "window.test.store('obj1', JSON.stringify(window.obj1));\n"
+        "window.test.store('obj2', JSON.stringify(window.obj2));\n"
+        // Run the tests.
+        << tests.c_str() <<
+        // Test function call.
+        "window.func();\n"
+        // Test setting the hidden internal values.
+        "try { window.func['Cef::Handler'] = 1;\n"
+              "window.test.record('func-set-succeed'); }\n"
+        "catch(e) { window.test.record('func-set-except'); }\n"
+        // Test function call after messing with internal values.
+        "window.func();\n"
+        "</script>\n"
+        "</body></html>";
+	  AddResource("http://tests/run1.html", testHtml.str(), "text/html");
+    testHtml.str("");
+    
+    testHtml <<
+        "<html><body>\n"
+        "<script language=\"JavaScript\">\n"
+        // Deserialize the bound values.
+        "window.obj1 = JSON.parse(window.test.retrieve('obj1'));\n"
+        "window.obj2 = JSON.parse(window.test.retrieve('obj2'));\n"
+        // Run the tests.
+        << tests.c_str() <<
+        "</script>\n"
+        "</body></html>";
+	  AddResource("http://tests/run2.html", testHtml.str(), "text/html");
+    testHtml.str("");
+
+    CreateBrowser("http://tests/run1.html");
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    if (nav_ == 0) {
+      // Navigate to the next page.
+      frame->LoadURL("http://tests/run2.html");
+    } else {
+      DestroyTest();
+    }
+
+    nav_++;
+  }
+
+  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Value> object) OVERRIDE
+  {
+    if (nav_ == 0) {
+      // Create an object without any internal values.
+      CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL, NULL);
+      obj1->SetValue("value", CefV8Value::CreateString("testval1"),
+          V8_PROPERTY_ATTRIBUTE_NONE);
+      obj1->SetValue("value2", CefV8Value::CreateString("default1"),
+          V8_PROPERTY_ATTRIBUTE_NONE);
+      object->SetValue("obj1", obj1, V8_PROPERTY_ATTRIBUTE_NONE);
+      
+      // Create an object with Cef::Accessor and Cef::UserData internal values.
+      CefRefPtr<CefV8Value> obj2 =
+          CefV8Value::CreateObject(new UserData(this), new Accessor(this));
+      obj2->SetValue("value", CefV8Value::CreateString("testval2"),
+          V8_PROPERTY_ATTRIBUTE_NONE);
+      obj2->SetValue("value2", V8_ACCESS_CONTROL_DEFAULT,
+          V8_PROPERTY_ATTRIBUTE_NONE);
+      object->SetValue("obj2", obj2, V8_PROPERTY_ATTRIBUTE_NONE);
+
+      // Create a function with Cef::Handler internal value.
+      CefRefPtr<CefV8Value> func =
+          CefV8Value::CreateFunction("func", new Handler(this));
+      object->SetValue("func", func, V8_PROPERTY_ATTRIBUTE_NONE);
+    }
+
+    // Used for executing the test.
+    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
+    obj->SetValue("store", CefV8Value::CreateFunction("store", handler),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    obj->SetValue("retrieve", CefV8Value::CreateFunction("retrieve", handler),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    obj->SetValue("userdata", CefV8Value::CreateFunction("userdata", handler),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    obj->SetValue("record", CefV8Value::CreateFunction("record", handler),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+  }
+
+  int nav_;
+  std::string obj1_json_, obj2_json_;
+
+  TrackCallback got_obj1_json_;
+  TrackCallback got_obj2_json_;
+
+  TrackCallback got_userdata_obj1_before_null1_;
+  TrackCallback got_userdata_obj2_before_null1_fail_;
+  TrackCallback got_userdata_obj1_before_test1_fail_;
+  TrackCallback got_userdata_obj2_before_test1_;
+  TrackCallback got_userdata_obj1_set_succeed1_;
+  TrackCallback got_userdata_obj1_set_except1_fail_;
+  TrackCallback got_userdata_obj2_set_succeed1_;
+  TrackCallback got_userdata_obj2_set_except1_fail_;
+  TrackCallback got_userdata_obj1_after_null1_;
+  TrackCallback got_userdata_obj2_after_null1_fail_;
+  TrackCallback got_userdata_obj1_after_test1_fail_;
+  TrackCallback got_userdata_obj2_after_test1_;
+
+  TrackCallback got_userdata_obj1_before_null2_;
+  TrackCallback got_userdata_obj2_before_null2_;
+  TrackCallback got_userdata_obj1_before_test2_fail_;
+  TrackCallback got_userdata_obj2_before_test2_fail_;
+  TrackCallback got_userdata_obj1_set_succeed2_;
+  TrackCallback got_userdata_obj1_set_except2_fail_;
+  TrackCallback got_userdata_obj2_set_succeed2_;
+  TrackCallback got_userdata_obj2_set_except2_fail_;
+  TrackCallback got_userdata_obj1_after_null2_;
+  TrackCallback got_userdata_obj2_after_null2_;
+  TrackCallback got_userdata_obj1_after_test2_fail_;
+  TrackCallback got_userdata_obj2_after_test2_fail_;
+  
+  TrackCallback got_accessor_get1_;
+  TrackCallback got_accessor_get2_fail_;
+  TrackCallback got_accessor_set1_;
+  TrackCallback got_accessor_set2_fail_;
+
+  TrackCallback got_execute1_;
+  TrackCallback got_execute1_fail_;
+  TrackCallback got_func_set_succeed_;
+  TrackCallback got_func_set_except_fail_;
+  TrackCallback got_execute2_;
+  TrackCallback got_execute2_fail_;
+};
+
+} // namespace
+
+// Test that messing around with CEF internal values doesn't cause crashes.
+TEST(V8Test, Internal)
+{
+  CefRefPtr<TestInternalHandler> handler = new TestInternalHandler();
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(handler->got_obj1_json_.isSet());
+  EXPECT_TRUE(handler->got_obj2_json_.isSet());
+
+  EXPECT_TRUE(handler->got_userdata_obj1_before_null1_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_before_null1_fail_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_before_test1_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_before_test1_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj1_set_succeed1_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_set_except1_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_set_succeed1_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_set_except1_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj1_after_null1_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_after_null1_fail_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_after_test1_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_after_test1_.isSet());
+
+  EXPECT_TRUE(handler->got_userdata_obj1_before_null2_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_before_null2_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_before_test2_fail_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_before_test2_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj1_set_succeed2_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_set_except2_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_set_succeed2_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_set_except2_fail_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj1_after_null2_.isSet());
+  EXPECT_TRUE(handler->got_userdata_obj2_after_null2_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj1_after_test2_fail_.isSet());
+  EXPECT_FALSE(handler->got_userdata_obj2_after_test2_fail_.isSet());
+
+  EXPECT_TRUE(handler->got_accessor_get1_.isSet());
+  EXPECT_FALSE(handler->got_accessor_get2_fail_.isSet());
+  EXPECT_TRUE(handler->got_accessor_set1_.isSet());
+  EXPECT_FALSE(handler->got_accessor_set2_fail_.isSet());
+
+  EXPECT_TRUE(handler->got_execute1_.isSet());
+  EXPECT_FALSE(handler->got_execute1_fail_.isSet());
+  EXPECT_TRUE(handler->got_execute2_.isSet());
+  EXPECT_FALSE(handler->got_execute2_fail_.isSet());
+}
