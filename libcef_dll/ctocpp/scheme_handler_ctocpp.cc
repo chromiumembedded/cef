@@ -19,24 +19,23 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    CefString& redirectUrl, CefRefPtr<CefSchemeHandlerCallback> callback)
+    CefRefPtr<CefSchemeHandlerCallback> callback)
 {
   if(CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
   return struct_->process_request(struct_, CefRequestCppToC::Wrap(request),
-      redirectUrl.GetWritableStruct(),
       CefSchemeHandlerCallbackCppToC::Wrap(callback)) ? true : false;
 }
 
 void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
-    int64& response_length)
+    int64& response_length, CefString& redirectUrl)
 {
   if (CEF_MEMBER_MISSING(struct_, get_response_headers))
     return;
 
   struct_->get_response_headers(struct_, CefResponseCppToC::Wrap(response),
-      &response_length);
+      &response_length, redirectUrl.GetWritableStruct());
 }
 
 bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,

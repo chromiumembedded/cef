@@ -2679,13 +2679,10 @@ public:
   // Begin processing the request. To handle the request return true and call
   // HeadersAvailable() once the response header information is available
   // (HeadersAvailable() can also be called from inside this method if header
-  // information is available immediately). To redirect the request to a new
-  // URL set |redirectUrl| to the new URL and return true. To cancel the request
-  // return false. 
+  // information is available immediately). To cancel the request return false. 
   ///
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefString& redirectUrl,
                               CefRefPtr<CefSchemeHandlerCallback> callback) =0;
 
   ///
@@ -2695,11 +2692,13 @@ public:
   // to a positive value and ReadResponse() will be called until it returns
   // false or the specified number of bytes have been read. Use the |response|
   // object to set the mime type, http status code and other optional header
-  // values.
+  // values. To redirect the request to a new URL set |redirectUrl| to the new
+  // URL.
   ///
   /*--cef()--*/
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length) =0;
+                                  int64& response_length,
+                                  CefString& redirectUrl) =0;
 
   ///
   // Read response data. If data is available immediately copy up to

@@ -20,32 +20,32 @@
 
 int CEF_CALLBACK scheme_handler_process_request(
     struct _cef_scheme_handler_t* self, cef_request_t* request,
-    cef_string_t* redirectUrl, cef_scheme_handler_callback_t* callback)
+    cef_scheme_handler_callback_t* callback)
 {
   DCHECK(self);
   DCHECK(request);
-  DCHECK(redirectUrl);
-  if(!self || !request || !redirectUrl)
+  if(!self || !request)
     return 0;
 
-  CefString redirectUrlStr(redirectUrl);
   return CefSchemeHandlerCppToC::Get(self)->ProcessRequest(
-      CefRequestCToCpp::Wrap(request), redirectUrlStr,
+      CefRequestCToCpp::Wrap(request),
       CefSchemeHandlerCallbackCToCpp::Wrap(callback));
 }
 
 void CEF_CALLBACK scheme_handler_get_response_headers(
     struct _cef_scheme_handler_t* self, cef_response_t* response,
-    int64* response_length)
+    int64* response_length, cef_string_t* redirectUrl)
 {
   DCHECK(self);
   DCHECK(response);
   DCHECK(response_length);
-  if (!self || !response || !response_length)
+  DCHECK(redirectUrl);
+  if (!self || !response || !response_length || !redirectUrl)
     return;
 
+  CefString redirectUrlStr(redirectUrl);
   CefSchemeHandlerCppToC::Get(self)->GetResponseHeaders(
-      CefResponseCToCpp::Wrap(response), *response_length);
+      CefResponseCToCpp::Wrap(response), *response_length, redirectUrlStr);
 }
 
 int CEF_CALLBACK scheme_handler_read_response(

@@ -20,7 +20,6 @@ public:
   ClientSchemeHandler() : offset_(0) {}
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefString& redirectUrl,
                               CefRefPtr<CefSchemeHandlerCallback> callback)
                               OVERRIDE
   {
@@ -88,7 +87,8 @@ public:
   }
 
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length) OVERRIDE
+                                  int64& response_length,
+                                  CefString& redirectUrl) OVERRIDE
   {
     REQUIRE_IO_THREAD();
 

@@ -34,10 +34,9 @@ public:
 
   // CefSchemeHandler methods
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefString& redirectUrl,
       CefRefPtr<CefSchemeHandlerCallback> callback) OVERRIDE;
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-      int64& response_length) OVERRIDE;
+      int64& response_length, CefString& redirectUrl) OVERRIDE;
   virtual bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read,
       CefRefPtr<CefSchemeHandlerCallback> callback) OVERRIDE;
   virtual void Cancel() OVERRIDE;

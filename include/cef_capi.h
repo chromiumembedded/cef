@@ -2462,12 +2462,11 @@ typedef struct _cef_scheme_handler_t
   // Begin processing the request. To handle the request return true (1) and
   // call headers_available() once the response header information is available
   // (headers_available() can also be called from inside this function if header
-  // information is available immediately). To redirect the request to a new URL
-  // set |redirectUrl| to the new URL and return true (1). To cancel the request
-  // return false (0).
+  // information is available immediately). To cancel the request return false
+  // (0).
   ///
   int (CEF_CALLBACK *process_request)(struct _cef_scheme_handler_t* self,
-      struct _cef_request_t* request, cef_string_t* redirectUrl,
+      struct _cef_request_t* request,
       struct _cef_scheme_handler_callback_t* callback);
 
   ///
@@ -2477,10 +2476,12 @@ typedef struct _cef_scheme_handler_t
   // a positive value and read_response() will be called until it returns false
   // (0) or the specified number of bytes have been read. Use the |response|
   // object to set the mime type, http status code and other optional header
-  // values.
+  // values. To redirect the request to a new URL set |redirectUrl| to the new
+  // URL.
   ///
   void (CEF_CALLBACK *get_response_headers)(struct _cef_scheme_handler_t* self,
-      struct _cef_response_t* response, int64* response_length);
+      struct _cef_response_t* response, int64* response_length,
+      cef_string_t* redirectUrl);
 
   ///
   // Read response data. If data is available immediately copy up to

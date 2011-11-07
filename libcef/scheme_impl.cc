@@ -126,21 +126,15 @@ public:
       callback_ = new Callback(this);
 
     CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-    CefString redirectUrl;
     
     // Populate the request data.
     static_cast<CefRequestImpl*>(req.get())->Set(request());
     
     // Handler can decide whether to process the request.
-    bool rv = handler_->ProcessRequest(req, redirectUrl, callback_.get());
+    bool rv = handler_->ProcessRequest(req, callback_.get());
     if (!rv) {
       // Cancel the request.
       NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, ERR_ABORTED));
-    } else if (!redirectUrl.empty()) {
-      // Treat the request as a redirect.
-      std::string redirectUrlStr = redirectUrl;
-      redirect_url_ = GURL(redirectUrlStr);
-      NotifyHeadersComplete();
     }
     
     return;
@@ -253,8 +247,14 @@ private:
     response_ = new CefResponseImpl();
     remaining_bytes_ = 0;
 
+    CefString redirectUrl;
+
     // Get header information from the handler.
-    handler_->GetResponseHeaders(response_, remaining_bytes_);
+    handler_->GetResponseHeaders(response_, remaining_bytes_, redirectUrl);
+    if (!redirectUrl.empty()) {
+      std::string redirectUrlStr = redirectUrl;
+      redirect_url_ = GURL(redirectUrlStr);
+    }
 
     if (remaining_bytes_ > 0)
       set_expected_content_size(remaining_bytes_);

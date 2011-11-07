@@ -170,7 +170,6 @@ public:
     : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefString& redirectUrl,
                               CefRefPtr<CefSchemeHandlerCallback> callback)
                               OVERRIDE
   {
@@ -192,12 +191,8 @@ public:
       
       test_results_->got_request.yes();
       
-      if (!test_results_->redirect_url.empty()) {
-        redirectUrl = test_results_->redirect_url;
-        return true; // don't call Continue() for URL redirects.
-      } else if (!test_results_->html.empty()) {
+      if (!test_results_->html.empty())
         handled = true;
-      }
     }
 
     if (handled) {
@@ -219,7 +214,8 @@ public:
   }
 
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length) OVERRIDE
+                                  int64& response_length,
+                                  CefString& redirectUrl) OVERRIDE
   {
     if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
@@ -237,7 +233,9 @@ public:
         response->SetMimeType("text/html");
         response_length = test_results_->sub_html.size();
       }
-   } else {
+    } else if (!test_results_->redirect_url.empty()) {
+      redirectUrl = test_results_->redirect_url;
+    } else {
       response->SetStatus(test_results_->status_code);
 
       if (!test_results_->html.empty()) {
