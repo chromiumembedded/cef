@@ -119,10 +119,9 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_PAINT: {
         // Paint to the window.
         RECT rect;
-        if (GetUpdateRect(hwnd, &rect, FALSE)) {
+        if (GetUpdateRect(hwnd, &rect, FALSE))
           host->UpdatePaintRect(gfx::Rect(rect));
-        }
-        host->Paint();
+        host->Paint(gfx::Rect(rect));
         return 0;
       }
 
@@ -360,7 +359,7 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
   return false;
 }
 
-void WebWidgetHost::Paint() {
+void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
   if (canvas_.get() && paint_rect_.IsEmpty())
     return;
 

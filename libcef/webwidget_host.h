@@ -81,7 +81,7 @@ class WebWidgetHost {
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
 
-  void Paint();
+  void Paint(const gfx::Rect& dirty_rect);
   void InvalidateRect(const gfx::Rect& rect);
 
   bool GetImage(int width, int height, void* buffer);
@@ -140,12 +140,17 @@ class WebWidgetHost {
   void OnNotify(WPARAM wparam, NMHDR* header);
 
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-  LRESULT OnImeSetContext(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
-  LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
-  LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
-  LRESULT OnImeEndComposition(UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+  LRESULT OnImeSetContext(UINT message, WPARAM wparam, LPARAM lparam,
+      BOOL& handled);
+  LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam,
+      BOOL& handled);
+  LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam,
+      BOOL& handled);
+  LRESULT OnImeEndComposition(UINT message, WPARAM wparam, LPARAM lparam,
+      BOOL& handled);
   void OnInputLangChange(DWORD character_set, HKL input_language_id);
-  void ImeUpdateTextInputState(WebKit::WebTextInputType type, const gfx::Rect& caret_rect);
+  void ImeUpdateTextInputState(WebKit::WebTextInputType type,
+      const gfx::Rect& caret_rect);
   static void UpdateInputMethod(HWND view);
 #elif defined(OS_MACOSX)
   // These need to be called from a non-subclass, so they need to be public.

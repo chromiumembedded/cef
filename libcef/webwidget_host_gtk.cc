@@ -149,7 +149,7 @@ class WebWidgetHostGtkWidget {
     g_handling_expose = true;
     gfx::Rect rect(expose->area);
     host->UpdatePaintRect(rect);
-    host->Paint();
+    host->Paint(rect);
     g_handling_expose = false;
     return FALSE;
   }
@@ -344,7 +344,7 @@ void WebWidgetHost::Resize(const gfx::Size &newsize) {
   SetSize(newsize.width(), newsize.height());
 }
 
-void WebWidgetHost::Paint() {
+void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
   int width = logical_size_.width();
   int height = logical_size_.height();
   gfx::Rect client_rect(width, height);

@@ -49,20 +49,16 @@
 
 - (void)drawRect:(NSRect)rect {
 #ifndef NDEBUG
-  CGContextRef context =
-      reinterpret_cast<CGContextRef>([[NSGraphicsContext currentContext]
-                                      graphicsPort]);
-
-  // start by filling the rect with magenta, so that we can see what's drawn
-  CGContextSetRGBFillColor (context, 1, 0, 1, 1);
+  CGContextRef context = reinterpret_cast<CGContextRef>(
+      [[NSGraphicsContext currentContext] graphicsPort]);
+  CGContextSetRGBFillColor(context, 1, 0, 1, 1);
   CGContextFillRect(context, NSRectToCGRect(rect));
 #endif
 
   if (browser_ && browser_->UIT_GetWebView()) {
-    gfx::Rect client_rect(NSRectToCGRect(rect));
-    client_rect.set_y(NSHeight([self bounds]) - client_rect.bottom());
-    browser_->UIT_GetWebViewHost()->UpdatePaintRect(client_rect);
-    browser_->UIT_GetWebViewHost()->Paint();
+    gfx::Rect dirty_rect = gfx::Rect(NSRectToCGRect(rect));
+    dirty_rect.set_y(NSHeight([self bounds]) - dirty_rect.bottom());
+    browser_->UIT_GetWebViewHost()->Paint(dirty_rect);
   }
 }
 
@@ -183,10 +179,9 @@
 - (void)setFrame:(NSRect)frameRect {
   [super setFrame:frameRect];
   if (browser_ && browser_->UIT_GetWebView()) {
-    browser_->UIT_GetWebViewHost()->Resize(
-        gfx::Rect(NSRectToCGRect(frameRect)));
+    const NSRect bounds = [self bounds];
+    browser_->UIT_GetWebViewHost()->Resize(gfx::Rect(NSRectToCGRect(bounds)));
   }
-  [self setNeedsDisplay:YES];
 }
 
 - (void)undo:(id)sender {
