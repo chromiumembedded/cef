@@ -271,7 +271,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Accelerated 2D Canvas"
                       action:@selector(testAccelerated2DCanvas:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Acceledated Layers"
+  [testMenu addItemWithTitle:@"Accelerated Layers"
                       action:@selector(testAcceleratedLayers:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"WebGL"
