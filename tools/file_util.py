@@ -67,11 +67,11 @@ def move_file(src, dst, quiet = True):
 def copy_files(src_glob, dst_folder, quiet = True):
     """ Copy multiple files. """
     for fname in iglob(src_glob):
-      dst = os.path.join(dst_folder, os.path.basename(fname))
-      if os.path.isdir(fname):
-        copy_dir(fname, dst, quiet)
-      else:
-        copy_file(fname, dst, quiet)
+        dst = os.path.join(dst_folder, os.path.basename(fname))
+        if os.path.isdir(fname):
+            copy_dir(fname, dst, quiet)
+        else:
+            copy_file(fname, dst, quiet)
 
 def copy_dir(src, dst, quiet = True):
     """ Copy a directory tree. """
@@ -105,3 +105,7 @@ def make_dir(name, quiet = True):
     except IOError, (errno, strerror):
         sys.stderr.write('Failed to create directory '+name+': '+strerror)
         raise
+
+def get_files(search_glob):
+    """ Returns all files matching the search glob. """
+    return iglob(search_glob)

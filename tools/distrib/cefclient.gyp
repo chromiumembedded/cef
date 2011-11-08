@@ -9,11 +9,7 @@
       [ 'OS=="mac"', {
         # Don't use clang with CEF binary releases due to Chromium tree structure dependency.
         'clang': 0,
-      }],
-      [ 'OS=="win"', {
-        # Keep the build output in the root directory.
-        'build_dir_prefix': '..\\',
-      }],
+      }]
     ]
   },
   'includes': [

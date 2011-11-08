@@ -96,7 +96,19 @@ def generate_msvs_projects(version):
   RunAction(cef_dir, gyper);
   move_file(os.path.relpath(os.path.join(output_dir, 'cefclient.sln')), \
             os.path.relpath(os.path.join(output_dir, 'cefclient'+version+'.sln')))
-      
+
+def fix_msvs_projects():
+  """ Fix the output directory path in all .vcproj and .vcxproj files. """
+  files = []
+  for file in get_files(os.path.join(output_dir, '*.vcproj')):
+    files.append(file)
+  for file in get_files(os.path.join(output_dir, '*.vcxproj')):
+    files.append(file)
+  for file in files:
+    data = read_file(file)
+    data = data.replace('../../..\\build\\', '')
+    write_file(file, data)
+
 # cannot be loaded as a module
 if __name__ != "__main__":
   sys.stderr.write('This file cannot be loaded as a module!')
@@ -257,6 +269,7 @@ if platform == 'windows':
   generate_msvs_projects('2005');
   generate_msvs_projects('2008');
   generate_msvs_projects('2010');
+  fix_msvs_projects();
 
 elif platform == 'macosx':
   # create the README.TXT file
