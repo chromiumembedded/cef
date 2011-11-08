@@ -1,8 +1,10 @@
 @echo off
+set RC=
 setlocal
 
 if "%1" == "" (
 echo ERROR: Please specify a build target: Debug or Release
+set ERRORLEVEL=1
 goto end
 )
 
@@ -29,8 +31,15 @@ echo Building %1 target for all projects...
 "%VCINSTALLDIR%\vcpackages\vcbuild.exe" ..\cef.sln "%1|Win32"
 ) else (
 echo ERROR: Cannot find Visual Studio builder
-goto end
+set ERRORLEVEL=1
 )
 
 :end
-endlocal
+endlocal & set RC=%ERRORLEVEL%
+goto omega
+
+:returncode
+exit /B %RC%
+
+:omega
+call :returncode %RC%
