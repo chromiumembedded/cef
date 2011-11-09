@@ -502,7 +502,7 @@ void WebWidgetHost::Paint(const gfx::Rect& /*dirty_rect*/) {
 
     // Draw children
     UpdateWindow(view_);
-  } else if(!damaged_rgn.isEmpty()) {
+  } else {
     // Paint to the delegate.
     DCHECK(paint_delegate_);
     const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
@@ -531,8 +531,9 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
     RECT r = rect.ToRECT();
     ::InvalidateRect(view_, &r, FALSE);
   } else {
-    // Paint() will be called by DoPaint().
-    if (!has_update_task_) {
+    // Don't post a paint task if this invalidation occurred during layout or if
+    // a paint task is already pending. Paint() will be called by DoPaint().
+    if (!layouting_ && !has_update_task_) {
       has_update_task_ = true;
       CefThread::PostTask(CefThread::UI, FROM_HERE,
           base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
