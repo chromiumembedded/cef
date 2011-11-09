@@ -280,7 +280,7 @@ public:
 
   virtual void OnPaint(CefRefPtr<CefBrowser> browser,
                        PaintElementType type,
-                       const CefRect& dirtyRect,
+                       const RectList& dirtyRects,
                        const void* buffer) OVERRIDE
   {
     REQUIRE_UI_THREAD();

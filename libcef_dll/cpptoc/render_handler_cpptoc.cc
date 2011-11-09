@@ -94,18 +94,22 @@ void CEF_CALLBACK render_handler_on_popup_size(
 
 void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
     cef_browser_t* browser, enum cef_paint_element_type_t type,
-    const cef_rect_t* dirtyRect, const void* buffer)
+    size_t dirtyRectCount, cef_rect_t const* dirtyRects, const void* buffer)
 {
   DCHECK(self);
   DCHECK(browser);
-  DCHECK(dirtyRect);
+  DCHECK(dirtyRectCount > 0);
+  DCHECK(dirtyRects);
   DCHECK(buffer);
-  if (!self || !browser || !dirtyRect || !buffer)
+  if (!self || !browser || dirtyRectCount == 0 || !dirtyRects || !buffer)
     return;
 
-  CefRect rect(*dirtyRect);
+  CefRenderHandler::RectList rectList;
+  for (size_t i = 0; i < dirtyRectCount; ++i)
+    rectList.push_back(dirtyRects[i]);
+
   return CefRenderHandlerCppToC::Get(self)->OnPaint(
-      CefBrowserCToCpp::Wrap(browser), type, rect, buffer);
+      CefBrowserCToCpp::Wrap(browser), type, rectList, buffer);
 }
 
 void CEF_CALLBACK render_handler_on_cursor_change(

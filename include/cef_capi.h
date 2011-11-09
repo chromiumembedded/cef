@@ -1428,13 +1428,14 @@ typedef struct _cef_render_handler_t
   ///
   // Called when an element should be painted. |type| indicates whether the
   // element is the view or the popup widget. |buffer| contains the pixel data
-  // for the whole image. |dirtyRect| indicates the portion of the image that
-  // has been repainted. On Windows |buffer| will be width*height*4 bytes in
-  // size and represents a BGRA image with an upper-left origin.
+  // for the whole image. |dirtyRects| contains the set of rectangles that need
+  // to be repainted. On Windows |buffer| will be width*height*4 bytes in size
+  // and represents a BGRA image with an upper-left origin.
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, enum cef_paint_element_type_t type,
-      const cef_rect_t* dirtyRect, const void* buffer);
+      size_t dirtyRectCount, cef_rect_t const* dirtyRects,
+      const void* buffer);
 
   ///
   // Called when the browser window's cursor has changed.

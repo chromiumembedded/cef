@@ -322,8 +322,6 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
-      scroll_dx_(0),
-      scroll_dy_(0),
       has_update_task_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
   set_painting(false);

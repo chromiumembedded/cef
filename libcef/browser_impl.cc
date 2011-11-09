@@ -86,9 +86,8 @@ CefBrowserImpl::PaintDelegate::~PaintDelegate()
 {
 }
 
-void CefBrowserImpl::PaintDelegate::Paint(bool popup,
-                                          const gfx::Rect& dirtyRect,
-                                          const void* buffer)
+void CefBrowserImpl::PaintDelegate::Paint(
+    bool popup, const std::vector<CefRect>& dirtyRects, const void* buffer)
 {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (!client.get())
@@ -97,9 +96,7 @@ void CefBrowserImpl::PaintDelegate::Paint(bool popup,
   if (!handler.get())
     return;
 
-  CefRect rect(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(),
-               dirtyRect.height());
-  handler->OnPaint(browser_, (popup?PET_POPUP:PET_VIEW), rect, buffer);
+  handler->OnPaint(browser_, (popup?PET_POPUP:PET_VIEW), dirtyRects, buffer);
 }
 
 
@@ -1024,8 +1021,15 @@ void CefBrowserImpl::UIT_Invalidate(const CefRect& dirtyRect)
   REQUIRE_UIT();
   WebViewHost* host = UIT_GetWebViewHost();
   if (host) {
-    host->InvalidateRect(gfx::Rect(dirtyRect.x, dirtyRect.y, dirtyRect.width,
-                                   dirtyRect.height));
+    gfx::Rect rect(dirtyRect.x, dirtyRect.y, dirtyRect.width,
+                   dirtyRect.height);
+
+    // Used when window rendering is disabled to send the specified region to
+    // the paint delegate when WebWidget::Paint() is next called.
+    host->UpdateRedrawRect(rect);
+
+    // Cause WebWidget::Paint() to be called when next appropriate.
+    host->InvalidateRect(rect);
   }
 }
 

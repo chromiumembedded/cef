@@ -42,8 +42,8 @@ public:
     PaintDelegate(CefBrowserImpl* browser);
     virtual ~PaintDelegate();
 
-    virtual void Paint(bool popup, const gfx::Rect& dirtyRect,
-                       const void* buffer);
+    virtual void Paint(bool popup, const std::vector<CefRect>& dirtyRects,
+                       const void* buffer) OVERRIDE;
 
   protected:
     CefBrowserImpl* browser_;

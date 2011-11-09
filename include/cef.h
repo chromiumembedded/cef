@@ -1602,6 +1602,7 @@ class CefRenderHandler : public virtual CefBase
 {
 public:
   typedef cef_paint_element_type_t PaintElementType;
+  typedef std::vector<CefRect> RectList;
 
   ///
   // Called to retrieve the view rectangle which is relative to screen
@@ -1649,14 +1650,14 @@ public:
   ///
   // Called when an element should be painted. |type| indicates whether the
   // element is the view or the popup widget. |buffer| contains the pixel data
-  // for the whole image. |dirtyRect| indicates the portion of the image that
-  // has been repainted. On Windows |buffer| will be width*height*4 bytes in
-  // size and represents a BGRA image with an upper-left origin.
+  // for the whole image. |dirtyRects| contains the set of rectangles that need
+  // to be repainted. On Windows |buffer| will be width*height*4 bytes in size
+  // and represents a BGRA image with an upper-left origin.
   ///
   /*--cef()--*/
   virtual void OnPaint(CefRefPtr<CefBrowser> browser,
                        PaintElementType type,
-                       const CefRect& dirtyRect,
+                       const RectList& dirtyRects,
                        const void* buffer) {}
 
   ///

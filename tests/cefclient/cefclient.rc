@@ -101,6 +101,7 @@ BEGIN
         MENUITEM "Show Developer Tools",        ID_TESTS_DEVTOOLS_SHOW
         MENUITEM "Close Developer Tools",       ID_TESTS_DEVTOOLS_CLOSE
         MENUITEM "Modal Dialog",                ID_TESTS_MODALDIALOG
+        MENUITEM "Get Image",                   ID_TESTS_GETIMAGE
    END
 END
 

@@ -1203,7 +1203,10 @@ class obj_analysis:
             return result
         
         if type == 'simple':
-            result['value'] = value
+            str = value
+            if self.is_const():
+                str += ' const*'
+            result['value'] = str
         elif type == 'refptr':
             str = ''
             if not value[:-1] in defined_structs:

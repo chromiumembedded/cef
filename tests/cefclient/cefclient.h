@@ -36,6 +36,7 @@ void RunModalDialogTest(CefRefPtr<CefBrowser> browser);
 
 #if defined(OS_WIN)
 void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
+void RunGetImageTest(CefRefPtr<CefBrowser> browser);
 #endif
 
 #endif // _CEFCLIENT_H

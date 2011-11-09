@@ -21,7 +21,18 @@ void WebWidgetHost::ScheduleAnimation() {
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
+#if defined(OS_WIN)
+  paint_rgn_.op(rect.x(), rect.y(), rect.right(), rect.bottom(),
+      SkRegion::kUnion_Op);
+#else
+  // TODO: Update all ports to use regions instead of rectangles.
   paint_rect_ = paint_rect_.Union(rect);
+#endif
+}
+
+void WebWidgetHost::UpdateRedrawRect(const gfx::Rect& rect) {
+  if (!view_)
+    redraw_rect_ = redraw_rect_.Union(rect);
 }
 
 void WebWidgetHost::SetSize(int width, int height) {
@@ -80,19 +91,14 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y)
 void WebWidgetHost::DoPaint() {
   has_update_task_ = false;
 
-  if (update_rect_.IsEmpty())
-    return;
-
   // TODO(cef): The below code is cross-platform but the IsIdle() method
   // currently requires patches to Chromium. Since this code is only executed
   // on Windows it's been stuck behind an #ifdef for now to avoid having to
   // patch Chromium code on other platforms.
 #if defined(OS_WIN)
   if (MessageLoop::current()->IsIdle()) {
-    // Perform the paint.
-    UpdatePaintRect(update_rect_);
-    update_rect_ = gfx::Rect();
-    Paint(update_rect_);
+    // Paint to the delegate. The rect argument is unused.
+    Paint(gfx::Rect());
   } else {
     // Try again later.
     has_update_task_ = true;

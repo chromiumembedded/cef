@@ -66,13 +66,25 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
-    PaintElementType type, const CefRect& dirtyRect, const void* buffer)
+    PaintElementType type, const RectList& dirtyRects, const void* buffer)
 {
   if (CEF_MEMBER_MISSING(struct_, on_paint))
     return;
 
-  return struct_->on_paint(struct_, CefBrowserCppToC::Wrap(browser), type,
-      &dirtyRect, buffer);
+  const size_t rectCt = dirtyRects.size();
+  DCHECK(rectCt > 0);
+  if (rectCt == 0)
+    return;
+
+  cef_rect_t* rects = new cef_rect_t[rectCt];
+  RectList::const_iterator it = dirtyRects.begin();
+  for (size_t i = 0; it != dirtyRects.end(); ++it, ++i)
+    rects[i] = *it;
+
+  struct_->on_paint(struct_, CefBrowserCppToC::Wrap(browser), type, rectCt,
+      rects, buffer);
+
+  delete [] rects;
 }
 
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,

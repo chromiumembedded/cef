@@ -7,6 +7,7 @@
 
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types.h"
+#include "include/internal/cef_types_wrappers.h"
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
@@ -15,6 +16,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebTextInputType.h"
+#include "third_party/skia/include/core/SkRegion.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
 #include "webkit/plugins/npapi/webplugin.h"
@@ -53,7 +55,7 @@ class WebWidgetHost {
  public:
   class PaintDelegate {
    public:
-    virtual void Paint(bool popup, const gfx::Rect& dirtyRect,
+    virtual void Paint(bool popup, const std::vector<CefRect>& dirtyRects,
                        const void* buffer) =0;
   };
 
@@ -77,9 +79,13 @@ class WebWidgetHost {
   void SetCursor(HCURSOR cursor);
 #endif
 
-  // Allow clients to update the paint rect. For example, if we get a gdk
-  // expose or WM_PAINT event, we need to update the paint rect.
+  // Update the region that will be painted to the canvas by WebKit the next
+  // time that Paint() is called.
   void UpdatePaintRect(const gfx::Rect& rect);
+
+  // Update the region that will be drawn to the device the next time Paint()
+  // is called. This is only used when window rendering is disabled.
+  void UpdateRedrawRect(const gfx::Rect& rect);
 
   void Paint(const gfx::Rect& dirty_rect);
   void InvalidateRect(const gfx::Rect& rect);
@@ -183,8 +189,6 @@ class WebWidgetHost {
   void TrackMouseLeave(bool enable);
 #endif
 
-  void ResetScrollRect();
-
   void set_painting(bool value) {
     painting_ = value;
   }
@@ -207,17 +211,18 @@ class WebWidgetHost {
   bool popup_;
 
   // Specifies the portion of the webwidget that needs painting.
+  // TODO: Update all ports to use regions instead of rectangles.
+#if defined(OS_WIN)
+  SkRegion paint_rgn_;
+#else
   gfx::Rect paint_rect_;
+#endif
 
-  // Specifies the portion of the webwidget that needs scrolling.
-  gfx::Rect scroll_rect_;
-  int scroll_dx_;
-  int scroll_dy_;
-
-  // Specifies the portion of the webwidget that has been invalidated when
-  // window rendering is disabled.
-  gfx::Rect update_rect_;
+  // True if an update task is pending when window rendering is disabled.
   bool has_update_task_;
+
+  // Redraw rectangle requested by an explicit call to CefBrowser::Invalidate().
+  gfx::Rect redraw_rect_;
 
   // The map of windowed plugins that need to be drawn when window rendering is
   // disabled.
