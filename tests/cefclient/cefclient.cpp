@@ -36,9 +36,9 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser)
     args.push_back(arg0);
 
     CefRefPtr<CefV8Value> retVal;
-    CefString exception;
+    CefRefPtr<CefV8Exception> exception;
     if (evalFunc->ExecuteFunctionWithContext(v8Context, globalObj, args, retVal,
-                                             exception)) {
+                                             exception, false)) {
       if (retVal.get()) {
         frame->ExecuteJavaScript(
             std::string("alert('InvokeScript returns ") +
@@ -47,7 +47,7 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser)
       } else {
         frame->ExecuteJavaScript(
             std::string("alert('InvokeScript returns exception: ") +
-            exception.ToString() + "!');",
+            exception->GetMessage().ToString() + "!');",
             url, 0);
       }
     } else {

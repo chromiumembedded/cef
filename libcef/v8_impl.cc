@@ -284,6 +284,54 @@ private:
   CefV8Handler* handler_;
 };
 
+class CefV8ExceptionImpl : public CefV8Exception
+{
+public:
+  explicit CefV8ExceptionImpl(v8::Handle<v8::Message> message)
+    : line_number_(0),
+      start_position_(0),
+      end_position_(0),
+      start_column_(0),
+      end_column_(0)
+  {
+    if (message.IsEmpty())
+      return;
+
+    GetCefString(message->Get(), message_);
+    GetCefString(message->GetSourceLine(), source_line_);
+
+    if (!message->GetScriptResourceName().IsEmpty())
+      GetCefString(message->GetScriptResourceName()->ToString(), script_);
+
+    line_number_ = message->GetLineNumber();
+    start_position_ = message->GetStartPosition();
+    end_position_ = message->GetEndPosition();
+    start_column_ = message->GetStartColumn();
+    end_column_ = message->GetEndColumn();
+  }
+
+  virtual CefString GetMessage() OVERRIDE { return message_; }
+  virtual CefString GetSourceLine() OVERRIDE { return source_line_; }
+  virtual CefString GetScriptResourceName() OVERRIDE { return script_; }
+  virtual int GetLineNumber() OVERRIDE { return line_number_; }
+  virtual int GetStartPosition() OVERRIDE { return start_position_; }
+  virtual int GetEndPosition() OVERRIDE { return end_position_; }
+  virtual int GetStartColumn() OVERRIDE { return start_column_; }
+  virtual int GetEndColumn() OVERRIDE { return end_column_; }
+
+protected:
+  CefString message_;
+  CefString source_line_;
+  CefString script_;
+  int line_number_;
+  int start_position_;
+  int end_position_;
+  int start_column_;
+  int end_column_;
+
+  IMPLEMENT_REFCOUNTING(CefV8ExceptionImpl);
+};
+
 } // namespace
 
 bool CefRegisterExtension(const CefString& extension_name,
@@ -974,12 +1022,13 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler()
 bool CefV8ValueImpl::ExecuteFunction(CefRefPtr<CefV8Value> object,
                                      const CefV8ValueList& arguments,
                                      CefRefPtr<CefV8Value>& retval,
-                                     CefString& exception)
+                                     CefRefPtr<CefV8Exception>& exception,
+                                     bool rethrow_exception)
 {
   // An empty context value defaults to the current context.
   CefRefPtr<CefV8Context> context;
   return ExecuteFunctionWithContext(context, object, arguments, retval, 
-                                    exception);
+                                    exception, rethrow_exception);
 }
 
 bool CefV8ValueImpl::ExecuteFunctionWithContext(
@@ -987,7 +1036,8 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
     CefRefPtr<CefV8Value> object,
     const CefV8ValueList& arguments,
     CefRefPtr<CefV8Value>& retval,
-    CefString& exception)
+    CefRefPtr<CefV8Exception>& exception,
+    bool rethrow_exception)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsFunction()) {
@@ -1031,11 +1081,9 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
   v8::TryCatch try_catch;
   v8::Local<v8::Value> func_rv = func->Call(recv, argc, argv);
   if (try_catch.HasCaught()) {
-    v8::Local<v8::Message> msg = try_catch.Message();
-    if (msg.IsEmpty())
-      exception = "CEF received an empty exception message.";
-    else
-      GetCefString(msg->Get(), exception);
+    exception = new CefV8ExceptionImpl(try_catch.Message());
+    if (rethrow_exception)
+      try_catch.ReThrow();
   } else {
     retval = new CefV8ValueImpl(func_rv);
   }

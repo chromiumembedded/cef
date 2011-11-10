@@ -65,10 +65,11 @@ public:
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-      CefString& exception) OVERRIDE;
+      CefRefPtr<CefV8Exception>& exception, bool rethrow_exception) OVERRIDE;
   virtual bool ExecuteFunctionWithContext(CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
-      CefRefPtr<CefV8Value>& retval, CefString& exception) OVERRIDE;
+      CefRefPtr<CefV8Value>& retval, CefRefPtr<CefV8Exception>& exception,
+      bool rethrow_exception) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

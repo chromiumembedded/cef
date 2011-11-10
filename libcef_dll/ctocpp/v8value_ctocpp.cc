@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
+#include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -403,7 +404,7 @@ CefRefPtr<CefV8Handler> CefV8ValueCToCpp::GetFunctionHandler()
 
 bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
     const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-    CefString& exception)
+    CefRefPtr<CefV8Exception>& exception, bool rethrow_exception)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_function))
     return false;
@@ -417,12 +418,17 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
   }
 
   cef_v8value_t* retvalStruct = NULL;
+  cef_v8exception_t* exeptionStruct = NULL;
 
   int rv = struct_->execute_function(struct_, 
       object.get() ? CefV8ValueCToCpp::Unwrap(object): NULL,
-      argsSize, argsStructPtr, &retvalStruct, exception.GetWritableStruct());
-  if(retvalStruct)
+      argsSize, argsStructPtr, &retvalStruct, &exeptionStruct,
+      rethrow_exception);
+
+  if (retvalStruct)
     retval = CefV8ValueCToCpp::Wrap(retvalStruct);
+  if (exeptionStruct)
+    exception = CefV8ExceptionCToCpp::Wrap(exeptionStruct);
 
   if(argsStructPtr)
     delete [] argsStructPtr;
@@ -433,7 +439,7 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
 bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
     CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object,
     const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-    CefString& exception)
+    CefRefPtr<CefV8Exception>& exception, bool rethrow_exception)
 {
   if(CEF_MEMBER_MISSING(struct_, execute_function_with_context))
     return false;
@@ -447,14 +453,18 @@ bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
   }
 
   cef_v8value_t* retvalStruct = NULL;
+  cef_v8exception_t* exeptionStruct = NULL;
 
   int rv = struct_->execute_function_with_context(struct_, 
       context.get() ? CefV8ContextCToCpp::Unwrap(context): NULL, 
       object.get() ? CefV8ValueCToCpp::Unwrap(object): NULL, 
-      argsSize, argsStructPtr, &retvalStruct, exception.GetWritableStruct());
+      argsSize, argsStructPtr, &retvalStruct, &exeptionStruct,
+      rethrow_exception);
 
   if(retvalStruct)
     retval = CefV8ValueCToCpp::Wrap(retvalStruct);
+  if (exeptionStruct)
+    exception = CefV8ExceptionCToCpp::Wrap(exeptionStruct);
 
   if(argsStructPtr)
     delete [] argsStructPtr;

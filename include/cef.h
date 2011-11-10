@@ -2300,10 +2300,11 @@ class CefV8Handler : public virtual CefBase
 {
 public:
   ///
-  // Execute with the specified argument list and return value. Return true if
-  // the method was handled. To invoke V8 callback functions outside the scope
-  // of this method you need to keep references to the current V8 context
-  // (CefV8Context) along with any necessary callback objects.
+  // Handle execution of the function identified by |name|. |object| is the
+  // receiver ('this' object) of the function. |arguments| is the list of
+  // arguments passed to the function. If execution succeeds set |retval| to the
+  // function return value. If execution fails set |exception| to the exception
+  // that will be thrown. Return true if execution was handled.
   ///
   /*--cef()--*/
   virtual bool Execute(const CefString& name,
@@ -2323,9 +2324,11 @@ class CefV8Accessor : public virtual CefBase
 {
 public:
   ///
-  // Called to get an accessor value. |name| is the name of the property being
-  // accessed. |object| is the This() object from V8's AccessorInfo structure.
-  // |retval| is the value to return for this property. Return true if handled.
+  // Handle retrieval the accessor value identified by |name|. |object| is the
+  // receiver ('this' object) of the accessor. If retrieval succeeds set
+  // |retval| to the return value. If retrieval fails set |exception| to the
+  // exception that will be thrown. Return true if accessor retrieval was
+  // handled.
   ///
   /*--cef()--*/
   virtual bool Get(const CefString& name,
@@ -2334,10 +2337,11 @@ public:
                    CefString& exception) =0;
 
   ///
-  // Called to set an accessor value. |name| is the name of the property being
-  // accessed. |value| is the new value being assigned to this property.
-  // |object| is the This() object from V8's AccessorInfo structure. Return true
-  // if handled.
+  // Handle assignment of the accessor value identified by |name|. |object| is
+  // the receiver ('this' object) of the accessor. |value| is the new value
+  // being assigned to the accessor. If assignment fails set |exception| to the
+  // exception that will be thrown. Return true if accessor assignment was
+  // handled.
   ///
   /*--cef()--*/
   virtual bool Set(const CefString& name,
@@ -2346,6 +2350,67 @@ public:
                    CefString& exception) =0;
 };
 
+///
+// Class representing a V8 exception.
+///
+/*--cef(source=library)--*/
+class CefV8Exception : public virtual CefBase
+{
+public:
+  ///
+  // Returns the exception message.
+  ///
+  /*--cef()--*/
+  virtual CefString GetMessage() =0;
+
+  ///
+  // Returns the line of source code that the exception occurred within.
+  ///
+  /*--cef()--*/
+  virtual CefString GetSourceLine() =0;
+
+  ///
+  // Returns the resource name for the script from where the function causing
+  // the error originates.
+  ///
+  /*--cef()--*/
+  virtual CefString GetScriptResourceName() =0;
+
+  ///
+  // Returns the 1-based number of the line where the error occurred or 0 if the
+  // line number is unknown.
+  ///
+  /*--cef()--*/
+  virtual int GetLineNumber() =0;
+
+  ///
+  // Returns the index within the script of the first character where the error
+  // occurred.
+  ///
+  /*--cef()--*/
+  virtual int GetStartPosition() =0;
+
+  ///
+  // Returns the index within the script of the last character where the error
+  // occurred.
+  ///
+  /*--cef()--*/
+  virtual int GetEndPosition() =0;
+
+  ///
+  // Returns the index within the line of the first character where the error
+  // occurred.
+  ///
+  /*--cef()--*/
+  virtual int GetStartColumn() =0;
+
+  ///
+  // Returns the index within the line of the last character where the error
+  // occurred.
+  ///
+  /*--cef()--*/
+  virtual int GetEndColumn() =0;
+};
 
 ///
 // Class representing a V8 value. The methods of this class should only be
@@ -2394,23 +2459,35 @@ public:
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateString(const CefString& value);
   ///
-  // Create a new CefV8Value object of type object.
+  // Create a new CefV8Value object of type object. This method should only be
+  // called from within the scope of a CefJSBindingHandler, CefV8Handler or
+  // CefV8Accessor callback, or in combination with calling Enter() and Exit()
+  // on a stored CefV8Context reference.
   ///
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
   ///
-  // Create a new CefV8Value object of type object with accessors.
+  // Create a new CefV8Value object of type object with accessors. This method
+  // should only be called from within the scope of a CefJSBindingHandler,
+  // CefV8Handler or CefV8Accessor callback, or in combination with calling
+  // Enter() and Exit() on a stored CefV8Context reference.
   ///
   /*--cef(capi_name=cef_v8value_create_object_with_accessor)--*/
   static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data, 
                                             CefRefPtr<CefV8Accessor> accessor);
   ///
-  // Create a new CefV8Value object of type array.
+  // Create a new CefV8Value object of type array. This method should only be
+  // called from within the scope of a CefJSBindingHandler, CefV8Handler or
+  // CefV8Accessor callback, or in combination with calling Enter() and Exit()
+  // on a stored CefV8Context reference.
   ///
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateArray();
   ///
-  // Create a new CefV8Value object of type function.
+  // Create a new CefV8Value object of type function. This method should only be
+  // called from within the scope of a CefJSBindingHandler, CefV8Handler or
+  // CefV8Accessor callback, or in combination with calling Enter() and Exit()
+  // on a stored CefV8Context reference.
   ///
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateFunction(const CefString& name,
@@ -2601,24 +2678,39 @@ public:
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() =0;
 
   ///
-  // Execute the function using the current V8 context.
+  // Execute the function using the current V8 context. This method should only
+  // be called from within the scope of a CefV8Handler or CefV8Accessor
+  // callback, or in combination with calling Enter() and Exit() on a stored
+  // CefV8Context reference. |object| is the receiver ('this' object) of the
+  // function. |arguments| is the list of arguments that will be passed to the
+  // function. If execution succeeds |retval| will be set to the function return
+  // value. If execution fails |exception| will be set to the exception that was
+  // thrown. If |rethrow_exception| is true any exception will also be re-
+  // thrown. This method returns false if called incorrectly.
   ///
   /*--cef()--*/
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
-                               CefString& exception) =0;
+                               CefRefPtr<CefV8Exception>& exception,
+                               bool rethrow_exception) =0;
 
   ///
-  // Execute the function using the specified V8 context.
+  // Execute the function using the specified V8 context. |object| is the
+  // receiver ('this' object) of the function. |arguments| is the list of
+  // arguments that will be passed to the function. If execution succeeds
+  // |retval| will be set to the function return value. If execution fails
+  // |exception| will be set to the exception that was thrown. If
+  // |rethrow_exception| is true any exception will also be re-thrown. This 
+  // method returns false if called incorrectly.
   ///
   /*--cef()--*/
   virtual bool ExecuteFunctionWithContext(CefRefPtr<CefV8Context> context,
                                           CefRefPtr<CefV8Value> object,
                                           const CefV8ValueList& arguments,
                                           CefRefPtr<CefV8Value>& retval,
-                                          CefString& exception) =0;
-
+                                          CefRefPtr<CefV8Exception>& exception,
+                                          bool rethrow_exception) =0;
 };
 
 

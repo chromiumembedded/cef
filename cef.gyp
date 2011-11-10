@@ -401,6 +401,8 @@
         'libcef_dll/cpptoc/stream_writer_cpptoc.h',
         'libcef_dll/cpptoc/v8context_cpptoc.cc',
         'libcef_dll/cpptoc/v8context_cpptoc.h',
+        'libcef_dll/cpptoc/v8exception_cpptoc.cc',
+        'libcef_dll/cpptoc/v8exception_cpptoc.h',
         'libcef_dll/cpptoc/v8value_cpptoc.cc',
         'libcef_dll/cpptoc/v8value_cpptoc.h',
         'libcef_dll/cpptoc/web_urlrequest_cpptoc.cc',

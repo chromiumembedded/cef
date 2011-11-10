@@ -20,7 +20,7 @@ public:
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception)
+                       CefString& exception) OVERRIDE
   {
     if(name == "Dump")
     {
@@ -51,12 +51,19 @@ public:
         return false;
 
       CefV8ValueList argList;
-      
+      bool result;
+
       // Execute the function stored in the first argument to retrieve an
       // object.
       CefRefPtr<CefV8Value> objectPtr;
-      if(!arguments[0]->ExecuteFunction(object, argList, objectPtr, exception))
+      CefRefPtr<CefV8Exception> exceptionPtr;
+      result = arguments[0]->ExecuteFunction(object, argList, objectPtr,
+                                             exceptionPtr, false);
+      if (exceptionPtr.get())
+        exception = exceptionPtr->GetMessage();
+      if (!result)
         return false;
+
       // Verify that the returned value is an object.
       if(!objectPtr.get() || !objectPtr->IsObject())
         return false;
@@ -74,7 +81,11 @@ public:
         argList.push_back(arguments[i]);
       
       // Execute the member function.
-      return funcPtr->ExecuteFunction(arguments[0], argList, retval, exception);
+      result = funcPtr->ExecuteFunction(arguments[0], argList, retval,
+                                        exceptionPtr, false);
+      if (exceptionPtr.get())
+        exception = exceptionPtr->GetMessage();
+      return result;
     }
     return false;
   }

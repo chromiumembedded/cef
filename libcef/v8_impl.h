@@ -144,13 +144,15 @@ public:
   virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
-                               CefString& exception) OVERRIDE;
+                               CefRefPtr<CefV8Exception>& exception,
+                               bool rethrow_exception) OVERRIDE;
   virtual bool ExecuteFunctionWithContext(
                                CefRefPtr<CefV8Context> context,
                                CefRefPtr<CefV8Value> object,
                                const CefV8ValueList& arguments,
                                CefRefPtr<CefV8Value>& retval,
-                               CefString& exception) OVERRIDE;
+                               CefRefPtr<CefV8Exception>& exception,
+                               bool rethrow_exception) OVERRIDE;
 
   inline v8::Handle<v8::Value> GetHandle()
   {

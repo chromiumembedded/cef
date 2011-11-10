@@ -135,9 +135,9 @@ public:
         args.push_back(CefV8Value::CreateBool(true));
         args.push_back(CefV8Value::CreateString("10"));
         CefRefPtr<CefV8Value> rv;
-        CefString exception;
+        CefRefPtr<CefV8Exception> exception;
         ASSERT_TRUE(arguments[argct]->ExecuteFunction(
-            arguments[argct], args, rv, exception));
+            arguments[argct], args, rv, exception, false));
         ASSERT_TRUE(rv.get() != NULL);
         ASSERT_TRUE(rv->IsDouble());
         ASSERT_EQ(19.5, rv->GetDoubleValue());
@@ -151,10 +151,11 @@ public:
         args.push_back(CefV8Value::CreateDouble(5));
         args.push_back(CefV8Value::CreateDouble(0));
         CefRefPtr<CefV8Value> rv;
-        CefString exception;
+        CefRefPtr<CefV8Exception> exception;
         ASSERT_TRUE(arguments[argct]->ExecuteFunction(
-            arguments[argct], args, rv, exception));
-        ASSERT_EQ(exception, "Uncaught My Exception");
+            arguments[argct], args, rv, exception, false));
+        ASSERT_TRUE(exception.get());
+        ASSERT_EQ(exception->GetMessage(), "Uncaught My Exception");
       }
       argct++;
 
@@ -651,10 +652,11 @@ public:
   {
     CefV8ValueList args;
     CefRefPtr<CefV8Value> rv;
-    CefString exception;
+    CefRefPtr<CefV8Exception> exception;
     CefRefPtr<CefV8Value> empty;
     ASSERT_TRUE(funcIFrame_->ExecuteFunctionWithContext(contextIFrame_, empty,
-                                                        args, rv, exception));
+                                                        args, rv, exception,
+                                                        false));
   }
   
   void AsyncTestContext(CefRefPtr<CefV8Context> ec, 
@@ -692,18 +694,18 @@ public:
   {
     CefV8ValueList args;
     CefRefPtr<CefV8Value> rv;
-    CefString exception;
+    CefRefPtr<CefV8Exception> exception;
     CefRefPtr<CefV8Value> empty;
     ASSERT_TRUE(func->ExecuteFunctionWithContext(context, empty, args, rv,
-                                                 exception));
-    if(exception == "Uncaught My Exception")
+                                                 exception, false));
+    if(exception.get() && exception->GetMessage() == "Uncaught My Exception")
       got_exception_.yes();
   }
   
   void AsyncTestNavigation(CefRefPtr<CefV8Context> context,
                            CefRefPtr<CefV8Value> func)
   {
-    CefString exception;
+    CefRefPtr<CefV8Exception> exception;
     CefV8ValueList args;
     CefRefPtr<CefV8Value> rv, obj, url;
 
@@ -728,8 +730,8 @@ public:
       args.push_back(obj);
   
       ASSERT_TRUE(func->ExecuteFunctionWithContext(context, global, args, rv,
-                                                   exception));
-      if(exception.empty())
+                                                   exception, false));
+      if(!exception.get())
         got_navigation_.yes();
   
       context->Exit();
@@ -1180,7 +1182,7 @@ public:
 
     CefRefPtr<TestInternalHandler> test_;
 
-    IMPLEMENT_REFCOUNTING(Handler);
+    IMPLEMENT_REFCOUNTING(TestHandler);
   };
   
   TestInternalHandler()
@@ -1403,4 +1405,217 @@ TEST(V8Test, Internal)
   EXPECT_FALSE(handler->got_execute1_fail_.isSet());
   EXPECT_TRUE(handler->got_execute2_.isSet());
   EXPECT_FALSE(handler->got_execute2_fail_.isSet());
+}
+
+namespace {
+
+static const int kNumExceptionTests = 3;
+
+class TestExceptionHandler : public TestHandler
+{
+public:
+  class TestHandler : public CefV8Handler
+  {
+  public:
+    TestHandler(CefRefPtr<TestExceptionHandler> test)
+      : test_(test)
+    {
+    }
+
+    virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE
+    {
+      if (name == "register") {
+        if (arguments.size() == 1 && arguments[0]->IsFunction()) {
+          test_->got_register_.yes();
+
+          // Keep pointers to the callback function and context.
+          test_->test_func_ = arguments[0];
+          test_->test_context_ = CefV8Context::GetCurrentContext();
+          return true;
+        }
+      } else if (name == "execute") {
+        if (arguments.size() == 2 && arguments[0]->IsInt() &&
+            arguments[1]->IsBool()) {
+          // Execute the test callback function.
+          test_->ExecuteTestCallback(arguments[0]->GetIntValue(),
+              arguments[1]->GetBoolValue());
+          return true;
+        }
+      } else if (name == "result") {
+        if (arguments.size() == 1 && arguments[0]->IsString()) {
+          std::string value = arguments[0]->GetStringValue();
+          if (value == "no_exception")
+            test_->got_no_exception_result_.yes();
+          else if (value == "exception")
+            test_->got_exception_result_.yes();
+          else if (value == "done")
+            test_->got_done_result_.yes();
+          else
+            return false;
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    CefRefPtr<TestExceptionHandler> test_;
+
+    IMPLEMENT_REFCOUNTING(TestHandler);
+  };
+  
+  TestExceptionHandler()
+  {
+  }
+
+  virtual void RunTest() OVERRIDE
+  {
+    std::string testHtml =
+        "<html><body>\n"
+        "<script language=\"JavaScript\">\n"
+        // JS callback function that throws an exception.
+        "function testFunc() {\n"
+        "  throw 'Some test exception';\n"
+        "}\n"
+        // Register the callback function.
+        "window.test.register(testFunc);\n"
+        // Test 1: Execute the callback without re-throwing the exception.
+        "window.test.execute(1, false);\n"
+        // Test 2: Execute the callback, re-throw and catch the exception.
+        "try {\n"
+        "  window.test.execute(2, true);\n"
+        // This line should never execute.
+        "  window.test.result('no_exception');\n"
+        "} catch(e) {\n"
+        "  window.test.result('exception');\n"
+        "}\n"
+        // Verify that JS execution continues.
+         "window.test.result('done');\n"
+        "</script>\n"
+        "</body></html>";
+    AddResource("http://tests/run.html", testHtml, "text/html");
+
+    CreateBrowser("http://tests/run.html");
+  }
+
+  // Execute the callback function.
+  void ExecuteTestCallback(int test, bool rethrow_exception)
+  {
+    if(test <= 0 || test > kNumExceptionTests)
+      return;
+
+    got_execute_test_[test-1].yes();
+
+    if (!test_func_.get())
+      return;
+
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+    if (test_func_->ExecuteFunctionWithContext(test_context_, NULL, args,
+        retval, exception, rethrow_exception)) {
+      got_execute_function_[test-1].yes();
+
+      if (exception.get()) {
+        got_exception_[test-1].yes();
+
+        std::string message = exception->GetMessage();
+        EXPECT_EQ("Uncaught Some test exception", message) << "test = " << test;
+
+        std::string source_line = exception->GetSourceLine();
+        EXPECT_EQ("  throw 'Some test exception';", source_line) << "test = " <<
+            test;
+
+        std::string script = exception->GetScriptResourceName();
+        EXPECT_EQ("http://tests/run.html", script) << "test = " << test;
+
+        int line_number = exception->GetLineNumber();
+        EXPECT_EQ(4, line_number) << "test = " << test;
+
+        int start_pos = exception->GetStartPosition();
+        EXPECT_EQ(25, start_pos) << "test = " << test;
+
+        int end_pos = exception->GetEndPosition();
+        EXPECT_EQ(26, end_pos) << "test = " << test;
+
+        int start_col = exception->GetStartColumn();
+        EXPECT_EQ(2, start_col) << "test = " << test;
+
+        int end_col = exception->GetEndColumn();
+        EXPECT_EQ(3, end_col) << "test = " << test;
+      }
+    }
+    
+    if (test == kNumExceptionTests)
+      DestroyTest();
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    got_load_end_.yes();
+    
+    // Test 3: Execute the callback asynchronously without re-throwing the
+    // exception.
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &TestExceptionHandler::ExecuteTestCallback,
+                             3, false));
+  }
+
+  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Value> object) OVERRIDE
+  {
+    // Create the functions that will be used during the test.
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
+    obj->SetValue("register",
+                  CefV8Value::CreateFunction("register", handler),
+                  V8_PROPERTY_ATTRIBUTE_NONE);
+    obj->SetValue("execute",
+                  CefV8Value::CreateFunction("execute", handler),
+                  V8_PROPERTY_ATTRIBUTE_NONE);
+    obj->SetValue("result",
+                  CefV8Value::CreateFunction("result", handler),
+                  V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+  }
+
+  CefRefPtr<CefV8Value> test_func_;
+  CefRefPtr<CefV8Context> test_context_;
+
+  TrackCallback got_register_;
+  TrackCallback got_load_end_;
+  TrackCallback got_execute_test_[kNumExceptionTests];
+  TrackCallback got_execute_function_[kNumExceptionTests];
+  TrackCallback got_exception_[kNumExceptionTests];
+  TrackCallback got_exception_result_;
+  TrackCallback got_no_exception_result_;
+  TrackCallback got_done_result_;
+};
+
+} // namespace
+
+// Test V8 exception results.
+TEST(V8Test, Exception)
+{
+  CefRefPtr<TestExceptionHandler> handler = new TestExceptionHandler();
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(handler->got_register_);
+  EXPECT_TRUE(handler->got_load_end_);
+  EXPECT_TRUE(handler->got_exception_result_);
+  EXPECT_FALSE(handler->got_no_exception_result_);
+  EXPECT_TRUE(handler->got_done_result_);
+
+  for (int i = 0; i < kNumExceptionTests; ++i) {
+    EXPECT_TRUE(handler->got_execute_test_[i]) << "test = " << i+1;
+    EXPECT_TRUE(handler->got_execute_function_[i]) << "test = " << i+1;
+    EXPECT_TRUE(handler->got_exception_[i]) << "test = " << i+1;
+  }
 }

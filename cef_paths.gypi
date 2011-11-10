@@ -204,6 +204,8 @@
       'libcef_dll/ctocpp/stream_writer_ctocpp.h',
       'libcef_dll/ctocpp/v8context_ctocpp.cc',
       'libcef_dll/ctocpp/v8context_ctocpp.h',
+      'libcef_dll/ctocpp/v8exception_ctocpp.cc',
+      'libcef_dll/ctocpp/v8exception_ctocpp.h',
       'libcef_dll/ctocpp/v8value_ctocpp.cc',
       'libcef_dll/ctocpp/v8value_ctocpp.h',
       'libcef_dll/ctocpp/web_urlrequest_ctocpp.cc',
