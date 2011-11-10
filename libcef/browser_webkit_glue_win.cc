@@ -18,6 +18,7 @@ MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/win/resource_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
@@ -45,8 +46,12 @@ base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
 base::StringPiece GetDataResource(int resource_id) {
   base::StringPiece piece;
 
+  FilePath file_path;
+  HMODULE hModule = NULL;
+
   // Try to load the resource from the DLL.
-  HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
+  if (PathService::Get(base::FILE_MODULE, &file_path))
+    hModule = ::GetModuleHandle(file_path.value().c_str());
   if(!hModule)
     hModule = ::GetModuleHandle(NULL);
   piece = GetRawDataResource(hModule, resource_id);
