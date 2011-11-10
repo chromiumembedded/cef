@@ -355,7 +355,6 @@ void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
       canvas_h_ < client_rect.height() ||
       canvas_w_ > client_rect.width() + kCanvasGrowSize * 2 ||
       canvas_h_ > client_rect.height() + kCanvasGrowSize * 2) {
-    ResetScrollRect();
     paint_rect_ = client_rect;
 
     // Resize the canvas to be within a reasonable size of the client area.
@@ -442,11 +441,6 @@ WebScreenInfo WebWidgetHost::GetScreenInfo() {
   Display* display = GtkWidgetGetDisplay(view_);
   int screen_num = GtkWidgetGetScreenNum(view_);
   return WebScreenInfoFactory::screenInfo(display, screen_num);
-}
-
-void WebWidgetHost::ResetScrollRect() {
-  // This method is only needed for optimized scroll painting, which we don't
-  // care about in the test shell, yet.
 }
 
 void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
