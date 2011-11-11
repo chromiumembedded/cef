@@ -35,8 +35,8 @@ ui::Clipboard* ClipboardGetClipboard() {
   return clipboard.Pointer();
 }
 
-uint64 ClipboardGetSequenceNumber() {
-  return ClipboardGetClipboard()->GetSequenceNumber();
+uint64 ClipboardGetSequenceNumber(ui::Clipboard::Buffer buffer) {
+  return ClipboardGetClipboard()->GetSequenceNumber(buffer);
 }
 
 bool ClipboardIsFormatAvailable(const ui::Clipboard::FormatType& format,

@@ -413,7 +413,8 @@ bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
               Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
               smt.ColumnInt(6) != 0,                          // secure
               smt.ColumnInt(7) != 0,                          // httponly
-              true));                                         // has_expires
+              true,                                           // has_expires
+              true));                                         // is_persistent
       DLOG_IF(WARNING,
               cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
       cookies.push_back(cc.release());
