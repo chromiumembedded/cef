@@ -121,7 +121,8 @@ static GtkWidget* MenuItemCreate(GtkWidget* parent_menu, const char* name,
 {
   GtkWidget* menu_item = gtk_menu_item_new_with_label(name);
 
-  g_object_set_data(G_OBJECT(menu_item), "menu_id", (gpointer)id);
+  g_object_set_data(G_OBJECT(menu_item), "menu_id",
+      reinterpret_cast<gpointer>(id));
   g_signal_connect(G_OBJECT(menu_item), "activate", G_CALLBACK(MenuItemHandle),
       (gpointer)webViewDelegate);
   gtk_menu_shell_append(GTK_MENU_SHELL(parent_menu), menu_item);

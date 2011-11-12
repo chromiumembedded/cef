@@ -9,6 +9,15 @@
     'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
   },
+  'conditions': [
+    [ 'os_posix==1 and OS!="mac" and OS!="android" and gcc_version==46', {
+      'target_defaults': {
+        # Disable warnings about c++0x compatibility, as some names (such
+        # as nullptr) conflict with upcoming c++0x types.
+        'cflags_cc': ['-Wno-c++0x-compat'],
+      },
+    }],
+  ],
   'includes': [
     # Bring in the source file lists for cefclient.
     'cef_paths.gypi',
