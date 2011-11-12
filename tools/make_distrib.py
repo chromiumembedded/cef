@@ -32,7 +32,7 @@ def create_readme(src, output_dir, cef_rev, chromium_rev, date):
   data = data.replace('$CEF_REV$', cef_rev)
   data = data.replace('$CHROMIUM_REV$', chromium_rev)
   data = data.replace('$DATE$', date)
-  write_file(os.path.join(output_dir, 'README.TXT'), data)
+  write_file(os.path.join(output_dir, 'README.txt'), data)
   if not options.quiet:
     sys.stdout.write('Creating README.TXT file.\n')
 
@@ -77,7 +77,7 @@ def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
       readme = os.path.join(dst_path, 'README-TRANSFER.txt')
       if not path_exists(readme):
         copy_file(os.path.join(script_dir, 'distrib/README-TRANSFER.txt'), readme)
-      open(readme, 'a').write(cfg['source']+"\n")
+      open(readme, 'ab').write(cfg['source']+"\n")
     
     # perform any required post-processing
     if 'post-process' in cfg:
@@ -205,7 +205,7 @@ transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.c
 
 if platform == 'windows':
   # create the README.TXT file
-  create_readme(os.path.join(script_dir, 'distrib/win/README.TXT'), output_dir, cef_rev, \
+  create_readme(os.path.join(script_dir, 'distrib/win/README.txt'), output_dir, cef_rev, \
                 chromium_rev, date)
 
   # transfer include files
@@ -273,7 +273,7 @@ if platform == 'windows':
 
 elif platform == 'macosx':
   # create the README.TXT file
-  create_readme(os.path.join(script_dir, 'distrib/mac/README.TXT'), output_dir, cef_rev, \
+  create_readme(os.path.join(script_dir, 'distrib/mac/README.txt'), output_dir, cef_rev, \
                 chromium_rev, date)
   
   # transfer include files
@@ -328,11 +328,16 @@ elif platform == 'macosx':
 
 elif platform == 'linux':
   linux_build_dir = os.path.join(cef_dir, os.pardir, 'out')
+
+  # create the README.TXT file
+  create_readme(os.path.join(script_dir, 'distrib/linux/README.txt'), output_dir, cef_rev, \
+                chromium_rev, date)
+
   # transfer build/Debug files
   if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Debug')):
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
-    copy_files(os.path.join(linux_build_dir, 'Debug/lib.target/*'), dst_dir, options.quiet)
+    copy_dir(os.path.join(linux_build_dir, 'Debug/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Debug/cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(linux_build_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
@@ -344,7 +349,7 @@ elif platform == 'linux':
   if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Release')):
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
-    copy_files(os.path.join(linux_build_dir, 'Release/lib.target/*'), dst_dir, options.quiet)
+    copy_dir(os.path.join(linux_build_dir, 'Release/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Release/cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(linux_build_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
@@ -352,7 +357,7 @@ elif platform == 'linux':
   else:
     sys.stderr.write("No Release build files.\n")
 
-   # transfer include files
+  # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_linux'], \
                       'include/', include_dir, options.quiet)
 

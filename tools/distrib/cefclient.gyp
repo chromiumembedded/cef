@@ -105,6 +105,14 @@
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/files',
+              'files': [
+                '<@(cefclient_bundle_resources_linux)',
+              ],
+            },
+          ],
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',

@@ -55,6 +55,7 @@
       'tests/cefclient/res/domaccess.html',
       'tests/cefclient/res/extensionperf.html',
       'tests/cefclient/res/localstorage.html',
+      'tests/cefclient/res/logo.png',
       'tests/cefclient/res/xmlhttprequest.html',
       'tests/cefclient/resource_util.h',
       'tests/cefclient/scheme_test.cpp',
@@ -77,7 +78,6 @@
       'tests/cefclient/plugin_test.h',
       'tests/cefclient/Resource.h',
       'tests/cefclient/res/cefclient.ico',
-      'tests/cefclient/res/logo.png',
       'tests/cefclient/res/logoball.png',
       'tests/cefclient/res/modaldialog.html',
       'tests/cefclient/res/modalmain.html',
@@ -95,7 +95,6 @@
       'tests/cefclient/cefclient_mac.mm',
       'tests/cefclient/client_handler_mac.mm',
       'tests/cefclient/resource_util_mac.mm',
-      'tests/cefclient/res/logo.png',
     ],
     'cefclient_bundle_resources_mac': [
       'tests/cefclient/mac/cefclient.icns',
@@ -113,6 +112,13 @@
       'tests/cefclient/cefclient_gtk.cpp',
       'tests/cefclient/client_handler_gtk.cpp',
       'tests/cefclient/resource_util_linux.cpp',
+    ],
+    'cefclient_bundle_resources_linux': [
+      'tests/cefclient/res/domaccess.html',
+      'tests/cefclient/res/extensionperf.html',
+      'tests/cefclient/res/localstorage.html',
+      'tests/cefclient/res/logo.png',
+      'tests/cefclient/res/xmlhttprequest.html',
     ],
     'libcef_dll_wrapper_sources_common': [
       'libcef_dll/cef_logging.h',

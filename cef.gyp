@@ -281,6 +281,12 @@
                 '<(INTERMEDIATE_DIR)/repack/chrome.pak'
               ],
             },
+            {
+              'destination': '<(PRODUCT_DIR)/files',
+              'files': [
+                '<@(cefclient_bundle_resources_linux)',
+              ],
+            },
           ],
         }],
       ],

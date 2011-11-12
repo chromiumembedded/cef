@@ -57,7 +57,7 @@ Components listed under the "optional" section may be excluded if the related
 features will not be used.
 
 Required components:
-    
+
 * CEF core library
     libcef.dylib
 
