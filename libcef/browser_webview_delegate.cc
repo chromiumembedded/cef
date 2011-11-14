@@ -12,7 +12,6 @@
 #include "browser_file_system.h"
 #include "browser_impl.h"
 #include "browser_navigation_controller.h"
-#include "browser_web_worker.h"
 #include "browser_webkit_glue.h"
 #include "browser_webstoragenamespace_impl.h"
 #include "browser_zoom_map.h"
@@ -117,8 +116,6 @@ using WebKit::WebVector;
 using WebKit::WebView;
 using WebKit::WebWidget;
 using WebKit::WebWindowFeatures;
-using WebKit::WebWorker;
-using WebKit::WebWorkerClient;
 using WebKit::WebKeyboardEvent;
 
 namespace {
@@ -627,11 +624,6 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 
   return new webkit::npapi::WebPluginImpl(
       frame, params, plugins.front().path, AsWeakPtr());
-}
-
-WebWorker* BrowserWebViewDelegate::createWorker(
-    WebFrame* frame, WebWorkerClient* client) {
-  return new BrowserWebWorker();
 }
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(

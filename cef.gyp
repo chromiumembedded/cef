@@ -677,7 +677,6 @@
         'libcef/browser_settings.h',
         'libcef/browser_socket_stream_bridge.cc',
         'libcef/browser_socket_stream_bridge.h',
-        'libcef/browser_web_worker.h',
         'libcef/browser_webcookiejar_impl.cc',
         'libcef/browser_webcookiejar_impl.h',
         'libcef/browser_webblobregistry_impl.cc',

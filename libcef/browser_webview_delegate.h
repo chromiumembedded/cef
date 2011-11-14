@@ -138,8 +138,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // WebKit::WebFrameClient
   virtual WebKit::WebPlugin* createPlugin(
       WebKit::WebFrame*, const WebKit::WebPluginParams&) OVERRIDE;
-  virtual WebKit::WebWorker* createWorker(
-      WebKit::WebFrame*, WebKit::WebWorkerClient*) OVERRIDE;
   virtual WebKit::WebMediaPlayer* createMediaPlayer(
       WebKit::WebFrame*, WebKit::WebMediaPlayerClient*) OVERRIDE;
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
