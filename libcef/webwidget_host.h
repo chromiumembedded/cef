@@ -87,7 +87,11 @@ class WebWidgetHost {
   // is called. This is only used when window rendering is disabled.
   void UpdateRedrawRect(const gfx::Rect& rect);
 
-  void Paint(const gfx::Rect& dirty_rect);
+#if defined(OS_MACOSX)
+  void Paint(SkRegion& update_rgn);
+#else
+  void Paint();
+#endif
   void InvalidateRect(const gfx::Rect& rect);
 
   bool GetImage(int width, int height, void* buffer);
@@ -211,8 +215,8 @@ class WebWidgetHost {
   bool popup_;
 
   // Specifies the portion of the webwidget that needs painting.
-  // TODO: Update all ports to use regions instead of rectangles.
-#if defined(OS_WIN)
+  // TODO(cef): Update the Linux port to use regions instead of rectangles.
+#if defined(OS_WIN) || defined(OS_MACOSX)
   SkRegion paint_rgn_;
 #else
   gfx::Rect paint_rect_;

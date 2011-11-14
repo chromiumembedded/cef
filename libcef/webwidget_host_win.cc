@@ -123,8 +123,8 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
   if (host && !host->WndProc(message, wparam, lparam)) {
     switch (message) {
       case WM_PAINT: {
-        // Paint to the window. The rect argument is unused.
-        host->Paint(gfx::Rect());
+        // Paint to the window.
+        host->Paint();
         return 0;
       }
 
@@ -362,7 +362,7 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
   return false;
 }
 
-void WebWidgetHost::Paint(const gfx::Rect& /*dirty_rect*/) {
+void WebWidgetHost::Paint() {
   int width, height;
   GetSize(width, height);
   gfx::Rect client_rect(width, height);

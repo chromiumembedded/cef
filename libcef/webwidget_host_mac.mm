@@ -12,6 +12,7 @@
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#import "third_party/skia/include/core/SkRegion.h"
 #import "ui/gfx/rect.h"
 #import "ui/gfx/size.h"
 #import "webkit/glue/webkit_glue.h"
@@ -26,6 +27,20 @@ using WebKit::WebScreenInfo;
 using WebKit::WebScreenInfoFactory;
 using WebKit::WebSize;
 using WebKit::WebWidgetClient;
+
+namespace {
+
+inline SkIRect convertToSkiaRect(const gfx::Rect& r)
+{
+  return SkIRect::MakeLTRB(r.x(), r.y(), r.right(), r.bottom());
+}
+
+inline gfx::Rect convertFromSkiaRect(const SkIRect& r)
+{
+  return gfx::Rect(r.x(), r.y(), r.width(), r.height());
+}
+
+} // namespace
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
@@ -44,15 +59,30 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
   return host;
 }
 
+WebWidgetHost::WebWidgetHost()
+    : view_(NULL),
+      paint_delegate_(NULL),
+      webwidget_(NULL),
+      canvas_w_(0),
+      canvas_h_(0),
+      popup_(false),
+      has_update_task_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
+  set_painting(false);
+}
+
+WebWidgetHost::~WebWidgetHost() {
+}
+
 void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   const gfx::Rect client_rect(NSRectToCGRect([view_ bounds]));
   const gfx::Rect damaged_rect_in_client = client_rect.Intersect(damaged_rect);
 
   if (!damaged_rect_in_client.IsEmpty()) {
-    paint_rect_ = paint_rect_.Union(damaged_rect_in_client);
-    NSRect r = NSRectFromCGRect(damaged_rect_in_client.ToCGRect());
-    r.origin.y = NSHeight([view_ bounds]) - NSMaxY(r);
-    [view_ setNeedsDisplayInRect:r];
+    UpdatePaintRect(damaged_rect_in_client);
+    NSRect cocoa_rect = NSRectFromCGRect(damaged_rect_in_client.ToCGRect());
+    cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
+    [view_ setNeedsDisplayInRect:cocoa_rect];
   }
 }
 
@@ -85,14 +115,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   // The scrolling rect must not scroll outside the clip rect because that will
   // clobber the scrollbars. As a result we shorten the rectangle a bit from the
   // leading side of the scroll (could be either horizontally or vertically).
-  if (dx > 0)
-    rect = gfx::Rect(x, y, w - dx, h);
-  else if (dx < 0)
-    rect = gfx::Rect(x - dx, y, w + dx, h);
-  else if (dy > 0)
-    rect = gfx::Rect(x, y, w, h - dy);
-  else if (dy < 0)
-    rect = gfx::Rect(x, y - dy, w, h + dy);
+  rect = gfx::Rect(dx>=0? x: x + Dx, dy>=0? y: y + Dy, w - Dx, h - Dy);
 
   // Convert the scroll rectangle to the view's coordinate system and perform
   // the scroll directly without invalidating the view. In theory this could
@@ -101,73 +124,28 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   // since just copying the pixels within the window is much faster than
   // redrawing them.
   NSRect cocoa_rect = NSRectFromCGRect(rect.ToCGRect());
-  cocoa_rect.origin.y = NSHeight([view_ bounds]) - NSMaxY(cocoa_rect);
+  cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
   [view_ scrollRect:cocoa_rect by:NSMakeSize(dx, -dy)];
 
-  const gfx::Rect saved_paint_rect = paint_rect_;
-  if (![view_ lockFocusIfCanDraw])
-    return;
-
   // Repaint the rectangle that was revealed when scrolling the given rectangle.
-  // We don't want to invalidate this rectangle because that would cause the
-  // invalidated area to be L-shaped due to the combination of this narrow area
-  // and the scrollbar area that may also be invalidated. The union of these two
-  // rectangles is pretty much the entire view area and we would not save any
-  // work by doing the scrollRect: call above.
-  if (dx > 0)
-    paint_rect_ = gfx::Rect(x, y, dx, h);
-  else if (dx < 0)
-    paint_rect_ = gfx::Rect(r + dx, y, -dx, h);
-  else if (dy > 0)
-    paint_rect_ = gfx::Rect(x, y, w, dy);
-  else if (dy < 0)
-    paint_rect_ = gfx::Rect(x, b + dy, w, -dy);
-
-  paint_rect_ = paint_rect_.Intersect(client_rect);
-  if (!paint_rect_.IsEmpty())
-    Paint(paint_rect_);
+  // The invalidated area will be painted before the view contents are flushed
+  // to the screen buffer.
+  rect = gfx::Rect(dx>=0? x: r - Dx, dy>=0? y: b - Dy,
+                   dx>0? Dx: w, dy>0? Dy: h);
+  DidInvalidateRect(rect);
 
   // If any part of the scrolled rect was marked as dirty make sure to redraw
   // it in the new scrolled-to location. Otherwise we can end up with artifacts
-  // for overlapping elements.
-  gfx::Rect moved_paint_rect = saved_paint_rect.Intersect(clip_rect);
-  if (!moved_paint_rect.IsEmpty()) {
-    moved_paint_rect.Offset(dx, dy);
-    paint_rect_ = moved_paint_rect;
-    paint_rect_ = paint_rect_.Intersect(client_rect);
-    if (!paint_rect_.IsEmpty())
-      Paint(paint_rect_);
-  }
-  
-  [view_ unlockFocus];
-  paint_rect_ = saved_paint_rect;
+  // for overlapping elements. If there are multiple dirty regions in the scroll
+  // rect the rectangle union of those regions will be redrawn.
+  SkRegion moved_paint_rgn(paint_rgn_);
+  moved_paint_rgn.translate(dx, dy);
+  moved_paint_rgn.op(convertToSkiaRect(client_rect), SkRegion::kIntersect_Op);
+  DidInvalidateRect(convertFromSkiaRect(moved_paint_rgn.getBounds()));
 }
 
-void WebWidgetHost::ScheduleComposite() {
-  if (!webwidget_)
-    return;
-  const WebSize size = webwidget_->size();
-  [view_ setNeedsDisplayInRect:NSMakeRect(0, 0, size.width, size.height)];
-}
-
-WebWidgetHost::WebWidgetHost()
-    : view_(NULL),
-      paint_delegate_(NULL),
-      webwidget_(NULL),
-      canvas_w_(0),
-      canvas_h_(0),
-      popup_(false),
-      has_update_task_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
-  set_painting(false);
-}
-
-WebWidgetHost::~WebWidgetHost() {
-}
-
-void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
+void WebWidgetHost::Paint(SkRegion& update_rgn) {
   gfx::Rect client_rect(NSRectToCGRect([view_ bounds]));
-  gfx::Rect copy_rect = dirty_rect;
 
   // Union the rectangle that WebKit think needs repainting with the rectangle
   // of the view that must be painted now. In most situations this will not
@@ -176,7 +154,7 @@ void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
   // itself. However, if we don't do this we can get artifacts when scrolling
   // because contents of the canvas are no longer correct after scrolling only
   // in the view.
-  paint_rect_ = paint_rect_.Union(dirty_rect);
+  paint_rgn_.op(update_rgn, SkRegion::kUnion_Op);
 
   // When we are not using accelerated compositing the canvas area is allowed
   // to differ in size from the client by a certain number of pixels (128 in
@@ -196,6 +174,7 @@ void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
     canvas_w_ = client_rect.width()  + extra_w;
     canvas_h_ = client_rect.height() + extra_h;
     canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+    paint_rgn_.setRect(convertToSkiaRect(client_rect));
   }
 
   // Animate the view and layout any views that have not been laid out yet. The
@@ -216,29 +195,40 @@ void WebWidgetHost::Paint(const gfx::Rect& dirty_rect) {
   [NSGraphicsContext setCurrentContext:paint_context];
 
   // Paint the canvas if necessary. The painting operation can cause additional
-  // rectangles to be invalidated because some elements are laid out only the
-  // first time they are painted.
-  paint_rect_ = client_rect.Intersect(paint_rect_);
-  const gfx::Rect paint_rect = paint_rect_;
-  paint_rect_ = gfx::Rect();
-  PaintRect(paint_rect);
+  // regions to be invalidated because some elements are laid out the first time
+  // they are painted.
+  while (!paint_rgn_.isEmpty()) {
+    SkRegion draw_rgn;
+    draw_rgn.swap(paint_rgn_);
 
-  if (!paint_rect_.IsEmpty()) {
-    copy_rect = copy_rect.Union(paint_rect_);
-    const gfx::Rect paint_rect = paint_rect_;
-    paint_rect_ = gfx::Rect();
-    PaintRect(paint_rect);
+    SkRegion::Cliperator iterator(draw_rgn, convertToSkiaRect(client_rect));
+    for (; !iterator.done(); iterator.next())
+      PaintRect(convertFromSkiaRect(iterator.rect()));
+
+    // If any more rectangles were made dirty during the paint operation, make
+    // sure they are copied to the window buffer, by including the paint region.
+    // If nothing needs additional painting, this is a no-op.
+    update_rgn.op(paint_rgn_, SkRegion::kUnion_Op);
   }
 
   // Set the context back to our view and copy the bitmap that we just painted
-  // into to the view. Only the region that was updated is copied.
+  // into to the view. Only the regions that were updated are copied.
   [NSGraphicsContext restoreGraphicsState];
   NSGraphicsContext* view_context = [NSGraphicsContext currentContext];
   CGContextRef context = static_cast<CGContextRef>([view_context graphicsPort]);
-  CGRect bitmap_rect = { { copy_rect.x(), copy_rect.y() },
-                         { copy_rect.width(), copy_rect.height() } };
-  skia::DrawToNativeContext(canvas_.get(), context, copy_rect.x(),
-      client_rect.height() - copy_rect.bottom(), &bitmap_rect);
+
+  SkRegion::Cliperator iterator(update_rgn, convertToSkiaRect(client_rect));
+  for (; !iterator.done(); iterator.next()) {
+    const SkIRect& r = iterator.rect();
+    CGRect copy_rect = { { r.x(), r.y() }, { r.width(), r.height() } };
+    const float x = r.x();
+    const float y = client_rect.height() - r.bottom();
+    skia::DrawToNativeContext(canvas_.get(), context, x, y, &copy_rect);
+  }
+}
+
+void WebWidgetHost::ScheduleComposite() {
+  [view_ setNeedsDisplay:YES];
 }
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text)

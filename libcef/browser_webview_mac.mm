@@ -2,21 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "browser_webview_mac.h"
-
 #import <Cocoa/Cocoa.h>
 
-#include "browser_impl.h"
-#include "cef_context.h"
+#import "browser_webview_mac.h"
+#import "browser_impl.h"
+#import "cef_context.h"
 #import "web_drag_source_mac.h"
 #import "web_drop_target_mac.h"
-#include "webwidget_host.h"
+#import "webwidget_host.h"
 
-#include "base/memory/scoped_ptr.h"
+#import "base/memory/scoped_ptr.h"
+#import "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#import "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #import "third_party/mozilla/NSPasteboard+Utils.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "ui/gfx/rect.h"
+#import "third_party/skia/include/core/SkRegion.h"
+#import "ui/gfx/rect.h"
 
 @implementation BrowserWebView
 
@@ -56,9 +56,21 @@
 #endif
 
   if (browser_ && browser_->UIT_GetWebView()) {
-    gfx::Rect dirty_rect = gfx::Rect(NSRectToCGRect(rect));
-    dirty_rect.set_y(NSHeight([self bounds]) - dirty_rect.bottom());
-    browser_->UIT_GetWebViewHost()->Paint(dirty_rect);
+    NSInteger count;
+    const NSRect *rects;
+    [self getRectsBeingDrawn:&rects count:&count];
+
+    SkRegion update_rgn;
+    for (int i = 0; i < count; i++) {
+      const NSRect r = rects[i];
+      const float min_x = NSMinX(r);
+      const float max_x = NSMaxX(r);
+      const float min_y = NSHeight([self bounds]) - NSMaxY(r);
+      const float max_y = NSHeight([self bounds]) - NSMinY(r);
+      update_rgn.op(min_x, min_y, max_x, max_y, SkRegion::kUnion_Op);
+    }
+
+    browser_->UIT_GetWebViewHost()->Paint(update_rgn);
   }
 }
 

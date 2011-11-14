@@ -36,7 +36,6 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
 
   NSRect content_rect = {{rect.x(), rect.y()}, {rect.width(), rect.height()}};
   host->view_ = [[BrowserWebView alloc] initWithFrame:content_rect];
-  // make the height and width track the window size.
   [host->view_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   [parent_view addSubview:host->view_];
   [host->view_ release];

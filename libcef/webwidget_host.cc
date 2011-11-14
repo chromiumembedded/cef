@@ -21,7 +21,7 @@ void WebWidgetHost::ScheduleAnimation() {
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   paint_rgn_.op(rect.x(), rect.y(), rect.right(), rect.bottom(),
       SkRegion::kUnion_Op);
 #else
@@ -96,8 +96,8 @@ void WebWidgetHost::DoPaint() {
 #if defined(OS_WIN)
   if (MessageLoop::current()->IsIdle()) {
     has_update_task_ = false;
-    // Paint to the delegate. The rect argument is unused.
-    Paint(gfx::Rect());
+    // Paint to the delegate.
+    Paint();
   } else {
     // Try again later.
     CefThread::PostTask(CefThread::UI, FROM_HERE,
