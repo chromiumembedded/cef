@@ -353,6 +353,9 @@ bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)
     return false;
 
   cef_string_list_t list = cef_string_list_alloc();
+  if (!list)
+    return false;
+
   if(struct_->get_keys(struct_, list)) {
     transfer_string_list_contents(list, keys);
     cef_string_list_free(list);

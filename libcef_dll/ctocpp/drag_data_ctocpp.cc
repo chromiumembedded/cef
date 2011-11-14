@@ -134,6 +134,9 @@ bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names)
     return false;
 
   cef_string_list_t list = cef_string_list_alloc();
+  if (!list)
+    return false;
+
   if(struct_->get_file_names(struct_, list)) {
     transfer_string_list_contents(list, names);
     cef_string_list_free(list);

@@ -25,10 +25,6 @@
 #define BUTTON_WIDTH 72
 #define URLBAR_HEIGHT  24
 
-// Define this value to run CEF with messages processed using the current
-// application's message loop.
-#define TEST_SINGLE_THREADED_MESSAGE_LOOP
-
 // Global Variables:
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
@@ -65,28 +61,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if(_getcwd(szWorkingDir, MAX_PATH) == NULL)
     szWorkingDir[0] = 0;
 
+  // Parse command line arguments. The passed in values are ignored on Windows.
+  AppInitCommandLine(0, NULL);
+
   CefSettings settings;
 
-  // Specify a cache path value.
-  //CefString(&settings.cache_path).FromASCII("c:\\temp\\cache");
+  // Populate the settings based on command line arguments.
+  AppGetSettings(settings);
 
-  // Use the Chinese language locale.
-  // CefString(&settings.locale).FromASCII("zh-cn");
-
-#ifdef NDEBUG
-  // Only log error messages and higher in release build.
-  settings.log_severity = LOGSEVERITY_ERROR;
-#endif
-
-#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
-  // Initialize the CEF with messages processed using the current application's
-  // message loop.
-  settings.multi_threaded_message_loop = false;
-#else
-  // Initialize the CEF with messages processed using a separate UI thread.
-  settings.multi_threaded_message_loop = true;
-#endif
-
+  // Initialize CEF.
   CefInitialize(settings);
 
   // Register the internal client plugin.
@@ -124,27 +107,27 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   int result = 0;
 
-#ifdef TEST_SINGLE_THREADED_MESSAGE_LOOP
-  // Run the CEF message loop. This function will block until the application
-  // recieves a WM_QUIT message.
-  CefRunMessageLoop();
-#else
-  MSG msg;
+  if (!settings.multi_threaded_message_loop) {
+    // Run the CEF message loop. This function will block until the application
+    // recieves a WM_QUIT message.
+    CefRunMessageLoop();
+  } else {
+    MSG msg;
   
-  // Run the application message loop.
-  while (GetMessage(&msg, NULL, 0, 0)) {
-    // Allow processing of find dialog messages.
-    if (hFindDlg && IsDialogMessage(hFindDlg, &msg))
-      continue;
+    // Run the application message loop.
+    while (GetMessage(&msg, NULL, 0, 0)) {
+      // Allow processing of find dialog messages.
+      if (hFindDlg && IsDialogMessage(hFindDlg, &msg))
+        continue;
 
-    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
+      if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+      }
     }
-  }
 
-  result = (int)msg.wParam;
-#endif
+    result = (int)msg.wParam;
+  }
 
   // Shut down CEF.
   CefShutdown();
@@ -372,6 +355,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
          
         CefWindowInfo info;
         CefBrowserSettings settings;
+
+        // Populate the settings based on command line arguments.
+        AppGetBrowserSettings(settings);
 
         // Initialize window info to the defaults for a child window
         info.SetAsChild(hWnd, rect);

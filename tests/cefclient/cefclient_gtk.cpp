@@ -323,7 +323,14 @@ int main(int argc, char *argv[]) {
 
   gtk_init(&argc, &argv);
 
+  // Parse command line arguments.
+  AppInitCommandLine(argc, argv);
+
   CefSettings settings;
+
+  // Populate the settings based on command line arguments.
+  AppGetSettings(settings);
+
   CefInitialize(settings);
 
   // Register the V8 extension handler.
@@ -393,7 +400,10 @@ int main(int argc, char *argv[]) {
   // Create the browser view.
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
-    
+
+  // Populate the settings based on command line arguments.
+  AppGetBrowserSettings(browserSettings);
+
   window_info.SetAsChild(vbox);
 
   CefBrowser::CreateBrowserSync(window_info,

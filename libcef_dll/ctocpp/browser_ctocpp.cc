@@ -206,6 +206,9 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names)
     return;
 
   cef_string_list_t list = cef_string_list_alloc();
+  if (!list)
+    return;
+
   struct_->get_frame_names(struct_, list);
 
   transfer_string_list_contents(list, names);

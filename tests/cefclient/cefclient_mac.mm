@@ -371,6 +371,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   // Create the browser view.
   CefWindowInfo window_info;
   CefBrowserSettings settings;
+
+  // Populate the settings based on command line arguments.
+  AppGetBrowserSettings(settings);
+
   window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
   CefBrowser::CreateBrowser(window_info, g_handler.get(),
                             "http://www.google.com", settings);
@@ -541,12 +545,15 @@ int main(int argc, char* argv[])
 
   // Initialize the ClientApplication instance.
   [ClientApplication sharedApplication];
+  
+  // Parse command line arguments.
+  AppInitCommandLine(argc, argv);
 
   // Initialize CEF.
   CefSettings settings;
 
-  // Use the Chinese language locale.
-  // CefString(&settings.locale).FromASCII("zh-cn");
+  // Populate the settings based on command line arguments.
+  AppGetSettings(settings);
 
   CefInitialize(settings);
 
