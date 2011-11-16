@@ -11,6 +11,7 @@
 #include "binding_test.h"
 #include "string_util.h"
 #include "util.h"
+#include <cstdlib>
 #include <sstream>
 #include <stdio.h>
 #include <string>
