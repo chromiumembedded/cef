@@ -286,7 +286,8 @@ int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(key);
+  if(!self || !key)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->HasValue(CefString(key));
@@ -296,7 +297,8 @@ int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
     int index)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(index >= 0);
+  if(!self || index < 0)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->HasValue(index);
@@ -306,7 +308,8 @@ int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(key);
+  if(!self || !key)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->DeleteValue(CefString(key));
@@ -316,7 +319,8 @@ int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
     int index)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(index >= 0);
+  if(!self || index < 0)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->DeleteValue(index);
@@ -326,7 +330,8 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
     struct _cef_v8value_t* self, const cef_string_t* key)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(key);
+  if(!self || !key)
     return 0;
 
   CefRefPtr<CefV8Value> valuePtr =
@@ -338,7 +343,8 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
     struct _cef_v8value_t* self, int index)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(index >= 0);
+  if(!self || index < 0)
     return 0;
 
   CefRefPtr<CefV8Value> valuePtr =
@@ -351,7 +357,9 @@ int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
     enum cef_v8_propertyattribute_t attribute)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(key);
+  DCHECK(value);
+  if(!self || !key || !value)
     return 0;
 
   CefRefPtr<CefV8Value> valuePtr = CefV8ValueCppToC::Unwrap(value);
@@ -363,7 +371,9 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
     int index, struct _cef_v8value_t* value)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(index >= 0);
+  DCHECK(value);
+  if(!self || index < 0 || !value)
     return 0;
 
   CefRefPtr<CefV8Value> valuePtr = CefV8ValueCppToC::Unwrap(value);
@@ -375,7 +385,8 @@ int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
     enum cef_v8_propertyattribute_t attribute)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(key);
+  if(!self || !key)
     return 0;
 
   return CefV8ValueCppToC::Get(self)->SetValue(CefString(key), 
@@ -386,7 +397,8 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
     cef_string_list_t keys)
 {
   DCHECK(self);
-  if(!self)
+  DCHECK(keys);
+  if(!self || !keys)
     return 0;
 
   std::vector<CefString> keysList;

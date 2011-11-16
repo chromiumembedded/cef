@@ -276,12 +276,20 @@ bool CefV8ValueCToCpp::HasValue(int index)
   if(CEF_MEMBER_MISSING(struct_, has_value_byindex))
     return false;
 
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
+
   return struct_->has_value_byindex(struct_, index)?true:false;
 }
 
 bool CefV8ValueCToCpp::DeleteValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, delete_value_bykey))
+    return false;
+
+  DCHECK(!key.empty());
+  if (key.empty())
     return false;
 
   return struct_->delete_value_bykey(struct_, key.GetStruct())?true:false;
@@ -292,12 +300,20 @@ bool CefV8ValueCToCpp::DeleteValue(int index)
   if(CEF_MEMBER_MISSING(struct_, delete_value_byindex))
     return false;
 
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
+
   return struct_->delete_value_byindex(struct_, index)?true:false;
 }
 
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 {
   if(CEF_MEMBER_MISSING(struct_, get_value_bykey))
+    return NULL;
+
+ DCHECK(!key.empty());
+  if (key.empty())
     return NULL;
 
   cef_v8value_t* valueStruct = struct_->get_value_bykey(struct_,
@@ -312,6 +328,10 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
   if(CEF_MEMBER_MISSING(struct_, get_value_byindex))
     return NULL;
 
+  DCHECK(index >= 0);
+  if (index < 0)
+    return NULL;
+
   cef_v8value_t* valueStruct = struct_->get_value_byindex(struct_, index);
   if(valueStruct)
     return CefV8ValueCToCpp::Wrap(valueStruct);
@@ -324,6 +344,11 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key,
   if(CEF_MEMBER_MISSING(struct_, set_value_bykey))
     return false;
 
+  DCHECK(!key.empty());
+  DCHECK(value.get());
+  if (key.empty() || !value.get())
+    return false;
+
   return struct_->set_value_bykey(struct_, key.GetStruct(),
       CefV8ValueCToCpp::Unwrap(value), attribute)?true:false;
 }
@@ -331,6 +356,11 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key,
 bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
 {
   if(CEF_MEMBER_MISSING(struct_, set_value_byindex))
+    return false;
+
+  DCHECK(index >= 0);
+  DCHECK(value.get());
+  if (index < 0 || !value.get())
     return false;
 
   return struct_->set_value_byindex(struct_, index,
@@ -341,6 +371,10 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key, AccessControl settings,
     PropertyAttribute attribute)
 {
   if(CEF_MEMBER_MISSING(struct_, set_value_byaccessor))
+    return false;
+
+  DCHECK(!key.empty());
+  if (key.empty())
     return false;
 
   return struct_->set_value_byaccessor(struct_, key.GetStruct(), 

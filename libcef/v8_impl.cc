@@ -785,7 +785,12 @@ bool CefV8ValueImpl::HasValue(const CefString& key)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (key.empty()) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
 
@@ -798,7 +803,12 @@ bool CefV8ValueImpl::HasValue(int index)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (index < 0) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
   
@@ -811,7 +821,12 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (key.empty()) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
   
@@ -824,7 +839,12 @@ bool CefV8ValueImpl::DeleteValue(int index)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (index < 0) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
   
@@ -837,8 +857,13 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key)
 {
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
     return NULL;
+  }
+
+  if (key.empty()) {
+    NOTREACHED() << "invalid input parameter";
+    return false;
   }
  
   v8::HandleScope handle_scope;
@@ -850,8 +875,13 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
 {
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
     return NULL;
+  }
+
+  if (index < 0) {
+    NOTREACHED() << "invalid input parameter";
+    return false;
   }
 
   v8::HandleScope handle_scope;
@@ -865,18 +895,18 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
     return false;
   }
 
   CefV8ValueImpl *impl = static_cast<CefV8ValueImpl*>(value.get());
-  if(impl) {
+  if(impl && !key.empty()) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
     return obj->Set(GetV8String(key), impl->GetHandle(),
                     static_cast<v8::PropertyAttribute>(attribute));
   } else {
-    NOTREACHED();
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
 }
@@ -885,11 +915,13 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
 {
   CEF_REQUIRE_UI_THREAD(false);
 
-  if (index < 0)
-    return false;
-
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (index < 0) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
 
@@ -899,7 +931,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
     return obj->Set(index, impl->GetHandle());
   } else {
-    NOTREACHED();
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
 }
@@ -909,7 +941,12 @@ bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings,
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
+    return false;
+  }
+
+  if (key.empty()) {
+    NOTREACHED() << "invalid input parameter";
     return false;
   }
 
@@ -934,7 +971,7 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
     return false;
   }
   
@@ -955,7 +992,7 @@ CefRefPtr<CefBase> CefV8ValueImpl::GetUserData()
 {
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsObject()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an object";
     return NULL;
   }
   
@@ -974,7 +1011,7 @@ int CefV8ValueImpl::GetArrayLength()
 {
   CEF_REQUIRE_UI_THREAD(0);
   if(!GetHandle()->IsArray()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not an array";
     return 0;
   }
 
@@ -989,7 +1026,7 @@ CefString CefV8ValueImpl::GetFunctionName()
   CefString rv;
   CEF_REQUIRE_UI_THREAD(rv);
   if(!GetHandle()->IsFunction()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not a function";
     return rv;
   }
   
@@ -1004,7 +1041,7 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler()
 {
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsFunction()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not a function";
     return NULL;
   }
 
@@ -1041,7 +1078,7 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsFunction()) {
-    NOTREACHED();
+    NOTREACHED() << "V8 value is not a function";
     return false;
   }
 
