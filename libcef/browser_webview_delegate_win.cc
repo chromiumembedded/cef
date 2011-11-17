@@ -613,10 +613,11 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = owner;
 
-  wchar_t filename[MAX_PATH] = L"";
+  scoped_array<wchar_t> filename(new wchar_t[UNICODE_STRING_MAX_CHARS]);
+  filename[0] = 0;
 
-  ofn.lpstrFile = filename;
-  ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrFile = filename.get();
+  ofn.nMaxFile = UNICODE_STRING_MAX_CHARS;
 
   // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
   // without having to close Chrome first.
