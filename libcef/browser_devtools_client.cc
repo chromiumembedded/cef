@@ -14,6 +14,7 @@
 #include "browser_devtools_callargs.h"
 #include "browser_devtools_client.h"
 #include "browser_impl.h"
+#include "cef_context.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -32,7 +33,7 @@ BrowserDevToolsClient::BrowserDevToolsClient(CefBrowserImpl* browser,
       dev_tools_agent_(agent),
       web_view_(browser->UIT_GetWebView()) {
   web_tools_frontend_.reset(WebDevToolsFrontend::create(web_view_, this,
-      WebString::fromUTF8("en-US")));
+      WebString::fromUTF8(_Context->locale())));
   dev_tools_agent_->attach(this);
 }
 

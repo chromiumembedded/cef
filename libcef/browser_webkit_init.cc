@@ -170,7 +170,7 @@ WebKit::WebData BrowserWebKitInit::loadResource(const char* name) {
 }
 
 WebKit::WebString BrowserWebKitInit::defaultLocale() {
-  return ASCIIToUTF16("en-US");
+  return ASCIIToUTF16(_Context->locale());
 }
 
 WebKit::WebStorageNamespace* BrowserWebKitInit::createLocalStorageNamespace(

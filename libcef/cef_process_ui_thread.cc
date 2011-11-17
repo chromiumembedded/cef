@@ -86,10 +86,7 @@ void CefProcessUIThread::Init() {
   // Provides path resolution required for locating locale pack files.
   ui::RegisterPathProvider();
 
-  std::string localeStr = CefString(&settings.locale);
-  if (localeStr.empty())
-    localeStr = "en-US";
-  webkit_glue::InitializeResourceBundle(localeStr);
+  webkit_glue::InitializeResourceBundle(_Context->locale());
 
   PlatformInit();
 

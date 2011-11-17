@@ -972,6 +972,15 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
   return NULL;
 }
 
+std::string CefContext::locale() const
+{
+  std::string localeStr = CefString(&settings_.locale);
+  if (!localeStr.empty())
+    return localeStr;
+
+  return "en-US";
+}
+
 void CefContext::UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
                                    base::WaitableEvent* uithread_shutdown_event)
 {

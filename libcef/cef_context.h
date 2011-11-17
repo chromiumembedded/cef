@@ -53,6 +53,9 @@ public:
 
   const CefSettings& settings() const { return settings_; }
 
+  // Return the locale specified in CefSettings or the default value of "en-US".
+  std::string locale() const;
+
   // The BrowserRequestContext object is managed by CefProcessIOThread.
   void set_request_context(BrowserRequestContext* request_context)
     { request_context_ = request_context; }
