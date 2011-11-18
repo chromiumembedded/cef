@@ -10,6 +10,7 @@
 // tools directory for more information.
 //
 
+#include "include/cef_version.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -18,6 +19,13 @@
 
 CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine()
 {
+  int build_revision = cef_build_revision();
+  if (build_revision != CEF_REVISION) {
+    // The libcef build revision does not match the CEF API revision.
+    DCHECK(FALSE);
+    return NULL;
+  }
+  
   cef_command_line_t* impl = cef_command_line_create();
   if(impl)
     return CefCommandLineCToCpp::Wrap(impl);

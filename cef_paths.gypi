@@ -10,6 +10,7 @@
       'include/cef_nplugin.h',
       'include/cef_nplugin_capi.h',
       'include/cef_runnable.h',
+      'include/cef_version.h',
       'include/cef_wrapper.h',
       'include/internal/cef_build.h',
       'include/internal/cef_export.h',

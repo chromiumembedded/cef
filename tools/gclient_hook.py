@@ -15,7 +15,7 @@ RunAction(cef_dir, gyper)
 
 print "\nGenerating CEF version header file..."
 gyper = [ 'python', 'tools/make_version_header.py',
-          '--header', 'version.h',
+          '--header', 'include/cef_version.h',
           '--version', '../chrome/VERSION' ]
 RunAction(cef_dir, gyper)
 

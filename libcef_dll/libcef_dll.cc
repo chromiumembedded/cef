@@ -4,6 +4,7 @@
 
 #include "include/cef.h"
 #include "include/cef_capi.h"
+#include "include/cef_version.h"
 #include "include/cef_nplugin.h"
 #include "include/cef_nplugin_capi.h"
 #include "cef_logging.h"
@@ -37,6 +38,11 @@
 #include "ctocpp/write_handler_ctocpp.h"
 #include "base/string_split.h"
 
+
+CEF_EXPORT int cef_build_revision()
+{
+  return CEF_REVISION;
+}
 
 CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings)
 {

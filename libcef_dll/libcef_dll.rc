@@ -9,8 +9,8 @@
 //
 #define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
+#include "include/cef_version.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
-#include "../version.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -39,8 +39,8 @@ END
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
+    "#include ""include/version.h""\r\n"
     "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""version.h""\r\n"
     "\0"
 END
 

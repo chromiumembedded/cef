@@ -7,7 +7,7 @@
 #include "browser_webkit_glue.h"
 #include "browser_webkit_init.h"
 #include "cef_context.h"
-#include "../version.h"
+#include "include/cef_version.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
