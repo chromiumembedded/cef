@@ -202,7 +202,9 @@ bool CefRegisterExtension(const CefString& extension_name,
 // 1123. These URLs will be canonicalized to "scheme://host/path" in the
 // simplest case and "scheme://username:password@host:port/path" in the most
 // explicit case. For example, "scheme:host/path" and "scheme:///host/path" will
-// both be canonicalized to "scheme://host/path".
+// both be canonicalized to "scheme://host/path". The origin of a standard
+// scheme URL is the combination of scheme, host and port (i.e.,
+// "scheme://host:port" in the most explicit case).
 // 
 // For non-standard scheme URLs only the "scheme:" component is parsed and
 // canonicalized. The remainder of the URL will be passed to the handler as-is.
@@ -210,8 +212,13 @@ bool CefRegisterExtension(const CefString& extension_name,
 // scheme URLs cannot be used as a target for form submission.
 // 
 // If |is_local| is true the scheme will be treated as local (i.e., with the
-// same security rules as those applied to "file" URLs). This means that normal
-// pages cannot link to or access URLs of this scheme.
+// same security rules as those applied to "file" URLs). Normal pages cannot
+// link to or access local URLs. Also, by default, local URLs can only perform
+// XMLHttpRequest calls to the same URL (origin + path) that originated the
+// request. To allow XMLHttpRequest calls from a local URL to other URLs with
+// the same origin set the CefSettings.file_access_from_file_urls_allowed value
+// to true. To allow XMLHttpRequest calls from a local URL to all origins set
+// the CefSettings.universal_access_from_file_urls_allowed value to true.
 // 
 // If |is_display_isolated| is true the scheme will be treated as display-
 // isolated. This means that pages cannot display these URLs unless they are
@@ -256,7 +263,7 @@ bool CefClearSchemeHandlerFactories();
 // Add an entry to the cross-origin access whitelist.
 //
 // The same-origin policy restricts how scripts hosted from different origins
-// (scheme + domain) can communicate. By default, scripts can only access
+// (scheme + domain + port) can communicate. By default, scripts can only access
 // resources with the same origin. Scripts hosted on the HTTP and HTTPS schemes
 // (but no other schemes) can use the "Access-Control-Allow-Origin" header to
 // allow cross-origin requests. For example, https://source.example.com can make
@@ -275,9 +282,14 @@ bool CefClearSchemeHandlerFactories();
 // |source_origin| URL (like http://www.example.com) will be allowed access to
 // all resources hosted on the specified |target_protocol| and |target_domain|.
 // If |allow_target_subdomains| is true access will also be allowed to all
-// subdomains of the target domain. This function may be called on any thread.
-// Returns false if |source_origin| is invalid or the whitelist cannot be
-// accessed.
+// subdomains of the target domain.
+//
+// This method cannot be used to bypass the restrictions on local or display
+// isolated schemes. See the comments on CefRegisterCustomScheme for more
+// information.
+//
+// This function may be called on any thread. Returns false if |source_origin|
+// is invalid or the whitelist cannot be accessed.
 ///
 /*--cef()--*/
 bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
