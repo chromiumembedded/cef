@@ -633,6 +633,11 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
 
   // Retrieve the function object and set the name.
   v8::Local<v8::Function> func = tmpl->GetFunction();
+  if (func.IsEmpty()) {
+    NOTREACHED() << "failed to create function";
+    return NULL;
+  }
+
   func->SetName(GetV8String(name));
 
   // Attach the handler instance to the V8 object.
