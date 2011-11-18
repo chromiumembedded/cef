@@ -61,11 +61,11 @@
 #include "ui/gfx/point.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/media/video_renderer_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/window_open_disposition.h"
+#include "webkit/media/video_renderer_impl.h"
+#include "webkit/media/webmediaplayer_impl.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 #include "webkit/plugins/npapi/webplugin_impl.h"
@@ -634,17 +634,17 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   scoped_ptr<media::FilterCollection> collection(
       new media::FilterCollection());
 
-  scoped_refptr<webkit_glue::VideoRendererImpl> video_renderer(
-      new webkit_glue::VideoRendererImpl(false));
+  scoped_refptr<webkit_media::VideoRendererImpl> video_renderer(
+      new webkit_media::VideoRendererImpl(false));
   collection->AddVideoRenderer(video_renderer);
 
   // Add the audio renderer.
   collection->AddAudioRenderer(new media::ReferenceAudioRenderer());
 
-  scoped_ptr<webkit_glue::WebMediaPlayerImpl> result(
-      new webkit_glue::WebMediaPlayerImpl(
+  scoped_ptr<webkit_media::WebMediaPlayerImpl> result(
+      new webkit_media::WebMediaPlayerImpl(
           client,
-          base::WeakPtr<webkit_glue::WebMediaPlayerDelegate>(),
+          base::WeakPtr<webkit_media::WebMediaPlayerDelegate>(),
           collection.release(),
           message_loop_factory.release(),
           NULL,

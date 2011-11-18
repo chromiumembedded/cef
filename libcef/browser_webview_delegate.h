@@ -206,7 +206,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void DidStopLoadingForPlugin() OVERRIDE {}
   virtual WebKit::WebCookieJar* GetCookieJar() OVERRIDE;
 
-  BrowserWebViewDelegate(CefBrowserImpl* browser);
+  explicit BrowserWebViewDelegate(CefBrowserImpl* browser);
   virtual ~BrowserWebViewDelegate();
   void Reset();
 

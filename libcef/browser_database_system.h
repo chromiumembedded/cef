@@ -12,7 +12,6 @@
 #include "base/scoped_temp_dir.h"
 #include "base/string16.h"
 #include "base/synchronization/lock.h"
-#include "base/task.h"
 #include "base/threading/thread.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabaseObserver.h"
 #include "webkit/database/database_connections.h"
@@ -39,7 +38,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   virtual void databaseClosed(const WebKit::WebDatabase& database);
 
   // SQLite VFS related methods, these are called on webcore's
-  // background database threads via the WebKitClient impl.
+  // background database threads via the WebKitPlatformSupport impl.
   base::PlatformFile OpenFile(const string16& vfs_file_name, int desired_flags);
   int DeleteFile(const string16& vfs_file_name, bool sync_dir);
   uint32 GetFileAttributes(const string16& vfs_file_name);
@@ -64,9 +63,10 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   // DatabaseTracker::Observer implementation
   virtual void OnDatabaseSizeChanged(const string16& origin_identifier,
                                      const string16& database_name,
-                                     int64 database_size);
-  virtual void OnDatabaseScheduledForDeletion(const string16& origin_identifier,
-                                              const string16& database_name);
+                                     int64 database_size) OVERRIDE;
+  virtual void OnDatabaseScheduledForDeletion(
+      const string16& origin_identifier,
+      const string16& database_name) OVERRIDE;
 
   // Used by our public SQLite VFS methods, only called on the db_thread.
   void VfsOpenFile(const string16& vfs_file_name, int desired_flags,
@@ -100,7 +100,5 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
 
   static BrowserDatabaseSystem* instance_;
 };
-
-DISABLE_RUNNABLE_METHOD_REFCOUNT(BrowserDatabaseSystem);
 
 #endif  // _BROWSER_DATABASE_SYSTEM_H

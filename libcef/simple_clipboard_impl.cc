@@ -29,7 +29,7 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 
 namespace webkit_glue {
 
-base::LazyInstance<ui::Clipboard> clipboard(base::LINKER_INITIALIZED);
+base::LazyInstance<ui::Clipboard> clipboard = LAZY_INSTANCE_INITIALIZER;
 
 ui::Clipboard* ClipboardGetClipboard() {
   return clipboard.Pointer();

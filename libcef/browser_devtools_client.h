@@ -14,7 +14,6 @@
 namespace WebKit {
 
 class WebDevToolsFrontend;
-struct WebDevToolsMessageData;
 
 } // namespace WebKit
 

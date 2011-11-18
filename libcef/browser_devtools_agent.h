@@ -5,6 +5,8 @@
 #ifndef _BROWSER_DEVTOOLS_AGENT_H
 #define _BROWSER_DEVTOOLS_AGENT_H
 
+#include <string>
+
 #include "base/memory/weak_ptr.h"
 #include "base/task.h"
 
@@ -14,7 +16,6 @@ namespace WebKit {
 
 class WebDevToolsAgent;
 class WebView;
-struct WebDevToolsMessageData;
 
 } // namespace WebKit
 

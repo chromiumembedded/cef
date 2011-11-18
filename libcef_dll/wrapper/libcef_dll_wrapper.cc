@@ -42,7 +42,7 @@ bool CefInitialize(const CefSettings& settings)
   int build_revision = cef_build_revision();
   if (build_revision != CEF_REVISION) {
     // The libcef build revision does not match the CEF API revision.
-    DCHECK(FALSE);
+    DCHECK(false);
     return false;
   }
   

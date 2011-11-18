@@ -5,6 +5,8 @@
 #include "browser_database_system.h"
 
 #include "base/auto_reset.h"
+#include "base/bind.h"
+#include "base/bind_helpers.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
@@ -45,9 +47,10 @@ BrowserDatabaseSystem::BrowserDatabaseSystem()
 
 BrowserDatabaseSystem::~BrowserDatabaseSystem() {
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::ThreadCleanup,
-                        &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::ThreadCleanup,
+                 base::Unretained(this), &done_event));
   done_event.Wait();
   instance_ = NULL;
 }
@@ -56,37 +59,44 @@ void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) 
   string16 origin_identifier = database.securityOrigin().databaseIdentifier();
   string16 database_name = database.name();
   open_connections_->AddOpenConnection(origin_identifier, database_name);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseOpened,
-                        origin_identifier,
-                        database_name, database.displayName(),
-                        database.estimatedSize()));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::DatabaseOpened,
+                 base::Unretained(this),
+                 origin_identifier,
+                 database_name, database.displayName(),
+                 database.estimatedSize()));
 }
 
 void BrowserDatabaseSystem::databaseModified(
     const WebKit::WebDatabase& database) {
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseModified,
-                        database.securityOrigin().databaseIdentifier(),
-                        database.name()));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::DatabaseModified,
+                 base::Unretained(this),
+                 database.securityOrigin().databaseIdentifier(),
+                 database.name()));
 }
 
 void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) {
   string16 origin_identifier = database.securityOrigin().databaseIdentifier();
   string16 database_name = database.name();
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::DatabaseClosed,
-                        origin_identifier, database_name));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::DatabaseClosed,
+                 base::Unretained(this), origin_identifier, database_name));
 }
 
 base::PlatformFile BrowserDatabaseSystem::OpenFile(
     const string16& vfs_file_name, int desired_flags) {
   base::PlatformFile result = base::kInvalidPlatformFileValue;
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsOpenFile,
-                        vfs_file_name, desired_flags,
-                        &result, &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::VfsOpenFile,
+                 base::Unretained(this),
+                 vfs_file_name, desired_flags,
+                 &result, &done_event));
   done_event.Wait();
   return result;
 }
@@ -95,10 +105,12 @@ int BrowserDatabaseSystem::DeleteFile(
     const string16& vfs_file_name, bool sync_dir) {
   int result = SQLITE_OK;
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsDeleteFile,
-                        vfs_file_name, sync_dir,
-                        &result, &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::VfsDeleteFile,
+                 base::Unretained(this),
+                 vfs_file_name, sync_dir,
+                 &result, &done_event));
   done_event.Wait();
   return result;
 }
@@ -106,9 +118,10 @@ int BrowserDatabaseSystem::DeleteFile(
 uint32 BrowserDatabaseSystem::GetFileAttributes(const string16& vfs_file_name) {
   uint32 result = 0;
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetFileAttributes,
-                        vfs_file_name, &result, &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::VfsGetFileAttributes,
+                 base::Unretained(this), vfs_file_name, &result, &done_event));
   done_event.Wait();
   return result;
 }
@@ -116,9 +129,10 @@ uint32 BrowserDatabaseSystem::GetFileAttributes(const string16& vfs_file_name) {
 int64 BrowserDatabaseSystem::GetFileSize(const string16& vfs_file_name) {
   int64 result = 0;
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetFileSize,
-                        vfs_file_name, &result, &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::VfsGetFileSize,
+                 base::Unretained(this), vfs_file_name, &result, &done_event));
   done_event.Wait();
   return result;
 }
@@ -127,24 +141,28 @@ int64 BrowserDatabaseSystem::GetSpaceAvailable(
     const string16& origin_identifier) {
   int64 result = 0;
   base::WaitableEvent done_event(false, false);
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::VfsGetSpaceAvailable,
-                        origin_identifier, &result, &done_event));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::VfsGetSpaceAvailable,
+                 base::Unretained(this), origin_identifier,
+                 &result, &done_event));
   done_event.Wait();
   return result;
 }
 
 void BrowserDatabaseSystem::ClearAllDatabases() {
   open_connections_->WaitForAllDatabasesToClose();
-  db_thread_proxy_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &BrowserDatabaseSystem::ResetTracker));
+  db_thread_proxy_->PostTask(
+      FROM_HERE,
+      base::Bind(&BrowserDatabaseSystem::ResetTracker, base::Unretained(this)));
 }
 
 void BrowserDatabaseSystem::SetDatabaseQuota(int64 quota) {
   if (!db_thread_proxy_->BelongsToCurrentThread()) {
-    db_thread_proxy_->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &BrowserDatabaseSystem::SetDatabaseQuota,
-                          quota));
+    db_thread_proxy_->PostTask(
+        FROM_HERE,
+        base::Bind(&BrowserDatabaseSystem::SetDatabaseQuota,
+                   base::Unretained(this), quota));
     return;
   }
   quota_per_origin_ = quota;

@@ -583,7 +583,7 @@ private:
   DISALLOW_EVIL_CONSTRUCTORS(CefUrlRequestManager);
 };
 
-base::LazyInstance<CefUrlRequestManager> g_manager(base::LINKER_INITIALIZED);
+base::LazyInstance<CefUrlRequestManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 
 CefUrlRequestManager* CefUrlRequestManager::GetInstance()
 {

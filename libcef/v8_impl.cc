@@ -32,7 +32,7 @@ static const char kCefUserData[] = "Cef::UserData";
 
 // Memory manager.
 
-base::LazyInstance<CefTrackManager> g_v8_tracker(base::LINKER_INITIALIZED);
+base::LazyInstance<CefTrackManager> g_v8_tracker = LAZY_INSTANCE_INITIALIZER;
 
 class TrackBase : public CefTrackObject
 {

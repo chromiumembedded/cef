@@ -164,8 +164,7 @@ class BrowserPersistentCookieStore::Backend
   PendingOperationsList::size_type num_pending_;
   // True if the persistent store should be deleted upon destruction.
   bool clear_local_state_on_exit_;
-  // Guard |cookies_|, |pending_|, |num_pending_| and
-  // |clear_local_state_on_exit_|.
+  // Guard |cookies_|, |pending_|, |num_pending_|, |clear_local_state_on_exit_|
   base::Lock lock_;
 
   // Temporary buffer for cookies loaded from DB. Accumulates cookies to reduce
@@ -540,12 +539,12 @@ void BrowserPersistentCookieStore::Backend::BatchOperation(
     // We've gotten our first entry for this batch, fire off the timer.
     CefThread::PostDelayedTask(
         CefThread::FILE, FROM_HERE,
-        NewRunnableMethod(this, &Backend::Commit), kCommitIntervalMs);
+        base::Bind(&Backend::Commit, this), kCommitIntervalMs);
   } else if (num_pending == kCommitAfterBatchSize) {
     // We've reached a big enough batch, fire off a commit now.
     CefThread::PostTask(
         CefThread::FILE, FROM_HERE,
-        NewRunnableMethod(this, &Backend::Commit));
+        base::Bind(&Backend::Commit, this));
   }
 }
 
@@ -639,7 +638,7 @@ void BrowserPersistentCookieStore::Backend::Commit() {
 void BrowserPersistentCookieStore::Backend::Flush(Task* completion_task) {
   DCHECK(!CefThread::CurrentlyOn(CefThread::FILE));
   CefThread::PostTask(
-      CefThread::FILE, FROM_HERE, NewRunnableMethod(this, &Backend::Commit));
+      CefThread::FILE, FROM_HERE, base::Bind(&Backend::Commit, this));
   if (completion_task) {
     // We want the completion task to run immediately after Commit() returns.
     // Posting it from here means there is less chance of another task getting
@@ -658,7 +657,7 @@ void BrowserPersistentCookieStore::Backend::Close() {
     // Must close the backend on the background thread.
     CefThread::PostTask(
         CefThread::FILE, FROM_HERE,
-        NewRunnableMethod(this, &Backend::InternalBackgroundClose));
+        base::Bind(&Backend::InternalBackgroundClose, this));
   }
 }
 
