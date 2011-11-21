@@ -391,6 +391,108 @@ TEST(V8Test, Extension)
 
 namespace {
 
+class TestNoNativeHandler : public TestHandler
+{
+public:
+  class TestHandler : public CefV8Handler
+  {
+  public:
+    TestHandler(CefRefPtr<TestNoNativeHandler> test)
+      : test_(test)
+    {
+    }
+
+    virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE
+    {
+      if (name == "result") {
+        if (arguments.size() == 1 && arguments[0]->IsString()) {
+          std::string value = arguments[0]->GetStringValue();
+          if (value == "correct")
+            test_->got_correct_.yes();
+          else
+            return false;
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    CefRefPtr<TestNoNativeHandler> test_;
+
+    IMPLEMENT_REFCOUNTING(TestHandler);
+  };
+  
+  TestNoNativeHandler()
+  {
+  }
+
+  virtual void RunTest() OVERRIDE
+  {
+    std::string testHtml =
+        "<html><body>\n"
+        "<script language=\"JavaScript\">\n"
+        "var result = test_nonative.add(1, 2);\n"
+        "if (result == 3)\n"
+        "  window.test.result('correct');\n"
+        "</script>\n"
+        "</body></html>";
+    AddResource("http://tests/run.html", testHtml, "text/html");
+
+    CreateBrowser("http://tests/run.html");
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    DestroyTest();
+  }
+
+  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Value> object) OVERRIDE
+  {
+    // Create the functions that will be used during the test.
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
+    obj->SetValue("result",
+                  CefV8Value::CreateFunction("result", handler),
+                  V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+  }
+
+  TrackCallback got_correct_;
+};
+
+} // namespace
+
+// Verify extensions with no native functions
+TEST(V8Test, ExtensionNoNative)
+{
+  std::string extensionCode =
+    "var test_nonative;"
+    "if (!test_nonative)"
+    "  test_nonative = {};"
+    "(function() {"
+    "  test_nonative.add = function(a, b) {"
+    "    return a + b;"
+    "  };"
+    "})();";
+  CefRegisterExtension("v8/test_nonative", extensionCode, NULL);
+
+  CefRefPtr<TestNoNativeHandler> handler = new TestNoNativeHandler();
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(handler->got_correct_);
+}
+
+namespace {
+
 // Using a delegate so that the code below can remain inline.
 class CefV8HandlerDelegate
 {

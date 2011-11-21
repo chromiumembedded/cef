@@ -2081,6 +2081,11 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context();
 ///
 CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context();
 
+///
+// Returns true (1) if V8 is currently inside a context.
+///
+CEF_EXPORT int cef_v8context_in_context();
+
 
 ///
 // Structure that should be implemented to handle V8 function calls. The

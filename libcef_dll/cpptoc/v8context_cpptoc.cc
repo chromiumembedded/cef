@@ -36,6 +36,11 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context()
   return NULL;
 }
 
+CEF_EXPORT int cef_v8context_in_context()
+{
+  return CefV8Context::InContext();
+}
+
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 

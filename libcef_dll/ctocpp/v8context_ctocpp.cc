@@ -34,6 +34,11 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
   return NULL;
 }
 
+bool CefV8Context::InContext()
+{
+  return cef_v8context_in_context() ? true : false;
+}
+
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

@@ -259,13 +259,18 @@ public:
                    CefV8Handler* handler)
     : v8::Extension(extension_name, javascript_code), handler_(handler)
   {
-    // The reference will be released when the application exits.
-    TrackAdd(new TrackBase(handler));
+    if (handler) {
+      // The reference will be released when the application exits.
+      TrackAdd(new TrackBase(handler));
+    }
   }
   
   virtual v8::Handle<v8::FunctionTemplate> GetNativeFunction(
     v8::Handle<v8::String> name)
   {
+    if (!handler_)
+      return v8::Handle<v8::FunctionTemplate>();
+
     return v8::FunctionTemplate::New(FunctionCallbackImpl,
                                      v8::External::Wrap(handler_));
   }
@@ -341,11 +346,6 @@ bool CefRegisterExtension(const CefString& extension_name,
   // Verify that the context is in a valid state.
   CEF_REQUIRE_VALID_CONTEXT(false);
 
-  if(!handler.get()) {
-    NOTREACHED();
-    return false;
-  }
-
   TrackString* name = new TrackString(extension_name);
   TrackAdd(name);
   TrackString* code = new TrackString(javascript_code);
@@ -368,8 +368,10 @@ CefRefPtr<CefV8Context> CefV8Context::GetCurrentContext()
   CefRefPtr<CefV8Context> context;
   CEF_REQUIRE_VALID_CONTEXT(context);
   CEF_REQUIRE_UI_THREAD(context);
-  if (v8::Context::InContext())
-    context = new CefV8ContextImpl( v8::Context::GetCurrent() );
+  if (v8::Context::InContext()) {
+    v8::HandleScope handle_scope;
+    context = new CefV8ContextImpl(v8::Context::GetCurrent());
+  }
   return context;
 }
 
@@ -379,9 +381,19 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
   CefRefPtr<CefV8Context> context;
   CEF_REQUIRE_VALID_CONTEXT(context);
   CEF_REQUIRE_UI_THREAD(context);
-  if (v8::Context::InContext())
-    context = new CefV8ContextImpl( v8::Context::GetEntered() );
+  if (v8::Context::InContext()) {
+    v8::HandleScope handle_scope;
+    context = new CefV8ContextImpl(v8::Context::GetEntered());
+  }
   return context;
+}
+
+// static
+bool CefV8Context::InContext()
+{
+  CEF_REQUIRE_VALID_CONTEXT(false);
+  CEF_REQUIRE_UI_THREAD(false);
+  return v8::Context::InContext();
 }
 
 
@@ -571,6 +583,12 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 
   v8::HandleScope handle_scope;
 
+  v8::Local<v8::Context> context = v8::Context::GetCurrent();
+  if (context.IsEmpty()) {
+    NOTREACHED() << "not currently in a V8 context";
+    return NULL;
+  }
+
   // Create the new V8 object.
   v8::Local<v8::Object> obj = v8::Object::New();
 
@@ -606,6 +624,13 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray()
   CEF_REQUIRE_UI_THREAD(NULL);
 
   v8::HandleScope handle_scope;
+
+  v8::Local<v8::Context> context = v8::Context::GetCurrent();
+  if (context.IsEmpty()) {
+    NOTREACHED() << "not currently in a V8 context";
+    return NULL;
+  }
+
   return new CefV8ValueImpl(v8::Array::New());
 }
 
@@ -622,7 +647,13 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
   }
 
   v8::HandleScope handle_scope;
-  
+
+  v8::Local<v8::Context> context = v8::Context::GetCurrent();
+  if (context.IsEmpty()) {
+    NOTREACHED() << "not currently in a V8 context";
+    return NULL;
+  }
+
   // Create a new V8 function template with one internal field.
   v8::Local<v8::FunctionTemplate> tmpl = v8::FunctionTemplate::New();
 
@@ -634,7 +665,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
   // Retrieve the function object and set the name.
   v8::Local<v8::Function> func = tmpl->GetFunction();
   if (func.IsEmpty()) {
-    NOTREACHED() << "failed to create function";
+    NOTREACHED() << "failed to create V8 function";
     return NULL;
   }
 
