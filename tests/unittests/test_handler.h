@@ -28,7 +28,7 @@ class TestHandler : public CefClient,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
                     public CefRequestHandler,
-                    public CefJSBindingHandler
+                    public CefV8ContextHandler
 {
 public:
   TestHandler() : browser_hwnd_(NULL), completion_event_(true, false)
@@ -51,7 +51,7 @@ public:
       { return this; }
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
       { return this; }
-  virtual CefRefPtr<CefJSBindingHandler> GetJSBindingHandler() OVERRIDE
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
       { return this; }
   
   // CefLifeSpanHandler methods

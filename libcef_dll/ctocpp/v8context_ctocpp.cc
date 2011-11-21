@@ -94,6 +94,14 @@ bool CefV8ContextCToCpp::Exit()
   return struct_->exit(struct_)?true:false;
 }
 
+bool CefV8ContextCToCpp::IsSame(CefRefPtr<CefV8Context> that)
+{
+  if (CEF_MEMBER_MISSING(struct_, is_same))
+    return false;
+
+  return struct_->is_same(struct_, CefV8ContextCToCpp::Unwrap(that))?true:false;
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefV8ContextCToCpp, CefV8Context,

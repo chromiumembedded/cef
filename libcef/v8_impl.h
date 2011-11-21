@@ -70,6 +70,7 @@ public:
   virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
   virtual bool Enter() OVERRIDE;
   virtual bool Exit() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
 
   v8::Local<v8::Context> GetContext();
   WebKit::WebFrame* GetWebFrame();

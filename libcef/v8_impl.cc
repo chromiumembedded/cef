@@ -470,6 +470,22 @@ bool CefV8ContextImpl::Exit()
   return true;
 }
 
+bool CefV8ContextImpl::IsSame(CefRefPtr<CefV8Context> that)
+{
+  CEF_REQUIRE_UI_THREAD(false);
+
+  v8::HandleScope handle_scope;
+
+  v8::Local<v8::Context> thatHandle;
+  v8::Local<v8::Context> thisHandle = GetContext();
+
+  CefV8ContextImpl *impl = static_cast<CefV8ContextImpl*>(that.get());
+  if (impl)
+    thatHandle = impl->GetContext();
+
+  return (thisHandle == thatHandle);
+}
+
 v8::Local<v8::Context> CefV8ContextImpl::GetContext()
 {
   return v8::Local<v8::Context>::New(v8_context_->GetHandle());

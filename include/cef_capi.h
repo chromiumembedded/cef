@@ -1375,22 +1375,32 @@ typedef struct _cef_jsdialog_handler_t
 
 
 ///
-// Implement this structure to handle JavaScript binding. The functions of this
+// Implement this structure to handle V8 context events. The functions of this
 // structure will be called on the UI thread.
 ///
-typedef struct _cef_jsbinding_handler_t
+typedef struct _cef_v8context_handler_t
 {
   // Base structure.
   cef_base_t base;
 
   ///
-  // Called for adding values to a frame's JavaScript 'window' object.
+  // Called immediately after the V8 context for a frame has been created. To
+  // retrieve the JavaScript 'window' object use the
+  // cef_v8context_t::get_global() function.
   ///
-  void (CEF_CALLBACK *on_jsbinding)(struct _cef_jsbinding_handler_t* self,
+  void (CEF_CALLBACK *on_context_created)(struct _cef_v8context_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      struct _cef_v8value_t* object);
+      struct _cef_v8context_t* context);
 
-} cef_jsbinding_handler_t;
+  ///
+  // Called immediately before the V8 context for a frame is released. No
+  // references to the context should be kept after this function is called.
+  ///
+  void (CEF_CALLBACK *on_context_released)(
+      struct _cef_v8context_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, struct _cef_v8context_t* context);
+
+} cef_v8context_handler_t;
 
 
 ///
@@ -1560,9 +1570,9 @@ typedef struct _cef_client_t
       struct _cef_client_t* self);
 
   ///
-  // Return the handler for JavaScript binding events.
+  // Return the handler for V8 context events.
   ///
-  struct _cef_jsbinding_handler_t* (CEF_CALLBACK *get_jsbinding_handler)(
+  struct _cef_v8context_handler_t* (CEF_CALLBACK *get_v8context_handler)(
       struct _cef_client_t* self);
 
   ///
@@ -2068,6 +2078,13 @@ typedef struct _cef_v8context_t
   ///
   int (CEF_CALLBACK *exit)(struct _cef_v8context_t* self);
 
+  ///
+  // Returns true (1) if this object is pointing to the same handle as |that|
+  // object.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_v8context_t* self,
+      struct _cef_v8context_t* that);
+
 } cef_v8context_t;
 
 
@@ -2478,7 +2495,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 
 ///
 // Create a new cef_v8value_t object of type object. This function should only
-// be called from within the scope of a cef_jsbinding_handler_t, cef_v8handler_t
+// be called from within the scope of a cef_v8context_tHandler, cef_v8handler_t
 // or cef_v8accessor_t callback, or in combination with calling enter() and
 // exit() on a stored cef_v8context_t reference.
 ///
@@ -2487,7 +2504,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data);
 ///
 // Create a new cef_v8value_t object of type object with accessors. This
 // function should only be called from within the scope of a
-// cef_jsbinding_handler_t, cef_v8handler_t or cef_v8accessor_t callback, or in
+// cef_v8context_tHandler, cef_v8handler_t or cef_v8accessor_t callback, or in
 // combination with calling enter() and exit() on a stored cef_v8context_t
 // reference.
 ///
@@ -2496,7 +2513,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
 
 ///
 // Create a new cef_v8value_t object of type array. This function should only be
-// called from within the scope of a cef_jsbinding_handler_t, cef_v8handler_t or
+// called from within the scope of a cef_v8context_tHandler, cef_v8handler_t or
 // cef_v8accessor_t callback, or in combination with calling enter() and exit()
 // on a stored cef_v8context_t reference.
 ///
@@ -2504,7 +2521,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array();
 
 ///
 // Create a new cef_v8value_t object of type function. This function should only
-// be called from within the scope of a cef_jsbinding_handler_t, cef_v8handler_t
+// be called from within the scope of a cef_v8context_tHandler, cef_v8handler_t
 // or cef_v8accessor_t callback, or in combination with calling enter() and
 // exit() on a stored cef_v8context_t reference.
 ///

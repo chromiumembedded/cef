@@ -8,8 +8,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-#ifndef _JSBINDINGHANDLER_CPPTOC_H
-#define _JSBINDINGHANDLER_CPPTOC_H
+#ifndef _V8CONTEXTHANDLER_CPPTOC_H
+#define _V8CONTEXTHANDLER_CPPTOC_H
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
@@ -21,15 +21,15 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefJSBindingHandlerCppToC
-    : public CefCppToC<CefJSBindingHandlerCppToC, CefJSBindingHandler,
-        cef_jsbinding_handler_t>
+class CefV8ContextHandlerCppToC
+    : public CefCppToC<CefV8ContextHandlerCppToC, CefV8ContextHandler,
+        cef_v8context_handler_t>
 {
 public:
-  CefJSBindingHandlerCppToC(CefJSBindingHandler* cls);
-  virtual ~CefJSBindingHandlerCppToC() {}
+  CefV8ContextHandlerCppToC(CefV8ContextHandler* cls);
+  virtual ~CefV8ContextHandlerCppToC() {}
 };
 
 #endif // USING_CEF_SHARED
-#endif // _JSBINDINGHANDLER_CPPTOC_H
+#endif // _V8CONTEXTHANDLER_CPPTOC_H
 

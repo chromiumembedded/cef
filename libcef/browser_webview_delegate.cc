@@ -844,23 +844,42 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   }
 }
 
-void BrowserWebViewDelegate::didClearWindowObject(WebFrame* frame) {
+void BrowserWebViewDelegate::didCreateScriptContext(
+    WebFrame* frame, v8::Handle<v8::Context> context, int worldId) {
   CefRefPtr<CefClient> client = browser_->GetClient();
-  if (client.get()) {
-    CefRefPtr<CefJSBindingHandler> handler = client->GetJSBindingHandler();
-    if (handler.get()) {
-      v8::HandleScope handle_scope;
-      v8::Handle<v8::Context> context = webkit_glue::GetV8Context(frame);
-      if(context.IsEmpty())
-        return;
+  if (!client.get())
+    return;
 
-      v8::Context::Scope scope(context);
+  CefRefPtr<CefV8ContextHandler> handler = client->GetV8ContextHandler();
+  if (!handler.get())
+    return;
 
-      CefRefPtr<CefFrame> cframe(browser_->UIT_GetCefFrame(frame));
-      CefRefPtr<CefV8Value> object = new CefV8ValueImpl(context->Global());
-      handler->OnJSBinding(browser_, cframe, object);
-    }
-  }
+  v8::HandleScope handle_scope;
+  v8::Context::Scope scope(context);
+
+  CefRefPtr<CefFrame> framePtr(browser_->UIT_GetCefFrame(frame));
+  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+
+  handler->OnContextCreated(browser_, framePtr, contextPtr);
+}
+
+void BrowserWebViewDelegate::willReleaseScriptContext(
+    WebFrame* frame, v8::Handle<v8::Context> context, int worldId) {
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (!client.get())
+    return;
+
+  CefRefPtr<CefV8ContextHandler> handler = client->GetV8ContextHandler();
+  if (!handler.get())
+    return;
+
+  v8::HandleScope handle_scope;
+  v8::Context::Scope scope(context);
+
+  CefRefPtr<CefFrame> framePtr(browser_->UIT_GetCefFrame(frame));
+  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+
+  handler->OnContextReleased(browser_, framePtr, contextPtr);
 }
 
 void BrowserWebViewDelegate::didReceiveTitle(

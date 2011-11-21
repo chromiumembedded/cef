@@ -323,10 +323,13 @@ public:
     }
   }
 
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
+    // Retrieve the 'window' object.
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+
     CefRefPtr<CefV8Handler> handler = new V8Handler(this);
     CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL, NULL);
     testObj->SetValue("result", CefV8Value::CreateFunction("result", handler),

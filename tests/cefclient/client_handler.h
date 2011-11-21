@@ -24,7 +24,7 @@ class ClientHandler : public CefClient,
                       public CefFocusHandler,
                       public CefKeyboardHandler,
                       public CefPrintHandler,
-                      public CefJSBindingHandler,
+                      public CefV8ContextHandler,
                       public CefDragHandler,
                       public DownloadListener
 {
@@ -47,7 +47,7 @@ public:
       { return this; }
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE
       { return this; }
-  virtual CefRefPtr<CefJSBindingHandler> GetJSBindingHandler() OVERRIDE
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE
       { return this; }
@@ -131,10 +131,10 @@ public:
                                     CefString& bottomCenter,
                                     CefString& bottomRight) OVERRIDE;
   
-  // CefJSBindingHandler methods
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE;
+  // CefV8ContextHandler methods
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE;
 
   // CefDragHandler methods.
   virtual bool OnDragStart(CefRefPtr<CefBrowser> browser,

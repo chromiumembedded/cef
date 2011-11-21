@@ -41,7 +41,7 @@ public:
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE;
   virtual CefRefPtr<CefFindHandler> GetFindHandler() OVERRIDE;
   virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
-  virtual CefRefPtr<CefJSBindingHandler> GetJSBindingHandler() OVERRIDE;
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE;
   virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE;
   virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE;
 };

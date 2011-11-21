@@ -286,12 +286,12 @@ public:
       DestroyTest();
   }
 
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
     if(binding_test_)
-      TestHandleJSBinding(browser, frame, object);
+      TestHandleJSBinding(browser, frame, context->GetGlobal());
   }
 
   void TestHandleJSBinding(CefRefPtr<CefBrowser> browser,
@@ -453,10 +453,13 @@ public:
     DestroyTest();
   }
 
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
+    // Retrieve the 'window' object.
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+
     // Create the functions that will be used during the test.
     CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
     CefRefPtr<CefV8Handler> handler = new TestHandler(this);
@@ -683,10 +686,13 @@ public:
   {
   }
   
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
+    // Retrieve the 'window' object.
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+
     CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
     CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
     CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
@@ -1374,10 +1380,13 @@ public:
     nav_++;
   }
 
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
+    // Retrieve the 'window' object.
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+
     if (nav_ == 0) {
       // Create an object without any internal values.
       CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL, NULL);
@@ -1669,10 +1678,13 @@ public:
                              3, false));
   }
 
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object) OVERRIDE
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE
   {
+    // Retrieve the 'window' object.
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+
     // Create the functions that will be used during the test.
     CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
     CefRefPtr<CefV8Handler> handler = new TestHandler(this);

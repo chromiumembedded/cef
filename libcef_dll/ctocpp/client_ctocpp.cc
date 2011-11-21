@@ -15,7 +15,6 @@
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/jsbinding_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -24,6 +23,7 @@
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/v8context_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -151,15 +151,15 @@ CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler()
   return NULL;
 }
 
-CefRefPtr<CefJSBindingHandler> CefClientCToCpp::GetJSBindingHandler()
+CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler()
 {
-  if (CEF_MEMBER_MISSING(struct_, get_jsbinding_handler))
+  if (CEF_MEMBER_MISSING(struct_, get_v8context_handler))
     return NULL;
 
-  cef_jsbinding_handler_t* handlerStruct =
-      struct_->get_jsbinding_handler(struct_);
+  cef_v8context_handler_t* handlerStruct =
+      struct_->get_v8context_handler(struct_);
   if(handlerStruct)
-    return CefJSBindingHandlerCToCpp::Wrap(handlerStruct);
+    return CefV8ContextHandlerCToCpp::Wrap(handlerStruct);
 
   return NULL;
 }

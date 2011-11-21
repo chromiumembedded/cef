@@ -36,6 +36,7 @@ public:
   virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
   virtual bool Enter() OVERRIDE;
   virtual bool Exit() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED

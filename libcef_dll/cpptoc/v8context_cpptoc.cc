@@ -104,6 +104,18 @@ int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
   return contextPtr->Exit();
 }
 
+int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
+    struct _cef_v8context_t* that)
+{
+  DCHECK(self);
+  DCHECK(that);
+  if (!self || !that)
+    return false;
+
+  return CefV8ContextCppToC::Get(self)->IsSame(
+      CefV8ContextCppToC::Unwrap(that));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -115,6 +127,7 @@ CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
   struct_.struct_.get_global = v8context_get_global;
   struct_.struct_.enter = v8context_enter;
   struct_.struct_.exit = v8context_exit;
+  struct_.struct_.is_same = v8context_is_same;
 }
 
 #ifndef NDEBUG

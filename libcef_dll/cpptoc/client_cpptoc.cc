@@ -15,7 +15,6 @@
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/jsbinding_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -24,6 +23,7 @@
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/v8context_handler_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -178,17 +178,17 @@ cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
   return NULL;
 }
 
-cef_jsbinding_handler_t* CEF_CALLBACK client_get_jsbinding_handler(
+cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
     struct _cef_client_t* self)
 {
   DCHECK(self);
   if (!self)
     return NULL;
 
-  CefRefPtr<CefJSBindingHandler> handlerPtr =
-      CefClientCppToC::Get(self)->GetJSBindingHandler();
+  CefRefPtr<CefV8ContextHandler> handlerPtr =
+      CefClientCppToC::Get(self)->GetV8ContextHandler();
   if(handlerPtr.get())
-    return CefJSBindingHandlerCppToC::Wrap(handlerPtr);
+    return CefV8ContextHandlerCppToC::Wrap(handlerPtr);
 
   return NULL;
 }
@@ -239,7 +239,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_print_handler = client_get_print_handler;
   struct_.struct_.get_find_handler = client_get_find_handler;
   struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;
-  struct_.struct_.get_jsbinding_handler = client_get_jsbinding_handler;
+  struct_.struct_.get_v8context_handler = client_get_v8context_handler;
   struct_.struct_.get_render_handler = client_get_render_handler;
   struct_.struct_.get_drag_handler = client_get_drag_handler;
 }

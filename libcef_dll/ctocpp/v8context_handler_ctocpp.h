@@ -9,8 +9,8 @@
 // more information.
 //
 
-#ifndef _JSBINDINGHANDLER_CTOCPP_H
-#define _JSBINDINGHANDLER_CTOCPP_H
+#ifndef _V8CONTEXTHANDLER_CTOCPP_H
+#define _V8CONTEXTHANDLER_CTOCPP_H
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
@@ -22,21 +22,23 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefJSBindingHandlerCToCpp
-    : public CefCToCpp<CefJSBindingHandlerCToCpp, CefJSBindingHandler,
-        cef_jsbinding_handler_t>
+class CefV8ContextHandlerCToCpp
+    : public CefCToCpp<CefV8ContextHandlerCToCpp, CefV8ContextHandler,
+        cef_v8context_handler_t>
 {
 public:
-  CefJSBindingHandlerCToCpp(cef_jsbinding_handler_t* str)
-      : CefCToCpp<CefJSBindingHandlerCToCpp, CefJSBindingHandler,
-          cef_jsbinding_handler_t>(str) {}
-  virtual ~CefJSBindingHandlerCToCpp() {}
+  CefV8ContextHandlerCToCpp(cef_v8context_handler_t* str)
+      : CefCToCpp<CefV8ContextHandlerCToCpp, CefV8ContextHandler,
+          cef_v8context_handler_t>(str) {}
+  virtual ~CefV8ContextHandlerCToCpp() {}
 
-  // CefJSBindingHandler methods
-  virtual void OnJSBinding(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Value> object) OVERRIDE;
+  // CefV8ContextHandler methods
+  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED
-#endif // _JSBINDINGHANDLER_CTOCPP_H
+#endif // _V8CONTEXTHANDLER_CTOCPP_H
 

@@ -166,7 +166,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*, const WebKit::WebURLError&) OVERRIDE;
   virtual void didCommitProvisionalLoad(
       WebKit::WebFrame*, bool is_new_navigation) OVERRIDE;
-  virtual void didClearWindowObject(WebKit::WebFrame*) OVERRIDE;
+  virtual void didCreateScriptContext(
+      WebKit::WebFrame*, v8::Handle<v8::Context>, int worldId) OVERRIDE;
+  virtual void willReleaseScriptContext(
+      WebKit::WebFrame*, v8::Handle<v8::Context>, int worldId) OVERRIDE;
   virtual void didReceiveTitle(
       WebKit::WebFrame*, const WebKit::WebString& title,
       WebKit::WebTextDirection direction) OVERRIDE;
