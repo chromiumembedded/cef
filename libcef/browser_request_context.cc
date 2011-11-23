@@ -37,11 +37,14 @@
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
-
 #include <winhttp.h>
 #pragma comment(lib, "winhttp.lib")
+#endif // defined(OS_WIN)
+
 
 namespace {
+
+#if defined(OS_WIN)
 
 // ProxyConfigService implementation that does nothing.
 class ProxyConfigServiceNull : public net::ProxyConfigService {
@@ -54,6 +57,8 @@ public:
       { return ProxyConfigService::CONFIG_VALID; }
   virtual void OnLazyPoll() OVERRIDE {}
 };
+
+#endif // defined(OS_WIN)
 
 // ProxyResolver implementation that forewards resolution to a CefProxyHandler.
 class CefProxyResolver : public net::ProxyResolver {
@@ -118,7 +123,6 @@ net::ProxyConfigService* CreateProxyConfigService() {
 
 } // namespace
 
-#endif // defined(OS_WIN)
 
 BrowserRequestContext::BrowserRequestContext() 
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
