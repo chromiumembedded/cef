@@ -97,7 +97,7 @@ private:
 // version as possible.
 class BrowserNavigationController {
  public:
-  BrowserNavigationController(CefBrowserImpl* shell);
+  BrowserNavigationController(CefBrowserImpl* browser);
   ~BrowserNavigationController();
 
   void Reset();

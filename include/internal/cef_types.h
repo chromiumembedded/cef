@@ -190,6 +190,11 @@ typedef struct _cef_browser_settings_t
   ///
   bool load_drops_disabled;
 
+  ///
+  // Disable history back/forward navigation.
+  ///
+  bool history_disabled;
+
   // The below values map to WebPreferences settings.
 
   ///

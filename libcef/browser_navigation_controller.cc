@@ -43,11 +43,12 @@ void BrowserNavigationEntry::SetContentState(const std::string& state) {
 // ----------------------------------------------------------------------------
 // BrowserNavigationController
 
-BrowserNavigationController::BrowserNavigationController(CefBrowserImpl* shell)
+BrowserNavigationController::BrowserNavigationController(
+    CefBrowserImpl* browser)
     : pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
-      browser_(shell),
+      browser_(browser),
       max_page_id_(-1) {
 }
 
@@ -60,6 +61,7 @@ void BrowserNavigationController::Reset() {
   DiscardPendingEntry();
 
   last_committed_entry_index_ = -1;
+  UpdateMaxPageID();
 }
 
 void BrowserNavigationController::Reload(bool ignoreCache) {
@@ -198,12 +200,19 @@ void BrowserNavigationController::DiscardPendingEntry() {
 void BrowserNavigationController::InsertEntry(BrowserNavigationEntry* entry) {
   DiscardPendingEntry();
 
-  // Prune any entry which are in front of the current entry
-  int current_size = static_cast<int>(entries_.size());
-  if (current_size > 0) {
-    while (last_committed_entry_index_ < (current_size - 1)) {
-      entries_.pop_back();
-      current_size--;
+  const CefBrowserSettings& settings = browser_->settings();
+  if (settings.history_disabled) {
+    // History is disabled. Remove any existing entries.
+    if (entries_.size() > 0)
+      entries_.clear();
+  } else {
+    // Prune any entry which are in front of the current entry.
+    int current_size = static_cast<int>(entries_.size());
+    if (current_size > 0) {
+      while (last_committed_entry_index_ < (current_size - 1)) {
+        entries_.pop_back();
+        current_size--;
+      }
     }
   }
 

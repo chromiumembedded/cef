@@ -32,6 +32,7 @@ const char kJavascriptFlags[] = "javascript-flags";
 // CefBrowserSettings attributes.
 const char kDragDropDisabled[] = "drag-drop-disabled";
 const char kLoadDropsDisabled[] = "load-drops-disabled";
+const char kHistoryDisabled[] = "history-disabled";
 const char kRemoteFontsDisabled[] = "remote-fonts-disabled";
 const char kDefaultEncoding[] = "default-encoding";
 const char kEncodingDetectorEnabled[] = "encoding-detector-enabled";
