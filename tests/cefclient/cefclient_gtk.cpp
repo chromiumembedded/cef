@@ -327,11 +327,13 @@ int main(int argc, char *argv[]) {
   AppInitCommandLine(argc, argv);
 
   CefSettings settings;
+  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  AppGetSettings(settings, app);
 
-  CefInitialize(settings);
+  // Initialize CEF.
+  CefInitialize(settings, app);
 
   // Register the V8 extension handler.
   InitExtensionTest();

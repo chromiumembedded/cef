@@ -74,6 +74,13 @@ extern const char kAcceleratedDrawingDisabled[];
 extern const char kAcceleratedPluginsDisabled[];
 extern const char kDeveloperToolsDisabled[];
 
+// Other attributes.
+extern const char kProxyType[];
+extern const char kProxyType_Direct[];
+extern const char kProxyType_Named[];
+extern const char kProxyType_Pac[];
+extern const char kProxyConfig[];
+
 }  // namespace cefclient
 
 #endif // _CEFCLIENT_SWITCHES_H

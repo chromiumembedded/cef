@@ -73,6 +73,37 @@ int GetIntValue(const CefString& str)
   return atoi(stdStr.c_str());
 }
 
+
+// ClientApp implementation.
+class ClientApp : public CefApp,
+                  public CefProxyHandler
+{
+public:
+  ClientApp(cef_proxy_type_t proxy_type, const CefString& proxy_config)
+    : proxy_type_(proxy_type),
+      proxy_config_(proxy_config)
+  {
+  }
+
+  // CefApp methods
+  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
+
+  // CefProxyHandler methods
+  virtual void GetProxyForUrl(const CefString& url,
+                              CefProxyInfo& proxy_info) OVERRIDE
+  {
+    proxy_info.proxyType = proxy_type_;
+    if (!proxy_config_.empty())
+      CefString(&proxy_info.proxyList) = proxy_config_;
+  }
+
+protected:
+  cef_proxy_type_t proxy_type_;
+  CefString proxy_config_;
+
+  IMPLEMENT_REFCOUNTING(ClientApp);
+};
+
 } // namespace
 
 CefRefPtr<ClientHandler> g_handler;
@@ -109,7 +140,7 @@ CefRefPtr<CefCommandLine> AppGetCommandLine()
 }
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings)
+void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
 {
   ASSERT(g_command_line.get());
   if (!g_command_line.get())
@@ -184,6 +215,32 @@ void AppGetSettings(CefSettings& settings)
 
   CefString(&settings.javascript_flags) =
       g_command_line->GetSwitchValue(cefclient::kJavascriptFlags);
+
+  // Retrieve command-line proxy configuration, if any.
+  bool has_proxy = false;
+  cef_proxy_type_t proxy_type;
+  CefString proxy_config;
+
+  if (g_command_line->HasSwitch(cefclient::kProxyType)) {
+    std::string str = g_command_line->GetSwitchValue(cefclient::kProxyType);
+    if (str == cefclient::kProxyType_Direct) {
+      has_proxy = true;
+      proxy_type = PROXY_TYPE_DIRECT;
+    } else if (str == cefclient::kProxyType_Named ||
+               str == cefclient::kProxyType_Pac) {
+      proxy_config = g_command_line->GetSwitchValue(cefclient::kProxyConfig);
+      if (!proxy_config.empty()) {
+        has_proxy = true;
+        proxy_type = (str == cefclient::kProxyType_Named?
+                      PROXY_TYPE_NAMED:PROXY_TYPE_PAC_STRING);
+      }
+    }
+  }
+
+  if (has_proxy) {
+    // Provide a ClientApp instance to handle proxy resolution.
+    app = new ClientApp(proxy_type, proxy_config);
+  }
 }
 
 // Returns the application browser settings based on command line arguments.

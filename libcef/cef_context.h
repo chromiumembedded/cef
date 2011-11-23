@@ -31,7 +31,7 @@ public:
   ~CefContext();
 
   // These methods will be called on the main application thread.
-  bool Initialize(const CefSettings& settings);
+  bool Initialize(const CefSettings& settings, CefRefPtr<CefApp> application);
   void Shutdown();
 
   // Returns true if the context is initialized.
@@ -52,6 +52,7 @@ public:
   const FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
+  CefRefPtr<CefApp> application() const { return application_; }
 
   // Return the locale specified in CefSettings or the default value of "en-US".
   std::string locale() const;
@@ -94,6 +95,7 @@ private:
   base::AtExitManager at_exit_manager_;
 
   CefSettings settings_;
+  CefRefPtr<CefApp> application_;
   FilePath cache_path_;
   scoped_refptr<BrowserRequestContext> request_context_;
   scoped_ptr<DOMStorageContext> storage_context_;

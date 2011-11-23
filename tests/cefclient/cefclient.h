@@ -23,7 +23,7 @@ void AppInitCommandLine(int argc, const char* const* argv);
 CefRefPtr<CefCommandLine> AppGetCommandLine();
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings);
+void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app);
 
 // Returns the application browser settings based on command line arguments.
 void AppGetBrowserSettings(CefBrowserSettings& settings);

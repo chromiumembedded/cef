@@ -51,10 +51,12 @@ extern "C" {
 
 ///
 // This function should be called on the main application thread to initialize
-// CEF when the application is started.  A return value of true (1) indicates
-// that it succeeded and false (0) indicates that it failed.
+// CEF when the application is started. The |application| parameter may be NULL.
+// A return value of true (1) indicates that it succeeded and false (0)
+// indicates that it failed.
 ///
-CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings);
+CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
+    struct _cef_app_t* application);
 
 ///
 // This function should be called on the main application thread to shut down
@@ -894,6 +896,41 @@ typedef struct _cef_frame_t
       struct _cef_frame_t* self);
 
 } cef_frame_t;
+
+
+///
+// Implement this structure to handle proxy resolution events.
+///
+typedef struct _cef_proxy_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Called to retrieve proxy information for the specified |url|.
+  ///
+  void (CEF_CALLBACK *get_proxy_for_url)(struct _cef_proxy_handler_t* self,
+      const cef_string_t* url, struct _cef_proxy_info_t* proxy_info);
+
+} cef_proxy_handler_t;
+
+
+///
+// Implement this structure to provide handler implementations.
+///
+typedef struct _cef_app_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Return the handler for proxy events. If not handler is returned the default
+  // system handler will be used.
+  ///
+  struct _cef_proxy_handler_t* (CEF_CALLBACK *get_proxy_handler)(
+      struct _cef_app_t* self);
+
+} cef_app_t;
 
 
 ///

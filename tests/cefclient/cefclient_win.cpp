@@ -65,12 +65,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   AppInitCommandLine(0, NULL);
 
   CefSettings settings;
+  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  AppGetSettings(settings, app);
 
   // Initialize CEF.
-  CefInitialize(settings);
+  CefInitialize(settings, app);
 
   // Register the internal client plugin.
   InitPluginTest();

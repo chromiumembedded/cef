@@ -26,7 +26,7 @@ void CefTestSuite::Initialize() {
     CefString(&settings.cache_path).FromASCII(cache_path.c_str());
   }
 
-  CefInitialize(settings);
+  CefInitialize(settings, NULL);
 }
 
 void CefTestSuite::Shutdown() {

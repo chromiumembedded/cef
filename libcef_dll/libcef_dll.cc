@@ -22,6 +22,7 @@
 #include "cpptoc/web_urlrequest_cpptoc.h"
 #include "cpptoc/xml_reader_cpptoc.h"
 #include "cpptoc/zip_reader_cpptoc.h"
+#include "ctocpp/app_ctocpp.h"
 #include "ctocpp/content_filter_ctocpp.h"
 #include "ctocpp/cookie_visitor_ctocpp.h"
 #include "ctocpp/domevent_listener_ctocpp.h"
@@ -44,7 +45,8 @@ CEF_EXPORT int cef_build_revision()
   return CEF_REVISION;
 }
 
-CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings)
+CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
+                              struct _cef_app_t* application)
 {
   CefSettings settingsObj;
 
@@ -52,9 +54,7 @@ CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings)
   if (settings)
     settingsObj.Set(*settings, false);
 
-  int ret = CefInitialize(settingsObj);
-
-  return ret;
+  return CefInitialize(settingsObj, CefAppCToCpp::Wrap(application));
 }
 
 CEF_EXPORT void cef_shutdown()

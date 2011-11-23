@@ -7,6 +7,7 @@
 #include "include/cef_nplugin.h"
 #include "include/cef_nplugin_capi.h"
 #include "include/cef_version.h"
+#include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/content_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
@@ -37,7 +38,7 @@
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 
 
-bool CefInitialize(const CefSettings& settings)
+bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application)
 {
   int build_revision = cef_build_revision();
   if (build_revision != CEF_REVISION) {
@@ -45,8 +46,8 @@ bool CefInitialize(const CefSettings& settings)
     DCHECK(false);
     return false;
   }
-  
-  return cef_initialize(&settings)?true:false;
+
+  return cef_initialize(&settings, CefAppCppToC::Wrap(application))?true:false;
 }
 
 void CefShutdown()

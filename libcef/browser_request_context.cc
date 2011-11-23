@@ -25,6 +25,7 @@
 #include "net/http/http_server_properties_impl.h"
 #include "net/proxy/proxy_config_service.h"
 #include "net/proxy/proxy_config_service_fixed.h"
+#include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request_job_factory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
@@ -46,13 +47,74 @@ namespace {
 class ProxyConfigServiceNull : public net::ProxyConfigService {
 public:
   ProxyConfigServiceNull() {}
-  virtual void AddObserver(Observer* observer) {}
-  virtual void RemoveObserver(Observer* observer) {}
+  virtual void AddObserver(Observer* observer) OVERRIDE {}
+  virtual void RemoveObserver(Observer* observer) OVERRIDE {}
   virtual ProxyConfigService::ConfigAvailability
-      GetLatestProxyConfig(net::ProxyConfig* config)
+      GetLatestProxyConfig(net::ProxyConfig* config) OVERRIDE
       { return ProxyConfigService::CONFIG_VALID; }
-  virtual void OnLazyPoll() {}
+  virtual void OnLazyPoll() OVERRIDE {}
 };
+
+// ProxyResolver implementation that forewards resolution to a CefProxyHandler.
+class CefProxyResolver : public net::ProxyResolver {
+public:
+  CefProxyResolver(CefRefPtr<CefProxyHandler> handler) 
+    : ProxyResolver(false),
+      handler_(handler) {}
+  virtual ~CefProxyResolver() {}
+
+  virtual int GetProxyForURL(const GURL& url,
+                             net::ProxyInfo* results,
+                             net::OldCompletionCallback* callback,
+                             ProxyResolver::RequestHandle* request,
+                             const net::BoundNetLog& net_log) OVERRIDE
+  {
+    CefProxyInfo proxy_info;
+    handler_->GetProxyForUrl(url.spec(), proxy_info);
+    if (proxy_info.IsDirect())
+      results->UseDirect();
+    else if (proxy_info.IsNamedProxy())
+      results->UseNamedProxy(proxy_info.ProxyList());
+    else if (proxy_info.IsPacString())
+      results->UsePacString(proxy_info.ProxyList());
+
+    return net::OK;
+  } 
+
+  virtual int SetPacScript(
+      const scoped_refptr<net::ProxyResolverScriptData>& script_data,
+      net::OldCompletionCallback* callback) OVERRIDE
+  {
+    return net::OK;
+  }
+
+  virtual void CancelRequest(RequestHandle request) OVERRIDE {}
+  virtual net::LoadState GetLoadState(RequestHandle request) const OVERRIDE
+      { return net::LOAD_STATE_IDLE; }
+  virtual net::LoadState GetLoadStateThreadSafe(RequestHandle request) const
+      OVERRIDE { return net::LOAD_STATE_IDLE; }
+  virtual void CancelSetPacScript() OVERRIDE {}
+
+protected:
+  CefRefPtr<CefProxyHandler> handler_;
+};
+
+net::ProxyConfigService* CreateProxyConfigService() {
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  // Use no proxy to avoid ProxyConfigServiceLinux.
+  // Enabling use of the ProxyConfigServiceLinux requires:
+  // -Calling from a thread with a TYPE_UI MessageLoop,
+  // -If at all possible, passing in a pointer to the IO thread's MessageLoop,
+  // -Keep in mind that proxy auto configuration is also non-functional on linux
+  //  in this context because of v8 threading issues.
+  // TODO(port): rename "linux" to some nonspecific unix.
+  return new net::ProxyConfigServiceFixed(net::ProxyConfig());
+#else
+  // Use the system proxy settings.
+  return net::ProxyService::CreateSystemProxyConfigService(
+      MessageLoop::current(), NULL);
+#endif
+}
 
 } // namespace
 
@@ -95,54 +157,51 @@ void BrowserRequestContext::Init(
   set_accept_language("en-us,en");
   set_accept_charset("iso-8859-1,*,utf-8");
 
-#if defined(OS_WIN)
-  const CefSettings& settings = _Context->settings();
-  if (!settings.auto_detect_proxy_settings_enabled) {
-    // Using the system proxy resolver on Windows when "Automatically detect
-    // settings" (auto-detection) is checked under LAN Settings can hurt
-    // resource loading performance because the call to WinHttpGetProxyForUrl in
-    // proxy_resolver_winhttp.cc will block the IO thread.  This is especially
-    // true for Windows 7 where auto-detection is checked by default. To avoid
-    // slow resource loading on Windows we only use the system proxy resolver if
-    // auto-detection is unchecked.
-    WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
-    if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
-      if (ie_config.fAutoDetect == TRUE) {
-        storage_.set_proxy_service(net::ProxyService::CreateWithoutProxyResolver(
-            new ProxyConfigServiceNull(), NULL));
-      }
+  CefRefPtr<CefApp> app = _Context->application();
+  if (app.get()) {
+    CefRefPtr<CefProxyHandler> handler = app->GetProxyHandler();
+    if (handler) {
+      // The client will provide proxy resolution.
+      storage_.set_proxy_service(
+          new net::ProxyService(CreateProxyConfigService(),
+                                new CefProxyResolver(handler), NULL));
+    }
+  }
 
-      if (ie_config.lpszAutoConfigUrl)
-        GlobalFree(ie_config.lpszAutoConfigUrl);
-      if (ie_config.lpszProxy)
-        GlobalFree(ie_config.lpszProxy);
-      if (ie_config.lpszProxyBypass)
-        GlobalFree(ie_config.lpszProxyBypass);
+#if defined(OS_WIN)
+  if (!proxy_service()) {
+    const CefSettings& settings = _Context->settings();
+    if (!settings.auto_detect_proxy_settings_enabled) {
+      // Using the system proxy resolver on Windows when "Automatically detect
+      // settings" (auto-detection) is checked under LAN Settings can hurt
+      // resource loading performance because the call to WinHttpGetProxyForUrl
+      // in proxy_resolver_winhttp.cc will block the IO thread.  This is
+      // especially true for Windows 7 where auto-detection is checked by
+      // default. To avoid slow resource loading on Windows we only use the
+      // system proxy resolver if auto-detection is unchecked.
+      WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
+      if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
+        if (ie_config.fAutoDetect == TRUE) {
+          storage_.set_proxy_service(
+              net::ProxyService::CreateWithoutProxyResolver(
+                  new ProxyConfigServiceNull(), NULL));
+        }
+
+        if (ie_config.lpszAutoConfigUrl)
+          GlobalFree(ie_config.lpszAutoConfigUrl);
+        if (ie_config.lpszProxy)
+          GlobalFree(ie_config.lpszProxy);
+        if (ie_config.lpszProxyBypass)
+          GlobalFree(ie_config.lpszProxyBypass);
+      }
     }
   }
 #endif // defined(OS_WIN)
   
   if (!proxy_service()) {
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
-    // Use no proxy to avoid ProxyConfigServiceLinux.
-    // Enabling use of the ProxyConfigServiceLinux requires:
-    // -Calling from a thread with a TYPE_UI MessageLoop,
-    // -If at all possible, passing in a pointer to the IO thread's MessageLoop,
-    // -Keep in mind that proxy auto configuration is also
-    //  non-functional on linux in this context because of v8 threading
-    //  issues.
-    // TODO(port): rename "linux" to some nonspecific unix.
-    scoped_ptr<net::ProxyConfigService> proxy_config_service(
-        new net::ProxyConfigServiceFixed(net::ProxyConfig()));
-#else
-    // Use the system proxy settings.
-    scoped_ptr<net::ProxyConfigService> proxy_config_service(
-        net::ProxyService::CreateSystemProxyConfigService(
-            MessageLoop::current(), NULL));
-#endif
-
-    storage_.set_proxy_service(net::ProxyService::CreateUsingSystemProxyResolver(
-        proxy_config_service.release(), 0, NULL));
+    storage_.set_proxy_service(
+        net::ProxyService::CreateUsingSystemProxyResolver(
+            CreateProxyConfigService(), 0, NULL));
   }
 
   storage_.set_host_resolver(

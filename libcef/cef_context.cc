@@ -348,7 +348,7 @@ void UIT_SetStoragePath(int64 namespace_id, const CefString& path)
 
 } // anonymous
 
-bool CefInitialize(const CefSettings& settings)
+bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application)
 {
   // Return true if the global context already exists.
   if(_Context.get())
@@ -363,7 +363,7 @@ bool CefInitialize(const CefSettings& settings)
   _Context = new CefContext();
 
   // Initialize the global context.
-  return _Context->Initialize(settings);
+  return _Context->Initialize(settings, application);
 }
 
 void CefShutdown()
@@ -842,9 +842,11 @@ CefContext::~CefContext()
     Shutdown();
 }
 
-bool CefContext::Initialize(const CefSettings& settings)
+bool CefContext::Initialize(const CefSettings& settings,
+                            CefRefPtr<CefApp> application)
 {
   settings_ = settings;
+  application_ = application;
 
   cache_path_ = FilePath(CefString(&settings.cache_path));
 

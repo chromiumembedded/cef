@@ -527,4 +527,69 @@ struct CefCookieTraits {
 ///
 typedef CefStructBase<CefCookieTraits> CefCookie;
 
+
+struct CefProxyInfoTraits {
+  typedef cef_proxy_info_t struct_type;
+
+  static inline void init(struct_type* s) {}
+  
+  static inline void clear(struct_type* s)
+  {
+    cef_string_clear(&s->proxyList);
+  }
+
+  static inline void set(const struct_type* src, struct_type* target, bool copy)
+  {
+    target->proxyType = src->proxyType;
+    cef_string_set(src->proxyList.str, src->proxyList.length,
+        &target->proxyList, copy);
+  }
+};
+
+///
+// Class representing the results of proxy resolution.
+///
+class CefProxyInfo : public CefStructBase<CefProxyInfoTraits>
+{
+public:
+  ///
+  // Use a direction connection instead of a proxy.
+  ///
+  void UseDirect()
+  {
+    proxyType = PROXY_TYPE_DIRECT;
+  }
+
+  ///
+  // Use one or more named proxy servers specified in WinHTTP format. Each proxy
+  // server is of the form:
+  //
+  // [<scheme>"://"]<server>[":"<port>]
+  //
+  // Multiple values may be separated by semicolons or whitespace. For example,
+  // "foo1:80;foo2:80".
+  ///
+  void UseNamedProxy(const CefString& proxy_uri_list)
+  {
+    proxyType = PROXY_TYPE_NAMED;
+    (CefString(&proxyList)) = proxy_uri_list;
+  }
+
+  ///
+  // Use one or more named proxy servers specified in PAC script format. For
+  // example, "PROXY foobar:99; SOCKS fml:2; DIRECT".
+  ///
+  void UsePacString(const CefString& pac_string)
+  {
+    proxyType = PROXY_TYPE_PAC_STRING;
+    (CefString(&proxyList)) = pac_string;
+  }
+
+  bool IsDirect() const { return proxyType == PROXY_TYPE_DIRECT; }
+  bool IsNamedProxy() const { return proxyType == PROXY_TYPE_NAMED; }
+  bool IsPacString() const { return proxyType == PROXY_TYPE_PAC_STRING; }
+
+  CefString ProxyList() const { return CefString(&proxyList); }
+};
+
 #endif // _CEF_TYPES_WRAPPERS_H

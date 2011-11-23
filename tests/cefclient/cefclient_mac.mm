@@ -549,13 +549,14 @@ int main(int argc, char* argv[])
   // Parse command line arguments.
   AppInitCommandLine(argc, argv);
 
-  // Initialize CEF.
   CefSettings settings;
+  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  AppGetSettings(settings, app);
 
-  CefInitialize(settings);
+  // Initialize CEF.
+  CefInitialize(settings, app);
 
   // Initialize tests.
   InitExtensionTest();

@@ -76,4 +76,11 @@ const char kAcceleratedDrawingDisabled[] = "accelerated-drawing-disabled";
 const char kAcceleratedPluginsDisabled[] = "accelerated-plugins-disabled";
 const char kDeveloperToolsDisabled[] = "developer-tools-disabled";
 
+// Other attributes.
+const char kProxyType[] = "proxy-type";
+const char kProxyType_Direct[] = "direct";
+const char kProxyType_Named[] = "named";
+const char kProxyType_Pac[] = "pac";
+const char kProxyConfig[] = "proxy-config";
+
 }  // namespace cefclient

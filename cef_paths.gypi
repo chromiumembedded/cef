@@ -125,6 +125,8 @@
     ],
     'libcef_dll_wrapper_sources_common': [
       'libcef_dll/cef_logging.h',
+      'libcef_dll/cpptoc/app_cpptoc.cc',
+      'libcef_dll/cpptoc/app_cpptoc.h',
       'libcef_dll/cpptoc/base_cpptoc.h',
       'libcef_dll/cpptoc/client_cpptoc.cc',
       'libcef_dll/cpptoc/client_cpptoc.h',
@@ -159,6 +161,8 @@
       'libcef_dll/cpptoc/menu_handler_cpptoc.h',
       'libcef_dll/cpptoc/print_handler_cpptoc.cc',
       'libcef_dll/cpptoc/print_handler_cpptoc.h',
+      'libcef_dll/cpptoc/proxy_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/proxy_handler_cpptoc.h',
       'libcef_dll/cpptoc/read_handler_cpptoc.cc',
       'libcef_dll/cpptoc/read_handler_cpptoc.h',
       'libcef_dll/cpptoc/render_handler_cpptoc.cc',
