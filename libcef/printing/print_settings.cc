@@ -11,7 +11,7 @@
 namespace printing {
 
 // Global SequenceNumber used for generating unique cookie values.
-static base::AtomicSequenceNumber cookie_seq = LAZY_INSTANCE_INITIALIZER;
+static base::AtomicSequenceNumber cookie_seq(base::LINKER_INITIALIZED);
 
 PageMeasurements::PageMeasurements()
     : page_type(PT_LETTER),
