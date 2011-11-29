@@ -161,6 +161,12 @@ output_dir = os.path.abspath(os.path.join(options.outputdir, \
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
+# symbol directory
+symbol_dir = os.path.abspath(os.path.join(options.outputdir, \
+                                          'cef_binary_r'+cef_rev+'_'+platform+'_symbols'))
+remove_dir(symbol_dir, options.quiet)
+make_dir(symbol_dir, options.quiet)
+
 # transfer the LICENSE.txt file
 copy_file(os.path.join(cef_dir, 'LICENSE.txt'), output_dir, options.quiet)
 
@@ -249,6 +255,9 @@ if platform == 'windows':
     dst_dir = os.path.join(output_dir, 'lib/Release')
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Release/lib/libcef.lib'), dst_dir, options.quiet)
+
+    # transfer symbols
+    copy_file(os.path.join(cef_dir, 'Release/libcef.pdb'), symbol_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
@@ -301,7 +310,11 @@ elif platform == 'macosx':
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
-  
+
+    # transfer symbols
+    copy_dir(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib.dSYM'), \
+             os.path.join(symbol_dir, 'libcef.dylib.dSYM'), options.quiet)
+
   # transfer resource files
   dst_dir = os.path.join(output_dir, 'Resources')
   make_dir(dst_dir, options.quiet)
@@ -374,3 +387,9 @@ zip_file = os.path.split(output_dir)[1] + '.zip'
 if not options.quiet:
   sys.stdout.write('Creating '+zip_file+"...\n")
 create_archive(output_dir, os.path.join(output_dir, os.pardir, zip_file))
+
+# Create an archive of the symbol directory
+zip_file = os.path.split(symbol_dir)[1] + '.zip'
+if not options.quiet:
+  sys.stdout.write('Creating '+zip_file+"...\n")
+create_archive(symbol_dir, os.path.join(symbol_dir, os.pardir, zip_file))

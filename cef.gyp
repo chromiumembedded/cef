@@ -523,6 +523,12 @@
               '-lcomctl32.lib',
             ],
           },
+          'msvs_settings': {
+            'VCLinkerTool': {
+              # Generate a PDB symbol file for both Debug and Release builds.
+              'GenerateDebugInformation': 'true',
+            },
+          },
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
          'dependencies':[
