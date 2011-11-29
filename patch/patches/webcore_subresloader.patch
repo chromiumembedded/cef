@@ -1,0 +1,15 @@
+Index: SubresourceLoader.cpp
+===================================================================
+--- SubresourceLoader.cpp	(revision 100508)
++++ SubresourceLoader.cpp	(working copy)
+@@ -239,6 +239,10 @@
+     LOG(ResourceLoading, "Received '%s'.", m_resource->url().string().latin1().data());
+ 
+     RefPtr<SubresourceLoader> protect(this);
++    // If a load is canceled m_resource might be released in the call hierarchy originating
++    // from m_resource->data(). This causes the subsequent call to m_reosurce->finish() to crash
++    // unless m_resource is protected.
++    CachedResourceHandle<CachedResource> protect_res(m_resource);
+     m_state = Finishing;
+     m_resource->setLoadFinishTime(finishTime);
+     m_resource->data(resourceData(), true);
