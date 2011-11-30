@@ -40,7 +40,7 @@ public:
   // Returns true if the context is shutting down.
   bool shutting_down() { return shutting_down_; }
 
-  scoped_refptr<CefProcess> process() { return process_; }
+  CefProcess* process() { return process_.get(); }
 
   bool AddBrowser(CefRefPtr<CefBrowserImpl> browser);
   bool RemoveBrowser(CefRefPtr<CefBrowserImpl> browser);
@@ -88,7 +88,7 @@ private:
   bool shutting_down_;
 
   // Manages the various process threads.
-  scoped_refptr<CefProcess> process_;
+  scoped_ptr<CefProcess> process_;
 
   // Initialize the AtExitManager on the main application thread to avoid
   // asserts and possible memory leaks.

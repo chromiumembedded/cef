@@ -32,8 +32,7 @@ class CefMessageLoopForUI;
 
 // NOT THREAD SAFE, call only from the main thread.
 // These functions shouldn't return NULL unless otherwise noted.
-class CefProcess : public base::RefCounted<CefProcess>,
-                   public base::NonThreadSafe {
+class CefProcess : public base::NonThreadSafe {
  public:
   CefProcess(bool multi_threaded_message_loop);
   virtual ~CefProcess();
@@ -115,7 +114,5 @@ class CefProcess : public base::RefCounted<CefProcess>,
 
   DISALLOW_COPY_AND_ASSIGN(CefProcess);
 };
-
-extern CefProcess* g_cef_process;
 
 #endif  // _CEF_PROCESS_H

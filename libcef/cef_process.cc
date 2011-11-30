@@ -11,8 +11,6 @@
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 
-CefProcess* g_cef_process = NULL;
-
 // Class used to process events on the current message loop.
 class CefMessageLoopForUI : public MessageLoopForUI
 {
@@ -67,7 +65,6 @@ CefProcess::CefProcess(bool multi_threaded_message_loop)
       created_ui_thread_(false),
       created_io_thread_(false),
       created_file_thread_(false) {
-  g_cef_process = this;
 }
 
 CefProcess::~CefProcess() {
@@ -87,8 +84,6 @@ CefProcess::~CefProcess() {
     // Terminate the message loop.
     ui_message_loop_.reset();
   }
-
-  g_cef_process = NULL;
 }
 
 void CefProcess::DoMessageLoopIteration() {

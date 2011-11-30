@@ -855,7 +855,7 @@ bool CefContext::Initialize(const CefSettings& settings,
   crypto::EnsureNSPRInit();
 #endif
 
-  process_ = new CefProcess(settings_.multi_threaded_message_loop);
+  process_.reset(new CefProcess(settings_.multi_threaded_message_loop));
   process_->CreateChildThreads();
 
   initialized_ = true;
@@ -889,7 +889,7 @@ void CefContext::Shutdown()
     browser_shutdown_event.Wait();
 
     // Delete the process to destroy the child threads.
-    process_ = NULL;
+    process_.reset(NULL);
 
     // Block until UI thread shutdown is complete.
     uithread_shutdown_event.Wait();
@@ -898,7 +898,7 @@ void CefContext::Shutdown()
     UIT_FinishShutdown(NULL, NULL);
 
     // Delete the process to destroy the child threads.
-    process_ = NULL;
+    process_.reset(NULL);
   }
 }
 
