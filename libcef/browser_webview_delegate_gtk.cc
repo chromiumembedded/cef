@@ -296,7 +296,8 @@ void BrowserWebViewDelegate::startDragging(
     const WebImage& image,
     const WebPoint& image_offset) {
   // TODO(port): Support drag and drop.
-  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+  if (browser_->UIT_GetWebView())
+    browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
 }
 
 void BrowserWebViewDelegate::runModal() {

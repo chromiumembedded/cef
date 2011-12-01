@@ -534,7 +534,8 @@ void BrowserWebViewDelegate::RevokeDragDrop() {
 }
 
 void BrowserWebViewDelegate::EndDragging() {
-  browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+  if (browser_->UIT_GetWebView())
+    browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
   drag_delegate_ = NULL;
 }
 

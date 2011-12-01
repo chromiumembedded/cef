@@ -95,11 +95,16 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  WebDragOperation operation = browser_->UIT_GetWebView()->dragTargetDragEnter(
-      drop_data.ToDragData(),
-      WebPoint(client_pt.x, client_pt.y),
-      WebPoint(cursor_position.x, cursor_position.y),
-      mask);
+  WebDragOperation operation;
+  if (browser_->UIT_GetWebView()) {
+    operation = browser_->UIT_GetWebView()->dragTargetDragEnter(
+        drop_data.ToDragData(),
+        WebPoint(client_pt.x, client_pt.y),
+        WebPoint(cursor_position.x, cursor_position.y),
+        mask);
+  } else {
+    operation = WebDragOperationNone;
+  }
 
   return web_drag_utils_win::WebDragOpToWinDragOp(operation);
 }
@@ -117,10 +122,15 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  WebDragOperation operation = browser_->UIT_GetWebView()->dragTargetDragOver(
-      WebPoint(client_pt.x, client_pt.y),
-      WebPoint(cursor_position.x, cursor_position.y),
-      web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
+  WebDragOperation operation;
+  if (browser_->UIT_GetWebView()) {
+    browser_->UIT_GetWebView()->dragTargetDragOver(
+        WebPoint(client_pt.x, client_pt.y),
+        WebPoint(cursor_position.x, cursor_position.y),
+        web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
+  } else {
+    operation = WebDragOperationNone;
+  }
 
   return web_drag_utils_win::WebDragOpToWinDragOp(operation);
 }
@@ -133,7 +143,8 @@ void WebDropTarget::OnDragLeave(IDataObject* data_object) {
   if (canceled_)
     return;
 
-  browser_->UIT_GetWebView()->dragTargetDragLeave();
+  if (browser_->UIT_GetWebView())
+    browser_->UIT_GetWebView()->dragTargetDragLeave();
 }
 
 DWORD WebDropTarget::OnDrop(IDataObject* data_object,
@@ -148,9 +159,11 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
   ScreenToClient(GetHWND(), &client_pt);
 
   browser_->set_is_dropping(true);
-  browser_->UIT_GetWebView()->dragTargetDrop(
-      WebPoint(client_pt.x, client_pt.y),
-      WebPoint(cursor_position.x, cursor_position.y));
+  if (browser_->UIT_GetWebView()) {
+    browser_->UIT_GetWebView()->dragTargetDrop(
+        WebPoint(client_pt.x, client_pt.y),
+        WebPoint(cursor_position.x, cursor_position.y));
+  }
   browser_->set_is_dropping(false);
 
   current_wvh_ = NULL;
