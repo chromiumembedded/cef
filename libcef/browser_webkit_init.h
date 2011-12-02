@@ -47,6 +47,17 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual bool isLinkVisited(unsigned long long linkHash) OVERRIDE;
   virtual WebKit::WebMessagePortChannel* createMessagePortChannel() OVERRIDE;
   virtual void prefetchHostName(const WebKit::WebString&) OVERRIDE;
+  virtual void decrementStatsCounter(const char* name) OVERRIDE;
+  virtual void incrementStatsCounter(const char* name) OVERRIDE;
+  virtual void histogramCustomCounts(const char* name, int sample, int min, 
+                                     int max, int bucket_count) OVERRIDE;
+  virtual void histogramEnumeration(const char* name, int sample,
+                                    int boundary_value) OVERRIDE;
+  virtual bool isTraceEventEnabled() const OVERRIDE;
+  virtual void traceEventBegin(const char* name, void* id,
+                               const char* extra) OVERRIDE;
+  virtual void traceEventEnd(const char* name, void* id, 
+                             const char* extra) OVERRIDE;
   virtual WebKit::WebData loadResource(const char* name) OVERRIDE;
   virtual WebKit::WebString defaultLocale() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(

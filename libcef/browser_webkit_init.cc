@@ -149,6 +149,33 @@ BrowserWebKitInit::createMessagePortChannel() {
 void BrowserWebKitInit::prefetchHostName(const WebKit::WebString&) {
 }
 
+void BrowserWebKitInit::decrementStatsCounter(const char* name) {
+}
+
+void BrowserWebKitInit::incrementStatsCounter(const char* name) {
+}
+
+void BrowserWebKitInit::histogramCustomCounts(const char* name, int sample,
+                                              int min, int max,
+                                              int bucket_count) {
+}
+
+void BrowserWebKitInit::histogramEnumeration(const char* name, int sample,
+                                             int boundary_value) {
+}
+
+bool BrowserWebKitInit::isTraceEventEnabled() const {
+  return false;
+}
+
+void BrowserWebKitInit::traceEventBegin(const char* name, void* id,
+                                        const char* extra) {
+}
+
+void BrowserWebKitInit::traceEventEnd(const char* name, void* id, 
+                                      const char* extra) {
+}
+
 WebKit::WebData BrowserWebKitInit::loadResource(const char* name) {
   if (!strcmp(name, "deleteButton")) {
     // Create a red 30x30 square.
