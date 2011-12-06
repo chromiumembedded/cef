@@ -95,7 +95,10 @@ WebKit::WebCookieJar* BrowserWebKitInit::cookieJar() {
 }
 
 WebKit::WebFileSystem* BrowserWebKitInit::fileSystem() {
-  return &file_system_;
+  BrowserFileSystem* file_system = _Context->file_system();
+  // Create the context if it doesn't already exist.
+  file_system->CreateContext();
+  return file_system;
 }
 
 bool BrowserWebKitInit::sandboxEnabled() {

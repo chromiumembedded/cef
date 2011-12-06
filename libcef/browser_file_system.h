@@ -31,6 +31,8 @@ class BrowserFileSystem
   BrowserFileSystem();
   virtual ~BrowserFileSystem();
 
+  void CreateContext();
+
   void OpenFileSystem(WebKit::WebFrame* frame,
                       WebKit::WebFileSystem::Type type,
                       long long size,

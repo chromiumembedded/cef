@@ -250,21 +250,26 @@ void BrowserRequestContext::Init(
   storage_.set_ftp_transaction_factory(
       new net::FtpNetworkLayer(host_resolver()));
 
-  blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
-  file_system_context_ = static_cast<BrowserFileSystem*>(
-      WebKit::webKitPlatformSupport()->fileSystem())->file_system_context();
-
   net::URLRequestJobFactory* job_factory = new net::URLRequestJobFactory;
+
+  blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
   job_factory->SetProtocolHandler(
       "blob",
       new webkit_blob::BlobProtocolHandler(
           blob_storage_controller_.get(),
           CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
-  job_factory->SetProtocolHandler(
-      "filesystem",
-      fileapi::CreateFileSystemProtocolHandler(
-          file_system_context_.get(),
-          CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
+
+  BrowserFileSystem* file_system = _Context->file_system();
+  // Create the context if it doesn't already exist.
+  file_system->CreateContext();
+  if (file_system->file_system_context()) {
+    job_factory->SetProtocolHandler(
+        "filesystem",
+        fileapi::CreateFileSystemProtocolHandler(
+            file_system->file_system_context(),
+            CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
+  }
+
   storage_.set_job_factory(job_factory);
 }
 

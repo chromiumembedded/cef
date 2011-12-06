@@ -95,7 +95,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   BrowserDatabaseSystem database_system_;
   BrowserWebCookieJarImpl cookie_jar_;
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
-  BrowserFileSystem file_system_;
 };
 
 #endif  // _BROWSER_WEBKIT_INIT_H

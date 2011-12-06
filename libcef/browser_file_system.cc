@@ -4,6 +4,7 @@
 
 #include "browser_file_system.h"
 #include "browser_file_writer.h"
+#include "cef_thread.h"
 
 #include "base/file_path.h"
 #include "base/memory/scoped_callback_factory.h"
@@ -122,10 +123,19 @@ class BrowserFileSystemCallbackDispatcher
 }  // namespace
 
 BrowserFileSystem::BrowserFileSystem() {
+}
+
+BrowserFileSystem::~BrowserFileSystem() {
+}
+
+void BrowserFileSystem::CreateContext() {
+  if (file_system_context_.get())
+    return;
+
   if (file_system_dir_.CreateUniqueTempDir()) {
     file_system_context_ = new FileSystemContext(
-        base::MessageLoopProxy::current(),
-        base::MessageLoopProxy::current(),
+        CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
+        CefThread::GetMessageLoopProxyForThread(CefThread::IO),
         NULL /* special storage policy */,
         NULL /* quota manager */,
         file_system_dir_.path(),
@@ -136,9 +146,6 @@ BrowserFileSystem::BrowserFileSystem() {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
                     "FileSystem feature will be disabled.";
   }
-}
-
-BrowserFileSystem::~BrowserFileSystem() {
 }
 
 void BrowserFileSystem::OpenFileSystem(

@@ -6,6 +6,7 @@
 #define _CEF_CONTEXT_H
 
 #include "include/cef.h"
+#include "browser_file_system.h"
 #include "browser_request_context.h"
 #include "cef_process.h"
 #include "dom_storage_context.h"
@@ -68,6 +69,8 @@ public:
     { storage_context_.reset(storage_context); }
   DOMStorageContext* storage_context() { return storage_context_.get(); }
 
+  BrowserFileSystem* file_system() { return &file_system_; }
+
   // Used to keep track of the web view host we're dragging over. WARNING:
   // this pointer should never be dereferenced.  Use it only for comparing
   // pointers.
@@ -99,6 +102,7 @@ private:
   FilePath cache_path_;
   scoped_refptr<BrowserRequestContext> request_context_;
   scoped_ptr<DOMStorageContext> storage_context_;
+  BrowserFileSystem file_system_;
 
   // Map of browsers that currently exist.
   BrowserList browserlist_;
