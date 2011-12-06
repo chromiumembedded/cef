@@ -1,0 +1,14 @@
+Index: CachedResource.cpp
+===================================================================
+--- CachedResource.cpp	(revision 100508)
++++ CachedResource.cpp	(working copy)
+@@ -365,6 +365,9 @@
+ 
+ void CachedResource::addClient(CachedResourceClient* client)
+ {
++    if (isPurgeable())
++        makePurgeable(false);
++  
+     addClientToSet(client);
+     didAddClient(client);
+ }
