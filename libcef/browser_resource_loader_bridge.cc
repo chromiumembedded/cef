@@ -144,7 +144,9 @@ class RequestProxy : public net::URLRequest::Delegate,
     : download_to_file_(false),
       buf_(new net::IOBuffer(kDataSize)),
       browser_(browser),
-      last_upload_position_(0)
+      last_upload_position_(0),
+      defers_loading_(false),
+      defers_loading_want_read_(false)
   {
   }
 
@@ -172,6 +174,11 @@ class RequestProxy : public net::URLRequest::Delegate,
     // proxy over to the io thread
     CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
         &RequestProxy::AsyncCancel, this));
+  }
+
+  void SetDefersLoading(bool defer) {
+    CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+        &RequestProxy::AsyncSetDefersLoading, this, defer));
   }
 
  protected:
@@ -572,7 +579,24 @@ class RequestProxy : public net::URLRequest::Delegate,
     request_->FollowDeferredRedirect();
   }
 
+  void AsyncSetDefersLoading(bool defer) {
+    if (defers_loading_ != defer) {
+      defers_loading_ = defer;
+      if (!defers_loading_ && defers_loading_want_read_) {
+        // Perform the pending AsyncReadData now.
+        defers_loading_want_read_ = false;
+        AsyncReadData();
+      }
+    }
+  }
+
   void AsyncReadData() {
+    // Pause downloading if we're in deferred mode.
+    if (defers_loading_) {
+      defers_loading_want_read_ = true;
+      return;
+    }
+
     if(resource_stream_.get()) {
       // Read from the handler-provided resource stream
       int bytes_read = resource_stream_->Read(buf_->data(), 1, kDataSize);
@@ -854,6 +878,12 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   CefRefPtr<CefDownloadHandler> download_handler_;
   CefRefPtr<CefContentFilter> content_filter_;
+
+  // True if loading of data is currently deferred.
+  bool defers_loading_;
+
+  // True if an AsyncReadData was scheduled while we were deferred.
+  bool defers_loading_want_read_;
 };
 
 //-----------------------------------------------------------------------------
@@ -1004,7 +1034,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   }
 
   virtual void SetDefersLoading(bool value) OVERRIDE {
-    // TODO(darin): implement me
+    DCHECK(proxy_);
+    proxy_->SetDefersLoading(value);
   }
 
   virtual void SyncLoad(SyncLoadResponse* response) OVERRIDE {
