@@ -79,9 +79,7 @@ void GetPlugins(bool refresh,
 }
 
 bool IsProtocolSupportedForMedia(const GURL& url) {
-  if (url.SchemeIsFile() || url.SchemeIs("http") || url.SchemeIs("https"))
-    return true;
-  return false;
+  return true;
 }
 
 void InitializeTextEncoding() {
