@@ -124,7 +124,7 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
   ScreenToClient(GetHWND(), &client_pt);
   WebDragOperation operation;
   if (browser_->UIT_GetWebView()) {
-    browser_->UIT_GetWebView()->dragTargetDragOver(
+    operation = browser_->UIT_GetWebView()->dragTargetDragOver(
         WebPoint(client_pt.x, client_pt.y),
         WebPoint(cursor_position.x, cursor_position.y),
         web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
