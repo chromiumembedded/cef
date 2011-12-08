@@ -421,6 +421,23 @@ void CefRunMessageLoop()
   _Context->process()->RunMessageLoop();
 }
 
+void CefQuitMessageLoop()
+{
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return;
+  }
+
+  // Must always be called on the same thread as Initialize.
+  if(!_Context->process()->CalledOnValidThread()) {
+    NOTREACHED() << "called on invalid thread";
+    return;
+  }
+
+  _Context->process()->QuitMessageLoop();
+}
+
 bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {
   // Verify that the context is in a valid state.

@@ -85,6 +85,13 @@ CEF_EXPORT void cef_do_message_loop_work();
 CEF_EXPORT void cef_run_message_loop();
 
 ///
+// Quit the CEF message loop that was started by calling cef_run_message_loop().
+// This function should only be called on the main application thread and only
+// if cef_run_message_loop() was used.
+///
+CEF_EXPORT void cef_quit_message_loop();
+
+///
 // Register a new V8 extension with the specified JavaScript extension code and
 // handler. Functions implemented by the handler are prototyped using the
 // keyword 'native'. The calling of a native function is restricted to the scope

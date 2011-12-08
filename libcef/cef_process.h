@@ -60,8 +60,11 @@ class CefProcess : public base::NonThreadSafe {
   // RunMessageLoop() was called you do not need to call this method.
   void DoMessageLoopIteration();
 
-  // Run the UI message loop for the on the current thread.
+  // Run the UI message loop on the current thread.
   void RunMessageLoop();
+
+  // Quit the UI message loop on the current thread.
+  void QuitMessageLoop();
 
   // Returns the thread that we perform I/O coordination on (network requests,
   // communication with renderers, etc.

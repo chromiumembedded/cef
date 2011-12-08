@@ -166,6 +166,15 @@ CEF_EXPORT void cef_run_message_loop()
 }
 
 
+CEF_EXPORT void cef_quit_message_loop()
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefQuitMessageLoop();
+}
+
+
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
     const cef_string_t* javascript_code, struct _cef_v8handler_t* handler)
 {

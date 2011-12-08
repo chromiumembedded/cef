@@ -97,6 +97,11 @@ void CefProcess::RunMessageLoop() {
   ui_message_loop_->RunMessageLoop();
 }
 
+void CefProcess::QuitMessageLoop() {
+  DCHECK(CalledOnValidThread() && ui_message_loop_.get() != NULL);
+  ui_message_loop_->Quit();
+}
+
 void CefProcess::CreateUIThread() {
   DCHECK(!created_ui_thread_ && ui_thread_.get() == NULL);
   created_ui_thread_ = true;

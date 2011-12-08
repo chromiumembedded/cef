@@ -168,6 +168,15 @@ CEF_GLOBAL void CefRunMessageLoop()
 }
 
 
+CEF_GLOBAL void CefQuitMessageLoop()
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_quit_message_loop();
+}
+
+
 CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
     const CefString& javascript_code, CefRefPtr<CefV8Handler> handler)
 {

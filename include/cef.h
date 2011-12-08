@@ -123,6 +123,14 @@ void CefDoMessageLoopWork();
 void CefRunMessageLoop();
 
 ///
+// Quit the CEF message loop that was started by calling CefRunMessageLoop().
+// This function should only be called on the main application thread and only
+// if CefRunMessageLoop() was used.
+///
+/*--cef()--*/
+void CefQuitMessageLoop();
+
+///
 // Register a new V8 extension with the specified JavaScript extension code and
 // handler. Functions implemented by the handler are prototyped using the
 // keyword 'native'. The calling of a native function is restricted to the scope
