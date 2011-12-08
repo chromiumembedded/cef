@@ -79,6 +79,8 @@ Supported method/function attributes:
                            resulting C API function.
    optional_param=[param]  (Optional) Parameter name that will be optional
                            instead of required.
+   index_param=[param]     (Optional) Parameter name representing an index
+                           value that will be verified as >= 0.
    default_retval=[string] (Required for enumeration types, Optional for other
                            types) Specify the default return value.
    count_func=[param:func] (Required for non-const non-string std::vector

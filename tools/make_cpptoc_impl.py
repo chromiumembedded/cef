@@ -114,6 +114,14 @@ def make_cpptoc_function_impl_new(name, func, defined_names):
                       '\n  if ('+arg_name+'Count > 0 && !'+arg_name+')'\
                       '\n    return'+retval_default+';'
 
+        # check index params
+        index_params = arg.parent.get_attrib_list('index_param')
+        if not index_params is None and arg_name in index_params:
+            result += comment+\
+                      '\n  DCHECK('+arg_name+' >= 0);'\
+                      '\n  if ('+arg_name+' < 0)'\
+                      '\n    return'+retval_default+';'
+
     if len(optional) > 0:
         result += '\n  // Unverified params: '+string.join(optional,', ')
     

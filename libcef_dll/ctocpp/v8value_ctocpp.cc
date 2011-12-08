@@ -452,12 +452,17 @@ bool CefV8ValueCToCpp::HasValue(const CefString& key)
 }
 
 
-bool CefV8ValueCToCpp::HasValue(size_t index)
+bool CefV8ValueCToCpp::HasValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, has_value_byindex))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
 
   // Execute
   int _retval = struct_->has_value_byindex(struct_,
@@ -489,12 +494,17 @@ bool CefV8ValueCToCpp::DeleteValue(const CefString& key)
 }
 
 
-bool CefV8ValueCToCpp::DeleteValue(size_t index)
+bool CefV8ValueCToCpp::DeleteValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, delete_value_byindex))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
 
   // Execute
   int _retval = struct_->delete_value_byindex(struct_,
@@ -526,12 +536,17 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 }
 
 
-CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(size_t index)
+CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, get_value_byindex))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return NULL;
 
   // Execute
   cef_v8value_t* _retval = struct_->get_value_byindex(struct_,
@@ -570,13 +585,17 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key,
 }
 
 
-bool CefV8ValueCToCpp::SetValue(size_t index, CefRefPtr<CefV8Value> value)
+bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
 {
   if (CEF_MEMBER_MISSING(struct_, set_value_byindex))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
   // Verify param: value; type: refptr_same
   DCHECK(value.get());
   if (!value.get())

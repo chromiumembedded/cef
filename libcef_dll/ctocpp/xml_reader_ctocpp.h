@@ -49,14 +49,14 @@ public:
   virtual CefString GetValue() OVERRIDE;
   virtual bool HasAttributes() OVERRIDE;
   virtual size_t GetAttributeCount() OVERRIDE;
-  virtual CefString GetAttribute(size_t index) OVERRIDE;
+  virtual CefString GetAttribute(int index) OVERRIDE;
   virtual CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
   virtual CefString GetAttribute(const CefString& localName,
       const CefString& namespaceURI) OVERRIDE;
   virtual CefString GetInnerXml() OVERRIDE;
   virtual CefString GetOuterXml() OVERRIDE;
   virtual int GetLineNumber() OVERRIDE;
-  virtual bool MoveToAttribute(size_t index) OVERRIDE;
+  virtual bool MoveToAttribute(int index) OVERRIDE;
   virtual bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
   virtual bool MoveToAttribute(const CefString& localName,
       const CefString& namespaceURI) OVERRIDE;

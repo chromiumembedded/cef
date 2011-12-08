@@ -2375,8 +2375,7 @@ typedef struct _cef_v8value_t
   ///
   // Returns true (1) if the object has a value with the specified identifier.
   ///
-  int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* self,
-      size_t index);
+  int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* self, int index);
 
   ///
   // Delete the value with the specified identifier.
@@ -2388,7 +2387,7 @@ typedef struct _cef_v8value_t
   // Delete the value with the specified identifier.
   ///
   int (CEF_CALLBACK *delete_value_byindex)(struct _cef_v8value_t* self,
-      size_t index);
+      int index);
 
   ///
   // Returns the value with the specified identifier.
@@ -2400,7 +2399,7 @@ typedef struct _cef_v8value_t
   // Returns the value with the specified identifier.
   ///
   struct _cef_v8value_t* (CEF_CALLBACK *get_value_byindex)(
-      struct _cef_v8value_t* self, size_t index);
+      struct _cef_v8value_t* self, int index);
 
   ///
   // Associate a value with the specified identifier.
@@ -2412,8 +2411,8 @@ typedef struct _cef_v8value_t
   ///
   // Associate a value with the specified identifier.
   ///
-  int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self,
-      size_t index, struct _cef_v8value_t* value);
+  int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self, int index,
+      struct _cef_v8value_t* value);
 
   ///
   // Register an identifier whose access will be forwarded to the
@@ -2917,7 +2916,7 @@ typedef struct _cef_xml_reader_t
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_attribute_byindex)(
-      struct _cef_xml_reader_t* self, size_t index);
+      struct _cef_xml_reader_t* self, int index);
 
   ///
   // Returns the value of the attribute with the specified qualified name.
@@ -2965,7 +2964,7 @@ typedef struct _cef_xml_reader_t
   // true (1) if the cursor position was set successfully.
   ///
   int (CEF_CALLBACK *move_to_attribute_byindex)(struct _cef_xml_reader_t* self,
-      size_t index);
+      int index);
 
   ///
   // Moves the cursor to the attribute with the specified qualified name.

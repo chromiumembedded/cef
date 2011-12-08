@@ -355,7 +355,7 @@ size_t CefXmlReaderImpl::GetAttributeCount()
   return xmlTextReaderAttributeCount(reader_);
 }
 
-CefString CefXmlReaderImpl::GetAttribute(size_t index)
+CefString CefXmlReaderImpl::GetAttribute(int index)
 {
   if (!VerifyContext())
     return CefString();
@@ -409,7 +409,7 @@ int CefXmlReaderImpl::GetLineNumber()
   return xmlTextReaderGetParserLineNumber(reader_);
 }
 
-bool CefXmlReaderImpl::MoveToAttribute(size_t index)
+bool CefXmlReaderImpl::MoveToAttribute(int index)
 {
   if (!VerifyContext())
     return false;

@@ -315,12 +315,17 @@ size_t CefXmlReaderCToCpp::GetAttributeCount()
 }
 
 
-CefString CefXmlReaderCToCpp::GetAttribute(size_t index)
+CefString CefXmlReaderCToCpp::GetAttribute(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, get_attribute_byindex))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return CefString();
 
   // Execute
   cef_string_userfree_t _retval = struct_->get_attribute_byindex(struct_,
@@ -434,12 +439,17 @@ int CefXmlReaderCToCpp::GetLineNumber()
 }
 
 
-bool CefXmlReaderCToCpp::MoveToAttribute(size_t index)
+bool CefXmlReaderCToCpp::MoveToAttribute(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, move_to_attribute_byindex))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
+    return false;
 
   // Execute
   int _retval = struct_->move_to_attribute_byindex(struct_,

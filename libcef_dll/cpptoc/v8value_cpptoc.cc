@@ -477,12 +477,16 @@ int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
 
 
 int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
-    size_t index)
+    int index)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return 0;
 
   // Execute
@@ -517,12 +521,16 @@ int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
 
 
 int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
-    size_t index)
+    int index)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return 0;
 
   // Execute
@@ -557,12 +565,16 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
 
 
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
-    struct _cef_v8value_t* self, size_t index)
+    struct _cef_v8value_t* self, int index)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return NULL;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return NULL;
 
   // Execute
@@ -604,12 +616,16 @@ int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
 
 
 int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
-    size_t index, struct _cef_v8value_t* value)
+    int index, struct _cef_v8value_t* value)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return 0;
   // Verify param: value; type: refptr_same
   DCHECK(value);

@@ -327,12 +327,16 @@ size_t CEF_CALLBACK xml_reader_get_attribute_count(
 
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
-    struct _cef_xml_reader_t* self, size_t index)
+    struct _cef_xml_reader_t* self, int index)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return NULL;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return NULL;
 
   // Execute
@@ -445,12 +449,16 @@ int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
 
 
 int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
-    struct _cef_xml_reader_t* self, size_t index)
+    struct _cef_xml_reader_t* self, int index)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: index; type: simple_byval
+  DCHECK(index >= 0);
+  if (index < 0)
     return 0;
 
   // Execute
