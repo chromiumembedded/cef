@@ -21,6 +21,14 @@ public:
     : is_iterating_(true)
   {
   }
+#if defined(OS_MACOSX)
+  virtual ~CefMessageLoopForUI()
+  {
+    // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
+    // the state_ variable to avoid an assertion in the MessageLoop destructor.
+    state_ = NULL;
+  }
+#endif
 
   // Returns the MessageLoopForUI of the current thread.
   static CefMessageLoopForUI* current() {
