@@ -930,7 +930,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
   }
   if (index < 0) {
     NOTREACHED() << "invalid input parameter";
-    return false;
+    return NULL;
   }
 
   v8::HandleScope handle_scope;
