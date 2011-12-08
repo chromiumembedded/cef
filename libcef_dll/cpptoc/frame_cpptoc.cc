@@ -325,6 +325,38 @@ cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
 }
 
 
+long long CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  long long _retval = CefFrameCppToC::Get(self)->GetIdentifier();
+
+  // Return type: simple
+  return _retval;
+}
+
+
+struct _cef_frame_t* CEF_CALLBACK frame_get_parent(struct _cef_frame_t* self)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefFrame> _retval = CefFrameCppToC::Get(self)->GetParent();
+
+  // Return type: refptr_same
+  return CefFrameCppToC::Wrap(_retval);
+}
+
+
 cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -418,6 +450,8 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
   struct_.struct_.is_main = frame_is_main;
   struct_.struct_.is_focused = frame_is_focused;
   struct_.struct_.get_name = frame_get_name;
+  struct_.struct_.get_identifier = frame_get_identifier;
+  struct_.struct_.get_parent = frame_get_parent;
   struct_.struct_.get_url = frame_get_url;
   struct_.struct_.get_browser = frame_get_browser;
   struct_.struct_.visit_dom = frame_visit_dom;

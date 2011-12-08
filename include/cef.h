@@ -1019,7 +1019,7 @@ public:
                                  int startLine) =0;
 
   ///
-  // Returns true if this is the main frame.
+  // Returns true if this is the main (top-level) frame.
   ///
   /*--cef()--*/
   virtual bool IsMain() =0;
@@ -1032,10 +1032,28 @@ public:
   virtual bool IsFocused() =0;
 
   ///
-  // Returns this frame's name.
+  // Returns the name for this frame. If the frame has an assigned name (for
+  // example, set via the iframe "name" attribute) then that value will be
+  // returned. Otherwise a unique name will be constructed based on the frame
+  // parent hierarchy. The main (top-level) frame will always have an empty name
+  // value.
   ///
   /*--cef()--*/
   virtual CefString GetName() =0;
+
+  ///
+  // Returns the globally unique identifier for this frame. This method should
+  // only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual long long GetIdentifier() =0;
+
+  ///
+  // Returns the parent of this frame or NULL if this is the main (top-level)
+  // frame. This method should only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefFrame> GetParent() =0;
 
   ///
   // Returns the URL currently loaded in this frame. This method should only be

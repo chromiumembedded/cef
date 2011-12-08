@@ -1074,7 +1074,7 @@ class obj_argument:
             parts = string.split(val, ':')
             if len(parts) != 2:
                 raise Exception("Invalid 'count_func' attribute value for "+ \
-                                this.parent.get_qualified_name()+': '+val)
+                                self.parent.get_qualified_name()+': '+val)
             if string.strip(parts[0]) == name:
                 return string.strip(parts[1])
         return None
@@ -1392,6 +1392,7 @@ class obj_analysis:
             'double' : ['double', '0'],
             'long' : ['long', '0'],
             'unsigned long' : ['unsigned long', '0'],
+            'long long' : ['long long', '0'],
             'size_t' : ['size_t', '0'],
             'time_t' : ['time_t', '0'],
             'bool' : ['int', '0'],

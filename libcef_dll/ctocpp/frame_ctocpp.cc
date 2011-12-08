@@ -314,6 +314,36 @@ CefString CefFrameCToCpp::GetName()
 }
 
 
+long long CefFrameCToCpp::GetIdentifier()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_identifier))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  long long _retval = struct_->get_identifier(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+
+CefRefPtr<CefFrame> CefFrameCToCpp::GetParent()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_parent))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_frame_t* _retval = struct_->get_parent(struct_);
+
+  // Return type: refptr_same
+  return CefFrameCToCpp::Wrap(_retval);
+}
+
+
 CefString CefFrameCToCpp::GetURL()
 {
   if (CEF_MEMBER_MISSING(struct_, get_url))

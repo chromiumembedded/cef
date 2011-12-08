@@ -134,6 +134,8 @@ public:
                          const CefString& jsCode, 
                          const CefString& scriptUrl,
                          int startLine);
+  long long GetIdentifier(CefRefPtr<CefFrame> frame);
+  CefRefPtr<CefFrame> GetParent(CefRefPtr<CefFrame> frame);
   CefString GetURL(CefRefPtr<CefFrame> frame);
 
   // CefFrames are light-weight objects managed by the browser and loosely
@@ -444,6 +446,10 @@ public:
   virtual bool IsMain() OVERRIDE { return name_.empty(); }
   virtual bool IsFocused() OVERRIDE;
   virtual CefString GetName() OVERRIDE { return name_; }
+  virtual long long GetIdentifier() OVERRIDE
+    { return browser_->GetIdentifier(this); }
+  virtual CefRefPtr<CefFrame> GetParent() OVERRIDE
+    { return browser_->GetParent(this); }
   virtual CefString GetURL() OVERRIDE { return browser_->GetURL(this); }
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE { return browser_.get(); }
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;

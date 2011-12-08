@@ -200,3 +200,139 @@ TEST(NavigationTest, History)
     }
   }
 }
+
+
+namespace {
+
+class FrameNameIdentNavTestHandler : public TestHandler
+{
+public:
+  FrameNameIdentNavTestHandler() : browse_ct_(0) {}
+
+  virtual void RunTest() OVERRIDE
+  {
+    // Add the frame resources.
+    std::stringstream ss;
+
+    // Page with named frame
+    ss << "<html>Nav1<iframe src=\"" << kNav2 << "\" name=\"nav2\"></html>";
+    AddResource(kNav1, ss.str(), "text/html");
+    ss.str("");
+
+    // Page with unnamed frame
+    ss << "<html>Nav2<iframe src=\"" << kNav3 << "\"></html>";
+    AddResource(kNav2, ss.str(), "text/html");
+    ss.str("");
+
+    AddResource(kNav3, "<html>Nav3</html>", "text/html");
+
+    // Create the browser.
+    CreateBrowser(kNav1);
+  }
+
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              NavType navType,
+                              bool isRedirect) OVERRIDE
+  {
+    std::string url = request->GetURL();
+    std::string name = frame->GetName();
+    CefRefPtr<CefFrame> parent = frame->GetParent();
+
+    if (url == kNav1) {
+      frame1_ident_ = frame->GetIdentifier();
+      if (name == "")
+        got_frame1_name_.yes();
+      if (!parent.get())
+        got_frame1_ident_parent_before_.yes();
+    } else if (url == kNav2) {
+      frame2_ident_ = frame->GetIdentifier();
+      if (name == "nav2")
+        got_frame2_name_.yes();
+      if (parent.get() && frame1_ident_ == parent->GetIdentifier())
+        got_frame2_ident_parent_before_.yes();
+    } else if (url == kNav3) {
+      frame3_ident_ = frame->GetIdentifier();
+      if (name == "<!--framePath //nav2/<!--frame0-->-->")
+        got_frame3_name_.yes();
+       if (parent.get() && frame2_ident_ == parent->GetIdentifier())
+        got_frame3_ident_parent_before_.yes();
+    }
+
+    return false;
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    std::string url = frame->GetURL();
+    CefRefPtr<CefFrame> parent = frame->GetParent();
+
+    if (url == kNav1) {
+      if (frame1_ident_ == frame->GetIdentifier())
+        got_frame1_ident_.yes();
+      if (!parent.get())
+        got_frame1_ident_parent_after_.yes();
+    } else if (url == kNav2) {
+      if (frame2_ident_ == frame->GetIdentifier())
+        got_frame2_ident_.yes();
+      if (parent.get() && frame1_ident_ == parent->GetIdentifier())
+        got_frame2_ident_parent_after_.yes();
+    } else if (url == kNav3) {
+      if (frame3_ident_ == frame->GetIdentifier())
+        got_frame3_ident_.yes();
+      if (parent.get() && frame2_ident_ == parent->GetIdentifier())
+        got_frame3_ident_parent_after_.yes();
+    }
+
+    if (++browse_ct_ == 3)
+      DestroyTest();
+  }
+
+  int browse_ct_;
+
+  long long frame1_ident_;
+  long long frame2_ident_;
+  long long frame3_ident_;
+
+  TrackCallback got_frame1_name_;
+  TrackCallback got_frame2_name_;
+  TrackCallback got_frame3_name_;
+  TrackCallback got_frame1_ident_;
+  TrackCallback got_frame2_ident_;
+  TrackCallback got_frame3_ident_;
+  TrackCallback got_frame1_ident_parent_before_;
+  TrackCallback got_frame2_ident_parent_before_;
+  TrackCallback got_frame3_ident_parent_before_;
+  TrackCallback got_frame1_ident_parent_after_;
+  TrackCallback got_frame2_ident_parent_after_;
+  TrackCallback got_frame3_ident_parent_after_;
+};
+
+} // namespace
+
+// Verify frame names and identifiers.
+TEST(NavigationTest, FrameNameIdent)
+{
+  CefRefPtr<FrameNameIdentNavTestHandler> handler =
+      new FrameNameIdentNavTestHandler();
+  handler->ExecuteTest();
+
+  ASSERT_GT(handler->frame1_ident_, 0);
+  ASSERT_GT(handler->frame2_ident_, 0);
+  ASSERT_GT(handler->frame3_ident_, 0);
+  ASSERT_TRUE(handler->got_frame1_name_);
+  ASSERT_TRUE(handler->got_frame2_name_);
+  ASSERT_TRUE(handler->got_frame3_name_);
+  ASSERT_TRUE(handler->got_frame1_ident_);
+  ASSERT_TRUE(handler->got_frame2_ident_);
+  ASSERT_TRUE(handler->got_frame3_ident_);
+  ASSERT_TRUE(handler->got_frame1_ident_parent_before_);
+  ASSERT_TRUE(handler->got_frame2_ident_parent_before_);
+  ASSERT_TRUE(handler->got_frame3_ident_parent_before_);
+  ASSERT_TRUE(handler->got_frame1_ident_parent_after_);
+  ASSERT_TRUE(handler->got_frame2_ident_parent_after_);
+  ASSERT_TRUE(handler->got_frame3_ident_parent_after_);
+}

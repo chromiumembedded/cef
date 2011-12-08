@@ -54,6 +54,8 @@ public:
   virtual bool IsMain() OVERRIDE;
   virtual bool IsFocused() OVERRIDE;
   virtual CefString GetName() OVERRIDE;
+  virtual long long GetIdentifier() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetParent() OVERRIDE;
   virtual CefString GetURL() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;

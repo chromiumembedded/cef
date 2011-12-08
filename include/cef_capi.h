@@ -854,7 +854,7 @@ typedef struct _cef_frame_t
       int startLine);
 
   ///
-  // Returns true (1) if this is the main frame.
+  // Returns true (1) if this is the main (top-level) frame.
   ///
   int (CEF_CALLBACK *is_main)(struct _cef_frame_t* self);
 
@@ -865,10 +865,26 @@ typedef struct _cef_frame_t
   int (CEF_CALLBACK *is_focused)(struct _cef_frame_t* self);
 
   ///
-  // Returns this frame's name.
+  // Returns the name for this frame. If the frame has an assigned name (for
+  // example, set via the iframe "name" attribute) then that value will be
+  // returned. Otherwise a unique name will be constructed based on the frame
+  // parent hierarchy. The main (top-level) frame will always have an NULL name
+  // value.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_name)(struct _cef_frame_t* self);
+
+  ///
+  // Returns the globally unique identifier for this frame. This function should
+  // only be called on the UI thread.
+  ///
+  long long (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
+
+  ///
+  // Returns the parent of this frame or NULL if this is the main (top-level)
+  // frame. This function should only be called on the UI thread.
+  ///
+  struct _cef_frame_t* (CEF_CALLBACK *get_parent)(struct _cef_frame_t* self);
 
   ///
   // Returns the URL currently loaded in this frame. This function should only

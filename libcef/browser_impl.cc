@@ -609,6 +609,39 @@ void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
       startLine));
 }
 
+long long CefBrowserImpl::GetIdentifier(CefRefPtr<CefFrame> frame)
+{
+  // Verify that this method is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED() << "called on invalid thread";
+    return 0;
+  }
+
+  WebFrame* web_frame = UIT_GetWebFrame(frame);
+  if(web_frame)
+    return web_frame->identifier();
+  return 0;
+}
+
+CefRefPtr<CefFrame> CefBrowserImpl::GetParent(CefRefPtr<CefFrame> frame)
+{
+  // Verify that this method is being called on the UI thread.
+  if (!CefThread::CurrentlyOn(CefThread::UI)) {
+    NOTREACHED() << "called on invalid thread";
+    return NULL;
+  }
+
+  WebFrame* web_frame = UIT_GetWebFrame(frame);
+  if(web_frame) {
+    if (web_frame->parent() == NULL) {
+      // This is the main frame.
+      return NULL;
+    }
+    return UIT_GetCefFrame(web_frame->parent());
+  }
+  return NULL;
+}
+
 CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame)
 {
   // Verify that this method is being called on the UI thread.
