@@ -1281,7 +1281,7 @@ typedef struct _cef_menu_handler_t
   ///
   int (CEF_CALLBACK *on_before_menu)(struct _cef_menu_handler_t* self,
       struct _cef_browser_t* browser,
-      const struct _cef_handler_menuinfo_t* menuInfo);
+      const struct _cef_menu_info_t* menuInfo);
 
   ///
   // Called to optionally override the default text for a context menu item.
@@ -1289,7 +1289,7 @@ typedef struct _cef_menu_handler_t
   // alternate text.
   ///
   void (CEF_CALLBACK *get_menu_label)(struct _cef_menu_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_handler_menuid_t menuId,
+      struct _cef_browser_t* browser, enum cef_menu_id_t menuId,
       cef_string_t* label);
 
   ///
@@ -1297,7 +1297,7 @@ typedef struct _cef_menu_handler_t
   // false (0) to execute the default action or true (1) to cancel the action.
   ///
   int (CEF_CALLBACK *on_menu_action)(struct _cef_menu_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_handler_menuid_t menuId);
+      struct _cef_browser_t* browser, enum cef_menu_id_t menuId);
 
 } cef_menu_handler_t;
 
@@ -1494,7 +1494,7 @@ typedef struct _cef_render_handler_t
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, enum cef_paint_element_type_t type,
-      size_t dirtyRectCount, cef_rect_t const* dirtyRects,
+      size_t dirtyRectsCount, cef_rect_t const* dirtyRects,
       const void* buffer);
 
   ///
@@ -1745,8 +1745,8 @@ typedef struct _cef_post_data_t
   ///
   // Retrieve the post data elements.
   ///
-  struct _cef_post_data_element_t* (CEF_CALLBACK *get_elements)(
-      struct _cef_post_data_t* self, int elementIndex);
+  void (CEF_CALLBACK *get_elements)(struct _cef_post_data_t* self,
+      size_t* elementsCount, struct _cef_post_data_element_t** elements);
 
   ///
   // Remove the specified post data element.  Returns true (1) if the removal
@@ -2159,7 +2159,7 @@ typedef struct _cef_v8handler_t
   ///
   int (CEF_CALLBACK *execute)(struct _cef_v8handler_t* self,
       const cef_string_t* name, struct _cef_v8value_t* object,
-      size_t argumentCount, struct _cef_v8value_t* const* arguments,
+      size_t argumentsCount, struct _cef_v8value_t* const* arguments,
       struct _cef_v8value_t** retval, cef_string_t* exception);
 
 } cef_v8handler_t;
@@ -2375,7 +2375,8 @@ typedef struct _cef_v8value_t
   ///
   // Returns true (1) if the object has a value with the specified identifier.
   ///
-  int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* self, int index);
+  int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* self,
+      size_t index);
 
   ///
   // Delete the value with the specified identifier.
@@ -2387,7 +2388,7 @@ typedef struct _cef_v8value_t
   // Delete the value with the specified identifier.
   ///
   int (CEF_CALLBACK *delete_value_byindex)(struct _cef_v8value_t* self,
-      int index);
+      size_t index);
 
   ///
   // Returns the value with the specified identifier.
@@ -2399,7 +2400,7 @@ typedef struct _cef_v8value_t
   // Returns the value with the specified identifier.
   ///
   struct _cef_v8value_t* (CEF_CALLBACK *get_value_byindex)(
-      struct _cef_v8value_t* self, int index);
+      struct _cef_v8value_t* self, size_t index);
 
   ///
   // Associate a value with the specified identifier.
@@ -2411,8 +2412,8 @@ typedef struct _cef_v8value_t
   ///
   // Associate a value with the specified identifier.
   ///
-  int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self, int index,
-      struct _cef_v8value_t* value);
+  int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self,
+      size_t index, struct _cef_v8value_t* value);
 
   ///
   // Register an identifier whose access will be forwarded to the
@@ -2473,7 +2474,7 @@ typedef struct _cef_v8value_t
   // called incorrectly.
   ///
   int (CEF_CALLBACK *execute_function)(struct _cef_v8value_t* self,
-      struct _cef_v8value_t* object, size_t argumentCount,
+      struct _cef_v8value_t* object, size_t argumentsCount,
       struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
       struct _cef_v8exception_t** exception, int rethrow_exception);
 
@@ -2488,7 +2489,7 @@ typedef struct _cef_v8value_t
   ///
   int (CEF_CALLBACK *execute_function_with_context)(struct _cef_v8value_t* self,
       struct _cef_v8context_t* context, struct _cef_v8value_t* object,
-      size_t argumentCount, struct _cef_v8value_t* const* arguments,
+      size_t argumentsCount, struct _cef_v8value_t* const* arguments,
       struct _cef_v8value_t** retval, struct _cef_v8exception_t** exception,
       int rethrow_exception);
 
@@ -2916,7 +2917,7 @@ typedef struct _cef_xml_reader_t
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_attribute_byindex)(
-      struct _cef_xml_reader_t* self, int index);
+      struct _cef_xml_reader_t* self, size_t index);
 
   ///
   // Returns the value of the attribute with the specified qualified name.
@@ -2964,7 +2965,7 @@ typedef struct _cef_xml_reader_t
   // true (1) if the cursor position was set successfully.
   ///
   int (CEF_CALLBACK *move_to_attribute_byindex)(struct _cef_xml_reader_t* self,
-      int index);
+      size_t index);
 
   ///
   // Moves the cursor to the attribute with the specified qualified name.

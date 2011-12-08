@@ -238,7 +238,8 @@ void PrintSettings::UpdatePrintOptions(cef_print_options_t& print_options) {
   print_options.paper_margins.footer = ConvertUnitDouble(
       requested_margins.footer, desired_dpi, 1);
 }
-void PrintSettings::UpdateFromPrintOptions(const cef_print_options_t& print_options) {
+void PrintSettings::UpdateFromPrintOptions(
+    const cef_print_options_t& print_options) {
   landscape = print_options.page_orientation == LANDSCAPE;
   page_measurements.page_type = print_options.paper_metrics.paper_type;
   if (page_measurements.page_type == PT_CUSTOM) {

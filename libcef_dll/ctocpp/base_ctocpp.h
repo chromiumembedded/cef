@@ -18,6 +18,9 @@ public:
   // received from the other side.
   static CefRefPtr<CefBase> Wrap(cef_base_t* s)
   {
+    if (!s)
+      return NULL;
+
     // Wrap their structure with the CefCToCpp object.
     CefBaseCToCpp* wrapper = new CefBaseCToCpp(s);
     // Put the wrapper object in a smart pointer.
@@ -33,6 +36,9 @@ public:
   // instance for return back to the other side.
   static cef_base_t* Unwrap(CefRefPtr<CefBase> c)
   {
+    if (!c.get())
+      return NULL;
+
     // Cast the object to our wrapper class type.
     CefBaseCToCpp* wrapper = static_cast<CefBaseCToCpp*>(c.get());
     // Add a reference to the CefCppToC wrapper object on the other side that

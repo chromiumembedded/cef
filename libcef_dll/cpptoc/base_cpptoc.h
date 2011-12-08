@@ -20,6 +20,8 @@ public:
   // is done in this case.
   static CefRefPtr<CefBase> Get(cef_base_t* s)
   {
+    DCHECK(s);
+
     // Cast our structure to the wrapper structure type.
     CefBaseCppToC::Struct* wrapperStruct =
         reinterpret_cast<CefBaseCppToC::Struct*>(s);
@@ -31,6 +33,9 @@ public:
   // instance to the other side.
   static cef_base_t* Wrap(CefRefPtr<CefBase> c)
   {
+    if (!c.get())
+      return NULL;
+
     // Wrap our object with the CefCppToC class.
     CefBaseCppToC* wrapper = new CefBaseCppToC(c);
     // Add a reference to our wrapper object that will be released once our
@@ -44,6 +49,9 @@ public:
   // our wrapper structure back from the other side.
   static CefRefPtr<CefBase> Unwrap(cef_base_t* s)
   {
+    if (!s)
+      return NULL;
+
     // Cast our structure to the wrapper structure type.
     CefBaseCppToC::Struct* wrapperStruct =
         reinterpret_cast<CefBaseCppToC::Struct*>(s);

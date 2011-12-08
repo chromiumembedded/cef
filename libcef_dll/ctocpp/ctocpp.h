@@ -39,7 +39,8 @@ public:
   // instance for return back to the other side.
   static StructName* Unwrap(CefRefPtr<BaseName> c)
   {
-    DCHECK(c.get());
+    if (!c.get())
+      return NULL;
 
     // Cast the object to our wrapper class type.
     ClassName* wrapper = static_cast<ClassName*>(c.get());

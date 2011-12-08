@@ -496,8 +496,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   {
     // Make a copy of settings.
     printing::PrintSettings settings = print_context_.settings();
-    cef_print_options_t print_options;
-    memset(&print_options, 0, sizeof(print_options));
+    CefPrintOptions print_options;
     settings.UpdatePrintOptions(print_options);  
     
     CefRefPtr<CefPrintHandler> handler;

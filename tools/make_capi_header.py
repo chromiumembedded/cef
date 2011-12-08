@@ -3,6 +3,7 @@
 # can be found in the LICENSE file.
 
 from cef_parser import *
+from date_util import *
 
 def make_capi_global_funcs(funcs, defined_names, translate_map, indent):
     result = ''
@@ -45,7 +46,7 @@ def make_capi_header(header):
     
     # header string
     result = \
-"""// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+"""// Copyright (c) $YEAR$ Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -96,6 +97,8 @@ extern "C" {
 #include "internal/cef_types.h"
 
 """
+    # add the copyright year
+    result = result.replace('$YEAR$', get_year())
 
     # output global functions
     result += make_capi_global_funcs(header.get_funcs(), defined_names,

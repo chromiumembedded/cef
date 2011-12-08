@@ -275,8 +275,8 @@ public:
   void UIT_Show(WebKit::WebNavigationPolicy policy);
   
   // Handles most simple browser actions
-  void UIT_HandleActionView(cef_handler_menuid_t menuId);
-  void UIT_HandleAction(cef_handler_menuid_t menuId, CefRefPtr<CefFrame> frame);
+  void UIT_HandleActionView(cef_menu_id_t menuId);
+  void UIT_HandleAction(cef_menu_id_t menuId, CefRefPtr<CefFrame> frame);
 
   // Save the document HTML to a temporary file and open in the default viewing
   // application

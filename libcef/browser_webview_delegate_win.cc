@@ -63,7 +63,7 @@ static const wchar_t kPluginWindowClassName[] = L"WebPluginHost";
 void AddMenuItem(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefMenuHandler> handler,
                  HMENU menu,
-                 cef_handler_menuid_t menuId,
+                 cef_menu_id_t menuId,
                  const wchar_t* label,
                  bool enabled,
                  std::list<std::wstring>& label_list)
@@ -504,8 +504,7 @@ void BrowserWebViewDelegate::showContextMenu(
 
   if (selected_id != 0) {
     // An action was chosen
-    cef_handler_menuid_t menuId =
-        static_cast<cef_handler_menuid_t>(selected_id);
+    cef_menu_id_t menuId = static_cast<cef_menu_id_t>(selected_id);
     bool handled = false;
     if (handler.get()) {
       // Ask the handler if it wants to handle the action

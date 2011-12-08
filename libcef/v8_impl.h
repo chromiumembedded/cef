@@ -127,14 +127,14 @@ public:
   virtual CefTime GetDateValue() OVERRIDE;
   virtual CefString GetStringValue() OVERRIDE;
   virtual bool HasValue(const CefString& key) OVERRIDE;
-  virtual bool HasValue(int index) OVERRIDE;
+  virtual bool HasValue(size_t index) OVERRIDE;
   virtual bool DeleteValue(const CefString& key) OVERRIDE;
-  virtual bool DeleteValue(int index) OVERRIDE;
+  virtual bool DeleteValue(size_t index) OVERRIDE;
   virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
+  virtual CefRefPtr<CefV8Value> GetValue(size_t index) OVERRIDE;
   virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
                         PropertyAttribute attribute) OVERRIDE;
-  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
+  virtual bool SetValue(size_t index, CefRefPtr<CefV8Value> value) OVERRIDE;
   virtual bool SetValue(const CefString& key, AccessControl settings, 
                         PropertyAttribute attribute) OVERRIDE;
   virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;

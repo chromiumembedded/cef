@@ -21,37 +21,37 @@ public:
   bool Initialize(CefRefPtr<CefStreamReader> stream,
                   EncodingType encodingType, const CefString& URI);
 
-  virtual bool MoveToNextNode();
-  virtual bool Close();
-  virtual bool HasError();
-  virtual CefString GetError();
-  virtual NodeType GetType();
-  virtual int GetDepth();
-  virtual CefString GetLocalName();
-  virtual CefString GetPrefix();
-  virtual CefString GetQualifiedName();
-  virtual CefString GetNamespaceURI();
-  virtual CefString GetBaseURI();
-  virtual CefString GetXmlLang();
-  virtual bool IsEmptyElement();
-  virtual bool HasValue();
-  virtual CefString GetValue();
-  virtual bool HasAttributes();
-  virtual size_t GetAttributeCount();
-  virtual CefString GetAttribute(int index);
-  virtual CefString GetAttribute(const CefString& qualifiedName);
+  virtual bool MoveToNextNode() OVERRIDE;
+  virtual bool Close() OVERRIDE;
+  virtual bool HasError() OVERRIDE;
+  virtual CefString GetError() OVERRIDE;
+  virtual NodeType GetType() OVERRIDE;
+  virtual int GetDepth() OVERRIDE;
+  virtual CefString GetLocalName() OVERRIDE;
+  virtual CefString GetPrefix() OVERRIDE;
+  virtual CefString GetQualifiedName() OVERRIDE;
+  virtual CefString GetNamespaceURI() OVERRIDE;
+  virtual CefString GetBaseURI() OVERRIDE;
+  virtual CefString GetXmlLang() OVERRIDE;
+  virtual bool IsEmptyElement() OVERRIDE;
+  virtual bool HasValue() OVERRIDE;
+  virtual CefString GetValue() OVERRIDE;
+  virtual bool HasAttributes() OVERRIDE;
+  virtual size_t GetAttributeCount() OVERRIDE;
+  virtual CefString GetAttribute(size_t index) OVERRIDE;
+  virtual CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
   virtual CefString GetAttribute(const CefString& localName,
-                                 const CefString& namespaceURI);
-  virtual CefString GetInnerXml();
-  virtual CefString GetOuterXml();
-  virtual int GetLineNumber();
-  virtual bool MoveToAttribute(int index);
-  virtual bool MoveToAttribute(const CefString& qualifiedName);
+                                 const CefString& namespaceURI) OVERRIDE;
+  virtual CefString GetInnerXml() OVERRIDE;
+  virtual CefString GetOuterXml() OVERRIDE;
+  virtual int GetLineNumber() OVERRIDE;
+  virtual bool MoveToAttribute(size_t index) OVERRIDE;
+  virtual bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
   virtual bool MoveToAttribute(const CefString& localName,
-                               const CefString& namespaceURI);
-  virtual bool MoveToFirstAttribute();
-  virtual bool MoveToNextAttribute();
-  virtual bool MoveToCarryingElement();
+                               const CefString& namespaceURI) OVERRIDE;
+  virtual bool MoveToFirstAttribute() OVERRIDE;
+  virtual bool MoveToNextAttribute() OVERRIDE;
+  virtual bool MoveToCarryingElement() OVERRIDE;
 
   // Add another line to the error string.
   void AppendError(const CefString& error_str);

@@ -30,6 +30,8 @@ public:
   // is done in this case.
   static CefRefPtr<BaseName> Get(StructName* s)
   {
+    DCHECK(s);
+
     // Cast our structure to the wrapper structure type.
     Struct* wrapperStruct = reinterpret_cast<Struct*>(s);
     // Return the underlying object instance.
@@ -56,7 +58,8 @@ public:
   // our wrapper structure back from the other side.
   static CefRefPtr<BaseName> Unwrap(StructName* s)
   {
-    DCHECK(s);
+    if (!s)
+      return NULL;
 
     // Cast our structure to the wrapper structure type.
     Struct* wrapperStruct = reinterpret_cast<Struct*>(s);

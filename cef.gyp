@@ -492,6 +492,7 @@
         'libcef_dll/ctocpp/write_handler_ctocpp.cc',
         'libcef_dll/ctocpp/write_handler_ctocpp.h',
         'libcef_dll/libcef_dll.cc',
+        'libcef_dll/libcef_dll2.cc',
         'libcef_dll/resource.h',
         'libcef_dll/transfer_util.cpp',
         'libcef_dll/transfer_util.h',

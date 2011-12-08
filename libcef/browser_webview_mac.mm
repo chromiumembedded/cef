@@ -232,8 +232,7 @@
 }
 
 - (void)menuItemSelected:(id)sender {
-  cef_handler_menuid_t menuId =
-      static_cast<cef_handler_menuid_t>([sender tag]);
+  cef_menu_id_t menuId = static_cast<cef_menu_id_t>([sender tag]);
   bool handled = false;
 
   CefRefPtr<CefClient> client = browser_->GetClient();

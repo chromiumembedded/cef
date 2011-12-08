@@ -345,8 +345,7 @@ void BrowserWebViewDelegate::HandleContextMenu(int selected_id)
       handler = client->GetMenuHandler();
 
     // An action was chosen
-    cef_handler_menuid_t menuId =
-        static_cast<cef_handler_menuid_t>(selected_id);
+    cef_menu_id_t menuId = static_cast<cef_menu_id_t>(selected_id);
     bool handled = false;
     if (handler.get()) {
       // Ask the handler if it wants to handle the action

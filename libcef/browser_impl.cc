@@ -1199,12 +1199,12 @@ void CefBrowserImpl::UIT_Show(WebKit::WebNavigationPolicy policy)
   delegate_->show(policy);
 }
 
-void CefBrowserImpl::UIT_HandleActionView(cef_handler_menuid_t menuId)
+void CefBrowserImpl::UIT_HandleActionView(cef_menu_id_t menuId)
 {
   return UIT_HandleAction(menuId, NULL);
 }
 
-void CefBrowserImpl::UIT_HandleAction(cef_handler_menuid_t menuId,
+void CefBrowserImpl::UIT_HandleAction(cef_menu_id_t menuId,
                                       CefRefPtr<CefFrame> frame)
 {
   REQUIRE_UIT();

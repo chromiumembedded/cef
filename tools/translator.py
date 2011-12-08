@@ -28,10 +28,14 @@ parser.add_option('--cpp-header', dest='cppheader', metavar='FILE',
                   help='source CEF C++ header file [required]')
 parser.add_option('--capi-header', dest='capiheader', metavar='FILE',
                   help='output CEF C API header file')
+parser.add_option('--cpptoc-global-impl', dest='cpptocglobalimpl', metavar='FILE',
+                  help='input/output file for CppToC global translations')
+parser.add_option('--ctocpp-global-impl', dest='ctocppglobalimpl', metavar='FILE',
+                  help='input/output file for CppToC global translations')
 parser.add_option('--cpptoc-dir', dest='cpptocdir', metavar='DIR',
-                  help='input/output directory for CppToC translations')
+                  help='input/output directory for CppToC class translations')
 parser.add_option('--ctocpp-dir', dest='ctocppdir', metavar='DIR',
-                  help='input/output directory for CppToC translations')
+                  help='input/output directory for CppToC class translations')
 parser.add_option('--no-cpptoc-header',
                   action='store_true', dest='nocpptocheader', default=False,
                   help='do not output the CppToC headers')
@@ -91,36 +95,50 @@ else:
 
 classes = sorted(classes)
 
+if not options.cpptocglobalimpl is None:
+    # output CppToC global file
+    if not options.quiet:
+        sys.stdout.write('Generating CppToC global implementation...\n')
+    writect += write_cpptoc_impl(header, None, options.cpptocglobalimpl, \
+                                 not options.nobackup)
+
+if not options.ctocppglobalimpl is None:
+    # output CToCpp global file
+    if not options.quiet:
+        sys.stdout.write('Generating CToCpp global implementation...\n')
+    writect += write_ctocpp_impl(header, None, options.ctocppglobalimpl, \
+                                 not options.nobackup)
+
 if not options.cpptocdir is None:
-    #output CppToC files
+    #output CppToC class files
     if not options.quiet:
         sys.stdout.write('In CppToC directory '+options.cpptocdir+'...\n')
     
     for cls in classes:
         if not options.nocpptocheader:
             if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CppToC header...\n')
+                sys.stdout.write('Generating '+cls+'CppToC class header...\n')
             writect += write_cpptoc_header(header, cls, options.cpptocdir,
                                            not options.nobackup)
         if not options.nocpptocimpl:
             if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CppToC implementation...\n')
+                sys.stdout.write('Generating '+cls+'CppToC class implementation...\n')
             writect += write_cpptoc_impl(header, cls, options.cpptocdir,
                                          not options.nobackup)
 
 if not options.ctocppdir is None:
-    #output CppToC files
+    #output CppToC class files
     if not options.quiet:
         sys.stdout.write('In CToCpp directory '+options.ctocppdir+'...\n')
     for cls in classes:
         if not options.nocpptocheader:
             if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CToCpp header...\n')
+                sys.stdout.write('Generating '+cls+'CToCpp class header...\n')
             writect += write_ctocpp_header(header, cls, options.ctocppdir,
                                            not options.nobackup)
         if not options.nocpptocimpl:
             if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CToCpp implementation...\n')
+                sys.stdout.write('Generating '+cls+'CToCpp class implementation...\n')
             writect += write_ctocpp_impl(header, cls, options.ctocppdir,
                                          not options.nobackup)
 

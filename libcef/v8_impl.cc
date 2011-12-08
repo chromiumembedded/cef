@@ -851,7 +851,7 @@ bool CefV8ValueImpl::HasValue(const CefString& key)
   return obj->Has(GetV8String(key));
 }
 
-bool CefV8ValueImpl::HasValue(int index)
+bool CefV8ValueImpl::HasValue(size_t index)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
@@ -859,11 +859,6 @@ bool CefV8ValueImpl::HasValue(int index)
     return false;
   }
 
-  if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
-    return false;
-  }
-  
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
   return obj->Has(index);
@@ -887,7 +882,7 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key)
   return obj->Delete(GetV8String(key));
 }
 
-bool CefV8ValueImpl::DeleteValue(int index)
+bool CefV8ValueImpl::DeleteValue(size_t index)
 {
   CEF_REQUIRE_UI_THREAD(false);
   if(!GetHandle()->IsObject()) {
@@ -895,11 +890,6 @@ bool CefV8ValueImpl::DeleteValue(int index)
     return false;
   }
 
-  if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
-    return false;
-  }
-  
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
   return obj->Delete(index);
@@ -923,16 +913,11 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key)
   return new CefV8ValueImpl(obj->Get(GetV8String(key)));
 }
 
-CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
+CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(size_t index)
 {
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsObject()) {
     NOTREACHED() << "V8 value is not an object";
-    return NULL;
-  }
-
-  if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
     return NULL;
   }
 
@@ -963,17 +948,12 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   }
 }
 
-bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value)
+bool CefV8ValueImpl::SetValue(size_t index, CefRefPtr<CefV8Value> value)
 {
   CEF_REQUIRE_UI_THREAD(false);
 
   if(!GetHandle()->IsObject()) {
     NOTREACHED() << "V8 value is not an object";
-    return false;
-  }
-
-  if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
     return false;
   }
 

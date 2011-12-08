@@ -235,6 +235,7 @@
       'libcef_dll/wrapper/cef_xml_object.cc',
       'libcef_dll/wrapper/cef_zip_archive.cc',
       'libcef_dll/wrapper/libcef_dll_wrapper.cc',
+      'libcef_dll/wrapper/libcef_dll_wrapper2.cc',
     ],
   },
 }

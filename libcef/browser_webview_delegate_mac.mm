@@ -48,7 +48,7 @@ namespace {
 void AddMenuItem(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefMenuHandler> handler,
                  NSMenu* menu,
-                 cef_handler_menuid_t menuId,
+                 cef_menu_id_t menuId,
                  const std::string& label,
                  bool enabled) {
   std::string disp_str;

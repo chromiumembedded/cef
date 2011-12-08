@@ -18,8 +18,6 @@ void CefTestSuite::Initialize() {
   CefSettings settings;
   settings.multi_threaded_message_loop = true;
 
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-
   std::string cache_path;
   if (GetCachePath(cache_path)) {
     // Set the cache_path value.

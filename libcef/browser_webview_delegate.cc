@@ -1243,8 +1243,7 @@ bool BrowserWebViewDelegate::OnBeforeMenu(
 
   if (handler.get()) {
     // Gather menu information.
-    cef_handler_menuinfo_t menuInfo;
-    memset(&menuInfo, 0, sizeof(menuInfo));
+    CefMenuInfo menuInfo;
 
     CefString linkStr(std::string(data.linkURL.spec()));
     CefString imageStr(std::string(data.srcURL.spec()));
