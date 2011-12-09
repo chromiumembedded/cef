@@ -8,6 +8,8 @@ from gclient_util import *
 from optparse import OptionParser
 import os
 import re
+import shlex
+import subprocess
 from svn_util import *
 import sys
 import zipfile
@@ -108,6 +110,14 @@ def fix_msvs_projects():
     data = read_file(file)
     data = data.replace('../../..\\build\\', '')
     write_file(file, data)
+
+def run(command_line, working_dir):
+  """ Run a command. """
+  sys.stdout.write('-------- Running "'+command_line+'" in "'+\
+                   working_dir+'"...'+"\n")
+  args = shlex.split(command_line.replace('\\', '\\\\'))
+  return subprocess.check_call(args, cwd=working_dir, env=os.environ,
+                               shell=(sys.platform == 'win32'))
 
 # cannot be loaded as a module
 if __name__ != "__main__":
@@ -311,9 +321,11 @@ elif platform == 'macosx':
     copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
 
-    # transfer symbols
-    copy_dir(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib.dSYM'), \
-             os.path.join(symbol_dir, 'libcef.dylib.dSYM'), options.quiet)
+    # create the real dSYM file from the "fake" dSYM file
+    sys.stdout.write("Creating the real dSYM file...\n")
+    src_path = os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib.dSYM/Contents/Resources/DWARF/libcef.dylib')
+    dst_path = os.path.join(symbol_dir, 'libcef.dylib.dSYM')
+    run('dsymutil '+src_path+' -o '+dst_path, cef_dir)
 
   # transfer resource files
   dst_dir = os.path.join(output_dir, 'Resources')
