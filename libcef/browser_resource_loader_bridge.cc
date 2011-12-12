@@ -922,9 +922,10 @@ class SyncRequestProxy : public RequestProxy {
   // Event hooks that run on the IO thread:
 
   virtual void OnReceivedRedirect(
+      const GURL& old_url,
       const GURL& new_url,
       const ResourceResponseInfo& info,
-      bool* defer_redirect) {
+      bool* defer_redirect) OVERRIDE {
     // TODO(darin): It would be much better if this could live in WebCore, but
     // doing so requires API changes at all levels.  Similar code exists in
     // WebCore/platform/network/cf/ResourceHandleCFNet.cpp :-(
@@ -937,11 +938,11 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   virtual void OnReceivedResponse(const ResourceResponseInfo& info,
-                                  const GURL&) {
+                                  const GURL&) OVERRIDE {
     *static_cast<ResourceResponseInfo*>(result_) = info;
   }
 
-  virtual void OnReceivedData(int bytes_read) {
+  virtual void OnReceivedData(int bytes_read) OVERRIDE {
     if (download_to_file_)
       file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
     else
@@ -951,7 +952,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
-                                  const base::Time& complete_time) {
+                                  const base::Time& complete_time) OVERRIDE {
     if (download_to_file_)
       file_stream_.Close();
     
@@ -960,7 +961,7 @@ class SyncRequestProxy : public RequestProxy {
   }
 
  protected:
-  virtual void InitializeParams(RequestParams* params) {
+  virtual void InitializeParams(RequestParams* params) OVERRIDE {
     // For synchronous requests ignore load limits to avoid a deadlock problem
     // in SyncRequestProxy (issue #192).
     params->load_flags |= net::LOAD_IGNORE_LIMITS;
