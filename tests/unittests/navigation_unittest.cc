@@ -336,3 +336,104 @@ TEST(NavigationTest, FrameNameIdent)
   ASSERT_TRUE(handler->got_frame2_ident_parent_after_);
   ASSERT_TRUE(handler->got_frame3_ident_parent_after_);
 }
+
+
+namespace {
+
+class RedirectTestHandler : public TestHandler
+{
+public:
+  RedirectTestHandler() {}
+
+  virtual void RunTest() OVERRIDE
+  {
+    // Create the browser.
+    CreateBrowser(kNav1);
+  }
+
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              NavType navType,
+                              bool isRedirect) OVERRIDE
+  {
+    std::string url = request->GetURL();
+
+    if (url == kNav1) {
+      got_nav1_before_browse_.yes();
+    } else if (url == kNav2) {
+      // should not happen
+      got_nav2_before_browse_.yes();
+    } else if (url == kNav3) {
+      got_nav3_before_browse_.yes();
+
+      // End of test.
+      DestroyTest();
+    }
+
+    return false;
+  }
+
+  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefRequest> request,
+                                    CefString& redirectUrl,
+                                    CefRefPtr<CefStreamReader>& resourceStream,
+                                    CefRefPtr<CefResponse> response,
+                                    int loadFlags) OVERRIDE
+  {
+    std::string url = request->GetURL();
+
+    if (url == kNav1) {
+      got_nav1_before_resource_load_.yes();
+      
+      // Redirect to the 2nd URL.
+      redirectUrl = kNav2;
+    } else if(url == kNav2) {
+      // Should not happen.
+      got_nav2_before_resource_load_.yes();
+    } else if(url == kNav3) {
+      // Should not happen.
+      got_nav3_before_resource_load_.yes();
+    }
+
+    return false;
+  }
+
+  virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+                                  const CefString& old_url,
+                                  CefString& new_url) OVERRIDE
+  {
+    if (old_url == kNav1 && new_url == kNav2) {
+      got_nav1_redirect_.yes();
+
+      // Change the redirect to the 3rd URL.
+      new_url = kNav3;
+    }
+  }
+
+  TrackCallback got_nav1_before_browse_;
+  TrackCallback got_nav2_before_browse_;
+  TrackCallback got_nav3_before_browse_;
+  TrackCallback got_nav1_before_resource_load_;
+  TrackCallback got_nav2_before_resource_load_;
+  TrackCallback got_nav3_before_resource_load_;
+  TrackCallback got_nav1_redirect_;
+};
+
+} // namespace
+
+// Verify frame names and identifiers.
+TEST(NavigationTest, Redirect)
+{
+  CefRefPtr<RedirectTestHandler> handler =
+      new RedirectTestHandler();
+  handler->ExecuteTest();
+
+  ASSERT_TRUE(handler->got_nav1_before_browse_);
+  ASSERT_FALSE(handler->got_nav2_before_browse_);
+  ASSERT_TRUE(handler->got_nav3_before_browse_);
+  ASSERT_TRUE(handler->got_nav1_before_resource_load_);
+  ASSERT_FALSE(handler->got_nav2_before_resource_load_);
+  ASSERT_FALSE(handler->got_nav3_before_resource_load_);
+  ASSERT_TRUE(handler->got_nav1_redirect_);
+}

@@ -41,6 +41,8 @@ public:
       CefRefPtr<CefRequest> request, CefString& redirectUrl,
       CefRefPtr<CefStreamReader>& resourceStream,
       CefRefPtr<CefResponse> response, int loadFlags) OVERRIDE;
+  virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+      const CefString& old_url, CefString& new_url) OVERRIDE;
   virtual void OnResourceResponse(CefRefPtr<CefBrowser> browser,
       const CefString& url, CefRefPtr<CefResponse> response,
       CefRefPtr<CefContentFilter>& filter) OVERRIDE;

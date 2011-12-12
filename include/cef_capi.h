@@ -1101,6 +1101,15 @@ typedef struct _cef_request_handler_t
       struct _cef_response_t* response, int loadFlags);
 
   ///
+  // Called on the IO thread when a resource load is redirected. The |old_url|
+  // parameter will contain the old URL. The |new_url| parameter will contain
+  // the new URL and can be changed if desired.
+  ///
+  void (CEF_CALLBACK *on_resource_redirect)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* old_url,
+      cef_string_t* new_url);
+
+  ///
   // Called on the UI thread after a response to the resource request is
   // received. Set |filter| if response content needs to be monitored and/or
   // modified as it arrives.

@@ -453,10 +453,11 @@ class RequestProxy : public net::URLRequest::Delegate,
           // redirect to the specified URL
           handled = true;
 
-          params->url = GURL(std::string(redirectUrl));
+          GURL new_url = GURL(std::string(redirectUrl));
           ResourceResponseInfo info;
           bool defer_redirect;
-          OnReceivedRedirect(params->url, info, &defer_redirect);
+          OnReceivedRedirect(params->url, new_url, info, &defer_redirect);
+          params->url = new_url;
         } else if (resourceStream.get()) {
           // load from the provided resource stream
           handled = true;
@@ -630,12 +631,30 @@ class RequestProxy : public net::URLRequest::Delegate,
   // by the SyncRequestProxy subclass.
 
   virtual void OnReceivedRedirect(
+      const GURL& old_url,
       const GURL& new_url,
       const ResourceResponseInfo& info,
       bool* defer_redirect) {
     *defer_redirect = true;  // See AsyncFollowDeferredRedirect
+
+    GURL final_url = new_url;
+
+    if (browser_.get()) {
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      CefRefPtr<CefRequestHandler> handler;
+      if (client.get())
+        handler = client->GetRequestHandler();
+
+      if(handler.get()) {
+        CefString newUrlStr = new_url.spec();
+        handler->OnResourceRedirect(browser_, old_url.spec(), newUrlStr);
+        if (newUrlStr != new_url.spec())
+          final_url = GURL(std::string(newUrlStr));
+      }
+    }
+
     owner_loop_->PostTask(FROM_HERE, base::Bind(
-        &RequestProxy::NotifyReceivedRedirect, this, new_url, info));
+        &RequestProxy::NotifyReceivedRedirect, this, final_url, info));
   }
 
   virtual void OnReceivedResponse(
@@ -691,7 +710,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     DCHECK(request->status().is_success());
     ResourceResponseInfo info;
     PopulateResponseInfo(request, &info);
-    OnReceivedRedirect(new_url, info, defer_redirect);
+    OnReceivedRedirect(request->url(), new_url, info, defer_redirect);
   }
 
   virtual void OnResponseStarted(net::URLRequest* request) OVERRIDE {

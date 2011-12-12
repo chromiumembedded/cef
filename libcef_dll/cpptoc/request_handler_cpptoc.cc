@@ -123,6 +123,39 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
 }
 
 
+void CEF_CALLBACK request_handler_on_resource_redirect(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* old_url, cef_string_t* new_url)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: old_url; type: string_byref_const
+  DCHECK(old_url);
+  if (!old_url)
+    return;
+  // Verify param: new_url; type: string_byref
+  DCHECK(new_url);
+  if (!new_url)
+    return;
+
+  // Translate param: new_url; type: string_byref
+  CefString new_urlStr(new_url);
+
+  // Execute
+  CefRequestHandlerCppToC::Get(self)->OnResourceRedirect(
+      CefBrowserCToCpp::Wrap(browser),
+      CefString(old_url),
+      new_urlStr);
+}
+
+
 void CEF_CALLBACK request_handler_on_resource_response(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, struct _cef_response_t* response,
@@ -341,6 +374,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_before_browse = request_handler_on_before_browse;
   struct_.struct_.on_before_resource_load =
       request_handler_on_before_resource_load;
+  struct_.struct_.on_resource_redirect = request_handler_on_resource_redirect;
   struct_.struct_.on_resource_response = request_handler_on_resource_response;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.get_download_handler = request_handler_get_download_handler;

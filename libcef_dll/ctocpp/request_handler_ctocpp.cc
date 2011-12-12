@@ -109,6 +109,31 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
 }
 
 
+void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+    const CefString& old_url, CefString& new_url)
+{
+  if (CEF_MEMBER_MISSING(struct_, on_resource_redirect))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: old_url; type: string_byref_const
+  DCHECK(!old_url.empty());
+  if (old_url.empty())
+    return;
+
+  // Execute
+  struct_->on_resource_redirect(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      old_url.GetStruct(),
+      new_url.GetWritableStruct());
+}
+
+
 void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     const CefString& url, CefRefPtr<CefResponse> response,
     CefRefPtr<CefContentFilter>& filter)
