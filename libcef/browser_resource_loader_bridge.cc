@@ -165,6 +165,8 @@ public:
       return NULL;
 
     CefRefPtr<CefBrowser> browser = info->browser();
+    if (!browser.get())
+      return NULL;
     CefRefPtr<CefClient> client = browser->GetClient();
     CefRefPtr<CefRequestHandler> handler;
     if (client.get())
