@@ -309,8 +309,9 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
 }
 
 void WebWidgetHost::ScheduleComposite() {
-  if (!webwidget_)
+  if (!webwidget_ || !webwidget_->isAcceleratedCompositingActive())
     return;
+
   WebSize size = webwidget_->size();
   InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
 }
