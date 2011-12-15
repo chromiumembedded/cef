@@ -343,7 +343,10 @@ void UIT_SetStoragePath(int64 namespace_id, const CefString& path)
   if (!path.empty())
     file_path = FilePath(path);
 
-  _Context->storage_context()->SetLocalStoragePath(file_path);
+  DOMStorageContext* context = _Context->storage_context();
+  DCHECK(context);
+  if (context)
+    context->SetLocalStoragePath(file_path);
 }
 
 } // anonymous
