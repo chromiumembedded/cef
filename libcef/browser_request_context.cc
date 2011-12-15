@@ -271,6 +271,9 @@ void BrowserRequestContext::Init(
   }
 
   storage_.set_job_factory(job_factory);
+
+  url_request_interceptor_.reset(
+      BrowserResourceLoaderBridge::CreateRequestInterceptor());
 }
 
 BrowserRequestContext::~BrowserRequestContext() {

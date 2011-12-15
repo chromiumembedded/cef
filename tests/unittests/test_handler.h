@@ -6,6 +6,7 @@
 #define _TEST_HANDLER_H
 
 #include "include/cef.h"
+#include "include/cef_runnable.h"
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -185,5 +186,23 @@ private:
   // Include the default locking implementation.
   IMPLEMENT_LOCKING(TestHandler);
 };
+
+
+static void NotifyEvent(base::WaitableEvent* event)
+{
+  event->Signal();
+}
+
+// Post a task to the specified thread and wait for the task to execute as
+// indication that all previously pending tasks on that thread have completed.
+static void WaitForThread(CefThreadId thread_id)
+{
+  base::WaitableEvent event(true, false);
+  CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
+  event.Wait();
+}
+
+#define WaitForIOThread() WaitForThread(TID_IO)
+#define WaitForUIThread() WaitForThread(TID_UI)
 
 #endif // _TEST_HANDLER_H

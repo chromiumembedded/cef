@@ -70,6 +70,8 @@
 #include "net/http/http_response_headers.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_job_manager.h"
+#include "net/url_request/url_request_redirect_job.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/deletable_file_reference.h"
@@ -91,6 +93,8 @@ using webkit_glue::ResourceResponseInfo;
 
 
 namespace {
+
+static const char kCefUserData[] = "cef_userdata";
 
 struct RequestParams {
   std::string method;
@@ -131,6 +135,55 @@ private:
   CefBrowser* browser_;
   ResourceType::Type resource_type_;
   bool allow_download_;
+};
+
+// Used to intercept redirect requests.
+class RequestInterceptor : public net::URLRequest::Interceptor
+{
+public:
+  RequestInterceptor() {
+    REQUIRE_IOT();
+    net::URLRequestJobManager::GetInstance()->RegisterRequestInterceptor(this);
+  }
+  ~RequestInterceptor() {
+    REQUIRE_IOT();
+    net::URLRequestJobManager::GetInstance()->UnregisterRequestInterceptor(this);
+  }
+
+  virtual net::URLRequestJob* MaybeIntercept(net::URLRequest* request)
+      OVERRIDE {
+    return NULL;
+  }
+
+  virtual net::URLRequestJob* MaybeInterceptRedirect(net::URLRequest* request,
+      const GURL& location) OVERRIDE {
+    REQUIRE_IOT();
+
+    ExtraRequestInfo* info =
+        static_cast<ExtraRequestInfo*>(request->GetUserData(kCefUserData));
+    if (!info)
+      return NULL;
+
+    CefRefPtr<CefBrowser> browser = info->browser();
+    CefRefPtr<CefClient> client = browser->GetClient();
+    CefRefPtr<CefRequestHandler> handler;
+    if (client.get())
+      handler = client->GetRequestHandler();
+    if (!handler.get())
+      return NULL;
+
+    CefString newUrlStr = location.spec();
+    handler->OnResourceRedirect(browser, request->url().spec(), newUrlStr);
+    if (newUrlStr != location.spec()) {
+      GURL new_url = GURL(std::string(newUrlStr));
+      if (!new_url.is_empty() && new_url.is_valid())
+        return new net::URLRequestRedirectJob(request, new_url);
+    }
+
+    return NULL;
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(RequestInterceptor);
 };
 
 // The RequestProxy does most of its work on the IO thread.  The Start and
@@ -453,11 +506,10 @@ class RequestProxy : public net::URLRequest::Delegate,
           // redirect to the specified URL
           handled = true;
 
-          GURL new_url = GURL(std::string(redirectUrl));
+          params->url = GURL(std::string(redirectUrl));
           ResourceResponseInfo info;
           bool defer_redirect;
-          OnReceivedRedirect(params->url, new_url, info, &defer_redirect);
-          params->url = new_url;
+          OnReceivedRedirect(params->url, info, &defer_redirect);
         } else if (resourceStream.get()) {
           // load from the provided resource stream
           handled = true;
@@ -529,7 +581,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
       request_->set_context(_Context->request_context());
-      request_->SetUserData(NULL,
+      request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
           request_.get(), params->appcache_host_id, params->request_type);
@@ -631,30 +683,12 @@ class RequestProxy : public net::URLRequest::Delegate,
   // by the SyncRequestProxy subclass.
 
   virtual void OnReceivedRedirect(
-      const GURL& old_url,
       const GURL& new_url,
       const ResourceResponseInfo& info,
       bool* defer_redirect) {
     *defer_redirect = true;  // See AsyncFollowDeferredRedirect
-
-    GURL final_url = new_url;
-
-    if (browser_.get()) {
-      CefRefPtr<CefClient> client = browser_->GetClient();
-      CefRefPtr<CefRequestHandler> handler;
-      if (client.get())
-        handler = client->GetRequestHandler();
-
-      if(handler.get()) {
-        CefString newUrlStr = new_url.spec();
-        handler->OnResourceRedirect(browser_, old_url.spec(), newUrlStr);
-        if (newUrlStr != new_url.spec())
-          final_url = GURL(std::string(newUrlStr));
-      }
-    }
-
     owner_loop_->PostTask(FROM_HERE, base::Bind(
-        &RequestProxy::NotifyReceivedRedirect, this, final_url, info));
+        &RequestProxy::NotifyReceivedRedirect, this, new_url, info));
   }
 
   virtual void OnReceivedResponse(
@@ -666,7 +700,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (request_.get()){
       url = request_->url();
       ExtraRequestInfo* info =
-          static_cast<ExtraRequestInfo*>(request_->GetUserData(NULL));
+          static_cast<ExtraRequestInfo*>(request_->GetUserData(kCefUserData));
       if (info)
         allow_download = info->allow_download();
     } else if (!simulated_url.is_empty() && simulated_url.is_valid()) {
@@ -710,7 +744,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     DCHECK(request->status().is_success());
     ResourceResponseInfo info;
     PopulateResponseInfo(request, &info);
-    OnReceivedRedirect(request->url(), new_url, info, defer_redirect);
+    OnReceivedRedirect(new_url, info, defer_redirect);
   }
 
   virtual void OnResponseStarted(net::URLRequest* request) OVERRIDE {
@@ -922,10 +956,9 @@ class SyncRequestProxy : public RequestProxy {
   // Event hooks that run on the IO thread:
 
   virtual void OnReceivedRedirect(
-      const GURL& old_url,
       const GURL& new_url,
       const ResourceResponseInfo& info,
-      bool* defer_redirect) OVERRIDE {
+      bool* defer_redirect) {
     // TODO(darin): It would be much better if this could live in WebCore, but
     // doing so requires API changes at all levels.  Similar code exists in
     // WebCore/platform/network/cf/ResourceHandleCFNet.cpp :-(
@@ -938,11 +971,11 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   virtual void OnReceivedResponse(const ResourceResponseInfo& info,
-                                  const GURL&) OVERRIDE {
+                                  const GURL&) {
     *static_cast<ResourceResponseInfo*>(result_) = info;
   }
 
-  virtual void OnReceivedData(int bytes_read) OVERRIDE {
+  virtual void OnReceivedData(int bytes_read) {
     if (download_to_file_)
       file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
     else
@@ -952,7 +985,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
-                                  const base::Time& complete_time) OVERRIDE {
+                                  const base::Time& complete_time) {
     if (download_to_file_)
       file_stream_.Close();
     
@@ -961,7 +994,7 @@ class SyncRequestProxy : public RequestProxy {
   }
 
  protected:
-  virtual void InitializeParams(RequestParams* params) OVERRIDE {
+  virtual void InitializeParams(RequestParams* params) {
     // For synchronous requests ignore load limits to avoid a deadlock problem
     // in SyncRequestProxy (issue #192).
     params->load_flags |= net::LOAD_IGNORE_LIMITS;
@@ -1193,7 +1226,7 @@ CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(
     net::URLRequest* request) {
   REQUIRE_IOT();
   ExtraRequestInfo* extra_info =
-      static_cast<ExtraRequestInfo*>(request->GetUserData(NULL));
+      static_cast<ExtraRequestInfo*>(request->GetUserData(kCefUserData));
   if (extra_info)
     return extra_info->browser();
   return NULL;
@@ -1201,6 +1234,12 @@ CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(
 
 //static
 scoped_refptr<base::MessageLoopProxy>
-    BrowserResourceLoaderBridge::GetCacheThread() {
+BrowserResourceLoaderBridge::GetCacheThread() {
   return CefThread::GetMessageLoopProxyForThread(CefThread::FILE);
+}
+
+//static
+net::URLRequest::Interceptor*
+BrowserResourceLoaderBridge::CreateRequestInterceptor() {
+  return new RequestInterceptor();
 }

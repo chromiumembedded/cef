@@ -8,13 +8,10 @@
 
 #include "include/cef.h"
 #include "base/message_loop_proxy.h"
+#include "net/url_request/url_request.h"
 #include <string>
 
 class GURL;
-
-namespace net {
-class URLRequest;
-};
 
 class BrowserResourceLoaderBridge {
  public:
@@ -32,6 +29,10 @@ class BrowserResourceLoaderBridge {
   static CefRefPtr<CefBrowser> GetBrowserForRequest(net::URLRequest* request);
 
   static scoped_refptr<base::MessageLoopProxy> GetCacheThread();
+
+  // Used for intercepting URL redirects. Only one interceptor will be created
+  // and its lifespan is controlled by the BrowserRequestContext.
+  static net::URLRequest::Interceptor* CreateRequestInterceptor();
 };
 
 #endif  // _BROWSER_RESOURCE_LOADER_BRIDGE_H

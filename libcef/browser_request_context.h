@@ -8,6 +8,7 @@
 
 #include "net/http/http_cache.h"
 #include "net/http/url_security_manager.h"
+#include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
 
@@ -51,6 +52,7 @@ class BrowserRequestContext : public net::URLRequestContext {
   net::URLRequestContextStorage storage_;
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+  scoped_ptr<net::URLRequest::Interceptor> url_request_interceptor_;
   FilePath cookie_store_path_;
   bool accept_all_cookies_;
 };

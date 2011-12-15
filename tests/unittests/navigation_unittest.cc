@@ -11,6 +11,7 @@ namespace {
 static const char* kNav1 = "http://tests/nav1.html";
 static const char* kNav2 = "http://tests/nav2.html";
 static const char* kNav3 = "http://tests/nav3.html";
+static const char* kNav4 = "http://tests/nav4.html";
 
 enum NavAction {
   NA_LOAD = 1,
@@ -340,6 +341,130 @@ TEST(NavigationTest, FrameNameIdent)
 
 namespace {
 
+bool g_got_nav1_request = false;
+bool g_got_nav3_request = false;
+bool g_got_nav4_request = false;
+bool g_got_invalid_request = false;
+
+class RedirectSchemeHandler : public CefSchemeHandler
+{
+public:
+  RedirectSchemeHandler() : offset_(0), status_(0) {}
+
+  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
+                              CefRefPtr<CefSchemeHandlerCallback> callback)
+                              OVERRIDE
+  {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    std::string url = request->GetURL();
+    if (url == kNav1) {
+      // Redirect using HTTP 302
+      g_got_nav1_request = true;
+      status_ = 302;
+      location_ = kNav2;
+      content_ = "<html><body>Redirected Nav1</body></html>";
+    } else if (url == kNav3) {
+      // Rdirect using redirectUrl
+      g_got_nav3_request = true;
+      status_ = -1;
+      location_ = kNav4;
+      content_ = "<html><body>Redirected Nav3</body></html>";
+    } else if (url == kNav4) {
+      g_got_nav4_request = true;
+      status_ = 200;
+      content_ = "<html><body>Nav4</body></html>";
+    }
+
+    if (status_ != 0) {
+      callback->HeadersAvailable();
+      return true;
+    } else {
+      g_got_invalid_request = true;
+      return false;
+    }
+  }
+
+  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                                  int64& response_length,
+                                  CefString& redirectUrl) OVERRIDE
+  {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    EXPECT_TRUE(status_ != 0);
+
+    response->SetStatus(status_);
+    response->SetMimeType("text/html");
+    response_length = content_.size();
+
+    if (status_ == 302) {
+      // Redirect using HTTP 302
+      EXPECT_TRUE(location_.size() > 0);
+      response->SetStatusText("Found");
+      CefResponse::HeaderMap headers;
+      response->GetHeaderMap(headers);
+      headers.insert(std::make_pair("Location", location_));
+      response->SetHeaderMap(headers);
+    } else if (status_ == -1) {
+      // Rdirect using redirectUrl
+      EXPECT_TRUE(location_.size() > 0);
+      redirectUrl = location_;
+    }
+  }
+
+  virtual void Cancel() OVERRIDE
+  {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+  }
+
+  virtual bool ReadResponse(void* data_out,
+                            int bytes_to_read,
+                            int& bytes_read,
+                            CefRefPtr<CefSchemeHandlerCallback> callback)
+                            OVERRIDE
+  {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+    size_t size = content_.size();
+    if(offset_ < size) {
+      int transfer_size =
+          std::min(bytes_to_read, static_cast<int>(size - offset_));
+      memcpy(data_out, content_.c_str() + offset_, transfer_size);
+      offset_ += transfer_size;
+
+      bytes_read = transfer_size;
+      return true;
+    }
+
+    return false;
+  }
+
+protected:
+  std::string content_;
+  size_t offset_;
+  int status_;
+  std::string location_;
+
+  IMPLEMENT_REFCOUNTING(RedirectSchemeHandler);
+};
+
+class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory
+{
+public:
+  RedirectSchemeHandlerFactory() {}
+
+  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
+                                             const CefString& scheme_name,
+                                             CefRefPtr<CefRequest> request)
+                                             OVERRIDE
+  {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    return new RedirectSchemeHandler();
+  }
+
+  IMPLEMENT_REFCOUNTING(RedirectSchemeHandlerFactory);
+};
+
 class RedirectTestHandler : public TestHandler
 {
 public:
@@ -357,18 +482,17 @@ public:
                               NavType navType,
                               bool isRedirect) OVERRIDE
   {
+    // Should be called for each URL that is actually loaded.
     std::string url = request->GetURL();
 
     if (url == kNav1) {
       got_nav1_before_browse_.yes();
-    } else if (url == kNav2) {
-      // should not happen
-      got_nav2_before_browse_.yes();
     } else if (url == kNav3) {
       got_nav3_before_browse_.yes();
-
-      // End of test.
-      DestroyTest();
+    } else if (url == kNav4) {
+      got_nav4_before_browse_.yes();
+    } else {
+      got_invalid_before_browse_.yes();
     }
 
     return false;
@@ -381,19 +505,13 @@ public:
                                     CefRefPtr<CefResponse> response,
                                     int loadFlags) OVERRIDE
   {
+    // Should only be called for the first URL.
     std::string url = request->GetURL();
 
     if (url == kNav1) {
       got_nav1_before_resource_load_.yes();
-      
-      // Redirect to the 2nd URL.
-      redirectUrl = kNav2;
-    } else if(url == kNav2) {
-      // Should not happen.
-      got_nav2_before_resource_load_.yes();
-    } else if(url == kNav3) {
-      // Should not happen.
-      got_nav3_before_resource_load_.yes();
+    } else {
+      got_invalid_before_resource_load_.yes();
     }
 
     return false;
@@ -403,21 +521,67 @@ public:
                                   const CefString& old_url,
                                   CefString& new_url) OVERRIDE
   {
+    // Should be called for each redirected URL.
+
     if (old_url == kNav1 && new_url == kNav2) {
+      // Called due to the nav1 redirect response.
       got_nav1_redirect_.yes();
 
       // Change the redirect to the 3rd URL.
       new_url = kNav3;
+    } else if (old_url == kNav1 && new_url == kNav3) {
+      // Called due to the redirect change above.
+      got_nav2_redirect_.yes();
+    } else if (old_url == kNav3 && new_url == kNav4) {
+      // Called due to the nav3 redirect response.
+      got_nav3_redirect_.yes();
+    } else {
+      got_invalid_redirect_.yes();
+    }
+  }
+
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE
+  {
+    // Should only be called for the final loaded URL.
+    std::string url = frame->GetURL();
+
+    if(url == kNav4) {
+      got_nav4_load_start_.yes();
+    } else {
+      got_invalid_load_start_.yes();
+    }
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE
+  {
+    // Should only be called for the final loaded URL.
+    std::string url = frame->GetURL();
+
+    if(url == kNav4) {
+      got_nav4_load_end_.yes();
+      DestroyTest();
+    } else {
+      got_invalid_load_end_.yes();
     }
   }
 
   TrackCallback got_nav1_before_browse_;
-  TrackCallback got_nav2_before_browse_;
   TrackCallback got_nav3_before_browse_;
+  TrackCallback got_nav4_before_browse_;
+  TrackCallback got_invalid_before_browse_;
   TrackCallback got_nav1_before_resource_load_;
-  TrackCallback got_nav2_before_resource_load_;
-  TrackCallback got_nav3_before_resource_load_;
+  TrackCallback got_invalid_before_resource_load_;
+  TrackCallback got_nav4_load_start_;
+  TrackCallback got_invalid_load_start_;
+  TrackCallback got_nav4_load_end_;
+  TrackCallback got_invalid_load_end_;
   TrackCallback got_nav1_redirect_;
+  TrackCallback got_nav2_redirect_;
+  TrackCallback got_nav3_redirect_;
+  TrackCallback got_invalid_redirect_;
 };
 
 } // namespace
@@ -425,15 +589,33 @@ public:
 // Verify frame names and identifiers.
 TEST(NavigationTest, Redirect)
 {
+  CefRegisterSchemeHandlerFactory("http", "tests",
+      new RedirectSchemeHandlerFactory());
+  WaitForIOThread();
+  
   CefRefPtr<RedirectTestHandler> handler =
       new RedirectTestHandler();
   handler->ExecuteTest();
 
+  CefClearSchemeHandlerFactories();
+  WaitForIOThread();
+
   ASSERT_TRUE(handler->got_nav1_before_browse_);
-  ASSERT_FALSE(handler->got_nav2_before_browse_);
   ASSERT_TRUE(handler->got_nav3_before_browse_);
+  ASSERT_TRUE(handler->got_nav4_before_browse_);
+  ASSERT_FALSE(handler->got_invalid_before_browse_);
   ASSERT_TRUE(handler->got_nav1_before_resource_load_);
-  ASSERT_FALSE(handler->got_nav2_before_resource_load_);
-  ASSERT_FALSE(handler->got_nav3_before_resource_load_);
+  ASSERT_FALSE(handler->got_invalid_before_resource_load_);
+  ASSERT_TRUE(handler->got_nav4_load_start_);
+  ASSERT_FALSE(handler->got_invalid_load_start_);
+  ASSERT_TRUE(handler->got_nav4_load_end_);
+  ASSERT_FALSE(handler->got_invalid_load_end_);
   ASSERT_TRUE(handler->got_nav1_redirect_);
+  ASSERT_TRUE(handler->got_nav2_redirect_);
+  ASSERT_TRUE(handler->got_nav3_redirect_);
+  ASSERT_FALSE(handler->got_invalid_redirect_);
+  ASSERT_TRUE(g_got_nav1_request);
+  ASSERT_TRUE(g_got_nav3_request);
+  ASSERT_TRUE(g_got_nav4_request);
+  ASSERT_FALSE(g_got_invalid_request);
 }

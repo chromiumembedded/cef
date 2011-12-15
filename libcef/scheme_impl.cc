@@ -220,6 +220,23 @@ public:
       location->Swap(&redirect_url_);
       return true;
     }
+
+    if (response_.get()) {
+      // Check for HTTP 302 or HTTP 303 redirect.
+      int status = response_->GetStatus();
+      if (status == 302 || status == 303) {
+        CefResponse::HeaderMap headerMap;
+        response_->GetHeaderMap(headerMap);
+        CefRequest::HeaderMap::iterator iter = headerMap.find("Location");
+        if(iter != headerMap.end()) {
+           GURL new_url = GURL(std::string(iter->second));
+           *http_status_code = status;
+           location->Swap(&new_url);
+           return true;
+        }
+      }
+    }
+
     return false;
   }
 

@@ -340,23 +340,6 @@ public:
 // Global test results object.
 TestResults g_TestResults;
 
-void NotifyEvent(base::WaitableEvent* event)
-{
-  event->Signal();
-}
-
-// Post a task to the specified thread and wait for the task to execute as
-// indication that all previously pending tasks on that thread have completed.
-void WaitForThread(CefThreadId thread_id)
-{
-  base::WaitableEvent event(true, false);
-  CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
-  event.Wait();
-}
-
-#define WaitForIOThread() WaitForThread(TID_IO)
-#define WaitForUIThread() WaitForThread(TID_UI)
-
 // If |domain| is empty the scheme will be registered as non-standard.
 void RegisterTestScheme(const std::string& scheme, const std::string& domain)
 {
