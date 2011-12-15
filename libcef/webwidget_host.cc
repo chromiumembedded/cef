@@ -15,9 +15,6 @@ using WebKit::WebSize;
 
 
 void WebWidgetHost::ScheduleAnimation() {
-  if (!webwidget_ || !webwidget_->isAcceleratedCompositingActive())
-    return;
-
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       base::Bind(&WebWidgetHost::ScheduleComposite, weak_factory_.GetWeakPtr()),
       10);

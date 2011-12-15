@@ -303,9 +303,6 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
 }
 
 void WebWidgetHost::ScheduleComposite() {
-  if (!webwidget_ || !webwidget_->isAcceleratedCompositingActive())
-    return;
-
   int width = logical_size_.width();
   int height = logical_size_.height();
   GdkRectangle grect = {

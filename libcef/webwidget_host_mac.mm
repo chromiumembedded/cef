@@ -228,9 +228,6 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
 }
 
 void WebWidgetHost::ScheduleComposite() {
-  if (!webwidget_ || !webwidget_->isAcceleratedCompositingActive())
-    return;
-
   [view_ setNeedsDisplay:YES];
 }
 
