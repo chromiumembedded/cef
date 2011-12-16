@@ -132,4 +132,5 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
   web.accelerated_drawing_enabled = !cef.accelerated_drawing_disabled;
   web.accelerated_plugins_enabled = !cef.accelerated_plugins_disabled;
   web.memory_info_enabled = false;
+  web.fullscreen_enabled = cef.fullscreen_enabled;
 }
