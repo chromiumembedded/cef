@@ -12,6 +12,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/task.h"
+#include "base/time.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
@@ -73,8 +74,17 @@ class WebWidgetHost {
 
   void DidInvalidateRect(const gfx::Rect& rect);
   void DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect);
+
+  // Called for accelerated content like WebGL.
   void ScheduleComposite();
+
+  // Called for requestAnimationFrame animations.
   void ScheduleAnimation();
+
+  // Invalidate the complete client area. This is called at a reasonable frame
+  // rate by the Schedule*() methods.
+  void Invalidate();
+
 #if defined(OS_WIN)
   void SetCursor(HCURSOR cursor);
 #endif
@@ -161,7 +171,7 @@ class WebWidgetHost {
   void OnInputLangChange(DWORD character_set, HKL input_language_id);
   void ImeUpdateTextInputState(WebKit::WebTextInputType type,
       const gfx::Rect& caret_rect);
-  static void UpdateInputMethod(HWND view);
+  void UpdateInputMethod();
 #elif defined(OS_MACOSX)
   // These need to be called from a non-subclass, so they need to be public.
  public:
@@ -224,6 +234,17 @@ class WebWidgetHost {
 
   // True if an update task is pending when window rendering is disabled.
   bool has_update_task_;
+
+  // True if an invalidate task is pending due to the Schedule*() methods.
+  bool has_invalidate_task_;
+
+#if defined(OS_WIN)
+  // True if an update input method task is pending due to DidInvalidateRect().
+  bool has_update_input_method_task_;
+#endif
+
+  // When the Paint() method last completed.
+  base::TimeTicks paint_last_call_;
 
   // Redraw rectangle requested by an explicit call to CefBrowser::Invalidate().
   gfx::Rect redraw_rect_;

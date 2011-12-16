@@ -67,6 +67,7 @@ WebWidgetHost::WebWidgetHost()
       canvas_h_(0),
       popup_(false),
       has_update_task_(false),
+      has_invalidate_task_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
   set_painting(false);
 }
@@ -177,12 +178,13 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
     paint_rgn_.setRect(convertToSkiaRect(client_rect));
   }
 
-  // Animate the view and layout any views that have not been laid out yet. The
-  // latter may result in more invalidation. Keep track of the fact that we are
-  // laying out views, because this will sometimes cause ScrollRect to be called
-  // and we don't want to try to scrollRect:by: then.
-  layouting_ = true;
   webwidget_->animate(0.0);
+
+  // Layout any views that have not been laid out yet. The layout may result in
+  // more invalidation. Keep track of the fact that we are laying out views,
+  // because this will sometimes cause ScrollRect to be called and we don't want
+  // to try to scrollRect:by: then.
+  layouting_ = true;
   webwidget_->layout();
   layouting_ = false;
 
@@ -225,9 +227,14 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
     const float y = client_rect.height() - r.bottom();
     skia::DrawToNativeContext(canvas_.get(), context, x, y, &copy_rect);
   }
+
+  // Used with scheduled invalidation to maintain a consistent frame rate.
+  paint_last_call_ = base::TimeTicks::Now();
+  if (has_invalidate_task_)
+    has_invalidate_task_ = false;
 }
 
-void WebWidgetHost::ScheduleComposite() {
+void WebWidgetHost::Invalidate() {
   [view_ setNeedsDisplay:YES];
 }
 

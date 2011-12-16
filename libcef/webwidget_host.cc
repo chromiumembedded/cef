@@ -14,10 +14,31 @@ using webkit::npapi::WebPluginGeometry;
 using WebKit::WebSize;
 
 
+void WebWidgetHost::ScheduleComposite() {
+  if (has_invalidate_task_)
+    return;
+
+  has_invalidate_task_ = true;
+
+  // Try to paint at 60fps.
+  static int64 kDesiredRate = 16;
+
+  base::TimeDelta delta = base::TimeTicks::Now() - paint_last_call_;
+  int64 actualRate = delta.InMilliseconds();
+  if (actualRate >= kDesiredRate) {
+    // Can't keep up so run as fast as possible.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        base::Bind(&WebWidgetHost::Invalidate, weak_factory_.GetWeakPtr()));
+  } else {
+    // Maintain the desired rate.
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+        base::Bind(&WebWidgetHost::Invalidate, weak_factory_.GetWeakPtr()),
+        kDesiredRate - actualRate);
+  }
+}
+
 void WebWidgetHost::ScheduleAnimation() {
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      base::Bind(&WebWidgetHost::ScheduleComposite, weak_factory_.GetWeakPtr()),
-      10);
+  ScheduleComposite();
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {

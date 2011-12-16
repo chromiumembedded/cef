@@ -273,9 +273,15 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   UpdatePaintRect(damaged_rect);
   InvalidateRect(damaged_rect);
 
-  if (!popup_ && view_) {
-    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableFunction(
-        &WebWidgetHost::UpdateInputMethod, view_));
+  if (!popup_ && view_ && webwidget_ && input_method_is_active_ &&
+      !has_update_input_method_task_) {
+    has_update_input_method_task_ = true;
+
+    // Call UpdateInputMethod() approximately every 100ms.
+    CefThread::PostDelayedTask(CefThread::UI, FROM_HERE,
+        base::Bind(&WebWidgetHost::UpdateInputMethod,
+            weak_factory_.GetWeakPtr()),
+        100);
   }
 }
 
@@ -308,7 +314,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   InvalidateRect(clip_rect);
 }
 
-void WebWidgetHost::ScheduleComposite() {
+void WebWidgetHost::Invalidate() {
   if (!webwidget_)
     return;
   WebSize size = webwidget_->size();
@@ -331,6 +337,8 @@ WebWidgetHost::WebWidgetHost()
       popup_(false),
       track_mouse_leave_(false),
       has_update_task_(false),
+      has_invalidate_task_(false),
+      has_update_input_method_task_(false),
       tooltip_view_(NULL),
       tooltip_showing_(false),
       ime_notification_(false),
@@ -403,12 +411,11 @@ void WebWidgetHost::Paint() {
     canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
   }
 
-  layouting_ = true;
   webwidget_->animate(0.0);
 
   // This may result in more invalidation.
+  layouting_ = true;
   webwidget_->layout();
-
   layouting_ = false;
 
   // Paint the canvas if necessary. Allow painting to generate extra rects the
@@ -519,6 +526,11 @@ void WebWidgetHost::Paint() {
 
     paint_delegate_->Paint(popup_, damaged_rects, pixels);
   }
+
+  // Used with scheduled invalidation to maintain a consistent frame rate.
+  paint_last_call_ = base::TimeTicks::Now();
+  if (has_invalidate_task_)
+    has_invalidate_task_ = false;
 }
 
 void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
@@ -1091,40 +1103,27 @@ void WebWidgetHost::ImeUpdateTextInputState(WebKit::WebTextInputType type,
     ime_input_.UpdateCaretRect(view_, caret_rect);
 }
 
-/* static */
-void WebWidgetHost::UpdateInputMethod(HWND view)
+void WebWidgetHost::UpdateInputMethod()
 {
-  // Since we call this function asynchronously (via PostTask), we
-  // must ensure that we haven't destroyed the window by the time this
-  // function executes
-  if (!::IsWindow(view))
+  REQUIRE_UIT();
+
+  has_update_input_method_task_ = false;
+
+  if (!input_method_is_active_ || !webwidget_)
     return;
 
-  WebWidgetHost* host = FromWindow(view);
-
-  if (!host || !host->input_method_is_active_)
-    return;
-
-  if (!host->webwidget_ || !CefThread::CurrentlyOn(CefThread::UI))
-    return;
-
-  WebKit::WebTextInputType new_type = WebKit::WebTextInputTypeNone;
+  WebKit::WebTextInputType new_type = webwidget_->textInputType();
   WebKit::WebRect new_caret_bounds;
 
-  if (host->webwidget_) {
-    new_type = host->webwidget_->textInputType();
-    
-    WebKit::WebRect startRect, endRect;
-    if (host->webwidget_->selectionBounds(startRect, endRect))
-      new_caret_bounds = endRect;
-  }
+  WebKit::WebRect startRect, endRect;
+  if (webwidget_->selectionBounds(startRect, endRect))
+    new_caret_bounds = endRect;
 
   // Only sends text input type and caret bounds to the browser process if they
   // are changed.
-  if (host->text_input_type_ != new_type ||
-      host->caret_bounds_ != new_caret_bounds) {
-    host->text_input_type_ = new_type;
-    host->caret_bounds_ = new_caret_bounds;
-    host->ImeUpdateTextInputState(new_type, new_caret_bounds);
+  if (text_input_type_ != new_type || caret_bounds_ != new_caret_bounds) {
+    text_input_type_ = new_type;
+    caret_bounds_ = new_caret_bounds;
+    ImeUpdateTextInputState(new_type, new_caret_bounds);
   }
 }
