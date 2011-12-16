@@ -17,13 +17,12 @@ namespace WebKit {
 class WebDevToolsAgent;
 class WebView;
 
-} // namespace WebKit
+}  // namespace WebKit
 
 class BrowserDevToolsCallArgs;
 class BrowserDevToolsClient;
 
 class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
-
  public:
   BrowserDevToolsAgent();
   virtual ~BrowserDevToolsAgent();
@@ -33,7 +32,7 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
   // WebDevToolsAgentClient implementation.
   virtual void sendMessageToInspectorFrontend(
       const WebKit::WebString& data);
-  virtual int hostIdentifier() { return routing_id_; }
+  virtual int hostIdentifier();
   virtual void runtimePropertyChanged(const WebKit::WebString& name,
                                       const WebKit::WebString& value);
 
@@ -44,7 +43,6 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
 
   void attach(BrowserDevToolsClient* client);
   void detach();
-  void frontendLoaded();
 
   bool evaluateInWebInspector(long call_id, const std::string& script);
 
@@ -52,8 +50,6 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
 
  private:
   void Call(const BrowserDevToolsCallArgs& args);
-  void DelayedFrontendLoaded();
-  static void DispatchMessageLoop();
   WebKit::WebDevToolsAgent* GetWebAgent();
 
   base::WeakPtrFactory<BrowserDevToolsAgent> weak_factory_;

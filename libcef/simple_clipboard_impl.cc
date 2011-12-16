@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webkit/glue/webkit_glue.h"
+#include "simple_clipboard_impl.h"
 
 #include <string>
 
@@ -15,62 +15,66 @@
 #include "ui/base/clipboard/clipboard.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/size.h"
-#include "webkit/glue/scoped_clipboard_writer_glue.h"
+#include "webkit/glue/webkit_glue.h"
 
-// Clipboard glue
-
-void ScopedClipboardWriterGlue::WriteBitmapFromPixels(
-    const void* pixels, const gfx::Size& size) {
-  ScopedClipboardWriter::WriteBitmapFromPixels(pixels, size);
-}
-
-ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
-}
-
-namespace webkit_glue {
+namespace {
 
 base::LazyInstance<ui::Clipboard> clipboard = LAZY_INSTANCE_INITIALIZER;
 
-ui::Clipboard* ClipboardGetClipboard() {
+}  // anonymous namespace
+
+SimpleClipboardClient::SimpleClipboardClient() {
+}
+
+SimpleClipboardClient::~SimpleClipboardClient() {
+}
+
+
+ui::Clipboard* SimpleClipboardClient::GetClipboard() {
   return clipboard.Pointer();
 }
 
-uint64 ClipboardGetSequenceNumber(ui::Clipboard::Buffer buffer) {
-  return ClipboardGetClipboard()->GetSequenceNumber(buffer);
+uint64 SimpleClipboardClient::GetSequenceNumber(ui::Clipboard::Buffer buffer) {
+  return GetClipboard()->GetSequenceNumber(buffer);
 }
 
-bool ClipboardIsFormatAvailable(const ui::Clipboard::FormatType& format,
-                                ui::Clipboard::Buffer buffer) {
-  return ClipboardGetClipboard()->IsFormatAvailable(format, buffer);
+bool SimpleClipboardClient::IsFormatAvailable(
+    const ui::Clipboard::FormatType& format,
+    ui::Clipboard::Buffer buffer) {
+  return GetClipboard()->IsFormatAvailable(format, buffer);
 }
 
-void ClipboardReadAvailableTypes(ui::Clipboard::Buffer buffer,
-                                 std::vector<string16>* types,
-                                 bool* contains_filenames) {
-  return ClipboardGetClipboard()->ReadAvailableTypes(buffer, types,
+void SimpleClipboardClient::ReadAvailableTypes(ui::Clipboard::Buffer buffer,
+                                               std::vector<string16>* types,
+                                               bool* contains_filenames) {
+  return GetClipboard()->ReadAvailableTypes(buffer, types,
                                                      contains_filenames);
 }
 
-void ClipboardReadText(ui::Clipboard::Buffer buffer, string16* result) {
-  ClipboardGetClipboard()->ReadText(buffer, result);
+void SimpleClipboardClient::ReadText(ui::Clipboard::Buffer buffer,
+                                     string16* result) {
+  GetClipboard()->ReadText(buffer, result);
 }
 
-void ClipboardReadAsciiText(ui::Clipboard::Buffer buffer, std::string* result) {
-  ClipboardGetClipboard()->ReadAsciiText(buffer, result);
+void SimpleClipboardClient::ReadAsciiText(ui::Clipboard::Buffer buffer,
+                                          std::string* result) {
+  GetClipboard()->ReadAsciiText(buffer, result);
 }
 
-void ClipboardReadHTML(ui::Clipboard::Buffer buffer, string16* markup,
-                       GURL* url, uint32* fragment_start,
-                       uint32* fragment_end) {
+void SimpleClipboardClient::ReadHTML(ui::Clipboard::Buffer buffer,
+                                     string16* markup,
+                                     GURL* url, uint32* fragment_start,
+                                     uint32* fragment_end) {
   std::string url_str;
-  ClipboardGetClipboard()->ReadHTML(buffer, markup, url ? &url_str : NULL,
-                                    fragment_start, fragment_end);
+  GetClipboard()->ReadHTML(buffer, markup, url ? &url_str : NULL,
+                           fragment_start, fragment_end);
   if (url)
     *url = GURL(url_str);
 }
 
-void ClipboardReadImage(ui::Clipboard::Buffer buffer, std::string* data) {
-  SkBitmap bitmap = ClipboardGetClipboard()->ReadImage(buffer);
+void SimpleClipboardClient::ReadImage(ui::Clipboard::Buffer buffer,
+                                      std::string* data) {
+  SkBitmap bitmap = GetClipboard()->ReadImage(buffer);
   if (bitmap.isNull())
     return;
 
@@ -90,4 +94,13 @@ void ClipboardReadImage(ui::Clipboard::Buffer buffer, std::string* data) {
   }
 }
 
-}  // namespace webkit_glue
+void SimpleClipboardClient::ReadCustomData(ui::Clipboard::Buffer buffer,
+                                           const string16& type,
+                                           string16* data) {
+  GetClipboard()->ReadCustomData(buffer, type, data);
+}
+
+webkit_glue::ClipboardClient::WriteContext*
+SimpleClipboardClient::CreateWriteContext() {
+  return NULL;
+}

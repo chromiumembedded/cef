@@ -1,9 +1,9 @@
 Index: V8DOMWindowCustom.cpp
 ===================================================================
---- V8DOMWindowCustom.cpp	(revision 100508)
+--- V8DOMWindowCustom.cpp	(revision 101876)
 +++ V8DOMWindowCustom.cpp	(working copy)
-@@ -291,8 +291,11 @@
- static v8::Handle<v8::Value> handlePostMessageCallback(const v8::Arguments& args, bool doTransfer)
+@@ -289,8 +289,11 @@
+ static v8::Handle<v8::Value> handlePostMessageCallback(const v8::Arguments& args, bool extendedTransfer)
  {
      DOMWindow* window = V8DOMWindow::toNative(args.Holder());
 +    Frame* frame = V8Proxy::retrieveFrameForCallingContext();

@@ -27,7 +27,7 @@ MSVC_POP_WARNING();
 #include "base/string16.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
@@ -68,17 +68,6 @@ string16 GetLocalizedString(int message_id) {
 }
 
 bool IsMediaPlayerAvailable() {
-  return true;
-}
-
-void GetPlugins(bool refresh,
-                std::vector<webkit::WebPluginInfo>* plugins) {
-  if (refresh)
-    webkit::npapi::PluginList::Singleton()->RefreshPlugins();
-  webkit::npapi::PluginList::Singleton()->GetPlugins(plugins);
-}
-
-bool IsProtocolSupportedForMedia(const GURL& url) {
   return true;
 }
 

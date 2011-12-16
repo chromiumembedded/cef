@@ -9,6 +9,7 @@
 #include "include/cef.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request.h"
+#include "webkit/glue/resource_loader_bridge.h"
 #include <string>
 
 class GURL;
@@ -27,6 +28,10 @@ class BrowserResourceLoaderBridge {
   // will be NULL in cases where the request was initiated using the
   // CefWebURLRequest API.
   static CefRefPtr<CefBrowser> GetBrowserForRequest(net::URLRequest* request);
+
+  // Creates a ResourceLoaderBridge instance.
+  static webkit_glue::ResourceLoaderBridge* Create(
+    const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info);
 
   static scoped_refptr<base::MessageLoopProxy> GetCacheThread();
 

@@ -5,7 +5,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontend.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
@@ -45,20 +45,10 @@ BrowserDevToolsClient::~BrowserDevToolsClient() {
     dev_tools_agent_->detach();
 }
 
-void BrowserDevToolsClient::sendFrontendLoaded() {
-  if (dev_tools_agent_)
-    dev_tools_agent_->frontendLoaded();
-}
-
 void BrowserDevToolsClient::sendMessageToBackend(
      const WebString& data) {
   if (dev_tools_agent_)
     dev_tools_agent_->AsyncCall(BrowserDevToolsCallArgs(data));
-}
-
-void BrowserDevToolsClient::sendDebuggerCommandToAgent(
-     const WebString& command) {
-  WebDevToolsAgent::executeDebuggerCommand(command, 1);
 }
 
 void BrowserDevToolsClient::activateWindow() {

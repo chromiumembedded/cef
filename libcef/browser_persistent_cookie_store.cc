@@ -56,12 +56,13 @@ using base::Time;
 class BrowserPersistentCookieStore::Backend
     : public base::RefCountedThreadSafe<BrowserPersistentCookieStore::Backend> {
  public:
-  explicit Backend(const FilePath& path)
+  Backend(const FilePath& path, bool restore_old_session_cookies)
       : path_(path),
         db_(NULL),
         num_pending_(0),
         clear_local_state_on_exit_(false),
-        initialized_(false) {
+        initialized_(false),
+        restore_old_session_cookies_(restore_old_session_cookies) {
   }
 
   // Creates or loads the SQLite database.
@@ -155,6 +156,8 @@ class BrowserPersistentCookieStore::Backend
   // Close() executed on the background thread.
   void InternalBackgroundClose();
 
+  void DeleteSessionCookies();
+
   FilePath path_;
   scoped_ptr<sql::Connection> db_;
   sql::MetaTable meta_table_;
@@ -178,19 +181,28 @@ class BrowserPersistentCookieStore::Backend
   // Indicates if DB has been initialized.
   bool initialized_;
 
+  // If false, we should filter out session cookies when reading the DB.
+  bool restore_old_session_cookies_;
   DISALLOW_COPY_AND_ASSIGN(Backend);
 };
 
-// Version number of the database. In version 4, we migrated the time epoch.
-// If you open the DB with an older version on Mac or Linux, the times will
-// look wonky, but the file will likely be usable. On Windows version 3 and 4
-// are the same.
+// Version number of the database.
+//
+// Version 5 adds the columns has_expires and is_persistent, so that the
+// database can store session cookies as well as persistent cookies. Databases
+// of version 5 are incompatible with older versions of code. If a database of
+// version 5 is read by older code, session cookies will be treated as normal
+// cookies.
+//
+// In version 4, we migrated the time epoch.  If you open the DB with an older
+// version on Mac or Linux, the times will look wonky, but the file will likely
+// be usable. On Windows version 3 and 4 are the same.
 //
 // Version 3 updated the database to include the last access time, so we can
 // expire them in decreasing order of use when we've reached the maximum
 // number of cookies.
-static const int kCurrentVersionNumber = 4;
-static const int kCompatibleVersionNumber = 3;
+static const int kCurrentVersionNumber = 5;
+static const int kCompatibleVersionNumber = 5;
 
 namespace {
 
@@ -203,11 +215,12 @@ bool InitTable(sql::Connection* db) {
                      "name TEXT NOT NULL,"
                      "value TEXT NOT NULL,"
                      "path TEXT NOT NULL,"
-                     // We only store persistent, so we know it expires
                      "expires_utc INTEGER NOT NULL,"
                      "secure INTEGER NOT NULL,"
                      "httponly INTEGER NOT NULL,"
-                     "last_access_utc INTEGER NOT NULL)"))
+                     "last_access_utc INTEGER NOT NULL, "
+                     "has_expires INTEGER NOT NULL DEFAULT 1, "
+                     "persistent INTEGER NOT NULL DEFAULT 1)"))
       return false;
   }
 
@@ -376,6 +389,8 @@ void BrowserPersistentCookieStore::Backend::ChainLoadCookies(
       CefThread::IO, FROM_HERE,
       base::Bind(&BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
                  this, loaded_callback, load_success));
+    if (!restore_old_session_cookies_)
+      DeleteSessionCookies();
   }
 }
 
@@ -383,9 +398,19 @@ bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
   const std::set<std::string>& domains) {
   DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
 
-  sql::Statement smt(db_->GetCachedStatement(SQL_FROM_HERE,
-    "SELECT creation_utc, host_key, name, value, path, expires_utc, secure, "
-    "httponly, last_access_utc FROM cookies WHERE host_key = ?"));
+  const char* sql;
+  if (restore_old_session_cookies_) {
+    sql =
+        "SELECT creation_utc, host_key, name, value, path, expires_utc, "
+        "secure, httponly, last_access_utc, has_expires, persistent "
+        "FROM cookies WHERE host_key = ?";
+  } else {
+    sql =
+        "SELECT creation_utc, host_key, name, value, path, expires_utc, "
+        "secure, httponly, last_access_utc, has_expires, persistent "
+        "FROM cookies WHERE host_key = ? AND persistent == 1";
+  }
+  sql::Statement smt(db_->GetCachedStatement(SQL_FROM_HERE, sql));
   if (!smt) {
     NOTREACHED() << "select statement prep failed";
     db_.reset();
@@ -412,8 +437,8 @@ bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
               Time::FromInternalValue(smt.ColumnInt64(8)),    // last_access_utc
               smt.ColumnInt(6) != 0,                          // secure
               smt.ColumnInt(7) != 0,                          // httponly
-              true,                                           // has_expires
-              true));                                         // is_persistent
+              smt.ColumnInt(9) != 0,                          // has_expires
+              smt.ColumnInt(10) != 0));                       // is_persistent
       DLOG_IF(WARNING,
               cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
       cookies.push_back(cc.release());
@@ -491,6 +516,24 @@ bool BrowserPersistentCookieStore::Backend::EnsureDatabaseVersion() {
     transaction.Commit();
   }
 
+  if (cur_version == 4) {
+    sql::Transaction transaction(db_.get());
+    if (!transaction.Begin())
+      return false;
+    if (!db_->Execute("ALTER TABLE cookies "
+                      "ADD COLUMN has_expires INTEGER DEFAULT 1") ||
+        !db_->Execute("ALTER TABLE cookies "
+                      "ADD COLUMN persistent INTEGER DEFAULT 1")) {
+      LOG(WARNING) << "Unable to update cookie database to version 5.";
+      return false;
+    }
+    ++cur_version;
+    meta_table_.SetVersionNumber(cur_version);
+    meta_table_.SetCompatibleVersionNumber(
+        std::min(cur_version, kCompatibleVersionNumber));
+    transaction.Commit();
+  }
+
   // Put future migration cases here.
 
   // When the version is too old, we just try to continue anyway, there should
@@ -564,8 +607,9 @@ void BrowserPersistentCookieStore::Backend::Commit() {
 
   sql::Statement add_smt(db_->GetCachedStatement(SQL_FROM_HERE,
       "INSERT INTO cookies (creation_utc, host_key, name, value, path, "
-      "expires_utc, secure, httponly, last_access_utc) "
-      "VALUES (?,?,?,?,?,?,?,?,?)"));
+      "expires_utc, secure, httponly, last_access_utc, has_expires, "
+      "persistent) "
+      "VALUES (?,?,?,?,?,?,?,?,?,?,?)"));
   if (!add_smt) {
     NOTREACHED();
     return;
@@ -606,6 +650,8 @@ void BrowserPersistentCookieStore::Backend::Commit() {
         add_smt.BindInt(6, po->cc().IsSecure());
         add_smt.BindInt(7, po->cc().IsHttpOnly());
         add_smt.BindInt64(8, po->cc().LastAccessDate().ToInternalValue());
+        add_smt.BindInt(9, po->cc().DoesExpire());
+        add_smt.BindInt(10, po->cc().IsPersistent());
         if (!add_smt.Run())
           NOTREACHED() << "Could not add a cookie to the DB.";
         break;
@@ -677,8 +723,17 @@ void BrowserPersistentCookieStore::Backend::SetClearLocalStateOnExit(
   base::AutoLock locked(lock_);
   clear_local_state_on_exit_ = clear_local_state;
 }
-BrowserPersistentCookieStore::BrowserPersistentCookieStore(const FilePath& path)
-    : backend_(new Backend(path)) {
+
+void BrowserPersistentCookieStore::Backend::DeleteSessionCookies() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
+  if (!db_->Execute("DELETE FROM cookies WHERE persistent == 0"))
+    LOG(WARNING) << "Unable to delete session cookies.";
+}
+
+BrowserPersistentCookieStore::BrowserPersistentCookieStore(
+    const FilePath& path,
+    bool restore_old_session_cookies)
+    : backend_(new Backend(path, restore_old_session_cookies)) {
 }
 
 BrowserPersistentCookieStore::~BrowserPersistentCookieStore() {

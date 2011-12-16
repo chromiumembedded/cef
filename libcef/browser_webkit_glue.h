@@ -42,6 +42,9 @@ void CleanupResourceBundle();
 FilePath GetResourcesFilePath();
 #endif
 
+string16 GetLocalizedString(int message_id);
+base::StringPiece GetDataResource(int resource_id);
+
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();
 

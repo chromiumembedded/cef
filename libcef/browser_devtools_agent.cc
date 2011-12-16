@@ -43,23 +43,11 @@ class WebKitClientMessageLoopImpl
 
 } //  namespace
 
-// static
-void BrowserDevToolsAgent::DispatchMessageLoop() {
-  MessageLoop* current = MessageLoop::current();
-  bool old_state = current->NestableTasksAllowed();
-  current->SetNestableTasksAllowed(true);
-  current->RunAllPending();
-  current->SetNestableTasksAllowed(old_state);
-}
-
 BrowserDevToolsAgent::BrowserDevToolsAgent()
     : ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)),
       dev_tools_client_(NULL) {
   static int dev_tools_agent_counter;
   routing_id_ = ++dev_tools_agent_counter;
-  if (routing_id_ == 1)
-    WebDevToolsAgent::setMessageLoopDispatchHandler(
-        &BrowserDevToolsAgent::DispatchMessageLoop);
 }
 
 BrowserDevToolsAgent::~BrowserDevToolsAgent() {
@@ -73,6 +61,10 @@ void BrowserDevToolsAgent::sendMessageToInspectorFrontend(
        const WebString& data) {
   if (dev_tools_client_)
     dev_tools_client_->AsyncCall(BrowserDevToolsCallArgs(data));
+}
+
+int BrowserDevToolsAgent::hostIdentifier() {
+  return routing_id_;
 }
 
 void BrowserDevToolsAgent::runtimePropertyChanged(
@@ -101,12 +93,6 @@ void BrowserDevToolsAgent::Call(const BrowserDevToolsCallArgs &args) {
     dev_tools_client_->all_messages_processed();
 }
 
-void BrowserDevToolsAgent::DelayedFrontendLoaded() {
-  WebDevToolsAgent *web_agent = GetWebAgent();
-  if (web_agent)
-    web_agent->frontendLoaded();
-}
-
 WebDevToolsAgent* BrowserDevToolsAgent::GetWebAgent() {
   if (!web_view_)
     return NULL;
@@ -127,13 +113,6 @@ void BrowserDevToolsAgent::detach() {
   if (web_agent)
     web_agent->detach();
   dev_tools_client_ = NULL;
-}
-
-void BrowserDevToolsAgent::frontendLoaded() {
-  MessageLoop::current()->PostTask(
-      FROM_HERE,
-      base::Bind(&BrowserDevToolsAgent::DelayedFrontendLoaded,
-                 weak_factory_.GetWeakPtr()));
 }
 
 bool BrowserDevToolsAgent::evaluateInWebInspector(

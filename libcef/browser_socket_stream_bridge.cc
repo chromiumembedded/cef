@@ -14,18 +14,18 @@
 #include "net/socket_stream/socket_stream_job.h"
 #include "net/websockets/websocket_job.h"
 #include "net/url_request/url_request_context.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebSocketStreamHandle.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSocketStreamHandle.h"
 #include "webkit/glue/websocketstreamhandle_bridge.h"
 #include "webkit/glue/websocketstreamhandle_delegate.h"
 
 using webkit_glue::WebSocketStreamHandleBridge;
 
-static const int kNoSocketId = 0;
+const int kNoSocketId = 0;
 
 namespace {
 
 MessageLoop* g_io_thread;
-scoped_refptr<net::URLRequestContext> g_request_context;
+net::URLRequestContext* g_request_context;
 
 class WebSocketStreamHandleBridgeImpl
     : public WebSocketStreamHandleBridge,
@@ -223,21 +223,20 @@ void WebSocketStreamHandleBridgeImpl::DoOnClose() {
 void BrowserSocketStreamBridge::InitializeOnIOThread(
     net::URLRequestContext* request_context) {
   g_io_thread = MessageLoop::current();
-  g_request_context = request_context;
+  if ((g_request_context = request_context))
+    g_request_context->AddRef();
 }
 
 void BrowserSocketStreamBridge::Cleanup() {
   g_io_thread = NULL;
+  if (g_request_context)
+    g_request_context->Release();
   g_request_context = NULL;
 }
 
-namespace webkit_glue {
-
 /* static */
-WebSocketStreamHandleBridge* WebSocketStreamHandleBridge::Create(
+webkit_glue::WebSocketStreamHandleBridge* BrowserSocketStreamBridge::Create(
     WebKit::WebSocketStreamHandle* handle,
-    WebSocketStreamHandleDelegate* delegate) {
+    webkit_glue::WebSocketStreamHandleDelegate* delegate) {
   return new WebSocketStreamHandleBridgeImpl(handle, delegate);
 }
-
-}  // namespace webkit_glue

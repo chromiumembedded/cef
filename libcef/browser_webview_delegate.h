@@ -19,9 +19,9 @@
 #include "build/build_config.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileChooserParams.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystem.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrameClient.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/plugins/npapi/webplugin_page_delegate.h"
@@ -38,7 +38,7 @@ class WebDropTarget;
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
-#include <gdk/gdkcursor.h>
+#include <gdk/gdk.h>
 #endif
 
 class CefBrowserImpl;

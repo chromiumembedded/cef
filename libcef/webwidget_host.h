@@ -15,7 +15,7 @@
 #include "base/time.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebTextInputType.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/gfx/native_widget_types.h"

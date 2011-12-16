@@ -29,7 +29,8 @@ class Task;
 class BrowserPersistentCookieStore
     : public net::CookieMonster::PersistentCookieStore {
  public:
-  explicit BrowserPersistentCookieStore(const FilePath& path);
+  BrowserPersistentCookieStore(const FilePath& path,
+                              bool restore_old_session_cookies);
   virtual ~BrowserPersistentCookieStore();
 
   virtual void Load(const LoadedCallback& loaded_callback) OVERRIDE;

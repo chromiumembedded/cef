@@ -4,6 +4,7 @@
 
 #include "browser_devtools_scheme_handler.h"
 #include "include/cef.h"
+#include "browser_webkit_glue.h"
 #include <string>
 
 #include "base/file_util.h"
@@ -11,7 +12,6 @@
 #include "grit/devtools_resources_map.h"
 #include "net/base/mime_util.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/glue/webkit_glue.h"
 
 const char kChromeDevToolsScheme[] = "chrome-devtools";
 const char kChromeDevToolsHost[] = "devtools";

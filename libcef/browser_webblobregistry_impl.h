@@ -6,7 +6,7 @@
 #define BROWSER_WEBBLOBREGISTRY_IMPL_H_
 
 #include "base/memory/ref_counted.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebBlobRegistry.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebBlobRegistry.h"
 
 class GURL;
 

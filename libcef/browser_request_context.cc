@@ -29,7 +29,7 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request_job_factory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebKitPlatformSupport.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job_factory.h"
 #include "webkit/fileapi/file_system_context.h"
@@ -300,7 +300,7 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
   if (!path.empty()) {
     if (file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store = new BrowserPersistentCookieStore(cookie_path);
+      persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }

@@ -4,6 +4,7 @@
 
 #include "include/cef.h"
 #include "web_urlrequest_impl.h"
+#include "browser_webkit_init.h"
 #include "cef_thread.h"
 #include "request_impl.h"
 #include "response_impl.h"
@@ -11,10 +12,11 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebURLError.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLError.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebURLLoaderClient.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebURLRequest.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebURLResponse.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLRequest.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLResponse.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/weburlloader_impl.h"
 
 using WebKit::WebURLError;
@@ -221,7 +223,9 @@ void CefWebURLRequestImpl::Context::initialize(
 {
   REQUIRE_UIT();
 
-  url_loader_.reset(new webkit_glue::WebURLLoaderImpl());
+  url_loader_.reset(
+      new webkit_glue::WebURLLoaderImpl(reinterpret_cast<BrowserWebKitInit*>(
+          WebKit::webKitPlatformSupport())));
   url_client_.reset(new CefWebURLLoaderClientImpl(this));
 
   WebURLRequest urlRequest;

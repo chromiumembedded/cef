@@ -1179,17 +1179,13 @@ class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
 
 //-----------------------------------------------------------------------------
 
-namespace webkit_glue {
-
-// Factory function.
-ResourceLoaderBridge* ResourceLoaderBridge::Create(
+// static
+webkit_glue::ResourceLoaderBridge* BrowserResourceLoaderBridge::Create(
     const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info) {
   CefRefPtr<CefBrowserImpl> browser =
       _Context->GetBrowserByID(request_info.routing_id);
   return new ResourceLoaderBridgeImpl(browser.get(), request_info);
 }
-
-}  // namespace webkit_glue
 
 //-----------------------------------------------------------------------------
 

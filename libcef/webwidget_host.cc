@@ -7,7 +7,7 @@
 
 #include "base/bind.h"
 #include "base/message_loop.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWidget.h"
 
 using webkit::npapi::WebPluginGeometry;

@@ -6,11 +6,14 @@
 #ifndef _BROWSER_WEBKIT_INIT_H
 #define _BROWSER_WEBKIT_INIT_H
 
+#include "base/compiler_specific.h"
+
 #include "browser_appcache_system.h"
 #include "browser_database_system.h"
 #include "browser_file_system.h"
 #include "browser_webblobregistry_impl.h"
 #include "browser_webcookiejar_impl.h"
+#include "simple_clipboard_impl.h"
 
 #include "base/scoped_temp_dir.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
@@ -76,6 +79,16 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
       const WebKit::WebSerializedScriptValue& value,
       const WebKit::WebString& keyPath) OVERRIDE;
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() OVERRIDE;
+  virtual string16 GetLocalizedString(int message_id) OVERRIDE;
+  virtual base::StringPiece GetDataResource(int resource_id) OVERRIDE;
+  virtual void GetPlugins(bool refresh,
+                          std::vector<webkit::WebPluginInfo>* plugins) OVERRIDE;
+  virtual webkit_glue::ResourceLoaderBridge* CreateResourceLoader(
+      const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info)
+      OVERRIDE;
+  virtual webkit_glue::WebSocketStreamHandleBridge* CreateWebSocketBridge(
+      WebKit::WebSocketStreamHandle* handle,
+      webkit_glue::WebSocketStreamHandleDelegate* delegate) OVERRIDE;
   virtual WebKit::WebString queryLocalizedString(
       WebKit::WebLocalizedString::Name name) OVERRIDE;
   virtual WebKit::WebString queryLocalizedString(
@@ -89,6 +102,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
   webkit_glue::WebClipboardImpl clipboard_;
+  SimpleClipboardClient clipboard_client_;
   webkit_glue::WebFileUtilitiesImpl file_utilities_;
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;

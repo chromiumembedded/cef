@@ -9,7 +9,7 @@
 #include "net/base/upload_data.h"
 #include "net/http/http_request_headers.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHTTPBody.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebURLRequest.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLRequest.h"
 
 namespace net {
 class URLRequest;

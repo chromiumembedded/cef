@@ -4,6 +4,9 @@
 // found in the LICENSE file.
 
 #include "browser_webkit_init.h"
+#include "browser_resource_loader_bridge.h"
+#include "browser_socket_stream_bridge.h"
+#include "browser_webkit_glue.h"
 #include "browser_webstoragenamespace_impl.h"
 #include "cef_context.h"
 
@@ -20,9 +23,11 @@
 #include "v8/include/v8.h"
 #include "webkit/gpu/webgraphicscontext3d_in_process_command_buffer_impl.h"
 #include "webkit/gpu/webgraphicscontext3d_in_process_impl.h"
+#include "webkit/plugins/npapi/plugin_list.h"
 
 
-BrowserWebKitInit::BrowserWebKitInit() {
+BrowserWebKitInit::BrowserWebKitInit()
+    : clipboard_(&clipboard_client_) {
   v8::V8::SetCounterFunction(base::StatsTable::FindLocation);
 
   WebKit::initialize(this);
@@ -257,6 +262,33 @@ WebKit::WebGraphicsContext3D* BrowserWebKitInit::createGraphicsContext3D() {
     return new webkit::gpu::WebGraphicsContext3DInProcessImpl(
         gfx::kNullPluginWindow, NULL);
   }
+}
+
+void BrowserWebKitInit::GetPlugins(
+    bool refresh, std::vector<webkit::WebPluginInfo>* plugins) {
+  if (refresh)
+    webkit::npapi::PluginList::Singleton()->RefreshPlugins();
+  webkit::npapi::PluginList::Singleton()->GetPlugins(plugins);
+}
+
+string16 BrowserWebKitInit::GetLocalizedString(int message_id) {
+  return webkit_glue::GetLocalizedString(message_id);
+}
+
+base::StringPiece BrowserWebKitInit::GetDataResource(int resource_id) {
+  return webkit_glue::GetDataResource(resource_id);
+}
+
+webkit_glue::ResourceLoaderBridge* BrowserWebKitInit::CreateResourceLoader(
+    const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info) {
+  return BrowserResourceLoaderBridge::Create(request_info);
+}
+
+webkit_glue::WebSocketStreamHandleBridge*
+BrowserWebKitInit::CreateWebSocketBridge(
+    WebKit::WebSocketStreamHandle* handle,
+    webkit_glue::WebSocketStreamHandleDelegate* delegate) {
+  return BrowserSocketStreamBridge::Create(handle, delegate);
 }
 
 WebKit::WebString BrowserWebKitInit::queryLocalizedString(

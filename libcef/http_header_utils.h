@@ -6,7 +6,7 @@
 #define _HTTP_HEADER_UTILS_H
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHTTPHeaderVisitor.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
 namespace HttpHeaderUtils {
 

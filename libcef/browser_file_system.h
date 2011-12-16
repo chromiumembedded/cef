@@ -9,7 +9,7 @@
 #include "base/id_map.h"
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_temp_dir.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystem.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "webkit/fileapi/file_system_types.h"
 #include <vector>
 

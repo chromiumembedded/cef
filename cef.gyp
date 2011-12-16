@@ -511,7 +511,7 @@
             '../breakpad/breakpad.gyp:breakpad_handler',
             '../third_party/angle/src/build_angle.gyp:libEGL',
             '../third_party/angle/src/build_angle.gyp:libGLESv2',
-            '../views/views.gyp:views',
+            '../ui/views/views.gyp:views',
           ],
           'sources': [
             '<@(includes_win)',
@@ -759,6 +759,7 @@
         'libcef/response_impl.h',
         'libcef/scheme_impl.cc',
         'libcef/simple_clipboard_impl.cc',
+        'libcef/simple_clipboard_impl.h',
         'libcef/stream_impl.cc',
         'libcef/stream_impl.h',
         'libcef/tracker.h',
@@ -783,7 +784,7 @@
             '../breakpad/breakpad.gyp:breakpad_handler',
             '../third_party/angle/src/build_angle.gyp:libEGL',
             '../third_party/angle/src/build_angle.gyp:libGLESv2',
-            '../views/views.gyp:views',
+            '../ui/views/views.gyp:views',
           ],
           'sources': [
             '<@(includes_win)',

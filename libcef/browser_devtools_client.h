@@ -29,9 +29,7 @@ class BrowserDevToolsClient: public WebKit::WebDevToolsFrontendClient {
   virtual ~BrowserDevToolsClient();
 
   // WebDevToolsFrontendClient implementation
-  virtual void sendFrontendLoaded();
   virtual void sendMessageToBackend(const WebKit::WebString& data);
-  virtual void sendDebuggerCommandToAgent(const WebKit::WebString& command);
 
   virtual void activateWindow();
   virtual void closeWindow();
