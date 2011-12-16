@@ -326,10 +326,6 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
   DCHECK(host);
   if (!host)
     return 0;
-  // Verify param: realm; type: string_byref_const
-  DCHECK(realm);
-  if (!realm)
-    return 0;
   // Verify param: scheme; type: string_byref_const
   DCHECK(scheme);
   if (!scheme)
@@ -342,6 +338,7 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
   DCHECK(password);
   if (!password)
     return 0;
+  // Unverified params: realm
 
   // Translate param: username; type: string_byref
   CefString usernameStr(username);

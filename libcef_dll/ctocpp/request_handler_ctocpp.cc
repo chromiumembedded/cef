@@ -281,14 +281,11 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
   DCHECK(!host.empty());
   if (host.empty())
     return false;
-  // Verify param: realm; type: string_byref_const
-  DCHECK(!realm.empty());
-  if (realm.empty())
-    return false;
   // Verify param: scheme; type: string_byref_const
   DCHECK(!scheme.empty());
   if (scheme.empty())
     return false;
+  // Unverified params: realm
 
   // Execute
   int _retval = struct_->get_auth_credentials(struct_,
