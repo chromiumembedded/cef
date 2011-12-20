@@ -1,8 +1,8 @@
 Index: V8DOMWindowCustom.cpp
 ===================================================================
---- V8DOMWindowCustom.cpp	(revision 101876)
+--- V8DOMWindowCustom.cpp	(revision 102901)
 +++ V8DOMWindowCustom.cpp	(working copy)
-@@ -289,8 +289,11 @@
+@@ -297,8 +297,11 @@
  static v8::Handle<v8::Value> handlePostMessageCallback(const v8::Arguments& args, bool extendedTransfer)
  {
      DOMWindow* window = V8DOMWindow::toNative(args.Holder());
@@ -14,4 +14,4 @@ Index: V8DOMWindowCustom.cpp
 +    DOMWindow* source = frame->domWindow();
      ASSERT(source->frame());
  
-     // This function has variable arguments and can either be:
+     // This function has variable arguments and can be:
