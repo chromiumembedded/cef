@@ -34,7 +34,8 @@ if not options.quiet:
       cef_info['url']+"\n")
 
 # Retrieve the Chromium SVN info.
-chromium_info = get_svn_info(os.path.join(cef_dir, os.pardir))
+src_dir = os.path.join(cef_dir, os.pardir)
+chromium_info = get_svn_info(src_dir)
 if not options.quiet:
   sys.stdout.write('Using Chromium revision '+chromium_info['revision']+' @ '+\
       chromium_info['url']+"\n")
@@ -45,16 +46,42 @@ config = eval(read_file(compat_file), {'__builtins__': None}, None)
 
 error = False
 
-if chromium_info['url'] != config['chromium_url']:
-  error = True
-  sys.stderr.write("\nWARNING: Incorrect Chromium URL; found "+\
-      chromium_info['url']+', expected '+config['chromium_url']+"\n")
+if 'release_url' in config:
+  current_release_url = None
+  path = os.path.join(os.path.join(src_dir, os.pardir), '.gclient')
+  if os.path.exists(path):
+    # read the .gclient file
+    fp = open(path, 'r')
+    data = fp.read()
+    fp.close()
 
-if chromium_info['revision'] != config['chromium_revision']:
-  error = True
-  sys.stderr.write("\nWARNING: Incorrect Chromium revision; found "+\
-      chromium_info['revision']+', expected '+config['chromium_revision']+"\n")
-      
+    # Parse the contents
+    config_dict = {}
+    try:
+      exec(data, config_dict)
+      current_release_url = config_dict['solutions'][0]['url']
+    except Exception, e:
+      sys.stderr.write('Failed to parse existing .glient file.\n')
+      raise
+
+  if not options.quiet:
+    sys.stdout.write('Using Chromium release '+current_release_url+"\n")
+
+  if current_release_url != config['release_url']:
+    error = True
+    sys.stderr.write("\nWARNING: Incorrect Chromium release URL; found "+\
+        current_release_url+', expected '+config['release_url']+"\n")
+else:
+  if chromium_info['url'] != config['chromium_url']:
+    error = True
+    sys.stderr.write("\nWARNING: Incorrect Chromium URL; found "+\
+        chromium_info['url']+', expected '+config['chromium_url']+"\n")
+
+  if chromium_info['revision'] != config['chromium_revision']:
+    error = True
+    sys.stderr.write("\nWARNING: Incorrect Chromium revision; found "+\
+        chromium_info['revision']+', expected '+config['chromium_revision']+"\n")
+
 if error:
   sys.stderr.write("\nPlease see CHROMIUM_BUILD_COMPATIBILITY.txt for "\
       "instructions.\n")
