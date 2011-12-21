@@ -28,11 +28,16 @@ def create_archive(input_dir, zip_file):
   addDir(input_dir)
   zf.close()
 
-def create_readme(src, output_dir, cef_rev, chromium_rev, date):
+def create_readme(src, output_dir, cef_url, cef_rev, cef_ver, chromium_url, \
+                  chromium_rev, chromium_ver, date):
   """ Creates the README.TXT file. """
   data = read_file(src)
+  data = data.replace('$CEF_URL$', cef_url)
   data = data.replace('$CEF_REV$', cef_rev)
+  data = data.replace('$CEF_VER$', cef_ver)
+  data = data.replace('$CHROMIUM_URL$', chromium_url)
   data = data.replace('$CHROMIUM_REV$', chromium_rev)
+  data = data.replace('$CHROMIUM_VER$', chromium_ver)
   data = data.replace('$DATE$', date)
   write_file(os.path.join(output_dir, 'README.txt'), data)
   if not options.quiet:
@@ -145,16 +150,31 @@ if options.outputdir is None:
   parser.print_help(sys.stdout)
   sys.exit()
 
-# retrieve revision and date information
-cef_rev = get_revision()
-chromium_rev = get_revision('../../')
-date = get_date()
-
 # script directory
 script_dir = os.path.dirname(__file__)
 
 # CEF root directory
 cef_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+
+# retrieve url, revision and date information
+cef_info = get_svn_info(cef_dir)
+cef_url = cef_info['url']
+cef_rev = cef_info['revision']
+chromium_info = get_svn_info(os.path.join(cef_dir, os.pardir))
+chromium_url = chromium_info['url']
+chromium_rev = chromium_info['revision']
+date = get_date()
+
+# Read and parse the version file (key=value pairs, one per line)
+chrome = {}
+lines = read_file(os.path.join(cef_dir, '../chrome/VERSION')).split("\n")
+for line in lines:
+  parts = line.split('=', 1)
+  if len(parts) == 2:
+    chrome[parts[0]] = parts[1]
+
+cef_ver = '1.'+chrome['BUILD']+'.'+cef_rev
+chromium_ver = chrome['MAJOR']+'.'+chrome['MINOR']+'.'+chrome['BUILD']+'.'+chrome['PATCH']
 
 # Test the operating system.
 platform = '';
@@ -167,13 +187,13 @@ elif sys.platform.startswith('linux'):
 
 # output directory
 output_dir = os.path.abspath(os.path.join(options.outputdir, \
-                                          'cef_binary_r'+cef_rev+'_'+platform))
+                                          'cef_binary_'+cef_ver+'_'+platform))
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
 # symbol directory
 symbol_dir = os.path.abspath(os.path.join(options.outputdir, \
-                                          'cef_binary_r'+cef_rev+'_'+platform+'_symbols'))
+                                          'cef_binary_'+cef_ver+'_'+platform+'_symbols'))
 remove_dir(symbol_dir, options.quiet)
 make_dir(symbol_dir, options.quiet)
 
@@ -221,8 +241,8 @@ transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.c
 
 if platform == 'windows':
   # create the README.TXT file
-  create_readme(os.path.join(script_dir, 'distrib/win/README.txt'), output_dir, cef_rev, \
-                chromium_rev, date)
+  create_readme(os.path.join(script_dir, 'distrib/win/README.txt'), output_dir, cef_url, \
+                cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
 
   # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_win'], \
@@ -292,8 +312,8 @@ if platform == 'windows':
 
 elif platform == 'macosx':
   # create the README.TXT file
-  create_readme(os.path.join(script_dir, 'distrib/mac/README.txt'), output_dir, cef_rev, \
-                chromium_rev, date)
+  create_readme(os.path.join(script_dir, 'distrib/mac/README.txt'), output_dir, cef_url, \
+                cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
   
   # transfer include files
   transfer_gypi_files(cef_dir, cef_paths['includes_mac'], \
@@ -355,8 +375,8 @@ elif platform == 'linux':
   linux_build_dir = os.path.join(cef_dir, os.pardir, 'out')
 
   # create the README.TXT file
-  create_readme(os.path.join(script_dir, 'distrib/linux/README.txt'), output_dir, cef_rev, \
-                chromium_rev, date)
+  create_readme(os.path.join(script_dir, 'distrib/linux/README.txt'), output_dir, cef_url, \
+                cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
 
   # transfer build/Debug files
   if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Debug')):

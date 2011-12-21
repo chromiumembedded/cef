@@ -31,10 +31,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   DCHECK(parentBrowser.get());
   if (!parentBrowser.get())
     return false;
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
+  // Unverified params: url
 
   // Translate param: client; type: refptr_same_byref
   cef_client_t* clientStruct = NULL;

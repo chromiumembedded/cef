@@ -40,10 +40,6 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(windowInfo);
   if (!windowInfo)
     return 0;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return 0;
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
   if (!client)
@@ -52,6 +48,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(settings);
   if (!settings)
     return 0;
+  // Unverified params: url
 
   // Translate param: popupFeatures; type: struct_byref_const
   CefPopupFeatures popupFeaturesObj;

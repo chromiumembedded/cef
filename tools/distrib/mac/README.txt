@@ -1,9 +1,14 @@
 Chromium Embedded Framework (CEF) Binary Distribution
 -------------------------------------------------------------------------------
 
-CEF Revision:        $CEF_REV$
-Chromium Revision:   $CHROMIUM_REV$
-Date:                $DATE$
+Date:             $DATE$
+
+CEF Version:      $CEF_VER$
+CEF URL:          $CEF_URL$@$CEF_REV$
+
+Chromium Verison: $CHROMIUM_VER$
+Chromium URL:     $CHROMIUM_URL$@$CHROMIUM_REV$
+
 
 This distribution contains all components necessary to build and distribute an
 application using CEF. Please see the LICENSING section of this document for
