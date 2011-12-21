@@ -206,6 +206,14 @@ void CefProcessUIThread::CleanUp() {
   webkit_glue::CleanupResourceBundle();
 }
 
+AudioManager* CefProcessUIThread::audio_manager() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  if (!audio_manager_)
+    audio_manager_ = AudioManager::Create();
+
+  return audio_manager_;
+}
+
 void CefProcessUIThread::OnOnlineStateChanged(bool online) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
   WebKit::WebNetworkStateNotifier::setOnLine(online);

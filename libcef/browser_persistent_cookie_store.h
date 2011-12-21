@@ -49,7 +49,7 @@ class BrowserPersistentCookieStore
 
   virtual void SetClearLocalStateOnExit(bool clear_local_state) OVERRIDE;
 
-  virtual void Flush(Task* completion_task) OVERRIDE;
+  virtual void Flush(const base::Closure& callback) OVERRIDE;
 
  private:
   class Backend;

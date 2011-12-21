@@ -70,8 +70,8 @@ public:
 
   virtual int GetProxyForURL(const GURL& url,
                              net::ProxyInfo* results,
-                             net::OldCompletionCallback* callback,
-                             ProxyResolver::RequestHandle* request,
+                             const net::CompletionCallback& callback,
+                             RequestHandle* request,
                              const net::BoundNetLog& net_log) OVERRIDE
   {
     CefProxyInfo proxy_info;
@@ -87,8 +87,8 @@ public:
   } 
 
   virtual int SetPacScript(
-      const scoped_refptr<net::ProxyResolverScriptData>& script_data,
-      net::OldCompletionCallback* callback) OVERRIDE
+      const scoped_refptr<net::ProxyResolverScriptData>& pac_script,
+      const net::CompletionCallback& callback) OVERRIDE
   {
     return net::OK;
   }
@@ -238,11 +238,18 @@ void BrowserRequestContext::Init(
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
-      new net::HttpCache(host_resolver(), cert_verifier(),
-                         origin_bound_cert_service(), NULL, NULL,
-                         proxy_service(), ssl_config_service(),
-                         http_auth_handler_factory(), NULL,
-                         http_server_properties(), NULL, backend);
+      new net::HttpCache(host_resolver(),
+                         cert_verifier(),
+                         origin_bound_cert_service(),
+                         NULL, // transport_security_state
+                         proxy_service(),
+                         "",  // ssl_session_cache_shard
+                         ssl_config_service(),
+                         http_auth_handler_factory(),
+                         NULL,  // network_delegate
+                         http_server_properties(),
+                         NULL,  // netlog
+                         backend);
 
   cache->set_mode(cache_mode);
   storage_.set_http_transaction_factory(cache);

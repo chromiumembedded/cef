@@ -16,6 +16,7 @@
 #include "browser_webstoragenamespace_impl.h"
 #include "browser_zoom_map.h"
 #include "cef_context.h"
+#include "cef_process_ui_thread.h"
 #include "dom_document_impl.h"
 #include "request_impl.h"
 #include "v8_impl.h"
@@ -44,7 +45,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPluginParams.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRange.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
@@ -636,7 +637,8 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
       new media::FilterCollection());
 
   // Add the audio renderer.
-  collection->AddAudioRenderer(new media::ReferenceAudioRenderer());
+  collection->AddAudioRenderer(new media::ReferenceAudioRenderer(
+      _Context->process()->ui_thread()->audio_manager()));
 
   scoped_ptr<webkit_media::WebMediaPlayerImpl> result(
       new webkit_media::WebMediaPlayerImpl(

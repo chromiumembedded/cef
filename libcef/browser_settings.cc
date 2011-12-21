@@ -129,7 +129,8 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
   web.accelerated_layers_enabled = !cef.accelerated_layers_disabled;
   web.accelerated_video_enabled = !cef.accelerated_video_disabled;
   web.accelerated_2d_canvas_enabled = !cef.accelerated_2d_canvas_disabled;
-  web.accelerated_drawing_enabled = !cef.accelerated_drawing_disabled;
+  web.accelerated_painting_enabled = !cef.accelerated_painting_disabled;
+  web.accelerated_filters_enabled = !cef.accelerated_filters_disabled;
   web.accelerated_plugins_enabled = !cef.accelerated_plugins_disabled;
   web.memory_info_enabled = false;
   web.fullscreen_enabled = cef.fullscreen_enabled;

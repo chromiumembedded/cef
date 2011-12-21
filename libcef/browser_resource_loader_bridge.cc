@@ -376,7 +376,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyCompletedRequest(const net::URLRequestStatus& status,
                               const std::string& security_info,
-                              const base::Time& complete_time) {
+                              const base::TimeTicks& complete_time) {
 
     // Drain the content filter of all remaining data 
     if (content_filter_.get()) {
@@ -503,7 +503,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           // cancel the resource load
           OnCompletedRequest(
               URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
-              std::string(), base::Time());
+              std::string(), base::TimeTicks());
         } else if (!redirectUrl.empty()) {
           // redirect to the specified URL
           handled = true;
@@ -559,7 +559,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           if (handled) {
             OnCompletedRequest(
                 URLRequestStatus(URLRequestStatus::HANDLED_EXTERNALLY, net::OK),
-                std::string(), base::Time()); 
+                std::string(), base::TimeTicks()); 
           }
         }
       }
@@ -728,7 +728,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
-                                  const base::Time& complete_time) {
+                                  const base::TimeTicks& complete_time) {
     if (download_to_file_)
       file_stream_.Close();
 
@@ -836,7 +836,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     if(resource_stream_.get()) {
       // Resource stream reads always complete successfully
       OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
-          std::string(), base::Time());
+          std::string(), base::TimeTicks());
       resource_stream_ = NULL;
     } else if(request_.get()) {
       if (upload_progress_timer_.IsRunning()) {
@@ -844,7 +844,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         upload_progress_timer_.Stop();
       }
       DCHECK(request_.get());
-      OnCompletedRequest(request_->status(), std::string(), base::Time());
+      OnCompletedRequest(request_->status(), std::string(), base::TimeTicks());
       request_.reset();  // destroy on the io thread
     }
   }
@@ -987,7 +987,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
-                                  const base::Time& complete_time) {
+                                  const base::TimeTicks& complete_time) {
     if (download_to_file_)
       file_stream_.Close();
     

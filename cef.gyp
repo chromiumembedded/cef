@@ -371,6 +371,7 @@
         '../webkit/support/webkit_support.gyp:webkit_media',
         '../webkit/support/webkit_support.gyp:webkit_resources',
         '../webkit/support/webkit_support.gyp:webkit_strings',
+        '../webkit/support/webkit_support.gyp:webkit_user_agent',
         'libcef_static',
       ],
       'defines': [
@@ -660,6 +661,7 @@
         '../webkit/support/webkit_support.gyp:webkit_media',
         '../webkit/support/webkit_support.gyp:webkit_resources',
         '../webkit/support/webkit_support.gyp:webkit_strings',
+        '../webkit/support/webkit_support.gyp:webkit_user_agent',
       ],
       'sources': [
         '<@(includes_common)',

@@ -70,9 +70,11 @@ extern const char kThreadedCompositingEnabled[];
 extern const char kAcceleratedLayersDisabled[];
 extern const char kAcceleratedVideoDisabled[];
 extern const char kAcceledated2dCanvasDisabled[];
-extern const char kAcceleratedDrawingDisabled[];
+extern const char kAcceleratedPaintingDisabled[];
+extern const char kAcceleratedFiltersDisabled[];
 extern const char kAcceleratedPluginsDisabled[];
 extern const char kDeveloperToolsDisabled[];
+extern const char kFullscreenEnabled[];
 
 // Other attributes.
 extern const char kProxyType[];

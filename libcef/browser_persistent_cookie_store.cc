@@ -13,6 +13,7 @@
 
 #include "base/basictypes.h"
 #include "base/bind.h"
+#include "base/callback.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -82,7 +83,7 @@ class BrowserPersistentCookieStore::Backend
   void DeleteCookie(const net::CookieMonster::CanonicalCookie& cc);
 
   // Commit pending operations as soon as possible.
-  void Flush(Task* completion_task);
+  void Flush(const base::Closure& callback);
 
   // Commit any pending operations and close the database.  This must be called
   // before the object is destructed.
@@ -310,7 +311,9 @@ bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
   DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
 
   if (initialized_) {
-    return true;
+    // Return false if we were previously initialized but the DB has since been
+    // closed.
+    return db_.get() ? true : false;
   }
 
   const FilePath dir = path_.DirName();
@@ -332,8 +335,6 @@ bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
     db_.reset();
     return false;
   }
-
-  db_->Preload();
 
   // Retrieve all the domains
   sql::Statement smt(db_->GetUniqueStatement(
@@ -369,7 +370,10 @@ void BrowserPersistentCookieStore::Backend::ChainLoadCookies(
 
   bool load_success = true;
 
-  if (keys_to_load_.size() > 0) {
+  if (!db_.get()) {
+    // Close() has been called on this store.
+    load_success = false;
+  } else if (keys_to_load_.size() > 0) {
     // Load cookies for the first domain key.
     std::map<std::string, std::set<std::string> >::iterator
       it = keys_to_load_.begin();
@@ -398,19 +402,20 @@ bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
   const std::set<std::string>& domains) {
   DCHECK(CefThread::CurrentlyOn(CefThread::FILE));
 
-  const char* sql;
+  sql::Statement smt;
   if (restore_old_session_cookies_) {
-    sql =
-        "SELECT creation_utc, host_key, name, value, path, expires_utc, "
-        "secure, httponly, last_access_utc, has_expires, persistent "
-        "FROM cookies WHERE host_key = ?";
+    smt.Assign(db_->GetCachedStatement(
+      SQL_FROM_HERE,
+      "SELECT creation_utc, host_key, name, value, path, expires_utc, "
+      "secure, httponly, last_access_utc, has_expires, persistent "
+      "FROM cookies WHERE host_key = ?"));
   } else {
-    sql =
-        "SELECT creation_utc, host_key, name, value, path, expires_utc, "
-        "secure, httponly, last_access_utc, has_expires, persistent "
-        "FROM cookies WHERE host_key = ? AND persistent == 1";
+    smt.Assign(db_->GetCachedStatement(
+      SQL_FROM_HERE,
+      "SELECT creation_utc, host_key, name, value, path, expires_utc, "
+      "secure, httponly, last_access_utc, has_expires, persistent "
+      "FROM cookies WHERE host_key = ? AND persistent = 1"));
   }
-  sql::Statement smt(db_->GetCachedStatement(SQL_FROM_HERE, sql));
   if (!smt) {
     NOTREACHED() << "select statement prep failed";
     db_.reset();
@@ -681,20 +686,21 @@ void BrowserPersistentCookieStore::Backend::Commit() {
   transaction.Commit();
 }
 
-void BrowserPersistentCookieStore::Backend::Flush(Task* completion_task) {
+void BrowserPersistentCookieStore::Backend::Flush(
+    const base::Closure& callback) {
   DCHECK(!CefThread::CurrentlyOn(CefThread::FILE));
   CefThread::PostTask(
       CefThread::FILE, FROM_HERE, base::Bind(&Backend::Commit, this));
-  if (completion_task) {
+  if (!callback.is_null()) {
     // We want the completion task to run immediately after Commit() returns.
     // Posting it from here means there is less chance of another task getting
     // onto the message queue first, than if we posted it from Commit() itself.
-    CefThread::PostTask(CefThread::FILE, FROM_HERE, completion_task);
+    CefThread::PostTask(CefThread::FILE, FROM_HERE, callback);
   }
 }
 
 // Fire off a close message to the background thread.  We could still have a
-// pending commit timer that will be holding a reference on us, but if/when
+// pending commit timer or Load operations holding references on us, but if/when
 // this fires we will already have been cleaned up and it will be ignored.
 void BrowserPersistentCookieStore::Backend::Close() {
   if (CefThread::CurrentlyOn(CefThread::FILE)) {
@@ -779,9 +785,9 @@ void BrowserPersistentCookieStore::SetClearLocalStateOnExit(
     backend_->SetClearLocalStateOnExit(clear_local_state);
 }
 
-void BrowserPersistentCookieStore::Flush(Task* completion_task) {
+void BrowserPersistentCookieStore::Flush(const base::Closure& callback) {
   if (backend_.get())
-    backend_->Flush(completion_task);
-  else if (completion_task)
-    MessageLoop::current()->PostTask(FROM_HERE, completion_task);
+    backend_->Flush(callback);
+  else if (!callback.is_null())
+    MessageLoop::current()->PostTask(FROM_HERE, callback);
 }
