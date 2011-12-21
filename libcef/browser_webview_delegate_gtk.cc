@@ -18,7 +18,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/native_widget_types.h"
