@@ -8,7 +8,7 @@
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebExternalPopupMenuClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
 ExternalPopupMenu::ExternalPopupMenu(

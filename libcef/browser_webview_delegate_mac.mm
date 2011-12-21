@@ -17,9 +17,9 @@
 #include "skia/ext/skia_utils_mac.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebImage.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "webkit/glue/webcursor.h"
@@ -298,7 +298,7 @@ void BrowserWebViewDelegate::startDragging(const WebDragData& data,
   
   NSImage* ns_image = nil;
   if (!image.isNull()) {
-    const SkBitmap& bitmap = gfx::CGImageToSkBitmap(image.getCGImageRef());
+    const SkBitmap& bitmap = image.getSkBitmap();
     CGColorSpaceRef color_space = base::mac::GetSystemColorSpace();
     ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
   }

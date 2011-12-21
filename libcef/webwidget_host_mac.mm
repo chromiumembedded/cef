@@ -11,7 +11,7 @@
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
-#import "third_party/WebKit/Source/WebKit/chromium/public/WebSize.h"
+#import "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #import "third_party/skia/include/core/SkRegion.h"
 #import "ui/gfx/rect.h"
 #import "ui/gfx/size.h"

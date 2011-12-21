@@ -24,7 +24,7 @@
 #import "third_party/mozilla/NSPasteboard+Utils.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/mac/nsimage_cache.h"
 #include "webkit/glue/webdropdata.h"
