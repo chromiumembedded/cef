@@ -2562,18 +2562,11 @@ public:
   /*--cef(optional_param=value)--*/
   static CefRefPtr<CefV8Value> CreateString(const CefString& value);
   ///
-  // Create a new CefV8Value object of type object. This method should only be
-  // called from within the scope of a CefV8ContextHandler, CefV8Handler or
-  // CefV8Accessor callback, or in combination with calling Enter() and Exit()
-  // on a stored CefV8Context reference.
-  ///
-  /*--cef(optional_param=user_data)--*/
-  static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data);
-  ///
-  // Create a new CefV8Value object of type object with accessors. This method
-  // should only be called from within the scope of a CefV8ContextHandler,
-  // CefV8Handler or CefV8Accessor callback, or in combination with calling
-  // Enter() and Exit() on a stored CefV8Context reference.
+  // Create a new CefV8Value object of type object with optional user data and
+  // accessor. This method should only be called from within the scope of a
+  // CefV8ContextHandler, CefV8Handler or CefV8Accessor callback, or in
+  // combination with calling Enter() and Exit() on a stored CefV8Context
+  // reference.
   ///
   /*--cef(capi_name=cef_v8value_create_object_with_accessor,
           optional_param=user_data,optional_param=accessor)--*/

@@ -2563,16 +2563,8 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 
 ///
-// Create a new cef_v8value_t object of type object. This function should only
-// be called from within the scope of a cef_v8context_tHandler, cef_v8handler_t
-// or cef_v8accessor_t callback, or in combination with calling enter() and
-// exit() on a stored cef_v8context_t reference.
-///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data);
-
-///
-// Create a new cef_v8value_t object of type object with accessors. This
-// function should only be called from within the scope of a
+// Create a new cef_v8value_t object of type object with optional user data and
+// accessor. This function should only be called from within the scope of a
 // cef_v8context_tHandler, cef_v8handler_t or cef_v8accessor_t callback, or in
 // combination with calling enter() and exit() on a stored cef_v8context_t
 // reference.

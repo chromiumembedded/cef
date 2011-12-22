@@ -143,7 +143,7 @@ void InitBindingTest(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefV8Value> object)
 {
   // Create the new V8 object.
-  CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL);
+  CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL, NULL);
   // Add the new V8 object to the global window object with the name
   // "cef_test".
   object->SetValue("cef_test", testObjPtr, V8_PROPERTY_ATTRIBUTE_NONE);

@@ -112,21 +112,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 }
 
 
-CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: user_data
-
-  // Execute
-  cef_v8value_t* _retval = cef_v8value_create_object(
-      CefBaseCppToC::Wrap(user_data));
-
-  // Return type: refptr_same
-  return CefV8ValueCToCpp::Wrap(_retval);
-}
-
-
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data,
     CefRefPtr<CefV8Accessor> accessor)
 {

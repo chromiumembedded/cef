@@ -299,7 +299,7 @@ public:
                            CefRefPtr<CefV8Value> object)
   {
     // Create the new V8 object
-    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL);
+    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL, NULL);
     ASSERT_TRUE(testObj.get() != NULL);
     ASSERT_TRUE(object->SetValue("test", testObj, V8_PROPERTY_ATTRIBUTE_NONE));
 
@@ -828,7 +828,7 @@ public:
       CefRefPtr<CefV8Value> foobarFunc = 
         CefV8Value::CreateFunction("foobar", funcHandler);
 
-      obj = CefV8Value::CreateObject(NULL);
+      obj = CefV8Value::CreateObject(NULL, NULL);
       url = CefV8Value::CreateString("http://tests/end.html");
 
       obj->SetValue("url", url, V8_PROPERTY_ATTRIBUTE_NONE);

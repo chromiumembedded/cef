@@ -120,21 +120,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
 }
 
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_base_t* user_data)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: user_data
-
-  // Execute
-  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateObject(
-      CefBaseCToCpp::Wrap(user_data));
-
-  // Return type: refptr_same
-  return CefV8ValueCppToC::Wrap(_retval);
-}
-
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
     cef_base_t* user_data, cef_v8accessor_t* accessor)
 {

@@ -584,13 +584,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data)
-{
-  CefRefPtr<CefV8Accessor> no_accessor;
-  return CreateObject(user_data, no_accessor);
-}
-
-// static
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(
     CefRefPtr<CefBase> user_data, CefRefPtr<CefV8Accessor> accessor)
 {

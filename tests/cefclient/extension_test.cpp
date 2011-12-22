@@ -46,7 +46,7 @@ public:
     {
       // Handle the GetTestObject native function by creating and returning a
       // new V8 object.
-      retval = CefV8Value::CreateObject(NULL);
+      retval = CefV8Value::CreateObject(NULL, NULL);
       // Add a string parameter to the new V8 object.
       retval->SetValue("param", CefV8Value::CreateString(
           "Retrieving a parameter on a native object succeeded."),
