@@ -101,7 +101,6 @@
     ],
     'cefclient_bundle_resources_mac': [
       'tests/cefclient/mac/cefclient.icns',
-      'tests/cefclient/mac/data/',
       'tests/cefclient/mac/English.lproj/InfoPlist.strings',
       'tests/cefclient/mac/English.lproj/MainMenu.xib',
       'tests/cefclient/mac/Info.plist',
