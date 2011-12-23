@@ -5,6 +5,7 @@
 #include "client_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "cefclient.h"
 #include "resource_util.h"
 #include "string_util.h"
 #import <Cocoa/Cocoa.h>

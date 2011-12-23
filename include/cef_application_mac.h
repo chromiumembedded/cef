@@ -31,7 +31,7 @@
 #define _CEF_APPLICATION_MAC_H
 #pragma once
 
-#include "cef.h"
+#include "cef_base.h"
 
 #if defined(OS_MACOSX) && defined(__OBJC__)
 
