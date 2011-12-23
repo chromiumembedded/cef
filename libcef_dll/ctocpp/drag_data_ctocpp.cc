@@ -30,7 +30,6 @@ bool CefDragDataCToCpp::IsLink()
   return _retval?true:false;
 }
 
-
 bool CefDragDataCToCpp::IsFragment()
 {
   if (CEF_MEMBER_MISSING(struct_, is_fragment))
@@ -45,7 +44,6 @@ bool CefDragDataCToCpp::IsFragment()
   return _retval?true:false;
 }
 
-
 bool CefDragDataCToCpp::IsFile()
 {
   if (CEF_MEMBER_MISSING(struct_, is_file))
@@ -59,7 +57,6 @@ bool CefDragDataCToCpp::IsFile()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CefString CefDragDataCToCpp::GetLinkURL()
 {
@@ -77,7 +74,6 @@ CefString CefDragDataCToCpp::GetLinkURL()
   return _retvalStr;
 }
 
-
 CefString CefDragDataCToCpp::GetLinkTitle()
 {
   if (CEF_MEMBER_MISSING(struct_, get_link_title))
@@ -93,7 +89,6 @@ CefString CefDragDataCToCpp::GetLinkTitle()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefString CefDragDataCToCpp::GetLinkMetadata()
 {
@@ -111,7 +106,6 @@ CefString CefDragDataCToCpp::GetLinkMetadata()
   return _retvalStr;
 }
 
-
 CefString CefDragDataCToCpp::GetFragmentText()
 {
   if (CEF_MEMBER_MISSING(struct_, get_fragment_text))
@@ -127,7 +121,6 @@ CefString CefDragDataCToCpp::GetFragmentText()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefString CefDragDataCToCpp::GetFragmentHtml()
 {
@@ -145,7 +138,6 @@ CefString CefDragDataCToCpp::GetFragmentHtml()
   return _retvalStr;
 }
 
-
 CefString CefDragDataCToCpp::GetFragmentBaseURL()
 {
   if (CEF_MEMBER_MISSING(struct_, get_fragment_base_url))
@@ -161,7 +153,6 @@ CefString CefDragDataCToCpp::GetFragmentBaseURL()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefString CefDragDataCToCpp::GetFileExtension()
 {
@@ -179,7 +170,6 @@ CefString CefDragDataCToCpp::GetFileExtension()
   return _retvalStr;
 }
 
-
 CefString CefDragDataCToCpp::GetFileName()
 {
   if (CEF_MEMBER_MISSING(struct_, get_file_name))
@@ -195,7 +185,6 @@ CefString CefDragDataCToCpp::GetFileName()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names)
 {
@@ -224,7 +213,6 @@ bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names)
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

@@ -86,7 +86,6 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8HandlerCppToC::CefV8HandlerCppToC(CefV8Handler* cls)

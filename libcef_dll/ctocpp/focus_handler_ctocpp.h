@@ -17,8 +17,12 @@
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
 #else // BUILDING_CEF_SHARED
 
-#include "include/cef.h"
-#include "include/cef_capi.h"
+#include "include/cef_focus_handler.h"
+#include "include/capi/cef_focus_handler_capi.h"
+#include "include/cef_browser.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/cef_frame.h"
+#include "include/capi/cef_frame_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.

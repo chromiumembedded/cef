@@ -52,7 +52,6 @@ struct _cef_scheme_handler_t* CEF_CALLBACK scheme_handler_factory_create(
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefSchemeHandlerFactoryCppToC::CefSchemeHandlerFactoryCppToC(

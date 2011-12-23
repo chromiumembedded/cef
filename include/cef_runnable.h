@@ -34,7 +34,8 @@
 #define _CEF_RUNNABLE_H
 #pragma once
 
-#include "cef.h"
+#include "cef_base.h"
+#include "cef_task.h"
 #ifdef BUILDING_CEF_SHARED
 #include "base/tuple.h"
 #else

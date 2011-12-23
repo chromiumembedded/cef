@@ -18,7 +18,7 @@
 
 void CEF_CALLBACK content_filter_process_data(
     struct _cef_content_filter_t* self, const void* data, int data_size,
-    cef_stream_reader_t** substitute_data)
+    struct _cef_stream_reader_t** substitute_data)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -58,9 +58,8 @@ void CEF_CALLBACK content_filter_process_data(
   }
 }
 
-
 void CEF_CALLBACK content_filter_drain(struct _cef_content_filter_t* self,
-    cef_stream_reader_t** remainder)
+    struct _cef_stream_reader_t** remainder)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -93,7 +92,6 @@ void CEF_CALLBACK content_filter_drain(struct _cef_content_filter_t* self,
     }
   }
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

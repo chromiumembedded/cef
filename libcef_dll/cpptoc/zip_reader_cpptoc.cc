@@ -34,7 +34,6 @@ CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(cef_stream_reader_t* stream)
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self)
@@ -52,7 +51,6 @@ int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -67,7 +65,6 @@ int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
     const cef_string_t* fileName, int caseSensitive)
@@ -91,7 +88,6 @@ int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -106,7 +102,6 @@ int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK zip_reader_get_file_name(
     struct _cef_zip_reader_t* self)
@@ -124,7 +119,6 @@ cef_string_userfree_t CEF_CALLBACK zip_reader_get_file_name(
   return _retval.DetachToUserFree();
 }
 
-
 long CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -139,7 +133,6 @@ long CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 time_t CEF_CALLBACK zip_reader_get_file_last_modified(
     struct _cef_zip_reader_t* self)
@@ -156,7 +149,6 @@ time_t CEF_CALLBACK zip_reader_get_file_last_modified(
   // Return type: simple
   return _retval;
 }
-
 
 int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
     const cef_string_t* password)
@@ -176,7 +168,6 @@ int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -191,7 +182,6 @@ int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
     void* buffer, size_t bufferSize)
@@ -215,7 +205,6 @@ int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-
 long CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -231,7 +220,6 @@ long CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -246,7 +234,6 @@ int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

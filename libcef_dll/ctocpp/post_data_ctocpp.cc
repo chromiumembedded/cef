@@ -28,7 +28,6 @@ CefRefPtr<CefPostData> CefPostData::CreatePostData()
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 size_t CefPostDataCToCpp::GetElementCount()
@@ -44,7 +43,6 @@ size_t CefPostDataCToCpp::GetElementCount()
   // Return type: simple
   return _retval;
 }
-
 
 void CefPostDataCToCpp::GetElements(ElementVector& elements)
 {
@@ -85,7 +83,6 @@ void CefPostDataCToCpp::GetElements(ElementVector& elements)
   }
 }
 
-
 bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element)
 {
   if (CEF_MEMBER_MISSING(struct_, remove_element))
@@ -105,7 +102,6 @@ bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element)
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
 {
@@ -127,7 +123,6 @@ bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element)
   return _retval?true:false;
 }
 
-
 void CefPostDataCToCpp::RemoveElements()
 {
   if (CEF_MEMBER_MISSING(struct_, remove_elements))
@@ -138,7 +133,6 @@ void CefPostDataCToCpp::RemoveElements()
   // Execute
   struct_->remove_elements(struct_);
 }
-
 
 
 #ifndef NDEBUG

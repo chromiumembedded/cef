@@ -3,6 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "extension_test.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_stream.h"
+#include "include/cef_v8.h"
 #include "resource_util.h"
 
 // Implementation of the V8 handler class for the "cef.test" extension.

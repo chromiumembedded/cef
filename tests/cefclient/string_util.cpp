@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "string_util.h"
+#include "include/cef_request.h"
 #include <sstream>
 
 void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str)

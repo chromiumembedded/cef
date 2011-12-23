@@ -34,7 +34,6 @@ CefRefPtr<CefZipReader> CefZipReader::Create(CefRefPtr<CefStreamReader> stream)
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefZipReaderCToCpp::MoveToFirstFile()
@@ -51,7 +50,6 @@ bool CefZipReaderCToCpp::MoveToFirstFile()
   return _retval?true:false;
 }
 
-
 bool CefZipReaderCToCpp::MoveToNextFile()
 {
   if (CEF_MEMBER_MISSING(struct_, move_to_next_file))
@@ -65,7 +63,6 @@ bool CefZipReaderCToCpp::MoveToNextFile()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefZipReaderCToCpp::MoveToFile(const CefString& fileName,
     bool caseSensitive)
@@ -89,7 +86,6 @@ bool CefZipReaderCToCpp::MoveToFile(const CefString& fileName,
   return _retval?true:false;
 }
 
-
 bool CefZipReaderCToCpp::Close()
 {
   if (CEF_MEMBER_MISSING(struct_, close))
@@ -103,7 +99,6 @@ bool CefZipReaderCToCpp::Close()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CefString CefZipReaderCToCpp::GetFileName()
 {
@@ -121,7 +116,6 @@ CefString CefZipReaderCToCpp::GetFileName()
   return _retvalStr;
 }
 
-
 long CefZipReaderCToCpp::GetFileSize()
 {
   if (CEF_MEMBER_MISSING(struct_, get_file_size))
@@ -136,7 +130,6 @@ long CefZipReaderCToCpp::GetFileSize()
   return _retval;
 }
 
-
 time_t CefZipReaderCToCpp::GetFileLastModified()
 {
   if (CEF_MEMBER_MISSING(struct_, get_file_last_modified))
@@ -150,7 +143,6 @@ time_t CefZipReaderCToCpp::GetFileLastModified()
   // Return type: simple
   return _retval;
 }
-
 
 bool CefZipReaderCToCpp::OpenFile(const CefString& password)
 {
@@ -169,7 +161,6 @@ bool CefZipReaderCToCpp::OpenFile(const CefString& password)
   return _retval?true:false;
 }
 
-
 bool CefZipReaderCToCpp::CloseFile()
 {
   if (CEF_MEMBER_MISSING(struct_, close_file))
@@ -183,7 +174,6 @@ bool CefZipReaderCToCpp::CloseFile()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 int CefZipReaderCToCpp::ReadFile(void* buffer, size_t bufferSize)
 {
@@ -206,7 +196,6 @@ int CefZipReaderCToCpp::ReadFile(void* buffer, size_t bufferSize)
   return _retval;
 }
 
-
 long CefZipReaderCToCpp::Tell()
 {
   if (CEF_MEMBER_MISSING(struct_, tell))
@@ -221,7 +210,6 @@ long CefZipReaderCToCpp::Tell()
   return _retval;
 }
 
-
 bool CefZipReaderCToCpp::Eof()
 {
   if (CEF_MEMBER_MISSING(struct_, eof))
@@ -235,7 +223,6 @@ bool CefZipReaderCToCpp::Eof()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

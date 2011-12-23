@@ -42,7 +42,6 @@ CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler()
   return CefLifeSpanHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_load_handler))
@@ -56,7 +55,6 @@ CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler()
   // Return type: refptr_same
   return CefLoadHandlerCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler()
 {
@@ -72,7 +70,6 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler()
   return CefRequestHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_display_handler))
@@ -86,7 +83,6 @@ CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler()
   // Return type: refptr_same
   return CefDisplayHandlerCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler()
 {
@@ -102,7 +98,6 @@ CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler()
   return CefFocusHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_keyboard_handler))
@@ -116,7 +111,6 @@ CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler()
   // Return type: refptr_same
   return CefKeyboardHandlerCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler()
 {
@@ -132,7 +126,6 @@ CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler()
   return CefMenuHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_print_handler))
@@ -146,7 +139,6 @@ CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler()
   // Return type: refptr_same
   return CefPrintHandlerCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler()
 {
@@ -162,7 +154,6 @@ CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler()
   return CefFindHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_jsdialog_handler))
@@ -176,7 +167,6 @@ CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler()
   // Return type: refptr_same
   return CefJSDialogHandlerCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler()
 {
@@ -192,7 +182,6 @@ CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler()
   return CefV8ContextHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_render_handler))
@@ -207,7 +196,6 @@ CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler()
   return CefRenderHandlerCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_drag_handler))
@@ -221,7 +209,6 @@ CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler()
   // Return type: refptr_same
   return CefDragHandlerCToCpp::Wrap(_retval);
 }
-
 
 
 #ifndef NDEBUG

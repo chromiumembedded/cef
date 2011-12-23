@@ -5,7 +5,7 @@
 #ifndef _REQUEST_IMPL_H
 #define _REQUEST_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_request.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_request_headers.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPBody.h"

@@ -35,7 +35,6 @@ void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMVisitorCppToC::CefDOMVisitorCppToC(CefDOMVisitor* cls)

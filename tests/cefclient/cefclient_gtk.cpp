@@ -1,11 +1,16 @@
-#include "include/cef.h"
-#include "cefclient.h"
-#include "client_handler.h"
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
 
+#include "cefclient.h"
+#include "include/cef_app.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_runnable.h"
 #include "binding_test.h"
+#include "client_handler.h"
 #include "extension_test.h"
 #include "scheme_test.h"
-
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <unistd.h>

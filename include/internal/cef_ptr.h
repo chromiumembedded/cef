@@ -32,6 +32,8 @@
 #ifndef _CEF_PTR_H
 #define _CEF_PTR_H
 
+#include <stddef.h>
+
 ///
 // Smart pointer implementation borrowed from base/ref_counted.h
 // <p>

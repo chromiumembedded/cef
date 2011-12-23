@@ -45,7 +45,6 @@ int CEF_CALLBACK keyboard_handler_on_key_event(
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC(CefKeyboardHandler* cls)

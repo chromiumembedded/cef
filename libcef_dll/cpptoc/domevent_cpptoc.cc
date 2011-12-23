@@ -33,7 +33,6 @@ cef_string_userfree_t CEF_CALLBACK domevent_get_type(
   return _retval.DetachToUserFree();
 }
 
-
 enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
     struct _cef_domevent_t* self)
 {
@@ -51,7 +50,6 @@ enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
   return _retval;
 }
 
-
 enum cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
     struct _cef_domevent_t* self)
 {
@@ -68,7 +66,6 @@ enum cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
   return _retval;
 }
 
-
 int CEF_CALLBACK domevent_can_bubble(struct _cef_domevent_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -84,7 +81,6 @@ int CEF_CALLBACK domevent_can_bubble(struct _cef_domevent_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK domevent_can_cancel(struct _cef_domevent_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -99,7 +95,6 @@ int CEF_CALLBACK domevent_can_cancel(struct _cef_domevent_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_domdocument_t* CEF_CALLBACK domevent_get_document(
     struct _cef_domevent_t* self)
@@ -118,7 +113,6 @@ cef_domdocument_t* CEF_CALLBACK domevent_get_document(
   return CefDOMDocumentCppToC::Wrap(_retval);
 }
 
-
 cef_domnode_t* CEF_CALLBACK domevent_get_target(struct _cef_domevent_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -133,7 +127,6 @@ cef_domnode_t* CEF_CALLBACK domevent_get_target(struct _cef_domevent_t* self)
   // Return type: refptr_same
   return CefDOMNodeCppToC::Wrap(_retval);
 }
-
 
 cef_domnode_t* CEF_CALLBACK domevent_get_current_target(
     struct _cef_domevent_t* self)
@@ -151,7 +144,6 @@ cef_domnode_t* CEF_CALLBACK domevent_get_current_target(
   // Return type: refptr_same
   return CefDOMNodeCppToC::Wrap(_retval);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

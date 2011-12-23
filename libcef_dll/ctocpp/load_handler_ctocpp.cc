@@ -40,7 +40,6 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame));
 }
 
-
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, int httpStatusCode)
 {
@@ -64,7 +63,6 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame),
       httpStatusCode);
 }
-
 
 bool CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& failedUrl,
@@ -99,7 +97,6 @@ bool CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

@@ -17,8 +17,12 @@
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
 #else // USING_CEF_SHARED
 
-#include "include/cef.h"
-#include "include/cef_capi.h"
+#include "include/cef_v8.h"
+#include "include/capi/cef_v8_capi.h"
+#include "include/cef_browser.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/cef_frame.h"
+#include "include/capi/cef_frame_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.

@@ -41,7 +41,6 @@ CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self)
@@ -59,7 +58,6 @@ int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -75,7 +73,6 @@ int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -90,7 +87,6 @@ int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
     struct _cef_xml_reader_t* self)
@@ -108,7 +104,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
   return _retval.DetachToUserFree();
 }
 
-
 enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
     struct _cef_xml_reader_t* self)
 {
@@ -125,7 +120,6 @@ enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -140,7 +134,6 @@ int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_local_name(
     struct _cef_xml_reader_t* self)
@@ -158,7 +151,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_local_name(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_prefix(
     struct _cef_xml_reader_t* self)
 {
@@ -174,7 +166,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_prefix(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_qualified_name(
     struct _cef_xml_reader_t* self)
@@ -192,7 +183,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_qualified_name(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_namespace_uri(
     struct _cef_xml_reader_t* self)
 {
@@ -208,7 +198,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_namespace_uri(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_base_uri(
     struct _cef_xml_reader_t* self)
@@ -226,7 +215,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_base_uri(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_xml_lang(
     struct _cef_xml_reader_t* self)
 {
@@ -243,7 +231,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_xml_lang(
   return _retval.DetachToUserFree();
 }
 
-
 int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -259,7 +246,6 @@ int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -274,7 +260,6 @@ int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_value(
     struct _cef_xml_reader_t* self)
@@ -292,7 +277,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_value(
   return _retval.DetachToUserFree();
 }
 
-
 int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -307,7 +291,6 @@ int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 size_t CEF_CALLBACK xml_reader_get_attribute_count(
     struct _cef_xml_reader_t* self)
@@ -324,7 +307,6 @@ size_t CEF_CALLBACK xml_reader_get_attribute_count(
   // Return type: simple
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
     struct _cef_xml_reader_t* self, int index)
@@ -347,7 +329,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byqname(
     struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
 {
@@ -368,7 +349,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byqname(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_bylname(
     struct _cef_xml_reader_t* self, const cef_string_t* localName,
@@ -397,7 +377,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_bylname(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_inner_xml(
     struct _cef_xml_reader_t* self)
 {
@@ -413,7 +392,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_inner_xml(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_outer_xml(
     struct _cef_xml_reader_t* self)
@@ -431,7 +409,6 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_outer_xml(
   return _retval.DetachToUserFree();
 }
 
-
 int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -446,7 +423,6 @@ int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
     struct _cef_xml_reader_t* self, int index)
@@ -469,7 +445,6 @@ int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_move_to_attribute_byqname(
     struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
 {
@@ -490,7 +465,6 @@ int CEF_CALLBACK xml_reader_move_to_attribute_byqname(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
     struct _cef_xml_reader_t* self, const cef_string_t* localName,
@@ -519,7 +493,6 @@ int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_move_to_first_attribute(
     struct _cef_xml_reader_t* self)
 {
@@ -535,7 +508,6 @@ int CEF_CALLBACK xml_reader_move_to_first_attribute(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK xml_reader_move_to_next_attribute(
     struct _cef_xml_reader_t* self)
@@ -553,7 +525,6 @@ int CEF_CALLBACK xml_reader_move_to_next_attribute(
   return _retval;
 }
 
-
 int CEF_CALLBACK xml_reader_move_to_carrying_element(
     struct _cef_xml_reader_t* self)
 {
@@ -569,7 +540,6 @@ int CEF_CALLBACK xml_reader_move_to_carrying_element(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

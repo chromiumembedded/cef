@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef.h"
-#include "include/cef_wrapper.h"
+#include "include/cef_stream.h"
+#include "include/cef_zip_reader.h"
+#include "include/wrapper/cef_zip_archive.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

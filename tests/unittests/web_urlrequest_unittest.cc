@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_web_urlrequest.h"
 #include "test_handler.h"
 
 //#define WEB_URLREQUEST_DEBUG

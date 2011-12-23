@@ -3,7 +3,12 @@
 // be found in the LICENSE file.
 
 #include "browser_devtools_scheme_handler.h"
-#include "include/cef.h"
+#include "include/cef_browser.h"
+#include "include/cef_request.h"
+#include "include/cef_response.h"
+#include "include/cef_scheme.h"
+#include "include/cef_stream.h"
+#include "include/cef_url.h"
 #include "browser_webkit_glue.h"
 #include <string>
 

@@ -37,7 +37,6 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n)
   return _retval;
 }
 
-
 int CefReadHandlerCToCpp::Seek(long offset, int whence)
 {
   if (CEF_MEMBER_MISSING(struct_, seek))
@@ -54,7 +53,6 @@ int CefReadHandlerCToCpp::Seek(long offset, int whence)
   return _retval;
 }
 
-
 long CefReadHandlerCToCpp::Tell()
 {
   if (CEF_MEMBER_MISSING(struct_, tell))
@@ -69,7 +67,6 @@ long CefReadHandlerCToCpp::Tell()
   return _retval;
 }
 
-
 int CefReadHandlerCToCpp::Eof()
 {
   if (CEF_MEMBER_MISSING(struct_, eof))
@@ -83,7 +80,6 @@ int CefReadHandlerCToCpp::Eof()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

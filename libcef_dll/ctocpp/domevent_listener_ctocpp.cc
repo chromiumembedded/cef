@@ -34,7 +34,6 @@ void CefDOMEventListenerCToCpp::HandleEvent(CefRefPtr<CefDOMEvent> event)
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefDOMEventListenerCToCpp, CefDOMEventListener,
     cef_domevent_listener_t>::DebugObjCt = 0;

@@ -28,7 +28,6 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create()
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK post_data_element_set_to_empty(
@@ -43,7 +42,6 @@ void CEF_CALLBACK post_data_element_set_to_empty(
   // Execute
   CefPostDataElementCppToC::Get(self)->SetToEmpty();
 }
-
 
 void CEF_CALLBACK post_data_element_set_to_file(
     struct _cef_post_data_element_t* self, const cef_string_t* fileName)
@@ -62,7 +60,6 @@ void CEF_CALLBACK post_data_element_set_to_file(
   CefPostDataElementCppToC::Get(self)->SetToFile(
       CefString(fileName));
 }
-
 
 void CEF_CALLBACK post_data_element_set_to_bytes(
     struct _cef_post_data_element_t* self, size_t size, const void* bytes)
@@ -83,7 +80,6 @@ void CEF_CALLBACK post_data_element_set_to_bytes(
       bytes);
 }
 
-
 enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
     struct _cef_post_data_element_t* self)
 {
@@ -101,7 +97,6 @@ enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
     struct _cef_post_data_element_t* self)
 {
@@ -118,7 +113,6 @@ cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
   return _retval.DetachToUserFree();
 }
 
-
 size_t CEF_CALLBACK post_data_element_get_bytes_count(
     struct _cef_post_data_element_t* self)
 {
@@ -134,7 +128,6 @@ size_t CEF_CALLBACK post_data_element_get_bytes_count(
   // Return type: simple
   return _retval;
 }
-
 
 size_t CEF_CALLBACK post_data_element_get_bytes(
     struct _cef_post_data_element_t* self, size_t size, void* bytes)
@@ -157,7 +150,6 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

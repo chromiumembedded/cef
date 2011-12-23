@@ -14,7 +14,7 @@
   },
   'includes': [
     # Bring in the source file lists for cefclient.
-    'cef_paths.gypi',
+    'cef_paths2.gypi',
   ],
   'targets': [
     {
@@ -34,6 +34,7 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(includes_wrapper)',
         '<@(cefclient_sources_common)',
       ],
       'mac_bundle_resources': [
@@ -133,6 +134,8 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(includes_capi)',
+        '<@(includes_wrapper)',
         '<@(libcef_dll_wrapper_sources_common)',
       ],
       'xcode_settings': {

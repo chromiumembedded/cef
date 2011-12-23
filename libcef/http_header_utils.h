@@ -5,6 +5,7 @@
 #ifndef _HTTP_HEADER_UTILS_H
 #define _HTTP_HEADER_UTILS_H
 
+#include "include/cef_request.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 

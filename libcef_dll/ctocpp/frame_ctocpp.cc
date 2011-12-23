@@ -31,7 +31,6 @@ void CefFrameCToCpp::Undo()
   struct_->undo(struct_);
 }
 
-
 void CefFrameCToCpp::Redo()
 {
   if (CEF_MEMBER_MISSING(struct_, redo))
@@ -42,7 +41,6 @@ void CefFrameCToCpp::Redo()
   // Execute
   struct_->redo(struct_);
 }
-
 
 void CefFrameCToCpp::Cut()
 {
@@ -55,7 +53,6 @@ void CefFrameCToCpp::Cut()
   struct_->cut(struct_);
 }
 
-
 void CefFrameCToCpp::Copy()
 {
   if (CEF_MEMBER_MISSING(struct_, copy))
@@ -66,7 +63,6 @@ void CefFrameCToCpp::Copy()
   // Execute
   struct_->copy(struct_);
 }
-
 
 void CefFrameCToCpp::Paste()
 {
@@ -79,7 +75,6 @@ void CefFrameCToCpp::Paste()
   struct_->paste(struct_);
 }
 
-
 void CefFrameCToCpp::Delete()
 {
   if (CEF_MEMBER_MISSING(struct_, del))
@@ -90,7 +85,6 @@ void CefFrameCToCpp::Delete()
   // Execute
   struct_->del(struct_);
 }
-
 
 void CefFrameCToCpp::SelectAll()
 {
@@ -103,7 +97,6 @@ void CefFrameCToCpp::SelectAll()
   struct_->select_all(struct_);
 }
 
-
 void CefFrameCToCpp::Print()
 {
   if (CEF_MEMBER_MISSING(struct_, print))
@@ -115,7 +108,6 @@ void CefFrameCToCpp::Print()
   struct_->print(struct_);
 }
 
-
 void CefFrameCToCpp::ViewSource()
 {
   if (CEF_MEMBER_MISSING(struct_, view_source))
@@ -126,7 +118,6 @@ void CefFrameCToCpp::ViewSource()
   // Execute
   struct_->view_source(struct_);
 }
-
 
 CefString CefFrameCToCpp::GetSource()
 {
@@ -144,7 +135,6 @@ CefString CefFrameCToCpp::GetSource()
   return _retvalStr;
 }
 
-
 CefString CefFrameCToCpp::GetText()
 {
   if (CEF_MEMBER_MISSING(struct_, get_text))
@@ -160,7 +150,6 @@ CefString CefFrameCToCpp::GetText()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 void CefFrameCToCpp::LoadRequest(CefRefPtr<CefRequest> request)
 {
@@ -179,7 +168,6 @@ void CefFrameCToCpp::LoadRequest(CefRefPtr<CefRequest> request)
       CefRequestCToCpp::Unwrap(request));
 }
 
-
 void CefFrameCToCpp::LoadURL(const CefString& url)
 {
   if (CEF_MEMBER_MISSING(struct_, load_url))
@@ -196,7 +184,6 @@ void CefFrameCToCpp::LoadURL(const CefString& url)
   struct_->load_url(struct_,
       url.GetStruct());
 }
-
 
 void CefFrameCToCpp::LoadString(const CefString& string, const CefString& url)
 {
@@ -219,7 +206,6 @@ void CefFrameCToCpp::LoadString(const CefString& string, const CefString& url)
       string.GetStruct(),
       url.GetStruct());
 }
-
 
 void CefFrameCToCpp::LoadStream(CefRefPtr<CefStreamReader> stream,
     const CefString& url)
@@ -244,7 +230,6 @@ void CefFrameCToCpp::LoadStream(CefRefPtr<CefStreamReader> stream,
       url.GetStruct());
 }
 
-
 void CefFrameCToCpp::ExecuteJavaScript(const CefString& jsCode,
     const CefString& scriptUrl, int startLine)
 {
@@ -266,7 +251,6 @@ void CefFrameCToCpp::ExecuteJavaScript(const CefString& jsCode,
       startLine);
 }
 
-
 bool CefFrameCToCpp::IsMain()
 {
   if (CEF_MEMBER_MISSING(struct_, is_main))
@@ -281,7 +265,6 @@ bool CefFrameCToCpp::IsMain()
   return _retval?true:false;
 }
 
-
 bool CefFrameCToCpp::IsFocused()
 {
   if (CEF_MEMBER_MISSING(struct_, is_focused))
@@ -295,7 +278,6 @@ bool CefFrameCToCpp::IsFocused()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CefString CefFrameCToCpp::GetName()
 {
@@ -313,7 +295,6 @@ CefString CefFrameCToCpp::GetName()
   return _retvalStr;
 }
 
-
 long long CefFrameCToCpp::GetIdentifier()
 {
   if (CEF_MEMBER_MISSING(struct_, get_identifier))
@@ -328,7 +309,6 @@ long long CefFrameCToCpp::GetIdentifier()
   return _retval;
 }
 
-
 CefRefPtr<CefFrame> CefFrameCToCpp::GetParent()
 {
   if (CEF_MEMBER_MISSING(struct_, get_parent))
@@ -342,7 +322,6 @@ CefRefPtr<CefFrame> CefFrameCToCpp::GetParent()
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
 }
-
 
 CefString CefFrameCToCpp::GetURL()
 {
@@ -360,7 +339,6 @@ CefString CefFrameCToCpp::GetURL()
   return _retvalStr;
 }
 
-
 CefRefPtr<CefBrowser> CefFrameCToCpp::GetBrowser()
 {
   if (CEF_MEMBER_MISSING(struct_, get_browser))
@@ -374,7 +352,6 @@ CefRefPtr<CefBrowser> CefFrameCToCpp::GetBrowser()
   // Return type: refptr_same
   return CefBrowserCToCpp::Wrap(_retval);
 }
-
 
 void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
 {
@@ -393,7 +370,6 @@ void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor)
       CefDOMVisitorCppToC::Wrap(visitor));
 }
 
-
 CefRefPtr<CefV8Context> CefFrameCToCpp::GetV8Context()
 {
   if (CEF_MEMBER_MISSING(struct_, get_v8context))
@@ -407,7 +383,6 @@ CefRefPtr<CefV8Context> CefFrameCToCpp::GetV8Context()
   // Return type: refptr_same
   return CefV8ContextCToCpp::Wrap(_retval);
 }
-
 
 
 #ifndef NDEBUG

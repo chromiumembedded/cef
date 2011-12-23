@@ -16,7 +16,8 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_proxy_handler_t* CEF_CALLBACK app_get_proxy_handler(struct _cef_app_t* self)
+struct _cef_proxy_handler_t* CEF_CALLBACK app_get_proxy_handler(
+    struct _cef_app_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -31,7 +32,6 @@ cef_proxy_handler_t* CEF_CALLBACK app_get_proxy_handler(struct _cef_app_t* self)
   // Return type: refptr_same
   return CefProxyHandlerCppToC::Wrap(_retval);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

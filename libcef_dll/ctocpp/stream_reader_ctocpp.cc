@@ -34,7 +34,6 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
   return CefStreamReaderCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
     size_t size)
 {
@@ -54,7 +53,6 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
   return CefStreamReaderCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
     CefRefPtr<CefReadHandler> handler)
 {
@@ -72,7 +70,6 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
   // Return type: refptr_same
   return CefStreamReaderCToCpp::Wrap(_retval);
 }
-
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -99,7 +96,6 @@ size_t CefStreamReaderCToCpp::Read(void* ptr, size_t size, size_t n)
   return _retval;
 }
 
-
 int CefStreamReaderCToCpp::Seek(long offset, int whence)
 {
   if (CEF_MEMBER_MISSING(struct_, seek))
@@ -116,7 +112,6 @@ int CefStreamReaderCToCpp::Seek(long offset, int whence)
   return _retval;
 }
 
-
 long CefStreamReaderCToCpp::Tell()
 {
   if (CEF_MEMBER_MISSING(struct_, tell))
@@ -131,7 +126,6 @@ long CefStreamReaderCToCpp::Tell()
   return _retval;
 }
 
-
 int CefStreamReaderCToCpp::Eof()
 {
   if (CEF_MEMBER_MISSING(struct_, eof))
@@ -145,7 +139,6 @@ int CefStreamReaderCToCpp::Eof()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

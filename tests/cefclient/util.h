@@ -5,7 +5,7 @@
 #ifndef _CEFCLIENT_UTIL_H
 #define _CEFCLIENT_UTIL_H
 
-#include "include/cef.h"
+#include "include/cef_task.h"
 
 #if defined(OS_WIN)
 

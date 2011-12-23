@@ -49,7 +49,6 @@ void CEF_CALLBACK proxy_handler_get_proxy_for_url(
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefProxyHandlerCppToC::CefProxyHandlerCppToC(CefProxyHandler* cls)

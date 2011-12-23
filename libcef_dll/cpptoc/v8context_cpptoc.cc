@@ -29,7 +29,6 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context()
   return CefV8ContextCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -41,7 +40,6 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context()
   return CefV8ContextCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT int cef_v8context_in_context()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -52,7 +50,6 @@ CEF_EXPORT int cef_v8context_in_context()
   // Return type: bool
   return _retval;
 }
-
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -72,7 +69,6 @@ cef_browser_t* CEF_CALLBACK v8context_get_browser(struct _cef_v8context_t* self)
   return CefBrowserCppToC::Wrap(_retval);
 }
 
-
 cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -87,7 +83,6 @@ cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self)
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
 }
-
 
 struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
     struct _cef_v8context_t* self)
@@ -105,7 +100,6 @@ struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -121,7 +115,6 @@ int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -136,7 +129,6 @@ int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
     struct _cef_v8context_t* that)
@@ -158,7 +150,6 @@ int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

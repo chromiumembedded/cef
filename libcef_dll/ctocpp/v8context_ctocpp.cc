@@ -29,7 +29,6 @@ CefRefPtr<CefV8Context> CefV8Context::GetCurrentContext()
   return CefV8ContextCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -41,7 +40,6 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext()
   return CefV8ContextCToCpp::Wrap(_retval);
 }
 
-
 bool CefV8Context::InContext()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -52,7 +50,6 @@ bool CefV8Context::InContext()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -71,7 +68,6 @@ CefRefPtr<CefBrowser> CefV8ContextCToCpp::GetBrowser()
   return CefBrowserCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefFrame> CefV8ContextCToCpp::GetFrame()
 {
   if (CEF_MEMBER_MISSING(struct_, get_frame))
@@ -85,7 +81,6 @@ CefRefPtr<CefFrame> CefV8ContextCToCpp::GetFrame()
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8ContextCToCpp::GetGlobal()
 {
@@ -101,7 +96,6 @@ CefRefPtr<CefV8Value> CefV8ContextCToCpp::GetGlobal()
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 bool CefV8ContextCToCpp::Enter()
 {
   if (CEF_MEMBER_MISSING(struct_, enter))
@@ -116,7 +110,6 @@ bool CefV8ContextCToCpp::Enter()
   return _retval?true:false;
 }
 
-
 bool CefV8ContextCToCpp::Exit()
 {
   if (CEF_MEMBER_MISSING(struct_, exit))
@@ -130,7 +123,6 @@ bool CefV8ContextCToCpp::Exit()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ContextCToCpp::IsSame(CefRefPtr<CefV8Context> that)
 {
@@ -151,7 +143,6 @@ bool CefV8ContextCToCpp::IsSame(CefRefPtr<CefV8Context> that)
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

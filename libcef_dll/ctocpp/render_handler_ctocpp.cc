@@ -38,7 +38,6 @@ bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefRenderHandlerCToCpp::GetScreenRect(CefRefPtr<CefBrowser> browser,
     CefRect& rect)
 {
@@ -60,7 +59,6 @@ bool CefRenderHandlerCToCpp::GetScreenRect(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
     int viewX, int viewY, int& screenX, int& screenY)
@@ -87,7 +85,6 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
     bool show)
 {
@@ -107,7 +104,6 @@ void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
       show);
 }
 
-
 void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
     const CefRect& rect)
 {
@@ -126,7 +122,6 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
       CefBrowserCppToC::Wrap(browser),
       &rect);
 }
-
 
 void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
     PaintElementType type, const RectList& dirtyRects, const void* buffer)
@@ -167,7 +162,6 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
       buffer);
 }
 
-
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor)
 {
@@ -186,7 +180,6 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
       CefBrowserCppToC::Wrap(browser),
       cursor);
 }
-
 
 
 #ifndef NDEBUG

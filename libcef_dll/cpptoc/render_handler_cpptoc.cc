@@ -50,7 +50,6 @@ int CEF_CALLBACK render_handler_get_view_rect(
   return _retval;
 }
 
-
 int CEF_CALLBACK render_handler_get_screen_rect(
     struct _cef_render_handler_t* self, cef_browser_t* browser,
     cef_rect_t* rect)
@@ -84,7 +83,6 @@ int CEF_CALLBACK render_handler_get_screen_rect(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK render_handler_get_screen_point(
     struct _cef_render_handler_t* self, cef_browser_t* browser, int viewX,
@@ -132,7 +130,6 @@ int CEF_CALLBACK render_handler_get_screen_point(
   return _retval;
 }
 
-
 void CEF_CALLBACK render_handler_on_popup_show(
     struct _cef_render_handler_t* self, cef_browser_t* browser, int show)
 {
@@ -151,7 +148,6 @@ void CEF_CALLBACK render_handler_on_popup_show(
       CefBrowserCToCpp::Wrap(browser),
       show?true:false);
 }
-
 
 void CEF_CALLBACK render_handler_on_popup_size(
     struct _cef_render_handler_t* self, cef_browser_t* browser,
@@ -179,7 +175,6 @@ void CEF_CALLBACK render_handler_on_popup_size(
       CefBrowserCToCpp::Wrap(browser),
       rectVal);
 }
-
 
 void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
     cef_browser_t* browser, enum cef_paint_element_type_t type,
@@ -219,7 +214,6 @@ void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
       buffer);
 }
 
-
 void CEF_CALLBACK render_handler_on_cursor_change(
     struct _cef_render_handler_t* self, cef_browser_t* browser,
     cef_cursor_handle_t cursor)
@@ -239,7 +233,6 @@ void CEF_CALLBACK render_handler_on_cursor_change(
       CefBrowserCToCpp::Wrap(browser),
       cursor);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

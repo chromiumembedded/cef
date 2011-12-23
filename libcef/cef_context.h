@@ -5,7 +5,8 @@
 #ifndef _CEF_CONTEXT_H
 #define _CEF_CONTEXT_H
 
-#include "include/cef.h"
+#include "include/cef_app.h"
+#include "include/cef_base.h"
 #include "browser_file_system.h"
 #include "browser_request_context.h"
 #include "cef_process.h"

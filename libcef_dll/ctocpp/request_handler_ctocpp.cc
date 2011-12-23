@@ -56,7 +56,6 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
@@ -108,7 +107,6 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
   return _retval?true:false;
 }
 
-
 void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     const CefString& old_url, CefString& new_url)
 {
@@ -132,7 +130,6 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
       old_url.GetStruct(),
       new_url.GetWritableStruct());
 }
-
 
 void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     const CefString& url, CefRefPtr<CefResponse> response,
@@ -179,7 +176,6 @@ void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
   }
 }
 
-
 bool CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
     const CefString& url, bool& allowOSExecution)
 {
@@ -212,7 +208,6 @@ bool CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
     const CefString& mimeType, const CefString& fileName, int64 contentLength,
@@ -263,7 +258,6 @@ bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
     bool isProxy, const CefString& host, int port, const CefString& realm,
     const CefString& scheme, CefString& username, CefString& password)
@@ -301,7 +295,6 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

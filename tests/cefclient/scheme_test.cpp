@@ -1,10 +1,14 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_wrapper.h"
-#include "resource_util.h"
 #include "scheme_test.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_response.h"
+#include "include/cef_request.h"
+#include "include/cef_scheme.h"
+#include "resource_util.h"
 #include "string_util.h"
 #include "util.h"
 

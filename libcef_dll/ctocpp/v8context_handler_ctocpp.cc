@@ -46,7 +46,6 @@ void CefV8ContextHandlerCToCpp::OnContextCreated(CefRefPtr<CefBrowser> browser,
       CefV8ContextCppToC::Wrap(context));
 }
 
-
 void CefV8ContextHandlerCToCpp::OnContextReleased(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
@@ -74,7 +73,6 @@ void CefV8ContextHandlerCToCpp::OnContextReleased(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame),
       CefV8ContextCppToC::Wrap(context));
 }
-
 
 
 #ifndef NDEBUG

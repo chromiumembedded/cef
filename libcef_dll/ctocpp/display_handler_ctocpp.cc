@@ -37,7 +37,6 @@ void CefDisplayHandlerCToCpp::OnNavStateChange(CefRefPtr<CefBrowser> browser,
       canGoForward);
 }
 
-
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& url)
 {
@@ -66,7 +65,6 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
       url.GetStruct());
 }
 
-
 void CefDisplayHandlerCToCpp::OnContentsSizeChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int width,
     int height)
@@ -93,7 +91,6 @@ void CefDisplayHandlerCToCpp::OnContentsSizeChange(
       height);
 }
 
-
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
     const CefString& title)
 {
@@ -113,7 +110,6 @@ void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
       CefBrowserCppToC::Wrap(browser),
       title.GetStruct());
 }
-
 
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
     CefString& text)
@@ -138,7 +134,6 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
     const CefString& value, StatusType type)
 {
@@ -159,7 +154,6 @@ void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
       value.GetStruct(),
       type);
 }
-
 
 bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
     const CefString& message, const CefString& source, int line)
@@ -185,7 +179,6 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

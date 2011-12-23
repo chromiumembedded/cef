@@ -37,7 +37,6 @@ void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
       next?true:false);
 }
 
-
 int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
     cef_browser_t* browser, enum cef_handler_focus_source_t source)
 {
@@ -60,10 +59,9 @@ int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
   return _retval;
 }
 
-
 void CEF_CALLBACK focus_handler_on_focused_node_changed(
     struct _cef_focus_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_domnode_t* node)
+    struct _cef_frame_t* frame, cef_domnode_t* node)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -82,7 +80,6 @@ void CEF_CALLBACK focus_handler_on_focused_node_changed(
       CefFrameCToCpp::Wrap(frame),
       CefDOMNodeCToCpp::Wrap(node));
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

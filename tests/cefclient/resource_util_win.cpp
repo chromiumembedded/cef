@@ -3,7 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "resource_util.h"
-#include "include/cef_wrapper.h"
+#include "include/cef_stream.h"
+#include "include/wrapper/cef_byte_read_handler.h"
 
 #if defined(OS_WIN)
 

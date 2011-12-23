@@ -35,7 +35,6 @@ void CefProxyHandlerCToCpp::GetProxyForUrl(const CefString& url,
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefProxyHandlerCToCpp, CefProxyHandler,
     cef_proxy_handler_t>::DebugObjCt = 0;

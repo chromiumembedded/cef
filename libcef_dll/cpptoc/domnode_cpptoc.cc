@@ -34,7 +34,6 @@ enum cef_dom_node_type_t CEF_CALLBACK domnode_get_type(
   return _retval;
 }
 
-
 int CEF_CALLBACK domnode_is_text(struct _cef_domnode_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -49,7 +48,6 @@ int CEF_CALLBACK domnode_is_text(struct _cef_domnode_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self)
 {
@@ -66,7 +64,6 @@ int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -81,7 +78,6 @@ int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_form_control_element_type(
     struct _cef_domnode_t* self)
@@ -98,7 +94,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_form_control_element_type(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 int CEF_CALLBACK domnode_is_same(struct _cef_domnode_t* self,
     struct _cef_domnode_t* that)
@@ -121,7 +116,6 @@ int CEF_CALLBACK domnode_is_same(struct _cef_domnode_t* self,
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_name(struct _cef_domnode_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -136,7 +130,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_name(struct _cef_domnode_t* self)
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_value(
     struct _cef_domnode_t* self)
@@ -153,7 +146,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_value(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 int CEF_CALLBACK domnode_set_value(struct _cef_domnode_t* self,
     const cef_string_t* value)
@@ -176,7 +168,6 @@ int CEF_CALLBACK domnode_set_value(struct _cef_domnode_t* self,
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_as_markup(
     struct _cef_domnode_t* self)
 {
@@ -192,7 +183,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_as_markup(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_domdocument_t* CEF_CALLBACK domnode_get_document(
     struct _cef_domnode_t* self)
@@ -211,7 +201,6 @@ cef_domdocument_t* CEF_CALLBACK domnode_get_document(
   return CefDOMDocumentCppToC::Wrap(_retval);
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_parent(
     struct _cef_domnode_t* self)
 {
@@ -227,7 +216,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_parent(
   // Return type: refptr_same
   return CefDOMNodeCppToC::Wrap(_retval);
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_previous_sibling(
     struct _cef_domnode_t* self)
@@ -246,7 +234,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_previous_sibling(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_next_sibling(
     struct _cef_domnode_t* self)
 {
@@ -263,7 +250,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_next_sibling(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 int CEF_CALLBACK domnode_has_children(struct _cef_domnode_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -278,7 +264,6 @@ int CEF_CALLBACK domnode_has_children(struct _cef_domnode_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_first_child(
     struct _cef_domnode_t* self)
@@ -296,7 +281,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_first_child(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_last_child(
     struct _cef_domnode_t* self)
 {
@@ -312,7 +296,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_last_child(
   // Return type: refptr_same
   return CefDOMNodeCppToC::Wrap(_retval);
 }
-
 
 void CEF_CALLBACK domnode_add_event_listener(struct _cef_domnode_t* self,
     const cef_string_t* eventType, struct _cef_domevent_listener_t* listener,
@@ -339,7 +322,6 @@ void CEF_CALLBACK domnode_add_event_listener(struct _cef_domnode_t* self,
       useCapture?true:false);
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_tag_name(
     struct _cef_domnode_t* self)
 {
@@ -356,7 +338,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_tag_name(
   return _retval.DetachToUserFree();
 }
 
-
 int CEF_CALLBACK domnode_has_element_attributes(struct _cef_domnode_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -371,7 +352,6 @@ int CEF_CALLBACK domnode_has_element_attributes(struct _cef_domnode_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK domnode_has_element_attribute(struct _cef_domnode_t* self,
     const cef_string_t* attrName)
@@ -394,7 +374,6 @@ int CEF_CALLBACK domnode_has_element_attribute(struct _cef_domnode_t* self,
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_attribute(
     struct _cef_domnode_t* self, const cef_string_t* attrName)
 {
@@ -415,7 +394,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_attribute(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK domnode_get_element_attributes(struct _cef_domnode_t* self,
     cef_string_map_t attrMap)
@@ -443,7 +421,6 @@ void CEF_CALLBACK domnode_get_element_attributes(struct _cef_domnode_t* self,
   transfer_string_map_contents(attrMapMap, attrMap);
 }
 
-
 int CEF_CALLBACK domnode_set_element_attribute(struct _cef_domnode_t* self,
     const cef_string_t* attrName, const cef_string_t* value)
 {
@@ -470,7 +447,6 @@ int CEF_CALLBACK domnode_set_element_attribute(struct _cef_domnode_t* self,
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
     struct _cef_domnode_t* self)
 {
@@ -486,7 +462,6 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

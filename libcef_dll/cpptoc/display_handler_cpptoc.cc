@@ -38,10 +38,9 @@ void CEF_CALLBACK display_handler_on_nav_state_change(
       canGoForward?true:false);
 }
 
-
 void CEF_CALLBACK display_handler_on_address_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, const cef_string_t* url)
+    struct _cef_frame_t* frame, const cef_string_t* url)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -68,10 +67,9 @@ void CEF_CALLBACK display_handler_on_address_change(
       CefString(url));
 }
 
-
 void CEF_CALLBACK display_handler_on_contents_size_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, int width, int height)
+    struct _cef_frame_t* frame, int width, int height)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -95,7 +93,6 @@ void CEF_CALLBACK display_handler_on_contents_size_change(
       height);
 }
 
-
 void CEF_CALLBACK display_handler_on_title_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
     const cef_string_t* title)
@@ -116,7 +113,6 @@ void CEF_CALLBACK display_handler_on_title_change(
       CefBrowserCToCpp::Wrap(browser),
       CefString(title));
 }
-
 
 int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
     cef_browser_t* browser, cef_string_t* text)
@@ -144,7 +140,6 @@ int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
   return _retval;
 }
 
-
 void CEF_CALLBACK display_handler_on_status_message(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
     const cef_string_t* value, enum cef_handler_statustype_t type)
@@ -166,7 +161,6 @@ void CEF_CALLBACK display_handler_on_status_message(
       CefString(value),
       type);
 }
-
 
 int CEF_CALLBACK display_handler_on_console_message(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
@@ -193,7 +187,6 @@ int CEF_CALLBACK display_handler_on_console_message(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

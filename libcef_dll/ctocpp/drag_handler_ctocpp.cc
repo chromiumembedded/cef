@@ -44,7 +44,6 @@ bool CefDragHandlerCToCpp::OnDragStart(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> dragData, DragOperationsMask mask)
 {
@@ -71,7 +70,6 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

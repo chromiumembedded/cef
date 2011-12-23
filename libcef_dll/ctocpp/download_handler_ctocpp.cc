@@ -36,7 +36,6 @@ bool CefDownloadHandlerCToCpp::ReceivedData(void* data, int data_size)
   return _retval?true:false;
 }
 
-
 void CefDownloadHandlerCToCpp::Complete()
 {
   if (CEF_MEMBER_MISSING(struct_, complete))
@@ -47,7 +46,6 @@ void CefDownloadHandlerCToCpp::Complete()
   // Execute
   struct_->complete(struct_);
 }
-
 
 
 #ifndef NDEBUG

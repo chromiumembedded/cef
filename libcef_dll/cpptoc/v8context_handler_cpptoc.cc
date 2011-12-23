@@ -20,7 +20,7 @@
 
 void CEF_CALLBACK v8context_handler_on_context_created(
     struct _cef_v8context_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_v8context_t* context)
+    cef_frame_t* frame, cef_v8context_t* context)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -47,10 +47,9 @@ void CEF_CALLBACK v8context_handler_on_context_created(
       CefV8ContextCToCpp::Wrap(context));
 }
 
-
 void CEF_CALLBACK v8context_handler_on_context_released(
     struct _cef_v8context_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_v8context_t* context)
+    cef_frame_t* frame, cef_v8context_t* context)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -76,7 +75,6 @@ void CEF_CALLBACK v8context_handler_on_context_released(
       CefFrameCToCpp::Wrap(frame),
       CefV8ContextCToCpp::Wrap(context));
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

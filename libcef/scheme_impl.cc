@@ -3,7 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "include/cef.h"
+#include "include/cef_browser.h"
+#include "include/cef_scheme.h"
 #include "browser_devtools_scheme_handler.h"
 #include "browser_resource_loader_bridge.h"
 #include "cef_context.h"

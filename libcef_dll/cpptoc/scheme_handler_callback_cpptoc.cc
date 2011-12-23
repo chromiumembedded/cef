@@ -28,7 +28,6 @@ void CEF_CALLBACK scheme_handler_callback_headers_available(
   CefSchemeHandlerCallbackCppToC::Get(self)->HeadersAvailable();
 }
 
-
 void CEF_CALLBACK scheme_handler_callback_bytes_available(
     struct _cef_scheme_handler_callback_t* self)
 {
@@ -42,7 +41,6 @@ void CEF_CALLBACK scheme_handler_callback_bytes_available(
   CefSchemeHandlerCallbackCppToC::Get(self)->BytesAvailable();
 }
 
-
 void CEF_CALLBACK scheme_handler_callback_cancel(
     struct _cef_scheme_handler_callback_t* self)
 {
@@ -55,7 +53,6 @@ void CEF_CALLBACK scheme_handler_callback_cancel(
   // Execute
   CefSchemeHandlerCallbackCppToC::Get(self)->Cancel();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

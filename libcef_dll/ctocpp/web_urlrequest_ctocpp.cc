@@ -41,7 +41,6 @@ CefRefPtr<CefWebURLRequest> CefWebURLRequest::CreateWebURLRequest(
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefWebURLRequestCToCpp::Cancel()
@@ -54,7 +53,6 @@ void CefWebURLRequestCToCpp::Cancel()
   // Execute
   struct_->cancel(struct_);
 }
-
 
 CefWebURLRequest::RequestState CefWebURLRequestCToCpp::GetState()
 {
@@ -69,7 +67,6 @@ CefWebURLRequest::RequestState CefWebURLRequestCToCpp::GetState()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

@@ -29,7 +29,6 @@ CefRefPtr<CefRequest> CefRequest::CreateRequest()
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefString CefRequestCToCpp::GetURL()
@@ -48,7 +47,6 @@ CefString CefRequestCToCpp::GetURL()
   return _retvalStr;
 }
 
-
 void CefRequestCToCpp::SetURL(const CefString& url)
 {
   if (CEF_MEMBER_MISSING(struct_, set_url))
@@ -66,7 +64,6 @@ void CefRequestCToCpp::SetURL(const CefString& url)
       url.GetStruct());
 }
 
-
 CefString CefRequestCToCpp::GetMethod()
 {
   if (CEF_MEMBER_MISSING(struct_, get_method))
@@ -82,7 +79,6 @@ CefString CefRequestCToCpp::GetMethod()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 void CefRequestCToCpp::SetMethod(const CefString& method)
 {
@@ -101,7 +97,6 @@ void CefRequestCToCpp::SetMethod(const CefString& method)
       method.GetStruct());
 }
 
-
 CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
 {
   if (CEF_MEMBER_MISSING(struct_, get_post_data))
@@ -115,7 +110,6 @@ CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
   // Return type: refptr_same
   return CefPostDataCToCpp::Wrap(_retval);
 }
-
 
 void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
 {
@@ -133,7 +127,6 @@ void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
   struct_->set_post_data(struct_,
       CefPostDataCToCpp::Unwrap(postData));
 }
-
 
 void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap)
 {
@@ -160,7 +153,6 @@ void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap)
   }
 }
 
-
 void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
 {
   if (CEF_MEMBER_MISSING(struct_, set_header_map))
@@ -182,7 +174,6 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
   if (headerMapMultimap)
     cef_string_multimap_free(headerMapMultimap);
 }
-
 
 void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     CefRefPtr<CefPostData> postData, const HeaderMap& headerMap)
@@ -220,7 +211,6 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     cef_string_multimap_free(headerMapMultimap);
 }
 
-
 CefRequest::RequestFlags CefRequestCToCpp::GetFlags()
 {
   if (CEF_MEMBER_MISSING(struct_, get_flags))
@@ -235,7 +225,6 @@ CefRequest::RequestFlags CefRequestCToCpp::GetFlags()
   return _retval;
 }
 
-
 void CefRequestCToCpp::SetFlags(RequestFlags flags)
 {
   if (CEF_MEMBER_MISSING(struct_, set_flags))
@@ -247,7 +236,6 @@ void CefRequestCToCpp::SetFlags(RequestFlags flags)
   struct_->set_flags(struct_,
       flags);
 }
-
 
 CefString CefRequestCToCpp::GetFirstPartyForCookies()
 {
@@ -265,7 +253,6 @@ CefString CefRequestCToCpp::GetFirstPartyForCookies()
   return _retvalStr;
 }
 
-
 void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url)
 {
   if (CEF_MEMBER_MISSING(struct_, set_first_party_for_cookies))
@@ -282,7 +269,6 @@ void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url)
   struct_->set_first_party_for_cookies(struct_,
       url.GetStruct());
 }
-
 
 
 #ifndef NDEBUG

@@ -26,7 +26,6 @@ void CefSchemeHandlerCallbackCToCpp::HeadersAvailable()
   struct_->headers_available(struct_);
 }
 
-
 void CefSchemeHandlerCallbackCToCpp::BytesAvailable()
 {
   if (CEF_MEMBER_MISSING(struct_, bytes_available))
@@ -38,7 +37,6 @@ void CefSchemeHandlerCallbackCToCpp::BytesAvailable()
   struct_->bytes_available(struct_);
 }
 
-
 void CefSchemeHandlerCallbackCToCpp::Cancel()
 {
   if (CEF_MEMBER_MISSING(struct_, cancel))
@@ -49,7 +47,6 @@ void CefSchemeHandlerCallbackCToCpp::Cancel()
   // Execute
   struct_->cancel(struct_);
 }
-
 
 
 #ifndef NDEBUG

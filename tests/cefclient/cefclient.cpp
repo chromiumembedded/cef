@@ -2,10 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef.h"
-#include "include/cef_runnable.h"
-#include "include/cef_wrapper.h"
 #include "cefclient.h"
+#include "include/cef_app.h"
+#include "include/cef_browser.h"
+#include "include/cef_command_line.h"
+#include "include/cef_frame.h"
+#include "include/cef_runnable.h"
+#include "include/cef_web_urlrequest.h"
 #include "cefclient_switches.h"
 #include "client_handler.h"
 #include "binding_test.h"

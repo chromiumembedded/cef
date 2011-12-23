@@ -62,7 +62,6 @@ CEF_EXPORT int cef_browser_create(cef_window_info_t* windowInfo,
   return _retval;
 }
 
-
 CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
     struct _cef_client_t* client, const cef_string_t* url,
     const struct _cef_browser_settings_t* settings)
@@ -108,7 +107,6 @@ CEF_EXPORT cef_browser_t* cef_browser_create_sync(cef_window_info_t* windowInfo,
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK browser_parent_window_will_close(struct _cef_browser_t* self)
@@ -123,7 +121,6 @@ void CEF_CALLBACK browser_parent_window_will_close(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->ParentWindowWillClose();
 }
 
-
 void CEF_CALLBACK browser_close_browser(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -135,7 +132,6 @@ void CEF_CALLBACK browser_close_browser(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->CloseBrowser();
 }
-
 
 int CEF_CALLBACK browser_can_go_back(struct _cef_browser_t* self)
 {
@@ -152,7 +148,6 @@ int CEF_CALLBACK browser_can_go_back(struct _cef_browser_t* self)
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_go_back(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -164,7 +159,6 @@ void CEF_CALLBACK browser_go_back(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->GoBack();
 }
-
 
 int CEF_CALLBACK browser_can_go_forward(struct _cef_browser_t* self)
 {
@@ -181,7 +175,6 @@ int CEF_CALLBACK browser_can_go_forward(struct _cef_browser_t* self)
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_go_forward(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -193,7 +186,6 @@ void CEF_CALLBACK browser_go_forward(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->GoForward();
 }
-
 
 void CEF_CALLBACK browser_reload(struct _cef_browser_t* self)
 {
@@ -207,7 +199,6 @@ void CEF_CALLBACK browser_reload(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->Reload();
 }
 
-
 void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -219,7 +210,6 @@ void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->ReloadIgnoreCache();
 }
-
 
 void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self)
 {
@@ -233,7 +223,6 @@ void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->StopLoad();
 }
 
-
 void CEF_CALLBACK browser_set_focus(struct _cef_browser_t* self, int enable)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -246,7 +235,6 @@ void CEF_CALLBACK browser_set_focus(struct _cef_browser_t* self, int enable)
   CefBrowserCppToC::Get(self)->SetFocus(
       enable?true:false);
 }
-
 
 cef_window_handle_t CEF_CALLBACK browser_get_window_handle(
     struct _cef_browser_t* self)
@@ -263,7 +251,6 @@ cef_window_handle_t CEF_CALLBACK browser_get_window_handle(
   // Return type: simple
   return _retval;
 }
-
 
 cef_window_handle_t CEF_CALLBACK browser_get_opener_window_handle(
     struct _cef_browser_t* self)
@@ -282,7 +269,6 @@ cef_window_handle_t CEF_CALLBACK browser_get_opener_window_handle(
   return _retval;
 }
 
-
 int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -298,7 +284,6 @@ int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK browser_has_document(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -313,7 +298,6 @@ int CEF_CALLBACK browser_has_document(struct _cef_browser_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 struct _cef_client_t* CEF_CALLBACK browser_get_client(
     struct _cef_browser_t* self)
@@ -331,7 +315,6 @@ struct _cef_client_t* CEF_CALLBACK browser_get_client(
   return CefClientCToCpp::Unwrap(_retval);
 }
 
-
 struct _cef_frame_t* CEF_CALLBACK browser_get_main_frame(
     struct _cef_browser_t* self)
 {
@@ -348,7 +331,6 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_main_frame(
   return CefFrameCppToC::Wrap(_retval);
 }
 
-
 struct _cef_frame_t* CEF_CALLBACK browser_get_focused_frame(
     struct _cef_browser_t* self)
 {
@@ -364,7 +346,6 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_focused_frame(
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
 }
-
 
 struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
     const cef_string_t* name)
@@ -386,7 +367,6 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
 }
-
 
 void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
     cef_string_list_t names)
@@ -414,7 +394,6 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
   transfer_string_list_contents(namesList, names);
 }
 
-
 void CEF_CALLBACK browser_find(struct _cef_browser_t* self, int identifier,
     const cef_string_t* searchText, int forward, int matchCase, int findNext)
 {
@@ -437,7 +416,6 @@ void CEF_CALLBACK browser_find(struct _cef_browser_t* self, int identifier,
       findNext?true:false);
 }
 
-
 void CEF_CALLBACK browser_stop_finding(struct _cef_browser_t* self,
     int clearSelection)
 {
@@ -451,7 +429,6 @@ void CEF_CALLBACK browser_stop_finding(struct _cef_browser_t* self,
   CefBrowserCppToC::Get(self)->StopFinding(
       clearSelection?true:false);
 }
-
 
 double CEF_CALLBACK browser_get_zoom_level(struct _cef_browser_t* self)
 {
@@ -468,7 +445,6 @@ double CEF_CALLBACK browser_get_zoom_level(struct _cef_browser_t* self)
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_set_zoom_level(struct _cef_browser_t* self,
     double zoomLevel)
 {
@@ -483,7 +459,6 @@ void CEF_CALLBACK browser_set_zoom_level(struct _cef_browser_t* self,
       zoomLevel);
 }
 
-
 void CEF_CALLBACK browser_clear_history(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -495,7 +470,6 @@ void CEF_CALLBACK browser_clear_history(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->ClearHistory();
 }
-
 
 void CEF_CALLBACK browser_show_dev_tools(struct _cef_browser_t* self)
 {
@@ -509,7 +483,6 @@ void CEF_CALLBACK browser_show_dev_tools(struct _cef_browser_t* self)
   CefBrowserCppToC::Get(self)->ShowDevTools();
 }
 
-
 void CEF_CALLBACK browser_close_dev_tools(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -521,7 +494,6 @@ void CEF_CALLBACK browser_close_dev_tools(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->CloseDevTools();
 }
-
 
 int CEF_CALLBACK browser_is_window_rendering_disabled(
     struct _cef_browser_t* self)
@@ -538,7 +510,6 @@ int CEF_CALLBACK browser_is_window_rendering_disabled(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK browser_get_size(struct _cef_browser_t* self,
     enum cef_paint_element_type_t type, int* width, int* height)
@@ -579,7 +550,6 @@ int CEF_CALLBACK browser_get_size(struct _cef_browser_t* self,
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_set_size(struct _cef_browser_t* self,
     enum cef_paint_element_type_t type, int width, int height)
 {
@@ -596,7 +566,6 @@ void CEF_CALLBACK browser_set_size(struct _cef_browser_t* self,
       height);
 }
 
-
 int CEF_CALLBACK browser_is_popup_visible(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -612,7 +581,6 @@ int CEF_CALLBACK browser_is_popup_visible(struct _cef_browser_t* self)
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_hide_popup(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -624,7 +592,6 @@ void CEF_CALLBACK browser_hide_popup(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->HidePopup();
 }
-
 
 void CEF_CALLBACK browser_invalidate(struct _cef_browser_t* self,
     const cef_rect_t* dirtyRect)
@@ -646,7 +613,6 @@ void CEF_CALLBACK browser_invalidate(struct _cef_browser_t* self,
   CefBrowserCppToC::Get(self)->Invalidate(
       dirtyRectVal);
 }
-
 
 int CEF_CALLBACK browser_get_image(struct _cef_browser_t* self,
     enum cef_paint_element_type_t type, int width, int height, void* buffer)
@@ -672,7 +638,6 @@ int CEF_CALLBACK browser_get_image(struct _cef_browser_t* self,
   return _retval;
 }
 
-
 void CEF_CALLBACK browser_send_key_event(struct _cef_browser_t* self,
     enum cef_key_type_t type, int key, int modifiers, int sysChar,
     int imeChar)
@@ -691,7 +656,6 @@ void CEF_CALLBACK browser_send_key_event(struct _cef_browser_t* self,
       sysChar?true:false,
       imeChar?true:false);
 }
-
 
 void CEF_CALLBACK browser_send_mouse_click_event(struct _cef_browser_t* self,
     int x, int y, enum cef_mouse_button_type_t type, int mouseUp,
@@ -712,7 +676,6 @@ void CEF_CALLBACK browser_send_mouse_click_event(struct _cef_browser_t* self,
       clickCount);
 }
 
-
 void CEF_CALLBACK browser_send_mouse_move_event(struct _cef_browser_t* self,
     int x, int y, int mouseLeave)
 {
@@ -728,7 +691,6 @@ void CEF_CALLBACK browser_send_mouse_move_event(struct _cef_browser_t* self,
       y,
       mouseLeave?true:false);
 }
-
 
 void CEF_CALLBACK browser_send_mouse_wheel_event(struct _cef_browser_t* self,
     int x, int y, int delta)
@@ -746,7 +708,6 @@ void CEF_CALLBACK browser_send_mouse_wheel_event(struct _cef_browser_t* self,
       delta);
 }
 
-
 void CEF_CALLBACK browser_send_focus_event(struct _cef_browser_t* self,
     int setFocus)
 {
@@ -761,7 +722,6 @@ void CEF_CALLBACK browser_send_focus_event(struct _cef_browser_t* self,
       setFocus?true:false);
 }
 
-
 void CEF_CALLBACK browser_send_capture_lost_event(struct _cef_browser_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -773,7 +733,6 @@ void CEF_CALLBACK browser_send_capture_lost_event(struct _cef_browser_t* self)
   // Execute
   CefBrowserCppToC::Get(self)->SendCaptureLostEvent();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -32,7 +32,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateUndefined()
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Value> CefV8Value::CreateNull()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -43,7 +42,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateNull()
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value)
 {
@@ -57,7 +55,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value)
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Value> CefV8Value::CreateInt(int value)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -69,7 +66,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateInt(int value)
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
 {
@@ -83,7 +79,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value)
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& date)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -95,7 +90,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& date)
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
 {
@@ -110,7 +104,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value)
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data,
     CefRefPtr<CefV8Accessor> accessor)
@@ -128,7 +121,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(CefRefPtr<CefBase> user_data,
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Value> CefV8Value::CreateArray()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -139,7 +131,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray()
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
     CefRefPtr<CefV8Handler> handler)
@@ -165,7 +156,6 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefV8ValueCToCpp::IsUndefined()
@@ -182,7 +172,6 @@ bool CefV8ValueCToCpp::IsUndefined()
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::IsNull()
 {
   if (CEF_MEMBER_MISSING(struct_, is_null))
@@ -196,7 +185,6 @@ bool CefV8ValueCToCpp::IsNull()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::IsBool()
 {
@@ -212,7 +200,6 @@ bool CefV8ValueCToCpp::IsBool()
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::IsInt()
 {
   if (CEF_MEMBER_MISSING(struct_, is_int))
@@ -226,7 +213,6 @@ bool CefV8ValueCToCpp::IsInt()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::IsDouble()
 {
@@ -242,7 +228,6 @@ bool CefV8ValueCToCpp::IsDouble()
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::IsDate()
 {
   if (CEF_MEMBER_MISSING(struct_, is_date))
@@ -256,7 +241,6 @@ bool CefV8ValueCToCpp::IsDate()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::IsString()
 {
@@ -272,7 +256,6 @@ bool CefV8ValueCToCpp::IsString()
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::IsObject()
 {
   if (CEF_MEMBER_MISSING(struct_, is_object))
@@ -286,7 +269,6 @@ bool CefV8ValueCToCpp::IsObject()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::IsArray()
 {
@@ -302,7 +284,6 @@ bool CefV8ValueCToCpp::IsArray()
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::IsFunction()
 {
   if (CEF_MEMBER_MISSING(struct_, is_function))
@@ -316,7 +297,6 @@ bool CefV8ValueCToCpp::IsFunction()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::IsSame(CefRefPtr<CefV8Value> that)
 {
@@ -338,7 +318,6 @@ bool CefV8ValueCToCpp::IsSame(CefRefPtr<CefV8Value> that)
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::GetBoolValue()
 {
   if (CEF_MEMBER_MISSING(struct_, get_bool_value))
@@ -352,7 +331,6 @@ bool CefV8ValueCToCpp::GetBoolValue()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 int CefV8ValueCToCpp::GetIntValue()
 {
@@ -368,7 +346,6 @@ int CefV8ValueCToCpp::GetIntValue()
   return _retval;
 }
 
-
 double CefV8ValueCToCpp::GetDoubleValue()
 {
   if (CEF_MEMBER_MISSING(struct_, get_double_value))
@@ -383,7 +360,6 @@ double CefV8ValueCToCpp::GetDoubleValue()
   return _retval;
 }
 
-
 CefTime CefV8ValueCToCpp::GetDateValue()
 {
   if (CEF_MEMBER_MISSING(struct_, get_date_value))
@@ -397,7 +373,6 @@ CefTime CefV8ValueCToCpp::GetDateValue()
   // Return type: simple
   return _retval;
 }
-
 
 CefString CefV8ValueCToCpp::GetStringValue()
 {
@@ -414,7 +389,6 @@ CefString CefV8ValueCToCpp::GetStringValue()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 bool CefV8ValueCToCpp::HasValue(const CefString& key)
 {
@@ -436,7 +410,6 @@ bool CefV8ValueCToCpp::HasValue(const CefString& key)
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::HasValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, has_value_byindex))
@@ -456,7 +429,6 @@ bool CefV8ValueCToCpp::HasValue(int index)
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::DeleteValue(const CefString& key)
 {
@@ -478,7 +450,6 @@ bool CefV8ValueCToCpp::DeleteValue(const CefString& key)
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::DeleteValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, delete_value_byindex))
@@ -498,7 +469,6 @@ bool CefV8ValueCToCpp::DeleteValue(int index)
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
 {
@@ -520,7 +490,6 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(const CefString& key)
   return CefV8ValueCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
 {
   if (CEF_MEMBER_MISSING(struct_, get_value_byindex))
@@ -540,7 +509,6 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::GetValue(int index)
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
 }
-
 
 bool CefV8ValueCToCpp::SetValue(const CefString& key,
     CefRefPtr<CefV8Value> value, PropertyAttribute attribute)
@@ -569,7 +537,6 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key,
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
 {
   if (CEF_MEMBER_MISSING(struct_, set_value_byindex))
@@ -595,7 +562,6 @@ bool CefV8ValueCToCpp::SetValue(int index, CefRefPtr<CefV8Value> value)
   return _retval?true:false;
 }
 
-
 bool CefV8ValueCToCpp::SetValue(const CefString& key, AccessControl settings,
     PropertyAttribute attribute)
 {
@@ -618,7 +584,6 @@ bool CefV8ValueCToCpp::SetValue(const CefString& key, AccessControl settings,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)
 {
@@ -648,7 +613,6 @@ bool CefV8ValueCToCpp::GetKeys(std::vector<CefString>& keys)
   return _retval?true:false;
 }
 
-
 CefRefPtr<CefBase> CefV8ValueCToCpp::GetUserData()
 {
   if (CEF_MEMBER_MISSING(struct_, get_user_data))
@@ -663,7 +627,6 @@ CefRefPtr<CefBase> CefV8ValueCToCpp::GetUserData()
   return CefBaseCppToC::Unwrap(_retval);
 }
 
-
 int CefV8ValueCToCpp::GetArrayLength()
 {
   if (CEF_MEMBER_MISSING(struct_, get_array_length))
@@ -677,7 +640,6 @@ int CefV8ValueCToCpp::GetArrayLength()
   // Return type: simple
   return _retval;
 }
-
 
 CefString CefV8ValueCToCpp::GetFunctionName()
 {
@@ -695,7 +657,6 @@ CefString CefV8ValueCToCpp::GetFunctionName()
   return _retvalStr;
 }
 
-
 CefRefPtr<CefV8Handler> CefV8ValueCToCpp::GetFunctionHandler()
 {
   if (CEF_MEMBER_MISSING(struct_, get_function_handler))
@@ -709,7 +670,6 @@ CefRefPtr<CefV8Handler> CefV8ValueCToCpp::GetFunctionHandler()
   // Return type: refptr_diff
   return CefV8HandlerCppToC::Unwrap(_retval);
 }
-
 
 bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
     const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
@@ -774,7 +734,6 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
     CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object,
@@ -845,7 +804,6 @@ bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

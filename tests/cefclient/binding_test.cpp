@@ -3,6 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "binding_test.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_v8.h"
 #include <sstream>
 
 

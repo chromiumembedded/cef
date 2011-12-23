@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "zip_reader_impl.h"
+#include "include/cef_stream.h"
 #include "base/logging.h"
 #include <time.h>
 

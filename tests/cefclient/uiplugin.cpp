@@ -4,6 +4,8 @@
 // found in the LICENSE file.
 
 #include "uiplugin.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
 #include "cefclient.h"
 #include <gl/gl.h>
 #include <sstream>

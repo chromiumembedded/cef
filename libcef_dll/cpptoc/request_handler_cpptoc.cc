@@ -24,7 +24,7 @@
 
 int CEF_CALLBACK request_handler_on_before_browse(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_request_t* request,
+    cef_frame_t* frame, cef_request_t* request,
     enum cef_handler_navtype_t navType, int isRedirect)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -57,10 +57,9 @@ int CEF_CALLBACK request_handler_on_before_browse(
   return _retval;
 }
 
-
 int CEF_CALLBACK request_handler_on_before_resource_load(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
-    struct _cef_request_t* request, cef_string_t* redirectUrl,
+    cef_request_t* request, cef_string_t* redirectUrl,
     struct _cef_stream_reader_t** resourceStream,
     struct _cef_response_t* response, int loadFlags)
 {
@@ -122,7 +121,6 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
   return _retval;
 }
 
-
 void CEF_CALLBACK request_handler_on_resource_redirect(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* old_url, cef_string_t* new_url)
@@ -155,11 +153,10 @@ void CEF_CALLBACK request_handler_on_resource_redirect(
       new_urlStr);
 }
 
-
 void CEF_CALLBACK request_handler_on_resource_response(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, struct _cef_response_t* response,
-    struct _cef_content_filter_t** filter)
+    cef_content_filter_t** filter)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -208,7 +205,6 @@ void CEF_CALLBACK request_handler_on_resource_response(
   }
 }
 
-
 int CEF_CALLBACK request_handler_on_protocol_execution(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, int* allowOSExecution)
@@ -249,11 +245,10 @@ int CEF_CALLBACK request_handler_on_protocol_execution(
   return _retval;
 }
 
-
 int CEF_CALLBACK request_handler_get_download_handler(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* mimeType, const cef_string_t* fileName,
-    int64 contentLength, struct _cef_download_handler_t** handler)
+    int64 contentLength, cef_download_handler_t** handler)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -305,7 +300,6 @@ int CEF_CALLBACK request_handler_get_download_handler(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK request_handler_get_auth_credentials(
     struct _cef_request_handler_t* self, cef_browser_t* browser, int isProxy,
@@ -359,7 +353,6 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

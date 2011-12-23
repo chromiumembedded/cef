@@ -5,7 +5,11 @@
 #ifndef _CEFCLIENT_H
 #define _CEFCLIENT_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefApp;
+class CefBrowser;
+class CefCommandLine;
 
 // Returns the main browser window instance.
 CefRefPtr<CefBrowser> AppGetBrowser();

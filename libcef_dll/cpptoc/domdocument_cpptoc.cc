@@ -32,7 +32,6 @@ enum cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
   return _retval;
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_document(
     struct _cef_domdocument_t* self)
 {
@@ -50,7 +49,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_document(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_body(
     struct _cef_domdocument_t* self)
 {
@@ -66,7 +64,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_body(
   // Return type: refptr_same
   return CefDOMNodeCppToC::Wrap(_retval);
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_head(
     struct _cef_domdocument_t* self)
@@ -84,7 +81,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_head(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domdocument_get_title(
     struct _cef_domdocument_t* self)
 {
@@ -100,7 +96,6 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_title(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_element_by_id(
     struct _cef_domdocument_t* self, const cef_string_t* id)
@@ -124,7 +119,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_element_by_id(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_focused_node(
     struct _cef_domdocument_t* self)
 {
@@ -142,7 +136,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_focused_node(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -157,7 +150,6 @@ int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_start_node(
     struct _cef_domdocument_t* self)
@@ -176,7 +168,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_start_node(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 int CEF_CALLBACK domdocument_get_selection_start_offset(
     struct _cef_domdocument_t* self)
 {
@@ -192,7 +183,6 @@ int CEF_CALLBACK domdocument_get_selection_start_offset(
   // Return type: simple
   return _retval;
 }
-
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_end_node(
     struct _cef_domdocument_t* self)
@@ -211,7 +201,6 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_end_node(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-
 int CEF_CALLBACK domdocument_get_selection_end_offset(
     struct _cef_domdocument_t* self)
 {
@@ -227,7 +216,6 @@ int CEF_CALLBACK domdocument_get_selection_end_offset(
   // Return type: simple
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_markup(
     struct _cef_domdocument_t* self)
@@ -245,7 +233,6 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_markup(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_text(
     struct _cef_domdocument_t* self)
 {
@@ -262,7 +249,6 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_text(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK domdocument_get_base_url(
     struct _cef_domdocument_t* self)
 {
@@ -278,7 +264,6 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_base_url(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_complete_url(
     struct _cef_domdocument_t* self, const cef_string_t* partialURL)
@@ -300,7 +285,6 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_complete_url(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

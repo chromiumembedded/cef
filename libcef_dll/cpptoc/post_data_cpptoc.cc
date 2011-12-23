@@ -28,7 +28,6 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create()
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self)
@@ -45,7 +44,6 @@ size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
     size_t* elementsCount, struct _cef_post_data_element_t** elements)
@@ -83,7 +81,6 @@ void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
   }
 }
 
-
 int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
     struct _cef_post_data_element_t* element)
 {
@@ -104,7 +101,6 @@ int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* self,
     struct _cef_post_data_element_t* element)
@@ -127,7 +123,6 @@ int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* self,
   return _retval;
 }
 
-
 void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -139,7 +134,6 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self)
   // Execute
   CefPostDataCppToC::Get(self)->RemoveElements();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

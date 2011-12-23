@@ -37,7 +37,6 @@ int CEF_CALLBACK download_handler_received_data(
   return _retval;
 }
 
-
 void CEF_CALLBACK download_handler_complete(
     struct _cef_download_handler_t* self)
 {
@@ -50,7 +49,6 @@ void CEF_CALLBACK download_handler_complete(
   // Execute
   CefDownloadHandlerCppToC::Get(self)->Complete();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

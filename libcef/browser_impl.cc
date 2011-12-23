@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_devtools_scheme_handler.h"
 #include "browser_impl.h"
+#include "browser_devtools_scheme_handler.h"
 #include "browser_webkit_glue.h"
 #include "browser_zoom_map.h"
 #include "cef_context.h"

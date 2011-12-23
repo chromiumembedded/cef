@@ -39,7 +39,6 @@ bool CefPrintHandlerCToCpp::GetPrintOptions(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefPrintHandlerCToCpp::GetPrintHeaderFooter(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefPrintInfo& printInfo,
     const CefString& url, const CefString& title, int currentPage,
@@ -88,7 +87,6 @@ bool CefPrintHandlerCToCpp::GetPrintHeaderFooter(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

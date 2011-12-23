@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "resource_util.h"
+#include "include/cef_stream.h"
 #include "util.h"
 
 #import <Foundation/Foundation.h>

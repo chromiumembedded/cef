@@ -34,7 +34,6 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
   return CefStreamWriterCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
     CefRefPtr<CefWriteHandler> handler)
 {
@@ -52,7 +51,6 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
   // Return type: refptr_same
   return CefStreamWriterCToCpp::Wrap(_retval);
 }
-
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -79,7 +77,6 @@ size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n)
   return _retval;
 }
 
-
 int CefStreamWriterCToCpp::Seek(long offset, int whence)
 {
   if (CEF_MEMBER_MISSING(struct_, seek))
@@ -96,7 +93,6 @@ int CefStreamWriterCToCpp::Seek(long offset, int whence)
   return _retval;
 }
 
-
 long CefStreamWriterCToCpp::Tell()
 {
   if (CEF_MEMBER_MISSING(struct_, tell))
@@ -111,7 +107,6 @@ long CefStreamWriterCToCpp::Tell()
   return _retval;
 }
 
-
 int CefStreamWriterCToCpp::Flush()
 {
   if (CEF_MEMBER_MISSING(struct_, flush))
@@ -125,7 +120,6 @@ int CefStreamWriterCToCpp::Flush()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

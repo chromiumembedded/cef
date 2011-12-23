@@ -5,7 +5,7 @@
 #ifndef _DOM_NODE_IMPL_H
 #define _DOM_NODE_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_dom.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 
 class CefDOMDocumentImpl;

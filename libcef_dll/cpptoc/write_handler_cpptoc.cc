@@ -38,7 +38,6 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
     long offset, int whence)
 {
@@ -57,7 +56,6 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
   return _retval;
 }
 
-
 long CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -73,7 +71,6 @@ long CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -88,7 +85,6 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_STRING_UTIL_H
 #define _CEFCLIENT_STRING_UTIL_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefRequest;
 
 // Dump the contents of the request into a string.
 void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str);

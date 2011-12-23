@@ -38,7 +38,6 @@ size_t CEF_CALLBACK read_handler_read(struct _cef_read_handler_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
     long offset, int whence)
 {
@@ -57,7 +56,6 @@ int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
   return _retval;
 }
 
-
 long CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -73,7 +71,6 @@ long CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK read_handler_eof(struct _cef_read_handler_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -88,7 +85,6 @@ int CEF_CALLBACK read_handler_eof(struct _cef_read_handler_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

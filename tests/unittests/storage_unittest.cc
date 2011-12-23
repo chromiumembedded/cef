@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_storage.h"
+#include "include/cef_v8.h"
 #include "base/scoped_temp_dir.h"
-#include "include/cef.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "test_handler.h"
 #include "test_suite.h"

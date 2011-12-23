@@ -37,7 +37,6 @@ void CefWebURLRequestClientCToCpp::OnStateChange(
       state);
 }
 
-
 void CefWebURLRequestClientCToCpp::OnRedirect(
     CefRefPtr<CefWebURLRequest> requester, CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response)
@@ -67,7 +66,6 @@ void CefWebURLRequestClientCToCpp::OnRedirect(
       CefResponseCppToC::Wrap(response));
 }
 
-
 void CefWebURLRequestClientCToCpp::OnHeadersReceived(
     CefRefPtr<CefWebURLRequest> requester, CefRefPtr<CefResponse> response)
 {
@@ -91,7 +89,6 @@ void CefWebURLRequestClientCToCpp::OnHeadersReceived(
       CefResponseCppToC::Wrap(response));
 }
 
-
 void CefWebURLRequestClientCToCpp::OnProgress(
     CefRefPtr<CefWebURLRequest> requester, uint64 bytesSent,
     uint64 totalBytesToBeSent)
@@ -112,7 +109,6 @@ void CefWebURLRequestClientCToCpp::OnProgress(
       bytesSent,
       totalBytesToBeSent);
 }
-
 
 void CefWebURLRequestClientCToCpp::OnData(CefRefPtr<CefWebURLRequest> requester,
     const void* data, int dataLength)
@@ -138,7 +134,6 @@ void CefWebURLRequestClientCToCpp::OnData(CefRefPtr<CefWebURLRequest> requester,
       dataLength);
 }
 
-
 void CefWebURLRequestClientCToCpp::OnError(
     CefRefPtr<CefWebURLRequest> requester, ErrorCode errorCode)
 {
@@ -157,7 +152,6 @@ void CefWebURLRequestClientCToCpp::OnError(
       CefWebURLRequestCppToC::Wrap(requester),
       errorCode);
 }
-
 
 
 #ifndef NDEBUG

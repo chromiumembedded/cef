@@ -31,10 +31,19 @@ def make_ctocpp_header(header, clsname):
 #else // USING_CEF_SHARED
 """
 
-    result += """
-#include "include/cef.h"
-#include "include/cef_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+    # include the headers for this class
+    result += '\n#include "include/'+cls.get_file_name()+'"\n' \
+              '#include "include/capi/'+cls.get_capi_file_name()+'"\n'
+
+    # include headers for any forward declared classes that are not in the same file
+    declares = cls.get_forward_declares()
+    for declare in declares:
+        dcls = header.get_class(declare)
+        if dcls.get_file_name() != cls.get_file_name():
+              result += '#include "include/'+dcls.get_file_name()+'"\n' \
+                        '#include "include/capi/'+dcls.get_capi_file_name()+'"\n'
+              
+    result += """#include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.
 """
@@ -97,7 +106,8 @@ if __name__ == "__main__":
         sys.exit()
         
     # create the header object
-    header = obj_header(sys.argv[1])
+    header = obj_header()
+    header.add_file(sys.argv[1])
     
     # dump the result to stdout
     sys.stdout.write(make_ctocpp_header(header, sys.argv[2]))

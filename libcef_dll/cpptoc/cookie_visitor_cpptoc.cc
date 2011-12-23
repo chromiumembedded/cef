@@ -56,7 +56,6 @@ int CEF_CALLBACK cookie_visitor_visit(struct _cef_cookie_visitor_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCookieVisitorCppToC::CefCookieVisitorCppToC(CefCookieVisitor* cls)

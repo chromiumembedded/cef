@@ -64,7 +64,6 @@ int CEF_CALLBACK storage_visitor_visit(struct _cef_storage_visitor_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefStorageVisitorCppToC::CefStorageVisitorCppToC(CefStorageVisitor* cls)

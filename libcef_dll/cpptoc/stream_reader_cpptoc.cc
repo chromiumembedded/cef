@@ -34,7 +34,6 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
   return CefStreamReaderCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
     size_t size)
 {
@@ -54,7 +53,6 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
   return CefStreamReaderCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
     cef_read_handler_t* handler)
 {
@@ -72,7 +70,6 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
   // Return type: refptr_same
   return CefStreamReaderCppToC::Wrap(_retval);
 }
-
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -100,7 +97,6 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
     long offset, int whence)
 {
@@ -119,7 +115,6 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
   return _retval;
 }
 
-
 long CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -135,7 +130,6 @@ long CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -150,7 +144,6 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -6,12 +6,13 @@
 #ifndef _BROWSER_RESOURCE_LOADER_BRIDGE_H
 #define _BROWSER_RESOURCE_LOADER_BRIDGE_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include <string>
 
+class CefBrowser;
 class GURL;
 
 class BrowserResourceLoaderBridge {

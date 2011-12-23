@@ -41,7 +41,6 @@ CEF_EXPORT cef_web_urlrequest_t* cef_web_urlrequest_create(
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK web_urlrequest_cancel(struct _cef_web_urlrequest_t* self)
@@ -55,7 +54,6 @@ void CEF_CALLBACK web_urlrequest_cancel(struct _cef_web_urlrequest_t* self)
   // Execute
   CefWebURLRequestCppToC::Get(self)->Cancel();
 }
-
 
 enum cef_weburlrequest_state_t CEF_CALLBACK web_urlrequest_get_state(
     struct _cef_web_urlrequest_t* self)
@@ -73,7 +71,6 @@ enum cef_weburlrequest_state_t CEF_CALLBACK web_urlrequest_get_state(
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

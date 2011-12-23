@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_SCHEME_TEST
 #define _CEFCLIENT_SCHEME_TEST
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefBrowser;
 
 // Register the scheme handler.
 void InitSchemeTest();

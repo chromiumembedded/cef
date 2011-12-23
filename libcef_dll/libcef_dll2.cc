@@ -3,11 +3,9 @@
 // can be found in the LICENSE file.
 //
 
-#include "include/cef.h"
-#include "include/cef_capi.h"
-#include "include/cef_version.h"
 #include "include/cef_nplugin.h"
-#include "include/cef_nplugin_capi.h"
+#include "include/capi/cef_nplugin_capi.h"
+#include "include/cef_version.h"
 #include "cef_logging.h"
 
 CEF_EXPORT int cef_build_revision()

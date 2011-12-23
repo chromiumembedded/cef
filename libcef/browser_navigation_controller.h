@@ -16,7 +16,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPBody.h"
 
-#include "include/cef.h"
+#include "include/cef_request.h"
 
 class GURL;
 class CefBrowserImpl;

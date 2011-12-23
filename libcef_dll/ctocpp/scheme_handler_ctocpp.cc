@@ -44,7 +44,6 @@ bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
   return _retval?true:false;
 }
 
-
 void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
     int64& response_length, CefString& redirectUrl)
 {
@@ -64,7 +63,6 @@ void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
       &response_length,
       redirectUrl.GetWritableStruct());
 }
-
 
 bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
     int& bytes_read, CefRefPtr<CefSchemeHandlerCallback> callback)
@@ -94,7 +92,6 @@ bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
   return _retval?true:false;
 }
 
-
 void CefSchemeHandlerCToCpp::Cancel()
 {
   if (CEF_MEMBER_MISSING(struct_, cancel))
@@ -105,7 +102,6 @@ void CefSchemeHandlerCToCpp::Cancel()
   // Execute
   struct_->cancel(struct_);
 }
-
 
 
 #ifndef NDEBUG

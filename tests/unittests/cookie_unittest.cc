@@ -2,10 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_cookie.h"
+#include "include/cef_runnable.h"
 #include "base/scoped_temp_dir.h"
 #include "base/synchronization/waitable_event.h"
-#include "include/cef.h"
-#include "include/cef_runnable.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "test_suite.h"
 #include <vector>

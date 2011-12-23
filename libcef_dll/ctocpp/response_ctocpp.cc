@@ -30,7 +30,6 @@ int CefResponseCToCpp::GetStatus()
   return _retval;
 }
 
-
 void CefResponseCToCpp::SetStatus(int status)
 {
   if (CEF_MEMBER_MISSING(struct_, set_status))
@@ -42,7 +41,6 @@ void CefResponseCToCpp::SetStatus(int status)
   struct_->set_status(struct_,
       status);
 }
-
 
 CefString CefResponseCToCpp::GetStatusText()
 {
@@ -59,7 +57,6 @@ CefString CefResponseCToCpp::GetStatusText()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 void CefResponseCToCpp::SetStatusText(const CefString& statusText)
 {
@@ -78,7 +75,6 @@ void CefResponseCToCpp::SetStatusText(const CefString& statusText)
       statusText.GetStruct());
 }
 
-
 CefString CefResponseCToCpp::GetMimeType()
 {
   if (CEF_MEMBER_MISSING(struct_, get_mime_type))
@@ -94,7 +90,6 @@ CefString CefResponseCToCpp::GetMimeType()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 void CefResponseCToCpp::SetMimeType(const CefString& mimeType)
 {
@@ -112,7 +107,6 @@ void CefResponseCToCpp::SetMimeType(const CefString& mimeType)
   struct_->set_mime_type(struct_,
       mimeType.GetStruct());
 }
-
 
 CefString CefResponseCToCpp::GetHeader(const CefString& name)
 {
@@ -135,7 +129,6 @@ CefString CefResponseCToCpp::GetHeader(const CefString& name)
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap)
 {
@@ -162,7 +155,6 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap)
   }
 }
 
-
 void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap)
 {
   if (CEF_MEMBER_MISSING(struct_, set_header_map))
@@ -184,7 +176,6 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap)
   if (headerMapMultimap)
     cef_string_multimap_free(headerMapMultimap);
 }
-
 
 
 #ifndef NDEBUG

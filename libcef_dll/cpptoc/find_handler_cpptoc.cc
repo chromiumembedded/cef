@@ -48,7 +48,6 @@ void CEF_CALLBACK find_handler_on_find_result(struct _cef_find_handler_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefFindHandlerCppToC::CefFindHandlerCppToC(CefFindHandler* cls)

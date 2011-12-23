@@ -26,24 +26,32 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// ---------------------------------------------------------------------------
+//
+// The contents of this file must follow a specific format in order to
+// support the CEF translator tool. See the translator.README.txt file in the
+// tools directory for more information.
+//
 
+#ifndef _CEF_PROXY_HANDLER_H
+#define _CEF_PROXY_HANDLER_H
 
-#ifndef _CEF_NPLUGIN_CAPI_H
-#define _CEF_NPLUGIN_CAPI_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "internal/cef_nplugin_types.h"
+#include "cef_base.h"
 
 ///
-// Register a plugin with the system.  Returns true (1) on success.
+// Implement this interface to handle proxy resolution events.
 ///
-CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info);
+/*--cef(source=client)--*/
+class CefProxyHandler : public virtual CefBase
+{
+public:
+  ///
+  // Called to retrieve proxy information for the specified |url|.
+  ///
+  /*--cef()--*/
+  virtual void GetProxyForUrl(const CefString& url,
+                              CefProxyInfo& proxy_info) {}
+};
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // _CEF_NPLUGIN_CAPI_H
+#endif // _CEF_PROXY_HANDLER_H

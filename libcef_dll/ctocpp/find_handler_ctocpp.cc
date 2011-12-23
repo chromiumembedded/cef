@@ -41,7 +41,6 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
     cef_find_handler_t>::DebugObjCt = 0;

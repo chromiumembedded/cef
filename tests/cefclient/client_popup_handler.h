@@ -5,7 +5,9 @@
 #ifndef _CLIENT_POPUP_HANDLER_H
 #define _CLIENT_POPUP_HANDLER_H
 
-#include "include/cef.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
+#include "include/cef_request_handler.h"
 
 // Handler for popup windows that loads the request in an existing browser
 // window.

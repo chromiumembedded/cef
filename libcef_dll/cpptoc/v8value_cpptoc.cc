@@ -32,7 +32,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined()
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_null()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -43,7 +42,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_null()
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
-
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value)
 {
@@ -57,7 +55,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -70,7 +67,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -82,7 +78,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
-
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date)
 {
@@ -104,7 +99,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -118,7 +112,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
-
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
     cef_base_t* user_data, cef_v8accessor_t* accessor)
@@ -136,7 +129,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_v8value_t* cef_v8value_create_array()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -147,7 +139,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array()
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
-
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
     cef_v8handler_t* handler)
@@ -173,7 +164,6 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self)
@@ -191,7 +181,6 @@ int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_is_null(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -206,7 +195,6 @@ int CEF_CALLBACK v8value_is_null(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_is_bool(struct _cef_v8value_t* self)
 {
@@ -223,7 +211,6 @@ int CEF_CALLBACK v8value_is_bool(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -238,7 +225,6 @@ int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self)
 {
@@ -255,7 +241,6 @@ int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -270,7 +255,6 @@ int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self)
 {
@@ -287,7 +271,6 @@ int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_is_object(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -302,7 +285,6 @@ int CEF_CALLBACK v8value_is_object(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self)
 {
@@ -319,7 +301,6 @@ int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -334,7 +315,6 @@ int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
     struct _cef_v8value_t* that)
@@ -357,7 +337,6 @@ int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -372,7 +351,6 @@ int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self)
 {
@@ -389,7 +367,6 @@ int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -404,7 +381,6 @@ double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self)
 {
@@ -421,7 +397,6 @@ cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self)
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
     struct _cef_v8value_t* self)
 {
@@ -437,7 +412,6 @@ cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key)
@@ -460,7 +434,6 @@ int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
     int index)
 {
@@ -481,7 +454,6 @@ int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key)
@@ -504,7 +476,6 @@ int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
     int index)
 {
@@ -525,7 +496,6 @@ int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
     struct _cef_v8value_t* self, const cef_string_t* key)
@@ -548,7 +518,6 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
     struct _cef_v8value_t* self, int index)
 {
@@ -569,7 +538,6 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
-
 
 int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key, struct _cef_v8value_t* value,
@@ -599,7 +567,6 @@ int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
     int index, struct _cef_v8value_t* value)
 {
@@ -626,7 +593,6 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
     const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
     enum cef_v8_propertyattribute_t attribute)
@@ -650,7 +616,6 @@ int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
     cef_string_list_t keys)
@@ -681,7 +646,6 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
   return _retval;
 }
 
-
 cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -697,7 +661,6 @@ cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self)
   return CefBaseCToCpp::Unwrap(_retval);
 }
 
-
 int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -712,7 +675,6 @@ int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK v8value_get_function_name(
     struct _cef_v8value_t* self)
@@ -730,7 +692,6 @@ cef_string_userfree_t CEF_CALLBACK v8value_get_function_name(
   return _retval.DetachToUserFree();
 }
 
-
 cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
     struct _cef_v8value_t* self)
 {
@@ -747,7 +708,6 @@ cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
   // Return type: refptr_diff
   return CefV8HandlerCToCpp::Unwrap(_retval);
 }
-
 
 int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
     struct _cef_v8value_t* object, size_t argumentsCount,
@@ -823,7 +783,6 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK v8value_execute_function_with_context(
     struct _cef_v8value_t* self, cef_v8context_t* context,
@@ -905,7 +864,6 @@ int CEF_CALLBACK v8value_execute_function_with_context(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "xml_reader_impl.h"
+#include "include/cef_stream.h"
 #include "base/logging.h"
 
 // Static functions

@@ -32,7 +32,6 @@ void CEF_CALLBACK frame_undo(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->Undo();
 }
 
-
 void CEF_CALLBACK frame_redo(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -44,7 +43,6 @@ void CEF_CALLBACK frame_redo(struct _cef_frame_t* self)
   // Execute
   CefFrameCppToC::Get(self)->Redo();
 }
-
 
 void CEF_CALLBACK frame_cut(struct _cef_frame_t* self)
 {
@@ -58,7 +56,6 @@ void CEF_CALLBACK frame_cut(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->Cut();
 }
 
-
 void CEF_CALLBACK frame_copy(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -70,7 +67,6 @@ void CEF_CALLBACK frame_copy(struct _cef_frame_t* self)
   // Execute
   CefFrameCppToC::Get(self)->Copy();
 }
-
 
 void CEF_CALLBACK frame_paste(struct _cef_frame_t* self)
 {
@@ -84,7 +80,6 @@ void CEF_CALLBACK frame_paste(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->Paste();
 }
 
-
 void CEF_CALLBACK frame_del(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -96,7 +91,6 @@ void CEF_CALLBACK frame_del(struct _cef_frame_t* self)
   // Execute
   CefFrameCppToC::Get(self)->Delete();
 }
-
 
 void CEF_CALLBACK frame_select_all(struct _cef_frame_t* self)
 {
@@ -110,7 +104,6 @@ void CEF_CALLBACK frame_select_all(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->SelectAll();
 }
 
-
 void CEF_CALLBACK frame_print(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -123,7 +116,6 @@ void CEF_CALLBACK frame_print(struct _cef_frame_t* self)
   CefFrameCppToC::Get(self)->Print();
 }
 
-
 void CEF_CALLBACK frame_view_source(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -135,7 +127,6 @@ void CEF_CALLBACK frame_view_source(struct _cef_frame_t* self)
   // Execute
   CefFrameCppToC::Get(self)->ViewSource();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK frame_get_source(struct _cef_frame_t* self)
 {
@@ -152,7 +143,6 @@ cef_string_userfree_t CEF_CALLBACK frame_get_source(struct _cef_frame_t* self)
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK frame_get_text(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -167,7 +157,6 @@ cef_string_userfree_t CEF_CALLBACK frame_get_text(struct _cef_frame_t* self)
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
     struct _cef_request_t* request)
@@ -187,7 +176,6 @@ void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
       CefRequestCppToC::Unwrap(request));
 }
 
-
 void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
     const cef_string_t* url)
 {
@@ -205,7 +193,6 @@ void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
   CefFrameCppToC::Get(self)->LoadURL(
       CefString(url));
 }
-
 
 void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
     const cef_string_t* string, const cef_string_t* url)
@@ -230,7 +217,6 @@ void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
       CefString(url));
 }
 
-
 void CEF_CALLBACK frame_load_stream(struct _cef_frame_t* self,
     struct _cef_stream_reader_t* stream, const cef_string_t* url)
 {
@@ -254,7 +240,6 @@ void CEF_CALLBACK frame_load_stream(struct _cef_frame_t* self,
       CefString(url));
 }
 
-
 void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
     const cef_string_t* jsCode, const cef_string_t* scriptUrl, int startLine)
 {
@@ -276,7 +261,6 @@ void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
       startLine);
 }
 
-
 int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -291,7 +275,6 @@ int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK frame_is_focused(struct _cef_frame_t* self)
 {
@@ -308,7 +291,6 @@ int CEF_CALLBACK frame_is_focused(struct _cef_frame_t* self)
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -323,7 +305,6 @@ cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 long long CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
 {
@@ -340,7 +321,6 @@ long long CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
   return _retval;
 }
 
-
 struct _cef_frame_t* CEF_CALLBACK frame_get_parent(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -355,7 +335,6 @@ struct _cef_frame_t* CEF_CALLBACK frame_get_parent(struct _cef_frame_t* self)
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
 }
-
 
 cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
 {
@@ -372,7 +351,6 @@ cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self)
   return _retval.DetachToUserFree();
 }
 
-
 cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -388,9 +366,8 @@ cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self)
   return CefBrowserCppToC::Wrap(_retval);
 }
 
-
 void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
-    struct _cef_domvisitor_t* visitor)
+    cef_domvisitor_t* visitor)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -407,7 +384,6 @@ void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
       CefDOMVisitorCToCpp::Wrap(visitor));
 }
 
-
 struct _cef_v8context_t* CEF_CALLBACK frame_get_v8context(
     struct _cef_frame_t* self)
 {
@@ -423,7 +399,6 @@ struct _cef_v8context_t* CEF_CALLBACK frame_get_v8context(
   // Return type: refptr_same
   return CefV8ContextCppToC::Wrap(_retval);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

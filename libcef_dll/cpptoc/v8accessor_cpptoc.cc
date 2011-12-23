@@ -72,7 +72,6 @@ int CEF_CALLBACK v8accessor_get(struct _cef_v8accessor_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK v8accessor_set(struct _cef_v8accessor_t* self,
     const cef_string_t* name, struct _cef_v8value_t* object,
     struct _cef_v8value_t* value, cef_string_t* exception)
@@ -112,7 +111,6 @@ int CEF_CALLBACK v8accessor_set(struct _cef_v8accessor_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

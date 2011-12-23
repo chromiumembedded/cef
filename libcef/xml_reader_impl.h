@@ -5,7 +5,7 @@
 #ifndef _XML_READER_IMPL_H
 #define _XML_READER_IMPL_H
 
-#include "../include/cef.h"
+#include "include/cef_xml_reader.h"
 #include "base/threading/platform_thread.h"
 #include <libxml/xmlreader.h>
 #include <sstream>

@@ -27,7 +27,6 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement()
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefPostDataElementCToCpp::SetToEmpty()
@@ -40,7 +39,6 @@ void CefPostDataElementCToCpp::SetToEmpty()
   // Execute
   struct_->set_to_empty(struct_);
 }
-
 
 void CefPostDataElementCToCpp::SetToFile(const CefString& fileName)
 {
@@ -58,7 +56,6 @@ void CefPostDataElementCToCpp::SetToFile(const CefString& fileName)
   struct_->set_to_file(struct_,
       fileName.GetStruct());
 }
-
 
 void CefPostDataElementCToCpp::SetToBytes(size_t size, const void* bytes)
 {
@@ -78,7 +75,6 @@ void CefPostDataElementCToCpp::SetToBytes(size_t size, const void* bytes)
       bytes);
 }
 
-
 CefPostDataElement::Type CefPostDataElementCToCpp::GetType()
 {
   if (CEF_MEMBER_MISSING(struct_, get_type))
@@ -92,7 +88,6 @@ CefPostDataElement::Type CefPostDataElementCToCpp::GetType()
   // Return type: simple
   return _retval;
 }
-
 
 CefString CefPostDataElementCToCpp::GetFile()
 {
@@ -110,7 +105,6 @@ CefString CefPostDataElementCToCpp::GetFile()
   return _retvalStr;
 }
 
-
 size_t CefPostDataElementCToCpp::GetBytesCount()
 {
   if (CEF_MEMBER_MISSING(struct_, get_bytes_count))
@@ -124,7 +118,6 @@ size_t CefPostDataElementCToCpp::GetBytesCount()
   // Return type: simple
   return _retval;
 }
-
 
 size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes)
 {
@@ -146,7 +139,6 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes)
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

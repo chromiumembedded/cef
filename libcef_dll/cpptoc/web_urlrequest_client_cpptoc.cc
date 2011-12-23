@@ -38,7 +38,6 @@ void CEF_CALLBACK web_urlrequest_client_on_state_change(
       state);
 }
 
-
 void CEF_CALLBACK web_urlrequest_client_on_redirect(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
     cef_request_t* request, cef_response_t* response)
@@ -68,7 +67,6 @@ void CEF_CALLBACK web_urlrequest_client_on_redirect(
       CefResponseCToCpp::Wrap(response));
 }
 
-
 void CEF_CALLBACK web_urlrequest_client_on_headers_received(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
     cef_response_t* response)
@@ -93,7 +91,6 @@ void CEF_CALLBACK web_urlrequest_client_on_headers_received(
       CefResponseCToCpp::Wrap(response));
 }
 
-
 void CEF_CALLBACK web_urlrequest_client_on_progress(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
     uint64 bytesSent, uint64 totalBytesToBeSent)
@@ -114,7 +111,6 @@ void CEF_CALLBACK web_urlrequest_client_on_progress(
       bytesSent,
       totalBytesToBeSent);
 }
-
 
 void CEF_CALLBACK web_urlrequest_client_on_data(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
@@ -141,7 +137,6 @@ void CEF_CALLBACK web_urlrequest_client_on_data(
       dataLength);
 }
 
-
 void CEF_CALLBACK web_urlrequest_client_on_error(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
     enum cef_handler_errorcode_t errorCode)
@@ -161,7 +156,6 @@ void CEF_CALLBACK web_urlrequest_client_on_error(
       CefWebURLRequestCToCpp::Wrap(requester),
       errorCode);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

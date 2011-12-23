@@ -37,7 +37,6 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n)
   return _retval;
 }
 
-
 int CefWriteHandlerCToCpp::Seek(long offset, int whence)
 {
   if (CEF_MEMBER_MISSING(struct_, seek))
@@ -54,7 +53,6 @@ int CefWriteHandlerCToCpp::Seek(long offset, int whence)
   return _retval;
 }
 
-
 long CefWriteHandlerCToCpp::Tell()
 {
   if (CEF_MEMBER_MISSING(struct_, tell))
@@ -69,7 +67,6 @@ long CefWriteHandlerCToCpp::Tell()
   return _retval;
 }
 
-
 int CefWriteHandlerCToCpp::Flush()
 {
   if (CEF_MEMBER_MISSING(struct_, flush))
@@ -83,7 +80,6 @@ int CefWriteHandlerCToCpp::Flush()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

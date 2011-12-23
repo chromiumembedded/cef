@@ -45,7 +45,6 @@ int CEF_CALLBACK scheme_handler_process_request(
   return _retval;
 }
 
-
 void CEF_CALLBACK scheme_handler_get_response_headers(
     struct _cef_scheme_handler_t* self, cef_response_t* response,
     int64* response_length, cef_string_t* redirectUrl)
@@ -83,7 +82,6 @@ void CEF_CALLBACK scheme_handler_get_response_headers(
   if (response_length)
     *response_length = response_lengthVal;
 }
-
 
 int CEF_CALLBACK scheme_handler_read_response(
     struct _cef_scheme_handler_t* self, void* data_out, int bytes_to_read,
@@ -125,7 +123,6 @@ int CEF_CALLBACK scheme_handler_read_response(
   return _retval;
 }
 
-
 void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -137,7 +134,6 @@ void CEF_CALLBACK scheme_handler_cancel(struct _cef_scheme_handler_t* self)
   // Execute
   CefSchemeHandlerCppToC::Get(self)->Cancel();
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

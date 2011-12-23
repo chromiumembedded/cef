@@ -28,7 +28,7 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_life_span_handler_t* CEF_CALLBACK client_get_life_span_handler(
+struct _cef_life_span_handler_t* CEF_CALLBACK client_get_life_span_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -45,8 +45,7 @@ cef_life_span_handler_t* CEF_CALLBACK client_get_life_span_handler(
   return CefLifeSpanHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
+struct _cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -63,8 +62,7 @@ cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
   return CefLoadHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
+struct _cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -81,8 +79,7 @@ cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
   return CefRequestHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
+struct _cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -99,8 +96,7 @@ cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
   return CefDisplayHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
+struct _cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -117,8 +113,7 @@ cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
   return CefFocusHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_keyboard_handler_t* CEF_CALLBACK client_get_keyboard_handler(
+struct _cef_keyboard_handler_t* CEF_CALLBACK client_get_keyboard_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -135,8 +130,7 @@ cef_keyboard_handler_t* CEF_CALLBACK client_get_keyboard_handler(
   return CefKeyboardHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
+struct _cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -153,8 +147,7 @@ cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
   return CefMenuHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
+struct _cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -171,8 +164,7 @@ cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
   return CefPrintHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_find_handler_t* CEF_CALLBACK client_get_find_handler(
+struct _cef_find_handler_t* CEF_CALLBACK client_get_find_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -189,8 +181,7 @@ cef_find_handler_t* CEF_CALLBACK client_get_find_handler(
   return CefFindHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
+struct _cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -207,8 +198,7 @@ cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
   return CefJSDialogHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
+struct _cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -225,8 +215,7 @@ cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
   return CefV8ContextHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
+struct _cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -243,8 +232,7 @@ cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
   return CefRenderHandlerCppToC::Wrap(_retval);
 }
 
-
-cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
+struct _cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
     struct _cef_client_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -260,7 +248,6 @@ cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
   // Return type: refptr_same
   return CefDragHandlerCppToC::Wrap(_retval);
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

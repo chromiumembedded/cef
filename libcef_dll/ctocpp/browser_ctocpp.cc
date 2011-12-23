@@ -41,7 +41,6 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo,
   return _retval?true:false;
 }
 
-
 CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client, const CefString& url,
     const CefBrowserSettings& settings)
@@ -66,7 +65,6 @@ CefRefPtr<CefBrowser> CefBrowser::CreateBrowserSync(CefWindowInfo& windowInfo,
 }
 
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefBrowserCToCpp::ParentWindowWillClose()
@@ -80,7 +78,6 @@ void CefBrowserCToCpp::ParentWindowWillClose()
   struct_->parent_window_will_close(struct_);
 }
 
-
 void CefBrowserCToCpp::CloseBrowser()
 {
   if (CEF_MEMBER_MISSING(struct_, close_browser))
@@ -91,7 +88,6 @@ void CefBrowserCToCpp::CloseBrowser()
   // Execute
   struct_->close_browser(struct_);
 }
-
 
 bool CefBrowserCToCpp::CanGoBack()
 {
@@ -107,7 +103,6 @@ bool CefBrowserCToCpp::CanGoBack()
   return _retval?true:false;
 }
 
-
 void CefBrowserCToCpp::GoBack()
 {
   if (CEF_MEMBER_MISSING(struct_, go_back))
@@ -118,7 +113,6 @@ void CefBrowserCToCpp::GoBack()
   // Execute
   struct_->go_back(struct_);
 }
-
 
 bool CefBrowserCToCpp::CanGoForward()
 {
@@ -134,7 +128,6 @@ bool CefBrowserCToCpp::CanGoForward()
   return _retval?true:false;
 }
 
-
 void CefBrowserCToCpp::GoForward()
 {
   if (CEF_MEMBER_MISSING(struct_, go_forward))
@@ -145,7 +138,6 @@ void CefBrowserCToCpp::GoForward()
   // Execute
   struct_->go_forward(struct_);
 }
-
 
 void CefBrowserCToCpp::Reload()
 {
@@ -158,7 +150,6 @@ void CefBrowserCToCpp::Reload()
   struct_->reload(struct_);
 }
 
-
 void CefBrowserCToCpp::ReloadIgnoreCache()
 {
   if (CEF_MEMBER_MISSING(struct_, reload_ignore_cache))
@@ -169,7 +160,6 @@ void CefBrowserCToCpp::ReloadIgnoreCache()
   // Execute
   struct_->reload_ignore_cache(struct_);
 }
-
 
 void CefBrowserCToCpp::StopLoad()
 {
@@ -182,7 +172,6 @@ void CefBrowserCToCpp::StopLoad()
   struct_->stop_load(struct_);
 }
 
-
 void CefBrowserCToCpp::SetFocus(bool enable)
 {
   if (CEF_MEMBER_MISSING(struct_, set_focus))
@@ -194,7 +183,6 @@ void CefBrowserCToCpp::SetFocus(bool enable)
   struct_->set_focus(struct_,
       enable);
 }
-
 
 CefWindowHandle CefBrowserCToCpp::GetWindowHandle()
 {
@@ -210,7 +198,6 @@ CefWindowHandle CefBrowserCToCpp::GetWindowHandle()
   return _retval;
 }
 
-
 CefWindowHandle CefBrowserCToCpp::GetOpenerWindowHandle()
 {
   if (CEF_MEMBER_MISSING(struct_, get_opener_window_handle))
@@ -224,7 +211,6 @@ CefWindowHandle CefBrowserCToCpp::GetOpenerWindowHandle()
   // Return type: simple
   return _retval;
 }
-
 
 bool CefBrowserCToCpp::IsPopup()
 {
@@ -240,7 +226,6 @@ bool CefBrowserCToCpp::IsPopup()
   return _retval?true:false;
 }
 
-
 bool CefBrowserCToCpp::HasDocument()
 {
   if (CEF_MEMBER_MISSING(struct_, has_document))
@@ -254,7 +239,6 @@ bool CefBrowserCToCpp::HasDocument()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CefRefPtr<CefClient> CefBrowserCToCpp::GetClient()
 {
@@ -270,7 +254,6 @@ CefRefPtr<CefClient> CefBrowserCToCpp::GetClient()
   return CefClientCppToC::Unwrap(_retval);
 }
 
-
 CefRefPtr<CefFrame> CefBrowserCToCpp::GetMainFrame()
 {
   if (CEF_MEMBER_MISSING(struct_, get_main_frame))
@@ -285,7 +268,6 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetMainFrame()
   return CefFrameCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame()
 {
   if (CEF_MEMBER_MISSING(struct_, get_focused_frame))
@@ -299,7 +281,6 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame()
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name)
 {
@@ -320,7 +301,6 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name)
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
 }
-
 
 void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names)
 {
@@ -347,7 +327,6 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names)
   }
 }
 
-
 void CefBrowserCToCpp::Find(int identifier, const CefString& searchText,
     bool forward, bool matchCase, bool findNext)
 {
@@ -370,7 +349,6 @@ void CefBrowserCToCpp::Find(int identifier, const CefString& searchText,
       findNext);
 }
 
-
 void CefBrowserCToCpp::StopFinding(bool clearSelection)
 {
   if (CEF_MEMBER_MISSING(struct_, stop_finding))
@@ -382,7 +360,6 @@ void CefBrowserCToCpp::StopFinding(bool clearSelection)
   struct_->stop_finding(struct_,
       clearSelection);
 }
-
 
 double CefBrowserCToCpp::GetZoomLevel()
 {
@@ -398,7 +375,6 @@ double CefBrowserCToCpp::GetZoomLevel()
   return _retval;
 }
 
-
 void CefBrowserCToCpp::SetZoomLevel(double zoomLevel)
 {
   if (CEF_MEMBER_MISSING(struct_, set_zoom_level))
@@ -411,7 +387,6 @@ void CefBrowserCToCpp::SetZoomLevel(double zoomLevel)
       zoomLevel);
 }
 
-
 void CefBrowserCToCpp::ClearHistory()
 {
   if (CEF_MEMBER_MISSING(struct_, clear_history))
@@ -422,7 +397,6 @@ void CefBrowserCToCpp::ClearHistory()
   // Execute
   struct_->clear_history(struct_);
 }
-
 
 void CefBrowserCToCpp::ShowDevTools()
 {
@@ -435,7 +409,6 @@ void CefBrowserCToCpp::ShowDevTools()
   struct_->show_dev_tools(struct_);
 }
 
-
 void CefBrowserCToCpp::CloseDevTools()
 {
   if (CEF_MEMBER_MISSING(struct_, close_dev_tools))
@@ -446,7 +419,6 @@ void CefBrowserCToCpp::CloseDevTools()
   // Execute
   struct_->close_dev_tools(struct_);
 }
-
 
 bool CefBrowserCToCpp::IsWindowRenderingDisabled()
 {
@@ -461,7 +433,6 @@ bool CefBrowserCToCpp::IsWindowRenderingDisabled()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefBrowserCToCpp::GetSize(PaintElementType type, int& width, int& height)
 {
@@ -480,7 +451,6 @@ bool CefBrowserCToCpp::GetSize(PaintElementType type, int& width, int& height)
   return _retval?true:false;
 }
 
-
 void CefBrowserCToCpp::SetSize(PaintElementType type, int width, int height)
 {
   if (CEF_MEMBER_MISSING(struct_, set_size))
@@ -494,7 +464,6 @@ void CefBrowserCToCpp::SetSize(PaintElementType type, int width, int height)
       width,
       height);
 }
-
 
 bool CefBrowserCToCpp::IsPopupVisible()
 {
@@ -510,7 +479,6 @@ bool CefBrowserCToCpp::IsPopupVisible()
   return _retval?true:false;
 }
 
-
 void CefBrowserCToCpp::HidePopup()
 {
   if (CEF_MEMBER_MISSING(struct_, hide_popup))
@@ -521,7 +489,6 @@ void CefBrowserCToCpp::HidePopup()
   // Execute
   struct_->hide_popup(struct_);
 }
-
 
 void CefBrowserCToCpp::Invalidate(const CefRect& dirtyRect)
 {
@@ -534,7 +501,6 @@ void CefBrowserCToCpp::Invalidate(const CefRect& dirtyRect)
   struct_->invalidate(struct_,
       &dirtyRect);
 }
-
 
 bool CefBrowserCToCpp::GetImage(PaintElementType type, int width, int height,
     void* buffer)
@@ -560,7 +526,6 @@ bool CefBrowserCToCpp::GetImage(PaintElementType type, int width, int height,
   return _retval?true:false;
 }
 
-
 void CefBrowserCToCpp::SendKeyEvent(KeyType type, int key, int modifiers,
     bool sysChar, bool imeChar)
 {
@@ -577,7 +542,6 @@ void CefBrowserCToCpp::SendKeyEvent(KeyType type, int key, int modifiers,
       sysChar,
       imeChar);
 }
-
 
 void CefBrowserCToCpp::SendMouseClickEvent(int x, int y, MouseButtonType type,
     bool mouseUp, int clickCount)
@@ -596,7 +560,6 @@ void CefBrowserCToCpp::SendMouseClickEvent(int x, int y, MouseButtonType type,
       clickCount);
 }
 
-
 void CefBrowserCToCpp::SendMouseMoveEvent(int x, int y, bool mouseLeave)
 {
   if (CEF_MEMBER_MISSING(struct_, send_mouse_move_event))
@@ -610,7 +573,6 @@ void CefBrowserCToCpp::SendMouseMoveEvent(int x, int y, bool mouseLeave)
       y,
       mouseLeave);
 }
-
 
 void CefBrowserCToCpp::SendMouseWheelEvent(int x, int y, int delta)
 {
@@ -626,7 +588,6 @@ void CefBrowserCToCpp::SendMouseWheelEvent(int x, int y, int delta)
       delta);
 }
 
-
 void CefBrowserCToCpp::SendFocusEvent(bool setFocus)
 {
   if (CEF_MEMBER_MISSING(struct_, send_focus_event))
@@ -639,7 +600,6 @@ void CefBrowserCToCpp::SendFocusEvent(bool setFocus)
       setFocus);
 }
 
-
 void CefBrowserCToCpp::SendCaptureLostEvent()
 {
   if (CEF_MEMBER_MISSING(struct_, send_capture_lost_event))
@@ -650,7 +610,6 @@ void CefBrowserCToCpp::SendCaptureLostEvent()
   // Execute
   struct_->send_capture_lost_event(struct_);
 }
-
 
 
 #ifndef NDEBUG

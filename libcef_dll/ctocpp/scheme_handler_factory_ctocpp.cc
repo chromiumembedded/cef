@@ -51,7 +51,6 @@ CefRefPtr<CefSchemeHandler> CefSchemeHandlerFactoryCToCpp::Create(
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefSchemeHandlerFactoryCToCpp,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;

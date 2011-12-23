@@ -53,7 +53,6 @@ int CEF_CALLBACK print_handler_get_print_options(
   return _retval;
 }
 
-
 int CEF_CALLBACK print_handler_get_print_header_footer(
     struct _cef_print_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, const cef_print_info_t* printInfo,
@@ -148,7 +147,6 @@ int CEF_CALLBACK print_handler_get_print_header_footer(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

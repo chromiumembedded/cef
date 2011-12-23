@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_wrapper.h"
+#include "include/wrapper/cef_byte_read_handler.h"
 #include "libcef_dll/cef_logging.h"
 
 CefByteReadHandler::CefByteReadHandler(const unsigned char* bytes, size_t size,

@@ -31,7 +31,6 @@ CefRefPtr<CefProxyHandler> CefAppCToCpp::GetProxyHandler()
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::DebugObjCt = 0;
 #endif

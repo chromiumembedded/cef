@@ -29,7 +29,6 @@ CEF_EXPORT cef_request_t* cef_request_create()
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
@@ -46,7 +45,6 @@ cef_string_userfree_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
     const cef_string_t* url)
@@ -66,7 +64,6 @@ void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
       CefString(url));
 }
 
-
 cef_string_userfree_t CEF_CALLBACK request_get_method(
     struct _cef_request_t* self)
 {
@@ -82,7 +79,6 @@ cef_string_userfree_t CEF_CALLBACK request_get_method(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
     const cef_string_t* method)
@@ -102,7 +98,6 @@ void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
       CefString(method));
 }
 
-
 struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
     struct _cef_request_t* self)
 {
@@ -118,7 +113,6 @@ struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
   // Return type: refptr_same
   return CefPostDataCppToC::Wrap(_retval);
 }
-
 
 void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
     struct _cef_post_data_t* postData)
@@ -137,7 +131,6 @@ void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
   CefRequestCppToC::Get(self)->SetPostData(
       CefPostDataCppToC::Unwrap(postData));
 }
-
 
 void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
     cef_string_multimap_t headerMap)
@@ -165,7 +158,6 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
   transfer_string_multimap_contents(headerMapMultimap, headerMap);
 }
 
-
 void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
     cef_string_multimap_t headerMap)
 {
@@ -187,7 +179,6 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
   CefRequestCppToC::Get(self)->SetHeaderMap(
       headerMapMultimap);
 }
-
 
 void CEF_CALLBACK request_set(struct _cef_request_t* self,
     const cef_string_t* url, const cef_string_t* method,
@@ -224,7 +215,6 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
       headerMapMultimap);
 }
 
-
 enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
     struct _cef_request_t* self)
 {
@@ -241,7 +231,6 @@ enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
   return _retval;
 }
 
-
 void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
     enum cef_weburlrequest_flags_t flags)
 {
@@ -255,7 +244,6 @@ void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
   CefRequestCppToC::Get(self)->SetFlags(
       flags);
 }
-
 
 cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
     struct _cef_request_t* self)
@@ -272,7 +260,6 @@ cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK request_set_first_party_for_cookies(
     struct _cef_request_t* self, const cef_string_t* url)
@@ -291,7 +278,6 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
   CefRequestCppToC::Get(self)->SetFirstPartyForCookies(
       CefString(url));
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

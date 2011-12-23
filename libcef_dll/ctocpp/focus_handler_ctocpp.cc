@@ -37,7 +37,6 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
       next);
 }
 
-
 bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
     FocusSource source)
 {
@@ -60,7 +59,6 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 void CefFocusHandlerCToCpp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node)
 {
@@ -81,7 +79,6 @@ void CefFocusHandlerCToCpp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame),
       CefDOMNodeCppToC::Wrap(node));
 }
-
 
 
 #ifndef NDEBUG

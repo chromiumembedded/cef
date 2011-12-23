@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef.h"
 #include "test_suite.h"
+#include "include/cef_app.h"
 #include "base/command_line.h"
 #include "build/build_config.h"
 #include "base/threading/platform_thread.h"

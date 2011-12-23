@@ -3,6 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "osrplugin_test.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
 #include "osrplugin.h"
 #include "cefclient.h"
 #include "client_handler.h"

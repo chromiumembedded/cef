@@ -6,7 +6,9 @@
 #ifndef _BROWSER_IMPL_H
 #define _BROWSER_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
+#include "include/cef_frame.h"
 
 #include "webview_host.h"
 #include "browser_devtools_agent.h"

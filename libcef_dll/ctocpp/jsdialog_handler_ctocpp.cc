@@ -48,7 +48,6 @@ bool CefJSDialogHandlerCToCpp::OnJSAlert(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 bool CefJSDialogHandlerCToCpp::OnJSConfirm(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& message, bool& retval)
 {
@@ -86,7 +85,6 @@ bool CefJSDialogHandlerCToCpp::OnJSConfirm(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefJSDialogHandlerCToCpp::OnJSPrompt(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& message,
@@ -132,7 +130,6 @@ bool CefJSDialogHandlerCToCpp::OnJSPrompt(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

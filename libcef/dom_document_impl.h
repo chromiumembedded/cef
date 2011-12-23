@@ -5,7 +5,7 @@
 #ifndef _DOM_DOCUMENT_IMPL_H
 #define _DOM_DOCUMENT_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_dom.h"
 #include <map>
 
 namespace WebKit {

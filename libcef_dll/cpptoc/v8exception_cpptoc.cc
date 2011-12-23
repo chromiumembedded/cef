@@ -31,7 +31,6 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_message(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK v8exception_get_source_line(
     struct _cef_v8exception_t* self)
 {
@@ -47,7 +46,6 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_source_line(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK v8exception_get_script_resource_name(
     struct _cef_v8exception_t* self)
@@ -65,7 +63,6 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_script_resource_name(
   return _retval.DetachToUserFree();
 }
 
-
 int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -80,7 +77,6 @@ int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 int CEF_CALLBACK v8exception_get_start_position(struct _cef_v8exception_t* self)
 {
@@ -97,7 +93,6 @@ int CEF_CALLBACK v8exception_get_start_position(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -112,7 +107,6 @@ int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self)
 {
@@ -129,7 +123,6 @@ int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -144,7 +137,6 @@ int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

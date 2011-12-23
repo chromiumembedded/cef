@@ -2,10 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef.h"
-#include "include/cef_capi.h"
 #include "include/cef_nplugin.h"
-#include "include/cef_nplugin_capi.h"
+#include "include/capi/cef_nplugin_capi.h"
 
 bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 {

@@ -60,7 +60,6 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
   return _retval?true:false;
 }
 
-
 bool CefV8AccessorCToCpp::Set(const CefString& name,
     const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value,
     CefString& exception)
@@ -93,7 +92,6 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

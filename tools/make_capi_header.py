@@ -37,7 +37,7 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
             first = False
     return result
 
-def make_capi_header(header):
+def make_capi_header(header, filename):
     # structure names that have already been defined
     defined_names = header.get_defined_structs()
     
@@ -82,64 +82,29 @@ def make_capi_header(header):
 // more information.
 //
 
-#ifndef _CEF_CAPI_H
-#define _CEF_CAPI_H
+#ifndef $GUARD$
+#define $GUARD$
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "internal/cef_export.h"
-#include "internal/cef_string.h"
-#include "internal/cef_string_list.h"
-#include "internal/cef_string_map.h"
-#include "internal/cef_string_multimap.h"
-#include "internal/cef_types.h"
+#include "cef_base_capi.h"
 
 """
-    # add the copyright year
-    result = result.replace('$YEAR$', get_year())
-
     # output global functions
-    result += make_capi_global_funcs(header.get_funcs(), defined_names,
-                                     translate_map, '')
-    
-    # before classes string
-    result += \
-"""
-typedef struct _cef_base_t
-{
-  // Size of the data structure.
-  size_t size;
-
-  // Increment the reference count.
-  int (CEF_CALLBACK *add_ref)(struct _cef_base_t* self);
-  // Decrement the reference count.  Delete this object when no references
-  // remain.
-  int (CEF_CALLBACK *release)(struct _cef_base_t* self);
-  // Returns the current number of references.
-  int (CEF_CALLBACK *get_refct)(struct _cef_base_t* self);
-
-} cef_base_t;
-
-
-// Check that the structure |s|, which is defined with a cef_base_t member named
-// |base|, is large enough to contain the specified member |f|.
-#define CEF_MEMBER_EXISTS(s, f)   \\
-  ((intptr_t)&((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= (s)->base.size)
-
-#define CEF_MEMBER_MISSING(s, f)  (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
-
-"""
+    funcs = header.get_funcs(filename)
+    if len(funcs) > 0:
+        result += make_capi_global_funcs(funcs, defined_names, translate_map, '')
     
     # output classes
-    classes = header.get_classes()
+    classes = header.get_classes(filename)
     for cls in classes:
         # virtual functions are inside the structure
         classname = cls.get_capi_name()
         result += '\n'+format_comment(cls.get_comment(), '', translate_map);
         result += 'typedef struct _'+classname+ \
-                  '\n{\n  // Base structure.\n  cef_base_t base;\n'
+                  '\n{\n  ///\n  // Base structure.\n  ///\n  cef_base_t base;\n'
         funcs = cls.get_virtual_funcs()
         result += make_capi_member_funcs(funcs, defined_names,
                                          translate_map, '  ')
@@ -160,23 +125,31 @@ typedef struct _cef_base_t
 }
 #endif
 
-#endif // _CEF_CAPI_H
+#endif // $GUARD$
 """
+    
+    # add the copyright year
+    result = result.replace('$YEAR$', get_year())
+    # add the guard string
+    guard = '_'+string.upper(filename.replace('.', '_capi_'))
+    result = result.replace('$GUARD$', guard)
     
     return result
 
 
-def write_capi_header(header, file, backup):
-    if path_exists(file):
-        oldcontents = read_file(file)
+def write_capi_header(header, filepath, backup):
+    capi_path = get_capi_file_name(filepath)
+    if path_exists(capi_path):
+        oldcontents = read_file(capi_path)
     else:
         oldcontents = ''
-    
-    newcontents = make_capi_header(header)
+
+    filename = os.path.split(filepath)[1]
+    newcontents = make_capi_header(header, filename)
     if newcontents != oldcontents:
         if backup and oldcontents != '':
-            backup_file(file)
-        write_file(file, newcontents)
+            backup_file(capi_path)
+        write_file(capi_path, newcontents)
         return True
     
     return False
@@ -192,7 +165,9 @@ if __name__ == "__main__":
         sys.exit()
         
     # create the header object
-    header = obj_header(sys.argv[1])
+    header = obj_header()
+    header.add_file(sys.argv[1])
     
     # dump the result to stdout
-    sys.stdout.write(make_capi_header(header))
+    filename = os.path.split(sys.argv[1])[1]
+    sys.stdout.write(make_capi_header(header, filename))

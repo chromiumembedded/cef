@@ -38,7 +38,6 @@ bool CefMenuHandlerCToCpp::OnBeforeMenu(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-
 void CefMenuHandlerCToCpp::GetMenuLabel(CefRefPtr<CefBrowser> browser,
     MenuId menuId, CefString& label)
 {
@@ -58,7 +57,6 @@ void CefMenuHandlerCToCpp::GetMenuLabel(CefRefPtr<CefBrowser> browser,
       menuId,
       label.GetWritableStruct());
 }
-
 
 bool CefMenuHandlerCToCpp::OnMenuAction(CefRefPtr<CefBrowser> browser,
     MenuId menuId)
@@ -81,7 +79,6 @@ bool CefMenuHandlerCToCpp::OnMenuAction(CefRefPtr<CefBrowser> browser,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 
 #ifndef NDEBUG

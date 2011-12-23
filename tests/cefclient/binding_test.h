@@ -5,7 +5,11 @@
 #ifndef _CEFCLIENT_BINDING_TEST_H
 #define _CEFCLIENT_BINDING_TEST_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefBrowser;
+class CefFrame;
+class CefV8Value;
 
 // Add the V8 bindings.
 void InitBindingTest(CefRefPtr<CefBrowser> browser,

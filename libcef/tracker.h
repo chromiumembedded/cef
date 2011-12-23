@@ -5,7 +5,7 @@
 #ifndef _TRACKER_H
 #define _TRACKER_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
 
 // Class extended by objects that must be tracked.  After creating a tracked
 // object you should add it to the appropriate track manager.

@@ -5,7 +5,7 @@
 #ifndef _DOM_EVENT_IMPL_H
 #define _DOM_EVENT_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_dom.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
 
 class CefDOMDocumentImpl;

@@ -33,7 +33,6 @@ CefString CefDOMEventCToCpp::GetType()
   return _retvalStr;
 }
 
-
 CefDOMEvent::Category CefDOMEventCToCpp::GetCategory()
 {
   if (CEF_MEMBER_MISSING(struct_, get_category))
@@ -47,7 +46,6 @@ CefDOMEvent::Category CefDOMEventCToCpp::GetCategory()
   // Return type: simple
   return _retval;
 }
-
 
 CefDOMEvent::Phase CefDOMEventCToCpp::GetPhase()
 {
@@ -63,7 +61,6 @@ CefDOMEvent::Phase CefDOMEventCToCpp::GetPhase()
   return _retval;
 }
 
-
 bool CefDOMEventCToCpp::CanBubble()
 {
   if (CEF_MEMBER_MISSING(struct_, can_bubble))
@@ -77,7 +74,6 @@ bool CefDOMEventCToCpp::CanBubble()
   // Return type: bool
   return _retval?true:false;
 }
-
 
 bool CefDOMEventCToCpp::CanCancel()
 {
@@ -93,7 +89,6 @@ bool CefDOMEventCToCpp::CanCancel()
   return _retval?true:false;
 }
 
-
 CefRefPtr<CefDOMDocument> CefDOMEventCToCpp::GetDocument()
 {
   if (CEF_MEMBER_MISSING(struct_, get_document))
@@ -107,7 +102,6 @@ CefRefPtr<CefDOMDocument> CefDOMEventCToCpp::GetDocument()
   // Return type: refptr_same
   return CefDOMDocumentCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetTarget()
 {
@@ -123,7 +117,6 @@ CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetTarget()
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetCurrentTarget()
 {
   if (CEF_MEMBER_MISSING(struct_, get_current_target))
@@ -137,7 +130,6 @@ CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetCurrentTarget()
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
-
 
 
 #ifndef NDEBUG

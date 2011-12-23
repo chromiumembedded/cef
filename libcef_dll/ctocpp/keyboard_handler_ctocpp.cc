@@ -44,7 +44,6 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefKeyboardHandlerCToCpp, CefKeyboardHandler,
     cef_keyboard_handler_t>::DebugObjCt = 0;

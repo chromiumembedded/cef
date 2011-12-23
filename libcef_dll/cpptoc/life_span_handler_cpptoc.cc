@@ -21,7 +21,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     struct _cef_life_span_handler_t* self, cef_browser_t* parentBrowser,
     const struct _cef_popup_features_t* popupFeatures,
     cef_window_info_t* windowInfo, const cef_string_t* url,
-    struct _cef_client_t** client, struct _cef_browser_settings_t* settings)
+    cef_client_t** client, struct _cef_browser_settings_t* settings)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -98,7 +98,6 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   return _retval;
 }
 
-
 void CEF_CALLBACK life_span_handler_on_after_created(
     struct _cef_life_span_handler_t* self, cef_browser_t* browser)
 {
@@ -116,7 +115,6 @@ void CEF_CALLBACK life_span_handler_on_after_created(
   CefLifeSpanHandlerCppToC::Get(self)->OnAfterCreated(
       CefBrowserCToCpp::Wrap(browser));
 }
-
 
 int CEF_CALLBACK life_span_handler_run_modal(
     struct _cef_life_span_handler_t* self, cef_browser_t* browser)
@@ -139,7 +137,6 @@ int CEF_CALLBACK life_span_handler_run_modal(
   return _retval;
 }
 
-
 int CEF_CALLBACK life_span_handler_do_close(
     struct _cef_life_span_handler_t* self, cef_browser_t* browser)
 {
@@ -161,7 +158,6 @@ int CEF_CALLBACK life_span_handler_do_close(
   return _retval;
 }
 
-
 void CEF_CALLBACK life_span_handler_on_before_close(
     struct _cef_life_span_handler_t* self, cef_browser_t* browser)
 {
@@ -179,7 +175,6 @@ void CEF_CALLBACK life_span_handler_on_before_close(
   CefLifeSpanHandlerCppToC::Get(self)->OnBeforeClose(
       CefBrowserCToCpp::Wrap(browser));
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

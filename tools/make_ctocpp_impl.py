@@ -32,7 +32,7 @@ def make_ctocpp_function_impl_existing(clsname, name, func, impl):
         notify(name+' prototype changed')
     
     return wrap_code(make_ctocpp_impl_proto(clsname, name, func, parts))+'{'+ \
-           changes+impl['body']+'\n}\n\n'
+           changes+impl['body']+'\n}\n'
 
 def make_ctocpp_function_impl_new(clsname, name, func):
     # build the C++ prototype
@@ -430,7 +430,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     if len(result) != result_len:
         result += '\n'
     
-    result += '}\n\n'
+    result += '}\n'
     return wrap_code(result)
 
 def make_ctocpp_function_impl(clsname, funcs, existing):
@@ -496,11 +496,22 @@ def make_ctocpp_global_impl(header, impl):
     impl = make_ctocpp_function_impl(None, header.get_funcs(), existing)
     if len(impl) > 0:
         impl = '\n// GLOBAL METHODS - Body may be edited by hand.\n\n'+impl
-      
+
+    includes = ''
+
+    # include required headers for global functions
+    filenames = []
+    for func in header.get_funcs():
+        filename = func.get_file_name()
+        if not filename in filenames:
+            includes += '#include "include/'+func.get_file_name()+'"\n' \
+                        '#include "include/capi/'+func.get_capi_file_name()+'"\n'
+            filenames.append(filename)
+        
     # determine what includes are required by identifying what translation
     # classes are being used
-    includes = format_translation_includes(impl)
-        
+    includes += format_translation_includes(impl)
+    
     # build the final output
     result = get_copyright()
 
@@ -544,7 +555,8 @@ if __name__ == "__main__":
         sys.exit()
         
     # create the header object
-    header = obj_header(sys.argv[1])
+    header = obj_header()
+    header.add_file(sys.argv[1])
     
     # read the existing implementation file into memory
     try:
@@ -556,4 +568,4 @@ if __name__ == "__main__":
         f.close()
     
     # dump the result to stdout
-    sys.stdout.write(make_ctocpp_impl(header, sys.argv[2], data))
+    sys.stdout.write(make_ctocpp_class_impl(header, sys.argv[2], data))

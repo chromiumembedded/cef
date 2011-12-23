@@ -5,7 +5,7 @@
 #ifndef _RESPONSE_IMPL_H
 #define _RESPONSE_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_response.h"
 
 namespace net {
 class HttpResponseHeaders;

@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_DOWNLOAD_HANDLER_H
 #define _CEFCLIENT_DOWNLOAD_HANDLER_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefDownloadHandler;
 
 // Implement this interface to receive download notifications.
 class DownloadListener : public virtual CefBase

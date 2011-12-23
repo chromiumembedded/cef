@@ -9,10 +9,13 @@
 #ifndef _CEFCLIENT_OSRPLUGIN_H
 #define _CEFCLIENT_OSRPLUGIN_H
 
-#include "include/cef.h"
-#include "include/cef_nplugin.h"
+#include "include/cef_base.h"
 
 #if defined(OS_WIN)
+
+#include "include/cef_nplugin.h"
+
+class CefBrowser;
 
 extern NPNetscapeFuncs* g_osrbrowser;
 

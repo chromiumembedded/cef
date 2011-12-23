@@ -5,7 +5,7 @@
 #ifndef _STREAM_IMPL_H
 #define _STREAM_IMPL_H
 
-#include "../include/cef.h"
+#include "include/cef_stream.h"
 #include <stdio.h>
 
 // Implementation of CefStreamReader for files.

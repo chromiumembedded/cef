@@ -51,7 +51,6 @@ void CefContentFilterCToCpp::ProcessData(const void* data, int data_size,
   }
 }
 
-
 void CefContentFilterCToCpp::Drain(CefRefPtr<CefStreamReader>& remainder)
 {
   if (CEF_MEMBER_MISSING(struct_, drain))
@@ -78,7 +77,6 @@ void CefContentFilterCToCpp::Drain(CefRefPtr<CefStreamReader>& remainder)
     remainder = NULL;
   }
 }
-
 
 
 #ifndef NDEBUG

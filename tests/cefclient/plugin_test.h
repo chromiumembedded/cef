@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_PLUGIN_TEST_H
 #define _CEFCLIENT_PLUGIN_TEST_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefBrowser;
 
 // Register the internal client plugin.
 void InitPluginTest();

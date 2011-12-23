@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_RESOURCE_UTIL
 #define _CEFCLIENT_RESOURCE_UTIL
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefStreamReader;
 
 #if defined(OS_WIN)
 

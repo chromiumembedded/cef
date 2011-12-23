@@ -30,7 +30,6 @@ void CEF_CALLBACK task_execute(struct _cef_task_t* self,
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTaskCppToC::CefTaskCppToC(CefTask* cls)

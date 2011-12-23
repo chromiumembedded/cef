@@ -5,7 +5,7 @@
 #ifndef _V8_IMPL_H
 #define _V8_IMPL_H
 
-#include "include/cef.h"
+#include "include/cef_v8.h"
 #include "v8/include/v8.h"
 
 class CefTrackObject;

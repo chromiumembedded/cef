@@ -2,7 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "../include/cef.h"
+#include "browser_settings.h"
+#include "include/internal/cef_types_wrappers.h"
 #include "base/utf_string_conversions.h"
 #include "webkit/glue/webpreferences.h"
 

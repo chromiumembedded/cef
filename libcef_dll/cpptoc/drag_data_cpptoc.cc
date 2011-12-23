@@ -31,7 +31,6 @@ int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -47,7 +46,6 @@ int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -62,7 +60,6 @@ int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_url(
     struct _cef_drag_data_t* self)
@@ -80,7 +77,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_url(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_title(
     struct _cef_drag_data_t* self)
 {
@@ -96,7 +92,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_title(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_metadata(
     struct _cef_drag_data_t* self)
@@ -114,7 +109,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_metadata(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_text(
     struct _cef_drag_data_t* self)
 {
@@ -130,7 +124,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_text(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_html(
     struct _cef_drag_data_t* self)
@@ -148,7 +141,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_html(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_base_url(
     struct _cef_drag_data_t* self)
 {
@@ -164,7 +156,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_base_url(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_file_extension(
     struct _cef_drag_data_t* self)
@@ -182,7 +173,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_file_extension(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK drag_data_get_file_name(
     struct _cef_drag_data_t* self)
 {
@@ -198,7 +188,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_file_name(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
     cef_string_list_t names)
@@ -228,7 +217,6 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_OSRPLUGIN_TEST_H
 #define _CEFCLIENT_OSRPLUGIN_TEST_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefBrowser;
 
 // Register the internal client plugin and V8 extension.
 void InitOSRPluginTest();

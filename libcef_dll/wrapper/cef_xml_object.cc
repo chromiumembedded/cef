@@ -2,7 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_wrapper.h"
+#include "include/wrapper/cef_xml_object.h"
+#include "include/cef_stream.h"
 #include "libcef_dll/cef_logging.h"
 #include <sstream>
 

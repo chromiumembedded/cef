@@ -31,7 +31,6 @@ CefString CefV8ExceptionCToCpp::GetMessage()
   return _retvalStr;
 }
 
-
 CefString CefV8ExceptionCToCpp::GetSourceLine()
 {
   if (CEF_MEMBER_MISSING(struct_, get_source_line))
@@ -47,7 +46,6 @@ CefString CefV8ExceptionCToCpp::GetSourceLine()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefString CefV8ExceptionCToCpp::GetScriptResourceName()
 {
@@ -65,7 +63,6 @@ CefString CefV8ExceptionCToCpp::GetScriptResourceName()
   return _retvalStr;
 }
 
-
 int CefV8ExceptionCToCpp::GetLineNumber()
 {
   if (CEF_MEMBER_MISSING(struct_, get_line_number))
@@ -79,7 +76,6 @@ int CefV8ExceptionCToCpp::GetLineNumber()
   // Return type: simple
   return _retval;
 }
-
 
 int CefV8ExceptionCToCpp::GetStartPosition()
 {
@@ -95,7 +91,6 @@ int CefV8ExceptionCToCpp::GetStartPosition()
   return _retval;
 }
 
-
 int CefV8ExceptionCToCpp::GetEndPosition()
 {
   if (CEF_MEMBER_MISSING(struct_, get_end_position))
@@ -109,7 +104,6 @@ int CefV8ExceptionCToCpp::GetEndPosition()
   // Return type: simple
   return _retval;
 }
-
 
 int CefV8ExceptionCToCpp::GetStartColumn()
 {
@@ -125,7 +119,6 @@ int CefV8ExceptionCToCpp::GetStartColumn()
   return _retval;
 }
 
-
 int CefV8ExceptionCToCpp::GetEndColumn()
 {
   if (CEF_MEMBER_MISSING(struct_, get_end_column))
@@ -139,7 +132,6 @@ int CefV8ExceptionCToCpp::GetEndColumn()
   // Return type: simple
   return _retval;
 }
-
 
 
 #ifndef NDEBUG

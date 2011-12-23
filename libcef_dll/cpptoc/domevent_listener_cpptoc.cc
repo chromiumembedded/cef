@@ -35,7 +35,6 @@ void CEF_CALLBACK domevent_listener_handle_event(
 }
 
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMEventListenerCppToC::CefDOMEventListenerCppToC(CefDOMEventListener* cls)

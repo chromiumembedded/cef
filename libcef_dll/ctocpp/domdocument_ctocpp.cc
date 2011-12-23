@@ -30,7 +30,6 @@ CefDOMDocument::Type CefDOMDocumentCToCpp::GetType()
   return _retval;
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetDocument()
 {
   if (CEF_MEMBER_MISSING(struct_, get_document))
@@ -44,7 +43,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetDocument()
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
-
 
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetBody()
 {
@@ -60,7 +58,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetBody()
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetHead()
 {
   if (CEF_MEMBER_MISSING(struct_, get_head))
@@ -74,7 +71,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetHead()
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
-
 
 CefString CefDOMDocumentCToCpp::GetTitle()
 {
@@ -91,7 +87,6 @@ CefString CefDOMDocumentCToCpp::GetTitle()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetElementById(const CefString& id)
 {
@@ -113,7 +108,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetElementById(const CefString& id)
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetFocusedNode()
 {
   if (CEF_MEMBER_MISSING(struct_, get_focused_node))
@@ -127,7 +121,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetFocusedNode()
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
-
 
 bool CefDOMDocumentCToCpp::HasSelection()
 {
@@ -143,7 +136,6 @@ bool CefDOMDocumentCToCpp::HasSelection()
   return _retval?true:false;
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionStartNode()
 {
   if (CEF_MEMBER_MISSING(struct_, get_selection_start_node))
@@ -157,7 +149,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionStartNode()
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
-
 
 int CefDOMDocumentCToCpp::GetSelectionStartOffset()
 {
@@ -173,7 +164,6 @@ int CefDOMDocumentCToCpp::GetSelectionStartOffset()
   return _retval;
 }
 
-
 CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionEndNode()
 {
   if (CEF_MEMBER_MISSING(struct_, get_selection_end_node))
@@ -188,7 +178,6 @@ CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionEndNode()
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-
 int CefDOMDocumentCToCpp::GetSelectionEndOffset()
 {
   if (CEF_MEMBER_MISSING(struct_, get_selection_end_offset))
@@ -202,7 +191,6 @@ int CefDOMDocumentCToCpp::GetSelectionEndOffset()
   // Return type: simple
   return _retval;
 }
-
 
 CefString CefDOMDocumentCToCpp::GetSelectionAsMarkup()
 {
@@ -220,7 +208,6 @@ CefString CefDOMDocumentCToCpp::GetSelectionAsMarkup()
   return _retvalStr;
 }
 
-
 CefString CefDOMDocumentCToCpp::GetSelectionAsText()
 {
   if (CEF_MEMBER_MISSING(struct_, get_selection_as_text))
@@ -237,7 +224,6 @@ CefString CefDOMDocumentCToCpp::GetSelectionAsText()
   return _retvalStr;
 }
 
-
 CefString CefDOMDocumentCToCpp::GetBaseURL()
 {
   if (CEF_MEMBER_MISSING(struct_, get_base_url))
@@ -253,7 +239,6 @@ CefString CefDOMDocumentCToCpp::GetBaseURL()
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 CefString CefDOMDocumentCToCpp::GetCompleteURL(const CefString& partialURL)
 {
@@ -276,7 +261,6 @@ CefString CefDOMDocumentCToCpp::GetCompleteURL(const CefString& partialURL)
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
 }
-
 
 
 #ifndef NDEBUG

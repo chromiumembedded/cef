@@ -34,7 +34,6 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
   return CefStreamWriterCppToC::Wrap(_retval);
 }
 
-
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
     cef_write_handler_t* handler)
 {
@@ -52,7 +51,6 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
   // Return type: refptr_same
   return CefStreamWriterCppToC::Wrap(_retval);
 }
-
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -80,7 +78,6 @@ size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
   return _retval;
 }
 
-
 int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
     long offset, int whence)
 {
@@ -99,7 +96,6 @@ int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
   return _retval;
 }
 
-
 long CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -115,7 +111,6 @@ long CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self)
   return _retval;
 }
 
-
 int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -130,7 +125,6 @@ int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self)
   // Return type: simple
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -5,8 +5,8 @@
 #ifndef _CPPTOC_H
 #define _CPPTOC_H
 
-#include "include/cef.h"
-#include "include/cef_capi.h"
+#include "include/cef_base.h"
+#include "include/capi/cef_base_capi.h"
 #include "libcef_dll/cef_logging.h"
 
 

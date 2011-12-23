@@ -28,7 +28,6 @@ CEF_EXPORT cef_command_line_t* cef_command_line_create()
 }
 
 
-
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK command_line_init_from_argv(struct _cef_command_line_t* self,
@@ -50,7 +49,6 @@ void CEF_CALLBACK command_line_init_from_argv(struct _cef_command_line_t* self,
       argv);
 }
 
-
 void CEF_CALLBACK command_line_init_from_string(
     struct _cef_command_line_t* self, const cef_string_t* command_line)
 {
@@ -69,7 +67,6 @@ void CEF_CALLBACK command_line_init_from_string(
       CefString(command_line));
 }
 
-
 cef_string_userfree_t CEF_CALLBACK command_line_get_command_line_string(
     struct _cef_command_line_t* self)
 {
@@ -86,7 +83,6 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_command_line_string(
   return _retval.DetachToUserFree();
 }
 
-
 cef_string_userfree_t CEF_CALLBACK command_line_get_program(
     struct _cef_command_line_t* self)
 {
@@ -102,7 +98,6 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_program(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK command_line_set_program(struct _cef_command_line_t* self,
     const cef_string_t* program)
@@ -122,7 +117,6 @@ void CEF_CALLBACK command_line_set_program(struct _cef_command_line_t* self,
       CefString(program));
 }
 
-
 int CEF_CALLBACK command_line_has_switches(struct _cef_command_line_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -137,7 +131,6 @@ int CEF_CALLBACK command_line_has_switches(struct _cef_command_line_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK command_line_has_switch(struct _cef_command_line_t* self,
     const cef_string_t* name)
@@ -160,7 +153,6 @@ int CEF_CALLBACK command_line_has_switch(struct _cef_command_line_t* self,
   return _retval;
 }
 
-
 cef_string_userfree_t CEF_CALLBACK command_line_get_switch_value(
     struct _cef_command_line_t* self, const cef_string_t* name)
 {
@@ -181,7 +173,6 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_switch_value(
   // Return type: string
   return _retval.DetachToUserFree();
 }
-
 
 void CEF_CALLBACK command_line_get_switches(struct _cef_command_line_t* self,
     cef_string_map_t switches)
@@ -209,7 +200,6 @@ void CEF_CALLBACK command_line_get_switches(struct _cef_command_line_t* self,
   transfer_string_map_contents(switchesMap, switches);
 }
 
-
 void CEF_CALLBACK command_line_append_switch(struct _cef_command_line_t* self,
     const cef_string_t* name)
 {
@@ -227,7 +217,6 @@ void CEF_CALLBACK command_line_append_switch(struct _cef_command_line_t* self,
   CefCommandLineCppToC::Get(self)->AppendSwitch(
       CefString(name));
 }
-
 
 void CEF_CALLBACK command_line_append_switch_with_value(
     struct _cef_command_line_t* self, const cef_string_t* name,
@@ -253,7 +242,6 @@ void CEF_CALLBACK command_line_append_switch_with_value(
       CefString(value));
 }
 
-
 int CEF_CALLBACK command_line_has_arguments(struct _cef_command_line_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -268,7 +256,6 @@ int CEF_CALLBACK command_line_has_arguments(struct _cef_command_line_t* self)
   // Return type: bool
   return _retval;
 }
-
 
 void CEF_CALLBACK command_line_get_arguments(struct _cef_command_line_t* self,
     cef_string_list_t arguments)
@@ -296,7 +283,6 @@ void CEF_CALLBACK command_line_get_arguments(struct _cef_command_line_t* self,
   transfer_string_list_contents(argumentsList, arguments);
 }
 
-
 void CEF_CALLBACK command_line_append_argument(struct _cef_command_line_t* self,
     const cef_string_t* argument)
 {
@@ -314,7 +300,6 @@ void CEF_CALLBACK command_line_append_argument(struct _cef_command_line_t* self,
   CefCommandLineCppToC::Get(self)->AppendArgument(
       CefString(argument));
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

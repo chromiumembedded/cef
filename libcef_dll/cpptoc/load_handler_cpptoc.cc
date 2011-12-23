@@ -40,7 +40,6 @@ void CEF_CALLBACK load_handler_on_load_start(struct _cef_load_handler_t* self,
       CefFrameCToCpp::Wrap(frame));
 }
 
-
 void CEF_CALLBACK load_handler_on_load_end(struct _cef_load_handler_t* self,
     cef_browser_t* browser, cef_frame_t* frame, int httpStatusCode)
 {
@@ -64,7 +63,6 @@ void CEF_CALLBACK load_handler_on_load_end(struct _cef_load_handler_t* self,
       CefFrameCToCpp::Wrap(frame),
       httpStatusCode);
 }
-
 
 int CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
     cef_browser_t* browser, cef_frame_t* frame,
@@ -107,7 +105,6 @@ int CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

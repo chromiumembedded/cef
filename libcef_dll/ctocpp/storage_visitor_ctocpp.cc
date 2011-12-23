@@ -58,7 +58,6 @@ bool CefStorageVisitorCToCpp::Visit(CefStorageType type,
 }
 
 
-
 #ifndef NDEBUG
 template<> long CefCToCpp<CefStorageVisitorCToCpp, CefStorageVisitor,
     cef_storage_visitor_t>::DebugObjCt = 0;

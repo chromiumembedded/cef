@@ -49,7 +49,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsalert(
   return _retval;
 }
 
-
 int CEF_CALLBACK jsdialog_handler_on_jsconfirm(
     struct _cef_jsdialog_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, const cef_string_t* message, int* retval)
@@ -93,7 +92,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsconfirm(
   // Return type: bool
   return _retval;
 }
-
 
 int CEF_CALLBACK jsdialog_handler_on_jsprompt(
     struct _cef_jsdialog_handler_t* self, cef_browser_t* browser,
@@ -151,7 +149,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsprompt(
   // Return type: bool
   return _retval;
 }
-
 
 
 // CONSTRUCTOR - Do not edit by hand.

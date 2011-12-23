@@ -10,6 +10,22 @@
 // for more information.
 //
 
+#include "include/cef_app.h"
+#include "include/capi/cef_app_capi.h"
+#include "include/cef_cookie.h"
+#include "include/capi/cef_cookie_capi.h"
+#include "include/cef_origin_whitelist.h"
+#include "include/capi/cef_origin_whitelist_capi.h"
+#include "include/cef_scheme.h"
+#include "include/capi/cef_scheme_capi.h"
+#include "include/cef_storage.h"
+#include "include/capi/cef_storage_capi.h"
+#include "include/cef_task.h"
+#include "include/capi/cef_task_capi.h"
+#include "include/cef_url.h"
+#include "include/capi/cef_url_capi.h"
+#include "include/cef_v8.h"
+#include "include/capi/cef_v8_capi.h"
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/content_filter_cpptoc.h"
@@ -89,7 +105,6 @@ CEF_GLOBAL bool CefInitialize(const CefSettings& settings,
   return _retval?true:false;
 }
 
-
 CEF_GLOBAL void CefShutdown()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -149,7 +164,6 @@ CEF_GLOBAL void CefShutdown()
 #endif // !NDEBUG
 }
 
-
 CEF_GLOBAL void CefDoMessageLoopWork()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -157,7 +171,6 @@ CEF_GLOBAL void CefDoMessageLoopWork()
   // Execute
   cef_do_message_loop_work();
 }
-
 
 CEF_GLOBAL void CefRunMessageLoop()
 {
@@ -167,7 +180,6 @@ CEF_GLOBAL void CefRunMessageLoop()
   cef_run_message_loop();
 }
 
-
 CEF_GLOBAL void CefQuitMessageLoop()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -176,88 +188,94 @@ CEF_GLOBAL void CefQuitMessageLoop()
   cef_quit_message_loop();
 }
 
-
-CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
-    const CefString& javascript_code, CefRefPtr<CefV8Handler> handler)
+CEF_GLOBAL bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: extension_name; type: string_byref_const
-  DCHECK(!extension_name.empty());
-  if (extension_name.empty())
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor.get());
+  if (!visitor.get())
     return false;
-  // Verify param: javascript_code; type: string_byref_const
-  DCHECK(!javascript_code.empty());
-  if (javascript_code.empty())
-    return false;
-  // Unverified params: handler
 
   // Execute
-  int _retval = cef_register_extension(
-      extension_name.GetStruct(),
-      javascript_code.GetStruct(),
-      CefV8HandlerCppToC::Wrap(handler));
+  int _retval = cef_visit_all_cookies(
+      CefCookieVisitorCppToC::Wrap(visitor));
 
   // Return type: bool
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefRegisterCustomScheme(const CefString& scheme_name,
-    bool is_standard, bool is_local, bool is_display_isolated)
+CEF_GLOBAL bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
+    CefRefPtr<CefCookieVisitor> visitor)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return false;
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor.get());
+  if (!visitor.get())
     return false;
 
   // Execute
-  int _retval = cef_register_custom_scheme(
-      scheme_name.GetStruct(),
-      is_standard,
-      is_local,
-      is_display_isolated);
+  int _retval = cef_visit_url_cookies(
+      url.GetStruct(),
+      includeHttpOnly,
+      CefCookieVisitorCppToC::Wrap(visitor));
 
   // Return type: bool
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
-    const CefString& domain_name, CefRefPtr<CefSchemeHandlerFactory> factory)
+CEF_GLOBAL bool CefSetCookie(const CefString& url, const CefCookie& cookie)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
     return false;
-  // Unverified params: domain_name, factory
 
   // Execute
-  int _retval = cef_register_scheme_handler_factory(
-      scheme_name.GetStruct(),
-      domain_name.GetStruct(),
-      CefSchemeHandlerFactoryCppToC::Wrap(factory));
+  int _retval = cef_set_cookie(
+      url.GetStruct(),
+      &cookie);
 
   // Return type: bool
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefClearSchemeHandlerFactories()
+CEF_GLOBAL bool CefDeleteCookies(const CefString& url,
+    const CefString& cookie_name)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Unverified params: url, cookie_name
+
   // Execute
-  int _retval = cef_clear_scheme_handler_factories();
+  int _retval = cef_delete_cookies(
+      url.GetStruct(),
+      cookie_name.GetStruct());
 
   // Return type: bool
   return _retval?true:false;
 }
 
+CEF_GLOBAL bool CefSetCookiePath(const CefString& path)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: path
+
+  // Execute
+  int _retval = cef_set_cookie_path(
+      path.GetStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
 
 CEF_GLOBAL bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
     const CefString& target_protocol, const CefString& target_domain,
@@ -289,7 +307,6 @@ CEF_GLOBAL bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
   return _retval?true:false;
 }
 
-
 CEF_GLOBAL bool CefRemoveCrossOriginWhitelistEntry(
     const CefString& source_origin, const CefString& target_protocol,
     const CefString& target_domain, bool allow_target_subdomains)
@@ -320,7 +337,6 @@ CEF_GLOBAL bool CefRemoveCrossOriginWhitelistEntry(
   return _retval?true:false;
 }
 
-
 CEF_GLOBAL bool CefClearCrossOriginWhitelist()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -332,186 +348,58 @@ CEF_GLOBAL bool CefClearCrossOriginWhitelist()
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefCurrentlyOn(CefThreadId threadId)
+CEF_GLOBAL bool CefRegisterCustomScheme(const CefString& scheme_name,
+    bool is_standard, bool is_local, bool is_display_isolated)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Execute
-  int _retval = cef_currently_on(
-      threadId);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: task; type: refptr_diff
-  DCHECK(task.get());
-  if (!task.get())
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(!scheme_name.empty());
+  if (scheme_name.empty())
     return false;
 
   // Execute
-  int _retval = cef_post_task(
-      threadId,
-      CefTaskCppToC::Wrap(task));
+  int _retval = cef_register_custom_scheme(
+      scheme_name.GetStruct(),
+      is_standard,
+      is_local,
+      is_display_isolated);
 
   // Return type: bool
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
-    CefRefPtr<CefTask> task, long delay_ms)
+CEF_GLOBAL bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
+    const CefString& domain_name, CefRefPtr<CefSchemeHandlerFactory> factory)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: task; type: refptr_diff
-  DCHECK(task.get());
-  if (!task.get())
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(!scheme_name.empty());
+  if (scheme_name.empty())
     return false;
+  // Unverified params: domain_name, factory
 
   // Execute
-  int _retval = cef_post_delayed_task(
-      threadId,
-      CefTaskCppToC::Wrap(task),
-      delay_ms);
+  int _retval = cef_register_scheme_handler_factory(
+      scheme_name.GetStruct(),
+      domain_name.GetStruct(),
+      CefSchemeHandlerFactoryCppToC::Wrap(factory));
 
   // Return type: bool
   return _retval?true:false;
 }
 
-
-CEF_GLOBAL bool CefParseURL(const CefString& url, CefURLParts& parts)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_parse_url(
-      url.GetStruct(),
-      &parts);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefCreateURL(const CefURLParts& parts, CefString& url)
+CEF_GLOBAL bool CefClearSchemeHandlerFactories()
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = cef_create_url(
-      &parts,
-      url.GetWritableStruct());
+  int _retval = cef_clear_scheme_handler_factories();
 
   // Return type: bool
   return _retval?true:false;
 }
-
-
-CEF_GLOBAL bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return false;
-
-  // Execute
-  int _retval = cef_visit_all_cookies(
-      CefCookieVisitorCppToC::Wrap(visitor));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
-    CefRefPtr<CefCookieVisitor> visitor)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return false;
-
-  // Execute
-  int _retval = cef_visit_url_cookies(
-      url.GetStruct(),
-      includeHttpOnly,
-      CefCookieVisitorCppToC::Wrap(visitor));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefSetCookie(const CefString& url, const CefCookie& cookie)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_set_cookie(
-      url.GetStruct(),
-      &cookie);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefDeleteCookies(const CefString& url,
-    const CefString& cookie_name)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: url, cookie_name
-
-  // Execute
-  int _retval = cef_delete_cookies(
-      url.GetStruct(),
-      cookie_name.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-
-CEF_GLOBAL bool CefSetCookiePath(const CefString& path)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path
-
-  // Execute
-  int _retval = cef_set_cookie_path(
-      path.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
 
 CEF_GLOBAL bool CefVisitStorage(CefStorageType type, const CefString& origin,
     const CefString& key, CefRefPtr<CefStorageVisitor> visitor)
@@ -534,7 +422,6 @@ CEF_GLOBAL bool CefVisitStorage(CefStorageType type, const CefString& origin,
   // Return type: bool
   return _retval?true:false;
 }
-
 
 CEF_GLOBAL bool CefSetStorage(CefStorageType type, const CefString& origin,
     const CefString& key, const CefString& value)
@@ -565,7 +452,6 @@ CEF_GLOBAL bool CefSetStorage(CefStorageType type, const CefString& origin,
   return _retval?true:false;
 }
 
-
 CEF_GLOBAL bool CefDeleteStorage(CefStorageType type, const CefString& origin,
     const CefString& key)
 {
@@ -583,7 +469,6 @@ CEF_GLOBAL bool CefDeleteStorage(CefStorageType type, const CefString& origin,
   return _retval?true:false;
 }
 
-
 CEF_GLOBAL bool CefSetStoragePath(CefStorageType type, const CefString& path)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -599,4 +484,109 @@ CEF_GLOBAL bool CefSetStoragePath(CefStorageType type, const CefString& path)
   return _retval?true:false;
 }
 
+CEF_GLOBAL bool CefCurrentlyOn(CefThreadId threadId)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_currently_on(
+      threadId);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task.get());
+  if (!task.get())
+    return false;
+
+  // Execute
+  int _retval = cef_post_task(
+      threadId,
+      CefTaskCppToC::Wrap(task));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
+    CefRefPtr<CefTask> task, long delay_ms)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task.get());
+  if (!task.get())
+    return false;
+
+  // Execute
+  int _retval = cef_post_delayed_task(
+      threadId,
+      CefTaskCppToC::Wrap(task),
+      delay_ms);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefParseURL(const CefString& url, CefURLParts& parts)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return false;
+
+  // Execute
+  int _retval = cef_parse_url(
+      url.GetStruct(),
+      &parts);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefCreateURL(const CefURLParts& parts, CefString& url)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_create_url(
+      &parts,
+      url.GetWritableStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
+    const CefString& javascript_code, CefRefPtr<CefV8Handler> handler)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension_name; type: string_byref_const
+  DCHECK(!extension_name.empty());
+  if (extension_name.empty())
+    return false;
+  // Verify param: javascript_code; type: string_byref_const
+  DCHECK(!javascript_code.empty());
+  if (javascript_code.empty())
+    return false;
+  // Unverified params: handler
+
+  // Execute
+  int _retval = cef_register_extension(
+      extension_name.GetStruct(),
+      javascript_code.GetStruct(),
+      CefV8HandlerCppToC::Wrap(handler));
+
+  // Return type: bool
+  return _retval?true:false;
+}
 

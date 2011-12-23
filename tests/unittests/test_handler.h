@@ -5,7 +5,9 @@
 #ifndef _TEST_HANDLER_H
 #define _TEST_HANDLER_H
 
-#include "include/cef.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_client.h"
 #include "include/cef_runnable.h"
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"

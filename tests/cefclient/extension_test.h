@@ -5,7 +5,9 @@
 #ifndef _CEFCLIENT_EXTENSION_TEST_H
 #define _CEFCLIENT_EXTENSION_TEST_H
 
-#include "include/cef.h"
+#include "include/cef_base.h"
+
+class CefBrowser;
 
 // Register the V8 extension handler.
 void InitExtensionTest();
