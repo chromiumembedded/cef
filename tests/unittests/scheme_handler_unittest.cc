@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_origin_whitelist.h"
+#include "include/cef_runnable.h"
 #include "include/cef_scheme.h"
 #include "test_handler.h"
 
