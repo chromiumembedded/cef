@@ -317,6 +317,7 @@
         'tests/unittests/stream_unittest.cc',
         'tests/unittests/string_unittest.cc',
         'tests/unittests/storage_unittest.cc',
+        'tests/unittests/test_handler.cc',
         'tests/unittests/test_handler.h',
         'tests/unittests/test_suite.cc',
         'tests/unittests/test_suite.h',

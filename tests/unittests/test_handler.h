@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -6,7 +6,6 @@
 #define _TEST_HANDLER_H
 
 #include "include/cef.h"
-#include "include/cef_runnable.h"
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -32,13 +31,8 @@ class TestHandler : public CefClient,
                     public CefV8ContextHandler
 {
 public:
-  TestHandler() : browser_hwnd_(NULL), completion_event_(true, false)
-  {
-  }
-
-  virtual ~TestHandler()
-  {
-  }
+  TestHandler();
+  virtual ~TestHandler();
 
   // Implement this method to run the test
   virtual void RunTest() =0;
@@ -56,116 +50,35 @@ public:
       { return this; }
   
   // CefLifeSpanHandler methods
-
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE
-  {
-    AutoLock lock_scope(this);
-    if(!browser->IsPopup())
-    {
-      // Keep the main child window, but not popup windows
-      browser_ = browser;
-      browser_hwnd_ = browser->GetWindowHandle();
-    }
-  }
-
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE
-  {
-    AutoLock lock_scope(this);
-    if(browser_hwnd_ == browser->GetWindowHandle())
-    {
-      // Free the browser pointer so that the browser can be destroyed
-      browser_ = NULL;
-      browser_hwnd_ = NULL;
-
-      // Signal that the test is now complete.
-      completion_event_.Signal();
-    }
-  }
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRequestHandler methods
-
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefRequest> request,
                                     CefString& redirectUrl,
                                     CefRefPtr<CefStreamReader>& resourceStream,
                                     CefRefPtr<CefResponse> response,
-                                    int loadFlags) OVERRIDE
-  {
-    AutoLock lock_scope(this);
-    if(resource_map_.size() > 0) {
-      CefString url = request->GetURL();
-      ResourceMap::const_iterator it = resource_map_.find(url);
-      if(it != resource_map_.end()) {
-        // Return the previously mapped resource
-        resourceStream = CefStreamReader::CreateForData(
-            (void*)it->second.first.c_str(), it->second.first.length());
-        response->SetMimeType(it->second.second);
-        response->SetStatus(200);
-      }
-    }
+                                    int loadFlags) OVERRIDE;
 
-    return false;
-  }
-
-  CefRefPtr<CefBrowser> GetBrowser()
-  {
-    return browser_;
-  }
-
-  CefWindowHandle GetBrowserHwnd()
-  {
-    return browser_hwnd_;
-  }
+  CefRefPtr<CefBrowser> GetBrowser() { return browser_; }
+  CefWindowHandle GetBrowserHwnd() { return browser_hwnd_; }
 
   // Called by the test function to execute the test.  This method blocks until
   // the test is complete. Do not reference the object after this method
   // returns.
-  void ExecuteTest()
-  {
-    // Run the test
-    RunTest();
-
-    // Wait for the test to complete
-    completion_event_.Wait();
-
-    // Reset the event so the same test can be executed again.
-    completion_event_.Reset();
-  }
+  void ExecuteTest();
 
 protected:
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
-  void DestroyTest()
-  {
-    Lock();
-#if defined(OS_WIN)
-    if(browser_hwnd_ != NULL)
-      PostMessage(browser_hwnd_, WM_CLOSE, 0, 0);
-#endif
-    Unlock();
-  }
+  void DestroyTest();
 
-  void CreateBrowser(const CefString& url)
-  {
-    CefWindowInfo windowInfo;
-    CefBrowserSettings settings;
-#if defined(OS_WIN)
-    windowInfo.SetAsPopup(NULL, "CefUnitTest");
-    windowInfo.m_dwStyle |= WS_VISIBLE;
-#endif
-    CefBrowser::CreateBrowser(windowInfo, this, url, settings);
-  }
+  void CreateBrowser(const CefString& url);
 
   void AddResource(const CefString& key, const std::string& value,
-                   const CefString& mimeType)
-  {
-    resource_map_.insert(std::make_pair(key, std::make_pair(value, mimeType)));
-  }
-
-  void ClearResources()
-  {
-    resource_map_.clear();
-  }
+                   const CefString& mimeType);
+  void ClearResources();
 
 private:
   // The child browser window
@@ -188,19 +101,9 @@ private:
 };
 
 
-static void NotifyEvent(base::WaitableEvent* event)
-{
-  event->Signal();
-}
-
 // Post a task to the specified thread and wait for the task to execute as
 // indication that all previously pending tasks on that thread have completed.
-static void WaitForThread(CefThreadId thread_id)
-{
-  base::WaitableEvent event(true, false);
-  CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
-  event.Wait();
-}
+void WaitForThread(CefThreadId thread_id);
 
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
