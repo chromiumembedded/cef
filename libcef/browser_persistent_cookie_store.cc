@@ -226,11 +226,14 @@ bool InitTable(sql::Connection* db) {
   }
 
   // Try to create the index every time. Older versions did not have this index,
-  // so we want those people to get it. Ignore errors, since it may exist.
-  db->Execute("CREATE INDEX IF NOT EXISTS cookie_times ON cookies"
-              " (creation_utc)");
+  // so we want those people to get it.
+  if (!db->Execute("CREATE INDEX IF NOT EXISTS cookie_times ON cookies"
+                   " (creation_utc)")) {
+    return false;
+  }
 
-  db->Execute("CREATE INDEX IF NOT EXISTS domain ON cookies(host_key)");
+  if (!db->Execute("CREATE INDEX IF NOT EXISTS domain ON cookies(host_key)"))
+    return false;
 
   return true;
 }
@@ -497,24 +500,24 @@ bool BrowserPersistentCookieStore::Backend::EnsureDatabaseVersion() {
     sql::Transaction transaction(db_.get());
     transaction.Begin();
 #if !defined(OS_WIN)
-    db_->Execute(
+    ignore_result(db_->Execute(
         "UPDATE cookies "
         "SET creation_utc = creation_utc + 11644473600000000 "
         "WHERE rowid IN "
         "(SELECT rowid FROM cookies WHERE "
-          "creation_utc > 0 AND creation_utc < 11644473600000000)");
-    db_->Execute(
+          "creation_utc > 0 AND creation_utc < 11644473600000000)"));
+    ignore_result(db_->Execute(
         "UPDATE cookies "
         "SET expires_utc = expires_utc + 11644473600000000 "
         "WHERE rowid IN "
         "(SELECT rowid FROM cookies WHERE "
-          "expires_utc > 0 AND expires_utc < 11644473600000000)");
-    db_->Execute(
+          "expires_utc > 0 AND expires_utc < 11644473600000000)"));
+    ignore_result(db_->Execute(
         "UPDATE cookies "
         "SET last_access_utc = last_access_utc + 11644473600000000 "
         "WHERE rowid IN "
         "(SELECT rowid FROM cookies WHERE "
-          "last_access_utc > 0 AND last_access_utc < 11644473600000000)");
+          "last_access_utc > 0 AND last_access_utc < 11644473600000000)"));
 #endif
     ++cur_version;
     meta_table_.SetVersionNumber(cur_version);
