@@ -789,6 +789,9 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   UIT_GetWebViewHost()->webwidget()->close();
   webviewhost_.reset();
 
+  // Remove the reference to the window handle.
+  UIT_ClearMainWndHandle();
+
   // Remove the reference added in UIT_CreateBrowser().
   Release();
   
@@ -802,7 +805,9 @@ void CefBrowserImpl::UIT_CloseBrowser()
   if (IsWindowRenderingDisabled()) {
     UIT_DestroyBrowser();
   } else {
-    UIT_CloseView(UIT_GetMainWndHandle());
+    gfx::NativeView view = UIT_GetMainWndHandle();
+    if (view)
+      UIT_CloseView(view);
   }
 }
 
