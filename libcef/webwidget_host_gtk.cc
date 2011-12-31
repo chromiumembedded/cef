@@ -84,8 +84,6 @@ class WebWidgetHostGtkWidget {
                      G_CALLBACK(&HandleConfigure), host);
     g_signal_connect(widget, "expose-event",
                      G_CALLBACK(&HandleExpose), host);
-    g_signal_connect(widget, "destroy",
-                     G_CALLBACK(&HandleDestroy), host);
     g_signal_connect(widget, "key-press-event",
                      G_CALLBACK(&HandleKeyPress), host);
     g_signal_connect(widget, "key-release-event",
@@ -151,16 +149,6 @@ class WebWidgetHostGtkWidget {
     host->UpdatePaintRect(rect);
     host->Paint();
     g_handling_expose = false;
-    return FALSE;
-  }
-
-  // The GdkWindow was destroyed.
-  static gboolean HandleDestroy(GtkWidget* widget, void* unused) {
-    // The associated WebWidgetHost instance may have already been destroyed.
-    WebWidgetHost* host = static_cast<WebWidgetHost*>(
-        g_object_get_data(G_OBJECT(widget), kWebWidgetHostKey));
-    if (host)
-      host->WindowDestroyed();
     return FALSE;
   }
 
@@ -453,10 +441,6 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(true);
   webwidget_->paint(canvas_.get(), rect);
   set_painting(false);
-}
-
-void WebWidgetHost::WindowDestroyed() {
-  delete this;
 }
 
 void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,

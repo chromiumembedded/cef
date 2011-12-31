@@ -194,7 +194,6 @@ class WebWidgetHost {
   // ---------------------------------------------------------------------------
   static gfx::NativeView CreateWidget(gfx::NativeView parent_view,
                                       WebWidgetHost* host);
-  void WindowDestroyed();
   void Resize(const gfx::Size& size);
   virtual void KeyEvent(GdkEventKey* event);
 #endif
