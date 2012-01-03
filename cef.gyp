@@ -294,6 +294,7 @@
     {
       'target_name': 'cef_unittests',
       'type': 'executable',
+      'mac_bundle': 1,
       'msvs_guid': '8500027C-B11A-11DE-A16E-B80256D89593',
       'dependencies': [
         '../base/base.gyp:base',
@@ -306,6 +307,8 @@
         'libcef_dll_wrapper',
       ],
       'sources': [
+        'tests/cefclient/cefclient_switches.cpp',
+        'tests/cefclient/cefclient_switches.h',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/content_filter_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
@@ -327,9 +330,99 @@
         'tests/unittests/xml_reader_unittest.cc',
         'tests/unittests/zip_reader_unittest.cc',
       ],
+      'mac_bundle_resources': [
+        'tests/unittests/mac/unittests.icns',
+        'tests/unittests/mac/English.lproj/InfoPlist.strings',
+        'tests/unittests/mac/English.lproj/MainMenu.xib',
+        'tests/unittests/mac/Info.plist',
+      ],
+      'mac_bundle_resources!': [
+        # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
+        # that automatically sets the correct INFOPLIST_FILE setting and adds
+        # the file to a source group.
+        'tests/unittests/mac/Info.plist',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': 'tests/unittests/mac/Info.plist',
+      },
       'include_dirs': [
         '.',
         '..',
+      ],
+      'conditions': [
+        [ 'OS=="mac"', {
+          'product_name': 'cef_unittests',
+          'variables': {
+            'repack_path': '../tools/grit/grit/format/repack.py',
+          },
+          'run_as': {
+            'action': ['${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/${PRODUCT_NAME}'],
+          },
+          'actions': [
+            {
+              'action_name': 'repack_locales',
+              'process_outputs_as_mac_bundle_resources': 1,
+              'inputs': [
+                'tools/repack_locales.py',
+                # NOTE: Ideally the common command args would be shared
+                # amongst inputs/outputs/action, but the args include shell
+                # variables which need to be passed intact, and command
+                # expansion wants to expand the shell variables. Adding the
+                # explicit quoting here was the only way it seemed to work.
+                '>!@(<(repack_locales_cmd) -i -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'outputs': [
+                '>!@(<(repack_locales_cmd) -o -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
+              ],
+              'action': [
+                '<@(repack_locales_cmd)',
+                '-g', '<(grit_out_dir)',
+                '-s', '<(SHARED_INTERMEDIATE_DIR)',
+                '-x', '<(INTERMEDIATE_DIR)',
+                '<@(locales)',
+              ],
+            },
+            {
+              'action_name': 'repack_resources',
+              'process_outputs_as_mac_bundle_resources': 1,
+              'variables': {
+                'pak_inputs': [
+                  '<(grit_out_dir)/devtools_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+            },
+          ],
+          'copies': [
+            {
+              # Add library dependencies to the bundle.
+              'destination': '<(PRODUCT_DIR)/cef_unittests.app/Contents/MacOS/',
+              'files': [
+                '<(PRODUCT_DIR)/libcef.dylib',
+                '<(PRODUCT_DIR)/ffmpegsumo.so',
+              ],
+            },
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
+          'sources': [
+            'tests/unittests/run_all_unittests_mac.mm',
+          ],
+        }],
       ],
     },
     {

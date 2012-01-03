@@ -9,7 +9,9 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time)
   base::Time::Exploded exploded;
   exploded.year = cef_time.year;
   exploded.month = cef_time.month;
+#if !defined(OS_MACOSX)
   exploded.day_of_week = cef_time.day_of_week;
+#endif
   exploded.day_of_month = cef_time.day_of_month;
   exploded.hour = cef_time.hour;
   exploded.minute = cef_time.minute;
@@ -24,7 +26,9 @@ void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time)
   time.UTCExplode(&exploded);
   cef_time.year = exploded.year;
   cef_time.month = exploded.month;
+#if !defined(OS_MACOSX)
   cef_time.day_of_week = exploded.day_of_week;
+#endif
   cef_time.day_of_month = exploded.day_of_month;
   cef_time.hour = exploded.hour;
   cef_time.minute = exploded.minute;

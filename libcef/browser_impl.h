@@ -195,6 +195,7 @@ public:
     return popuphost_->view_handle();
   }
   gfx::NativeView UIT_GetMainWndHandle();
+  void UIT_ClearMainWndHandle();
 
   BrowserNavigationController* UIT_GetNavigationController() {
     REQUIRE_UIT();

@@ -57,11 +57,13 @@ public:
       ASSERT_EQ(date.year, 2010);
       ASSERT_EQ(date.month, 5);
       ASSERT_EQ(date.day_of_month, 3);
+#if !defined(OS_MACOSX)
       ASSERT_EQ(date.day_of_week, 1);
+#endif
       ASSERT_EQ(date.hour, 12);
       ASSERT_EQ(date.minute, 30);
       ASSERT_EQ(date.second, 10);
-      ASSERT_EQ(date.millisecond, 100);
+      ASSERT_NEAR(date.millisecond, 100, 1);
       argct++;
 
       ASSERT_TRUE(arguments[argct]->IsString());
@@ -188,12 +190,14 @@ public:
         CefTime date = value->GetDateValue();
         ASSERT_EQ(date.year, 2010);
         ASSERT_EQ(date.month, 5);
+#if !defined(OS_MACOSX)
         ASSERT_EQ(date.day_of_week, 1);
+#endif
         ASSERT_EQ(date.day_of_month, 3);
         ASSERT_EQ(date.hour, 12);
         ASSERT_EQ(date.minute, 30);
         ASSERT_EQ(date.second, 10);
-        ASSERT_EQ(date.millisecond, 100);
+        ASSERT_NEAR(date.millisecond, 100, 1);
 
         value = object->GetValue("arrayVal");
         ASSERT_TRUE(value.get() != NULL);
@@ -299,7 +303,7 @@ public:
                            CefRefPtr<CefV8Value> object)
   {
     // Create the new V8 object
-    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL);
+    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL, NULL);
     ASSERT_TRUE(testObj.get() != NULL);
     ASSERT_TRUE(object->SetValue("test", testObj, V8_PROPERTY_ATTRIBUTE_NONE));
 
@@ -328,7 +332,18 @@ public:
     ASSERT_TRUE(testObj->SetValue("stringVal",
         CefV8Value::CreateString("the string"), V8_PROPERTY_ATTRIBUTE_NONE));
 
-    cef_time_t date = {2010, 5, 1, 3, 12, 30, 10, 100};
+    cef_time_t date = {
+        2010,
+        5,
+#if !defined(OS_MACOSX)
+        1,
+#endif
+        3,
+        12,
+        30,
+        10,
+        100
+    };
     ASSERT_TRUE(testObj->SetValue("dateVal", CefV8Value::CreateDate(date),
         V8_PROPERTY_ATTRIBUTE_NONE));
 
@@ -828,7 +843,7 @@ public:
       CefRefPtr<CefV8Value> foobarFunc = 
         CefV8Value::CreateFunction("foobar", funcHandler);
 
-      obj = CefV8Value::CreateObject(NULL);
+      obj = CefV8Value::CreateObject(NULL, NULL);
       url = CefV8Value::CreateString("http://tests/end.html");
 
       obj->SetValue("url", url, V8_PROPERTY_ATTRIBUTE_NONE);

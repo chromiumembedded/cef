@@ -18,7 +18,8 @@ void NotifyEvent(base::WaitableEvent* event)
 // TestHandler
 
 TestHandler::TestHandler()
-  : browser_hwnd_(NULL), completion_event_(true, false)
+  : browser_hwnd_(NULL),
+    completion_event_(true, false)
 {
 }
 
@@ -88,12 +89,9 @@ void TestHandler::ExecuteTest()
 
 void TestHandler::DestroyTest()
 {
-  Lock();
-#if defined(OS_WIN)
+  AutoLock lock_scope(this);
   if(browser_hwnd_ != NULL)
-    PostMessage(browser_hwnd_, WM_CLOSE, 0, 0);
-#endif
-  Unlock();
+    browser_->CloseBrowser();
 }
 
 void TestHandler::CreateBrowser(const CefString& url)

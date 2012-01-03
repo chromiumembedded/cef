@@ -48,6 +48,11 @@ gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() {
   return window_info_.m_Widget;
 }
 
+void CefBrowserImpl::UIT_ClearMainWndHandle() {
+  REQUIRE_UIT();
+  window_info_.m_Widget = NULL;
+}
+
 bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();

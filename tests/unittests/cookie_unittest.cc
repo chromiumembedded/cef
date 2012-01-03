@@ -76,7 +76,9 @@ void CreateCookie(CefCookie& cookie, bool withDomain,
   cookie.has_expires = true;
   cookie.expires.year = 2200;
   cookie.expires.month = 4;
+#if !defined(OS_MACOSX)
   cookie.expires.day_of_week = 5;
+#endif
   cookie.expires.day_of_month = 11;
 
   CookieVector cookies;
@@ -114,7 +116,9 @@ void GetCookie(const CefCookie& cookie, bool withDomain,
   EXPECT_TRUE(cookie_read.has_expires);
   EXPECT_EQ(cookie.expires.year, cookie_read.expires.year);
   EXPECT_EQ(cookie.expires.month, cookie_read.expires.month);
+#if !defined(OS_MACOSX)
   EXPECT_EQ(cookie.expires.day_of_week, cookie_read.expires.day_of_week);
+#endif
   EXPECT_EQ(cookie.expires.day_of_month, cookie_read.expires.day_of_month);
   EXPECT_EQ(cookie.expires.hour, cookie_read.expires.hour);
   EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);

@@ -163,6 +163,12 @@ gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() {
       window_info_.m_hWndParent : window_info_.m_hWnd;
 }
 
+void CefBrowserImpl::UIT_ClearMainWndHandle() {
+  REQUIRE_UIT();
+  if (!window_info_.m_bWindowRenderingDisabled)
+    window_info_.m_hWnd = NULL;
+}
+
 bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 {
   REQUIRE_UIT();
