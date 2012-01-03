@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/test/test_suite.h"
+#include <stdlib.h>
 
 #if defined(OS_MACOSX)
 #include "base/file_path.h"
