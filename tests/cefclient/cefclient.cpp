@@ -218,7 +218,7 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
 
   // Retrieve command-line proxy configuration, if any.
   bool has_proxy = false;
-  cef_proxy_type_t proxy_type;
+  cef_proxy_type_t proxy_type = PROXY_TYPE_DIRECT;
   CefString proxy_config;
 
   if (g_command_line->HasSwitch(cefclient::kProxyType)) {

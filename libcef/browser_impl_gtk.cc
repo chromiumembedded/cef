@@ -18,6 +18,14 @@
 using WebKit::WebRect;
 using WebKit::WebSize;
 
+namespace {
+
+void window_destroyed(GtkWidget* widget, CefBrowserImpl* browser) {
+  browser->UIT_DestroyBrowser();
+}
+
+} // namespace
+
 void CefBrowserImpl::ParentWindowWillClose()
 {
   // TODO(port): Implement this method if necessary.
@@ -84,6 +92,8 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
 
   window_info_.m_Widget = webviewhost_->view_handle();
+  g_signal_connect(G_OBJECT(window_info_.m_Widget), "destroy",
+                   G_CALLBACK(window_destroyed), this);
 
   Unlock();
 
@@ -176,11 +186,8 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 // static
 void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
 {
-  GtkWidget* window =
-      gtk_widget_get_parent(gtk_widget_get_parent(GTK_WIDGET(view)));
-  
-  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableFunction(
-      &gtk_widget_destroy, GTK_WIDGET(window)));
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+  gtk_widget_destroy(window);
 }
 
 // static

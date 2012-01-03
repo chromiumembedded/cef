@@ -786,8 +786,11 @@ void CefBrowserImpl::UIT_DestroyBrowser()
   }
 
   // Clean up anything associated with the WebViewHost widget.
-  UIT_GetWebViewHost()->webwidget()->close();
-  webviewhost_.reset();
+  if (webviewhost_.get()) {
+    if (webviewhost_->webwidget())
+      webviewhost_->webwidget()->close();
+    webviewhost_.reset();
+  }
 
   // Remove the reference added in UIT_CreateBrowser().
   Release();

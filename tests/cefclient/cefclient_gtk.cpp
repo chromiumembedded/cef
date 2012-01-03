@@ -20,8 +20,7 @@ char szWorkingDir[512]; // The current working directory
 extern CefRefPtr<ClientHandler> g_handler;
 
 void destroy(void) {
-  CefShutdown();
-  exit(0);
+  CefQuitMessageLoop();
 }
 
 void TerminationSignalHandler(int signatl) {
@@ -420,6 +419,8 @@ int main(int argc, char *argv[]) {
   signal(SIGTERM, TerminationSignalHandler);
 
   CefRunMessageLoop();
+
+  CefShutdown();
 
   return 0;
 }

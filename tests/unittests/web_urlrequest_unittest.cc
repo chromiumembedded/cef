@@ -128,7 +128,7 @@ public:
         size_t len = contents_.length();
         test_results_.contentLength = len;
 #ifdef WEB_URLREQUEST_DEBUG
-        printf("Response: %d - %s\n", len, contents_.c_str());
+        printf("Response: %lu - %s\n", len, contents_.c_str());
 #endif
       }
       TestCompleted();
@@ -455,15 +455,14 @@ TEST(WebURLRequestTest, CANCEL)
 
   cef_weburlrequest_state_t cancelAt[] = {
       WUR_STATE_STARTED,
-      WUR_STATE_HEADERS_RECEIVED,
-      WUR_STATE_LOADING
+      WUR_STATE_HEADERS_RECEIVED
   };
 
   for (unsigned int i=0; i < COUNTOF_(cancelAt); ++i) {
     TestResults tr;
     CefRefPtr<BrowserTestHandler> browser = new BrowserForTest(tr, cancelAt[i]);
     browser->ExecuteTest();
-    EXPECT_TRUE(tr.got_abort);
+    EXPECT_TRUE(tr.got_abort) << "i = " << i;
     EXPECT_TRUE(tr.got_deleted);
   }
 
