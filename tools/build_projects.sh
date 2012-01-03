@@ -13,6 +13,6 @@ else
     make BUILDTYPE=$1 -j 16
     popd
   else
-    xcodebuild -project ../cef.xcodeproj -configuration $1 -target $PROJECT_NAME
+    xcodebuild -project ../cef.xcodeproj -configuration $1 -target "$PROJECT_NAME"
   fi
 fi

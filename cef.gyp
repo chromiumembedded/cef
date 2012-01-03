@@ -356,6 +356,9 @@
           'variables': {
             'repack_path': '../tools/grit/grit/format/repack.py',
           },
+          'run_as': {
+            'action': ['${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/${PRODUCT_NAME}'],
+          },
           'actions': [
             {
               'action_name': 'repack_locales',
