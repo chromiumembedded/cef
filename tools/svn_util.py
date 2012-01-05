@@ -3,13 +3,14 @@
 # can be found in the LICENSE file.
 
 import os
+import sys
 import urllib
 
 def check_url(url):
   """ Check the URL and raise an exception if invalid. """
   if ':' in url[:7]:
     parts = url.split(':', 1)
-    if (parts[0] == 'http' or parts[0] == 'https') and \
+    if (parts[0] == 'http' or parts[0] == 'https' or parts[0] == 'svn') and \
         parts[1] == urllib.quote(parts[1]):
       return url
   sys.stderr.write('Invalid URL: '+url+"\n")
