@@ -5,7 +5,8 @@
 from date_util import *
 from file_util import *
 from optparse import OptionParser
-from svn_util import *
+import svn_util as svn
+import git_util as git
 import sys
 
 # cannot be loaded as a module
@@ -56,6 +57,11 @@ def write_svn_header(header, version):
 
     year = get_year()
 
+    try:
+        revision = svn.get_revision()
+    except:
+        revision = git.get_svn_revision()
+
     newcontents = '// Copyright (c) '+year+' Marshall A. Greenblatt. All rights reserved.\n'+\
                   '//\n'+\
                   '// Redistribution and use in source and binary forms, with or without\n'+\
@@ -91,7 +97,7 @@ def write_svn_header(header, version):
                   '//\n\n'+\
                   '#ifndef _CEF_VERSION_H\n'+\
                   '#define _CEF_VERSION_H\n\n'+\
-                  '#define CEF_REVISION ' + get_revision() + '\n'+\
+                  '#define CEF_REVISION ' + revision + '\n'+\
                   '#define COPYRIGHT_YEAR ' + year + '\n\n'+\
                   '#define CHROME_VERSION_MAJOR ' + chrome['MAJOR'] + '\n'+\
                   '#define CHROME_VERSION_MINOR ' + chrome['MINOR'] + '\n'+\
