@@ -38,11 +38,17 @@
 #else // !BUILDING_CEF_SHARED
 
 #if defined(_WIN32)
+#ifndef OS_WIN
 #define OS_WIN 1
+#endif
 #elif defined(__APPLE__)
+#ifndef OS_MACOSX
 #define OS_MACOSX 1
+#endif
 #elif defined(__linux__)
+#ifndef OS_LINUX
 #define OS_LINUX 1
+#endif
 #else
 #error Please add support for your platform in cef_build.h
 #endif
@@ -50,14 +56,20 @@
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
 #if defined(OS_MACOSX) || defined(OS_LINUX)
+#ifndef OS_POSIX
 #define OS_POSIX 1
+#endif
 #endif
 
 // Compiler detection.
 #if defined(__GNUC__)
+#ifndef COMPILER_GCC
 #define COMPILER_GCC 1
+#endif
 #elif defined(_MSC_VER)
+#ifndef COMPILER_MSVC
 #define COMPILER_MSVC 1
+#endif
 #else
 #error Please add support for your compiler in cef_build.h
 #endif
@@ -66,6 +78,7 @@
 // method in the parent class.
 // Use like:
 //   virtual void foo() OVERRIDE;
+#ifndef OVERRIDE
 #if defined(COMPILER_MSVC)
 #define OVERRIDE override
 #elif defined(__clang__)
@@ -73,7 +86,9 @@
 #else
 #define OVERRIDE
 #endif
+#endif
 
+#ifndef ALLOW_THIS_IN_INITIALIZER_LIST
 #if defined(COMPILER_MSVC)
 
 // MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
@@ -106,6 +121,7 @@
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 
 #endif // !COMPILER_MSVC
+#endif
 
 #endif // !BUILDING_CEF_SHARED
 
