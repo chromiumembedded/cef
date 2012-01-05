@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "request_impl.h"
-#include "browser_webkit_glue.h"
 
 #include "base/logging.h"
 #include "net/url_request/url_request.h"
