@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -60,6 +60,7 @@
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
@@ -132,6 +133,7 @@ CEF_EXPORT void cef_shutdown()
   DCHECK(CefLifeSpanHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefLoadHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefMenuHandlerCToCpp::DebugObjCt == 0);
+  DCHECK(CefPermissionHandlerCToCpp::DebugObjCt == 0);
   DCHECK(CefPostDataCppToC::DebugObjCt == 0);
   DCHECK(CefPostDataElementCppToC::DebugObjCt == 0);
   DCHECK(CefPrintHandlerCToCpp::DebugObjCt == 0);

@@ -46,6 +46,7 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
   host->webwidget_ = WebView::create(delegate);
 #endif
   host->webview()->setDevToolsAgentClient(dev_tools_client);
+  host->webview()->setPermissionClient(delegate);
   prefs.Apply(host->webview());
   host->webview()->initializeMainFrame(delegate);
   host->webwidget_->resize(WebSize(content_rect.size.width,

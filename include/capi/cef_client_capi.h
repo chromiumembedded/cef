@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -94,6 +94,12 @@ typedef struct _cef_client_t
   // Return the handler for context menu events.
   ///
   struct _cef_menu_handler_t* (CEF_CALLBACK *get_menu_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for browser permission events.
+  ///
+  struct _cef_permission_handler_t* (CEF_CALLBACK *get_permission_handler)(
       struct _cef_client_t* self);
 
   ///

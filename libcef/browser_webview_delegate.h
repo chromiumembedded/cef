@@ -21,6 +21,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileChooserParams.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrameClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPermissionClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
@@ -48,6 +49,7 @@ class FilePath;
 
 class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
+    public WebKit::WebPermissionClient,
     public webkit::npapi::WebPluginPageDelegate,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
@@ -194,6 +196,12 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       long long size,
       bool create,
       WebKit::WebFileSystemCallbacks* callbacks) OVERRIDE;
+
+  // WebKit::WebPermissionClient
+  virtual bool allowScriptExtension(
+      WebKit::WebFrame*,
+      const WebKit::WebString& extensionName,
+      int extensionGroup) OVERRIDE;
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(

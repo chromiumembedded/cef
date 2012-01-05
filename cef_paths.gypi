@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 #
@@ -32,6 +32,7 @@
       'include/cef_load_handler.h',
       'include/cef_menu_handler.h',
       'include/cef_origin_whitelist.h',
+      'include/cef_permission_handler.h',
       'include/cef_print_handler.h',
       'include/cef_proxy_handler.h',
       'include/cef_render_handler.h',
@@ -70,6 +71,7 @@
       'include/capi/cef_load_handler_capi.h',
       'include/capi/cef_menu_handler_capi.h',
       'include/capi/cef_origin_whitelist_capi.h',
+      'include/capi/cef_permission_handler_capi.h',
       'include/capi/cef_print_handler_capi.h',
       'include/capi/cef_proxy_handler_capi.h',
       'include/capi/cef_render_handler_capi.h',
@@ -134,6 +136,8 @@
       'libcef_dll/ctocpp/load_handler_ctocpp.h',
       'libcef_dll/ctocpp/menu_handler_ctocpp.cc',
       'libcef_dll/ctocpp/menu_handler_ctocpp.h',
+      'libcef_dll/ctocpp/permission_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/permission_handler_ctocpp.h',
       'libcef_dll/cpptoc/post_data_cpptoc.cc',
       'libcef_dll/cpptoc/post_data_cpptoc.h',
       'libcef_dll/cpptoc/post_data_element_cpptoc.cc',
@@ -236,6 +240,8 @@
       'libcef_dll/cpptoc/load_handler_cpptoc.h',
       'libcef_dll/cpptoc/menu_handler_cpptoc.cc',
       'libcef_dll/cpptoc/menu_handler_cpptoc.h',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.h',
       'libcef_dll/ctocpp/post_data_ctocpp.cc',
       'libcef_dll/ctocpp/post_data_ctocpp.h',
       'libcef_dll/ctocpp/post_data_element_ctocpp.cc',

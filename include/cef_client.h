@@ -47,6 +47,7 @@
 #include "cef_life_span_handler.h"
 #include "cef_load_handler.h"
 #include "cef_menu_handler.h"
+#include "cef_permission_handler.h"
 #include "cef_print_handler.h"
 #include "cef_render_handler.h"
 #include "cef_request_handler.h"
@@ -63,79 +64,127 @@ public:
   // Return the handler for browser life span events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() { return NULL; }
+  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for browser load status events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() { return NULL; }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for browser request events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() { return NULL; }
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for browser display state events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() { return NULL; }
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for focus events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() { return NULL; }
+  virtual CefRefPtr<CefFocusHandler> GetFocusHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for keyboard events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() { return NULL; }
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for context menu events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefMenuHandler> GetMenuHandler() { return NULL; }
+  virtual CefRefPtr<CefMenuHandler> GetMenuHandler()
+  {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for browser permission events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for printing events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() { return NULL; }
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for find result events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefFindHandler> GetFindHandler() { return NULL; }
+  virtual CefRefPtr<CefFindHandler> GetFindHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for JavaScript dialog events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() { return NULL; }
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for V8 context events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() { return NULL; }
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for off-screen rendering events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefRenderHandler> GetRenderHandler() { return NULL; }
+  virtual CefRefPtr<CefRenderHandler> GetRenderHandler()
+  {
+    return NULL;
+  }
 
   ///
   // Return the handler for drag events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefDragHandler> GetDragHandler() { return NULL; }
+  virtual CefRefPtr<CefDragHandler> GetDragHandler()
+  {
+    return NULL;
+  }
 };
 
 #endif // _CEF_CLIENT_H

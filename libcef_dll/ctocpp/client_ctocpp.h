@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -39,6 +39,7 @@ public:
   virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE;
   virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE;
   virtual CefRefPtr<CefMenuHandler> GetMenuHandler() OVERRIDE;
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE;
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE;
   virtual CefRefPtr<CefFindHandler> GetFindHandler() OVERRIDE;
   virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
