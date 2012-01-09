@@ -3,12 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webkit_init.h"
-#include "browser_resource_loader_bridge.h"
-#include "browser_socket_stream_bridge.h"
-#include "browser_webkit_glue.h"
-#include "browser_webstoragenamespace_impl.h"
-#include "cef_context.h"
+#include "libcef/browser_webkit_init.h"
+#include "libcef/browser_resource_loader_bridge.h"
+#include "libcef/browser_socket_stream_bridge.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/browser_webstoragenamespace_impl.h"
+#include "libcef/cef_context.h"
 
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
@@ -39,7 +39,7 @@ BrowserWebKitInit::BrowserWebKitInit()
   WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
   WebKit::WebRuntimeFeatures::enableFileSystem(true);
 
-  // TODO: Enable these once the implementation supports it.
+  // TODO(cef): Enable these once the implementation supports it.
   WebKit::WebRuntimeFeatures::enableNotifications(false);
   WebKit::WebRuntimeFeatures::enableGeolocation(false);
   WebKit::WebRuntimeFeatures::enableSpeechInput(false);
@@ -123,29 +123,31 @@ int BrowserWebKitInit::databaseDeleteFile(
       vfs_file_name, sync_dir);
 }
 
-long BrowserWebKitInit::databaseGetFileAttributes(
+long BrowserWebKitInit::databaseGetFileAttributes(  // NOLINT(runtime/int)
     const WebKit::WebString& vfs_file_name) {
   return BrowserDatabaseSystem::GetInstance()->GetFileAttributes(
       vfs_file_name);
 }
 
-long long BrowserWebKitInit::databaseGetFileSize(
+long long BrowserWebKitInit::databaseGetFileSize(  // NOLINT(runtime/int)
     const WebKit::WebString& vfs_file_name) {
   return BrowserDatabaseSystem::GetInstance()->GetFileSize(vfs_file_name);
 }
 
-long long BrowserWebKitInit::databaseGetSpaceAvailableForOrigin(
+long long  // NOLINT(runtime/int)
+BrowserWebKitInit::databaseGetSpaceAvailableForOrigin(
     const WebKit::WebString& origin_identifier) {
   return BrowserDatabaseSystem::GetInstance()->GetSpaceAvailable(
       origin_identifier);
 }
 
-unsigned long long BrowserWebKitInit::visitedLinkHash(
+unsigned long long BrowserWebKitInit::visitedLinkHash(  // NOLINT(runtime/int)
     const char* canonicalURL, size_t length) {
   return 0;
 }
 
-bool BrowserWebKitInit::isLinkVisited(unsigned long long linkHash) {
+bool BrowserWebKitInit::isLinkVisited(
+    unsigned long long linkHash) {  // NOLINT(runtime/int)
   return false;
 }
 
@@ -180,7 +182,7 @@ void BrowserWebKitInit::traceEventBegin(const char* name, void* id,
                                         const char* extra) {
 }
 
-void BrowserWebKitInit::traceEventEnd(const char* name, void* id, 
+void BrowserWebKitInit::traceEventEnd(const char* name, void* id,
                                       const char* extra) {
 }
 

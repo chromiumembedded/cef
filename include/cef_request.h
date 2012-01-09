@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_REQUEST_H
-#define _CEF_REQUEST_H
+#ifndef CEF_INCLUDE_CEF_REQUEST_H_
+#define CEF_INCLUDE_CEF_REQUEST_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <map>
 #include <vector>
 
@@ -49,10 +50,9 @@ class CefPostDataElement;
 // called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefRequest : public virtual CefBase
-{
-public:
-  typedef std::multimap<CefString,CefString> HeaderMap;
+class CefRequest : public virtual CefBase {
+ public:
+  typedef std::multimap<CefString, CefString> HeaderMap;
   typedef cef_weburlrequest_flags_t RequestFlags;
 
   ///
@@ -146,9 +146,8 @@ public:
 // class may be called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefPostData : public virtual CefBase
-{
-public:
+class CefPostData : public virtual CefBase {
+ public:
   typedef std::vector<CefRefPtr<CefPostDataElement> > ElementVector;
 
   ///
@@ -195,9 +194,8 @@ public:
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefPostDataElement : public virtual CefBase
-{
-public:
+class CefPostDataElement : public virtual CefBase {
+ public:
   ///
   // Post data elements may represent either bytes or files.
   ///
@@ -254,4 +252,4 @@ public:
   virtual size_t GetBytes(size_t size, void* bytes) =0;
 };
 
-#endif // _CEF_REQUEST_H
+#endif  // CEF_INCLUDE_CEF_REQUEST_H_

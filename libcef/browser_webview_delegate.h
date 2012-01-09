@@ -3,17 +3,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// BrowserWebViewDelegate class: 
+// BrowserWebViewDelegate class:
 // This class implements the WebViewDelegate methods for the test shell.  One
 // instance is owned by each CefBrowser.
 
-#ifndef _BROWSER_WEBVIEW_DELEGATE_H
-#define _BROWSER_WEBVIEW_DELEGATE_H
-
+#ifndef CEF_LIBCEF_BROWSER_WEBVIEW_DELEGATE_H_
+#define CEF_LIBCEF_BROWSER_WEBVIEW_DELEGATE_H_
+#pragma once
 
 #include <map>
+#include <string>
+#include <vector>
+
+#include "libcef/browser_navigation_controller.h"
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
@@ -26,20 +31,19 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/plugins/npapi/webplugin_page_delegate.h"
-#include "browser_navigation_controller.h"
+
+#if defined(TOOLKIT_USES_GTK)
+#include <gdk/gdk.h>  // NOLINT(build/include_order)
+#endif
 
 #if defined(OS_MACOSX)
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
-#include "external_popup_menu_mac.h"
+#include "libcef/external_popup_menu_mac.h"
 #endif
 
 #if defined(OS_WIN)
 class BrowserDragDelegate;
 class WebDropTarget;
-#endif
-
-#if defined(TOOLKIT_USES_GTK)
-#include <gdk/gdk.h>
 #endif
 
 class CefBrowserImpl;
@@ -193,7 +197,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void openFileSystem(
       WebKit::WebFrame* frame,
       WebKit::WebFileSystem::Type type,
-      long long size,
+      long long size,  // NOLINT(runtime/int)
       bool create,
       WebKit::WebFileSystemCallbacks* callbacks) OVERRIDE;
 
@@ -287,9 +291,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                             CefString* result);
 
   // Called to show the file chooser dialog.
-  bool ShowFileChooser(std::vector<FilePath>& file_names, 
-                       const bool multi_select, 
-                       const WebKit::WebString& title, 
+  bool ShowFileChooser(std::vector<FilePath>& file_names,
+                       const bool multi_select,
+                       const WebKit::WebString& title,
                        const FilePath& default_file);
 
   // Called to show status messages.
@@ -314,7 +318,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                     int& type_flags);
 
  private:
-  // Causes navigation actions just printout the intended navigation instead 
+  // Causes navigation actions just printout the intended navigation instead
   // of taking you to the page. This is used for cases like mailto, where you
   // don't actually want to open the mail program.
   bool policy_delegate_enabled_;
@@ -370,4 +374,4 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   DISALLOW_COPY_AND_ASSIGN(BrowserWebViewDelegate);
 };
 
-#endif // _BROWSER_WEBVIEW_DELEGATE_H
+#endif  // CEF_LIBCEF_BROWSER_WEBVIEW_DELEGATE_H_

@@ -3,9 +3,9 @@
 // be found in the LICENSE file.
 
 #include "include/cef_cookie.h"
-#include "cef_context.h"
-#include "cef_thread.h"
-#include "cef_time_util.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
+#include "libcef/cef_time_util.h"
 
 #include "net/base/cookie_monster.h"
 
@@ -13,14 +13,12 @@ namespace {
 
 // Callback class for visiting cookies.
 class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
-public:
-  VisitCookiesCallback(CefRefPtr<CefCookieVisitor> visitor)
-    : visitor_(visitor)
-  {
+ public:
+  explicit VisitCookiesCallback(CefRefPtr<CefCookieVisitor> visitor)
+    : visitor_(visitor) {
   }
 
-  void Run(const net::CookieList& list)
-  {
+  void Run(const net::CookieList& list) {
     REQUIRE_IOT();
 
     net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
@@ -29,12 +27,12 @@ public:
       return;
 
     int total = list.size(), count = 0;
-  
+
     net::CookieList::const_iterator it = list.begin();
     for (; it != list.end(); ++it, ++count) {
       CefCookie cookie;
       const net::CookieMonster::CanonicalCookie& cc = *(it);
-    
+
       CefString(&cookie.name).FromString(cc.Name());
       CefString(&cookie.value).FromString(cc.Value());
       CefString(&cookie.domain).FromString(cc.Domain());
@@ -58,12 +56,11 @@ public:
     }
   }
 
-private:
+ private:
   CefRefPtr<CefCookieVisitor> visitor_;
 };
 
-void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
-{
+void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
   REQUIRE_IOT();
 
   net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
@@ -79,8 +76,7 @@ void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
 }
 
 void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
-                         CefRefPtr<CefCookieVisitor> visitor)
-{
+                         CefRefPtr<CefCookieVisitor> visitor) {
   REQUIRE_IOT();
 
   net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
@@ -91,7 +87,7 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
   net::CookieOptions options;
   if (includeHttpOnly)
     options.set_include_httponly();
-  
+
   scoped_refptr<VisitCookiesCallback> callback(
       new VisitCookiesCallback(visitor));
 
@@ -99,8 +95,7 @@ void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
       base::Bind(&VisitCookiesCallback::Run, callback.get()));
 }
 
-void IOT_SetCookiePath(const CefString& path)
-{
+void IOT_SetCookiePath(const CefString& path) {
   REQUIRE_IOT();
 
   FilePath cookie_path;
@@ -110,10 +105,9 @@ void IOT_SetCookiePath(const CefString& path)
   _Context->request_context()->SetCookieStoragePath(cookie_path);
 }
 
-} // anonymous
+}  // namespace
 
-bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
-{
+bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -125,8 +119,7 @@ bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor)
 }
 
 bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
-                        CefRefPtr<CefCookieVisitor> visitor)
-{
+                        CefRefPtr<CefCookieVisitor> visitor) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -142,8 +135,7 @@ bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
       NewRunnableFunction(IOT_VisitUrlCookies, gurl, includeHttpOnly, visitor));
 }
 
-bool CefSetCookie(const CefString& url, const CefCookie& cookie)
-{
+bool CefSetCookie(const CefString& url, const CefCookie& cookie) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -170,7 +162,7 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
   std::string value = CefString(&cookie.value).ToString();
   std::string domain = CefString(&cookie.domain).ToString();
   std::string path = CefString(&cookie.path).ToString();
-  
+
   base::Time expiration_time;
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
@@ -181,8 +173,7 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie)
   return true;
 }
 
-bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
-{
+bool CefDeleteCookies(const CefString& url, const CefString& cookie_name) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -222,8 +213,7 @@ bool CefDeleteCookies(const CefString& url, const CefString& cookie_name)
   return true;
 }
 
-bool CefSetCookiePath(const CefString& path)
-{
+bool CefSetCookiePath(const CefString& path) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";

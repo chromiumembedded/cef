@@ -35,29 +35,29 @@
 //
 
 
-#ifndef _CEF_BASE_H
-#define _CEF_BASE_H
+#ifndef CEF_INCLUDE_CEF_BASE_H_
+#define CEF_INCLUDE_CEF_BASE_H_
+#pragma once
 
-#include "internal/cef_build.h"
-#include "internal/cef_ptr.h"
-#include "internal/cef_types_wrappers.h"
+#include "include/internal/cef_build.h"
+#include "include/internal/cef_ptr.h"
+#include "include/internal/cef_types_wrappers.h"
 
 // Bring in platform-specific definitions.
 #if defined(OS_WIN)
-#include "internal/cef_win.h"
+#include "include/internal/cef_win.h"
 #elif defined(OS_MACOSX)
-#include "internal/cef_mac.h"
+#include "include/internal/cef_mac.h"
 #elif defined(OS_LINUX)
-#include "internal/cef_linux.h"
+#include "include/internal/cef_linux.h"
 #endif
 
 ///
 // Interface defining the reference count implementation methods. All framework
 // classes must extend the CefBase class.
 ///
-class CefBase
-{
-public:
+class CefBase {
+ public:
   ///
   // The AddRef method increments the reference count for the object. It should
   // be called for every new copy of a pointer to a given object. The resulting
@@ -79,7 +79,7 @@ public:
   ///
   virtual int GetRefCt() =0;
 
-protected:
+ protected:
   virtual ~CefBase() {}
 };
 
@@ -87,11 +87,10 @@ protected:
 ///
 // Class that implements atomic reference counting.
 ///
-class CefRefCount
-{
-public:
+class CefRefCount {
+ public:
   CefRefCount() : refct_(0) {}
-  
+
   ///
   // Atomic reference increment.
   ///
@@ -111,8 +110,8 @@ public:
   ///
   int GetRefCt() { return refct_; }
 
-private:
-  long refct_;
+ private:
+  long refct_;  // NOLINT(runtime/int)
 };
 
 ///
@@ -124,7 +123,7 @@ private:
     int AddRef() { return refct_.AddRef(); }        \
     int Release() {                                 \
       int retval = refct_.Release();                \
-      if(retval == 0)                               \
+      if (retval == 0)                              \
         delete this;                                \
       return retval;                                \
     }                                               \
@@ -138,18 +137,18 @@ private:
 // threads. The AutoLock class is a helper that will hold the lock while in
 // scope.
 ///
-#define IMPLEMENT_LOCKING(ClassName)                              \
-  public:                                                         \
-    class AutoLock {                                              \
-    public:                                                       \
-      AutoLock(ClassName* base) : base_(base) { base_->Lock(); }  \
-      ~AutoLock() { base_->Unlock(); }                            \
-    private:                                                      \
-      ClassName* base_;                                           \
-    };                                                            \
-    void Lock() { critsec_.Lock(); }                              \
-    void Unlock() { critsec_.Unlock(); }                          \
-  private:                                                        \
+#define IMPLEMENT_LOCKING(ClassName)                                       \
+  public:                                                                  \
+    class AutoLock {                                                       \
+     public:                                                               \
+      explicit AutoLock(ClassName* base) : base_(base) { base_->Lock(); }  \
+      ~AutoLock() { base_->Unlock(); }                                     \
+     private:                                                              \
+      ClassName* base_;                                                    \
+    };                                                                     \
+    void Lock() { critsec_.Lock(); }                                       \
+    void Unlock() { critsec_.Unlock(); }                                   \
+  private:                                                                 \
     CefCriticalSection critsec_;
 
-#endif // _CEF_BASE_H
+#endif  // CEF_INCLUDE_CEF_BASE_H_

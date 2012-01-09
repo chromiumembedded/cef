@@ -2,18 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "uiplugin_test.h"
+#include "cefclient/uiplugin_test.h"
+#include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_v8.h"
-#include "uiplugin.h"
-#include "cefclient.h"
+#include "cefclient/uiplugin.h"
+#include "cefclient/cefclient.h"
 
 
 // Implementation of the V8 handler class for the "window.uiapp" functions.
-class ClientV8UIHandler : public CefV8Handler
-{
-public:
+class ClientV8UIHandler : public CefV8Handler {
+ public:
   ClientV8UIHandler() {}
 
   // Execute with the specified argument list and return value.  Return true if
@@ -22,32 +22,31 @@ public:
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception)
-  {
-    if(name == "modifyRotation") {
+                       CefString& exception) {
+    if (name == "modifyRotation") {
       // This function requires one argument.
-      if(arguments.size() != 1)
+      if (arguments.size() != 1)
         return false;
 
       float increment = 0.;
-      if(arguments[0]->IsInt()) {
+      if (arguments[0]->IsInt()) {
         // The argument is an integer value.
         increment = static_cast<float>(arguments[0]->GetIntValue());
-      } else if(arguments[0]->IsDouble()) {
+      } else if (arguments[0]->IsDouble()) {
         // The argument is an double value.
         increment = static_cast<float>(arguments[0]->GetDoubleValue());
       }
 
-      if(increment != 0.) {
+      if (increment != 0.) {
         // Modify the rotation accordingly.
         ModifyRotation(increment);
         return true;
       }
-    } else if(name == "resetRotation") {
+    } else if (name == "resetRotation") {
       // Reset the rotation value.
       ResetRotation();
       return true;
-    } else if(name == "viewSource") {
+    } else if (name == "viewSource") {
       // View the page source.
       AppGetBrowser()->GetMainFrame()->ViewSource();
       return true;
@@ -59,8 +58,7 @@ public:
   IMPLEMENT_REFCOUNTING(ClientV8UIHandler);
 };
 
-void InitUIPluginTest()
-{
+void InitUIPluginTest() {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
   CefString(&plugin_info.display_name).FromASCII("Client UI Plugin");
@@ -100,7 +98,6 @@ void InitUIPluginTest()
   CefRegisterExtension("uiplugin/test", code, new ClientV8UIHandler());
 }
 
-void RunUIPluginTest(CefRefPtr<CefBrowser> browser)
-{
+void RunUIPluginTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/uiapp");
 }

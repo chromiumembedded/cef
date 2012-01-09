@@ -8,8 +8,9 @@
 // will return NULL if the service is not available, so callers must check for
 // this condition.
 
-#ifndef _CEF_PROCESS_H
-#define _CEF_PROCESS_H
+#ifndef CEF_LIBCEF_CEF_PROCESS_H_
+#define CEF_LIBCEF_CEF_PROCESS_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,7 +35,7 @@ class CefMessageLoopForUI;
 // These functions shouldn't return NULL unless otherwise noted.
 class CefProcess : public base::NonThreadSafe {
  public:
-  CefProcess(bool multi_threaded_message_loop);
+  explicit CefProcess(bool multi_threaded_message_loop);
   virtual ~CefProcess();
 
   // Creates key child threads. We need to do this explicitly since
@@ -118,4 +119,4 @@ class CefProcess : public base::NonThreadSafe {
   DISALLOW_COPY_AND_ASSIGN(CefProcess);
 };
 
-#endif  // _CEF_PROCESS_H
+#endif  // CEF_LIBCEF_CEF_PROCESS_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK domevent_get_type(
-    struct _cef_domevent_t* self)
-{
+    struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,8 +33,7 @@ cef_string_userfree_t CEF_CALLBACK domevent_get_type(
 }
 
 enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
-    struct _cef_domevent_t* self)
-{
+    struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,8 +49,7 @@ enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
 }
 
 enum cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
-    struct _cef_domevent_t* self)
-{
+    struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -66,8 +63,7 @@ enum cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
   return _retval;
 }
 
-int CEF_CALLBACK domevent_can_bubble(struct _cef_domevent_t* self)
-{
+int CEF_CALLBACK domevent_can_bubble(struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,8 +77,7 @@ int CEF_CALLBACK domevent_can_bubble(struct _cef_domevent_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK domevent_can_cancel(struct _cef_domevent_t* self)
-{
+int CEF_CALLBACK domevent_can_cancel(struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -97,8 +92,7 @@ int CEF_CALLBACK domevent_can_cancel(struct _cef_domevent_t* self)
 }
 
 cef_domdocument_t* CEF_CALLBACK domevent_get_document(
-    struct _cef_domevent_t* self)
-{
+    struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -113,8 +107,7 @@ cef_domdocument_t* CEF_CALLBACK domevent_get_document(
   return CefDOMDocumentCppToC::Wrap(_retval);
 }
 
-cef_domnode_t* CEF_CALLBACK domevent_get_target(struct _cef_domevent_t* self)
-{
+cef_domnode_t* CEF_CALLBACK domevent_get_target(struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -129,8 +122,7 @@ cef_domnode_t* CEF_CALLBACK domevent_get_target(struct _cef_domevent_t* self)
 }
 
 cef_domnode_t* CEF_CALLBACK domevent_get_current_target(
-    struct _cef_domevent_t* self)
-{
+    struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,8 +141,7 @@ cef_domnode_t* CEF_CALLBACK domevent_get_current_target(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMEventCppToC::CefDOMEventCppToC(CefDOMEvent* cls)
-    : CefCppToC<CefDOMEventCppToC, CefDOMEvent, cef_domevent_t>(cls)
-{
+    : CefCppToC<CefDOMEventCppToC, CefDOMEvent, cef_domevent_t>(cls) {
   struct_.struct_.get_type = domevent_get_type;
   struct_.struct_.get_category = domevent_get_category;
   struct_.struct_.get_phase = domevent_get_phase;

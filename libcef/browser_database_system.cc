@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_database_system.h"
+#include "libcef/browser_database_system.h"
 
 #include "base/auto_reset.h"
 #include "base/bind.h"
@@ -55,7 +55,8 @@ BrowserDatabaseSystem::~BrowserDatabaseSystem() {
   instance_ = NULL;
 }
 
-void BrowserDatabaseSystem::databaseOpened(const WebKit::WebDatabase& database) {
+void BrowserDatabaseSystem::databaseOpened(
+    const WebKit::WebDatabase& database) {
   string16 origin_identifier = database.securityOrigin().databaseIdentifier();
   string16 database_name = database.name();
   open_connections_->AddOpenConnection(origin_identifier, database_name);
@@ -78,7 +79,8 @@ void BrowserDatabaseSystem::databaseModified(
                  database.name()));
 }
 
-void BrowserDatabaseSystem::databaseClosed(const WebKit::WebDatabase& database) {
+void BrowserDatabaseSystem::databaseClosed(
+    const WebKit::WebDatabase& database) {
   string16 origin_identifier = database.securityOrigin().databaseIdentifier();
   string16 database_name = database.name();
   db_thread_proxy_->PostTask(

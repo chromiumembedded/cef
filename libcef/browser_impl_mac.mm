@@ -3,12 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_context.h"
-#include "browser_impl.h"
-#include "browser_settings.h"
-#include "browser_webview_mac.h"
-
 #import <Cocoa/Cocoa.h>
+
+#include "libcef/cef_context.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_settings.h"
+#include "libcef/browser_webview_mac.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
@@ -19,19 +19,16 @@
 using WebKit::WebRect;
 using WebKit::WebSize;
 
-void CefBrowserImpl::ParentWindowWillClose()
-{
+void CefBrowserImpl::ParentWindowWillClose() {
   // TODO(port): Implement this method if necessary.
 }
 
-CefWindowHandle CefBrowserImpl::GetWindowHandle()
-{
+CefWindowHandle CefBrowserImpl::GetWindowHandle() {
   AutoLock lock_scope(this);
   return window_info_.m_View;
 }
 
-bool CefBrowserImpl::IsWindowRenderingDisabled()
-{
+bool CefBrowserImpl::IsWindowRenderingDisabled() {
   // TODO(port): Add support for off-screen rendering.
   return false;
 }
@@ -46,8 +43,7 @@ void CefBrowserImpl::UIT_ClearMainWndHandle() {
   window_info_.m_View = NULL;
 }
 
-bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
-{
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   REQUIRE_UIT();
   Lock();
 
@@ -129,8 +125,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   return true;
 }
 
-void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
-{
+void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable) {
   REQUIRE_UIT();
   if (!host)
     return;
@@ -143,8 +138,7 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
     [[view window] makeFirstResponder:view];
 }
 
-bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
-{
+bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame) {
   REQUIRE_UIT();
 
   // TODO(port): Add implementation.
@@ -168,8 +162,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   NOTIMPLEMENTED();
 }
 
-int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
-{
+int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
 
   // TODO(port): Add implementation.
@@ -178,15 +171,13 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 }
 
 // static
-void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
-{
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view) {
   [[view window] performSelector:@selector(performClose:)
                       withObject:nil
                       afterDelay:0];
 }
 
 // static
-bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
-{
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view) {
   return [[view window] isVisible];
 }

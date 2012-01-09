@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
-    enum cef_xml_encoding_type_t encodingType, const cef_string_t* URI)
-{
+    enum cef_xml_encoding_type_t encodingType, const cef_string_t* URI) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -43,8 +42,7 @@ CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -58,8 +56,7 @@ int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -73,8 +70,7 @@ int CEF_CALLBACK xml_reader_close(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,8 +85,7 @@ int CEF_CALLBACK xml_reader_has_error(struct _cef_xml_reader_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -105,8 +100,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
 }
 
 enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -120,8 +114,7 @@ enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
   return _retval;
 }
 
-int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,8 +129,7 @@ int CEF_CALLBACK xml_reader_get_depth(struct _cef_xml_reader_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_local_name(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -152,8 +144,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_local_name(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_prefix(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -168,8 +159,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_prefix(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_qualified_name(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -184,8 +174,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_qualified_name(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_namespace_uri(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -200,8 +189,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_namespace_uri(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_base_uri(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -216,8 +204,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_base_uri(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_xml_lang(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -231,8 +218,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_xml_lang(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -246,8 +232,7 @@ int CEF_CALLBACK xml_reader_is_empty_element(struct _cef_xml_reader_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -262,8 +247,7 @@ int CEF_CALLBACK xml_reader_has_value(struct _cef_xml_reader_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_value(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -277,8 +261,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_value(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -293,8 +276,7 @@ int CEF_CALLBACK xml_reader_has_attributes(struct _cef_xml_reader_t* self)
 }
 
 size_t CEF_CALLBACK xml_reader_get_attribute_count(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -309,15 +291,14 @@ size_t CEF_CALLBACK xml_reader_get_attribute_count(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
-    struct _cef_xml_reader_t* self, int index)
-{
+    struct _cef_xml_reader_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return NULL;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return NULL;
 
@@ -330,8 +311,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byindex(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byqname(
-    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
-{
+    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -352,8 +332,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_byqname(
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_bylname(
     struct _cef_xml_reader_t* self, const cef_string_t* localName,
-    const cef_string_t* namespaceURI)
-{
+    const cef_string_t* namespaceURI) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -378,8 +357,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_attribute_bylname(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_inner_xml(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -394,8 +372,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_inner_xml(
 }
 
 cef_string_userfree_t CEF_CALLBACK xml_reader_get_outer_xml(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -409,8 +386,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_outer_xml(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
-{
+int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -425,15 +401,14 @@ int CEF_CALLBACK xml_reader_get_line_number(struct _cef_xml_reader_t* self)
 }
 
 int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
-    struct _cef_xml_reader_t* self, int index)
-{
+    struct _cef_xml_reader_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return 0;
 
@@ -446,8 +421,7 @@ int CEF_CALLBACK xml_reader_move_to_attribute_byindex(
 }
 
 int CEF_CALLBACK xml_reader_move_to_attribute_byqname(
-    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName)
-{
+    struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -468,8 +442,7 @@ int CEF_CALLBACK xml_reader_move_to_attribute_byqname(
 
 int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
     struct _cef_xml_reader_t* self, const cef_string_t* localName,
-    const cef_string_t* namespaceURI)
-{
+    const cef_string_t* namespaceURI) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -494,8 +467,7 @@ int CEF_CALLBACK xml_reader_move_to_attribute_bylname(
 }
 
 int CEF_CALLBACK xml_reader_move_to_first_attribute(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -510,8 +482,7 @@ int CEF_CALLBACK xml_reader_move_to_first_attribute(
 }
 
 int CEF_CALLBACK xml_reader_move_to_next_attribute(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -526,8 +497,7 @@ int CEF_CALLBACK xml_reader_move_to_next_attribute(
 }
 
 int CEF_CALLBACK xml_reader_move_to_carrying_element(
-    struct _cef_xml_reader_t* self)
-{
+    struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -545,8 +515,7 @@ int CEF_CALLBACK xml_reader_move_to_carrying_element(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
-    : CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>(cls)
-{
+    : CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>(cls) {
   struct_.struct_.move_to_next_node = xml_reader_move_to_next_node;
   struct_.struct_.close = xml_reader_close;
   struct_.struct_.has_error = xml_reader_has_error;

@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BROWSER_WEBBLOBREGISTRY_IMPL_H_
-#define BROWSER_WEBBLOBREGISTRY_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_WEBBLOBREGISTRY_IMPL_H_
+#define CEF_LIBCEF_BROWSER_WEBBLOBREGISTRY_IMPL_H_
+#pragma once
 
 #include "base/memory/ref_counted.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebBlobRegistry.h"
@@ -43,4 +44,4 @@ class BrowserWebBlobRegistryImpl
   DISALLOW_COPY_AND_ASSIGN(BrowserWebBlobRegistryImpl);
 };
 
-#endif  // BROWSER_WEBBLOBREGISTRY_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_WEBBLOBREGISTRY_IMPL_H_

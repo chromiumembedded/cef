@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_URL_CAPI_H
-#define _CEF_URL_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -63,4 +64,4 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
 }
 #endif
 
-#endif // _CEF_URL_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_

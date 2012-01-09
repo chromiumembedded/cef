@@ -19,8 +19,7 @@
 
 bool CefPermissionHandlerCToCpp::OnBeforeScriptExtensionLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    const CefString& extensionName)
-{
+    const CefString& extensionName) {
   if (CEF_MEMBER_MISSING(struct_, on_before_script_extension_load))
     return false;
 

@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_DOM_H
-#define _CEF_DOM_H
+#ifndef CEF_INCLUDE_CEF_DOM_H_
+#define CEF_INCLUDE_CEF_DOM_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <map>
 
 class CefDOMDocument;
@@ -49,9 +50,8 @@ class CefDOMNode;
 // be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDOMVisitor : public virtual CefBase
-{
-public:
+class CefDOMVisitor : public virtual CefBase {
+ public:
   ///
   // Method executed for visiting the DOM. The document object passed to this
   // method represents a snapshot of the DOM at the time this method is
@@ -69,9 +69,8 @@ public:
 // be called on the UI thread.
 ///
 /*--cef(source=library)--*/
-class CefDOMDocument : public virtual CefBase
-{
-public:
+class CefDOMDocument : public virtual CefBase {
+ public:
   typedef cef_dom_document_type_t Type;
 
   ///
@@ -178,10 +177,9 @@ public:
 // called on the UI thread.
 ///
 /*--cef(source=library)--*/
-class CefDOMNode : public virtual CefBase
-{
-public:
-  typedef std::map<CefString,CefString> AttributeMap;
+class CefDOMNode : public virtual CefBase {
+ public:
+  typedef std::map<CefString, CefString> AttributeMap;
   typedef cef_dom_node_type_t Type;
 
   ///
@@ -356,9 +354,8 @@ public:
 // be called on the UI thread.
 ///
 /*--cef(source=library)--*/
-class CefDOMEvent : public virtual CefBase
-{
-public:
+class CefDOMEvent : public virtual CefBase {
+ public:
   typedef cef_dom_event_category_t Category;
   typedef cef_dom_event_phase_t Phase;
 
@@ -417,9 +414,8 @@ public:
 // will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDOMEventListener : public virtual CefBase
-{
-public:
+class CefDOMEventListener : public virtual CefBase {
+ public:
   ///
   // Called when an event is received. The event object passed to this method
   // contains a snapshot of the DOM at the time this method is executed. DOM
@@ -430,4 +426,4 @@ public:
   virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) =0;
 };
 
-#endif // _CEF_DOM_H
+#endif  // CEF_INCLUDE_CEF_DOM_H_

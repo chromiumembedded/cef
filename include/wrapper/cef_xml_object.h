@@ -33,11 +33,12 @@
 // against the libcef_dll_wrapper target.
 //
 
-#ifndef _CEF_XML_OBJECT_H
-#define _CEF_XML_OBJECT_H
+#ifndef CEF_INCLUDE_WRAPPER_CEF_XML_OBJECT_H_
+#define CEF_INCLUDE_WRAPPER_CEF_XML_OBJECT_H_
+#pragma once
 
-#include "../cef_base.h"
-#include "../cef_xml_reader.h"
+#include "include/cef_base.h"
+#include "include/cef_xml_reader.h"
 #include <map>
 #include <vector>
 
@@ -66,9 +67,8 @@ class CefStreamReader;
 //     (c) Element nodes are represented by their outer XML string.
 // </pre>
 ///
-class CefXmlObject : public CefBase
-{
-public:
+class CefXmlObject : public CefBase {
+ public:
   typedef std::vector<CefRefPtr<CefXmlObject> > ObjectVector;
   typedef std::map<CefString, CefString > AttributeMap;
 
@@ -76,7 +76,7 @@ public:
   // Create a new object with the specified name. An object name must always be
   // at least one character long.
   ///
-  CefXmlObject(const CefString& name);
+  explicit CefXmlObject(const CefString& name);
   virtual ~CefXmlObject();
 
   ///
@@ -172,7 +172,7 @@ public:
   ///
   size_t FindChildren(const CefString& name, ObjectVector& children);
 
-private:
+ private:
   void SetParent(CefXmlObject* parent);
 
   CefString name_;
@@ -185,4 +185,4 @@ private:
   IMPLEMENT_LOCKING(CefXmlObject);
 };
 
-#endif // _CEF_XML_OBJECT_H
+#endif  // CEF_INCLUDE_WRAPPER_CEF_XML_OBJECT_H_

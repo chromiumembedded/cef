@@ -2,17 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <map>
+#include <vector>
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
 #include "include/internal/cef_string_multimap.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include <map>
-#include <vector>
 
 // Test UTF8 strings.
-TEST(StringTest, UTF8)
-{
+TEST(StringTest, UTF8) {
   CefStringUTF8 str1("Test String");
   ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
@@ -50,8 +49,7 @@ TEST(StringTest, UTF8)
 }
 
 // Test UTF16 strings.
-TEST(StringTest, UTF16)
-{
+TEST(StringTest, UTF16) {
   CefStringUTF16 str1("Test String");
   ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
@@ -89,8 +87,7 @@ TEST(StringTest, UTF16)
 }
 
 // Test wide strings.
-TEST(StringTest, Wide)
-{
+TEST(StringTest, Wide) {
   CefStringWide str1("Test String");
   ASSERT_EQ(str1.length(), (size_t)11);
   ASSERT_FALSE(str1.empty());
@@ -128,8 +125,7 @@ TEST(StringTest, Wide)
 }
 
 // Test string lists.
-TEST(StringTest, List)
-{
+TEST(StringTest, List) {
   typedef std::vector<CefString> ListType;
   ListType list;
   list.push_back("String 1");
@@ -143,14 +139,14 @@ TEST(StringTest, List)
   cef_string_list_t listPtr = cef_string_list_alloc();
   ASSERT_TRUE(listPtr != NULL);
   ListType::const_iterator it = list.begin();
-  for(; it != list.end(); ++it)
+  for (; it != list.end(); ++it)
     cef_string_list_append(listPtr, it->GetStruct());
 
   CefString str;
   int ret;
 
   ASSERT_EQ(cef_string_list_size(listPtr), 3);
-  
+
   ret = cef_string_list_value(listPtr, 0, str.GetWritableStruct());
   ASSERT_TRUE(ret);
   ASSERT_EQ(str, "String 1");
@@ -182,16 +178,15 @@ TEST(StringTest, List)
 }
 
 // Test string maps.
-TEST(StringTest, Map)
-{
-  typedef std::map<CefString,CefString> MapType;
+TEST(StringTest, Map) {
+  typedef std::map<CefString, CefString> MapType;
   MapType map;
   map.insert(std::make_pair("Key 1", "String 1"));
   map.insert(std::make_pair("Key 2", "String 2"));
   map.insert(std::make_pair("Key 3", "String 3"));
 
   MapType::const_iterator it;
-  
+
   it = map.find("Key 2");
   ASSERT_TRUE(it != map.end());
   ASSERT_EQ(it->first, "Key 2");
@@ -207,9 +202,9 @@ TEST(StringTest, Map)
   ASSERT_EQ(map["Key 3"], "String 3");
 
   cef_string_map_t mapPtr = cef_string_map_alloc();
-  
+
   it = map.begin();
-  for(; it != map.end(); ++it) {
+  for (; it != map.end(); ++it) {
     cef_string_map_append(mapPtr, it->first.GetStruct(),
         it->second.GetStruct());
   }
@@ -218,7 +213,7 @@ TEST(StringTest, Map)
   int ret;
 
   ASSERT_EQ(cef_string_map_size(mapPtr), 3);
-  
+
   ret = cef_string_map_key(mapPtr, 0, str.GetWritableStruct());
   ASSERT_TRUE(ret);
   ASSERT_EQ(str, "Key 1");
@@ -253,9 +248,8 @@ TEST(StringTest, Map)
 }
 
 // Test string maps.
-TEST(StringTest, Multimap)
-{
-  typedef std::multimap<CefString,CefString> MapType;
+TEST(StringTest, Multimap) {
+  typedef std::multimap<CefString, CefString> MapType;
   MapType map;
   map.insert(std::make_pair("Key 1", "String 1"));
   map.insert(std::make_pair("Key 2", "String 2"));
@@ -286,7 +280,7 @@ TEST(StringTest, Multimap)
   cef_string_multimap_t mapPtr = cef_string_multimap_alloc();
 
   it = map.begin();
-  for(; it != map.end(); ++it) {
+  for (; it != map.end(); ++it) {
     cef_string_multimap_append(mapPtr, it->first.GetStruct(),
         it->second.GetStruct());
   }

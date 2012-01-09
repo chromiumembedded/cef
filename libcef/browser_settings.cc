@@ -2,23 +2,22 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "browser_settings.h"
+#include "libcef/browser_settings.h"
 #include "include/internal/cef_types_wrappers.h"
 #include "base/utf_string_conversions.h"
 #include "webkit/glue/webpreferences.h"
 
-void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
-{
+void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   if (cef.standard_font_family.length > 0)
     web.standard_font_family = CefString(&cef.standard_font_family);
   else
     web.standard_font_family = ASCIIToUTF16("Times");
-  
+
   if (cef.fixed_font_family.length > 0)
     web.fixed_font_family = CefString(&cef.fixed_font_family);
   else
     web.fixed_font_family = ASCIIToUTF16("Courier");
-  
+
   if (cef.serif_font_family.length > 0)
     web.serif_font_family = CefString(&cef.serif_font_family);
   else
@@ -31,10 +30,10 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
 
   // These two fonts below are picked from the intersection of
   // Win XP font list and Vista font list :
-  //   http://www.microsoft.com/typography/fonts/winxp.htm 
+  //   http://www.microsoft.com/typography/fonts/winxp.htm
   //   http://blogs.msdn.com/michkap/archive/2006/04/04/567881.aspx
   // Some of them are installed only with CJK and complex script
-  // support enabled on Windows XP and are out of consideration here. 
+  // support enabled on Windows XP and are out of consideration here.
   // (although we enabled both on our buildbots.)
   // They (especially Impact for fantasy) are not typical cursive
   // and fantasy fonts, but it should not matter for layout tests
@@ -79,7 +78,7 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web)
     web.minimum_logical_font_size = cef.minimum_logical_font_size;
   else
     web.minimum_logical_font_size = 9;
-  
+
   if (cef.default_encoding.length > 0)
     web.default_encoding = CefString(&cef.default_encoding);
   else

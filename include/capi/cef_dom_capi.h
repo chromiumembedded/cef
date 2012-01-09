@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_DOM_CAPI_H
-#define _CEF_DOM_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure to implement for visiting the DOM. The functions of this structure
 // will be called on the UI thread.
 ///
-typedef struct _cef_domvisitor_t
-{
+typedef struct _cef_domvisitor_t {
   ///
   // Base structure.
   ///
@@ -64,7 +64,6 @@ typedef struct _cef_domvisitor_t
   ///
   void (CEF_CALLBACK *visit)(struct _cef_domvisitor_t* self,
       struct _cef_domdocument_t* document);
-
 } cef_domvisitor_t;
 
 
@@ -72,8 +71,7 @@ typedef struct _cef_domvisitor_t
 // Structure used to represent a DOM document. The functions of this structure
 // should only be called on the UI thread.
 ///
-typedef struct _cef_domdocument_t
-{
+typedef struct _cef_domdocument_t {
   ///
   // Base structure.
   ///
@@ -178,7 +176,6 @@ typedef struct _cef_domdocument_t
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_complete_url)(
       struct _cef_domdocument_t* self, const cef_string_t* partialURL);
-
 } cef_domdocument_t;
 
 
@@ -186,8 +183,7 @@ typedef struct _cef_domdocument_t
 // Structure used to represent a DOM node. The functions of this structure
 // should only be called on the UI thread.
 ///
-typedef struct _cef_domnode_t
-{
+typedef struct _cef_domnode_t {
   ///
   // Base structure.
   ///
@@ -355,7 +351,6 @@ typedef struct _cef_domnode_t
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_element_inner_text)(
       struct _cef_domnode_t* self);
-
 } cef_domnode_t;
 
 
@@ -363,8 +358,7 @@ typedef struct _cef_domnode_t
 // Structure used to represent a DOM event. The functions of this structure
 // should only be called on the UI thread.
 ///
-typedef struct _cef_domevent_t
-{
+typedef struct _cef_domevent_t {
   ///
   // Base structure.
   ///
@@ -415,7 +409,6 @@ typedef struct _cef_domevent_t
   ///
   struct _cef_domnode_t* (CEF_CALLBACK *get_current_target)(
       struct _cef_domevent_t* self);
-
 } cef_domevent_t;
 
 
@@ -423,8 +416,7 @@ typedef struct _cef_domevent_t
 // Structure to implement for handling DOM events. The functions of this
 // structure will be called on the UI thread.
 ///
-typedef struct _cef_domevent_listener_t
-{
+typedef struct _cef_domevent_listener_t {
   ///
   // Base structure.
   ///
@@ -439,7 +431,6 @@ typedef struct _cef_domevent_listener_t
   ///
   void (CEF_CALLBACK *handle_event)(struct _cef_domevent_listener_t* self,
       struct _cef_domevent_t* event);
-
 } cef_domevent_listener_t;
 
 
@@ -447,4 +438,4 @@ typedef struct _cef_domevent_listener_t
 }
 #endif
 
-#endif // _CEF_DOM_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefMenuHandlerCToCpp::OnBeforeMenu(CefRefPtr<CefBrowser> browser,
-    const CefMenuInfo& menuInfo)
-{
+    const CefMenuInfo& menuInfo) {
   if (CEF_MEMBER_MISSING(struct_, on_before_menu))
     return false;
 
@@ -39,8 +38,7 @@ bool CefMenuHandlerCToCpp::OnBeforeMenu(CefRefPtr<CefBrowser> browser,
 }
 
 void CefMenuHandlerCToCpp::GetMenuLabel(CefRefPtr<CefBrowser> browser,
-    MenuId menuId, CefString& label)
-{
+    MenuId menuId, CefString& label) {
   if (CEF_MEMBER_MISSING(struct_, get_menu_label))
     return;
 
@@ -59,8 +57,7 @@ void CefMenuHandlerCToCpp::GetMenuLabel(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefMenuHandlerCToCpp::OnMenuAction(CefRefPtr<CefBrowser> browser,
-    MenuId menuId)
-{
+    MenuId menuId) {
   if (CEF_MEMBER_MISSING(struct_, on_menu_action))
     return false;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefWebURLRequestClientCToCpp::OnStateChange(
-    CefRefPtr<CefWebURLRequest> requester, RequestState state)
-{
+    CefRefPtr<CefWebURLRequest> requester, RequestState state) {
   if (CEF_MEMBER_MISSING(struct_, on_state_change))
     return;
 
@@ -39,8 +38,7 @@ void CefWebURLRequestClientCToCpp::OnStateChange(
 
 void CefWebURLRequestClientCToCpp::OnRedirect(
     CefRefPtr<CefWebURLRequest> requester, CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response)
-{
+    CefRefPtr<CefResponse> response) {
   if (CEF_MEMBER_MISSING(struct_, on_redirect))
     return;
 
@@ -67,8 +65,7 @@ void CefWebURLRequestClientCToCpp::OnRedirect(
 }
 
 void CefWebURLRequestClientCToCpp::OnHeadersReceived(
-    CefRefPtr<CefWebURLRequest> requester, CefRefPtr<CefResponse> response)
-{
+    CefRefPtr<CefWebURLRequest> requester, CefRefPtr<CefResponse> response) {
   if (CEF_MEMBER_MISSING(struct_, on_headers_received))
     return;
 
@@ -91,8 +88,7 @@ void CefWebURLRequestClientCToCpp::OnHeadersReceived(
 
 void CefWebURLRequestClientCToCpp::OnProgress(
     CefRefPtr<CefWebURLRequest> requester, uint64 bytesSent,
-    uint64 totalBytesToBeSent)
-{
+    uint64 totalBytesToBeSent) {
   if (CEF_MEMBER_MISSING(struct_, on_progress))
     return;
 
@@ -111,8 +107,7 @@ void CefWebURLRequestClientCToCpp::OnProgress(
 }
 
 void CefWebURLRequestClientCToCpp::OnData(CefRefPtr<CefWebURLRequest> requester,
-    const void* data, int dataLength)
-{
+    const void* data, int dataLength) {
   if (CEF_MEMBER_MISSING(struct_, on_data))
     return;
 
@@ -135,8 +130,7 @@ void CefWebURLRequestClientCToCpp::OnData(CefRefPtr<CefWebURLRequest> requester,
 }
 
 void CefWebURLRequestClientCToCpp::OnError(
-    CefRefPtr<CefWebURLRequest> requester, ErrorCode errorCode)
-{
+    CefRefPtr<CefWebURLRequest> requester, ErrorCode errorCode) {
   if (CEF_MEMBER_MISSING(struct_, on_error))
     return;
 

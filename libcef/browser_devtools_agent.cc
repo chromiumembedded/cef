@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_devtools_agent.h"
+#include "libcef/browser_devtools_agent.h"
+#include "libcef/browser_devtools_callargs.h"
+#include "libcef/browser_devtools_client.h"
 
 #include "base/bind.h"
 #include "base/message_loop.h"
 #include "grit/webkit_chromium_resources.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "browser_devtools_callargs.h"
-#include "browser_devtools_client.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebCString;
@@ -41,7 +41,7 @@ class WebKitClientMessageLoopImpl
   MessageLoop* message_loop_;
 };
 
-} //  namespace
+}  //  namespace
 
 BrowserDevToolsAgent::BrowserDevToolsAgent()
     : ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)),
@@ -70,7 +70,7 @@ int BrowserDevToolsAgent::hostIdentifier() {
 void BrowserDevToolsAgent::runtimePropertyChanged(
     const WebKit::WebString& name,
     const WebKit::WebString& value) {
-  // TODO: Implement.
+  // TODO(cef): Implement.
 }
 
 WebKit::WebDevToolsAgentClient::WebKitClientMessageLoop*
@@ -102,7 +102,7 @@ WebDevToolsAgent* BrowserDevToolsAgent::GetWebAgent() {
 void BrowserDevToolsAgent::attach(BrowserDevToolsClient* client) {
   DCHECK(!dev_tools_client_);
   dev_tools_client_ = client;
-  WebDevToolsAgent *web_agent = GetWebAgent();
+  WebDevToolsAgent* web_agent = GetWebAgent();
   if (web_agent)
     web_agent->attach();
 }
@@ -116,7 +116,7 @@ void BrowserDevToolsAgent::detach() {
 }
 
 bool BrowserDevToolsAgent::evaluateInWebInspector(
-      long call_id,
+      long call_id,  // NOLINT(runtime/int)
       const std::string& script) {
   WebDevToolsAgent* agent = GetWebAgent();
   if (!agent)

@@ -6,9 +6,9 @@
 #import <AppKit/AppKit.h>
 
 #import "include/cef_application_mac.h"
-#include "cef_process_ui_thread.h"
-#include "browser_webkit_glue.h"
-#include "cef_context.h"
+#include "libcef/cef_process_ui_thread.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/cef_context.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 

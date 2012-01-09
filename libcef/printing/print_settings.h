@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _PRINTING_PRINT_SETTINGS_H
-#define _PRINTING_PRINT_SETTINGS_H
+#ifndef CEF_LIBCEF_PRINTING_PRINT_SETTINGS_H_
+#define CEF_LIBCEF_PRINTING_PRINT_SETTINGS_H_
+#pragma once
 
 #include "include/internal/cef_types.h"
 
@@ -56,7 +57,7 @@ struct PrintParams {
 
 // Page measurements information.
 class PageMeasurements {
-public:
+ public:
   PageMeasurements();
   void Clear();
 
@@ -154,6 +155,7 @@ class PrintSettings {
 
   // Page Measurements.
   PageMeasurements page_measurements;
+
  private:
   void ResetRequestedPageMargins();
   //////////////////////////////////////////////////////////////////////////////
@@ -174,5 +176,5 @@ class PrintSettings {
 
 }  // namespace printing
 
-#endif  // _PRINTING_PRINT_SETTINGS_H
+#endif  // CEF_LIBCEF_PRINTING_PRINT_SETTINGS_H_
 

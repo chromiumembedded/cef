@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
-    const void* ptr, size_t size, size_t n)
-{
+    const void* ptr, size_t size, size_t n) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -39,8 +38,7 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
 }
 
 int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
-    long offset, int whence)
-{
+    int64 offset, int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,8 +54,7 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
   return _retval;
 }
 
-long CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self)
-{
+int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,14 +62,13 @@ long CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self)
     return 0;
 
   // Execute
-  long _retval = CefWriteHandlerCppToC::Get(self)->Tell();
+  int64 _retval = CefWriteHandlerCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
 }
 
-int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self)
-{
+int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -91,8 +87,7 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self)
 
 CefWriteHandlerCppToC::CefWriteHandlerCppToC(CefWriteHandler* cls)
     : CefCppToC<CefWriteHandlerCppToC, CefWriteHandler, cef_write_handler_t>(
-        cls)
-{
+        cls) {
   struct_.struct_.write = write_handler_write;
   struct_.struct_.seek = write_handler_seek;
   struct_.struct_.tell = write_handler_tell;

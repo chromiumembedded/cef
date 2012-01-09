@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -20,8 +20,7 @@
 bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     CefRefPtr<CefBrowser> parentBrowser, const CefPopupFeatures& popupFeatures,
     CefWindowInfo& windowInfo, const CefString& url,
-    CefRefPtr<CefClient>& client, CefBrowserSettings& settings)
-{
+    CefRefPtr<CefClient>& client, CefBrowserSettings& settings) {
   if (CEF_MEMBER_MISSING(struct_, on_before_popup))
     return false;
 
@@ -35,7 +34,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
 
   // Translate param: client; type: refptr_same_byref
   cef_client_t* clientStruct = NULL;
-  if(client.get())
+  if (client.get())
     clientStruct = CefClientCToCpp::Unwrap(client);
   cef_client_t* clientOrig = clientStruct;
 
@@ -61,8 +60,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   return _retval?true:false;
 }
 
-void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser)
-{
+void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (CEF_MEMBER_MISSING(struct_, on_after_created))
     return;
 
@@ -78,8 +76,7 @@ void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser)
       CefBrowserCppToC::Wrap(browser));
 }
 
-bool CefLifeSpanHandlerCToCpp::RunModal(CefRefPtr<CefBrowser> browser)
-{
+bool CefLifeSpanHandlerCToCpp::RunModal(CefRefPtr<CefBrowser> browser) {
   if (CEF_MEMBER_MISSING(struct_, run_modal))
     return false;
 
@@ -98,8 +95,7 @@ bool CefLifeSpanHandlerCToCpp::RunModal(CefRefPtr<CefBrowser> browser)
   return _retval?true:false;
 }
 
-bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser)
-{
+bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
   if (CEF_MEMBER_MISSING(struct_, do_close))
     return false;
 
@@ -118,8 +114,7 @@ bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser)
   return _retval?true:false;
 }
 
-void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser)
-{
+void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   if (CEF_MEMBER_MISSING(struct_, on_before_close))
     return;
 

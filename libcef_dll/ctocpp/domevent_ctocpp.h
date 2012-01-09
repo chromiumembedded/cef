@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _DOMEVENT_CTOCPP_H
-#define _DOMEVENT_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_CTOCPP_H_
+#pragma once
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 
 #include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
@@ -24,10 +25,9 @@
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefDOMEventCToCpp
-    : public CefCToCpp<CefDOMEventCToCpp, CefDOMEvent, cef_domevent_t>
-{
-public:
-  CefDOMEventCToCpp(cef_domevent_t* str)
+    : public CefCToCpp<CefDOMEventCToCpp, CefDOMEvent, cef_domevent_t> {
+ public:
+  explicit CefDOMEventCToCpp(cef_domevent_t* str)
       : CefCToCpp<CefDOMEventCToCpp, CefDOMEvent, cef_domevent_t>(str) {}
   virtual ~CefDOMEventCToCpp() {}
 
@@ -42,6 +42,6 @@ public:
   virtual CefRefPtr<CefDOMNode> GetCurrentTarget() OVERRIDE;
 };
 
-#endif // USING_CEF_SHARED
-#endif // _DOMEVENT_CTOCPP_H
+#endif  // USING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_CTOCPP_H_
 

@@ -30,7 +30,6 @@
       ],
       'include_dirs': [
         '.',
-        '..',
       ],
       'sources': [
         '<@(includes_common)',
@@ -130,7 +129,6 @@
       ],
       'include_dirs': [
         '.',
-        '..',
       ],
       'sources': [
         '<@(includes_common)',

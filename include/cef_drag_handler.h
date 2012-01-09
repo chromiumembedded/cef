@@ -34,11 +34,12 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_DRAG_HANDLER_H
-#define _CEF_DRAG_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_DRAG_HANDLER_H_
+#define CEF_INCLUDE_CEF_DRAG_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
-#include "cef_drag_data.h"
+#include "include/cef_base.h"
+#include "include/cef_drag_data.h"
 
 class CefBrowser;
 
@@ -47,9 +48,8 @@ class CefBrowser;
 // this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDragHandler : public virtual CefBase
-{
-public:
+class CefDragHandler : public virtual CefBase {
+ public:
   typedef cef_drag_operations_mask_t DragOperationsMask;
 
   ///
@@ -75,4 +75,4 @@ public:
                            DragOperationsMask mask) { return false; }
 };
 
-#endif // _CEF_DRAG_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_DRAG_HANDLER_H_

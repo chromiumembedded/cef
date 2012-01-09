@@ -2,13 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <vector>
 #include "include/cef_cookie.h"
 #include "include/cef_runnable.h"
+#include "tests/unittests/test_suite.h"
 #include "base/scoped_temp_dir.h"
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_suite.h"
-#include <vector>
 
 namespace {
 
@@ -19,8 +19,7 @@ const char* kTestPath = "/path/to/cookietest";
 typedef std::vector<CefCookie> CookieVector;
 
 void IOT_Set(const CefString& url, CookieVector* cookies,
-             base::WaitableEvent* event)
-{
+             base::WaitableEvent* event) {
   CookieVector::const_iterator it = cookies->begin();
   for (; it != cookies->end(); ++it)
     EXPECT_TRUE(CefSetCookie(url, *it));
@@ -28,28 +27,25 @@ void IOT_Set(const CefString& url, CookieVector* cookies,
 }
 
 void IOT_Delete(const CefString& url, const CefString& cookie_name,
-                base::WaitableEvent* event)
-{
+                base::WaitableEvent* event) {
   EXPECT_TRUE(CefDeleteCookies(url, cookie_name));
   event->Signal();
 }
 
-class TestVisitor : public CefCookieVisitor
-{
-public:
+class TestVisitor : public CefCookieVisitor {
+ public:
   TestVisitor(CookieVector* cookies, bool deleteCookies,
               base::WaitableEvent* event)
-    : cookies_(cookies), delete_cookies_(deleteCookies), event_(event)
-  {
+    : cookies_(cookies),
+      delete_cookies_(deleteCookies),
+      event_(event) {
   }
-  virtual ~TestVisitor()
-  {
+  virtual ~TestVisitor()   {
     event_->Signal();
   }
 
   virtual bool Visit(const CefCookie& cookie, int count, int total,
-                     bool& deleteCookie)
-  {
+                     bool& deleteCookie)   {
     cookies_->push_back(cookie);
     if (delete_cookies_)
       deleteCookie = true;
@@ -66,8 +62,7 @@ public:
 // Create a test cookie. If |withDomain| is true a domain cookie will be
 // created, otherwise a host cookie will be created.
 void CreateCookie(CefCookie& cookie, bool withDomain,
-                 base::WaitableEvent& event)
-{
+                 base::WaitableEvent& event) {
   CefString(&cookie.name).FromASCII("my_cookie");
   CefString(&cookie.value).FromASCII("My Value");
   if (withDomain)
@@ -83,7 +78,7 @@ void CreateCookie(CefCookie& cookie, bool withDomain,
 
   CookieVector cookies;
   cookies.push_back(cookie);
-  
+
   // Set the cookie.
   CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Set, kTestUrl, &cookies,
                                              &event));
@@ -94,17 +89,16 @@ void CreateCookie(CefCookie& cookie, bool withDomain,
 // is a domain cookie, otherwise a host cookie. if |deleteCookies| is true
 // the cookie will be deleted when it's retrieved.
 void GetCookie(const CefCookie& cookie, bool withDomain,
-               base::WaitableEvent& event, bool deleteCookies)
-{
+               base::WaitableEvent& event, bool deleteCookies) {
   CookieVector cookies;
-  
+
   // Get the cookie and delete it.
   EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
       new TestVisitor(&cookies, deleteCookies, &event)));
   event.Wait();
 
   EXPECT_EQ((CookieVector::size_type)1, cookies.size());
-  
+
   const CefCookie& cookie_read = cookies[0];
   EXPECT_EQ(CefString(&cookie_read.name), "my_cookie");
   EXPECT_EQ(CefString(&cookie_read.value), "My Value");
@@ -128,8 +122,7 @@ void GetCookie(const CefCookie& cookie, bool withDomain,
 
 // Verify that no cookies exist. If |withUrl| is true it will only check for
 // cookies matching the URL.
-void VerifyNoCookies(base::WaitableEvent& event, bool withUrl)
-{
+void VerifyNoCookies(base::WaitableEvent& event, bool withUrl) {
   CookieVector cookies;
 
   // Verify that the cookie has been deleted.
@@ -145,18 +138,16 @@ void VerifyNoCookies(base::WaitableEvent& event, bool withUrl)
 }
 
 // Delete all system cookies.
-void DeleteAllCookies(base::WaitableEvent& event)
-{
+void DeleteAllCookies(base::WaitableEvent& event) {
   CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, CefString(),
                                              CefString(), &event));
   event.Wait();
 }
 
-} // anonymous
+}  // namespace
 
 // Test creation of a domain cookie.
-TEST(CookieTest, DomainCookie)
-{
+TEST(CookieTest, DomainCookie) {
   base::WaitableEvent event(false, false);
   CefCookie cookie;
 
@@ -171,8 +162,7 @@ TEST(CookieTest, DomainCookie)
 }
 
 // Test creation of a host cookie.
-TEST(CookieTest, HostCookie)
-{
+TEST(CookieTest, HostCookie) {
   base::WaitableEvent event(false, false);
   CefCookie cookie;
 
@@ -187,8 +177,7 @@ TEST(CookieTest, HostCookie)
 }
 
 // Test creation of multiple cookies.
-TEST(CookieTest, MultipleCookies)
-{
+TEST(CookieTest, MultipleCookies) {
   base::WaitableEvent event(false, false);
   std::stringstream ss;
   int i;
@@ -196,9 +185,9 @@ TEST(CookieTest, MultipleCookies)
   CookieVector cookies;
 
   const int kNumCookies = 4;
-  
+
   // Create the cookies.
-  for(i = 0; i < kNumCookies; i++) {
+  for (i = 0; i < kNumCookies; i++) {
     CefCookie cookie;
 
     ss << "my_cookie" << i;
@@ -225,7 +214,7 @@ TEST(CookieTest, MultipleCookies)
   EXPECT_EQ((CookieVector::size_type)kNumCookies, cookies.size());
 
   CookieVector::const_iterator it = cookies.begin();
-  for(i = 0; it != cookies.end(); ++it, ++i) {
+  for (i = 0; it != cookies.end(); ++it, ++i) {
     const CefCookie& cookie = *it;
 
     ss << "my_cookie" << i;
@@ -242,7 +231,7 @@ TEST(CookieTest, MultipleCookies)
   CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, kTestUrl,
                                              CefString("my_cookie1"), &event));
   event.Wait();
-  
+
   // Verify that the cookie has been deleted.
   EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
       new TestVisitor(&cookies, false, &event)));
@@ -259,7 +248,7 @@ TEST(CookieTest, MultipleCookies)
   CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, kTestUrl,
                                              CefString(), &event));
   event.Wait();
-  
+
   // Verify that the cookies have been deleted.
   EXPECT_TRUE(CefVisitUrlCookies(kTestUrl, false,
       new TestVisitor(&cookies, false, &event)));
@@ -268,7 +257,7 @@ TEST(CookieTest, MultipleCookies)
   EXPECT_EQ((CookieVector::size_type)0, cookies.size());
 
   // Create the cookies.
-  for(i = 0; i < kNumCookies; i++) {
+  for (i = 0; i < kNumCookies; i++) {
     CefCookie cookie;
 
     ss << "my_cookie" << i;
@@ -296,11 +285,10 @@ TEST(CookieTest, MultipleCookies)
   EXPECT_EQ((CookieVector::size_type)0, cookies.size());
 }
 
-TEST(CookieTest, AllCookies)
-{
+TEST(CookieTest, AllCookies) {
   base::WaitableEvent event(false, false);
   CookieVector cookies;
-  
+
   // Delete all system cookies just in case something is left over from a
   // different test.
   CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, CefString(),
@@ -375,8 +363,7 @@ TEST(CookieTest, AllCookies)
   VerifyNoCookies(event, false);
 }
 
-TEST(CookieTest, ChangeDirectory)
-{
+TEST(CookieTest, ChangeDirectory) {
   base::WaitableEvent event(false, false);
   CefCookie cookie;
 

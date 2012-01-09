@@ -2,16 +2,14 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "browser_zoom_map.h"
-#include "cef_thread.h"
+#include "libcef/browser_zoom_map.h"
+#include "libcef/cef_thread.h"
 
-ZoomMap* ZoomMap::GetInstance()
-{
+ZoomMap* ZoomMap::GetInstance() {
   return Singleton<ZoomMap>::get();
 }
 
-void ZoomMap::set(const GURL& url, double zoomLevel)
-{
+void ZoomMap::set(const GURL& url, double zoomLevel) {
   REQUIRE_UIT();
 
   if (zoomLevel == 0.) {
@@ -25,8 +23,7 @@ void ZoomMap::set(const GURL& url, double zoomLevel)
   }
 }
 
-bool ZoomMap::get(const GURL& url, double& zoomLevel)
-{
+bool ZoomMap::get(const GURL& url, double& zoomLevel) {
   REQUIRE_UIT();
 
   Map::const_iterator iter = map_.find(url.host());

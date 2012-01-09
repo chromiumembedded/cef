@@ -29,8 +29,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler()
-{
+CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_life_span_handler))
     return NULL;
 
@@ -43,8 +42,7 @@ CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler()
   return CefLifeSpanHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler()
-{
+CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_load_handler))
     return NULL;
 
@@ -57,8 +55,7 @@ CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler()
   return CefLoadHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler()
-{
+CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_request_handler))
     return NULL;
 
@@ -71,8 +68,7 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler()
   return CefRequestHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler()
-{
+CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_display_handler))
     return NULL;
 
@@ -85,8 +81,7 @@ CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler()
   return CefDisplayHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler()
-{
+CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_focus_handler))
     return NULL;
 
@@ -99,8 +94,7 @@ CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler()
   return CefFocusHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler()
-{
+CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_keyboard_handler))
     return NULL;
 
@@ -113,8 +107,7 @@ CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler()
   return CefKeyboardHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler()
-{
+CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_menu_handler))
     return NULL;
 
@@ -127,8 +120,7 @@ CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler()
   return CefMenuHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler()
-{
+CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_permission_handler))
     return NULL;
 
@@ -141,8 +133,7 @@ CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler()
   return CefPermissionHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler()
-{
+CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_print_handler))
     return NULL;
 
@@ -155,8 +146,7 @@ CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler()
   return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler()
-{
+CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_find_handler))
     return NULL;
 
@@ -169,8 +159,7 @@ CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler()
   return CefFindHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler()
-{
+CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_jsdialog_handler))
     return NULL;
 
@@ -183,8 +172,7 @@ CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler()
   return CefJSDialogHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler()
-{
+CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_v8context_handler))
     return NULL;
 
@@ -197,8 +185,7 @@ CefRefPtr<CefV8ContextHandler> CefClientCToCpp::GetV8ContextHandler()
   return CefV8ContextHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler()
-{
+CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_render_handler))
     return NULL;
 
@@ -211,8 +198,7 @@ CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler()
   return CefRenderHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler()
-{
+CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_drag_handler))
     return NULL;
 

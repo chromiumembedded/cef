@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DOM_STORAGE_NAMESPACE_H
-#define _DOM_STORAGE_NAMESPACE_H
+#ifndef CEF_LIBCEF_DOM_STORAGE_NAMESPACE_H_
+#define CEF_LIBCEF_DOM_STORAGE_NAMESPACE_H_
+#pragma once
 
-#include "dom_storage_common.h"
+#include "libcef/dom_storage_common.h"
+
+#include <vector>
 
 #include "base/hash_tables.h"
 #include "base/memory/scoped_ptr.h"
@@ -62,7 +65,8 @@ class DOMStorageNamespace {
   void CreateWebStorageNamespaceIfNecessary();
 
   // All the storage areas we own.
-  typedef base::hash_map<string16, DOMStorageArea*> OriginToStorageAreaMap;
+  typedef base::hash_map<string16,  // NOLINT(build/include_what_you_use)
+      DOMStorageArea*> OriginToStorageAreaMap;
   OriginToStorageAreaMap origin_to_storage_area_;
 
   // The DOMStorageContext that owns us.
@@ -84,4 +88,4 @@ class DOMStorageNamespace {
   DISALLOW_IMPLICIT_CONSTRUCTORS(DOMStorageNamespace);
 };
 
-#endif  // _DOM_STORAGE_NAMESPACE_H
+#endif  // CEF_LIBCEF_DOM_STORAGE_NAMESPACE_H_

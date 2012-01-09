@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DOM_STORAGE_CONTEXT_H
-#define _DOM_STORAGE_CONTEXT_H
+#ifndef CEF_LIBCEF_DOM_STORAGE_CONTEXT_H_
+#define CEF_LIBCEF_DOM_STORAGE_CONTEXT_H_
+#pragma once
 
 #include <map>
 #include <set>
+#include <vector>
 
 #include "base/file_path.h"
 #include "base/string16.h"
@@ -24,7 +26,7 @@ class DOMStorageNamespace;
 // NOTE: Virtual methods facilitate mocking functions for testing.
 class DOMStorageContext {
  public:
-  DOMStorageContext(const FilePath& local_storage_path);
+  explicit DOMStorageContext(const FilePath& local_storage_path);
   virtual ~DOMStorageContext();
 
   // Allocate a new storage area id.  Only call on the WebKit thread.
@@ -145,4 +147,4 @@ class DOMStorageContext {
   static unsigned int session_storage_quota_;
 };
 
-#endif  // _DOM_STORAGE_CONTEXT_H
+#endif  // CEF_LIBCEF_DOM_STORAGE_CONTEXT_H_

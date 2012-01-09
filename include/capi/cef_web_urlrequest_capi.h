@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_WEB_URLREQUEST_CAPI_H
-#define _CEF_WEB_URLREQUEST_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_WEB_URLREQUEST_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_WEB_URLREQUEST_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -49,8 +50,7 @@ extern "C" {
 // with a browser instance so no cef_client_t callbacks will be executed. The
 // functions of this structure may be called on any thread.
 ///
-typedef struct _cef_web_urlrequest_t
-{
+typedef struct _cef_web_urlrequest_t {
   ///
   // Base structure.
   ///
@@ -66,7 +66,6 @@ typedef struct _cef_web_urlrequest_t
   ///
   enum cef_weburlrequest_state_t (CEF_CALLBACK *get_state)(
       struct _cef_web_urlrequest_t* self);
-
 } cef_web_urlrequest_t;
 
 
@@ -82,8 +81,7 @@ CEF_EXPORT cef_web_urlrequest_t* cef_web_urlrequest_create(
 // Structure that should be implemented by the cef_web_urlrequest_t client. The
 // functions of this structure will always be called on the UI thread.
 ///
-typedef struct _cef_web_urlrequest_client_t
-{
+typedef struct _cef_web_urlrequest_client_t {
   ///
   // Base structure.
   ///
@@ -135,7 +133,6 @@ typedef struct _cef_web_urlrequest_client_t
   void (CEF_CALLBACK *on_error)(struct _cef_web_urlrequest_client_t* self,
       struct _cef_web_urlrequest_t* requester,
       enum cef_handler_errorcode_t errorCode);
-
 } cef_web_urlrequest_client_t;
 
 
@@ -143,4 +140,4 @@ typedef struct _cef_web_urlrequest_client_t
 }
 #endif
 
-#endif // _CEF_WEB_URLREQUEST_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_WEB_URLREQUEST_CAPI_H_

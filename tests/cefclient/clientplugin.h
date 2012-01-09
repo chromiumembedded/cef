@@ -6,15 +6,17 @@
 // Portions of this implementation are borrowed from webkit\default_plugin\
 // plugin_impl.h
 
-#ifndef _CEFCLIENT_CLIENTPLUGIN_H
-#define _CEFCLIENT_CLIENTPLUGIN_H
+#ifndef CEF_TESTS_CEFCLIENT_CLIENTPLUGIN_H_
+#define CEF_TESTS_CEFCLIENT_CLIENTPLUGIN_H_
+#pragma once
 
-#include "include/cef_nplugin.h"
+#include "include/internal/cef_types.h"
 
 #if defined(OS_WIN)
 
-#include <atlbase.h>
-#include <atlwin.h>
+#include <atlbase.h>  // NOLINT(build/include_order)
+#include <atlwin.h>  // NOLINT(build/include_order)
+#include "include/cef_nplugin.h"
 
 extern NPNetscapeFuncs* g_browser;
 
@@ -82,7 +84,7 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
                             BOOL& handled);
   LRESULT OnLButtonDown(UINT message, WPARAM wparam, LPARAM lparam,
                         BOOL& handled);
-  
+
   // Enables the plugin window if required and initiates an update of the
   // the plugin window.
   void RefreshDisplay();
@@ -96,6 +98,6 @@ class ClientPlugin : public CWindowImpl<ClientPlugin> {
   int16 mode_;
 };
 
-#endif // OS_WIN
+#endif  // OS_WIN
 
-#endif // _CEFCLIENT_CLIENTPLUGIN_H
+#endif  // CEF_TESTS_CEFCLIENT_CLIENTPLUGIN_H_

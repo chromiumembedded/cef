@@ -3,14 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_impl.h"
-#include "cef_context.h"
-#include "drag_data_impl.h"
-#include "web_drag_utils_win.h"
-#include "web_drop_target_win.h"
+#include "libcef/web_drop_target_win.h"
 
 #include <windows.h>
 #include <shlobj.h>
+
+#include "libcef/browser_impl.h"
+#include "libcef/cef_context.h"
+#include "libcef/drag_data_impl.h"
+#include "libcef/web_drag_utils_win.h"
 
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 enum cef_dom_node_type_t CEF_CALLBACK domnode_get_type(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,8 +33,7 @@ enum cef_dom_node_type_t CEF_CALLBACK domnode_get_type(
   return _retval;
 }
 
-int CEF_CALLBACK domnode_is_text(struct _cef_domnode_t* self)
-{
+int CEF_CALLBACK domnode_is_text(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -49,8 +47,7 @@ int CEF_CALLBACK domnode_is_text(struct _cef_domnode_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self)
-{
+int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,8 +61,7 @@ int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self)
-{
+int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -80,8 +76,7 @@ int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_form_control_element_type(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -96,8 +91,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_form_control_element_type(
 }
 
 int CEF_CALLBACK domnode_is_same(struct _cef_domnode_t* self,
-    struct _cef_domnode_t* that)
-{
+    struct _cef_domnode_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -116,8 +110,8 @@ int CEF_CALLBACK domnode_is_same(struct _cef_domnode_t* self,
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK domnode_get_name(struct _cef_domnode_t* self)
-{
+cef_string_userfree_t CEF_CALLBACK domnode_get_name(
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -132,8 +126,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_name(struct _cef_domnode_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_value(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -148,8 +141,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_value(
 }
 
 int CEF_CALLBACK domnode_set_value(struct _cef_domnode_t* self,
-    const cef_string_t* value)
-{
+    const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -169,8 +161,7 @@ int CEF_CALLBACK domnode_set_value(struct _cef_domnode_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_as_markup(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -185,8 +176,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_as_markup(
 }
 
 cef_domdocument_t* CEF_CALLBACK domnode_get_document(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -202,8 +192,7 @@ cef_domdocument_t* CEF_CALLBACK domnode_get_document(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_parent(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -218,8 +207,7 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_parent(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_previous_sibling(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -235,8 +223,7 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_previous_sibling(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_next_sibling(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -250,8 +237,7 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_next_sibling(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK domnode_has_children(struct _cef_domnode_t* self)
-{
+int CEF_CALLBACK domnode_has_children(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -266,8 +252,7 @@ int CEF_CALLBACK domnode_has_children(struct _cef_domnode_t* self)
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_first_child(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -282,8 +267,7 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_first_child(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domnode_get_last_child(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -299,8 +283,7 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_last_child(
 
 void CEF_CALLBACK domnode_add_event_listener(struct _cef_domnode_t* self,
     const cef_string_t* eventType, struct _cef_domevent_listener_t* listener,
-    int useCapture)
-{
+    int useCapture) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -323,8 +306,7 @@ void CEF_CALLBACK domnode_add_event_listener(struct _cef_domnode_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_tag_name(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -338,8 +320,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_tag_name(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK domnode_has_element_attributes(struct _cef_domnode_t* self)
-{
+int CEF_CALLBACK domnode_has_element_attributes(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -354,8 +335,7 @@ int CEF_CALLBACK domnode_has_element_attributes(struct _cef_domnode_t* self)
 }
 
 int CEF_CALLBACK domnode_has_element_attribute(struct _cef_domnode_t* self,
-    const cef_string_t* attrName)
-{
+    const cef_string_t* attrName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -375,8 +355,7 @@ int CEF_CALLBACK domnode_has_element_attribute(struct _cef_domnode_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_attribute(
-    struct _cef_domnode_t* self, const cef_string_t* attrName)
-{
+    struct _cef_domnode_t* self, const cef_string_t* attrName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -396,8 +375,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_attribute(
 }
 
 void CEF_CALLBACK domnode_get_element_attributes(struct _cef_domnode_t* self,
-    cef_string_map_t attrMap)
-{
+    cef_string_map_t attrMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -409,7 +387,7 @@ void CEF_CALLBACK domnode_get_element_attributes(struct _cef_domnode_t* self,
     return;
 
   // Translate param: attrMap; type: string_map_single_byref
-  std::map<CefString,CefString> attrMapMap;
+  std::map<CefString, CefString> attrMapMap;
   transfer_string_map_contents(attrMap, attrMapMap);
 
   // Execute
@@ -422,8 +400,7 @@ void CEF_CALLBACK domnode_get_element_attributes(struct _cef_domnode_t* self,
 }
 
 int CEF_CALLBACK domnode_set_element_attribute(struct _cef_domnode_t* self,
-    const cef_string_t* attrName, const cef_string_t* value)
-{
+    const cef_string_t* attrName, const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -448,8 +425,7 @@ int CEF_CALLBACK domnode_set_element_attribute(struct _cef_domnode_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
-    struct _cef_domnode_t* self)
-{
+    struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -467,8 +443,7 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMNodeCppToC::CefDOMNodeCppToC(CefDOMNode* cls)
-    : CefCppToC<CefDOMNodeCppToC, CefDOMNode, cef_domnode_t>(cls)
-{
+    : CefCppToC<CefDOMNodeCppToC, CefDOMNode, cef_domnode_t>(cls) {
   struct_.struct_.get_type = domnode_get_type;
   struct_.struct_.is_text = domnode_is_text;
   struct_.struct_.is_element = domnode_is_element;

@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _EXTERNAL_PROTOCOL_HANDLER_H
-#define _EXTERNAL_PROTOCOL_HANDLER_H
+#ifndef CEF_LIBCEF_EXTERNAL_PROTOCOL_HANDLER_H_
+#define CEF_LIBCEF_EXTERNAL_PROTOCOL_HANDLER_H_
+#pragma once
 
 #include <string>
 
@@ -17,6 +18,6 @@ bool HasExternalHandler(const std::string& scheme);
 // Pass handling of the specified |gurl| to the OS.
 bool HandleExternalProtocol(const GURL& gurl);
 
-} // namespace ExternalProtocolHandler
+}  // namespace ExternalProtocolHandler
 
-#endif // _EXTERNAL_PROTOCOL_HANDLER_H
+#endif  // CEF_LIBCEF_EXTERNAL_PROTOCOL_HANDLER_H_

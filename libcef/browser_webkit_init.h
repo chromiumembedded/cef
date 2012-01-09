@@ -3,24 +3,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_WEBKIT_INIT_H
-#define _BROWSER_WEBKIT_INIT_H
+#ifndef CEF_LIBCEF_BROWSER_WEBKIT_INIT_H_
+#define CEF_LIBCEF_BROWSER_WEBKIT_INIT_H_
+#pragma once
 
-#include "base/compiler_specific.h"
+#include <vector>
 
-#include "browser_appcache_system.h"
-#include "browser_database_system.h"
-#include "browser_file_system.h"
-#include "browser_webblobregistry_impl.h"
-#include "browser_webcookiejar_impl.h"
-#include "simple_clipboard_impl.h"
+#include "libcef/browser_appcache_system.h"
+#include "libcef/browser_database_system.h"
+#include "libcef/browser_file_system.h"
+#include "libcef/browser_webblobregistry_impl.h"
+#include "libcef/browser_webcookiejar_impl.h"
+#include "libcef/simple_clipboard_impl.h"
 
 #include "base/scoped_temp_dir.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkitplatformsupport_impl.h"
-
 
 class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
  public:
@@ -33,33 +33,35 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebSandboxSupport* sandboxSupport() OVERRIDE;
   virtual WebKit::WebBlobRegistry* blobRegistry() OVERRIDE;
   virtual WebKit::WebCookieJar* cookieJar() OVERRIDE;
-  virtual WebKit::WebFileSystem* fileSystem() OVERRIDE ;
+  virtual WebKit::WebFileSystem* fileSystem() OVERRIDE;
   virtual bool sandboxEnabled() OVERRIDE;
   virtual WebKit::WebKitPlatformSupport::FileHandle databaseOpenFile(
       const WebKit::WebString& vfs_file_name, int desired_flags) OVERRIDE;
   virtual int databaseDeleteFile(const WebKit::WebString& vfs_file_name,
                                  bool sync_dir) OVERRIDE;
-  virtual long databaseGetFileAttributes(
+  virtual long databaseGetFileAttributes(  // NOLINT(runtime/int)
       const WebKit::WebString& vfs_file_name) OVERRIDE;
-  virtual long long databaseGetFileSize(
+  virtual long long databaseGetFileSize(  // NOLINT(runtime/int)
       const WebKit::WebString& vfs_file_name) OVERRIDE;
-  virtual long long databaseGetSpaceAvailableForOrigin(
+  virtual long long databaseGetSpaceAvailableForOrigin(  // NOLINT(runtime/int)
       const WebKit::WebString& origin_identifier) OVERRIDE;
-  virtual unsigned long long visitedLinkHash(const char* canonicalURL,
-                                             size_t length) OVERRIDE;
-  virtual bool isLinkVisited(unsigned long long linkHash) OVERRIDE;
+  virtual unsigned long long visitedLinkHash(  // NOLINT(runtime/int)
+      const char* canonicalURL,
+      size_t length) OVERRIDE;
+  virtual bool isLinkVisited(
+      unsigned long long linkHash) OVERRIDE;  // NOLINT(runtime/int)
   virtual WebKit::WebMessagePortChannel* createMessagePortChannel() OVERRIDE;
   virtual void prefetchHostName(const WebKit::WebString&) OVERRIDE;
   virtual void decrementStatsCounter(const char* name) OVERRIDE;
   virtual void incrementStatsCounter(const char* name) OVERRIDE;
-  virtual void histogramCustomCounts(const char* name, int sample, int min, 
+  virtual void histogramCustomCounts(const char* name, int sample, int min,
                                      int max, int bucket_count) OVERRIDE;
   virtual void histogramEnumeration(const char* name, int sample,
                                     int boundary_value) OVERRIDE;
   virtual bool isTraceEventEnabled() const OVERRIDE;
   virtual void traceEventBegin(const char* name, void* id,
                                const char* extra) OVERRIDE;
-  virtual void traceEventEnd(const char* name, void* id, 
+  virtual void traceEventEnd(const char* name, void* id,
                              const char* extra) OVERRIDE;
   virtual WebKit::WebData loadResource(const char* name) OVERRIDE;
   virtual WebKit::WebString defaultLocale() OVERRIDE;
@@ -111,4 +113,4 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
 };
 
-#endif  // _BROWSER_WEBKIT_INIT_H
+#endif  // CEF_LIBCEF_BROWSER_WEBKIT_INIT_H_

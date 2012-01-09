@@ -2,8 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _TEST_HANDLER_H
-#define _TEST_HANDLER_H
+#ifndef CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
+#define CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
+#pragma once
+
+#include <map>
+#include <string>
+#include <utility>
 
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
@@ -12,15 +17,14 @@
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class TrackCallback
-{
-public:
+class TrackCallback {
+ public:
   TrackCallback(): gotit_(false) {}
   void yes() { gotit_ = true; }
   bool isSet() { return gotit_; }
   void reset() { gotit_ = false; }
   operator bool() const { return gotit_; }
-protected:
+ protected:
   bool gotit_;
 };
 
@@ -32,9 +36,8 @@ class TestHandler : public CefClient,
                     public CefLoadHandler,
                     public CefRequestHandler,
                     public CefV8ContextHandler,
-                    public CefPermissionHandler
-{
-public:
+                    public CefPermissionHandler {
+ public:
   TestHandler();
   virtual ~TestHandler();
 
@@ -42,18 +45,24 @@ public:
   virtual void RunTest() =0;
 
   // CefClient methods. Add new methods as needed by test cases.
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE
-      { return this; }
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE {
+    return this;
+  }
 
   // CefLifeSpanHandler methods
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
@@ -75,7 +84,7 @@ public:
   // returns.
   void ExecuteTest();
 
-protected:
+ protected:
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
   void DestroyTest();
@@ -86,7 +95,7 @@ protected:
                    const CefString& mimeType);
   void ClearResources();
 
-private:
+ private:
   // The child browser window
   CefRefPtr<CefBrowser> browser_;
 
@@ -114,4 +123,4 @@ void WaitForThread(CefThreadId thread_id);
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
 
-#endif // _TEST_HANDLER_H
+#endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -15,8 +15,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefDownloadHandlerCToCpp::ReceivedData(void* data, int data_size)
-{
+bool CefDownloadHandlerCToCpp::ReceivedData(void* data, int data_size) {
   if (CEF_MEMBER_MISSING(struct_, received_data))
     return false;
 
@@ -36,8 +35,7 @@ bool CefDownloadHandlerCToCpp::ReceivedData(void* data, int data_size)
   return _retval?true:false;
 }
 
-void CefDownloadHandlerCToCpp::Complete()
-{
+void CefDownloadHandlerCToCpp::Complete() {
   if (CEF_MEMBER_MISSING(struct_, complete))
     return;
 

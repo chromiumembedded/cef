@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "browser_socket_stream_bridge.h"
+#include "libcef/browser_socket_stream_bridge.h"
 
 #include "base/atomicops.h"
 #include "base/bind.h"

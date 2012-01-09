@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefPrintHandlerCToCpp::GetPrintOptions(CefRefPtr<CefBrowser> browser,
-    CefPrintOptions& printOptions)
-{
+    CefPrintOptions& printOptions) {
   if (CEF_MEMBER_MISSING(struct_, get_print_options))
     return false;
 
@@ -44,8 +43,7 @@ bool CefPrintHandlerCToCpp::GetPrintHeaderFooter(CefRefPtr<CefBrowser> browser,
     const CefString& url, const CefString& title, int currentPage,
     int maxPages, CefString& topLeft, CefString& topCenter,
     CefString& topRight, CefString& bottomLeft, CefString& bottomCenter,
-    CefString& bottomRight)
-{
+    CefString& bottomRight) {
   if (CEF_MEMBER_MISSING(struct_, get_print_header_footer))
     return false;
 

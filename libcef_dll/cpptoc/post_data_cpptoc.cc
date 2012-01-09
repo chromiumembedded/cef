@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_post_data_t* cef_post_data_create()
-{
+CEF_EXPORT cef_post_data_t* cef_post_data_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -30,8 +29,7 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create()
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self)
-{
+size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -46,8 +44,7 @@ size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self)
 }
 
 void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
-    size_t* elementsCount, struct _cef_post_data_element_t** elements)
-{
+    size_t* elementsCount, struct _cef_post_data_element_t** elements) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,8 +79,7 @@ void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
 }
 
 int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
-    struct _cef_post_data_element_t* element)
-{
+    struct _cef_post_data_element_t* element) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,8 +99,7 @@ int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
 }
 
 int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* self,
-    struct _cef_post_data_element_t* element)
-{
+    struct _cef_post_data_element_t* element) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,8 +118,7 @@ int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* self,
   return _retval;
 }
 
-void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self)
-{
+void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -139,8 +133,7 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self)
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
-    : CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>(cls)
-{
+    : CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>(cls) {
   struct_.struct_.get_element_count = post_data_get_element_count;
   struct_.struct_.get_elements = post_data_get_elements;
   struct_.struct_.remove_element = post_data_remove_element;

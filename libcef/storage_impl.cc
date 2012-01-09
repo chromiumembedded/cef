@@ -3,18 +3,17 @@
 // be found in the LICENSE file.
 
 #include "include/cef_storage.h"
-#include "cef_context.h"
-#include "cef_thread.h"
-#include "dom_storage_common.h"
-#include "dom_storage_namespace.h"
-#include "dom_storage_area.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
+#include "libcef/dom_storage_common.h"
+#include "libcef/dom_storage_namespace.h"
+#include "libcef/dom_storage_area.h"
 
 namespace {
 
 void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
                       const CefString& key,
-                      CefRefPtr<CefStorageVisitor> visitor)
-{
+                      CefRefPtr<CefStorageVisitor> visitor) {
   REQUIRE_UIT();
 
   DOMStorageContext* context = _Context->storage_context();
@@ -100,7 +99,7 @@ void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
     } else {
       // Visit all keys.
       len = area->Length();
-      for(i = 0; i < len && !stop; ++i) {
+      for (i = 0; i < len && !stop; ++i) {
         keyVal = area->Key(i);
         if (keyVal.is_null()) {
           keyStr.clear();
@@ -133,8 +132,7 @@ void UIT_VisitStorage(int64 namespace_id, const CefString& origin,
   }
 }
 
-void UIT_SetStoragePath(int64 namespace_id, const CefString& path)
-{
+void UIT_SetStoragePath(int64 namespace_id, const CefString& path) {
   REQUIRE_UIT();
 
   if (namespace_id != kLocalStorageNamespaceId)
@@ -150,12 +148,11 @@ void UIT_SetStoragePath(int64 namespace_id, const CefString& path)
     context->SetLocalStoragePath(file_path);
 }
 
-} // anonymous
+}  // namespace
 
 bool CefVisitStorage(CefStorageType type, const CefString& origin,
                      const CefString& key,
-                     CefRefPtr<CefStorageVisitor> visitor)
-{
+                     CefRefPtr<CefStorageVisitor> visitor) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -165,7 +162,7 @@ bool CefVisitStorage(CefStorageType type, const CefString& origin,
   int64 namespace_id;
   if (type == ST_LOCALSTORAGE) {
     namespace_id = kLocalStorageNamespaceId;
-  } else if(type == ST_SESSIONSTORAGE) {
+  } else if (type == ST_SESSIONSTORAGE) {
     namespace_id = kLocalStorageNamespaceId + 1;
   } else {
     NOTREACHED() << "invalid type";
@@ -183,8 +180,7 @@ bool CefVisitStorage(CefStorageType type, const CefString& origin,
 }
 
 bool CefSetStorage(CefStorageType type, const CefString& origin,
-                   const CefString& key, const CefString& value)
-{
+                   const CefString& key, const CefString& value) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -200,7 +196,7 @@ bool CefSetStorage(CefStorageType type, const CefString& origin,
   int64 namespace_id;
   if (type == ST_LOCALSTORAGE) {
     namespace_id = kLocalStorageNamespaceId;
-  } else if(type == ST_SESSIONSTORAGE) {
+  } else if (type == ST_SESSIONSTORAGE) {
     namespace_id = kLocalStorageNamespaceId + 1;
   } else {
     NOTREACHED() << "invalid type";
@@ -223,8 +219,7 @@ bool CefSetStorage(CefStorageType type, const CefString& origin,
 }
 
 bool CefDeleteStorage(CefStorageType type, const CefString& origin,
-                      const CefString& key)
-{
+                      const CefString& key) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -240,7 +235,7 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
   int64 namespace_id;
   if (type == ST_LOCALSTORAGE) {
     namespace_id = kLocalStorageNamespaceId;
-  } else if(type == ST_SESSIONSTORAGE) {
+  } else if (type == ST_SESSIONSTORAGE) {
     namespace_id = kLocalStorageNamespaceId + 1;
   } else {
     NOTREACHED() << "invalid type";
@@ -259,7 +254,7 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
       context->DeleteAllLocalStorageFiles();
     else
       context->PurgeMemory(namespace_id);
-  } else if(key.empty()) {
+  } else if (key.empty()) {
     // Clear the storage area for the specified origin.
     if (namespace_id == kLocalStorageNamespaceId) {
       context->DeleteLocalStorageForOrigin(origin);
@@ -283,8 +278,7 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
   return true;
 }
 
-bool CefSetStoragePath(CefStorageType type, const CefString& path)
-{
+bool CefSetStoragePath(CefStorageType type, const CefString& path) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";

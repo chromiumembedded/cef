@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _WEB_DRAG_UTILS_WIN_H
-#define _WEB_DRAG_UTILS_WIN_H
+#ifndef CEF_LIBCEF_WEB_DRAG_UTILS_WIN_H_
+#define CEF_LIBCEF_WEB_DRAG_UTILS_WIN_H_
 #pragma once
 
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
-
 #include <windows.h>
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
 
 namespace web_drag_utils_win {
 
@@ -20,4 +19,4 @@ DWORD WebDragOpMaskToWinDragOpMask(WebKit::WebDragOperationsMask ops);
 
 }  // namespace web_drag_utils_win
 
-#endif  // _WEB_DRAG_UTILS_WIN_H
+#endif  // CEF_LIBCEF_WEB_DRAG_UTILS_WIN_H_

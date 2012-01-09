@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
-    CefRect& rect)
-{
+    CefRect& rect) {
   if (CEF_MEMBER_MISSING(struct_, get_view_rect))
     return false;
 
@@ -39,8 +38,7 @@ bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefRenderHandlerCToCpp::GetScreenRect(CefRefPtr<CefBrowser> browser,
-    CefRect& rect)
-{
+    CefRect& rect) {
   if (CEF_MEMBER_MISSING(struct_, get_screen_rect))
     return false;
 
@@ -61,8 +59,7 @@ bool CefRenderHandlerCToCpp::GetScreenRect(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-    int viewX, int viewY, int& screenX, int& screenY)
-{
+    int viewX, int viewY, int& screenX, int& screenY) {
   if (CEF_MEMBER_MISSING(struct_, get_screen_point))
     return false;
 
@@ -86,8 +83,7 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
-    bool show)
-{
+    bool show) {
   if (CEF_MEMBER_MISSING(struct_, on_popup_show))
     return;
 
@@ -105,8 +101,7 @@ void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
-    const CefRect& rect)
-{
+    const CefRect& rect) {
   if (CEF_MEMBER_MISSING(struct_, on_popup_size))
     return;
 
@@ -124,8 +119,7 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
-    PaintElementType type, const RectList& dirtyRects, const void* buffer)
-{
+    PaintElementType type, const RectList& dirtyRects, const void* buffer) {
   if (CEF_MEMBER_MISSING(struct_, on_paint))
     return;
 
@@ -163,8 +157,7 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
-    CefCursorHandle cursor)
-{
+    CefCursorHandle cursor) {
   if (CEF_MEMBER_MISSING(struct_, on_cursor_change))
     return;
 

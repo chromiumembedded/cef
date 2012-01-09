@@ -18,3 +18,7 @@ def get_svn_revision(path=".", branch="master"):
         raise
     return svn_rev
 
+def get_changed_files(path="."):
+  """ Retrieves the list of changed files. """
+  # not implemented
+  return []

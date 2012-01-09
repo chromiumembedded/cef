@@ -2,17 +2,17 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _DOM_NODE_IMPL_H
-#define _DOM_NODE_IMPL_H
+#ifndef CEF_LIBCEF_DOM_NODE_IMPL_H_
+#define CEF_LIBCEF_DOM_NODE_IMPL_H_
+#pragma once
 
 #include "include/cef_dom.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 
 class CefDOMDocumentImpl;
 
-class CefDOMNodeImpl : public CefDOMNode
-{
-public:
+class CefDOMNodeImpl : public CefDOMNode {
+ public:
   CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                  const WebKit::WebNode& node);
   virtual ~CefDOMNodeImpl();
@@ -52,11 +52,11 @@ public:
   // Verify that the object exists and is being accessed on the UI thread.
   bool VerifyContext();
 
-protected:
+ protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
   WebKit::WebNode node_;
 
   IMPLEMENT_REFCOUNTING(CefDOMNodeImpl);
 };
 
-#endif // _DOM_NODE_IMPL_H
+#endif  // CEF_LIBCEF_DOM_NODE_IMPL_H_

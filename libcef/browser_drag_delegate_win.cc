@@ -3,20 +3,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_drag_delegate_win.h"
-#include "browser_impl.h"
-#include "browser_webview_delegate.h"
-#include "cef_thread.h"
-#include "drag_download_file.h"
-#include "drag_download_util.h"
-#include "download_util.h"
-#include "web_drag_source_win.h"
-#include "web_drag_utils_win.h"
-#include "web_drop_target_win.h"
+#include "libcef/browser_drag_delegate_win.h"
 
 #include <windows.h>
-
 #include <string>
+
+#include "libcef/browser_impl.h"
+#include "libcef/browser_webview_delegate.h"
+#include "libcef/cef_thread.h"
+#include "libcef/drag_download_file.h"
+#include "libcef/drag_download_util.h"
+#include "libcef/download_util.h"
+#include "libcef/web_drag_source_win.h"
+#include "libcef/web_drag_utils_win.h"
+#include "libcef/web_drop_target_win.h"
 
 #include "base/utf_string_conversions.h"
 #include "net/base/file_stream.h"
@@ -89,8 +89,8 @@ class DragDropThread : public base::Thread {
   }
 
  private:
-  // Hold a reference count to BrowserDragDelegate to make sure that it is always
-  // alive in the thread lifetime.
+  // Hold a reference count to BrowserDragDelegate to make sure that it is
+  // always alive in the thread lifetime.
   scoped_refptr<BrowserDragDelegate> drag_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(DragDropThread);

@@ -3,9 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "web_drag_source_win.h"
-#include "web_drag_utils_win.h"
-#include "cef_thread.h"
+#include "libcef/web_drag_source_win.h"
+#include "libcef/web_drag_utils_win.h"
+#include "libcef/cef_thread.h"
 
 #include "base/task.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"

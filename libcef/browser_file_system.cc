@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_file_system.h"
-#include "browser_file_writer.h"
-#include "cef_thread.h"
+#include "libcef/browser_file_system.h"
+#include "libcef/browser_file_writer.h"
+#include "libcef/cef_thread.h"
 
 #include "base/file_path.h"
 #include "base/memory/scoped_callback_factory.h"
@@ -150,7 +150,7 @@ void BrowserFileSystem::CreateContext() {
 
 void BrowserFileSystem::OpenFileSystem(
     WebFrame* frame, WebFileSystem::Type web_filesystem_type,
-    long long, bool create,
+    long long, bool create,  // NOLINT(runtime/int)
     WebFileSystemCallbacks* callbacks) {
   if (!frame || !file_system_context_.get()) {
     // The FileSystem temp directory was not initialized successfully.
@@ -159,13 +159,13 @@ void BrowserFileSystem::OpenFileSystem(
   }
 
   fileapi::FileSystemType type;
-  if (web_filesystem_type == WebFileSystem::TypeTemporary)
+  if (web_filesystem_type == WebFileSystem::TypeTemporary) {
     type = fileapi::kFileSystemTypeTemporary;
-  else if (web_filesystem_type == WebFileSystem::TypePersistent)
+  } else if (web_filesystem_type == WebFileSystem::TypePersistent) {
     type = fileapi::kFileSystemTypePersistent;
-  else if (web_filesystem_type == WebFileSystem::TypeExternal)
+  } else if (web_filesystem_type == WebFileSystem::TypeExternal) {
     type = fileapi::kFileSystemTypeExternal;
-  else {
+  } else {
     // Unknown type filesystem is requested.
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;

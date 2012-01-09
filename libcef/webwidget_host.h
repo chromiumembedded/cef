@@ -2,12 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _WEBWIDGET_HOST_H
-#define _WEBWIDGET_HOST_H
+#ifndef CEF_LIBCEF_WEBWIDGET_HOST_H_
+#define CEF_LIBCEF_WEBWIDGET_HOST_H_
+#pragma once
+
+#include <map>
+#include <vector>
 
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types.h"
 #include "include/internal/cef_types_wrappers.h"
+
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
@@ -21,14 +26,13 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
 #include "webkit/plugins/npapi/webplugin.h"
-#include <map>
 
 #if defined(OS_WIN)
 #include "ui/base/win/ime_input.h"
 #endif
 
 #if defined(TOOLKIT_USES_GTK)
-#include <gtk/gtk.h>
+#include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
 namespace gfx {
@@ -56,6 +60,7 @@ class WebWidgetHost {
  public:
   class PaintDelegate {
    public:
+    virtual ~PaintDelegate() {}
     virtual void Paint(bool popup, const std::vector<CefRect>& dirtyRects,
                        const void* buffer) =0;
   };
@@ -176,12 +181,14 @@ class WebWidgetHost {
   // These need to be called from a non-subclass, so they need to be public.
  public:
   void Resize(const gfx::Rect& rect);
-  virtual void MouseEvent(NSEvent *);
-  void WheelEvent(NSEvent *);
-  virtual void KeyEvent(NSEvent *);
+  virtual void MouseEvent(NSEvent* event);
+  void WheelEvent(NSEvent* event);
+  virtual void KeyEvent(NSEvent* event);
   virtual void SetFocus(bool enable);
+
  protected:
 #elif defined(TOOLKIT_USES_GTK)
+
  public:
   // ---------------------------------------------------------------------------
   // This is needed on Linux because the GtkWidget creation is the same between
@@ -250,7 +257,7 @@ class WebWidgetHost {
 
   // The map of windowed plugins that need to be drawn when window rendering is
   // disabled.
-  typedef std::map<gfx::PluginWindowHandle,webkit::npapi::WebPluginGeometry>
+  typedef std::map<gfx::PluginWindowHandle, webkit::npapi::WebPluginGeometry>
       PluginMap;
   PluginMap plugin_map_;
 
@@ -293,4 +300,4 @@ class WebWidgetHost {
   base::WeakPtrFactory<WebWidgetHost> weak_factory_;
 };
 
-#endif  // _WEBWIDGET_HOST_H
+#endif  // CEF_LIBCEF_WEBWIDGET_HOST_H_

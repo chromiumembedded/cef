@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefDragHandlerCToCpp::OnDragStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefDragData> dragData, DragOperationsMask mask)
-{
+    CefRefPtr<CefDragData> dragData, DragOperationsMask mask) {
   if (CEF_MEMBER_MISSING(struct_, on_drag_start))
     return false;
 
@@ -45,8 +44,7 @@ bool CefDragHandlerCToCpp::OnDragStart(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefDragData> dragData, DragOperationsMask mask)
-{
+    CefRefPtr<CefDragData> dragData, DragOperationsMask mask) {
   if (CEF_MEMBER_MISSING(struct_, on_drag_enter))
     return false;
 

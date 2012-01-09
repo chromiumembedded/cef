@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_FRAME_CAPI_H
-#define _CEF_FRAME_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -49,8 +50,7 @@ extern "C" {
 // this structure may be called on any thread unless otherwise indicated in the
 // comments.
 ///
-typedef struct _cef_frame_t
-{
+typedef struct _cef_frame_t {
   ///
   // Base structure.
   ///
@@ -130,10 +130,10 @@ typedef struct _cef_frame_t
       const cef_string_t* url);
 
   ///
-  // Load the contents of |string| with the optional dummy target |url|.
+  // Load the contents of |string_val| with the optional dummy target |url|.
   ///
   void (CEF_CALLBACK *load_string)(struct _cef_frame_t* self,
-      const cef_string_t* string, const cef_string_t* url);
+      const cef_string_t* string_val, const cef_string_t* url);
 
   ///
   // Load the contents of |stream| with the optional dummy target |url|.
@@ -177,7 +177,7 @@ typedef struct _cef_frame_t
   // Returns the globally unique identifier for this frame. This function should
   // only be called on the UI thread.
   ///
-  long long (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
+  int64 (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
 
   ///
   // Returns the parent of this frame or NULL if this is the main (top-level)
@@ -209,7 +209,6 @@ typedef struct _cef_frame_t
   ///
   struct _cef_v8context_t* (CEF_CALLBACK *get_v8context)(
       struct _cef_frame_t* self);
-
 } cef_frame_t;
 
 
@@ -217,4 +216,4 @@ typedef struct _cef_frame_t
 }
 #endif
 
-#endif // _CEF_FRAME_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_

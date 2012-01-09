@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DRAG_DOWNLOAD_UTIL_H
-#define _DRAG_DOWNLOAD_UTIL_H
+#ifndef CEF_LIBCEF_DRAG_DOWNLOAD_UTIL_H_
+#define CEF_LIBCEF_DRAG_DOWNLOAD_UTIL_H_
 #pragma once
 
-#include "drag_download_file.h"
+#include "libcef/drag_download_file.h"
 
 #include "base/basictypes.h"
 #include "base/memory/ref_counted.h"
@@ -60,4 +60,4 @@ class PromiseFileFinalizer : public ui::DownloadFileObserver {
 
 }  // namespace drag_download_util
 
-#endif  // _DRAG_DOWNLOAD_UTIL_H
+#endif  // CEF_LIBCEF_DRAG_DOWNLOAD_UTIL_H_

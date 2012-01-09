@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _WEB_DROP_TARGET_WIN_H
-#define _WEB_DROP_TARGET_WIN_H
+#ifndef CEF_LIBCEF_WEB_DROP_TARGET_WIN_H_
+#define CEF_LIBCEF_WEB_DROP_TARGET_WIN_H_
 #pragma once
 
 #include "base/memory/scoped_ptr.h"
@@ -21,7 +21,7 @@ class WebDropTarget : public ui::DropTarget {
  public:
   // Create a new WebDropTarget associating it with the given HWND and
   // WebView.
-  WebDropTarget(CefBrowserImpl* browser);
+  explicit WebDropTarget(CefBrowserImpl* browser);
   virtual ~WebDropTarget();
 
   void set_drag_cursor(WebKit::WebDragOperation op) {
@@ -66,4 +66,4 @@ class WebDropTarget : public ui::DropTarget {
   DISALLOW_COPY_AND_ASSIGN(WebDropTarget);
 };
 
-#endif  // _WEB_DROP_TARGET_WIN_H
+#endif  // CEF_LIBCEF_WEB_DROP_TARGET_WIN_H_

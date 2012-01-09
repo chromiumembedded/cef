@@ -3,13 +3,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_persistent_cookie_store.h"
-#include "cef_thread.h"
+#include "libcef/browser_persistent_cookie_store.h"
 
 #include <list>
 #include <map>
 #include <set>
 #include <utility>
+
+#include "libcef/cef_thread.h"
 
 #include "base/basictypes.h"
 #include "base/bind.h"
@@ -92,7 +93,8 @@ class BrowserPersistentCookieStore::Backend
   void SetClearLocalStateOnExit(bool clear_local_state);
 
  private:
-  friend class base::RefCountedThreadSafe<BrowserPersistentCookieStore::Backend>;
+  friend class base::RefCountedThreadSafe<
+      BrowserPersistentCookieStore::Backend>;
 
   // You should call Close() before destructing this object.
   ~Backend() {
@@ -331,7 +333,7 @@ bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
     return false;
   }
 
-  //db_->set_error_delegate(GetErrorHandlerForCookieDb());
+  // db_->set_error_delegate(GetErrorHandlerForCookieDb());
 
   if (!EnsureDatabaseVersion() || !InitTable(db_.get())) {
     NOTREACHED() << "Unable to open cookie DB.";

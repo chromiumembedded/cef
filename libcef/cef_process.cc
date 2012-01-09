@@ -3,27 +3,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_process.h"
-#include "cef_process_io_thread.h"
-#include "cef_process_sub_thread.h"
-#include "cef_process_ui_thread.h"
+#include "libcef/cef_process.h"
+#include "libcef/cef_process_io_thread.h"
+#include "libcef/cef_process_sub_thread.h"
+#include "libcef/cef_process_ui_thread.h"
 
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 
 // Class used to process events on the current message loop.
-class CefMessageLoopForUI : public MessageLoopForUI
-{
+class CefMessageLoopForUI : public MessageLoopForUI {
   typedef MessageLoopForUI inherited;
 
-public:
+ public:
   CefMessageLoopForUI()
-    : is_iterating_(true)
-  {
+    : is_iterating_(true) {
   }
 #if defined(OS_MACOSX)
-  virtual ~CefMessageLoopForUI()
-  {
+  virtual ~CefMessageLoopForUI() {
     // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
     // the state_ variable to avoid an assertion in the MessageLoop destructor.
     state_ = NULL;
@@ -82,7 +79,7 @@ CefProcess::~CefProcess() {
   // Terminate the FILE thread.
   file_thread_.reset();
 
-  if(!multi_threaded_message_loop_) {
+  if (!multi_threaded_message_loop_) {
     // Must explicitly clean up the UI thread.
     ui_thread_->CleanUp();
 
@@ -115,7 +112,7 @@ void CefProcess::CreateUIThread() {
   created_ui_thread_ = true;
 
   scoped_ptr<CefProcessUIThread> thread;
-  if(multi_threaded_message_loop_) {
+  if (multi_threaded_message_loop_) {
     // Create the message loop on a new thread.
     thread.reset(new CefProcessUIThread());
     base::Thread::Options options;

@@ -3,8 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _CEF_THREAD_H
-#define _CEF_THREAD_H
+#ifndef CEF_LIBCEF_CEF_THREAD_H_
+#define CEF_LIBCEF_CEF_THREAD_H_
+#pragma once
 
 #include "base/synchronization/lock.h"
 #include "base/task.h"
@@ -88,7 +89,7 @@ class CefThread : public base::Thread {
       const tracked_objects::Location& from_here,
       Task* task,
       int64 delay_ms);
-  
+
   // TODO(ajwong): Remove the functions above once the Task -> Closure migration
   // is complete.
   //
@@ -215,4 +216,4 @@ class CefThread : public base::Thread {
 #define REQUIRE_UIT() DCHECK(CefThread::CurrentlyOn(CefThread::UI))
 #define REQUIRE_IOT() DCHECK(CefThread::CurrentlyOn(CefThread::IO))
 
-#endif  // _CEF_THREAD_H
+#endif  // CEF_LIBCEF_CEF_THREAD_H_

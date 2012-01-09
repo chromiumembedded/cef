@@ -2,17 +2,17 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "extension_test.h"
+#include "cefclient/extension_test.h"
+#include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
-#include "resource_util.h"
+#include "cefclient/resource_util.h"
 
 // Implementation of the V8 handler class for the "cef.test" extension.
-class ClientV8ExtensionHandler : public CefV8Handler
-{
-public:
+class ClientV8ExtensionHandler : public CefV8Handler {
+ public:
   ClientV8ExtensionHandler() : test_param_("An initial string value.") {}
   virtual ~ClientV8ExtensionHandler() {}
 
@@ -22,32 +22,24 @@ public:
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception)
-  {
-    if(name == "Dummy")
-    {
+                       CefString& exception) {
+    if (name == "Dummy") {
       // Used for performance testing.
       return true;
-    }
-    else if(name == "SetTestParam")
-    {
+    } else if (name == "SetTestParam") {
       // Handle the SetTestParam native function by saving the string argument
       // into the local member.
-      if(arguments.size() != 1 || !arguments[0]->IsString())
+      if (arguments.size() != 1 || !arguments[0]->IsString())
         return false;
-      
+
       test_param_ = arguments[0]->GetStringValue();
       return true;
-    }
-    else if(name == "GetTestParam")
-    {
+    } else if (name == "GetTestParam") {
       // Handle the GetTestParam native function by returning the local member
       // value.
       retval = CefV8Value::CreateString(test_param_);
       return true;
-    }
-    else if(name == "GetTestObject")
-    {
+    } else if (name == "GetTestObject") {
       // Handle the GetTestObject native function by creating and returning a
       // new V8 object.
       retval = CefV8Value::CreateObject(NULL, NULL);
@@ -60,9 +52,7 @@ public:
           CefV8Value::CreateFunction("GetMessage", this),
           V8_PROPERTY_ATTRIBUTE_NONE);
       return true;
-    }
-    else if(name == "GetMessage")
-    {
+    }  else if (name == "GetMessage") {
       // Handle the GetMessage object function by returning a string.
       retval = CefV8Value::CreateString(
           "Calling a function on a native object succeeded.");
@@ -71,15 +61,14 @@ public:
     return false;
   }
 
-private:
+ private:
   CefString test_param_;
 
   IMPLEMENT_REFCOUNTING(ClientV8ExtensionHandler);
 };
 
 
-void InitExtensionTest()
-{
+void InitExtensionTest() {
   // Register a V8 extension with the below JavaScript code that calls native
   // methods implemented in ClientV8ExtensionHandler.
   std::string code = "var cef;"
@@ -94,7 +83,7 @@ void InitExtensionTest()
     "  });"
     "  cef.test.__defineSetter__('test_param', function(b) {"
     "    native function SetTestParam();"
-    "    if(b) SetTestParam(b);"
+    "    if (b) SetTestParam(b);"
     "  });"
     "  cef.test.test_object = function() {"
     "    native function GetTestObject();"
@@ -108,8 +97,7 @@ void InitExtensionTest()
   CefRegisterExtension("v8/test", code, new ClientV8ExtensionHandler());
 }
 
-void RunExtensionTest(CefRefPtr<CefBrowser> browser)
-{
+void RunExtensionTest(CefRefPtr<CefBrowser> browser) {
   std::string html =
     "<html><body>ClientV8ExtensionHandler says:<br><pre>"
     "<script language=\"JavaScript\">"
@@ -127,8 +115,7 @@ void RunExtensionTest(CefRefPtr<CefBrowser> browser)
   browser->GetMainFrame()->LoadString(html, "about:blank");
 }
 
-void RunExtensionPerfTest(CefRefPtr<CefBrowser> browser)
-{
+void RunExtensionPerfTest(CefRefPtr<CefBrowser> browser) {
   CefRefPtr<CefStreamReader> resourceStream;
 #if defined(OS_WIN)
   resourceStream = GetBinaryResourceReader(IDS_EXTENSIONPERF);

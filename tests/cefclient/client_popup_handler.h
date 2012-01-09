@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CLIENT_POPUP_HANDLER_H
-#define _CLIENT_POPUP_HANDLER_H
+#ifndef CEF_TESTS_CEFCLIENT_CLIENT_POPUP_HANDLER_H_
+#define CEF_TESTS_CEFCLIENT_CLIENT_POPUP_HANDLER_H_
+#pragma once
 
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
@@ -12,15 +13,15 @@
 // Handler for popup windows that loads the request in an existing browser
 // window.
 class ClientPopupHandler : public CefClient,
-                           public CefRequestHandler
-{
-public:
-  ClientPopupHandler(CefRefPtr<CefBrowser> parentBrowser);
+                           public CefRequestHandler {
+ public:
+  explicit ClientPopupHandler(CefRefPtr<CefBrowser> parentBrowser);
   virtual ~ClientPopupHandler();
 
   // CefClient methods
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
-      { return this; }
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
+    return this;
+  }
 
   // CefRequestHandler methods
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -28,11 +29,11 @@ public:
                               CefRefPtr<CefRequest> request,
                               NavType navType,
                               bool isRedirect) OVERRIDE;
-protected:
+ protected:
   CefRefPtr<CefBrowser> m_ParentBrowser;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientPopupHandler);
 };
 
-#endif // _CLIENT_POPUP_HANDLER_H
+#endif  // CEF_TESTS_CEFCLIENT_CLIENT_POPUP_HANDLER_H_

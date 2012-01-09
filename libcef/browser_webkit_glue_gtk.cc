@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webkit_glue.h"
-#include "cef_context.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/cef_context.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace webkit_glue {
@@ -15,8 +15,9 @@ base::StringPiece GetDataResource(int resource_id) {
   if (piece.empty())
     piece = ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
 
-  DCHECK(!piece.empty()) << "Resource "<<resource_id<<" could not be loaded";
+  DCHECK(!piece.empty()) << "Resource " << resource_id <<
+      " could not be loaded";
   return piece;
 }
 
-}
+}  // namespace webkit_glue

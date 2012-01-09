@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _XMLREADER_CPPTOC_H
-#define _XMLREADER_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_XML_READER_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_XML_READER_CPPTOC_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_xml_reader.h"
 #include "include/capi/cef_xml_reader_capi.h"
@@ -26,13 +27,12 @@
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefXmlReaderCppToC
-    : public CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>
-{
-public:
-  CefXmlReaderCppToC(CefXmlReader* cls);
+    : public CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t> {
+ public:
+  explicit CefXmlReaderCppToC(CefXmlReader* cls);
   virtual ~CefXmlReaderCppToC() {}
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _XMLREADER_CPPTOC_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_XML_READER_CPPTOC_H_
 

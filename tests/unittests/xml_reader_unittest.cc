@@ -25,14 +25,14 @@ char g_test_xml[] =
     "    <ns:objB_3>&EB;</ns:objB_3>\n"
     "    <ns:objB_4><b>this is</b> mixed content &EA;</ns:objB_4>\n"
     "  </ns:objB>\n"
-    "  <ns:objC ns:attr1=\"value C1\" ns:attr2=\"value C2\"/><ns:objD></ns:objD>\n"
+    "  <ns:objC ns:attr1=\"value C1\" ns:attr2=\"value C2\"/><ns:objD>"
+    "</ns:objD>\n"
     "</ns:obj>\n";
 
-} // namespace
+}  // namespace
 
 // Test XML reading
-TEST(XmlReaderTest, Read)
-{
+TEST(XmlReaderTest, Read) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_xml, sizeof(g_test_xml) - 1));
@@ -126,7 +126,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), "#comment");
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), " my comment ");
-  
+
   // Move to the whitespace node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
@@ -237,7 +237,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), "EB");
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), "EB Value");
-  
+
   // Move to the ns:objB_3 element ending node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -279,7 +279,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_FALSE(reader->HasValue());
-  
+
   // Move to the text node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 4);
@@ -288,14 +288,14 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), "#text");
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), "this is");
-  
+
   // Move to the </b> element node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_END);
   ASSERT_EQ(reader->GetLocalName(), "b");
   ASSERT_EQ(reader->GetQualifiedName(), "b");
-  
+
   // Move to the text node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
@@ -304,7 +304,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), "#text");
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), " mixed content ");
-  
+
   // Move to the EA entity reference node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 3);
@@ -313,7 +313,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetQualifiedName(), "EA");
   ASSERT_TRUE(reader->HasValue());
   ASSERT_EQ(reader->GetValue(), "EA Value");
-  
+
   // Move to the ns:objB_4 element ending node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -366,7 +366,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetAttribute("ns:attr2"), "value C2");
   ASSERT_EQ(reader->GetAttribute("attr2", "http://www.example.org/ns"),
       "value C2");
-  
+
   // Move to the ns:attr1 attribute.
   ASSERT_TRUE(reader->MoveToFirstAttribute());
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -379,7 +379,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_EQ(reader->GetValue(), "value C1");
-  
+
   // Move to the ns:attr2 attribute.
   ASSERT_TRUE(reader->MoveToNextAttribute());
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -401,7 +401,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetQualifiedName(), "ns:objC");
-  
+
   // Move to the ns:attr1 attribute.
   ASSERT_TRUE(reader->MoveToAttribute(0));
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -414,13 +414,13 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_EQ(reader->GetValue(), "value C1");
-  
+
   // Return to the ns:objC element start node.
   ASSERT_TRUE(reader->MoveToCarryingElement());
   ASSERT_EQ(reader->GetDepth(), 1);
   ASSERT_EQ(reader->GetType(), XML_NODE_ELEMENT_START);
   ASSERT_EQ(reader->GetQualifiedName(), "ns:objC");
-  
+
   // Move to the ns:attr2 attribute.
   ASSERT_TRUE(reader->MoveToAttribute("ns:attr2"));
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -433,7 +433,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_EQ(reader->GetValue(), "value C2");
-  
+
   // Move to the ns:attr1 attribute without returning to the ns:objC element.
   ASSERT_TRUE(reader->MoveToAttribute("attr1", "http://www.example.org/ns"));
   ASSERT_EQ(reader->GetDepth(), 2);
@@ -446,7 +446,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_EQ(reader->GetValue(), "value C1");
-  
+
   // Move to the ns:objD element start node.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetDepth(), 1);
@@ -468,7 +468,7 @@ TEST(XmlReaderTest, Read)
   ASSERT_FALSE(reader->IsEmptyElement());
   ASSERT_FALSE(reader->HasAttributes());
   ASSERT_FALSE(reader->HasValue());
-  
+
   // Move to the whitespace node without returning to the ns:objC element.
   ASSERT_TRUE(reader->MoveToNextNode());
   ASSERT_EQ(reader->GetType(), XML_NODE_WHITESPACE);
@@ -496,8 +496,7 @@ TEST(XmlReaderTest, Read)
 }
 
 // Test XML read error handling.
-TEST(XmlReaderTest, ReadError)
-{
+TEST(XmlReaderTest, ReadError) {
   char test_str[] =
     "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
     "<!ATTRIBUTE foo bar>\n";
@@ -519,8 +518,7 @@ TEST(XmlReaderTest, ReadError)
 }
 
 // Test XmlObject load behavior.
-TEST(XmlReaderTest, ObjectLoad)
-{
+TEST(XmlReaderTest, ObjectLoad) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_xml, sizeof(g_test_xml) - 1));
@@ -603,19 +601,18 @@ TEST(XmlReaderTest, ObjectLoad)
 }
 
 // Test XmlObject load error handling behavior.
-TEST(XmlReaderTest, ObjectLoadError)
-{
+TEST(XmlReaderTest, ObjectLoadError) {
   // Test start/end tag mismatch error.
   {
     char error_xml[] = "<obj>\n<foo>\n</obj>\n</foo>";
-    
+
     // Create the stream reader.
     CefRefPtr<CefStreamReader> stream(
         CefStreamReader::CreateForData(error_xml, sizeof(error_xml) - 1));
     ASSERT_TRUE(stream.get() != NULL);
 
     CefString error_str;
-    
+
     // Create the XML reader.
     CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
     ASSERT_FALSE(object->Load(stream, XML_ENCODING_NONE,
@@ -627,14 +624,14 @@ TEST(XmlReaderTest, ObjectLoadError)
   // Test value following child error.
   {
     char error_xml[] = "<obj>\n<foo>\n</foo>disallowed value\n</obj>";
-    
+
     // Create the stream reader.
     CefRefPtr<CefStreamReader> stream(
         CefStreamReader::CreateForData(error_xml, sizeof(error_xml) - 1));
     ASSERT_TRUE(stream.get() != NULL);
 
     CefString error_str;
-    
+
     // Create the XML reader.
     CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
     ASSERT_FALSE(object->Load(stream, XML_ENCODING_NONE,

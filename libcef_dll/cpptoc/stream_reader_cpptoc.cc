@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
-    const cef_string_t* fileName)
-{
+    const cef_string_t* fileName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: fileName; type: string_byref_const
@@ -35,8 +34,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
 }
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
-    size_t size)
-{
+    size_t size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: data; type: simple_byaddr
@@ -54,8 +52,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
 }
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
-    cef_read_handler_t* handler)
-{
+    cef_read_handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: handler; type: refptr_diff
@@ -75,8 +72,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
-    void* ptr, size_t size, size_t n)
-{
+    void* ptr, size_t size, size_t n) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,8 +94,7 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
 }
 
 int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
-    long offset, int whence)
-{
+    int64 offset, int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +110,7 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
   return _retval;
 }
 
-long CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self)
-{
+int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,14 +118,13 @@ long CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self)
     return 0;
 
   // Execute
-  long _retval = CefStreamReaderCppToC::Get(self)->Tell();
+  int64 _retval = CefStreamReaderCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
 }
 
-int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self)
-{
+int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -150,8 +143,7 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self)
 
 CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
     : CefCppToC<CefStreamReaderCppToC, CefStreamReader, cef_stream_reader_t>(
-        cls)
-{
+        cls) {
   struct_.struct_.read = stream_reader_read;
   struct_.struct_.seek = stream_reader_seek;
   struct_.struct_.tell = stream_reader_tell;

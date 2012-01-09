@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_MENU_HANDLER_H
-#define _CEF_MENU_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_MENU_HANDLER_H_
+#define CEF_INCLUDE_CEF_MENU_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 
@@ -46,9 +47,8 @@ class CefBrowser;
 // The methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefMenuHandler : public virtual CefBase
-{
-public:
+class CefMenuHandler : public virtual CefBase {
+ public:
   typedef cef_menu_id_t MenuId;
 
   ///
@@ -78,4 +78,4 @@ public:
                             MenuId menuId) { return false; }
 };
 
-#endif // _CEF_MENU_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_MENU_HANDLER_H_

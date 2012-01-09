@@ -28,26 +28,25 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_BASE_CAPI_H
-#define _CEF_BASE_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "../internal/cef_export.h"
-#include "../internal/cef_string.h"
-#include "../internal/cef_string_list.h"
-#include "../internal/cef_string_map.h"
-#include "../internal/cef_string_multimap.h"
-#include "../internal/cef_types.h"
+#include "include/internal/cef_export.h"
+#include "include/internal/cef_string.h"
+#include "include/internal/cef_string_list.h"
+#include "include/internal/cef_string_map.h"
+#include "include/internal/cef_string_multimap.h"
+#include "include/internal/cef_types.h"
 
 ///
 // Structure defining the reference count implementation functions. All
 // framework structures must include the cef_base_t structure first.
 ///
-typedef struct _cef_base_t
-{
+typedef struct _cef_base_t {
   ///
   // Size of the data structure.
   ///
@@ -68,7 +67,6 @@ typedef struct _cef_base_t
   // Returns the current number of references.
   ///
   int (CEF_CALLBACK *get_refct)(struct _cef_base_t* self);
-
 } cef_base_t;
 
 
@@ -84,4 +82,4 @@ typedef struct _cef_base_t
 }
 #endif
 
-#endif // _CEF_BASE_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_

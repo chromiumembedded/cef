@@ -2,9 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEFCLIENT_H
-#define _CEFCLIENT_H
+#ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_H_
+#define CEF_TESTS_CEFCLIENT_CEFCLIENT_H_
+#pragma once
 
+#include <string>
 #include "include/cef_base.h"
 
 class CefApp;
@@ -55,4 +57,4 @@ void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
 void RunGetImageTest(CefRefPtr<CefBrowser> browser);
 #endif
 
-#endif // _CEFCLIENT_H
+#endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_H_

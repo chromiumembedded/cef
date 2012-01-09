@@ -4,8 +4,9 @@
 
 // Defines all of the command line switches used by cefclient.
 
-#ifndef _CEFCLIENT_SWITCHES_H
-#define _CEFCLIENT_SWITCHES_H
+#ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_
+#define CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_
+#pragma once
 
 namespace cefclient {
 
@@ -85,4 +86,4 @@ extern const char kProxyConfig[];
 
 }  // namespace cefclient
 
-#endif // _CEFCLIENT_SWITCHES_H
+#endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_

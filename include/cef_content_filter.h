@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_CONTENT_FILTER_H
-#define _CEF_CONTENT_FILTER_H
+#ifndef CEF_INCLUDE_CEF_CONTENT_FILTER_H_
+#define CEF_INCLUDE_CEF_CONTENT_FILTER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefStreamReader;
 
@@ -46,9 +47,8 @@ class CefStreamReader;
 // class will always be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefContentFilter : public virtual CefBase
-{
-public:
+class CefContentFilter : public virtual CefBase {
+ public:
   ///
   // Set |substitute_data| to the replacement for the data in |data| if data
   // should be modified.
@@ -66,4 +66,4 @@ public:
   virtual void Drain(CefRefPtr<CefStreamReader>& remainder) {}
 };
 
-#endif // _CEF_CONTENT_FILTER_H
+#endif  // CEF_INCLUDE_CEF_CONTENT_FILTER_H_

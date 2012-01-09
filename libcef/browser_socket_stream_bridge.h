@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_SOCKET_STREAM_BRIDGE_H
-#define _BROWSER_SOCKET_STREAM_BRIDGE_H
+#ifndef CEF_LIBCEF_BROWSER_SOCKET_STREAM_BRIDGE_H_
+#define CEF_LIBCEF_BROWSER_SOCKET_STREAM_BRIDGE_H_
+#pragma once
 
 #include "base/basictypes.h"
 
@@ -32,4 +33,4 @@ class BrowserSocketStreamBridge {
   DISALLOW_IMPLICIT_CONSTRUCTORS(BrowserSocketStreamBridge);
 };
 
-#endif  // _BROWSER_SOCKET_STREAM_BRIDGE_H
+#endif  // CEF_LIBCEF_BROWSER_SOCKET_STREAM_BRIDGE_H_

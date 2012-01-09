@@ -3,12 +3,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_context.h"
-#include "browser_impl.h"
-#include "browser_settings.h"
-#include "printing/units.h"
+#include "libcef/browser_impl.h"
+
+#include <dwmapi.h>
+#include <shellapi.h>
+#include <shlwapi.h>
+#include <wininet.h>
+#include <winspool.h>
+
+#include "libcef/cef_context.h"
+#include "libcef/browser_settings.h"
 
 #include "base/win/windows_version.h"
+#include "printing/units.h"
 #include "skia/ext/vector_canvas.h"
 #include "skia/ext/vector_platform_device_emf_win.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
@@ -18,12 +25,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/win/hwnd_util.h"
 #include "webkit/glue/webpreferences.h"
-
-#include <dwmapi.h>
-#include <shellapi.h>
-#include <shlwapi.h>
-#include <wininet.h>
-#include <winspool.h>
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -35,7 +36,7 @@ namespace {
 bool IsAeroGlassEnabled() {
   if (base::win::GetVersion() < base::win::VERSION_VISTA)
     return false;
-  
+
   BOOL enabled = FALSE;
   return SUCCEEDED(DwmIsCompositionEnabled(&enabled)) && enabled;
 }
@@ -49,22 +50,20 @@ void SetAeroGlass(HWND hWnd) {
   DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
 }
 
-} // namespace
+}  // namespace
 
-LPCTSTR CefBrowserImpl::GetWndClass()
-{
+LPCTSTR CefBrowserImpl::GetWndClass() {
   return L"CefBrowserWindow";
 }
 
 LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
-                                         WPARAM wParam, LPARAM lParam)
-{
+                                         WPARAM wParam, LPARAM lParam) {
   CefBrowserImpl* browser =
       static_cast<CefBrowserImpl*>(ui::GetWindowUserData(hwnd));
 
   switch (message) {
   case WM_CLOSE:
-    if(browser) {
+    if (browser) {
       bool handled(false);
 
       if (browser->client_.get()) {
@@ -136,8 +135,7 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-void CefBrowserImpl::ParentWindowWillClose()
-{
+void CefBrowserImpl::ParentWindowWillClose() {
   // We must re-enable the opener (owner of the modal window) before we close
   // the popup to avoid focus/activation/z-order issues.
   if (opener_ && opener_was_disabled_by_modal_loop_) {
@@ -146,14 +144,12 @@ void CefBrowserImpl::ParentWindowWillClose()
   }
 }
 
-CefWindowHandle CefBrowserImpl::GetWindowHandle()
-{
+CefWindowHandle CefBrowserImpl::GetWindowHandle() {
   AutoLock lock_scope(this);
   return window_info_.m_hWnd;
 }
 
-bool CefBrowserImpl::IsWindowRenderingDisabled()
-{
+bool CefBrowserImpl::IsWindowRenderingDisabled() {
   return (window_info_.m_bWindowRenderingDisabled ? true : false);
 }
 
@@ -169,8 +165,7 @@ void CefBrowserImpl::UIT_ClearMainWndHandle() {
     window_info_.m_hWnd = NULL;
 }
 
-bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
-{
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   REQUIRE_UIT();
   Lock();
 
@@ -235,7 +230,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   if (!window_info_.m_bWindowRenderingDisabled) {
     if (!settings_.drag_drop_disabled)
       delegate_->RegisterDragDrop();
-    
+
     // Size the web view window to the browser window
     RECT cr;
     GetClientRect(window_info_.m_hWnd, &cr);
@@ -251,7 +246,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
                  cr.bottom, flags);
   }
 
-  if(client_.get()) {
+  if (client_.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
     if (handler.get()) {
       // Notify the handler that we're done creating the new window
@@ -259,14 +254,13 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
     }
   }
 
-  if(url.length() > 0)
+  if (url.length() > 0)
     UIT_LoadURL(GetMainFrame(), url);
 
   return true;
 }
 
-void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
-{
+void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable) {
   REQUIRE_UIT();
   if (!host)
     return;
@@ -278,8 +272,7 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
 }
 
 static void WriteTextToFile(const std::string& data,
-                            const std::wstring& file_path)
-{
+                            const std::wstring& file_path) {
   FILE* fp;
   errno_t err = _wfopen_s(&fp, file_path.c_str(), L"wt");
   if (err)
@@ -288,37 +281,36 @@ static void WriteTextToFile(const std::string& data,
   fclose(fp);
 }
 
-bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
-{
+bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame) {
   REQUIRE_UIT();
-  
+
   DWORD dwRetVal;
   DWORD dwBufSize = 512;
   TCHAR lpPathBuffer[512];
   UINT uRetVal;
   TCHAR szTempName[512];
-    
-  dwRetVal = GetTempPath(dwBufSize,     // length of the buffer
-                         lpPathBuffer); // buffer for path 
+
+  dwRetVal = GetTempPath(dwBufSize,      // length of the buffer
+                         lpPathBuffer);  // buffer for path
   if (dwRetVal > dwBufSize || (dwRetVal == 0))
     return false;
 
-  // Create a temporary file. 
-  uRetVal = GetTempFileName(lpPathBuffer, // directory for tmp files
-                            TEXT("src"),  // temp file name prefix 
-                            0,            // create unique name 
-                            szTempName);  // buffer for name 
+  // Create a temporary file.
+  uRetVal = GetTempFileName(lpPathBuffer,  // directory for tmp files
+                            TEXT("src"),   // temp file name prefix
+                            0,             // create unique name
+                            szTempName);   // buffer for name
   if (uRetVal == 0)
     return false;
- 
+
   size_t len = wcslen(szTempName);
   wcscpy(szTempName + len - 3, L"txt");
   std::string markup = frame->contentAsMarkup().utf8();
   WriteTextToFile(markup, szTempName);
 
-  int errorCode = (int)ShellExecute(UIT_GetMainWndHandle(), L"open", szTempName,
-    NULL, NULL, SW_SHOWNORMAL);
-  if(errorCode <= 32)
+  int errorCode = reinterpret_cast<int>(ShellExecute(UIT_GetMainWndHandle(),
+      L"open", szTempName, NULL, NULL, SW_SHOWNORMAL));
+  if (errorCode <= 32)
     return false;
 
   return true;
@@ -345,7 +337,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
 
   HDC hDC = print_context_.context();
   BOOL res;
-  
+
   // Save the state to make sure the context this function call does not modify
   // the device context.
   int saved_state = SaveDC(hDC);
@@ -367,9 +359,9 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
       settings.page_setup_pixels().printable_area().y();
 
   // Adjust for the margin offset.
-  canvas.translate(static_cast<float>(left_margin_offset), 
+  canvas.translate(static_cast<float>(left_margin_offset),
       static_cast<float>(top_margin_offset));
-  
+
   // Apply the print scaling factor.
   const float print_scale_x =
       static_cast<float>(settings.page_setup_pixels().content_area().width())
@@ -385,7 +377,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
     NOTREACHED() << "Printing page " << page_number << " failed.";
   }
   canvas.scale(webkit_scale, webkit_scale);
-  
+
   frame->printPage(page_number, &canvas);
 
   res = RestoreDC(hDC, saved_state);
@@ -395,7 +387,7 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
   if (client_.get())
     handler = client_->GetPrintHandler();
 
-  if(handler.get()) {
+  if (handler.get()) {
     saved_state = SaveDC(hDC);
     DCHECK_NE(saved_state, 0);
 
@@ -411,11 +403,11 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
             (settings.page_setup_pixels().physical_size().height() -
              settings.page_setup_pixels().printable_area().bottom()));
 
-    const double scale = static_cast<double>(settings.dpi()) / 
+    const double scale = static_cast<double>(settings.dpi()) /
         static_cast<double>(settings.desired_dpi);
 
     CefPrintInfo printInfo;
-    
+
     printInfo.m_hDC = hDC;
     printInfo.m_Rect = rect;
     printInfo.m_Scale = scale;
@@ -435,47 +427,47 @@ void CefBrowserImpl::UIT_PrintPage(int page_number, int total_pages,
       // Draw handler-defined headers and/or footers.
       LOGFONT lf;
       memset(&lf, 0, sizeof(lf));
-      lf.lfHeight = (int)ceil(10. * scale);
-      lf.lfPitchAndFamily = FF_SWISS; 
+      lf.lfHeight = static_cast<int>(ceil(10. * scale));
+      lf.lfPitchAndFamily = FF_SWISS;
       HFONT hFont = CreateFontIndirect(&lf);
 
       HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
-      COLORREF hOldColor = SetTextColor(hDC, RGB(0,0,0));
+      COLORREF hOldColor = SetTextColor(hDC, RGB(0, 0, 0));
       int hOldBkMode = SetBkMode(hDC, TRANSPARENT);
 
       // TODO(cef): Keep the header strings inside a reasonable bounding box
       // so that they don't overlap each other.
-      if(topLeft.length() > 0) {
+      if (topLeft.length() > 0) {
         std::wstring topLeftStr(topLeft);
         DrawText(hDC, topLeftStr.c_str(), topLeftStr.length(), &rect,
           DT_LEFT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(topCenter.length() > 0) {
+      if (topCenter.length() > 0) {
         std::wstring topCenterStr(topCenter);
         DrawText(hDC, topCenterStr.c_str(), topCenterStr.length(), &rect,
           DT_CENTER | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(topRight.length() > 0) {
+      if (topRight.length() > 0) {
         std::wstring topRightStr(topRight);
         DrawText(hDC, topRightStr.c_str(), topRightStr.length(), &rect,
           DT_RIGHT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomLeft.length() > 0) {
+      if (bottomLeft.length() > 0) {
         std::wstring bottomLeftStr(bottomLeft);
         DrawText(hDC, bottomLeftStr.c_str(), bottomLeftStr.length(), &rect,
           DT_LEFT | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomCenter.length() > 0) {
+      if (bottomCenter.length() > 0) {
         std::wstring bottomCenterStr(bottomCenter);
         DrawText(hDC, bottomCenterStr.c_str(), bottomCenterStr.length(), &rect,
           DT_CENTER | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
           | DT_EXPANDTABS | DT_NOPREFIX);
       }
-      if(bottomRight.length() > 0) {
+      if (bottomRight.length() > 0) {
         std::wstring bottomRightStr(bottomRight);
         DrawText(hDC, bottomRightStr.c_str(), bottomRightStr.length(), &rect,
           DT_RIGHT | DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS
@@ -503,12 +495,12 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     // Make a copy of settings.
     printing::PrintSettings settings = print_context_.settings();
     CefPrintOptions print_options;
-    settings.UpdatePrintOptions(print_options);  
-    
+    settings.UpdatePrintOptions(print_options);
+
     CefRefPtr<CefPrintHandler> handler;
     if (client_.get())
       handler = client_->GetPrintHandler();
-    
+
     // Ask the handler if they want to update the print options.
     if (handler.get() && handler->GetPrintOptions(this, print_options)) {
       settings.UpdateFromPrintOptions(print_options);
@@ -516,19 +508,19 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     }
   }
 
-  if(print_context_.AskUserForSettings(
+  if (print_context_.AskUserForSettings(
       UIT_GetMainWndHandle(), UIT_GetPagesCount(frame), false)
       != printing::PrintingContext::OK)
     return;
 
   printing::PrintParams params;
   const printing::PrintSettings &settings = print_context_.settings();
-  
+
   settings.RenderParams(&params);
 
   int page_count = 0;
   gfx::Size canvas_size;
-  
+
   canvas_size.set_width(
       printing::ConvertUnit(
           settings.page_setup_pixels().content_area().width(),
@@ -546,14 +538,14 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
     MessageLoop::current()->SetNestableTasksAllowed(false);
 
     if (print_context_.NewDocument(title_) == printing::PrintingContext::OK) {
-      if(settings.ranges.size() > 0) {
+      if (settings.ranges.size() > 0) {
         for (unsigned x = 0; x < settings.ranges.size(); ++x) {
           const printing::PageRange& range = settings.ranges[x];
-          for(int i = range.from; i <= range.to; ++i)
+          for (int i = range.from; i <= range.to; ++i)
             UIT_PrintPage(i, page_count, canvas_size, frame);
         }
       } else {
-        for(int i = 0; i < page_count; ++i)
+        for (int i = 0; i < page_count; ++i)
           UIT_PrintPage(i, page_count, canvas_size, frame);
       }
       print_context_.DocumentDone();
@@ -565,22 +557,21 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   frame->printEnd();
 }
 
-int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
-{
+int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
-  
+
   printing::PrintParams params;
   const printing::PrintSettings &settings = print_context_.settings();
-  
+
   settings.RenderParams(&params);
 
   // The dbi will be 0 if no default printer is configured.
-  if(params.dpi == 0)
+  if (params.dpi == 0)
     return 0;
 
   int page_count = 0;
   gfx::Size canvas_size;
-  
+
   canvas_size.set_width(
       printing::ConvertUnit(
           settings.page_setup_pixels().content_area().width(),
@@ -598,13 +589,11 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 }
 
 // static
-void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
-{
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view) {
   PostMessage(view, WM_CLOSE, 0, 0);
 }
 
 // static
-bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
-{
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view) {
   return IsWindowVisible(view) ? true : false;
 }

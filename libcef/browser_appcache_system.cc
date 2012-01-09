@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_appcache_system.h"
-#include "browser_resource_loader_bridge.h"
+#include "libcef/browser_appcache_system.h"
+#include "libcef/browser_resource_loader_bridge.h"
 
 #include <string>
 #include <vector>
@@ -347,7 +347,7 @@ class BrowserBackendProxy
 };
 
 
-// BrowserAppCacheSystem --------------------------------------------------------
+// BrowserAppCacheSystem -------------------------------------------------------
 
 // This class only works for a single process browser.
 static const int kSingleProcessId = 1;

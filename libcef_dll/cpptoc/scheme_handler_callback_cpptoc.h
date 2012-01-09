@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _SCHEMEHANDLERCALLBACK_CPPTOC_H
-#define _SCHEMEHANDLERCALLBACK_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_SCHEME_HANDLER_CALLBACK_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_SCHEME_HANDLER_CALLBACK_CPPTOC_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
@@ -31,13 +32,12 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefSchemeHandlerCallbackCppToC
     : public CefCppToC<CefSchemeHandlerCallbackCppToC, CefSchemeHandlerCallback,
-        cef_scheme_handler_callback_t>
-{
-public:
-  CefSchemeHandlerCallbackCppToC(CefSchemeHandlerCallback* cls);
+        cef_scheme_handler_callback_t> {
+ public:
+  explicit CefSchemeHandlerCallbackCppToC(CefSchemeHandlerCallback* cls);
   virtual ~CefSchemeHandlerCallbackCppToC() {}
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _SCHEMEHANDLERCALLBACK_CPPTOC_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_SCHEME_HANDLER_CALLBACK_CPPTOC_H_
 

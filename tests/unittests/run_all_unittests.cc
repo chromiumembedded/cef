@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "test_suite.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
+#include "tests/unittests/test_suite.h"
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/threading/thread.h"
@@ -13,11 +13,10 @@ namespace {
 
 // Thread used to run the test suite.
 class CefTestThread : public base::Thread {
-public:
-  CefTestThread(CefTestSuite* test_suite)
+ public:
+  explicit CefTestThread(CefTestSuite* test_suite)
     : base::Thread("test_thread"),
-      test_suite_(test_suite)
-  {
+      test_suite_(test_suite) {
   }
 
   void RunTests() {
@@ -25,9 +24,8 @@ public:
     retval_ = test_suite_->Run();
 
     // Quit the CEF message loop.
-    class QuitTask : public CefTask
-    {
-    public:
+    class QuitTask : public CefTask {
+     public:
       QuitTask() {}
       virtual void Execute(CefThreadId threadId) { CefQuitMessageLoop(); }
       IMPLEMENT_REFCOUNTING(QuitTask);
@@ -37,12 +35,12 @@ public:
 
   int retval() { return retval_; }
 
-protected:
+ protected:
   CefTestSuite* test_suite_;
   int retval_;
 };
 
-} // namespace
+}  // namespace
 
 
 int main(int argc, char** argv) {
@@ -51,7 +49,7 @@ int main(int argc, char** argv) {
 
   CefSettings settings;
   CefTestSuite::GetSettings(settings);
-  
+
 #if defined(OS_MACOSX)
   // Platform-specific initialization.
   extern void PlatformInit();
@@ -92,7 +90,7 @@ int main(int argc, char** argv) {
 
   // Shut down CEF.
   CefShutdown();
-  
+
 #if defined(OS_MACOSX)
   // Platform-specific cleanup.
   extern void PlatformCleanup();

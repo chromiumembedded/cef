@@ -2,20 +2,24 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#ifndef _CEF_CONTEXT_H
-#define _CEF_CONTEXT_H
+#ifndef CEF_LIBCEF_CEF_CONTEXT_H_
+#define CEF_LIBCEF_CEF_CONTEXT_H_
+#pragma once
+
+#include <list>
+#include <map>
+#include <string>
 
 #include "include/cef_app.h"
 #include "include/cef_base.h"
-#include "browser_file_system.h"
-#include "browser_request_context.h"
-#include "cef_process.h"
-#include "dom_storage_context.h"
+#include "libcef/browser_file_system.h"
+#include "libcef/browser_request_context.h"
+#include "libcef/cef_process.h"
+#include "libcef/dom_storage_context.h"
 
 #include "base/at_exit.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
-#include <map>
 
 class CefBrowserImpl;
 class WebViewHost;
@@ -24,11 +28,10 @@ namespace base {
 class WaitableEvent;
 }
 
-class CefContext : public CefBase
-{
-public:
+class CefContext : public CefBase {
+ public:
   typedef std::list<CefRefPtr<CefBrowserImpl> > BrowserList;
-  
+
   CefContext();
   ~CefContext();
 
@@ -60,14 +63,17 @@ public:
   std::string locale() const;
 
   // The BrowserRequestContext object is managed by CefProcessIOThread.
-  void set_request_context(BrowserRequestContext* request_context)
-    { request_context_ = request_context; }
-  scoped_refptr<BrowserRequestContext> request_context()
-    { return request_context_; }
+  void set_request_context(BrowserRequestContext* request_context) {
+    request_context_ = request_context;
+  }
+  scoped_refptr<BrowserRequestContext> request_context() {
+    return request_context_;
+  }
 
   // The DOMStorageContext object is managed by CefProcessUIThread.
-  void set_storage_context(DOMStorageContext* storage_context)
-    { storage_context_.reset(storage_context); }
+  void set_storage_context(DOMStorageContext* storage_context) {
+    storage_context_.reset(storage_context);
+  }
   DOMStorageContext* storage_context() { return storage_context_.get(); }
 
   BrowserFileSystem* file_system() { return &file_system_; }
@@ -76,12 +82,13 @@ public:
   // this pointer should never be dereferenced.  Use it only for comparing
   // pointers.
   WebViewHost* current_webviewhost() { return current_webviewhost_; }
-  void set_current_webviewhost(WebViewHost* host)
-      { current_webviewhost_ = host; }
+  void set_current_webviewhost(WebViewHost* host) {
+    current_webviewhost_ = host;
+  }
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
-private:
+ private:
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
   void UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
@@ -124,4 +131,4 @@ extern CefRefPtr<CefContext> _Context;
 #define CONTEXT_STATE_VALID() \
     (_Context.get() && _Context->initialized() && !_Context->shutting_down())
 
-#endif // _CEF_CONTEXT_H
+#endif  // CEF_LIBCEF_CEF_CONTEXT_H_

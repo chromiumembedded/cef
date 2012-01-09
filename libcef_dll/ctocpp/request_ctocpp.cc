@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefRequest> CefRequest::CreateRequest()
-{
+CefRefPtr<CefRequest> CefRequest::CreateRequest() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -31,8 +30,7 @@ CefRefPtr<CefRequest> CefRequest::CreateRequest()
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefRequestCToCpp::GetURL()
-{
+CefString CefRequestCToCpp::GetURL() {
   if (CEF_MEMBER_MISSING(struct_, get_url))
     return CefString();
 
@@ -47,8 +45,7 @@ CefString CefRequestCToCpp::GetURL()
   return _retvalStr;
 }
 
-void CefRequestCToCpp::SetURL(const CefString& url)
-{
+void CefRequestCToCpp::SetURL(const CefString& url) {
   if (CEF_MEMBER_MISSING(struct_, set_url))
     return;
 
@@ -64,8 +61,7 @@ void CefRequestCToCpp::SetURL(const CefString& url)
       url.GetStruct());
 }
 
-CefString CefRequestCToCpp::GetMethod()
-{
+CefString CefRequestCToCpp::GetMethod() {
   if (CEF_MEMBER_MISSING(struct_, get_method))
     return CefString();
 
@@ -80,8 +76,7 @@ CefString CefRequestCToCpp::GetMethod()
   return _retvalStr;
 }
 
-void CefRequestCToCpp::SetMethod(const CefString& method)
-{
+void CefRequestCToCpp::SetMethod(const CefString& method) {
   if (CEF_MEMBER_MISSING(struct_, set_method))
     return;
 
@@ -97,8 +92,7 @@ void CefRequestCToCpp::SetMethod(const CefString& method)
       method.GetStruct());
 }
 
-CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
-{
+CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData() {
   if (CEF_MEMBER_MISSING(struct_, get_post_data))
     return NULL;
 
@@ -111,8 +105,7 @@ CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData()
   return CefPostDataCToCpp::Wrap(_retval);
 }
 
-void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
-{
+void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData) {
   if (CEF_MEMBER_MISSING(struct_, set_post_data))
     return;
 
@@ -128,8 +121,7 @@ void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData)
       CefPostDataCToCpp::Unwrap(postData));
 }
 
-void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap)
-{
+void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
   if (CEF_MEMBER_MISSING(struct_, get_header_map))
     return;
 
@@ -153,8 +145,7 @@ void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap)
   }
 }
 
-void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
-{
+void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
   if (CEF_MEMBER_MISSING(struct_, set_header_map))
     return;
 
@@ -176,8 +167,7 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap)
 }
 
 void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
-    CefRefPtr<CefPostData> postData, const HeaderMap& headerMap)
-{
+    CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) {
   if (CEF_MEMBER_MISSING(struct_, set))
     return;
 
@@ -211,8 +201,7 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     cef_string_multimap_free(headerMapMultimap);
 }
 
-CefRequest::RequestFlags CefRequestCToCpp::GetFlags()
-{
+CefRequest::RequestFlags CefRequestCToCpp::GetFlags() {
   if (CEF_MEMBER_MISSING(struct_, get_flags))
     return WUR_FLAG_NONE;
 
@@ -225,8 +214,7 @@ CefRequest::RequestFlags CefRequestCToCpp::GetFlags()
   return _retval;
 }
 
-void CefRequestCToCpp::SetFlags(RequestFlags flags)
-{
+void CefRequestCToCpp::SetFlags(RequestFlags flags) {
   if (CEF_MEMBER_MISSING(struct_, set_flags))
     return;
 
@@ -237,8 +225,7 @@ void CefRequestCToCpp::SetFlags(RequestFlags flags)
       flags);
 }
 
-CefString CefRequestCToCpp::GetFirstPartyForCookies()
-{
+CefString CefRequestCToCpp::GetFirstPartyForCookies() {
   if (CEF_MEMBER_MISSING(struct_, get_first_party_for_cookies))
     return CefString();
 
@@ -253,8 +240,7 @@ CefString CefRequestCToCpp::GetFirstPartyForCookies()
   return _retvalStr;
 }
 
-void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url)
-{
+void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url) {
   if (CEF_MEMBER_MISSING(struct_, set_first_party_for_cookies))
     return;
 

@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "test_suite.h"
-#include "../cefclient/cefclient_switches.h"
+#include "tests/unittests/test_suite.h"
+#include "tests/cefclient/cefclient_switches.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/test/test_suite.h"
@@ -23,8 +23,7 @@ CefTestSuite::CefTestSuite(int argc, char** argv)
 }
 
 // static
-void CefTestSuite::InitCommandLine(int argc, const char* const* argv)
-{
+void CefTestSuite::InitCommandLine(int argc, const char* const* argv) {
   if (commandline_) {
     // If this is intentional, Reset() must be called first. If we are using
     // the shared build mode, we have to share a single object across multiple
@@ -130,7 +129,7 @@ bool CefTestSuite::GetCachePath(std::string& path) {
 void CefTestSuite::Initialize() {
   // The below code is copied from base/test/test_suite.cc to avoid calling
   // RegisterMockCrApp() on Mac.
-  
+
   // Initialize logging.
   FilePath exe;
   PathService::Get(base::FILE_EXE, &exe);
@@ -144,9 +143,9 @@ void CefTestSuite::Initialize() {
   // We want process and thread IDs because we may have multiple processes.
   // Note: temporarily enabled timestamps in an effort to catch bug 6361.
   logging::SetLogItems(true, true, true, true);
-  
+
   CHECK(base::EnableInProcessStackDumping());
-  
+
   // In some cases, we do not want to see standard error dialogs.
   if (!base::debug::BeingDebugged() &&
       !CommandLine::ForCurrentProcess()->HasSwitch("show-error-dialogs")) {
@@ -154,12 +153,12 @@ void CefTestSuite::Initialize() {
     base::debug::SetSuppressDebugUI(true);
     logging::SetLogAssertHandler(UnitTestAssertHandler);
   }
-  
+
   icu_util::Initialize();
-  
+
   CatchMaybeTests();
   ResetCommandLine();
-  
+
   TestTimeouts::Initialize();
 }
-#endif // defined(OS_MACOSX)
+#endif  // defined(OS_MACOSX)

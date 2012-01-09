@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_LIFE_SPAN_HANDLER_H
-#define _CEF_LIFE_SPAN_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_LIFE_SPAN_HANDLER_H_
+#define CEF_INCLUDE_CEF_LIFE_SPAN_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 class CefClient;
@@ -47,9 +48,8 @@ class CefClient;
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefLifeSpanHandler : public virtual CefBase
-{
-public:
+class CefLifeSpanHandler : public virtual CefBase {
+ public:
   ///
   // Called before a new popup window is created. The |parentBrowser| parameter
   // will point to the parent browser window. The |popupFeatures| parameter will
@@ -102,4 +102,4 @@ public:
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) {}
 };
 
-#endif // _CEF_LIFE_SPAN_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_LIFE_SPAN_HANDLER_H_

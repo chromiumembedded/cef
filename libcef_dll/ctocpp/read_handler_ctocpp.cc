@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -15,8 +15,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n)
-{
+size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
   if (CEF_MEMBER_MISSING(struct_, read))
     return 0;
 
@@ -37,8 +36,7 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n)
   return _retval;
 }
 
-int CefReadHandlerCToCpp::Seek(long offset, int whence)
-{
+int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   if (CEF_MEMBER_MISSING(struct_, seek))
     return 0;
 
@@ -53,22 +51,20 @@ int CefReadHandlerCToCpp::Seek(long offset, int whence)
   return _retval;
 }
 
-long CefReadHandlerCToCpp::Tell()
-{
+int64 CefReadHandlerCToCpp::Tell() {
   if (CEF_MEMBER_MISSING(struct_, tell))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  long _retval = struct_->tell(struct_);
+  int64 _retval = struct_->tell(struct_);
 
   // Return type: simple
   return _retval;
 }
 
-int CefReadHandlerCToCpp::Eof()
-{
+int CefReadHandlerCToCpp::Eof() {
   if (CEF_MEMBER_MISSING(struct_, eof))
     return 0;
 

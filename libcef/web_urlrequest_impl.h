@@ -2,15 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _WEB_URL_REQUEST_CLIENT_IMPL_H
-#define _WEB_URL_REQUEST_CLIENT_IMPL_H
+#ifndef CEF_LIBCEF_WEB_URLREQUEST_IMPL_H_
+#define CEF_LIBCEF_WEB_URLREQUEST_IMPL_H_
+#pragma once
 
 #include "include/cef_web_urlrequest.h"
 #include "base/memory/ref_counted.h"
 
-class CefWebURLRequestImpl : public CefWebURLRequest
-{
-public:
+class CefWebURLRequestImpl : public CefWebURLRequest {
+ public:
   class Context;
 
   explicit CefWebURLRequestImpl(
@@ -30,7 +30,7 @@ public:
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
-protected:
+ protected:
   CefRefPtr<CefWebURLRequestClient> handler_;
 
   // The below parameters are only modified on the UI thread.
@@ -41,4 +41,4 @@ protected:
   IMPLEMENT_LOCKING(CefWebURLRequestImpl);
 };
 
-#endif // _WEB_URL_REQUEST_CLIENT_IMPL_H
+#endif  // CEF_LIBCEF_WEB_URLREQUEST_IMPL_H_

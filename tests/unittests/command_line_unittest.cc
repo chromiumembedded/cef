@@ -7,13 +7,12 @@
 
 namespace {
 
-void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line)
-{
+void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line) {
   std::string program = command_line->GetProgram();
   EXPECT_EQ("test.exe", program);
-  
+
   EXPECT_TRUE(command_line->HasSwitches());
-  
+
   EXPECT_TRUE(command_line->HasSwitch("switch1"));
   std::string switch1 = command_line->GetSwitchValue("switch1");
   EXPECT_EQ("", switch1);
@@ -60,7 +59,7 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line)
   EXPECT_TRUE(has4);
 
   EXPECT_TRUE(command_line->HasArguments());
-  
+
   CefCommandLine::ArgumentList args;
   command_line->GetArguments(args);
   EXPECT_EQ((size_t)2, args.size());
@@ -70,11 +69,10 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line)
   EXPECT_EQ("arg 2", arg1);
 }
 
-}
+}  // namespace
 
 // Test creating a command line from argc/argv or string.
-TEST(CommandLineTest, Init)
-{
+TEST(CommandLineTest, Init) {
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
   EXPECT_TRUE(command_line.get() != NULL);
 
@@ -98,8 +96,7 @@ TEST(CommandLineTest, Init)
 }
 
 // Test creating a command line using set and append methods.
-TEST(CommandLineTest, Manual)
-{
+TEST(CommandLineTest, Manual) {
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
   EXPECT_TRUE(command_line.get() != NULL);
 

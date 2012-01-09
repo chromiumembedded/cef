@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_RENDER_HANDLER_H
-#define _CEF_RENDER_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_RENDER_HANDLER_H_
+#define CEF_INCLUDE_CEF_RENDER_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <vector>
 
 class CefBrowser;
@@ -47,9 +48,8 @@ class CefBrowser;
 // The methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefRenderHandler : public virtual CefBase
-{
-public:
+class CefRenderHandler : public virtual CefBase {
+ public:
   typedef cef_paint_element_type_t PaintElementType;
   typedef std::vector<CefRect> RectList;
 
@@ -117,4 +117,4 @@ public:
                               CefCursorHandle cursor) {}
 };
 
-#endif // _CEF_RENDER_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_RENDER_HANDLER_H_

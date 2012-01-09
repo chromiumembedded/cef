@@ -2,10 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "browser_webstoragearea_impl.h"
-#include "cef_context.h"
-#include "dom_storage_area.h"
-#include "dom_storage_namespace.h"
+#include "libcef/browser_webstoragearea_impl.h"
+#include "libcef/cef_context.h"
+#include "libcef/dom_storage_area.h"
+#include "libcef/dom_storage_namespace.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"

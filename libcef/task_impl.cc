@@ -3,13 +3,12 @@
 // be found in the LICENSE file.
 
 #include "include/cef_task.h"
-#include "cef_thread.h"
+#include "libcef/cef_thread.h"
 
 namespace {
 
-int GetThreadId(CefThreadId threadId)
-{
-  switch(threadId) {
+int GetThreadId(CefThreadId threadId) {
+  switch (threadId) {
   case TID_UI: return CefThread::UI;
   case TID_IO: return CefThread::IO;
   case TID_FILE: return CefThread::FILE;
@@ -18,33 +17,30 @@ int GetThreadId(CefThreadId threadId)
   return -1;
 }
 
-} // anonymous
+}  // namespace
 
-bool CefCurrentlyOn(CefThreadId threadId)
-{
+bool CefCurrentlyOn(CefThreadId threadId) {
   int id = GetThreadId(threadId);
-  if(id < 0)
+  if (id < 0)
     return false;
 
   return CefThread::CurrentlyOn(static_cast<CefThread::ID>(id));
 }
 
-class CefTaskHelper : public Task
-{
-public:
+class CefTaskHelper : public Task {
+ public:
   CefTaskHelper(CefRefPtr<CefTask> task, CefThreadId threadId)
     : task_(task), thread_id_(threadId) {}
   virtual void Run() { task_->Execute(thread_id_); }
-private:
+ private:
   CefRefPtr<CefTask> task_;
   CefThreadId thread_id_;
   DISALLOW_COPY_AND_ASSIGN(CefTaskHelper);
 };
 
-bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
-{
+bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
   int id = GetThreadId(threadId);
-  if(id < 0)
+  if (id < 0)
     return false;
 
   return CefThread::PostTask(static_cast<CefThread::ID>(id), FROM_HERE,
@@ -52,10 +48,9 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task)
 }
 
 bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
-                        long delay_ms)
-{
+                        int64 delay_ms) {
   int id = GetThreadId(threadId);
-  if(id < 0)
+  if (id < 0)
     return false;
 
   return CefThread::PostDelayedTask(static_cast<CefThread::ID>(id), FROM_HERE,

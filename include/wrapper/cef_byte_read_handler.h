@@ -33,19 +33,19 @@
 // against the libcef_dll_wrapper target.
 //
 
-#ifndef _CEF_BYTE_READ_HANDLER_H
-#define _CEF_BYTE_READ_HANDLER_H
+#ifndef CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_
+#define CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_
+#pragma once
 
-#include "../cef_base.h"
-#include "../cef_stream.h"
+#include "include/cef_base.h"
+#include "include/cef_stream.h"
 
 ///
 // Thread safe implementation of the CefReadHandler class for reading an
 // in-memory array of bytes.
 ///
-class CefByteReadHandler : public CefReadHandler
-{
-public:
+class CefByteReadHandler : public CefReadHandler {
+ public:
   ///
   // Create a new object for reading an array of bytes. An optional |source|
   // reference can be kept to keep the underlying data source from being
@@ -63,26 +63,26 @@ public:
   // Seek to the specified offset position. |whence| may be any one of
   // SEEK_CUR, SEEK_END or SEEK_SET.
   ///
-  virtual int Seek(long offset, int whence);
+  virtual int Seek(int64 offset, int whence);
 
   ///
   // Return the current offset position.
   ///
-  virtual long Tell();
+  virtual int64 Tell();
 
   ///
   // Return non-zero if at end of file.
   ///
   virtual int Eof();
 
-private:
+ private:
   const unsigned char* bytes_;
-  size_t size_;
-  size_t offset_;
+  int64 size_;
+  int64 offset_;
   CefRefPtr<CefBase> source_;
 
   IMPLEMENT_REFCOUNTING(CefByteReadHandler);
   IMPLEMENT_LOCKING(CefByteReadHandler);
 };
 
-#endif // _CEF_BYTE_READ_HANDLER_H
+#endif  // CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_

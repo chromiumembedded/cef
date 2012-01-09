@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _DRAGDATA_CPPTOC_H
-#define _DRAGDATA_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_drag_data.h"
 #include "include/capi/cef_drag_data_capi.h"
@@ -24,13 +25,12 @@
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefDragDataCppToC
-    : public CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t>
-{
-public:
-  CefDragDataCppToC(CefDragData* cls);
+    : public CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t> {
+ public:
+  explicit CefDragDataCppToC(CefDragData* cls);
   virtual ~CefDragDataCppToC() {}
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _DRAGDATA_CPPTOC_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
 

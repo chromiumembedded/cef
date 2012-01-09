@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_DEVTOOLS_CLIENT_H
-#define _BROWSER_DEVTOOLS_CLIENT_H
+#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_CLIENT_H_
+#define CEF_LIBCEF_BROWSER_DEVTOOLS_CLIENT_H_
+#pragma once
 
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
@@ -12,17 +13,15 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontendClient.h"
 
 namespace WebKit {
-
 class WebDevToolsFrontend;
-
-} // namespace WebKit
+class WebView;
+}  // namespace WebKit
 
 class BrowserDevToolsCallArgs;
 class BrowserDevToolsAgent;
 class CefBrowserImpl;
 
 class BrowserDevToolsClient: public WebKit::WebDevToolsFrontendClient {
-
  public:
   BrowserDevToolsClient(CefBrowserImpl* browser,
                         BrowserDevToolsAgent* agent);
@@ -54,4 +53,4 @@ class BrowserDevToolsClient: public WebKit::WebDevToolsFrontendClient {
   DISALLOW_COPY_AND_ASSIGN(BrowserDevToolsClient);
 };
 
-#endif  // _BROWSER_DEVTOOLS_CLIENT_H
+#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_CLIENT_H_

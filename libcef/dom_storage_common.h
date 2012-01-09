@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DOM_STORAGE_COMMON_H
-#define _DOM_STORAGE_COMMON_H
+#ifndef CEF_LIBCEF_DOM_STORAGE_COMMON_H_
+#define CEF_LIBCEF_DOM_STORAGE_COMMON_H_
+#pragma once
 
 #include "base/basictypes.h"
 
@@ -15,4 +16,4 @@ enum DOMStorageType {
   DOM_STORAGE_SESSION
 };
 
-#endif  // _DOM_STORAGE_COMMON_H
+#endif  // CEF_LIBCEF_DOM_STORAGE_COMMON_H_

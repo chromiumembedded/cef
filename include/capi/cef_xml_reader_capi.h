@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_XML_READER_CAPI_H
-#define _CEF_XML_READER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_XML_READER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_XML_READER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -49,8 +50,7 @@ extern "C" {
 // The functions of this structure should only be called on the thread that
 // creates the object.
 ///
-typedef struct _cef_xml_reader_t
-{
+typedef struct _cef_xml_reader_t {
   ///
   // Base structure.
   ///
@@ -259,7 +259,6 @@ typedef struct _cef_xml_reader_t
   // cursor position was set successfully.
   ///
   int (CEF_CALLBACK *move_to_carrying_element)(struct _cef_xml_reader_t* self);
-
 } cef_xml_reader_t;
 
 
@@ -276,4 +275,4 @@ CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(
 }
 #endif
 
-#endif // _CEF_XML_READER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_XML_READER_CAPI_H_

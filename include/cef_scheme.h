@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_SCHEME_H
-#define _CEF_SCHEME_H
+#ifndef CEF_INCLUDE_CEF_SCHEME_H_
+#define CEF_INCLUDE_CEF_SCHEME_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 class CefRequest;
@@ -48,12 +49,12 @@ class CefSchemeHandlerFactory;
 ///
 // Register a custom scheme. This method should not be called for the built-in
 // HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
-// 
+//
 // If |is_standard| is true the scheme will be treated as a standard scheme.
 // Standard schemes are subject to URL canonicalization and parsing rules as
 // defined in the Common Internet Scheme Syntax RFC 1738 Section 3.1 available
 // at http://www.ietf.org/rfc/rfc1738.txt
-// 
+//
 // In particular, the syntax for standard scheme URLs must be of the form:
 // <pre>
 //  [scheme]://[username]:[password]@[host]:[port]/[url-path]
@@ -66,12 +67,12 @@ class CefSchemeHandlerFactory;
 // both be canonicalized to "scheme://host/path". The origin of a standard
 // scheme URL is the combination of scheme, host and port (i.e.,
 // "scheme://host:port" in the most explicit case).
-// 
+//
 // For non-standard scheme URLs only the "scheme:" component is parsed and
 // canonicalized. The remainder of the URL will be passed to the handler as-is.
 // For example, "scheme:///some%20text" will remain the same. Non-standard
 // scheme URLs cannot be used as a target for form submission.
-// 
+//
 // If |is_local| is true the scheme will be treated as local (i.e., with the
 // same security rules as those applied to "file" URLs). Normal pages cannot
 // link to or access local URLs. Also, by default, local URLs can only perform
@@ -80,12 +81,12 @@ class CefSchemeHandlerFactory;
 // the same origin set the CefSettings.file_access_from_file_urls_allowed value
 // to true. To allow XMLHttpRequest calls from a local URL to all origins set
 // the CefSettings.universal_access_from_file_urls_allowed value to true.
-// 
+//
 // If |is_display_isolated| is true the scheme will be treated as display-
 // isolated. This means that pages cannot display these URLs unless they are
 // from the same scheme. For example, pages in another origin cannot create
 // iframes or hyperlinks to URLs with this scheme.
-// 
+//
 // This function may be called on any thread. It should only be called once
 // per unique |scheme_name| value. If |scheme_name| is already registered or if
 // an error occurs this method will return false.
@@ -126,9 +127,8 @@ bool CefClearSchemeHandlerFactories();
 // always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefSchemeHandlerFactory : public virtual CefBase
-{
-public:
+class CefSchemeHandlerFactory : public virtual CefBase {
+ public:
   ///
   // Return a new scheme handler instance to handle the request. |browser| will
   // be the browser window that initiated the request. If the request was
@@ -145,9 +145,8 @@ public:
 // requests. The methods of this class may be called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefSchemeHandlerCallback : public virtual CefBase
-{
-public:
+class CefSchemeHandlerCallback : public virtual CefBase {
+ public:
   ///
   // Notify that header information is now available for retrieval.
   ///
@@ -172,14 +171,13 @@ public:
 // this class will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefSchemeHandler : public virtual CefBase
-{
-public:
+class CefSchemeHandler : public virtual CefBase {
+ public:
   ///
   // Begin processing the request. To handle the request return true and call
   // HeadersAvailable() once the response header information is available
   // (HeadersAvailable() can also be called from inside this method if header
-  // information is available immediately). To cancel the request return false. 
+  // information is available immediately). To cancel the request return false.
   ///
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
@@ -220,4 +218,4 @@ public:
   virtual void Cancel() =0;
 };
 
-#endif // _CEF_SCHEME_H
+#endif  // CEF_INCLUDE_CEF_SCHEME_H_

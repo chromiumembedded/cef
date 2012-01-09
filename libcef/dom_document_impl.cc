@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "dom_document_impl.h"
-#include "dom_node_impl.h"
-#include "cef_thread.h"
+#include "libcef/dom_document_impl.h"
+#include "libcef/dom_node_impl.h"
+#include "libcef/cef_thread.h"
 
 #include "base/logging.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
@@ -26,22 +26,20 @@ using WebKit::WebURL;
 
 CefDOMDocumentImpl::CefDOMDocumentImpl(CefBrowserImpl* browser,
                                        WebFrame* frame)
-    : browser_(browser), frame_(frame)
-{
+    : browser_(browser),
+      frame_(frame) {
   const WebDocument& document = frame_->document();
   DCHECK(!document.isNull());
 }
 
-CefDOMDocumentImpl::~CefDOMDocumentImpl()
-{
+CefDOMDocumentImpl::~CefDOMDocumentImpl() {
   REQUIRE_UIT();
 
   // Verify that the Detach() method has been called.
   DCHECK(frame_ == NULL);
 }
 
-CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType()
-{
+CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType() {
   if (!VerifyContext())
     return DOM_DOCUMENT_TYPE_UNKNOWN;
 
@@ -55,26 +53,22 @@ CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType()
   return DOM_DOCUMENT_TYPE_UNKNOWN;
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetDocument()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetDocument() {
   const WebDocument& document = frame_->document();
   return GetOrCreateNode(document.document());
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetBody()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetBody() {
   const WebDocument& document = frame_->document();
   return GetOrCreateNode(document.body());
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetHead()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetHead() {
   WebDocument document = frame_->document();
   return GetOrCreateNode(document.head());
 }
 
-CefString CefDOMDocumentImpl::GetTitle()
-{
+CefString CefDOMDocumentImpl::GetTitle() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -87,28 +81,24 @@ CefString CefDOMDocumentImpl::GetTitle()
   return str;
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id)
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id) {
   const WebDocument& document = frame_->document();
   return GetOrCreateNode(document.getElementById(string16(id)));
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
   const WebDocument& document = frame_->document();
   return GetOrCreateNode(document.focusedNode());
 }
 
-bool CefDOMDocumentImpl::HasSelection()
-{
+bool CefDOMDocumentImpl::HasSelection() {
   if (!VerifyContext())
     return false;
 
   return frame_->hasSelection();
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionStartNode()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionStartNode() {
   if (!VerifyContext() || !frame_->hasSelection())
     return NULL;
 
@@ -120,8 +110,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionStartNode()
   return GetOrCreateNode(range.startContainer(exceptionCode));
 }
 
-int CefDOMDocumentImpl::GetSelectionStartOffset()
-{
+int CefDOMDocumentImpl::GetSelectionStartOffset() {
   if (!VerifyContext() || !frame_->hasSelection())
     return 0;
 
@@ -132,8 +121,7 @@ int CefDOMDocumentImpl::GetSelectionStartOffset()
   return range.startOffset();
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionEndNode()
-{
+CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionEndNode() {
   if (!VerifyContext() || !frame_->hasSelection())
     return NULL;
 
@@ -145,8 +133,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionEndNode()
   return GetOrCreateNode(range.endContainer(exceptionCode));
 }
 
-int CefDOMDocumentImpl::GetSelectionEndOffset()
-{
+int CefDOMDocumentImpl::GetSelectionEndOffset() {
   if (!VerifyContext() || !frame_->hasSelection())
     return 0;
 
@@ -157,8 +144,7 @@ int CefDOMDocumentImpl::GetSelectionEndOffset()
   return range.endOffset();
 }
 
-CefString CefDOMDocumentImpl::GetSelectionAsMarkup()
-{
+CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
   CefString str;
   if (!VerifyContext() || !frame_->hasSelection())
     return str;
@@ -170,8 +156,7 @@ CefString CefDOMDocumentImpl::GetSelectionAsMarkup()
   return str;
 }
 
-CefString CefDOMDocumentImpl::GetSelectionAsText()
-{
+CefString CefDOMDocumentImpl::GetSelectionAsText() {
   CefString str;
   if (!VerifyContext() || !frame_->hasSelection())
     return str;
@@ -183,12 +168,11 @@ CefString CefDOMDocumentImpl::GetSelectionAsText()
   return str;
 }
 
-CefString CefDOMDocumentImpl::GetBaseURL()
-{
+CefString CefDOMDocumentImpl::GetBaseURL() {
   CefString str;
   if (!VerifyContext())
     return str;
-  
+
   const WebDocument& document = frame_->document();
   const WebURL& url = document.baseURL();
   if (!url.isNull()) {
@@ -199,12 +183,11 @@ CefString CefDOMDocumentImpl::GetBaseURL()
   return str;
 }
 
-CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL)
-{
+CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
   CefString str;
   if (!VerifyContext())
     return str;
-  
+
   const WebDocument& document = frame_->document();
   const WebURL& url = document.completeURL(string16(partialURL));
   if (!url.isNull()) {
@@ -216,8 +199,7 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL)
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
-    const WebKit::WebNode& node)
-{
+    const WebKit::WebNode& node) {
   if (!VerifyContext())
     return NULL;
 
@@ -238,8 +220,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
   return nodeImpl;
 }
 
-void CefDOMDocumentImpl::RemoveNode(const WebKit::WebNode& node)
-{
+void CefDOMDocumentImpl::RemoveNode(const WebKit::WebNode& node) {
   if (!VerifyContext())
     return;
 
@@ -250,8 +231,7 @@ void CefDOMDocumentImpl::RemoveNode(const WebKit::WebNode& node)
   }
 }
 
-void CefDOMDocumentImpl::Detach()
-{
+void CefDOMDocumentImpl::Detach() {
   if (!VerifyContext())
     return;
 
@@ -261,7 +241,7 @@ void CefDOMDocumentImpl::Detach()
 
   // If you hit this assert it means that you are keeping references to this
   // document object beyond the valid scope.
-  DCHECK(GetRefCt() == 1);
+  DCHECK_EQ(GetRefCt(), 1);
 
   if (!node_map_.empty()) {
     NodeMap::const_iterator it = node_map_.begin();
@@ -273,9 +253,8 @@ void CefDOMDocumentImpl::Detach()
   frame_ = NULL;
 }
 
-bool CefDOMDocumentImpl::VerifyContext()
-{
-  if(!CefThread::CurrentlyOn(CefThread::UI) || frame_ == NULL) {
+bool CefDOMDocumentImpl::VerifyContext() {
+  if (!CefThread::CurrentlyOn(CefThread::UI) || frame_ == NULL) {
     NOTREACHED();
     return false;
   }

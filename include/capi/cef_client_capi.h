@@ -34,21 +34,21 @@
 // more information.
 //
 
-#ifndef _CEF_CLIENT_CAPI_H
-#define _CEF_CLIENT_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Implement this structure to provide handler implementations.
 ///
-typedef struct _cef_client_t
-{
+typedef struct _cef_client_t {
   ///
   // Base structure.
   ///
@@ -137,7 +137,6 @@ typedef struct _cef_client_t
   ///
   struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
       struct _cef_client_t* self);
-
 } cef_client_t;
 
 
@@ -145,4 +144,4 @@ typedef struct _cef_client_t
 }
 #endif
 
-#endif // _CEF_CLIENT_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_

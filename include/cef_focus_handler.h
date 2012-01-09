@@ -34,11 +34,12 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_FOCUS_HANDLER_H
-#define _CEF_FOCUS_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_FOCUS_HANDLER_H_
+#define CEF_INCLUDE_CEF_FOCUS_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
-#include "cef_dom.h"
+#include "include/cef_base.h"
+#include "include/cef_dom.h"
 
 class CefBrowser;
 class CefFrame;
@@ -48,9 +49,8 @@ class CefFrame;
 // this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefFocusHandler : public virtual CefBase
-{
-public:
+class CefFocusHandler : public virtual CefBase {
+ public:
   typedef cef_handler_focus_source_t FocusSource;
 
   ///
@@ -86,4 +86,4 @@ public:
                                     CefRefPtr<CefDOMNode> node) {}
 };
 
-#endif // _CEF_FOCUS_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_FOCUS_HANDLER_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK response_get_status(struct _cef_response_t* self)
-{
+int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -31,8 +30,8 @@ int CEF_CALLBACK response_get_status(struct _cef_response_t* self)
   return _retval;
 }
 
-void CEF_CALLBACK response_set_status(struct _cef_response_t* self, int status)
-{
+void CEF_CALLBACK response_set_status(struct _cef_response_t* self,
+    int status) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,8 +44,7 @@ void CEF_CALLBACK response_set_status(struct _cef_response_t* self, int status)
 }
 
 cef_string_userfree_t CEF_CALLBACK response_get_status_text(
-    struct _cef_response_t* self)
-{
+    struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -61,8 +59,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_status_text(
 }
 
 void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
-    const cef_string_t* statusText)
-{
+    const cef_string_t* statusText) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,8 +76,7 @@ void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK response_get_mime_type(
-    struct _cef_response_t* self)
-{
+    struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -95,8 +91,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_mime_type(
 }
 
 void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
-    const cef_string_t* mimeType)
-{
+    const cef_string_t* mimeType) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -113,8 +108,7 @@ void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK response_get_header(
-    struct _cef_response_t* self, const cef_string_t* name)
-{
+    struct _cef_response_t* self, const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -134,8 +128,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_header(
 }
 
 void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
-    cef_string_multimap_t headerMap)
-{
+    cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -147,7 +140,7 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
     return;
 
   // Translate param: headerMap; type: string_map_multi_byref
-  std::multimap<CefString,CefString> headerMapMultimap;
+  std::multimap<CefString, CefString> headerMapMultimap;
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
@@ -160,8 +153,7 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
 }
 
 void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
-    cef_string_multimap_t headerMap)
-{
+    cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -173,7 +165,7 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
     return;
 
   // Translate param: headerMap; type: string_map_multi_byref_const
-  std::multimap<CefString,CefString> headerMapMultimap;
+  std::multimap<CefString, CefString> headerMapMultimap;
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
@@ -185,8 +177,7 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResponseCppToC::CefResponseCppToC(CefResponse* cls)
-    : CefCppToC<CefResponseCppToC, CefResponse, cef_response_t>(cls)
-{
+    : CefCppToC<CefResponseCppToC, CefResponse, cef_response_t>(cls) {
   struct_.struct_.get_status = response_get_status;
   struct_.struct_.set_status = response_set_status;
   struct_.struct_.get_status_text = response_get_status_text;

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -21,8 +21,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     struct _cef_life_span_handler_t* self, cef_browser_t* parentBrowser,
     const struct _cef_popup_features_t* popupFeatures,
     cef_window_info_t* windowInfo, const cef_string_t* url,
-    cef_client_t** client, struct _cef_browser_settings_t* settings)
-{
+    cef_client_t** client, struct _cef_browser_settings_t* settings) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,8 +98,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
 }
 
 void CEF_CALLBACK life_span_handler_on_after_created(
-    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
-{
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -117,8 +115,7 @@ void CEF_CALLBACK life_span_handler_on_after_created(
 }
 
 int CEF_CALLBACK life_span_handler_run_modal(
-    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
-{
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -138,8 +135,7 @@ int CEF_CALLBACK life_span_handler_run_modal(
 }
 
 int CEF_CALLBACK life_span_handler_do_close(
-    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
-{
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -159,8 +155,7 @@ int CEF_CALLBACK life_span_handler_do_close(
 }
 
 void CEF_CALLBACK life_span_handler_on_before_close(
-    struct _cef_life_span_handler_t* self, cef_browser_t* browser)
-{
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,8 +176,7 @@ void CEF_CALLBACK life_span_handler_on_before_close(
 
 CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls)
     : CefCppToC<CefLifeSpanHandlerCppToC, CefLifeSpanHandler,
-        cef_life_span_handler_t>(cls)
-{
+        cef_life_span_handler_t>(cls) {
   struct_.struct_.on_before_popup = life_span_handler_on_before_popup;
   struct_.struct_.on_after_created = life_span_handler_on_after_created;
   struct_.struct_.run_modal = life_span_handler_run_modal;

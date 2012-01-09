@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -25,8 +25,7 @@
 int CEF_CALLBACK request_handler_on_before_browse(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, cef_request_t* request,
-    enum cef_handler_navtype_t navType, int isRedirect)
-{
+    enum cef_handler_navtype_t navType, int isRedirect) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -61,8 +60,7 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     cef_request_t* request, cef_string_t* redirectUrl,
     struct _cef_stream_reader_t** resourceStream,
-    struct _cef_response_t* response, int loadFlags)
-{
+    struct _cef_response_t* response, int loadFlags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,8 +121,7 @@ int CEF_CALLBACK request_handler_on_before_resource_load(
 
 void CEF_CALLBACK request_handler_on_resource_redirect(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* old_url, cef_string_t* new_url)
-{
+    const cef_string_t* old_url, cef_string_t* new_url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -156,8 +153,7 @@ void CEF_CALLBACK request_handler_on_resource_redirect(
 void CEF_CALLBACK request_handler_on_resource_response(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, struct _cef_response_t* response,
-    cef_content_filter_t** filter)
-{
+    cef_content_filter_t** filter) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -207,8 +203,7 @@ void CEF_CALLBACK request_handler_on_resource_response(
 
 int CEF_CALLBACK request_handler_on_protocol_execution(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* url, int* allowOSExecution)
-{
+    const cef_string_t* url, int* allowOSExecution) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -248,8 +243,7 @@ int CEF_CALLBACK request_handler_on_protocol_execution(
 int CEF_CALLBACK request_handler_get_download_handler(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* mimeType, const cef_string_t* fileName,
-    int64 contentLength, cef_download_handler_t** handler)
-{
+    int64 contentLength, cef_download_handler_t** handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -305,8 +299,7 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
     struct _cef_request_handler_t* self, cef_browser_t* browser, int isProxy,
     const cef_string_t* host, int port, const cef_string_t* realm,
     const cef_string_t* scheme, cef_string_t* username,
-    cef_string_t* password)
-{
+    cef_string_t* password) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -359,8 +352,7 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
 
 CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
     : CefCppToC<CefRequestHandlerCppToC, CefRequestHandler,
-        cef_request_handler_t>(cls)
-{
+        cef_request_handler_t>(cls) {
   struct_.struct_.on_before_browse = request_handler_on_before_browse;
   struct_.struct_.on_before_resource_load =
       request_handler_on_before_resource_load;

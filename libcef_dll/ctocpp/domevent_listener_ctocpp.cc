@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefDOMEventListenerCToCpp::HandleEvent(CefRefPtr<CefDOMEvent> event)
-{
+void CefDOMEventListenerCToCpp::HandleEvent(CefRefPtr<CefDOMEvent> event) {
   if (CEF_MEMBER_MISSING(struct_, handle_event))
     return;
 

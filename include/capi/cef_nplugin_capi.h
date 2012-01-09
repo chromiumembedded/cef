@@ -28,14 +28,14 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_NPLUGIN_CAPI_H
-#define _CEF_NPLUGIN_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_NPLUGIN_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_NPLUGIN_CAPI_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "../internal/cef_nplugin_types.h"
+#include "include/internal/cef_nplugin_types.h"
 
 ///
 // Register a plugin with the system.  Returns true (1) on success.
@@ -46,4 +46,4 @@ CEF_EXPORT int cef_register_plugin(const cef_plugin_info_t* plugin_info);
 }
 #endif
 
-#endif // _CEF_NPLUGIN_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_NPLUGIN_CAPI_H_

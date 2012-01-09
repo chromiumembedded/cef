@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webcookiejar_impl.h"
-#include "browser_resource_loader_bridge.h"
+#include "libcef/browser_webcookiejar_impl.h"
+#include "libcef/browser_resource_loader_bridge.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 

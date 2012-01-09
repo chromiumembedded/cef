@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_DRAG_DATA_H
-#define _CEF_DRAG_DATA_H
+#ifndef CEF_INCLUDE_CEF_DRAG_DATA_H_
+#define CEF_INCLUDE_CEF_DRAG_DATA_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <vector>
 
 ///
@@ -45,9 +46,8 @@
 // on any thread.
 ///
 /*--cef(source=library)--*/
-class CefDragData : public virtual CefBase
-{
-public:
+class CefDragData : public virtual CefBase {
+ public:
   ///
   // Returns true if the drag data is a link.
   ///
@@ -123,4 +123,4 @@ public:
   virtual bool GetFileNames(std::vector<CefString>& names) =0;
 };
 
-#endif // _CEF_DRAG_DATA_H
+#endif  // CEF_INCLUDE_CEF_DRAG_DATA_H_

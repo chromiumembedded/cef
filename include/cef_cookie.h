@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_COOKIE_H
-#define _CEF_COOKIE_H
+#ifndef CEF_INCLUDE_CEF_COOKIE_H_
+#define CEF_INCLUDE_CEF_COOKIE_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefCookieVisitor;
 
@@ -95,9 +96,8 @@ bool CefSetCookiePath(const CefString& path);
 // will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefCookieVisitor : public virtual CefBase
-{
-public:
+class CefCookieVisitor : public virtual CefBase {
+ public:
   ///
   // Method that will be called once for each cookie. |count| is the 0-based
   // index for the current cookie. |total| is the total number of cookies.
@@ -110,4 +110,4 @@ public:
                      bool& deleteCookie) =0;
 };
 
-#endif // _CEF_COOKIE_H
+#endif  // CEF_INCLUDE_CEF_COOKIE_H_

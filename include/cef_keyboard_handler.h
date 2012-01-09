@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_KEYBOARD_HANDLER_H
-#define _CEF_KEYBOARD_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_KEYBOARD_HANDLER_H_
+#define CEF_INCLUDE_CEF_KEYBOARD_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 
@@ -46,9 +47,8 @@ class CefBrowser;
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefKeyboardHandler : public virtual CefBase
-{
-public:
+class CefKeyboardHandler : public virtual CefBase {
+ public:
   typedef cef_handler_keyevent_type_t KeyEventType;
 
   ///
@@ -74,4 +74,4 @@ public:
                           bool isAfterJavaScript) { return false; }
 };
 
-#endif // _CEF_KEYBOARD_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_KEYBOARD_HANDLER_H_

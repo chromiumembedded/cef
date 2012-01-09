@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "win_printing_context.h"
+#include "libcef/printing/win_printing_context.h"
 
 #include <winspool.h>
 
@@ -94,13 +94,14 @@ PrintingContext::Result PrintingContext::AskUserForSettings(
 
   // Adjust the default dev mode for the printdlg settings.
   DEVMODE dev_mode;
-  memset(&dev_mode,0,sizeof(dev_mode));
+  memset(&dev_mode, 0, sizeof(dev_mode));
   dev_mode.dmSpecVersion = DM_SPECVERSION;
   dev_mode.dmSize = sizeof(DEVMODE);
   AdjustDevMode(dev_mode);
 
   dialog_options.hDevMode = GlobalAlloc(GMEM_MOVEABLE, sizeof(DEVMODE));
-  DEVMODE* locked_dev_mode = reinterpret_cast<DEVMODE*>(GlobalLock(dialog_options.hDevMode));
+  DEVMODE* locked_dev_mode =
+      reinterpret_cast<DEVMODE*>(GlobalLock(dialog_options.hDevMode));
   memcpy(locked_dev_mode, &dev_mode, sizeof(DEVMODE));
   GlobalUnlock(dialog_options.hDevMode);
   {
@@ -124,13 +125,13 @@ PrintingContext::Result PrintingContext::UseDefaultSettings() {
   return ParseDialogResult(dialog_options);
 }
 
-void PrintingContext::AdjustDevMode(DEVMODE& dev_mode)
-{
+void PrintingContext::AdjustDevMode(DEVMODE& dev_mode) {
   dev_mode.dmFields |= DM_ORIENTATION;
-  dev_mode.dmOrientation = (settings_.landscape) ? DMORIENT_LANDSCAPE : DMORIENT_PORTRAIT;
+  dev_mode.dmOrientation =
+      (settings_.landscape) ? DMORIENT_LANDSCAPE : DMORIENT_PORTRAIT;
 
   dev_mode.dmFields |= DM_PAPERSIZE;
-  switch(settings_.page_measurements.page_type) {
+  switch (settings_.page_measurements.page_type) {
     case PT_LETTER:
       dev_mode.dmPaperSize = DMPAPER_LETTER;
       break;
@@ -153,18 +154,20 @@ void PrintingContext::AdjustDevMode(DEVMODE& dev_mode)
         DCHECK_GT(settings_.page_measurements.page_length, 0);
         DCHECK_GT(settings_.page_measurements.page_width, 0);
         // Convert from desired_dpi to tenths of a mm.
-        dev_mode.dmPaperLength = static_cast<short>(
-                                 ConvertUnitDouble(abs(settings_.page_measurements.page_length), 
-                                                   10.0 * settings_.desired_dpi, 
-                                                   static_cast<double>(kHundrethsMMPerInch)) + 0.5);
-        dev_mode.dmPaperWidth = static_cast<short>(
-                                ConvertUnitDouble(abs(settings_.page_measurements.page_width), 
-                                                  10.0 * settings_.desired_dpi, 
-                                                  static_cast<double>(kHundrethsMMPerInch)) + 0.5);
+        dev_mode.dmPaperLength =
+            static_cast<short>(ConvertUnitDouble(  // NOLINT(runtime/int)
+                abs(settings_.page_measurements.page_length),
+                10.0 * settings_.desired_dpi,
+                static_cast<double>(kHundrethsMMPerInch)) + 0.5);
+        dev_mode.dmPaperWidth =
+            static_cast<short>(ConvertUnitDouble(  // NOLINT(runtime/int)
+                abs(settings_.page_measurements.page_width),
+                10.0 * settings_.desired_dpi,
+                static_cast<double>(kHundrethsMMPerInch)) + 0.5);
         break;
       }
     default:
-      //we shouldn't ever hit this case.
+      // We shouldn't ever hit this case.
       DCHECK(false);
       dev_mode.dmPaperSize = DMPAPER_LETTER;
       break;
@@ -175,7 +178,7 @@ PrintingContext::Result PrintingContext::Init() {
   DCHECK(!in_print_job_);
   TCHAR printername[512];
   DWORD size = sizeof(printername)-1;
-  if(GetDefaultPrinter(printername, &size)) {
+  if (GetDefaultPrinter(printername, &size)) {
     return Init(CefString(printername), false);
   }
   return FAILED;
@@ -189,7 +192,7 @@ PrintingContext::Result PrintingContext::InitWithSettings(
   return Init(settings_.device_name(), true);
 }
 
-PrintingContext::Result PrintingContext::Init(const CefString& device_name, 
+PrintingContext::Result PrintingContext::Init(const CefString& device_name,
                                               bool adjust_dev_mode) {
   HANDLE printer;
   std::wstring deviceNameStr = device_name;
@@ -255,7 +258,7 @@ PrintingContext::Result PrintingContext::NewDocument(
                 OFN_NOREADONLYRETURN | OFN_ENABLESIZING;
     ofn.lpstrDefExt = L"ps";
 
-    if(GetSaveFileName(&ofn))
+    if (GetSaveFileName(&ofn))
       di.lpszOutput = szFileName;
     else
       return OnError();
@@ -466,7 +469,8 @@ PrintingContext::Result PrintingContext::ParseDialogResultEx(
   // If the user clicked OK or Apply then Cancel, but not only Cancel.
   if (dialog_options.dwResultAction != PD_RESULT_CANCEL) {
     PageMargins requested_margins = settings_.requested_margins;
-    // Start fresh except for page margins since that isn't controlled by this dialog.
+    // Start fresh except for page margins since that isn't controlled by this
+    // dialog.
     ResetSettings();
     settings_.requested_margins = requested_margins;
 

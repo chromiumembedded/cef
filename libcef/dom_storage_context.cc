@@ -2,17 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "dom_storage_context.h"
-#include "cef_thread.h"
-#include "dom_storage_namespace.h"
+#include "libcef/dom_storage_context.h"
 
 #include <algorithm>
+
+#include "libcef/cef_thread.h"
+#include "libcef/dom_storage_area.h"
+#include "libcef/dom_storage_namespace.h"
 
 #include "base/bind.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
-#include "dom_storage_area.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
@@ -35,7 +36,8 @@ DOMStorageContext::DOMStorageContext(const FilePath& local_storage_path)
     : local_storage_path_(local_storage_path),
       last_storage_area_id_(0),
       last_session_storage_namespace_id_on_ui_thread_(kLocalStorageNamespaceId),
-      last_session_storage_namespace_id_on_io_thread_(kLocalStorageNamespaceId){
+      last_session_storage_namespace_id_on_io_thread_(
+          kLocalStorageNamespaceId) {
 }
 
 DOMStorageContext::~DOMStorageContext() {
@@ -176,7 +178,7 @@ void DOMStorageContext::DeleteDataModifiedSince(
 
 void DOMStorageContext::DeleteLocalStorageForOrigin(const string16& origin) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
-  
+
   DOMStorageArea* area =
       GetStorageArea(kLocalStorageNamespaceId, origin, false);
   if (!area)
@@ -188,7 +190,7 @@ void DOMStorageContext::DeleteLocalStorageForOrigin(const string16& origin) {
 
   if (local_storage_path_.empty())
     return;
-  
+
   FilePath file_path = GetLocalStorageFilePath(origin);
   if (!file_path.empty())
     file_util::Delete(file_path, false);
@@ -217,7 +219,7 @@ void DOMStorageContext::DeleteAllLocalStorageFiles() {
 void DOMStorageContext::SetLocalStoragePath(
     const FilePath& local_storage_path) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
-      
+
   if ((local_storage_path.empty() && local_storage_path_.empty()) ||
       local_storage_path == local_storage_path_)
     return;
@@ -291,7 +293,7 @@ void DOMStorageContext::ClearLocalState(const FilePath& profile_path,
 FilePath DOMStorageContext::GetLocalStorageFilePath(
     const string16& origin) const {
   DCHECK(!local_storage_path_.empty());
-      
+
   string16 origin_id =
       webkit_database::DatabaseUtil::GetOriginIdentifier(GURL(origin));
 

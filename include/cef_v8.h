@@ -35,10 +35,11 @@
 //
 
 
-#ifndef _CEF_V8_H
-#define _CEF_V8_H
+#ifndef CEF_INCLUDE_CEF_V8_H_
+#define CEF_INCLUDE_CEF_V8_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <vector>
 
 class CefBrowser;
@@ -53,7 +54,7 @@ class CefV8Value;
 // keyword 'native'. The calling of a native function is restricted to the scope
 // in which the prototype of the native function is defined. This function may
 // be called on any thread.
-// 
+//
 // Example JavaScript extension code:
 // <pre>
 //   // create the 'example' global object if it doesn't already exist.
@@ -116,9 +117,8 @@ bool CefRegisterExtension(const CefString& extension_name,
 // Class that encapsulates a V8 context handle.
 ///
 /*--cef(source=library)--*/
-class CefV8Context : public virtual CefBase
-{
-public:
+class CefV8Context : public virtual CefBase {
+ public:
   ///
   // Returns the current (top) context object in the V8 context stack.
   ///
@@ -188,9 +188,8 @@ typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 // of this class will always be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefV8Handler : public virtual CefBase
-{
-public:
+class CefV8Handler : public virtual CefBase {
+ public:
   ///
   // Handle execution of the function identified by |name|. |object| is the
   // receiver ('this' object) of the function. |arguments| is the list of
@@ -212,9 +211,8 @@ public:
 // of this class will always be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefV8Accessor : public virtual CefBase
-{
-public:
+class CefV8Accessor : public virtual CefBase {
+ public:
   ///
   // Handle retrieval the accessor value identified by |name|. |object| is the
   // receiver ('this' object) of the accessor. If retrieval succeeds set
@@ -246,9 +244,8 @@ public:
 // Class representing a V8 exception.
 ///
 /*--cef(source=library)--*/
-class CefV8Exception : public virtual CefBase
-{
-public:
+class CefV8Exception : public virtual CefBase {
+ public:
   ///
   // Returns the exception message.
   ///
@@ -309,9 +306,8 @@ public:
 // called on the UI thread.
 ///
 /*--cef(source=library)--*/
-class CefV8Value : public virtual CefBase
-{
-public:
+class CefV8Value : public virtual CefBase {
+ public:
   typedef cef_v8_accesscontrol_t AccessControl;
   typedef cef_v8_propertyattribute_t PropertyAttribute;
 
@@ -359,7 +355,7 @@ public:
   ///
   /*--cef(capi_name=cef_v8value_create_object_with_accessor,
           optional_param=user_data,optional_param=accessor)--*/
-  static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data, 
+  static CefRefPtr<CefV8Value> CreateObject(CefRefPtr<CefBase> user_data,
                                             CefRefPtr<CefV8Accessor> accessor);
   ///
   // Create a new CefV8Value object of type array. This method should only be
@@ -436,7 +432,7 @@ public:
   ///
   /*--cef()--*/
   virtual bool IsSame(CefRefPtr<CefV8Value> that) =0;
-  
+
   ///
   // Return a bool value.  The underlying data will be converted to if
   // necessary.
@@ -523,7 +519,7 @@ public:
   // instance passed to CefV8Value::CreateObject().
   ///
   /*--cef(capi_name=set_value_byaccessor)--*/
-  virtual bool SetValue(const CefString& key, AccessControl settings, 
+  virtual bool SetValue(const CefString& key, AccessControl settings,
                         PropertyAttribute attribute) =0;
 
   ///
@@ -587,7 +583,7 @@ public:
   // arguments that will be passed to the function. If execution succeeds
   // |retval| will be set to the function return value. If execution fails
   // |exception| will be set to the exception that was thrown. If
-  // |rethrow_exception| is true any exception will also be re-thrown. This 
+  // |rethrow_exception| is true any exception will also be re-thrown. This
   // method returns false if called incorrectly.
   ///
   /*--cef(optional_param=object)--*/
@@ -599,4 +595,4 @@ public:
                                           bool rethrow_exception) =0;
 };
 
-#endif // _CEF_V8_H
+#endif  // CEF_INCLUDE_CEF_V8_H_

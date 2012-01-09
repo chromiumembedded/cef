@@ -122,11 +122,10 @@ namespace {
     0x00, 0x00, 0x71, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
-} // namespace
+}  // namespace
 
 // Test Zip reading.
-TEST(ZipReaderTest, Read)
-{
+TEST(ZipReaderTest, Read) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_zip, sizeof(g_test_zip) - 1));
@@ -196,7 +195,7 @@ TEST(ZipReaderTest, Read)
   ASSERT_TRUE(!strncmp(buff, "Contents of file 2A.", 20));
 
   ASSERT_FALSE(reader->MoveToNextFile());
-  
+
   // Try seeking a particular file
   ASSERT_TRUE(reader->MoveToFile("TEST_ARCHIVE/FOLDER 1/FILE 1B.TXT", false));
   ASSERT_EQ(reader->GetFileName(), "test_archive/folder 1/file 1b.txt");
@@ -208,13 +207,12 @@ TEST(ZipReaderTest, Read)
 
   ASSERT_TRUE(reader->MoveToFile("test_archive/folder 1/file 1b.txt", true));
   ASSERT_FALSE(reader->MoveToFile("test_archive/folder 1/FILE 1B.txt", true));
- 
+
   ASSERT_TRUE(reader->Close());
 }
 
 // Test CefZipArchive object.
-TEST(ZipReaderTest, ReadArchive)
-{
+TEST(ZipReaderTest, ReadArchive) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_zip, sizeof(g_test_zip) - 1));
@@ -230,7 +228,7 @@ TEST(ZipReaderTest, ReadArchive)
   ASSERT_TRUE(archive->HasFile("test_archive/FOLDER 1/file 1b.txt"));
   ASSERT_TRUE(archive->HasFile("test_archive/folder 1/folder 1a/file 1a1.txt"));
   ASSERT_TRUE(archive->HasFile("test_archive/folder 2/file 2a.txt"));
-  
+
   // Test content retrieval.
   CefRefPtr<CefZipArchive::File> file;
   file = archive->GetFile("test_archive/folder 2/file 2a.txt");

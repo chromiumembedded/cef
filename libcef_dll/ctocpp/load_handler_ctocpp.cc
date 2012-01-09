@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame)
-{
+    CefRefPtr<CefFrame> frame) {
   if (CEF_MEMBER_MISSING(struct_, on_load_start))
     return;
 
@@ -41,8 +40,7 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
 }
 
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, int httpStatusCode)
-{
+    CefRefPtr<CefFrame> frame, int httpStatusCode) {
   if (CEF_MEMBER_MISSING(struct_, on_load_end))
     return;
 
@@ -66,8 +64,7 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
 
 bool CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& failedUrl,
-    CefString& errorText)
-{
+    CefString& errorText) {
   if (CEF_MEMBER_MISSING(struct_, on_load_error))
     return false;
 

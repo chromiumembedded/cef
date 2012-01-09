@@ -3,14 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_RESOURCE_LOADER_BRIDGE_H
-#define _BROWSER_RESOURCE_LOADER_BRIDGE_H
+#ifndef CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
+#define CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
+#pragma once
+
+#include <string>
 
 #include "include/cef_base.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
-#include <string>
 
 class CefBrowser;
 class GURL;
@@ -41,5 +43,5 @@ class BrowserResourceLoaderBridge {
   static net::URLRequest::Interceptor* CreateRequestInterceptor();
 };
 
-#endif  // _BROWSER_RESOURCE_LOADER_BRIDGE_H
+#endif  // CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
 

@@ -63,7 +63,7 @@ def normalize_headers(file, new_path = ''):
   """ Normalize headers post-processing. Remove the path component from any
       project include directives. """
   data = read_file(file)
-  data = re.sub(r'''#include \"[a-zA-Z0-9_\/]+\/+([a-zA-Z0-9_\.]+)\"''', \
+  data = re.sub(r'''#include \"(?!include\/)[a-zA-Z0-9_\/]+\/+([a-zA-Z0-9_\.]+)\"''', \
                 "// Include path modified for CEF Binary Distribution.\n#include \""+new_path+"\\1\"", data)
   write_file(file, data)
 

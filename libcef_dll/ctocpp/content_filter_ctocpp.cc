@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefContentFilterCToCpp::ProcessData(const void* data, int data_size,
-    CefRefPtr<CefStreamReader>& substitute_data)
-{
+    CefRefPtr<CefStreamReader>& substitute_data) {
   if (CEF_MEMBER_MISSING(struct_, process_data))
     return;
 
@@ -31,7 +30,7 @@ void CefContentFilterCToCpp::ProcessData(const void* data, int data_size,
 
   // Translate param: substitute_data; type: refptr_diff_byref
   cef_stream_reader_t* substitute_dataStruct = NULL;
-  if(substitute_data.get())
+  if (substitute_data.get())
     substitute_dataStruct = CefStreamReaderCppToC::Wrap(substitute_data);
   cef_stream_reader_t* substitute_dataOrig = substitute_dataStruct;
 
@@ -51,8 +50,7 @@ void CefContentFilterCToCpp::ProcessData(const void* data, int data_size,
   }
 }
 
-void CefContentFilterCToCpp::Drain(CefRefPtr<CefStreamReader>& remainder)
-{
+void CefContentFilterCToCpp::Drain(CefRefPtr<CefStreamReader>& remainder) {
   if (CEF_MEMBER_MISSING(struct_, drain))
     return;
 
@@ -60,7 +58,7 @@ void CefContentFilterCToCpp::Drain(CefRefPtr<CefStreamReader>& remainder)
 
   // Translate param: remainder; type: refptr_diff_byref
   cef_stream_reader_t* remainderStruct = NULL;
-  if(remainder.get())
+  if (remainder.get())
     remainderStruct = CefStreamReaderCppToC::Wrap(remainder);
   cef_stream_reader_t* remainderOrig = remainderStruct;
 

@@ -19,8 +19,7 @@
 
 int CEF_CALLBACK permission_handler_on_before_script_extension_load(
     struct _cef_permission_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, const cef_string_t* extensionName)
-{
+    cef_frame_t* frame, const cef_string_t* extensionName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,8 +55,7 @@ int CEF_CALLBACK permission_handler_on_before_script_extension_load(
 CefPermissionHandlerCppToC::CefPermissionHandlerCppToC(
     CefPermissionHandler* cls)
     : CefCppToC<CefPermissionHandlerCppToC, CefPermissionHandler,
-        cef_permission_handler_t>(cls)
-{
+        cef_permission_handler_t>(cls) {
   struct_.struct_.on_before_script_extension_load =
       permission_handler_on_before_script_extension_load;
 }

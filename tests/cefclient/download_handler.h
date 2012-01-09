@@ -2,17 +2,17 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEFCLIENT_DOWNLOAD_HANDLER_H
-#define _CEFCLIENT_DOWNLOAD_HANDLER_H
+#ifndef CEF_TESTS_CEFCLIENT_DOWNLOAD_HANDLER_H_
+#define CEF_TESTS_CEFCLIENT_DOWNLOAD_HANDLER_H_
+#pragma once
 
 #include "include/cef_base.h"
 
 class CefDownloadHandler;
 
 // Implement this interface to receive download notifications.
-class DownloadListener : public virtual CefBase
-{
-public:
+class DownloadListener : public virtual CefBase {
+ public:
   // Called when the download is complete.
   virtual void NotifyDownloadComplete(const CefString& fileName) =0;
 
@@ -24,4 +24,4 @@ public:
 CefRefPtr<CefDownloadHandler> CreateDownloadHandler(
     CefRefPtr<DownloadListener> listener, const CefString& fileName);
 
-#endif // _CEFCLIENT_DOWNLOAD_HANDLER_H
+#endif  // CEF_TESTS_CEFCLIENT_DOWNLOAD_HANDLER_H_

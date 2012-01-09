@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BROWSER_FILE_SYSTEM_H_
-#define BROWSER_FILE_SYSTEM_H_
+#ifndef CEF_LIBCEF_BROWSER_FILE_SYSTEM_H_
+#define CEF_LIBCEF_BROWSER_FILE_SYSTEM_H_
+#pragma once
+
+#include <vector>
 
 #include "base/file_util_proxy.h"
 #include "base/id_map.h"
@@ -11,7 +14,6 @@
 #include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "webkit/fileapi/file_system_types.h"
-#include <vector>
 
 namespace WebKit {
 class WebFileSystemCallbacks;
@@ -35,7 +37,7 @@ class BrowserFileSystem
 
   void OpenFileSystem(WebKit::WebFrame* frame,
                       WebKit::WebFileSystem::Type type,
-                      long long size,
+                      long long size,  // NOLINT(runtime/int)
                       bool create,
                       WebKit::WebFileSystemCallbacks* callbacks);
 
@@ -94,4 +96,4 @@ class BrowserFileSystem
   DISALLOW_COPY_AND_ASSIGN(BrowserFileSystem);
 };
 
-#endif  // BROWSER_FILE_SYSTEM_H_
+#endif  // CEF_LIBCEF_BROWSER_FILE_SYSTEM_H_

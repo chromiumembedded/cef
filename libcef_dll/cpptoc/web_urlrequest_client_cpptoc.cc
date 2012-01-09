@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -20,8 +20,7 @@
 
 void CEF_CALLBACK web_urlrequest_client_on_state_change(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    enum cef_weburlrequest_state_t state)
-{
+    enum cef_weburlrequest_state_t state) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,8 +39,7 @@ void CEF_CALLBACK web_urlrequest_client_on_state_change(
 
 void CEF_CALLBACK web_urlrequest_client_on_redirect(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    cef_request_t* request, cef_response_t* response)
-{
+    cef_request_t* request, cef_response_t* response) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,8 +67,7 @@ void CEF_CALLBACK web_urlrequest_client_on_redirect(
 
 void CEF_CALLBACK web_urlrequest_client_on_headers_received(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    cef_response_t* response)
-{
+    cef_response_t* response) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -93,8 +90,7 @@ void CEF_CALLBACK web_urlrequest_client_on_headers_received(
 
 void CEF_CALLBACK web_urlrequest_client_on_progress(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    uint64 bytesSent, uint64 totalBytesToBeSent)
-{
+    uint64 bytesSent, uint64 totalBytesToBeSent) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,8 +110,7 @@ void CEF_CALLBACK web_urlrequest_client_on_progress(
 
 void CEF_CALLBACK web_urlrequest_client_on_data(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    const void* data, int dataLength)
-{
+    const void* data, int dataLength) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -139,8 +134,7 @@ void CEF_CALLBACK web_urlrequest_client_on_data(
 
 void CEF_CALLBACK web_urlrequest_client_on_error(
     struct _cef_web_urlrequest_client_t* self, cef_web_urlrequest_t* requester,
-    enum cef_handler_errorcode_t errorCode)
-{
+    enum cef_handler_errorcode_t errorCode) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -163,8 +157,7 @@ void CEF_CALLBACK web_urlrequest_client_on_error(
 CefWebURLRequestClientCppToC::CefWebURLRequestClientCppToC(
     CefWebURLRequestClient* cls)
     : CefCppToC<CefWebURLRequestClientCppToC, CefWebURLRequestClient,
-        cef_web_urlrequest_client_t>(cls)
-{
+        cef_web_urlrequest_client_t>(cls) {
   struct_.struct_.on_state_change = web_urlrequest_client_on_state_change;
   struct_.struct_.on_redirect = web_urlrequest_client_on_redirect;
   struct_.struct_.on_headers_received =

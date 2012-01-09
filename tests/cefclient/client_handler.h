@@ -2,17 +2,20 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CLIENT_HANDLER_H
-#define _CLIENT_HANDLER_H
+#ifndef CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_H_
+#define CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_H_
+#pragma once
 
+#include <map>
+#include <string>
 #include "include/cef_client.h"
-#include "download_handler.h"
-#include "util.h"
+#include "cefclient/download_handler.h"
+#include "cefclient/util.h"
 
 
 // Define this value to redirect all popup URLs to the main application browser
 // window.
-//#define TEST_REDIRECT_POPUP_URLS
+// #define TEST_REDIRECT_POPUP_URLS
 
 
 // ClientHandler implementation.
@@ -27,33 +30,42 @@ class ClientHandler : public CefClient,
                       public CefV8ContextHandler,
                       public CefDragHandler,
                       public CefPermissionHandler,
-                      public DownloadListener
-{
-public:
+                      public DownloadListener {
+ public:
   ClientHandler();
   virtual ~ClientHandler();
 
   // CefClient methods
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE
-      { return this; }
-  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE
-      { return this; }
+  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE {
+    return this;
+  }
 
   // CefLifeSpanHandler methods
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
@@ -77,7 +89,7 @@ public:
                            ErrorCode errorCode,
                            const CefString& failedUrl,
                            CefString& errorText) OVERRIDE;
- 
+
   // CefRequestHandler methods
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefRequest> request,
@@ -105,7 +117,7 @@ public:
                                 const CefString& message,
                                 const CefString& source,
                                 int line) OVERRIDE;
-  
+
   // CefFocusHandler methods.
   virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
@@ -133,7 +145,7 @@ public:
                                     CefString& bottomLeft,
                                     CefString& bottomCenter,
                                     CefString& bottomRight) OVERRIDE;
-  
+
   // CefV8ContextHandler methods
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
@@ -163,7 +175,7 @@ public:
                       CefWindowHandle forwardHwnd,
                       CefWindowHandle reloadHwnd,
                       CefWindowHandle stopHwnd);
-  
+
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   CefWindowHandle GetBrowserHwnd() { return m_BrowserHwnd; }
 
@@ -178,8 +190,7 @@ public:
 
   // Send a notification to the application. Notifications should not block the
   // caller.
-  enum NotificationType
-  {
+  enum NotificationType {
     NOTIFY_CONSOLE_MESSAGE,
     NOTIFY_DOWNLOAD_COMPLETE,
     NOTIFY_DOWNLOAD_ERROR,
@@ -187,7 +198,7 @@ public:
   void SendNotification(NotificationType type);
   void CloseMainWindow();
 
-protected:
+ protected:
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
 
@@ -228,4 +239,4 @@ protected:
   IMPLEMENT_LOCKING(ClientHandler);
 };
 
-#endif // _CLIENT_HANDLER_H
+#endif  // CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_H_

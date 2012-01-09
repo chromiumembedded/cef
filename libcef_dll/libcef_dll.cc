@@ -80,8 +80,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
-    struct _cef_app_t* application)
-{
+    struct _cef_app_t* application) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: settings; type: struct_byref_const
@@ -104,8 +103,7 @@ CEF_EXPORT int cef_initialize(const struct _cef_settings_t* settings,
   return _retval;
 }
 
-CEF_EXPORT void cef_shutdown()
-{
+CEF_EXPORT void cef_shutdown() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -113,83 +111,79 @@ CEF_EXPORT void cef_shutdown()
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
-  DCHECK(CefBrowserCppToC::DebugObjCt == 0);
-  DCHECK(CefContentFilterCToCpp::DebugObjCt == 0);
-  DCHECK(CefCookieVisitorCToCpp::DebugObjCt == 0);
-  DCHECK(CefDOMDocumentCppToC::DebugObjCt == 0);
-  DCHECK(CefDOMEventCppToC::DebugObjCt == 0);
-  DCHECK(CefDOMEventListenerCToCpp::DebugObjCt == 0);
-  DCHECK(CefDOMNodeCppToC::DebugObjCt == 0);
-  DCHECK(CefDOMVisitorCToCpp::DebugObjCt == 0);
-  DCHECK(CefDisplayHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefDownloadHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefDragDataCppToC::DebugObjCt == 0);
-  DCHECK(CefDragHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefFindHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefFocusHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefFrameCppToC::DebugObjCt == 0);
-  DCHECK(CefJSDialogHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefKeyboardHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefLifeSpanHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefLoadHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefMenuHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefPermissionHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefPostDataCppToC::DebugObjCt == 0);
-  DCHECK(CefPostDataElementCppToC::DebugObjCt == 0);
-  DCHECK(CefPrintHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefProxyHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefReadHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefRenderHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefRequestCppToC::DebugObjCt == 0);
-  DCHECK(CefRequestHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefResponseCppToC::DebugObjCt == 0);
-  DCHECK(CefSchemeHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefSchemeHandlerCallbackCppToC::DebugObjCt == 0);
-  DCHECK(CefSchemeHandlerFactoryCToCpp::DebugObjCt == 0);
-  DCHECK(CefStorageVisitorCToCpp::DebugObjCt == 0);
-  DCHECK(CefStreamReaderCppToC::DebugObjCt == 0);
-  DCHECK(CefStreamWriterCppToC::DebugObjCt == 0);
-  DCHECK(CefTaskCToCpp::DebugObjCt == 0);
-  DCHECK(CefV8AccessorCToCpp::DebugObjCt == 0);
-  DCHECK(CefV8ContextCppToC::DebugObjCt == 0);
-  DCHECK(CefV8ContextHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefV8ExceptionCppToC::DebugObjCt == 0);
-  DCHECK(CefV8HandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefV8ValueCppToC::DebugObjCt == 0);
-  DCHECK(CefWebURLRequestClientCToCpp::DebugObjCt == 0);
-  DCHECK(CefWebURLRequestCppToC::DebugObjCt == 0);
-  DCHECK(CefWriteHandlerCToCpp::DebugObjCt == 0);
-  DCHECK(CefXmlReaderCppToC::DebugObjCt == 0);
-  DCHECK(CefZipReaderCppToC::DebugObjCt == 0);
-#endif // !NDEBUG
+  DCHECK_EQ(CefBrowserCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefContentFilterCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefCookieVisitorCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMDocumentCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMEventCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMEventListenerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMNodeCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMVisitorCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDisplayHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDownloadHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDragDataCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDragHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefFindHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefFocusHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefFrameCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefJSDialogHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefKeyboardHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefLifeSpanHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefLoadHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefMenuHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefPermissionHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefPostDataCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefPostDataElementCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefPrintHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefProxyHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefReadHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefRenderHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefRequestCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefRequestHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefResponseCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefSchemeHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefSchemeHandlerCallbackCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefSchemeHandlerFactoryCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefStorageVisitorCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefStreamReaderCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefStreamWriterCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefTaskCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefV8AccessorCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefV8ContextCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefV8ContextHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefV8ExceptionCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefV8HandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefV8ValueCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWebURLRequestClientCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefWebURLRequestCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWriteHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefXmlReaderCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefZipReaderCppToC::DebugObjCt, 0);
+#endif  // !NDEBUG
 }
 
-CEF_EXPORT void cef_do_message_loop_work()
-{
+CEF_EXPORT void cef_do_message_loop_work() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   CefDoMessageLoopWork();
 }
 
-CEF_EXPORT void cef_run_message_loop()
-{
+CEF_EXPORT void cef_run_message_loop() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   CefRunMessageLoop();
 }
 
-CEF_EXPORT void cef_quit_message_loop()
-{
+CEF_EXPORT void cef_quit_message_loop() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   CefQuitMessageLoop();
 }
 
-CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor)
-{
+CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: visitor; type: refptr_diff
@@ -206,8 +200,7 @@ CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor)
 }
 
 CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
-    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor)
-{
+    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
@@ -230,8 +223,7 @@ CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
 }
 
 CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
-    const struct _cef_cookie_t* cookie)
-{
+    const struct _cef_cookie_t* cookie) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
@@ -258,8 +250,7 @@ CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
 }
 
 CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
-    const cef_string_t* cookie_name)
-{
+    const cef_string_t* cookie_name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: url, cookie_name
@@ -273,8 +264,7 @@ CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
   return _retval;
 }
 
-CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path)
-{
+CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: path
@@ -289,8 +279,7 @@ CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path)
 
 CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
     const cef_string_t* source_origin, const cef_string_t* target_protocol,
-    const cef_string_t* target_domain, int allow_target_subdomains)
-{
+    const cef_string_t* target_domain, int allow_target_subdomains) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: source_origin; type: string_byref_const
@@ -319,8 +308,7 @@ CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
 
 CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
     const cef_string_t* source_origin, const cef_string_t* target_protocol,
-    const cef_string_t* target_domain, int allow_target_subdomains)
-{
+    const cef_string_t* target_domain, int allow_target_subdomains) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: source_origin; type: string_byref_const
@@ -347,8 +335,7 @@ CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
   return _retval;
 }
 
-CEF_EXPORT int cef_clear_cross_origin_whitelist()
-{
+CEF_EXPORT int cef_clear_cross_origin_whitelist() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -359,8 +346,7 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist()
 }
 
 CEF_EXPORT int cef_register_custom_scheme(const cef_string_t* scheme_name,
-    int is_standard, int is_local, int is_display_isolated)
-{
+    int is_standard, int is_local, int is_display_isolated) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: scheme_name; type: string_byref_const
@@ -381,8 +367,7 @@ CEF_EXPORT int cef_register_custom_scheme(const cef_string_t* scheme_name,
 
 CEF_EXPORT int cef_register_scheme_handler_factory(
     const cef_string_t* scheme_name, const cef_string_t* domain_name,
-    struct _cef_scheme_handler_factory_t* factory)
-{
+    struct _cef_scheme_handler_factory_t* factory) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: scheme_name; type: string_byref_const
@@ -401,8 +386,7 @@ CEF_EXPORT int cef_register_scheme_handler_factory(
   return _retval;
 }
 
-CEF_EXPORT int cef_clear_scheme_handler_factories()
-{
+CEF_EXPORT int cef_clear_scheme_handler_factories() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -414,8 +398,7 @@ CEF_EXPORT int cef_clear_scheme_handler_factories()
 
 CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
     const cef_string_t* origin, const cef_string_t* key,
-    struct _cef_storage_visitor_t* visitor)
-{
+    struct _cef_storage_visitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: visitor; type: refptr_diff
@@ -437,8 +420,7 @@ CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
 
 CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
     const cef_string_t* origin, const cef_string_t* key,
-    const cef_string_t* value)
-{
+    const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: origin; type: string_byref_const
@@ -466,8 +448,7 @@ CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
 }
 
 CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
-    const cef_string_t* origin, const cef_string_t* key)
-{
+    const cef_string_t* origin, const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: origin, key
@@ -483,8 +464,7 @@ CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
 }
 
 CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
-    const cef_string_t* path)
-{
+    const cef_string_t* path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: path
@@ -498,8 +478,7 @@ CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
   return _retval;
 }
 
-CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId)
-{
+CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -510,8 +489,8 @@ CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId)
   return _retval;
 }
 
-CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, struct _cef_task_t* task)
-{
+CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: task; type: refptr_diff
@@ -529,8 +508,7 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, struct _cef_task_t* task)
 }
 
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
-    struct _cef_task_t* task, long delay_ms)
-{
+    struct _cef_task_t* task, int64 delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: task; type: refptr_diff
@@ -549,8 +527,7 @@ CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
 }
 
 CEF_EXPORT int cef_parse_url(const cef_string_t* url,
-    struct _cef_urlparts_t* parts)
-{
+    struct _cef_urlparts_t* parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: url; type: string_byref_const
@@ -581,8 +558,7 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
 }
 
 CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
-    cef_string_t* url)
-{
+    cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: parts; type: struct_byref_const
@@ -611,8 +587,7 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
 }
 
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
-    const cef_string_t* javascript_code, struct _cef_v8handler_t* handler)
-{
+    const cef_string_t* javascript_code, struct _cef_v8handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: extension_name; type: string_byref_const

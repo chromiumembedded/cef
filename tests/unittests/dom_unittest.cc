@@ -3,21 +3,18 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_dom.h"
+#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_handler.h"
 
 namespace {
 
-class TestDOMHandler : public TestHandler
-{
-public:
-  class Visitor : public CefDOMVisitor
-  {
-  public:
-    Visitor(TestDOMHandler* handler) : handler_(handler) {}
+class TestDOMHandler : public TestHandler {
+ public:
+  class Visitor : public CefDOMVisitor {
+   public:
+    explicit Visitor(TestDOMHandler* handler) : handler_(handler) {}
 
-    void TestHeadNodeStructure(CefRefPtr<CefDOMNode> headNode)
-    {
+    void TestHeadNodeStructure(CefRefPtr<CefDOMNode> headNode) {
       EXPECT_TRUE(headNode.get());
       EXPECT_TRUE(headNode->IsElement());
       EXPECT_FALSE(headNode->IsText());
@@ -26,7 +23,7 @@ public:
 
       EXPECT_TRUE(headNode->HasChildren());
       EXPECT_FALSE(headNode->HasElementAttributes());
-      
+
       CefRefPtr<CefDOMNode> titleNode = headNode->GetFirstChild();
       EXPECT_TRUE(titleNode.get());
       EXPECT_TRUE(titleNode->IsElement());
@@ -51,9 +48,8 @@ public:
       EXPECT_FALSE(textNode->GetPreviousSibling().get());
       EXPECT_FALSE(textNode->HasChildren());
     }
-    
-    void TestBodyNodeStructure(CefRefPtr<CefDOMNode> bodyNode)
-    {
+
+    void TestBodyNodeStructure(CefRefPtr<CefDOMNode> bodyNode) {
       EXPECT_TRUE(bodyNode.get());
       EXPECT_TRUE(bodyNode->IsElement());
       EXPECT_FALSE(bodyNode->IsText());
@@ -113,7 +109,7 @@ public:
       EXPECT_FALSE(brNode->IsText());
       EXPECT_EQ(brNode->GetName(), "BR");
       EXPECT_EQ(brNode->GetElementTagName(), "BR");
-      
+
       textNode = brNode->GetNextSibling();
       EXPECT_TRUE(textNode.get());
       EXPECT_FALSE(textNode->IsElement());
@@ -125,8 +121,7 @@ public:
     }
 
     // Test document structure by iterating through the DOM tree.
-    void TestStructure(CefRefPtr<CefDOMDocument> document)
-    {
+    void TestStructure(CefRefPtr<CefDOMDocument> document) {
       EXPECT_EQ(document->GetTitle(), "The Title");
       EXPECT_EQ(document->GetBaseURL(), "http://tests/main.html");
       EXPECT_EQ(document->GetCompleteURL("foo.html"), "http://tests/foo.html");
@@ -152,7 +147,7 @@ public:
 
       CefRefPtr<CefDOMNode> bodyNode = headNode->GetNextSibling();
       TestBodyNodeStructure(bodyNode);
-      
+
       // Retrieve the head node directly.
       headNode = document->GetHead();
       TestHeadNodeStructure(headNode);
@@ -163,14 +158,14 @@ public:
     }
 
     // Test document modification by changing the H1 tag.
-    void TestModify(CefRefPtr<CefDOMDocument> document)
-    {
+    void TestModify(CefRefPtr<CefDOMDocument> document) {
       CefRefPtr<CefDOMNode> bodyNode = document->GetBody();
       CefRefPtr<CefDOMNode> h1Node = bodyNode->GetFirstChild();
 
       ASSERT_EQ(h1Node->GetAsMarkup(),
-          "<h1>Hello From<br class=\"some_class\" id=\"some_id\">Main Frame</h1>");
-      
+          "<h1>Hello From<br class=\"some_class\" id=\"some_id\">"
+          "Main Frame</h1>");
+
       CefRefPtr<CefDOMNode> textNode = h1Node->GetFirstChild();
       ASSERT_EQ(textNode->GetValue(), "Hello From");
       ASSERT_TRUE(textNode->SetValue("A Different Message From"));
@@ -182,13 +177,13 @@ public:
       EXPECT_EQ(brNode->GetElementAttribute("class"), "a_different_class");
 
       ASSERT_EQ(h1Node->GetAsMarkup(),
-          "<h1>A Different Message From<br class=\"a_different_class\" id=\"some_id\">Main Frame</h1>");
+          "<h1>A Different Message From<br class=\"a_different_class\" "
+          "id=\"some_id\">Main Frame</h1>");
 
       ASSERT_FALSE(h1Node->SetValue("Something Different"));
     }
 
-    virtual void Visit(CefRefPtr<CefDOMDocument> document)
-    {
+    virtual void Visit(CefRefPtr<CefDOMDocument> document) {
       handler_->got_visitor_called_.yes();
 
       if (handler_->test_type_ == STRUCTURE)
@@ -199,7 +194,7 @@ public:
       handler_->DestroyTest();
     }
 
-  protected:
+   protected:
     TestDOMHandler* handler_;
 
     IMPLEMENT_REFCOUNTING(Visitor);
@@ -210,31 +205,29 @@ public:
     MODIFY,
   };
 
-  TestDOMHandler(TestType test) : test_type_(test)
-  {
+  explicit TestDOMHandler(TestType test) : test_type_(test) {
     visitor_ = new Visitor(this);
   }
-  
-  virtual void RunTest() OVERRIDE
-  {
+
+  virtual void RunTest() OVERRIDE {
     std::stringstream mainHtml;
     mainHtml <<
-    "<html>"
-    "<head><title>The Title</title></head>"
-    "<body>"
-    "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>Main Frame</h1>"
-    "</body>"
-    "</html>";
-    
+        "<html>"
+        "<head><title>The Title</title></head>"
+        "<body>"
+        "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
+        "Main Frame</h1>"
+        "</body>"
+        "</html>";
+
     AddResource("http://tests/main.html", mainHtml.str(), "text/html");
     CreateBrowser("http://tests/main.html");
   }
-  
+
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    if(frame->IsMain()) {
+                         int httpStatusCode) OVERRIDE {
+    if (frame->IsMain()) {
       // The page is done loading so visit the DOM.
       browser->GetMainFrame()->VisitDOM(visitor_.get());
     }
@@ -246,11 +239,10 @@ public:
   TrackCallback got_visitor_called_;
 };
 
-} // namespace
+}  // namespace
 
 // Test DOM structure reading.
-TEST(DOMTest, Read)
-{
+TEST(DOMTest, Read) {
   CefRefPtr<TestDOMHandler> handler =
       new TestDOMHandler(TestDOMHandler::STRUCTURE);
   handler->ExecuteTest();
@@ -259,8 +251,7 @@ TEST(DOMTest, Read)
 }
 
 // Test DOM modifications.
-TEST(DOMTest, Modify)
-{
+TEST(DOMTest, Modify) {
   CefRefPtr<TestDOMHandler> handler =
       new TestDOMHandler(TestDOMHandler::MODIFY);
   handler->ExecuteTest();

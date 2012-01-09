@@ -3,9 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_DRAG_DELEGATE_WIN_H
-#define _BROWSER_DRAG_DELEGATE_WIN_H
+#ifndef CEF_LIBCEF_BROWSER_DRAG_DELEGATE_WIN_H_
+#define CEF_LIBCEF_BROWSER_DRAG_DELEGATE_WIN_H_
 #pragma once
+
+#include <string>
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
@@ -99,4 +101,4 @@ class BrowserDragDelegate
 };
 
 
-#endif  // _BROWSER_DRAG_DELEGATE_WIN_H
+#endif  // CEF_LIBCEF_BROWSER_DRAG_DELEGATE_WIN_H_

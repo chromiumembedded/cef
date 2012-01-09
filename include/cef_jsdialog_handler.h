@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_JSDIALOG_HANDLER_H
-#define _CEF_JSDIALOG_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_JSDIALOG_HANDLER_H_
+#define CEF_INCLUDE_CEF_JSDIALOG_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 class CefFrame;
@@ -47,9 +48,8 @@ class CefFrame;
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefJSDialogHandler : public virtual CefBase
-{
-public:
+class CefJSDialogHandler : public virtual CefBase {
+ public:
   ///
   // Called  to run a JavaScript alert message. Return false to display the
   // default alert or true if you displayed a custom alert.
@@ -85,4 +85,4 @@ public:
                           CefString& result) { return false; }
 };
 
-#endif // _CEF_JSDIALOG_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_JSDIALOG_HANDLER_H_

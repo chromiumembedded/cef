@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_CONTENT_FILTER_CAPI_H
-#define _CEF_CONTENT_FILTER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_CONTENT_FILTER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_CONTENT_FILTER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure to implement for filtering response content. The functions of this
 // structure will always be called on the UI thread.
 ///
-typedef struct _cef_content_filter_t
-{
+typedef struct _cef_content_filter_t {
   ///
   // Base structure.
   ///
@@ -70,7 +70,6 @@ typedef struct _cef_content_filter_t
   ///
   void (CEF_CALLBACK *drain)(struct _cef_content_filter_t* self,
       struct _cef_stream_reader_t** remainder);
-
 } cef_content_filter_t;
 
 
@@ -78,4 +77,4 @@ typedef struct _cef_content_filter_t
 }
 #endif
 
-#endif // _CEF_CONTENT_FILTER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_CONTENT_FILTER_CAPI_H_

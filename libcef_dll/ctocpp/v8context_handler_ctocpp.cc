@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefV8ContextHandlerCToCpp::OnContextCreated(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
-{
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) {
   if (CEF_MEMBER_MISSING(struct_, on_context_created))
     return;
 
@@ -47,8 +46,7 @@ void CefV8ContextHandlerCToCpp::OnContextCreated(CefRefPtr<CefBrowser> browser,
 }
 
 void CefV8ContextHandlerCToCpp::OnContextReleased(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
-{
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) {
   if (CEF_MEMBER_MISSING(struct_, on_context_released))
     return;
 

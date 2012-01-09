@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_scheme.h"
+#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_handler.h"
 
 namespace {
 
@@ -41,13 +41,11 @@ static NavListItem kNavList[] = {
 
 #define NAV_LIST_SIZE() (sizeof(kNavList) / sizeof(NavListItem))
 
-class HistoryNavTestHandler : public TestHandler
-{
-public:
+class HistoryNavTestHandler : public TestHandler {
+ public:
   HistoryNavTestHandler() : nav_(0) {}
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     // Add the resources that we will navigate to/from.
     AddResource(kNav1, "<html>Nav1</html>", "text/html");
     AddResource(kNav2, "<html>Nav2</html>", "text/html");
@@ -57,8 +55,7 @@ public:
     CreateBrowser(CefString());
   }
 
-  void RunNav(CefRefPtr<CefBrowser> browser)
-  {
+  void RunNav(CefRefPtr<CefBrowser> browser) {
     if (nav_ == NAV_LIST_SIZE()) {
       // End of the nav list.
       DestroyTest();
@@ -89,8 +86,7 @@ public:
     }
   }
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE
-  {
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
     TestHandler::OnAfterCreated(browser);
 
     RunNav(browser);
@@ -100,8 +96,7 @@ public:
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               NavType navType,
-                              bool isRedirect) OVERRIDE
-  {
+                              bool isRedirect) OVERRIDE {
     const NavListItem& item = kNavList[nav_];
 
     got_before_browse_[nav_].yes();
@@ -121,8 +116,7 @@ public:
 
   virtual void OnNavStateChange(CefRefPtr<CefBrowser> browser,
                                 bool canGoBack,
-                                bool canGoForward) OVERRIDE
-  {
+                                bool canGoForward) OVERRIDE {
     const NavListItem& item = kNavList[nav_];
 
     got_nav_state_change_[nav_].yes();
@@ -135,9 +129,8 @@ public:
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    if(browser->IsPopup() || !frame->IsMain())
+                         int httpStatusCode) OVERRIDE {
+    if (browser->IsPopup() || !frame->IsMain())
       return;
 
     const NavListItem& item = kNavList[nav_];
@@ -166,11 +159,10 @@ public:
   TrackCallback got_correct_can_go_forward2_[NAV_LIST_SIZE()];
 };
 
-} // namespace
+}  // namespace
 
 // Verify history navigation.
-TEST(NavigationTest, History)
-{
+TEST(NavigationTest, History) {
   CefRefPtr<HistoryNavTestHandler> handler =
       new HistoryNavTestHandler();
   handler->ExecuteTest();
@@ -205,13 +197,11 @@ TEST(NavigationTest, History)
 
 namespace {
 
-class FrameNameIdentNavTestHandler : public TestHandler
-{
-public:
+class FrameNameIdentNavTestHandler : public TestHandler {
+ public:
   FrameNameIdentNavTestHandler() : browse_ct_(0) {}
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     // Add the frame resources.
     std::stringstream ss;
 
@@ -235,8 +225,7 @@ public:
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               NavType navType,
-                              bool isRedirect) OVERRIDE
-  {
+                              bool isRedirect) OVERRIDE {
     std::string url = request->GetURL();
     std::string name = frame->GetName();
     CefRefPtr<CefFrame> parent = frame->GetParent();
@@ -266,8 +255,7 @@ public:
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
+                         int httpStatusCode) OVERRIDE {
     std::string url = frame->GetURL();
     CefRefPtr<CefFrame> parent = frame->GetParent();
 
@@ -294,9 +282,9 @@ public:
 
   int browse_ct_;
 
-  long long frame1_ident_;
-  long long frame2_ident_;
-  long long frame3_ident_;
+  int64 frame1_ident_;
+  int64 frame2_ident_;
+  int64 frame3_ident_;
 
   TrackCallback got_frame1_name_;
   TrackCallback got_frame2_name_;
@@ -312,11 +300,10 @@ public:
   TrackCallback got_frame3_ident_parent_after_;
 };
 
-} // namespace
+}  // namespace
 
 // Verify frame names and identifiers.
-TEST(NavigationTest, FrameNameIdent)
-{
+TEST(NavigationTest, FrameNameIdent) {
   CefRefPtr<FrameNameIdentNavTestHandler> handler =
       new FrameNameIdentNavTestHandler();
   handler->ExecuteTest();
@@ -346,15 +333,13 @@ bool g_got_nav3_request = false;
 bool g_got_nav4_request = false;
 bool g_got_invalid_request = false;
 
-class RedirectSchemeHandler : public CefSchemeHandler
-{
-public:
+class RedirectSchemeHandler : public CefSchemeHandler {
+ public:
   RedirectSchemeHandler() : offset_(0), status_(0) {}
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefRefPtr<CefSchemeHandlerCallback> callback)
-                              OVERRIDE
-  {
+                              OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     std::string url = request->GetURL();
@@ -387,11 +372,10 @@ public:
 
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
                                   int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE
-  {
+                                  CefString& redirectUrl) OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
-    EXPECT_TRUE(status_ != 0);
+    EXPECT_NE(status_, 0);
 
     response->SetStatus(status_);
     response->SetMimeType("text/html");
@@ -399,7 +383,7 @@ public:
 
     if (status_ == 302) {
       // Redirect using HTTP 302
-      EXPECT_TRUE(location_.size() > 0);
+      EXPECT_GT(location_.size(), static_cast<size_t>(0));
       response->SetStatusText("Found");
       CefResponse::HeaderMap headers;
       response->GetHeaderMap(headers);
@@ -407,13 +391,12 @@ public:
       response->SetHeaderMap(headers);
     } else if (status_ == -1) {
       // Rdirect using redirectUrl
-      EXPECT_TRUE(location_.size() > 0);
+      EXPECT_GT(location_.size(), static_cast<size_t>(0));
       redirectUrl = location_;
     }
   }
 
-  virtual void Cancel() OVERRIDE
-  {
+  virtual void Cancel() OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
@@ -421,12 +404,11 @@ public:
                             int bytes_to_read,
                             int& bytes_read,
                             CefRefPtr<CefSchemeHandlerCallback> callback)
-                            OVERRIDE
-  {
+                            OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     size_t size = content_.size();
-    if(offset_ < size) {
+    if (offset_ < size) {
       int transfer_size =
           std::min(bytes_to_read, static_cast<int>(size - offset_));
       memcpy(data_out, content_.c_str() + offset_, transfer_size);
@@ -439,7 +421,7 @@ public:
     return false;
   }
 
-protected:
+ protected:
   std::string content_;
   size_t offset_;
   int status_;
@@ -448,16 +430,14 @@ protected:
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandler);
 };
 
-class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory
-{
-public:
+class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
+ public:
   RedirectSchemeHandlerFactory() {}
 
   virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
                                              const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
-                                             OVERRIDE
-  {
+                                             OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     return new RedirectSchemeHandler();
   }
@@ -465,13 +445,11 @@ public:
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandlerFactory);
 };
 
-class RedirectTestHandler : public TestHandler
-{
-public:
+class RedirectTestHandler : public TestHandler {
+ public:
   RedirectTestHandler() {}
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     // Create the browser.
     CreateBrowser(kNav1);
   }
@@ -480,8 +458,7 @@ public:
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               NavType navType,
-                              bool isRedirect) OVERRIDE
-  {
+                              bool isRedirect) OVERRIDE {
     // Should be called for each URL that is actually loaded.
     std::string url = request->GetURL();
 
@@ -503,8 +480,7 @@ public:
                                     CefString& redirectUrl,
                                     CefRefPtr<CefStreamReader>& resourceStream,
                                     CefRefPtr<CefResponse> response,
-                                    int loadFlags) OVERRIDE
-  {
+                                    int loadFlags) OVERRIDE {
     // Should only be called for the first URL.
     std::string url = request->GetURL();
 
@@ -519,8 +495,7 @@ public:
 
   virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                                   const CefString& old_url,
-                                  CefString& new_url) OVERRIDE
-  {
+                                  CefString& new_url) OVERRIDE {
     // Should be called for each redirected URL.
 
     if (old_url == kNav1 && new_url == kNav2) {
@@ -541,12 +516,11 @@ public:
   }
 
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame) OVERRIDE
-  {
+                           CefRefPtr<CefFrame> frame) OVERRIDE {
     // Should only be called for the final loaded URL.
     std::string url = frame->GetURL();
 
-    if(url == kNav4) {
+    if (url == kNav4) {
       got_nav4_load_start_.yes();
     } else {
       got_invalid_load_start_.yes();
@@ -555,12 +529,11 @@ public:
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
+                         int httpStatusCode) OVERRIDE {
     // Should only be called for the final loaded URL.
     std::string url = frame->GetURL();
 
-    if(url == kNav4) {
+    if (url == kNav4) {
       got_nav4_load_end_.yes();
       DestroyTest();
     } else {
@@ -584,15 +557,14 @@ public:
   TrackCallback got_invalid_redirect_;
 };
 
-} // namespace
+}  // namespace
 
 // Verify frame names and identifiers.
-TEST(NavigationTest, Redirect)
-{
+TEST(NavigationTest, Redirect) {
   CefRegisterSchemeHandlerFactory("http", "tests",
       new RedirectSchemeHandlerFactory());
   WaitForIOThread();
-  
+
   CefRefPtr<RedirectTestHandler> handler =
       new RedirectTestHandler();
   handler->ExecuteTest();

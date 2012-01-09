@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_XML_READER_H
-#define _CEF_XML_READER_H
+#ifndef CEF_INCLUDE_CEF_XML_READER_H_
+#define CEF_INCLUDE_CEF_XML_READER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefStreamReader;
 
@@ -47,9 +48,8 @@ class CefStreamReader;
 // the object.
 ///
 /*--cef(source=library)--*/
-class CefXmlReader : public virtual CefBase
-{
-public:
+class CefXmlReader : public virtual CefBase {
+ public:
   typedef cef_xml_encoding_type_t EncodingType;
   typedef cef_xml_node_type_t NodeType;
 
@@ -266,4 +266,4 @@ public:
   virtual bool MoveToCarryingElement() =0;
 };
 
-#endif // _CEF_XML_READER_H
+#endif  // CEF_INCLUDE_CEF_XML_READER_H_

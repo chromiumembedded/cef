@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefDOMEventCToCpp::GetType()
-{
+CefString CefDOMEventCToCpp::GetType() {
   if (CEF_MEMBER_MISSING(struct_, get_type))
     return CefString();
 
@@ -33,8 +32,7 @@ CefString CefDOMEventCToCpp::GetType()
   return _retvalStr;
 }
 
-CefDOMEvent::Category CefDOMEventCToCpp::GetCategory()
-{
+CefDOMEvent::Category CefDOMEventCToCpp::GetCategory() {
   if (CEF_MEMBER_MISSING(struct_, get_category))
     return DOM_EVENT_CATEGORY_UNKNOWN;
 
@@ -47,8 +45,7 @@ CefDOMEvent::Category CefDOMEventCToCpp::GetCategory()
   return _retval;
 }
 
-CefDOMEvent::Phase CefDOMEventCToCpp::GetPhase()
-{
+CefDOMEvent::Phase CefDOMEventCToCpp::GetPhase() {
   if (CEF_MEMBER_MISSING(struct_, get_phase))
     return DOM_EVENT_PHASE_UNKNOWN;
 
@@ -61,8 +58,7 @@ CefDOMEvent::Phase CefDOMEventCToCpp::GetPhase()
   return _retval;
 }
 
-bool CefDOMEventCToCpp::CanBubble()
-{
+bool CefDOMEventCToCpp::CanBubble() {
   if (CEF_MEMBER_MISSING(struct_, can_bubble))
     return false;
 
@@ -75,8 +71,7 @@ bool CefDOMEventCToCpp::CanBubble()
   return _retval?true:false;
 }
 
-bool CefDOMEventCToCpp::CanCancel()
-{
+bool CefDOMEventCToCpp::CanCancel() {
   if (CEF_MEMBER_MISSING(struct_, can_cancel))
     return false;
 
@@ -89,8 +84,7 @@ bool CefDOMEventCToCpp::CanCancel()
   return _retval?true:false;
 }
 
-CefRefPtr<CefDOMDocument> CefDOMEventCToCpp::GetDocument()
-{
+CefRefPtr<CefDOMDocument> CefDOMEventCToCpp::GetDocument() {
   if (CEF_MEMBER_MISSING(struct_, get_document))
     return NULL;
 
@@ -103,8 +97,7 @@ CefRefPtr<CefDOMDocument> CefDOMEventCToCpp::GetDocument()
   return CefDOMDocumentCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetTarget()
-{
+CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetTarget() {
   if (CEF_MEMBER_MISSING(struct_, get_target))
     return NULL;
 
@@ -117,8 +110,7 @@ CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetTarget()
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetCurrentTarget()
-{
+CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetCurrentTarget() {
   if (CEF_MEMBER_MISSING(struct_, get_current_target))
     return NULL;
 

@@ -3,14 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <map>
+
 #include "include/cef_browser.h"
 #include "include/cef_scheme.h"
-#include "browser_devtools_scheme_handler.h"
-#include "browser_resource_loader_bridge.h"
-#include "cef_context.h"
-#include "cef_thread.h"
-#include "request_impl.h"
-#include "response_impl.h"
+#include "libcef/browser_devtools_scheme_handler.h"
+#include "libcef/browser_resource_loader_bridge.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
+#include "libcef/request_impl.h"
+#include "libcef/response_impl.h"
 
 #include "base/lazy_instance.h"
 #include "base/logging.h"
@@ -36,22 +38,18 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
-#include <map>
-
 using net::URLRequestStatus;
 using WebKit::WebSecurityPolicy;
 using WebKit::WebString;
 
 namespace {
 
-bool IsStandardScheme(const std::string& scheme)
-{
+bool IsStandardScheme(const std::string& scheme) {
   url_parse::Component scheme_comp(0, scheme.length());
   return url_util::IsStandard(scheme.c_str(), scheme_comp);
 }
 
-void RegisterStandardScheme(const std::string& scheme)
-{
+void RegisterStandardScheme(const std::string& scheme) {
   REQUIRE_UIT();
   url_parse::Component scheme_comp(0, scheme.length());
   if (!url_util::IsStandard(scheme.c_str(), scheme_comp))
@@ -72,8 +70,7 @@ static const SchemeToFactory kBuiltinFactories[] = {
   { "data", net::URLRequestDataJob::Factory },
 };
 
-bool IsBuiltinScheme(const std::string& scheme)
-{
+bool IsBuiltinScheme(const std::string& scheme) {
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i)
     if (LowerCaseEqualsASCII(scheme, kBuiltinFactories[i].scheme))
       return true;
@@ -81,8 +78,7 @@ bool IsBuiltinScheme(const std::string& scheme)
 }
 
 net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
-                                               const std::string& scheme)
-{
+                                               const std::string& scheme) {
   // See if the request should be handled by a built-in protocol factory.
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i) {
     if (scheme == kBuiltinFactories[i].scheme) {
@@ -95,8 +91,7 @@ net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
   return NULL;
 }
 
-std::string ToLower(const std::string& str)
-{
+std::string ToLower(const std::string& str) {
   std::string str_lower = str;
   std::transform(str_lower.begin(), str_lower.end(), str_lower.begin(),
       towlower);
@@ -106,43 +101,39 @@ std::string ToLower(const std::string& str)
 
 // net::URLRequestJob implementation.
 class CefUrlRequestJob : public net::URLRequestJob {
-public:
+ public:
   CefUrlRequestJob(net::URLRequest* request,
                    CefRefPtr<CefSchemeHandler> handler)
     : net::URLRequestJob(request),
       handler_(handler),
-      remaining_bytes_(0)
-  {
+      remaining_bytes_(0) {
   }
 
-  virtual ~CefUrlRequestJob()
-  {
+  virtual ~CefUrlRequestJob() {
   }
 
-  virtual void Start() OVERRIDE
-  {
+  virtual void Start() OVERRIDE {
     REQUIRE_IOT();
 
     if (!callback_)
       callback_ = new Callback(this);
 
     CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-    
+
     // Populate the request data.
     static_cast<CefRequestImpl*>(req.get())->Set(request());
-    
+
     // Handler can decide whether to process the request.
     bool rv = handler_->ProcessRequest(req, callback_.get());
     if (!rv) {
       // Cancel the request.
       NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, ERR_ABORTED));
     }
-    
+
     return;
   }
 
-  virtual void Kill() OVERRIDE
-  {
+  virtual void Kill() OVERRIDE {
     REQUIRE_IOT();
 
     // Notify the handler that the request has been canceled.
@@ -157,8 +148,7 @@ public:
   }
 
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int *bytes_read)
-      OVERRIDE
-  {
+      OVERRIDE {
     REQUIRE_IOT();
 
     DCHECK_NE(dest_size, 0);
@@ -180,27 +170,26 @@ public:
       // The handler has indicated completion of the request.
       *bytes_read = 0;
       return true;
-    } else if(*bytes_read == 0) {
+    } else if (*bytes_read == 0) {
       if (!GetStatus().is_io_pending()) {
         // Report our status as IO pending.
         SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
         callback_->SetDestination(dest, dest_size);
       }
       return false;
-    } else if(*bytes_read > dest_size) {
+    } else if (*bytes_read > dest_size) {
       // Normalize the return value.
       *bytes_read = dest_size;
     }
 
-    if(remaining_bytes_ > 0)
+    if (remaining_bytes_ > 0)
       remaining_bytes_ -= *bytes_read;
 
     // Continue calling this method.
     return true;
   }
 
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE
-  {
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
     REQUIRE_IOT();
 
     if (response_.get()) {
@@ -211,8 +200,7 @@ public:
   }
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
-      OVERRIDE
-  {
+      OVERRIDE {
     REQUIRE_IOT();
 
     if (redirect_url_.is_valid()) {
@@ -229,7 +217,7 @@ public:
         CefResponse::HeaderMap headerMap;
         response_->GetHeaderMap(headerMap);
         CefRequest::HeaderMap::iterator iter = headerMap.find("Location");
-        if(iter != headerMap.end()) {
+        if (iter != headerMap.end()) {
            GURL new_url = GURL(std::string(iter->second));
            *http_status_code = status;
            location->Swap(&new_url);
@@ -241,8 +229,7 @@ public:
     return false;
   }
 
-  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE
-  {
+  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE {
     REQUIRE_IOT();
 
     if (response_.get())
@@ -253,9 +240,8 @@ public:
   CefRefPtr<CefSchemeHandler> handler_;
   CefRefPtr<CefResponse> response_;
 
-private:
-  void SendHeaders()
-  {
+ private:
+  void SendHeaders() {
     REQUIRE_IOT();
 
     // We may have been orphaned...
@@ -282,16 +268,14 @@ private:
   }
 
   // Client callback for asynchronous response continuation.
-  class Callback : public CefSchemeHandlerCallback
-  {
-  public:
-    Callback(CefUrlRequestJob* job)
+  class Callback : public CefSchemeHandlerCallback {
+   public:
+    explicit Callback(CefUrlRequestJob* job)
       : job_(job),
         dest_(NULL),
         dest_size_() {}
 
-    virtual void HeadersAvailable() OVERRIDE
-    {
+    virtual void HeadersAvailable() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_ && !job_->has_response_started()) {
@@ -305,8 +289,7 @@ private:
       }
     }
 
-    virtual void BytesAvailable() OVERRIDE
-    {
+    virtual void BytesAvailable() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_ && job_->has_response_started() &&
@@ -336,8 +319,7 @@ private:
       }
     }
 
-    virtual void Cancel() OVERRIDE
-    {
+    virtual void Cancel() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_)
@@ -349,21 +331,19 @@ private:
       }
     }
 
-    void Detach()
-    {
+    void Detach() {
       REQUIRE_IOT();
       job_ = NULL;
     }
 
-    void SetDestination(net::IOBuffer* dest, int dest_size)
-    {
+    void SetDestination(net::IOBuffer* dest, int dest_size) {
       dest_ = dest;
       dest_size_ = dest_size;
     }
 
     static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
-  private:
+   private:
     CefUrlRequestJob* job_;
 
     net::IOBuffer* dest_;
@@ -382,28 +362,27 @@ private:
 
 // Class that manages the CefSchemeHandlerFactory instances.
 class CefUrlRequestManager {
-protected:
+ protected:
   // Class used for creating URLRequestJob instances. The lifespan of this
   // object is managed by URLRequestJobFactory.
   class ProtocolHandler : public net::URLRequestJobFactory::ProtocolHandler {
-  public:
-    ProtocolHandler(const std::string& scheme)
+   public:
+    explicit ProtocolHandler(const std::string& scheme)
       : scheme_(scheme) {}
 
     // From net::URLRequestJobFactory::ProtocolHandler
     virtual net::URLRequestJob* MaybeCreateJob(
-        net::URLRequest* request) const OVERRIDE
-    {
+        net::URLRequest* request) const OVERRIDE {
       REQUIRE_IOT();
       return CefUrlRequestManager::GetInstance()->GetRequestJob(request,
                                                                 scheme_);
     }
 
-  private:
+   private:
     std::string scheme_;
   };
 
-public:
+ public:
   CefUrlRequestManager() {}
 
   // Retrieve the singleton instance.
@@ -411,8 +390,7 @@ public:
 
   bool AddFactory(const std::string& scheme,
                   const std::string& domain,
-                  CefRefPtr<CefSchemeHandlerFactory> factory)
-  {
+                  CefRefPtr<CefSchemeHandlerFactory> factory) {
     if (!factory.get()) {
       RemoveFactory(scheme, domain);
       return true;
@@ -440,8 +418,7 @@ public:
   }
 
   void RemoveFactory(const std::string& scheme,
-                     const std::string& domain)
-  {
+                     const std::string& domain) {
     REQUIRE_IOT();
 
     std::string scheme_lower = ToLower(scheme);
@@ -458,8 +435,7 @@ public:
   }
 
   // Clear all the existing URL handlers and unregister the ProtocolFactory.
-  void ClearFactories()
-  {
+  void ClearFactories() {
     REQUIRE_IOT();
 
     net::URLRequestJobFactory* job_factory =
@@ -481,8 +457,7 @@ public:
   }
 
   // Check if a scheme has already been registered.
-  bool HasRegisteredScheme(const std::string& scheme)
-  {
+  bool HasRegisteredScheme(const std::string& scheme) {
     std::string scheme_lower = ToLower(scheme);
 
     // Don't register builtin schemes.
@@ -499,8 +474,7 @@ public:
   bool RegisterScheme(const std::string& scheme,
                       bool is_standard,
                       bool is_local,
-                      bool is_display_isolated)
-  {
+                      bool is_display_isolated) {
     if (HasRegisteredScheme(scheme)) {
       NOTREACHED() << "Scheme already registered: " << scheme;
       return false;
@@ -526,12 +500,11 @@ public:
     return true;
   }
 
-private:
+ private:
   // Retrieve the matching handler factory, if any. |scheme| will already be in
   // lower case.
   CefRefPtr<CefSchemeHandlerFactory> GetHandlerFactory(
-      net::URLRequest* request, const std::string& scheme)
-  {
+      net::URLRequest* request, const std::string& scheme) {
     CefRefPtr<CefSchemeHandlerFactory> factory;
 
     if (request->url().is_valid() && IsStandardScheme(scheme)) {
@@ -557,8 +530,7 @@ private:
   // Create the job that will handle the request. |scheme| will already be in
   // lower case.
   net::URLRequestJob* GetRequestJob(net::URLRequest* request,
-                                    const std::string& scheme)
-  {
+                                    const std::string& scheme) {
     net::URLRequestJob* job = NULL;
     CefRefPtr<CefSchemeHandlerFactory> factory =
         GetHandlerFactory(request, scheme);
@@ -583,7 +555,7 @@ private:
     if (job)
       DLOG(INFO) << "CefUrlRequestManager hit for " << request->url().spec();
 #endif
-    
+
     return job;
   }
 
@@ -603,19 +575,17 @@ private:
 
 base::LazyInstance<CefUrlRequestManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 
-CefUrlRequestManager* CefUrlRequestManager::GetInstance()
-{
+CefUrlRequestManager* CefUrlRequestManager::GetInstance() {
   return g_manager.Pointer();
 }
 
-} // anonymous
+}  // namespace
 
 
 bool CefRegisterCustomScheme(const CefString& scheme_name,
                              bool is_standard,
                              bool is_local,
-                             bool is_display_isolated)
-{
+                             bool is_display_isolated) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -632,7 +602,7 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
       NOTREACHED() << "Scheme already registered: " << scheme_name;
       return false;
     }
-  
+
     CefThread::PostTask(CefThread::UI, FROM_HERE,
         NewRunnableFunction(&CefRegisterCustomScheme, scheme_name, is_standard,
                             is_local, is_display_isolated));
@@ -640,10 +610,10 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
   }
 }
 
-bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
-                                     const CefString& domain_name,
-                                     CefRefPtr<CefSchemeHandlerFactory> factory)
-{
+bool CefRegisterSchemeHandlerFactory(
+    const CefString& scheme_name,
+    const CefString& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -662,8 +632,7 @@ bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
   }
 }
 
-bool CefClearSchemeHandlerFactories()
-{
+bool CefClearSchemeHandlerFactories() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";

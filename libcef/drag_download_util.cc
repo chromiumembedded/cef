@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_thread.h"
-#include "drag_download_util.h"
+#include "libcef/cef_thread.h"
+#include "libcef/drag_download_util.h"
 
 #include "base/string_util.h"
 #include "base/file_path.h"
@@ -65,11 +65,11 @@ FileStream* CreateFileStreamForDrop(FilePath* file_path) {
     if (seq == 0) {
       new_file_path = *file_path;
     } else {
- #if defined(OS_WIN)
+#if defined(OS_WIN)
       string16 suffix = ASCIIToUTF16("-") + base::IntToString16(seq);
- #else
+#else
       std::string suffix = std::string("-") + base::IntToString(seq);
- #endif
+#endif
       new_file_path = file_path->InsertBeforeExtension(suffix);
     }
 

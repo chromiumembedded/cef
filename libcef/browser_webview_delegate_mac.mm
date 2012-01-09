@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webview_delegate.h"
-#import "browser_webview_mac.h"
-#include "browser_impl.h"
-#include "drag_data_impl.h"
+#include "libcef/browser_webview_delegate.h"
+#import "libcef/browser_webview_mac.h"
+#include "libcef/browser_impl.h"
+#include "libcef/drag_data_impl.h"
 #import "include/cef_application_mac.h"
 
 #import <Cocoa/Cocoa.h>

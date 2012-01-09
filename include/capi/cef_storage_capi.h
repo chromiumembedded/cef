@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_STORAGE_CAPI_H
-#define _CEF_STORAGE_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_STORAGE_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_STORAGE_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -88,8 +89,7 @@ CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
 // Structure to implement for visiting storage. The functions of this structure
 // will always be called on the UI thread.
 ///
-typedef struct _cef_storage_visitor_t
-{
+typedef struct _cef_storage_visitor_t {
   ///
   // Base structure.
   ///
@@ -106,7 +106,6 @@ typedef struct _cef_storage_visitor_t
       enum cef_storage_type_t type, const cef_string_t* origin,
       const cef_string_t* key, const cef_string_t* value, int count, int total,
       int* deleteData);
-
 } cef_storage_visitor_t;
 
 
@@ -114,4 +113,4 @@ typedef struct _cef_storage_visitor_t
 }
 #endif
 
-#endif // _CEF_STORAGE_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_STORAGE_CAPI_H_

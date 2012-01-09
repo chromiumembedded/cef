@@ -4,10 +4,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "webview_host.h"
-#include "browser_webview_delegate.h"
-#include "browser_webview_mac.h"
-#include "cef_context.h"
+#include "libcef/webview_host.h"
+#include "libcef/browser_webview_delegate.h"
+#include "libcef/browser_webview_mac.h"
+#include "libcef/cef_context.h"
 
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"

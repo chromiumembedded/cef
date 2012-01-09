@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 enum cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -33,8 +32,7 @@ enum cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_document(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,8 +48,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_document(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_body(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -66,8 +63,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_body(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_head(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,8 +78,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_head(
 }
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_title(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,8 +93,7 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_title(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_element_by_id(
-    struct _cef_domdocument_t* self, const cef_string_t* id)
-{
+    struct _cef_domdocument_t* self, const cef_string_t* id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -120,8 +114,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_element_by_id(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_focused_node(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,8 +129,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_focused_node(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self)
-{
+int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -152,8 +144,7 @@ int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self)
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_start_node(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -169,8 +160,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_start_node(
 }
 
 int CEF_CALLBACK domdocument_get_selection_start_offset(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -185,8 +175,7 @@ int CEF_CALLBACK domdocument_get_selection_start_offset(
 }
 
 struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_end_node(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -202,8 +191,7 @@ struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_end_node(
 }
 
 int CEF_CALLBACK domdocument_get_selection_end_offset(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -218,8 +206,7 @@ int CEF_CALLBACK domdocument_get_selection_end_offset(
 }
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_markup(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -234,8 +221,7 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_markup(
 }
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_text(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -250,8 +236,7 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_selection_as_text(
 }
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_base_url(
-    struct _cef_domdocument_t* self)
-{
+    struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -266,8 +251,7 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_base_url(
 }
 
 cef_string_userfree_t CEF_CALLBACK domdocument_get_complete_url(
-    struct _cef_domdocument_t* self, const cef_string_t* partialURL)
-{
+    struct _cef_domdocument_t* self, const cef_string_t* partialURL) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -290,8 +274,7 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_complete_url(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMDocumentCppToC::CefDOMDocumentCppToC(CefDOMDocument* cls)
-    : CefCppToC<CefDOMDocumentCppToC, CefDOMDocument, cef_domdocument_t>(cls)
-{
+    : CefCppToC<CefDOMDocumentCppToC, CefDOMDocument, cef_domdocument_t>(cls) {
   struct_.struct_.get_type = domdocument_get_type;
   struct_.struct_.get_document = domdocument_get_document;
   struct_.struct_.get_body = domdocument_get_body;

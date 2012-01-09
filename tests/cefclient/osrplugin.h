@@ -6,8 +6,9 @@
 // Portions of this implementation are borrowed from webkit\default_plugin\
 // plugin_impl.h
 
-#ifndef _CEFCLIENT_OSRPLUGIN_H
-#define _CEFCLIENT_OSRPLUGIN_H
+#ifndef CEF_TESTS_CEFCLIENT_OSRPLUGIN_H_
+#define CEF_TESTS_CEFCLIENT_OSRPLUGIN_H_
+#pragma once
 
 #include "include/cef_base.h"
 
@@ -27,6 +28,6 @@ CefRefPtr<CefBrowser> GetOffScreenBrowser();
 
 void SetOffScreenTransparent(bool transparent);
 
-#endif // OS_WIN
+#endif  // OS_WIN
 
-#endif // _CEFCLIENT_OSRPLUGIN_H
+#endif  // CEF_TESTS_CEFCLIENT_OSRPLUGIN_H_

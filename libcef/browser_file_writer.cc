@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_file_writer.h"
-#include "cef_thread.h"
+#include "libcef/browser_file_writer.h"
+#include "libcef/cef_thread.h"
 
 #include "base/bind.h"
 #include "base/logging.h"

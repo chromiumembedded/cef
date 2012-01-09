@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _FOCUSHANDLER_CTOCPP_H
-#define _FOCUSHANDLER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_focus_handler.h"
 #include "include/capi/cef_focus_handler_capi.h"
@@ -29,10 +30,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefFocusHandlerCToCpp
     : public CefCToCpp<CefFocusHandlerCToCpp, CefFocusHandler,
-        cef_focus_handler_t>
-{
-public:
-  CefFocusHandlerCToCpp(cef_focus_handler_t* str)
+        cef_focus_handler_t> {
+ public:
+  explicit CefFocusHandlerCToCpp(cef_focus_handler_t* str)
       : CefCToCpp<CefFocusHandlerCToCpp, CefFocusHandler, cef_focus_handler_t>(
           str) {}
   virtual ~CefFocusHandlerCToCpp() {}
@@ -45,6 +45,6 @@ public:
       CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _FOCUSHANDLER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
 

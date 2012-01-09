@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,8 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(cef_stream_reader_t* stream)
-{
+CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
+    cef_stream_reader_t* stream) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -36,8 +36,7 @@ CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(cef_stream_reader_t* stream)
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self)
-{
+int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,8 +50,7 @@ int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self)
-{
+int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,8 +65,7 @@ int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self)
 }
 
 int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
-    const cef_string_t* fileName, int caseSensitive)
-{
+    const cef_string_t* fileName, int caseSensitive) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,8 +85,7 @@ int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self)
-{
+int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,8 +100,7 @@ int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK zip_reader_get_file_name(
-    struct _cef_zip_reader_t* self)
-{
+    struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -119,8 +114,7 @@ cef_string_userfree_t CEF_CALLBACK zip_reader_get_file_name(
   return _retval.DetachToUserFree();
 }
 
-long CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self)
-{
+int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -128,15 +122,14 @@ long CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self)
     return 0;
 
   // Execute
-  long _retval = CefZipReaderCppToC::Get(self)->GetFileSize();
+  int64 _retval = CefZipReaderCppToC::Get(self)->GetFileSize();
 
   // Return type: simple
   return _retval;
 }
 
 time_t CEF_CALLBACK zip_reader_get_file_last_modified(
-    struct _cef_zip_reader_t* self)
-{
+    struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,8 +144,7 @@ time_t CEF_CALLBACK zip_reader_get_file_last_modified(
 }
 
 int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
-    const cef_string_t* password)
-{
+    const cef_string_t* password) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -168,8 +160,7 @@ int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self)
-{
+int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -184,8 +175,7 @@ int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self)
 }
 
 int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
-    void* buffer, size_t bufferSize)
-{
+    void* buffer, size_t bufferSize) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -205,8 +195,7 @@ int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
   return _retval;
 }
 
-long CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self)
-{
+int64 CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -214,14 +203,13 @@ long CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self)
     return 0;
 
   // Execute
-  long _retval = CefZipReaderCppToC::Get(self)->Tell();
+  int64 _retval = CefZipReaderCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
 }
 
-int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self)
-{
+int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -239,8 +227,7 @@ int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self)
 // CONSTRUCTOR - Do not edit by hand.
 
 CefZipReaderCppToC::CefZipReaderCppToC(CefZipReader* cls)
-    : CefCppToC<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t>(cls)
-{
+    : CefCppToC<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t>(cls) {
   struct_.struct_.move_to_first_file = zip_reader_move_to_first_file;
   struct_.struct_.move_to_next_file = zip_reader_move_to_next_file;
   struct_.struct_.move_to_file = zip_reader_move_to_file;

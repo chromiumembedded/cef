@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webview_host.h"
-#include "browser_webview_delegate.h"
-#include "cef_context.h"
+#include "libcef/webview_host.h"
+#include "libcef/browser_webview_delegate.h"
+#include "libcef/cef_context.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"

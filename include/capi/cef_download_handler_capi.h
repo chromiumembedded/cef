@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_DOWNLOAD_HANDLER_CAPI_H
-#define _CEF_DOWNLOAD_HANDLER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure used to handle file downloads. The functions of this structure will
 // always be called on the UI thread.
 ///
-typedef struct _cef_download_handler_t
-{
+typedef struct _cef_download_handler_t {
   ///
   // Base structure.
   ///
@@ -67,7 +67,6 @@ typedef struct _cef_download_handler_t
   // The download is complete.
   ///
   void (CEF_CALLBACK *complete)(struct _cef_download_handler_t* self);
-
 } cef_download_handler_t;
 
 
@@ -75,4 +74,4 @@ typedef struct _cef_download_handler_t
 }
 #endif
 
-#endif // _CEF_DOWNLOAD_HANDLER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_

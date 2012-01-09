@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 
 bool CefV8AccessorCToCpp::Get(const CefString& name,
     const CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Value>& retval,
-    CefString& exception)
-{
+    CefString& exception) {
   if (CEF_MEMBER_MISSING(struct_, get))
     return false;
 
@@ -36,7 +35,7 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
 
   // Translate param: retval; type: refptr_diff_byref
   cef_v8value_t* retvalStruct = NULL;
-  if(retval.get())
+  if (retval.get())
     retvalStruct = CefV8ValueCppToC::Wrap(retval);
   cef_v8value_t* retvalOrig = retvalStruct;
 
@@ -62,8 +61,7 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
 
 bool CefV8AccessorCToCpp::Set(const CefString& name,
     const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value,
-    CefString& exception)
-{
+    CefString& exception) {
   if (CEF_MEMBER_MISSING(struct_, set))
     return false;
 

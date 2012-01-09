@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _RESPONSE_IMPL_H
-#define _RESPONSE_IMPL_H
+#ifndef CEF_LIBCEF_RESPONSE_IMPL_H_
+#define CEF_LIBCEF_RESPONSE_IMPL_H_
+#pragma once
 
 #include "include/cef_response.h"
 
@@ -15,11 +16,10 @@ class WebURLResponse;
 };
 
 // Implementation of CefResponse.
-class CefResponseImpl : public CefResponse
-{
-public:
+class CefResponseImpl : public CefResponse {
+ public:
   CefResponseImpl();
-  CefResponseImpl(const WebKit::WebURLResponse& response);
+  explicit CefResponseImpl(const WebKit::WebURLResponse& response);
   ~CefResponseImpl() {}
 
   // CefResponse API
@@ -35,7 +35,7 @@ public:
 
   net::HttpResponseHeaders* GetResponseHeaders();
 
-protected:
+ protected:
   int status_code_;
   CefString status_text_;
   CefString mime_type_;
@@ -45,4 +45,4 @@ protected:
   IMPLEMENT_LOCKING(CefResponseImpl);
 };
 
-#endif // _RESPONSE_IMPL_H
+#endif  // CEF_LIBCEF_RESPONSE_IMPL_H_

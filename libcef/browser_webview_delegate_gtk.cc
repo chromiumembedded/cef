@@ -3,11 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webview_delegate.h"
-#include "browser_impl.h"
-
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
+#include "libcef/browser_webview_delegate.h"
+#include "libcef/browser_impl.h"
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -32,7 +29,9 @@
 #include "webkit/plugins/npapi/webplugin.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 
-#include "include/internal/cef_types.h"
+#include <gdk/gdkx.h>  // NOLINT(build/include_order)
+#include <gtk/gtk.h>  // NOLINT(build/include_order)
+
 
 using webkit::npapi::WebPluginDelegateImpl;
 using WebKit::WebContextMenuData;
@@ -103,12 +102,12 @@ WebKit::WebExternalPopupMenu* BrowserWebViewDelegate::createExternalPopupMenu(
   return NULL;
 }
 
-static gboolean MenuItemHandle(GtkWidget* menu_item, gpointer data)
-{
+static gboolean MenuItemHandle(GtkWidget* menu_item, gpointer data) {
   if (!data)
     return FALSE;
 
-  BrowserWebViewDelegate* webViewDelegate = (BrowserWebViewDelegate*)data;
+  BrowserWebViewDelegate* webViewDelegate =
+      reinterpret_cast<BrowserWebViewDelegate*>(data);
   int id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item), "menu_id"));
 
   webViewDelegate->HandleContextMenu(id);
@@ -117,8 +116,7 @@ static gboolean MenuItemHandle(GtkWidget* menu_item, gpointer data)
 }
 
 static GtkWidget* MenuItemCreate(GtkWidget* parent_menu, const char* name,
-    int id, bool is_enabled, BrowserWebViewDelegate* webViewDelegate)
-{
+    int id, bool is_enabled, BrowserWebViewDelegate* webViewDelegate) {
   GtkWidget* menu_item = gtk_menu_item_new_with_label(name);
 
   g_object_set_data(G_OBJECT(menu_item), "menu_id",
@@ -133,8 +131,7 @@ static GtkWidget* MenuItemCreate(GtkWidget* parent_menu, const char* name,
   return menu_item;
 }
 
-static GtkWidget* MenuItemCreateSeperator(GtkWidget* parent_menu)
-{
+static GtkWidget* MenuItemCreateSeperator(GtkWidget* parent_menu) {
   GtkWidget* menu_item = gtk_menu_item_new();
 
   gtk_menu_shell_append(GTK_MENU_SHELL(parent_menu), menu_item);
@@ -181,11 +178,11 @@ void BrowserWebViewDelegate::showContextMenu(WebKit::WebFrame* frame,
     MenuItemCreateSeperator(menu);
     MenuItemCreate(menu, "Select All", MENU_ID_SELECTALL,
         !!(edit_flags & MENU_CAN_SELECT_ALL), this);
-  } else if(type_flags & MENUTYPE_SELECTION) {
+  } else if (type_flags & MENUTYPE_SELECTION) {
     menu = gtk_menu_new();
     MenuItemCreate(menu, "Copy", MENU_ID_COPY,
         !!(edit_flags & MENU_CAN_COPY), this);
-  } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
+  } else if (type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = gtk_menu_new();
     MenuItemCreate(menu, "Back", MENU_ID_NAV_BACK,
         !!(edit_flags & MENU_CAN_GO_BACK), this);
@@ -336,8 +333,7 @@ void BrowserWebViewDelegate::DidMovePlugin(
   plugin_container_manager->MovePluginContainer(move);
 }
 
-void BrowserWebViewDelegate::HandleContextMenu(int selected_id)
-{
+void BrowserWebViewDelegate::HandleContextMenu(int selected_id) {
   if (selected_id != 0) {
     CefRefPtr<CefClient> client = browser_->GetClient();
     CefRefPtr<CefMenuHandler> handler;
@@ -352,7 +348,7 @@ void BrowserWebViewDelegate::HandleContextMenu(int selected_id)
       handled = handler->OnMenuAction(browser_, menuId);
     }
 
-    if(!handled) {
+    if (!handled) {
       // Execute the action
       browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
     }

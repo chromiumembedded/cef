@@ -3,12 +3,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_request_context.h"
-#include "browser_file_system.h"
-#include "browser_persistent_cookie_store.h"
-#include "browser_resource_loader_bridge.h"
-#include "cef_context.h"
-#include "cef_thread.h"
+#include "libcef/browser_request_context.h"
+
+#if defined(OS_WIN)
+#include <winhttp.h>
+#endif
+
+#include "libcef/browser_file_system.h"
+#include "libcef/browser_persistent_cookie_store.h"
+#include "libcef/browser_resource_loader_bridge.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
 
 #include "base/compiler_specific.h"
 #include "base/file_path.h"
@@ -37,10 +42,8 @@
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
-#include <winhttp.h>
 #pragma comment(lib, "winhttp.lib")
-#endif // defined(OS_WIN)
-
+#endif
 
 namespace {
 
@@ -48,7 +51,7 @@ namespace {
 
 // ProxyConfigService implementation that does nothing.
 class ProxyConfigServiceNull : public net::ProxyConfigService {
-public:
+ public:
   ProxyConfigServiceNull() {}
   virtual void AddObserver(Observer* observer) OVERRIDE {}
   virtual void RemoveObserver(Observer* observer) OVERRIDE {}
@@ -58,12 +61,12 @@ public:
   virtual void OnLazyPoll() OVERRIDE {}
 };
 
-#endif // defined(OS_WIN)
+#endif  // defined(OS_WIN)
 
 // ProxyResolver implementation that forewards resolution to a CefProxyHandler.
 class CefProxyResolver : public net::ProxyResolver {
-public:
-  CefProxyResolver(CefRefPtr<CefProxyHandler> handler) 
+ public:
+  explicit CefProxyResolver(CefRefPtr<CefProxyHandler> handler)
     : ProxyResolver(false),
       handler_(handler) {}
   virtual ~CefProxyResolver() {}
@@ -72,8 +75,7 @@ public:
                              net::ProxyInfo* results,
                              const net::CompletionCallback& callback,
                              RequestHandle* request,
-                             const net::BoundNetLog& net_log) OVERRIDE
-  {
+                             const net::BoundNetLog& net_log) OVERRIDE {
     CefProxyInfo proxy_info;
     handler_->GetProxyForUrl(url.spec(), proxy_info);
     if (proxy_info.IsDirect())
@@ -84,23 +86,25 @@ public:
       results->UsePacString(proxy_info.ProxyList());
 
     return net::OK;
-  } 
+  }
 
   virtual int SetPacScript(
       const scoped_refptr<net::ProxyResolverScriptData>& pac_script,
-      const net::CompletionCallback& callback) OVERRIDE
-  {
+      const net::CompletionCallback& callback) OVERRIDE {
     return net::OK;
   }
 
   virtual void CancelRequest(RequestHandle request) OVERRIDE {}
-  virtual net::LoadState GetLoadState(RequestHandle request) const OVERRIDE
-      { return net::LOAD_STATE_IDLE; }
+  virtual net::LoadState GetLoadState(RequestHandle request) const OVERRIDE {
+    return net::LOAD_STATE_IDLE;
+  }
   virtual net::LoadState GetLoadStateThreadSafe(RequestHandle request) const
-      OVERRIDE { return net::LOAD_STATE_IDLE; }
+      OVERRIDE {
+    return net::LOAD_STATE_IDLE;
+  }
   virtual void CancelSetPacScript() OVERRIDE {}
 
-protected:
+ protected:
   CefRefPtr<CefProxyHandler> handler_;
 };
 
@@ -121,10 +125,10 @@ net::ProxyConfigService* CreateProxyConfigService() {
 #endif
 }
 
-} // namespace
+}  // namespace
 
 
-BrowserRequestContext::BrowserRequestContext() 
+BrowserRequestContext::BrowserRequestContext()
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
       accept_all_cookies_(true) {
   Init(FilePath(), net::HttpCache::NORMAL, false);
@@ -200,8 +204,8 @@ void BrowserRequestContext::Init(
       }
     }
   }
-#endif // defined(OS_WIN)
-  
+#endif  // defined(OS_WIN)
+
   if (!proxy_service()) {
     storage_.set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
@@ -241,7 +245,7 @@ void BrowserRequestContext::Init(
       new net::HttpCache(host_resolver(),
                          cert_verifier(),
                          origin_bound_cert_service(),
-                         NULL, // transport_security_state
+                         NULL,  // transport_security_state
                          proxy_service(),
                          "",  // ssl_session_cache_shard
                          ssl_config_service(),
@@ -296,7 +300,7 @@ bool BrowserRequestContext::AcceptAllCookies() {
 
 void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
   REQUIRE_IOT();
-  
+
   if (cookie_store() && ((cookie_store_path_.empty() && path.empty()) ||
                          cookie_store_path_ == path)) {
     // The path has not changed so don't do anything.

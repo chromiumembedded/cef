@@ -2,18 +2,19 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _XML_READER_IMPL_H
-#define _XML_READER_IMPL_H
+#ifndef CEF_LIBCEF_XML_READER_IMPL_H_
+#define CEF_LIBCEF_XML_READER_IMPL_H_
+#pragma once
 
-#include "include/cef_xml_reader.h"
-#include "base/threading/platform_thread.h"
 #include <libxml/xmlreader.h>
 #include <sstream>
 
+#include "include/cef_xml_reader.h"
+#include "base/threading/platform_thread.h"
+
 // Implementation of CefXmlReader
-class CefXmlReaderImpl : public CefXmlReader
-{
-public:
+class CefXmlReaderImpl : public CefXmlReader {
+ public:
   CefXmlReaderImpl();
   ~CefXmlReaderImpl();
 
@@ -60,7 +61,7 @@ public:
   // thread.
   bool VerifyContext();
 
-protected:
+ protected:
   base::PlatformThreadId supported_thread_id_;
   CefRefPtr<CefStreamReader> stream_;
   xmlTextReaderPtr reader_;
@@ -69,4 +70,4 @@ protected:
   IMPLEMENT_REFCOUNTING(CefXMLReaderImpl);
 };
 
-#endif // _XML_READER_IMPL_H
+#endif  // CEF_LIBCEF_XML_READER_IMPL_H_

@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BROWSER_FILE_WRITER_H_
-#define BROWSER_FILE_WRITER_H_
+#ifndef CEF_LIBCEF_BROWSER_FILE_WRITER_H_
+#define CEF_LIBCEF_BROWSER_FILE_WRITER_H_
+#pragma once
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
@@ -48,4 +49,4 @@ class BrowserFileWriter : public fileapi::WebFileWriterBase,
   static net::URLRequestContext* request_context_;
 };
 
-#endif  // BROWSER_FILE_WRITER_H_
+#endif  // CEF_LIBCEF_BROWSER_FILE_WRITER_H_

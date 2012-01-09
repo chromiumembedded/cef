@@ -2,6 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "libcef/browser_devtools_client.h"
+#include "libcef/browser_devtools_agent.h"
+#include "libcef/browser_devtools_callargs.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_context.h"
+
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsFrontend.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
@@ -9,15 +15,9 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
-#undef LOG
-#include "browser_devtools_agent.h"
-#include "browser_devtools_callargs.h"
-#include "browser_devtools_client.h"
-#include "browser_impl.h"
-#include "cef_context.h"
-
 #include "base/bind.h"
 #include "base/command_line.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 
 using WebKit::WebDevToolsAgent;
@@ -27,7 +27,7 @@ using WebKit::WebString;
 using WebKit::WebView;
 
 BrowserDevToolsClient::BrowserDevToolsClient(CefBrowserImpl* browser,
-                                             BrowserDevToolsAgent *agent)
+                                             BrowserDevToolsAgent* agent)
     : ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)),
       browser_(browser),
       dev_tools_agent_(agent),

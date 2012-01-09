@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_URL_H
-#define _CEF_URL_H
+#ifndef CEF_INCLUDE_CEF_URL_H_
+#define CEF_INCLUDE_CEF_URL_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 ///
 // Parse the specified |url| into its component parts.
@@ -56,4 +57,4 @@ bool CefParseURL(const CefString& url,
 bool CefCreateURL(const CefURLParts& parts,
                   CefString& url);
 
-#endif // _CEF_URL_H
+#endif  // CEF_INCLUDE_CEF_URL_H_

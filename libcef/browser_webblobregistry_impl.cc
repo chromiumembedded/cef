@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webblobregistry_impl.h"
+#include "libcef/browser_webblobregistry_impl.h"
 
 #include "base/bind.h"
 #include "base/message_loop.h"

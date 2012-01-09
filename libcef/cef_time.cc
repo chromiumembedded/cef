@@ -2,10 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cef_time_util.h"
+#include "libcef/cef_time_util.h"
 
-void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time)
-{
+void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   base::Time::Exploded exploded;
   exploded.year = cef_time.year;
   exploded.month = cef_time.month;
@@ -20,8 +19,7 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time)
   time = base::Time::FromUTCExploded(exploded);
 }
 
-void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time)
-{
+void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {
   base::Time::Exploded exploded;
   time.UTCExplode(&exploded);
   cef_time.year = exploded.year;
@@ -36,8 +34,7 @@ void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time)
   cef_time.millisecond = exploded.millisecond;
 }
 
-CEF_EXPORT int cef_time_to_timet(const cef_time_t* cef_time, time_t* time)
-{
+CEF_EXPORT int cef_time_to_timet(const cef_time_t* cef_time, time_t* time) {
   if (!cef_time || !time)
     return 0;
 
@@ -47,8 +44,7 @@ CEF_EXPORT int cef_time_to_timet(const cef_time_t* cef_time, time_t* time)
   return 1;
 }
 
-CEF_EXPORT int cef_time_from_timet(time_t time, cef_time_t* cef_time)
-{
+CEF_EXPORT int cef_time_from_timet(time_t time, cef_time_t* cef_time) {
   if (!cef_time)
     return 0;
 
@@ -57,8 +53,7 @@ CEF_EXPORT int cef_time_from_timet(time_t time, cef_time_t* cef_time)
   return 1;
 }
 
-CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time)
-{
+CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time) {
   if (!cef_time || !time)
     return 0;
 
@@ -68,8 +63,7 @@ CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time)
   return 1;
 }
 
-CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time)
-{
+CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time) {
   if (!cef_time)
     return 0;
 

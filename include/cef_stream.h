@@ -34,19 +34,18 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_STREAM_H
-#define _CEF_STREAM_H
+#ifndef CEF_INCLUDE_CEF_STREAM_H_
+#define CEF_INCLUDE_CEF_STREAM_H_
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 ///
 // Interface the client can implement to provide a custom stream reader. The
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=client)--*/
-class CefReadHandler : public virtual CefBase
-{
-public:
+class CefReadHandler : public virtual CefBase {
+ public:
   ///
   // Read raw binary data.
   ///
@@ -55,16 +54,17 @@ public:
 
   ///
   // Seek to the specified offset position. |whence| may be any one of
-  // SEEK_CUR, SEEK_END or SEEK_SET.
+  // SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on
+  // failure.
   ///
   /*--cef()--*/
-  virtual int Seek(long offset, int whence) =0;
+  virtual int Seek(int64 offset, int whence) =0;
 
   ///
   // Return the current offset position.
   ///
   /*--cef()--*/
-  virtual long Tell() =0;
+  virtual int64 Tell() =0;
 
   ///
   // Return non-zero if at end of file.
@@ -79,9 +79,8 @@ public:
 // called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefStreamReader : public virtual CefBase
-{
-public:
+class CefStreamReader : public virtual CefBase {
+ public:
   ///
   // Create a new CefStreamReader object from a file.
   ///
@@ -111,13 +110,13 @@ public:
   // failure.
   ///
   /*--cef()--*/
-  virtual int Seek(long offset, int whence) =0;
+  virtual int Seek(int64 offset, int whence) =0;
 
   ///
   // Return the current offset position.
   ///
   /*--cef()--*/
-  virtual long Tell() =0;
+  virtual int64 Tell() =0;
 
   ///
   // Return non-zero if at end of file.
@@ -132,9 +131,8 @@ public:
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=client)--*/
-class CefWriteHandler : public virtual CefBase
-{
-public:
+class CefWriteHandler : public virtual CefBase {
+ public:
   ///
   // Write raw binary data.
   ///
@@ -143,16 +141,17 @@ public:
 
   ///
   // Seek to the specified offset position. |whence| may be any one of
-  // SEEK_CUR, SEEK_END or SEEK_SET.
+  // SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on
+  // failure.
   ///
   /*--cef()--*/
-  virtual int Seek(long offset, int whence) =0;
+  virtual int Seek(int64 offset, int whence) =0;
 
   ///
   // Return the current offset position.
   ///
   /*--cef()--*/
-  virtual long Tell() =0;
+  virtual int64 Tell() =0;
 
   ///
   // Flush the stream.
@@ -167,9 +166,8 @@ public:
 // on any thread.
 ///
 /*--cef(source=library)--*/
-class CefStreamWriter : public virtual CefBase
-{
-public:
+class CefStreamWriter : public virtual CefBase {
+ public:
   ///
   // Create a new CefStreamWriter object for a file.
   ///
@@ -187,19 +185,20 @@ public:
   ///
   /*--cef()--*/
   virtual size_t Write(const void* ptr, size_t size, size_t n) =0;
-	
+
   ///
   // Seek to the specified offset position. |whence| may be any one of
-  // SEEK_CUR, SEEK_END or SEEK_SET.
+  // SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on
+  // failure.
   ///
   /*--cef()--*/
-  virtual int Seek(long offset, int whence) =0;
-	
+  virtual int Seek(int64 offset, int whence) =0;
+
   ///
   // Return the current offset position.
   ///
   /*--cef()--*/
-  virtual long Tell() =0;
+  virtual int64 Tell() =0;
 
   ///
   // Flush the stream.
@@ -208,4 +207,4 @@ public:
   virtual int Flush() =0;
 };
 
-#endif // _CEF_STREAM_H
+#endif  // CEF_INCLUDE_CEF_STREAM_H_

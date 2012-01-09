@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _MENUHANDLER_CTOCPP_H
-#define _MENUHANDLER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_MENU_HANDLER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_MENU_HANDLER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_menu_handler.h"
 #include "include/capi/cef_menu_handler_capi.h"
@@ -26,10 +27,10 @@
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefMenuHandlerCToCpp
-    : public CefCToCpp<CefMenuHandlerCToCpp, CefMenuHandler, cef_menu_handler_t>
-{
-public:
-  CefMenuHandlerCToCpp(cef_menu_handler_t* str)
+    : public CefCToCpp<CefMenuHandlerCToCpp, CefMenuHandler,
+        cef_menu_handler_t> {
+ public:
+  explicit CefMenuHandlerCToCpp(cef_menu_handler_t* str)
       : CefCToCpp<CefMenuHandlerCToCpp, CefMenuHandler, cef_menu_handler_t>(
           str) {}
   virtual ~CefMenuHandlerCToCpp() {}
@@ -43,6 +44,6 @@ public:
       MenuId menuId) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _MENUHANDLER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_MENU_HANDLER_CTOCPP_H_
 

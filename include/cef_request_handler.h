@@ -34,15 +34,16 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_REQUEST_HANDLER_H
-#define _CEF_REQUEST_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_REQUEST_HANDLER_H_
+#define CEF_INCLUDE_CEF_REQUEST_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
-#include "cef_download_handler.h"
-#include "cef_content_filter.h"
-#include "cef_response.h"
-#include "cef_request.h"
-#include "cef_stream.h"
+#include "include/cef_base.h"
+#include "include/cef_download_handler.h"
+#include "include/cef_content_filter.h"
+#include "include/cef_response.h"
+#include "include/cef_request.h"
+#include "include/cef_stream.h"
 
 class CefBrowser;
 class CefFrame;
@@ -52,9 +53,8 @@ class CefFrame;
 // methods of this class will be called on the thread indicated.
 ///
 /*--cef(source=client)--*/
-class CefRequestHandler : public virtual CefBase
-{
-public:
+class CefRequestHandler : public virtual CefBase {
+ public:
   typedef cef_handler_navtype_t NavType;
 
   ///
@@ -157,4 +157,4 @@ public:
                                   CefString& password) { return false; }
 };
 
-#endif // _CEF_REQUEST_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_REQUEST_HANDLER_H_

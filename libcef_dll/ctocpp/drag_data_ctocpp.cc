@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefDragDataCToCpp::IsLink()
-{
+bool CefDragDataCToCpp::IsLink() {
   if (CEF_MEMBER_MISSING(struct_, is_link))
     return false;
 
@@ -30,8 +29,7 @@ bool CefDragDataCToCpp::IsLink()
   return _retval?true:false;
 }
 
-bool CefDragDataCToCpp::IsFragment()
-{
+bool CefDragDataCToCpp::IsFragment() {
   if (CEF_MEMBER_MISSING(struct_, is_fragment))
     return false;
 
@@ -44,8 +42,7 @@ bool CefDragDataCToCpp::IsFragment()
   return _retval?true:false;
 }
 
-bool CefDragDataCToCpp::IsFile()
-{
+bool CefDragDataCToCpp::IsFile() {
   if (CEF_MEMBER_MISSING(struct_, is_file))
     return false;
 
@@ -58,8 +55,7 @@ bool CefDragDataCToCpp::IsFile()
   return _retval?true:false;
 }
 
-CefString CefDragDataCToCpp::GetLinkURL()
-{
+CefString CefDragDataCToCpp::GetLinkURL() {
   if (CEF_MEMBER_MISSING(struct_, get_link_url))
     return CefString();
 
@@ -74,8 +70,7 @@ CefString CefDragDataCToCpp::GetLinkURL()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetLinkTitle()
-{
+CefString CefDragDataCToCpp::GetLinkTitle() {
   if (CEF_MEMBER_MISSING(struct_, get_link_title))
     return CefString();
 
@@ -90,8 +85,7 @@ CefString CefDragDataCToCpp::GetLinkTitle()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetLinkMetadata()
-{
+CefString CefDragDataCToCpp::GetLinkMetadata() {
   if (CEF_MEMBER_MISSING(struct_, get_link_metadata))
     return CefString();
 
@@ -106,8 +100,7 @@ CefString CefDragDataCToCpp::GetLinkMetadata()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetFragmentText()
-{
+CefString CefDragDataCToCpp::GetFragmentText() {
   if (CEF_MEMBER_MISSING(struct_, get_fragment_text))
     return CefString();
 
@@ -122,8 +115,7 @@ CefString CefDragDataCToCpp::GetFragmentText()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetFragmentHtml()
-{
+CefString CefDragDataCToCpp::GetFragmentHtml() {
   if (CEF_MEMBER_MISSING(struct_, get_fragment_html))
     return CefString();
 
@@ -138,8 +130,7 @@ CefString CefDragDataCToCpp::GetFragmentHtml()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetFragmentBaseURL()
-{
+CefString CefDragDataCToCpp::GetFragmentBaseURL() {
   if (CEF_MEMBER_MISSING(struct_, get_fragment_base_url))
     return CefString();
 
@@ -154,8 +145,7 @@ CefString CefDragDataCToCpp::GetFragmentBaseURL()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetFileExtension()
-{
+CefString CefDragDataCToCpp::GetFileExtension() {
   if (CEF_MEMBER_MISSING(struct_, get_file_extension))
     return CefString();
 
@@ -170,8 +160,7 @@ CefString CefDragDataCToCpp::GetFileExtension()
   return _retvalStr;
 }
 
-CefString CefDragDataCToCpp::GetFileName()
-{
+CefString CefDragDataCToCpp::GetFileName() {
   if (CEF_MEMBER_MISSING(struct_, get_file_name))
     return CefString();
 
@@ -186,8 +175,7 @@ CefString CefDragDataCToCpp::GetFileName()
   return _retvalStr;
 }
 
-bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names)
-{
+bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names) {
   if (CEF_MEMBER_MISSING(struct_, get_file_names))
     return false;
 

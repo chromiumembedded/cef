@@ -3,21 +3,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/compiler_specific.h"
+#include "libcef/browser_webkit_glue.h"
 
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "ApplicationCacheStorage.h"
-#include "CrossOriginPreflightResultCache.h"
-#include "DocumentLoader.h"
-#include "MemoryCache.h"
-#include "TextEncoding.h"
+#include "ApplicationCacheStorage.h"  // NOLINT(build/include)
+#include "CrossOriginPreflightResultCache.h"  // NOLINT(build/include)
+#include "DocumentLoader.h"  // NOLINT(build/include)
+#include "MemoryCache.h"  // NOLINT(build/include)
+#include "TextEncoding.h"  // NOLINT(build/include)
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
 #undef LOG
 
-#include "browser_webkit_glue.h"
-#include "cef_context.h"
+#include "libcef/cef_context.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -75,15 +74,13 @@ void InitializeTextEncoding() {
   WebCore::UTF8Encoding();
 }
 
-v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame)
-{
+v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
   WebCore::Frame* core_frame = webFrameImpl->frame();
   return WebCore::V8Proxy::context(core_frame);
 }
 
-void ClearCache()
-{
+void ClearCache() {
   if (WebCore::memoryCache()->disabled())
     return;
 
@@ -109,8 +106,7 @@ bool GetFontTable(int fd, uint32_t table, uint8_t* output,
 
 // Adapted from Chromium's BufferedResourceHandler::ShouldDownload
 bool ShouldDownload(const std::string& content_disposition,
-                    const std::string& mime_type)
-{
+                    const std::string& mime_type) {
   std::string type = StringToLowerASCII(mime_type);
   std::string disposition = StringToLowerASCII(content_disposition);
 
@@ -153,7 +149,7 @@ bool ShouldDownload(const std::string& content_disposition,
   std::vector<webkit::WebPluginInfo> plugins;
   webkit::npapi::PluginList::Singleton()->GetPluginInfoArray(
       GURL(), type, allow_wildcard, NULL, &plugins, NULL);
-  
+
   // If any associated plugins exist and are enabled don't allow the download.
   if (!plugins.empty()) {
     std::vector<webkit::WebPluginInfo>::const_iterator it = plugins.begin();

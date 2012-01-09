@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_WEB_URLREQUEST_H
-#define _CEF_WEB_URLREQUEST_H
+#ifndef CEF_INCLUDE_CEF_WEB_URLREQUEST_H_
+#define CEF_INCLUDE_CEF_WEB_URLREQUEST_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefRequest;
 class CefResponse;
@@ -49,9 +50,8 @@ class CefWebURLRequestClient;
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefWebURLRequest : public virtual CefBase
-{
-public:
+class CefWebURLRequest : public virtual CefBase {
+ public:
   typedef cef_weburlrequest_state_t RequestState;
 
   ///
@@ -59,7 +59,7 @@ public:
   ///
   /*--cef()--*/
   static CefRefPtr<CefWebURLRequest> CreateWebURLRequest(
-      CefRefPtr<CefRequest> request, 
+      CefRefPtr<CefRequest> request,
       CefRefPtr<CefWebURLRequestClient> client);
 
   ///
@@ -80,19 +80,18 @@ public:
 // methods of this class will always be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefWebURLRequestClient : public virtual CefBase
-{
-public:
+class CefWebURLRequestClient : public virtual CefBase {
+ public:
   typedef cef_weburlrequest_state_t RequestState;
   typedef cef_handler_errorcode_t ErrorCode;
-  
+
   ///
   // Notifies the client that the request state has changed. State change
   // notifications will always be sent before the below notification methods
   // are called.
   ///
   /*--cef()--*/
-  virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester, 
+  virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester,
                              RequestState state) =0;
 
   ///
@@ -100,8 +99,8 @@ public:
   // chance to change the request parameters.
   ///
   /*--cef()--*/
-  virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester, 
-                          CefRefPtr<CefRequest> request, 
+  virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester,
+                          CefRefPtr<CefRequest> request,
                           CefRefPtr<CefResponse> response) =0;
 
   ///
@@ -115,22 +114,22 @@ public:
   // Notifies the client of the upload progress.
   ///
   /*--cef()--*/
-  virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester, 
+  virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester,
                           uint64 bytesSent, uint64 totalBytesToBeSent) =0;
 
   ///
   // Notifies the client that content has been received.
   ///
   /*--cef()--*/
-  virtual void OnData(CefRefPtr<CefWebURLRequest> requester, 
+  virtual void OnData(CefRefPtr<CefWebURLRequest> requester,
                       const void* data, int dataLength) =0;
 
   ///
   // Notifies the client that the request ended with an error.
   ///
   /*--cef()--*/
-  virtual void OnError(CefRefPtr<CefWebURLRequest> requester, 
+  virtual void OnError(CefRefPtr<CefWebURLRequest> requester,
                        ErrorCode errorCode) =0;
 };
 
-#endif // _CEF_WEB_URLREQUEST_H
+#endif  // CEF_INCLUDE_CEF_WEB_URLREQUEST_H_

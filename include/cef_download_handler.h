@@ -34,19 +34,19 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_DOWNLOAD_HANDLER_H
-#define _CEF_DOWNLOAD_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_DOWNLOAD_HANDLER_H_
+#define CEF_INCLUDE_CEF_DOWNLOAD_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 ///
 // Class used to handle file downloads. The methods of this class will always be
 // called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDownloadHandler : public virtual CefBase
-{
-public:
+class CefDownloadHandler : public virtual CefBase {
+ public:
   ///
   // A portion of the file contents have been received. This method will be
   // called multiple times until the download is complete. Return |true| to
@@ -62,4 +62,4 @@ public:
   virtual void Complete() =0;
 };
 
-#endif // _CEF_DOWNLOAD_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_DOWNLOAD_HANDLER_H_

@@ -28,12 +28,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_TYPES_LINUX_H
-#define _CEF_TYPES_LINUX_H
+#ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#define CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#pragma once
+
+#include "include/internal/cef_build.h"
 
 #if defined(OS_LINUX)
 #include <gtk/gtk.h>
-#include "cef_string.h"
+#include "include/internal/cef_string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,8 +49,7 @@ extern "C" {
 ///
 // Supported graphics implementations.
 ///
-enum cef_graphics_implementation_t
-{
+enum cef_graphics_implementation_t {
   DESKTOP_IN_PROCESS = 0,
   DESKTOP_IN_PROCESS_COMMAND_BUFFER,
 };
@@ -55,11 +57,10 @@ enum cef_graphics_implementation_t
 ///
 // Class representing window information.
 ///
-typedef struct _cef_window_info_t
-{
+typedef struct _cef_window_info_t {
   // Pointer for the parent GtkBox widget.
   cef_window_handle_t m_ParentWidget;
-  
+
   // Pointer for the new browser widget.
   cef_window_handle_t m_Widget;
 } cef_window_info_t;
@@ -67,8 +68,7 @@ typedef struct _cef_window_info_t
 ///
 // Class representing print context information.
 ///
-typedef struct _cef_print_info_t
-{
+typedef struct _cef_print_info_t {
   double m_Scale;
 } cef_print_info_t;
 
@@ -76,6 +76,6 @@ typedef struct _cef_print_info_t
 }
 #endif
 
-#endif // OS_LINUX
+#endif  // OS_LINUX
 
-#endif // _CEF_TYPES_LINUX_H
+#endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_

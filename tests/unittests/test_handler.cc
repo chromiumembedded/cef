@@ -2,47 +2,40 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "test_handler.h"
+#include "tests/unittests/test_handler.h"
 #include "include/cef_runnable.h"
 
 namespace {
 
-void NotifyEvent(base::WaitableEvent* event)
-{
+void NotifyEvent(base::WaitableEvent* event) {
   event->Signal();
 }
 
-} // namespace
+}  // namespace
 
 
 // TestHandler
 
 TestHandler::TestHandler()
   : browser_hwnd_(NULL),
-    completion_event_(true, false)
-{
+    completion_event_(true, false) {
 }
 
-TestHandler::~TestHandler()
-{
+TestHandler::~TestHandler() {
 }
 
-void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser)
-{
+void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   AutoLock lock_scope(this);
-  if(!browser->IsPopup())
-  {
+  if (!browser->IsPopup()) {
     // Keep the main child window, but not popup windows
     browser_ = browser;
     browser_hwnd_ = browser->GetWindowHandle();
   }
 }
 
-void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser)
-{
+void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   AutoLock lock_scope(this);
-  if(browser_hwnd_ == browser->GetWindowHandle())
-  {
+  if (browser_hwnd_ == browser->GetWindowHandle()) {
     // Free the browser pointer so that the browser can be destroyed
     browser_ = NULL;
     browser_hwnd_ = NULL;
@@ -57,16 +50,16 @@ bool TestHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                     CefString& redirectUrl,
                                     CefRefPtr<CefStreamReader>& resourceStream,
                                     CefRefPtr<CefResponse> response,
-                                    int loadFlags)
-{
+                                    int loadFlags) {
   AutoLock lock_scope(this);
-  if(resource_map_.size() > 0) {
+  if (resource_map_.size() > 0) {
     CefString url = request->GetURL();
     ResourceMap::const_iterator it = resource_map_.find(url);
-    if(it != resource_map_.end()) {
+    if (it != resource_map_.end()) {
       // Return the previously mapped resource
       resourceStream = CefStreamReader::CreateForData(
-          (void*)it->second.first.c_str(), it->second.first.length());
+          static_cast<void*>(const_cast<char*>(it->second.first.c_str())),
+          it->second.first.length());
       response->SetMimeType(it->second.second);
       response->SetStatus(200);
     }
@@ -75,8 +68,7 @@ bool TestHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-void TestHandler::ExecuteTest()
-{
+void TestHandler::ExecuteTest() {
   // Run the test
   RunTest();
 
@@ -87,15 +79,13 @@ void TestHandler::ExecuteTest()
   completion_event_.Reset();
 }
 
-void TestHandler::DestroyTest()
-{
+void TestHandler::DestroyTest() {
   AutoLock lock_scope(this);
-  if(browser_hwnd_ != NULL)
+  if (browser_hwnd_ != NULL)
     browser_->CloseBrowser();
 }
 
-void TestHandler::CreateBrowser(const CefString& url)
-{
+void TestHandler::CreateBrowser(const CefString& url) {
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
 #if defined(OS_WIN)
@@ -106,21 +96,18 @@ void TestHandler::CreateBrowser(const CefString& url)
 }
 
 void TestHandler::AddResource(const CefString& key, const std::string& value,
-                              const CefString& mimeType)
-{
+                              const CefString& mimeType) {
   resource_map_.insert(std::make_pair(key, std::make_pair(value, mimeType)));
 }
 
-void TestHandler::ClearResources()
-{
+void TestHandler::ClearResources() {
   resource_map_.clear();
 }
 
 
 // global functions
 
-void WaitForThread(CefThreadId thread_id)
-{
+void WaitForThread(CefThreadId thread_id) {
   base::WaitableEvent event(true, false);
   CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
   event.Wait();

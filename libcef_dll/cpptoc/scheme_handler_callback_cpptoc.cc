@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK scheme_handler_callback_headers_available(
-    struct _cef_scheme_handler_callback_t* self)
-{
+    struct _cef_scheme_handler_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -29,8 +28,7 @@ void CEF_CALLBACK scheme_handler_callback_headers_available(
 }
 
 void CEF_CALLBACK scheme_handler_callback_bytes_available(
-    struct _cef_scheme_handler_callback_t* self)
-{
+    struct _cef_scheme_handler_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,8 +40,7 @@ void CEF_CALLBACK scheme_handler_callback_bytes_available(
 }
 
 void CEF_CALLBACK scheme_handler_callback_cancel(
-    struct _cef_scheme_handler_callback_t* self)
-{
+    struct _cef_scheme_handler_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -60,8 +57,7 @@ void CEF_CALLBACK scheme_handler_callback_cancel(
 CefSchemeHandlerCallbackCppToC::CefSchemeHandlerCallbackCppToC(
     CefSchemeHandlerCallback* cls)
     : CefCppToC<CefSchemeHandlerCallbackCppToC, CefSchemeHandlerCallback,
-        cef_scheme_handler_callback_t>(cls)
-{
+        cef_scheme_handler_callback_t>(cls) {
   struct_.struct_.headers_available = scheme_handler_callback_headers_available;
   struct_.struct_.bytes_available = scheme_handler_callback_bytes_available;
   struct_.struct_.cancel = scheme_handler_callback_cancel;

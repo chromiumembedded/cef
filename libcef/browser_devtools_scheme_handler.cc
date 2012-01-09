@@ -2,15 +2,17 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "browser_devtools_scheme_handler.h"
+#include "libcef/browser_devtools_scheme_handler.h"
+
+#include <string>
+
 #include "include/cef_browser.h"
 #include "include/cef_request.h"
 #include "include/cef_response.h"
 #include "include/cef_scheme.h"
 #include "include/cef_stream.h"
 #include "include/cef_url.h"
-#include "browser_webkit_glue.h"
-#include <string>
+#include "libcef/browser_webkit_glue.h"
 
 #include "base/file_util.h"
 #include "base/string_util.h"
@@ -24,32 +26,28 @@ const char kChromeDevToolsURL[] = "chrome-devtools://devtools/";
 
 namespace {
 
-class DevToolsSchemeHandler : public CefSchemeHandler
-{
-public:
+class DevToolsSchemeHandler : public CefSchemeHandler {
+ public:
   DevToolsSchemeHandler(const std::string& path,
                         CefRefPtr<CefStreamReader> reader,
                         int size)
-    : path_(path), reader_(reader), size_(size)
-  {
+    : path_(path), reader_(reader), size_(size) {
   }
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefRefPtr<CefSchemeHandlerCallback> callback)
-                              OVERRIDE
-  {
+                              OVERRIDE {
     callback->HeadersAvailable();
     return true;
   }
-  
+
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
                                   int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE
-  {
+                                  CefString& redirectUrl) OVERRIDE {
     response_length = size_;
 
     std::string mime_type = "text/plain";
-    if(net::GetMimeTypeFromFile(FilePath(CefString(path_)), &mime_type))
+    if (net::GetMimeTypeFromFile(FilePath(CefString(path_)), &mime_type))
       response->SetMimeType(mime_type);
 
     response->SetStatus(200);
@@ -59,17 +57,15 @@ public:
                             int bytes_to_read,
                             int& bytes_read,
                             CefRefPtr<CefSchemeHandlerCallback> callback)
-                            OVERRIDE
-  {
+                            OVERRIDE {
     bytes_read = reader_->Read(data_out, 1, bytes_to_read);
     return (bytes_read > 0);
   }
 
-  virtual void Cancel() OVERRIDE
-  {
+  virtual void Cancel() OVERRIDE {
   }
 
-private:
+ private:
   std::string path_;
   CefRefPtr<CefStreamReader> reader_;
   int size_;
@@ -77,16 +73,14 @@ private:
   IMPLEMENT_REFCOUNTING(DevToolSSchemeHandler);
 };
 
-class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory
-{
-public:
+class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory {
+ public:
   DevToolsSchemeHandlerFactory() {}
 
   virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
                                              const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
-                                             OVERRIDE
-  {
+                                             OVERRIDE {
     // Remove the query component of the URL, if any.
     CefURLParts parts;
     CefParseURL(request->GetURL(), parts);
@@ -106,10 +100,9 @@ public:
     return new DevToolsSchemeHandler(path, reader, size);
   }
 
-  CefRefPtr<CefStreamReader> GetStreamReader(const char* path, int& size)
-  {
+  CefRefPtr<CefStreamReader> GetStreamReader(const char* path, int& size) {
     // Create a stream for the grit resource.
-    for(size_t i = 0; i < kDevtoolsResourcesSize; ++i) {
+    for (size_t i = 0; i < kDevtoolsResourcesSize; ++i) {
       if (base::strcasecmp(kDevtoolsResources[i].name, path) == 0) {
         base::StringPiece piece =
             webkit_glue::GetDataResource(kDevtoolsResources[i].value);
@@ -121,18 +114,17 @@ public:
       }
     }
 
-    NOTREACHED() << "Missing DevTools resource: "<<path;
+    NOTREACHED() << "Missing DevTools resource: " << path;
     return NULL;
   }
 
   IMPLEMENT_REFCOUNTING(DevToolSSchemeHandlerFactory);
 };
 
-} // namespace
+}  // namespace
 
 // Register the DevTools scheme handler.
-void RegisterDevToolsSchemeHandler(bool firstTime)
-{
+void RegisterDevToolsSchemeHandler(bool firstTime) {
   if (firstTime)
     CefRegisterCustomScheme(kChromeDevToolsScheme, true, false, true);
   CefRegisterSchemeHandlerFactory(kChromeDevToolsScheme, kChromeDevToolsHost,

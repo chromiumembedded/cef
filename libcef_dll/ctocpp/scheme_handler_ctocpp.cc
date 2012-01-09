@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
-    CefRefPtr<CefSchemeHandlerCallback> callback)
-{
+    CefRefPtr<CefSchemeHandlerCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, process_request))
     return false;
 
@@ -45,8 +44,7 @@ bool CefSchemeHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
 }
 
 void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
-    int64& response_length, CefString& redirectUrl)
-{
+    int64& response_length, CefString& redirectUrl) {
   if (CEF_MEMBER_MISSING(struct_, get_response_headers))
     return;
 
@@ -65,8 +63,7 @@ void CefSchemeHandlerCToCpp::GetResponseHeaders(CefRefPtr<CefResponse> response,
 }
 
 bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
-    int& bytes_read, CefRefPtr<CefSchemeHandlerCallback> callback)
-{
+    int& bytes_read, CefRefPtr<CefSchemeHandlerCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, read_response))
     return false;
 
@@ -92,8 +89,7 @@ bool CefSchemeHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
   return _retval?true:false;
 }
 
-void CefSchemeHandlerCToCpp::Cancel()
-{
+void CefSchemeHandlerCToCpp::Cancel() {
   if (CEF_MEMBER_MISSING(struct_, cancel))
     return;
 

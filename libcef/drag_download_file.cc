@@ -3,9 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "drag_download_file.h"
-#include "browser_impl.h"
-#include "cef_thread.h"
+#include "libcef/drag_download_file.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_thread.h"
 
 #include "base/file_util.h"
 #include "base/message_loop.h"
@@ -97,8 +97,9 @@ void DragDownloadFile::InitiateDownload() {
   }
 #endif
 
-  // TODO: You seem to have found an example of HTML5 drag and drop download.
-  // Please report it to the CEF developers so that we can add support for it.
+  // TODO(cef): You seem to have found an example of HTML5 drag and drop
+  // download. Please report it to the CEF developers so that we can add support
+  // for it.
   NOTREACHED();
   bool is_successful = false;
   DownloadCompleted(is_successful);

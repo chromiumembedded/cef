@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -24,8 +24,7 @@
 
 bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request, NavType navType,
-    bool isRedirect)
-{
+    bool isRedirect) {
   if (CEF_MEMBER_MISSING(struct_, on_before_browse))
     return false;
 
@@ -59,8 +58,7 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request,
     CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream,
-    CefRefPtr<CefResponse> response, int loadFlags)
-{
+    CefRefPtr<CefResponse> response, int loadFlags) {
   if (CEF_MEMBER_MISSING(struct_, on_before_resource_load))
     return false;
 
@@ -81,7 +79,7 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
 
   // Translate param: resourceStream; type: refptr_diff_byref
   cef_stream_reader_t* resourceStreamStruct = NULL;
-  if(resourceStream.get())
+  if (resourceStream.get())
     resourceStreamStruct = CefStreamReaderCppToC::Wrap(resourceStream);
   cef_stream_reader_t* resourceStreamOrig = resourceStreamStruct;
 
@@ -108,8 +106,7 @@ bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
 }
 
 void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
-    const CefString& old_url, CefString& new_url)
-{
+    const CefString& old_url, CefString& new_url) {
   if (CEF_MEMBER_MISSING(struct_, on_resource_redirect))
     return;
 
@@ -133,8 +130,7 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
 
 void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     const CefString& url, CefRefPtr<CefResponse> response,
-    CefRefPtr<CefContentFilter>& filter)
-{
+    CefRefPtr<CefContentFilter>& filter) {
   if (CEF_MEMBER_MISSING(struct_, on_resource_response))
     return;
 
@@ -155,7 +151,7 @@ void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
 
   // Translate param: filter; type: refptr_same_byref
   cef_content_filter_t* filterStruct = NULL;
-  if(filter.get())
+  if (filter.get())
     filterStruct = CefContentFilterCToCpp::Unwrap(filter);
   cef_content_filter_t* filterOrig = filterStruct;
 
@@ -177,8 +173,7 @@ void CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-    const CefString& url, bool& allowOSExecution)
-{
+    const CefString& url, bool& allowOSExecution) {
   if (CEF_MEMBER_MISSING(struct_, on_protocol_execution))
     return false;
 
@@ -211,8 +206,7 @@ bool CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
 
 bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
     const CefString& mimeType, const CefString& fileName, int64 contentLength,
-    CefRefPtr<CefDownloadHandler>& handler)
-{
+    CefRefPtr<CefDownloadHandler>& handler) {
   if (CEF_MEMBER_MISSING(struct_, get_download_handler))
     return false;
 
@@ -233,7 +227,7 @@ bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
 
   // Translate param: handler; type: refptr_same_byref
   cef_download_handler_t* handlerStruct = NULL;
-  if(handler.get())
+  if (handler.get())
     handlerStruct = CefDownloadHandlerCToCpp::Unwrap(handler);
   cef_download_handler_t* handlerOrig = handlerStruct;
 
@@ -260,8 +254,7 @@ bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
 
 bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
     bool isProxy, const CefString& host, int port, const CefString& realm,
-    const CefString& scheme, CefString& username, CefString& password)
-{
+    const CefString& scheme, CefString& username, CefString& password) {
   if (CEF_MEMBER_MISSING(struct_, get_auth_credentials))
     return false;
 

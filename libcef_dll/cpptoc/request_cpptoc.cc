@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_request_t* cef_request_create()
-{
+CEF_EXPORT cef_request_t* cef_request_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -31,8 +30,8 @@ CEF_EXPORT cef_request_t* cef_request_create()
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_string_userfree_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
-{
+cef_string_userfree_t CEF_CALLBACK request_get_url(
+    struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,8 +46,7 @@ cef_string_userfree_t CEF_CALLBACK request_get_url(struct _cef_request_t* self)
 }
 
 void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
-    const cef_string_t* url)
-{
+    const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,8 +63,7 @@ void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK request_get_method(
-    struct _cef_request_t* self)
-{
+    struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,8 +78,7 @@ cef_string_userfree_t CEF_CALLBACK request_get_method(
 }
 
 void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
-    const cef_string_t* method)
-{
+    const cef_string_t* method) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,8 +95,7 @@ void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
 }
 
 struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
-    struct _cef_request_t* self)
-{
+    struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +110,7 @@ struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
 }
 
 void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
-    struct _cef_post_data_t* postData)
-{
+    struct _cef_post_data_t* postData) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -133,8 +127,7 @@ void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
 }
 
 void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
-    cef_string_multimap_t headerMap)
-{
+    cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -146,7 +139,7 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
     return;
 
   // Translate param: headerMap; type: string_map_multi_byref
-  std::multimap<CefString,CefString> headerMapMultimap;
+  std::multimap<CefString, CefString> headerMapMultimap;
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
@@ -159,8 +152,7 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
 }
 
 void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
-    cef_string_multimap_t headerMap)
-{
+    cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -172,7 +164,7 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
     return;
 
   // Translate param: headerMap; type: string_map_multi_byref_const
-  std::multimap<CefString,CefString> headerMapMultimap;
+  std::multimap<CefString, CefString> headerMapMultimap;
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
@@ -182,8 +174,7 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
 
 void CEF_CALLBACK request_set(struct _cef_request_t* self,
     const cef_string_t* url, const cef_string_t* method,
-    struct _cef_post_data_t* postData, cef_string_multimap_t headerMap)
-{
+    struct _cef_post_data_t* postData, cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -204,7 +195,7 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
   // Unverified params: postData
 
   // Translate param: headerMap; type: string_map_multi_byref_const
-  std::multimap<CefString,CefString> headerMapMultimap;
+  std::multimap<CefString, CefString> headerMapMultimap;
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
@@ -216,8 +207,7 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
 }
 
 enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
-    struct _cef_request_t* self)
-{
+    struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -232,8 +222,7 @@ enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
 }
 
 void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
-    enum cef_weburlrequest_flags_t flags)
-{
+    enum cef_weburlrequest_flags_t flags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -246,8 +235,7 @@ void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
-    struct _cef_request_t* self)
-{
+    struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -262,8 +250,7 @@ cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
 }
 
 void CEF_CALLBACK request_set_first_party_for_cookies(
-    struct _cef_request_t* self, const cef_string_t* url)
-{
+    struct _cef_request_t* self, const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -283,8 +270,7 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
-    : CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>(cls)
-{
+    : CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>(cls) {
   struct_.struct_.get_url = request_get_url;
   struct_.struct_.set_url = request_set_url;
   struct_.struct_.get_method = request_get_method;

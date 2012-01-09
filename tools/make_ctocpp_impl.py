@@ -37,7 +37,7 @@ def make_ctocpp_function_impl_existing(clsname, name, func, impl):
 def make_ctocpp_function_impl_new(clsname, name, func):
     # build the C++ prototype
     parts = func.get_cpp_parts(True)
-    result = make_ctocpp_impl_proto(clsname, name, func, parts)+'\n{'
+    result = make_ctocpp_impl_proto(clsname, name, func, parts)+' {'
     
     invalid = []
     
@@ -124,7 +124,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         index_params = arg.parent.get_attrib_list('index_param')
         if not index_params is None and arg_name in index_params:
             result += comment+\
-                      '\n  DCHECK('+arg_name+' >= 0);'\
+                      '\n  DCHECK_GE('+arg_name+', 0);'\
                       '\n  if ('+arg_name+' < 0)'\
                       '\n    return'+retval_default+';'
 
@@ -179,7 +179,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                 assign = refptr_class+'CppToC::Wrap('+arg_name+')'
             result += comment+\
                       '\n  '+refptr_struct+'* '+arg_name+'Struct = NULL;'\
-                      '\n  if('+arg_name+'.get())'\
+                      '\n  if ('+arg_name+'.get())'\
                       '\n    '+arg_name+'Struct = '+assign+';'\
                       '\n  '+refptr_struct+'* '+arg_name+'Orig = '+arg_name+'Struct;'
             params.append('&'+arg_name+'Struct')
@@ -401,8 +401,8 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             result += '\n#ifndef NDEBUG'\
                       '\n  // Check that all wrapper objects have been destroyed'
             for name in names:
-                result += '\n  DCHECK('+name+'::DebugObjCt == 0);';
-            result += '\n#endif // !NDEBUG'
+                result += '\n  DCHECK_EQ('+name+'::DebugObjCt, 0);';
+            result += '\n#endif  // !NDEBUG'
     
     if len(result) != result_len:
         result += '\n'

@@ -2,16 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEF_TEST_SUITE_H
-#define _CEF_TEST_SUITE_H
+#ifndef CEF_TESTS_UNITTESTS_TEST_SUITE_H_
+#define CEF_TESTS_UNITTESTS_TEST_SUITE_H_
+#pragma once
 
+#include <string>
 #include "include/internal/cef_types_wrappers.h"
 #include "base/test/test_suite.h"
 
 class CommandLine;
 
 class CefTestSuite : public TestSuite {
-public:
+ public:
   CefTestSuite(int argc, char** argv);
 
   // Initialize the current process CommandLine singleton. On Windows, ignores
@@ -23,13 +25,13 @@ public:
   static void GetSettings(CefSettings& settings);
   static bool GetCachePath(std::string& path);
 
-protected:
+ protected:
 #if defined(OS_MACOSX)
   virtual void Initialize();
 #endif
-  
+
   // The singleton CommandLine representing the current process's command line.
   static CommandLine* commandline_;
 };
 
-#endif  // _CEF_TEST_SUITE_H
+#endif  // CEF_TESTS_UNITTESTS_TEST_SUITE_H_

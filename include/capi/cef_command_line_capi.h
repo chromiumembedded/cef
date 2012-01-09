@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_COMMAND_LINE_CAPI_H
-#define _CEF_COMMAND_LINE_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -54,8 +55,7 @@ extern "C" {
 // arguments. Switch names are considered case-insensitive. This structure can
 // be used before cef_initialize() is called.
 ///
-typedef struct _cef_command_line_t
-{
+typedef struct _cef_command_line_t {
   ///
   // Base structure.
   ///
@@ -153,7 +153,6 @@ typedef struct _cef_command_line_t
   ///
   void (CEF_CALLBACK *append_argument)(struct _cef_command_line_t* self,
       const cef_string_t* argument);
-
 } cef_command_line_t;
 
 
@@ -167,4 +166,4 @@ CEF_EXPORT cef_command_line_t* cef_command_line_create();
 }
 #endif
 
-#endif // _CEF_COMMAND_LINE_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_

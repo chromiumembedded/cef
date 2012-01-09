@@ -3,11 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_context.h"
-#include "browser_impl.h"
-#include "browser_settings.h"
-
 #include <gtk/gtk.h>
+
+#include "libcef/cef_context.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_settings.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
@@ -24,21 +24,18 @@ void window_destroyed(GtkWidget* widget, CefBrowserImpl* browser) {
   browser->UIT_DestroyBrowser();
 }
 
-} // namespace
+}  // namespace
 
-void CefBrowserImpl::ParentWindowWillClose()
-{
+void CefBrowserImpl::ParentWindowWillClose() {
   // TODO(port): Implement this method if necessary.
 }
 
-CefWindowHandle CefBrowserImpl::GetWindowHandle()
-{
+CefWindowHandle CefBrowserImpl::GetWindowHandle() {
   AutoLock lock_scope(this);
   return window_info_.m_Widget;
 }
 
-bool CefBrowserImpl::IsWindowRenderingDisabled()
-{
+bool CefBrowserImpl::IsWindowRenderingDisabled() {
   // TODO(port): Add support for off-screen rendering.
   return false;
 }
@@ -53,8 +50,7 @@ void CefBrowserImpl::UIT_ClearMainWndHandle() {
   window_info_.m_Widget = NULL;
 }
 
-bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
-{
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   REQUIRE_UIT();
   Lock();
 
@@ -67,10 +63,10 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_.reset(new BrowserDevToolsAgent());
 
-  GtkWidget *window;
+  GtkWidget* window;
   GtkWidget* parentView = window_info_.m_ParentWidget;
 
-  if(parentView == NULL) {
+  if (parentView == NULL) {
     // Create a new window.
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
@@ -104,30 +100,28 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
 
   if (client_.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
-    if(handler.get()) {
+    if (handler.get()) {
       // Notify the handler that we're done creating the new window
       handler->OnAfterCreated(this);
     }
   }
 
-  if(url.size() > 0)
+  if (url.size() > 0)
     UIT_LoadURL(GetMainFrame(), url);
 
   return true;
 }
 
-void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
-{
+void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable) {
   REQUIRE_UIT();
   if (!host)
     return;
 
-  if(enable)
+  if (enable)
     gtk_widget_grab_focus(host->view_handle());
 }
 
-bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
-{
+bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame) {
   REQUIRE_UIT();
 
   char buff[] = "/tmp/CEFSourceXXXXXX";
@@ -141,7 +135,7 @@ bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
 
   if (!srcOutput)
     return false;
- 
+
   std::string markup = frame->contentAsMarkup().utf8();
   if (fputs(markup.c_str(), srcOutput) < 0) {
     fclose(srcOutput);
@@ -179,8 +173,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   NOTIMPLEMENTED();
 }
 
-int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
-{
+int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
 
   // TODO(port): Add implementation.
@@ -189,20 +182,18 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 }
 
 // static
-void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
-{
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view) {
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
   gtk_widget_destroy(window);
 }
 
 // static
-bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
-{
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view) {
   if (!view)
     return false;
-    
+
   if (view->window)
-    return (bool)gdk_window_is_visible(view->window);
+    return gdk_window_is_visible(view->window)?true:false;
   else
     return false;
 }

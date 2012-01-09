@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEFCLIENT_RESOURCE_UTIL
-#define _CEFCLIENT_RESOURCE_UTIL
+#ifndef CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_
+#define CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_
+#pragma once
 
 #include "include/cef_base.h"
 
@@ -11,13 +12,15 @@ class CefStreamReader;
 
 #if defined(OS_WIN)
 
-#include "resource.h"
+#include "cefclient/resource.h"
 
 // Load a resource of type BINARY
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);
 
-#elif (defined(OS_MACOSX) || defined(OS_POSIX))
+#elif defined(OS_MACOSX) || defined(OS_POSIX)
+
+#include <string>  // NOLINT(build/include_order)
 
 // Load the resource with the specified name.
 bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
@@ -25,4 +28,4 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 
 #endif
 
-#endif // _CEFCLIENT_RESOURCE_UTIL
+#endif  // CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_

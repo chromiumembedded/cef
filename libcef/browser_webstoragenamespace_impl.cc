@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_webstoragenamespace_impl.h"
-#include "browser_webstoragearea_impl.h"
-#include "cef_context.h"
+#include "libcef/browser_webstoragenamespace_impl.h"
+#include "libcef/browser_webstoragearea_impl.h"
+#include "libcef/cef_context.h"
 
 #include "base/logging.h"
 

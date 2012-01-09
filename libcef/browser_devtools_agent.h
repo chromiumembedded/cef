@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_DEVTOOLS_AGENT_H
-#define _BROWSER_DEVTOOLS_AGENT_H
+#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_AGENT_H_
+#define CEF_LIBCEF_BROWSER_DEVTOOLS_AGENT_H_
+#pragma once
 
 #include <string>
 
@@ -44,7 +45,8 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
   void attach(BrowserDevToolsClient* client);
   void detach();
 
-  bool evaluateInWebInspector(long call_id, const std::string& script);
+  bool evaluateInWebInspector(long call_id,  // NOLINT(runtime/int)
+                              const std::string& script);
 
   BrowserDevToolsClient* client() { return dev_tools_client_; }
 
@@ -61,4 +63,4 @@ class BrowserDevToolsAgent : public WebKit::WebDevToolsAgentClient {
   DISALLOW_COPY_AND_ASSIGN(BrowserDevToolsAgent);
 };
 
-#endif  // _BROWSER_DEVTOOLS_AGENT_H
+#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_AGENT_H_

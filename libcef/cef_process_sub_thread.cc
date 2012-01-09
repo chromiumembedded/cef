@@ -3,11 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_process_sub_thread.h"
+#include "libcef/cef_process_sub_thread.h"
+
 #include "build/build_config.h"
+#include "base/compiler_specific.h"
 
 #if defined(OS_WIN)
-#include <Objbase.h>
+#include <Objbase.h>  // NOLINT(build/include_order)
 #endif
 
 CefProcessSubThread::CefProcessSubThread(CefThread::ID identifier)

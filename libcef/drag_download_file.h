@@ -3,9 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DRAG_DOWNLOAD_FILE_H
-#define _DRAG_DOWNLOAD_FILE_H
+#ifndef CEF_LIBCEF_DRAG_DOWNLOAD_FILE_H_
+#define CEF_LIBCEF_DRAG_DOWNLOAD_FILE_H_
 #pragma once
+
+#include <string>
 
 #include "base/file_path.h"
 #include "base/memory/linked_ptr.h"
@@ -93,4 +95,4 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   DISALLOW_COPY_AND_ASSIGN(DragDownloadFile);
 };
 
-#endif  // _DRAG_DOWNLOAD_FILE_H
+#endif  // CEF_LIBCEF_DRAG_DOWNLOAD_FILE_H_

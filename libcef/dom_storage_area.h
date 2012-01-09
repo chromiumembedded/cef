@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DOM_STORAGE_AREA_H
-#define _DOM_STORAGE_AREA_H
+#ifndef CEF_LIBCEF_DOM_STORAGE_AREA_H_
+#define CEF_LIBCEF_DOM_STORAGE_AREA_H_
 #pragma once
 
 #include "base/hash_tables.h"
@@ -72,4 +72,4 @@ struct hash<DOMStorageArea*> {
 }  // namespace __gnu_cxx
 #endif
 
-#endif  // _DOM_STORAGE_AREA_H
+#endif  // CEF_LIBCEF_DOM_STORAGE_AREA_H_

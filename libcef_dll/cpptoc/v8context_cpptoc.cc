@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context()
-{
+CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -29,8 +28,7 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context()
   return CefV8ContextCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context()
-{
+CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -40,8 +38,7 @@ CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context()
   return CefV8ContextCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT int cef_v8context_in_context()
-{
+CEF_EXPORT int cef_v8context_in_context() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -54,8 +51,8 @@ CEF_EXPORT int cef_v8context_in_context()
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_browser_t* CEF_CALLBACK v8context_get_browser(struct _cef_v8context_t* self)
-{
+cef_browser_t* CEF_CALLBACK v8context_get_browser(
+    struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,8 +66,7 @@ cef_browser_t* CEF_CALLBACK v8context_get_browser(struct _cef_v8context_t* self)
   return CefBrowserCppToC::Wrap(_retval);
 }
 
-cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self)
-{
+cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -85,8 +81,7 @@ cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self)
 }
 
 struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
-    struct _cef_v8context_t* self)
-{
+    struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -100,8 +95,7 @@ struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self)
-{
+int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +109,7 @@ int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
-{
+int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -131,8 +124,7 @@ int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self)
 }
 
 int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
-    struct _cef_v8context_t* that)
-{
+    struct _cef_v8context_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -155,8 +147,7 @@ int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
-    : CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t>(cls)
-{
+    : CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t>(cls) {
   struct_.struct_.get_browser = v8context_get_browser;
   struct_.struct_.get_frame = v8context_get_frame;
   struct_.struct_.get_global = v8context_get_global;

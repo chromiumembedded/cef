@@ -5,7 +5,6 @@
 #include "include/cef_nplugin.h"
 #include "include/capi/cef_nplugin_capi.h"
 
-bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
-{
+bool CefRegisterPlugin(const CefPluginInfo& plugin_info) {
   return cef_register_plugin(&plugin_info)?true:false;
 }

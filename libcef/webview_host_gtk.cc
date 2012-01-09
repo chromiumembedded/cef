@@ -4,8 +4,8 @@
 
 #include <gtk/gtk.h>
 
-#include "webview_host.h"
-#include "browser_webview_delegate.h"
+#include "libcef/webview_host.h"
+#include "libcef/browser_webview_delegate.h"
 
 #include "base/logging.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/gtk/WebInputEventFactory.h"

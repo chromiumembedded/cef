@@ -3,8 +3,8 @@
 // be found in the LICENSE file.
 
 #include "include/cef_nplugin.h"
-#include "cef_context.h"
-#include "cef_thread.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
 
 #include "base/string_split.h"
 #include "base/utf_string_conversions.h"
@@ -12,8 +12,7 @@
 
 namespace {
 
-void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
-{
+void UIT_RegisterPlugin(CefPluginInfo* plugin_info) {
   REQUIRE_UIT();
 
   webkit::WebPluginInfo info;
@@ -33,13 +32,13 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
 
   for (size_t i = 0; i < mime_types.size(); ++i) {
     webkit::WebPluginMimeType mimeType;
-    
+
     mimeType.mime_type = mime_types[i];
-    
+
     if (file_extensions.size() > i) {
       base::SplitString(file_extensions[i], ',', &file_extensions_parts);
       VectorType::const_iterator it = file_extensions_parts.begin();
-      for(; it != file_extensions_parts.end(); ++it)
+      for (; it != file_extensions_parts.end(); ++it)
         mimeType.file_extensions.push_back(*(it));
       file_extensions_parts.clear();
     }
@@ -63,10 +62,9 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info)
   delete plugin_info;
 }
 
-} // anonymous
+}  // namespace
 
-bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
-{
+bool CefRegisterPlugin(const CefPluginInfo& plugin_info) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -75,6 +73,6 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info)
 
   CefThread::PostTask(CefThread::UI, FROM_HERE,
       NewRunnableFunction(UIT_RegisterPlugin, new CefPluginInfo(plugin_info)));
-  
+
   return true;
 }

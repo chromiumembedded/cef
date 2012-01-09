@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "response_impl.h"
-#include "http_header_utils.h"
+#include "libcef/response_impl.h"
+#include "libcef/http_header_utils.h"
 
 #include "base/logging.h"
 #include "base/stringprintf.h"
@@ -12,12 +12,10 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLResponse.h"
 
 CefResponseImpl::CefResponseImpl()
-  : status_code_(0)
-{
+  : status_code_(0) {
 }
 
-CefResponseImpl::CefResponseImpl(const WebKit::WebURLResponse &response)
-{
+CefResponseImpl::CefResponseImpl(const WebKit::WebURLResponse &response) {
   DCHECK(!response.isNull());
 
   WebKit::WebString str;
@@ -31,44 +29,37 @@ CefResponseImpl::CefResponseImpl(const WebKit::WebURLResponse &response)
   response.visitHTTPHeaderFields(&visitor);
 }
 
-int CefResponseImpl::GetStatus()
-{
+int CefResponseImpl::GetStatus() {
   AutoLock lock_scope(this);
   return status_code_;
 }
 
-void CefResponseImpl::SetStatus(int status)
-{
+void CefResponseImpl::SetStatus(int status) {
   AutoLock lock_scope(this);
   status_code_ = status;
 }
 
-CefString CefResponseImpl::GetStatusText()
-{
+CefString CefResponseImpl::GetStatusText() {
   AutoLock lock_scope(this);
   return status_text_;
 }
 
-void CefResponseImpl::SetStatusText(const CefString& statusText)
-{
+void CefResponseImpl::SetStatusText(const CefString& statusText) {
   AutoLock lock_scope(this);
   status_text_ = statusText;
 }
 
-CefString CefResponseImpl::GetMimeType()
-{
+CefString CefResponseImpl::GetMimeType() {
   AutoLock lock_scope(this);
   return mime_type_;
 }
 
-void CefResponseImpl::SetMimeType(const CefString& mimeType)
-{
+void CefResponseImpl::SetMimeType(const CefString& mimeType) {
   AutoLock lock_scope(this);
   mime_type_ = mimeType;
 }
 
-CefString CefResponseImpl::GetHeader(const CefString& name)
-{
+CefString CefResponseImpl::GetHeader(const CefString& name) {
   AutoLock lock_scope(this);
 
   CefString value;
@@ -80,26 +71,23 @@ CefString CefResponseImpl::GetHeader(const CefString& name)
   return value;
 }
 
-void CefResponseImpl::GetHeaderMap(HeaderMap& map)
-{
+void CefResponseImpl::GetHeaderMap(HeaderMap& map) {
   AutoLock lock_scope(this);
   map = header_map_;
 }
 
-void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap)
-{
+void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap) {
   AutoLock lock_scope(this);
   header_map_ = headerMap;
 }
 
-net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders()
-{
+net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
   AutoLock lock_scope(this);
 
   std::string response;
   std::string status_text;
 
-  if(status_text_.empty())
+  if (status_text_.empty())
     status_text = (status_code_ == 200)?"OK":"ERROR";
   else
     status_text = status_text_;
@@ -107,13 +95,13 @@ net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders()
   base::SStringPrintf(&response, "HTTP/1.1 %d %s", status_code_,
                       status_text.c_str());
   if (header_map_.size() > 0) {
-    for(HeaderMap::const_iterator header = header_map_.begin();
+    for (HeaderMap::const_iterator header = header_map_.begin();
         header != header_map_.end();
         ++header) {
       const CefString& key = header->first;
       const CefString& value = header->second;
 
-      if(!key.empty()) {
+      if (!key.empty()) {
         // Delimit with "\0" as required by net::HttpResponseHeaders.
         std::string key_str(key);
         std::string value_str(value);

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_RENDER_HANDLER_CAPI_H
-#define _CEF_RENDER_HANDLER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Implement this structure to handle events when window rendering is disabled.
 // The functions of this structure will be called on the UI thread.
 ///
-typedef struct _cef_render_handler_t
-{
+typedef struct _cef_render_handler_t {
   ///
   // Base structure.
   ///
@@ -108,7 +108,6 @@ typedef struct _cef_render_handler_t
   ///
   void (CEF_CALLBACK *on_cursor_change)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, cef_cursor_handle_t cursor);
-
 } cef_render_handler_t;
 
 
@@ -116,4 +115,4 @@ typedef struct _cef_render_handler_t
 }
 #endif
 
-#endif // _CEF_RENDER_HANDLER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_thread.h"
+#include "libcef/cef_thread.h"
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
-    bool next)
-{
+    bool next) {
   if (CEF_MEMBER_MISSING(struct_, on_take_focus))
     return;
 
@@ -38,8 +37,7 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
-    FocusSource source)
-{
+    FocusSource source) {
   if (CEF_MEMBER_MISSING(struct_, on_set_focus))
     return false;
 
@@ -60,8 +58,7 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
 }
 
 void CefFocusHandlerCToCpp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node)
-{
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) {
   if (CEF_MEMBER_MISSING(struct_, on_focused_node_changed))
     return;
 

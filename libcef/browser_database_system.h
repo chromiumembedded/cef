@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_DATABASE_SYSTEM_H
-#define _BROWSER_DATABASE_SYSTEM_H
+#ifndef CEF_LIBCEF_BROWSER_DATABASE_SYSTEM_H_
+#define CEF_LIBCEF_BROWSER_DATABASE_SYSTEM_H_
+#pragma once
 
 #include "base/file_path.h"
 #include "base/hash_tables.h"
@@ -101,4 +102,4 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   static BrowserDatabaseSystem* instance_;
 };
 
-#endif  // _BROWSER_DATABASE_SYSTEM_H
+#endif  // CEF_LIBCEF_BROWSER_DATABASE_SYSTEM_H_

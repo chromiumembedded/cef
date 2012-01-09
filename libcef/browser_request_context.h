@@ -3,8 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_REQUEST_CONTEXT_H
-#define _BROWSER_REQUEST_CONTEXT_H
+#ifndef CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_
+#define CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_
+#pragma once
+
+#include <string>
 
 #include "net/http/http_cache.h"
 #include "net/http/url_security_manager.h"
@@ -57,5 +60,5 @@ class BrowserRequestContext : public net::URLRequestContext {
   bool accept_all_cookies_;
 };
 
-#endif  // _BROWSER_REQUEST_CONTEXT_H
+#endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_
 

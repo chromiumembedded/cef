@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _WEBVIEW_HOST_H
-#define _WEBVIEW_HOST_H
+#ifndef CEF_LIBCEF_WEBVIEW_HOST_H_
+#define CEF_LIBCEF_WEBVIEW_HOST_H_
+#pragma once
 
+#include "libcef/webwidget_host.h"
 #include "base/basictypes.h"
 #include "ui/gfx/native_widget_types.h"
-#include "webwidget_host.h"
 
 #if defined(TOOLKIT_USES_GTK)
 #include "webkit/plugins/npapi/gtk_plugin_container_manager.h"
@@ -52,13 +53,13 @@ class WebViewHost : public WebWidgetHost {
   virtual void KeyEvent(GdkEventKey* event);
 #elif defined(OS_MACOSX)
   void SetIsActive(bool active);
-  virtual void MouseEvent(NSEvent *);
-  virtual void KeyEvent(NSEvent *);
+  virtual void MouseEvent(NSEvent* event);
+  virtual void KeyEvent(NSEvent* event);
   virtual void SetFocus(bool enable);
 #endif
 
  protected:
-   WebViewHost(BrowserWebViewDelegate* delegate);
+  explicit WebViewHost(BrowserWebViewDelegate* delegate);
 
 #if defined(OS_WIN)
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
@@ -75,4 +76,4 @@ class WebViewHost : public WebWidgetHost {
   BrowserWebViewDelegate* delegate_;
 };
 
-#endif  // _WEBVIEW_HOST_H
+#endif  // CEF_LIBCEF_WEBVIEW_HOST_H_

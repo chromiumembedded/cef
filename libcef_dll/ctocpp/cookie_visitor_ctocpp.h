@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _COOKIEVISITOR_CTOCPP_H
-#define _COOKIEVISITOR_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
@@ -25,10 +26,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefCookieVisitorCToCpp
     : public CefCToCpp<CefCookieVisitorCToCpp, CefCookieVisitor,
-        cef_cookie_visitor_t>
-{
-public:
-  CefCookieVisitorCToCpp(cef_cookie_visitor_t* str)
+        cef_cookie_visitor_t> {
+ public:
+  explicit CefCookieVisitorCToCpp(cef_cookie_visitor_t* str)
       : CefCToCpp<CefCookieVisitorCToCpp, CefCookieVisitor,
           cef_cookie_visitor_t>(str) {}
   virtual ~CefCookieVisitorCToCpp() {}
@@ -38,6 +38,6 @@ public:
       bool& deleteCookie) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _COOKIEVISITOR_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
 

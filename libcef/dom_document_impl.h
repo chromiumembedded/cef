@@ -2,11 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _DOM_DOCUMENT_IMPL_H
-#define _DOM_DOCUMENT_IMPL_H
+#ifndef CEF_LIBCEF_DOM_DOCUMENT_IMPL_H_
+#define CEF_LIBCEF_DOM_DOCUMENT_IMPL_H_
+#pragma once
 
-#include "include/cef_dom.h"
 #include <map>
+#include "include/cef_dom.h"
 
 namespace WebKit {
 class WebFrame;
@@ -15,9 +16,8 @@ class WebNode;
 
 class CefBrowserImpl;
 
-class CefDOMDocumentImpl : public CefDOMDocument
-{
-public:
+class CefDOMDocumentImpl : public CefDOMDocument {
+ public:
   CefDOMDocumentImpl(CefBrowserImpl* browser,
                      WebKit::WebFrame* frame);
   virtual ~CefDOMDocumentImpl();
@@ -52,14 +52,14 @@ public:
   // Verify that the object exists and is being accessed on the UI thread.
   bool VerifyContext();
 
-protected:
+ protected:
   CefBrowserImpl* browser_;
   WebKit::WebFrame* frame_;
 
-  typedef std::map<WebKit::WebNode,CefDOMNode*> NodeMap;
+  typedef std::map<WebKit::WebNode, CefDOMNode*> NodeMap;
   NodeMap node_map_;
 
   IMPLEMENT_REFCOUNTING(CefDOMDocumentImpl);
 };
 
-#endif // _DOM_DOCUMENT_IMPL_H
+#endif  // CEF_LIBCEF_DOM_DOCUMENT_IMPL_H_

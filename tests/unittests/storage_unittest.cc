@@ -4,10 +4,10 @@
 
 #include "include/cef_storage.h"
 #include "include/cef_v8.h"
+#include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_suite.h"
 #include "base/scoped_temp_dir.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_handler.h"
-#include "test_suite.h"
 
 namespace {
 
@@ -20,21 +20,18 @@ static const char* kVal1 = "bar";
 static const char* kKey2 = "choo";
 static const char* kVal2 = "whatzit";
 
-class StorageTestHandler : public TestHandler
-{
-public:
-  class V8Handler : public CefV8Handler
-  {
+class StorageTestHandler : public TestHandler {
+ public:
+  class V8Handler : public CefV8Handler {
   public:
-    V8Handler(CefRefPtr<StorageTestHandler> tester)
+    explicit V8Handler(CefRefPtr<StorageTestHandler> tester)
       : tester_(tester) {}
 
     virtual bool Execute(const CefString& name,
                          CefRefPtr<CefV8Value> object,
                          const CefV8ValueList& arguments,
                          CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE
-    {
+                         CefString& exception) OVERRIDE {
       if (arguments.size() != 2)
         return false;
 
@@ -54,9 +51,8 @@ public:
     IMPLEMENT_REFCOUNTING(V8Handler);
   };
 
-  class StorageVisitor : public CefStorageVisitor
-  {
-  public:
+  class StorageVisitor : public CefStorageVisitor {
+   public:
     enum Mode {
       VisitKey,
       DeleteKey1,
@@ -69,18 +65,15 @@ public:
                    int expected_total)
       : tester_(tester), description_(description), mode_(mode),
         callback1_(callback1), callback2_(callback2),
-        expected_total_(expected_total), actual_total_(0)
-    {
+        expected_total_(expected_total), actual_total_(0) {
     }
-    virtual ~StorageVisitor()
-    {
+    virtual ~StorageVisitor() {
       EXPECT_EQ(expected_total_, actual_total_) << "test = "<< description_;
     }
 
     virtual bool Visit(CefStorageType type, const CefString& origin,
                       const CefString& key, const CefString& value, int count,
-                      int total, bool& deleteData) OVERRIDE
-    {
+                      int total, bool& deleteData) OVERRIDE {
       EXPECT_EQ(type, tester_->type_);
       std::string originStr = origin;
       EXPECT_EQ(originStr, kOrigin);
@@ -89,13 +82,13 @@ public:
       std::string valueStr = value;
       if (keyStr == kKey1 && valueStr == kVal1)
         callback1_->yes();
-      else if(keyStr == kKey2 && valueStr == kVal2)
+      else if (keyStr == kKey2 && valueStr == kVal2)
         callback2_->yes();
 
       EXPECT_EQ(expected_total_, total) << "test = "<< description_;
-      
-      if((mode_ == DeleteKey1 && keyStr == kKey1) ||
-         (mode_ == DeleteKey2 && keyStr == kKey2))
+
+      if ((mode_ == DeleteKey1 && keyStr == kKey1) ||
+          (mode_ == DeleteKey2 && keyStr == kKey2))
         deleteData = true;
 
       actual_total_++;
@@ -120,8 +113,7 @@ public:
       leave_keys_set_(leaveKeysSet),
       nav_(0) {}
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     // Verify the key status.
     CefVisitStorage(type_, kOrigin, "",
         new StorageVisitor(this, "startupvisit",
@@ -132,7 +124,8 @@ public:
 
     std::stringstream ss;
 
-    std::string func = (type_==ST_LOCALSTORAGE?"localStorage":"sessionStorage");
+    std::string func =
+        (type_ == ST_LOCALSTORAGE?"localStorage":"sessionStorage");
 
     // Values will be set vis JS on page load.
     ss << "<html><head><script language=\"JavaScript\">" <<
@@ -160,8 +153,7 @@ public:
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
+                         int httpStatusCode) OVERRIDE {
     if (nav_ == 0) {
       // Verify read all.
       CefVisitStorage(type_, "", "",
@@ -239,7 +231,7 @@ public:
                              StorageVisitor::VisitKey,
                              &got_cpp_afterdeleteall_fail_,
                              &got_cpp_afterdeleteall_fail_, 0));
-      
+
       // Reset all values.
       CefSetStorage(type_, kOrigin, kKey1, kVal1);
       CefSetStorage(type_, kOrigin, kKey2, kVal2);
@@ -326,8 +318,7 @@ public:
 
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
+                                CefRefPtr<CefV8Context> context) OVERRIDE {
     // Retrieve the 'window' object.
     CefRefPtr<CefV8Value> object = context->GetGlobal();
 
@@ -377,8 +368,7 @@ public:
   TrackCallback got_cpp_shutdownvisit_fail_;
 };
 
-void StorageTest(CefStorageType type, bool expectKeysSet, bool leaveKeysSet)
-{
+void StorageTest(CefStorageType type, bool expectKeysSet, bool leaveKeysSet) {
   CefRefPtr<StorageTestHandler> handler =
       new StorageTestHandler(type, expectKeysSet, leaveKeysSet);
   handler->ExecuteTest();
@@ -425,23 +415,20 @@ void StorageTest(CefStorageType type, bool expectKeysSet, bool leaveKeysSet)
     EXPECT_FALSE(handler->got_cpp_shutdownvisit_fail_);
 }
 
-} // namespace
+}  // namespace
 
 // Test localStorage.
-TEST(StorageTest, Local)
-{
+TEST(StorageTest, Local) {
   StorageTest(ST_LOCALSTORAGE, false, false);
 }
 
 // Test sessionStorage.
-TEST(StorageTest, Session)
-{
+TEST(StorageTest, Session) {
   StorageTest(ST_SESSIONSTORAGE, false, false);
 }
 
 // Test changing the localStorage directory.
-TEST(StorageTest, LocalChangeDirectory)
-{
+TEST(StorageTest, LocalChangeDirectory) {
   std::string cache_path;
   CefTestSuite::GetCachePath(cache_path);
 

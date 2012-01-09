@@ -2,10 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "cef_context.h"
-#include "browser_devtools_scheme_handler.h"
-#include "browser_impl.h"
-#include "browser_webkit_glue.h"
+#include "libcef/cef_context.h"
+#include "libcef/browser_devtools_scheme_handler.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_webkit_glue.h"
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -26,28 +26,26 @@ namespace {
 
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
-class DestructionObserver : public MessageLoop::DestructionObserver
-{
-public:
-  DestructionObserver(base::WaitableEvent *event) : event_(event) {}
+class DestructionObserver : public MessageLoop::DestructionObserver {
+ public:
+  explicit DestructionObserver(base::WaitableEvent *event) : event_(event) {}
   virtual void WillDestroyCurrentMessageLoop() {
     MessageLoop::current()->RemoveDestructionObserver(this);
     event_->Signal();
     delete this;
   }
-private:
+ private:
   base::WaitableEvent *event_;
 };
 
-} // anonymous
+}  // namespace
 
-bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application)
-{
+bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application) {
   // Return true if the global context already exists.
-  if(_Context.get())
+  if (_Context.get())
     return true;
 
-  if(settings.size != sizeof(cef_settings_t)) {
+  if (settings.size != sizeof(cef_settings_t)) {
     NOTREACHED() << "invalid CefSettings structure size";
     return false;
   }
@@ -59,8 +57,7 @@ bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application)
   return _Context->Initialize(settings, application);
 }
 
-void CefShutdown()
-{
+void CefShutdown() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -68,7 +65,7 @@ void CefShutdown()
   }
 
   // Must always be called on the same thread as Initialize.
-  if(!_Context->process()->CalledOnValidThread()) {
+  if (!_Context->process()->CalledOnValidThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -80,8 +77,7 @@ void CefShutdown()
   _Context = NULL;
 }
 
-void CefDoMessageLoopWork()
-{
+void CefDoMessageLoopWork() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -89,7 +85,7 @@ void CefDoMessageLoopWork()
   }
 
   // Must always be called on the same thread as Initialize.
-  if(!_Context->process()->CalledOnValidThread()) {
+  if (!_Context->process()->CalledOnValidThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -97,8 +93,7 @@ void CefDoMessageLoopWork()
   _Context->process()->DoMessageLoopIteration();
 }
 
-void CefRunMessageLoop()
-{
+void CefRunMessageLoop() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -106,7 +101,7 @@ void CefRunMessageLoop()
   }
 
   // Must always be called on the same thread as Initialize.
-  if(!_Context->process()->CalledOnValidThread()) {
+  if (!_Context->process()->CalledOnValidThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -114,8 +109,7 @@ void CefRunMessageLoop()
   _Context->process()->RunMessageLoop();
 }
 
-void CefQuitMessageLoop()
-{
+void CefQuitMessageLoop() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -123,7 +117,7 @@ void CefQuitMessageLoop()
   }
 
   // Must always be called on the same thread as Initialize.
-  if(!_Context->process()->CalledOnValidThread()) {
+  if (!_Context->process()->CalledOnValidThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -138,19 +132,16 @@ CefContext::CefContext()
   : initialized_(false),
     shutting_down_(false),
     next_browser_id_(kNextBrowserIdReset),
-    current_webviewhost_(NULL)
-{
+    current_webviewhost_(NULL) {
 }
 
-CefContext::~CefContext()
-{
-  if(!shutting_down_)
+CefContext::~CefContext() {
+  if (!shutting_down_)
     Shutdown();
 }
 
 bool CefContext::Initialize(const CefSettings& settings,
-                            CefRefPtr<CefApp> application)
-{
+                            CefRefPtr<CefApp> application) {
   settings_ = settings;
   application_ = application;
 
@@ -173,14 +164,13 @@ bool CefContext::Initialize(const CefSettings& settings,
   return true;
 }
 
-void CefContext::Shutdown()
-{
+void CefContext::Shutdown() {
   // Must always be called on the same thread as Initialize.
   DCHECK(process_->CalledOnValidThread());
-  
+
   shutting_down_ = true;
 
-  if(settings_.multi_threaded_message_loop) {
+  if (settings_.multi_threaded_message_loop) {
     // Events that will be used to signal when shutdown is complete. Start in
     // non-signaled mode so that the event will block.
     base::WaitableEvent browser_shutdown_event(false, false);
@@ -208,23 +198,21 @@ void CefContext::Shutdown()
   }
 }
 
-bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
-{
+bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser) {
   bool found = false;
-  
+
   AutoLock lock_scope(this);
-  
+
   // check that the browser isn't already in the list before adding
   BrowserList::const_iterator it = browserlist_.begin();
-  for(; it != browserlist_.end(); ++it) {
-    if(it->get() == browser.get()) {
+  for (; it != browserlist_.end(); ++it) {
+    if (it->get() == browser.get()) {
       found = true;
       break;
     }
   }
 
-  if(!found)
-  {
+  if (!found) {
     browser->UIT_SetUniqueID(next_browser_id_++);
     browserlist_.push_back(browser);
   }
@@ -232,8 +220,7 @@ bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser)
   return !found;
 }
 
-bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
-{
+bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
   bool deleted = false;
   bool empty = false;
 
@@ -241,8 +228,8 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
     AutoLock lock_scope(this);
 
     BrowserList::iterator it = browserlist_.begin();
-    for(; it != browserlist_.end(); ++it) {
-      if(it->get() == browser.get()) {
+    for (; it != browserlist_.end(); ++it) {
+      if (it->get() == browser.get()) {
         browserlist_.erase(it);
         deleted = true;
         break;
@@ -267,21 +254,19 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser)
   return deleted;
 }
 
-CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id)
-{
+CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
   AutoLock lock_scope(this);
 
   BrowserList::const_iterator it = browserlist_.begin();
-  for(; it != browserlist_.end(); ++it) {
-    if(it->get()->UIT_GetUniqueID() == id)
+  for (; it != browserlist_.end(); ++it) {
+    if (it->get()->UIT_GetUniqueID() == id)
       return it->get();
   }
 
   return NULL;
 }
 
-std::string CefContext::locale() const
-{
+std::string CefContext::locale() const {
   std::string localeStr = CefString(&settings_.locale);
   if (!localeStr.empty())
     return localeStr;
@@ -289,9 +274,9 @@ std::string CefContext::locale() const
   return "en-US";
 }
 
-void CefContext::UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
-                                   base::WaitableEvent* uithread_shutdown_event)
-{
+void CefContext::UIT_FinishShutdown(
+    base::WaitableEvent* browser_shutdown_event,
+    base::WaitableEvent* uithread_shutdown_event) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
   BrowserList list;
@@ -307,7 +292,7 @@ void CefContext::UIT_FinishShutdown(base::WaitableEvent* browser_shutdown_event,
   // Destroy any remaining browser windows.
   if (!list.empty()) {
     BrowserList::iterator it = list.begin();
-    for(; it != list.end(); ++it)
+    for (; it != list.end(); ++it)
       (*it)->UIT_DestroyBrowser();
   }
 

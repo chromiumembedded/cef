@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_COMMAND_LINE_H
-#define _CEF_COMMAND_LINE_H
+#ifndef CEF_INCLUDE_CEF_COMMAND_LINE_H_
+#define CEF_INCLUDE_CEF_COMMAND_LINE_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <map>
 #include <vector>
 
@@ -45,18 +46,17 @@
 // Class used to create and/or parse command line arguments. Arguments with
 // '--', '-' and, on Windows, '/' prefixes are considered switches. Switches
 // will always precede any arguments without switch prefixes. Switches can
-// optionally have a value specified using the '=' delimiter (e.g. 
+// optionally have a value specified using the '=' delimiter (e.g.
 // "-switch=value"). An argument of "--" will terminate switch parsing with all
 // subsequent tokens, regardless of prefix, being interpreted as non-switch
 // arguments. Switch names are considered case-insensitive. This class can be
 // used before CefInitialize() is called.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefCommandLine : public virtual CefBase
-{
-public:
+class CefCommandLine : public virtual CefBase {
+ public:
   typedef std::vector<CefString> ArgumentList;
-  typedef std::map<CefString,CefString> SwitchMap;
+  typedef std::map<CefString, CefString> SwitchMap;
 
   ///
   // Create a new CefCommandLine instance.
@@ -118,7 +118,7 @@ public:
   virtual CefString GetSwitchValue(const CefString& name) =0;
 
   ///
-  // Returns the map of switch names and values. If a switch has no value an 
+  // Returns the map of switch names and values. If a switch has no value an
   // empty string is returned.
   ///
   /*--cef()--*/
@@ -157,4 +157,4 @@ public:
   virtual void AppendArgument(const CefString& argument) =0;
 };
 
-#endif // _CEF_COMMAND_LINE_H
+#endif  // CEF_INCLUDE_CEF_COMMAND_LINE_H_

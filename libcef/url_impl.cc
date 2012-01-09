@@ -2,14 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_url.h"
-
-#include "googleurl/src/gurl.h"
 #include <sstream>
+#include "include/cef_url.h"
+#include "googleurl/src/gurl.h"
 
 bool CefParseURL(const CefString& url,
-                 CefURLParts& parts)
-{
+                 CefURLParts& parts) {
   GURL gurl(url.ToString());
   if (!gurl.is_valid())
     return false;
@@ -27,8 +25,7 @@ bool CefParseURL(const CefString& url,
 }
 
 bool CefCreateURL(const CefURLParts& parts,
-                  CefString& url)
-{
+                  CefString& url) {
   std::string spec = CefString(parts.spec.str, parts.spec.length, false);
   std::string scheme = CefString(parts.scheme.str, parts.scheme.length, false);
   std::string username =

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK v8exception_get_message(
-    struct _cef_v8exception_t* self)
-{
+    struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -32,8 +31,7 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_message(
 }
 
 cef_string_userfree_t CEF_CALLBACK v8exception_get_source_line(
-    struct _cef_v8exception_t* self)
-{
+    struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,8 +46,7 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_source_line(
 }
 
 cef_string_userfree_t CEF_CALLBACK v8exception_get_script_resource_name(
-    struct _cef_v8exception_t* self)
-{
+    struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,8 +60,7 @@ cef_string_userfree_t CEF_CALLBACK v8exception_get_script_resource_name(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self)
-{
+int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -78,8 +74,8 @@ int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8exception_get_start_position(struct _cef_v8exception_t* self)
-{
+int CEF_CALLBACK v8exception_get_start_position(
+    struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -93,8 +89,7 @@ int CEF_CALLBACK v8exception_get_start_position(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self)
-{
+int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -108,8 +103,7 @@ int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self)
-{
+int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,8 +117,7 @@ int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self)
-{
+int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,8 +135,7 @@ int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self)
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ExceptionCppToC::CefV8ExceptionCppToC(CefV8Exception* cls)
-    : CefCppToC<CefV8ExceptionCppToC, CefV8Exception, cef_v8exception_t>(cls)
-{
+    : CefCppToC<CefV8ExceptionCppToC, CefV8Exception, cef_v8exception_t>(cls) {
   struct_.struct_.get_message = v8exception_get_message;
   struct_.struct_.get_source_line = v8exception_get_source_line;
   struct_.struct_.get_script_resource_name =

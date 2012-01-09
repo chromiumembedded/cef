@@ -2,13 +2,14 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "external_protocol_handler.h"
+#include "libcef/external_protocol_handler.h"
+
+#include <windows.h>
+#include <shellapi.h>
 
 #include "base/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "googleurl/src/gurl.h"
-
-#include <shellapi.h>
 
 namespace ExternalProtocolHandler {
 
@@ -44,9 +45,9 @@ bool HandleExternalProtocol(const GURL& gurl) {
   if (address.length() > kMaxAddressLengthChars)
     return false;
 
-  ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);   
+  ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);
 
   return true;
 }
 
-} // namespace ExternalProtocolHandler
+}  // namespace ExternalProtocolHandler

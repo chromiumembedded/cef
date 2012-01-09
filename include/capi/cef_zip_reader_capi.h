@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_ZIP_READER_CAPI_H
-#define _CEF_ZIP_READER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -49,8 +50,7 @@ extern "C" {
 // The functions of this structure should only be called on the thread that
 // creates the object.
 ///
-typedef struct _cef_zip_reader_t
-{
+typedef struct _cef_zip_reader_t {
   ///
   // Base structure.
   ///
@@ -95,7 +95,7 @@ typedef struct _cef_zip_reader_t
   ///
   // Returns the uncompressed size of the file.
   ///
-  long (CEF_CALLBACK *get_file_size)(struct _cef_zip_reader_t* self);
+  int64 (CEF_CALLBACK *get_file_size)(struct _cef_zip_reader_t* self);
 
   ///
   // Returns the last modified timestamp for the file.
@@ -124,13 +124,12 @@ typedef struct _cef_zip_reader_t
   ///
   // Returns the current offset in the uncompressed file contents.
   ///
-  long (CEF_CALLBACK *tell)(struct _cef_zip_reader_t* self);
+  int64 (CEF_CALLBACK *tell)(struct _cef_zip_reader_t* self);
 
   ///
   // Returns true (1) if at end of the file contents.
   ///
   int (CEF_CALLBACK *eof)(struct _cef_zip_reader_t* self);
-
 } cef_zip_reader_t;
 
 
@@ -146,4 +145,4 @@ CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
 }
 #endif
 
-#endif // _CEF_ZIP_READER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_

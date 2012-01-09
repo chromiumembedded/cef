@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
@@ -39,3 +39,19 @@ def get_revision(path = '.'):
   if info['revision'] == 'None':
     raise Exception('Unable to retrieve SVN revision for "'+path+'"')
   return info['revision']
+
+def get_changed_files(path = '.'):
+  """ Retrieves the list of changed files from svn status. """
+  files = []
+  if os.path.exists(path):
+    try:
+      stream = os.popen('svn status '+path)
+      for line in stream:
+        status = line[0]
+        # Return paths with add, modify and switch status.
+        if status == 'A' or status == 'M' or status == 'S':
+          files.append(line[8:].strip())
+    except IOError, (errno, strerror):
+      sys.stderr.write('Failed to read svn status: '+strerror+"\n")
+      raise
+  return files

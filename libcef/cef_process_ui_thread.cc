@@ -3,11 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_process_ui_thread.h"
-#include "browser_webkit_glue.h"
-#include "browser_webkit_init.h"
-#include "cef_context.h"
+#include "libcef/cef_process_ui_thread.h"
 #include "include/cef_version.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/browser_webkit_init.h"
+#include "libcef/cef_context.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -28,8 +28,8 @@
 #include "webkit/plugins/npapi/plugin_list.h"
 
 #if defined(OS_WIN)
-#include <commctrl.h>
-#include <Objbase.h>
+#include <commctrl.h>  // NOLINT(build/include_order)
+#include <Objbase.h>  // NOLINT(build/include_order)
 #endif
 
 static const char* kStatsFilePrefix = "libcef_";
@@ -75,7 +75,7 @@ void CefProcessUIThread::Init() {
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();
-  if(!ret) {
+  if (!ret) {
 #if defined(OS_WIN)
     MessageBox(NULL, L"Failed to load the required icudt library",
       L"CEF Initialization Error", MB_ICONERROR | MB_OK);
@@ -131,8 +131,10 @@ void CefProcessUIThread::Init() {
   // Set storage quota limits.
   if (settings.local_storage_quota != 0)
     DOMStorageContext::set_local_storage_quota(settings.local_storage_quota);
-  if (settings.session_storage_quota != 0)
-    DOMStorageContext::set_session_storage_quota(settings.session_storage_quota);
+  if (settings.session_storage_quota != 0) {
+    DOMStorageContext::set_session_storage_quota(
+        settings.session_storage_quota);
+  }
 
   // Create the storage context object.
   _Context->set_storage_context(new DOMStorageContext(_Context->cache_path()));
@@ -153,14 +155,14 @@ void CefProcessUIThread::Init() {
     webkit_glue::SetUserAgent(
         webkit_glue::BuildUserAgentFromProduct(product_version), false);
   }
-  
+
   if (settings.extra_plugin_paths) {
     cef_string_t str;
     memset(&str, 0, sizeof(str));
 
     FilePath path;
     int size = cef_string_list_size(settings.extra_plugin_paths);
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
       if (!cef_string_list_value(settings.extra_plugin_paths, i, &str))
         continue;
       path = FilePath(CefString(&str));

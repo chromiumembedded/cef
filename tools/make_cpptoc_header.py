@@ -10,25 +10,26 @@ def make_cpptoc_header(header, clsname):
         raise Exception('Class does not exist: '+clsname)
     
     dllside = cls.is_library_side()
-    defname = string.upper(clsname[3:])
+    defname = string.upper(get_capi_name(clsname[3:], False))
     capiname = cls.get_capi_name()
     
     result = get_copyright()
 
-    result += '#ifndef _'+defname+'_CPPTOC_H\n'+ \
-              '#define _'+defname+'_CPPTOC_H\n'
+    result += '#ifndef CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n'+ \
+              '#define CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n' + \
+              '#pragma once\n'
     
     if dllside:
         result += """
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 """
     else:
         result += """
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 """
 
     # include the headers for this class
@@ -54,19 +55,18 @@ def make_cpptoc_header(header, clsname):
         result += '// This class may be instantiated and accessed wrapper-side only.\n'
     
     result +=  'class '+clsname+'CppToC\n'+ \
-               '    : public CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>\n'+ \
-               '{\n'+ \
-               'public:\n'+ \
-               '  '+clsname+'CppToC('+clsname+'* cls);\n'+ \
+               '    : public CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
+               ' public:\n'+ \
+               '  explicit '+clsname+'CppToC('+clsname+'* cls);\n'+ \
                '  virtual ~'+clsname+'CppToC() {}\n'+ \
                '};\n\n'
     
     if dllside:
-        result += '#endif // BUILDING_CEF_SHARED\n'
+        result += '#endif  // BUILDING_CEF_SHARED\n'
     else:
-        result += '#endif // USING_CEF_SHARED\n'
+        result += '#endif  // USING_CEF_SHARED\n'
     
-    result += '#endif // _'+defname+'_CPPTOC_H\n'
+    result += '#endif  // CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n'
     
     return wrap_code(result)
 

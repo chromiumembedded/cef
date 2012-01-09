@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _TASK_CTOCPP_H
-#define _TASK_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
@@ -24,10 +25,9 @@
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefTaskCToCpp
-    : public CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>
-{
-public:
-  CefTaskCToCpp(cef_task_t* str)
+    : public CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t> {
+ public:
+  explicit CefTaskCToCpp(cef_task_t* str)
       : CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>(str) {}
   virtual ~CefTaskCToCpp() {}
 
@@ -35,6 +35,6 @@ public:
   virtual void Execute(CefThreadId threadId) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _TASK_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
 

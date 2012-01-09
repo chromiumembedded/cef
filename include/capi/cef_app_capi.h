@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_APP_CAPI_H
-#define _CEF_APP_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -89,8 +90,7 @@ CEF_EXPORT void cef_quit_message_loop();
 ///
 // Implement this structure to provide handler implementations.
 ///
-typedef struct _cef_app_t
-{
+typedef struct _cef_app_t {
   ///
   // Base structure.
   ///
@@ -102,7 +102,6 @@ typedef struct _cef_app_t
   ///
   struct _cef_proxy_handler_t* (CEF_CALLBACK *get_proxy_handler)(
       struct _cef_app_t* self);
-
 } cef_app_t;
 
 
@@ -110,4 +109,4 @@ typedef struct _cef_app_t
 }
 #endif
 
-#endif // _CEF_APP_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_

@@ -10,30 +10,43 @@ def make_ctocpp_header(header, clsname):
         raise Exception('Class does not exist: '+clsname)
     
     clientside = cls.is_client_side()
-    defname = string.upper(clsname[3:])
+    defname = string.upper(get_capi_name(clsname[3:], False))
     capiname = cls.get_capi_name()
     
     result = get_copyright()
 
-    result += '#ifndef _'+defname+'_CTOCPP_H\n'+ \
-              '#define _'+defname+'_CTOCPP_H\n'
+    result += '#ifndef CEF_LIBCEF_DLL_CTOCPP_'+defname+'_CTOCPP_H_\n'+ \
+              '#define CEF_LIBCEF_DLL_CTOCPP_'+defname+'_CTOCPP_H_\n' + \
+              '#pragma once\n'
     
     if clientside:
         result += """
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 """
     else:
         result += """
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 """
 
+    # build the function body
+    func_body = ''
+    funcs = cls.get_virtual_funcs()
+    for func in funcs:
+        func_body += '  virtual '+func.get_cpp_proto()+' OVERRIDE;\n'
+    
+    # include standard headers
+    if func_body.find('std::map') > 0 or func_body.find('std::multimap') > 0:
+        result += '\n#include <map>'
+    if func_body.find('std::vector') > 0:
+        result += '\n#include <vector>'
+
     # include the headers for this class
-    result += '\n#include "include/'+cls.get_file_name()+'"\n' \
-              '#include "include/capi/'+cls.get_capi_file_name()+'"\n'
+    result += '\n#include "include/'+cls.get_file_name()+'"'+ \
+              '\n#include "include/capi/'+cls.get_capi_file_name()+'"\n'
 
     # include headers for any forward declared classes that are not in the same file
     declares = cls.get_forward_declares()
@@ -54,26 +67,22 @@ def make_ctocpp_header(header, clsname):
         result += '// This class may be instantiated and accessed wrapper-side only.\n'
     
     result +=   'class '+clsname+'CToCpp\n'+ \
-                '    : public CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>\n'+ \
-                '{\n'+ \
-                'public:\n'+ \
-                '  '+clsname+'CToCpp('+capiname+'* str)\n'+ \
+                '    : public CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
+                ' public:\n'+ \
+                '  explicit '+clsname+'CToCpp('+capiname+'* str)\n'+ \
                 '      : CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>(str) {}\n'+ \
                 '  virtual ~'+clsname+'CToCpp() {}\n\n'+ \
                 '  // '+clsname+' methods\n';
     
-    funcs = cls.get_virtual_funcs()
-    for func in funcs:
-        result += '  virtual '+func.get_cpp_proto()+' OVERRIDE;\n'
-                
+    result +=   func_body
     result +=   '};\n\n'
     
     if clientside:
-        result += '#endif // BUILDING_CEF_SHARED\n'
+        result += '#endif  // BUILDING_CEF_SHARED\n'
     else:
-        result += '#endif // USING_CEF_SHARED\n'
+        result += '#endif  // USING_CEF_SHARED\n'
     
-    result += '#endif // _'+defname+'_CTOCPP_H\n'
+    result += '#endif  // CEF_LIBCEF_DLL_CTOCPP_'+defname+'_CTOCPP_H_\n'
     
     return wrap_code(result)
 

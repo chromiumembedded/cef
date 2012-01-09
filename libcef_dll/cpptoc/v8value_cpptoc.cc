@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -21,8 +21,7 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined()
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -32,8 +31,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined()
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_null()
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_null() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -43,8 +41,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_null()
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value)
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -55,8 +52,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value)
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -67,8 +63,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -79,8 +74,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date)
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: date; type: simple_byref_const
@@ -99,8 +93,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date)
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: value
@@ -114,8 +107,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value)
 }
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
-    cef_base_t* user_data, cef_v8accessor_t* accessor)
-{
+    cef_base_t* user_data, cef_v8accessor_t* accessor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: user_data, accessor
@@ -129,8 +121,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_array()
-{
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -141,8 +132,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array()
 }
 
 CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
-    cef_v8handler_t* handler)
-{
+    cef_v8handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
@@ -166,8 +156,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,8 +170,7 @@ int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_null(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_null(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -196,8 +184,7 @@ int CEF_CALLBACK v8value_is_null(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_bool(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_bool(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -211,8 +198,7 @@ int CEF_CALLBACK v8value_is_bool(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -226,8 +212,7 @@ int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -241,8 +226,7 @@ int CEF_CALLBACK v8value_is_double(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -256,8 +240,7 @@ int CEF_CALLBACK v8value_is_date(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -271,8 +254,7 @@ int CEF_CALLBACK v8value_is_string(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_object(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_object(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -286,8 +268,7 @@ int CEF_CALLBACK v8value_is_object(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -301,8 +282,7 @@ int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -317,8 +297,7 @@ int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self)
 }
 
 int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
-    struct _cef_v8value_t* that)
-{
+    struct _cef_v8value_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -337,8 +316,7 @@ int CEF_CALLBACK v8value_is_same(struct _cef_v8value_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -352,8 +330,7 @@ int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -367,8 +344,7 @@ int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self)
   return _retval;
 }
 
-double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
-{
+double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -382,8 +358,7 @@ double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self)
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self)
-{
+cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -398,8 +373,7 @@ cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
-    struct _cef_v8value_t* self)
-{
+    struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -414,8 +388,7 @@ cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
 }
 
 int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
-    const cef_string_t* key)
-{
+    const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -435,15 +408,14 @@ int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
-    int index)
-{
+    int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return 0;
 
@@ -456,8 +428,7 @@ int CEF_CALLBACK v8value_has_value_byindex(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
-    const cef_string_t* key)
-{
+    const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -477,15 +448,14 @@ int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
-    int index)
-{
+    int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return 0;
 
@@ -498,8 +468,7 @@ int CEF_CALLBACK v8value_delete_value_byindex(struct _cef_v8value_t* self,
 }
 
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
-    struct _cef_v8value_t* self, const cef_string_t* key)
-{
+    struct _cef_v8value_t* self, const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -519,15 +488,14 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
 }
 
 struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
-    struct _cef_v8value_t* self, int index)
-{
+    struct _cef_v8value_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return NULL;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return NULL;
 
@@ -541,8 +509,7 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
 
 int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key, struct _cef_v8value_t* value,
-    enum cef_v8_propertyattribute_t attribute)
-{
+    enum cef_v8_propertyattribute_t attribute) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -568,15 +535,14 @@ int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
-    int index, struct _cef_v8value_t* value)
-{
+    int index, struct _cef_v8value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
   // Verify param: index; type: simple_byval
-  DCHECK(index >= 0);
+  DCHECK_GE(index, 0);
   if (index < 0)
     return 0;
   // Verify param: value; type: refptr_same
@@ -595,8 +561,7 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
 
 int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
     const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
-    enum cef_v8_propertyattribute_t attribute)
-{
+    enum cef_v8_propertyattribute_t attribute) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -618,8 +583,7 @@ int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
-    cef_string_list_t keys)
-{
+    cef_string_list_t keys) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -646,8 +610,7 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
   return _retval;
 }
 
-cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self)
-{
+cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -661,8 +624,7 @@ cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self)
   return CefBaseCToCpp::Unwrap(_retval);
 }
 
-int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self)
-{
+int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -677,8 +639,7 @@ int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK v8value_get_function_name(
-    struct _cef_v8value_t* self)
-{
+    struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -693,8 +654,7 @@ cef_string_userfree_t CEF_CALLBACK v8value_get_function_name(
 }
 
 cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
-    struct _cef_v8value_t* self)
-{
+    struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -712,8 +672,7 @@ cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
 int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
     struct _cef_v8value_t* object, size_t argumentsCount,
     struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-    cef_v8exception_t** exception, int rethrow_exception)
-{
+    cef_v8exception_t** exception, int rethrow_exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -788,8 +747,7 @@ int CEF_CALLBACK v8value_execute_function_with_context(
     struct _cef_v8value_t* self, cef_v8context_t* context,
     struct _cef_v8value_t* object, size_t argumentsCount,
     struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-    cef_v8exception_t** exception, int rethrow_exception)
-{
+    cef_v8exception_t** exception, int rethrow_exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -869,8 +827,7 @@ int CEF_CALLBACK v8value_execute_function_with_context(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
-    : CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>(cls)
-{
+    : CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>(cls) {
   struct_.struct_.is_undefined = v8value_is_undefined;
   struct_.struct_.is_null = v8value_is_null;
   struct_.struct_.is_bool = v8value_is_bool;

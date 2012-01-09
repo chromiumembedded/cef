@@ -34,18 +34,18 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_PROXY_HANDLER_H
-#define _CEF_PROXY_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_PROXY_HANDLER_H_
+#define CEF_INCLUDE_CEF_PROXY_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 ///
 // Implement this interface to handle proxy resolution events.
 ///
 /*--cef(source=client)--*/
-class CefProxyHandler : public virtual CefBase
-{
-public:
+class CefProxyHandler : public virtual CefBase {
+ public:
   ///
   // Called to retrieve proxy information for the specified |url|.
   ///
@@ -54,4 +54,4 @@ public:
                               CefProxyInfo& proxy_info) {}
 };
 
-#endif // _CEF_PROXY_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_PROXY_HANDLER_H_

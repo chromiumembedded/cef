@@ -2,16 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "osrplugin_test.h"
+#include "cefclient/osrplugin_test.h"
+#include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "osrplugin.h"
-#include "cefclient.h"
-#include "client_handler.h"
-#include "plugin_test.h"
+#include "cefclient/osrplugin.h"
+#include "cefclient/cefclient.h"
+#include "cefclient/client_handler.h"
+#include "cefclient/plugin_test.h"
 
-void InitOSRPluginTest()
-{
+void InitOSRPluginTest() {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
   CefString(&plugin_info.display_name).FromASCII("Client OSR Plugin");
@@ -28,27 +28,24 @@ void InitOSRPluginTest()
   CefRegisterPlugin(plugin_info);
 }
 
-void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
-{
-  class Listener : public CefDOMEventListener
-  {
-  public:
+void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent) {
+  class Listener : public CefDOMEventListener {
+   public:
     Listener() {}
-    virtual void HandleEvent(CefRefPtr<CefDOMEvent> event)
-    {
+    virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) {
       CefRefPtr<CefBrowser> browser = GetOffScreenBrowser();
-      
+
       CefRefPtr<CefDOMNode> element = event->GetTarget();
       ASSERT(element.get());
       std::string elementId = element->GetElementAttribute("id");
 
       if (elementId == "back") {
         browser->GoBack();
-      } else if(elementId == "forward") {
+      } else if (elementId == "forward") {
         browser->GoForward();
-      } else if(elementId == "stop") {
+      } else if (elementId == "stop") {
         browser->Reload();
-      } else if(elementId == "reload") {
+      } else if (elementId == "reload") {
         browser->StopLoad();
       } else if (elementId == "go") {
         // Retrieve the value of the "url" field and load it in the off-screen
@@ -60,15 +57,15 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
         CefString value = url->GetValue();
         if (!value.empty())
           browser->GetMainFrame()->LoadURL(value);
-      } else if(elementId == "testTransparency") {
+      } else if (elementId == "testTransparency") {
         // Transparency test.
         browser->GetMainFrame()->LoadURL(
             "http://tests/transparency");
-      } else if(elementId == "testWindowlessPlugin") {
+      } else if (elementId == "testWindowlessPlugin") {
         // Load flash, which is a windowless plugin.
         browser->GetMainFrame()->LoadURL(
             "http://www.adobe.com/software/flash/about/");
-      } else if(elementId == "viewSource") {
+      } else if (elementId == "viewSource") {
         // View the page source for the host browser window.
         AppGetBrowser()->GetMainFrame()->ViewSource();
       } else {
@@ -80,24 +77,21 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
     IMPLEMENT_REFCOUNTING(Listener);
   };
 
-  class Visitor : public CefDOMVisitor
-  {
-  public:
+  class Visitor : public CefDOMVisitor {
+   public:
     Visitor() {}
 
     void RegisterClickListener(CefRefPtr<CefDOMDocument> document,
                                CefRefPtr<CefDOMEventListener> listener,
-                               const std::string& elementId)
-    {
+                               const std::string& elementId) {
       CefRefPtr<CefDOMNode> element = document->GetElementById(elementId);
       ASSERT(element.get());
       element->AddEventListener("click", listener, false);
     }
 
-    virtual void Visit(CefRefPtr<CefDOMDocument> document)
-    {
+    virtual void Visit(CefRefPtr<CefDOMDocument> document) {
       CefRefPtr<CefDOMEventListener> listener(new Listener());
-      
+
       // Register click listeners for the various HTML elements.
       RegisterClickListener(document, listener, "back");
       RegisterClickListener(document, listener, "forward");

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 
 void CEF_CALLBACK display_handler_on_nav_state_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser, int canGoBack,
-    int canGoForward)
-{
+    int canGoForward) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,8 +39,7 @@ void CEF_CALLBACK display_handler_on_nav_state_change(
 
 void CEF_CALLBACK display_handler_on_address_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    struct _cef_frame_t* frame, const cef_string_t* url)
-{
+    struct _cef_frame_t* frame, const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,8 +67,7 @@ void CEF_CALLBACK display_handler_on_address_change(
 
 void CEF_CALLBACK display_handler_on_contents_size_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    struct _cef_frame_t* frame, int width, int height)
-{
+    struct _cef_frame_t* frame, int width, int height) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -95,8 +92,7 @@ void CEF_CALLBACK display_handler_on_contents_size_change(
 
 void CEF_CALLBACK display_handler_on_title_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* title)
-{
+    const cef_string_t* title) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +111,7 @@ void CEF_CALLBACK display_handler_on_title_change(
 }
 
 int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
-    cef_browser_t* browser, cef_string_t* text)
-{
+    cef_browser_t* browser, cef_string_t* text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,8 +137,7 @@ int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
 
 void CEF_CALLBACK display_handler_on_status_message(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* value, enum cef_handler_statustype_t type)
-{
+    const cef_string_t* value, enum cef_handler_statustype_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -164,8 +158,7 @@ void CEF_CALLBACK display_handler_on_status_message(
 
 int CEF_CALLBACK display_handler_on_console_message(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* message, const cef_string_t* source, int line)
-{
+    const cef_string_t* message, const cef_string_t* source, int line) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -193,8 +186,7 @@ int CEF_CALLBACK display_handler_on_console_message(
 
 CefDisplayHandlerCppToC::CefDisplayHandlerCppToC(CefDisplayHandler* cls)
     : CefCppToC<CefDisplayHandlerCppToC, CefDisplayHandler,
-        cef_display_handler_t>(cls)
-{
+        cef_display_handler_t>(cls) {
   struct_.struct_.on_nav_state_change = display_handler_on_nav_state_change;
   struct_.struct_.on_address_change = display_handler_on_address_change;
   struct_.struct_.on_contents_size_change =

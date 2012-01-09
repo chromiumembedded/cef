@@ -28,45 +28,39 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_LINUX_H
-#define _CEF_LINUX_H
+#ifndef CEF_INCLUDE_INTERNAL_CEF_LINUX_H_
+#define CEF_INCLUDE_INTERNAL_CEF_LINUX_H_
+#pragma once
 
 #if defined(OS_LINUX)
 #include <pthread.h>
-#include "cef_types_linux.h"
-#include "cef_types_wrappers.h"
+#include "include/internal/cef_types_linux.h"
+#include "include/internal/cef_types_wrappers.h"
 
 // Atomic increment and decrement.
-inline long CefAtomicIncrement(long volatile *pDest)
-{
+inline long CefAtomicIncrement(long volatile *pDest) {  // NOLINT(runtime/int)
   return __sync_add_and_fetch(pDest, 1);
 }
-inline long CefAtomicDecrement(long volatile *pDest)
-{
+inline long CefAtomicDecrement(long volatile *pDest) {  // NOLINT(runtime/int)
   return __sync_sub_and_fetch(pDest, 1);
 }
 
 // Critical section wrapper.
-class CefCriticalSection
-{
-public:
-  CefCriticalSection()
-  {
+class CefCriticalSection {
+ public:
+  CefCriticalSection() {
     pthread_mutexattr_init(&attr_);
     pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&lock_, &attr_);
   }
-  virtual ~CefCriticalSection()
-  {
+  virtual ~CefCriticalSection() {
     pthread_mutex_destroy(&lock_);
     pthread_mutexattr_destroy(&attr_);
   }
-  void Lock()
-  {
+  void Lock() {
     pthread_mutex_lock(&lock_);
   }
-  void Unlock()
-  {
+  void Unlock() {
     pthread_mutex_unlock(&lock_);
   }
 
@@ -84,25 +78,23 @@ struct CefWindowInfoTraits {
   static inline void init(struct_type* s) {}
   static inline void clear(struct_type* s) {}
 
-  static inline void set(const struct_type* src, struct_type* target, bool copy)
-  {
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
     target->m_Widget = src->m_Widget;
     target->m_ParentWidget = src->m_ParentWidget;
   }
 };
 
 // Class representing window information.
-class CefWindowInfo : public CefStructBase<CefWindowInfoTraits>
-{
-public:
+class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
+ public:
   typedef CefStructBase<CefWindowInfoTraits> parent;
 
   CefWindowInfo() : parent() {}
-  CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
-  CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
-  
-  void SetAsChild(CefWindowHandle ParentWidget)
-  {
+  explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
+  explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
+
+  void SetAsChild(CefWindowHandle ParentWidget) {
     m_ParentWidget = ParentWidget;
   }
 };
@@ -113,8 +105,8 @@ struct CefPrintInfoTraits {
   static inline void init(struct_type* s) {}
   static inline void clear(struct_type* s) {}
 
-  static inline void set(const struct_type* src, struct_type* target, bool copy)
-  {
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
     target->m_Scale = src->m_Scale;
   }
 };
@@ -122,6 +114,6 @@ struct CefPrintInfoTraits {
 // Class representing print context information.
 typedef CefStructBase<CefPrintInfoTraits> CefPrintInfo;
 
-#endif // OS_LINUX
+#endif  // OS_LINUX
 
-#endif // _CEF_LINUX_H
+#endif  // CEF_INCLUDE_INTERNAL_CEF_LINUX_H_

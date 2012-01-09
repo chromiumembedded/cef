@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEFCLIENT_BINDING_TEST_H
-#define _CEFCLIENT_BINDING_TEST_H
+#ifndef CEF_TESTS_CEFCLIENT_BINDING_TEST_H_
+#define CEF_TESTS_CEFCLIENT_BINDING_TEST_H_
+#pragma once
 
 #include "include/cef_base.h"
 
@@ -19,4 +20,4 @@ void InitBindingTest(CefRefPtr<CefBrowser> browser,
 // Run the test.
 void RunBindingTest(CefRefPtr<CefBrowser> browser);
 
-#endif // _CEFCLIENT_BINDING_TEST_H
+#endif  // CEF_TESTS_CEFCLIENT_BINDING_TEST_H_

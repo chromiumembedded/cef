@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "download_util.h"
+#include "libcef/download_util.h"
 
 #include "base/file_path.h"
 #include "base/string16.h"
@@ -24,26 +24,26 @@ namespace {
 // From chrome/browser/download/download_util.cc
 bool IsShellIntegratedExtension(const string16& extension) {
   string16 extension_lower = StringToLowerASCII(extension);
-  
+
   static const wchar_t* const integrated_extensions[] = {
     // See <http://msdn.microsoft.com/en-us/library/ms811694.aspx>.
     L"local",
     // Right-clicking on shortcuts can be magical.
     L"lnk",
   };
-  
+
   for (int i = 0; i < arraysize(integrated_extensions); ++i) {
     if (extension_lower == integrated_extensions[i])
       return true;
   }
-  
+
   // See <http://www.juniper.net/security/auto/vulnerabilities/vuln2612.html>.
   // That vulnerability report is not exactly on point, but files become magical
   // if their end in a CLSID.  Here we block extensions that look like CLSIDs.
   if (extension_lower.size() > 0 && extension_lower.at(0) == L'{' &&
       extension_lower.at(extension_lower.length() - 1) == L'}')
     return true;
-  
+
   return false;
 }
 
@@ -62,7 +62,7 @@ bool IsReservedName(const string16& filename) {
     L"lpt5", L"lpt6", L"lpt7", L"lpt8", L"lpt9", L"clock$"
   };
   string16 filename_lower = StringToLowerASCII(filename);
-  
+
   for (int i = 0; i < arraysize(known_devices); ++i) {
     // Exact match.
     if (filename_lower == known_devices[i])
@@ -71,18 +71,18 @@ bool IsReservedName(const string16& filename) {
     if (filename_lower.find(string16(known_devices[i]) + L".") == 0)
       return true;
   }
-  
+
   static const wchar_t* const magic_names[] = {
     // These file names are used by the "Customize folder" feature of the shell.
     L"desktop.ini",
     L"thumbs.db",
   };
-  
+
   for (int i = 0; i < arraysize(magic_names); ++i) {
     if (filename_lower == magic_names[i])
       return true;
   }
-  
+
   return false;
 }
 #endif  // OS_WIN
@@ -100,21 +100,21 @@ void GenerateExtension(const FilePath& file_name,
   // 2) Shell integration.  Some file extensions automatically integrate with
   //    the shell.  We block these extensions to prevent a malicious web site
   //    from integrating with the user's shell.
-  
+
   // See if our file name already contains an extension.
   FilePath::StringType extension = file_name.Extension();
   if (!extension.empty())
     extension.erase(extension.begin());  // Erase preceding '.'.
-  
+
 #if defined(OS_WIN)
   static const FilePath::CharType default_extension[] =
   FILE_PATH_LITERAL("download");
-  
+
   // Rename shell-integrated extensions.
   if (IsShellIntegratedExtension(extension))
     extension.assign(default_extension);
 #endif
-  
+
   if (extension.empty()) {
     // The GetPreferredExtensionForMimeType call will end up going to disk.  Do
     // this on another thread to avoid slowing the IO thread.
@@ -122,7 +122,7 @@ void GenerateExtension(const FilePath& file_name,
     base::ThreadRestrictions::ScopedAllowIO allow_io;
     net::GetPreferredExtensionForMimeType(mime_type, &extension);
   }
-  
+
   generated_extension->swap(extension);
 }
 
@@ -135,7 +135,7 @@ void GenerateSafeFileName(const std::string& mime_type, FilePath* file_name) {
   FilePath::StringType extension;
   GenerateExtension(*file_name, mime_type, &extension);
   *file_name = file_name->ReplaceExtension(extension);
-  
+
 #if defined(OS_WIN)
   // Prepend "_" to the file name if it's a reserved name
   FilePath::StringType leaf_name = file_name->BaseName().value();
@@ -151,8 +151,8 @@ void GenerateSafeFileName(const std::string& mime_type, FilePath* file_name) {
   }
 #endif
 }
-  
-} // namespace
+
+}  // namespace
 
 namespace download_util {
 
@@ -170,7 +170,7 @@ void GenerateFileName(const GURL& url,
                                                 suggested_name,
                                                 mime_type,
                                                 "download");
-  
+
   // TODO(evan): this code is totally wrong -- we should just generate
   // Unicode filenames and do all this encoding switching at the end.
   // However, I'm just shuffling wrong code around, at least not adding
@@ -180,10 +180,10 @@ void GenerateFileName(const GURL& url,
 #else
   *generated_name = FilePath(base::SysWideToNativeMB(UTF16ToWide(new_name)));
 #endif
-  
+
   DCHECK(!generated_name->empty());
-  
+
   GenerateSafeFileName(mime_type, generated_name);
 }
 
-} // namespace download_util
+}  // namespace download_util

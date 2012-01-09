@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _WEBURLREQUESTCLIENT_CPPTOC_H
-#define _WEBURLREQUESTCLIENT_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_WEB_URLREQUEST_CLIENT_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_WEB_URLREQUEST_CLIENT_CPPTOC_H_
+#pragma once
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 
 #include "include/cef_web_urlrequest.h"
 #include "include/capi/cef_web_urlrequest_capi.h"
@@ -29,13 +30,12 @@
 // This class may be instantiated and accessed wrapper-side only.
 class CefWebURLRequestClientCppToC
     : public CefCppToC<CefWebURLRequestClientCppToC, CefWebURLRequestClient,
-        cef_web_urlrequest_client_t>
-{
-public:
-  CefWebURLRequestClientCppToC(CefWebURLRequestClient* cls);
+        cef_web_urlrequest_client_t> {
+ public:
+  explicit CefWebURLRequestClientCppToC(CefWebURLRequestClient* cls);
   virtual ~CefWebURLRequestClientCppToC() {}
 };
 
-#endif // USING_CEF_SHARED
-#endif // _WEBURLREQUESTCLIENT_CPPTOC_H
+#endif  // USING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_URLREQUEST_CLIENT_CPPTOC_H_
 

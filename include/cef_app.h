@@ -35,11 +35,12 @@
 //
 
 
-#ifndef _CEF_APP_H
-#define _CEF_APP_H
+#ifndef CEF_INCLUDE_CEF_APP_H_
+#define CEF_INCLUDE_CEF_APP_H_
+#pragma once
 
-#include "cef_base.h"
-#include "cef_proxy_handler.h"
+#include "include/cef_base.h"
+#include "include/cef_proxy_handler.h"
 
 class CefApp;
 
@@ -94,9 +95,8 @@ void CefQuitMessageLoop();
 // Implement this interface to provide handler implementations.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefApp : public virtual CefBase
-{
-public:
+class CefApp : public virtual CefBase {
+ public:
   ///
   // Return the handler for proxy events. If not handler is returned the default
   // system handler will be used.
@@ -105,4 +105,4 @@ public:
   virtual CefRefPtr<CefProxyHandler> GetProxyHandler() { return NULL; }
 };
 
-#endif // _CEF_APP_H
+#endif  // CEF_INCLUDE_CEF_APP_H_

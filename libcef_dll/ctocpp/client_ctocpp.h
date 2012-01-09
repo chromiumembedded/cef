@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _CLIENT_CTOCPP_H
-#define _CLIENT_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
@@ -24,10 +25,9 @@
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefClientCToCpp
-    : public CefCToCpp<CefClientCToCpp, CefClient, cef_client_t>
-{
-public:
-  CefClientCToCpp(cef_client_t* str)
+    : public CefCToCpp<CefClientCToCpp, CefClient, cef_client_t> {
+ public:
+  explicit CefClientCToCpp(cef_client_t* str)
       : CefCToCpp<CefClientCToCpp, CefClient, cef_client_t>(str) {}
   virtual ~CefClientCToCpp() {}
 
@@ -48,6 +48,6 @@ public:
   virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _CLIENT_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
 

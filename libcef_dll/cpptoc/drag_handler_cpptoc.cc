@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -19,8 +19,7 @@
 
 int CEF_CALLBACK drag_handler_on_drag_start(struct _cef_drag_handler_t* self,
     cef_browser_t* browser, cef_drag_data_t* dragData,
-    enum cef_drag_operations_mask_t mask)
-{
+    enum cef_drag_operations_mask_t mask) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,8 +46,7 @@ int CEF_CALLBACK drag_handler_on_drag_start(struct _cef_drag_handler_t* self,
 
 int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
     cef_browser_t* browser, cef_drag_data_t* dragData,
-    enum cef_drag_operations_mask_t mask)
-{
+    enum cef_drag_operations_mask_t mask) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,8 +75,7 @@ int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDragHandlerCppToC::CefDragHandlerCppToC(CefDragHandler* cls)
-    : CefCppToC<CefDragHandlerCppToC, CefDragHandler, cef_drag_handler_t>(cls)
-{
+    : CefCppToC<CefDragHandlerCppToC, CefDragHandler, cef_drag_handler_t>(cls) {
   struct_.struct_.on_drag_start = drag_handler_on_drag_start;
   struct_.struct_.on_drag_enter = drag_handler_on_drag_enter;
 }

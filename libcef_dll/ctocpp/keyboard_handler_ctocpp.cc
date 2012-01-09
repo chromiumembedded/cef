@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
     KeyEventType type, int code, int modifiers, bool isSystemKey,
-    bool isAfterJavaScript)
-{
+    bool isAfterJavaScript) {
   if (CEF_MEMBER_MISSING(struct_, on_key_event))
     return false;
 

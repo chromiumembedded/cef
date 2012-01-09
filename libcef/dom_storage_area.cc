@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "dom_storage_area.h"
-#include "dom_storage_context.h"
-#include "dom_storage_namespace.h"
+#include "libcef/dom_storage_area.h"
+#include "libcef/dom_storage_context.h"
+#include "libcef/dom_storage_namespace.h"
 
 #include "base/task.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"

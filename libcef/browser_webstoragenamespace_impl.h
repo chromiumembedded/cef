@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_WEBSTORAGENAMESPACE_IMPL_H
-#define _BROWSER_WEBSTORAGENAMESPACE_IMPL_H
+#ifndef CEF_LIBCEF_BROWSER_WEBSTORAGENAMESPACE_IMPL_H_
+#define CEF_LIBCEF_BROWSER_WEBSTORAGENAMESPACE_IMPL_H_
+#pragma once
 
-#include "dom_storage_common.h"
+#include "libcef/dom_storage_common.h"
 
 #include "base/basictypes.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
@@ -31,4 +32,4 @@ class BrowserWebStorageNamespaceImpl : public WebKit::WebStorageNamespace {
   int64 namespace_id_;
 };
 
-#endif  // _BROWSER_WEBSTORAGENAMESPACE_IMPL_H
+#endif  // CEF_LIBCEF_BROWSER_WEBSTORAGENAMESPACE_IMPL_H_

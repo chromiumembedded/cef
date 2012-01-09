@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _PRINTING_WIN_PRINTING_CONTEXT_H
-#define _PRINTING_WIN_PRINTING_CONTEXT_H
-
-#include "print_settings.h"
+#ifndef CEF_LIBCEF_PRINTING_WIN_PRINTING_CONTEXT_H_
+#define CEF_LIBCEF_PRINTING_WIN_PRINTING_CONTEXT_H_
+#pragma once
 
 #include <ocidl.h>
 #include <commdlg.h>
 #include <string>
 
+#include "libcef/printing/print_settings.h"
 #include "base/basictypes.h"
 
 namespace printing {
@@ -109,7 +109,7 @@ class PrintingContext {
   // Allocates the HDC for a specific DEVMODE.
   bool AllocateContext(const CefString& printer_name,
                        const DEVMODE* dev_mode);
-  
+
   // Updates printer dev_mode with settings_
   void PrintingContext::AdjustDevMode(DEVMODE& dev_mode);
 
@@ -148,4 +148,4 @@ class PrintingContext {
 
 }  // namespace printing
 
-#endif  // _PRINTING_WIN_PRINTING_CONTEXT_H
+#endif  // CEF_LIBCEF_PRINTING_WIN_PRINTING_CONTEXT_H_

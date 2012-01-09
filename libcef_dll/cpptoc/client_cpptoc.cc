@@ -30,8 +30,7 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_life_span_handler_t* CEF_CALLBACK client_get_life_span_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,8 +46,7 @@ struct _cef_life_span_handler_t* CEF_CALLBACK client_get_life_span_handler(
 }
 
 struct _cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,8 +62,7 @@ struct _cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
 }
 
 struct _cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,8 +78,7 @@ struct _cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
 }
 
 struct _cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,8 +94,7 @@ struct _cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
 }
 
 struct _cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +110,7 @@ struct _cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
 }
 
 struct _cef_keyboard_handler_t* CEF_CALLBACK client_get_keyboard_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -132,8 +126,7 @@ struct _cef_keyboard_handler_t* CEF_CALLBACK client_get_keyboard_handler(
 }
 
 struct _cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,8 +142,7 @@ struct _cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
 }
 
 struct _cef_permission_handler_t* CEF_CALLBACK client_get_permission_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -166,8 +158,7 @@ struct _cef_permission_handler_t* CEF_CALLBACK client_get_permission_handler(
 }
 
 struct _cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -183,8 +174,7 @@ struct _cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
 }
 
 struct _cef_find_handler_t* CEF_CALLBACK client_get_find_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -200,8 +190,7 @@ struct _cef_find_handler_t* CEF_CALLBACK client_get_find_handler(
 }
 
 struct _cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -217,8 +206,7 @@ struct _cef_jsdialog_handler_t* CEF_CALLBACK client_get_jsdialog_handler(
 }
 
 struct _cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -234,8 +222,7 @@ struct _cef_v8context_handler_t* CEF_CALLBACK client_get_v8context_handler(
 }
 
 struct _cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -251,8 +238,7 @@ struct _cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
 }
 
 struct _cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
-    struct _cef_client_t* self)
-{
+    struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -271,8 +257,7 @@ struct _cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefClientCppToC::CefClientCppToC(CefClient* cls)
-    : CefCppToC<CefClientCppToC, CefClient, cef_client_t>(cls)
-{
+    : CefCppToC<CefClientCppToC, CefClient, cef_client_t>(cls) {
   struct_.struct_.get_life_span_handler = client_get_life_span_handler;
   struct_.struct_.get_load_handler = client_get_load_handler;
   struct_.struct_.get_request_handler = client_get_request_handler;

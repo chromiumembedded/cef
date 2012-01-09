@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_DRAG_HANDLER_CAPI_H
-#define _CEF_DRAG_HANDLER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_DRAG_HANDLER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_DRAG_HANDLER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Implement this structure to handle events related to dragging. The functions
 // of this structure will be called on the UI thread.
 ///
-typedef struct _cef_drag_handler_t
-{
+typedef struct _cef_drag_handler_t {
   ///
   // Base structure.
   ///
@@ -74,7 +74,6 @@ typedef struct _cef_drag_handler_t
   int (CEF_CALLBACK *on_drag_enter)(struct _cef_drag_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_drag_data_t* dragData,
       enum cef_drag_operations_mask_t mask);
-
 } cef_drag_handler_t;
 
 
@@ -82,4 +81,4 @@ typedef struct _cef_drag_handler_t
 }
 #endif
 
-#endif // _CEF_DRAG_HANDLER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_DRAG_HANDLER_CAPI_H_

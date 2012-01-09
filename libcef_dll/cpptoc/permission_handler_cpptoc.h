@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _PERMISSIONHANDLER_CPPTOC_H
-#define _PERMISSIONHANDLER_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_PERMISSION_HANDLER_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_PERMISSION_HANDLER_CPPTOC_H_
+#pragma once
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 
 #include "include/cef_permission_handler.h"
 #include "include/capi/cef_permission_handler_capi.h"
@@ -29,13 +30,12 @@
 // This class may be instantiated and accessed wrapper-side only.
 class CefPermissionHandlerCppToC
     : public CefCppToC<CefPermissionHandlerCppToC, CefPermissionHandler,
-        cef_permission_handler_t>
-{
-public:
-  CefPermissionHandlerCppToC(CefPermissionHandler* cls);
+        cef_permission_handler_t> {
+ public:
+  explicit CefPermissionHandlerCppToC(CefPermissionHandler* cls);
   virtual ~CefPermissionHandlerCppToC() {}
 };
 
-#endif // USING_CEF_SHARED
-#endif // _PERMISSIONHANDLER_CPPTOC_H
+#endif  // USING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_PERMISSION_HANDLER_CPPTOC_H_
 

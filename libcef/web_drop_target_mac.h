@@ -3,6 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef CEF_LIBCEF_WEB_DROP_TARGET_MAC_H_
+#define CEF_LIBCEF_WEB_DROP_TARGET_MAC_H_
+#pragma once
+
 #import <Cocoa/Cocoa.h>
 
 #include "base/string16.h"
@@ -61,3 +65,5 @@ class WebViewHost;
 - (NSPoint)flipWindowPointToScreen:(const NSPoint&)windowPoint
                               view:(NSView*)view;
 @end
+
+#endif  // CEF_LIBCEF_WEB_DROP_TARGET_MAC_H_

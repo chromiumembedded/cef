@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 
 void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
     int identifier, int count, const CefRect& selectionRect,
-    int activeMatchOrdinal, bool finalUpdate)
-{
+    int activeMatchOrdinal, bool finalUpdate) {
   if (CEF_MEMBER_MISSING(struct_, on_find_result))
     return;
 

@@ -4,12 +4,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "browser_webview_mac.h"
-#import "browser_impl.h"
-#import "cef_context.h"
-#import "web_drag_source_mac.h"
-#import "web_drop_target_mac.h"
-#import "webwidget_host.h"
+#import "libcef/browser_webview_mac.h"
+#import "libcef/browser_impl.h"
+#import "libcef/cef_context.h"
+#import "libcef/web_drag_source_mac.h"
+#import "libcef/web_drop_target_mac.h"
+#import "libcef/webwidget_host.h"
 
 #import "base/memory/scoped_ptr.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"

@@ -5,22 +5,19 @@
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_runnable.h"
 #include "include/cef_scheme.h"
-#include "test_handler.h"
+#include "tests/unittests/test_handler.h"
 
 namespace {
 
-class TestResults
-{
-public:
+class TestResults {
+ public:
   TestResults()
-      : status_code(0),
-        sub_status_code(0),
-        delay(0)
-  {
+    : status_code(0),
+      sub_status_code(0),
+      delay(0) {
   }
 
-  void reset()
-  {
+  void reset() {
     url.clear();
     html.clear();
     status_code = 0;
@@ -58,15 +55,15 @@ public:
   // Delay for returning scheme handler results.
   int delay;
 
-  TrackCallback 
-    got_request,
-    got_read,
-    got_output,
-    got_redirect,
-    got_error,
-    got_sub_request,
-    got_sub_read,
-    got_sub_success;
+  TrackCallback
+      got_request,
+      got_read,
+      got_output,
+      got_redirect,
+      got_error,
+      got_sub_request,
+      got_sub_read,
+      got_sub_success;
 };
 
 // Current scheme handler object. Used when destroying the test from
@@ -74,24 +71,20 @@ public:
 class TestSchemeHandler;
 TestSchemeHandler* g_current_handler = NULL;
 
-class TestSchemeHandler : public TestHandler
-{
-public:
-  TestSchemeHandler(TestResults* tr)
-    : test_results_(tr)
-  {
+class TestSchemeHandler : public TestHandler {
+ public:
+  explicit TestSchemeHandler(TestResults* tr)
+    : test_results_(tr) {
     g_current_handler = this;
   }
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     CreateBrowser(test_results_->url);
   }
 
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandler::ProcessRequest().
-  void DestroyTest()
-  {
+  void DestroyTest() {
     TestHandler::DestroyTest();
   }
 
@@ -99,8 +92,7 @@ public:
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               NavType navType,
-                              bool isRedirect) OVERRIDE
-  {
+                              bool isRedirect) OVERRIDE {
     std::string newUrl = request->GetURL();
     if (!test_results_->exit_url.empty() &&
         newUrl.find(test_results_->exit_url) != std::string::npos) {
@@ -110,7 +102,7 @@ public:
       DestroyTest();
       return true;
     }
-    
+
     if (isRedirect) {
       test_results_->got_redirect.yes();
       EXPECT_EQ(newUrl, test_results_->redirect_url);
@@ -123,14 +115,13 @@ public:
       test_results_->url = test_results_->redirect_url;
       test_results_->redirect_url.clear();
     }
-    
+
     return false;
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
+                         int httpStatusCode) OVERRIDE {
     std::string url = frame->GetURL();
     if (url == test_results_->url || test_results_->status_code != 200) {
       if (test_results_->sub_url.empty()) {
@@ -154,27 +145,28 @@ public:
                            CefRefPtr<CefFrame> frame,
                            ErrorCode errorCode,
                            const CefString& failedUrl,
-                           CefString& errorText) OVERRIDE
-  {
+                           CefString& errorText) OVERRIDE {
     test_results_->got_error.yes();
     DestroyTest();
     return false;
   }
 
-protected:
+ protected:
   TestResults* test_results_;
 };
 
-class ClientSchemeHandler : public CefSchemeHandler
-{
-public:
-  ClientSchemeHandler(TestResults* tr)
-    : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
+class ClientSchemeHandler : public CefSchemeHandler {
+ public:
+  explicit ClientSchemeHandler(TestResults* tr)
+    : test_results_(tr),
+      offset_(0),
+      is_sub_(false),
+      has_delayed_(false) {
+  }
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefRefPtr<CefSchemeHandlerCallback> callback)
-                              OVERRIDE
-  {
+                              OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     bool handled = false;
@@ -185,14 +177,14 @@ public:
 
     if (is_sub_) {
       test_results_->got_sub_request.yes();
-      
+
       if (!test_results_->sub_html.empty())
         handled = true;
-   } else {
+    } else {
       EXPECT_EQ(url, test_results_->url);
-      
+
       test_results_->got_request.yes();
-      
+
       if (!test_results_->html.empty())
         handled = true;
     }
@@ -217,8 +209,7 @@ public:
 
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
                                   int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE
-  {
+                                  CefString& redirectUrl) OVERRIDE {
     if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
 
@@ -230,7 +221,7 @@ public:
                                       test_results_->sub_allow_origin));
         response->SetHeaderMap(headers);
       }
- 
+
       if (!test_results_->sub_html.empty()) {
         response->SetMimeType("text/html");
         response_length = test_results_->sub_html.size();
@@ -247,8 +238,7 @@ public:
     }
   }
 
-  virtual void Cancel() OVERRIDE
-  {
+  virtual void Cancel() OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
@@ -256,8 +246,7 @@ public:
                             int bytes_to_read,
                             int& bytes_read,
                             CefRefPtr<CefSchemeHandlerCallback> callback)
-                            OVERRIDE
-  {
+                            OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     if (test_results_->delay > 0) {
@@ -290,7 +279,7 @@ public:
     AutoLock lock_scope(this);
 
     size_t size = data->size();
-    if(offset_ < size) {
+    if (offset_ < size) {
       int transfer_size =
           std::min(bytes_to_read, static_cast<int>(size - offset_));
       memcpy(data_out, data->c_str() + offset_, transfer_size);
@@ -303,9 +292,8 @@ public:
     return has_data;
   }
 
-private:
-  void ContinueAfterDelay(CefRefPtr<CefSchemeHandlerCallback> callback)
-  {
+ private:
+  void ContinueAfterDelay(CefRefPtr<CefSchemeHandlerCallback> callback) {
     has_delayed_ = true;
     callback->BytesAvailable();
   }
@@ -319,17 +307,16 @@ private:
   IMPLEMENT_LOCKING(ClientSchemeHandler);
 };
 
-class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory
-{
-public:
-  ClientSchemeHandlerFactory(TestResults* tr)
-    : test_results_(tr){}
+class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
+ public:
+  explicit ClientSchemeHandlerFactory(TestResults* tr)
+    : test_results_(tr) {
+  }
 
   virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
                                              const CefString& scheme_name,
                                              CefRefPtr<CefRequest> request)
-                                             OVERRIDE
-  {
+                                             OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     return new ClientSchemeHandler(test_results_);
   }
@@ -343,8 +330,7 @@ public:
 TestResults g_TestResults;
 
 // If |domain| is empty the scheme will be registered as non-standard.
-void RegisterTestScheme(const std::string& scheme, const std::string& domain)
-{
+void RegisterTestScheme(const std::string& scheme, const std::string& domain) {
   g_TestResults.reset();
   static std::set<std::string> schemes;
 
@@ -366,15 +352,13 @@ void RegisterTestScheme(const std::string& scheme, const std::string& domain)
   WaitForIOThread();
 }
 
-void ClearTestSchemes()
-{
+void ClearTestSchemes() {
   EXPECT_TRUE(CefClearSchemeHandlerFactories());
   WaitForIOThread();
 }
 
 void SetUpXHR(const std::string& url, const std::string& sub_url,
-              const std::string& sub_allow_origin = std::string())
-{
+              const std::string& sub_allow_origin = std::string()) {
   g_TestResults.sub_url = sub_url;
   g_TestResults.sub_html = "SUCCESS";
   g_TestResults.sub_status_code = 200;
@@ -382,22 +366,22 @@ void SetUpXHR(const std::string& url, const std::string& sub_url,
 
   g_TestResults.url = url;
   std::stringstream ss;
-  ss <<  "<html><head>\
-          <script language=\"JavaScript\">\
-          function execXMLHttpRequest() {\
-            var result = 'FAILURE';\
-            try {\
-              xhr = new XMLHttpRequest();\
-              xhr.open(\"GET\", \"" << sub_url.c_str() << "\", false);\
-              xhr.send();\
-              result = xhr.responseText;\
-            } catch(e) {}\
-            document.location = \"http://tests/exit?result=\"+result;\
-          }\
-          </script>\
-          </head><body onload=\"execXMLHttpRequest();\">\
-          Running execXMLHttpRequest...\
-          </body></html>";
+  ss << "<html><head>"
+        "<script language=\"JavaScript\">"
+        "function execXMLHttpRequest() {"
+        "  var result = 'FAILURE';"
+        "  try {"
+        "    xhr = new XMLHttpRequest();"
+        "    xhr.open(\"GET\", \"" << sub_url.c_str() << "\", false);"
+        "    xhr.send();"
+        "    result = xhr.responseText;"
+        "  } catch(e) {}"
+        "  document.location = \"http://tests/exit?result=\"+result;"
+        "}"
+        "</script>"
+        "</head><body onload=\"execXMLHttpRequest();\">"
+        "Running execXMLHttpRequest..."
+        "</body></html>";
   g_TestResults.html = ss.str();
   g_TestResults.status_code = 200;
 
@@ -405,63 +389,61 @@ void SetUpXHR(const std::string& url, const std::string& sub_url,
 }
 
 void SetUpXSS(const std::string& url, const std::string& sub_url,
-              const std::string& domain = std::string())
-{
+              const std::string& domain = std::string()) {
   // 1. Load |url| which contains an iframe.
   // 2. The iframe loads |xss_url|.
   // 3. |xss_url| tries to call a JS function in |url|.
   // 4. |url| tries to call a JS function in |xss_url|.
-  
+
   std::stringstream ss;
   std::string domain_line;
   if (!domain.empty())
     domain_line = "document.domain = '" + domain + "';";
-  
+
   g_TestResults.sub_url = sub_url;
-  ss <<  "<html><head>\
-          <script language=\"JavaScript\">" << domain_line << "\
-          function getResult() {\
-           return 'SUCCESS';\
-          }\
-          function execXSSRequest() {\
-            var result = 'FAILURE';\
-            try {\
-              result = parent.getResult();\
-            } catch(e) {}\
-            document.location = \"http://tests/exit?result=\"+result;\
-          }\
-          </script>\
-          </head><body onload=\"execXSSRequest();\">\
-          Running execXSSRequest...\
-          </body></html>";
+  ss << "<html><head>"
+        "<script language=\"JavaScript\">" << domain_line <<
+        "function getResult() {"
+        "  return 'SUCCESS';"
+        "}"
+        "function execXSSRequest() {"
+        "  var result = 'FAILURE';"
+        "  try {"
+        "    result = parent.getResult();"
+        "  } catch(e) {}"
+        "  document.location = \"http://tests/exit?result=\"+result;"
+        "}"
+        "</script>"
+        "</head><body onload=\"execXSSRequest();\">"
+        "Running execXSSRequest..."
+        "</body></html>";
   g_TestResults.sub_html = ss.str();
   g_TestResults.sub_status_code = 200;
 
   g_TestResults.url = url;
   ss.str("");
-  ss <<  "<html><head>\
-          <script language=\"JavaScript\">" << domain_line << "\
-          function getResult() {\
-            try {\
-              return document.getElementById('s').contentWindow.getResult();\
-            } catch(e) {}\
-            return 'FAILURE';\
-          }\
-          </script>\
-          </head><body>\
-          <iframe src=\"" << sub_url.c_str() << "\" id=\"s\">\
-          </body></html>";
+  ss << "<html><head>"
+        "<script language=\"JavaScript\">" << domain_line << ""
+        "function getResult() {"
+        "  try {"
+        "    return document.getElementById('s').contentWindow.getResult();"
+        "  } catch(e) {}"
+        "  return 'FAILURE';"
+        "}"
+        "</script>"
+        "</head><body>"
+        "<iframe src=\"" << sub_url.c_str() << "\" id=\"s\">"
+        "</body></html>";
   g_TestResults.html = ss.str();
   g_TestResults.status_code = 200;
 
   g_TestResults.exit_url = "http://tests/exit";
 }
 
-} // anonymous
+}  // namespace
 
 // Test that scheme registration/unregistration works as expected.
-TEST(SchemeHandlerTest, Registration)
-{
+TEST(SchemeHandlerTest, Registration) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
@@ -505,8 +487,7 @@ TEST(SchemeHandlerTest, Registration)
 }
 
 // Test that a custom standard scheme can return normal results.
-TEST(SchemeHandlerTest, CustomStandardNormalResponse)
-{
+TEST(SchemeHandlerTest, CustomStandardNormalResponse) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
@@ -525,8 +506,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponse)
 
 // Test that a custom standard scheme can return normal results with delayed
 // responses.
-TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed)
-{
+TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
@@ -545,8 +525,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed)
 }
 
 // Test that a custom nonstandard scheme can return normal results.
-TEST(SchemeHandlerTest, CustomNonStandardNormalResponse)
-{
+TEST(SchemeHandlerTest, CustomNonStandardNormalResponse) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd:some%20value";
   g_TestResults.html =
@@ -564,14 +543,13 @@ TEST(SchemeHandlerTest, CustomNonStandardNormalResponse)
 }
 
 // Test that a custom standard scheme can return an error code.
-TEST(SchemeHandlerTest, CustomStandardErrorResponse)
-{
+TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
       "<html><head></head><body><h1>404</h1></body></html>";
   g_TestResults.status_code = 404;
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -583,14 +561,13 @@ TEST(SchemeHandlerTest, CustomStandardErrorResponse)
 }
 
 // Test that a custom nonstandard scheme can return an error code.
-TEST(SchemeHandlerTest, CustomNonStandardErrorResponse)
-{
+TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd:some%20value";
   g_TestResults.html =
       "<html><head></head><body><h1>404</h1></body></html>";
   g_TestResults.status_code = 404;
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -603,11 +580,10 @@ TEST(SchemeHandlerTest, CustomNonStandardErrorResponse)
 
 // Test that custom standard scheme handling fails when the scheme name is
 // incorrect.
-TEST(SchemeHandlerTest, CustomStandardNameNotHandled)
-{
+TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd2://test/run.html";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -620,11 +596,10 @@ TEST(SchemeHandlerTest, CustomStandardNameNotHandled)
 
 // Test that custom nonstandard scheme handling fails when the scheme name is
 // incorrect.
-TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled)
-{
+TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd2:some%20value";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -637,11 +612,10 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled)
 
 // Test that custom standard scheme handling fails when the domain name is
 // incorrect.
-TEST(SchemeHandlerTest, CustomStandardDomainNotHandled)
-{
+TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://noexist/run.html";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -653,11 +627,10 @@ TEST(SchemeHandlerTest, CustomStandardDomainNotHandled)
 }
 
 // Test that a custom standard scheme can return no response.
-TEST(SchemeHandlerTest, CustomStandardNoResponse)
-{
+TEST(SchemeHandlerTest, CustomStandardNoResponse) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -669,11 +642,10 @@ TEST(SchemeHandlerTest, CustomStandardNoResponse)
 }
 
 // Test that a custom nonstandard scheme can return no response.
-TEST(SchemeHandlerTest, CustomNonStandardNoResponse)
-{
+TEST(SchemeHandlerTest, CustomNonStandardNoResponse) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd:some%20value";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -685,14 +657,13 @@ TEST(SchemeHandlerTest, CustomNonStandardNoResponse)
 }
 
 // Test that a custom standard scheme can generate redirects.
-TEST(SchemeHandlerTest, CustomStandardRedirect)
-{
+TEST(SchemeHandlerTest, CustomStandardRedirect) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.redirect_url = "customstd://test/redirect.html";
   g_TestResults.html =
       "<html><head></head><body><h1>Redirected</h1></body></html>";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -705,14 +676,13 @@ TEST(SchemeHandlerTest, CustomStandardRedirect)
 }
 
 // Test that a custom nonstandard scheme can generate redirects.
-TEST(SchemeHandlerTest, CustomNonStandardRedirect)
-{
+TEST(SchemeHandlerTest, CustomNonStandardRedirect) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd:some%20value";
   g_TestResults.redirect_url = "customnonstd:some%20other%20value";
   g_TestResults.html =
       "<html><head></head><body><h1>Redirected</h1></body></html>";
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -725,12 +695,11 @@ TEST(SchemeHandlerTest, CustomNonStandardRedirect)
 }
 
 // Test that a custom standard scheme can generate same origin XHR requests.
-TEST(SchemeHandlerTest, CustomStandardXHRSameOrigin)
-{
+TEST(SchemeHandlerTest, CustomStandardXHRSameOrigin) {
   RegisterTestScheme("customstd", "test");
   SetUpXHR("customstd://test/run.html",
            "customstd://test/xhr.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -745,12 +714,11 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOrigin)
 }
 
 // Test that a custom nonstandard scheme can generate same origin XHR requests.
-TEST(SchemeHandlerTest, CustomNonStandardXHRSameOrigin)
-{
+TEST(SchemeHandlerTest, CustomNonStandardXHRSameOrigin) {
   RegisterTestScheme("customnonstd", std::string());
   SetUpXHR("customnonstd:some%20value",
            "customnonstd:xhr%20value");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -764,12 +732,11 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOrigin)
   ClearTestSchemes();
 }
 // Test that a custom standard scheme can generate same origin XSS requests.
-TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin)
-{
+TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   RegisterTestScheme("customstd", "test");
   SetUpXSS("customstd://test/run.html",
            "customstd://test/iframe.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -784,12 +751,11 @@ TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin)
 }
 
 // Test that a custom nonstandard scheme can generate same origin XSS requests.
-TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin)
-{
+TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   RegisterTestScheme("customnonstd", std::string());
   SetUpXSS("customnonstd:some%20value",
            "customnonstd:xhr%20value");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -805,13 +771,12 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin)
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
 // by default.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOrigin)
-{
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOrigin) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
   SetUpXHR("customstd://test1/run.html",
            "customstd://test2/xhr.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -827,13 +792,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOrigin)
 
 // Test that a custom standard scheme cannot generate cross-domain XSS requests
 // by default.
-TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin)
-{
+TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
   SetUpXSS("customstd://test1/run.html",
            "customstd://test2/iframe.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -849,13 +813,12 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin)
 
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
 // default.
-TEST(SchemeHandlerTest, HttpXHRDifferentOrigin)
-{
+TEST(SchemeHandlerTest, HttpXHRDifferentOrigin) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
   SetUpXHR("http://test1/run.html",
            "http://test2/xhr.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -871,13 +834,12 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOrigin)
 
 // Test that an HTTP scheme cannot generate cross-domain XSS requests by
 // default.
-TEST(SchemeHandlerTest, HttpXSSDifferentOrigin)
-{
+TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
   SetUpXHR("http://test1/run.html",
            "http://test2/xhr.html");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -893,14 +855,13 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin)
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
 // even when setting the Access-Control-Allow-Origin header.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeader)
-{
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeader) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
   SetUpXHR("customstd://test1/run.html",
            "customstd://test2/xhr.html",
            "customstd://test1");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -916,8 +877,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeader)
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
 // when using the cross-origin whitelist.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist)
-{
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
   SetUpXHR("customstd://test1/run.html",
@@ -926,7 +886,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist)
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
       "test2", false));
   WaitForUIThread();
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -945,14 +905,13 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist)
 
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
-TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeader)
-{
+TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeader) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
   SetUpXHR("http://test1/run.html",
            "http://test2/xhr.html",
            "http://test1");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -968,14 +927,13 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeader)
 
 // Test that a custom standard scheme can generate cross-domain XSS requests
 // when using document.domain.
-TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain)
-{
+TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
   RegisterTestScheme("customstd", "a.test");
   RegisterTestScheme("customstd", "b.test");
   SetUpXSS("customstd://a.test/run.html",
            "customstd://b.test/iframe.html",
            "test");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 
@@ -991,14 +949,13 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain)
 
 // Test that an HTTP scheme can generate cross-domain XSS requests when using
 // document.domain.
-TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain)
-{
+TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
   RegisterTestScheme("http", "a.test");
   RegisterTestScheme("http", "b.test");
   SetUpXSS("http://a.test/run.html",
            "http://b.test/iframe.html",
            "test");
-  
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
 

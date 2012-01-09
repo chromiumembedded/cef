@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_SCHEME_CAPI_H
-#define _CEF_SCHEME_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -117,8 +118,7 @@ CEF_EXPORT int cef_clear_scheme_handler_factories();
 // Structure that creates cef_scheme_handler_t instances. The functions of this
 // structure will always be called on the IO thread.
 ///
-typedef struct _cef_scheme_handler_factory_t
-{
+typedef struct _cef_scheme_handler_factory_t {
   ///
   // Base structure.
   ///
@@ -133,7 +133,6 @@ typedef struct _cef_scheme_handler_factory_t
       struct _cef_scheme_handler_factory_t* self,
       struct _cef_browser_t* browser, const cef_string_t* scheme_name,
       struct _cef_request_t* request);
-
 } cef_scheme_handler_factory_t;
 
 
@@ -141,8 +140,7 @@ typedef struct _cef_scheme_handler_factory_t
 // Structure used to facilitate asynchronous responses to custom scheme handler
 // requests. The functions of this structure may be called on any thread.
 ///
-typedef struct _cef_scheme_handler_callback_t
-{
+typedef struct _cef_scheme_handler_callback_t {
   ///
   // Base structure.
   ///
@@ -164,7 +162,6 @@ typedef struct _cef_scheme_handler_callback_t
   // Cancel processing of the request.
   ///
   void (CEF_CALLBACK *cancel)(struct _cef_scheme_handler_callback_t* self);
-
 } cef_scheme_handler_callback_t;
 
 
@@ -172,8 +169,7 @@ typedef struct _cef_scheme_handler_callback_t
 // Structure used to implement a custom scheme handler structure. The functions
 // of this structure will always be called on the IO thread.
 ///
-typedef struct _cef_scheme_handler_t
-{
+typedef struct _cef_scheme_handler_t {
   ///
   // Base structure.
   ///
@@ -219,7 +215,6 @@ typedef struct _cef_scheme_handler_t
   // Request processing has been canceled.
   ///
   void (CEF_CALLBACK *cancel)(struct _cef_scheme_handler_t* self);
-
 } cef_scheme_handler_t;
 
 
@@ -227,4 +222,4 @@ typedef struct _cef_scheme_handler_t
 }
 #endif
 
-#endif // _CEF_SCHEME_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_

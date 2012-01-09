@@ -2,24 +2,22 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient.h"
+#include <gtk/gtk.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string>
+#include "cefclient/cefclient.h"
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "binding_test.h"
-#include "client_handler.h"
-#include "extension_test.h"
-#include "scheme_test.h"
-#include <gtk/gtk.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "string_util.h"
-#include <iostream>
+#include "cefclient/binding_test.h"
+#include "cefclient/client_handler.h"
+#include "cefclient/extension_test.h"
+#include "cefclient/scheme_test.h"
+#include "cefclient/string_util.h"
 
-using namespace std;
-
-char szWorkingDir[512]; // The current working directory
+char szWorkingDir[512];  // The current working directory
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -35,31 +33,31 @@ void TerminationSignalHandler(int signatl) {
 
 // Callback for Debug > Get Source... menu item.
 gboolean GetSourceActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
-    RunGetSourceTest(g_handler->GetBrowser());  
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunGetSourceTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
 // Callback for Debug > Get Source... menu item.
 gboolean GetTextActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
-    RunGetTextTest(g_handler->GetBrowser());  
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunGetTextTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
 // Callback for Debug > JS Binding... menu item.
 gboolean JSBindngActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
-    RunBindingTest(g_handler->GetBrowser());  
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunBindingTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
 // Callback for Debug > JS Extension... menu item.
 gboolean JSExtensionActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunExtensionTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -67,7 +65,7 @@ gboolean JSExtensionActivated(GtkWidget* widget) {
 
 // Callback for Debug > JS Execute... menu item.
 gboolean JSExecuteActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -75,7 +73,7 @@ gboolean JSExecuteActivated(GtkWidget* widget) {
 
 // Callback for Debug > Request... menu item.
 gboolean RequestActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunRequestTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -83,7 +81,7 @@ gboolean RequestActivated(GtkWidget* widget) {
 
 // Callback for Debug > Local Storage... menu item.
 gboolean LocalStorageActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunLocalStorageTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -91,7 +89,7 @@ gboolean LocalStorageActivated(GtkWidget* widget) {
 
 // Callback for Debug > XMLHttpRequest... menu item.
 gboolean XMLHttpRequestActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunXMLHTTPRequestTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -99,7 +97,7 @@ gboolean XMLHttpRequestActivated(GtkWidget* widget) {
 
 // Callback for Debug > WebURLRequest... menu item.
 gboolean WebURLRequestActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunWebURLRequestTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -107,7 +105,7 @@ gboolean WebURLRequestActivated(GtkWidget* widget) {
 
 // Callback for Debug > DOM Access... menu item.
 gboolean DOMAccessActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunDOMAccessTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -115,7 +113,7 @@ gboolean DOMAccessActivated(GtkWidget* widget) {
 
 // Callback for Debug > Scheme Handler... menu item.
 gboolean SchemeHandlerActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunSchemeTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -123,7 +121,7 @@ gboolean SchemeHandlerActivated(GtkWidget* widget) {
 
 // Callback for Debug > Popup Window... menu item.
 gboolean PopupWindowActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunPopupTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -131,7 +129,7 @@ gboolean PopupWindowActivated(GtkWidget* widget) {
 
 // Callback for Debug > Accelerated 2D Canvas:... menu item.
 gboolean Accelerated2DCanvasActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunAccelerated2DCanvasTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -139,7 +137,7 @@ gboolean Accelerated2DCanvasActivated(GtkWidget* widget) {
 
 // Callback for Debug > Accelerated Layers:... menu item.
 gboolean AcceleratedLayersActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunAcceleratedLayersTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -147,7 +145,7 @@ gboolean AcceleratedLayersActivated(GtkWidget* widget) {
 
 // Callback for Debug > WebGL:... menu item.
 gboolean WebGLActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunWebGLTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -155,7 +153,7 @@ gboolean WebGLActivated(GtkWidget* widget) {
 
 // Callback for Debug > HTML5 Video... menu item.
 gboolean HTML5VideoActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunHTML5VideoTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
@@ -163,7 +161,7 @@ gboolean HTML5VideoActivated(GtkWidget* widget) {
 
 // Callback for Debug > Zoom In... menu item.
 gboolean ZoomInActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(browser->GetZoomLevel() + 0.5);
   }
@@ -173,7 +171,7 @@ gboolean ZoomInActivated(GtkWidget* widget) {
 
 // Callback for Debug > Zoom Out... menu item.
 gboolean ZoomOutActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(browser->GetZoomLevel() - 0.5);
   }
@@ -183,7 +181,7 @@ gboolean ZoomOutActivated(GtkWidget* widget) {
 
 // Callback for Debug > Zoom Reset... menu item.
 gboolean ZoomResetActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(0.0);
   }
@@ -192,7 +190,7 @@ gboolean ZoomResetActivated(GtkWidget* widget) {
 }
 
 gboolean DragDropActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     RunDragDropTest(browser);
   }
@@ -201,7 +199,7 @@ gboolean DragDropActivated(GtkWidget* widget) {
 }
 
 gboolean ShowDevtoolsActivated(GtkWidget* widget) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->ShowDevTools();
   }
@@ -237,7 +235,7 @@ void ReloadButtonClicked(GtkButton* button) {
 void URLEntryActivate(GtkEntry* entry) {
   if (!g_handler.get() || !g_handler->GetBrowserHwnd())
     return;
-  
+
   const gchar* url = gtk_entry_get_text(entry);
   g_handler->GetBrowser()->GetMainFrame()->LoadURL(std::string(url).c_str());
 }
@@ -263,7 +261,7 @@ GtkWidget* CreateMenu(GtkWidget* menu_bar, const char* text) {
 GtkWidget* CreateMenuBar() {
   GtkWidget* menu_bar = gtk_menu_bar_new();
   GtkWidget* debug_menu = CreateMenu(menu_bar, "Tests");
-    
+
   AddMenuEntry(debug_menu, "Get Source",
                G_CALLBACK(GetSourceActivated));
   AddMenuEntry(debug_menu, "Get Text",
@@ -311,7 +309,7 @@ GtkWidget* CreateMenuBar() {
 // WebViewDelegate::TakeFocus in the test webview delegate.
 static gboolean HandleFocus(GtkWidget* widget,
                             GdkEventFocus* focus) {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     // Give focus to the browser window.
     g_handler->GetBrowser()->SetFocus(true);
   }
@@ -320,10 +318,10 @@ static gboolean HandleFocus(GtkWidget* widget,
 }
 
 int main(int argc, char *argv[]) {
-  if(!getcwd(szWorkingDir, sizeof (szWorkingDir)))
+  if (!getcwd(szWorkingDir, sizeof (szWorkingDir)))
     return -1;
 
-  GtkWidget *window;
+  GtkWidget* window;
 
   gtk_init(&argc, &argv);
 
@@ -387,10 +385,10 @@ int main(int argc, char *argv[]) {
   GtkToolItem* tool_item = gtk_tool_item_new();
   gtk_container_add(GTK_CONTAINER(tool_item), m_editWnd);
   gtk_tool_item_set_expand(tool_item, TRUE);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1); //append
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);  // append
 
   gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
-  
+
   g_signal_connect(G_OBJECT(window), "destroy",
                    G_CALLBACK(gtk_widget_destroyed), &window);
   g_signal_connect(G_OBJECT(window), "destroy",

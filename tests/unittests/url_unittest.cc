@@ -5,8 +5,7 @@
 #include "include/cef_url.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(URLTest, CreateURL)
-{
+TEST(URLTest, CreateURL) {
   // Create the URL using the spec.
   {
     CefURLParts parts;
@@ -82,8 +81,7 @@ TEST(URLTest, CreateURL)
   }
 }
 
-TEST(URLTest, ParseURL)
-{
+TEST(URLTest, ParseURL) {
   // Parse the URL using scheme and host.
   {
     CefURLParts parts;

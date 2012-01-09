@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_V8_CAPI_H
-#define _CEF_V8_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -106,8 +107,7 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 ///
 // Structure that encapsulates a V8 context handle.
 ///
-typedef struct _cef_v8context_t
-{
+typedef struct _cef_v8context_t {
   ///
   // Base structure.
   ///
@@ -151,7 +151,6 @@ typedef struct _cef_v8context_t
   ///
   int (CEF_CALLBACK *is_same)(struct _cef_v8context_t* self,
       struct _cef_v8context_t* that);
-
 } cef_v8context_t;
 
 
@@ -175,8 +174,7 @@ CEF_EXPORT int cef_v8context_in_context();
 // Structure that should be implemented to handle V8 function calls. The
 // functions of this structure will always be called on the UI thread.
 ///
-typedef struct _cef_v8handler_t
-{
+typedef struct _cef_v8handler_t {
   ///
   // Base structure.
   ///
@@ -193,7 +191,6 @@ typedef struct _cef_v8handler_t
       const cef_string_t* name, struct _cef_v8value_t* object,
       size_t argumentsCount, struct _cef_v8value_t* const* arguments,
       struct _cef_v8value_t** retval, cef_string_t* exception);
-
 } cef_v8handler_t;
 
 
@@ -202,8 +199,7 @@ typedef struct _cef_v8handler_t
 // identifiers are registered by calling cef_v8value_t::set_value_byaccessor().
 // The functions of this structure will always be called on the UI thread.
 ///
-typedef struct _cef_v8accessor_t
-{
+typedef struct _cef_v8accessor_t {
   ///
   // Base structure.
   ///
@@ -230,15 +226,13 @@ typedef struct _cef_v8accessor_t
   int (CEF_CALLBACK *set)(struct _cef_v8accessor_t* self,
       const cef_string_t* name, struct _cef_v8value_t* object,
       struct _cef_v8value_t* value, cef_string_t* exception);
-
 } cef_v8accessor_t;
 
 
 ///
 // Structure representing a V8 exception.
 ///
-typedef struct _cef_v8exception_t
-{
+typedef struct _cef_v8exception_t {
   ///
   // Base structure.
   ///
@@ -295,7 +289,6 @@ typedef struct _cef_v8exception_t
   // occurred.
   ///
   int (CEF_CALLBACK *get_end_column)(struct _cef_v8exception_t* self);
-
 } cef_v8exception_t;
 
 
@@ -303,8 +296,7 @@ typedef struct _cef_v8exception_t
 // Structure representing a V8 value. The functions of this structure should
 // only be called on the UI thread.
 ///
-typedef struct _cef_v8value_t
-{
+typedef struct _cef_v8value_t {
   ///
   // Base structure.
   ///
@@ -529,7 +521,6 @@ typedef struct _cef_v8value_t
       size_t argumentsCount, struct _cef_v8value_t* const* arguments,
       struct _cef_v8value_t** retval, struct _cef_v8exception_t** exception,
       int rethrow_exception);
-
 } cef_v8value_t;
 
 
@@ -600,4 +591,4 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 }
 #endif
 
-#endif // _CEF_V8_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_

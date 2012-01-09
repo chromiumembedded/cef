@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _DOMEVENTLISTENER_CTOCPP_H
-#define _DOMEVENTLISTENER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_LISTENER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_LISTENER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
@@ -25,10 +26,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefDOMEventListenerCToCpp
     : public CefCToCpp<CefDOMEventListenerCToCpp, CefDOMEventListener,
-        cef_domevent_listener_t>
-{
-public:
-  CefDOMEventListenerCToCpp(cef_domevent_listener_t* str)
+        cef_domevent_listener_t> {
+ public:
+  explicit CefDOMEventListenerCToCpp(cef_domevent_listener_t* str)
       : CefCToCpp<CefDOMEventListenerCToCpp, CefDOMEventListener,
           cef_domevent_listener_t>(str) {}
   virtual ~CefDOMEventListenerCToCpp() {}
@@ -37,6 +37,6 @@ public:
   virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _DOMEVENTLISTENER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_DOMEVENT_LISTENER_CTOCPP_H_
 

@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient_switches.h"
+// This file is shared by cefclient and cef_unittests so don't include using
+// a qualified path.
+#include "cefclient_switches.h"  // NOLINT(build/include)
 
 namespace cefclient {
 

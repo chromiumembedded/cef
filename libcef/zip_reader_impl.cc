@@ -2,16 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "zip_reader_impl.h"
+#include "libcef/zip_reader_impl.h"
+#include <time.h>
 #include "include/cef_stream.h"
 #include "base/logging.h"
-#include <time.h>
 
 // Static functions
 
-//static
-CefRefPtr<CefZipReader> CefZipReader::Create(CefRefPtr<CefStreamReader> stream)
-{
+// static
+CefRefPtr<CefZipReader> CefZipReader::Create(
+    CefRefPtr<CefStreamReader> stream) {
   CefRefPtr<CefZipReaderImpl> impl(new CefZipReaderImpl());
   if (!impl->Initialize(stream))
     return NULL;
@@ -23,29 +23,26 @@ CefRefPtr<CefZipReader> CefZipReader::Create(CefRefPtr<CefStreamReader> stream)
 
 namespace {
 
-voidpf ZCALLBACK zlib_open_callback OF((voidpf opaque, const char* filename,
-                                       int mode))
-{
+voidpf ZCALLBACK zlib_open_callback OF((voidpf opaque, const void* filename,
+                                       int mode)) {
   // The stream is already implicitly open so just return the pointer.
   return opaque;
 }
 
 uLong ZCALLBACK zlib_read_callback OF((voidpf opaque, voidpf stream, void* buf,
-                                      uLong size))
-{
+                                      uLong size)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   return reader->Read(buf, 1, size);
 }
 
-long ZCALLBACK zlib_tell_callback OF((voidpf opaque, voidpf stream))
-{
+ZPOS64_T ZCALLBACK zlib_tell_callback OF((voidpf opaque, voidpf stream)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   return reader->Tell();
 }
 
-long ZCALLBACK zlib_seek_callback OF((voidpf opaque, voidpf stream,
-                                     uLong offset, int origin))
-{
+long ZCALLBACK zlib_seek_callback OF((voidpf opaque,  // NOLINT(runtime/int)
+                                     voidpf stream, ZPOS64_T offset,
+                                     int origin)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   int whence;
   switch (origin) {
@@ -65,33 +62,32 @@ long ZCALLBACK zlib_seek_callback OF((voidpf opaque, voidpf stream,
   return reader->Seek(offset, whence);
 }
 
-int ZCALLBACK zlib_close_callback OF((voidpf opaque, voidpf stream))
-{
+int ZCALLBACK zlib_close_callback OF((voidpf opaque, voidpf stream)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   // Release the reference added by CefZipReaderImpl::Initialize().
   reader->Release();
   return 0;
 }
 
-int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream))
-{
+int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream)) {
   return 0;
 }
 
-} // namespace
+}  // namespace
 
 CefZipReaderImpl::CefZipReaderImpl()
   : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL),
-    has_fileopen_(false), has_fileinfo_(false), filesize_(0), filemodified_(0)
-{
+    has_fileopen_(false),
+    has_fileinfo_(false),
+    filesize_(0),
+    filemodified_(0) {
 }
 
-CefZipReaderImpl::~CefZipReaderImpl()
-{
+CefZipReaderImpl::~CefZipReaderImpl() {
   if (reader_ != NULL) {
     if (!VerifyContext()) {
       // Close() is supposed to be called directly. We'll try to free the reader
-      // now on the wrong thread but there's no guarantee this call won't crash. 
+      // now on the wrong thread but there's no guarantee this call won't crash.
       if (has_fileopen_)
         unzCloseCurrentFile(reader_);
       unzClose(reader_);
@@ -101,27 +97,25 @@ CefZipReaderImpl::~CefZipReaderImpl()
   }
 }
 
-bool CefZipReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream)
-{
-  zlib_filefunc_def filefunc_def;
-  filefunc_def.zopen_file = zlib_open_callback;
+bool CefZipReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream) {
+  zlib_filefunc64_def filefunc_def;
+  filefunc_def.zopen64_file = zlib_open_callback;
   filefunc_def.zread_file = zlib_read_callback;
   filefunc_def.zwrite_file = NULL;
-  filefunc_def.ztell_file = zlib_tell_callback;
-  filefunc_def.zseek_file = zlib_seek_callback;
+  filefunc_def.ztell64_file = zlib_tell_callback;
+  filefunc_def.zseek64_file = zlib_seek_callback;
   filefunc_def.zclose_file = zlib_close_callback;
   filefunc_def.zerror_file = zlib_error_callback;
   filefunc_def.opaque = stream.get();
 
   // Add a reference that will be released by zlib_close_callback().
   stream->AddRef();
-  
-  reader_ = unzOpen2("", &filefunc_def);
+
+  reader_ = unzOpen2_64("", &filefunc_def);
   return (reader_ != NULL);
 }
 
-bool CefZipReaderImpl::MoveToFirstFile()
-{
+bool CefZipReaderImpl::MoveToFirstFile() {
   if (!VerifyContext())
     return false;
 
@@ -133,8 +127,7 @@ bool CefZipReaderImpl::MoveToFirstFile()
   return (unzGoToFirstFile(reader_) == UNZ_OK);
 }
 
-bool CefZipReaderImpl::MoveToNextFile()
-{
+bool CefZipReaderImpl::MoveToNextFile() {
   if (!VerifyContext())
     return false;
 
@@ -146,8 +139,8 @@ bool CefZipReaderImpl::MoveToNextFile()
   return (unzGoToNextFile(reader_) == UNZ_OK);
 }
 
-bool CefZipReaderImpl::MoveToFile(const CefString& fileName, bool caseSensitive)
-{
+bool CefZipReaderImpl::MoveToFile(const CefString& fileName,
+                                  bool caseSensitive) {
   if (!VerifyContext())
     return false;
 
@@ -161,8 +154,7 @@ bool CefZipReaderImpl::MoveToFile(const CefString& fileName, bool caseSensitive)
                         (caseSensitive ? 1 : 2)) == UNZ_OK);
 }
 
-bool CefZipReaderImpl::Close()
-{
+bool CefZipReaderImpl::Close() {
   if (!VerifyContext())
     return false;
 
@@ -174,32 +166,28 @@ bool CefZipReaderImpl::Close()
   return (result == UNZ_OK);
 }
 
-CefString CefZipReaderImpl::GetFileName()
-{
+CefString CefZipReaderImpl::GetFileName() {
   if (!VerifyContext() || !GetFileInfo())
     return CefString();
 
   return filename_;
 }
 
-long CefZipReaderImpl::GetFileSize()
-{
+int64 CefZipReaderImpl::GetFileSize() {
   if (!VerifyContext() || !GetFileInfo())
     return -1;
 
   return filesize_;
 }
 
-time_t CefZipReaderImpl::GetFileLastModified()
-{
+time_t CefZipReaderImpl::GetFileLastModified() {
   if (!VerifyContext() || !GetFileInfo())
     return 0;
 
   return filemodified_;
 }
 
-bool CefZipReaderImpl::OpenFile(const CefString& password)
-{
+bool CefZipReaderImpl::OpenFile(const CefString& password) {
   if (!VerifyContext())
     return false;
 
@@ -220,8 +208,7 @@ bool CefZipReaderImpl::OpenFile(const CefString& password)
   return ret;
 }
 
-bool CefZipReaderImpl::CloseFile()
-{
+bool CefZipReaderImpl::CloseFile() {
   if (!VerifyContext() || !has_fileopen_)
     return false;
 
@@ -231,35 +218,31 @@ bool CefZipReaderImpl::CloseFile()
   return (unzCloseCurrentFile(reader_) == UNZ_OK);
 }
 
-int CefZipReaderImpl::ReadFile(void* buffer, size_t bufferSize)
-{
+int CefZipReaderImpl::ReadFile(void* buffer, size_t bufferSize) {
   if (!VerifyContext() || !has_fileopen_)
     return -1;
 
   return unzReadCurrentFile(reader_, buffer, bufferSize);
 }
 
-long CefZipReaderImpl::Tell()
-{
+int64 CefZipReaderImpl::Tell() {
   if (!VerifyContext() || !has_fileopen_)
     return -1;
 
-  return unztell(reader_);
+  return unztell64(reader_);
 }
 
-bool CefZipReaderImpl::Eof()
-{
+bool CefZipReaderImpl::Eof() {
   if (!VerifyContext() || !has_fileopen_)
     return true;
 
   return (unzeof(reader_) == 1 ? true : false);
 }
 
-bool CefZipReaderImpl::GetFileInfo()
-{
+bool CefZipReaderImpl::GetFileInfo() {
   if (has_fileinfo_)
     return true;
-  
+
   char file_name[512] = {0};
   unz_file_info file_info;
   memset(&file_info, 0, sizeof(file_info));
@@ -272,7 +255,7 @@ bool CefZipReaderImpl::GetFileInfo()
   has_fileinfo_ = true;
   filename_ = std::string(file_name);
   filesize_ = file_info.uncompressed_size;
-  
+
   struct tm time;
   memset(&time, 0, sizeof(time));
   time.tm_sec = file_info.tmu_date.tm_sec;
@@ -286,8 +269,7 @@ bool CefZipReaderImpl::GetFileInfo()
   return true;
 }
 
-bool CefZipReaderImpl::VerifyContext()
-{
+bool CefZipReaderImpl::VerifyContext() {
   if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
     NOTREACHED();

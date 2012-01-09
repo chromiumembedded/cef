@@ -2,17 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "xml_reader_impl.h"
+#include "libcef/xml_reader_impl.h"
 #include "include/cef_stream.h"
 #include "base/logging.h"
 
 // Static functions
 
-//static
+// static
 CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
                                              EncodingType encodingType,
-                                             const CefString& URI)
-{
+                                             const CefString& URI) {
   CefRefPtr<CefXmlReaderImpl> impl(new CefXmlReaderImpl());
   if (!impl->Initialize(stream, encodingType, URI))
     return NULL;
@@ -34,8 +33,7 @@ namespace {
  *
  * Returns the number of bytes read or -1 in case of error
  */
-int XMLCALL xml_read_callback(void * context, char * buffer, int len)
-{
+int XMLCALL xml_read_callback(void * context, char * buffer, int len) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(context));
   return reader->Read(buffer, 1, len);
 }
@@ -50,20 +48,20 @@ int XMLCALL xml_read_callback(void * context, char * buffer, int len)
  * Signature of an error callback from a reader parser
  */
 void XMLCALL xml_error_callback(void *arg, const char *msg,
-						 xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
-{
+                                xmlParserSeverities severity,
+                                xmlTextReaderLocatorPtr locator) {
   if (!msg)
     return;
 
   std::string error_str(msg);
   if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
     error_str.resize(error_str.length()-1);
-  
+
   std::stringstream ss;
   ss << error_str << ", line " << xmlTextReaderLocatorLineNumber(locator);
 
   LOG(INFO) << ss.str();
-  
+
   CefRefPtr<CefXmlReaderImpl> impl(static_cast<CefXmlReaderImpl*>(arg));
   impl->AppendError(ss.str());
 }
@@ -76,51 +74,47 @@ void XMLCALL xml_error_callback(void *arg, const char *msg,
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-void XMLCALL xml_structured_error_callback(void *userData, xmlErrorPtr error)
-{
+void XMLCALL xml_structured_error_callback(void *userData, xmlErrorPtr error) {
   if (!error->message)
     return;
 
   std::string error_str(error->message);
   if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
     error_str.resize(error_str.length()-1);
-  
+
   std::stringstream ss;
   ss << error_str << ", line " << error->line;
 
   LOG(INFO) << ss.str();
-  
+
   CefRefPtr<CefXmlReaderImpl> impl(static_cast<CefXmlReaderImpl*>(userData));
   impl->AppendError(ss.str());
 }
 
-CefString xmlCharToString(const xmlChar* xmlStr, bool free)
-{
+CefString xmlCharToString(const xmlChar* xmlStr, bool free) {
   if (!xmlStr)
     return CefString();
 
   const char* str = reinterpret_cast<const char*>(xmlStr);
   CefString wstr = std::string(str);
-  
+
   if (free)
     xmlFree(const_cast<xmlChar*>(xmlStr));
-  
+
   return wstr;
 }
 
-} // namespace
+}  // namespace
 
 CefXmlReaderImpl::CefXmlReaderImpl()
-  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL)
-{
+  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL) {
 }
 
-CefXmlReaderImpl::~CefXmlReaderImpl()
-{
+CefXmlReaderImpl::~CefXmlReaderImpl() {
   if (reader_ != NULL) {
     if (!VerifyContext()) {
       // Close() is supposed to be called directly. We'll try to free the reader
-      // now on the wrong thread but there's no guarantee this call won't crash. 
+      // now on the wrong thread but there's no guarantee this call won't crash.
       xmlFreeTextReader(reader_);
     } else {
       Close();
@@ -130,8 +124,7 @@ CefXmlReaderImpl::~CefXmlReaderImpl()
 
 bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
                                   EncodingType encodingType,
-                                  const CefString& URI)
-{
+                                  const CefString& URI) {
   xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
   switch (encodingType) {
     case XML_ENCODING_UTF8:
@@ -174,20 +167,18 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
   xmlTextReaderSetErrorHandler(reader_, xml_error_callback, this);
   xmlTextReaderSetStructuredErrorHandler(reader_,
       xml_structured_error_callback, this);
-  
+
   return true;
 }
 
-bool CefXmlReaderImpl::MoveToNextNode()
-{
+bool CefXmlReaderImpl::MoveToNextNode() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderRead(reader_) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::Close()
-{
+bool CefXmlReaderImpl::Close() {
   if (!VerifyContext())
     return false;
 
@@ -197,24 +188,21 @@ bool CefXmlReaderImpl::Close()
   return true;
 }
 
-bool CefXmlReaderImpl::HasError()
-{
+bool CefXmlReaderImpl::HasError() {
   if (!VerifyContext())
     return false;
 
   return !error_buf_.str().empty();
 }
 
-CefString CefXmlReaderImpl::GetError()
-{
+CefString CefXmlReaderImpl::GetError() {
   if (!VerifyContext())
     return CefString();
 
   return error_buf_.str();
 }
 
-CefXmlReader::NodeType CefXmlReaderImpl::GetType()
-{
+CefXmlReader::NodeType CefXmlReaderImpl::GetType() {
   if (!VerifyContext())
     return XML_NODE_UNSUPPORTED;
 
@@ -247,72 +235,63 @@ CefXmlReader::NodeType CefXmlReaderImpl::GetType()
   return XML_NODE_UNSUPPORTED;
 }
 
-int CefXmlReaderImpl::GetDepth()
-{
+int CefXmlReaderImpl::GetDepth() {
   if (!VerifyContext())
     return -1;
 
   return xmlTextReaderDepth(reader_);
 }
 
-CefString CefXmlReaderImpl::GetLocalName()
-{
+CefString CefXmlReaderImpl::GetLocalName() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstLocalName(reader_), false);
 }
 
-CefString CefXmlReaderImpl::GetPrefix()
-{
+CefString CefXmlReaderImpl::GetPrefix() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstPrefix(reader_), false);
 }
 
-CefString CefXmlReaderImpl::GetQualifiedName()
-{
+CefString CefXmlReaderImpl::GetQualifiedName() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstName(reader_), false);
 }
 
-CefString CefXmlReaderImpl::GetNamespaceURI()
-{
+CefString CefXmlReaderImpl::GetNamespaceURI() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstNamespaceUri(reader_), false);
 }
 
-CefString CefXmlReaderImpl::GetBaseURI()
-{
+CefString CefXmlReaderImpl::GetBaseURI() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstBaseUri(reader_), false);
 }
 
-CefString CefXmlReaderImpl::GetXmlLang()
-{
+CefString CefXmlReaderImpl::GetXmlLang() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderConstXmlLang(reader_), false);
 }
 
-bool CefXmlReaderImpl::IsEmptyElement()
-{
+bool CefXmlReaderImpl::IsEmptyElement() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderIsEmptyElement(reader_) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::HasValue()
-{
+bool CefXmlReaderImpl::HasValue() {
   if (!VerifyContext())
     return false;
 
@@ -324,8 +303,7 @@ bool CefXmlReaderImpl::HasValue()
   }
 }
 
-CefString CefXmlReaderImpl::GetValue()
-{
+CefString CefXmlReaderImpl::GetValue() {
   if (!VerifyContext())
     return CefString();
 
@@ -340,32 +318,28 @@ CefString CefXmlReaderImpl::GetValue()
   }
 }
 
-bool CefXmlReaderImpl::HasAttributes()
-{
+bool CefXmlReaderImpl::HasAttributes() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderHasAttributes(reader_) == 1 ? true : false;
 }
 
-size_t CefXmlReaderImpl::GetAttributeCount()
-{
+size_t CefXmlReaderImpl::GetAttributeCount() {
   if (!VerifyContext())
     return 0;
 
   return xmlTextReaderAttributeCount(reader_);
 }
 
-CefString CefXmlReaderImpl::GetAttribute(int index)
-{
+CefString CefXmlReaderImpl::GetAttribute(int index) {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderGetAttributeNo(reader_, index), true);
 }
 
-CefString CefXmlReaderImpl::GetAttribute(const CefString& qualifiedName)
-{
+CefString CefXmlReaderImpl::GetAttribute(const CefString& qualifiedName) {
   if (!VerifyContext())
     return CefString();
 
@@ -375,8 +349,7 @@ CefString CefXmlReaderImpl::GetAttribute(const CefString& qualifiedName)
 }
 
 CefString CefXmlReaderImpl::GetAttribute(const CefString& localName,
-                                         const CefString& namespaceURI)
-{
+                                         const CefString& namespaceURI) {
   if (!VerifyContext())
     return CefString();
 
@@ -386,40 +359,35 @@ CefString CefXmlReaderImpl::GetAttribute(const CefString& localName,
       BAD_CAST localNameStr.c_str(), BAD_CAST namespaceURIStr.c_str()), true);
 }
 
-CefString CefXmlReaderImpl::GetInnerXml()
-{
+CefString CefXmlReaderImpl::GetInnerXml() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderReadInnerXml(reader_), true);
 }
 
-CefString CefXmlReaderImpl::GetOuterXml()
-{
+CefString CefXmlReaderImpl::GetOuterXml() {
   if (!VerifyContext())
     return CefString();
 
   return xmlCharToString(xmlTextReaderReadOuterXml(reader_), true);
 }
 
-int CefXmlReaderImpl::GetLineNumber()
-{
+int CefXmlReaderImpl::GetLineNumber() {
   if (!VerifyContext())
     return -1;
 
   return xmlTextReaderGetParserLineNumber(reader_);
 }
 
-bool CefXmlReaderImpl::MoveToAttribute(int index)
-{
+bool CefXmlReaderImpl::MoveToAttribute(int index) {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderMoveToAttributeNo(reader_, index) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::MoveToAttribute(const CefString& qualifiedName)
-{
+bool CefXmlReaderImpl::MoveToAttribute(const CefString& qualifiedName) {
   if (!VerifyContext())
     return false;
 
@@ -429,8 +397,7 @@ bool CefXmlReaderImpl::MoveToAttribute(const CefString& qualifiedName)
 }
 
 bool CefXmlReaderImpl::MoveToAttribute(const CefString& localName,
-                                       const CefString& namespaceURI)
-{
+                                       const CefString& namespaceURI) {
   if (!VerifyContext())
     return false;
 
@@ -441,39 +408,34 @@ bool CefXmlReaderImpl::MoveToAttribute(const CefString& localName,
       true : false;
 }
 
-bool CefXmlReaderImpl::MoveToFirstAttribute()
-{
+bool CefXmlReaderImpl::MoveToFirstAttribute() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderMoveToFirstAttribute(reader_) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::MoveToNextAttribute()
-{
+bool CefXmlReaderImpl::MoveToNextAttribute() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderMoveToNextAttribute(reader_) == 1 ? true : false;
 }
 
-bool CefXmlReaderImpl::MoveToCarryingElement()
-{
+bool CefXmlReaderImpl::MoveToCarryingElement() {
   if (!VerifyContext())
     return false;
 
   return xmlTextReaderMoveToElement(reader_) == 1 ? true : false;
 }
 
-void CefXmlReaderImpl::AppendError(const CefString& error_str)
-{
+void CefXmlReaderImpl::AppendError(const CefString& error_str) {
   if (!error_buf_.str().empty())
     error_buf_ << L"\n";
   error_buf_ << error_str;
 }
 
-bool CefXmlReaderImpl::VerifyContext()
-{
+bool CefXmlReaderImpl::VerifyContext() {
   if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
     NOTREACHED();

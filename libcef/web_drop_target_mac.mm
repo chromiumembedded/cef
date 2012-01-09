@@ -3,12 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_impl.h"
-#import "browser_webview_mac.h"
-#include "cef_context.h"
-#include "drag_data_impl.h"
-#import "web_drop_target_mac.h"
-#import "web_drag_utils_mac.h"
+#include "libcef/browser_impl.h"
+#import "libcef/browser_webview_mac.h"
+#include "libcef/cef_context.h"
+#include "libcef/drag_data_impl.h"
+#import "libcef/web_drop_target_mac.h"
+#import "libcef/web_drag_utils_mac.h"
 
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"

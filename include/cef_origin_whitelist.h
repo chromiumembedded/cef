@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_ORIGIN_WHITELIST_H
-#define _CEF_ORIGIN_WHITELIST_H
+#ifndef CEF_INCLUDE_CEF_ORIGIN_WHITELIST_H_
+#define CEF_INCLUDE_CEF_ORIGIN_WHITELIST_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 
 ///
@@ -51,13 +52,13 @@
 // XMLHttpRequest requests on http://target.example.com if the
 // http://target.example.com request returns an "Access-Control-Allow-Origin:
 // https://source.example.com" response header.
-// 
+//
 // Scripts in separate frames or iframes and hosted from the same protocol and
 // domain suffix can execute cross-origin JavaScript if both pages set the
 // document.domain value to the same domain suffix. For example,
 // scheme://foo.example.com and scheme://bar.example.com can communicate using
 // JavaScript if both domains set document.domain="example.com".
-// 
+//
 // This method is used to allow access to origins that would otherwise violate
 // the same-origin policy. Scripts hosted underneath the fully qualified
 // |source_origin| URL (like http://www.example.com) will be allowed access to
@@ -95,4 +96,4 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
 /*--cef()--*/
 bool CefClearCrossOriginWhitelist();
 
-#endif // _CEF_ORIGIN_WHITELIST_H
+#endif  // CEF_INCLUDE_CEF_ORIGIN_WHITELIST_H_

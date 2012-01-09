@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_DEVTOOLS_CALLARGS_H
-#define _BROWSER_DEVTOOLS_CALLARGS_H
+#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_CALLARGS_H_
+#define CEF_LIBCEF_BROWSER_DEVTOOLS_CALLARGS_H_
+#pragma once
 
 #include "base/basictypes.h"
 
@@ -25,4 +26,4 @@ class BrowserDevToolsCallArgs {
   static int calls_count_;
 };
 
-#endif  // _BROWSER_DEVTOOLS_CALLARGS_H
+#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_CALLARGS_H_

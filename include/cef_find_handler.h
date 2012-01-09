@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_FIND_HANDLER_H
-#define _CEF_FIND_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_FIND_HANDLER_H_
+#define CEF_INCLUDE_CEF_FIND_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 
@@ -46,9 +47,8 @@ class CefBrowser;
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefFindHandler : public virtual CefBase
-{
-public:
+class CefFindHandler : public virtual CefBase {
+ public:
   ///
   // Called to report find results returned by CefBrowser::Find(). |identifer|
   // is the identifier passed to CefBrowser::Find(), |count| is the number of
@@ -66,4 +66,4 @@ public:
                             bool finalUpdate) {}
 };
 
-#endif // _CEF_FIND_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_FIND_HANDLER_H_

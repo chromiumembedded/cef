@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "print_settings.h"
+#include "libcef/printing/print_settings.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
@@ -60,9 +60,11 @@ void PrintSettings::Clear() {
 
 void PrintSettings::ResetRequestedPageMargins() {
   // Initial requested margins to = 1.0cm = ~2/5 of inch
-  const int margin_printer_units = ConvertUnit(1000, kHundrethsMMPerInch, desired_dpi);
+  const int margin_printer_units =
+      ConvertUnit(1000, kHundrethsMMPerInch, desired_dpi);
   // Initial requested header/footer margins to = 0.5cm = ~1/5 of inch
-  const int header_footer_margins = ConvertUnit(500, kHundrethsMMPerInch, desired_dpi);
+  const int header_footer_margins =
+      ConvertUnit(500, kHundrethsMMPerInch, desired_dpi);
   requested_margins.header = header_footer_margins;
   requested_margins.footer = header_footer_margins;
   requested_margins.left = margin_printer_units;
@@ -88,7 +90,7 @@ void PrintSettings::Init(HDC hdc,
 
   bool is_custom_paper = true;
   if (dev_mode.dmFields & DM_PAPERSIZE) {
-    switch(dev_mode.dmPaperSize) {
+    switch (dev_mode.dmPaperSize) {
     case DMPAPER_LETTER:
       page_measurements.page_type = PT_LETTER;
       is_custom_paper = false;
@@ -110,7 +112,7 @@ void PrintSettings::Init(HDC hdc,
       is_custom_paper = false;
       break;
     default:
-      //we'll translate it as a custom paper size.
+      // We'll translate it as a custom paper size.
       break;
     }
   }
@@ -147,7 +149,6 @@ void PrintSettings::Init(HDC hdc,
       page_measurements.page_length = page_measurements.page_width;
       page_measurements.page_width = temp;
     }
-
   }
   SetPrinterPrintableArea(physical_size_pixels, printable_area_pixels);
 }
@@ -156,7 +157,7 @@ void PrintSettings::Init(HDC hdc,
 void PrintSettings::SetPrinterPrintableArea(
     gfx::Size const& physical_size_pixels,
     gfx::Rect const& printable_area_pixels) {
-      
+
   // Hard-code text_height = 0.5cm = ~1/5 of inch
   const int text_height = ConvertUnit(500, kHundrethsMMPerInch, dpi_);
 
@@ -215,10 +216,9 @@ int PrintSettings::NewCookie() {
 }
 
 void PrintSettings::UpdatePrintOptions(cef_print_options_t& print_options) {
-  
   print_options.page_orientation = (landscape) ? LANDSCAPE : PORTRAIT;
   print_options.paper_metrics.paper_type = page_measurements.page_type;
-  
+
   if (page_measurements.page_type == PT_CUSTOM) {
     print_options.paper_metrics.length = ConvertUnitDouble(
       page_measurements.page_length, desired_dpi, 1);

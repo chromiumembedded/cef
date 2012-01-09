@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_RESPONSE_H
-#define _CEF_RESPONSE_H
+#ifndef CEF_INCLUDE_CEF_RESPONSE_H_
+#define CEF_INCLUDE_CEF_RESPONSE_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <map>
 
 ///
@@ -45,10 +46,9 @@
 // called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefResponse : public virtual CefBase
-{
-public:
-  typedef std::multimap<CefString,CefString> HeaderMap;
+class CefResponse : public virtual CefBase {
+ public:
+  typedef std::multimap<CefString, CefString> HeaderMap;
 
   ///
   // Get the response status code.
@@ -101,4 +101,4 @@ public:
   virtual void SetHeaderMap(const HeaderMap& headerMap) =0;
 };
 
-#endif // _CEF_RESPONSE_H
+#endif  // CEF_INCLUDE_CEF_RESPONSE_H_

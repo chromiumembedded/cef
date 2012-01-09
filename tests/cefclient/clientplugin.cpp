@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "clientplugin.h"
+#include "cefclient/clientplugin.h"
 
 #if defined(OS_WIN)
 
@@ -56,24 +56,21 @@ NPError NPP_ClientSetWindow(NPP instance, NPWindow* window_info) {
   return NPERR_NO_ERROR;
 }
 
-} // anonymous
+}  // namespace
 
-NPError API_CALL NP_ClientGetEntryPoints(NPPluginFuncs* pFuncs)
-{
+NPError API_CALL NP_ClientGetEntryPoints(NPPluginFuncs* pFuncs) {
   pFuncs->newp = NPP_ClientNew;
   pFuncs->destroy = NPP_ClientDestroy;
   pFuncs->setwindow = NPP_ClientSetWindow;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_ClientInitialize(NPNetscapeFuncs* pFuncs)
-{
+NPError API_CALL NP_ClientInitialize(NPNetscapeFuncs* pFuncs) {
   g_browser = pFuncs;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_ClientShutdown(void)
-{
+NPError API_CALL NP_ClientShutdown(void) {
   g_browser = NULL;
   return NPERR_NO_ERROR;
 }
@@ -82,24 +79,20 @@ NPError API_CALL NP_ClientShutdown(void)
 // ClientPlugin Implementation
 
 ClientPlugin::ClientPlugin(int16 mode)
-  : mode_(mode)
-{
+  : mode_(mode) {
 }
 
-ClientPlugin::~ClientPlugin()
-{
+ClientPlugin::~ClientPlugin() {
 }
 
 bool ClientPlugin::Initialize(HINSTANCE module_handle, NPP instance,
                               NPMIMEType mime_type, int16 argc, char* argn[],
-                              char* argv[])
-{
+                              char* argv[]) {
   RefreshDisplay();
   return true;
 }
 
-bool ClientPlugin::SetWindow(HWND parent_window)
-{
+bool ClientPlugin::SetWindow(HWND parent_window) {
   if (!::IsWindow(parent_window)) {
     // No window created yet. Ignore this call.
     if (!IsWindow())
@@ -119,23 +112,21 @@ bool ClientPlugin::SetWindow(HWND parent_window)
   // First time in -- no window created by plugin yet.
   ::GetClientRect(parent_window, &parent_rect);
   Create(parent_window, parent_rect, NULL, WS_CHILD | WS_BORDER);
-  
+
   UpdateWindow();
   ShowWindow(SW_SHOW);
 
   return true;
 }
 
-void ClientPlugin::Shutdown()
-{
+void ClientPlugin::Shutdown() {
   if (IsWindow()) {
     DestroyWindow();
   }
 }
 
 LRESULT ClientPlugin::OnPaint(UINT message, WPARAM wparam, LPARAM lparam,
-                              BOOL& handled)
-{
+                              BOOL& handled) {
   PAINTSTRUCT paint_struct;
   BeginPaint(&paint_struct);
   Paint(paint_struct.hdc);
@@ -145,15 +136,13 @@ LRESULT ClientPlugin::OnPaint(UINT message, WPARAM wparam, LPARAM lparam,
 
 // PrintClient is necessary to support off-screen rendering.
 LRESULT ClientPlugin::OnPrintClient(UINT message, WPARAM wparam, LPARAM lparam,
-                                    BOOL& handled)
-{
+                                    BOOL& handled) {
   Paint(reinterpret_cast<HDC>(wparam));
   return 0;
 }
 
 LRESULT ClientPlugin::OnEraseBackGround(UINT message, WPARAM wparam,
-                                        LPARAM lparam, BOOL& handled)
-{
+                                        LPARAM lparam, BOOL& handled) {
   HDC paint_device_context = reinterpret_cast<HDC>(wparam);
   RECT erase_rect;
   GetClipBox(paint_device_context, &erase_rect);
@@ -164,8 +153,7 @@ LRESULT ClientPlugin::OnEraseBackGround(UINT message, WPARAM wparam,
 }
 
 LRESULT ClientPlugin::OnLButtonDown(UINT message, WPARAM wparam, LPARAM lparam,
-                                    BOOL& handled)
-{
+                                    BOOL& handled) {
   MessageBox(L"You clicked on the client plugin!", L"Client Plugin", MB_OK);
   return 0;
 }
@@ -198,4 +186,4 @@ void ClientPlugin::Paint(HDC hdc) {
   SetTextColor(hdc, old_color);
 }
 
-#endif // OS_WIN
+#endif  // OS_WIN

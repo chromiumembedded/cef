@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_devtools_callargs.h"
+#include "libcef/browser_devtools_callargs.h"
 
 #include "base/logging.h"
 
@@ -23,5 +23,5 @@ BrowserDevToolsCallArgs::BrowserDevToolsCallArgs(
 
 BrowserDevToolsCallArgs::~BrowserDevToolsCallArgs() {
   --calls_count_;
-  DCHECK(calls_count_ >= 0);
+  DCHECK_GE(calls_count_, 0);
 }

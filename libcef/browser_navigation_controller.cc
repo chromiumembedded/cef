@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_navigation_controller.h"
-#include "browser_impl.h"
+#include "libcef/browser_navigation_controller.h"
+#include "libcef/browser_impl.h"
 
 #include "base/logging.h"
 #include "net/base/upload_data.h"
@@ -29,7 +29,7 @@ BrowserNavigationEntry::BrowserNavigationEntry(int page_id,
       method_(method),
       headers_(headers),
       target_frame_(target_frame) {
-  if(!upload.isNull())
+  if (!upload.isNull())
     upload_ = upload;
 }
 
@@ -88,8 +88,8 @@ void BrowserNavigationController::GoToOffset(int offset) {
 }
 
 void BrowserNavigationController::GoToIndex(int index) {
-  DCHECK(index >= 0);
-  DCHECK(index < static_cast<int>(entries_.size()));
+  DCHECK_GE(index, 0);
+  DCHECK_LT(index, static_cast<int>(entries_.size()));
 
   DiscardPendingEntry();
 
@@ -233,7 +233,7 @@ void BrowserNavigationController::NavigateToPendingEntry(bool reload,
                                                          bool ignoreCache) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
-    DCHECK(pending_entry_index_ != -1); 
+    DCHECK_NE(pending_entry_index_, -1);
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 

@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_PERMISSION_HANDLER_H
-#define _CEF_PERMISSION_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_PERMISSION_HANDLER_H_
+#define CEF_INCLUDE_CEF_PERMISSION_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 class CefFrame;
@@ -47,9 +48,8 @@ class CefFrame;
 // The methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefPermissionHandler : public virtual CefBase
-{
-public:
+class CefPermissionHandler : public virtual CefBase {
+ public:
   ///
   // Called on the UI thread before a script extension is loaded.
   // Return false to let the extension load normally.
@@ -57,10 +57,9 @@ public:
   /*--cef()--*/
   virtual bool OnBeforeScriptExtensionLoad(CefRefPtr<CefBrowser> browser,
                                            CefRefPtr<CefFrame> frame,
-                                           const CefString& extensionName)
-  {
+                                           const CefString& extensionName) {
     return false;
   }
 };
 
-#endif // _CEF_PERMISSION_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_PERMISSION_HANDLER_H_

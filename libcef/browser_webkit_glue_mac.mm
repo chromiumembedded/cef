@@ -3,11 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "libcef/browser_webkit_glue.h"
 #include "base/compiler_specific.h"
-
 #include "third_party/WebKit/Source/WebCore/config.h"
-
-#include "browser_webkit_glue.h"
 
 #undef LOG
 #include "base/file_util.h"

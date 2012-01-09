@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _DOWNLOAD_UTIL_H
-#define _DOWNLOAD_UTIL_H
+#ifndef CEF_LIBCEF_DOWNLOAD_UTIL_H_
+#define CEF_LIBCEF_DOWNLOAD_UTIL_H_
 #pragma once
 
 #include <string>
@@ -22,6 +22,6 @@ void GenerateFileName(const GURL& url,
                       const std::string& suggested_name,
                       FilePath* generated_name);
 
-} // namespace download_util
+}  // namespace download_util
 
-#endif // _DOWNLOAD_UTIL_H
+#endif  // CEF_LIBCEF_DOWNLOAD_UTIL_H_

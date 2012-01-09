@@ -3,12 +3,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _CEF_PROCESS_IO_THREAD
-#define _CEF_PROCESS_IO_THREAD
+#ifndef CEF_LIBCEF_CEF_PROCESS_IO_THREAD_H_
+#define CEF_LIBCEF_CEF_PROCESS_IO_THREAD_H_
+#pragma once
+
+#include "libcef/browser_request_context.h"
+#include "libcef/cef_thread.h"
 
 #include "base/basictypes.h"
-#include "cef_thread.h"
-#include "browser_request_context.h"
 
 // ----------------------------------------------------------------------------
 // CefProcessIOThread
@@ -21,15 +23,16 @@
 // functions, so this class initializes COM for those users.
 class CefProcessIOThread : public CefThread {
  public:
-  explicit CefProcessIOThread();
-  CefProcessIOThread(MessageLoop* message_loop);
+  CefProcessIOThread();
+  explicit CefProcessIOThread(MessageLoop* message_loop);
   virtual ~CefProcessIOThread();
 
   virtual void Init();
   virtual void CleanUp();
 
-  scoped_refptr<BrowserRequestContext> request_context()
-    { return request_context_; }
+  scoped_refptr<BrowserRequestContext> request_context() {
+    return request_context_;
+  }
 
  private:
   scoped_refptr<BrowserRequestContext> request_context_;
@@ -37,4 +40,4 @@ class CefProcessIOThread : public CefThread {
   DISALLOW_COPY_AND_ASSIGN(CefProcessIOThread);
 };
 
-#endif // _CEF_PROCESS_UI_THREAD
+#endif  // CEF_LIBCEF_CEF_PROCESS_IO_THREAD_H_

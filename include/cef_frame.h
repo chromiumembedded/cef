@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_FRAME_H
-#define _CEF_FRAME_H
+#ifndef CEF_INCLUDE_CEF_FRAME_H_
+#define CEF_INCLUDE_CEF_FRAME_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefBrowser;
 class CefDOMVisitor;
@@ -50,9 +51,8 @@ class CefV8Context;
 // class may be called on any thread unless otherwise indicated in the comments.
 ///
 /*--cef(source=library)--*/
-class CefFrame : public virtual CefBase
-{
-public:
+class CefFrame : public virtual CefBase {
+ public:
   ///
   // Execute undo in this frame.
   ///
@@ -130,10 +130,10 @@ public:
   virtual void LoadURL(const CefString& url) =0;
 
   ///
-  // Load the contents of |string| with the optional dummy target |url|.
+  // Load the contents of |string_val| with the optional dummy target |url|.
   ///
   /*--cef()--*/
-  virtual void LoadString(const CefString& string,
+  virtual void LoadString(const CefString& string_val,
                           const CefString& url) =0;
 
   ///
@@ -151,7 +151,7 @@ public:
   // reporting.
   ///
   /*--cef(optional_param=scriptUrl)--*/
-  virtual void ExecuteJavaScript(const CefString& jsCode, 
+  virtual void ExecuteJavaScript(const CefString& jsCode,
                                  const CefString& scriptUrl,
                                  int startLine) =0;
 
@@ -183,7 +183,7 @@ public:
   // only be called on the UI thread.
   ///
   /*--cef()--*/
-  virtual long long GetIdentifier() =0;
+  virtual int64 GetIdentifier() =0;
 
   ///
   // Returns the parent of this frame or NULL if this is the main (top-level)
@@ -219,4 +219,4 @@ public:
   virtual CefRefPtr<CefV8Context> GetV8Context() =0;
 };
 
-#endif // _CEF_FRAME_H
+#endif  // CEF_INCLUDE_CEF_FRAME_H_

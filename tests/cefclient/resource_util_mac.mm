@@ -3,13 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "resource_util.h"
-#include "include/cef_stream.h"
-#include "util.h"
-
 #import <Foundation/Foundation.h>
 #include <mach-o/dyld.h>
 #include <stdio.h>
+#include "cefclient/resource_util.h"
+#include "include/cef_stream.h"
+#include "cefclient/util.h"
 
 namespace {
 

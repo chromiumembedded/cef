@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _PRINTHANDLER_CPPTOC_H
-#define _PRINTHANDLER_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_
+#pragma once
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else // USING_CEF_SHARED
+#else  // USING_CEF_SHARED
 
 #include "include/cef_print_handler.h"
 #include "include/capi/cef_print_handler_capi.h"
@@ -29,13 +30,12 @@
 // This class may be instantiated and accessed wrapper-side only.
 class CefPrintHandlerCppToC
     : public CefCppToC<CefPrintHandlerCppToC, CefPrintHandler,
-        cef_print_handler_t>
-{
-public:
-  CefPrintHandlerCppToC(CefPrintHandler* cls);
+        cef_print_handler_t> {
+ public:
+  explicit CefPrintHandlerCppToC(CefPrintHandler* cls);
   virtual ~CefPrintHandlerCppToC() {}
 };
 
-#endif // USING_CEF_SHARED
-#endif // _PRINTHANDLER_CPPTOC_H
+#endif  // USING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_
 

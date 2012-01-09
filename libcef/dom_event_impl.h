@@ -2,21 +2,21 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _DOM_EVENT_IMPL_H
-#define _DOM_EVENT_IMPL_H
+#ifndef CEF_LIBCEF_DOM_EVENT_IMPL_H_
+#define CEF_LIBCEF_DOM_EVENT_IMPL_H_
+#pragma once
 
 #include "include/cef_dom.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
 
 class CefDOMDocumentImpl;
 
-class CefDOMEventImpl : public CefDOMEvent
-{
-public:
+class CefDOMEventImpl : public CefDOMEvent {
+ public:
   CefDOMEventImpl(CefRefPtr<CefDOMDocumentImpl> document,
                   const WebKit::WebDOMEvent& event);
   virtual ~CefDOMEventImpl();
-  
+
   virtual CefString GetType() OVERRIDE;
   virtual Category GetCategory() OVERRIDE;
   virtual Phase GetPhase() OVERRIDE;
@@ -32,11 +32,11 @@ public:
   // Verify that the object exists and is being accessed on the UI thread.
   bool VerifyContext();
 
-protected:
+ protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
   WebKit::WebDOMEvent event_;
 
   IMPLEMENT_REFCOUNTING(CefDOMEventImpl);
 };
 
-#endif // _DOM_EVENT_IMPL_H
+#endif  // CEF_LIBCEF_DOM_EVENT_IMPL_H_

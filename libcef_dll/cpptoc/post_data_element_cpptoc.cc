@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -15,8 +15,7 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create()
-{
+CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -31,8 +30,7 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create()
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK post_data_element_set_to_empty(
-    struct _cef_post_data_element_t* self)
-{
+    struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -44,8 +42,7 @@ void CEF_CALLBACK post_data_element_set_to_empty(
 }
 
 void CEF_CALLBACK post_data_element_set_to_file(
-    struct _cef_post_data_element_t* self, const cef_string_t* fileName)
-{
+    struct _cef_post_data_element_t* self, const cef_string_t* fileName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,8 +59,7 @@ void CEF_CALLBACK post_data_element_set_to_file(
 }
 
 void CEF_CALLBACK post_data_element_set_to_bytes(
-    struct _cef_post_data_element_t* self, size_t size, const void* bytes)
-{
+    struct _cef_post_data_element_t* self, size_t size, const void* bytes) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,8 +77,7 @@ void CEF_CALLBACK post_data_element_set_to_bytes(
 }
 
 enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
-    struct _cef_post_data_element_t* self)
-{
+    struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,8 +93,7 @@ enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
 }
 
 cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
-    struct _cef_post_data_element_t* self)
-{
+    struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,8 +108,7 @@ cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes_count(
-    struct _cef_post_data_element_t* self)
-{
+    struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -130,8 +123,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes_count(
 }
 
 size_t CEF_CALLBACK post_data_element_get_bytes(
-    struct _cef_post_data_element_t* self, size_t size, void* bytes)
-{
+    struct _cef_post_data_element_t* self, size_t size, void* bytes) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -156,8 +148,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
 
 CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
     : CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
-        cef_post_data_element_t>(cls)
-{
+        cef_post_data_element_t>(cls) {
   struct_.struct_.set_to_empty = post_data_element_set_to_empty;
   struct_.struct_.set_to_file = post_data_element_set_to_file;
   struct_.struct_.set_to_bytes = post_data_element_set_to_bytes;

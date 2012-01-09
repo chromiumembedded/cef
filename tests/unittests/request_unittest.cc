@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_request.h"
+#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_handler.h"
 
 
 // Verify that CefRequest::HeaderMap objects are equal
@@ -12,13 +12,12 @@
 // |map2|.
 static void VerifyMapEqual(CefRequest::HeaderMap &map1,
                            CefRequest::HeaderMap &map2,
-                           bool allowExtras)
-{
-  if(!allowExtras)
+                           bool allowExtras) {
+  if (!allowExtras)
     ASSERT_EQ(map1.size(), map2.size());
   CefRequest::HeaderMap::const_iterator it1, it2;
 
-  for(it1 = map1.begin(); it1 != map1.end(); ++it1) {
+  for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
     it2 = map2.find(it1->first);
     ASSERT_TRUE(it2 != map2.end());
     ASSERT_EQ(it1->second, it2->second);
@@ -27,16 +26,14 @@ static void VerifyMapEqual(CefRequest::HeaderMap &map1,
 
 // Verify that CefPostDataElement objects are equal
 static void VerifyPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
-                                       CefRefPtr<CefPostDataElement> elem2)
-{
+                                       CefRefPtr<CefPostDataElement> elem2) {
   ASSERT_EQ(elem1->GetType(), elem2->GetType());
-  switch(elem1->GetType()) {
+  switch (elem1->GetType()) {
     case PDE_TYPE_BYTES: {
       ASSERT_EQ(elem1->GetBytesCount(), elem2->GetBytesCount());
-      char *buff1, *buff2;
       size_t bytesCt = elem1->GetBytesCount();
-      buff1 = new char[bytesCt];
-      buff2 = new char[bytesCt];
+      char* buff1 = new char[bytesCt];
+      char* buff2 = new char[bytesCt];
       elem1->GetBytes(bytesCt, buff1);
       elem2->GetBytes(bytesCt, buff2);
       ASSERT_TRUE(!memcmp(buff1, buff2, bytesCt));
@@ -53,11 +50,10 @@ static void VerifyPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
 
 // Verify that CefPostData objects are equal
 static void VerifyPostDataEqual(CefRefPtr<CefPostData> postData1,
-                                CefRefPtr<CefPostData> postData2)
-{
+                                CefRefPtr<CefPostData> postData2) {
   ASSERT_TRUE(!(postData1.get()) == !(postData2.get()));
   ASSERT_EQ(postData1->GetElementCount(), postData2->GetElementCount());
-  
+
   CefPostData::ElementVector ev1, ev2;
   postData1->GetElements(ev1);
   postData1->GetElements(ev2);
@@ -65,7 +61,7 @@ static void VerifyPostDataEqual(CefRefPtr<CefPostData> postData1,
 
   CefPostData::ElementVector::const_iterator it1 = ev1.begin();
   CefPostData::ElementVector::const_iterator it2 = ev2.begin();
-  for(; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2)
+  for (; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2)
     VerifyPostDataElementEqual((*it1), (*it2));
 }
 
@@ -74,11 +70,10 @@ static void VerifyPostDataEqual(CefRefPtr<CefPostData> postData1,
 // |request2|.
 static void VerifyRequestEqual(CefRefPtr<CefRequest> request1,
                                CefRefPtr<CefRequest> request2,
-                               bool allowExtras)
-{
+                               bool allowExtras) {
   ASSERT_EQ(request1->GetURL(), request2->GetURL());
   ASSERT_EQ(request1->GetMethod(), request2->GetMethod());
-  
+
   CefRequest::HeaderMap headers1, headers2;
   request1->GetHeaderMap(headers1);
   request2->GetHeaderMap(headers2);
@@ -88,8 +83,7 @@ static void VerifyRequestEqual(CefRefPtr<CefRequest> request1,
 }
 
 // Verify Set/Get methods for CefRequest, CefPostData and CefPostDataElement.
-TEST(RequestTest, SetGet)
-{
+TEST(RequestTest, SetGet) {
   // CefRequest CreateRequest
   CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
   ASSERT_TRUE(request.get() != NULL);
@@ -111,7 +105,7 @@ TEST(RequestTest, SetGet)
   CefRefPtr<CefPostDataElement> element2(
       CefPostDataElement::CreatePostDataElement());
   ASSERT_TRUE(element2.get() != NULL);
-  
+
   // CefPostDataElement SetToFile
   CefString file = "c:\\path\\to\\file.ext";
   element1->SetToFile(file);
@@ -146,13 +140,13 @@ TEST(RequestTest, SetGet)
   CefPostData::ElementVector elements;
   postData->GetElements(elements);
   CefPostData::ElementVector::const_iterator it = elements.begin();
-  for(size_t i = 0; it != elements.end(); ++it, ++i) {
-    if(i == 0)
+  for (size_t i = 0; it != elements.end(); ++it, ++i) {
+    if (i == 0)
       VerifyPostDataElementEqual(element1, (*it).get());
-    else if(i == 1)
+    else if (i == 1)
       VerifyPostDataElementEqual(element2, (*it).get());
   }
-  
+
   // CefRequest SetURL
   request->SetURL(url);
   ASSERT_EQ(url, request->GetURL());
@@ -184,8 +178,7 @@ TEST(RequestTest, SetGet)
   VerifyPostDataEqual(postData, request->GetPostData());
 }
 
-static void CreateRequest(CefRefPtr<CefRequest>& request)
-{
+static void CreateRequest(CefRefPtr<CefRequest>& request) {
   request = CefRequest::CreateRequest();
   ASSERT_TRUE(request.get() != NULL);
 
@@ -205,27 +198,25 @@ static void CreateRequest(CefRefPtr<CefRequest>& request)
   ASSERT_TRUE(element1.get() != NULL);
   element1->SetToFile("c:\\path\\to\\file.ext");
   postData->AddElement(element1);
-  
+
   CefRefPtr<CefPostDataElement> element2(
       CefPostDataElement::CreatePostDataElement());
   ASSERT_TRUE(element2.get() != NULL);
   char bytes[] = "Test Bytes";
   element2->SetToBytes(sizeof(bytes), bytes);
   postData->AddElement(element2);
-  
+
   request->SetPostData(postData);
 }
 
 bool g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled;
 bool g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled;
 
-class RequestSendRecvTestHandler : public TestHandler
-{
-public:
+class RequestSendRecvTestHandler : public TestHandler {
+ public:
   RequestSendRecvTestHandler() {}
 
-  virtual void RunTest() OVERRIDE
-  {
+  virtual void RunTest() OVERRIDE {
     // Create the test request
     CreateRequest(request_);
 
@@ -233,8 +224,7 @@ public:
     CreateBrowser(CefString());
   }
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE
-  {
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
     TestHandler::OnAfterCreated(browser);
 
     // Load the test request
@@ -245,13 +235,12 @@ public:
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               NavType navType,
-                              bool isRedirect) OVERRIDE
-  {
+                              bool isRedirect) OVERRIDE {
     g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled = true;
-    
+
     // Verify that the request is the same
     VerifyRequestEqual(request_, request, true);
-    
+
     return false;
   }
 
@@ -260,10 +249,9 @@ public:
                                     CefString& redirectUrl,
                                     CefRefPtr<CefStreamReader>& resourceStream,
                                     CefRefPtr<CefResponse> response,
-                                    int loadFlags) OVERRIDE
-  {
+                                    int loadFlags) OVERRIDE {
     g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = true;
-    
+
     // Verify that the request is the same
     VerifyRequestEqual(request_, request, true);
 
@@ -277,8 +265,7 @@ public:
 };
 
 // Verify send and recieve
-TEST(RequestTest, SendRecv)
-{
+TEST(RequestTest, SendRecv) {
   g_RequestSendRecvTestHandlerHandleBeforeBrowseCalled = false;
   g_RequestSendRecvTestHandlerHandleBeforeResourceLoadCalled = false;
 

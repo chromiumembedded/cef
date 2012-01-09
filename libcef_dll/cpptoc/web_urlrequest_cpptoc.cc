@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_web_urlrequest_t* cef_web_urlrequest_create(
-    cef_request_t* request, struct _cef_web_urlrequest_client_t* client)
-{
+    cef_request_t* request, struct _cef_web_urlrequest_client_t* client) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_same
@@ -43,8 +42,7 @@ CEF_EXPORT cef_web_urlrequest_t* cef_web_urlrequest_create(
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK web_urlrequest_cancel(struct _cef_web_urlrequest_t* self)
-{
+void CEF_CALLBACK web_urlrequest_cancel(struct _cef_web_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,8 +54,7 @@ void CEF_CALLBACK web_urlrequest_cancel(struct _cef_web_urlrequest_t* self)
 }
 
 enum cef_weburlrequest_state_t CEF_CALLBACK web_urlrequest_get_state(
-    struct _cef_web_urlrequest_t* self)
-{
+    struct _cef_web_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,8 +74,7 @@ enum cef_weburlrequest_state_t CEF_CALLBACK web_urlrequest_get_state(
 
 CefWebURLRequestCppToC::CefWebURLRequestCppToC(CefWebURLRequest* cls)
     : CefCppToC<CefWebURLRequestCppToC, CefWebURLRequest, cef_web_urlrequest_t>(
-        cls)
-{
+        cls) {
   struct_.struct_.cancel = web_urlrequest_cancel;
   struct_.struct_.get_state = web_urlrequest_get_state;
 }

@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_origin_whitelist.h"
-#include "cef_context.h"
-#include "cef_thread.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
@@ -16,8 +16,7 @@ using WebKit::WebString;
 bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
                                      const CefString& target_protocol,
                                      const CefString& target_domain,
-                                     bool allow_target_subdomains)
-{
+                                     bool allow_target_subdomains) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED();
@@ -52,8 +51,7 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
 bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
                                         const CefString& target_protocol,
                                         const CefString& target_domain,
-                                        bool allow_target_subdomains)
-{
+                                        bool allow_target_subdomains) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED();
@@ -85,8 +83,7 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
   return true;
 }
 
-bool CefClearCrossOriginWhitelist()
-{
+bool CefClearCrossOriginWhitelist() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED();

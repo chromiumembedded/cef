@@ -34,11 +34,12 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_V8CONTEXT_HANDLER_H
-#define _CEF_V8CONTEXT_HANDLER_H
+#ifndef CEF_INCLUDE_CEF_V8CONTEXT_HANDLER_H_
+#define CEF_INCLUDE_CEF_V8CONTEXT_HANDLER_H_
+#pragma once
 
-#include "cef_base.h"
-#include "cef_v8.h"
+#include "include/cef_base.h"
+#include "include/cef_v8.h"
 
 class CefBrowser;
 class CefFrame;
@@ -48,9 +49,8 @@ class CefFrame;
 // class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefV8ContextHandler : public virtual CefBase
-{
-public:
+class CefV8ContextHandler : public virtual CefBase {
+ public:
   ///
   // Called immediately after the V8 context for a frame has been created. To
   // retrieve the JavaScript 'window' object use the CefV8Context::GetGlobal()
@@ -71,4 +71,4 @@ public:
                                  CefRefPtr<CefV8Context> context) {}
 };
 
-#endif // _CEF_V8CONTEXT_HANDLER_H
+#endif  // CEF_INCLUDE_CEF_V8CONTEXT_HANDLER_H_

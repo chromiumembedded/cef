@@ -4,13 +4,14 @@
 
 // A sqlite implementation of a cookie monster persistent store.
 
-// This class is based on src/chrome/browser/net/sqlite_persistent_cookie_store.h
+// This class is based on src/chrome/browser/net/
+//   sqlite_persistent_cookie_store.h
 // with the following modifications for use in the cef:
 // - BrowserThread has been replaced with CefThread
 // - Performance diagnostic code has been removed (UMA_HISTOGRAM_ENUMERATION)
 
-#ifndef _BROWSER_PERSISTENT_COOKIE_STORE_H
-#define _BROWSER_PERSISTENT_COOKIE_STORE_H
+#ifndef CEF_LIBCEF_BROWSER_PERSISTENT_COOKIE_STORE_H_
+#define CEF_LIBCEF_BROWSER_PERSISTENT_COOKIE_STORE_H_
 #pragma once
 
 #include <string>
@@ -59,4 +60,4 @@ class BrowserPersistentCookieStore
   DISALLOW_COPY_AND_ASSIGN(BrowserPersistentCookieStore);
 };
 
-#endif  // _BROWSER_PERSISTENT_COOKIE_STORE_H
+#endif  // CEF_LIBCEF_BROWSER_PERSISTENT_COOKIE_STORE_H_

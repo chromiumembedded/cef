@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
-    const cef_string_t* fileName)
-{
+    const cef_string_t* fileName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: fileName; type: string_byref_const
@@ -35,8 +34,7 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
 }
 
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
-    cef_write_handler_t* handler)
-{
+    cef_write_handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: handler; type: refptr_diff
@@ -56,8 +54,7 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
-    const void* ptr, size_t size, size_t n)
-{
+    const void* ptr, size_t size, size_t n) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,8 +76,7 @@ size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
 }
 
 int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
-    long offset, int whence)
-{
+    int64 offset, int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -96,8 +92,7 @@ int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
   return _retval;
 }
 
-long CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self)
-{
+int64 CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -105,14 +100,13 @@ long CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self)
     return 0;
 
   // Execute
-  long _retval = CefStreamWriterCppToC::Get(self)->Tell();
+  int64 _retval = CefStreamWriterCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;
 }
 
-int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self)
-{
+int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -131,8 +125,7 @@ int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self)
 
 CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
     : CefCppToC<CefStreamWriterCppToC, CefStreamWriter, cef_stream_writer_t>(
-        cls)
-{
+        cls) {
   struct_.struct_.write = stream_writer_write;
   struct_.struct_.seek = stream_writer_seek;
   struct_.struct_.tell = stream_writer_tell;

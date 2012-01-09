@@ -3,10 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_process_ui_thread.h"
-#include "browser_impl.h"
+#include "libcef/cef_process_ui_thread.h"
+
 #include <commctrl.h>
 #include <Objbase.h>
+
+#include "libcef/browser_impl.h"
 
 void CefProcessUIThread::PlatformInit() {
   HRESULT res;

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_STREAM_CAPI_H
-#define _CEF_STREAM_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure the client can implement to provide a custom stream reader. The
 // functions of this structure may be called on any thread.
 ///
-typedef struct _cef_read_handler_t
-{
+typedef struct _cef_read_handler_t {
   ///
   // Base structure.
   ///
@@ -63,21 +63,20 @@ typedef struct _cef_read_handler_t
 
   ///
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET.
+  // SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
   ///
-  int (CEF_CALLBACK *seek)(struct _cef_read_handler_t* self, long offset,
+  int (CEF_CALLBACK *seek)(struct _cef_read_handler_t* self, int64 offset,
       int whence);
 
   ///
   // Return the current offset position.
   ///
-  long (CEF_CALLBACK *tell)(struct _cef_read_handler_t* self);
+  int64 (CEF_CALLBACK *tell)(struct _cef_read_handler_t* self);
 
   ///
   // Return non-zero if at end of file.
   ///
   int (CEF_CALLBACK *eof)(struct _cef_read_handler_t* self);
-
 } cef_read_handler_t;
 
 
@@ -85,8 +84,7 @@ typedef struct _cef_read_handler_t
 // Structure used to read data from a stream. The functions of this structure
 // may be called on any thread.
 ///
-typedef struct _cef_stream_reader_t
-{
+typedef struct _cef_stream_reader_t {
   ///
   // Base structure.
   ///
@@ -102,19 +100,18 @@ typedef struct _cef_stream_reader_t
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   // SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
   ///
-  int (CEF_CALLBACK *seek)(struct _cef_stream_reader_t* self, long offset,
+  int (CEF_CALLBACK *seek)(struct _cef_stream_reader_t* self, int64 offset,
       int whence);
 
   ///
   // Return the current offset position.
   ///
-  long (CEF_CALLBACK *tell)(struct _cef_stream_reader_t* self);
+  int64 (CEF_CALLBACK *tell)(struct _cef_stream_reader_t* self);
 
   ///
   // Return non-zero if at end of file.
   ///
   int (CEF_CALLBACK *eof)(struct _cef_stream_reader_t* self);
-
 } cef_stream_reader_t;
 
 
@@ -141,8 +138,7 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
 // Structure the client can implement to provide a custom stream writer. The
 // functions of this structure may be called on any thread.
 ///
-typedef struct _cef_write_handler_t
-{
+typedef struct _cef_write_handler_t {
   ///
   // Base structure.
   ///
@@ -156,21 +152,20 @@ typedef struct _cef_write_handler_t
 
   ///
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET.
+  // SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
   ///
-  int (CEF_CALLBACK *seek)(struct _cef_write_handler_t* self, long offset,
+  int (CEF_CALLBACK *seek)(struct _cef_write_handler_t* self, int64 offset,
       int whence);
 
   ///
   // Return the current offset position.
   ///
-  long (CEF_CALLBACK *tell)(struct _cef_write_handler_t* self);
+  int64 (CEF_CALLBACK *tell)(struct _cef_write_handler_t* self);
 
   ///
   // Flush the stream.
   ///
   int (CEF_CALLBACK *flush)(struct _cef_write_handler_t* self);
-
 } cef_write_handler_t;
 
 
@@ -178,8 +173,7 @@ typedef struct _cef_write_handler_t
 // Structure used to write data to a stream. The functions of this structure may
 // be called on any thread.
 ///
-typedef struct _cef_stream_writer_t
-{
+typedef struct _cef_stream_writer_t {
   ///
   // Base structure.
   ///
@@ -193,21 +187,20 @@ typedef struct _cef_stream_writer_t
 
   ///
   // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET.
+  // SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
   ///
-  int (CEF_CALLBACK *seek)(struct _cef_stream_writer_t* self, long offset,
+  int (CEF_CALLBACK *seek)(struct _cef_stream_writer_t* self, int64 offset,
       int whence);
 
   ///
   // Return the current offset position.
   ///
-  long (CEF_CALLBACK *tell)(struct _cef_stream_writer_t* self);
+  int64 (CEF_CALLBACK *tell)(struct _cef_stream_writer_t* self);
 
   ///
   // Flush the stream.
   ///
   int (CEF_CALLBACK *flush)(struct _cef_stream_writer_t* self);
-
 } cef_stream_writer_t;
 
 
@@ -228,4 +221,4 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
 }
 #endif
 
-#endif // _CEF_STREAM_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_

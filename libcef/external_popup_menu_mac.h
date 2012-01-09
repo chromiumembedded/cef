@@ -3,8 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _EXTERNAL_POPUP_MENU_MAC_H
-#define _EXTERNAL_POPUP_MENU_MAC_H
+#ifndef CEF_LIBCEF_EXTERNAL_POPUP_MENU_MAC_H_
+#define CEF_LIBCEF_EXTERNAL_POPUP_MENU_MAC_H_
+#pragma once
 
 #include "base/basictypes.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebExternalPopupMenu.h"
@@ -34,4 +35,4 @@ class ExternalPopupMenu : public WebKit::WebExternalPopupMenu {
   DISALLOW_COPY_AND_ASSIGN(ExternalPopupMenu);
 };
 
-#endif  // _EXTERNAL_POPUP_MENU_MAC_H
+#endif  // CEF_LIBCEF_EXTERNAL_POPUP_MENU_MAC_H_

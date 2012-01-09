@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,14 +34,15 @@
 // more information.
 //
 
-#ifndef _CEF_ORIGIN_WHITELIST_CAPI_H
-#define _CEF_ORIGIN_WHITELIST_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
@@ -98,4 +99,4 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist();
 }
 #endif
 
-#endif // _CEF_ORIGIN_WHITELIST_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_

@@ -3,11 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _CEF_PROCESS_SUB_THREAD
-#define _CEF_PROCESS_SUB_THREAD
+#ifndef CEF_LIBCEF_CEF_PROCESS_SUB_THREAD_H_
+#define CEF_LIBCEF_CEF_PROCESS_SUB_THREAD_H_
+#pragma once
+
+#include "libcef/cef_thread.h"
 
 #include "base/basictypes.h"
-#include "cef_thread.h"
 
 // ----------------------------------------------------------------------------
 // CefProcessSubThread
@@ -32,4 +34,4 @@ class CefProcessSubThread : public CefThread {
   DISALLOW_COPY_AND_ASSIGN(CefProcessSubThread);
 };
 
-#endif // _CEF_PROCESS_SUB_THREAD
+#endif  // CEF_LIBCEF_CEF_PROCESS_SUB_THREAD_H_

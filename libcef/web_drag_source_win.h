@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _WEB_DRAG_SOURCE_WIN_H
-#define _WEB_DRAG_SOURCE_WIN_H
+#ifndef CEF_LIBCEF_WEB_DRAG_SOURCE_WIN_H_
+#define CEF_LIBCEF_WEB_DRAG_SOURCE_WIN_H_
 #pragma once
 
 #include "base/basictypes.h"
@@ -23,7 +23,7 @@ class WebView;
 class WebDragSource : public ui::DragSource {
  public:
   // Create a new DragSource for a given HWND and WebView.
- WebDragSource(gfx::NativeWindow source_wnd, WebKit::WebView* view);
+  WebDragSource(gfx::NativeWindow source_wnd, WebKit::WebView* view);
   virtual ~WebDragSource();
 
   void set_effect(DWORD effect) { effect_ = effect; }
@@ -55,4 +55,4 @@ class WebDragSource : public ui::DragSource {
   DISALLOW_COPY_AND_ASSIGN(WebDragSource);
 };
 
-#endif  // _WEB_DRAG_SOURCE_WIN_H
+#endif  // CEF_LIBCEF_WEB_DRAG_SOURCE_WIN_H_

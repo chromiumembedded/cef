@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "external_popup_menu_mac.h"
-#include "browser_impl.h"
+#include "libcef/external_popup_menu_mac.h"
+#include "libcef/browser_impl.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebExternalPopupMenuClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"

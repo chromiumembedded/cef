@@ -28,14 +28,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_BUILD_H
-#define _CEF_BUILD_H
+#ifndef CEF_INCLUDE_INTERNAL_CEF_BUILD_H_
+#define CEF_INCLUDE_INTERNAL_CEF_BUILD_H_
+#pragma once
 
 #if defined(BUILDING_CEF_SHARED)
 
 #include "base/compiler_specific.h"
 
-#else // !BUILDING_CEF_SHARED
+#else  // !BUILDING_CEF_SHARED
 
 #if defined(_WIN32)
 #ifndef OS_WIN
@@ -116,13 +117,13 @@
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) MSVC_PUSH_DISABLE_WARNING(4355) \
                                              code \
                                              MSVC_POP_WARNING()
-#else // !COMPILER_MSVC
+#else  // !COMPILER_MSVC
 
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 
-#endif // !COMPILER_MSVC
+#endif  // !COMPILER_MSVC
 #endif
 
-#endif // !BUILDING_CEF_SHARED
+#endif  // !BUILDING_CEF_SHARED
 
-#endif // _CEF_BUILD_H
+#endif  // CEF_INCLUDE_INTERNAL_CEF_BUILD_H_

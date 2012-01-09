@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
-#import "webwidget_host.h"
+#import "libcef/webwidget_host.h"
 #import "base/logging.h"
 #import "skia/ext/platform_canvas.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
@@ -30,17 +30,15 @@ using WebKit::WebWidgetClient;
 
 namespace {
 
-inline SkIRect convertToSkiaRect(const gfx::Rect& r)
-{
+inline SkIRect convertToSkiaRect(const gfx::Rect& r) {
   return SkIRect::MakeLTRB(r.x(), r.y(), r.right(), r.bottom());
 }
 
-inline gfx::Rect convertFromSkiaRect(const SkIRect& r)
-{
+inline gfx::Rect convertFromSkiaRect(const SkIRect& r) {
   return gfx::Rect(r.x(), r.y(), r.width(), r.height());
 }
 
-} // namespace
+}  // namespace
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
@@ -238,19 +236,16 @@ void WebWidgetHost::Invalidate() {
   [view_ setNeedsDisplay:YES];
 }
 
-void WebWidgetHost::SetTooltipText(const CefString& tooltip_text)
-{
+void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
-{
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer)
-{
+bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
   if (!canvas_.get())
     return false;
 
@@ -339,50 +334,42 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
 }
 
 void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
-                                 bool sysChar, bool imeChar)
-{
+                                 bool sysChar, bool imeChar) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
 void WebWidgetHost::SendMouseClickEvent(int x, int y,
                                         cef_mouse_button_type_t type,
-                                        bool mouseUp, int clickCount)
-{
+                                        bool mouseUp, int clickCount) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
-{
+void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
-{
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendFocusEvent(bool setFocus)
-{
+void WebWidgetHost::SendFocusEvent(bool setFocus) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendCaptureLostEvent()
-{
+void WebWidgetHost::SendCaptureLostEvent() {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::EnsureTooltip()
-{
+void WebWidgetHost::EnsureTooltip() {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-void WebWidgetHost::ResetTooltip()
-{
+void WebWidgetHost::ResetTooltip() {
   // TODO(port): Implement this method as part of tooltip support.
 }

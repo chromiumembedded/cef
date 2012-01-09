@@ -34,10 +34,10 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_TASK_H
-#define _CEF_TASK_H
+#ifndef CEF_INCLUDE_CEF_TASK_H_
+#define CEF_INCLUDE_CEF_TASK_H_
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefTask;
 
@@ -69,7 +69,7 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
 ///
 /*--cef()--*/
 bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
-                        long delay_ms);
+                        int64 delay_ms);
 
 
 ///
@@ -77,9 +77,8 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
 // be called on any thread.
 ///
 /*--cef(source=client)--*/
-class CefTask : public virtual CefBase
-{
-public:
+class CefTask : public virtual CefBase {
+ public:
   ///
   // Method that will be executed. |threadId| is the thread executing the call.
   ///
@@ -87,4 +86,4 @@ public:
   virtual void Execute(CefThreadId threadId) =0;
 };
 
-#endif // _CEF_TASK_H
+#endif  // CEF_INCLUDE_CEF_TASK_H_

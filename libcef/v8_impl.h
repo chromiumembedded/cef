@@ -2,11 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _V8_IMPL_H
-#define _V8_IMPL_H
+#ifndef CEF_LIBCEF_V8_IMPL_H_
+#define CEF_LIBCEF_V8_IMPL_H_
+#pragma once
 
+#include <vector>
 #include "include/cef_v8.h"
 #include "v8/include/v8.h"
+#include "libcef/cef_thread.h"
+#include "base/memory/ref_counted.h"
 
 class CefTrackObject;
 
@@ -17,25 +21,21 @@ class WebFrame;
 // Template for V8 Handle types. This class is used to ensure that V8 objects
 // are only released on the UI thread.
 template <class v8class>
-class CefReleaseV8HandleOnUIThread:
-    public base::RefCountedThreadSafe<CefReleaseV8HandleOnUIThread<v8class>,
-                                      CefThread::DeleteOnUIThread>
-{
-public:
+class CefReleaseV8HandleOnUIThread
+    : public base::RefCountedThreadSafe<CefReleaseV8HandleOnUIThread<v8class>,
+                                        CefThread::DeleteOnUIThread> {
+ public:
   typedef v8::Handle<v8class> handleType;
   typedef v8::Persistent<v8class> persistentType;
   typedef CefReleaseV8HandleOnUIThread<v8class> superType;
 
-  CefReleaseV8HandleOnUIThread(handleType v)
-  {
+  explicit CefReleaseV8HandleOnUIThread(handleType v) {
     v8_handle_ = persistentType::New(v);
   }
-  virtual ~CefReleaseV8HandleOnUIThread()
-  {
+  virtual ~CefReleaseV8HandleOnUIThread() {
   }
 
-  handleType GetHandle()
-  {
+  handleType GetHandle() {
     return v8_handle_;
   }
 
@@ -44,25 +44,22 @@ public:
 
 // Special class for a v8::Context to ensure that it is deleted from the UI
 // thread.
-class CefV8ContextHandle : public CefReleaseV8HandleOnUIThread<v8::Context>
-{
-public:
-  CefV8ContextHandle(handleType context): superType(context)
-  {
+class CefV8ContextHandle : public CefReleaseV8HandleOnUIThread<v8::Context> {
+ public:
+  explicit CefV8ContextHandle(handleType context)
+    : superType(context) {
   }
 
   // Context handles are disposed rather than makeweak.
-  ~CefV8ContextHandle()
-  {
+  ~CefV8ContextHandle() {
     v8_handle_.Dispose();
     v8_handle_.Clear();
   }
 };
 
-class CefV8ContextImpl : public CefV8Context
-{
-public:
-  CefV8ContextImpl(v8::Handle<v8::Context> context);
+class CefV8ContextImpl : public CefV8Context {
+ public:
+  explicit CefV8ContextImpl(v8::Handle<v8::Context> context);
   virtual ~CefV8ContextImpl();
 
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
@@ -75,7 +72,7 @@ public:
   v8::Local<v8::Context> GetContext();
   WebKit::WebFrame* GetWebFrame();
 
-protected:
+ protected:
   scoped_refptr<CefV8ContextHandle> v8_context_;
 
 #ifndef NDEBUG
@@ -88,25 +85,23 @@ protected:
 
 // Special class for a v8::Value to ensure that it is deleted from the UI
 // thread.
-class CefV8ValueHandle: public CefReleaseV8HandleOnUIThread<v8::Value>
-{
-public:
+class CefV8ValueHandle: public CefReleaseV8HandleOnUIThread<v8::Value> {
+ public:
   CefV8ValueHandle(handleType value, CefTrackObject* tracker)
-    : superType(value), tracker_(tracker)
-  {
+    : superType(value),
+      tracker_(tracker) {
   }
   // Destructor implementation is provided in v8_impl.cc.
   ~CefV8ValueHandle();
 
-private:
+ private:
   // For Object and Function types, we need to hold on to a reference to their
   // internal data or function handler objects that are reference counted.
-  CefTrackObject *tracker_;
+  CefTrackObject* tracker_;
 };
 
-class CefV8ValueImpl : public CefV8Value
-{
-public:
+class CefV8ValueImpl : public CefV8Value {
+ public:
   CefV8ValueImpl(v8::Handle<v8::Value> value, CefTrackObject* tracker = NULL);
   virtual ~CefV8ValueImpl();
 
@@ -135,7 +130,7 @@ public:
   virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
                         PropertyAttribute attribute) OVERRIDE;
   virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
-  virtual bool SetValue(const CefString& key, AccessControl settings, 
+  virtual bool SetValue(const CefString& key, AccessControl settings,
                         PropertyAttribute attribute) OVERRIDE;
   virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
   virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
@@ -155,8 +150,7 @@ public:
                                CefRefPtr<CefV8Exception>& exception,
                                bool rethrow_exception) OVERRIDE;
 
-  inline v8::Handle<v8::Value> GetHandle()
-  {
+  inline v8::Handle<v8::Value> GetHandle() {
     DCHECK(v8_value_.get());
     return v8_value_->GetHandle();
   }
@@ -164,10 +158,10 @@ public:
   // Returns the accessor assigned for the specified object, if any.
   static CefV8Accessor* GetAccessor(v8::Handle<v8::Object> object);
 
-protected:
+ protected:
   scoped_refptr<CefV8ValueHandle> v8_value_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
 };
 
-#endif //_V8_IMPL_H
+#endif  // CEF_LIBCEF_V8_IMPL_H_

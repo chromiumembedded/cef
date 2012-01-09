@@ -342,8 +342,10 @@ def dict_to_str(dict):
 _cre_attrib = '/\*--cef\(([A-Za-z0-9_ ,=:\n]{0,})\)--\*/'
 # regex for matching class and function names
 _cre_cfname = '([A-Za-z0-9_]{1,})'
-# regex for matching typedef values and function return values
+# regex for matching function return values
 _cre_retval = '([A-Za-z0-9_<>:,\*\&]{1,})'
+# regex for matching typedef value and name combination
+_cre_typedef = '([A-Za-z0-9_<>:,\*\& ]{1,})'
 # regex for matching function return value and name combination
 _cre_func   = '([A-Za-z][A-Za-z0-9_<>:,\*\& ]{1,})'
 # regex for matching virtual function modifiers
@@ -453,13 +455,17 @@ class obj_header:
         data = data.replace("> >", ">>")
         
         # extract global typedefs
-        p = re.compile('\ntypedef'+_cre_space+_cre_retval+
-                       _cre_space+_cre_cfname+';',
+        p = re.compile('\ntypedef'+_cre_space+_cre_typedef+';',
                        re.MULTILINE | re.DOTALL)
         list = p.findall(data)
         if len(list) > 0:
             # build the global typedef objects
-            for value, alias in list:
+            for value in list:
+                pos = value.rfind(' ')
+                if pos < 0:
+                  raise Exception('Invalid typedef: '+value)
+                alias = value[pos+1:]
+                value = value[:pos]
                 self.typedefs.append(obj_typedef(self, filename, value, alias))
             
         # extract global functions
@@ -483,8 +489,8 @@ class obj_header:
         p = re.compile('\n'+_cre_attrib+
                        '\nclass'+_cre_space+_cre_cfname+_cre_space+
                        ':'+_cre_space+'public'+_cre_space+'virtual'+
-                       _cre_space+'CefBase'+
-                       '\n{(.*?)};', re.MULTILINE | re.DOTALL)
+                       _cre_space+'CefBase'+_cre_space+
+                       '{(.*?)};', re.MULTILINE | re.DOTALL)
         list = p.findall(data)
         if len(list) > 0:
             added = True
@@ -646,14 +652,18 @@ class obj_class:
         self.forward_declares = forward_declares
         
         # extract typedefs
-        p = re.compile('\n'+_cre_space+'typedef'+_cre_space+_cre_retval+
-                       _cre_space+_cre_cfname+';',
+        p = re.compile('\n'+_cre_space+'typedef'+_cre_space+_cre_typedef+';',
                        re.MULTILINE | re.DOTALL)
         list = p.findall(body)
-        
+
         # build the typedef objects
         self.typedefs = []
-        for value, alias in list:
+        for value in list:
+            pos = value.rfind(' ')
+            if pos < 0:
+              raise Exception('Invalid typedef: '+value)
+            alias = value[pos+1:]
+            value = value[:pos]
             self.typedefs.append(obj_typedef(self, filename, value, alias))
             
         # extract static functions

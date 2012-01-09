@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -16,8 +16,7 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self)
-{
+int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -31,8 +30,7 @@ int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self)
-{
+int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -46,8 +44,7 @@ int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self)
   return _retval;
 }
 
-int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self)
-{
+int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,8 +59,7 @@ int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self)
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_url(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -78,8 +74,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_url(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_title(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -94,8 +89,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_title(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_link_metadata(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -110,8 +104,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_link_metadata(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_text(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -126,8 +119,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_text(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_html(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,8 +134,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_html(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_base_url(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -158,8 +149,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_base_url(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_file_extension(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -174,8 +164,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_file_extension(
 }
 
 cef_string_userfree_t CEF_CALLBACK drag_data_get_file_name(
-    struct _cef_drag_data_t* self)
-{
+    struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -190,8 +179,7 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_file_name(
 }
 
 int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
-    cef_string_list_t names)
-{
+    cef_string_list_t names) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -222,8 +210,7 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDragDataCppToC::CefDragDataCppToC(CefDragData* cls)
-    : CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t>(cls)
-{
+    : CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t>(cls) {
   struct_.struct_.is_link = drag_data_is_link;
   struct_.struct_.is_fragment = drag_data_is_fragment;
   struct_.struct_.is_file = drag_data_is_file;

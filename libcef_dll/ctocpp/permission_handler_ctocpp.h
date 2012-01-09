@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _PERMISSIONHANDLER_CTOCPP_H
-#define _PERMISSIONHANDLER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_PERMISSION_HANDLER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_PERMISSION_HANDLER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_permission_handler.h"
 #include "include/capi/cef_permission_handler_capi.h"
@@ -29,10 +30,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefPermissionHandlerCToCpp
     : public CefCToCpp<CefPermissionHandlerCToCpp, CefPermissionHandler,
-        cef_permission_handler_t>
-{
-public:
-  CefPermissionHandlerCToCpp(cef_permission_handler_t* str)
+        cef_permission_handler_t> {
+ public:
+  explicit CefPermissionHandlerCToCpp(cef_permission_handler_t* str)
       : CefCToCpp<CefPermissionHandlerCToCpp, CefPermissionHandler,
           cef_permission_handler_t>(str) {}
   virtual ~CefPermissionHandlerCToCpp() {}
@@ -42,6 +42,6 @@ public:
       CefRefPtr<CefFrame> frame, const CefString& extensionName) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _PERMISSIONHANDLER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_PERMISSION_HANDLER_CTOCPP_H_
 

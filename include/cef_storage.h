@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_STORAGE_H
-#define _CEF_STORAGE_H
+#ifndef CEF_INCLUDE_CEF_STORAGE_H_
+#define CEF_INCLUDE_CEF_STORAGE_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefStorageVisitor;
 
@@ -91,9 +92,8 @@ bool CefSetStoragePath(CefStorageType type, const CefString& path);
 // always be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefStorageVisitor : public virtual CefBase
-{
-public:
+class CefStorageVisitor : public virtual CefBase {
+ public:
   ///
   // Method that will be called once for each key/value data pair in storage.
   // |count| is the 0-based index for the current pair. |total| is the total
@@ -107,4 +107,4 @@ public:
                      int total, bool& deleteData) =0;
 };
 
-#endif // _CEF_STORAGE_H
+#endif  // CEF_INCLUDE_CEF_STORAGE_H_

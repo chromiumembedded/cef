@@ -3,12 +3,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _CEF_PROCESS_UI_THREAD
-#define _CEF_PROCESS_UI_THREAD
+#ifndef CEF_LIBCEF_CEF_PROCESS_UI_THREAD_H_
+#define CEF_LIBCEF_CEF_PROCESS_UI_THREAD_H_
+#pragma once
+
+#include "libcef/cef_thread.h"
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
-#include "cef_thread.h"
 #include "media/audio/audio_manager.h"
 #include "net/base/network_change_notifier.h"
 
@@ -28,11 +30,10 @@ class StatsTable;
 // functions, so this class initializes COM for those users.
 class CefProcessUIThread
     : public net::NetworkChangeNotifier::OnlineStateObserver,
-      public CefThread
-{
+      public CefThread {
  public:
-  explicit CefProcessUIThread();
-  CefProcessUIThread(MessageLoop* message_loop);
+  CefProcessUIThread();
+  explicit CefProcessUIThread(MessageLoop* message_loop);
   virtual ~CefProcessUIThread();
 
   virtual void Init();
@@ -58,4 +59,4 @@ class CefProcessUIThread
   DISALLOW_COPY_AND_ASSIGN(CefProcessUIThread);
 };
 
-#endif // _CEF_PROCESS_UI_THREAD
+#endif  // CEF_LIBCEF_CEF_PROCESS_UI_THREAD_H_

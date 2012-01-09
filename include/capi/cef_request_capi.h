@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_REQUEST_CAPI_H
-#define _CEF_REQUEST_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure used to represent a web request. The functions of this structure
 // may be called on any thread.
 ///
-typedef struct _cef_request_t
-{
+typedef struct _cef_request_t {
   ///
   // Base structure.
   ///
@@ -137,7 +137,6 @@ typedef struct _cef_request_t
   ///
   void (CEF_CALLBACK *set_first_party_for_cookies)(struct _cef_request_t* self,
       const cef_string_t* url);
-
 } cef_request_t;
 
 
@@ -151,8 +150,7 @@ CEF_EXPORT cef_request_t* cef_request_create();
 // Structure used to represent post data for a web request. The functions of
 // this structure may be called on any thread.
 ///
-typedef struct _cef_post_data_t
-{
+typedef struct _cef_post_data_t {
   ///
   // Base structure.
   ///
@@ -186,7 +184,6 @@ typedef struct _cef_post_data_t
   // Remove all existing post data elements.
   ///
   void (CEF_CALLBACK *remove_elements)(struct _cef_post_data_t* self);
-
 } cef_post_data_t;
 
 
@@ -200,8 +197,7 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create();
 // Structure used to represent a single element in the request post data. The
 // functions of this structure may be called on any thread.
 ///
-typedef struct _cef_post_data_element_t
-{
+typedef struct _cef_post_data_element_t {
   ///
   // Base structure.
   ///
@@ -249,7 +245,6 @@ typedef struct _cef_post_data_element_t
   ///
   size_t (CEF_CALLBACK *get_bytes)(struct _cef_post_data_element_t* self,
       size_t size, void* bytes);
-
 } cef_post_data_element_t;
 
 
@@ -263,4 +258,4 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create();
 }
 #endif
 
-#endif // _CEF_REQUEST_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_

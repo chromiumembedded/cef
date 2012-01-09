@@ -6,8 +6,9 @@
 // Portions of this implementation are borrowed from webkit\default_plugin\
 // plugin_impl.h
 
-#ifndef _CEFCLIENT_UIPLUGIN_H
-#define _CEFCLIENT_UIPLUGIN_H
+#ifndef CEF_TESTS_CEFCLIENT_UIPLUGIN_H_
+#define CEF_TESTS_CEFCLIENT_UIPLUGIN_H_
+#pragma once
 
 #include "include/cef_nplugin.h"
 
@@ -24,6 +25,6 @@ void ModifyRotation(float value);
 // Function called to reset the rotation value.
 void ResetRotation();
 
-#endif // OS_WIN
+#endif  // OS_WIN
 
-#endif // _CEFCLIENT_UIPLUGIN_H
+#endif  // CEF_TESTS_CEFCLIENT_UIPLUGIN_H_

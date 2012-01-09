@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _PROXYHANDLER_CTOCPP_H
-#define _PROXYHANDLER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_PROXY_HANDLER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_PROXY_HANDLER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_proxy_handler.h"
 #include "include/capi/cef_proxy_handler_capi.h"
@@ -25,10 +26,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefProxyHandlerCToCpp
     : public CefCToCpp<CefProxyHandlerCToCpp, CefProxyHandler,
-        cef_proxy_handler_t>
-{
-public:
-  CefProxyHandlerCToCpp(cef_proxy_handler_t* str)
+        cef_proxy_handler_t> {
+ public:
+  explicit CefProxyHandlerCToCpp(cef_proxy_handler_t* str)
       : CefCToCpp<CefProxyHandlerCToCpp, CefProxyHandler, cef_proxy_handler_t>(
           str) {}
   virtual ~CefProxyHandlerCToCpp() {}
@@ -38,6 +38,6 @@ public:
       CefProxyInfo& proxy_info) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _PROXYHANDLER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_PROXY_HANDLER_CTOCPP_H_
 

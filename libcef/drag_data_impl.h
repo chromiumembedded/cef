@@ -2,16 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _DRAG_DATA_IMPL_H
-#define _DRAG_DATA_IMPL_H
+#ifndef CEF_LIBCEF_DRAG_DATA_IMPL_H_
+#define CEF_LIBCEF_DRAG_DATA_IMPL_H_
+#pragma once
+
+#include <vector>
 
 #include "include/cef_drag_data.h"
 #include "webkit/glue/webdropdata.h"
 
 // Implementation of CefDragData.
-class CefDragDataImpl : public CefDragData
-{
-public:
+class CefDragDataImpl : public CefDragData {
+ public:
   explicit CefDragDataImpl(const WebDropData& data);
 
   virtual bool IsLink();
@@ -27,10 +29,10 @@ public:
   virtual CefString GetFileName();
   virtual bool GetFileNames(std::vector<CefString>& names);
 
-protected:
+ protected:
   WebDropData data_;
 
   IMPLEMENT_REFCOUNTING(CefDragDataImpl);
 };
 
-#endif // _DRAG_DATA_IMPL_H
+#endif  // CEF_LIBCEF_DRAG_DATA_IMPL_H_

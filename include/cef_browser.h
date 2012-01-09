@@ -34,10 +34,11 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_BROWSER_H
-#define _CEF_BROWSER_H
+#ifndef CEF_INCLUDE_CEF_BROWSER_H_
+#define CEF_INCLUDE_CEF_BROWSER_H_
+#pragma once
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 #include <vector>
 
 class CefClient;
@@ -48,9 +49,8 @@ class CefFrame;
 // called on any thread unless otherwise indicated in the comments.
 ///
 /*--cef(source=library)--*/
-class CefBrowser : public virtual CefBase
-{
-public:
+class CefBrowser : public virtual CefBase {
+ public:
   typedef cef_key_type_t KeyType;
   typedef cef_mouse_button_type_t MouseButtonType;
   typedef cef_paint_element_type_t PaintElementType;
@@ -146,7 +146,7 @@ public:
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetOpenerWindowHandle() =0;
-  
+
   ///
   // Returns true if the window is a popup window.
   ///
@@ -274,7 +274,7 @@ public:
   ///
   // Invalidate the |dirtyRect| region of the view. This method is only used
   // when window rendering is disabled and will result in a call to
-  // HandlePaint(). 
+  // HandlePaint().
   ///
   /*--cef()--*/
   virtual void Invalidate(const CefRect& dirtyRect) =0;
@@ -295,7 +295,7 @@ public:
   ///
   /*--cef()--*/
   virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                            bool imeChar) =0;  
+                            bool imeChar) =0;
 
   ///
   // Send a mouse click event to the browser. The |x| and |y| coordinates are
@@ -332,4 +332,4 @@ public:
   virtual void SendCaptureLostEvent() =0;
 };
 
-#endif // _CEF_BROWSER_H
+#endif  // CEF_INCLUDE_CEF_BROWSER_H_

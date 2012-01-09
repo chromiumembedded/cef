@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _LIFESPANHANDLER_CTOCPP_H
-#define _LIFESPANHANDLER_CTOCPP_H
+#ifndef CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_life_span_handler.h"
 #include "include/capi/cef_life_span_handler_capi.h"
@@ -29,10 +30,9 @@
 // This class may be instantiated and accessed DLL-side only.
 class CefLifeSpanHandlerCToCpp
     : public CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
-        cef_life_span_handler_t>
-{
-public:
-  CefLifeSpanHandlerCToCpp(cef_life_span_handler_t* str)
+        cef_life_span_handler_t> {
+ public:
+  explicit CefLifeSpanHandlerCToCpp(cef_life_span_handler_t* str)
       : CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
           cef_life_span_handler_t>(str) {}
   virtual ~CefLifeSpanHandlerCToCpp() {}
@@ -48,6 +48,6 @@ public:
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _LIFESPANHANDLER_CTOCPP_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
 

@@ -3,14 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "uiplugin.h"
-#include "include/cef_browser.h"
-#include "include/cef_frame.h"
-#include "cefclient.h"
-#include <gl/gl.h>
-#include <sstream>
+#include "cefclient/uiplugin.h"
 
 #if defined(OS_WIN)
+
+#include <windows.h>
+#include <gl/gl.h>
+#include <sstream>
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "cefclient/cefclient.h"
 
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_uibrowser = NULL;
@@ -22,11 +24,9 @@ float g_rotationspeed = 0.0f;
 float g_theta = 0.0f;
 
 // Class holding pointers for the client plugin window.
-class ClientPlugin
-{
-public:
-  ClientPlugin()
-  {
+class ClientPlugin {
+ public:
+  ClientPlugin() {
     hWnd = NULL;
     hDC = NULL;
     hRC = NULL;
@@ -49,17 +49,17 @@ NPError NPP_NewImpl(NPMIMEType plugin_type, NPP instance, uint16 mode,
   if (instance == NULL)
     return NPERR_INVALID_INSTANCE_ERROR;
 
-  ClientPlugin *plugin = new ClientPlugin;
+  ClientPlugin* plugin = new ClientPlugin;
   instance->pdata = reinterpret_cast<void*>(plugin);
 
   return NPERR_NO_ERROR;
 }
 
 NPError NPP_DestroyImpl(NPP instance, NPSavedData** save) {
-  ClientPlugin *plugin = reinterpret_cast<ClientPlugin*>(instance->pdata);
-  
+  ClientPlugin* plugin = reinterpret_cast<ClientPlugin*>(instance->pdata);
+
   if (plugin) {
-    if(plugin->hWnd) {
+    if (plugin->hWnd) {
       DestroyWindow(plugin->hWnd);
       DisableOpenGL(plugin->hWnd, plugin->hDC, plugin->hRC);
     }
@@ -78,14 +78,13 @@ NPError NPP_SetWindowImpl(NPP instance, NPWindow* window_info) {
   if (window_info == NULL)
     return NPERR_GENERIC_ERROR;
 
-  ClientPlugin *plugin = reinterpret_cast<ClientPlugin*>(instance->pdata);
+  ClientPlugin* plugin = reinterpret_cast<ClientPlugin*>(instance->pdata);
   HWND parent_hwnd = reinterpret_cast<HWND>(window_info->window);
-  
-  if (plugin->hWnd == NULL)
-  {
+
+  if (plugin->hWnd == NULL) {
     WNDCLASS wc;
     HINSTANCE hInstance = GetModuleHandle(NULL);
-    
+
     // Register the window class.
     wc.style = CS_OWNDC;
     wc.lpfnWndProc = PluginWndProc;
@@ -124,8 +123,7 @@ NPError NPP_SetWindowImpl(NPP instance, NPWindow* window_info) {
 }
 
 // Send the notification to the browser as a JavaScript function call.
-static void NotifyNewRotation(float value)
-{
+static void NotifyNewRotation(float value) {
   std::stringstream buf;
   buf << "notifyNewRotation(" << value << ");";
   AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(buf.str(), CefString(),
@@ -135,42 +133,40 @@ static void NotifyNewRotation(float value)
 // Nice little fly polygon borrowed from the OpenGL Red Book.
 const GLubyte fly[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x03, 0x80, 0x01, 0xC0, 0x06, 0xC0, 0x03, 0x60, 
-    0x04, 0x60, 0x06, 0x20, 0x04, 0x30, 0x0C, 0x20, 
+    0x03, 0x80, 0x01, 0xC0, 0x06, 0xC0, 0x03, 0x60,
+    0x04, 0x60, 0x06, 0x20, 0x04, 0x30, 0x0C, 0x20,
     0x04, 0x18, 0x18, 0x20, 0x04, 0x0C, 0x30, 0x20,
-    0x04, 0x06, 0x60, 0x20, 0x44, 0x03, 0xC0, 0x22, 
-    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22, 
+    0x04, 0x06, 0x60, 0x20, 0x44, 0x03, 0xC0, 0x22,
     0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22,
-    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22, 
-    0x66, 0x01, 0x80, 0x66, 0x33, 0x01, 0x80, 0xCC, 
+    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22,
+    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22,
+    0x66, 0x01, 0x80, 0x66, 0x33, 0x01, 0x80, 0xCC,
     0x19, 0x81, 0x81, 0x98, 0x0C, 0xC1, 0x83, 0x30,
-    0x07, 0xe1, 0x87, 0xe0, 0x03, 0x3f, 0xfc, 0xc0, 
-    0x03, 0x31, 0x8c, 0xc0, 0x03, 0x33, 0xcc, 0xc0, 
+    0x07, 0xe1, 0x87, 0xe0, 0x03, 0x3f, 0xfc, 0xc0,
+    0x03, 0x31, 0x8c, 0xc0, 0x03, 0x33, 0xcc, 0xc0,
     0x06, 0x64, 0x26, 0x60, 0x0c, 0xcc, 0x33, 0x30,
-    0x18, 0xcc, 0x33, 0x18, 0x10, 0xc4, 0x23, 0x08, 
-    0x10, 0x63, 0xC6, 0x08, 0x10, 0x30, 0x0c, 0x08, 
+    0x18, 0xcc, 0x33, 0x18, 0x10, 0xc4, 0x23, 0x08,
+    0x10, 0x63, 0xC6, 0x08, 0x10, 0x30, 0x0c, 0x08,
     0x10, 0x18, 0x18, 0x08, 0x10, 0x00, 0x00, 0x08};
 
 
 // Plugin window procedure.
 LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
-                               LPARAM lParam)
-{
+                               LPARAM lParam) {
   ClientPlugin* plugin =
       reinterpret_cast<ClientPlugin*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-  switch(message)
-  {
+  switch (message) {
   case WM_CREATE:
     // Start the timer that's used for redrawing.
     SetTimer(hWnd, 1, 1, NULL);
     return 0;
-    
+
   case WM_DESTROY:
     // Stop the timer that's used for redrawing.
     KillTimer(hWnd, 1);
     return 0;
-    
+
   case WM_LBUTTONDOWN:
     // Decrement rotation speed.
     ModifyRotation(-2.0f);
@@ -201,24 +197,28 @@ LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
     // Adjust the theta value and redraw the display when the timer fires.
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
+
     glPushMatrix();
     glEnable(GL_POLYGON_STIPPLE);
     glPolygonStipple(fly);
 
     glRotatef(g_theta, 0.0f, 0.0f, 1.0f);
     glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f); glVertex2f(0.7f, 0.7f);
-    glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(0.7f, -0.7f);
-    glColor3f(0.0f, 0.0f, 1.0f); glVertex2f(-0.7f, -0.7f);
-    glColor3f(1.0f, 0.0f, 1.0f); glVertex2f(-0.7f, 0.7f);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(0.7f, 0.7f);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex2f(0.7f, -0.7f);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex2f(-0.7f, -0.7f);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    glVertex2f(-0.7f, 0.7f);
     glEnd();
 
     glDisable(GL_POLYGON_STIPPLE);
     glPopMatrix();
-    
+
     SwapBuffers(plugin->hDC);
-    
+
     g_theta -= g_rotationspeed;
   }
 
@@ -226,14 +226,13 @@ LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
 }
 
 // Enable OpenGL.
-void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
-{
+void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC) {
   PIXELFORMATDESCRIPTOR pfd;
   int format;
-  
+
   // Get the device context.
   *hDC = GetDC(hWnd);
-  
+
   // Set the pixel format for the DC.
   ZeroMemory(&pfd, sizeof(pfd));
   pfd.nSize = sizeof(pfd);
@@ -245,51 +244,45 @@ void EnableOpenGL(HWND hWnd, HDC * hDC, HGLRC * hRC)
   pfd.iLayerType = PFD_MAIN_PLANE;
   format = ChoosePixelFormat(*hDC, &pfd);
   SetPixelFormat(*hDC, format, &pfd);
-  
+
   // Create and enable the render contex.
   *hRC = wglCreateContext(*hDC);
 }
 
 // Disable OpenGL.
-void DisableOpenGL(HWND hWnd, HDC hDC, HGLRC hRC)
-{
+void DisableOpenGL(HWND hWnd, HDC hDC, HGLRC hRC) {
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(hRC);
   ReleaseDC(hWnd, hDC);
 }
 
-} // namespace
+}  // namespace
 
-NPError API_CALL NP_UIGetEntryPoints(NPPluginFuncs* pFuncs)
-{
+NPError API_CALL NP_UIGetEntryPoints(NPPluginFuncs* pFuncs) {
   pFuncs->newp = NPP_NewImpl;
   pFuncs->destroy = NPP_DestroyImpl;
   pFuncs->setwindow = NPP_SetWindowImpl;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_UIInitialize(NPNetscapeFuncs* pFuncs)
-{
+NPError API_CALL NP_UIInitialize(NPNetscapeFuncs* pFuncs) {
   g_uibrowser = pFuncs;
   return NPERR_NO_ERROR;
 }
 
-NPError API_CALL NP_UIShutdown(void)
-{
+NPError API_CALL NP_UIShutdown(void) {
   g_uibrowser = NULL;
   return NPERR_NO_ERROR;
 }
 
-void ModifyRotation(float value)
-{
+void ModifyRotation(float value) {
   g_rotationspeed += value;
   NotifyNewRotation(g_rotationspeed);
 }
 
-void ResetRotation()
-{
+void ResetRotation() {
   g_rotationspeed = 0.0;
   NotifyNewRotation(g_rotationspeed);
 }
 
-#endif // OS_WIN
+#endif  // OS_WIN

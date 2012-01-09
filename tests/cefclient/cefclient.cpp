@@ -2,27 +2,26 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient.h"
+#include "cefclient/cefclient.h"
+#include <stdio.h>
+#include <cstdlib>
+#include <sstream>
+#include <string>
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
 #include "include/cef_web_urlrequest.h"
-#include "cefclient_switches.h"
-#include "client_handler.h"
-#include "binding_test.h"
-#include "string_util.h"
-#include "util.h"
-#include <cstdlib>
-#include <sstream>
-#include <stdio.h>
-#include <string>
+#include "cefclient/cefclient_switches.h"
+#include "cefclient/client_handler.h"
+#include "cefclient/binding_test.h"
+#include "cefclient/string_util.h"
+#include "cefclient/util.h"
 
 namespace {
 
-void UIT_InvokeScript(CefRefPtr<CefBrowser> browser)
-{
+void UIT_InvokeScript(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
 
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
@@ -67,8 +66,7 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser)
 }
 
 // Return the int representation of the specified string.
-int GetIntValue(const CefString& str)
-{
+int GetIntValue(const CefString& str) {
   if (str.empty())
     return 0;
 
@@ -79,13 +77,11 @@ int GetIntValue(const CefString& str)
 
 // ClientApp implementation.
 class ClientApp : public CefApp,
-                  public CefProxyHandler
-{
-public:
+                  public CefProxyHandler {
+ public:
   ClientApp(cef_proxy_type_t proxy_type, const CefString& proxy_config)
     : proxy_type_(proxy_type),
-      proxy_config_(proxy_config)
-  {
+      proxy_config_(proxy_config) {
   }
 
   // CefApp methods
@@ -93,41 +89,37 @@ public:
 
   // CefProxyHandler methods
   virtual void GetProxyForUrl(const CefString& url,
-                              CefProxyInfo& proxy_info) OVERRIDE
-  {
+                              CefProxyInfo& proxy_info) OVERRIDE {
     proxy_info.proxyType = proxy_type_;
     if (!proxy_config_.empty())
       CefString(&proxy_info.proxyList) = proxy_config_;
   }
 
-protected:
+ protected:
   cef_proxy_type_t proxy_type_;
   CefString proxy_config_;
 
   IMPLEMENT_REFCOUNTING(ClientApp);
 };
 
-} // namespace
+}  // namespace
 
 CefRefPtr<ClientHandler> g_handler;
 CefRefPtr<CefCommandLine> g_command_line;
 
-CefRefPtr<CefBrowser> AppGetBrowser()
-{
-  if(!g_handler.get())
+CefRefPtr<CefBrowser> AppGetBrowser() {
+  if (!g_handler.get())
     return NULL;
   return g_handler->GetBrowser();
 }
 
-CefWindowHandle AppGetMainHwnd()
-{
-  if(!g_handler.get())
+CefWindowHandle AppGetMainHwnd() {
+  if (!g_handler.get())
     return NULL;
   return g_handler->GetMainHwnd();
 }
 
-void AppInitCommandLine(int argc, const char* const* argv)
-{
+void AppInitCommandLine(int argc, const char* const* argv) {
   g_command_line = CefCommandLine::CreateCommandLine();
 #if defined(OS_WIN)
   g_command_line->InitFromString(::GetCommandLineW());
@@ -137,14 +129,12 @@ void AppInitCommandLine(int argc, const char* const* argv)
 }
 
 // Returns the application command line object.
-CefRefPtr<CefCommandLine> AppGetCommandLine()
-{
+CefRefPtr<CefCommandLine> AppGetCommandLine() {
   return g_command_line;
 }
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
-{
+void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
   ASSERT(g_command_line.get());
   if (!g_command_line.get())
     return;
@@ -247,8 +237,7 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
 }
 
 // Returns the application browser settings based on command line arguments.
-void AppGetBrowserSettings(CefBrowserSettings& settings)
-{
+void AppGetBrowserSettings(CefBrowserSettings& settings) {
   ASSERT(g_command_line.get());
   if (!g_command_line.get())
     return;
@@ -344,46 +333,39 @@ void AppGetBrowserSettings(CefBrowserSettings& settings)
       g_command_line->HasSwitch(cefclient::kFullscreenEnabled);
 }
 
-static void ExecuteGetSource(CefRefPtr<CefFrame> frame)
-{
+static void ExecuteGetSource(CefRefPtr<CefFrame> frame) {
   // Retrieve the current page source and display.
   std::string source = frame->GetSource();
   source = StringReplace(source, "<", "&lt;");
   source = StringReplace(source, ">", "&gt;");
   std::stringstream ss;
-  ss << "<html><body>Source:" << "<pre>" << source
-      << "</pre></body></html>";
+  ss << "<html><body>Source:<pre>" << source << "</pre></body></html>";
   frame->LoadString(ss.str(), "http://tests/getsource");
 }
 
-void RunGetSourceTest(CefRefPtr<CefBrowser> browser)
-{
+void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   // Execute the GetSource() call on the UI thread.
   CefPostTask(TID_UI,
       NewCefRunnableFunction(&ExecuteGetSource, browser->GetMainFrame()));
 }
 
-static void ExecuteGetText(CefRefPtr<CefFrame> frame)
-{
+static void ExecuteGetText(CefRefPtr<CefFrame> frame) {
   std::string text = frame->GetText();
   text = StringReplace(text, "<", "&lt;");
   text = StringReplace(text, ">", "&gt;");
   std::stringstream ss;
-  ss << "<html><body>Text:" << "<pre>" << text
-      << "</pre></body></html>";
+  ss << "<html><body>Text:<pre>" << text << "</pre></body></html>";
   frame->LoadString(ss.str(), "http://tests/gettext");
 }
 
-void RunGetTextTest(CefRefPtr<CefBrowser> browser)
-{
+void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   // Execute the GetText() call on the UI thread.
   CefPostTask(TID_UI,
       NewCefRunnableFunction(&ExecuteGetText, browser->GetMainFrame()));
 }
 
-void RunRequestTest(CefRefPtr<CefBrowser> browser)
-{
-	// Create a new request
+void RunRequestTest(CefRefPtr<CefBrowser> browser) {
+  // Create a new request
   CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
 
   // Set the request URL
@@ -409,14 +391,12 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser)
   browser->GetMainFrame()->LoadRequest(request);
 }
 
-void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser)
-{
+void RunJavaScriptExecuteTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
       "alert('JavaScript execute works!');", "about:blank", 0);
 }
 
-void RunJavaScriptInvokeTest(CefRefPtr<CefBrowser> browser)
-{
+void RunJavaScriptInvokeTest(CefRefPtr<CefBrowser> browser) {
   if (CefCurrentlyOn(TID_UI)) {
     UIT_InvokeScript(browser);
   } else {
@@ -425,56 +405,46 @@ void RunJavaScriptInvokeTest(CefRefPtr<CefBrowser> browser)
   }
 }
 
-void RunPopupTest(CefRefPtr<CefBrowser> browser)
-{
+void RunPopupTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
       "window.open('http://www.google.com');", "about:blank", 0);
 }
 
-void RunLocalStorageTest(CefRefPtr<CefBrowser> browser)
-{
+void RunLocalStorageTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/localstorage");
 }
 
-void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser)
-{
+void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL(
       "http://mudcu.be/labs/JS1k/BreathingGalaxies.html");
 }
 
-void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser)
-{
+void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL(
       "http://webkit.org/blog-files/3d-transforms/poster-circle.html");
 }
 
-void RunWebGLTest(CefRefPtr<CefBrowser> browser)
-{
+void RunWebGLTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL(
       "http://webglsamples.googlecode.com/hg/field/field.html");
 }
 
-void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser)
-{
+void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL(
       "http://www.youtube.com/watch?v=siOHh0uzcuY&html5=True");
 }
 
-void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser)
-{
+void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
 }
 
-void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
-{
-  class RequestClient : public CefWebURLRequestClient
-  {
-  public:
-    RequestClient(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
+void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser) {
+  class RequestClient : public CefWebURLRequestClient {
+   public:
+    explicit RequestClient(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
 
-    virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester, 
-                               RequestState state)
-    {
+    virtual void OnStateChange(CefRefPtr<CefWebURLRequest> requester,
+                               RequestState state) {
       REQUIRE_UI_THREAD();
       if (state == WUR_STATE_DONE) {
         buffer_ = StringReplace(buffer_, "<", "&lt;");
@@ -486,36 +456,31 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
             "http://tests/weburlrequest");
       }
     }
-    
-    virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester, 
-                            CefRefPtr<CefRequest> request, 
-                            CefRefPtr<CefResponse> response)
-    {
+
+    virtual void OnRedirect(CefRefPtr<CefWebURLRequest> requester,
+                            CefRefPtr<CefRequest> request,
+                            CefRefPtr<CefResponse> response) {
       REQUIRE_UI_THREAD();
     }
-    
-    virtual void OnHeadersReceived(CefRefPtr<CefWebURLRequest> requester, 
-                                   CefRefPtr<CefResponse> response)
-    {
+
+    virtual void OnHeadersReceived(CefRefPtr<CefWebURLRequest> requester,
+                                   CefRefPtr<CefResponse> response) {
       REQUIRE_UI_THREAD();
     }
-    
-    virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester, 
-                            uint64 bytesSent, uint64 totalBytesToBeSent)
-    {
+
+    virtual void OnProgress(CefRefPtr<CefWebURLRequest> requester,
+                            uint64 bytesSent, uint64 totalBytesToBeSent) {
       REQUIRE_UI_THREAD();
     }
-    
-    virtual void OnData(CefRefPtr<CefWebURLRequest> requester, 
-                        const void* data, int dataLength)
-    {
+
+    virtual void OnData(CefRefPtr<CefWebURLRequest> requester,
+                        const void* data, int dataLength) {
       REQUIRE_UI_THREAD();
       buffer_.append(static_cast<const char*>(data), dataLength);
     }
-    
-    virtual void OnError(CefRefPtr<CefWebURLRequest> requester, 
-                         ErrorCode errorCode)
-    {
+
+    virtual void OnError(CefRefPtr<CefWebURLRequest> requester,
+                         ErrorCode errorCode) {
       REQUIRE_UI_THREAD();
       std::stringstream ss;
       ss << "Load failed with error code " << errorCode;
@@ -523,7 +488,7 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
           "http://tests/weburlrequest");
     }
 
-  protected:
+   protected:
     CefRefPtr<CefBrowser> browser_;
     std::string buffer_;
 
@@ -538,27 +503,24 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser)
       CefWebURLRequest::CreateWebURLRequest(request, client));
 }
 
-void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
-{
-  class Listener : public CefDOMEventListener
-  {
-  public:
+void RunDOMAccessTest(CefRefPtr<CefBrowser> browser) {
+  class Listener : public CefDOMEventListener {
+   public:
     Listener() {}
-    virtual void HandleEvent(CefRefPtr<CefDOMEvent> event)
-    {
+    virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) {
       CefRefPtr<CefDOMDocument> document = event->GetDocument();
       ASSERT(document.get());
-      
+
       std::stringstream ss;
 
       CefRefPtr<CefDOMNode> button = event->GetTarget();
       ASSERT(button.get());
       std::string buttonValue = button->GetElementAttribute("value");
       ss << "You clicked the " << buttonValue.c_str() << " button. ";
-      
+
       if (document->HasSelection()) {
         std::string startName, endName;
-      
+
         // Determine the start name by first trying to locate the "id" attribute
         // and then defaulting to the tag name.
         {
@@ -590,7 +552,7 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
       } else {
         ss << "Nothing is selected.";
       }
-      
+
       // Update the description.
       CefRefPtr<CefDOMNode> desc = document->GetElementById("description");
       ASSERT(desc.get());
@@ -603,12 +565,10 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
     IMPLEMENT_REFCOUNTING(Listener);
   };
 
-  class Visitor : public CefDOMVisitor
-  {
-  public:
+  class Visitor : public CefDOMVisitor {
+   public:
     Visitor() {}
-    virtual void Visit(CefRefPtr<CefDOMDocument> document)
-    {
+    virtual void Visit(CefRefPtr<CefDOMDocument> document) {
       // Register an click listener for the button.
       CefRefPtr<CefDOMNode> button = document->GetElementById("button");
       ASSERT(button.get());
@@ -626,12 +586,10 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser)
   browser->GetMainFrame()->LoadURL("http://tests/domaccess");
 }
 
-void RunDragDropTest(CefRefPtr<CefBrowser> browser)
-{
+void RunDragDropTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://html5demos.com/drag");
 }
 
-void RunModalDialogTest(CefRefPtr<CefBrowser> browser)
-{
+void RunModalDialogTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/modalmain");
 }

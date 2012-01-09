@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _CEFCLIENT_OSRPLUGIN_TEST_H
-#define _CEFCLIENT_OSRPLUGIN_TEST_H
+#ifndef CEF_TESTS_CEFCLIENT_OSRPLUGIN_TEST_H_
+#define CEF_TESTS_CEFCLIENT_OSRPLUGIN_TEST_H_
+#pragma once
 
 #include "include/cef_base.h"
 
@@ -15,4 +16,4 @@ void InitOSRPluginTest();
 // Run the test.
 void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent);
 
-#endif // _CEFCLIENT_OSRPLUGIN_TEST_H
+#endif  // CEF_TESTS_CEFCLIENT_OSRPLUGIN_TEST_H_

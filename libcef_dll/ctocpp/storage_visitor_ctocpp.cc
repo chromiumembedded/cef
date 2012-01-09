@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -17,8 +17,7 @@
 
 bool CefStorageVisitorCToCpp::Visit(CefStorageType type,
     const CefString& origin, const CefString& key, const CefString& value,
-    int count, int total, bool& deleteData)
-{
+    int count, int total, bool& deleteData) {
   if (CEF_MEMBER_MISSING(struct_, visit))
     return false;
 

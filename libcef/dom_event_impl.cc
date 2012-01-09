@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "dom_event_impl.h"
-#include "cef_thread.h"
-#include "dom_document_impl.h"
+#include "libcef/dom_event_impl.h"
+#include "libcef/cef_thread.h"
+#include "libcef/dom_document_impl.h"
 
 #include "base/logging.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
@@ -16,19 +16,17 @@ using WebKit::WebString;
 
 CefDOMEventImpl::CefDOMEventImpl(CefRefPtr<CefDOMDocumentImpl> document,
                                  const WebKit::WebDOMEvent& event)
-    : document_(document), event_(event)
-{
+    : document_(document),
+      event_(event) {
   DCHECK(!event_.isNull());
 }
 
-CefDOMEventImpl::~CefDOMEventImpl()
-{
+CefDOMEventImpl::~CefDOMEventImpl() {
   REQUIRE_UIT();
   DCHECK(event_.isNull());
 }
 
-CefString CefDOMEventImpl::GetType()
-{
+CefString CefDOMEventImpl::GetType() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -40,8 +38,7 @@ CefString CefDOMEventImpl::GetType()
   return str;
 }
 
-CefDOMEventImpl::Category CefDOMEventImpl::GetCategory()
-{
+CefDOMEventImpl::Category CefDOMEventImpl::GetCategory() {
   if (!VerifyContext())
     return DOM_EVENT_CATEGORY_UNKNOWN;
 
@@ -88,8 +85,7 @@ CefDOMEventImpl::Category CefDOMEventImpl::GetCategory()
   return static_cast<Category>(flags);
 }
 
-CefDOMEventImpl::Phase CefDOMEventImpl::GetPhase()
-{
+CefDOMEventImpl::Phase CefDOMEventImpl::GetPhase() {
   if (!VerifyContext())
     return DOM_EVENT_PHASE_UNKNOWN;
 
@@ -105,65 +101,58 @@ CefDOMEventImpl::Phase CefDOMEventImpl::GetPhase()
   return DOM_EVENT_PHASE_UNKNOWN;
 }
 
-bool CefDOMEventImpl::CanBubble()
-{
+bool CefDOMEventImpl::CanBubble() {
   if (!VerifyContext())
     return false;
 
   return event_.bubbles();
 }
 
-bool CefDOMEventImpl::CanCancel()
-{
+bool CefDOMEventImpl::CanCancel() {
   if (!VerifyContext())
     return false;
 
   return event_.cancelable();
 }
 
-CefRefPtr<CefDOMDocument> CefDOMEventImpl::GetDocument()
-{
+CefRefPtr<CefDOMDocument> CefDOMEventImpl::GetDocument() {
   if (!VerifyContext())
     return NULL;
 
   return document_.get();
 }
 
-CefRefPtr<CefDOMNode> CefDOMEventImpl::GetTarget()
-{
+CefRefPtr<CefDOMNode> CefDOMEventImpl::GetTarget() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(event_.target());
 }
 
-CefRefPtr<CefDOMNode> CefDOMEventImpl::GetCurrentTarget()
-{
+CefRefPtr<CefDOMNode> CefDOMEventImpl::GetCurrentTarget() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(event_.currentTarget());
 }
 
-void CefDOMEventImpl::Detach()
-{
+void CefDOMEventImpl::Detach() {
   // If you hit this assert it means that you are keeping references to this
   // event object beyond the valid scope.
-  DCHECK(GetRefCt() == 1);
+  DCHECK_EQ(GetRefCt(), 1);
 
   document_ = NULL;
   event_.assign(WebDOMEvent());
 }
 
-bool CefDOMEventImpl::VerifyContext()
-{
+bool CefDOMEventImpl::VerifyContext() {
   if (!document_.get()) {
     NOTREACHED();
     return false;
   }
   if (!document_->VerifyContext())
     return false;
-  if(event_.isNull()) {
+  if (event_.isNull()) {
     NOTREACHED();
     return false;
   }

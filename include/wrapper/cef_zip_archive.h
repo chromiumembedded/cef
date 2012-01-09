@@ -33,10 +33,11 @@
 // against the libcef_dll_wrapper target.
 //
 
-#ifndef _CEF_ZIP_ARCHIVE_H
-#define _CEF_ZIP_ARCHIVE_H
+#ifndef CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_
+#define CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_
+#pragma once
 
-#include "../cef_base.h"
+#include "include/cef_base.h"
 #include <map>
 
 class CefStreamReader;
@@ -52,16 +53,14 @@ class CefStreamReader;
 //     means that files from the same folder may not be located together in the
 //     file content map.
 ///
-class CefZipArchive : public CefBase
-{
-public:
+class CefZipArchive : public CefBase {
+ public:
   ///
   // Class representing a file in the archive. Accessing the file data from
   // multiple threads is safe provided a reference to the File object is kept.
   ///
-  class File : public CefBase
-  {
-  public:
+  class File : public CefBase {
+   public:
     ///
     // Returns the read-only data contained in the file.
     ///
@@ -123,11 +122,11 @@ public:
   ///
   size_t GetFiles(FileMap& map);
 
-private:
+ private:
   FileMap contents_;
 
   IMPLEMENT_REFCOUNTING(CefZipArchive);
   IMPLEMENT_LOCKING(CefZipArchive);
 };
 
-#endif // _CEF_ZIP_ARCHIVE_H
+#endif  // CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_

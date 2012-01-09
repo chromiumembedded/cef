@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef CEF_LIBCEF_BROWSER_WEBVIEW_MAC_H_
+#define CEF_LIBCEF_BROWSER_WEBVIEW_MAC_H_
+#pragma once
+
 #import <Cocoa/Cocoa.h>
 #import "base/mac/cocoa_protocols.h"
 #include "base/memory/scoped_nsobject.h"
@@ -16,8 +20,8 @@ struct WebDropData;
 
 @interface BrowserWebView : NSView <NSMenuDelegate> {
  @private
-  CefBrowserImpl *browser_; // weak
-  NSTrackingArea *trackingArea_;
+  CefBrowserImpl* browser_;  // weak
+  NSTrackingArea* trackingArea_;
 
   scoped_nsobject<WebDragSource> dragSource_;
   scoped_nsobject<WebDropTarget> dropTarget_;
@@ -53,6 +57,8 @@ struct WebDropData;
                         image:(NSImage*)image
                        offset:(NSPoint)offset;
 
-@property (nonatomic, assign) CefBrowserImpl *browser;
+@property (nonatomic, assign) CefBrowserImpl* browser;
 
 @end
+
+#endif  // CEF_LIBCEF_BROWSER_WEBVIEW_MAC_H_

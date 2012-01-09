@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_PERMISSION_HANDLER_CAPI_H
-#define _CEF_PERMISSION_HANDLER_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Implement this structure to handle events related to browser permissions. The
 // functions of this structure will be called on the UI thread.
 ///
-typedef struct _cef_permission_handler_t
-{
+typedef struct _cef_permission_handler_t {
   ///
   // Base structure.
   ///
@@ -57,12 +57,11 @@ typedef struct _cef_permission_handler_t
 
   ///
   // Called on the UI thread before a script extension is loaded. Return false
-  // (0) to prevent the extension from loading.
+  // (0) to let the extension load normally.
   ///
   int (CEF_CALLBACK *on_before_script_extension_load)(
       struct _cef_permission_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_frame_t* frame, const cef_string_t* extensionName);
-
 } cef_permission_handler_t;
 
 
@@ -70,4 +69,4 @@ typedef struct _cef_permission_handler_t
 }
 #endif
 
-#endif // _CEF_PERMISSION_HANDLER_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_

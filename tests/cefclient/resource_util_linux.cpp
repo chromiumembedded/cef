@@ -3,18 +3,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "resource_util.h"
-#include "include/cef_stream.h"
-#include "util.h"
+#include "cefclient/resource_util.h"
 #include <stdio.h>
-
-#include "base/file_util.h"
+#include <string>
+#include "include/cef_stream.h"
+#include "cefclient/util.h"
 
 bool GetResourceDir(std::string& dir) {
   char buff[1024];
 
   // Retrieve the executable path.
-  ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
+  ssize_t len = readlink("/proc/self/exe", buff, sizeof(buff)-1);
   if (len == -1)
     return false;
 
@@ -26,7 +25,7 @@ bool GetResourceDir(std::string& dir) {
     return false;
 
   // Add "files" to the path.
-  strcpy(pos+1, "files");
+  strcpy(pos+1, "files");  // NOLINT(runtime/printf)
   dir = std::string(buff);
   return true;
 }
@@ -50,7 +49,7 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
     bytes_read = fread(buff, 1, sizeof(buff)-1, f);
     if (bytes_read > 0)
       resource_data.append(buff, bytes_read);
-  } while(bytes_read > 0);
+  } while (bytes_read > 0);
 
   fclose(f);
   return true;
@@ -58,7 +57,7 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
 
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
   std::string path;
-  if (!GetResourceDir(path))
+  if  (!GetResourceDir(path))
     return NULL;
 
   path.append("/");

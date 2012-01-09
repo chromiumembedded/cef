@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,22 +34,22 @@
 // more information.
 //
 
-#ifndef _CEF_DRAG_DATA_CAPI_H
-#define _CEF_DRAG_DATA_CAPI_H
+#ifndef CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 
 ///
 // Structure used to represent drag data. The functions of this structure may be
 // called on any thread.
 ///
-typedef struct _cef_drag_data_t
-{
+typedef struct _cef_drag_data_t {
   ///
   // Base structure.
   ///
@@ -133,7 +133,6 @@ typedef struct _cef_drag_data_t
   ///
   int (CEF_CALLBACK *get_file_names)(struct _cef_drag_data_t* self,
       cef_string_list_t names);
-
 } cef_drag_data_t;
 
 
@@ -141,4 +140,4 @@ typedef struct _cef_drag_data_t
 }
 #endif
 
-#endif // _CEF_DRAG_DATA_CAPI_H
+#endif  // CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_

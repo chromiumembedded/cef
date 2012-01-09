@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,12 +10,13 @@
 // for more information.
 //
 
-#ifndef _FRAME_CPPTOC_H
-#define _FRAME_CPPTOC_H
+#ifndef CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
+#pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else // BUILDING_CEF_SHARED
+#else  // BUILDING_CEF_SHARED
 
 #include "include/cef_frame.h"
 #include "include/capi/cef_frame_capi.h"
@@ -34,13 +35,12 @@
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefFrameCppToC
-    : public CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>
-{
-public:
-  CefFrameCppToC(CefFrame* cls);
+    : public CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t> {
+ public:
+  explicit CefFrameCppToC(CefFrame* cls);
   virtual ~CefFrameCppToC() {}
 };
 
-#endif // BUILDING_CEF_SHARED
-#endif // _FRAME_CPPTOC_H
+#endif  // BUILDING_CEF_SHARED
+#endif  // CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
 

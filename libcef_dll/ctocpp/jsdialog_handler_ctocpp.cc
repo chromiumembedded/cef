@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefJSDialogHandlerCToCpp::OnJSAlert(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& message)
-{
+    CefRefPtr<CefFrame> frame, const CefString& message) {
   if (CEF_MEMBER_MISSING(struct_, on_jsalert))
     return false;
 
@@ -49,8 +48,7 @@ bool CefJSDialogHandlerCToCpp::OnJSAlert(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefJSDialogHandlerCToCpp::OnJSConfirm(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& message, bool& retval)
-{
+    CefRefPtr<CefFrame> frame, const CefString& message, bool& retval) {
   if (CEF_MEMBER_MISSING(struct_, on_jsconfirm))
     return false;
 
@@ -88,8 +86,7 @@ bool CefJSDialogHandlerCToCpp::OnJSConfirm(CefRefPtr<CefBrowser> browser,
 
 bool CefJSDialogHandlerCToCpp::OnJSPrompt(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& message,
-    const CefString& defaultValue, bool& retval, CefString& result)
-{
+    const CefString& defaultValue, bool& retval, CefString& result) {
   if (CEF_MEMBER_MISSING(struct_, on_jsprompt))
     return false;
 

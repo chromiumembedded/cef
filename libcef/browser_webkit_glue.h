@@ -1,14 +1,20 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
+#ifndef CEF_LIBCEF_BROWSER_WEBKIT_GLUE_H_
+#define CEF_LIBCEF_BROWSER_WEBKIT_GLUE_H_
+#pragma once
+
 #include <string>
 
+#include "base/compiler_specific.h"
 #include "base/string_piece.h"
 #include "v8/include/v8.h"
+
+#if defined(OS_WIN)
+#include <windows.h>  // NOLINT(build/include_order)
+#endif
 
 namespace WebKit {
 class WebFrame;
@@ -32,7 +38,7 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 // Save a bitmap image to file, providing optional alternative data in |lpBits|
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
-  
+
 void InitializeResourceBundle(const std::string& locale);
 void CleanupResourceBundle();
 
@@ -61,3 +67,5 @@ bool ShouldDownload(const std::string& content_disposition,
 bool IsPluginEnabled(const webkit::WebPluginInfo& plugin);
 
 }  // namespace webkit_glue
+
+#endif  // CEF_LIBCEF_BROWSER_WEBKIT_GLUE_H_

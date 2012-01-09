@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -18,8 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefDisplayHandlerCToCpp::OnNavStateChange(CefRefPtr<CefBrowser> browser,
-    bool canGoBack, bool canGoForward)
-{
+    bool canGoBack, bool canGoForward) {
   if (CEF_MEMBER_MISSING(struct_, on_nav_state_change))
     return;
 
@@ -38,8 +37,7 @@ void CefDisplayHandlerCToCpp::OnNavStateChange(CefRefPtr<CefBrowser> browser,
 }
 
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& url)
-{
+    CefRefPtr<CefFrame> frame, const CefString& url) {
   if (CEF_MEMBER_MISSING(struct_, on_address_change))
     return;
 
@@ -67,8 +65,7 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
 
 void CefDisplayHandlerCToCpp::OnContentsSizeChange(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int width,
-    int height)
-{
+    int height) {
   if (CEF_MEMBER_MISSING(struct_, on_contents_size_change))
     return;
 
@@ -92,8 +89,7 @@ void CefDisplayHandlerCToCpp::OnContentsSizeChange(
 }
 
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
-    const CefString& title)
-{
+    const CefString& title) {
   if (CEF_MEMBER_MISSING(struct_, on_title_change))
     return;
 
@@ -112,8 +108,7 @@ void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
-    CefString& text)
-{
+    CefString& text) {
   if (CEF_MEMBER_MISSING(struct_, on_tooltip))
     return false;
 
@@ -135,8 +130,7 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
 }
 
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
-    const CefString& value, StatusType type)
-{
+    const CefString& value, StatusType type) {
   if (CEF_MEMBER_MISSING(struct_, on_status_message))
     return;
 
@@ -156,8 +150,7 @@ void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
 }
 
 bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
-    const CefString& message, const CefString& source, int line)
-{
+    const CefString& message, const CefString& source, int line) {
   if (CEF_MEMBER_MISSING(struct_, on_console_message))
     return false;
 

@@ -2,8 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef _REQUEST_IMPL_H
-#define _REQUEST_IMPL_H
+#ifndef CEF_LIBCEF_REQUEST_IMPL_H_
+#define CEF_LIBCEF_REQUEST_IMPL_H_
+#pragma once
 
 #include "include/cef_request.h"
 #include "net/base/upload_data.h"
@@ -16,9 +17,8 @@ class URLRequest;
 };
 
 // Implementation of CefRequest
-class CefRequestImpl : public CefRequest
-{
-public:
+class CefRequestImpl : public CefRequest {
+ public:
   CefRequestImpl();
   ~CefRequestImpl() {}
 
@@ -50,7 +50,7 @@ public:
   static void SetHeaderMap(const HeaderMap& map,
                            WebKit::WebURLRequest& request);
 
-protected:
+ protected:
   CefString url_;
   CefString method_;
   CefRefPtr<CefPostData> postdata_;
@@ -65,9 +65,8 @@ protected:
 };
 
 // Implementation of CefPostData
-class CefPostDataImpl : public CefPostData
-{
-public:
+class CefPostDataImpl : public CefPostData {
+ public:
   CefPostDataImpl();
   ~CefPostDataImpl() {}
 
@@ -82,7 +81,7 @@ public:
   void Set(const WebKit::WebHTTPBody& data);
   void Get(WebKit::WebHTTPBody& data);
 
-protected:
+ protected:
   ElementVector elements_;
 
   IMPLEMENT_REFCOUNTING(CefPostDataImpl);
@@ -90,9 +89,8 @@ protected:
 };
 
 // Implementation of CefPostDataElement
-class CefPostDataElementImpl : public CefPostDataElement
-{
-public:
+class CefPostDataElementImpl : public CefPostDataElement {
+ public:
   CefPostDataElementImpl();
   ~CefPostDataElementImpl();
 
@@ -111,7 +109,7 @@ public:
   void Set(const WebKit::WebHTTPBody::Element& element);
   void Get(WebKit::WebHTTPBody::Element& element);
 
-protected:
+ protected:
   Type type_;
   union {
     struct {
@@ -125,4 +123,4 @@ protected:
   IMPLEMENT_LOCKING(CefPostDataElementImpl);
 };
 
-#endif // _REQUEST_IMPL_H
+#endif  // CEF_LIBCEF_REQUEST_IMPL_H_

@@ -84,12 +84,13 @@ def make_capi_header(header, filename):
 
 #ifndef $GUARD$
 #define $GUARD$
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cef_base_capi.h"
+#include "include/capi/cef_base_capi.h"
 
 """
     # output global functions
@@ -104,11 +105,11 @@ extern "C" {
         classname = cls.get_capi_name()
         result += '\n'+format_comment(cls.get_comment(), '', translate_map);
         result += 'typedef struct _'+classname+ \
-                  '\n{\n  ///\n  // Base structure.\n  ///\n  cef_base_t base;\n'
+                  ' {\n  ///\n  // Base structure.\n  ///\n  cef_base_t base;\n'
         funcs = cls.get_virtual_funcs()
         result += make_capi_member_funcs(funcs, defined_names,
                                          translate_map, '  ')
-        result += '\n} '+classname+';\n\n'
+        result += '} '+classname+';\n\n'
         
         defined_names.append(cls.get_capi_name())
         
@@ -125,13 +126,13 @@ extern "C" {
 }
 #endif
 
-#endif // $GUARD$
+#endif  // $GUARD$
 """
     
     # add the copyright year
     result = result.replace('$YEAR$', get_year())
     # add the guard string
-    guard = '_'+string.upper(filename.replace('.', '_capi_'))
+    guard = 'CEF_INCLUDE_CAPI_'+string.upper(filename.replace('.', '_capi_'))+'_'
     result = result.replace('$GUARD$', guard)
     
     return result

@@ -34,10 +34,10 @@
 // tools directory for more information.
 //
 
-#ifndef _CEF_ZIP_READER_H
-#define _CEF_ZIP_READER_H
+#ifndef CEF_INCLUDE_CEF_ZIP_READER_H_
+#define CEF_INCLUDE_CEF_ZIP_READER_H_
 
-#include "cef_base.h"
+#include "include/cef_base.h"
 
 class CefStreamReader;
 
@@ -47,9 +47,8 @@ class CefStreamReader;
 // the object.
 ///
 /*--cef(source=library)--*/
-class CefZipReader : public virtual CefBase
-{
-public:
+class CefZipReader : public virtual CefBase {
+ public:
   ///
   // Create a new CefZipReader object. The returned object's methods can only
   // be called from the thread that created the object.
@@ -74,7 +73,7 @@ public:
   ///
   // Moves the cursor to the specified file in the archive. If |caseSensitive|
   // is true then the search will be case sensitive. Returns true if the cursor
-  // position was set successfully. 
+  // position was set successfully.
   ///
   /*--cef()--*/
   virtual bool MoveToFile(const CefString& fileName, bool caseSensitive) =0;
@@ -99,7 +98,7 @@ public:
   // Returns the uncompressed size of the file.
   ///
   /*--cef()--*/
-  virtual long GetFileSize() =0;
+  virtual int64 GetFileSize() =0;
 
   ///
   // Returns the last modified timestamp for the file.
@@ -131,7 +130,7 @@ public:
   // Returns the current offset in the uncompressed file contents.
   ///
   /*--cef()--*/
-  virtual long Tell() =0;
+  virtual int64 Tell() =0;
 
   ///
   // Returns true if at end of the file contents.
@@ -140,4 +139,4 @@ public:
   virtual bool Eof() =0;
 };
 
-#endif // _CEF_ZIP_READER_H
+#endif  // CEF_INCLUDE_CEF_ZIP_READER_H_

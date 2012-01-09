@@ -6,10 +6,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_nplugin.h"
-#include "clientplugin.h"
+#include "cefclient/clientplugin.h"
 
-void InitPluginTest()
-{
+void InitPluginTest() {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
   CefString(&plugin_info.display_name).FromASCII("Client Plugin");
@@ -26,8 +25,7 @@ void InitPluginTest()
   CefRegisterPlugin(plugin_info);
 }
 
-void RunPluginTest(CefRefPtr<CefBrowser> browser)
-{
+void RunPluginTest(CefRefPtr<CefBrowser> browser) {
   // Page content is provided in ClientHandler::OnBeforeResourceLoad().
   browser->GetMainFrame()->LoadURL("http://tests/plugin");
 }
