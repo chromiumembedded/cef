@@ -1,8 +1,8 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 97950)
+--- page/FrameView.cpp	(revision 102901)
 +++ page/FrameView.cpp	(working copy)
-@@ -152,10 +152,12 @@
+@@ -156,10 +156,12 @@
              m_page = page;
              m_page->addScrollableArea(this);
  
@@ -17,7 +17,7 @@ Index: page/FrameView.cpp
  }
 Index: platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm
 ===================================================================
---- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 97950)
+--- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 102901)
 +++ platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(working copy)
 @@ -356,9 +356,13 @@
  

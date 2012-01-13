@@ -1,0 +1,31 @@
+Index: webplugin_delegate_impl_mac.mm
+===================================================================
+--- webplugin_delegate_impl_mac.mm	(revision 114933)
++++ webplugin_delegate_impl_mac.mm	(working copy)
+@@ -548,10 +548,14 @@
+     // Composition ends on a keydown, so ime_enabled_ will be false at keyup;
+     // because the keydown wasn't sent to the plugin, the keyup shouldn't be
+     // either (per the spec).
+-    if (event.type == WebInputEvent::KeyDown)
++    if (event.type == WebInputEvent::KeyDown) {
+       ++keyup_ignore_count_;
+-    else
++      const WebKeyboardEvent* key_event =
++          static_cast<const WebKeyboardEvent*>(&event);
++      ImeCompositionCompleted(key_event->text);
++    } else {
+       --keyup_ignore_count_;
++    }
+     return true;
+   }
+ 
+@@ -640,6 +644,9 @@
+       event.type == WebInputEvent::KeyDown) {
+     StartIme();
+     ++keyup_ignore_count_;
++    const WebKeyboardEvent* key_event =
++        static_cast<const WebKeyboardEvent*>(&event);
++    ImeCompositionCompleted(key_event->text);
+   }
+ 
+   // Plugins don't give accurate information about whether or not they handled
