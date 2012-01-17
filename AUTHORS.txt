@@ -14,3 +14,7 @@ Joe Andrieu <joe@joeandrieu.com>
 Keith Poole <platima@gmail.com>
 Aviv Rind <avivrind@gmail.com>
 Michael Kaminski <mikeyk730@gmail.com>
+ADInstruments Ltd. <dev.team@adinstruments.com>
+Gus Verdun <gusverdun@gmail.com>
+Joinerysoft Ltd. <cpinfold@joinerysoft.com>
+Johan Björk <phb@spotify.com>
