@@ -22,7 +22,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/gfx/gl/gl_implementation.h"
-#include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
@@ -107,15 +106,10 @@ void CefProcessUIThread::Init() {
       kStatsFileCounters);
   base::StatsTable::set_current(statstable_);
 
-  // CEF always exposes the GC.
-  std::string javascript_flags = "--expose-gc";
-  if (settings.javascript_flags.length > 0)
-    javascript_flags += " " + CefString(&settings.javascript_flags).ToString();
-  webkit_glue::SetJavaScriptFlags(javascript_flags);
-
-  // Expose GCController to JavaScript.
-  WebKit::WebScriptController::registerExtension(
-      extensions_v8::GCExtension::Get());
+  if (settings.javascript_flags.length > 0) {
+    // Pass the JavaScript flags to V8.
+    webkit_glue::SetJavaScriptFlags(CefString(&settings.javascript_flags));
+  }
 
 #if defined(OS_WIN)
   if (settings.graphics_implementation == ANGLE_IN_PROCESS ||
