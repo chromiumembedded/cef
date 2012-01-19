@@ -66,6 +66,8 @@ class CefV8ValueCToCpp
       PropertyAttribute attribute) OVERRIDE;
   virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
   virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
+  virtual int GetExternallyAllocatedMemory() OVERRIDE;
+  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
   virtual int GetArrayLength() OVERRIDE;
   virtual CefString GetFunctionName() OVERRIDE;
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;

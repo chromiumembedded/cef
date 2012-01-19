@@ -1,8 +1,11 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
 #include "libcef/v8_impl.h"
+
+#include <string>
+
 #include "libcef/browser_impl.h"
 #include "libcef/cef_context.h"
 #include "libcef/tracker.h"
@@ -23,56 +26,64 @@
     return var; \
   }
 
-
 namespace {
 
 static const char kCefAccessor[] = "Cef::Accessor";
 static const char kCefHandler[] = "Cef::Handler";
 static const char kCefUserData[] = "Cef::UserData";
+static const char kCefExternalMemory[] = "Cef::ExternalMemory";
 
 // Memory manager.
 
 base::LazyInstance<CefTrackManager> g_v8_tracker = LAZY_INSTANCE_INITIALIZER;
 
-class TrackBase : public CefTrackObject {
+class V8TrackObject : public CefTrackNode {
  public:
-  explicit TrackBase(CefBase* base) { base_ = base; }
-
- protected:
-  CefRefPtr<CefBase> base_;
-};
-
-class TrackBase2 : public TrackBase {
- public:
-  TrackBase2(CefBase* base, CefBase* base2): TrackBase(base) {
-    base2_ = base2;
+  V8TrackObject(CefBase* object = NULL, CefBase* user_data = NULL)
+      : object_(object),
+        user_data_(user_data),
+        external_memory_counter_(0) {
   }
 
- protected:
-  CefRefPtr<CefBase> base2_;
+  int* GetMemoryCounter() {
+    return &external_memory_counter_;
+  }
+
+ private:
+  int external_memory_counter_;
+  CefRefPtr<CefBase> object_;
+  CefRefPtr<CefBase> user_data_;
 };
 
-class TrackString : public CefTrackObject {
+class V8TrackString : public CefTrackNode {
  public:
-  explicit TrackString(const std::string& str) : string_(str) {}
+  explicit V8TrackString(const std::string& str) : string_(str) {}
   const char* GetString() { return string_.c_str(); }
 
  private:
   std::string string_;
 };
 
-void TrackAdd(CefTrackObject* object) {
+void TrackAdd(CefTrackNode* object) {
   g_v8_tracker.Pointer()->Add(object);
 }
 
-void TrackDelete(CefTrackObject* object) {
+void TrackDelete(CefTrackNode* object) {
   g_v8_tracker.Pointer()->Delete(object);
 }
 
 // Callback for weak persistent reference destruction.
 void TrackDestructor(v8::Persistent<v8::Value> object, void* parameter) {
-  if (parameter)
-    TrackDelete(static_cast<CefTrackObject*>(parameter));
+  if (parameter) {
+    if (object->IsObject()) {
+      V8TrackObject* tracker = static_cast<V8TrackObject*>(parameter);
+      DCHECK(tracker);
+      int adjustment = -(*tracker->GetMemoryCounter());
+      if (adjustment != 0)
+        v8::V8::AdjustAmountOfExternalAllocatedMemory(adjustment);
+    }
+    TrackDelete(static_cast<CefTrackNode*>(parameter));
+  }
   object.Dispose();
   object.Clear();
 }
@@ -246,7 +257,7 @@ class ExtensionWrapper : public v8::Extension {
     : v8::Extension(extension_name, javascript_code), handler_(handler) {
     if (handler) {
       // The reference will be released when the application exits.
-      TrackAdd(new TrackBase(handler));
+      TrackAdd(new V8TrackObject(handler));
     }
   }
 
@@ -326,9 +337,9 @@ bool CefRegisterExtension(const CefString& extension_name,
   // Verify that the context is in a valid state.
   CEF_REQUIRE_VALID_CONTEXT(false);
 
-  TrackString* name = new TrackString(extension_name);
+  V8TrackString* name = new V8TrackString(extension_name);
   TrackAdd(name);
-  TrackString* code = new TrackString(javascript_code);
+  V8TrackString* code = new V8TrackString(javascript_code);
   TrackAdd(code);
 
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
@@ -562,13 +573,19 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 
   // Provide a tracker object that will cause the user data and/or accessor
   // reference to be released when the V8 object is destroyed.
-  TrackBase* tracker = NULL;
+  V8TrackObject* tracker = NULL;
   if (user_data.get() && accessor.get()) {
-    tracker = new TrackBase2(user_data, accessor);
+    tracker = new V8TrackObject(accessor, user_data);
   } else if (user_data.get() || accessor.get()) {
-    tracker = new TrackBase(user_data.get() ?
-      user_data : CefRefPtr<CefBase>(accessor.get()));
+    CefBase* object = user_data.get() ? user_data.get() : accessor.get();
+    tracker = new V8TrackObject(object);
+  } else {
+    tracker = new V8TrackObject();
   }
+
+  // Attach the memory counter.
+  obj->SetHiddenValue(v8::String::New(kCefExternalMemory),
+                      v8::External::Wrap(tracker->GetMemoryCounter()));
 
   // Attach the user data to the V8 object.
   if (user_data.get()) {
@@ -637,19 +654,25 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
 
   func->SetName(GetV8String(name));
 
+  V8TrackObject* tracker = new V8TrackObject(handler.get());
+
+  // Attach the memory counter.
+  func->SetHiddenValue(v8::String::New(kCefExternalMemory),
+                       v8::External::Wrap(tracker->GetMemoryCounter()));
+
   // Attach the handler instance to the V8 object.
   func->SetHiddenValue(v8::String::New(kCefHandler), data);
 
   // Create the CefV8ValueImpl and provide a tracker object that will cause
   // the handler reference to be released when the V8 object is destroyed.
-  return new CefV8ValueImpl(func, new TrackBase(handler));
+  return new CefV8ValueImpl(func, tracker);
 }
 
 
 // CefV8ValueImpl
 
 CefV8ValueImpl::CefV8ValueImpl(v8::Handle<v8::Value> value,
-                               CefTrackObject* tracker) {
+                               CefTrackNode* tracker) {
   v8_value_ = new CefV8ValueHandle(value, tracker);
 }
 
@@ -976,6 +999,45 @@ CefRefPtr<CefBase> CefV8ValueImpl::GetUserData() {
   return NULL;
 }
 
+int CefV8ValueImpl::GetExternallyAllocatedMemory() {
+  CEF_REQUIRE_UI_THREAD(0);
+  if (!GetHandle()->IsObject()) {
+    NOTREACHED() << "V8 value is not an object";
+    return 0;
+  }
+
+  int* counter = GetExternallyAllocatedMemoryCounter();
+  return counter != NULL ? *counter : 0;
+}
+
+int CefV8ValueImpl::AdjustExternallyAllocatedMemory(int change_in_bytes) {
+  CEF_REQUIRE_UI_THREAD(0);
+  if (!GetHandle()->IsObject()) {
+    NOTREACHED() << "V8 value is not an object";
+    return 0;
+  }
+
+  int* counter = GetExternallyAllocatedMemoryCounter();
+  if (counter == NULL)
+    return 0;
+
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+
+  int new_value = *counter + change_in_bytes;
+  if (new_value < 0) {
+    NOTREACHED() << "External memory usage cannot be less than 0 bytes";
+    change_in_bytes = -(*counter);
+    new_value = 0;
+  }
+
+  if (change_in_bytes != 0)
+    v8::V8::AdjustAmountOfExternalAllocatedMemory(change_in_bytes);
+  *counter = new_value;
+
+  return new_value;
+}
+
 int CefV8ValueImpl::GetArrayLength() {
   CEF_REQUIRE_UI_THREAD(0);
   if (!GetHandle()->IsArray()) {
@@ -1100,4 +1162,14 @@ CefV8Accessor* CefV8ValueImpl::GetAccessor(v8::Handle<v8::Object> object) {
     return static_cast<CefV8Accessor*>(v8::External::Unwrap(value));
 
   return NULL;
+}
+
+int* CefV8ValueImpl::GetExternallyAllocatedMemoryCounter() {
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Value> value =
+      obj->GetHiddenValue(v8::String::New(kCefExternalMemory));
+
+  return value.IsEmpty() ? NULL : static_cast<int*>(
+      v8::External::Unwrap(value));
 }

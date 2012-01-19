@@ -466,6 +466,27 @@ typedef struct _cef_v8value_t {
   struct _cef_base_t* (CEF_CALLBACK *get_user_data)(
       struct _cef_v8value_t* self);
 
+  ///
+  // Returns the amount of externally allocated memory registered for the
+  // object.
+  ///
+  int (CEF_CALLBACK *get_externally_allocated_memory)(
+      struct _cef_v8value_t* self);
+
+  ///
+  // Adjusts the amount of registered external memory for the object. Used to
+  // give V8 an indication of the amount of externally allocated memory that is
+  // kept alive by JavaScript objects. V8 uses this information to decide when
+  // to perform global garbage collection. Each cef_v8value_t tracks the amount
+  // of external memory associated with it and automatically decreases the
+  // global total by the appropriate amount on its destruction.
+  // |change_in_bytes| specifies the number of bytes to adjust by. This function
+  // returns the number of bytes associated with the object after the
+  // adjustment.
+  ///
+  int (CEF_CALLBACK *adjust_externally_allocated_memory)(
+      struct _cef_v8value_t* self, int change_in_bytes);
+
 
   // ARRAY METHODS - These functions are only available on arrays.
 

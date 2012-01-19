@@ -624,6 +624,37 @@ cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self) {
   return CefBaseCToCpp::Unwrap(_retval);
 }
 
+int CEF_CALLBACK v8value_get_externally_allocated_memory(
+    struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefV8ValueCppToC::Get(self)->GetExternallyAllocatedMemory();
+
+  // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_adjust_externally_allocated_memory(
+    struct _cef_v8value_t* self, int change_in_bytes) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefV8ValueCppToC::Get(self)->AdjustExternallyAllocatedMemory(
+      change_in_bytes);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -855,6 +886,10 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.set_value_byaccessor = v8value_set_value_byaccessor;
   struct_.struct_.get_keys = v8value_get_keys;
   struct_.struct_.get_user_data = v8value_get_user_data;
+  struct_.struct_.get_externally_allocated_memory =
+      v8value_get_externally_allocated_memory;
+  struct_.struct_.adjust_externally_allocated_memory =
+      v8value_adjust_externally_allocated_memory;
   struct_.struct_.get_array_length = v8value_get_array_length;
   struct_.struct_.get_function_name = v8value_get_function_name;
   struct_.struct_.get_function_handler = v8value_get_function_handler;

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -12,7 +12,7 @@
 #include "libcef/cef_thread.h"
 #include "base/memory/ref_counted.h"
 
-class CefTrackObject;
+class CefTrackNode;
 
 namespace WebKit {
 class WebFrame;
@@ -87,22 +87,28 @@ class CefV8ContextImpl : public CefV8Context {
 // thread.
 class CefV8ValueHandle: public CefReleaseV8HandleOnUIThread<v8::Value> {
  public:
-  CefV8ValueHandle(handleType value, CefTrackObject* tracker)
+  CefV8ValueHandle(handleType value, CefTrackNode* tracker)
     : superType(value),
       tracker_(tracker) {
   }
   // Destructor implementation is provided in v8_impl.cc.
   ~CefV8ValueHandle();
 
+  CefTrackNode* GetTracker() {
+    return tracker_;
+  }
+
  private:
   // For Object and Function types, we need to hold on to a reference to their
   // internal data or function handler objects that are reference counted.
-  CefTrackObject* tracker_;
+  CefTrackNode* tracker_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefV8ValueHandle);
 };
 
 class CefV8ValueImpl : public CefV8Value {
  public:
-  CefV8ValueImpl(v8::Handle<v8::Value> value, CefTrackObject* tracker = NULL);
+  CefV8ValueImpl(v8::Handle<v8::Value> value, CefTrackNode* tracker = NULL);
   virtual ~CefV8ValueImpl();
 
   virtual bool IsUndefined() OVERRIDE;
@@ -134,6 +140,8 @@ class CefV8ValueImpl : public CefV8Value {
                         PropertyAttribute attribute) OVERRIDE;
   virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
   virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
+  virtual int GetExternallyAllocatedMemory() OVERRIDE;
+  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
   virtual int GetArrayLength() OVERRIDE;
   virtual CefString GetFunctionName() OVERRIDE;
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
@@ -158,10 +166,14 @@ class CefV8ValueImpl : public CefV8Value {
   // Returns the accessor assigned for the specified object, if any.
   static CefV8Accessor* GetAccessor(v8::Handle<v8::Object> object);
 
+ private:
+  int* GetExternallyAllocatedMemoryCounter();
+
  protected:
   scoped_refptr<CefV8ValueHandle> v8_value_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefV8ValueImpl);
 };
 
 #endif  // CEF_LIBCEF_V8_IMPL_H_

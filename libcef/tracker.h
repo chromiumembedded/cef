@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -10,26 +10,26 @@
 
 // Class extended by objects that must be tracked.  After creating a tracked
 // object you should add it to the appropriate track manager.
-class CefTrackObject {
+class CefTrackNode {
  public:
-  CefTrackObject() {
+  CefTrackNode() {
     track_next_ = NULL;
     track_prev_ = NULL;
   }
-  virtual ~CefTrackObject() {
+  virtual ~CefTrackNode() {
   }
 
   // Returns true if the object is currently being tracked.
   bool IsTracked() { return (track_prev_ || track_next_); }
 
  private:
-  CefTrackObject* GetTrackPrev() { return track_prev_; }
-  void SetTrackPrev(CefTrackObject* base) { track_prev_ = base; }
-  CefTrackObject* GetTrackNext() { return track_next_; }
-  void SetTrackNext(CefTrackObject* base) { track_next_ = base; }
+  CefTrackNode* GetTrackPrev() { return track_prev_; }
+  void SetTrackPrev(CefTrackNode* base) { track_prev_ = base; }
+  CefTrackNode* GetTrackNext() { return track_next_; }
+  void SetTrackNext(CefTrackNode* base) { track_next_ = base; }
 
   // Insert a new object into the tracking list before this object.
-  void InsertTrackPrev(CefTrackObject* object) {
+  void InsertTrackPrev(CefTrackNode* object) {
     if (track_prev_)
       track_prev_->SetTrackNext(object);
     object->SetTrackNext(this);
@@ -38,7 +38,7 @@ class CefTrackObject {
   }
 
   // Insert a new object into the tracking list after this object.
-  void InsertTrackNext(CefTrackObject* object) {
+  void InsertTrackNext(CefTrackNode* object) {
     if (track_next_)
       track_next_->SetTrackPrev(object);
     object->SetTrackPrev(this);
@@ -57,8 +57,8 @@ class CefTrackObject {
   }
 
  private:
-  CefTrackObject* track_next_;
-  CefTrackObject* track_prev_;
+  CefTrackNode* track_next_;
+  CefTrackNode* track_prev_;
 
   friend class CefTrackManager;
 };
@@ -77,7 +77,7 @@ class CefTrackManager : public CefBase {
   }
 
   // Add an object to be tracked by this manager.
-  void Add(CefTrackObject* object) {
+  void Add(CefTrackNode* object) {
     Lock();
     if (!object->IsTracked()) {
       tracker_.InsertTrackNext(object);
@@ -87,7 +87,7 @@ class CefTrackManager : public CefBase {
   }
 
   // Delete an object tracked by this manager.
-  bool Delete(CefTrackObject* object) {
+  bool Delete(CefTrackNode* object) {
     bool rv = false;
     Lock();
     if (object->IsTracked()) {
@@ -103,7 +103,7 @@ class CefTrackManager : public CefBase {
   // Delete all objects tracked by this manager.
   void DeleteAll() {
     Lock();
-    CefTrackObject* next;
+    CefTrackNode* next;
     do {
       next = tracker_.GetTrackNext();
       if (next) {
@@ -119,7 +119,7 @@ class CefTrackManager : public CefBase {
   int GetCount() { return object_count_; }
 
  private:
-  CefTrackObject tracker_;
+  CefTrackNode tracker_;
   int object_count_;
 
   IMPLEMENT_REFCOUNTING(CefTrackManager);

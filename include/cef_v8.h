@@ -535,6 +535,26 @@ class CefV8Value : public virtual CefBase {
   /*--cef()--*/
   virtual CefRefPtr<CefBase> GetUserData() =0;
 
+  ///
+  // Returns the amount of externally allocated memory registered for the
+  // object.
+  ///
+  /*--cef()--*/
+  virtual int GetExternallyAllocatedMemory() =0;
+
+  ///
+  // Adjusts the amount of registered external memory for the object. Used to
+  // give V8 an indication of the amount of externally allocated memory that is
+  // kept alive by JavaScript objects. V8 uses this information to decide when
+  // to perform global garbage collection. Each CefV8Value tracks the amount of
+  // external memory associated with it and automatically decreases the global
+  // total by the appropriate amount on its destruction. |change_in_bytes|
+  // specifies the number of bytes to adjust by. This method returns the number
+  // of bytes associated with the object after the adjustment.
+  ///
+  /*--cef()--*/
+  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) =0;
+
 
   // ARRAY METHODS - These methods are only available on arrays.
 

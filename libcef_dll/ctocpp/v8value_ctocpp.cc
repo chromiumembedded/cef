@@ -590,6 +590,33 @@ CefRefPtr<CefBase> CefV8ValueCToCpp::GetUserData() {
   return CefBaseCppToC::Unwrap(_retval);
 }
 
+int CefV8ValueCToCpp::GetExternallyAllocatedMemory() {
+  if (CEF_MEMBER_MISSING(struct_, get_externally_allocated_memory))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->get_externally_allocated_memory(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+int CefV8ValueCToCpp::AdjustExternallyAllocatedMemory(int change_in_bytes) {
+  if (CEF_MEMBER_MISSING(struct_, adjust_externally_allocated_memory))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->adjust_externally_allocated_memory(struct_,
+      change_in_bytes);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CefV8ValueCToCpp::GetArrayLength() {
   if (CEF_MEMBER_MISSING(struct_, get_array_length))
     return 0;
