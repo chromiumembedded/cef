@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import os, re, sys
+import os, re, string, sys
 from file_util import *
 import git_util as git
 import svn_util as svn
@@ -43,31 +43,24 @@ except ImportError, e:
 # The default implementation of FileInfo.RepositoryName looks for the top-most
 # directory that contains a .git or .svn folder. This is a problem for CEF
 # because the CEF root folder (which may have an arbitrary name) lives inside
-# the Chromium src folder. Fix this problem by normalizing the top-most path
-# component. 
-def patch_RepositoryName(func):
-  def wrapper(self):
-    ret = func(self)
-
-    pos = ret.find('/')
-    if pos < 0:
-      pos = ret.find('\\')
-    if pos < 0:
-      return ret;
-
-    # Normalize the top-most path component.
-    return 'cef'+ret[pos:]
-
-  wrapper.__name__ = func.__name__
-  wrapper.__doc__ = func.__doc__
-  return wrapper
+# the Chromium src folder. Reimplement in a dumb but sane way.
+def patch_RepositoryName(self):
+  fullname = self.FullName()
+  project_dir = os.path.dirname(fullname)
+  if os.path.exists(fullname):
+    root_dir = project_dir
+    while os.path.basename(project_dir) != "src":
+      project_dir = os.path.dirname(project_dir)
+    prefix = os.path.commonprefix([root_dir, project_dir])
+    components = fullname[len(prefix) + 1:].split('/')
+    return string.join(["cef"] + components[1:], '/')
+  return fullname
 
 def check_style(args, white_list = None, black_list = None):
   """ Execute cpplint with the specified arguments. """
 
   # Apply patches.
-  cpplint.FileInfo.RepositoryName = \
-      patch_RepositoryName(cpplint.FileInfo.RepositoryName)
+  cpplint.FileInfo.RepositoryName = patch_RepositoryName
 
   # Process cpplint arguments.
   filenames = cpplint.ParseArguments(args)
