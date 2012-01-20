@@ -50,9 +50,9 @@ class V8TrackObject : public CefTrackNode {
   }
 
  private:
-  int external_memory_counter_;
   CefRefPtr<CefBase> object_;
   CefRefPtr<CefBase> user_data_;
+  int external_memory_counter_;
 };
 
 class V8TrackString : public CefTrackNode {
