@@ -113,7 +113,7 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
 
 void CefZipArchive::Clear() {
   AutoLock lock_scope(this);
-  contents_.empty();
+  contents_.clear();
 }
 
 size_t CefZipArchive::GetFileCount() {
