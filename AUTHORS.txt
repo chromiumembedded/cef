@@ -18,3 +18,5 @@ ADInstruments Ltd. <dev.team@adinstruments.com>
 Gus Verdun <gusverdun@gmail.com>
 Joinerysoft Ltd. <cpinfold@joinerysoft.com>
 Johan Björk <phb@spotify.com>
+Dmitry Azaraev <dmitry.azaraev@gmail.com>
+David Xue <ddxue27@gmail.com>
