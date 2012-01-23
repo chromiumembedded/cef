@@ -27,8 +27,7 @@ void destroy(void) {
 }
 
 void TerminationSignalHandler(int signatl) {
-  CefShutdown();
-  exit(0);
+  destroy();
 }
 
 // Callback for Debug > Get Source... menu item.

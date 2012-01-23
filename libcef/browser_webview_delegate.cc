@@ -8,6 +8,9 @@
 // have initialized a MessageLoop before these methods are called.
 
 #include "libcef/browser_webview_delegate.h"
+
+#include <algorithm>
+
 #include "libcef/browser_appcache_system.h"
 #include "libcef/browser_file_system.h"
 #include "libcef/browser_impl.h"
@@ -75,6 +78,11 @@
 #if defined(OS_WIN)
 #include "libcef/browser_drag_delegate_win.h"
 #include "libcef/web_drop_target_win.h"
+#endif
+
+#if defined(OS_LINUX)
+#include "libcef/web_drag_source_gtk.h"
+#include "libcef/web_drop_target_gtk.h"
 #endif
 
 using appcache::WebApplicationCacheHostImpl;

@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Copyright (c) 2012 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -95,6 +95,9 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   window_info_.m_Widget = webviewhost_->view_handle();
   g_signal_connect(G_OBJECT(window_info_.m_Widget), "destroy",
                    G_CALLBACK(window_destroyed), this);
+
+  if (!settings_.drag_drop_disabled)
+    delegate_->RegisterDragDrop();
 
   Unlock();
 

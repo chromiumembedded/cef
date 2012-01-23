@@ -1021,9 +1021,6 @@ int CefV8ValueImpl::AdjustExternallyAllocatedMemory(int change_in_bytes) {
   if (counter == NULL)
     return 0;
 
-  v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
-
   int new_value = *counter + change_in_bytes;
   if (new_value < 0) {
     NOTREACHED() << "External memory usage cannot be less than 0 bytes";

@@ -1,10 +1,13 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Copyright (c) 2012 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "libcef/browser_webview_delegate.h"
 #include "libcef/browser_impl.h"
+#include "libcef/drag_data_impl.h"
+#include "libcef/web_drop_target_gtk.h"
+#include "libcef/web_drag_source_gtk.h"
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -292,9 +295,28 @@ void BrowserWebViewDelegate::startDragging(
     WebDragOperationsMask mask,
     const WebImage& image,
     const WebPoint& image_offset) {
-  // TODO(port): Support drag and drop.
-  if (browser_->UIT_GetWebView())
+
+  if (browser_->settings().drag_drop_disabled) {
     browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+    return;
+  }
+
+  WebDropData drop_data(data);
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDragHandler> handler = client->GetDragHandler();
+    if (handler.get()) {
+      CefRefPtr<CefDragData> data(new CefDragDataImpl(drop_data));
+      if (handler->OnDragStart(browser_, data,
+              static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+        browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
+        return;
+      }
+    }
+  }
+  drag_source_ = new WebDragSource(browser_);
+  drag_source_->StartDragging(drop_data, mask, image, image_offset);
 }
 
 void BrowserWebViewDelegate::runModal() {
@@ -353,6 +375,13 @@ void BrowserWebViewDelegate::HandleContextMenu(int selected_id) {
       browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
     }
   }
+}
+
+// Private methods ------------------------------------------------------------
+
+void BrowserWebViewDelegate::RegisterDragDrop() {
+  DCHECK(!drop_target_);
+  drop_target_ = new WebDropTarget(browser_);
 }
 
 // Protected methods ----------------------------------------------------------

@@ -46,6 +46,11 @@ class BrowserDragDelegate;
 class WebDropTarget;
 #endif
 
+#if defined(OS_LINUX)
+class WebDragSource;
+class WebDropTarget;
+#endif
+
 class CefBrowserImpl;
 class GURL;
 class WebWidgetHost;
@@ -229,9 +234,11 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   // Additional accessors
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // Sets the webview as a drop target.
   void RegisterDragDrop();
+#endif
+#if defined(OS_WIN)
   void RevokeDragDrop();
 
   // Called after dragging has finished.
@@ -343,6 +350,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #if defined(OS_WIN)
   // Classes needed by drag and drop.
   scoped_refptr<BrowserDragDelegate> drag_delegate_;
+#endif
+#if defined(OS_WIN) || defined(OS_LINUX)
   scoped_refptr<WebDropTarget> drop_target_;
 #endif
 
@@ -351,6 +360,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Used for judging whether a new SetCursor call is actually changing the
   // cursor.
   GdkCursorType cursor_type_;
+  scoped_refptr<WebDragSource> drag_source_;
 #endif
 
 #if defined(OS_MACOSX)
