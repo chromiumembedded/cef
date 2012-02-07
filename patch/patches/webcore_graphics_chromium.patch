@@ -1,0 +1,12 @@
+Index: FontCacheChromiumWin.cpp
+===================================================================
+--- FontCacheChromiumWin.cpp	(revision 102901)
++++ FontCacheChromiumWin.cpp	(working copy)
+@@ -255,6 +255,7 @@
+         resultLength--; // ignore the null terminator
+ 
+     SelectObject(dc, oldFont);
++    DeleteObject(hfont);
+     ReleaseDC(0, dc);
+     *winName = String(name, resultLength);
+     return hfont;
