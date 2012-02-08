@@ -5,6 +5,7 @@
 
 #include "libcef/web_drag_source_gtk.h"
 
+#include <gdk/gdk.h>
 #include <string>
 
 #include "libcef/browser_impl.h"

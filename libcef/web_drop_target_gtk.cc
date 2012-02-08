@@ -5,6 +5,7 @@
 
 #include "libcef/web_drop_target_gtk.h"
 
+#include <gdk/gdk.h>
 #include <string>
 
 #include "libcef/browser_impl.h"
