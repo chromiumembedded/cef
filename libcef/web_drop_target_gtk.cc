@@ -72,7 +72,7 @@ int supported_targets[] = {
 };
 
 WebDragOperationsMask _mask(GdkDragContext* context) {
-  GdkDragAction propsed_action = gdk_drag_context_get_suggested_action(context);
+  GdkDragAction propsed_action = context->suggested_action;
   return (WebDragOperationsMask)DragDropTypes::GdkDragActionToDragOperation(
       propsed_action);
 }
