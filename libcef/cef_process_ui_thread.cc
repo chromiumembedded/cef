@@ -4,6 +4,9 @@
 // found in the LICENSE file.
 
 #include "libcef/cef_process_ui_thread.h"
+
+#include <string>
+
 #include "include/cef_version.h"
 #include "libcef/browser_webkit_glue.h"
 #include "libcef/browser_webkit_init.h"

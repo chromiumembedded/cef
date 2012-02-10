@@ -27,7 +27,6 @@ class CefProcessSubThread : public CefThread {
   virtual ~CefProcessSubThread();
 
  protected:
-  virtual void Init();
   virtual void CleanUp();
 
  private:

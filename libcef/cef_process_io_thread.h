@@ -27,14 +27,14 @@ class CefProcessIOThread : public CefThread {
   explicit CefProcessIOThread(MessageLoop* message_loop);
   virtual ~CefProcessIOThread();
 
-  virtual void Init();
-  virtual void CleanUp();
-
   scoped_refptr<BrowserRequestContext> request_context() {
     return request_context_;
   }
 
- private:
+ protected:
+  virtual void Init();
+  virtual void CleanUp();
+
   scoped_refptr<BrowserRequestContext> request_context_;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessIOThread);
