@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -165,6 +165,10 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
       dirtyRectsCount,
       dirtyRectsList,
       buffer);
+
+  // Restore param:dirtyRects; type: simple_vec_byref_const
+  if (dirtyRectsList)
+    delete [] dirtyRectsList;
 }
 
 

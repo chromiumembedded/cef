@@ -377,6 +377,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                       '\n    }'\
                       '\n    delete [] '+arg_name+'List;'\
                       '\n  }'
+        elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
+             arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const':
+            result += comment+\
+                      '\n  if ('+arg_name+'List)'\
+                      '\n    delete [] '+arg_name+'List;'
 
     if len(result) != result_len:
         result += '\n'
