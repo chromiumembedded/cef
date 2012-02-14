@@ -154,6 +154,10 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
       dirtyRectsCount,
       dirtyRectsList,
       buffer);
+
+  // Restore param:dirtyRects; type: simple_vec_byref_const
+  if (dirtyRectsList)
+    delete [] dirtyRectsList;
 }
 
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,

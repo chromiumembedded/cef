@@ -60,6 +60,9 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
       &retvalStruct,
       exception.GetWritableStruct());
 
+  // Restore param:arguments; type: refptr_vec_diff_byref_const
+  if (argumentsList)
+    delete [] argumentsList;
   // Restore param:retval; type: refptr_diff_byref
   if (retvalStruct) {
     if (retvalStruct != retvalOrig) {

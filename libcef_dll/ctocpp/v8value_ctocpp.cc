@@ -700,6 +700,9 @@ bool CefV8ValueCToCpp::ExecuteFunction(CefRefPtr<CefV8Value> object,
       &exceptionStruct,
       rethrow_exception);
 
+  // Restore param:arguments; type: refptr_vec_same_byref_const
+  if (argumentsList)
+    delete [] argumentsList;
   // Restore param:retval; type: refptr_same_byref
   if (retvalStruct) {
     if (retvalStruct != retvalOrig) {
@@ -769,6 +772,9 @@ bool CefV8ValueCToCpp::ExecuteFunctionWithContext(
       &exceptionStruct,
       rethrow_exception);
 
+  // Restore param:arguments; type: refptr_vec_same_byref_const
+  if (argumentsList)
+    delete [] argumentsList;
   // Restore param:retval; type: refptr_same_byref
   if (retvalStruct) {
     if (retvalStruct != retvalOrig) {

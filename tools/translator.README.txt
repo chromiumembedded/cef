@@ -1,7 +1,7 @@
 Chromium Embedded Framework (CEF) Translator Tool -- translator.py
 -------------------------------------------------------------------------------
 
-Document Last Updated: December 7, 2011
+Document Last Updated: February 14, 2012
 
 
 OVERVIEW
@@ -1164,6 +1164,10 @@ Parameters:
         
         // Execution
         cef_function(valueCount, valueList);
+
+        // Parameter Restoration
+        if (valueList)
+          delete [] valueList;
       }
 
    Boolean vector non-const type by reference (bool_vec_byref):
@@ -1270,6 +1274,10 @@ Parameters:
         
         // Execution
         cef_function(valueCount, valueList);
+
+        // Parameter Restoration
+        if (valueList)
+          delete [] valueList;
       }
 
    Smart pointer vector non-const type same boundary side by reference
@@ -1380,6 +1388,10 @@ Parameters:
         
         // Execution
         cef_function(valueCount, valueList);
+
+        // Parameter Restoration
+        if (valueList)
+          delete [] valueList;
       }
 
    Smart pointer vector non-const type different boundary side by reference
@@ -1490,6 +1502,10 @@ Parameters:
         
         // Execution
         cef_function(valueCount, valueList);
+
+        // Parameter Restoration
+        if (valueList)
+          delete [] valueList;
       }
 
 Return Values:
