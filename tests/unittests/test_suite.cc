@@ -110,8 +110,14 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
   settings.session_storage_quota = atoi(commandline_->GetSwitchValueASCII(
       cefclient::kSessionStorageQuota).c_str());
 
-  CefString(&settings.javascript_flags) =
+  // Always expose the V8 gc() function to give tests finer-grained control over
+  // memory management.
+  std::string javascript_flags = "--expose-gc";
+  std::string other_javascript_flags =
       commandline_->GetSwitchValueASCII(cefclient::kJavascriptFlags);
+  if (!other_javascript_flags.empty())
+    javascript_flags += " " + other_javascript_flags;
+  CefString(&settings.javascript_flags) = javascript_flags;
 }
 
 // static
