@@ -1173,6 +1173,9 @@ bool CefV8ValueImpl::ExecuteFunctionWithContext(
     retval = new CefV8ValueImpl(func_rv);
   }
 
+  if (argv)
+    delete [] argv;
+
   return true;
 }
 
