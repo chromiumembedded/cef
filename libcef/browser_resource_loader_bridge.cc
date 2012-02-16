@@ -470,10 +470,10 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (!handled) {
           // Observe URL from request.
           const std::string requestUrl(request->GetURL());
-          if(requestUrl != originalUrl) {
+          if (requestUrl != originalUrl)
             params->url = GURL(requestUrl);
-            redirectUrl.clear(); // Request URL trumps redirect URL
-          }
+          else if (!redirectUrl.empty())
+            params->url = GURL(std::string(redirectUrl));
 
           // Observe method from request.
           params->method = request->GetMethod();
@@ -504,14 +504,6 @@ class RequestProxy : public net::URLRequest::Delegate,
           OnCompletedRequest(
               URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
               std::string(), base::Time());
-        } else if (!redirectUrl.empty()) {
-          // redirect to the specified URL
-          handled = true;
-
-          params->url = GURL(std::string(redirectUrl));
-          ResourceResponseInfo info;
-          bool defer_redirect;
-          OnReceivedRedirect(params->url, info, &defer_redirect);
         } else if (resourceStream.get()) {
           // load from the provided resource stream
           handled = true;
