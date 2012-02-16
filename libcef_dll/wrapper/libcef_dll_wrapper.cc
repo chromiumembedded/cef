@@ -48,6 +48,7 @@
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/storage_visitor_cpptoc.h"
@@ -142,6 +143,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefRenderHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRequestHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefResourceBundleHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefResponseCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCppToC::DebugObjCt, 0);

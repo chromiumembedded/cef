@@ -16,13 +16,10 @@ MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
-#include "base/path_service.h"
-#include "base/win/resource_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/gdi_util.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -31,37 +28,6 @@ using WebKit::WebSize;
 using WebKit::WebView;
 
 namespace webkit_glue {
-
-base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
-  void* data_ptr;
-  size_t data_size;
-  return base::win::GetDataResourceFromModule(module, resource_id, &data_ptr,
-                                              &data_size)
-      ? base::StringPiece(static_cast<char*>(data_ptr), data_size)
-      : base::StringPiece();
-}
-
-base::StringPiece GetDataResource(int resource_id) {
-  base::StringPiece piece;
-
-  FilePath file_path;
-  HMODULE hModule = NULL;
-
-  // Try to load the resource from the DLL.
-  if (PathService::Get(base::FILE_MODULE, &file_path))
-    hModule = ::GetModuleHandle(file_path.value().c_str());
-  if (!hModule)
-    hModule = ::GetModuleHandle(NULL);
-  piece = GetRawDataResource(hModule, resource_id);
-
-  // Try to load the resource from the resource pack.
-  if (piece.empty())
-    piece = ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
-
-  DCHECK(!piece.empty()) << "Resource " << resource_id <<
-      " could not be loaded";
-  return piece;
-}
 
 bool EnsureFontLoaded(HFONT font) {
   return true;

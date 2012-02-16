@@ -13,6 +13,7 @@
 #include "include/cef_stream.h"
 #include "include/cef_url.h"
 #include "libcef/browser_webkit_glue.h"
+#include "libcef/cef_context.h"
 
 #include "base/file_util.h"
 #include "base/string_util.h"
@@ -105,7 +106,7 @@ class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory {
     for (size_t i = 0; i < kDevtoolsResourcesSize; ++i) {
       if (base::strcasecmp(kDevtoolsResources[i].name, path) == 0) {
         base::StringPiece piece =
-            webkit_glue::GetDataResource(kDevtoolsResources[i].value);
+            _Context->GetDataResource(kDevtoolsResources[i].value);
         if (!piece.empty()) {
           size = piece.size();
           return CefStreamReader::CreateForData(const_cast<char*>(piece.data()),

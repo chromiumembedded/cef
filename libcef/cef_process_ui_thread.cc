@@ -34,9 +34,17 @@
 #include <Objbase.h>  // NOLINT(build/include_order)
 #endif
 
+namespace {
+
 static const char* kStatsFilePrefix = "libcef_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
+
+base::StringPiece ResourceProvider(int resource_id) {
+  return _Context->GetDataResource(resource_id);
+}
+
+}  // namespace
 
 CefProcessUIThread::CefProcessUIThread()
       : CefThread(CefThread::UI), statstable_(NULL), webkit_init_(NULL) {}
@@ -88,7 +96,7 @@ void CefProcessUIThread::Init() {
   // Provides path resolution required for locating locale pack files.
   ui::RegisterPathProvider();
 
-  webkit_glue::InitializeResourceBundle(_Context->locale());
+  _Context->InitializeResourceBundle();
 
   PlatformInit();
 
@@ -99,7 +107,7 @@ void CefProcessUIThread::Init() {
   webkit_glue::InitializeTextEncoding();
 
   // Config the network module so it has access to a limited set of resources.
-  net::NetModule::SetResourceProvider(webkit_glue::GetDataResource);
+  net::NetModule::SetResourceProvider(ResourceProvider);
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
@@ -202,7 +210,7 @@ void CefProcessUIThread::CleanUp() {
 
   PlatformCleanUp();
 
-  webkit_glue::CleanupResourceBundle();
+  _Context->CleanupResourceBundle();
 }
 
 AudioManager* CefProcessUIThread::audio_manager() {

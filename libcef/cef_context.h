@@ -52,6 +52,16 @@ class CefContext : public CefBase {
   CefRefPtr<CefBrowserImpl> GetBrowserByID(int id);
   BrowserList* GetBrowserList() { return &browserlist_; }
 
+  void InitializeResourceBundle();
+  void CleanupResourceBundle();
+
+  string16 GetLocalizedString(int message_id) const;
+  base::StringPiece GetDataResource(int resource_id) const;
+
+#if defined(OS_MACOSX)
+  FilePath GetResourcesFilePath() const;
+#endif
+
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.
   const FilePath& cache_path() const { return cache_path_; }

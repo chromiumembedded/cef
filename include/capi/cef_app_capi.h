@@ -88,7 +88,8 @@ CEF_EXPORT void cef_run_message_loop();
 CEF_EXPORT void cef_quit_message_loop();
 
 ///
-// Implement this structure to provide handler implementations.
+// Implement this structure to provide handler implementations. Methods will be
+// called on the thread indicated.
 ///
 typedef struct _cef_app_t {
   ///
@@ -97,8 +98,17 @@ typedef struct _cef_app_t {
   cef_base_t base;
 
   ///
+  // Return the handler for resource bundle events. If
+  // CefSettings.pack_loading_disabled is true (1) a handler must be returned.
+  // If no handler is returned resources will be loaded from pack files. This
+  // function is called on multiple threads.
+  ///
+  struct _cef_resource_bundle_handler_t* (
+      CEF_CALLBACK *get_resource_bundle_handler)(struct _cef_app_t* self);
+
+  ///
   // Return the handler for proxy events. If not handler is returned the default
-  // system handler will be used.
+  // system handler will be used. This function is called on the IO thread.
   ///
   struct _cef_proxy_handler_t* (CEF_CALLBACK *get_proxy_handler)(
       struct _cef_app_t* self);

@@ -9,7 +9,6 @@
 #include <string>
 
 #include "base/compiler_specific.h"
-#include "base/string_piece.h"
 #include "v8/include/v8.h"
 
 #if defined(OS_WIN)
@@ -24,10 +23,6 @@ namespace webkit {
 struct WebPluginInfo;
 }
 
-#if defined(OS_MACOSX)
-class FilePath;
-#endif
-
 namespace webkit_glue {
 
 #if defined(OS_WIN)
@@ -38,16 +33,6 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 // Save a bitmap image to file, providing optional alternative data in |lpBits|
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
-
-void InitializeResourceBundle(const std::string& locale);
-void CleanupResourceBundle();
-
-#if defined(OS_MACOSX)
-FilePath GetResourcesFilePath();
-#endif
-
-string16 GetLocalizedString(int message_id);
-base::StringPiece GetDataResource(int resource_id);
 
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();

@@ -353,6 +353,28 @@ _cre_vfmod = '([A-Za-z0-9_]{0,})'
 # regex for matching arbitrary whitespace
 _cre_space =  '[\s]{1,}'
 
+# Simple translation types. Format is:
+#   'cpp_type' : ['capi_type', 'capi_default_value']
+_simpletypes = {
+    'void' : ['void', ''],
+    'void*' : ['void*', 'NULL'],
+    'int' : ['int', '0'],
+    'int64' : ['int64', '0'],
+    'uint64' : ['uint64', '0'],
+    'double' : ['double', '0'],
+    'long' : ['long', '0'],
+    'unsigned long' : ['unsigned long', '0'],
+    'long long' : ['long long', '0'],
+    'size_t' : ['size_t', '0'],
+    'time_t' : ['time_t', '0'],
+    'bool' : ['int', '0'],
+    'char* const': ['char* const', 'NULL'],
+    'CefCursorHandle' : ['cef_cursor_handle_t', 'NULL'],
+    'CefWindowHandle' : ['cef_window_handle_t', 'NULL'],
+    'CefRect' : ['cef_rect_t', 'CefRect()'],
+    'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
+    'CefTime' : ['cef_time_t', 'CefTime()'],
+}
 
 def get_function_impls(content, ident):
     """ Retrieve the function parts from the specified contents as a set of
@@ -1478,30 +1500,11 @@ class obj_analysis:
             }
         
         # check for simple direct translations
-        simpletypes = {
-            'void' : ['void', ''],
-            'int' : ['int', '0'],
-            'int64' : ['int64', '0'],
-            'uint64' : ['uint64', '0'],
-            'double' : ['double', '0'],
-            'long' : ['long', '0'],
-            'unsigned long' : ['unsigned long', '0'],
-            'long long' : ['long long', '0'],
-            'size_t' : ['size_t', '0'],
-            'time_t' : ['time_t', '0'],
-            'bool' : ['int', '0'],
-            'char* const': ['char* const', 'NULL'],
-            'CefCursorHandle' : ['cef_cursor_handle_t', 'NULL'],
-            'CefWindowHandle' : ['cef_window_handle_t', 'NULL'],
-            'CefRect' : ['cef_rect_t', 'CefRect()'],
-            'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
-            'CefTime' : ['cef_time_t', 'CefTime()'],
-        }
-        if value in simpletypes.keys():
+        if value in _simpletypes.keys():
             return {
                 'result_type' : 'simple',
-                'result_value' : simpletypes[value][0],
-                'result_default' : simpletypes[value][1],
+                'result_value' : _simpletypes[value][0],
+                'result_default' : _simpletypes[value][1],
             }
         
         # check if already a C API structure

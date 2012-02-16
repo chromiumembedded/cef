@@ -96,7 +96,7 @@ void SelectionClipboardGetContents(GtkClipboard* clipboard,
 
 }  // namespace
 
-// WebViewClient ----------------------------------s----------------------------
+// WebViewClient ---------------------------------------------------------------
 
 WebKit::WebExternalPopupMenu* BrowserWebViewDelegate::createExternalPopupMenu(
       const WebKit::WebPopupMenuInfo& info,

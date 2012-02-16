@@ -30,6 +30,9 @@ const char kGraphicsImpl_DesktopCmdBuffer[] = "desktop-command-buffer";
 const char kLocalStorageQuota[] = "local-storage-quota";
 const char kSessionStorageQuota[] = "session-storage-quota";
 const char kJavascriptFlags[] = "javascript-flags";
+const char kPackFilePath[] = "pack-file-path";
+const char kLocalesDirPath[] = "locales-dir-path";
+const char kPackLoadingDisabled[] = "pack-loading-disabled";
 
 // CefBrowserSettings attributes.
 const char kDragDropDisabled[] = "drag-drop-disabled";

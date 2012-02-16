@@ -6,8 +6,8 @@
 #include <sys/param.h>
 
 #include "libcef/browser_impl.h"
-#include "libcef/browser_webkit_glue.h"
 #import "libcef/browser_webview_mac.h"
+#include "libcef/cef_context.h"
 #include "libcef/drag_download_util.h"
 #include "libcef/download_util.h"
 #import "libcef/web_drag_source_mac.h"
@@ -143,7 +143,7 @@ void PromiseWriterTask::Run() {
 
     if (image == nil) {
       // No drag image was provided so create one.
-      FilePath path = webkit_glue::GetResourcesFilePath();
+      FilePath path = _Context->GetResourcesFilePath();
       path = path.AppendASCII("urlIcon.png");
       image = [[NSImage alloc]
                initWithContentsOfFile:SysUTF8ToNSString(path.value())];

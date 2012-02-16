@@ -209,6 +209,14 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
   CefString(&settings.javascript_flags) =
       g_command_line->GetSwitchValue(cefclient::kJavascriptFlags);
 
+  CefString(&settings.pack_file_path) =
+      g_command_line->GetSwitchValue(cefclient::kPackFilePath);
+  CefString(&settings.locales_dir_path) =
+      g_command_line->GetSwitchValue(cefclient::kLocalesDirPath);
+
+  settings.pack_loading_disabled =
+      g_command_line->HasSwitch(cefclient::kPackLoadingDisabled);
+
   // Retrieve command-line proxy configuration, if any.
   bool has_proxy = false;
   cef_proxy_type_t proxy_type = PROXY_TYPE_DIRECT;

@@ -116,6 +116,14 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
   if (!other_javascript_flags.empty())
     javascript_flags += " " + other_javascript_flags;
   CefString(&settings.javascript_flags) = javascript_flags;
+
+  CefString(&settings.pack_file_path) =
+      commandline_->GetSwitchValueASCII(cefclient::kPackFilePath);
+  CefString(&settings.locales_dir_path) =
+      commandline_->GetSwitchValueASCII(cefclient::kLocalesDirPath);
+
+  settings.pack_loading_disabled =
+      commandline_->HasSwitch(cefclient::kPackLoadingDisabled);
 }
 
 // static

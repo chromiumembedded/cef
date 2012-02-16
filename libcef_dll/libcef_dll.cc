@@ -66,6 +66,7 @@
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/ctocpp/storage_visitor_ctocpp.h"
@@ -140,6 +141,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefRenderHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRequestCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRequestHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefResourceBundleHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefResponseCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCallbackCppToC::DebugObjCt, 0);

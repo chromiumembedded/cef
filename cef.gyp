@@ -810,7 +810,6 @@
           'sources': [
             '<@(includes_mac)',
             'libcef/browser_impl_mac.mm',
-            'libcef/browser_webkit_glue_mac.mm',
             'libcef/browser_webview_delegate_mac.mm',
             'libcef/browser_webview_mac.h',
             'libcef/browser_webview_mac.mm',
@@ -839,7 +838,6 @@
           'sources': [
             '<@(includes_linux)',
             'libcef/browser_impl_gtk.cc',
-            'libcef/browser_webkit_glue_gtk.cc',
             'libcef/browser_webview_delegate_gtk.cc',
             'libcef/cef_process_ui_thread_gtk.cc',
             'libcef/external_protocol_handler_gtk.cc',

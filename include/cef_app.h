@@ -41,6 +41,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_proxy_handler.h"
+#include "include/cef_resource_bundle_handler.h"
 
 class CefApp;
 
@@ -92,17 +93,31 @@ void CefQuitMessageLoop();
 
 
 ///
-// Implement this interface to provide handler implementations.
+// Implement this interface to provide handler implementations. Methods will be
+// called on the thread indicated.
 ///
 /*--cef(source=client,no_debugct_check)--*/
 class CefApp : public virtual CefBase {
  public:
   ///
-  // Return the handler for proxy events. If not handler is returned the default
-  // system handler will be used.
+  // Return the handler for resource bundle events. If
+  // CefSettings.pack_loading_disabled is true a handler must be returned. If no
+  // handler is returned resources will be loaded from pack files. This method
+  // is called on multiple threads.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() { return NULL; }
+  virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for proxy events. If not handler is returned the default
+  // system handler will be used. This method is called on the IO thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() {
+    return NULL;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_APP_H_

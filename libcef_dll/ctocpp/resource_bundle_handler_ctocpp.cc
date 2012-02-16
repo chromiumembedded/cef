@@ -10,42 +10,47 @@
 // for more information.
 //
 
-#include "libcef_dll/ctocpp/app_ctocpp.h"
-#include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_resource_bundle_handler))
-    return NULL;
+bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int message_id,
+    CefString& string) {
+  if (CEF_MEMBER_MISSING(struct_, get_localized_string))
+    return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_resource_bundle_handler_t* _retval = struct_->get_resource_bundle_handler(
-      struct_);
+  int _retval = struct_->get_localized_string(struct_,
+      message_id,
+      string.GetWritableStruct());
 
-  // Return type: refptr_same
-  return CefResourceBundleHandlerCToCpp::Wrap(_retval);
+  // Return type: bool
+  return _retval?true:false;
 }
 
-CefRefPtr<CefProxyHandler> CefAppCToCpp::GetProxyHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_proxy_handler))
-    return NULL;
+bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
+    void*& data, size_t& data_size) {
+  if (CEF_MEMBER_MISSING(struct_, get_data_resource))
+    return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_proxy_handler_t* _retval = struct_->get_proxy_handler(struct_);
+  int _retval = struct_->get_data_resource(struct_,
+      resource_id,
+      &data,
+      &data_size);
 
-  // Return type: refptr_same
-  return CefProxyHandlerCToCpp::Wrap(_retval);
+  // Return type: bool
+  return _retval?true:false;
 }
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefResourceBundleHandlerCToCpp,
+    CefResourceBundleHandler, cef_resource_bundle_handler_t>::DebugObjCt = 0;
 #endif
 

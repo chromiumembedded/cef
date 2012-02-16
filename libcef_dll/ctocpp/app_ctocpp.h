@@ -32,6 +32,8 @@ class CefAppCToCpp
   virtual ~CefAppCToCpp() {}
 
   // CefApp methods
+  virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler(
+      ) OVERRIDE;
   virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE;
 };
 

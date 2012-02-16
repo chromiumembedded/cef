@@ -274,11 +274,11 @@ void BrowserWebKitInit::GetPlugins(
 }
 
 string16 BrowserWebKitInit::GetLocalizedString(int message_id) {
-  return webkit_glue::GetLocalizedString(message_id);
+  return _Context->GetLocalizedString(message_id);
 }
 
 base::StringPiece BrowserWebKitInit::GetDataResource(int resource_id) {
-  return webkit_glue::GetDataResource(resource_id);
+  return _Context->GetDataResource(resource_id);
 }
 
 webkit_glue::ResourceLoaderBridge* BrowserWebKitInit::CreateResourceLoader(
