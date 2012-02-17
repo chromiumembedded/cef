@@ -7,6 +7,7 @@
 #include "libcef/cef_thread.h"
 #include "libcef/cef_time_util.h"
 
+#include "base/bind.h"
 #include "net/base/cookie_monster.h"
 
 namespace {
@@ -115,7 +116,7 @@ bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
   }
 
   return CefThread::PostTask(CefThread::IO, FROM_HERE,
-      NewRunnableFunction(IOT_VisitAllCookies, visitor));
+      base::Bind(IOT_VisitAllCookies, visitor));
 }
 
 bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
@@ -132,7 +133,7 @@ bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
     return false;
 
   return CefThread::PostTask(CefThread::IO, FROM_HERE,
-      NewRunnableFunction(IOT_VisitUrlCookies, gurl, includeHttpOnly, visitor));
+      base::Bind(IOT_VisitUrlCookies, gurl, includeHttpOnly, visitor));
 }
 
 bool CefSetCookie(const CefString& url, const CefCookie& cookie) {

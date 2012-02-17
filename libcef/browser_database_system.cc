@@ -248,7 +248,9 @@ void BrowserDatabaseSystem::VfsDeleteFile(
     *result = VfsBackend::DeleteFile(file_name, sync_dir);
   } while ((++num_retries < kNumDeleteRetries) &&
            (*result == SQLITE_IOERR_DELETE) &&
-           (base::PlatformThread::Sleep(10), 1));
+           (base::PlatformThread::Sleep(
+               base::TimeDelta::FromMilliseconds(10)),
+            1));
 
   done_event->Signal();
 }

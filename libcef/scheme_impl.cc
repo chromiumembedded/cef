@@ -14,6 +14,7 @@
 #include "libcef/request_impl.h"
 #include "libcef/response_impl.h"
 
+#include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -285,7 +286,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::HeadersAvailable));
+            base::Bind(&Callback::HeadersAvailable, this));
       }
     }
 
@@ -315,7 +316,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::BytesAvailable));
+            base::Bind(&Callback::BytesAvailable, this));
       }
     }
 
@@ -327,7 +328,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::Cancel));
+            base::Bind(&Callback::Cancel, this));
       }
     }
 
@@ -604,8 +605,8 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
     }
 
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(&CefRegisterCustomScheme, scheme_name, is_standard,
-                            is_local, is_display_isolated));
+        base::Bind(base::IgnoreResult(&CefRegisterCustomScheme), scheme_name,
+                   is_standard, is_local, is_display_isolated));
     return true;
   }
 }
@@ -626,8 +627,8 @@ bool CefRegisterSchemeHandlerFactory(
                                                            factory);
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
-        NewRunnableFunction(&CefRegisterSchemeHandlerFactory, scheme_name,
-                            domain_name, factory));
+        base::Bind(base::IgnoreResult(&CefRegisterSchemeHandlerFactory),
+                   scheme_name, domain_name, factory));
     return true;
   }
 }
@@ -646,7 +647,7 @@ bool CefClearSchemeHandlerFactories() {
     RegisterDevToolsSchemeHandler(false);
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
-        NewRunnableFunction(&CefClearSchemeHandlerFactories));
+        base::Bind(base::IgnoreResult(&CefClearSchemeHandlerFactories)));
   }
 
   return true;

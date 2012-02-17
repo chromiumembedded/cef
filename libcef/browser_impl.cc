@@ -13,6 +13,7 @@
 #include "libcef/stream_impl.h"
 #include "libcef/v8_impl.h"
 
+#include "base/bind.h"
 #include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/stringprintf.h"
@@ -116,8 +117,8 @@ bool CefBrowser::CreateBrowser(CefWindowInfo& windowInfo,
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
       new CreateBrowserHelper(windowInfo, client, url, settings);
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableFunction(
-      UIT_CreateBrowserWithHelper, helper));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(UIT_CreateBrowserWithHelper, helper));
   return true;
 }
 
@@ -187,41 +188,46 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
 }
 
 void CefBrowserImpl::CloseBrowser() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_CloseBrowser));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_CloseBrowser, this));
 }
 
 void CefBrowserImpl::GoBack() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_BACK));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
+                 MENU_ID_NAV_BACK));
 }
 
 void CefBrowserImpl::GoForward() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_FORWARD));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
+                 MENU_ID_NAV_FORWARD));
 }
 
 void CefBrowserImpl::Reload() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD));
+  CefThread::PostTask(CefThread::UI, FROM_HERE, 
+      base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
+                 MENU_ID_NAV_RELOAD));
 }
 
 void CefBrowserImpl::ReloadIgnoreCache() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_RELOAD_NOCACHE));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
+                 MENU_ID_NAV_RELOAD_NOCACHE));
 }
 
 void CefBrowserImpl::StopLoad() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleActionView, MENU_ID_NAV_STOP));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
+                 MENU_ID_NAV_STOP));
 }
 
 void CefBrowserImpl::SetFocus(bool enable) {
   if (CefThread::CurrentlyOn(CefThread::UI)) {
     UIT_SetFocus(UIT_GetWebViewHost(), enable);
   } else {
-    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-        &CefBrowserImpl::SetFocus, enable));
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(&CefBrowserImpl::SetFocus, this, enable));
   }
 }
 
@@ -283,19 +289,20 @@ void CefBrowserImpl::Find(int identifier, const CefString& searchText,
   options.findNext = findNext;
 
   // Execute the request on the UI thread.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_Find, identifier, searchText, options));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_Find, this, identifier, searchText,
+                 options));
 }
 
 void CefBrowserImpl::StopFinding(bool clearSelection) {
   // Execute the request on the UI thread.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_StopFinding, clearSelection));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_StopFinding, this, clearSelection));
 }
 
 void CefBrowserImpl::SetZoomLevel(double zoomLevel) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SetZoomLevel, zoomLevel));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SetZoomLevel, this, zoomLevel));
 }
 
 void CefBrowserImpl::ClearHistory() {
@@ -315,19 +322,19 @@ void CefBrowserImpl::ClearHistory() {
       }
     }
   } else {
-    CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-        &CefBrowserImpl::ClearHistory));
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(&CefBrowserImpl::ClearHistory, this));
   }
 }
 
 void CefBrowserImpl::ShowDevTools() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_ShowDevTools));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_ShowDevTools, this));
 }
 
 void CefBrowserImpl::CloseDevTools() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_CloseDevTools));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_CloseDevTools, this));
 }
 
 bool CefBrowserImpl::GetSize(PaintElementType type, int& width, int& height) {
@@ -357,8 +364,8 @@ bool CefBrowserImpl::GetSize(PaintElementType type, int& width, int& height) {
 void CefBrowserImpl::SetSize(PaintElementType type, int width, int height) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SetSize, type, width, height));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SetSize, this, type, width, height));
 }
 
 bool CefBrowserImpl::IsPopupVisible() {
@@ -373,15 +380,15 @@ bool CefBrowserImpl::IsPopupVisible() {
 void CefBrowserImpl::HidePopup() {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_ClosePopupWidget));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_ClosePopupWidget, this));
 }
 
 void CefBrowserImpl::Invalidate(const CefRect& dirtyRect) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_Invalidate, dirtyRect));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_Invalidate, this, dirtyRect));
 }
 
 bool CefBrowserImpl::GetImage(PaintElementType type, int width, int height,
@@ -407,92 +414,98 @@ void CefBrowserImpl::SendKeyEvent(KeyType type, int key, int modifiers,
                                   bool sysChar, bool imeChar) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendKeyEvent, type, key, modifiers, sysChar,
-      imeChar));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendKeyEvent, this, type, key, modifiers,
+                 sysChar, imeChar));
 }
 
 void CefBrowserImpl::SendMouseClickEvent(int x, int y, MouseButtonType type,
                                          bool mouseUp, int clickCount) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendMouseClickEvent, x, y, type, mouseUp,
-      clickCount));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendMouseClickEvent, this, x, y, type,
+                 mouseUp, clickCount));
 }
 
 void CefBrowserImpl::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendMouseMoveEvent, x, y, mouseLeave));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendMouseMoveEvent, this, x, y,
+                 mouseLeave));
 }
 
 void CefBrowserImpl::SendMouseWheelEvent(int x, int y, int delta) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendMouseWheelEvent, x, y, delta));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendMouseWheelEvent, this, x, y, delta));
 }
 
 void CefBrowserImpl::SendFocusEvent(bool setFocus) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendFocusEvent, setFocus));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendFocusEvent, this, setFocus));
 }
 
 void CefBrowserImpl::SendCaptureLostEvent() {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_SendCaptureLostEvent));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_SendCaptureLostEvent, this));
 }
 
 void CefBrowserImpl::Undo(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_UNDO, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_UNDO, frame));
 }
 
 void CefBrowserImpl::Redo(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_REDO, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_REDO, frame));
 }
 
 void CefBrowserImpl::Cut(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_CUT, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_CUT, frame));
 }
 
 void CefBrowserImpl::Copy(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_COPY, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_COPY, frame));
 }
 
 void CefBrowserImpl::Paste(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_PASTE, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_PASTE,
+                 frame));
 }
 
 void CefBrowserImpl::Delete(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_DELETE, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_DELETE,
+                 frame));
 }
 
 void CefBrowserImpl::SelectAll(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_SELECTALL, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_SELECTALL,
+                 frame));
 }
 
 
 void CefBrowserImpl::Print(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_PRINT, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_PRINT,
+                 frame));
 }
 
 void CefBrowserImpl::ViewSource(CefRefPtr<CefFrame> frame) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_HandleAction, MENU_ID_VIEWSOURCE, frame));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_HandleAction, this, MENU_ID_VIEWSOURCE,
+                 frame));
 }
 
 CefString CefBrowserImpl::GetSource(CefRefPtr<CefFrame> frame) {
@@ -526,38 +539,40 @@ CefString CefBrowserImpl::GetText(CefRefPtr<CefFrame> frame) {
 void CefBrowserImpl::LoadRequest(CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefRequest> request) {
   DCHECK(request.get() != NULL);
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadURLForRequestRef, frame, request));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_LoadURLForRequestRef, this, frame,
+                 request));
 }
 
 void CefBrowserImpl::LoadURL(CefRefPtr<CefFrame> frame,
                              const CefString& url) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadURL, frame, url));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_LoadURL, this, frame, url));
 }
 
 void CefBrowserImpl::LoadString(CefRefPtr<CefFrame> frame,
                                 const CefString& string,
                                 const CefString& url) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadHTML, frame, string, url));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_LoadHTML, this, frame, string, url));
 }
 
 void CefBrowserImpl::LoadStream(CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefStreamReader> stream,
                                 const CefString& url) {
   DCHECK(stream.get() != NULL);
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_LoadHTMLForStreamRef, frame, stream, url));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_LoadHTMLForStreamRef, this, frame, stream,
+                 url));
 }
 
 void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
                                        const CefString& jsCode,
                                        const CefString& scriptUrl,
                                        int startLine) {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(this,
-      &CefBrowserImpl::UIT_ExecuteJavaScript, frame, jsCode, scriptUrl,
-      startLine));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_ExecuteJavaScript, this, frame, jsCode,
+                 scriptUrl, startLine));
 }
 
 int64 CefBrowserImpl::GetIdentifier(CefRefPtr<CefFrame> frame) {
@@ -1565,8 +1580,9 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
     return;
   }
   CefRefPtr<CefFrame> framePtr(this);
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(
-      browser_.get(), &CefBrowserImpl::UIT_VisitDOM, framePtr, visitor));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&CefBrowserImpl::UIT_VisitDOM, browser_.get(), framePtr,
+                 visitor));
 }
 
 CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {

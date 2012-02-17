@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,12 +11,12 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/fileapi/file_system_callback_dispatcher.h"
 #include "webkit/fileapi/file_system_context.h"
-#include "webkit/fileapi/file_system_operation.h"
+#include "webkit/fileapi/file_system_operation_interface.h"
 #include "webkit/glue/webkit_glue.h"
 
 using fileapi::FileSystemCallbackDispatcher;
 using fileapi::FileSystemContext;
-using fileapi::FileSystemOperation;
+using fileapi::FileSystemOperationInterface;
 using fileapi::WebFileWriterBase;
 using WebKit::WebFileWriterClient;
 using WebKit::WebString;
@@ -50,7 +50,7 @@ class BrowserFileWriter::IOThreadProxy
       return;
     }
     DCHECK(!operation_);
-    operation_ = GetNewOperation();
+    operation_ = GetNewOperation(path);
     operation_->Truncate(path, offset);
   }
 
@@ -63,7 +63,7 @@ class BrowserFileWriter::IOThreadProxy
     }
     DCHECK(request_context_);
     DCHECK(!operation_);
-    operation_ = GetNewOperation();
+    operation_ = GetNewOperation(path);
     operation_->Write(request_context_, path, blob_url, offset);
   }
 
@@ -78,14 +78,19 @@ class BrowserFileWriter::IOThreadProxy
       DidFail(base::PLATFORM_FILE_ERROR_INVALID_OPERATION);
       return;
     }
-    operation_->Cancel(GetNewOperation());
+    operation_->Cancel(CallbackDispatcher::Create(this));
   }
 
  private:
   // Inner class to receive callbacks from FileSystemOperation.
   class CallbackDispatcher : public FileSystemCallbackDispatcher {
    public:
-    explicit CallbackDispatcher(IOThreadProxy* proxy) : proxy_(proxy) {
+    // An instance of this class must be created by Create()
+    // (so that we do not leak ownerships).
+    static scoped_ptr<FileSystemCallbackDispatcher> Create(
+        IOThreadProxy* proxy) {
+      return scoped_ptr<FileSystemCallbackDispatcher>(
+          new CallbackDispatcher(proxy));
     }
 
     ~CallbackDispatcher() {
@@ -122,13 +127,15 @@ class BrowserFileWriter::IOThreadProxy
       NOTREACHED();
     }
 
+   private:
+    explicit CallbackDispatcher(IOThreadProxy* proxy) : proxy_(proxy) {}
     scoped_refptr<IOThreadProxy> proxy_;
   };
 
-  FileSystemOperation* GetNewOperation() {
+  FileSystemOperationInterface* GetNewOperation(const GURL& path) {
     // The FileSystemOperation takes ownership of the CallbackDispatcher.
-    return new FileSystemOperation(new CallbackDispatcher(this),
-                                   io_thread_, file_system_context_.get());
+    return file_system_context_->CreateFileSystemOperation(
+        path, CallbackDispatcher::Create(this), io_thread_);
   }
 
   void DidSucceed() {
@@ -176,7 +183,7 @@ class BrowserFileWriter::IOThreadProxy
   base::WeakPtr<BrowserFileWriter> simple_writer_;
 
   // Only used on the io thread.
-  FileSystemOperation* operation_;
+  FileSystemOperationInterface* operation_;
 
   scoped_refptr<FileSystemContext> file_system_context_;
 };

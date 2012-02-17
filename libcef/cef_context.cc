@@ -204,8 +204,8 @@ void CefContext::Shutdown() {
 
     // Finish shutdown on the UI thread.
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableMethod(this, &CefContext::UIT_FinishShutdown,
-            &browser_shutdown_event, &uithread_shutdown_event));
+        base::Bind(&CefContext::UIT_FinishShutdown, this,
+                   &browser_shutdown_event, &uithread_shutdown_event));
 
     // Block until browser shutdown is complete.
     browser_shutdown_event.Wait();
@@ -273,7 +273,7 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
       webkit_glue::ClearCache();
     } else {
       CefThread::PostTask(CefThread::UI, FROM_HERE,
-          NewRunnableFunction(webkit_glue::ClearCache));
+          base::Bind(webkit_glue::ClearCache));
     }
   }
 
@@ -318,7 +318,7 @@ void CefContext::InitializeResourceBundle() {
 
   std::string locale_str = locale();
   const std::string loaded_locale =
-      ui::ResourceBundle::InitSharedInstance(locale_str);
+      ui::ResourceBundle::InitSharedInstanceWithLocale(locale_str);
   CHECK(!loaded_locale.empty()) << "Locale could not be found for " <<
       locale_str;
 

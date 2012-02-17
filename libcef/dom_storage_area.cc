@@ -6,7 +6,7 @@
 #include "libcef/dom_storage_context.h"
 #include "libcef/dom_storage_namespace.h"
 
-#include "base/task.h"
+#include "base/logging.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"

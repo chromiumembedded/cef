@@ -7,6 +7,7 @@
 #include "libcef/browser_impl.h"
 #include "libcef/cef_thread.h"
 
+#include "base/bind.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "net/base/file_stream.h"
@@ -91,8 +92,7 @@ void DragDownloadFile::InitiateDownload() {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
     CefThread::PostTask(
         CefThread::UI, FROM_HERE,
-        NewRunnableMethod(this,
-                          &DragDownloadFile::InitiateDownload));
+        base::Bind(&DragDownloadFile::InitiateDownload, this));
     return;
   }
 #endif
@@ -111,9 +111,7 @@ void DragDownloadFile::DownloadCompleted(bool is_successful) {
   if (drag_message_loop_ != MessageLoop::current()) {
     drag_message_loop_->PostTask(
         FROM_HERE,
-        NewRunnableMethod(this,
-                          &DragDownloadFile::DownloadCompleted,
-                          is_successful));
+        base::Bind(&DragDownloadFile::DownloadCompleted, this, is_successful));
     return;
   }
 #endif

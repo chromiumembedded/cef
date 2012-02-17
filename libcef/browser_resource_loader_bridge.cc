@@ -777,7 +777,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnSSLCertificateError(net::URLRequest* request,
                                      const net::SSLInfo& ssl_info,
-                                     bool is_hsts_host) OVERRIDE {
+                                     bool fatal) OVERRIDE {
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
   }

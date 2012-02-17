@@ -6,6 +6,7 @@
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 
+#include "base/bind.h"
 #include "base/string_split.h"
 #include "base/utf_string_conversions.h"
 #include "webkit/plugins/npapi/plugin_list.h"
@@ -56,8 +57,8 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info) {
   entry_points.np_initialize = plugin_info->np_initialize;
   entry_points.np_shutdown = plugin_info->np_shutdown;
 
-  webkit::npapi::PluginList::Singleton()->RegisterInternalPlugin(
-      info, entry_points, true);
+  webkit::npapi::PluginList::Singleton()->RegisterInternalPluginWithEntryPoints(
+      info, true, entry_points);
 
   delete plugin_info;
 }
@@ -72,7 +73,7 @@ bool CefRegisterPlugin(const CefPluginInfo& plugin_info) {
   }
 
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      NewRunnableFunction(UIT_RegisterPlugin, new CefPluginInfo(plugin_info)));
+      base::Bind(UIT_RegisterPlugin, new CefPluginInfo(plugin_info)));
 
   return true;
 }

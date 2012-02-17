@@ -9,7 +9,6 @@
 #include <string>
 
 #include "base/memory/weak_ptr.h"
-#include "base/task.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDevToolsAgentClient.h"
 

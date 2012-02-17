@@ -15,7 +15,6 @@
 #include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "base/task.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/utf_string_conversions.h"
@@ -74,45 +73,17 @@ FilePath GetFileNameFromDragData(const WebDropData& drop_data) {
   return file_name;
 }
 
-// This class's sole task is to write out data for a promised file; the caller
-// is responsible for opening the file.
-class PromiseWriterTask : public Task {
- public:
-  // Assumes ownership of file_stream.
-  PromiseWriterTask(const WebDropData& drop_data,
-                    FileStream* file_stream);
-  virtual ~PromiseWriterTask();
-  virtual void Run();
+// This helper's sole task is to write out data for a promised file; the caller
+// is responsible for opening the file. It takes the drop data and an open file
+// stream.
+void PromiseWriterHelper(const WebDropData& drop_data,
+                         net::FileStream* file_stream) {
+  DCHECK(file_stream);
+  file_stream->Write(drop_data.file_contents.data(),
+                     drop_data.file_contents.length(),
+                     net::CompletionCallback());
 
- private:
-  WebDropData drop_data_;
-
-  // This class takes ownership of file_stream_ and will close and delete it.
-  scoped_ptr<FileStream> file_stream_;
-};
-
-// Takes the drop data and an open file stream (which it takes ownership of and
-// will close and delete).
-PromiseWriterTask::PromiseWriterTask(const WebDropData& drop_data,
-                                     FileStream* file_stream) :
-    drop_data_(drop_data) {
-  file_stream_.reset(file_stream);
-  DCHECK(file_stream_.get());
-}
-
-PromiseWriterTask::~PromiseWriterTask() {
-  DCHECK(file_stream_.get());
-  if (file_stream_.get())
-    file_stream_->Close();
-}
-
-void PromiseWriterTask::Run() {
-  CHECK(file_stream_.get());
-  file_stream_->Write(drop_data_.file_contents.data(),
-                      drop_data_.file_contents.length(),
-                      net::CompletionCallback());
-
-  // Let our destructor take care of business.
+  file_stream->Close();
 }
 
 }  // namespace
@@ -368,7 +339,7 @@ void PromiseWriterTask::Run() {
   } else {
     // The writer will take care of closing and deletion.
     CefThread::PostTask(CefThread::FILE, FROM_HERE,
-        new PromiseWriterTask(*dropData_, fileStream));
+        base::Bind(PromiseWriterHelper, *dropData_, base::Owned(fileStream)));
   }
 
   // Once we've created the file, we should return the file name.

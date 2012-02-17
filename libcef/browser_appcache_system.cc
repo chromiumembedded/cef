@@ -11,7 +11,6 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/callback.h"
-#include "base/task.h"
 #include "base/synchronization/waitable_event.h"
 #include "webkit/appcache/appcache_interceptor.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
@@ -267,8 +266,9 @@ class BrowserBackendProxy
       status_result_ = appcache::UNCACHED;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE, base::IgnoreReturn<appcache::Status>(
-              base::Bind(&BrowserBackendProxy::GetStatus, this, host_id)));
+          FROM_HERE,
+              base::Bind(base::IgnoreResult(&BrowserBackendProxy::GetStatus),
+                         this, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->GetStatusWithCallback(
@@ -284,8 +284,9 @@ class BrowserBackendProxy
       bool_result_ = false;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE, base::IgnoreReturn<bool>(
-              base::Bind(&BrowserBackendProxy::StartUpdate, this, host_id)));
+          FROM_HERE,
+          base::Bind(base::IgnoreResult(&BrowserBackendProxy::StartUpdate),
+                     this, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->StartUpdateWithCallback(
@@ -301,8 +302,9 @@ class BrowserBackendProxy
       bool_result_ = false;
       event_.Reset();
       system_->io_message_loop()->PostTask(
-          FROM_HERE, base::IgnoreReturn<bool>(
-              base::Bind(&BrowserBackendProxy::SwapCache, this, host_id)));
+          FROM_HERE,
+          base::Bind(base::IgnoreResult(&BrowserBackendProxy::SwapCache),
+                     this, host_id));
       event_.Wait();
     } else if (system_->is_io_thread()) {
       system_->backend_impl_->SwapCacheWithCallback(

@@ -5,11 +5,11 @@
 #include "libcef/cef_thread.h"
 #include "libcef/drag_download_util.h"
 
+#include "base/bind.h"
 #include "base/string_util.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/task.h"
 #include "base/string_number_conversions.h"
 #include "base/utf_string_conversions.h"
 #include "googleurl/src/gurl.h"
@@ -101,13 +101,13 @@ void PromiseFileFinalizer::Cleanup() {
 void PromiseFileFinalizer::OnDownloadCompleted(const FilePath& file_path) {
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &PromiseFileFinalizer::Cleanup));
+      base::Bind(&PromiseFileFinalizer::Cleanup, this));
 }
 
 void PromiseFileFinalizer::OnDownloadAborted() {
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &PromiseFileFinalizer::Cleanup));
+      base::Bind(&PromiseFileFinalizer::Cleanup, this));
 }
 
 }  // namespace drag_download_util

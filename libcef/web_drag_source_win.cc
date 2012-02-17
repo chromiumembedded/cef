@@ -7,7 +7,7 @@
 #include "libcef/web_drag_utils_win.h"
 #include "libcef/cef_thread.h"
 
-#include "base/task.h"
+#include "base/bind.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
@@ -46,7 +46,7 @@ void WebDragSource::OnDragSourceCancel() {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
     CefThread::PostTask(
         CefThread::UI, FROM_HERE,
-        NewRunnableMethod(this, &WebDragSource::OnDragSourceCancel));
+        base::Bind(&WebDragSource::OnDragSourceCancel, this));
     return;
   }
 
@@ -67,7 +67,7 @@ void WebDragSource::OnDragSourceDrop() {
   // OnDragSourceDrop after the current task.
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &WebDragSource::DelayedOnDragSourceDrop));
+      base::Bind(&WebDragSource::DelayedOnDragSourceDrop, this));
 }
 
 void WebDragSource::DelayedOnDragSourceDrop() {
@@ -86,7 +86,7 @@ void WebDragSource::OnDragSourceMove() {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
     CefThread::PostTask(
         CefThread::UI, FROM_HERE,
-        NewRunnableMethod(this, &WebDragSource::OnDragSourceMove));
+        base::Bind(&WebDragSource::OnDragSourceMove, this));
     return;
   }
 

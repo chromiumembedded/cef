@@ -6,6 +6,7 @@
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 
+#include "base/bind.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
@@ -40,9 +41,9 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
         allow_target_subdomains);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(&CefAddCrossOriginWhitelistEntry, source_origin,
-                            target_protocol, target_domain,
-                            allow_target_subdomains));
+        base::Bind(base::IgnoreResult(&CefAddCrossOriginWhitelistEntry),
+                   source_origin, target_protocol, target_domain,
+                   allow_target_subdomains));
   }
 
   return true;
@@ -75,9 +76,9 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
         allow_target_subdomains);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(&CefRemoveCrossOriginWhitelistEntry, source_origin,
-                            target_protocol, target_domain,
-                            allow_target_subdomains));
+        base::Bind(base::IgnoreResult(&CefRemoveCrossOriginWhitelistEntry),
+                   source_origin, target_protocol, target_domain,
+                   allow_target_subdomains));
   }
 
   return true;
@@ -94,7 +95,7 @@ bool CefClearCrossOriginWhitelist() {
     WebSecurityPolicy::resetOriginAccessWhitelists();
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(&CefClearCrossOriginWhitelist));
+        base::Bind(base::IgnoreResult(&CefClearCrossOriginWhitelist)));
   }
 
   return true;

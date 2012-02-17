@@ -9,6 +9,8 @@
 #include "libcef/browser_impl.h"
 #include "libcef/cef_context.h"
 #include "libcef/tracker.h"
+
+#include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
@@ -345,8 +347,8 @@ bool CefRegisterExtension(const CefString& extension_name,
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
       code->GetString(), handler.get());
 
-  CefThread::PostTask(CefThread::UI, FROM_HERE, NewRunnableMethod(wrapper,
-      &ExtensionWrapper::UIT_RegisterExtension));
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
+      base::Bind(&ExtensionWrapper::UIT_RegisterExtension, wrapper));
   return true;
 }
 

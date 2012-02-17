@@ -60,7 +60,12 @@ class DOMStorageArea {
 };
 
 #if defined(COMPILER_GCC)
+#if defined(OS_ANDROID)
+// Android stlport uses std namespace
+namespace std {
+#else
 namespace __gnu_cxx {
+#endif
 
 template<>
 struct hash<DOMStorageArea*> {

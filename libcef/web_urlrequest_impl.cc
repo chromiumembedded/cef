@@ -8,6 +8,7 @@
 #include "libcef/request_impl.h"
 #include "libcef/response_impl.h"
 
+#include "base/bind.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
@@ -241,8 +242,7 @@ CefWebURLRequest::CreateWebURLRequest(
 
   // Send the request from the UI thread.
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      NewRunnableMethod(requester.get(), &CefWebURLRequestImpl::DoSend,
-                        request));
+      base::Bind(&CefWebURLRequestImpl::DoSend, requester.get(), request));
 
   return requester.get();
 }
@@ -266,7 +266,7 @@ CefWebURLRequestImpl::RequestState CefWebURLRequestImpl::GetState() {
 
 void CefWebURLRequestImpl::Cancel() {
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &CefWebURLRequestImpl::DoCancel));
+      base::Bind(&CefWebURLRequestImpl::DoCancel, this));
 }
 
 void CefWebURLRequestImpl::DoSend(CefRefPtr<CefRequest> request) {

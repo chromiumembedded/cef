@@ -69,7 +69,6 @@
 #include "webkit/glue/weburlrequest_extradata_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
-#include "webkit/media/video_renderer_impl.h"
 #include "webkit/media/webmediaplayer_impl.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
@@ -665,17 +664,15 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
   collection->AddAudioRenderer(new media::ReferenceAudioRenderer(
       _Context->process()->ui_thread()->audio_manager()));
 
-  scoped_ptr<webkit_media::WebMediaPlayerImpl> result(
-      new webkit_media::WebMediaPlayerImpl(
-          client,
-          base::WeakPtr<webkit_media::WebMediaPlayerDelegate>(),
-          collection.release(),
-          message_loop_factory.release(),
-          NULL,
-          new media::MediaLog()));
-  if (!result->Initialize(frame, false))
-    return NULL;
-  return result.release();
+  return new webkit_media::WebMediaPlayerImpl(
+      frame,
+      client,
+      base::WeakPtr<webkit_media::WebMediaPlayerDelegate>(),
+      collection.release(),
+      NULL,
+      message_loop_factory.release(),
+      NULL,
+      new media::MediaLog());
 }
 
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(

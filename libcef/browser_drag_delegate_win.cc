@@ -18,6 +18,7 @@
 #include "libcef/web_drag_utils_win.h"
 #include "libcef/web_drop_target_win.h"
 
+#include "base/bind.h"
 #include "base/utf_string_conversions.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_util.h"
@@ -142,14 +143,14 @@ void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
   if (drag_drop_thread_->StartWithOptions(options)) {
     drag_drop_thread_->message_loop()->PostTask(
         FROM_HERE,
-        NewRunnableMethod(this,
-                          &BrowserDragDelegate::StartBackgroundDragging,
-                          drop_data,
-                          ops,
-                          page_url,
-                          page_encoding,
-                          image,
-                          image_offset));
+        base::Bind(&BrowserDragDelegate::StartBackgroundDragging,
+                   this,
+                   drop_data,
+                   ops,
+                   page_url,
+                   page_encoding,
+                   image,
+                   image_offset));
   }
 
   // Install a hook procedure to monitor the messages so that we can forward
@@ -179,7 +180,7 @@ void BrowserDragDelegate::StartBackgroundDragging(
   DoDragging(drop_data, ops, page_url, page_encoding, image, image_offset);
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &BrowserDragDelegate::EndDragging, true));
+      base::Bind(&BrowserDragDelegate::EndDragging, this, true));
 }
 
 void BrowserDragDelegate::PrepareDragForDownload(
@@ -343,7 +344,7 @@ void BrowserDragDelegate::OnWaitForData() {
   // mode so that it can start to process the normal input events.
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &BrowserDragDelegate::EndDragging, true));
+      base::Bind(&BrowserDragDelegate::EndDragging, this, true));
 }
 
 void BrowserDragDelegate::OnDataObjectDisposed() {
@@ -353,5 +354,5 @@ void BrowserDragDelegate::OnDataObjectDisposed() {
   // DataObjectImpl.
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      NewRunnableMethod(this, &BrowserDragDelegate::CloseThread));
+      base::Bind(&BrowserDragDelegate::CloseThread, this));
 }
