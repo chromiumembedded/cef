@@ -1,8 +1,8 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 103399)
+--- page/FrameView.cpp	(revision 106313)
 +++ page/FrameView.cpp	(working copy)
-@@ -176,10 +176,12 @@
+@@ -157,10 +157,12 @@
              m_page = page;
              m_page->addScrollableArea(this);
  
