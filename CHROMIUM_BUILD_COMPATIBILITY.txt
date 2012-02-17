@@ -16,6 +16,5 @@
 # http://dev.chromium.org/developers/how-tos/get-the-code
 
 {
-  'chromium_url': 'http://src.chromium.org/svn/trunk/src',
-  'chromium_revision': '119867',
+  'release_url': 'http://src.chromium.org/svn/releases/18.0.1025.37',
 }
