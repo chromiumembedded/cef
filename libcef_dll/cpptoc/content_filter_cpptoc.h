@@ -20,8 +20,6 @@
 
 #include "include/cef_content_filter.h"
 #include "include/capi/cef_content_filter_capi.h"
-#include "include/cef_stream.h"
-#include "include/capi/cef_stream_capi.h"
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.

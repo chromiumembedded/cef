@@ -39,10 +39,9 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
 #include "include/cef_dom.h"
-
-class CefBrowser;
-class CefFrame;
+#include "include/cef_frame.h"
 
 ///
 // Implement this interface to handle events related to focus. The methods of

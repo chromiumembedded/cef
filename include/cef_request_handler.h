@@ -39,14 +39,13 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
 #include "include/cef_download_handler.h"
+#include "include/cef_frame.h"
 #include "include/cef_content_filter.h"
 #include "include/cef_response.h"
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
-
-class CefBrowser;
-class CefFrame;
 
 ///
 // Implement this interface to handle events related to browser requests. The

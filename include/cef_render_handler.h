@@ -39,9 +39,8 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
 #include <vector>
-
-class CefBrowser;
 
 ///
 // Implement this interface to handle events when window rendering is disabled.

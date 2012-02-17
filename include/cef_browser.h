@@ -39,10 +39,10 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_frame.h"
 #include <vector>
 
 class CefClient;
-class CefFrame;
 
 ///
 // Class used to represent a browser window. The methods of this class may be

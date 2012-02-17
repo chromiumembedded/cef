@@ -39,11 +39,11 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_dom.h"
+#include "include/cef_request.h"
+#include "include/cef_stream.h"
 
 class CefBrowser;
-class CefDOMVisitor;
-class CefRequest;
-class CefStreamReader;
 class CefV8Context;
 
 ///

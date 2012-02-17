@@ -39,10 +39,9 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
 #include "include/cef_v8.h"
-
-class CefBrowser;
-class CefFrame;
 
 ///
 // Implement this interface to handle V8 context events. The methods of this

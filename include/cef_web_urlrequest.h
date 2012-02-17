@@ -39,9 +39,9 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_request.h"
+#include "include/cef_response.h"
 
-class CefRequest;
-class CefResponse;
 class CefWebURLRequestClient;
 
 ///

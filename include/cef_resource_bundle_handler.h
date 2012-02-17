@@ -40,9 +40,6 @@
 
 #include "include/cef_base.h"
 
-class CefBrowser;
-class CefStreamReader;
-
 ///
 // Class used to implement a custom resource bundle interface. The methods of
 // this class may be called on multiple threads.

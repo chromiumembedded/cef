@@ -40,10 +40,10 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
 #include <vector>
 
-class CefBrowser;
-class CefFrame;
 class CefV8Handler;
 class CefV8Value;
 

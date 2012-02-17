@@ -39,8 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
-
-class CefStreamReader;
+#include "include/cef_stream.h"
 
 ///
 // Class that supports the reading of XML data via the libxml streaming API.

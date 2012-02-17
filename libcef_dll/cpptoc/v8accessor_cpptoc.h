@@ -20,10 +20,6 @@
 
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
-#include "include/cef_browser.h"
-#include "include/capi/cef_browser_capi.h"
-#include "include/cef_frame.h"
-#include "include/capi/cef_frame_capi.h"
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.

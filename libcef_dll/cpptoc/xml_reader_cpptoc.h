@@ -20,8 +20,6 @@
 
 #include "include/cef_xml_reader.h"
 #include "include/capi/cef_xml_reader_capi.h"
-#include "include/cef_stream.h"
-#include "include/capi/cef_stream_capi.h"
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.

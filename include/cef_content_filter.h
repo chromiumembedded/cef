@@ -39,8 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
-
-class CefStreamReader;
+#include "include/cef_stream.h"
 
 ///
 // Interface to implement for filtering response content. The methods of this

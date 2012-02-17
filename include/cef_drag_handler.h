@@ -40,8 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_drag_data.h"
-
-class CefBrowser;
+#include "include/cef_browser.h"
 
 ///
 // Implement this interface to handle events related to dragging. The methods of

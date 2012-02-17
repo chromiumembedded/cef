@@ -23,8 +23,6 @@
 #include "include/capi/cef_browser_capi.h"
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
-#include "include/cef_frame.h"
-#include "include/capi/cef_frame_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.

@@ -39,8 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
-
-class CefBrowser;
+#include "include/cef_browser.h"
 
 ///
 // Implement this interface to handle events related to browser context menus.
