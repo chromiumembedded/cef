@@ -229,21 +229,22 @@ void BrowserDragDelegate::PrepareDragForDownload(
 
 void BrowserDragDelegate::PrepareDragForFileContents(
     const WebDropData& drop_data, ui::OSExchangeData* data) {
+  static const int kMaxFilenameLength = 255;  // FAT and NTFS
+  FilePath file_name(drop_data.file_description_filename);
+  string16 extension = file_name.Extension();
+  file_name = file_name.BaseName().RemoveExtension();
   // Images without ALT text will only have a file extension so we need to
   // synthesize one from the provided extension and URL.
-  FilePath file_name(drop_data.file_description_filename);
-  file_name = file_name.BaseName().RemoveExtension();
   if (file_name.value().empty()) {
     // Retrieve the name from the URL.
     file_name = FilePath(
         net::GetSuggestedFilename(drop_data.url, "", "", "", "", ""));
-    if (file_name.value().size() + drop_data.file_extension.size() + 1 >
-        MAX_PATH) {
+    if (file_name.value().size() + extension.size() > kMaxFilenameLength) {
       file_name = FilePath(file_name.value().substr(
-          0, MAX_PATH - drop_data.file_extension.size() - 2));
+          0, kMaxFilenameLength - extension.size()));
     }
   }
-  file_name = file_name.ReplaceExtension(drop_data.file_extension);
+  file_name = file_name.ReplaceExtension(extension);
   data->SetFileContents(file_name, drop_data.file_contents);
 }
 

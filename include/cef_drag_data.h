@@ -104,12 +104,6 @@ class CefDragData : public virtual CefBase {
   virtual CefString GetFragmentBaseURL() =0;
 
   ///
-  // Return the extension of the file being dragged out of the browser window.
-  ///
-  /*--cef()--*/
-  virtual CefString GetFileExtension() =0;
-
-  ///
   // Return the name of the file being dragged out of the browser window.
   ///
   /*--cef()--*/

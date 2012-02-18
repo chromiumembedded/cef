@@ -71,6 +71,14 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
   WebDropData drop_data;
   WebDropData::PopulateWebDropData(data_object, &drop_data);
 
+  // Clear the fields that are currently unused when dragging into WebKit.
+  // Remove these lines once PopulateWebDropData() is updated not to set them.
+  // See crbug.com/112255.
+  if (!drop_data.file_contents.empty())
+    drop_data.file_contents.clear();
+  if (!drop_data.file_description_filename.empty())
+    drop_data.file_description_filename.clear();
+
   if (drop_data.url.is_empty())
     ui::OSExchangeDataProviderWin::GetPlainTextURL(data_object, &drop_data.url);
 

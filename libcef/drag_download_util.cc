@@ -58,7 +58,7 @@ bool ParseDownloadMetadata(const string16& metadata,
 FileStream* CreateFileStreamForDrop(FilePath* file_path) {
   DCHECK(file_path && !file_path->empty());
 
-  scoped_ptr<FileStream> file_stream(new FileStream);
+  scoped_ptr<FileStream> file_stream(new FileStream(NULL));
   const int kMaxSeq = 99;
   for (int seq = 0; seq <= kMaxSeq; seq++) {
     FilePath new_file_path;
@@ -76,7 +76,7 @@ FileStream* CreateFileStreamForDrop(FilePath* file_path) {
     // Explicitly (and redundantly check) for file -- despite the fact that our
     // open won't overwrite -- just to avoid log spew.
     if (!file_util::PathExists(new_file_path) &&
-        file_stream->Open(new_file_path, base::PLATFORM_FILE_CREATE |
+        file_stream->OpenSync(new_file_path, base::PLATFORM_FILE_CREATE |
                               base::PLATFORM_FILE_WRITE) == net::OK) {
       *file_path = new_file_path;
       return file_stream.release();

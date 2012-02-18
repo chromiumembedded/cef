@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Copyright (c) 2012 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -345,8 +345,9 @@ bool BrowserPersistentCookieStore::Backend::InitializeDatabase() {
   sql::Statement smt(db_->GetUniqueStatement(
     "SELECT DISTINCT host_key FROM cookies"));
 
-  if (!smt) {
+  if (!smt.is_valid()) {
     NOTREACHED() << "select statement prep failed";
+    smt.Clear();  // Disconnect smt_ref from db_.
     db_.reset();
     return false;
   }
@@ -398,7 +399,7 @@ void BrowserPersistentCookieStore::Backend::ChainLoadCookies(
       CefThread::IO, FROM_HERE,
       base::Bind(&BrowserPersistentCookieStore::Backend::NotifyOnIOThread,
                  this, loaded_callback, load_success));
-    if (!restore_old_session_cookies_)
+    if (load_success && !restore_old_session_cookies_)
       DeleteSessionCookies();
   }
 }
@@ -421,8 +422,9 @@ bool BrowserPersistentCookieStore::Backend::LoadCookiesForDomains(
       "secure, httponly, last_access_utc, has_expires, persistent "
       "FROM cookies WHERE host_key = ? AND persistent = 1"));
   }
-  if (!smt) {
+  if (!smt.is_valid()) {
     NOTREACHED() << "select statement prep failed";
+    smt.Clear();  // Disconnect smt_ref from db_.
     db_.reset();
     return false;
   }

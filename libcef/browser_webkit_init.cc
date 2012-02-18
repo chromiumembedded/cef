@@ -21,8 +21,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBKey.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBKeyPath.h"
 #include "v8/include/v8.h"
-#include "webkit/gpu/webgraphicscontext3d_in_process_command_buffer_impl.h"
-#include "webkit/gpu/webgraphicscontext3d_in_process_impl.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
 
@@ -174,18 +172,6 @@ void BrowserWebKitInit::histogramEnumeration(const char* name, int sample,
                                              int boundary_value) {
 }
 
-bool BrowserWebKitInit::isTraceEventEnabled() const {
-  return false;
-}
-
-void BrowserWebKitInit::traceEventBegin(const char* name, void* id,
-                                        const char* extra) {
-}
-
-void BrowserWebKitInit::traceEventEnd(const char* name, void* id,
-                                      const char* extra) {
-}
-
 WebKit::WebData BrowserWebKitInit::loadResource(const char* name) {
   if (!strcmp(name, "deleteButton")) {
     // Create a red 30x30 square.
@@ -247,23 +233,12 @@ BrowserWebKitInit::injectIDBKeyIntoSerializedValue(
       key, value, WebKit::WebIDBKeyPath::create(keyPath));
 }
 
-WebKit::WebGraphicsContext3D* BrowserWebKitInit::createGraphicsContext3D() {
+WebKit::WebGraphicsContext3D*
+BrowserWebKitInit::createOffscreenGraphicsContext3D(
+    const WebKit::WebGraphicsContext3D::Attributes& attributes) {
   const CefSettings& settings = _Context->settings();
-#if defined(OS_WIN)
-  bool use_command_buffer =
-      (settings.graphics_implementation == ANGLE_IN_PROCESS_COMMAND_BUFFER ||
-       settings.graphics_implementation == DESKTOP_IN_PROCESS_COMMAND_BUFFER);
-#else
-  bool use_command_buffer =
-      (settings.graphics_implementation == DESKTOP_IN_PROCESS_COMMAND_BUFFER);
-#endif
-
-  if (use_command_buffer) {
-    return new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl();
-  } else {
-    return new webkit::gpu::WebGraphicsContext3DInProcessImpl(
-        gfx::kNullPluginWindow, NULL);
-  }
+  return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
+      attributes, false);
 }
 
 void BrowserWebKitInit::GetPlugins(

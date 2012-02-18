@@ -825,7 +825,7 @@
             'libcef/web_drag_utils_mac.mm',
             'libcef/web_drop_target_mac.h',
             'libcef/web_drop_target_mac.mm',
-            # Build necessary Mozilla sources
+            # Include necessary Mozilla sources.
             '<(DEPTH)/third_party/mozilla/NSPasteboard+Utils.h',
             '<(DEPTH)/third_party/mozilla/NSPasteboard+Utils.mm',
             '<(DEPTH)/third_party/mozilla/NSString+Utils.h',
@@ -847,6 +847,13 @@
             'libcef/web_drag_source_gtk.h',
             'libcef/web_drop_target_gtk.cc',
             'libcef/web_drop_target_gtk.h',
+            # Include the files needed for drag&drop that are otherwise excluded
+            # by 'toolkit_views=0' in ui/ui.gyp.
+            '<(DEPTH)/ui/base/dragdrop/drag_drop_types_gtk.cc',
+            '<(DEPTH)/ui/base/dragdrop/os_exchange_data.cc',
+            '<(DEPTH)/ui/base/dragdrop/os_exchange_data.h',
+            '<(DEPTH)/ui/base/dragdrop/os_exchange_data_provider_gtk.cc',
+            '<(DEPTH)/ui/base/dragdrop/os_exchange_data_provider_gtk.h',
           ],
         }],
       ],

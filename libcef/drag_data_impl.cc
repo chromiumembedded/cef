@@ -3,22 +3,23 @@
 // can be found in the LICENSE file.
 
 #include "libcef/drag_data_impl.h"
+#include "base/file_path.h"
 
 CefDragDataImpl::CefDragDataImpl(const WebDropData& data)
   : data_(data) {
 }
 
 bool CefDragDataImpl::IsLink() {
-  return (data_.url.is_valid() && data_.file_extension.empty());
+  return (data_.url.is_valid() && data_.file_description_filename.empty());
 }
 
 bool CefDragDataImpl::IsFragment() {
-  return (!data_.url.is_valid() && data_.file_extension.empty() &&
+  return (!data_.url.is_valid() && data_.file_description_filename.empty() &&
           data_.filenames.empty());
 }
 
 bool CefDragDataImpl::IsFile() {
-  return (!data_.file_extension.empty() || !data_.filenames.empty());
+  return (!data_.file_description_filename.empty() || !data_.filenames.empty());
 }
 
 CefString CefDragDataImpl::GetLinkURL() {
@@ -43,10 +44,6 @@ CefString CefDragDataImpl::GetFragmentHtml() {
 
 CefString CefDragDataImpl::GetFragmentBaseURL() {
   return data_.html_base_url.spec();
-}
-
-CefString CefDragDataImpl::GetFileExtension() {
-  return data_.file_extension;
 }
 
 CefString CefDragDataImpl::GetFileName() {

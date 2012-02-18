@@ -8,7 +8,10 @@
 
 #include <string>
 
+#include "include/internal/cef_types.h"
+
 #include "base/compiler_specific.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebGraphicsContext3D.h"
 #include "v8/include/v8.h"
 
 #if defined(OS_WIN)
@@ -50,6 +53,12 @@ bool ShouldDownload(const std::string& content_disposition,
 
 // Checks whether a plugin is enabled either by the user or by policy.
 bool IsPluginEnabled(const webkit::WebPluginInfo& plugin);
+
+// Create a new WebGraphicsContext3D object.
+WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
+    cef_graphics_implementation_t graphics_implementation,
+    const WebKit::WebGraphicsContext3D::Attributes& attributes,
+    bool renderDirectlyToWebView);
 
 }  // namespace webkit_glue
 

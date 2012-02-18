@@ -9,12 +9,10 @@
 #include "base/logging.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request_context.h"
-#include "webkit/fileapi/file_system_callback_dispatcher.h"
 #include "webkit/fileapi/file_system_context.h"
 #include "webkit/fileapi/file_system_operation_interface.h"
 #include "webkit/glue/webkit_glue.h"
 
-using fileapi::FileSystemCallbackDispatcher;
 using fileapi::FileSystemContext;
 using fileapi::FileSystemOperationInterface;
 using fileapi::WebFileWriterBase;
@@ -51,7 +49,8 @@ class BrowserFileWriter::IOThreadProxy
     }
     DCHECK(!operation_);
     operation_ = GetNewOperation(path);
-    operation_->Truncate(path, offset);
+    operation_->Truncate(path, offset,
+                         base::Bind(&IOThreadProxy::DidFinish, this));
   }
 
   void Write(const GURL& path, const GURL& blob_url, int64 offset) {
@@ -64,7 +63,8 @@ class BrowserFileWriter::IOThreadProxy
     DCHECK(request_context_);
     DCHECK(!operation_);
     operation_ = GetNewOperation(path);
-    operation_->Write(request_context_, path, blob_url, offset);
+    operation_->Write(request_context_, path, blob_url, offset,
+                      base::Bind(&IOThreadProxy::DidWrite, this));
   }
 
   void Cancel() {
@@ -75,96 +75,45 @@ class BrowserFileWriter::IOThreadProxy
       return;
     }
     if (!operation_) {
-      DidFail(base::PLATFORM_FILE_ERROR_INVALID_OPERATION);
+      DidFailOnMainThread(base::PLATFORM_FILE_ERROR_INVALID_OPERATION);
       return;
     }
-    operation_->Cancel(CallbackDispatcher::Create(this));
+    operation_->Cancel(base::Bind(&IOThreadProxy::DidFinish, this));
   }
 
  private:
-  // Inner class to receive callbacks from FileSystemOperation.
-  class CallbackDispatcher : public FileSystemCallbackDispatcher {
-   public:
-    // An instance of this class must be created by Create()
-    // (so that we do not leak ownerships).
-    static scoped_ptr<FileSystemCallbackDispatcher> Create(
-        IOThreadProxy* proxy) {
-      return scoped_ptr<FileSystemCallbackDispatcher>(
-          new CallbackDispatcher(proxy));
-    }
-
-    ~CallbackDispatcher() {
-      proxy_->ClearOperation();
-    }
-
-    virtual void DidSucceed() {
-      proxy_->DidSucceed();
-    }
-
-    virtual void DidFail(base::PlatformFileError error_code) {
-      proxy_->DidFail(error_code);
-    }
-
-    virtual void DidWrite(int64 bytes, bool complete) {
-      proxy_->DidWrite(bytes, complete);
-    }
-
-    virtual void DidReadMetadata(
-        const base::PlatformFileInfo&,
-        const FilePath&) {
-      NOTREACHED();
-    }
-
-    virtual void DidReadDirectory(
-        const std::vector<base::FileUtilProxy::Entry>& entries,
-        bool has_more) {
-      NOTREACHED();
-    }
-
-    virtual void DidOpenFileSystem(
-        const std::string& name,
-        const GURL& root) {
-      NOTREACHED();
-    }
-
-   private:
-    explicit CallbackDispatcher(IOThreadProxy* proxy) : proxy_(proxy) {}
-    scoped_refptr<IOThreadProxy> proxy_;
-  };
-
   FileSystemOperationInterface* GetNewOperation(const GURL& path) {
-    // The FileSystemOperation takes ownership of the CallbackDispatcher.
-    return file_system_context_->CreateFileSystemOperation(
-        path, CallbackDispatcher::Create(this), io_thread_);
+    return file_system_context_->CreateFileSystemOperation(path, io_thread_);
   }
 
-  void DidSucceed() {
+  void DidSucceedOnMainThread() {
     if (!main_thread_->BelongsToCurrentThread()) {
       main_thread_->PostTask(
           FROM_HERE,
-          base::Bind(&IOThreadProxy::DidSucceed, this));
+          base::Bind(&IOThreadProxy::DidSucceedOnMainThread, this));
       return;
     }
     if (simple_writer_)
       simple_writer_->DidSucceed();
   }
 
-  void DidFail(base::PlatformFileError error_code) {
+  void DidFailOnMainThread(base::PlatformFileError error_code) {
     if (!main_thread_->BelongsToCurrentThread()) {
       main_thread_->PostTask(
           FROM_HERE,
-          base::Bind(&IOThreadProxy::DidFail, this, error_code));
+          base::Bind(&IOThreadProxy::DidFailOnMainThread, this, error_code));
       return;
     }
     if (simple_writer_)
       simple_writer_->DidFail(error_code);
   }
 
-  void DidWrite(int64 bytes, bool complete) {
+  void DidWriteOnMainThread(int64 bytes, bool complete) {
     if (!main_thread_->BelongsToCurrentThread()) {
       main_thread_->PostTask(
           FROM_HERE,
-          base::Bind(&IOThreadProxy::DidWrite, this, bytes, complete));
+          base::Bind(&IOThreadProxy::DidWriteOnMainThread,
+                     this, bytes, complete));
       return;
     }
     if (simple_writer_)
@@ -174,6 +123,25 @@ class BrowserFileWriter::IOThreadProxy
   void ClearOperation() {
     DCHECK(io_thread_->BelongsToCurrentThread());
     operation_ = NULL;
+  }
+
+  void DidFinish(base::PlatformFileError result) {
+    if (result == base::PLATFORM_FILE_OK)
+      DidSucceedOnMainThread();
+    else
+      DidFailOnMainThread(result);
+    ClearOperation();
+  }
+
+  void DidWrite(base::PlatformFileError result, int64 bytes, bool complete) {
+    if (result == base::PLATFORM_FILE_OK) {
+      DidWriteOnMainThread(bytes, complete);
+      if (complete)
+        ClearOperation();
+    } else {
+      DidFailOnMainThread(result);
+      ClearOperation();
+    }
   }
 
   scoped_refptr<base::MessageLoopProxy> io_thread_;

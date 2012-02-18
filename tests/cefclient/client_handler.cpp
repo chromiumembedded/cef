@@ -265,8 +265,10 @@ bool ClientHandler::OnDragStart(CefRefPtr<CefBrowser> browser,
 
   // Forbid dragging of image files.
   if (dragData->IsFile()) {
-    std::string fileExt = dragData->GetFileExtension();
-    if (fileExt == ".png" || fileExt == ".jpg" || fileExt == ".gif")
+    std::string fileName = dragData->GetFileName();
+    if (fileName.find(".png") != std::string::npos ||
+        fileName.find(".jpg") != std::string::npos ||
+        fileName.find(".gif") != std::string::npos)
       return true;
   }
 

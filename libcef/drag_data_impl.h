@@ -25,7 +25,6 @@ class CefDragDataImpl : public CefDragData {
   virtual CefString GetFragmentText();
   virtual CefString GetFragmentHtml();
   virtual CefString GetFragmentBaseURL();
-  virtual CefString GetFileExtension();
   virtual CefString GetFileName();
   virtual bool GetFileNames(std::vector<CefString>& names);
 

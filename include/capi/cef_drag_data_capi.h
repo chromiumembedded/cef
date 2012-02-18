@@ -114,13 +114,6 @@ typedef struct _cef_drag_data_t {
       struct _cef_drag_data_t* self);
 
   ///
-  // Return the extension of the file being dragged out of the browser window.
-  ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_file_extension)(
-      struct _cef_drag_data_t* self);
-
-  ///
   // Return the name of the file being dragged out of the browser window.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().

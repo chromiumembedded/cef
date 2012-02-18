@@ -1,6 +1,6 @@
 Index: message_loop.cc
 ===================================================================
---- message_loop.cc	(revision 119867)
+--- message_loop.cc	(revision 122508)
 +++ message_loop.cc	(working copy)
 @@ -362,9 +362,13 @@
  }
@@ -19,9 +19,9 @@ Index: message_loop.cc
  bool MessageLoop::is_running() const {
 Index: message_loop.h
 ===================================================================
---- message_loop.h	(revision 119867)
+--- message_loop.h	(revision 122508)
 +++ message_loop.h	(working copy)
-@@ -345,6 +345,9 @@
+@@ -350,6 +350,9 @@
    // Asserts that the MessageLoop is "idle".
    void AssertIdle() const;
  

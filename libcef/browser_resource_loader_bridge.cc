@@ -113,7 +113,7 @@ struct RequestParams {
 // The interval for calls to RequestProxy::MaybeUpdateUploadProgress
 static const int kUpdateUploadProgressIntervalMsec = 100;
 
-class ExtraRequestInfo : public net::URLRequest::UserData {
+class ExtraRequestInfo : public net::URLRequest::Data {
  public:
   ExtraRequestInfo(CefBrowser* browser, ResourceType::Type resource_type)
     : browser_(browser),
@@ -197,6 +197,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   // Takes ownership of the params.
   explicit RequestProxy(CefRefPtr<CefBrowser> browser)
     : download_to_file_(false),
+      file_stream_(NULL),
       buf_(new net::IOBuffer(kDataSize)),
       browser_(browser),
       last_upload_position_(0),
@@ -584,7 +585,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (file_util::CreateTemporaryFile(&path)) {
           downloaded_file_ = DeletableFileReference::GetOrCreate(
               path, base::MessageLoopProxy::current());
-          file_stream_.Open(
+          file_stream_.OpenSync(
               path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
         }
       }
@@ -706,7 +707,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnReceivedData(int bytes_read) {
     if (download_to_file_) {
-      file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
+      file_stream_.WriteSync(buf_->data(), bytes_read);
       owner_loop_->PostTask(FROM_HERE, base::Bind(
           &RequestProxy::NotifyDownloadedData, this, bytes_read));
       return;
@@ -720,7 +721,7 @@ class RequestProxy : public net::URLRequest::Delegate,
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
     if (download_to_file_)
-      file_stream_.Close();
+      file_stream_.CloseSync();
 
     owner_loop_->PostTask(FROM_HERE, base::Bind(
         &RequestProxy::NotifyCompletedRequest, this, status, security_info,
@@ -849,7 +850,9 @@ class RequestProxy : public net::URLRequest::Delegate,
       return;
     }
 
-    uint64 size = request_->get_upload()->GetContentLength();
+    // GetContentLengthSync() may perform file IO, but it's ok here, as file
+    // IO is not prohibited in IOThread defined in the file.
+    uint64 size = request_->get_upload()->GetContentLengthSync();
     uint64 position = request_->GetUploadProgress();
     if (position == last_upload_position_)
       return;  // no progress made since last time
@@ -969,7 +972,7 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnReceivedData(int bytes_read) {
     if (download_to_file_)
-      file_stream_.Write(buf_->data(), bytes_read, net::CompletionCallback());
+      file_stream_.WriteSync(buf_->data(), bytes_read);
     else
       result_->data.append(buf_->data(), bytes_read);
     AsyncReadData();  // read more (may recurse)
@@ -979,7 +982,7 @@ class SyncRequestProxy : public RequestProxy {
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
     if (download_to_file_)
-      file_stream_.Close();
+      file_stream_.CloseSync();
 
     result_->status = status;
     event_.Signal();

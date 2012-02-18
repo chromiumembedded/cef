@@ -148,21 +148,6 @@ cef_string_userfree_t CEF_CALLBACK drag_data_get_fragment_base_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK drag_data_get_file_extension(
-    struct _cef_drag_data_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefString _retval = CefDragDataCppToC::Get(self)->GetFileExtension();
-
-  // Return type: string
-  return _retval.DetachToUserFree();
-}
-
 cef_string_userfree_t CEF_CALLBACK drag_data_get_file_name(
     struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -220,7 +205,6 @@ CefDragDataCppToC::CefDragDataCppToC(CefDragData* cls)
   struct_.struct_.get_fragment_text = drag_data_get_fragment_text;
   struct_.struct_.get_fragment_html = drag_data_get_fragment_html;
   struct_.struct_.get_fragment_base_url = drag_data_get_fragment_base_url;
-  struct_.struct_.get_file_extension = drag_data_get_file_extension;
   struct_.struct_.get_file_name = drag_data_get_file_name;
   struct_.struct_.get_file_names = drag_data_get_file_names;
 }

@@ -45,6 +45,9 @@ struct WebDropData;
 
   // The URL to download from for a drag-out download.
   GURL downloadURL_;
+
+  // The file extension associated with the file drag, if any.
+  NSString* fileExtension_;
 }
 
 // Initialize a WebDragSource object for a drag (originating on the given

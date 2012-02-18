@@ -42,7 +42,7 @@
 #ifdef __OBJC__
 @class NSView;
 #else
-class NSView;
+struct NSView;
 #endif
 #define cef_window_handle_t NSView*
 #else

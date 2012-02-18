@@ -33,7 +33,7 @@
 #include "media/base/filter_collection.h"
 #include "media/base/media_log.h"
 #include "media/base/message_loop_factory_impl.h"
-#include "media/filters/reference_audio_renderer.h"
+#include "media/filters/null_audio_renderer.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
@@ -190,6 +190,14 @@ WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
   // Ignore the quota parameter from WebCore as in Chrome.
   return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_SESSION,
                                             kLocalStorageNamespaceId + 1);
+}
+
+WebKit::WebGraphicsContext3D* BrowserWebViewDelegate::createGraphicsContext3D(
+    const WebKit::WebGraphicsContext3D::Attributes& attributes,
+    bool renderDirectlyToWebView) {
+  const CefSettings& settings = _Context->settings();
+  return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
+      attributes, renderDirectlyToWebView);
 }
 
 void BrowserWebViewDelegate::didAddMessageToConsole(
@@ -661,8 +669,8 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
       new media::FilterCollection());
 
   // Add the audio renderer.
-  collection->AddAudioRenderer(new media::ReferenceAudioRenderer(
-      _Context->process()->ui_thread()->audio_manager()));
+  // TODO(vrk): Re-enable audio. (crbug.com/112159)
+  collection->AddAudioRenderer(new media::NullAudioRenderer());
 
   return new webkit_media::WebMediaPlayerImpl(
       frame,

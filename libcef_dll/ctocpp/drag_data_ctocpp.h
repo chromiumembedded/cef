@@ -42,7 +42,6 @@ class CefDragDataCToCpp
   virtual CefString GetFragmentText() OVERRIDE;
   virtual CefString GetFragmentHtml() OVERRIDE;
   virtual CefString GetFragmentBaseURL() OVERRIDE;
-  virtual CefString GetFileExtension() OVERRIDE;
   virtual CefString GetFileName() OVERRIDE;
   virtual bool GetFileNames(std::vector<CefString>& names) OVERRIDE;
 };

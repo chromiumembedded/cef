@@ -17,6 +17,7 @@
 #include "libcef/simple_clipboard_impl.h"
 
 #include "base/scoped_temp_dir.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebGraphicsContext3D.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webfileutilities_impl.h"
@@ -58,11 +59,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
                                      int max, int bucket_count) OVERRIDE;
   virtual void histogramEnumeration(const char* name, int sample,
                                     int boundary_value) OVERRIDE;
-  virtual bool isTraceEventEnabled() const OVERRIDE;
-  virtual void traceEventBegin(const char* name, void* id,
-                               const char* extra) OVERRIDE;
-  virtual void traceEventEnd(const char* name, void* id,
-                             const char* extra) OVERRIDE;
   virtual WebKit::WebData loadResource(const char* name) OVERRIDE;
   virtual WebKit::WebString defaultLocale() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
@@ -80,7 +76,8 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
       const WebKit::WebIDBKey& key,
       const WebKit::WebSerializedScriptValue& value,
       const WebKit::WebString& keyPath) OVERRIDE;
-  virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D() OVERRIDE;
+  virtual WebKit::WebGraphicsContext3D* createOffscreenGraphicsContext3D(
+      const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) OVERRIDE;
   virtual base::StringPiece GetDataResource(int resource_id) OVERRIDE;
   virtual void GetPlugins(bool refresh,

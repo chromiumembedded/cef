@@ -10,14 +10,11 @@
 #include "libcef/browser_webkit_glue.h"
 #include "libcef/cef_context.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "third_party/WebKit/Source/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 void CefProcessUIThread::PlatformInit() {
   // The NSApplication instance must implement the CefAppProtocol protocol.
   DCHECK([[NSApplication sharedApplication]
           conformsToProtocol:@protocol(CefAppProtocol)]);
-
-  InitWebCoreSystemInterface();
 
   // On Mac, the select popup menus are rendered by the browser.
   WebKit::WebView::setUseExternalPopupMenus(true);

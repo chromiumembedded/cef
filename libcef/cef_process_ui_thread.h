@@ -11,7 +11,6 @@
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
-#include "media/audio/audio_manager.h"
 #include "net/base/network_change_notifier.h"
 
 class BrowserWebKitInit;
@@ -39,8 +38,6 @@ class CefProcessUIThread
   virtual void Init();
   virtual void CleanUp();
 
-  AudioManager* audio_manager();
-
  private:
   void PlatformInit();
   void PlatformCleanUp();
@@ -54,7 +51,6 @@ class CefProcessUIThread
   BrowserWebKitInit* webkit_init_;
 
   scoped_ptr<net::NetworkChangeNotifier> network_change_notifier_;
-  scoped_refptr<AudioManager> audio_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessUIThread);
 };

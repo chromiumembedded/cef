@@ -6,6 +6,7 @@
 #include "libcef/browser_file_writer.h"
 #include "libcef/cef_thread.h"
 
+#include "base/bind.h"
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
@@ -20,10 +21,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebVector.h"
-#include "webkit/fileapi/file_system_callback_dispatcher.h"
-#include "webkit/fileapi/file_system_context.h"
-#include "webkit/fileapi/file_system_operation_interface.h"
-#include "webkit/fileapi/file_system_types.h"
 #include "webkit/fileapi/mock_file_system_options.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/simple_file_writer.h"
@@ -42,94 +39,8 @@ using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebVector;
 
-using fileapi::FileSystemCallbackDispatcher;
 using fileapi::FileSystemContext;
 using fileapi::FileSystemOperationInterface;
-
-namespace {
-
-class BrowserFileSystemCallbackDispatcher
-    : public FileSystemCallbackDispatcher {
- public:
-  // An instance of this class must be created by Create()
-  // (so that we do not leak ownerships).
-  static scoped_ptr<FileSystemCallbackDispatcher> Create(
-      const WeakPtr<BrowserFileSystem>& file_system,
-      WebFileSystemCallbacks* callbacks) {
-    return scoped_ptr<FileSystemCallbackDispatcher>(
-        new BrowserFileSystemCallbackDispatcher(file_system, callbacks));
-  }
-
-  ~BrowserFileSystemCallbackDispatcher() {
-  }
-
-  virtual void DidSucceed() {
-    DCHECK(file_system_);
-    callbacks_->didSucceed();
-  }
-
-  virtual void DidReadMetadata(const base::PlatformFileInfo& info,
-      const FilePath& platform_path) {
-    DCHECK(file_system_);
-    WebFileInfo web_file_info;
-    web_file_info.length = info.size;
-    web_file_info.modificationTime = info.last_modified.ToDoubleT();
-    web_file_info.type = info.is_directory ?
-        WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
-    web_file_info.platformPath =
-        webkit_glue::FilePathToWebString(platform_path);
-    callbacks_->didReadMetadata(web_file_info);
-  }
-
-  virtual void DidReadDirectory(
-      const std::vector<base::FileUtilProxy::Entry>& entries,
-      bool has_more) {
-    DCHECK(file_system_);
-    std::vector<WebFileSystemEntry> web_entries_vector;
-    for (std::vector<base::FileUtilProxy::Entry>::const_iterator it =
-            entries.begin(); it != entries.end(); ++it) {
-      WebFileSystemEntry entry;
-      entry.name = webkit_glue::FilePathStringToWebString(it->name);
-      entry.isDirectory = it->is_directory;
-      web_entries_vector.push_back(entry);
-    }
-    WebVector<WebKit::WebFileSystemEntry> web_entries =
-        web_entries_vector;
-    callbacks_->didReadDirectory(web_entries, has_more);
-  }
-
-  virtual void DidOpenFileSystem(
-      const std::string& name, const GURL& root) {
-    DCHECK(file_system_);
-    if (!root.is_valid())
-      callbacks_->didFail(WebKit::WebFileErrorSecurity);
-    else
-      callbacks_->didOpenFileSystem(WebString::fromUTF8(name), root);
-  }
-
-  virtual void DidFail(base::PlatformFileError error_code) {
-    DCHECK(file_system_);
-    callbacks_->didFail(
-        webkit_glue::PlatformFileErrorToWebFileError(error_code));
-  }
-
-  virtual void DidWrite(int64, bool) {
-    NOTREACHED();
-  }
-
- private:
-  BrowserFileSystemCallbackDispatcher(
-      const WeakPtr<BrowserFileSystem>& file_system,
-      WebFileSystemCallbacks* callbacks)
-      : file_system_(file_system),
-        callbacks_(callbacks) {
-  }
-
-  WeakPtr<BrowserFileSystem> file_system_;
-  WebFileSystemCallbacks* callbacks_;
-};
-
-}  // namespace
 
 BrowserFileSystem::BrowserFileSystem() {
 }
@@ -185,60 +96,64 @@ void BrowserFileSystem::OpenFileSystem(
 
   GURL origin_url(frame->document().securityOrigin().toString());
   file_system_context_->OpenFileSystem(
-      origin_url, type, create,
-      BrowserFileSystemCallbackDispatcher::Create(AsWeakPtr(), callbacks));
+      origin_url, type, create, OpenFileSystemHandler(callbacks));
 }
 
 void BrowserFileSystem::move(
     const WebURL& src_path,
     const WebURL& dest_path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(src_path, callbacks)->Move(GURL(src_path), GURL(dest_path));
+  GetNewOperation(src_path)->Move(GURL(src_path), GURL(dest_path),
+                                  FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::copy(
     const WebURL& src_path, const WebURL& dest_path,
     WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(src_path, callbacks)->Copy(GURL(src_path), GURL(dest_path));
+  GetNewOperation(src_path)->Copy(GURL(src_path), GURL(dest_path),
+                                  FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::remove(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->Remove(path, false /* recursive */);
+  GetNewOperation(path)->Remove(path, false /* recursive */,
+                                FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::removeRecursively(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->Remove(path, true /* recursive */);
+  GetNewOperation(path)->Remove(path, true /* recursive */,
+                                FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::readMetadata(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->GetMetadata(path);
+  GetNewOperation(path)->GetMetadata(path, GetMetadataHandler(callbacks));
 }
 
 void BrowserFileSystem::createFile(
     const WebURL& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->CreateFile(path, exclusive);
+  GetNewOperation(path)->CreateFile(path, exclusive, FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::createDirectory(
     const WebURL& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->CreateDirectory(path, exclusive, false);
+  GetNewOperation(path)->CreateDirectory(path, exclusive, false,
+                                         FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::fileExists(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->FileExists(path);
+  GetNewOperation(path)->FileExists(path, FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::directoryExists(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->DirectoryExists(path);
+  GetNewOperation(path)->DirectoryExists(path, FinishHandler(callbacks));
 }
 
 void BrowserFileSystem::readDirectory(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
-  GetNewOperation(path, callbacks)->ReadDirectory(path);
+  GetNewOperation(path)->ReadDirectory(path, ReadDirectoryHandler(callbacks));
 }
 
 WebFileWriter* BrowserFileSystem::createFileWriter(
@@ -247,9 +162,93 @@ WebFileWriter* BrowserFileSystem::createFileWriter(
 }
 
 FileSystemOperationInterface* BrowserFileSystem::GetNewOperation(
-    const WebURL& url, WebFileSystemCallbacks* callbacks) {
+    const WebURL& url) {
   return file_system_context_->CreateFileSystemOperation(
       GURL(url),
-      BrowserFileSystemCallbackDispatcher::Create(AsWeakPtr(), callbacks),
       base::MessageLoopProxy::current());
+}
+
+FileSystemOperationInterface::StatusCallback
+BrowserFileSystem::FinishHandler(WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidFinish,
+                    AsWeakPtr(), base::Unretained(callbacks));
+}
+
+FileSystemOperationInterface::ReadDirectoryCallback
+BrowserFileSystem::ReadDirectoryHandler(WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidReadDirectory,
+                    AsWeakPtr(), base::Unretained(callbacks));
+}
+
+FileSystemOperationInterface::GetMetadataCallback
+BrowserFileSystem::GetMetadataHandler(WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidGetMetadata,
+                    AsWeakPtr(), base::Unretained(callbacks));
+}
+
+FileSystemContext::OpenFileSystemCallback
+BrowserFileSystem::OpenFileSystemHandler(WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidOpenFileSystem,
+                    AsWeakPtr(), base::Unretained(callbacks));
+}
+
+void BrowserFileSystem::DidFinish(WebFileSystemCallbacks* callbacks,
+                                 base::PlatformFileError result) {
+  if (result == base::PLATFORM_FILE_OK)
+    callbacks->didSucceed();
+  else
+    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+}
+
+void BrowserFileSystem::DidGetMetadata(WebFileSystemCallbacks* callbacks,
+                                      base::PlatformFileError result,
+                                      const base::PlatformFileInfo& info,
+                                      const FilePath& platform_path) {
+  if (result == base::PLATFORM_FILE_OK) {
+    WebFileInfo web_file_info;
+    web_file_info.length = info.size;
+    web_file_info.modificationTime = info.last_modified.ToDoubleT();
+    web_file_info.type = info.is_directory ?
+        WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
+    web_file_info.platformPath =
+        webkit_glue::FilePathToWebString(platform_path);
+    callbacks->didReadMetadata(web_file_info);
+  } else {
+    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+  }
+}
+
+void BrowserFileSystem::DidReadDirectory(
+    WebFileSystemCallbacks* callbacks,
+    base::PlatformFileError result,
+    const std::vector<base::FileUtilProxy::Entry>& entries,
+    bool has_more) {
+  if (result == base::PLATFORM_FILE_OK) {
+    std::vector<WebFileSystemEntry> web_entries_vector;
+    for (std::vector<base::FileUtilProxy::Entry>::const_iterator it =
+            entries.begin(); it != entries.end(); ++it) {
+      WebFileSystemEntry entry;
+      entry.name = webkit_glue::FilePathStringToWebString(it->name);
+      entry.isDirectory = it->is_directory;
+      web_entries_vector.push_back(entry);
+    }
+    WebVector<WebKit::WebFileSystemEntry> web_entries = web_entries_vector;
+    callbacks->didReadDirectory(web_entries, has_more);
+  } else {
+    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+  }
+}
+
+void BrowserFileSystem::DidOpenFileSystem(
+    WebFileSystemCallbacks* callbacks,
+    base::PlatformFileError result,
+    const std::string& name, const GURL& root) {
+  if (result == base::PLATFORM_FILE_OK) {
+    if (!root.is_valid())
+      callbacks->didFail(WebKit::WebFileErrorSecurity);
+    else
+      callbacks->didOpenFileSystem(WebString::fromUTF8(name), root);
+  } else {
+    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+  }
 }

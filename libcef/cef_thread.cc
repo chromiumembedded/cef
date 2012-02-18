@@ -31,20 +31,10 @@ class CefThreadMessageLoopProxy : public MessageLoopProxy {
   }
 
   // MessageLoopProxy implementation.
-  virtual bool PostTask(const tracked_objects::Location& from_here,
-                        const base::Closure& task) OVERRIDE {
-    return CefThread::PostTask(id_, from_here, task);
-  }
-
   virtual bool PostDelayedTask(const tracked_objects::Location& from_here,
                                const base::Closure& task,
                                int64 delay_ms) OVERRIDE {
     return CefThread::PostDelayedTask(id_, from_here, task, delay_ms);
-  }
-
-  virtual bool PostNonNestableTask(const tracked_objects::Location& from_here,
-                                   const base::Closure& task) OVERRIDE {
-    return CefThread::PostNonNestableTask(id_, from_here, task);
   }
 
   virtual bool PostNonNestableDelayedTask(
@@ -55,7 +45,7 @@ class CefThreadMessageLoopProxy : public MessageLoopProxy {
                                                  delay_ms);
   }
 
-  virtual bool BelongsToCurrentThread() OVERRIDE {
+  virtual bool RunsTasksOnCurrentThread() const OVERRIDE {
     return CefThread::CurrentlyOn(id_);
   }
 
