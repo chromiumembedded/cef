@@ -226,7 +226,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       if (wParam == VK_RETURN && g_handler.get()) {
         // When the user hits the enter key load the URL
         CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-        wchar_t strPtr[MAX_URL_LENGTH] = {0};
+        wchar_t strPtr[MAX_URL_LENGTH+1] = {0};
         *((LPWORD)strPtr) = MAX_URL_LENGTH;
         LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
         if (strLen > 0) {
