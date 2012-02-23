@@ -1,0 +1,28 @@
+Index: DragController.cpp
+===================================================================
+--- DragController.cpp	(revision 102901)
++++ DragController.cpp	(working copy)
+@@ -175,7 +175,11 @@
+     Frame* mainFrame = m_page->mainFrame();
+ 
+     if (RefPtr<FrameView> v = mainFrame->view()) {
++#if 0
+         ClipboardAccessPolicy policy = (!m_documentUnderMouse || m_documentUnderMouse->securityOrigin()->isLocal()) ? ClipboardReadable : ClipboardTypesReadable;
++#else
++        ClipboardAccessPolicy policy = ClipboardReadable;
++#endif
+         RefPtr<Clipboard> clipboard = Clipboard::create(policy, dragData, mainFrame);
+         clipboard->setSourceOperation(dragData->draggingSourceOperationMask());
+         mainFrame->eventHandler()->cancelDragAndDrop(createMouseEvent(dragData), clipboard.get());
+@@ -574,7 +578,11 @@
+     if (!viewProtector)
+         return false;
+ 
++#if 0
+     ClipboardAccessPolicy policy = m_documentUnderMouse->securityOrigin()->isLocal() ? ClipboardReadable : ClipboardTypesReadable;
++#else
++    ClipboardAccessPolicy policy = ClipboardReadable;
++#endif
+     RefPtr<Clipboard> clipboard = Clipboard::create(policy, dragData, mainFrame.get());
+     DragOperation srcOpMask = dragData->draggingSourceOperationMask();
+     clipboard->setSourceOperation(srcOpMask);
