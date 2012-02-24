@@ -474,6 +474,25 @@ int BrowserWebViewDelegate::historyForwardListCount() {
       - current_index - 1;
 }
 
+// WebPermissionClient -------------------------------------------------------
+
+bool BrowserWebViewDelegate::allowScriptExtension(
+    WebKit::WebFrame* frame,
+    const WebKit::WebString& extensionName,
+    int extensionGroup) {
+  bool allowExtension = true;
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefPermissionHandler> handler = client->GetPermissionHandler();
+    if (handler.get()) {
+      CefString extensionNameStr = string16(extensionName);
+      allowExtension = !handler->OnBeforeScriptExtensionLoad(
+          browser_, browser_->UIT_GetCefFrame(frame), extensionNameStr);
+    }
+  }
+  return allowExtension;
+}
+
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {

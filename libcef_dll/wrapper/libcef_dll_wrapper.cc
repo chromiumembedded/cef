@@ -26,6 +26,7 @@
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/permission_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/proxy_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
@@ -119,6 +120,7 @@ CEF_GLOBAL void CefShutdown()
   DCHECK(CefLifeSpanHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefLoadHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefMenuHandlerCppToC::DebugObjCt == 0);
+  DCHECK(CefPermissionHandlerCppToC::DebugObjCt == 0);
   DCHECK(CefPostDataCToCpp::DebugObjCt == 0);
   DCHECK(CefPostDataElementCToCpp::DebugObjCt == 0);
   DCHECK(CefPrintHandlerCppToC::DebugObjCt == 0);

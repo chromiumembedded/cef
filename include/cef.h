@@ -1537,6 +1537,28 @@ public:
 
 
 ///
+// Implement this interface to handle events related to browser permissions.
+// The methods of this class will be called on the UI thread.
+///
+/*--cef(source=client)--*/
+class CefPermissionHandler : public virtual CefBase
+{
+public:
+  ///
+  // Called on the UI thread before a script extension is loaded.
+  // Return false to let the extension load normally.
+  ///
+  /*--cef()--*/
+  virtual bool OnBeforeScriptExtensionLoad(CefRefPtr<CefBrowser> browser,
+                                           CefRefPtr<CefFrame> frame,
+                                           const CefString& extensionName)
+  {
+    return false;
+  }
+};
+
+
+///
 // Implement this interface to handle events related to printing. The methods of
 // this class will be called on the UI thread.
 ///
@@ -1841,6 +1863,14 @@ public:
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefMenuHandler> GetMenuHandler() { return NULL; }
+
+  ///
+  // Return the handler for browser permission events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() {
+    return NULL;
+  }
 
   ///
   // Return the handler for printing events.

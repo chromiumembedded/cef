@@ -20,6 +20,7 @@
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/permission_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -154,6 +155,24 @@ cef_menu_handler_t* CEF_CALLBACK client_get_menu_handler(
 }
 
 
+cef_permission_handler_t* CEF_CALLBACK client_get_permission_handler(
+    struct _cef_client_t* self)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefPermissionHandler> _retval = CefClientCppToC::Get(
+      self)->GetPermissionHandler();
+
+  // Return type: refptr_same
+  return CefPermissionHandlerCppToC::Wrap(_retval);
+}
+
+
 cef_print_handler_t* CEF_CALLBACK client_get_print_handler(
     struct _cef_client_t* self)
 {
@@ -275,6 +294,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_focus_handler = client_get_focus_handler;
   struct_.struct_.get_keyboard_handler = client_get_keyboard_handler;
   struct_.struct_.get_menu_handler = client_get_menu_handler;
+  struct_.struct_.get_permission_handler = client_get_permission_handler;
   struct_.struct_.get_print_handler = client_get_print_handler;
   struct_.struct_.get_find_handler = client_get_find_handler;
   struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;

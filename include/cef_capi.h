@@ -1335,6 +1335,26 @@ typedef struct _cef_menu_handler_t
 
 
 ///
+// Implement this structure to handle events related to browser permissions. The
+// functions of this structure will be called on the UI thread.
+///
+typedef struct _cef_permission_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Called on the UI thread before a script extension is loaded. Return false
+  // (0) to let the extension load normally.
+  ///
+  int (CEF_CALLBACK *on_before_script_extension_load)(
+      struct _cef_permission_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, const cef_string_t* extensionName);
+
+} cef_permission_handler_t;
+
+
+///
 // Implement this structure to handle events related to printing. The functions
 // of this structure will be called on the UI thread.
 ///
@@ -1618,6 +1638,12 @@ typedef struct _cef_client_t
   // Return the handler for context menu events.
   ///
   struct _cef_menu_handler_t* (CEF_CALLBACK *get_menu_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for browser permission events.
+  ///
+  struct _cef_permission_handler_t* (CEF_CALLBACK *get_permission_handler)(
       struct _cef_client_t* self);
 
   ///

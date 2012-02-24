@@ -1748,3 +1748,53 @@ TEST(V8Test, Exception)
     EXPECT_TRUE(handler->got_exception_[i]) << "test = " << i+1;
   }
 }
+
+namespace {
+
+class TestPermissionsHandler : public V8TestHandler
+{
+public:
+  TestPermissionsHandler(bool denyExtensions) : V8TestHandler(false) {
+    deny_extensions_ = denyExtensions;
+  }
+
+  virtual bool OnBeforeScriptExtensionLoad(CefRefPtr<CefBrowser> browser,
+                                           CefRefPtr<CefFrame> frame,
+                                           const CefString& extensionName)
+  {
+    return deny_extensions_;
+  }
+
+  bool deny_extensions_;
+};
+
+};  // namespace
+
+// Verify extension permissions
+TEST(V8Test, Permissions)
+{
+  g_V8TestV8HandlerExecuteCalled = false;
+
+  std::string extensionCode =
+    "var test;"
+    "if (!test)"
+    "  test = {};"
+    "(function() {"
+    "  test.execute = function(a,b,c,d,e,f,g,h,i) {"
+    "    native function execute();"
+    "    return execute(a,b,c,d,e,f,g,h,i);"
+    "  };"
+    "})();";
+  CefRegisterExtension("v8/test", extensionCode, new V8TestV8Handler(false));
+
+  CefRefPtr<V8TestHandler> deny_handler = new TestPermissionsHandler(true);
+  deny_handler->ExecuteTest();
+
+  ASSERT_FALSE(g_V8TestV8HandlerExecuteCalled);
+
+  CefRefPtr<V8TestHandler> allow_handler = new TestPermissionsHandler(false);
+  allow_handler->ExecuteTest();
+
+  ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);
+}
+

@@ -39,6 +39,7 @@ public:
   virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE;
   virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE;
   virtual CefRefPtr<CefMenuHandler> GetMenuHandler() OVERRIDE;
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE;
   virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE;
   virtual CefRefPtr<CefFindHandler> GetFindHandler() OVERRIDE;
   virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;

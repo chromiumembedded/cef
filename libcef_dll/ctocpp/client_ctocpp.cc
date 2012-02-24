@@ -20,6 +20,7 @@
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -130,6 +131,21 @@ CefRefPtr<CefMenuHandler> CefClientCToCpp::GetMenuHandler()
 
   // Return type: refptr_same
   return CefMenuHandlerCToCpp::Wrap(_retval);
+}
+
+
+CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler()
+{
+  if (CEF_MEMBER_MISSING(struct_, get_permission_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_permission_handler_t* _retval = struct_->get_permission_handler(struct_);
+
+  // Return type: refptr_same
+  return CefPermissionHandlerCToCpp::Wrap(_retval);
 }
 
 

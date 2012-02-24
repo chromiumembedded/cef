@@ -557,6 +557,8 @@
         'libcef_dll/ctocpp/load_handler_ctocpp.h',
         'libcef_dll/ctocpp/menu_handler_ctocpp.cc',
         'libcef_dll/ctocpp/menu_handler_ctocpp.h',
+        'libcef_dll/ctocpp/permission_handler_ctocpp.cc',
+        'libcef_dll/ctocpp/permission_handler_ctocpp.h',
         'libcef_dll/ctocpp/print_handler_ctocpp.cc',
         'libcef_dll/ctocpp/print_handler_ctocpp.h',
         'libcef_dll/ctocpp/proxy_handler_ctocpp.cc',

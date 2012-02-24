@@ -28,7 +28,8 @@ class TestHandler : public CefClient,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
                     public CefRequestHandler,
-                    public CefV8ContextHandler
+                    public CefV8ContextHandler,
+                    public CefPermissionHandler
 {
 public:
   TestHandler();
@@ -48,7 +49,9 @@ public:
       { return this; }
   virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
       { return this; }
-  
+  virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE
+      { return this; }
+
   // CefLifeSpanHandler methods
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;

@@ -159,6 +159,8 @@
       'libcef_dll/cpptoc/load_handler_cpptoc.h',
       'libcef_dll/cpptoc/menu_handler_cpptoc.cc',
       'libcef_dll/cpptoc/menu_handler_cpptoc.h',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.h',
       'libcef_dll/cpptoc/print_handler_cpptoc.cc',
       'libcef_dll/cpptoc/print_handler_cpptoc.h',
       'libcef_dll/cpptoc/proxy_handler_cpptoc.cc',
