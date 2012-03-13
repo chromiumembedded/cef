@@ -1,6 +1,6 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 106313)
+--- page/FrameView.cpp	(revision 109991)
 +++ page/FrameView.cpp	(working copy)
 @@ -157,10 +157,12 @@
              m_page = page;
@@ -15,21 +15,25 @@ Index: page/FrameView.cpp
          }
      }
  }
-Index: platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm
+Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 101144)
-+++ platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(working copy)
-@@ -356,9 +356,13 @@
- 
+--- platform/mac/NSScrollerImpDetails.mm	(revision 109991)
++++ platform/mac/NSScrollerImpDetails.mm	(working copy)
+@@ -33,6 +33,7 @@
+ #if PLATFORM(CHROMIUM)
  bool isScrollbarOverlayAPIAvailable()
  {
 +#if 0
-     static bool apiAvailable = [lookUpNSScrollerImpClass() respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)] &&
-                                [lookUpNSScrollerImpPairClass() instancesRespondToSelector:@selector(scrollerStyle)];
+     static bool apiAvailable;
+     static bool shouldInitialize = true;
+     if (shouldInitialize) {
+@@ -43,6 +44,9 @@
+                        && [scrollerImpPairClass instancesRespondToSelector:@selector(scrollerStyle)];
+     }
      return apiAvailable;
 +#else
 +    return false;
 +#endif
  }
+ #endif
  
- #endif // USE(WK_SCROLLBAR_PAINTER)
