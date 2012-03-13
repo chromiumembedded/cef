@@ -287,10 +287,11 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DCHECK(dx || dy);
 
   // Invalidate and re-paint the entire scroll rect if:
-  // 1. We're in a state where we cannot draw into the view right now, or
-  // 2. The rect is being scrolled by more than the size of the view, or
-  // 3. The scroll rect intersects the current paint region.
-  if (!canvas_.get() || layouting_ || painting_ ||
+  // 1. Window rendering is disabled, or
+  // 2. We're in a state where we cannot draw into the view right now, or
+  // 3. The rect is being scrolled by more than the size of the view, or
+  // 4. The scroll rect intersects the current paint region.
+  if (!view_ || !canvas_.get() || layouting_ || painting_ ||
       abs(dx) >= clip_rect.width() || abs(dy) >= clip_rect.height() ||
       paint_rgn_.intersects(convertToSkiaRect(clip_rect))) {
     DidInvalidateRect(clip_rect);
