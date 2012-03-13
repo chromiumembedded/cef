@@ -298,11 +298,21 @@ public:
     glBindTexture(GL_TEXTURE_2D, g_textureID);
     
     if (type == PET_VIEW) {
+      SetBufferSize(g_width, g_height, true);
       // Paint the view.
-      if (g_offscreenTransparent)
-        SetRGBA(buffer, g_width, g_height, true);
-      else
-        SetRGB(buffer, g_width, g_height, true);
+      if (g_offscreenTransparent) {
+        RectList::const_iterator i = dirtyRects.begin();
+        for (; i != dirtyRects.end(); ++i) {
+          ConvertToRGBARect(*i, (unsigned char*)buffer, view_buffer_, g_width,
+                            g_height);
+        }
+      } else {
+        RectList::const_iterator i = dirtyRects.begin();
+        for (i; i != dirtyRects.end(); ++i) {
+          ConvertToRGBRect(*i, (unsigned char*)buffer, view_buffer_, g_width,
+                           g_height);
+        }
+      }
 
       // Update the whole texture. This is done for simplicity instead of
       // updating just the dirty region.
@@ -407,6 +417,25 @@ private:
     }
   }
 
+  static void ConvertToRGBARect(const CefRect& clipRect,
+                                const unsigned char* src, unsigned char* dst,
+                                int width, int height)
+  {
+    int sp = 0, dp = (height-1) * width * 4;
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++, dp += 4, sp += 4) {
+        if ((clipRect.x <= j) && (clipRect.x + clipRect.width > j) &&
+            (clipRect.y <= i) && (clipRect.y + clipRect.height > i)) {
+          dst[dp] = src[sp+2];  // R
+          dst[dp+1] = src[sp+1];  // G
+          dst[dp+2] = src[sp];  // B
+          dst[dp+3] = src[sp+3];  // A
+        }
+      }
+      dp -= width * 8;
+    }
+  }
+
   // Set the contents of the RGB buffer.
   void SetRGB(const void* src, int width, int height, bool view)
   {
@@ -425,6 +454,24 @@ private:
         dst[dp] = src[sp+2]; // R
         dst[dp+1] = src[sp+1]; // G
         dst[dp+2] = src[sp]; // B
+      }
+      dp -= width * 6;
+    }
+  }
+
+  static void ConvertToRGBRect(const CefRect& clipRect,
+                               const unsigned char* src, unsigned char* dst,
+                               int width, int height)
+  {
+    int sp = 0, dp = (height-1) * width * 3;
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++, dp += 3, sp += 4) {
+        if ((clipRect.x <= j) && (clipRect.x + clipRect.width > j) &&
+            (clipRect.y <= i) && (clipRect.y + clipRect.height > i)) {
+          dst[dp] = src[sp+2];  // R
+          dst[dp+1] = src[sp+1];  // G
+          dst[dp+2] = src[sp];  // B
+        }
       }
       dp -= width * 6;
     }
