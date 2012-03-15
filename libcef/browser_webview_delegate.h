@@ -27,6 +27,7 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/plugins/npapi/webplugin_page_delegate.h"
 #include "browser_navigation_controller.h"
+#include "browser_webcookiejar_impl.h"
 
 #if defined(OS_MACOSX)
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
@@ -145,6 +146,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
     WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client)
     OVERRIDE;
+  virtual WebKit::WebCookieJar* cookieJar(WebKit::WebFrame*) OVERRIDE;
   virtual void willClose(WebKit::WebFrame*) OVERRIDE;
   virtual void loadURLExternally(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
@@ -366,6 +368,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Edit command associated to the current keyboard event.
   std::string edit_command_name_;
   std::string edit_command_value_;
+
+  BrowserWebCookieJarImpl cookie_jar_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWebViewDelegate);
 };

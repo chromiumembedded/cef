@@ -496,7 +496,7 @@ bool BrowserWebViewDelegate::allowScriptExtension(
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
-  return WebKit::webKitPlatformSupport()->cookieJar();
+  return &cookie_jar_;
 }
 
 // WebWidgetClient -----------------------------------------------------------
@@ -673,6 +673,10 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
     WebFrame* frame, WebApplicationCacheHostClient* client) {
   return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
+}
+
+WebKit::WebCookieJar* BrowserWebViewDelegate::cookieJar(WebFrame* frame) {
+  return &cookie_jar_;
 }
 
 void BrowserWebViewDelegate::willClose(WebFrame* frame) {
@@ -994,7 +998,8 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
 #else
       select_trailing_whitespace_enabled_(false),
 #endif
-      block_redirects_(false) {
+      block_redirects_(false),
+      cookie_jar_(browser) {
 }
 
 BrowserWebViewDelegate::~BrowserWebViewDelegate() {
