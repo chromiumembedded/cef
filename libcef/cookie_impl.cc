@@ -1,31 +1,32 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_cookie.h"
+#include "libcef/cookie_impl.h"
+
+#include <string>
+
+#include "libcef/browser_persistent_cookie_store.h"
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 #include "libcef/cef_time_util.h"
 
 #include "base/bind.h"
-#include "net/base/cookie_monster.h"
+#include "base/logging.h"
 
 namespace {
 
 // Callback class for visiting cookies.
 class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
  public:
-  explicit VisitCookiesCallback(CefRefPtr<CefCookieVisitor> visitor)
-    : visitor_(visitor) {
+  explicit VisitCookiesCallback(net::CookieMonster* cookie_monster,
+                                CefRefPtr<CefCookieVisitor> visitor)
+    : cookie_monster_(cookie_monster),
+      visitor_(visitor) {
   }
 
   void Run(const net::CookieList& list) {
     REQUIRE_IOT();
-
-    net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
-        _Context->request_context()->cookie_store());
-    if (!cookie_monster)
-      return;
 
     int total = list.size(), count = 0;
 
@@ -49,7 +50,7 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
       bool deleteCookie = false;
       bool keepLooping = visitor_->Visit(cookie, count, total, deleteCookie);
       if (deleteCookie) {
-        cookie_monster->DeleteCanonicalCookieAsync(cc,
+        cookie_monster_->DeleteCanonicalCookieAsync(cc,
             net::CookieMonster::DeleteCookieCallback());
       }
       if (!keepLooping)
@@ -58,104 +59,78 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   }
 
  private:
+  scoped_refptr<net::CookieMonster> cookie_monster_;
   CefRefPtr<CefCookieVisitor> visitor_;
 };
 
-void IOT_VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
-  REQUIRE_IOT();
-
-  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
-      _Context->request_context()->cookie_store());
-  if (!cookie_monster)
-    return;
-
-  scoped_refptr<VisitCookiesCallback> callback(
-      new VisitCookiesCallback(visitor));
-
-  cookie_monster->GetAllCookiesAsync(
-      base::Bind(&VisitCookiesCallback::Run, callback.get()));
-}
-
-void IOT_VisitUrlCookies(const GURL& url, bool includeHttpOnly,
-                         CefRefPtr<CefCookieVisitor> visitor) {
-  REQUIRE_IOT();
-
-  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
-      _Context->request_context()->cookie_store());
-  if (!cookie_monster)
-    return;
-
-  net::CookieOptions options;
-  if (includeHttpOnly)
-    options.set_include_httponly();
-
-  scoped_refptr<VisitCookiesCallback> callback(
-      new VisitCookiesCallback(visitor));
-
-  cookie_monster->GetAllCookiesForURLWithOptionsAsync(url, options,
-      base::Bind(&VisitCookiesCallback::Run, callback.get()));
-}
-
-void IOT_SetCookiePath(const CefString& path) {
-  REQUIRE_IOT();
-
-  FilePath cookie_path;
-  if (!path.empty())
-    cookie_path = FilePath(path);
-
-  _Context->request_context()->SetCookieStoragePath(cookie_path);
-}
-
 }  // namespace
 
-bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
 
-  return CefThread::PostTask(CefThread::IO, FROM_HERE,
-      base::Bind(IOT_VisitAllCookies, visitor));
+CefCookieManagerImpl::CefCookieManagerImpl()
+  : is_global_(true) {
+  cookie_monster_ =
+      static_cast<net::CookieMonster*>(
+          _Context->request_context()->cookie_store());
+  DCHECK(cookie_monster_);
 }
 
-bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
-                        CefRefPtr<CefCookieVisitor> visitor) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
-  std::string urlStr = url;
-  GURL gurl = GURL(urlStr);
-  if (!gurl.is_valid())
-    return false;
-
-  return CefThread::PostTask(CefThread::IO, FROM_HERE,
-      base::Bind(IOT_VisitUrlCookies, gurl, includeHttpOnly, visitor));
+  // Creates a new cookie monster with storage at the specified |path|.
+CefCookieManagerImpl::CefCookieManagerImpl(const CefString& path)
+  :is_global_(false) {
+  SetStoragePath(path);
 }
 
-bool CefSetCookie(const CefString& url, const CefCookie& cookie) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
+bool CefCookieManagerImpl::VisitAllCookies(
+    CefRefPtr<CefCookieVisitor> visitor) {
+  if (CefThread::CurrentlyOn(CefThread::IO)) {
+    scoped_refptr<VisitCookiesCallback> callback(
+      new VisitCookiesCallback(cookie_monster_, visitor));
+
+    cookie_monster_->GetAllCookiesAsync(
+        base::Bind(&VisitCookiesCallback::Run, callback.get()));
+  } else {
+    // Execute on the IO thread.
+    CefThread::PostTask(CefThread::IO, FROM_HERE,
+        base::Bind(base::IgnoreResult(&CefCookieManagerImpl::VisitAllCookies),
+                   this, visitor));
   }
 
+  return true;
+}
+
+bool CefCookieManagerImpl::VisitUrlCookies(
+    const CefString& url, bool includeHttpOnly,
+    CefRefPtr<CefCookieVisitor> visitor) {
+  if (CefThread::CurrentlyOn(CefThread::IO)) {
+    net::CookieOptions options;
+    if (includeHttpOnly)
+      options.set_include_httponly();
+
+    scoped_refptr<VisitCookiesCallback> callback(
+        new VisitCookiesCallback(cookie_monster_, visitor));
+
+    GURL gurl = GURL(url.ToString());
+    cookie_monster_->GetAllCookiesForURLWithOptionsAsync(gurl, options,
+        base::Bind(&VisitCookiesCallback::Run, callback.get()));
+  } else {
+    // Execute on the IO thread.
+    CefThread::PostTask(CefThread::IO, FROM_HERE,
+        base::Bind(base::IgnoreResult(&CefCookieManagerImpl::VisitUrlCookies),
+                   this, url, includeHttpOnly, visitor));
+  }
+
+  return true;
+}
+
+bool CefCookieManagerImpl::SetCookie(const CefString& url,
+                                     const CefCookie& cookie) {
   // Verify that this function is being called on the IO thread.
   if (!CefThread::CurrentlyOn(CefThread::IO)) {
     NOTREACHED() << "called on invalid thread";
     return false;
   }
 
-  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
-      _Context->request_context()->cookie_store());
-  if (!cookie_monster)
-    return false;
-
-  std::string urlStr = url;
-  GURL gurl = GURL(urlStr);
+  GURL gurl = GURL(url.ToString());
   if (!gurl.is_valid())
     return false;
 
@@ -168,65 +143,110 @@ bool CefSetCookie(const CefString& url, const CefCookie& cookie) {
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
-  cookie_monster->SetCookieWithDetailsAsync(gurl, name, value, domain, path,
+  cookie_monster_->SetCookieWithDetailsAsync(gurl, name, value, domain, path,
       expiration_time, cookie.secure, cookie.httponly,
       net::CookieStore::SetCookiesCallback());
   return true;
 }
 
-bool CefDeleteCookies(const CefString& url, const CefString& cookie_name) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
+bool CefCookieManagerImpl::DeleteCookies(const CefString& url,
+                                         const CefString& cookie_name) {
   // Verify that this function is being called on the IO thread.
   if (!CefThread::CurrentlyOn(CefThread::IO)) {
     NOTREACHED() << "called on invalid thread";
     return false;
   }
 
-  net::CookieMonster* cookie_monster = static_cast<net::CookieMonster*>(
-      _Context->request_context()->cookie_store());
-  if (!cookie_monster)
-    return false;
-
   if (url.empty()) {
     // Delete all cookies.
-    cookie_monster->DeleteAllAsync(net::CookieMonster::DeleteCallback());
+    cookie_monster_->DeleteAllAsync(net::CookieMonster::DeleteCallback());
     return true;
   }
 
-  std::string urlStr = url;
-  GURL gurl = GURL(urlStr);
+  GURL gurl = GURL(url.ToString());
   if (!gurl.is_valid())
     return false;
 
   if (cookie_name.empty()) {
     // Delete all matching host cookies.
-    cookie_monster->DeleteAllForHostAsync(gurl,
+    cookie_monster_->DeleteAllForHostAsync(gurl,
         net::CookieMonster::DeleteCallback());
   } else {
     // Delete all matching host and domain cookies.
-    cookie_monster->DeleteCookieAsync(gurl, cookie_name, base::Closure());
+    cookie_monster_->DeleteCookieAsync(gurl, cookie_name, base::Closure());
   }
   return true;
 }
 
-bool CefSetCookiePath(const CefString& path) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
+bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
   if (CefThread::CurrentlyOn(CefThread::IO)) {
-    IOT_SetCookiePath(path);
+    FilePath new_path;
+    if (!path.empty())
+      new_path = FilePath(path);
+
+    if (is_global_) {
+      // Global path changes are handled by the request context.
+      _Context->request_context()->SetCookieStoragePath(new_path);
+      cookie_monster_ =
+        static_cast<net::CookieMonster*>(
+            _Context->request_context()->cookie_store());
+      return true;
+    }
+
+    if (cookie_monster_ && ((storage_path_.empty() && path.empty()) ||
+                            storage_path_ == new_path)) {
+      // The path has not changed so don't do anything.
+      return true;
+    }
+
+    scoped_refptr<BrowserPersistentCookieStore> persistent_store;
+    if (!new_path.empty()) {
+      if (file_util::CreateDirectory(new_path)) {
+        const FilePath& cookie_path = new_path.AppendASCII("Cookies");
+        persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
+      } else {
+        NOTREACHED() << "The cookie storage directory could not be created";
+        storage_path_.clear();
+      }
+    }
+
+    // Set the new cookie store that will be used for all new requests. The old
+    // cookie store, if any, will be automatically flushed and closed when no
+    // longer referenced.
+    cookie_monster_ = new net::CookieMonster(persistent_store.get(), NULL);
+    storage_path_ = new_path;
   } else {
+    // Execute on the IO thread.
     CefThread::PostTask(CefThread::IO, FROM_HERE,
-        base::Bind(&IOT_SetCookiePath, path));
+        base::Bind(base::IgnoreResult(&CefCookieManagerImpl::SetStoragePath),
+                   this, path));
   }
 
   return true;
+}
+
+
+// CefCookieManager methods ----------------------------------------------------
+
+// static
+CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager() {
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return NULL;
+  }
+
+  return new CefCookieManagerImpl();
+}
+
+// static
+CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
+    const CefString& path) {
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return NULL;
+  }
+
+  return new CefCookieManagerImpl(path);
 }
