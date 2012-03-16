@@ -197,7 +197,7 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
 }
 
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
-  NSCursor* ns_cursor = WebCursor(cursor_info).GetCursor();
+  NSCursor* ns_cursor = WebCursor(cursor_info).GetNativeCursor();
   [ns_cursor set];
 }
 
