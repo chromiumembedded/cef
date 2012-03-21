@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "libcef/browser_navigation_controller.h"
-#include "libcef/browser_webcookiejar_impl.h"
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -155,7 +154,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual WebKit::WebApplicationCacheHost* createApplicationCacheHost(
     WebKit::WebFrame* frame, WebKit::WebApplicationCacheHostClient* client)
     OVERRIDE;
-  virtual WebKit::WebCookieJar* cookieJar(WebKit::WebFrame*) OVERRIDE;
   virtual void willClose(WebKit::WebFrame*) OVERRIDE;
   virtual void loadURLExternally(
       WebKit::WebFrame*, const WebKit::WebURLRequest&,
@@ -382,8 +380,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // Edit command associated to the current keyboard event.
   std::string edit_command_name_;
   std::string edit_command_value_;
-
-  BrowserWebCookieJarImpl cookie_jar_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWebViewDelegate);
 };

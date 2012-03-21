@@ -57,6 +57,7 @@
 #include "base/threading/thread.h"
 #include "base/utf_string_conversions.h"
 #include "net/base/auth.h"
+#include "net/base/cookie_store.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
@@ -1109,6 +1110,61 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   RequestProxy* proxy_;
 };
 
+//-----------------------------------------------------------------------------
+
+class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
+ public:
+  void Set(const GURL& url, const std::string& cookie) {
+    REQUIRE_IOT();
+    net::CookieStore* cookie_store =
+        _Context->request_context()->cookie_store();
+    if (cookie_store) {
+      cookie_store->SetCookieWithOptionsAsync(
+          url, cookie, net::CookieOptions(),
+          net::CookieStore::SetCookiesCallback());
+    }
+  }
+
+ private:
+  friend class base::RefCountedThreadSafe<CookieSetter>;
+
+  ~CookieSetter() {}
+};
+
+class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
+ public:
+  CookieGetter() : event_(false, false) {
+  }
+
+  void Get(const GURL& url) {
+    REQUIRE_IOT();
+    net::CookieStore* cookie_store =
+        _Context->request_context()->cookie_store();
+    if (cookie_store) {
+      cookie_store->GetCookiesWithOptionsAsync(
+          url, net::CookieOptions(),
+          base::Bind(&CookieGetter::OnGetCookies, this));
+    }
+  }
+
+  std::string GetResult() {
+    event_.Wait();
+    return result_;
+  }
+
+ private:
+  void OnGetCookies(const std::string& cookie_line) {
+    result_ = cookie_line;
+    event_.Signal();
+  }
+  friend class base::RefCountedThreadSafe<CookieGetter>;
+
+  ~CookieGetter() {}
+
+  base::WaitableEvent event_;
+  std::string result_;
+};
+
 }  // anonymous namespace
 
 //-----------------------------------------------------------------------------
@@ -1122,6 +1178,36 @@ webkit_glue::ResourceLoaderBridge* BrowserResourceLoaderBridge::Create(
 }
 
 //-----------------------------------------------------------------------------
+
+// static
+void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
+                                            const GURL& first_party_for_cookies,
+                                            const std::string& cookie) {
+  // Proxy to IO thread to synchronize w/ network loading.
+  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &CookieSetter::Set, cookie_setter.get(), url, cookie));
+}
+
+// static
+std::string BrowserResourceLoaderBridge::GetCookies(
+    const GURL& url, const GURL& first_party_for_cookies) {
+  // Proxy to IO thread to synchronize w/ network loading.
+  scoped_refptr<CookieGetter> cookie_getter = new CookieGetter();
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &CookieGetter::Get, cookie_getter.get(), url));
+
+  // Blocks until the result is available.
+  return cookie_getter->GetResult();
+}
+
+// static
+void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
+  // Proxy to IO thread to synchronize w/ network loading.
+  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
+      &BrowserRequestContext::SetAcceptAllCookies,
+      _Context->request_context().get(), accept_all_cookies));
+}
 
 // static
 CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(

@@ -11,7 +11,6 @@
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
-#include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -288,26 +287,6 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
 
   // Return type: bool
   return _retval?true:false;
-}
-
-CefRefPtr<CefCookieManager> CefRequestHandlerCToCpp::GetCookieManager(
-    CefRefPtr<CefBrowser> browser) {
-  if (CEF_MEMBER_MISSING(struct_, get_cookie_manager))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return NULL;
-
-  // Execute
-  cef_cookie_manager_t* _retval = struct_->get_cookie_manager(struct_,
-      CefBrowserCppToC::Wrap(browser));
-
-  // Return type: refptr_diff
-  return CefCookieManagerCppToC::Unwrap(_retval);
 }
 
 

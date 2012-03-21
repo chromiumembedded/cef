@@ -139,14 +139,6 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, int isProxy, const cef_string_t* host,
       int port, const cef_string_t* realm, const cef_string_t* scheme,
       cef_string_t* username, cef_string_t* password);
-
-  ///
-  // Called on the UI thread to retrieve the cookie manager. Cookies managers
-  // can be unique per browser or shared across multiple browsers. The global
-  // cookie manager will be used if this function returns NULL.
-  ///
-  struct _cef_cookie_manager_t* (CEF_CALLBACK *get_cookie_manager)(
-      struct _cef_request_handler_t* self, struct _cef_browser_t* browser);
 } cef_request_handler_t;
 
 
