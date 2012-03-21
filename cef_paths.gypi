@@ -194,8 +194,6 @@
       'libcef_dll/ctocpp/browser_ctocpp.h',
       'libcef_dll/ctocpp/command_line_ctocpp.cc',
       'libcef_dll/ctocpp/command_line_ctocpp.h',
-      'libcef_dll/ctocpp/cookie_manager_ctocpp.cc',
-      'libcef_dll/ctocpp/cookie_manager_ctocpp.h',
       'libcef_dll/ctocpp/ctocpp.h',
       'libcef_dll/ctocpp/domdocument_ctocpp.cc',
       'libcef_dll/ctocpp/domdocument_ctocpp.h',

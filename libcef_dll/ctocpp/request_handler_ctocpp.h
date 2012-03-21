@@ -55,8 +55,6 @@ public:
       const CefString& host, int port, const CefString& realm,
       const CefString& scheme, CefString& username,
       CefString& password) OVERRIDE;
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
 #endif // BUILDING_CEF_SHARED

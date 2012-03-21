@@ -16,6 +16,14 @@ class GURL;
 
 class BrowserResourceLoaderBridge {
  public:
+  // May only be called after Init.
+  static void SetCookie(const GURL& url,
+                        const GURL& first_party_for_cookies,
+                        const std::string& cookie);
+  static std::string GetCookies(const GURL& url,
+                                const GURL& first_party_for_cookies);
+  static void SetAcceptAllCookies(bool accept_all_cookies);
+
   // Return the CefBrowser associated with the specified request. The browser
   // will be NULL in cases where the request was initiated using the
   // CefWebURLRequest API.
