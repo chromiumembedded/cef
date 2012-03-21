@@ -46,79 +46,49 @@ extern "C" {
 
 
 ///
-// Structure used for managing cookies. The functions of this structure may be
-// called on any thread unless otherwise indicated.
+// Visit all cookies. The returned cookies are ordered by longest path, then by
+// earliest creation date. Returns false (0) if cookies cannot be accessed.
 ///
-typedef struct _cef_cookie_manager_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Visit all cookies. The returned cookies are ordered by longest path, then
-  // by earliest creation date. Returns false (0) if cookies cannot be accessed.
-  ///
-  int (CEF_CALLBACK *visit_all_cookies)(struct _cef_cookie_manager_t* self,
-      struct _cef_cookie_visitor_t* visitor);
-
-  ///
-  // Visit a subset of cookies. The results are filtered by the given url
-  // scheme, host, domain and path. If |includeHttpOnly| is true (1) HTTP-only
-  // cookies will also be included in the results. The returned cookies are
-  // ordered by longest path, then by earliest creation date. Returns false (0)
-  // if cookies cannot be accessed.
-  ///
-  int (CEF_CALLBACK *visit_url_cookies)(struct _cef_cookie_manager_t* self,
-      const cef_string_t* url, int includeHttpOnly,
-      struct _cef_cookie_visitor_t* visitor);
-
-  ///
-  // Sets a cookie given a valid URL and explicit user-provided cookie
-  // attributes. This function expects each attribute to be well-formed. It will
-  // check for disallowed characters (e.g. the ';' character is disallowed
-  // within the cookie value attribute) and will return false (0) without
-  // setting the cookie if such characters are found. This function must be
-  // called on the IO thread.
-  ///
-  int (CEF_CALLBACK *set_cookie)(struct _cef_cookie_manager_t* self,
-      const cef_string_t* url, const struct _cef_cookie_t* cookie);
-
-  ///
-  // Delete all cookies that match the specified parameters. If both |url| and
-  // values |cookie_name| are specified all host and domain cookies matching
-  // both will be deleted. If only |url| is specified all host cookies (but not
-  // domain cookies) irrespective of path will be deleted. If |url| is NULL all
-  // cookies for all hosts and domains will be deleted. Returns false (0) if a
-  // non- NULL invalid URL is specified or if cookies cannot be accessed. This
-  // function must be called on the IO thread.
-  ///
-  int (CEF_CALLBACK *delete_cookies)(struct _cef_cookie_manager_t* self,
-      const cef_string_t* url, const cef_string_t* cookie_name);
-
-  ///
-  // Sets the directory path that will be used for storing cookie data. If
-  // |path| is NULL data will be stored in memory only. Returns false (0) if
-  // cookies cannot be accessed.
-  ///
-  int (CEF_CALLBACK *set_storage_path)(struct _cef_cookie_manager_t* self,
-      const cef_string_t* path);
-} cef_cookie_manager_t;
-
+CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor);
 
 ///
-// Returns the global cookie manager. By default data will be stored at
-// CefSettings.cache_path if specified or in memory otherwise.
+// Visit a subset of cookies. The results are filtered by the given url scheme,
+// host, domain and path. If |includeHttpOnly| is true (1) HTTP-only cookies
+// will also be included in the results. The returned cookies are ordered by
+// longest path, then by earliest creation date. Returns false (0) if cookies
+// cannot be accessed.
 ///
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager();
+CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
+    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor);
 
 ///
-// Creates a new cookie manager. If |path| is NULL data will be stored in memory
-// only. Returns NULL if creation fails.
+// Sets a cookie given a valid URL and explicit user-provided cookie attributes.
+// This function expects each attribute to be well-formed. It will check for
+// disallowed characters (e.g. the ';' character is disallowed within the cookie
+// value attribute) and will return false (0) without setting the cookie if such
+// characters are found. This function must be called on the IO thread.
 ///
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_create_manager(
-    const cef_string_t* path);
+CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
+    const struct _cef_cookie_t* cookie);
 
+///
+// Delete all cookies that match the specified parameters. If both |url| and
+// |cookie_name| are specified all host and domain cookies matching both values
+// will be deleted. If only |url| is specified all host cookies (but not domain
+// cookies) irrespective of path will be deleted. If |url| is NULL all cookies
+// for all hosts and domains will be deleted. Returns false (0) if a non-NULL
+// invalid URL is specified or if cookies cannot be accessed. This function must
+// be called on the IO thread.
+///
+CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
+    const cef_string_t* cookie_name);
+
+///
+// Sets the directory path that will be used for storing cookie data. If |path|
+// is NULL data will be stored in memory only. By default the cookie path is the
+// same as the cache path. Returns false (0) if cookies cannot be accessed.
+///
+CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path);
 
 ///
 // Structure to implement for visiting cookie values. The functions of this

@@ -721,7 +721,6 @@
         'libcef/cef_time_util.h',
         'libcef/command_line_impl.cc',
         'libcef/cookie_impl.cc',
-        'libcef/cookie_impl.h',
         'libcef/drag_data_impl.cc',
         'libcef/drag_data_impl.h',
         'libcef/drag_download_file.cc',
