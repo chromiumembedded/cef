@@ -914,7 +914,7 @@ typedef struct _cef_frame_t
   ///
   // Returns the globally unique identifier for this frame.
   ///
-  long long (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
+  int64 (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
 
   ///
   // Returns the parent of this frame or NULL if this is the main (top-level)

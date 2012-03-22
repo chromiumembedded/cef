@@ -325,7 +325,7 @@ cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self)
 }
 
 
-long long CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
+int64 CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
 {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -334,7 +334,7 @@ long long CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self)
     return 0;
 
   // Execute
-  long long _retval = CefFrameCppToC::Get(self)->GetIdentifier();
+  int64 _retval = CefFrameCppToC::Get(self)->GetIdentifier();
 
   // Return type: simple
   return _retval;

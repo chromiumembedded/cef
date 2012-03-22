@@ -1079,7 +1079,7 @@ public:
   // Returns the globally unique identifier for this frame.
   ///
   /*--cef()--*/
-  virtual long long GetIdentifier() =0;
+  virtual int64 GetIdentifier() =0;
 
   ///
   // Returns the parent of this frame or NULL if this is the main (top-level)

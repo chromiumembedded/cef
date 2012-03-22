@@ -314,7 +314,7 @@ CefString CefFrameCToCpp::GetName()
 }
 
 
-long long CefFrameCToCpp::GetIdentifier()
+int64 CefFrameCToCpp::GetIdentifier()
 {
   if (CEF_MEMBER_MISSING(struct_, get_identifier))
     return 0;
@@ -322,7 +322,7 @@ long long CefFrameCToCpp::GetIdentifier()
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  long long _retval = struct_->get_identifier(struct_);
+  int64 _retval = struct_->get_identifier(struct_);
 
   // Return type: simple
   return _retval;
