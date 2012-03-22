@@ -3,14 +3,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "include/cef.h"
-#include "browser_devtools_scheme_handler.h"
-#include "browser_resource_loader_bridge.h"
-#include "cef_context.h"
-#include "cef_thread.h"
-#include "request_impl.h"
-#include "response_impl.h"
+#include <map>
 
+#include "include/cef.h"
+#include "libcef/browser_devtools_scheme_handler.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_resource_loader_bridge.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
+#include "libcef/request_impl.h"
+#include "libcef/response_impl.h"
+
+#include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -18,6 +22,7 @@
 #include "base/synchronization/lock.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
+#include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
@@ -35,22 +40,18 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
-#include <map>
-
 using net::URLRequestStatus;
 using WebKit::WebSecurityPolicy;
 using WebKit::WebString;
 
 namespace {
 
-bool IsStandardScheme(const std::string& scheme)
-{
+bool IsStandardScheme(const std::string& scheme) {
   url_parse::Component scheme_comp(0, scheme.length());
   return url_util::IsStandard(scheme.c_str(), scheme_comp);
 }
 
-void RegisterStandardScheme(const std::string& scheme)
-{
+void RegisterStandardScheme(const std::string& scheme) {
   REQUIRE_UIT();
   url_parse::Component scheme_comp(0, scheme.length());
   if (!url_util::IsStandard(scheme.c_str(), scheme_comp))
@@ -71,8 +72,7 @@ static const SchemeToFactory kBuiltinFactories[] = {
   { "data", net::URLRequestDataJob::Factory },
 };
 
-bool IsBuiltinScheme(const std::string& scheme)
-{
+bool IsBuiltinScheme(const std::string& scheme) {
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i)
     if (LowerCaseEqualsASCII(scheme, kBuiltinFactories[i].scheme))
       return true;
@@ -80,8 +80,7 @@ bool IsBuiltinScheme(const std::string& scheme)
 }
 
 net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
-                                               const std::string& scheme)
-{
+                                               const std::string& scheme) {
   // See if the request should be handled by a built-in protocol factory.
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i) {
     if (scheme == kBuiltinFactories[i].scheme) {
@@ -94,8 +93,7 @@ net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
   return NULL;
 }
 
-std::string ToLower(const std::string& str)
-{
+std::string ToLower(const std::string& str) {
   std::string str_lower = str;
   std::transform(str_lower.begin(), str_lower.end(), str_lower.begin(),
       towlower);
@@ -105,43 +103,151 @@ std::string ToLower(const std::string& str)
 
 // net::URLRequestJob implementation.
 class CefUrlRequestJob : public net::URLRequestJob {
-public:
+ public:
   CefUrlRequestJob(net::URLRequest* request,
                    CefRefPtr<CefSchemeHandler> handler)
     : net::URLRequestJob(request),
       handler_(handler),
-      remaining_bytes_(0)
-  {
+      remaining_bytes_(0),
+      response_cookies_save_index_(0),
+      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
   }
 
-  virtual ~CefUrlRequestJob()
-  {
+  virtual ~CefUrlRequestJob() {
   }
 
-  virtual void Start() OVERRIDE
-  {
+  virtual void Start() OVERRIDE {
     REQUIRE_IOT();
 
+    cef_request_ = CefRequest::CreateRequest();
+
+    // Populate the request data.
+    static_cast<CefRequestImpl*>(cef_request_.get())->Set(request_);
+
+    // Add default headers if not already specified.
+    const net::URLRequestContext* context = request_->context();
+    if (context) {
+      CefRequest::HeaderMap::const_iterator it;
+      CefRequest::HeaderMap headerMap;
+      cef_request_->GetHeaderMap(headerMap);
+      bool changed = false;
+
+      if (!context->accept_language().empty()) {
+        it = headerMap.find(net::HttpRequestHeaders::kAcceptLanguage);
+        if (it == headerMap.end()) {
+          headerMap.insert(
+              std::make_pair(net::HttpRequestHeaders::kAcceptLanguage,
+                             context->accept_language()));
+        }
+        changed = true;
+      }
+
+      if (!context->accept_charset().empty()) {
+        it = headerMap.find(net::HttpRequestHeaders::kAcceptCharset);
+        if (it == headerMap.end()) {
+          headerMap.insert(
+              std::make_pair(net::HttpRequestHeaders::kAcceptCharset,
+                             context->accept_charset()));
+        }
+        changed = true;
+      }
+
+      it = headerMap.find(net::HttpRequestHeaders::kUserAgent);
+      if (it == headerMap.end()) {
+        headerMap.insert(
+            std::make_pair(net::HttpRequestHeaders::kUserAgent,
+                           context->GetUserAgent(request_->url())));
+        changed = true;        
+      }
+
+      if (changed)
+        cef_request_->SetHeaderMap(headerMap);
+    }
+
+    AddCookieHeaderAndStart();
+  }
+
+  void AddCookieHeaderAndStart() {
+    // No matter what, we want to report our status as IO pending since we will
+    // be notifying our consumer asynchronously via OnStartCompleted.
+    SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
+
+    // If the request was destroyed, then there is no more work to do.
+    if (!request_)
+      return;
+
+    net::CookieStore* cookie_store =
+        request_->context()->cookie_store();
+    if (cookie_store) {
+      net::CookieMonster* cookie_monster = cookie_store->GetCookieMonster();
+      if (cookie_monster) {
+        cookie_monster->GetAllCookiesForURLAsync(
+            request_->url(),
+            base::Bind(&CefUrlRequestJob::CheckCookiePolicyAndLoad,
+                       weak_factory_.GetWeakPtr()));
+      } else {
+        DoLoadCookies();
+      }
+    } else {
+      DoStartTransaction();
+    }
+  }
+
+  void DoLoadCookies() {
+    net::CookieOptions options;
+    options.set_include_httponly();
+    request_->context()->cookie_store()->GetCookiesWithInfoAsync(
+        request_->url(), options,
+        base::Bind(&CefUrlRequestJob::OnCookiesLoaded,
+                   weak_factory_.GetWeakPtr()));
+  }
+
+  void CheckCookiePolicyAndLoad(
+      const net::CookieList& cookie_list) {
+    if (CanGetCookies(cookie_list))
+      DoLoadCookies();
+    else
+      DoStartTransaction();
+  }
+
+  void OnCookiesLoaded(
+      const std::string& cookie_line,
+      const std::vector<net::CookieStore::CookieInfo>& cookie_infos) {
+    if (!cookie_line.empty()) {
+      CefRequest::HeaderMap headerMap;
+      cef_request_->GetHeaderMap(headerMap);
+      headerMap.insert(
+          std::make_pair(net::HttpRequestHeaders::kCookie, cookie_line));
+      cef_request_->SetHeaderMap(headerMap);
+    }
+    DoStartTransaction();
+  }
+
+  void DoStartTransaction() {
+    // We may have been canceled while retrieving cookies.
+    if (GetStatus().is_success()) {
+      StartTransaction();
+    } else {
+      NotifyCanceled();
+    }
+  }
+
+  void StartTransaction() {
     if (!callback_)
       callback_ = new Callback(this);
 
-    CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
-    
-    // Populate the request data.
-    static_cast<CefRequestImpl*>(req.get())->Set(request());
-    
+    // Protect against deletion of this object.
+    base::WeakPtr<CefUrlRequestJob> weak_ptr(weak_factory_.GetWeakPtr());
+
     // Handler can decide whether to process the request.
-    bool rv = handler_->ProcessRequest(req, callback_.get());
-    if (!rv) {
+    bool rv = handler_->ProcessRequest(cef_request_, callback_.get());
+    if (weak_ptr.get() && !rv) {
       // Cancel the request.
-      NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, ERR_ABORTED));
+      NotifyCanceled();
     }
-    
-    return;
   }
 
-  virtual void Kill() OVERRIDE
-  {
+  virtual void Kill() OVERRIDE {
     REQUIRE_IOT();
 
     // Notify the handler that the request has been canceled.
@@ -156,8 +262,7 @@ public:
   }
 
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int *bytes_read)
-      OVERRIDE
-  {
+      OVERRIDE {
     REQUIRE_IOT();
 
     DCHECK_NE(dest_size, 0);
@@ -179,39 +284,33 @@ public:
       // The handler has indicated completion of the request.
       *bytes_read = 0;
       return true;
-    } else if(*bytes_read == 0) {
+    } else if (*bytes_read == 0) {
       if (!GetStatus().is_io_pending()) {
         // Report our status as IO pending.
         SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
         callback_->SetDestination(dest, dest_size);
       }
       return false;
-    } else if(*bytes_read > dest_size) {
+    } else if (*bytes_read > dest_size) {
       // Normalize the return value.
       *bytes_read = dest_size;
     }
 
-    if(remaining_bytes_ > 0)
+    if (remaining_bytes_ > 0)
       remaining_bytes_ -= *bytes_read;
 
     // Continue calling this method.
     return true;
   }
 
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE
-  {
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
     REQUIRE_IOT();
 
-    if (response_.get()) {
-      CefResponseImpl* responseImpl =
-          static_cast<CefResponseImpl*>(response_.get());
-      info->headers = responseImpl->GetResponseHeaders();
-    }
+    info->headers = GetResponseHeaders();
   }
 
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
-      OVERRIDE
-  {
+      OVERRIDE {
     REQUIRE_IOT();
 
     if (redirect_url_.is_valid()) {
@@ -228,7 +327,7 @@ public:
         CefResponse::HeaderMap headerMap;
         response_->GetHeaderMap(headerMap);
         CefRequest::HeaderMap::iterator iter = headerMap.find("Location");
-        if(iter != headerMap.end()) {
+        if (iter != headerMap.end()) {
            GURL new_url = GURL(std::string(iter->second));
            *http_status_code = status;
            location->Swap(&new_url);
@@ -240,8 +339,7 @@ public:
     return false;
   }
 
-  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE
-  {
+  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE {
     REQUIRE_IOT();
 
     if (response_.get())
@@ -252,9 +350,8 @@ public:
   CefRefPtr<CefSchemeHandler> handler_;
   CefRefPtr<CefResponse> response_;
 
-private:
-  void SendHeaders()
-  {
+ private:
+  void SendHeaders() {
     REQUIRE_IOT();
 
     // We may have been orphaned...
@@ -277,20 +374,92 @@ private:
       set_expected_content_size(remaining_bytes_);
 
     // Continue processing the request.
-    NotifyHeadersComplete();
+    SaveCookiesAndNotifyHeadersComplete();
+  }
+
+  net::HttpResponseHeaders* GetResponseHeaders() {
+    DCHECK(response_);
+    if (!response_headers_.get()) {
+      CefResponseImpl* responseImpl =
+          static_cast<CefResponseImpl*>(response_.get());
+      response_headers_ = responseImpl->GetResponseHeaders();
+    }
+    return response_headers_;
+  }
+
+  void SaveCookiesAndNotifyHeadersComplete() {
+    response_cookies_.clear();
+    response_cookies_save_index_ = 0;
+
+    FetchResponseCookies(&response_cookies_);
+
+    // Now, loop over the response cookies, and attempt to persist each.
+    SaveNextCookie();
+  }
+
+  void SaveNextCookie() {
+    if (response_cookies_save_index_ == response_cookies_.size()) {
+      response_cookies_.clear();
+      response_cookies_save_index_ = 0;
+      SetStatus(URLRequestStatus());  // Clear the IO_PENDING status
+      NotifyHeadersComplete();
+      return;
+    }
+
+    // No matter what, we want to report our status as IO pending since we will
+    // be notifying our consumer asynchronously via OnStartCompleted.
+    SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
+
+    net::CookieOptions options;
+    options.set_include_httponly();
+    if (CanSetCookie(
+        response_cookies_[response_cookies_save_index_], &options)) {
+      request_->context()->cookie_store()->SetCookieWithOptionsAsync(
+          request_->url(), response_cookies_[response_cookies_save_index_],
+          options, base::Bind(&CefUrlRequestJob::OnCookieSaved,
+                              weak_factory_.GetWeakPtr()));
+      return;
+    }
+
+    CookieHandled();
+  }
+
+  void OnCookieSaved(bool cookie_status) {
+    CookieHandled();
+  }
+
+  void CookieHandled() {
+    response_cookies_save_index_++;
+    // We may have been canceled within OnSetCookie.
+    if (GetStatus().is_success()) {
+      SaveNextCookie();
+    } else {
+      NotifyCanceled();
+    }
+  }
+
+  void FetchResponseCookies(
+      std::vector<std::string>* cookies) {
+    const std::string name = "Set-Cookie";
+    std::string value;
+
+    void* iter = NULL;
+    net::HttpResponseHeaders* headers = GetResponseHeaders();
+    while (headers->EnumerateHeader(&iter, name, &value)) {
+      if (!value.empty())
+        cookies->push_back(value);
+    }
   }
 
   // Client callback for asynchronous response continuation.
-  class Callback : public CefSchemeHandlerCallback
-  {
-  public:
-    Callback(CefUrlRequestJob* job)
+  class Callback : public CefSchemeHandlerCallback {
+   public:
+    explicit Callback(CefUrlRequestJob* job)
       : job_(job),
         dest_(NULL),
         dest_size_() {}
 
-    virtual void HeadersAvailable() OVERRIDE
-    {
+    virtual void HeadersAvailable() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_ && !job_->has_response_started()) {
@@ -300,12 +469,11 @@ private:
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::HeadersAvailable));
+            base::Bind(&Callback::HeadersAvailable, this));
       }
     }
 
-    virtual void BytesAvailable() OVERRIDE
-    {
+    virtual void BytesAvailable() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_ && job_->has_response_started() &&
@@ -331,12 +499,11 @@ private:
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::BytesAvailable));
+            base::Bind(&Callback::BytesAvailable, this));
       }
     }
 
-    virtual void Cancel() OVERRIDE
-    {
+    virtual void Cancel() OVERRIDE {
       if (CefThread::CurrentlyOn(CefThread::IO)) {
         // Currently on IO thread.
         if (job_)
@@ -344,25 +511,23 @@ private:
       } else {
         // Execute this method on the IO thread.
         CefThread::PostTask(CefThread::IO, FROM_HERE,
-            NewRunnableMethod(this, &Callback::Cancel));
+            base::Bind(&Callback::Cancel, this));
       }
     }
 
-    void Detach()
-    {
+    void Detach() {
       REQUIRE_IOT();
       job_ = NULL;
     }
 
-    void SetDestination(net::IOBuffer* dest, int dest_size)
-    {
+    void SetDestination(net::IOBuffer* dest, int dest_size) {
       dest_ = dest;
       dest_size_ = dest_size;
     }
 
     static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
-  private:
+   private:
     CefUrlRequestJob* job_;
 
     net::IOBuffer* dest_;
@@ -373,7 +538,12 @@ private:
 
   GURL redirect_url_;
   int64 remaining_bytes_;
+  CefRefPtr<CefRequest> cef_request_;
   CefRefPtr<Callback> callback_;
+  scoped_refptr<net::HttpResponseHeaders> response_headers_;
+  std::vector<std::string> response_cookies_;
+  size_t response_cookies_save_index_;
+  base::WeakPtrFactory<CefUrlRequestJob> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefUrlRequestJob);
 };
@@ -381,28 +551,27 @@ private:
 
 // Class that manages the CefSchemeHandlerFactory instances.
 class CefUrlRequestManager {
-protected:
+ protected:
   // Class used for creating URLRequestJob instances. The lifespan of this
   // object is managed by URLRequestJobFactory.
   class ProtocolHandler : public net::URLRequestJobFactory::ProtocolHandler {
-  public:
-    ProtocolHandler(const std::string& scheme)
+   public:
+    explicit ProtocolHandler(const std::string& scheme)
       : scheme_(scheme) {}
 
     // From net::URLRequestJobFactory::ProtocolHandler
     virtual net::URLRequestJob* MaybeCreateJob(
-        net::URLRequest* request) const OVERRIDE
-    {
+        net::URLRequest* request) const OVERRIDE {
       REQUIRE_IOT();
       return CefUrlRequestManager::GetInstance()->GetRequestJob(request,
                                                                 scheme_);
     }
 
-  private:
+   private:
     std::string scheme_;
   };
 
-public:
+ public:
   CefUrlRequestManager() {}
 
   // Retrieve the singleton instance.
@@ -410,8 +579,7 @@ public:
 
   bool AddFactory(const std::string& scheme,
                   const std::string& domain,
-                  CefRefPtr<CefSchemeHandlerFactory> factory)
-  {
+                  CefRefPtr<CefSchemeHandlerFactory> factory) {
     if (!factory.get()) {
       RemoveFactory(scheme, domain);
       return true;
@@ -439,8 +607,7 @@ public:
   }
 
   void RemoveFactory(const std::string& scheme,
-                     const std::string& domain)
-  {
+                     const std::string& domain) {
     REQUIRE_IOT();
 
     std::string scheme_lower = ToLower(scheme);
@@ -457,8 +624,7 @@ public:
   }
 
   // Clear all the existing URL handlers and unregister the ProtocolFactory.
-  void ClearFactories()
-  {
+  void ClearFactories() {
     REQUIRE_IOT();
 
     net::URLRequestJobFactory* job_factory =
@@ -480,8 +646,7 @@ public:
   }
 
   // Check if a scheme has already been registered.
-  bool HasRegisteredScheme(const std::string& scheme)
-  {
+  bool HasRegisteredScheme(const std::string& scheme) {
     std::string scheme_lower = ToLower(scheme);
 
     // Don't register builtin schemes.
@@ -498,8 +663,7 @@ public:
   bool RegisterScheme(const std::string& scheme,
                       bool is_standard,
                       bool is_local,
-                      bool is_display_isolated)
-  {
+                      bool is_display_isolated) {
     if (HasRegisteredScheme(scheme)) {
       NOTREACHED() << "Scheme already registered: " << scheme;
       return false;
@@ -525,12 +689,11 @@ public:
     return true;
   }
 
-private:
+ private:
   // Retrieve the matching handler factory, if any. |scheme| will already be in
   // lower case.
   CefRefPtr<CefSchemeHandlerFactory> GetHandlerFactory(
-      net::URLRequest* request, const std::string& scheme)
-  {
+      net::URLRequest* request, const std::string& scheme) {
     CefRefPtr<CefSchemeHandlerFactory> factory;
 
     if (request->url().is_valid() && IsStandardScheme(scheme)) {
@@ -556,8 +719,7 @@ private:
   // Create the job that will handle the request. |scheme| will already be in
   // lower case.
   net::URLRequestJob* GetRequestJob(net::URLRequest* request,
-                                    const std::string& scheme)
-  {
+                                    const std::string& scheme) {
     net::URLRequestJob* job = NULL;
     CefRefPtr<CefSchemeHandlerFactory> factory =
         GetHandlerFactory(request, scheme);
@@ -565,10 +727,10 @@ private:
       // Call the handler factory to create the handler for the request.
       CefRefPtr<CefRequest> requestPtr(new CefRequestImpl());
       static_cast<CefRequestImpl*>(requestPtr.get())->Set(request);
-      CefRefPtr<CefBrowser> browser =
+      CefRefPtr<CefBrowserImpl> browser =
           BrowserResourceLoaderBridge::GetBrowserForRequest(request);
       CefRefPtr<CefSchemeHandler> handler =
-          factory->Create(browser, scheme, requestPtr);
+          factory->Create(browser.get(), scheme, requestPtr);
       if (handler.get())
         job = new CefUrlRequestJob(request, handler);
     }
@@ -582,7 +744,7 @@ private:
     if (job)
       DLOG(INFO) << "CefUrlRequestManager hit for " << request->url().spec();
 #endif
-    
+
     return job;
   }
 
@@ -602,19 +764,17 @@ private:
 
 base::LazyInstance<CefUrlRequestManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 
-CefUrlRequestManager* CefUrlRequestManager::GetInstance()
-{
+CefUrlRequestManager* CefUrlRequestManager::GetInstance() {
   return g_manager.Pointer();
 }
 
-} // anonymous
+}  // namespace
 
 
 bool CefRegisterCustomScheme(const CefString& scheme_name,
                              bool is_standard,
                              bool is_local,
-                             bool is_display_isolated)
-{
+                             bool is_display_isolated) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -631,18 +791,18 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
       NOTREACHED() << "Scheme already registered: " << scheme_name;
       return false;
     }
-  
+
     CefThread::PostTask(CefThread::UI, FROM_HERE,
-        NewRunnableFunction(&CefRegisterCustomScheme, scheme_name, is_standard,
-                            is_local, is_display_isolated));
+        base::Bind(base::IgnoreResult(&CefRegisterCustomScheme), scheme_name,
+                   is_standard, is_local, is_display_isolated));
     return true;
   }
 }
 
-bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
-                                     const CefString& domain_name,
-                                     CefRefPtr<CefSchemeHandlerFactory> factory)
-{
+bool CefRegisterSchemeHandlerFactory(
+    const CefString& scheme_name,
+    const CefString& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -655,14 +815,13 @@ bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
                                                            factory);
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
-        NewRunnableFunction(&CefRegisterSchemeHandlerFactory, scheme_name,
-                            domain_name, factory));
+        base::Bind(base::IgnoreResult(&CefRegisterSchemeHandlerFactory),
+                   scheme_name, domain_name, factory));
     return true;
   }
 }
 
-bool CefClearSchemeHandlerFactories()
-{
+bool CefClearSchemeHandlerFactories() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -676,7 +835,7 @@ bool CefClearSchemeHandlerFactories()
     RegisterDevToolsSchemeHandler(false);
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
-        NewRunnableFunction(&CefClearSchemeHandlerFactories));
+        base::Bind(base::IgnoreResult(&CefClearSchemeHandlerFactories)));
   }
 
   return true;

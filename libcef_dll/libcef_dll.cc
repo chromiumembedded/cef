@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
@@ -100,6 +101,7 @@ CEF_EXPORT void cef_shutdown()
   // Check that all wrapper objects have been destroyed
   DCHECK(CefBrowserCppToC::DebugObjCt == 0);
   DCHECK(CefContentFilterCToCpp::DebugObjCt == 0);
+  DCHECK(CefCookieManagerCppToC::DebugObjCt == 0);
   DCHECK(CefCookieVisitorCToCpp::DebugObjCt == 0);
   DCHECK(CefDOMDocumentCppToC::DebugObjCt == 0);
   DCHECK(CefDOMEventCppToC::DebugObjCt == 0);
@@ -445,110 +447,6 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
   bool _retval = CefCreateURL(
       partsObj,
       urlStr);
-
-  // Return type: bool
-  return _retval;
-}
-
-
-CEF_EXPORT int cef_visit_all_cookies(struct _cef_cookie_visitor_t* visitor)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor);
-  if (!visitor)
-    return 0;
-
-  // Execute
-  bool _retval = CefVisitAllCookies(
-      CefCookieVisitorCToCpp::Wrap(visitor));
-
-  // Return type: bool
-  return _retval;
-}
-
-
-CEF_EXPORT int cef_visit_url_cookies(const cef_string_t* url,
-    int includeHttpOnly, struct _cef_cookie_visitor_t* visitor)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return 0;
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor);
-  if (!visitor)
-    return 0;
-
-  // Execute
-  bool _retval = CefVisitUrlCookies(
-      CefString(url),
-      includeHttpOnly?true:false,
-      CefCookieVisitorCToCpp::Wrap(visitor));
-
-  // Return type: bool
-  return _retval;
-}
-
-
-CEF_EXPORT int cef_set_cookie(const cef_string_t* url,
-    const struct _cef_cookie_t* cookie)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return 0;
-  // Verify param: cookie; type: struct_byref_const
-  DCHECK(cookie);
-  if (!cookie)
-    return 0;
-
-  // Translate param: cookie; type: struct_byref_const
-  CefCookie cookieObj;
-  if (cookie)
-    cookieObj.Set(*cookie, false);
-
-  // Execute
-  bool _retval = CefSetCookie(
-      CefString(url),
-      cookieObj);
-
-  // Return type: bool
-  return _retval;
-}
-
-
-CEF_EXPORT int cef_delete_cookies(const cef_string_t* url,
-    const cef_string_t* cookie_name)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: url, cookie_name
-
-  // Execute
-  bool _retval = CefDeleteCookies(
-      CefString(url),
-      CefString(cookie_name));
-
-  // Return type: bool
-  return _retval;
-}
-
-
-CEF_EXPORT int cef_set_cookie_path(const cef_string_t* path)
-{
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path
-
-  // Execute
-  bool _retval = CefSetCookiePath(
-      CefString(path));
 
   // Return type: bool
   return _retval;

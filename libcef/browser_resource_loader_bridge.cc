@@ -20,10 +20,6 @@
 //                           \            -> net::URLRequest
 //                            o-------> SyncRequestProxy (synchronous case)
 //                                        -> net::URLRequest
-// SetCookie <------------------------> CookieSetter
-//                                        -> net_util::SetCookie
-// GetCookies <-----------------------> CookieGetter
-//                                        -> net_util::GetCookies
 //
 // NOTE: The implementation in this file may be used to have WebKit fetch
 // resources in-process.  For example, it is handy for building a single-
@@ -31,19 +27,19 @@
 // perform URL loads.  See renderer/resource_dispatcher.h for details on an
 // alternate implementation that defers fetching to another process.
 
-#include "browser_appcache_system.h"
-#include "browser_resource_loader_bridge.h"
-#include "browser_request_context.h"
-#include "browser_socket_stream_bridge.h"
-#include "browser_webkit_glue.h"
-#include "browser_impl.h"
-#include "cef_context.h"
-#include "cef_process.h"
-#include "cef_process_io_thread.h"
-#include "external_protocol_handler.h"
-#include "request_impl.h"
-#include "response_impl.h"
-#include "http_header_utils.h"
+#include "libcef/browser_resource_loader_bridge.h"
+#include "libcef/browser_appcache_system.h"
+#include "libcef/browser_request_context.h"
+#include "libcef/browser_socket_stream_bridge.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_process.h"
+#include "libcef/cef_process_io_thread.h"
+#include "libcef/external_protocol_handler.h"
+#include "libcef/request_impl.h"
+#include "libcef/response_impl.h"
+#include "libcef/http_header_utils.h"
 
 #include "base/bind.h"
 #include "base/file_path.h"
@@ -51,13 +47,11 @@
 #include "base/memory/ref_counted.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
-#include "base/synchronization/waitable_event.h"
 #include "base/time.h"
 #include "base/timer.h"
 #include "base/threading/thread.h"
 #include "base/utf_string_conversions.h"
 #include "net/base/auth.h"
-#include "net/base/cookie_store.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
@@ -114,40 +108,40 @@ struct RequestParams {
 static const int kUpdateUploadProgressIntervalMsec = 100;
 
 class ExtraRequestInfo : public net::URLRequest::UserData {
-public:
-  ExtraRequestInfo(CefBrowser* browser, ResourceType::Type resource_type)
+ public:
+  ExtraRequestInfo(CefBrowserImpl* browser, ResourceType::Type resource_type)
     : browser_(browser),
       resource_type_(resource_type),
-      allow_download_(resource_type == ResourceType::MAIN_FRAME || 
-                      resource_type == ResourceType::SUB_FRAME)
-  { }
+      allow_download_(resource_type == ResourceType::MAIN_FRAME ||
+                      resource_type == ResourceType::SUB_FRAME) {
+  }
 
   // The browser pointer is guaranteed to be valid for the lifespan of the
   // request. The pointer will be NULL in cases where the request was
   // initiated via the CefWebURLRequest API instead of by a browser window.
-  CefBrowser* browser() const { return browser_; }
+  CefBrowserImpl* browser() const { return browser_; }
 
   // Identifies the type of resource, such as subframe, media, etc.
   ResourceType::Type resource_type() const { return resource_type_; }
   bool allow_download() const { return allow_download_; }
 
-private:
-  CefBrowser* browser_;
+ private:
+  CefBrowserImpl* browser_;
   ResourceType::Type resource_type_;
   bool allow_download_;
 };
 
 // Used to intercept redirect requests.
-class RequestInterceptor : public net::URLRequest::Interceptor
-{
-public:
+class RequestInterceptor : public net::URLRequest::Interceptor {
+ public:
   RequestInterceptor() {
     REQUIRE_IOT();
     net::URLRequestJobManager::GetInstance()->RegisterRequestInterceptor(this);
   }
   ~RequestInterceptor() {
     REQUIRE_IOT();
-    net::URLRequestJobManager::GetInstance()->UnregisterRequestInterceptor(this);
+    net::URLRequestJobManager::GetInstance()->
+        UnregisterRequestInterceptor(this);
   }
 
   virtual net::URLRequestJob* MaybeIntercept(net::URLRequest* request)
@@ -195,14 +189,13 @@ class RequestProxy : public net::URLRequest::Delegate,
                      public base::RefCountedThreadSafe<RequestProxy> {
  public:
   // Takes ownership of the params.
-  RequestProxy(CefRefPtr<CefBrowser> browser)
+  explicit RequestProxy(CefRefPtr<CefBrowserImpl> browser)
     : download_to_file_(false),
       buf_(new net::IOBuffer(kDataSize)),
       browser_(browser),
       last_upload_position_(0),
       defers_loading_(false),
-      defers_loading_want_read_(false)
-  {
+      defers_loading_want_read_(false) {
   }
 
   void DropPeer() {
@@ -221,7 +214,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void Cancel() {
-    if(download_handler_.get()) {
+    if (download_handler_.get()) {
       // WebKit will try to cancel the download but we won't allow it.
       return;
     }
@@ -270,13 +263,12 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyReceivedResponse(const ResourceResponseInfo& info,
                               const GURL& url, bool allow_download) {
-
     if (browser_.get() && info.headers.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
       CefRefPtr<CefRequestHandler> handler;
       if (client.get())
         handler = client->GetRequestHandler();
-      
+
       if (handler.get()) {
         CefRefPtr<CefResponse> response = new CefResponseImpl();
         // Transfer response headers
@@ -294,7 +286,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           response->SetStatus(info.headers->response_code());
         }
         response->SetMimeType(info.mime_type);
-        handler->OnResourceResponse(browser_, url.spec(), response,
+        handler->OnResourceResponse(browser_.get(), url.spec(), response,
             content_filter_);
 
         std::string content_disposition;
@@ -307,7 +299,7 @@ class RequestProxy : public net::URLRequest::Delegate,
               content_disposition, info.charset, "", info.mime_type,
               "download");
           CefRefPtr<CefDownloadHandler> dl_handler;
-          if (handler->GetDownloadHandler(browser_, info.mime_type,
+          if (handler->GetDownloadHandler(browser_.get(), info.mime_type,
                                           filename, info.content_length,
                                           dl_handler)) {
             download_handler_ = dl_handler;
@@ -340,9 +332,9 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     CefRefPtr<CefStreamReader> resourceStream;
 
-    if(content_filter_.get())
+    if (content_filter_.get())
       content_filter_->ProcessData(buf_copy.get(), bytes_read, resourceStream);
-    
+
     if (resourceStream.get()) {
       // The filter made some changes to the data in the buffer.
       resourceStream->Seek(0, SEEK_END);
@@ -377,13 +369,12 @@ class RequestProxy : public net::URLRequest::Delegate,
   void NotifyCompletedRequest(const net::URLRequestStatus& status,
                               const std::string& security_info,
                               const base::Time& complete_time) {
-
-    // Drain the content filter of all remaining data 
+    // Drain the content filter of all remaining data
     if (content_filter_.get()) {
       CefRefPtr<CefStreamReader> remainder;
       content_filter_->Drain(remainder);
 
-      if(remainder.get()) {
+      if (remainder.get()) {
         remainder->Seek(0, SEEK_END);
         long size = remainder->Tell();
         if (size) {
@@ -433,8 +424,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       CefRefPtr<CefRequestHandler> handler;
       if (client.get())
         handler = client->GetRequestHandler();
-      
-      if(handler.get()) {
+
+      if (handler.get()) {
         // Build the request object for passing to the handler
         CefRefPtr<CefRequest> request(new CefRequestImpl());
         CefRequestImpl* requestimpl =
@@ -443,7 +434,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         std::string originalUrl(params->url.spec());
         requestimpl->SetURL(originalUrl);
         requestimpl->SetMethod(params->method);
-        
+
         // Transfer request headers
         CefRequest::HeaderMap headerMap;
         HttpHeaderUtils::ParseHeaders(params->headers, headerMap);
@@ -452,7 +443,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
         // Transfer post data, if any
         scoped_refptr<net::UploadData> upload = params->upload;
-        if(upload.get()) {
+        if (upload.get()) {
           CefRefPtr<CefPostData> postdata(new CefPostDataImpl());
           static_cast<CefPostDataImpl*>(postdata.get())->Set(*upload.get());
           requestimpl->SetPostData(postdata);
@@ -465,8 +456,8 @@ class RequestProxy : public net::URLRequest::Delegate,
         CefRefPtr<CefStreamReader> resourceStream;
         CefRefPtr<CefResponse> response(new CefResponseImpl());
 
-        handled = handler->OnBeforeResourceLoad(browser_, request, redirectUrl,
-            resourceStream, response, loadFlags);
+        handled = handler->OnBeforeResourceLoad(browser_.get(), request,
+            redirectUrl, resourceStream, response, loadFlags);
         if (!handled) {
           // Observe URL from request.
           const std::string requestUrl(request->GetURL());
@@ -482,8 +473,9 @@ class RequestProxy : public net::URLRequest::Delegate,
           request->GetHeaderMap(headerMap);
           CefString referrerStr;
           referrerStr.FromASCII("Referrer");
-          CefRequest::HeaderMap::iterator referrer = headerMap.find(referrerStr);
-          if(referrer == headerMap.end()) {
+          CefRequest::HeaderMap::iterator referrer =
+              headerMap.find(referrerStr);
+          if (referrer == headerMap.end()) {
             params->referrer = GURL();
           } else {
             params->referrer = GURL(std::string(referrer->second));
@@ -493,7 +485,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
           // Observe post data from request.
           CefRefPtr<CefPostData> postData = request->GetPostData();
-          if(postData.get()) {
+          if (postData.get()) {
             params->upload = new net::UploadData();
             static_cast<CefPostDataImpl*>(postData.get())->Get(*params->upload);
           }
@@ -541,8 +533,8 @@ class RequestProxy : public net::URLRequest::Delegate,
         if (!handled && ResourceType::IsFrame(params->request_type) &&
             !net::URLRequest::IsHandledProtocol(params->url.scheme())) {
           bool allow_os_execution = false;
-          handled = handler->OnProtocolExecution(browser_, params->url.spec(),
-              allow_os_execution);
+          handled = handler->OnProtocolExecution(browser_.get(),
+              params->url.spec(), allow_os_execution);
           if (!handled && allow_os_execution &&
               ExternalProtocolHandler::HandleExternalProtocol(params->url)) {
             handled = true;
@@ -551,13 +543,13 @@ class RequestProxy : public net::URLRequest::Delegate,
           if (handled) {
             OnCompletedRequest(
                 URLRequestStatus(URLRequestStatus::HANDLED_EXTERNALLY, net::OK),
-                std::string(), base::Time()); 
+                std::string(), base::Time());
           }
         }
       }
     }
 
-    if(!handled) {
+    if (!handled) {
       // Might need to resolve the blob references in the upload data.
       if (params->upload) {
         _Context->request_context()->blob_storage_controller()->
@@ -574,7 +566,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
-      request_->set_context(_Context->request_context());
+      request_->set_context(browser_.get() ? browser_->request_context_proxy() :
+                                             _Context->request_context());
       request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
@@ -644,10 +637,10 @@ class RequestProxy : public net::URLRequest::Delegate,
       return;
     }
 
-    if(resource_stream_.get()) {
+    if (resource_stream_.get()) {
       // Read from the handler-provided resource stream
       int bytes_read = resource_stream_->Read(buf_->data(), 1, kDataSize);
-      if(bytes_read > 0) {
+      if (bytes_read > 0) {
         OnReceivedData(bytes_read);
       } else {
         Done();
@@ -691,7 +684,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       const GURL& simulated_url) {
     GURL url;
     bool allow_download(false);
-    if (request_.get()){
+    if (request_.get()) {
       url = request_->url();
       ExtraRequestInfo* info =
           static_cast<ExtraRequestInfo*>(request_->GetUserData(kCefUserData));
@@ -713,7 +706,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           &RequestProxy::NotifyDownloadedData, this, bytes_read));
       return;
     }
-    
+
     owner_loop_->PostTask(FROM_HERE, base::Bind(
         &RequestProxy::NotifyReceivedData, this, bytes_read));
   }
@@ -758,9 +751,9 @@ class RequestProxy : public net::URLRequest::Delegate,
       CefRefPtr<CefClient> client = browser_->GetClient();
       if (client.get()) {
         CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-        if(handler.get()) {
+        if (handler.get()) {
           CefString username, password;
-          if (handler->GetAuthCredentials(browser_,
+          if (handler->GetAuthCredentials(browser_.get(),
                                           auth_info->is_proxy,
                                           auth_info->challenger.host(),
                                           auth_info->challenger.port(),
@@ -825,12 +818,12 @@ class RequestProxy : public net::URLRequest::Delegate,
   // Helpers and data:
 
   void Done() {
-    if(resource_stream_.get()) {
+    if (resource_stream_.get()) {
       // Resource stream reads always complete successfully
       OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
           std::string(), base::Time());
       resource_stream_ = NULL;
-    } else if(request_.get()) {
+    } else if (request_.get()) {
       if (upload_progress_timer_.IsRunning()) {
         MaybeUpdateUploadProgress();
         upload_progress_timer_.Stop();
@@ -907,7 +900,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   // read buffer for async IO
   scoped_refptr<net::IOBuffer> buf_;
 
-  CefRefPtr<CefBrowser> browser_;
+  CefRefPtr<CefBrowserImpl> browser_;
 
   MessageLoop* owner_loop_;
 
@@ -937,7 +930,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
 class SyncRequestProxy : public RequestProxy {
  public:
-  explicit SyncRequestProxy(CefRefPtr<CefBrowser> browser,
+  explicit SyncRequestProxy(CefRefPtr<CefBrowserImpl> browser,
                             ResourceLoaderBridge::SyncLoadResponse* result)
       : RequestProxy(browser), result_(result), event_(true, false) {
   }
@@ -982,7 +975,7 @@ class SyncRequestProxy : public RequestProxy {
                                   const base::Time& complete_time) {
     if (download_to_file_)
       file_stream_.Close();
-    
+
     result_->status = status;
     event_.Signal();
   }
@@ -1004,7 +997,7 @@ class SyncRequestProxy : public RequestProxy {
 
 class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
  public:
-  ResourceLoaderBridgeImpl(CefRefPtr<CefBrowser> browser,
+  ResourceLoaderBridgeImpl(CefRefPtr<CefBrowserImpl> browser,
       const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info)
       : browser_(browser),
         params_(new RequestParams),
@@ -1102,7 +1095,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   virtual void UpdateRoutingId(int new_routing_id) OVERRIDE {}
 
  private:
-  CefRefPtr<CefBrowser> browser_;
+  CefRefPtr<CefBrowserImpl> browser_;
 
   // Ownership of params_ is transfered to the proxy when the proxy is created.
   scoped_ptr<RequestParams> params_;
@@ -1110,61 +1103,6 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   // The request proxy is allocated when we start the request, and then it
   // sticks around until this ResourceLoaderBridge is destroyed.
   RequestProxy* proxy_;
-};
-
-//-----------------------------------------------------------------------------
-
-class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
- public:
-  void Set(const GURL& url, const std::string& cookie) {
-    REQUIRE_IOT();
-    net::CookieStore* cookie_store =
-        _Context->request_context()->cookie_store();
-    if (cookie_store) {
-      cookie_store->SetCookieWithOptionsAsync(
-          url, cookie, net::CookieOptions(),
-          net::CookieStore::SetCookiesCallback());
-    }
-  }
-
- private:
-  friend class base::RefCountedThreadSafe<CookieSetter>;
-
-  ~CookieSetter() {}
-};
-
-class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
- public:
-  CookieGetter() : event_(false, false) {
-  }
-
-  void Get(const GURL& url) {
-    REQUIRE_IOT();
-    net::CookieStore* cookie_store =
-        _Context->request_context()->cookie_store();
-    if (cookie_store) {
-      cookie_store->GetCookiesWithOptionsAsync(
-          url, net::CookieOptions(),
-          base::Bind(&CookieGetter::OnGetCookies, this));
-    }
-  }
-
-  std::string GetResult() {
-    event_.Wait();
-    return result_;
-  }
-
- private:
-  void OnGetCookies(const std::string& cookie_line) {
-    result_ = cookie_line;
-    event_.Signal();
-  }
-  friend class base::RefCountedThreadSafe<CookieGetter>;
-
-  ~CookieGetter() {}
-
-  base::WaitableEvent event_;
-  std::string result_;
 };
 
 }  // anonymous namespace
@@ -1182,37 +1120,7 @@ webkit_glue::ResourceLoaderBridge* BrowserResourceLoaderBridge::Create(
 //-----------------------------------------------------------------------------
 
 // static
-void BrowserResourceLoaderBridge::SetCookie(const GURL& url,
-                                            const GURL& first_party_for_cookies,
-                                            const std::string& cookie) {
-  // Proxy to IO thread to synchronize w/ network loading.
-  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
-  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
-      &CookieSetter::Set, cookie_setter.get(), url, cookie));
-}
-
-// static
-std::string BrowserResourceLoaderBridge::GetCookies(
-    const GURL& url, const GURL& first_party_for_cookies) {
-  // Proxy to IO thread to synchronize w/ network loading.
-  scoped_refptr<CookieGetter> cookie_getter = new CookieGetter();
-  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
-      &CookieGetter::Get, cookie_getter.get(), url));
-
-  // Blocks until the result is available.
-  return cookie_getter->GetResult();
-}
-
-// static
-void BrowserResourceLoaderBridge::SetAcceptAllCookies(bool accept_all_cookies) {
-  // Proxy to IO thread to synchronize w/ network loading.
-  CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
-      &BrowserRequestContext::SetAcceptAllCookies,
-      _Context->request_context().get(), accept_all_cookies));
-}
-
-// static
-CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(
+CefRefPtr<CefBrowserImpl> BrowserResourceLoaderBridge::GetBrowserForRequest(
     net::URLRequest* request) {
   REQUIRE_IOT();
   ExtraRequestInfo* extra_info =
@@ -1222,13 +1130,13 @@ CefRefPtr<CefBrowser> BrowserResourceLoaderBridge::GetBrowserForRequest(
   return NULL;
 }
 
-//static
+// static
 scoped_refptr<base::MessageLoopProxy>
 BrowserResourceLoaderBridge::GetCacheThread() {
   return CefThread::GetMessageLoopProxyForThread(CefThread::FILE);
 }
 
-//static
+// static
 net::URLRequest::Interceptor*
 BrowserResourceLoaderBridge::CreateRequestInterceptor() {
   return new RequestInterceptor();

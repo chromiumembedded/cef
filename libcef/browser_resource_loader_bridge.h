@@ -3,31 +3,27 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_RESOURCE_LOADER_BRIDGE_H
-#define _BROWSER_RESOURCE_LOADER_BRIDGE_H
+#ifndef CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
+#define CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
+#pragma once
+
+#include <string>
 
 #include "include/cef.h"
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
-#include <string>
 
+class CefBrowserImpl;
 class GURL;
 
 class BrowserResourceLoaderBridge {
  public:
-  // May only be called after Init.
-  static void SetCookie(const GURL& url,
-                        const GURL& first_party_for_cookies,
-                        const std::string& cookie);
-  static std::string GetCookies(const GURL& url,
-                                const GURL& first_party_for_cookies);
-  static void SetAcceptAllCookies(bool accept_all_cookies);
-
   // Return the CefBrowser associated with the specified request. The browser
   // will be NULL in cases where the request was initiated using the
   // CefWebURLRequest API.
-  static CefRefPtr<CefBrowser> GetBrowserForRequest(net::URLRequest* request);
+  static CefRefPtr<CefBrowserImpl> GetBrowserForRequest(
+      net::URLRequest* request);
 
   // Creates a ResourceLoaderBridge instance.
   static webkit_glue::ResourceLoaderBridge* Create(
@@ -40,5 +36,5 @@ class BrowserResourceLoaderBridge {
   static net::URLRequest::Interceptor* CreateRequestInterceptor();
 };
 
-#endif  // _BROWSER_RESOURCE_LOADER_BRIDGE_H
+#endif  // CEF_LIBCEF_BROWSER_RESOURCE_LOADER_BRIDGE_H_
 

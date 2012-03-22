@@ -1,22 +1,28 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors.
+// Copyright (c) 2012 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_IMPL_H
-#define _BROWSER_IMPL_H
+#ifndef CEF_LIBCEF_BROWSER_IMPL_H_
+#define CEF_LIBCEF_BROWSER_IMPL_H_
+#pragma once
+
+#include <map>
+#include <string>
+#include <vector>
 
 #include "include/cef.h"
 
-#include "webview_host.h"
-#include "browser_devtools_agent.h"
-#include "browser_devtools_client.h"
-#include "browser_webview_delegate.h"
-#include "browser_navigation_controller.h"
-#include "cef_thread.h"
-#include "tracker.h"
+#include "libcef/webview_host.h"
+#include "libcef/browser_devtools_agent.h"
+#include "libcef/browser_devtools_client.h"
+#include "libcef/browser_webview_delegate.h"
+#include "libcef/browser_navigation_controller.h"
+#include "libcef/browser_request_context_proxy.h"
+#include "libcef/cef_thread.h"
+#include "libcef/tracker.h"
 #if defined(OS_WIN)
-#include "printing/win_printing_context.h"
+#include "libcef/printing/win_printing_context.h"
 #endif
 
 #include "base/scoped_temp_dir.h"
@@ -29,23 +35,23 @@ namespace WebKit {
 class WebView;
 }
 
+class CefFrameImpl;
+
 #define BUFFER_SIZE   32768
 
 
 // Implementation of CefBrowser.
-class CefBrowserImpl : public CefBrowser
-{
-public:
-  class PaintDelegate : public WebWidgetHost::PaintDelegate
-  {
-  public:
-    PaintDelegate(CefBrowserImpl* browser);
+class CefBrowserImpl : public CefBrowser {
+ public:
+  class PaintDelegate : public WebWidgetHost::PaintDelegate {
+   public:
+    explicit PaintDelegate(CefBrowserImpl* browser);
     virtual ~PaintDelegate();
 
     virtual void Paint(bool popup, const std::vector<CefRect>& dirtyRects,
                        const void* buffer) OVERRIDE;
 
-  protected:
+   protected:
     CefBrowserImpl* browser_;
   };
 
@@ -78,8 +84,7 @@ public:
   virtual bool IsPopup() OVERRIDE { return is_popup(); }
   virtual bool HasDocument() OVERRIDE { return has_document(); }
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE { return client_; }
-  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE
-      { return GetMainCefFrame(); }
+  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
   virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
@@ -131,28 +136,29 @@ public:
                   CefRefPtr<CefStreamReader> stream,
                   const CefString& url);
   void ExecuteJavaScript(CefRefPtr<CefFrame> frame,
-                         const CefString& jsCode, 
+                         const CefString& jsCode,
                          const CefString& scriptUrl,
                          int startLine);
-  long long GetIdentifier(CefRefPtr<CefFrame> frame);
   CefRefPtr<CefFrame> GetParent(CefRefPtr<CefFrame> frame);
-  CefString GetURL(CefRefPtr<CefFrame> frame);
 
   // CefFrames are light-weight objects managed by the browser and loosely
-  // coupled to a WebFrame object by name.  If a CefFrame object does not
-  // already exist for the specified name one will be created.  There is no
-  // guarantee that the same CefFrame object will be returned across different
-  // calls to this function.
-  CefRefPtr<CefFrame> GetCefFrame(const CefString& name);
-  void RemoveCefFrame(const CefString& name);
-  CefRefPtr<CefFrame> GetMainCefFrame();
+  // coupled to a WebFrame object by id.  If a CefFrame object does not already
+  // exist for the specified id one will be created. There is no guarantee that
+  // the same CefFrame object will be returned across different calls to this
+  // function.
+  CefRefPtr<CefFrameImpl> GetCefFrame(int64 id);
+  CefRefPtr<CefFrameImpl> GetOrCreateCefFrame(int64 id, const CefString& name,
+                                              const GURL& url);
+  void RemoveCefFrame(int64 id);
+  CefRefPtr<CefFrameImpl> GetMainCefFrame(int64 id, const GURL& url);
 
   ////////////////////////////////////////////////////////////
   // ALL UIT_* METHODS MUST ONLY BE CALLED ON THE UI THREAD //
   ////////////////////////////////////////////////////////////
 
   CefRefPtr<CefFrame> UIT_GetCefFrame(WebKit::WebFrame* frame);
-  
+  void UIT_UpdateCefFrame(WebKit::WebFrame* frame);
+
   // Return the main WebFrame object.
   WebKit::WebFrame* UIT_GetMainWebFrame();
 
@@ -201,7 +207,7 @@ public:
     REQUIRE_UIT();
     return nav_controller_.get();
   }
-  
+
   // Return true to allow user editing such as entering text in form elements
   bool UIT_AllowEditing() { return true; }
 
@@ -250,7 +256,7 @@ public:
                                 CefRefPtr<CefStreamReader> stream,
                                 const CefString& url);
   void UIT_ExecuteJavaScript(CefRefPtr<CefFrame> frame,
-                             const CefString& js_code, 
+                             const CefString& js_code,
                              const CefString& script_url,
                              int start_line);
   void UIT_GoBackOrForward(int offset);
@@ -276,7 +282,7 @@ public:
   void UIT_ClosePopupWidget();
 
   void UIT_Show(WebKit::WebNavigationPolicy policy);
-  
+
   // Handles most simple browser actions
   void UIT_HandleActionView(cef_menu_id_t menuId);
   void UIT_HandleAction(cef_menu_id_t menuId, CefRefPtr<CefFrame> frame);
@@ -320,7 +326,7 @@ public:
   const FilePath& file_system_root() const { return file_system_root_.path(); }
   gfx::NativeView opener_window() { return opener_; }
   bool is_popup() { return (opener_ != NULL); }
-  
+
   // These variables may be read/written from multiple threads.
   void set_zoom_level(double zoomLevel);
   double zoom_level();
@@ -330,32 +336,37 @@ public:
   void set_has_document(bool has_document);
   bool has_document();
 
+  // URL currently being loaded in the main frame.
+  void set_pending_url(const GURL& url);
+  GURL pending_url();
+
   void set_is_dropping(bool is_dropping) { is_dropping_ = is_dropping; }
   bool is_dropping() { return is_dropping_; }
 
 #if defined(OS_WIN)
-  void set_opener_was_disabled_by_modal_loop(bool disabled)
-  {
+  void set_opener_was_disabled_by_modal_loop(bool disabled) {
     opener_was_disabled_by_modal_loop_ = disabled;
   }
-  void set_internal_modal_message_loop_is_active(bool active)
-  {
+  void set_internal_modal_message_loop_is_active(bool active) {
     internal_modal_message_loop_is_active_ = active;
   }
 #endif
 
   void set_popup_rect(const gfx::Rect& rect) { popup_rect_ = rect; }
 
+  net::URLRequestContext* request_context_proxy() {
+    return request_context_proxy_;
+  }
+
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
-protected:
+ protected:
   static void UIT_CloseView(gfx::NativeView view);
   static bool UIT_IsViewVisible(gfx::NativeView view);
 
   void UIT_CreateDevToolsClient(BrowserDevToolsAgent* agent);
   void UIT_DestroyDevToolsClient();
 
-protected:
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
   // Handle of the browser window that opened this window.
@@ -373,12 +384,15 @@ protected:
   scoped_ptr<BrowserDevToolsAgent> dev_tools_agent_;
   scoped_ptr<BrowserDevToolsClient> dev_tools_client_;
 
+  scoped_refptr<BrowserRequestContextProxy> request_context_proxy_;
+
   CefString title_;
 
   double zoom_level_;
   bool can_go_back_;
   bool can_go_forward_;
   bool has_document_;
+  GURL pending_url_;
 
   // True if a drop action is occuring.
   bool is_dropping_;
@@ -392,9 +406,12 @@ protected:
   bool internal_modal_message_loop_is_active_;
 #endif
 
-  typedef std::map<CefString, CefFrame*> FrameMap;
+  // Map of frame id to reference.
+  typedef std::map<int64, CefFrameImpl*> FrameMap;
   FrameMap frames_;
-  CefFrame* main_frame_;
+
+  // Singleton main frame reference.
+  CefRefPtr<CefFrameImpl> main_frame_;
 
   typedef std::map<WebKit::WebFrame*, CefRefPtr<CefTrackManager> >
       FrameObjectMap;
@@ -402,7 +419,7 @@ protected:
 
   // Unique browser ID assigned by the context.
   int unique_id_;
- 
+
   // A temporary directory for FileSystem API.
   ScopedTempDir file_system_root_;
 
@@ -412,10 +429,12 @@ protected:
 
 
 // Implementation of CefFrame.
-class CefFrameImpl : public CefFrame
-{
-public:
-  CefFrameImpl(CefBrowserImpl* browser, const CefString& name);
+class CefFrameImpl : public CefFrame {
+ public:
+  CefFrameImpl(CefBrowserImpl* browser,
+               int64 frame_id,
+               const CefString& name,
+               const CefString& url);
   virtual ~CefFrameImpl();
 
   // CefFrame methods
@@ -430,37 +449,50 @@ public:
   virtual void ViewSource() OVERRIDE { browser_->ViewSource(this); }
   virtual CefString GetSource() OVERRIDE { return browser_->GetSource(this); }
   virtual CefString GetText() OVERRIDE { return browser_->GetText(this); }
-  virtual void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE
-    { return browser_->LoadRequest(this, request); }
-  virtual void LoadURL(const CefString& url) OVERRIDE
-    { return browser_->LoadURL(this, url); }
+  virtual void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE {
+    return browser_->LoadRequest(this, request);
+  }
+  virtual void LoadURL(const CefString& url) OVERRIDE {
+    return browser_->LoadURL(this, url);
+  }
   virtual void LoadString(const CefString& string,
-                          const CefString& url) OVERRIDE
-    { return browser_->LoadString(this, string, url); }
+                          const CefString& url) OVERRIDE {
+    return browser_->LoadString(this, string, url);
+  }
   virtual void LoadStream(CefRefPtr<CefStreamReader> stream,
-                          const CefString& url) OVERRIDE
-    { return browser_->LoadStream(this, stream, url); }
-  virtual void ExecuteJavaScript(const CefString& jsCode, 
+                          const CefString& url) OVERRIDE {
+    return browser_->LoadStream(this, stream, url);
+  }
+  virtual void ExecuteJavaScript(const CefString& jsCode,
                                  const CefString& scriptUrl,
-                                 int startLine) OVERRIDE
-    { return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine); }
+                                 int startLine) OVERRIDE {
+    return browser_->ExecuteJavaScript(this, jsCode, scriptUrl, startLine);
+  }
   virtual bool IsMain() OVERRIDE { return name_.empty(); }
   virtual bool IsFocused() OVERRIDE;
   virtual CefString GetName() OVERRIDE { return name_; }
-  virtual long long GetIdentifier() OVERRIDE
-    { return browser_->GetIdentifier(this); }
-  virtual CefRefPtr<CefFrame> GetParent() OVERRIDE
-    { return browser_->GetParent(this); }
-  virtual CefString GetURL() OVERRIDE { return browser_->GetURL(this); }
+  virtual int64 GetIdentifier() OVERRIDE;
+  virtual CefRefPtr<CefFrame> GetParent() OVERRIDE {
+    return browser_->GetParent(this);
+  }
+  virtual CefString GetURL() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE { return browser_.get(); }
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
   virtual CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
 
-private:
+  void set_id(int64 id);
+  void set_url(const CefString& url);
+
+ private:
   CefRefPtr<CefBrowserImpl> browser_;
   CefString name_;
+  
+  // The below values must be protected by the lock.
+  base::Lock lock_;
+  int64 id_;
+  CefString url_;
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);
 };
 
-#endif // _BROWSER_IMPL_H
+#endif  // CEF_LIBCEF_BROWSER_IMPL_H_

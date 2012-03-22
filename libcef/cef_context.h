@@ -61,8 +61,7 @@ public:
   // The BrowserRequestContext object is managed by CefProcessIOThread.
   void set_request_context(BrowserRequestContext* request_context)
     { request_context_ = request_context; }
-  scoped_refptr<BrowserRequestContext> request_context()
-    { return request_context_; }
+  BrowserRequestContext* request_context() { return request_context_; }
 
   // The DOMStorageContext object is managed by CefProcessUIThread.
   void set_storage_context(DOMStorageContext* storage_context)

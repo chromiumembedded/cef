@@ -7,18 +7,22 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "browser_webview_delegate.h"
-#include "browser_appcache_system.h"
-#include "browser_file_system.h"
-#include "browser_impl.h"
-#include "browser_navigation_controller.h"
-#include "browser_webkit_glue.h"
-#include "browser_webstoragenamespace_impl.h"
-#include "browser_zoom_map.h"
-#include "cef_context.h"
-#include "dom_document_impl.h"
-#include "request_impl.h"
-#include "v8_impl.h"
+#include "libcef/browser_webview_delegate.h"
+
+#include <algorithm>
+
+#include "libcef/browser_appcache_system.h"
+#include "libcef/browser_file_system.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_navigation_controller.h"
+#include "libcef/browser_webkit_glue.h"
+#include "libcef/browser_webstoragenamespace_impl.h"
+#include "libcef/browser_zoom_map.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_process_ui_thread.h"
+#include "libcef/dom_document_impl.h"
+#include "libcef/request_impl.h"
+#include "libcef/v8_impl.h"
 
 #include "base/debug/trace_event.h"
 #include "base/file_util.h"
@@ -72,8 +76,8 @@
 #include "webkit/plugins/npapi/webplugin_impl.h"
 
 #if defined(OS_WIN)
-#include "browser_drag_delegate_win.h"
-#include "web_drop_target_win.h"
+#include "libcef/browser_drag_delegate_win.h"
+#include "libcef/web_drop_target_win.h"
 #endif
 
 using appcache::WebApplicationCacheHostImpl;
@@ -124,8 +128,7 @@ namespace {
 int next_page_id_ = 1;
 
 void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
-                            CefPopupFeatures& features)
-{
+                            CefPopupFeatures& features) {
   features.x = static_cast<int>(webKitFeatures.x);
   features.xSet = webKitFeatures.xSet;
   features.y = static_cast<int>(webKitFeatures.y);
@@ -143,13 +146,13 @@ void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
   features.resizable =  webKitFeatures.resizable;
 
   features.fullscreen =  webKitFeatures.fullscreen;
-  features.dialog =  webKitFeatures.dialog;      
+  features.dialog =  webKitFeatures.dialog;
   features.additionalFeatures = NULL;
-  if (webKitFeatures.additionalFeatures.size() > 0)   
+  if (webKitFeatures.additionalFeatures.size() > 0)
      features.additionalFeatures = cef_string_list_alloc();
 
   CefString str;
-  for(unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
+  for (unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
     str = string16(webKitFeatures.additionalFeatures[i]);
     cef_string_list_append(features.additionalFeatures, str.GetStruct());
   }
@@ -201,7 +204,7 @@ void BrowserWebViewDelegate::didAddMessageToConsole(
     }
   }
 
-  if(!handled) {
+  if (!handled) {
     logging::LogMessage("CONSOLE", 0).stream() << "\""
                                                << messageStr
                                                << ",\" source: "
@@ -289,8 +292,8 @@ bool BrowserWebViewDelegate::runFileChooser(
       WebKit::WebFileChooserCompletion* chooser_completion) {
   // Support file open dialog.
   std::vector<FilePath> file_names;
-  
-  if(!ShowFileChooser(file_names, params.multiSelect, params.title, 
+
+  if (!ShowFileChooser(file_names, params.multiSelect, params.title,
       webkit_glue::WebStringToFilePath(params.initialValue))) {
     return false;
   }
@@ -309,7 +312,7 @@ void BrowserWebViewDelegate::runModalAlertDialog(
     WebFrame* frame, const WebString& message) {
   CefString messageStr = string16(message);
   bool handled = false;
-  
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefJSDialogHandler> handler;
   if (client.get())
@@ -328,7 +331,7 @@ bool BrowserWebViewDelegate::runModalConfirmDialog(
   CefString messageStr = string16(message);
   bool retval = false;
   bool handled = false;
-  
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefJSDialogHandler> handler;
   if (client.get())
@@ -349,12 +352,12 @@ bool BrowserWebViewDelegate::runModalPromptDialog(
   CefString messageStr = string16(message);
   CefString defaultValueStr = string16(default_value);
   CefString actualValueStr;
-  if(actual_value)
+  if (actual_value)
     actualValueStr = string16(*actual_value);
 
   bool retval = false;
   bool handled = false;
-  
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefJSDialogHandler> handler;
   if (client.get())
@@ -370,7 +373,7 @@ bool BrowserWebViewDelegate::runModalPromptDialog(
   }
   if (actual_value)
     *actual_value = string16(actualValueStr);
-  
+
   return retval;
 }
 
@@ -392,8 +395,7 @@ void BrowserWebViewDelegate::setKeyboardFocusURL(const WebKit::WebURL& url) {
 }
 
 void BrowserWebViewDelegate::setToolTipText(
-    const WebString& text, WebTextDirection hint) 
-{
+    const WebString& text, WebTextDirection hint) {
   CefString tooltipStr = string16(text);
   bool handled = false;
   CefRefPtr<CefClient> client = browser_->GetClient();
@@ -496,7 +498,7 @@ bool BrowserWebViewDelegate::allowScriptExtension(
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
-  return WebKit::webKitPlatformSupport()->cookieJar();
+  return &cookie_jar_;
 }
 
 // WebWidgetClient -----------------------------------------------------------
@@ -596,7 +598,7 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
       NULL, &plugins, &mime_types);
   if (plugins.empty())
     return NULL;
-  
+
 #if defined(OS_MACOSX)
   // Mac does not supported windowed plugins.
   bool force_windowless = true;
@@ -675,6 +677,10 @@ WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
   return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
 }
 
+WebKit::WebCookieJar* BrowserWebViewDelegate::cookieJar(WebFrame* frame) {
+  return &cookie_jar_;
+}
+
 void BrowserWebViewDelegate::willClose(WebFrame* frame) {
   browser_->UIT_BeforeFrameClosed(frame);
 }
@@ -709,7 +715,7 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
       req->SetMethod(string16(request.httpMethod()));
 
       const WebKit::WebHTTPBody& httpBody = request.httpBody();
-      if(!httpBody.isNull()) {
+      if (!httpBody.isNull()) {
         CefRefPtr<CefPostData> postdata(CefPostData::CreatePostData());
         static_cast<CefPostDataImpl*>(postdata.get())->Set(httpBody);
         req->SetPostData(postdata);
@@ -717,7 +723,7 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
 
       CefRequest::HeaderMap map;
       CefRequestImpl::GetHeaderMap(request, map);
-      if(map.size() > 0)
+      if (map.size() > 0)
         static_cast<CefRequestImpl*>(req.get())->SetHeaderMap(map);
 
       cef_handler_navtype_t navType;
@@ -730,7 +736,7 @@ WebNavigationPolicy BrowserWebViewDelegate::decidePolicyForNavigation(
       bool handled = handler->OnBeforeBrowse(browser_,
           browser_->UIT_GetCefFrame(frame), req, navType,
           is_redirect);
-      if(handled)
+      if (handled)
         return WebKit::WebNavigationPolicyIgnore;
     }
   }
@@ -769,6 +775,12 @@ WebURLError BrowserWebViewDelegate::cancelledError(
 void BrowserWebViewDelegate::didCreateDataSource(
     WebFrame* frame, WebDataSource* ds) {
   ds->setExtraData(pending_extra_data_.release());
+
+  if (frame->parent() == 0) {
+    GURL url = ds->request().url();
+    if (!url.is_empty())
+      browser_->set_pending_url(url);
+  }
 }
 
 void BrowserWebViewDelegate::didStartProvisionalLoad(WebFrame* frame) {
@@ -790,7 +802,7 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   const WebDataSource* failed_ds = frame->provisionalDataSource();
   BrowserExtraData* extra_data =
       static_cast<BrowserExtraData*>(failed_ds->extraData());
-  
+
   if (extra_data && !extra_data->request_committed) {
     // Set the pending extra_data for our error page as the same pending_page_id
     // to keep the history from getting messed up.
@@ -801,7 +813,7 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
   CefString errorStr;
 
   bool handled = false;
-  
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefLoadHandler> handler = client->GetLoadHandler();
@@ -813,8 +825,8 @@ void BrowserWebViewDelegate::didFailProvisionalLoad(
           std::string(failed_ds->request().url().spec().data()), errorStr);
     }
   }
-    
-  if(handled && !errorStr.empty()) {
+
+  if (handled && !errorStr.empty()) {
     error_text = errorStr;
   } else {
     error_text = base::StringPrintf("Error %d when loading url %s",
@@ -957,22 +969,22 @@ void BrowserWebViewDelegate::didChangeContentsSize(
 }
 
 void BrowserWebViewDelegate::reportFindInPageMatchCount(
-    int request_id, int count, bool final_update)
-{
+    int request_id, int count, bool final_update) {
   browser_->UIT_NotifyFindStatus(request_id, count, gfx::Rect(),
       -1,  // Don't update active match ordinal.
       final_update);
 }
 
 void BrowserWebViewDelegate::reportFindInPageSelection(
-    int request_id, int active_match_ordinal, const WebKit::WebRect& sel)
-{
+    int request_id, int active_match_ordinal, const WebKit::WebRect& sel) {
   browser_->UIT_NotifyFindStatus(request_id, -1, sel, active_match_ordinal,
       false);
 }
 
 void BrowserWebViewDelegate::openFileSystem(
-    WebFrame* frame, WebFileSystem::Type type, long long size, bool create,
+    WebFrame* frame, WebFileSystem::Type type,
+    long long size,  // NOLINT(runtime/int)
+    bool create,
     WebFileSystemCallbacks* callbacks) {
   BrowserFileSystem* fileSystem = static_cast<BrowserFileSystem*>(
       WebKit::webKitPlatformSupport()->fileSystem());
@@ -994,7 +1006,8 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
 #else
       select_trailing_whitespace_enabled_(false),
 #endif
-      block_redirects_(false) {
+      block_redirects_(false),
+      cookie_jar_(browser) {
 }
 
 BrowserWebViewDelegate::~BrowserWebViewDelegate() {
@@ -1004,7 +1017,7 @@ void BrowserWebViewDelegate::Reset() {
   // Do a little placement new dance...
   CefBrowserImpl* browser = browser_;
   this->~BrowserWebViewDelegate();
-  new (this) BrowserWebViewDelegate(browser);
+  new (this)BrowserWebViewDelegate(browser);  // NOLINT(whitespace/parens)
 }
 
 void BrowserWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
@@ -1035,8 +1048,7 @@ void BrowserWebViewDelegate::WaitForPolicyDelegate() {
 // Private methods -----------------------------------------------------------
 
 bool BrowserWebViewDelegate::OnKeyboardEvent(
-    const WebKit::WebKeyboardEvent& event, bool isAfterJavaScript)
-{
+    const WebKit::WebKeyboardEvent& event, bool isAfterJavaScript) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefKeyboardHandler> handler;
   if (client.get())
@@ -1046,10 +1058,10 @@ bool BrowserWebViewDelegate::OnKeyboardEvent(
 
   CefKeyboardHandler::KeyEventType eventType;
   switch (event.type) {
-  case WebKeyboardEvent::RawKeyDown: 
+  case WebKeyboardEvent::RawKeyDown:
     eventType = KEYEVENT_RAWKEYDOWN;
     break;
-  case WebKeyboardEvent::KeyDown: 
+  case WebKeyboardEvent::KeyDown:
     eventType = KEYEVENT_KEYDOWN;
     break;
   case WebKeyboardEvent::KeyUp:
@@ -1067,8 +1079,7 @@ bool BrowserWebViewDelegate::OnKeyboardEvent(
 }
 
 void BrowserWebViewDelegate::ShowStatus(const WebString& text,
-                                        cef_handler_statustype_t type)
-{
+                                        cef_handler_statustype_t type) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
@@ -1083,7 +1094,7 @@ void BrowserWebViewDelegate::LocationChangeDone(WebFrame* frame) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (!client.get())
     return;
-  
+
   bool is_main_frame = (frame->parent() == 0);
   if (is_main_frame) {
     CefString title = browser_->UIT_GetTitle();
@@ -1163,6 +1174,9 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
     entry->SetURL(request.url());
   }
 
+  // Update attributes of the CefFrame if it currently exists.
+  browser_->UIT_UpdateCefFrame(frame);
+
   bool is_main_frame = (frame->parent() == 0);
   CefRefPtr<CefClient> client = browser_->GetClient();
 
@@ -1211,7 +1225,7 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
     return;
 
   WebView* view = browser_->UIT_GetWebView();
-  if (!view) 
+  if (!view)
     return;
 
   const WebHistoryItem& history_item = view->mainFrame()->previousHistoryItem();
@@ -1226,30 +1240,30 @@ bool BrowserWebViewDelegate::OnBeforeMenu(
     int& edit_flags, int& type_flags) {
   // Populate the edit flags values.
   edit_flags = data.editFlags;
-  if(browser_->UIT_CanGoBack())
+  if (browser_->UIT_CanGoBack())
     edit_flags |= MENU_CAN_GO_BACK;
-  if(browser_->UIT_CanGoForward())
+  if (browser_->UIT_CanGoForward())
     edit_flags |= MENU_CAN_GO_FORWARD;
 
   // Populate the type flags values.
   type_flags = MENUTYPE_NONE;
-  if(!data.pageURL.isEmpty())
+  if (!data.pageURL.isEmpty())
     type_flags |= MENUTYPE_PAGE;
-  if(!data.frameURL.isEmpty())
+  if (!data.frameURL.isEmpty())
     type_flags |= MENUTYPE_FRAME;
-  if(!data.linkURL.isEmpty())
+  if (!data.linkURL.isEmpty())
     type_flags |= MENUTYPE_LINK;
-  if(data.mediaType == WebContextMenuData::MediaTypeImage)
+  if (data.mediaType == WebContextMenuData::MediaTypeImage)
     type_flags |= MENUTYPE_IMAGE;
-  if(!data.selectedText.isEmpty())
+  if (!data.selectedText.isEmpty())
     type_flags |= MENUTYPE_SELECTION;
-  if(data.isEditable)
+  if (data.isEditable)
     type_flags |= MENUTYPE_EDITABLE;
-  if(data.isSpellCheckingEnabled && !data.misspelledWord.isEmpty())
+  if (data.isSpellCheckingEnabled && !data.misspelledWord.isEmpty())
     type_flags |= MENUTYPE_MISSPELLED_WORD;
-  if(data.mediaType == WebContextMenuData::MediaTypeVideo)
+  if (data.mediaType == WebContextMenuData::MediaTypeVideo)
     type_flags |= MENUTYPE_VIDEO;
-  if(data.mediaType == WebContextMenuData::MediaTypeAudio)
+  if (data.mediaType == WebContextMenuData::MediaTypeAudio)
     type_flags |= MENUTYPE_AUDIO;
 
   CefRefPtr<CefClient> client = browser_->GetClient();
@@ -1290,6 +1304,6 @@ bool BrowserWebViewDelegate::OnBeforeMenu(
     if (handler->OnBeforeMenu(browser_, menuInfo))
       return true;
   }
-  
+
   return false;
 }
