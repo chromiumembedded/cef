@@ -127,7 +127,8 @@ typedef struct _cef_scheme_handler_factory_t {
   ///
   // Return a new scheme handler instance to handle the request. |browser| will
   // be the browser window that initiated the request. If the request was
-  // initiated using the cef_web_urlrequest_t API |browser| will be NULL.
+  // initiated using the cef_web_urlrequest_t API |browser| will be NULL. The
+  // |request| object passed to this function will not contain cookie data.
   ///
   struct _cef_scheme_handler_t* (CEF_CALLBACK *create)(
       struct _cef_scheme_handler_factory_t* self,

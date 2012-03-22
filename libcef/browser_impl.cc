@@ -169,7 +169,6 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
     can_go_forward_(false),
     has_document_(false),
     is_dropping_(false),
-    main_frame_(NULL),
     unique_id_(0)
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
@@ -180,11 +179,17 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
 
+  request_context_proxy_ =
+      new BrowserRequestContextProxy(_Context->request_context(), this);
+
   if (!file_system_root_.CreateUniqueTempDir()) {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
                     "FileSystem feature will be disabled.";
     DCHECK(file_system_root_.path().empty());
   }
+
+  // Create the singleton main frame reference.
+  main_frame_ = new CefFrameImpl(this, 0, CefString(), CefString());
 }
 
 void CefBrowserImpl::CloseBrowser() {
@@ -205,7 +210,7 @@ void CefBrowserImpl::GoForward() {
 }
 
 void CefBrowserImpl::Reload() {
-  CefThread::PostTask(CefThread::UI, FROM_HERE, 
+  CefThread::PostTask(CefThread::UI, FROM_HERE,
       base::Bind(&CefBrowserImpl::UIT_HandleActionView, this,
                  MENU_ID_NAV_RELOAD));
 }
@@ -229,6 +234,10 @@ void CefBrowserImpl::SetFocus(bool enable) {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
         base::Bind(&CefBrowserImpl::SetFocus, this, enable));
   }
+}
+
+CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame() {
+  return GetMainCefFrame(0, GURL()).get();
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame() {
@@ -575,19 +584,6 @@ void CefBrowserImpl::ExecuteJavaScript(CefRefPtr<CefFrame> frame,
                  scriptUrl, startLine));
 }
 
-int64 CefBrowserImpl::GetIdentifier(CefRefPtr<CefFrame> frame) {
-  // Verify that this method is being called on the UI thread.
-  if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED() << "called on invalid thread";
-    return 0;
-  }
-
-  WebFrame* web_frame = UIT_GetWebFrame(frame);
-  if (web_frame)
-    return web_frame->identifier();
-  return 0;
-}
-
 CefRefPtr<CefFrame> CefBrowserImpl::GetParent(CefRefPtr<CefFrame> frame) {
   // Verify that this method is being called on the UI thread.
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
@@ -606,77 +602,91 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetParent(CefRefPtr<CefFrame> frame) {
   return NULL;
 }
 
-CefString CefBrowserImpl::GetURL(CefRefPtr<CefFrame> frame) {
-  // Verify that this method is being called on the UI thread.
-  if (!CefThread::CurrentlyOn(CefThread::UI)) {
-    NOTREACHED() << "called on invalid thread";
-    return CefString();
-  }
+CefRefPtr<CefFrameImpl> CefBrowserImpl::GetCefFrame(int64 id) {
+  AutoLock lock_scope(this);
+  FrameMap::const_iterator it = frames_.find(id);
+  if (it != frames_.end())
+    return it->second;
 
-  WebFrame* web_frame = UIT_GetWebFrame(frame);
-  if (web_frame)
-    return std::string(web_frame->document().url().spec());
-  return CefString();
+  return NULL;
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetCefFrame(const CefString& name) {
-  CefRefPtr<CefFrame> cef_frame;
+CefRefPtr<CefFrameImpl> CefBrowserImpl::GetOrCreateCefFrame(
+    int64 id,
+    const CefString& name,
+    const GURL& url) {
+  CefRefPtr<CefFrameImpl> cef_frame;
 
   if (name.empty()) {
     // Use the single main frame reference.
-    cef_frame = GetMainCefFrame();
+    cef_frame = GetMainCefFrame(id, url);
   } else {
     // Locate or create the appropriate named reference.
     AutoLock lock_scope(this);
-    FrameMap::const_iterator it = frames_.find(name);
+    FrameMap::const_iterator it = frames_.find(id);
     if (it != frames_.end()) {
       cef_frame = it->second;
+      cef_frame->set_url(url.spec());
     } else {
-      cef_frame = new CefFrameImpl(this, name);
-      frames_.insert(std::make_pair(name, cef_frame.get()));
+      cef_frame = new CefFrameImpl(this, id, name, url.spec());
+      frames_.insert(std::make_pair(id, cef_frame.get()));
     }
   }
 
   return cef_frame;
 }
 
-void CefBrowserImpl::RemoveCefFrame(const CefString& name) {
+void CefBrowserImpl::RemoveCefFrame(int64 id) {
   AutoLock lock_scope(this);
-  if (name.empty()) {
-    // Clear the single main frame reference.
-    main_frame_ = NULL;
-  } else {
-    // Remove the appropriate named reference.
-    FrameMap::iterator it = frames_.find(name);
-    if (it != frames_.end())
-      frames_.erase(it);
-  }
+  // Remove the appropriate reference.
+  FrameMap::iterator it = frames_.find(id);
+  if (it != frames_.end())
+    frames_.erase(it);
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetMainCefFrame() {
-  // Return the single main frame reference.
-  AutoLock lock_scope(this);
-  if (main_frame_ == NULL)
-    main_frame_ = new CefFrameImpl(this, CefString());
+CefRefPtr<CefFrameImpl> CefBrowserImpl::GetMainCefFrame(int64 id,
+                                                        const GURL& url) {
+  if (id != 0)
+    main_frame_->set_id(id);
+
+  main_frame_->set_url(url.spec());
+
   return main_frame_;
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::UIT_GetCefFrame(WebFrame* frame) {
   REQUIRE_UIT();
 
-  CefRefPtr<CefFrame> cef_frame;
+  CefRefPtr<CefFrameImpl> cef_frame;
+  GURL url = frame->document().url();
 
   if (frame->parent() == 0) {
     // Use the single main frame reference.
-    cef_frame = GetMainCefFrame();
+    cef_frame = GetMainCefFrame(frame->identifier(), url);
   } else {
-    // Locate or create the appropriate named reference.
+    // Locate or create the appropriate reference.
     CefString name = string16(frame->name());
     DCHECK(!name.empty());
-    cef_frame = GetCefFrame(name);
+    cef_frame = GetOrCreateCefFrame(frame->identifier(), name, url);
   }
 
-  return cef_frame;
+  return cef_frame.get();
+}
+
+void CefBrowserImpl::UIT_UpdateCefFrame(WebKit::WebFrame* frame) {
+  REQUIRE_UIT();
+
+  GURL url = frame->document().url();
+
+  if (frame->parent() == 0) {
+    // Update the single main frame reference.
+    GetMainCefFrame(frame->identifier(), url);
+  } else {
+    // Update the appropriate reference if it currently exists.
+    CefRefPtr<CefFrameImpl> cef_frame = GetCefFrame(frame->identifier());
+    if (cef_frame.get())
+      cef_frame->set_url(url.spec());
+  }
 }
 
 WebFrame* CefBrowserImpl::UIT_GetMainWebFrame() {
@@ -750,6 +760,9 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
 
   // Remove the reference to the window handle.
   UIT_ClearMainWndHandle();
+
+  main_frame_ = NULL;
+  request_context_proxy_ = NULL;
 
   // Remove the reference added in UIT_CreateBrowser().
   Release();
@@ -1539,6 +1552,16 @@ bool CefBrowserImpl::has_document() {
   return has_document_;
 }
 
+void CefBrowserImpl::set_pending_url(const GURL& url) {
+  AutoLock lock_scope(this);
+  pending_url_ = url;
+}
+
+GURL CefBrowserImpl::pending_url() {
+  AutoLock lock_scope(this);
+  return pending_url_;
+}
+
 void CefBrowserImpl::UIT_CreateDevToolsClient(BrowserDevToolsAgent *agent) {
   dev_tools_client_.reset(new BrowserDevToolsClient(this, agent));
 }
@@ -1554,12 +1577,19 @@ void CefBrowserImpl::UIT_DestroyDevToolsClient() {
 
 // CefFrameImpl
 
-CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, const CefString& name)
-    : browser_(browser), name_(name) {
+CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
+                           int64 id,
+                           const CefString& name,
+                           const CefString& url)
+    : browser_(browser),
+      id_(id),
+      name_(name),
+      url_(url) {
 }
 
 CefFrameImpl::~CefFrameImpl() {
-  browser_->RemoveCefFrame(name_);
+  if (!IsMain())
+    browser_->RemoveCefFrame(id_);
 }
 
 bool CefFrameImpl::IsFocused() {
@@ -1572,6 +1602,16 @@ bool CefFrameImpl::IsFocused() {
   return (browser_->UIT_GetWebView() &&
          (browser_->UIT_GetWebFrame(this) ==
             browser_->UIT_GetWebView()->focusedFrame()));
+}
+
+int64 CefFrameImpl::GetIdentifier() {
+  base::AutoLock lock_scope(lock_);
+  return id_;
+}
+
+CefString CefFrameImpl::GetURL() {
+  base::AutoLock lock_scope(lock_);
+  return url_;
 }
 
 void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
@@ -1599,4 +1639,14 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   } else {
     return NULL;
   }
+}
+
+void CefFrameImpl::set_id(int64 id) {
+  base::AutoLock lock_scope(lock_);
+  id_ = id;
+}
+
+void CefFrameImpl::set_url(const CefString& url) {
+  base::AutoLock lock_scope(lock_);
+  url_ = url;
 }

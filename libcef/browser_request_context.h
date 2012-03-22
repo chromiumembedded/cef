@@ -34,7 +34,7 @@ class BrowserRequestContext : public net::URLRequestContext {
                         net::HttpCache::Mode cache_mode,
                         bool no_proxy);
 
-  virtual const std::string& GetUserAgent(const GURL& url) const;
+  virtual const std::string& GetUserAgent(const GURL& url) const OVERRIDE;
 
   void SetAcceptAllCookies(bool accept_all_cookies);
   bool AcceptAllCookies();

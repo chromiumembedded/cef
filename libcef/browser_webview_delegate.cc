@@ -510,7 +510,7 @@ bool BrowserWebViewDelegate::allowScriptExtension(
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
-  return WebKit::webKitPlatformSupport()->cookieJar();
+  return &cookie_jar_;
 }
 
 // WebWidgetClient -----------------------------------------------------------
@@ -688,6 +688,10 @@ WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(
   return BrowserAppCacheSystem::CreateApplicationCacheHost(client);
 }
 
+WebKit::WebCookieJar* BrowserWebViewDelegate::cookieJar(WebFrame* frame) {
+  return &cookie_jar_;
+}
+
 void BrowserWebViewDelegate::willClose(WebFrame* frame) {
   browser_->UIT_BeforeFrameClosed(frame);
 }
@@ -782,6 +786,12 @@ WebURLError BrowserWebViewDelegate::cancelledError(
 void BrowserWebViewDelegate::didCreateDataSource(
     WebFrame* frame, WebDataSource* ds) {
   ds->setExtraData(pending_extra_data_.release());
+
+  if (frame->parent() == 0) {
+    GURL url = ds->request().url();
+    if (!url.is_empty())
+      browser_->set_pending_url(url);
+  }
 }
 
 void BrowserWebViewDelegate::didStartProvisionalLoad(WebFrame* frame) {
@@ -1007,7 +1017,8 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
 #else
       select_trailing_whitespace_enabled_(false),
 #endif
-      block_redirects_(false) {
+      block_redirects_(false),
+      cookie_jar_(browser) {
 }
 
 BrowserWebViewDelegate::~BrowserWebViewDelegate() {
@@ -1173,6 +1184,9 @@ void BrowserWebViewDelegate::UpdateURL(WebFrame* frame) {
   } else {
     entry->SetURL(request.url());
   }
+
+  // Update attributes of the CefFrame if it currently exists.
+  browser_->UIT_UpdateCefFrame(frame);
 
   bool is_main_frame = (frame->parent() == 0);
   CefRefPtr<CefClient> client = browser_->GetClient();

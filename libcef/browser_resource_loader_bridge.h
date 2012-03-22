@@ -14,23 +14,16 @@
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
-class CefBrowser;
+class CefBrowserImpl;
 class GURL;
 
 class BrowserResourceLoaderBridge {
  public:
-  // May only be called after Init.
-  static void SetCookie(const GURL& url,
-                        const GURL& first_party_for_cookies,
-                        const std::string& cookie);
-  static std::string GetCookies(const GURL& url,
-                                const GURL& first_party_for_cookies);
-  static void SetAcceptAllCookies(bool accept_all_cookies);
-
   // Return the CefBrowser associated with the specified request. The browser
   // will be NULL in cases where the request was initiated using the
   // CefWebURLRequest API.
-  static CefRefPtr<CefBrowser> GetBrowserForRequest(net::URLRequest* request);
+  static CefRefPtr<CefBrowserImpl> GetBrowserForRequest(
+      net::URLRequest* request);
 
   // Creates a ResourceLoaderBridge instance.
   static webkit_glue::ResourceLoaderBridge* Create(
