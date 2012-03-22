@@ -174,8 +174,7 @@ typedef struct _cef_frame_t {
   cef_string_userfree_t (CEF_CALLBACK *get_name)(struct _cef_frame_t* self);
 
   ///
-  // Returns the globally unique identifier for this frame. This function should
-  // only be called on the UI thread.
+  // Returns the globally unique identifier for this frame.
   ///
   int64 (CEF_CALLBACK *get_identifier)(struct _cef_frame_t* self);
 
@@ -186,8 +185,7 @@ typedef struct _cef_frame_t {
   struct _cef_frame_t* (CEF_CALLBACK *get_parent)(struct _cef_frame_t* self);
 
   ///
-  // Returns the URL currently loaded in this frame. This function should only
-  // be called on the UI thread.
+  // Returns the URL currently loaded in this frame.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_url)(struct _cef_frame_t* self);

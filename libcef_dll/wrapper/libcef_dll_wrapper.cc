@@ -12,8 +12,6 @@
 
 #include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
-#include "include/cef_cookie.h"
-#include "include/capi/cef_cookie_capi.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/cef_scheme.h"
@@ -59,6 +57,7 @@
 #include "libcef_dll/cpptoc/web_urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
 #include "libcef_dll/ctocpp/domevent_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -116,6 +115,7 @@ CEF_GLOBAL void CefShutdown() {
   // Check that all wrapper objects have been destroyed
   DCHECK_EQ(CefBrowserCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContentFilterCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefCookieManagerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDOMDocumentCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDOMEventCToCpp::DebugObjCt, 0);
@@ -185,90 +185,6 @@ CEF_GLOBAL void CefQuitMessageLoop() {
 
   // Execute
   cef_quit_message_loop();
-}
-
-CEF_GLOBAL bool CefVisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return false;
-
-  // Execute
-  int _retval = cef_visit_all_cookies(
-      CefCookieVisitorCppToC::Wrap(visitor));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefVisitUrlCookies(const CefString& url, bool includeHttpOnly,
-    CefRefPtr<CefCookieVisitor> visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return false;
-
-  // Execute
-  int _retval = cef_visit_url_cookies(
-      url.GetStruct(),
-      includeHttpOnly,
-      CefCookieVisitorCppToC::Wrap(visitor));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefSetCookie(const CefString& url, const CefCookie& cookie) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_set_cookie(
-      url.GetStruct(),
-      &cookie);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefDeleteCookies(const CefString& url,
-    const CefString& cookie_name) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: url, cookie_name
-
-  // Execute
-  int _retval = cef_delete_cookies(
-      url.GetStruct(),
-      cookie_name.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefSetCookiePath(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path
-
-  // Execute
-  int _retval = cef_set_cookie_path(
-      path.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
 }
 
 CEF_GLOBAL bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,

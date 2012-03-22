@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
@@ -347,6 +348,33 @@ int CEF_CALLBACK request_handler_get_auth_credentials(
   return _retval;
 }
 
+cef_cookie_manager_t* CEF_CALLBACK request_handler_get_cookie_manager(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* main_url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return NULL;
+  // Verify param: main_url; type: string_byref_const
+  DCHECK(main_url);
+  if (!main_url)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefCookieManager> _retval = CefRequestHandlerCppToC::Get(
+      self)->GetCookieManager(
+      CefBrowserCToCpp::Wrap(browser),
+      CefString(main_url));
+
+  // Return type: refptr_diff
+  return CefCookieManagerCToCpp::Unwrap(_retval);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -361,6 +389,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.get_download_handler = request_handler_get_download_handler;
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;
+  struct_.struct_.get_cookie_manager = request_handler_get_cookie_manager;
 }
 
 #ifndef NDEBUG

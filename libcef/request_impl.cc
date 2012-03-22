@@ -3,6 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "libcef/request_impl.h"
+
+#include <string>
+#include <vector>
+
 #include "libcef/http_header_utils.h"
 
 #include "base/logging.h"
@@ -80,9 +84,23 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   url_ = request->url().spec();
   method_ = request->method();
 
+  net::HttpRequestHeaders headers = request->extra_request_headers();
+
+  // Ensure that we do not send username and password fields in the referrer.
+  GURL referrer(request->GetSanitizedReferrer());
+
+  // Strip Referer from request_info_.extra_headers to prevent, e.g., plugins
+  // from overriding headers that are controlled using other means. Otherwise a
+  // plugin could set a referrer although sending the referrer is inhibited.
+  headers.RemoveHeader(net::HttpRequestHeaders::kReferer);
+
+  // Our consumer should have made sure that this is a safe referrer.  See for
+  // instance WebCore::FrameLoader::HideReferrer.
+  if (referrer.is_valid())
+    headers.SetHeader(net::HttpRequestHeaders::kReferer, referrer.spec());
+
   // Transfer request headers
-  GetHeaderMap(request->extra_request_headers(), headermap_);
-  headermap_.insert(std::make_pair(L"Referrer", request->referrer()));
+  GetHeaderMap(headers, headermap_);
 
   // Transfer post data, if any
   net::UploadData* data = request->get_upload();
