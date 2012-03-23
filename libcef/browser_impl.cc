@@ -1582,8 +1582,8 @@ CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
                            const CefString& name,
                            const CefString& url)
     : browser_(browser),
-      id_(id),
       name_(name),
+      id_(id),
       url_(url) {
 }
 
