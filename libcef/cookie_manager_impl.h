@@ -12,11 +12,7 @@
 // Implementation of the CefCookieManager interface.
 class CefCookieManagerImpl : public CefCookieManager {
  public:
-  // Creates a new reference to the existing global cookie monster.
-  CefCookieManagerImpl();
-
-  // Creates a new cookie monster with storage at the specified |path|.
-  explicit CefCookieManagerImpl(const CefString& path);
+  CefCookieManagerImpl(bool is_global);
 
   ~CefCookieManagerImpl();
 
