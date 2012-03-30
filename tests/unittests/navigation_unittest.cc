@@ -133,6 +133,21 @@ public:
       got_correct_can_go_forward_[nav_].yes();
   }
 
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE {
+    if(browser->IsPopup() || !frame->IsMain())
+      return;
+
+    const NavListItem& item = kNavList[nav_];
+
+    got_load_start_[nav_].yes();
+
+    std::string url1 = browser->GetMainFrame()->GetURL();
+    std::string url2 = frame->GetURL();
+    if (url1 == item.target && url2 == item.target)
+      got_correct_load_start_url_[nav_].yes();
+  }
+
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE
@@ -143,6 +158,11 @@ public:
     const NavListItem& item = kNavList[nav_];
 
     got_load_end_[nav_].yes();
+
+    std::string url1 = browser->GetMainFrame()->GetURL();
+    std::string url2 = frame->GetURL();
+    if (url1 == item.target && url2 == item.target)
+      got_correct_load_end_url_[nav_].yes();
 
     if (item.can_go_back == browser->CanGoBack())
       got_correct_can_go_back2_[nav_].yes();
@@ -161,7 +181,10 @@ public:
   TrackCallback got_nav_state_change_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_back_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_forward_[NAV_LIST_SIZE()];
+  TrackCallback got_load_start_[NAV_LIST_SIZE()];
+  TrackCallback got_correct_load_start_url_[NAV_LIST_SIZE()];
   TrackCallback got_load_end_[NAV_LIST_SIZE()];
+  TrackCallback got_correct_load_end_url_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_back2_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_forward2_[NAV_LIST_SIZE()];
 };
@@ -180,6 +203,8 @@ TEST(NavigationTest, History)
       ASSERT_TRUE(handler->got_before_browse_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_target_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_nav_type_[i]) << "i = " << i;
+      ASSERT_TRUE(handler->got_load_start_[i]) << "i = " << i;
+      ASSERT_TRUE(handler->got_correct_load_start_url_[i]) << "i = " << i;
     }
 
     if (i == 0 || kNavList[i].can_go_back != kNavList[i-1].can_go_back ||
@@ -196,6 +221,7 @@ TEST(NavigationTest, History)
 
     if (kNavList[i].action != NA_CLEAR) {
       ASSERT_TRUE(handler->got_load_end_[i]) << "i = " << i;
+      ASSERT_TRUE(handler->got_correct_load_end_url_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_can_go_back2_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_can_go_forward2_[i]) << "i = " << i;
     }
