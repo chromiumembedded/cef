@@ -649,7 +649,8 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetMainCefFrame(int64 id,
   if (id != 0)
     main_frame_->set_id(id);
 
-  main_frame_->set_url(url.spec());
+  if (!url.is_empty())
+    main_frame_->set_url(url.spec());
 
   return main_frame_;
 }
