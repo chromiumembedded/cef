@@ -22,6 +22,7 @@ struct WebDropData;
  @private
   CefBrowserImpl* browser_;  // weak
   NSTrackingArea* trackingArea_;
+  bool is_in_setfocus_;
 
   scoped_nsobject<WebDragSource> dragSource_;
   scoped_nsobject<WebDropTarget> dropTarget_;
@@ -58,6 +59,7 @@ struct WebDropData;
                        offset:(NSPoint)offset;
 
 @property (nonatomic, assign) CefBrowserImpl* browser;
+@property (nonatomic, assign) bool in_setfocus;
 
 @end
 

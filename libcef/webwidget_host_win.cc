@@ -601,16 +601,21 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       if (!popup()) {
         SetCapture(view_);
 
-        HWND parent_hwnd = ::GetParent(view_);
-        if (parent_hwnd) {
-          CefRefPtr<CefBrowserImpl> browser =
-              static_cast<CefBrowserImpl*>(ui::GetWindowUserData(parent_hwnd));
-          if (browser.get()) {
-            // This mimics a temporary workaround in RenderWidgetHostViewWin
-            // for bug 765011 to get focus when the mouse is clicked. This
-            // happens after the mouse down event is sent to the renderer
-            // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-            browser->SetFocus(true);
+        if (::GetFocus() != view_) {
+          // Set focus to this  window.
+          HWND parent_hwnd = ::GetParent(view_);
+          if (parent_hwnd) {
+            CefRefPtr<CefBrowserImpl> browser =
+                static_cast<CefBrowserImpl*>(
+                    ui::GetWindowUserData(parent_hwnd));
+            if (browser.get()) {
+              // This mimics a temporary workaround in RenderWidgetHostViewWin
+              // for bug 765011 to get focus when the mouse is clicked. This
+              // happens after the mouse down event is sent to the renderer
+              // because normally Windows does a WM_SETFOCUS after
+              // WM_LBUTTONDOWN.
+              browser->SetFocus(true);
+            }
           }
         }
       }

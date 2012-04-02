@@ -130,12 +130,16 @@ void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable) {
   if (!host)
     return;
 
-  NSView* view = host->view_handle();
-  if (!view)
+  BrowserWebView* browserView = (BrowserWebView*)host->view_handle();
+  if (!browserView)
     return;
 
-  if (enable)
-    [[view window] makeFirstResponder:view];
+  if (enable) {
+    // Guard against calling OnSetFocus twice.
+    browserView.in_setfocus = true;
+    [[browserView window] makeFirstResponder:browserView];
+    browserView.in_setfocus = false;
+  }
 }
 
 bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame) {

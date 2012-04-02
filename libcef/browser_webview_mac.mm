@@ -21,6 +21,7 @@
 @implementation BrowserWebView
 
 @synthesize browser = browser_;
+@synthesize in_setfocus = is_in_setfocus_;
 
 - (id)initWithFrame:(NSRect)frame {
   self = [super initWithFrame:frame];
@@ -163,12 +164,14 @@
 
 - (BOOL)becomeFirstResponder {
   if (browser_ && browser_->UIT_GetWebView()) {
-    CefRefPtr<CefClient> client = browser_->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
-      if (handler.get() &&
-          handler->OnSetFocus(browser_, FOCUS_SOURCE_SYSTEM)) {
-        return NO;
+    if (!is_in_setfocus_) {
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+        if (handler.get() &&
+            handler->OnSetFocus(browser_, FOCUS_SOURCE_SYSTEM)) {
+          return NO;
+        }
       }
     }
 
