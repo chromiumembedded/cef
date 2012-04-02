@@ -169,6 +169,7 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
     can_go_forward_(false),
     has_document_(false),
     is_dropping_(false),
+    is_in_onsetfocus_(false),
     unique_id_(0)
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
@@ -229,6 +230,26 @@ void CefBrowserImpl::StopLoad() {
 
 void CefBrowserImpl::SetFocus(bool enable) {
   if (CefThread::CurrentlyOn(CefThread::UI)) {
+    // If SetFocus() is called from inside the OnSetFocus() callback do not re-
+    // enter the callback.
+    if (enable && !is_in_onsetfocus_) {
+      WebViewHost* host = UIT_GetWebViewHost();
+      if (host) {
+        CefRefPtr<CefClient> client = GetClient();
+        if (client.get()) {
+          CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+          if (handler.get()) {
+            is_in_onsetfocus_ = true;
+            bool handled = handler->OnSetFocus(this, FOCUS_SOURCE_SYSTEM);
+            is_in_onsetfocus_ = false;
+
+            if (handled)
+              return;
+          }
+        }
+      }
+    }
+
     UIT_SetFocus(UIT_GetWebViewHost(), enable);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
@@ -1002,7 +1023,6 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
 
   return true;
 }
-
 
 void CefBrowserImpl::UIT_SetSize(PaintElementType type, int width, int height) {
   if (type == PET_VIEW) {

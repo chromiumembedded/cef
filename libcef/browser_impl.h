@@ -399,6 +399,10 @@ class CefBrowserImpl : public CefBrowser {
   // True if a drop action is occuring.
   bool is_dropping_;
 
+  // True if currently in the OnSetFocus callback. Only accessed on the UI
+  // thread.
+  bool is_in_onsetfocus_;
+
 #if defined(OS_WIN)
   // Context object used to manage printing.
   printing::PrintingContext print_context_;

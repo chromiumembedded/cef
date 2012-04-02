@@ -7,6 +7,7 @@
 #include <commctrl.h>
 
 #include "libcef/webwidget_host.h"
+#include "libcef/browser_impl.h"
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
@@ -599,11 +600,19 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
     case WebInputEvent::MouseDown:
       if (!popup()) {
         SetCapture(view_);
-        // This mimics a temporary workaround in RenderWidgetHostViewWin
-        // for bug 765011 to get focus when the mouse is clicked. This
-        // happens after the mouse down event is sent to the renderer
-        // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-        ::SetFocus(view_);
+
+        HWND parent_hwnd = ::GetParent(view_);
+        if (parent_hwnd) {
+          CefRefPtr<CefBrowserImpl> browser =
+              static_cast<CefBrowserImpl*>(ui::GetWindowUserData(parent_hwnd));
+          if (browser.get()) {
+            // This mimics a temporary workaround in RenderWidgetHostViewWin
+            // for bug 765011 to get focus when the mouse is clicked. This
+            // happens after the mouse down event is sent to the renderer
+            // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+            browser->SetFocus(true);
+          }
+        }
       }
       break;
     case WebInputEvent::MouseUp:
