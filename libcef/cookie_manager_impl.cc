@@ -79,6 +79,33 @@ CefCookieManagerImpl::CefCookieManagerImpl(bool is_global)
 CefCookieManagerImpl::~CefCookieManagerImpl() {
 }
 
+void CefCookieManagerImpl::SetSupportedSchemes(
+    const std::vector<CefString>& schemes) {
+  if (CefThread::CurrentlyOn(CefThread::IO)) {
+    if (schemes.empty())
+      return;
+
+    std::set<std::string> scheme_set;
+    std::vector<CefString>::const_iterator it = schemes.begin();
+    for (; it != schemes.end(); ++it)
+      scheme_set.insert(*it);
+
+    const char** arr = new const char*[scheme_set.size()];
+    std::set<std::string>::const_iterator it2 = scheme_set.begin();
+    for (int i = 0; it2 != scheme_set.end(); ++it2, ++i)
+      arr[i] = it2->c_str();
+
+    cookie_monster_->SetCookieableSchemes(arr, scheme_set.size());
+
+    delete [] arr;
+  } else {
+    // Execute on the IO thread.
+    CefThread::PostTask(CefThread::IO, FROM_HERE,
+        base::Bind(&CefCookieManagerImpl::SetSupportedSchemes,
+                   this, schemes));
+  }
+}
+
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   if (CefThread::CurrentlyOn(CefThread::IO)) {

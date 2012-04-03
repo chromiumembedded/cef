@@ -56,6 +56,14 @@ typedef struct _cef_cookie_manager_t {
   cef_base_t base;
 
   ///
+  // Set the schemes supported by this manager. By default only "http" and
+  // "https" schemes are supported. Must be called before any cookies are
+  // accessed.
+  ///
+  void (CEF_CALLBACK *set_supported_schemes)(struct _cef_cookie_manager_t* self,
+      cef_string_list_t schemes);
+
+  ///
   // Visit all cookies. The returned cookies are ordered by longest path, then
   // by earliest creation date. Returns false (0) if cookies cannot be accessed.
   ///

@@ -18,6 +18,7 @@
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
 #else  // USING_CEF_SHARED
 
+#include <vector>
 #include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
@@ -34,6 +35,8 @@ class CefCookieManagerCToCpp
   virtual ~CefCookieManagerCToCpp() {}
 
   // CefCookieManager methods
+  virtual void SetSupportedSchemes(
+      const std::vector<CefString>& schemes) OVERRIDE;
   virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
   virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
