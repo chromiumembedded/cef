@@ -685,15 +685,11 @@ TEST(CookieTest, GetCookieManagerJS) {
 
 namespace {
 
-const char* kCookieHttpUrl1 = "http://cookie-tests/cookie1.html";
-const char* kCookieHttpUrl2 = "http://cookie-tests/cookie2.html";
-const char* kCookieHttpUrl3 = "http://cookie-tests/cookie3.html";
-
-class CookieTestHttpHandler : public TestHandler {
+class CookieTestSchemeHandler : public TestHandler {
  public:
   class SchemeHandler : public CefSchemeHandler {
    public:
-    explicit SchemeHandler(CookieTestHttpHandler* handler)
+    explicit SchemeHandler(CookieTestSchemeHandler* handler)
         : handler_(handler),
           offset_(0) {}
 
@@ -701,15 +697,15 @@ class CookieTestHttpHandler : public TestHandler {
                                 CefRefPtr<CefSchemeHandlerCallback> callback)
                                 OVERRIDE {
       std::string url = request->GetURL();
-      if (url == kCookieHttpUrl1) {
+      if (url == handler_->url1_) {
         content_ = "<html><body>COOKIE TEST1</body></html>";
         cookie_ = "name1=value1";
         handler_->got_process_request1_.yes();
-      } else if (url == kCookieHttpUrl2) {
+      } else if (url == handler_->url2_) {
         content_ = "<html><body>COOKIE TEST2</body></html>";
         cookie_ = "name2=value2";
         handler_->got_process_request2_.yes();
-      } else if (url == kCookieHttpUrl3) {
+      } else if (url == handler_->url3_) {
         content_ = "<html><body>COOKIE TEST3</body></html>";
         handler_->got_process_request3_.yes();
 
@@ -767,7 +763,7 @@ class CookieTestHttpHandler : public TestHandler {
     }
 
    private:
-    CookieTestHttpHandler* handler_;
+    CookieTestSchemeHandler* handler_;
     std::string content_;
     size_t offset_;
     std::string cookie_;
@@ -777,7 +773,7 @@ class CookieTestHttpHandler : public TestHandler {
 
   class SchemeHandlerFactory : public CefSchemeHandlerFactory {
    public:
-    explicit SchemeHandlerFactory(CookieTestHttpHandler* handler)
+    explicit SchemeHandlerFactory(CookieTestSchemeHandler* handler)
         : handler_(handler) {}
 
     virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
@@ -785,7 +781,7 @@ class CookieTestHttpHandler : public TestHandler {
                                                CefRefPtr<CefRequest> request)
                                                OVERRIDE {
       std::string url = request->GetURL();
-      if (url == kCookieHttpUrl3) {
+      if (url == handler_->url3_) {
         // Verify that the cookie was not passed in.
         CefRequest::HeaderMap headerMap;
         request->GetHeaderMap(headerMap);
@@ -798,48 +794,64 @@ class CookieTestHttpHandler : public TestHandler {
     }
 
    private:
-    CookieTestHttpHandler* handler_;
+    CookieTestSchemeHandler* handler_;
 
     IMPLEMENT_REFCOUNTING(SchemeHandlerFactory);
   };
 
-  CookieTestHttpHandler() {}
+  CookieTestSchemeHandler(const std::string& scheme) : scheme_(scheme) {
+    url1_ = scheme + "://cookie-tests/cookie1.html";
+    url2_ = scheme + "://cookie-tests/cookie2.html";
+    url3_ = scheme + "://cookie-tests/cookie3.html";
+  }
 
   virtual void RunTest() OVERRIDE {
     // Create new in-memory managers.
     manager1_ = CefCookieManager::CreateManager(CefString());
     manager2_ = CefCookieManager::CreateManager(CefString());
 
+    if (scheme_ != "http") {
+      CefRegisterCustomScheme(scheme_, true, false, false);
+
+      std::vector<CefString> schemes;
+      schemes.push_back("http");
+      schemes.push_back("https");
+      schemes.push_back(scheme_);
+
+      manager1_->SetSupportedSchemes(schemes);
+      manager2_->SetSupportedSchemes(schemes);
+    }
+
     // Register the scheme handler.
-    CefRegisterSchemeHandlerFactory("http", "cookie-tests",
+    CefRegisterSchemeHandlerFactory(scheme_, "cookie-tests",
         new SchemeHandlerFactory(this));
 
     // Create the browser
-    CreateBrowser(kCookieHttpUrl1);
+    CreateBrowser(url1_);
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
     std::string url = frame->GetURL();
-    if (url == kCookieHttpUrl1) {
+    if (url == url1_) {
       got_load_end1_.yes();
       VerifyCookie(manager1_, url, "name1", "value1", got_cookie1_);
 
       // Go to the next URL
-      frame->LoadURL(kCookieHttpUrl2);
-    } else if (url == kCookieHttpUrl2) {
+      frame->LoadURL(url2_);
+    } else if (url == url2_) {
       got_load_end2_.yes();
       VerifyCookie(manager2_, url, "name2", "value2", got_cookie2_);
 
       // Go to the next URL
-      frame->LoadURL(kCookieHttpUrl3);
+      frame->LoadURL(url3_);
     } else {
       got_load_end3_.yes();
       VerifyCookie(manager2_, url, "name2", "value2", got_cookie3_);
 
       // Unregister the scheme handler.
-      CefRegisterSchemeHandlerFactory("http", "cookie-tests", NULL);
+      CefRegisterSchemeHandlerFactory(scheme_, "cookie-tests", NULL);
 
       DestroyTest();
     }
@@ -848,7 +860,7 @@ class CookieTestHttpHandler : public TestHandler {
   virtual CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefBrowser> browser,
       const CefString& main_url) OVERRIDE {
-    if (main_url == kCookieHttpUrl1) {
+    if (main_url == url1_) {
       // Return the first cookie manager.
       got_cookie_manager1_.yes();
       return manager1_;
@@ -877,6 +889,11 @@ class CookieTestHttpHandler : public TestHandler {
     }
   }
 
+  std::string scheme_;
+  std::string url1_;
+  std::string url2_;
+  std::string url3_;
+
   CefRefPtr<CefCookieManager> manager1_;
   CefRefPtr<CefCookieManager> manager2_;
 
@@ -897,9 +914,31 @@ class CookieTestHttpHandler : public TestHandler {
 
 }  // namespace
 
-// Verify use of multiple cookie managers vis HTTP.
+// Verify use of multiple cookie managers via HTTP.
 TEST(CookieTest, GetCookieManagerHttp) {
-  CefRefPtr<CookieTestHttpHandler> handler = new CookieTestHttpHandler();
+  CefRefPtr<CookieTestSchemeHandler> handler =
+      new CookieTestSchemeHandler("http");
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(handler->got_process_request1_);
+  EXPECT_TRUE(handler->got_process_request2_);
+  EXPECT_TRUE(handler->got_process_request3_);
+  EXPECT_FALSE(handler->got_create_cookie_);
+  EXPECT_TRUE(handler->got_process_request_cookie_);
+  EXPECT_TRUE(handler->got_cookie_manager1_);
+  EXPECT_TRUE(handler->got_cookie_manager2_);
+  EXPECT_TRUE(handler->got_load_end1_);
+  EXPECT_TRUE(handler->got_load_end2_);
+  EXPECT_TRUE(handler->got_load_end3_);
+  EXPECT_TRUE(handler->got_cookie1_);
+  EXPECT_TRUE(handler->got_cookie2_);
+  EXPECT_TRUE(handler->got_cookie3_);
+}
+
+// Verify use of multiple cookie managers via a custom scheme.
+TEST(CookieTest, GetCookieManagerCustom) {
+  CefRefPtr<CookieTestSchemeHandler> handler =
+      new CookieTestSchemeHandler("ccustom");
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_process_request1_);

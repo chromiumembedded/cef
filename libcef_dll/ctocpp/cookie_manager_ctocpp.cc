@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
@@ -46,6 +47,30 @@ CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+void CefCookieManagerCToCpp::SetSupportedSchemes(
+    const std::vector<CefString>& schemes)
+{
+  if (CEF_MEMBER_MISSING(struct_, set_supported_schemes))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: schemes; type: string_vec_byref_const
+  cef_string_list_t schemesList = cef_string_list_alloc();
+  DCHECK(schemesList);
+  if (schemesList)
+    transfer_string_list_contents(schemes, schemesList);
+
+  // Execute
+  struct_->set_supported_schemes(struct_,
+      schemesList);
+
+  // Restore param:schemes; type: string_vec_byref_const
+  if (schemesList)
+    cef_string_list_free(schemesList);
+}
+
 
 bool CefCookieManagerCToCpp::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor)

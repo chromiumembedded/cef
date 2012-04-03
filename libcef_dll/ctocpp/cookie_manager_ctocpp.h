@@ -34,6 +34,8 @@ public:
   virtual ~CefCookieManagerCToCpp() {}
 
   // CefCookieManager methods
+  virtual void SetSupportedSchemes(
+      const std::vector<CefString>& schemes) OVERRIDE;
   virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
   virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;

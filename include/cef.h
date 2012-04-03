@@ -558,6 +558,14 @@ public:
   static CefRefPtr<CefCookieManager> CreateManager(const CefString& path);
 
   ///
+  // Set the schemes supported by this manager. By default only "http" and
+  // "https" schemes are supported. Must be called before any cookies are
+  // accessed.
+  ///
+  /*--cef()--*/
+  virtual void SetSupportedSchemes(const std::vector<CefString>& schemes) =0;
+
+  ///
   // Visit all cookies. The returned cookies are ordered by longest path, then
   // by earliest creation date. Returns false if cookies cannot be accessed.
   ///
