@@ -12,7 +12,7 @@ import sys
 import urllib
 
 # default URL values
-cef_url = 'http://chromiumembedded.googlecode.com/svn/trunk'
+cef_url = 'http://chromiumembedded.googlecode.com/svn/trunk/cef1'
 depot_tools_url = 'http://src.chromium.org/svn/trunk/tools/depot_tools'
 
 def run(command_line, working_dir, depot_tools_dir=None):

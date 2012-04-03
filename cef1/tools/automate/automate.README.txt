@@ -33,7 +33,7 @@ SETUP
 4. Checkout the "automate" folder to a location on your hard drive. For the
    trunk version of CEF you can use the following command:
 
-   svn checkout http://chromiumembedded.googlecode.com/svn/trunk/tools/automate /path/to/automate
+   svn checkout http://chromiumembedded.googlecode.com/svn/trunk/cef1/tools/automate /path/to/automate
 
 5. Run the automate.py script at whatever interval is appropriate (for each
    CEF commit, once per day, once per week, etc):
@@ -96,4 +96,4 @@ REFERENCES
 [4] http://dev.chromium.org/developers/how-tos/build-instructions-windows
 [5] http://dev.chromium.org/developers/how-tos/depottools
 [6] http://dev.chromium.org/developers/how-tos/get-the-code
-[7] http://chromiumembedded.googlecode.com/svn/trunk
+[7] http://chromiumembedded.googlecode.com/svn/trunk/cef1

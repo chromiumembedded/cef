@@ -55,11 +55,10 @@ def run(args, **kwargs):
 def get_current_branch(path):
     return run("git rev-parse --abbrev-ref HEAD", cwd=path, quiet=True)
 
-def get_chromium_compat_rev(path, cef_rev):
+def get_chromium_compat_rev(cef_url, path, cef_rev):
     if not os.path.isdir(path):
         path = mktemp()
-        run("git clone --depth 1 git://github.com/jkp/chromiumembedded.git %s" %
-            path, quiet = True)
+        run("git clone --depth 1 %s %s" % (cef_url, path), quiet = True)
     if cef_rev == "None":
         cef_rev = get_git_rev(path, get_current_branch(path))
     compat_cmd = "git cat-file -p %s:CHROMIUM_BUILD_COMPATIBILITY.txt" % cef_rev
@@ -241,7 +240,7 @@ current_cef_url = info['url']
 current_cef_rev = info['local']['git-revision']
 
 # retrieve the compatible Chromium revision
-chromium_rev = get_chromium_compat_rev(cef_src_dir, cef_rev)
+chromium_rev = get_chromium_compat_rev(cef_url, cef_src_dir, cef_rev)
 
 # retrieve the current Chromium URL and revision
 info = get_checkout_info(chromium_src_dir, False)
