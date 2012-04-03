@@ -1,0 +1,14 @@
+Index: resource_ids
+===================================================================
+--- resource_ids	(revision 119665)
++++ resource_ids	(working copy)
+@@ -16,6 +16,9 @@
+ {
+   "SRCDIR": "../..",
+ 
++  "cef/libcef/browser/resources/cef_resources.grd": {
++    "includes": [25500],
++  },
+   "chrome/browser/browser_resources.grd": {
+     "includes": [500],
+   },
