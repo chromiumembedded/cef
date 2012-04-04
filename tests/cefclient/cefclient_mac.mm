@@ -59,7 +59,7 @@ static NSAutoreleasePool* g_autopool = nil;
 
 // Common base class for CEF browser windows. Contains methods relating to hole
 // punching required in order to display OpenGL underlay windows.
-@interface ClientWindow : NSWindow {
+@interface ClientWindow : NSWindow<CefUnderlayableSurface> {
 @private
   int underlaySurfaceCount_;
 }

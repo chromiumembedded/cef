@@ -38,10 +38,13 @@
 #ifdef BUILDING_CEF_SHARED
 
 // Use the existing CrAppProtocol definition.
-#include "base/message_pump_mac.h"
+#import "base/message_pump_mac.h"
 
 // Use the existing CrAppControlProtocol definition.
-#include "base/mac/scoped_sending_event.h"
+#import "base/mac/scoped_sending_event.h"
+
+// Use the existing UnderlayableSurface definition.
+#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 
 // Use the existing empty protocol definitions.
 #import "base/mac/cocoa_protocols.h"
@@ -51,15 +54,21 @@
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 
-// Copy of CrAppProtocol definition from base/message_pump_mac.h.
+// Copy of definition from base/message_pump_mac.h.
 @protocol CrAppProtocol
 // Must return true if -[NSApplication sendEvent:] is currently on the stack.
 - (BOOL)isHandlingSendEvent;
 @end
 
-// Copy of CrAppControlProtocol definition from base/mac/scoped_sending_event.h.
+// Copy of definition from base/mac/scoped_sending_event.h.
 @protocol CrAppControlProtocol<CrAppProtocol>
 - (void)setHandlingSendEvent:(BOOL)handlingSendEvent;
+@end
+
+// Copy of definition from ui/base/cocoa/underlay_opengl_hosting_window.h.
+@protocol UnderlayableSurface
+- (void)underlaySurfaceAdded;
+- (void)underlaySurfaceRemoved;
 @end
 
 // The Mac OS X 10.6 SDK introduced new protocols used for delegates.  These
@@ -101,6 +110,11 @@ DEFINE_EMPTY_PROTOCOL(NSWindowDelegate)
 // All CEF client applications must subclass NSApplication and implement this
 // protocol.
 @protocol CefAppProtocol<CrAppControlProtocol>
+@end
+
+// All CEF windows should implement this protocol to be informed explicitly
+// about underlay surfaces.
+@protocol CefUnderlayableSurface<UnderlayableSurface>
 @end
 
 // Controls the state of |isHandlingSendEvent| in the event loop so that it is

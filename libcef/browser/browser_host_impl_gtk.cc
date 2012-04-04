@@ -11,6 +11,7 @@
 
 #include "base/bind.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/common/renderer_preferences.h"
 
 namespace {
 
@@ -82,12 +83,26 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   AddRef();
 
   // Parent the TabContents to the browser window.
-  window_info_.widget = tab_contents_->GetView()->GetNativeView();
+  window_info_.widget = web_contents_->GetView()->GetNativeView();
   gtk_container_add(GTK_CONTAINER(window_info_.parent_widget),
                     window_info_.widget);
 
   g_signal_connect(G_OBJECT(window_info_.widget), "destroy",
                    G_CALLBACK(window_destroyed), this);
+
+  // As an additional requirement on Linux, we must set the colors for the
+  // render widgets in webkit.
+  content::RendererPreferences* prefs =
+      web_contents_->GetMutableRendererPrefs();
+  prefs->focus_ring_color = SkColorSetARGB(255, 229, 151, 0);
+  prefs->thumb_active_color = SkColorSetRGB(244, 244, 244);
+  prefs->thumb_inactive_color = SkColorSetRGB(234, 234, 234);
+  prefs->track_color = SkColorSetRGB(211, 211, 211);
+
+  prefs->active_selection_bg_color = SkColorSetRGB(30, 144, 255);
+  prefs->active_selection_fg_color = SK_ColorWHITE;
+  prefs->inactive_selection_bg_color = SkColorSetRGB(200, 200, 200);
+  prefs->inactive_selection_fg_color = SkColorSetRGB(50, 50, 50);
 
   return true;
 }

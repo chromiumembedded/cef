@@ -22,12 +22,15 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/string16.h"
 #include "base/synchronization/lock.h"
-#include "content/browser/tab_contents/tab_contents.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
+namespace net {
+class URLRequest;
+}
 
 struct Cef_Request_Params;
 struct Cef_Response_Params;
@@ -36,14 +39,14 @@ class SiteInstance;
 
 // Implementation of CefBrowser.
 //
-// WebContentsDelegate: Interface for handling TabContents delegations. There is
-// a one-to-one relationship between CefBrowserHostImpl and TabContents
+// WebContentsDelegate: Interface for handling WebContents delegations. There is
+// a one-to-one relationship between CefBrowserHostImpl and WebContents
 // instances.
 //
-// WebContentsObserver: Interface for observing TabContents notifications and
-// IPC messages. There is a one-to-one relationship between TabContents and
+// WebContentsObserver: Interface for observing WebContents notifications and
+// IPC messages. There is a one-to-one relationship between WebContents and
 // RenderViewHost instances. IPC messages received by the RenderViewHost will be
-// forwarded to this WebContentsObserver implementation via TabContents. IPC
+// forwarded to this WebContentsObserver implementation via WebContents. IPC
 // messages sent using CefBrowserHostImpl::Send() will be forwarded to the
 // RenderViewHost (after posting to the UI thread if necessary). Use
 // WebContentsObserver::routing_id() when sending IPC messages.
@@ -68,7 +71,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefWindowInfo& window_info,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
-      TabContents* tab_contents,
+      content::WebContents* web_contents,
       CefWindowHandle opener);
 
   // Returns the browser associated with the specified RenderViewHost.
@@ -127,11 +130,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // native browser window is not longer processing messages.
   void DestroyBrowser();
 
-  // Returns the native view for the TabContents.
+  // Returns the native view for the WebContents.
   gfx::NativeView GetContentView() const;
 
-  // Returns a pointer to the TabContents.
-  TabContents* GetTabContents() const;
+  // Returns a pointer to the WebContents.
+  content::WebContents* GetWebContents() const;
 
   // Returns the browser-specific request context.
   net::URLRequestContextGetter* GetRequestContext();
@@ -188,7 +191,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents,
       int route_id,
       WindowContainerType window_container_type,
-      const string16& frame_name) OVERRIDE;
+      const string16& frame_name,
+      const GURL& target_url) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const GURL& target_url,
@@ -245,7 +249,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefBrowserHostImpl(const CefWindowInfo& window_info,
                      const CefBrowserSettings& settings,
                      CefRefPtr<CefClient> client,
-                     TabContents* tab_contents,
+                     content::WebContents* web_contents,
                      CefWindowHandle opener);
 
   // Updates and returns an existing frame or creates a new frame. Pass
@@ -295,7 +299,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
-  scoped_ptr<TabContents> tab_contents_;
+  scoped_ptr<content::WebContents> web_contents_;
   CefWindowHandle opener_;
 
   // Unique ids used for routing communication to/from the renderer. We keep a

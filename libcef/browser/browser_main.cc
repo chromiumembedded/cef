@@ -55,7 +55,7 @@ int CefBrowserMainParts::PreCreateThreads() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
-  browser_context_.reset(new CefBrowserContext(this));
+  browser_context_.reset(new CefBrowserContext());
   
   PlatformInitialize();
   net::NetModule::SetResourceProvider(&ResourceProvider);

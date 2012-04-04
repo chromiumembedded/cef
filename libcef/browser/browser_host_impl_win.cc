@@ -129,9 +129,9 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_SETFOCUS:
     if (browser) {
-      TabContents* tab_contents = browser->GetTabContents();
-      if (tab_contents)
-        tab_contents->Focus();
+      content::WebContents* web_contents = browser->GetWebContents();
+      if (web_contents)
+        web_contents->Focus();
     }
     return 0;
 
@@ -179,7 +179,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   AddRef();
 
   // Parent the TabContents to the browser window.
-  SetParent(tab_contents_->GetView()->GetNativeView(), window_info_.window);
+  SetParent(web_contents_->GetView()->GetNativeView(), window_info_.window);
 
   // Size the web view window to the browser window.
   RECT cr;

@@ -12,21 +12,20 @@
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_context.h"
 
-class DownloadManager;
-
 namespace content {
 class DownloadManagerDelegate;
 class ResourceContext;
 class SpeechRecognitionPreferences;
 }
 
-class CefBrowserMainParts;
 class CefDownloadManagerDelegate;
 
 class CefBrowserContext : public content::BrowserContext {
  public:
-  explicit CefBrowserContext(CefBrowserMainParts* main_parts);
+  CefBrowserContext();
   virtual ~CefBrowserContext();
+
+  void InitWhileIOAllowed();
 
   // BrowserContext methods.
   virtual FilePath GetPath() OVERRIDE;
@@ -55,8 +54,6 @@ class CefBrowserContext : public content::BrowserContext {
       geolocation_permission_context_;
   scoped_refptr<content::SpeechRecognitionPreferences>
       speech_recognition_preferences_;
-
-  CefBrowserMainParts* main_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

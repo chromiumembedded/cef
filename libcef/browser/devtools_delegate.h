@@ -30,12 +30,10 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
   // DevToolsHttpProtocolHandler::Delegate overrides.
   virtual std::string GetDiscoveryPageHTML() OVERRIDE;
-  virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual std::string GetFrontendResourcesBaseURL() OVERRIDE;
 
  private:
-  net::URLRequestContextGetter* context_getter_;
   content::DevToolsHttpHandler* devtools_http_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsDelegate);

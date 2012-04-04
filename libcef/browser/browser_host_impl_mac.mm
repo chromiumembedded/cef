@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "content/public/browser/web_contents_view.h"
+#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/gfx/rect.h"
 
 
@@ -33,43 +34,6 @@
   }
 
   [super dealloc];
-}
-
-@end
-
-
-// Common base class for CEF browser windows. Contains methods relating to hole
-// punching required in order to display OpenGL underlay windows.
-@interface CefBrowserWindow : NSWindow {
-@private
-  int underlaySurfaceCount_;
-}
-
-// Informs the window that an underlay surface has been added/removed. The
-// window is non-opaque while underlay surfaces are present.
-- (void)underlaySurfaceAdded;
-- (void)underlaySurfaceRemoved;
-
-@end
-
-@implementation CefBrowserWindow
-
-- (void)underlaySurfaceAdded {
-  DCHECK_GE(underlaySurfaceCount_, 0);
-  ++underlaySurfaceCount_;
-
-  // We're having the OpenGL surface render under the window, so the window
-  // needs to be not opaque.
-  if (underlaySurfaceCount_ == 1)
-    [self setOpaque:NO];
-}
-
-- (void)underlaySurfaceRemoved {
-  --underlaySurfaceCount_;
-  DCHECK_GE(underlaySurfaceCount_, 0);
-
-  if (underlaySurfaceCount_ == 0)
-    [self setOpaque:YES];
 }
 
 @end
@@ -102,7 +66,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
     contentRect.size.width = window_rect.size.width;
     contentRect.size.height = window_rect.size.height;
 
-    newWnd = [[CefBrowserWindow alloc]
+    newWnd = [[UnderlayOpenGLHostingWindow alloc]
               initWithContentRect:window_rect
               styleMask:(NSTitledWindowMask |
                          NSClosableWindowMask |
@@ -129,7 +93,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 
   // Parent the TabContents to the browser view.
   const NSRect bounds = [browser_view bounds];
-  NSView* native_view = tab_contents_->GetView()->GetNativeView();
+  NSView* native_view = web_contents_->GetView()->GetNativeView();
   [browser_view addSubview:native_view];
   [native_view setFrame:bounds];
   [native_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];

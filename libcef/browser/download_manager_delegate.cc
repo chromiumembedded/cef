@@ -14,11 +14,10 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
-#include "content/browser/download/download_state_info.h"
-#include "content/browser/tab_contents/tab_contents.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
+#include "content/public/browser/web_contents.h"
 #include "net/base/net_util.h"
 
 using content::BrowserThread;

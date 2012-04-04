@@ -156,7 +156,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const GURL& origin,
       WindowContainerType container_type,
       content::ResourceContext* context,
-      int render_process_id) OVERRIDE;
+      int render_process_id,
+      bool* no_javascript_access) OVERRIDE;
   virtual std::string GetWorkerProcessTitle(
       const GURL& url, content::ResourceContext* context) OVERRIDE;
   virtual content::SpeechRecognitionManagerDelegate*

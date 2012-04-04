@@ -14,12 +14,12 @@
 
 CefDevToolsDelegate::CefDevToolsDelegate(
     int port,
-    net::URLRequestContextGetter* context_getter)
-    : context_getter_(context_getter) {
+    net::URLRequestContextGetter* context_getter) {
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       "127.0.0.1",
       port,
       "",
+      context_getter,
       this);
 }
 
@@ -34,11 +34,6 @@ void CefDevToolsDelegate::Stop() {
 std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
   return content::GetContentClient()->GetDataResource(
       IDR_CEF_DEVTOOLS_DISCOVERY_PAGE).as_string();
-}
-
-net::URLRequestContext*
-CefDevToolsDelegate::GetURLRequestContext() {
-  return context_getter_->GetURLRequestContext();
 }
 
 bool CefDevToolsDelegate::BundlesFrontendResources() {

@@ -16,6 +16,7 @@
 #include "base/file_path.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/media_observer.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -341,7 +342,9 @@ bool CefContentBrowserClient::CanCreateWindow(
     const GURL& origin,
     WindowContainerType container_type,
     content::ResourceContext* context,
-    int render_process_id) {
+    int render_process_id,
+    bool* no_javascript_access) {
+  *no_javascript_access = false;
   return true;
 }
 

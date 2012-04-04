@@ -10,6 +10,8 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 
+#include "net/base/net_errors.h"
+
 namespace {
 
 class CefAuthCallbackImpl : public CefAuthCallback {

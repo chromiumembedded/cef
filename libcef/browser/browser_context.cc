@@ -7,7 +7,6 @@
 #include <map>
 
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/browser_main.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
@@ -19,7 +18,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/threading/thread.h"
-#include "content/browser/download/download_manager_impl.h"
+#include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/geolocation_permission_context.h"
 #include "content/public/browser/speech_recognition_preferences.h"
@@ -190,9 +189,9 @@ class CefSpeechRecognitionPreferences
 
 }  // namespace
 
-CefBrowserContext::CefBrowserContext(
-    CefBrowserMainParts* main_parts)
-    : main_parts_(main_parts) {
+CefBrowserContext::CefBrowserContext() {
+  InitWhileIOAllowed();
+
   // Initialize the request context getter.
   url_request_getter_ = new CefURLRequestContextGetter(
       GetPath(),
@@ -207,10 +206,7 @@ CefBrowserContext::~CefBrowserContext() {
   }
 }
 
-FilePath CefBrowserContext::GetPath() {
-  if (!path_.empty())
-    return path_;
-
+void CefBrowserContext::InitWhileIOAllowed() {
 #if defined(OS_WIN)
   CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &path_));
   path_ = path_.Append(std::wstring(L"cef_data"));
@@ -229,7 +225,9 @@ FilePath CefBrowserContext::GetPath() {
 
   if (!file_util::PathExists(path_))
     file_util::CreateDirectory(path_);
+}
 
+FilePath CefBrowserContext::GetPath() {
   return path_;
 }
 
@@ -240,8 +238,8 @@ bool CefBrowserContext::IsOffTheRecord() const {
 content::DownloadManager* CefBrowserContext::GetDownloadManager() {
   if (!download_manager_.get()) {
     download_manager_delegate_ = new CefDownloadManagerDelegate();
-    download_manager_ = new DownloadManagerImpl(download_manager_delegate_,
-                                                NULL);
+    download_manager_ =
+        content::DownloadManager::Create(download_manager_delegate_, NULL);
     download_manager_delegate_->SetDownloadManager(download_manager_.get());
     download_manager_->Init(this);
   }
