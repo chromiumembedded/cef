@@ -1,20 +1,20 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 106313)
+--- page/FrameView.cpp	(revision 112327)
 +++ page/FrameView.cpp	(working copy)
-@@ -157,10 +157,12 @@
-             m_page = page;
-             m_page->addScrollableArea(this);
+@@ -159,10 +159,12 @@
+     if (!page)
+         return;
  
 +#if 0
-             if (m_frame == m_page->mainFrame()) {
-                 ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
-                 ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
-             }
-+#endif
-         }
+     if (m_frame == page->mainFrame()) {
+         ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+         ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
      }
++#endif
  }
+ 
+ PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm
 ===================================================================
 --- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 101144)
