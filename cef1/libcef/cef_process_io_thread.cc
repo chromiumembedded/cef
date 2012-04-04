@@ -8,6 +8,7 @@
 #include "libcef/cef_context.h"
 #include "libcef/browser_appcache_system.h"
 #include "libcef/browser_file_writer.h"
+#include "libcef/browser_network_delegate.h"
 #include "libcef/browser_resource_loader_bridge.h"
 #include "libcef/browser_socket_stream_bridge.h"
 #include "libcef/browser_webblobregistry_impl.h"
@@ -40,8 +41,13 @@ void CefProcessIOThread::Init() {
       net::HttpCache::NORMAL, false);
   _Context->set_request_context(request_context_);
 
+  network_delegate_.reset(new BrowserNetworkDelegate());
+  request_context_->set_network_delegate(network_delegate_.get());
+
   BrowserAppCacheSystem::InitializeOnIOThread(request_context_);
   BrowserFileWriter::InitializeOnIOThread(request_context_);
+  BrowserFileSystem::InitializeOnIOThread(
+      request_context_->blob_storage_controller());
   BrowserSocketStreamBridge::InitializeOnIOThread(request_context_);
   BrowserWebBlobRegistryImpl::InitializeOnIOThread(
       request_context_->blob_storage_controller());
@@ -56,10 +62,15 @@ void CefProcessIOThread::CleanUp() {
   // In reverse order of initialization.
   BrowserWebBlobRegistryImpl::Cleanup();
   BrowserSocketStreamBridge::Cleanup();
+  BrowserFileSystem::CleanupOnIOThread();
   BrowserFileWriter::CleanupOnIOThread();
   BrowserAppCacheSystem::CleanupOnIOThread();
 
   _Context->set_request_context(NULL);
+
+  request_context_->set_network_delegate(NULL);
+  network_delegate_.reset(NULL);
+
   request_context_ = NULL;
 
   CefThread::Cleanup();

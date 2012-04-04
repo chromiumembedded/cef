@@ -675,6 +675,8 @@
         'libcef/browser_impl.h',
         'libcef/browser_navigation_controller.cc',
         'libcef/browser_navigation_controller.h',
+        'libcef/browser_network_delegate.cc',
+        'libcef/browser_network_delegate.h',
         'libcef/browser_persistent_cookie_store.cc',
         'libcef/browser_persistent_cookie_store.h',
         'libcef/browser_request_context.cc',

@@ -21,7 +21,7 @@ BrowserRequestContextProxy::BrowserRequestContextProxy(
   set_net_log(context->net_log());
   set_host_resolver(context->host_resolver());
   set_cert_verifier(context->cert_verifier());
-  set_origin_bound_cert_service(context->origin_bound_cert_service());
+  set_server_bound_cert_service(context->server_bound_cert_service());
   set_fraudulent_certificate_reporter(
       context->fraudulent_certificate_reporter());
   set_proxy_service(context->proxy_service());

@@ -66,8 +66,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // WebKit::WebViewClient
   virtual WebKit::WebView* createView(
       WebKit::WebFrame* creator, const WebKit::WebURLRequest& request,
-      const WebKit::WebWindowFeatures& features, const WebKit::WebString& name)
-      OVERRIDE;
+      const WebKit::WebWindowFeatures& features, const WebKit::WebString& name,
+      WebKit::WebNavigationPolicy policy) OVERRIDE;
   virtual WebKit::WebWidget* createPopupMenu(WebKit::WebPopupType popup_type)
       OVERRIDE;
   virtual WebKit::WebExternalPopupMenu* createExternalPopupMenu(
@@ -76,8 +76,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
       unsigned quota) OVERRIDE;
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D(
-      const WebKit::WebGraphicsContext3D::Attributes& attributes,
-      bool renderDirectlyToWebView) OVERRIDE;
+      const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual void didAddMessageToConsole(
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line) OVERRIDE;
@@ -183,7 +182,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didCommitProvisionalLoad(
       WebKit::WebFrame*, bool is_new_navigation) OVERRIDE;
   virtual void didCreateScriptContext(
-      WebKit::WebFrame*, v8::Handle<v8::Context>, int worldId) OVERRIDE;
+      WebKit::WebFrame*, v8::Handle<v8::Context>, int extensionGroup,
+      int worldId) OVERRIDE;
   virtual void willReleaseScriptContext(
       WebKit::WebFrame*, v8::Handle<v8::Context>, int worldId) OVERRIDE;
   virtual void didReceiveTitle(

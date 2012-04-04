@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_COOKIE_STORE_PROXY_H_
 #pragma once
 
-#include "net/base/cookie_store.h"
+#include "net/cookies/cookie_store.h"
 
 class CefBrowserImpl;
 

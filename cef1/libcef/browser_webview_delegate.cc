@@ -32,7 +32,7 @@
 #include "base/stringprintf.h"
 #include "media/base/filter_collection.h"
 #include "media/base/media_log.h"
-#include "media/base/message_loop_factory_impl.h"
+#include "media/base/message_loop_factory.h"
 #include "media/filters/null_audio_renderer.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebConsoleMessage.h"
@@ -168,7 +168,7 @@ void TranslatePopupFeatures(const WebWindowFeatures& webKitFeatures,
 
 WebView* BrowserWebViewDelegate::createView(WebFrame* creator,
     const WebURLRequest& request, const WebWindowFeatures& features,
-    const WebString& name) {
+    const WebString& name, WebKit::WebNavigationPolicy policy) {
   CefString url;
   if (!request.isNull())
     url = request.url().spec().utf16();
@@ -187,17 +187,24 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
 
 WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
     unsigned quota) {
+#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
+  NOTREACHED();
+#else
   // Ignore the quota parameter from WebCore as in Chrome.
   return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_SESSION,
                                             kLocalStorageNamespaceId + 1);
+#endif
 }
 
 WebKit::WebGraphicsContext3D* BrowserWebViewDelegate::createGraphicsContext3D(
-    const WebKit::WebGraphicsContext3D::Attributes& attributes,
-    bool renderDirectlyToWebView) {
+    const WebKit::WebGraphicsContext3D::Attributes& attributes) {
+  WebKit::WebView* web_view = browser_->UIT_GetWebView();
+  if (!web_view)
+    return NULL;
+      
   const CefSettings& settings = _Context->settings();
   return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
-      attributes, renderDirectlyToWebView);
+      attributes, web_view, true);
 }
 
 void BrowserWebViewDelegate::didAddMessageToConsole(
@@ -663,7 +670,7 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
     WebFrame* frame, WebMediaPlayerClient* client) {
   scoped_ptr<media::MessageLoopFactory> message_loop_factory(
-     new media::MessageLoopFactoryImpl());
+     new media::MessageLoopFactory());
 
   scoped_ptr<media::FilterCollection> collection(
       new media::FilterCollection());
@@ -884,7 +891,8 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
 }
 
 void BrowserWebViewDelegate::didCreateScriptContext(
-    WebFrame* frame, v8::Handle<v8::Context> context, int worldId) {
+    WebFrame* frame, v8::Handle<v8::Context> context, int extensionGroup,
+    int worldId) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (!client.get())
     return;

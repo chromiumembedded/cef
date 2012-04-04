@@ -39,7 +39,7 @@ BrowserDatabaseSystem::BrowserDatabaseSystem()
   instance_ = this;
   CHECK(temp_dir_.CreateUniqueTempDir());
   db_tracker_ =
-      new DatabaseTracker(temp_dir_.path(), false, false, NULL, NULL, NULL);
+      new DatabaseTracker(temp_dir_.path(), false, NULL, NULL, NULL);
   db_tracker_->AddObserver(this);
   db_thread_.Start();
   db_thread_proxy_ = db_thread_.message_loop_proxy();

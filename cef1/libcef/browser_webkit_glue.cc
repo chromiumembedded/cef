@@ -20,6 +20,7 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
@@ -137,6 +138,7 @@ bool IsPluginEnabled(const webkit::WebPluginInfo& plugin) {
 WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
     cef_graphics_implementation_t graphics_implementation,
     const WebKit::WebGraphicsContext3D::Attributes& attributes,
+    WebKit::WebView* web_view,
     bool renderDirectlyToWebView) {
 #if defined(OS_WIN)
   bool use_command_buffer =
@@ -148,15 +150,18 @@ WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
 #endif
 
   if (use_command_buffer) {
+    WebKit::WebGraphicsContext3D* view_context = NULL;
+    if (!renderDirectlyToWebView)
+        view_context = web_view->graphicsContext3D();
     scoped_ptr<webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl>
         context(
             new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl());
-    if (!context->initialize(attributes, NULL, renderDirectlyToWebView))
+    if (!context->Initialize(attributes, view_context))
       return NULL;
     return context.release();
   } else {
     return webkit::gpu::WebGraphicsContext3DInProcessImpl::CreateForWebView(
-        attributes, NULL, renderDirectlyToWebView);
+        attributes, renderDirectlyToWebView);
   }
 }
 

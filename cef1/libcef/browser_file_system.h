@@ -27,6 +27,10 @@ namespace fileapi {
 class FileSystemContext;
 }
 
+namespace webkit_blob {
+class BlobStorageController;
+}
+
 class BrowserFileSystem
     : public WebKit::WebFileSystem,
       public base::SupportsWeakPtr<BrowserFileSystem> {
@@ -83,6 +87,14 @@ class BrowserFileSystem
       WebKit::WebFileSystemCallbacks*) OVERRIDE;
   virtual WebKit::WebFileWriter* createFileWriter(
       const WebKit::WebURL& path, WebKit::WebFileWriterClient*) OVERRIDE;
+  virtual void createSnapshotFileAndReadMetadata(
+      const WebKit::WebURL& blobURL,
+      const WebKit::WebURL& path,
+      WebKit::WebFileSystemCallbacks* callbacks) OVERRIDE;
+
+  static void InitializeOnIOThread(
+      webkit_blob::BlobStorageController* blob_storage_controller);
+  static void CleanupOnIOThread();
 
  private:
   // Helpers.
@@ -98,6 +110,9 @@ class BrowserFileSystem
       ReadDirectoryHandler(WebKit::WebFileSystemCallbacks* callbacks);
   fileapi::FileSystemContext::OpenFileSystemCallback OpenFileSystemHandler(
       WebKit::WebFileSystemCallbacks* callbacks);
+  fileapi::FileSystemOperationInterface::SnapshotFileCallback
+      SnapshotFileHandler(const GURL& blob_url,
+                          WebKit::WebFileSystemCallbacks* callbacks);
   void DidFinish(WebKit::WebFileSystemCallbacks* callbacks,
                  base::PlatformFileError result);
   void DidGetMetadata(WebKit::WebFileSystemCallbacks* callbacks,
@@ -112,6 +127,13 @@ class BrowserFileSystem
   void DidOpenFileSystem(WebKit::WebFileSystemCallbacks* callbacks,
                          base::PlatformFileError result,
                          const std::string& name, const GURL& root);
+  void DidCreateSnapshotFile(
+      const GURL& blob_url,
+      WebKit::WebFileSystemCallbacks* callbacks,
+      base::PlatformFileError result,
+      const base::PlatformFileInfo& info,
+      const FilePath& platform_path,
+      const scoped_refptr<webkit_blob::ShareableFileReference>& file_ref);
 
   // A temporary directory for FileSystem API.
   ScopedTempDir file_system_dir_;

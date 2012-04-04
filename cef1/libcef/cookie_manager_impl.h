@@ -7,7 +7,7 @@
 
 #include "include/cef_cookie.h"
 #include "base/file_path.h"
-#include "net/base/cookie_monster.h"
+#include "net/cookies/cookie_monster.h"
 
 // Implementation of the CefCookieManager interface.
 class CefCookieManagerImpl : public CefCookieManager {

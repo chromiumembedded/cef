@@ -20,10 +20,10 @@
 #include "base/file_util.h"
 #include "build/build_config.h"
 #include "net/base/cert_verifier.h"
-#include "net/base/cookie_monster.h"
-#include "net/base/default_origin_bound_cert_store.h"
+#include "net/cookies/cookie_monster.h"
+#include "net/base/default_server_bound_cert_store.h"
 #include "net/base/host_resolver.h"
-#include "net/base/origin_bound_cert_service.h"
+#include "net/base/server_bound_cert_service.h"
 #include "net/base/ssl_config_service_defaults.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
@@ -129,8 +129,7 @@ net::ProxyConfigService* CreateProxyConfigService() {
 
 
 BrowserRequestContext::BrowserRequestContext()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
-      accept_all_cookies_(true) {
+    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
   Init(FilePath(), net::HttpCache::NORMAL, false);
 }
 
@@ -138,8 +137,7 @@ BrowserRequestContext::BrowserRequestContext(
     const FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)),
-      accept_all_cookies_(true) {
+    : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
   Init(cache_path, cache_mode, no_proxy);
 }
 
@@ -158,8 +156,8 @@ void BrowserRequestContext::Init(
 
   SetCookieStoragePath(cache_path);
 
-  storage_.set_origin_bound_cert_service(new net::OriginBoundCertService(
-      new net::DefaultOriginBoundCertStore(NULL)));
+  storage_.set_server_bound_cert_service(new net::ServerBoundCertService(
+      new net::DefaultServerBoundCertStore(NULL)));
 
   // hard-code A-L and A-C for test shells
   set_accept_language("en-us,en");
@@ -216,7 +214,7 @@ void BrowserRequestContext::Init(
       net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
                                     net::HostResolver::kDefaultRetryAttempts,
                                     NULL));
-  storage_.set_cert_verifier(new net::CertVerifier);
+  storage_.set_cert_verifier(net::CertVerifier::CreateDefault());
   storage_.set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
   // Add support for single sign-on.
@@ -244,7 +242,7 @@ void BrowserRequestContext::Init(
   net::HttpCache* cache =
       new net::HttpCache(host_resolver(),
                          cert_verifier(),
-                         origin_bound_cert_service(),
+                         server_bound_cert_service(),
                          NULL,  // transport_security_state
                          proxy_service(),
                          "",  // ssl_session_cache_shard
@@ -288,14 +286,6 @@ void BrowserRequestContext::Init(
 }
 
 BrowserRequestContext::~BrowserRequestContext() {
-}
-
-void BrowserRequestContext::SetAcceptAllCookies(bool accept_all_cookies) {
-  accept_all_cookies_ = accept_all_cookies;
-}
-
-bool BrowserRequestContext::AcceptAllCookies() {
-  return accept_all_cookies_;
 }
 
 void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {

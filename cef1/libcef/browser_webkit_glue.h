@@ -58,6 +58,7 @@ bool IsPluginEnabled(const webkit::WebPluginInfo& plugin);
 WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
     cef_graphics_implementation_t graphics_implementation,
     const WebKit::WebGraphicsContext3D::Attributes& attributes,
+    WebKit::WebView* web_view,
     bool renderDirectlyToWebView);
 
 }  // namespace webkit_glue

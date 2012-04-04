@@ -36,9 +36,6 @@ class BrowserRequestContext : public net::URLRequestContext {
 
   virtual const std::string& GetUserAgent(const GURL& url) const OVERRIDE;
 
-  void SetAcceptAllCookies(bool accept_all_cookies);
-  bool AcceptAllCookies();
-
   // Set the path used for cookie storage. If |path| is empty memory only
   // storage will be used. If the old cookie data is being stored on disk it
   // will be flushed and closed.
@@ -57,7 +54,6 @@ class BrowserRequestContext : public net::URLRequestContext {
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::URLRequest::Interceptor> url_request_interceptor_;
   FilePath cookie_store_path_;
-  bool accept_all_cookies_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_

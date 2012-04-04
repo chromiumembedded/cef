@@ -86,8 +86,8 @@ Required components:
 Optional components:
 
 * FFmpeg audio and video support
-    avcodec-53.dll
-    avformat-53.dll
+    avcodec-54.dll
+    avformat-54.dll
     avutil-51.dll
   Note: Without these components HTML5 audio and video will not function.
 

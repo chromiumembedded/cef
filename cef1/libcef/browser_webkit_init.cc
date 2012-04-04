@@ -198,14 +198,22 @@ WebKit::WebString BrowserWebKitInit::defaultLocale() {
 
 WebKit::WebStorageNamespace* BrowserWebKitInit::createLocalStorageNamespace(
     const WebKit::WebString& path, unsigned quota) {
+#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
+  NOTREACHED();
+#else
   return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
+#endif
 }
 
 void BrowserWebKitInit::dispatchStorageEvent(const WebKit::WebString& key,
     const WebKit::WebString& old_value, const WebKit::WebString& new_value,
     const WebKit::WebString& origin, const WebKit::WebURL& url,
     bool is_local_storage) {
-  // The event is dispatched by the proxy.
+  // All events are dispatched by the WebCore::StorageAreaProxy in the
+  // simple single process case.
+#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
+  NOTREACHED();
+#endif
 }
 
 WebKit::WebIDBFactory* BrowserWebKitInit::idbFactory() {
@@ -238,7 +246,7 @@ BrowserWebKitInit::createOffscreenGraphicsContext3D(
     const WebKit::WebGraphicsContext3D::Attributes& attributes) {
   const CefSettings& settings = _Context->settings();
   return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
-      attributes, false);
+      attributes, NULL, false);
 }
 
 void BrowserWebKitInit::GetPlugins(

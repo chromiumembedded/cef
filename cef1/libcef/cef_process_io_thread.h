@@ -12,6 +12,10 @@
 
 #include "base/basictypes.h"
 
+namespace net {
+class NetworkDelegate;
+}
+
 // ----------------------------------------------------------------------------
 // CefProcessIOThread
 //
@@ -36,6 +40,7 @@ class CefProcessIOThread : public CefThread {
   virtual void CleanUp();
 
   scoped_refptr<BrowserRequestContext> request_context_;
+  scoped_ptr<net::NetworkDelegate> network_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessIOThread);
 };

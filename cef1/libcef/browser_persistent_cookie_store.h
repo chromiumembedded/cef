@@ -19,7 +19,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "net/base/cookie_monster.h"
+#include "net/cookies/cookie_monster.h"
 
 class FilePath;
 class Task;

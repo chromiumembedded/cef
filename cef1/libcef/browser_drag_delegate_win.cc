@@ -25,7 +25,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "ui/views/drag_utils.h"
+#include "ui/base/dragdrop/drag_utils.h"
 #include "webkit/glue/webdropdata.h"
 
 using WebKit::WebDragOperationsMask;

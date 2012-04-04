@@ -68,7 +68,7 @@
 #include "net/url_request/url_request_redirect_job.h"
 #include "webkit/appcache/appcache_interfaces.h"
 #include "webkit/blob/blob_storage_controller.h"
-#include "webkit/blob/deletable_file_reference.h"
+#include "webkit/blob/shareable_file_reference.h"
 #include "webkit/fileapi/file_system_context.h"
 #include "webkit/fileapi/file_system_dir_url_request_job.h"
 #include "webkit/fileapi/file_system_url_request_job.h"
@@ -81,7 +81,7 @@
 using net::HttpResponseHeaders;
 using net::StaticCookiePolicy;
 using net::URLRequestStatus;
-using webkit_blob::DeletableFileReference;
+using webkit_blob::ShareableFileReference;
 using webkit_glue::ResourceLoaderBridge;
 using webkit_glue::ResourceResponseInfo;
 
@@ -578,8 +578,9 @@ class RequestProxy : public net::URLRequest::Delegate,
       if (download_to_file_) {
         FilePath path;
         if (file_util::CreateTemporaryFile(&path)) {
-          downloaded_file_ = DeletableFileReference::GetOrCreate(
-              path, base::MessageLoopProxy::current());
+          downloaded_file_ = ShareableFileReference::GetOrCreate(
+              path, ShareableFileReference::DELETE_ON_FINAL_RELEASE,
+              base::MessageLoopProxy::current());
           file_stream_.OpenSync(
               path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
         }
@@ -778,34 +779,6 @@ class RequestProxy : public net::URLRequest::Delegate,
     request->ContinueDespiteLastError();
   }
 
-  virtual bool CanGetCookies(
-      const net::URLRequest* request,
-      const net::CookieList& cookie_list) const OVERRIDE {
-    StaticCookiePolicy::Type policy_type =
-        _Context->request_context()->AcceptAllCookies() ?
-            StaticCookiePolicy::ALLOW_ALL_COOKIES :
-            StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
-
-    StaticCookiePolicy policy(policy_type);
-    int rv = policy.CanGetCookies(
-        request->url(), request->first_party_for_cookies());
-    return rv == net::OK;
-  }
-
-  virtual bool CanSetCookie(const net::URLRequest* request,
-                            const std::string& cookie_line,
-                            net::CookieOptions* options) const OVERRIDE {
-    StaticCookiePolicy::Type policy_type =
-        _Context->request_context()->AcceptAllCookies() ?
-            StaticCookiePolicy::ALLOW_ALL_COOKIES :
-            StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
-
-    StaticCookiePolicy policy(policy_type);
-    int rv = policy.CanSetCookie(
-        request->url(), request->first_party_for_cookies());
-    return rv == net::OK;
-  }
-
   virtual void OnReadCompleted(net::URLRequest* request,
                                int bytes_read) OVERRIDE {
     if (request->status().is_success() && bytes_read > 0) {
@@ -894,7 +867,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   // Support for request.download_to_file behavior.
   bool download_to_file_;
   net::FileStream file_stream_;
-  scoped_refptr<DeletableFileReference> downloaded_file_;
+  scoped_refptr<ShareableFileReference> downloaded_file_;
 
   // Size of our async IO data buffers. Limited by the sanity check in
   // URLRequestJob::Read().

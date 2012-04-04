@@ -22,7 +22,8 @@
 #include "base/synchronization/lock.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
-#include "net/base/cookie_monster.h"
+#include "net/base/load_flags.h"
+#include "net/cookies/cookie_monster.h"
 #include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
@@ -178,7 +179,8 @@ class CefUrlRequestJob : public net::URLRequestJob {
 
     net::CookieStore* cookie_store =
         request_->context()->cookie_store();
-    if (cookie_store) {
+    if (cookie_store &&
+        !(request_->load_flags() & net::LOAD_DO_NOT_SEND_COOKIES)) {
       net::CookieMonster* cookie_monster = cookie_store->GetCookieMonster();
       if (cookie_monster) {
         cookie_monster->GetAllCookiesForURLAsync(
@@ -388,6 +390,12 @@ class CefUrlRequestJob : public net::URLRequestJob {
   }
 
   void SaveCookiesAndNotifyHeadersComplete() {
+    if (request_->load_flags() & net::LOAD_DO_NOT_SAVE_COOKIES) {
+      SetStatus(URLRequestStatus());  // Clear the IO_PENDING status
+      NotifyHeadersComplete();
+      return;
+    }
+
     response_cookies_.clear();
     response_cookies_save_index_ = 0;
 
