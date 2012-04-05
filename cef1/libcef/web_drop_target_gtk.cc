@@ -23,7 +23,7 @@
 #include "ui/base/dragdrop/os_exchange_data_provider_gtk.h"
 #include "ui/base/dragdrop/drag_drop_types.h"
 #include "ui/base/dragdrop/gtk_dnd_util.h"
-#include "ui/base/gtk/gtk_screen_utils.h"
+#include "ui/base/gtk/gtk_screen_util.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/window_open_disposition.h"
 
