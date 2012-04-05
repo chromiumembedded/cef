@@ -1,0 +1,35 @@
+Index: page/FrameView.cpp
+===================================================================
+--- page/FrameView.cpp	(revision 112327)
++++ page/FrameView.cpp	(working copy)
+@@ -159,10 +159,12 @@
+     if (!page)
+         return;
+ 
++#if 0
+     if (m_frame == page->mainFrame()) {
+         ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+         ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
+     }
++#endif
+ }
+ 
+ PassRefPtr<FrameView> FrameView::create(Frame* frame)
+Index: platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm
+===================================================================
+--- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 101144)
++++ platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(working copy)
+@@ -356,9 +356,13 @@
+ 
+ bool isScrollbarOverlayAPIAvailable()
+ {
++#if 0
+     static bool apiAvailable = [lookUpNSScrollerImpClass() respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)] &&
+                                [lookUpNSScrollerImpPairClass() instancesRespondToSelector:@selector(scrollerStyle)];
+     return apiAvailable;
++#else
++    return false;
++#endif
+ }
+ 
+ #endif // USE(WK_SCROLLBAR_PAINTER)
