@@ -322,7 +322,7 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
   if (!host)
     return NULL;
 
-  gfx::PluginWindowHandle containing_view = NULL;
+  gfx::PluginWindowHandle containing_view = 0;
   WebPluginDelegateImpl* delegate = WebPluginDelegateImpl::Create(
       path, mime_type, containing_view);
   if (delegate)
