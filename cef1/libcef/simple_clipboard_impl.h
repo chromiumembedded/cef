@@ -32,6 +32,8 @@ class SimpleClipboardClient : public webkit_glue::ClipboardClient {
   virtual void ReadHTML(ui::Clipboard::Buffer buffer, string16* markup,
                         GURL* url, uint32* fragment_start,
                         uint32* fragment_end) OVERRIDE;
+  virtual void ReadRTF(ui::Clipboard::Buffer buffer,
+                       std::string* result) OVERRIDE;
   virtual void ReadImage(ui::Clipboard::Buffer buffer,
                          std::string* data) OVERRIDE;
   virtual void ReadCustomData(ui::Clipboard::Buffer buffer,

@@ -78,6 +78,11 @@ void SimpleClipboardClient::ReadHTML(ui::Clipboard::Buffer buffer,
     *url = GURL(url_str);
 }
 
+void SimpleClipboardClient::ReadRTF(ui::Clipboard::Buffer buffer,
+                                    std::string* result) {
+  GetClipboard()->ReadRTF(buffer, result);
+}
+
 void SimpleClipboardClient::ReadImage(ui::Clipboard::Buffer buffer,
                                       std::string* data) {
   SkBitmap bitmap = GetClipboard()->ReadImage(buffer);
