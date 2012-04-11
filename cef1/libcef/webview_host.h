@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "ui/gfx/native_widget_types.h"
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
 #include "webkit/plugins/npapi/gtk_plugin_container_manager.h"
 #endif
 
@@ -39,7 +39,7 @@ class WebViewHost : public WebWidgetHost {
 
   WebKit::WebView* webview() const;
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
   // Create a new plugin parent container for a given plugin XID.
   void CreatePluginContainer(gfx::PluginWindowHandle id);
 
@@ -67,7 +67,7 @@ class WebViewHost : public WebWidgetHost {
   virtual void KeyEvent(UINT message, WPARAM wparam, LPARAM lparam);
 #endif
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
   // Helper class that creates and moves plugin containers.
   webkit::npapi::GtkPluginContainerManager plugin_container_manager_;
 #endif

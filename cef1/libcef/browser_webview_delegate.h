@@ -33,7 +33,7 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/plugins/npapi/webplugin_page_delegate.h"
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
 #include <gdk/gdk.h>  // NOLINT(build/include_order)
 #endif
 

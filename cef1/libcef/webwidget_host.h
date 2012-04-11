@@ -30,7 +30,7 @@
 #include "ui/base/win/ime_input.h"
 #endif
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
@@ -186,7 +186,7 @@ class WebWidgetHost {
   virtual void SetFocus(bool enable);
 
  protected:
-#elif defined(TOOLKIT_USES_GTK)
+#elif defined(TOOLKIT_GTK)
 
  public:
   // ---------------------------------------------------------------------------
@@ -284,7 +284,7 @@ class WebWidgetHost {
   WebKit::WebRect caret_bounds_;
 #endif
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
   // Since GtkWindow resize is asynchronous, we have to stash the dimensions,
   // so that the backing store doesn't have to wait for sizing to take place.
   gfx::Size logical_size_;

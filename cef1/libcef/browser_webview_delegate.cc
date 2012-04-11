@@ -30,10 +30,11 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/stringprintf.h"
+#include "media/audio/null_audio_sink.h"
 #include "media/base/filter_collection.h"
 #include "media/base/media_log.h"
 #include "media/base/message_loop_factory.h"
-#include "media/filters/null_audio_renderer.h"
+#include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
@@ -677,7 +678,8 @@ WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
 
   // Add the audio renderer.
   // TODO(vrk): Re-enable audio. (crbug.com/112159)
-  collection->AddAudioRenderer(new media::NullAudioRenderer());
+  collection->AddAudioRenderer(
+      new media::AudioRendererImpl(new media::NullAudioSink()));
 
   return new webkit_media::WebMediaPlayerImpl(
       frame,
