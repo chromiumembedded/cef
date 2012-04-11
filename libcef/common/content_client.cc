@@ -51,27 +51,20 @@ bool CefContentClient::CanHandleWhileSwappedOut(const IPC::Message& msg) {
   return false;
 }
 
-std::string CefContentClient::GetUserAgent(bool* overriding) const {
+std::string CefContentClient::GetUserAgent() const {
+  std::string product_version;
+
   static CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kUserAgent)) {
-    *overriding = true;
-    return command_line.GetSwitchValueASCII(switches::kUserAgent);
+  if (command_line.HasSwitch(switches::kProductVersion)) {
+    product_version =
+        command_line.GetSwitchValueASCII(switches::kProductVersion);
   } else {
-    std::string product_version;
-
-    if (command_line.HasSwitch(switches::kProductVersion)) {
-      *overriding = true;
-      product_version =
-          command_line.GetSwitchValueASCII(switches::kProductVersion);
-    } else {
-      *overriding = false;
-      product_version = base::StringPrintf("Chrome/%d.%d.%d.%d",
-          CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
-          CHROME_VERSION_PATCH);
-    }
-
-    return webkit_glue::BuildUserAgentFromProduct(product_version);
+    product_version = base::StringPrintf("Chrome/%d.%d.%d.%d",
+        CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+        CHROME_VERSION_PATCH);
   }
+
+  return webkit_glue::BuildUserAgentFromProduct(product_version);
 }
 
 string16 CefContentClient::GetLocalizedString(int message_id) const {

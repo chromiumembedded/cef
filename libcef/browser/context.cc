@@ -14,7 +14,6 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
-#include "base/message_loop.h"
 #include "base/synchronization/waitable_event.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
@@ -37,23 +36,6 @@ const int kNextBrowserIdReset = 1;
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
 
-namespace {
-
-// Used in multi-threaded message loop mode to observe shutdown of the UI
-// thread.
-class DestructionObserver : public MessageLoop::DestructionObserver {
- public:
-  explicit DestructionObserver(base::WaitableEvent *event) : event_(event) {}
-  virtual void WillDestroyCurrentMessageLoop() {
-    MessageLoop::current()->RemoveDestructionObserver(this);
-    event_->Signal();
-    delete this;
-  }
- private:
-  base::WaitableEvent *event_;
-};
-
-}  // namespace
 
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application) {
@@ -200,11 +182,12 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   cache_path_ = FilePath(CefString(&settings.cache_path));
 
+#if !defined(OS_WIN)
   if (settings.multi_threaded_message_loop) {
-    // TODO(cef): Figure out if we can support this.
-    NOTIMPLEMENTED();
+    NOTIMPLEMENTED() << "multi_threaded_message_loop is not supported.";
     return false;
   }
+#endif
 
   main_delegate_.reset(new CefMainDelegate(application));
   main_runner_.reset(content::ContentMainRunner::Create());
@@ -246,24 +229,20 @@ void CefContext::Shutdown() {
   if (settings_.multi_threaded_message_loop) {
     // Events that will be used to signal when shutdown is complete. Start in
     // non-signaled mode so that the event will block.
-    base::WaitableEvent browser_shutdown_event(false, false);
     base::WaitableEvent uithread_shutdown_event(false, false);
 
     // Finish shutdown on the UI thread.
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefContext::FinishShutdownOnUIThread, this,
-                   &browser_shutdown_event, &uithread_shutdown_event));
+                   &uithread_shutdown_event));
 
-    // Block until browser shutdown is complete.
-    browser_shutdown_event.Wait();
+    /// Block until UI thread shutdown is complete.
+    uithread_shutdown_event.Wait();
 
     FinalizeShutdown();
-
-    // Block until UI thread shutdown is complete.
-    uithread_shutdown_event.Wait();
   } else {
     // Finish shutdown on the current thread, which should be the UI thread.
-    FinishShutdownOnUIThread(NULL, NULL);
+    FinishShutdownOnUIThread(NULL);
 
     FinalizeShutdown();
   }
@@ -355,7 +334,6 @@ CefBrowserContext* CefContext::browser_context() const {
 }
 
 void CefContext::FinishShutdownOnUIThread(
-    base::WaitableEvent* browser_shutdown_event,
     base::WaitableEvent* uithread_shutdown_event) {
   CEF_REQUIRE_UIT();
 
@@ -376,19 +354,12 @@ void CefContext::FinishShutdownOnUIThread(
       (*it)->DestroyBrowser();
   }
 
-  if (uithread_shutdown_event) {
-    // The destruction observer will signal the UI thread shutdown event when
-    // the UI thread has been destroyed.
-    MessageLoop::current()->AddDestructionObserver(
-        new DestructionObserver(uithread_shutdown_event));
-
-    // Signal the browser shutdown event now.
-    browser_shutdown_event->Signal();
-  }
+  if (uithread_shutdown_event)
+    uithread_shutdown_event->Signal();
 }
 
 void CefContext::FinalizeShutdown() {
-  // Shut down the browser runner.
+  // Shut down the browser runner or UI thread.
   main_delegate_->ShutdownBrowser();
 
   // Shut down the content runner.

@@ -25,6 +25,7 @@ struct MainFunctionParams;
 
 class CefBrowserContext;
 class CefDevToolsDelegate;
+class MessageLoop;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
  public:
@@ -33,8 +34,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   virtual void PreEarlyInitialization() OVERRIDE {}
   virtual void PostEarlyInitialization() OVERRIDE {}
-  virtual void PreMainMessageLoopStart() OVERRIDE {}
-  virtual MessageLoop* GetMainMessageLoop() OVERRIDE;
+  virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PostMainMessageLoopStart() OVERRIDE {}
   virtual void ToolkitInitialized() OVERRIDE {}
   virtual int PreCreateThreads() OVERRIDE;
@@ -52,6 +52,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   scoped_ptr<CefBrowserContext> browser_context_;
 
+  scoped_ptr<MessageLoop> message_loop_;
   scoped_ptr<ui::Clipboard> clipboard_;
   CefDevToolsDelegate* devtools_delegate_;
 

@@ -70,8 +70,7 @@ class CefContext : public CefBase {
  private:
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
-  void FinishShutdownOnUIThread(base::WaitableEvent* browser_shutdown_event,
-                                base::WaitableEvent* uithread_shutdown_event);
+  void FinishShutdownOnUIThread(base::WaitableEvent* uithread_shutdown_event);
 
   // Destroys the main runner and related objects.
   void FinalizeShutdown();

@@ -11,6 +11,7 @@
 #include "libcef/common/request_impl.h"
 
 #include "net/base/net_errors.h"
+#include "net/url_request/url_request.h"
 
 namespace {
 
@@ -95,6 +96,8 @@ int CefNetworkDelegate::OnBeforeURLRequest(
       if (handler.get()) {
         CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
 
+        GURL old_url = request->url();
+
         // Populate the request data.
         CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
         requestPtr->Set(request);
@@ -105,7 +108,10 @@ int CefNetworkDelegate::OnBeforeURLRequest(
           return net::ERR_ABORTED;
         }
 
-        *new_url = GURL(std::string(requestPtr->GetURL()));
+        GURL url = GURL(std::string(requestPtr->GetURL()));
+        if (old_url != url)
+          new_url ->Swap(&url);
+
         requestPtr->Get(request);
       }
     }

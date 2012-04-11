@@ -15,11 +15,18 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/synchronization/waitable_event.h"
+#include "base/threading/thread.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/main_function_params.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
+
+#if defined(OS_WIN)
+#include <Objbase.h>  // NOLINT(build/include_order)
+#endif
 
 #if defined(OS_MACOSX)
 #include "base/mac/bundle_locations.h"
@@ -27,7 +34,7 @@
 #include "content/public/common/content_paths.h"
 
 namespace {
-  
+
 FilePath GetFrameworksPath() {
   // Start out with the path to the running executable.
   FilePath path;
@@ -71,11 +78,53 @@ void OverrideChildProcessPath() {
 
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
-  
+
 }  // namespace
 
 #endif  // OS_MACOSX
 
+namespace {
+
+// Used to run the UI on a separate thread.
+class CefUIThread : public base::Thread {
+ public:
+  explicit CefUIThread(const content::MainFunctionParams& main_function_params)
+    : base::Thread("CefUIThread"),
+      main_function_params_(main_function_params) {
+  }
+
+  virtual void Init() OVERRIDE {
+#if defined(OS_WIN)
+    // Initializes the COM library on the current thread.
+    CoInitialize(NULL);
+#endif
+
+    // Use our own browser process runner.
+    browser_runner_.reset(content::BrowserMainRunner::Create());
+
+    // Initialize browser process state. Results in a call to
+    // CefBrowserMain::GetMainMessageLoop().
+    int exit_code = browser_runner_->Initialize(main_function_params_);
+    CHECK_EQ(exit_code, -1);
+  }
+
+  virtual void CleanUp() OVERRIDE {
+    browser_runner_->Shutdown();
+    browser_runner_.reset(NULL);
+
+#if defined(OS_WIN)
+    // Closes the COM library on the current thread. CoInitialize must
+    // be balanced by a corresponding call to CoUninitialize.
+    CoUninitialize();
+#endif
+  }
+
+ protected:
+  content::MainFunctionParams main_function_params_;
+  scoped_ptr<content::BrowserMainRunner> browser_runner_;
+};
+
+}  // namespace
 
 CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
     : content_client_(application) {
@@ -88,7 +137,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 #if defined(OS_MACOSX)
   OverrideFrameworkBundlePath();
 #endif
-  
+
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -190,14 +239,28 @@ int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
   if (process_type.empty()) {
-    // Use our own browser process runner.
-    browser_runner_.reset(content::BrowserMainRunner::Create());
+    const CefSettings& settings = _Context->settings();
+    if (!settings.multi_threaded_message_loop) {
+      // Use our own browser process runner.
+      browser_runner_.reset(content::BrowserMainRunner::Create());
 
-    // Initialize browser process state. Results in a call to
-    // CefBrowserMain::GetMainMessageLoop().
-    int exit_code = browser_runner_->Initialize(main_function_params);
-    if (exit_code >= 0)
-      return exit_code;
+      // Initialize browser process state. Results in a call to
+      // CefBrowserMain::GetMainMessageLoop().
+      int exit_code = browser_runner_->Initialize(main_function_params);
+      if (exit_code >= 0)
+        return exit_code;
+    } else {
+      // Run the UI on a separate thread.
+      scoped_ptr<base::Thread> thread;
+      thread.reset(new CefUIThread(main_function_params));
+      base::Thread::Options options;
+      options.message_loop_type = MessageLoop::TYPE_UI;
+      if (!thread->StartWithOptions(options)) {
+        NOTREACHED() << "failed to start UI thread";
+        return 1;
+      }
+      ui_thread_.swap(thread);
+    }
 
     return 0;
   }
@@ -242,6 +305,11 @@ void CefMainDelegate::ShutdownBrowser() {
   if (browser_runner_.get()) {
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
+  }
+  if (ui_thread_.get()) {
+    // Blocks until the thread has stopped.
+    ui_thread_->Stop();
+    ui_thread_.reset();
   }
 }
 

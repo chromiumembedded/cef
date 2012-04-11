@@ -15,6 +15,10 @@
 #include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
 
+namespace base {
+class Thread;
+}
+
 namespace content {
 class BrowserMainRunner;
 }
@@ -59,6 +63,8 @@ class CefMainDelegate : public content::ContentMainDelegate {
   void InitializeResourceBundle();
 
   scoped_ptr<content::BrowserMainRunner> browser_runner_;
+  scoped_ptr<base::Thread> ui_thread_;
+
   scoped_ptr<CefContentBrowserClient> browser_client_;
   scoped_ptr<CefContentRendererClient> renderer_client_;
   scoped_ptr<CefContentPluginClient> plugin_client_;

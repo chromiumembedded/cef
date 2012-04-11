@@ -37,17 +37,17 @@ CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
       devtools_delegate_(NULL) {
-  CefContentBrowserClient* browser_client =
-      static_cast<CefContentBrowserClient*>(
-          content::GetContentClient()->browser());
-  browser_client->set_browser_main_parts(this);
 }
 
 CefBrowserMainParts::~CefBrowserMainParts() {
 }
 
-MessageLoop* CefBrowserMainParts::GetMainMessageLoop() {
-  return new CefBrowserMessageLoop();
+void CefBrowserMainParts::PreMainMessageLoopStart() {
+  if (!MessageLoop::current()) {
+    // Create the browser message loop.
+    message_loop_.reset(new CefBrowserMessageLoop());
+    message_loop_->set_thread_name("CrBrowserMain");
+  }
 }
 
 int CefBrowserMainParts::PreCreateThreads() {

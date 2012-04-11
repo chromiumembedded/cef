@@ -93,6 +93,13 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 const CefString& errorText,
                                 const CefString& failedUrl) {
   REQUIRE_UI_THREAD();
+
+  // Display a load error message.
+  std::stringstream ss;
+  ss << "<html><body><h2>Failed to load URL " << std::string(failedUrl) <<
+        " with error " << std::string(errorText) << " (" << errorCode <<
+        ").</h2></body></html>";
+  frame->LoadString(ss.str(), failedUrl);
 }
 
 void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,

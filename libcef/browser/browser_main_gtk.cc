@@ -9,7 +9,6 @@
 #include "base/string_piece.h"
 
 void CefBrowserMainParts::PlatformInitialize() {
-  gtk_init(NULL, NULL);
 }
 
 void CefBrowserMainParts::PlatformCleanup() {

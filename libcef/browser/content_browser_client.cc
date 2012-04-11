@@ -73,7 +73,8 @@ CefContentBrowserClient::~CefContentBrowserClient() {
 
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
-  return new CefBrowserMainParts(parameters);
+  browser_main_parts_ = new CefBrowserMainParts(parameters);
+  return browser_main_parts_;
 }
 
 content::WebContentsView*

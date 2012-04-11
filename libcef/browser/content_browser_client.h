@@ -26,9 +26,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefContentBrowserClient();
   virtual ~CefContentBrowserClient();
 
-  void set_browser_main_parts(CefBrowserMainParts* parts) {
-    browser_main_parts_ = parts;
-  }
   CefBrowserMainParts* browser_main_parts() const {
     return browser_main_parts_;
   }
