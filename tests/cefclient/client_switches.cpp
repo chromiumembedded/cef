@@ -4,7 +4,7 @@
 
 // This file is shared by cefclient and cef_unittests so don't include using
 // a qualified path.
-#include "cefclient_switches.h"  // NOLINT(build/include)
+#include "client_switches.h"  // NOLINT(build/include)
 
 namespace cefclient {
 

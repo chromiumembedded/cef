@@ -8,7 +8,10 @@
 #include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/wrapper/cef_stream_resource_handler.h"
+#include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
+#include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 
 
@@ -21,11 +24,28 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFormElementHasFocus(false) {
+  CreateProcessMessageDelegates(process_message_delegates_);
+  CreateRequestDelegates(request_delegates_);
 }
 
 ClientHandler::~ClientHandler() {
 }
 
+bool ClientHandler::OnProcessMessageRecieved(
+    CefRefPtr<CefBrowser> browser,
+    CefProcessId source_process,
+    CefRefPtr<CefProcessMessage> message) {
+  bool handled = false;
+
+  // Execute delegate callbacks.
+  ProcessMessageDelegateSet::iterator it = process_message_delegates_.begin();
+  for (; it != process_message_delegates_.end() && !handled; ++it) {
+    handled = (*it)->OnProcessMessageRecieved(this, browser, source_process,
+                                              message);
+  }
+
+  return handled;
+}
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
@@ -100,6 +120,45 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
         " with error " << std::string(errorText) << " (" << errorCode <<
         ").</h2></body></html>";
   frame->LoadString(ss.str(), failedUrl);
+}
+
+CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) {
+  std::string url = request->GetURL();
+  if (url == "http://tests/request") {
+    // Show the request contents
+    std::string dump;
+    DumpRequestContents(request, dump);
+    CefRefPtr<CefStreamReader> stream =
+        CefStreamReader::CreateForData(
+            static_cast<void*>(const_cast<char*>(dump.c_str())),
+            dump.size());
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/plain", stream);
+  } else if (url == "http://tests/localstorage") {
+    // Show the localstorage contents
+    CefRefPtr<CefStreamReader> stream =
+        GetBinaryResourceReader("localstorage.html");
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/html", stream);
+  } else if (url == "http://tests/xmlhttprequest") {
+    // Show the xmlhttprequest contents
+    CefRefPtr<CefStreamReader> stream =
+       GetBinaryResourceReader("xmlhttprequest.html");
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/html", stream);
+  }
+
+  CefRefPtr<CefResourceHandler> handler;
+
+  // Execute delegate callbacks.
+  RequestDelegateSet::iterator it = request_delegates_.begin();
+  for (; it != request_delegates_.end() && !handler.get(); ++it)
+    handler = (*it)->GetResourceHandler(this, browser, frame, request);
+
+  return handler;
 }
 
 void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -203,4 +262,17 @@ void ClientHandler::ShowDevTools() {
 }
 
 void ClientHandler::CloseDevTools() {
+}
+
+// static
+void ClientHandler::CreateProcessMessageDelegates(
+      ProcessMessageDelegateSet& delegates) {
+  // Create the binding test delegates.
+  binding_test::CreateProcessMessageDelegates(delegates);
+}
+
+// static
+void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
+  // Create the binding test delegates.
+  binding_test::CreateRequestDelegates(delegates);
 }

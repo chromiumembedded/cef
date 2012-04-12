@@ -13,6 +13,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
@@ -53,9 +54,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   CefMainArgs main_args(hInstance);
+  CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, NULL);
+  int exit_code = CefExecuteProcess(main_args, app.get());
   if (exit_code >= 0)
     return exit_code;
 
@@ -67,13 +69,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   AppInitCommandLine(0, NULL);
 
   CefSettings settings;
-  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings, app);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app);
+  CefInitialize(main_args, settings, app.get());
 
   // Register the scheme handler.
   InitSchemeTest();
@@ -371,6 +372,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_SCHEME_HANDLER:  // Test the scheme handler
         if (browser.get())
           RunSchemeTest(browser);
+        return 0;
+      case ID_TESTS_BINDING:  // Test JavaScript binding
+        if (browser.get())
+          binding_test::RunTest(browser);
         return 0;
       case ID_TESTS_LOCALSTORAGE:  // Test localStorage
         if (browser.get())

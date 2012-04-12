@@ -5,7 +5,7 @@
 #include <sstream>
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
-#include "tests/unittests/test_app.h"
+#include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -60,7 +60,7 @@ enum V8TestMode {
 };
 
 // Renderer side.
-class V8RendererTest : public TestApp::Test {
+class V8RendererTest : public ClientApp::RenderDelegate {
  public:
   V8RendererTest() {}
 
@@ -1384,7 +1384,7 @@ class V8RendererTest : public TestApp::Test {
     DestroyTest();
   }
 
-  virtual void OnContextCreated(CefRefPtr<TestApp> test_app,
+  virtual void OnContextCreated(CefRefPtr<ClientApp> app,
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE {
@@ -1443,12 +1443,12 @@ class V8RendererTest : public TestApp::Test {
   }
 
   virtual bool OnProcessMessageRecieved(
-      CefRefPtr<TestApp> test_app,
+      CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {
     if (message->GetName() == kV8TestMsg) {
-      test_app_ = test_app;
+      app_ = app;
       browser_ = browser;
 
       V8TestMode test_mode =
@@ -1467,7 +1467,7 @@ class V8RendererTest : public TestApp::Test {
   // Return from the test.
   void DestroyTest() {
     // Check if the test has failed.
-    bool result = !TestApp::TestFailed();
+    bool result = !TestFailed();
 
     // Return the result to the browser process.
     CefRefPtr<CefProcessMessage> return_msg =
@@ -1475,7 +1475,7 @@ class V8RendererTest : public TestApp::Test {
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
     EXPECT_TRUE(browser_->SendProcessMessage(PID_BROWSER, return_msg));
 
-    test_app_ = NULL;
+    app_ = NULL;
     browser_ = NULL;
   }
 
@@ -1486,7 +1486,7 @@ class V8RendererTest : public TestApp::Test {
     return context;
   }
 
-  CefRefPtr<TestApp> test_app_;
+  CefRefPtr<ClientApp> app_;
   CefRefPtr<CefBrowser> browser_;
 
   IMPLEMENT_REFCOUNTING(SendRecvRendererTest);
@@ -1562,9 +1562,9 @@ class V8TestHandler : public TestHandler {
 
 
 // Entry point for creating V8 renderer test objects.
-// Called from test_app_tests.cc.
-void CreateV8RendererTests(TestApp::TestSet& tests) {
-  tests.insert(new V8RendererTest);
+// Called from client_app_delegates.cc.
+void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
+  delegates.insert(new V8RendererTest);
 }
 
 

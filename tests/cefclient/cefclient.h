@@ -8,6 +8,7 @@
 
 #include <string>
 #include "include/cef_base.h"
+#include "cefclient/client_app.h"
 
 class CefApp;
 class CefBrowser;
@@ -29,7 +30,7 @@ void AppInitCommandLine(int argc, const char* const* argv);
 CefRefPtr<CefCommandLine> AppGetCommandLine();
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app);
+void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app);
 
 // Returns the application browser settings based on command line arguments.
 void AppGetBrowserSettings(CefBrowserSettings& settings);

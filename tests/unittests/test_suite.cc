@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_suite.h"
-#include "tests/cefclient/cefclient_switches.h"
+#include "tests/cefclient/client_switches.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/test/test_suite.h"

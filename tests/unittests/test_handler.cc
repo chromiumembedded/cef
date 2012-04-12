@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_handler.h"
+#include "include/cef_command_line.h"
 #include "include/cef_runnable.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
@@ -113,4 +114,17 @@ void WaitForThread(CefThreadId thread_id) {
   base::WaitableEvent event(true, false);
   CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
   event.Wait();
+}
+
+bool TestFailed() {
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  if (command_line->HasSwitch("single-process")) {
+    // Check for a failure on the current test only.
+    return ::testing::UnitTest::GetInstance()->current_test_info()->result()->
+        Failed();
+  } else {
+    // Check for any global failure.
+    return ::testing::UnitTest::GetInstance()->Failed();
+  }
 }

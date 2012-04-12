@@ -6,11 +6,7 @@
 #include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "include/cef_stream.h"
-#include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/resource.h"
-#include "cefclient/resource_util.h"
-#include "cefclient/string_util.h"
 
 bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
                                   const CefPopupFeatures& popupFeatures,
@@ -21,38 +17,6 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
   REQUIRE_UI_THREAD();
 
   return false;
-}
-
-CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) {
-  std::string url = request->GetURL();
-  if (url == "http://tests/request") {
-    // Show the request contents
-    std::string dump;
-    DumpRequestContents(request, dump);
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(dump.c_str())),
-            dump.size());
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/plain", stream);
-  } else if (url == "http://tests/localstorage") {
-    // Show the localstorage contents
-    CefRefPtr<CefStreamReader> stream =
-        GetBinaryResourceReader(IDS_LOCALSTORAGE);
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  } else if (url == "http://tests/xmlhttprequest") {
-    // Show the xmlhttprequest contents
-    CefRefPtr<CefStreamReader> stream =
-       GetBinaryResourceReader(IDS_XMLHTTPREQUEST);
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  }
-
-  return NULL;
 }
 
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,

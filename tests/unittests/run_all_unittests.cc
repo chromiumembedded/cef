@@ -4,7 +4,7 @@
 
 #include "include/cef_app.h"
 #include "include/cef_task.h"
-#include "tests/unittests/test_app.h"
+#include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_suite.h"
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
 #endif
 
-  CefRefPtr<CefApp> app(new TestApp);
+  CefRefPtr<CefApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app);

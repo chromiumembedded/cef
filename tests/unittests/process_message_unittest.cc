@@ -4,7 +4,7 @@
 
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
-#include "tests/unittests/test_app.h"
+#include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -40,12 +40,12 @@ CefRefPtr<CefProcessMessage> CreateTestMessage() {
 }
 
 // Renderer side.
-class SendRecvRendererTest : public TestApp::Test {
+class SendRecvRendererTest : public ClientApp::RenderDelegate {
  public:
   SendRecvRendererTest() {}
 
   virtual bool OnProcessMessageRecieved(
-      CefRefPtr<TestApp> test_app,
+      CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {
@@ -90,9 +90,9 @@ class SendRecvTestHandler : public TestHandler {
           "<html><head>\n"
           "<script>\n"
           "function cb(name, args) {\n"
-          "  test_app.sendMessage(name, args);\n"
+          "  app.sendMessage(name, args);\n"
           "}\n"
-          "test_app.setMessageCallback('"+std::string(kSendRecvMsg)+"', cb);\n"
+          "app.setMessageCallback('"+std::string(kSendRecvMsg)+"', cb);\n"
           "</script>\n"
           "<body>TEST JAVASCRIPT</body>\n"
           "</head></html>";
@@ -176,8 +176,9 @@ TEST(ProcessMessageTest, Copy) {
 
 
 // Entry point for creating process message renderer test objects.
-// Called from test_app_tests.cc.
-void CreateProcessMessageRendererTests(TestApp::TestSet& tests) {
+// Called from client_app_delegates.cc.
+void CreateProcessMessageRendererTests(
+    ClientApp::RenderDelegateSet& delegates) {
   // For ProcessMessageTest.SendRecv
-  tests.insert(new SendRecvRendererTest);
+  delegates.insert(new SendRecvRendererTest);
 }

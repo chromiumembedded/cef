@@ -7,6 +7,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <string>
 #include "include/cef_client.h"
 #include "cefclient/util.h"
@@ -25,6 +26,42 @@ class ClientHandler : public CefClient,
                       public CefDisplayHandler,
                       public CefGeolocationHandler {
  public:
+  // Interface for process message delegates. Do not perform work in the
+  // RenderDelegate constructor.
+  class ProcessMessageDelegate : public virtual CefBase {
+   public:
+    // Called when a process message is received. Return true if the message was
+    // handled and should not be passed on to other handlers.
+    // ProcessMessageDelegates should check for unique message names to avoid
+    // interfering with each other.
+    virtual bool OnProcessMessageRecieved(
+        CefRefPtr<ClientHandler> handler,
+        CefRefPtr<CefBrowser> browser,
+        CefProcessId source_process,
+        CefRefPtr<CefProcessMessage> message) {
+      return false;
+    }
+  };
+
+  typedef std::set<CefRefPtr<ProcessMessageDelegate> >
+      ProcessMessageDelegateSet;
+
+  // Interface for request handler delegates. Do not perform work in the
+  // RequestDelegate constructor.
+  class RequestDelegate : public virtual CefBase {
+   public:
+    // Called to retrieve a resource handler.
+    virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+        CefRefPtr<ClientHandler> handler,
+        CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
+        CefRefPtr<CefRequest> request) {
+      return NULL;
+    }
+  };
+
+  typedef std::set<CefRefPtr<RequestDelegate> > RequestDelegateSet;
+
   ClientHandler();
   virtual ~ClientHandler();
 
@@ -44,6 +81,10 @@ class ClientHandler : public CefClient,
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
+  virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
+                                        CefProcessId source_process,
+                                        CefRefPtr<CefProcessMessage> message)
+                                        OVERRIDE;
 
   // CefLifeSpanHandler methods
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
@@ -129,6 +170,13 @@ class ClientHandler : public CefClient,
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
 
+  // Create all of ProcessMessageDelegate objects.
+  static void CreateProcessMessageDelegates(
+      ProcessMessageDelegateSet& delegates);
+
+  // Create all of RequestDelegateSet objects.
+  static void CreateRequestDelegates(RequestDelegateSet& delegates);
+
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
 
@@ -155,6 +203,10 @@ class ClientHandler : public CefClient,
 
   // True if a form element currently has focus
   bool m_bFormElementHasFocus;
+
+  // Registered delegates.
+  ProcessMessageDelegateSet process_message_delegates_;
+  RequestDelegateSet request_delegates_;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

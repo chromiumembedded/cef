@@ -12,8 +12,8 @@
 #include "include/cef_command_line.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/cefclient_switches.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/client_switches.h"
 #include "cefclient/string_util.h"
 #include "cefclient/util.h"
 
@@ -27,33 +27,6 @@ int GetIntValue(const CefString& str) {
   std::string stdStr = str;
   return atoi(stdStr.c_str());
 }
-
-// ClientApp implementation.
-class ClientApp : public CefApp,
-                  public CefProxyHandler {
- public:
-  ClientApp(cef_proxy_type_t proxy_type, const CefString& proxy_config)
-    : proxy_type_(proxy_type),
-      proxy_config_(proxy_config) {
-  }
-
-  // CefApp methods
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
-
-  // CefProxyHandler methods
-  virtual void GetProxyForUrl(const CefString& url,
-                              CefProxyInfo& proxy_info) OVERRIDE {
-    proxy_info.proxyType = proxy_type_;
-    if (!proxy_config_.empty())
-      CefString(&proxy_info.proxyList) = proxy_config_;
-  }
-
- protected:
-  cef_proxy_type_t proxy_type_;
-  CefString proxy_config_;
-
-  IMPLEMENT_REFCOUNTING(ClientApp);
-};
 
 }  // namespace
 
@@ -87,7 +60,8 @@ CefRefPtr<CefCommandLine> AppGetCommandLine() {
 }
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
+void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app) {
+  ASSERT(app.get());
   ASSERT(g_command_line.get());
   if (!g_command_line.get())
     return;
@@ -179,7 +153,7 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
 
   if (has_proxy) {
     // Provide a ClientApp instance to handle proxy resolution.
-    app = new ClientApp(proxy_type, proxy_config);
+    app->SetProxyConfig(proxy_type, proxy_config);
   }
 }
 
@@ -281,7 +255,7 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
-    Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
+    explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
     virtual void Visit(const CefString& string) OVERRIDE {
       std::string source = StringReplace(string, "<", "&lt;");
       source = StringReplace(source, ">", "&gt;");
@@ -300,7 +274,7 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
 void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
-    Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
+    explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
     virtual void Visit(const CefString& string) OVERRIDE {
       std::string text = StringReplace(string, "<", "&lt;");
       text = StringReplace(text, ">", "&gt;");

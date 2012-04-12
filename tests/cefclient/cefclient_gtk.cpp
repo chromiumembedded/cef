@@ -11,6 +11,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -72,6 +73,14 @@ gboolean XMLHttpRequestActivated(GtkWidget* widget) {
 gboolean SchemeHandlerActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunSchemeTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > JavaScript Binding... menu item.
+gboolean BindingActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    binding_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -191,6 +200,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(XMLHttpRequestActivated));
   AddMenuEntry(debug_menu, "Scheme Handler",
                G_CALLBACK(SchemeHandlerActivated));
+  AddMenuEntry(debug_menu, "JavaScript Binding",
+               G_CALLBACK(BindingActivated));
   AddMenuEntry(debug_menu, "Popup Window",
                G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Accelerated 2D Canvas",
@@ -219,9 +230,10 @@ static gboolean HandleFocus(GtkWidget* widget,
 
 int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
+  CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, NULL);
+  int exit_code = CefExecuteProcess(main_args, app.get());
   if (exit_code >= 0)
     return exit_code;
 
@@ -236,13 +248,12 @@ int main(int argc, char* argv[]) {
   AppInitCommandLine(argc, argv);
 
   CefSettings settings;
-  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings, app);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app);
+  CefInitialize(main_args, settings, app.get());
 
   // Register the scheme handler.
   InitSchemeTest();

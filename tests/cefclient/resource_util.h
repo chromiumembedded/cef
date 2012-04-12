@@ -24,8 +24,9 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);
 
 // Load the resource with the specified name.
 bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 
 #endif
+
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 
 #endif  // CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_

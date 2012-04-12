@@ -5,6 +5,7 @@
 #include "cefclient/resource_util.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_byte_read_handler.h"
+#include "cefclient/util.h"
 
 #if defined(OS_WIN)
 
@@ -34,6 +35,26 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId) {
         new CefByteReadHandler(pBytes, dwSize, NULL));
   }
 
+  return NULL;
+}
+
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
+  // Map of resource labels to BINARY id values.
+  static struct _resource_map {
+    char* name;
+    int id;
+  } resource_map[] = {
+    {"binding.html", IDS_BINDING},
+    {"localstorage.html", IDS_LOCALSTORAGE},
+    {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},
+  };
+
+  for (int i = 0; i < sizeof(resource_map)/sizeof(_resource_map); ++i) {
+    if (!strcmp(resource_map[i].name, resource_name))
+      return GetBinaryResourceReader(resource_map[i].id);
+  }
+
+  ASSERT(FALSE);  // The resource should be found.
   return NULL;
 }
 

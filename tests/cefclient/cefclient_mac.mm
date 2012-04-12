@@ -11,6 +11,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
@@ -228,6 +229,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testLocalStorage:(id)sender;
 - (IBAction)testXMLHttpRequest:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
+- (IBAction)testBinding:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testAccelerated2DCanvas:(id)sender;
 - (IBAction)testAcceleratedLayers:(id)sender;
@@ -266,6 +268,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Scheme Handler"
                       action:@selector(testSchemeHandler:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"JavaScript Binding"
+                      action:@selector(testBinding:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Local Storage"
                       action:@selector(testLocalStorage:)
@@ -409,6 +414,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunSchemeTest(g_handler->GetBrowser());
 }
 
+- (IBAction)testBinding:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    binding_test::RunTest(g_handler->GetBrowser());
+}
+
 - (IBAction)testPopupWindow:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPopupTest(g_handler->GetBrowser());
@@ -457,9 +467,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
 int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
+  CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, NULL);
+  int exit_code = CefExecuteProcess(main_args, app.get());
   if (exit_code >= 0)
     return exit_code;
 
@@ -476,13 +487,12 @@ int main(int argc, char* argv[]) {
   AppInitCommandLine(argc, argv);
 
   CefSettings settings;
-  CefRefPtr<CefApp> app;
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings, app);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app);
+  CefInitialize(main_args, settings, app.get());
 
   // Initialize tests.
   InitSchemeTest();

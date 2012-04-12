@@ -114,4 +114,7 @@ void WaitForThread(CefThreadId thread_id);
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
 
+// Returns true if the currently running test has failed.
+bool TestFailed();
+
 #endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_

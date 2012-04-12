@@ -2,13 +2,17 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/unittests/test_app.h"
+// This file is shared by cefclient and cef_unittests so don't include using
+// a qualified path.
+#include "client_app.h"  // NOLINT(build/include)
+
+#include <string>
+
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 
 #include "base/logging.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
@@ -97,11 +101,11 @@ void SetList(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target) {
 }
 
 
-// Handles the native implementation for the test_app extension.
-class TestAppExtensionHandler : public CefV8Handler {
+// Handles the native implementation for the client_app extension.
+class ClientAppExtensionHandler : public CefV8Handler {
  public:
-  explicit TestAppExtensionHandler(CefRefPtr<TestApp> test_app)
-    : test_app_(test_app) {
+  explicit ClientAppExtensionHandler(CefRefPtr<ClientApp> client_app)
+    : client_app_(client_app) {
   }
 
   virtual bool Execute(const CefString& name,
@@ -139,7 +143,8 @@ class TestAppExtensionHandler : public CefV8Handler {
         std::string name = arguments[0]->GetStringValue();
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         int browser_id = context->GetBrowser()->GetIdentifier();
-        test_app_->SetMessageCallback(name, browser_id, context, arguments[1]);
+        client_app_->SetMessageCallback(name, browser_id, context,
+                                        arguments[1]);
         handled = true;
       }
     }  else if (name == "removeMessageCallback") {
@@ -148,7 +153,7 @@ class TestAppExtensionHandler : public CefV8Handler {
         std::string name = arguments[0]->GetStringValue();
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         int browser_id = context->GetBrowser()->GetIdentifier();
-        bool removed = test_app_->RemoveMessageCallback(name, browser_id);
+        bool removed = client_app_->RemoveMessageCallback(name, browser_id);
         retval = CefV8Value::CreateBool(removed);
         handled = true;
       }
@@ -161,19 +166,20 @@ class TestAppExtensionHandler : public CefV8Handler {
   }
 
  private:
-  CefRefPtr<TestApp> test_app_;
+  CefRefPtr<ClientApp> client_app_;
 
-  IMPLEMENT_REFCOUNTING(TestAppExtensionHandler);
+  IMPLEMENT_REFCOUNTING(ClientAppExtensionHandler);
 };
 
 }  // namespace
 
 
-TestApp::TestApp() {
-  CreateTests(tests_);
+ClientApp::ClientApp()
+    : proxy_type_(PROXY_TYPE_DIRECT) {
+  CreateRenderDelegates(render_delegates_);
 }
 
-void TestApp::SetMessageCallback(const std::string& message_name,
+void ClientApp::SetMessageCallback(const std::string& message_name,
                                  int browser_id,
                                  CefRefPtr<CefV8Context> context,
                                  CefRefPtr<CefV8Value> function) {
@@ -184,7 +190,7 @@ void TestApp::SetMessageCallback(const std::string& message_name,
                      std::make_pair(context, function)));
 }
 
-bool TestApp::RemoveMessageCallback(const std::string& message_name,
+bool ClientApp::RemoveMessageCallback(const std::string& message_name,
                                     int browser_id) {
   DCHECK(CefCurrentlyOn(TID_RENDERER));
 
@@ -198,60 +204,57 @@ bool TestApp::RemoveMessageCallback(const std::string& message_name,
   return false;
 }
 
-// static
-bool TestApp::TestFailed() {
-  CefRefPtr<CefCommandLine> command_line =
-      CefCommandLine::GetGlobalCommandLine();
-  if (command_line->HasSwitch("single-process")) {
-    // Check for a failure on the current test only.
-    return ::testing::UnitTest::GetInstance()->current_test_info()->result()->
-        Failed();
-  } else {
-    // Check for any global failure.
-    return ::testing::UnitTest::GetInstance()->Failed();
-  }
+void ClientApp::GetProxyForUrl(const CefString& url,
+                               CefProxyInfo& proxy_info) {
+  proxy_info.proxyType = proxy_type_;
+  if (!proxy_config_.empty())
+    CefString(&proxy_info.proxyList) = proxy_config_;
 }
 
-void TestApp::OnWebKitInitialized() {
-  // Register the test_app extension.
-  std::string test_app_code =
-    "var test_app;"
-    "if (!test_app)"
-    "  test_app = {};"
+void ClientApp::OnWebKitInitialized() {
+  // Register the client_app extension.
+  std::string app_code =
+    "var app;"
+    "if (!app)"
+    "  app = {};"
     "(function() {"
-    "  test_app.sendMessage = function(name, arguments) {"
+    "  app.sendMessage = function(name, arguments) {"
     "    native function sendMessage();"
     "    return sendMessage(name, arguments);"
     "  };"
-    "  test_app.setMessageCallback = function(name, callback) {"
+    "  app.setMessageCallback = function(name, callback) {"
     "    native function setMessageCallback();"
     "    return setMessageCallback(name, callback);"
     "  };"
+    "  app.removeMessageCallback = function(name) {"
+    "    native function removeMessageCallback();"
+    "    return removeMessageCallback(name);"
+    "  };"
     "})();";
-  CefRegisterExtension("v8/test_app", test_app_code,
-      new TestAppExtensionHandler(this));
+  CefRegisterExtension("v8/app", app_code,
+      new ClientAppExtensionHandler(this));
 
-  // Execute test callbacks.
-  TestSet::iterator it = tests_.begin();
-  for (; it != tests_.end(); ++it)
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
     (*it)->OnWebKitInitialized(this);
 }
 
-void TestApp::OnContextCreated(CefRefPtr<CefBrowser> browser,
+void ClientApp::OnContextCreated(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
                                CefRefPtr<CefV8Context> context) {
-  // Execute test callbacks.
-  TestSet::iterator it = tests_.begin();
-  for (; it != tests_.end(); ++it)
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
     (*it)->OnContextCreated(this, browser, frame, context);
 }
 
-void TestApp::OnContextReleased(CefRefPtr<CefBrowser> browser,
+void ClientApp::OnContextReleased(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) {
-  // Execute test callbacks.
-  TestSet::iterator it = tests_.begin();
-  for (; it != tests_.end(); ++it)
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
     (*it)->OnContextReleased(this, browser, frame, context);
 
   // Remove any JavaScript callbacks registered for the context that has been
@@ -267,7 +270,7 @@ void TestApp::OnContextReleased(CefRefPtr<CefBrowser> browser,
   }
 }
 
-bool TestApp::OnProcessMessageRecieved(
+bool ClientApp::OnProcessMessageRecieved(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
@@ -275,9 +278,9 @@ bool TestApp::OnProcessMessageRecieved(
 
   bool handled = false;
 
-  // Execute test callbacks.
-  TestSet::iterator it = tests_.begin();
-  for (; it != tests_.end() && !handled; ++it) {
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end() && !handled; ++it) {
     handled = (*it)->OnProcessMessageRecieved(this, browser, source_process,
                                               message);
   }

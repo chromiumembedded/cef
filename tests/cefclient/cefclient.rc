@@ -28,6 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
+IDS_BINDING BINARY "res\\binding.html"
 IDS_LOGO BINARY "res\\logo.png"
 IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
@@ -65,6 +66,7 @@ BEGIN
         MENUITEM "Popup Window",                ID_TESTS_POPUP
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
+        MENUITEM "JavaScript Binding",          ID_TESTS_BINDING
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
         MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
         MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
