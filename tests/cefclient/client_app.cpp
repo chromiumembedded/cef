@@ -11,8 +11,7 @@
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
-
-#include "base/logging.h"
+#include "util.h"  // NOLINT(build/include)
 
 namespace {
 
@@ -40,7 +39,7 @@ void SetListValue(CefRefPtr<CefListValue> list, int index,
 
 // Transfer a V8 array to a List.
 void SetList(CefRefPtr<CefV8Value> source, CefRefPtr<CefListValue> target) {
-  DCHECK(source->IsArray());
+  ASSERT(source->IsArray());
 
   int arg_length = source->GetArrayLength();
   if (arg_length == 0)
@@ -90,7 +89,7 @@ void SetListValue(CefRefPtr<CefV8Value> list, int index,
 
 // Transfer a List to a V8 array.
 void SetList(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target) {
-  DCHECK(target->IsArray());
+  ASSERT(target->IsArray());
 
   int arg_length = source->GetSize();
   if (arg_length == 0)
@@ -121,7 +120,7 @@ class ClientAppExtensionHandler : public CefV8Handler {
           arguments[0]->IsString()) {
         CefRefPtr<CefBrowser> browser =
             CefV8Context::GetCurrentContext()->GetBrowser();
-        DCHECK(browser.get());
+        ASSERT(browser.get());
 
         CefString name = arguments[0]->GetStringValue();
         if (!name.empty()) {
@@ -183,7 +182,7 @@ void ClientApp::SetMessageCallback(const std::string& message_name,
                                  int browser_id,
                                  CefRefPtr<CefV8Context> context,
                                  CefRefPtr<CefV8Value> function) {
-  DCHECK(CefCurrentlyOn(TID_RENDERER));
+  ASSERT(CefCurrentlyOn(TID_RENDERER));
 
   callback_map_.insert(
       std::make_pair(std::make_pair(message_name, browser_id),
@@ -192,7 +191,7 @@ void ClientApp::SetMessageCallback(const std::string& message_name,
 
 bool ClientApp::RemoveMessageCallback(const std::string& message_name,
                                     int browser_id) {
-  DCHECK(CefCurrentlyOn(TID_RENDERER));
+  ASSERT(CefCurrentlyOn(TID_RENDERER));
 
   CallbackMap::iterator it =
       callback_map_.find(std::make_pair(message_name, browser_id));
@@ -274,7 +273,7 @@ bool ClientApp::OnProcessMessageRecieved(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
-  DCHECK(source_process == PID_BROWSER);
+  ASSERT(source_process == PID_BROWSER);
 
   bool handled = false;
 

@@ -35,7 +35,7 @@ class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
       std::string result;
 
       CefRefPtr<CefListValue> args = message->GetArgumentList();
-      if (args->GetSize() >= 0 && args->GetType(0) == VTYPE_STRING) {
+      if (args->GetSize() > 0 && args->GetType(0) == VTYPE_STRING) {
         // Our result is a reverse of the original message.
         result = args->GetString(0);
         std::reverse(result.begin(), result.end());

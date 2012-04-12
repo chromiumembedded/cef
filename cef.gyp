@@ -862,6 +862,11 @@
             # creation of binary releases easier.
             'tests'
           ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
           'sources': [
             '<@(cefclient_sources_mac_helper)',
           ],
@@ -906,14 +911,6 @@
                          '--breakpad=0',
                          '--keystone=0',
                          '--svn=0'],
-            },
-            {
-              # Make sure there isn't any Objective-C in the helper app's
-              # executable.
-              'postbuild_name': 'Verify No Objective-C',
-              'action': [
-                '../build/mac/verify_no_objc.sh',
-              ],
             },
           ],
         },  # target cefclient_helper_app
