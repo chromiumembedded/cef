@@ -940,7 +940,7 @@
             'tests/cefclient/client_app.cpp',
             'tests/cefclient/client_app.h',
             'tests/cefclient/process_helper_mac.cpp',
-            'tests/unittests/client_app_delegates.h',
+            'tests/unittests/client_app_delegates.cc',
             'tests/unittests/process_message_unittest.cc',
             'tests/unittests/test_handler.cc',
             'tests/unittests/test_handler.h',

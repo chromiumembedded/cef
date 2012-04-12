@@ -200,6 +200,7 @@
           ],
           'link_settings': {
             'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
               '$(CONFIGURATION)/libcef.dylib',
             ],
           },
