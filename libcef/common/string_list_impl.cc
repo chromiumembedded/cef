@@ -34,7 +34,6 @@ CEF_EXPORT int cef_string_list_value(cef_string_list_t list, int index,
 CEF_EXPORT void cef_string_list_append(cef_string_list_t list,
                                        const cef_string_t* value) {
   DCHECK(list);
-  DCHECK(value);
   StringList* impl = reinterpret_cast<StringList*>(list);
   impl->push_back(CefString(value));
 }
