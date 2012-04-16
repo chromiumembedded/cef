@@ -35,6 +35,7 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId) {
         new CefByteReadHandler(pBytes, dwSize, NULL));
   }
 
+  ASSERT(FALSE);  // The resource should be found.
   return NULL;
 }
 
@@ -45,6 +46,7 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
     int id;
   } resource_map[] = {
     {"binding.html", IDS_BINDING},
+    {"dialogs.html", IDS_DIALOGS},
     {"localstorage.html", IDS_LOCALSTORAGE},
     {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},
   };

@@ -38,12 +38,14 @@
 #define ID_TESTS_DRAGDROP               32771
 #define ID_TESTS_GEOLOCATION            32772
 #define ID_TESTS_BINDING                32773
+#define ID_TESTS_DIALOGS                32774
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
-#define IDS_LOGO                        1001
-#define IDS_LOGOBALL                    1002
-#define IDS_LOCALSTORAGE                1003
-#define IDS_XMLHTTPREQUEST              1004
+#define IDS_DIALOGS                     1001
+#define IDS_LOGO                        1002
+#define IDS_LOGOBALL                    1003
+#define IDS_LOCALSTORAGE                1004
+#define IDS_XMLHTTPREQUEST              1005
 
 // Avoid files associated with MacOS
 #define _X86_

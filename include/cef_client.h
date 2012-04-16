@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_display_handler.h"
 #include "include/cef_geolocation_handler.h"
+#include "include/cef_jsdialog_handler.h"
 #include "include/cef_life_span_handler.h"
 #include "include/cef_load_handler.h"
 #include "include/cef_process_message.h"
@@ -90,6 +91,15 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for JavaScript dialogs. If no handler is provided the
+  // default implementation will be used.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() {
     return NULL;
   }
 

@@ -56,7 +56,14 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
 
   if (resource_map_.size() > 0) {
     CefString url = request->GetURL();
-    ResourceMap::const_iterator it = resource_map_.find(url);
+
+    // Ignore the query component, if any.
+    std::string urlStr = url;
+    int idx = urlStr.find('?');
+    if (idx > 0)
+       urlStr = urlStr.substr(0, idx);
+
+    ResourceMap::const_iterator it = resource_map_.find(urlStr);
     if (it != resource_map_.end()) {
       // Return the previously mapped resource
       CefRefPtr<CefStreamReader> stream =
@@ -97,10 +104,17 @@ void TestHandler::CreateBrowser(const CefString& url) {
   CefBrowserHost::CreateBrowser(windowInfo, this, url, settings);
 }
 
-void TestHandler::AddResource(const CefString& url,
+void TestHandler::AddResource(const std::string& url,
                               const std::string& content,
-                              const CefString& mimeType) {
-  resource_map_.insert(std::make_pair(url, std::make_pair(content, mimeType)));
+                              const std::string& mimeType) {
+  // Ignore the query component, if any.
+  std::string urlStr = url;
+  int idx = urlStr.find('?');
+  if (idx > 0)
+     urlStr = urlStr.substr(0, idx);
+
+  resource_map_.insert(
+      std::make_pair(urlStr, std::make_pair(content, mimeType)));
 }
 
 void TestHandler::ClearResources() {

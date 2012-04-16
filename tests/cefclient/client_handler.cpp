@@ -137,6 +137,12 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
             dump.size());
     ASSERT(stream.get());
     return new CefStreamResourceHandler("text/plain", stream);
+  } else if (url == "http://tests/dialogs") {
+    // Show the dialogs contents
+    CefRefPtr<CefStreamReader> stream =
+        GetBinaryResourceReader("dialogs.html");
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/html", stream);
   } else if (url == "http://tests/localstorage") {
     // Show the localstorage contents
     CefRefPtr<CefStreamReader> stream =

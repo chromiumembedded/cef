@@ -770,6 +770,15 @@ enum cef_value_type_t {
 };
 
 ///
+// Supported JavaScript dialog types.
+///
+enum cef_jsdialog_type_t {
+  JSDIALOGTYPE_ALERT = 0,
+  JSDIALOGTYPE_CONFIRM,
+  JSDIALOGTYPE_PROMPT,
+};
+
+///
 // Supported XML encoding types. The parser supports ASCII, ISO-8859-1, and
 // UTF16 (LE and BE) by default. All other types must be translated to UTF8
 // before being passed to the parser. If a BOM is detected and the correct

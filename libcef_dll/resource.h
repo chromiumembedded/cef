@@ -6,6 +6,13 @@
 // Avoid files associated with MacOS
 #define _X86_
 
+#define IDD_ALERT                 130
+#define IDD_CONFIRM               131
+#define IDD_PROMPT                132
+#define IDC_PROMPTEDIT            1000
+#define IDC_DIALOGTEXT            1001
+
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

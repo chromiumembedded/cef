@@ -37,6 +37,7 @@ class CefClientCToCpp
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE;
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE;
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE;
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
   virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;

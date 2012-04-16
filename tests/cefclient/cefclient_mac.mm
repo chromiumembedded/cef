@@ -230,6 +230,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testXMLHttpRequest:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testBinding:(id)sender;
+- (IBAction)testDialogs:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testAccelerated2DCanvas:(id)sender;
 - (IBAction)testAcceleratedLayers:(id)sender;
@@ -271,6 +272,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Binding"
                       action:@selector(testBinding:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"JavaScript Dialogs"
+                      action:@selector(testDialogs:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Local Storage"
                       action:@selector(testLocalStorage:)
@@ -417,6 +421,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testBinding:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     binding_test::RunTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testDialogs:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunDialogTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPopupWindow:(id)sender {

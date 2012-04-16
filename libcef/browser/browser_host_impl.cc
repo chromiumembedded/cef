@@ -852,10 +852,10 @@ void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
 }
 
 content::JavaScriptDialogCreator*
-CefBrowserHostImpl::GetJavaScriptDialogCreator() {
-  // TODO(cef): Provide a custom JavaScriptDialogCreator implementation to
-  // support JavaScript alerts, prompts, etc.
-  return content::WebContentsDelegate::GetJavaScriptDialogCreator();
+    CefBrowserHostImpl::GetJavaScriptDialogCreator() {
+  if (!dialog_creator_.get())
+    dialog_creator_.reset(new CefJavaScriptDialogCreator(this));
+  return dialog_creator_.get();
 }
 
 void CefBrowserHostImpl::RunFileChooser(

@@ -377,6 +377,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           binding_test::RunTest(browser);
         return 0;
+      case ID_TESTS_DIALOGS:  // Test JavaScript dialofs
+        if (browser.get())
+          RunDialogTest(browser);
+        return 0;
       case ID_TESTS_LOCALSTORAGE:  // Test localStorage
         if (browser.get())
           RunLocalStorageTest(browser);

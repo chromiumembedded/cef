@@ -29,7 +29,7 @@ class CefAuthCallbackImpl : public CefAuthCallback {
         CancelNow(callback_);
       } else {
         CEF_POST_TASK(CEF_IOT,
-          base::Bind(&CefAuthCallbackImpl::CancelNow, callback_));
+            base::Bind(&CefAuthCallbackImpl::CancelNow, callback_));
       }
     }
   }

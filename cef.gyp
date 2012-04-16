@@ -227,6 +227,7 @@
         'tests/cefclient/client_switches.h',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
+        'tests/unittests/jsdialog_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_unittest.cc',
@@ -716,6 +717,9 @@
         'libcef/browser/download_manager_delegate.h',
         'libcef/browser/frame_host_impl.cc',
         'libcef/browser/frame_host_impl.h',
+        'libcef/browser/javascript_dialog.h',
+        'libcef/browser/javascript_dialog_creator.cc',
+        'libcef/browser/javascript_dialog_creator.h',
         'libcef/browser/navigate_params.cc',
         'libcef/browser/navigate_params.h',
         'libcef/browser/origin_whitelist_impl.cc',
@@ -805,6 +809,7 @@
             '<@(includes_win)',
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
+            'libcef/browser/javascript_dialog_win.cc',
           ],
         }],
         [ 'OS=="mac"', {
@@ -814,6 +819,7 @@
             'libcef/browser/application_mac.mm',
             'libcef/browser/browser_host_impl_mac.mm',
             'libcef/browser/browser_main_mac.mm',
+            'libcef/browser/javascript_dialog_mac.mm',
             # Include necessary Mozilla sources. Remove these lines once they're
             # included by content_browser.gypi. See crbug.com/120719.
             '<(DEPTH)/third_party/mozilla/NSString+Utils.h',

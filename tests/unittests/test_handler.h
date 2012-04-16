@@ -32,6 +32,7 @@ class TrackCallback {
 // by test cases.
 class TestHandler : public CefClient,
                     public CefDisplayHandler,
+                    public CefJSDialogHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
                     public CefRequestHandler {
@@ -44,6 +45,9 @@ class TestHandler : public CefClient,
 
   // CefClient methods. Add new methods as needed by test cases.
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
@@ -81,9 +85,9 @@ class TestHandler : public CefClient,
 
   void CreateBrowser(const CefString& url);
 
-  void AddResource(const CefString& url,
+  void AddResource(const std::string& url,
                    const std::string& content,
-                   const CefString& mimeType);
+                   const std::string& mimeType);
   void ClearResources();
 
  private:
@@ -97,7 +101,8 @@ class TestHandler : public CefClient,
   base::WaitableEvent completion_event_;
 
   // Map of resources that can be automatically loaded
-  typedef std::map<CefString, std::pair<std::string, CefString> > ResourceMap;
+  typedef std::map<std::string, std::pair<std::string, std::string> >
+      ResourceMap;
   ResourceMap resource_map_;
 
   // Include the default reference counting implementation.

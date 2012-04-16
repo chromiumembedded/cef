@@ -16,6 +16,7 @@
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "libcef/browser/frame_host_impl.h"
+#include "libcef/browser/javascript_dialog_creator.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/response_manager.h"
 
@@ -352,6 +353,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for proxying cookie requests.
   scoped_refptr<CefURLRequestContextGetterProxy> request_context_proxy_;
+
+  // Used for creating and managing JavaScript dialogs.
+  scoped_ptr<CefJavaScriptDialogCreator> dialog_creator_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);
