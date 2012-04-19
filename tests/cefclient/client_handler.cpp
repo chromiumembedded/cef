@@ -15,6 +15,16 @@
 #include "cefclient/string_util.h"
 
 
+// Custom menu command Ids.
+enum client_menu_ids {
+  CLIENT_ID_SHOW_DEVTOOLS   = MENU_ID_USER_FIRST,
+  CLIENT_ID_TESTMENU_SUBMENU,
+  CLIENT_ID_TESTMENU_CHECKITEM,
+  CLIENT_ID_TESTMENU_RADIOITEM1,
+  CLIENT_ID_TESTMENU_RADIOITEM2,
+  CLIENT_ID_TESTMENU_RADIOITEM3,
+};
+
 ClientHandler::ClientHandler()
   : m_MainHwnd(NULL),
     m_BrowserId(0),
@@ -228,6 +238,42 @@ void ClientHandler::OnRequestGeolocationPermission(
   callback->Continue(true);
 }
 
+void ClientHandler::OnBeforeContextMenu(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    CefRefPtr<CefMenuModel> model) {
+  if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
+    // Add a separator if the menu already has items.
+    if (model->GetCount() > 0)
+      model->AddSeparator();
+  
+    // Add a "Show DevTools" item to all context menus.
+    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
+
+    // TODO(cef): Enable once ShowDevTools() is implemented.
+    model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
+
+    // Test context menu features.
+    BuildTestMenu(model);
+  }
+}
+
+bool ClientHandler::OnContextMenuCommand(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    int command_id,
+    EventFlags event_flags) {
+  switch (command_id) {
+    case CLIENT_ID_SHOW_DEVTOOLS:
+      ShowDevTools();
+      return true;
+    default:  // Allow default handling, if any.
+      return ExecuteTestMenu(command_id);
+  }
+}
+
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {
   AutoLock lock_scope(this);
   m_MainHwnd = hwnd;
@@ -281,4 +327,41 @@ void ClientHandler::CreateProcessMessageDelegates(
 void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
   // Create the binding test delegates.
   binding_test::CreateRequestDelegates(delegates);
+}
+
+void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
+  if (model->GetCount() > 0)
+    model->AddSeparator();
+
+  // Build the sub menu.
+  CefRefPtr<CefMenuModel> submenu =
+      model->AddSubMenu(CLIENT_ID_TESTMENU_SUBMENU, "Context Menu Test");
+  submenu->AddCheckItem(CLIENT_ID_TESTMENU_CHECKITEM, "Check Item");
+  submenu->AddRadioItem(CLIENT_ID_TESTMENU_RADIOITEM1, "Radio Item 1", 0);
+  submenu->AddRadioItem(CLIENT_ID_TESTMENU_RADIOITEM2, "Radio Item 2", 0);
+  submenu->AddRadioItem(CLIENT_ID_TESTMENU_RADIOITEM3, "Radio Item 3", 0);
+
+  // Check the check item.
+  if (m_TestMenuState.check_item)
+    submenu->SetChecked(CLIENT_ID_TESTMENU_CHECKITEM, true);
+
+  // Check the selected radio item.
+  submenu->SetChecked(
+      CLIENT_ID_TESTMENU_RADIOITEM1 + m_TestMenuState.radio_item, true);
+}
+
+bool ClientHandler::ExecuteTestMenu(int command_id) {
+  if (command_id == CLIENT_ID_TESTMENU_CHECKITEM) {
+    // Toggle the check item.
+    m_TestMenuState.check_item ^= 1;
+    return true;
+  } else if (command_id >= CLIENT_ID_TESTMENU_RADIOITEM1 &&
+             command_id <= CLIENT_ID_TESTMENU_RADIOITEM3) {
+    // Store the selected radio item.
+    m_TestMenuState.radio_item = (command_id - CLIENT_ID_TESTMENU_RADIOITEM1);
+    return true;
+  }
+
+  // Allow default handling to proceed.
+  return false;
 }

@@ -779,6 +779,165 @@ enum cef_jsdialog_type_t {
 };
 
 ///
+// Supported menu IDs. Non-English translations can be provided for the
+// IDS_MENU_* strings in CefResourceBundleHandler::GetLocalizedString().
+///
+enum cef_menu_id_t {
+  // Navigation.
+  MENU_ID_BACK                = 100,
+  MENU_ID_FORWARD             = 101,
+  MENU_ID_RELOAD              = 102,
+  MENU_ID_RELOAD_NOCACHE      = 103,
+  MENU_ID_STOPLOAD            = 104,
+
+  // Editing.
+  MENU_ID_UNDO                = 110,
+  MENU_ID_REDO                = 111,
+  MENU_ID_CUT                 = 112,
+  MENU_ID_COPY                = 113,
+  MENU_ID_PASTE               = 114,
+  MENU_ID_DELETE              = 115,
+  MENU_ID_SELECT_ALL          = 116,
+
+  // Miscellaneous.
+  MENU_ID_FIND                = 130,
+  MENU_ID_PRINT               = 131,
+  MENU_ID_VIEW_SOURCE         = 132,
+
+  // All user-defined menu IDs should come between MENU_ID_USER_FIRST and
+  // MENU_ID_USER_LAST to avoid overlapping the Chromium and CEF ID ranges
+  // defined in the tools/gritsettings/resource_ids file.
+  MENU_ID_USER_FIRST          = 26500,
+  MENU_ID_USER_LAST           = 28500,
+};
+
+///
+// Supported event bit flags.
+///
+enum cef_event_flags_t {
+  EVENTFLAG_NONE                = 0,
+  EVENTFLAG_CAPS_LOCK_DOWN      = 1 << 0,
+  EVENTFLAG_SHIFT_DOWN          = 1 << 1,
+  EVENTFLAG_CONTROL_DOWN        = 1 << 2,
+  EVENTFLAG_ALT_DOWN            = 1 << 3,
+  EVENTFLAG_LEFT_MOUSE_BUTTON   = 1 << 4,
+  EVENTFLAG_MIDDLE_MOUSE_BUTTON = 1 << 5,
+  EVENTFLAG_RIGHT_MOUSE_BUTTON  = 1 << 6,
+  // Mac OS-X command key.
+  EVENTFLAG_COMMAND_DOWN        = 1 << 7,
+  // Windows extended key (see WM_KEYDOWN doc).
+  EVENTFLAG_EXTENDED            = 1 << 8,
+};
+
+///
+// Supported menu item types.
+///
+enum cef_menu_item_type_t {
+  MENUITEMTYPE_NONE,
+  MENUITEMTYPE_COMMAND,
+  MENUITEMTYPE_CHECK,
+  MENUITEMTYPE_RADIO,
+  MENUITEMTYPE_SEPARATOR,
+  MENUITEMTYPE_SUBMENU,
+};
+
+///
+// Supported context menu type flags.
+///
+enum cef_context_menu_type_flags_t {
+  ///
+  // No node is selected.
+  ///
+  CM_TYPEFLAG_NONE        = 0,
+  ///
+  // The top page is selected.
+  ///
+  CM_TYPEFLAG_PAGE        = 1 << 0,
+  ///
+  // A subframe page is selected.
+  ///
+  CM_TYPEFLAG_FRAME       = 1 << 1,
+  ///
+  // A link is selected.
+  ///
+  CM_TYPEFLAG_LINK        = 1 << 2,
+  ///
+  // A media node is selected.
+  ///
+  CM_TYPEFLAG_MEDIA       = 1 << 3,
+  ///
+  // There is a textual or mixed selection that is selected.
+  ///
+  CM_TYPEFLAG_SELECTION   = 1 << 4,
+  ///
+  // An editable element is selected.
+  ///
+  CM_TYPEFLAG_EDITABLE    = 1 << 5,
+};
+
+///
+// Supported context menu media types.
+///
+enum cef_context_menu_media_type_t {
+  ///
+  // No special node is in context.
+  ///
+  CM_MEDIATYPE_NONE,
+  ///
+  // An image node is selected.
+  ///
+  CM_MEDIATYPE_IMAGE,
+  ///
+  // A video node is selected.
+  ///
+  CM_MEDIATYPE_VIDEO,
+  ///
+  // An audio node is selected.
+  ///
+  CM_MEDIATYPE_AUDIO,
+  ///
+  // A file node is selected.
+  ///
+  CM_MEDIATYPE_FILE,
+  ///
+  // A plugin node is selected.
+  ///
+  CM_MEDIATYPE_PLUGIN,
+};
+
+///
+// Supported context menu media state bit flags.
+///
+enum cef_context_menu_media_state_flags_t {
+  CM_MEDIAFLAG_NONE                  = 0,
+  CM_MEDIAFLAG_ERROR                 = 1 << 0,
+  CM_MEDIAFLAG_PAUSED                = 1 << 1,
+  CM_MEDIAFLAG_MUTED                 = 1 << 2,
+  CM_MEDIAFLAG_LOOP                  = 1 << 3,
+  CM_MEDIAFLAG_CAN_SAVE              = 1 << 4,
+  CM_MEDIAFLAG_HAS_AUDIO             = 1 << 5,
+  CM_MEDIAFLAG_HAS_VIDEO             = 1 << 6,
+  CM_MEDIAFLAG_CONTROL_ROOT_ELEMENT  = 1 << 7,
+  CM_MEDIAFLAG_CAN_PRINT             = 1 << 8,
+  CM_MEDIAFLAG_CAN_ROTATE            = 1 << 9,
+};
+
+///
+// Supported context menu edit state bit flags.
+///
+enum cef_context_menu_edit_state_flags_t {
+  CM_EDITFLAG_NONE            = 0,
+  CM_EDITFLAG_CAN_UNDO        = 1 << 0,
+  CM_EDITFLAG_CAN_REDO        = 1 << 1,
+  CM_EDITFLAG_CAN_CUT         = 1 << 2,
+  CM_EDITFLAG_CAN_COPY        = 1 << 3,
+  CM_EDITFLAG_CAN_PASTE       = 1 << 4,
+  CM_EDITFLAG_CAN_DELETE      = 1 << 5,
+  CM_EDITFLAG_CAN_SELECT_ALL  = 1 << 6,
+  CM_EDITFLAG_CAN_TRANSLATE   = 1 << 7,
+};
+
+///
 // Supported XML encoding types. The parser supports ASCII, ISO-8859-1, and
 // UTF16 (LE and BE) by default. All other types must be translated to UTF8
 // before being passed to the parser. If a BOM is detected and the correct

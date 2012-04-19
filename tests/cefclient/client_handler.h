@@ -24,7 +24,8 @@ class ClientHandler : public CefClient,
                       public CefLoadHandler,
                       public CefRequestHandler,
                       public CefDisplayHandler,
-                      public CefGeolocationHandler {
+                      public CefGeolocationHandler,
+                      public CefContextMenuHandler {
  public:
   // Interface for process message delegates. Do not perform work in the
   // RenderDelegate constructor.
@@ -79,6 +80,9 @@ class ClientHandler : public CefClient,
     return this;
   }
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
     return this;
   }
   virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
@@ -137,6 +141,17 @@ class ClientHandler : public CefClient,
       int request_id,
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
 
+  // CefContextMenuHandler methods
+  virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefContextMenuParams> params,
+                                   CefRefPtr<CefMenuModel> model) OVERRIDE;
+  virtual bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefContextMenuParams> params,
+                                    int command_id,
+                                    EventFlags event_flags) OVERRIDE;
+
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
   void SetEditHwnd(CefWindowHandle hwnd);
@@ -176,6 +191,15 @@ class ClientHandler : public CefClient,
 
   // Create all of RequestDelegateSet objects.
   static void CreateRequestDelegates(RequestDelegateSet& delegates);
+
+  // Test context menu creation.
+  void BuildTestMenu(CefRefPtr<CefMenuModel> model);
+  bool ExecuteTestMenu(int command_id);
+  struct TestMenuState {
+    TestMenuState() : check_item(true), radio_item(0) {}
+    bool check_item;
+    int radio_item;
+  } m_TestMenuState;
 
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;

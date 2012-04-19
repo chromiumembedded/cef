@@ -93,6 +93,13 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
+  // Return the handler for context menus. If no handler is provided the default
+  // implementation will be used.
+  ///
+  struct _cef_context_menu_handler_t* (CEF_CALLBACK *get_context_menu_handler)(
+      struct _cef_client_t* self);
+
+  ///
   // Called when a new message is received from a different process. Return true
   // (1) if the message was handled or false (0) otherwise. Do not keep a
   // reference to or attempt to access the message outside of this callback.

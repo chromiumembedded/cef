@@ -5,7 +5,6 @@
       <emit emit_type='prepend'></emit>
     </output>
     <output filename="cef_resources.pak" type="data_package" />
-    <output filename="cef_resources.rc" type="rc_all" />
   </outputs>
   <translations />
   <release seq="1">

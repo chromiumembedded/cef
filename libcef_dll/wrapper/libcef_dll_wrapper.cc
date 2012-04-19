@@ -24,6 +24,7 @@
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
+#include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
@@ -47,12 +48,14 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
+#include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
+#include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -130,6 +133,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefBrowserCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserHostCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefContextMenuHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieManagerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCToCpp::DebugObjCt, 0);
@@ -142,6 +147,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefLifeSpanHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefListValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefLoadHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefMenuModelCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefPostDataCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefPostDataElementCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCToCpp::DebugObjCt, 0);

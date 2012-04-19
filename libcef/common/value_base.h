@@ -109,7 +109,6 @@ class CefValueController
   void TakeFrom(CefValueController* other);
 
  private:
-
   // Owner object.
   void* owner_value_;
   Object* owner_object_;
@@ -242,9 +241,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
     if (!reference() && !controller_) {
       // For owned values default to using a new multi-threaded controller.
       controller_ = new CefValueControllerThreadSafe();
-      CefValueController::AutoLock lock_scope(controller_);
-      if (lock_scope.verified())
-        controller_->SetOwner(value_, this);
+      SetOwnsController();
     }
 
     // A controller is required.
@@ -286,7 +283,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
     // Remove the object from the controller. If this is the owner object any
     // references will be detached.
     controller()->Remove(value_, false);
-    
+
     if (will_delete()) {
       // Remove any dependencies.
       controller()->RemoveDependencies(value_);
@@ -313,7 +310,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
       // They will be removed from this controller.
       new_controller->TakeFrom(controller());
     }
-    
+
     // Remove the object from the controller. If this is the owner object any
     // references will be detached.
     controller()->Remove(value_, false);
@@ -376,6 +373,13 @@ class CefValueBase : public CefType, public CefValueController::Object {
     }
 
     return true;
+  }
+
+  // Used to indicate that this object owns the controller.
+  inline void SetOwnsController() {
+    CefValueController::AutoLock lock_scope(controller_);
+    if (lock_scope.verified())
+      controller_->SetOwner(value_, this);
   }
 
   // Encapsulates value locking and verification logic.

@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_context_menu_handler.h"
 #include "include/cef_display_handler.h"
 #include "include/cef_geolocation_handler.h"
 #include "include/cef_jsdialog_handler.h"
@@ -100,6 +101,15 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for context menus. If no handler is provided the default
+  // implementation will be used.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() {
     return NULL;
   }
 

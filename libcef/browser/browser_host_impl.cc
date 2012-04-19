@@ -774,6 +774,13 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
   }
 }
 
+bool CefBrowserHostImpl::HandleContextMenu(
+    const content::ContextMenuParams& params) {
+  if (!menu_creator_.get())
+    menu_creator_.reset(new CefMenuCreator(this));
+  return menu_creator_->CreateContextMenu(params);
+}
+
 bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
     int route_id,

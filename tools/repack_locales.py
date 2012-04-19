@@ -73,6 +73,10 @@ def calc_inputs(locale):
   inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'app_locale_settings',
                 'app_locale_settings_%s.pak' % locale))
 
+  #e.g. '<(SHARED_INTERMEDIATE_DIR)/cef/cef_strings_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'cef',
+                'cef_strings_%s.pak' % locale))
+
   return inputs
 
 

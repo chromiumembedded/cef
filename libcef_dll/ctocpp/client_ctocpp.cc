@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -100,6 +101,20 @@ CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {
 
   // Return type: refptr_same
   return CefJSDialogHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_context_menu_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_context_menu_handler_t* _retval = struct_->get_context_menu_handler(
+      struct_);
+
+  // Return type: refptr_same
+  return CefContextMenuHandlerCToCpp::Wrap(_retval);
 }
 
 bool CefClientCToCpp::OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,

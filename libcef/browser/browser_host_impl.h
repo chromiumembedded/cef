@@ -17,6 +17,7 @@
 #include "include/cef_frame.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/menu_creator.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/response_manager.h"
 
@@ -188,6 +189,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* source,
       const content::OpenURLParams& params) OVERRIDE;
   virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
+  virtual bool HandleContextMenu(const content::ContextMenuParams& params)
+      OVERRIDE;
   virtual bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
@@ -356,6 +359,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for creating and managing JavaScript dialogs.
   scoped_ptr<CefJavaScriptDialogCreator> dialog_creator_;
+
+  // Used for creating and managing context menus.
+  scoped_ptr<CefMenuCreator> menu_creator_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

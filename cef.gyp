@@ -492,12 +492,28 @@
       ],
     },
     {
+      # Create the pack file for CEF strings.
+      'target_name': 'cef_strings',
+      'type': 'none',
+      'actions': [
+        {
+          'action_name': 'cef_strings',
+          'variables': {
+            'grit_grd_file': 'libcef/resources/cef_strings.grd',
+          },
+          'includes': [ '../build/grit_action.gypi' ],
+        },
+      ],
+      'includes': [ '../build/grit_target.gypi' ],
+    },
+    {
       # Create the locale-specific pack files.
       'target_name': 'cef_locales',
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
+        'cef_strings',
       ],
       'variables': {
         'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
@@ -574,7 +590,7 @@
         {
           'action_name': 'cef_resources',
           'variables': {
-            'grit_grd_file': 'libcef/browser/resources/cef_resources.grd',
+            'grit_grd_file': 'libcef/resources/cef_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
@@ -605,6 +621,7 @@
       ],
       'variables': {
         'repack_path': '<(DEPTH)/tools/grit/grit/format/repack.py',
+        'make_pack_header_path': 'tools/make_pack_header.py',
       },
       'actions': [
         {
@@ -637,6 +654,56 @@
           ],
           'action': ['python', '<(repack_path)', '<@(_outputs)',
                      '<@(pak_inputs)'],
+        },
+        {
+          'action_name': 'make_pack_resources_header',
+          'variables': {
+            'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources_standard/grit/ui_resources_standard.h',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/devtools_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_chromium_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_resources.h',
+              '<(grit_out_dir)/grit/cef_resources.h',
+            ],
+            'conditions': [
+              ['OS != "mac"', {
+                'header_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/grit/gfx_resources.h',
+                ]
+              }],
+            ],
+          },
+          'inputs': [
+            '<(make_pack_header_path)',
+            '<@(header_inputs)',
+          ],
+          'outputs': [
+            'include/cef_pack_resources.h',
+          ],
+          'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
+                     '<@(header_inputs)'],
+        },
+        {
+          'action_name': 'make_pack_strings_header',
+          'variables': {
+            'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings/grit/ui_strings.h',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_strings.h',
+              '<(grit_out_dir)/grit/cef_strings.h',
+            ],
+          },
+          'inputs': [
+            '<(make_pack_header_path)',
+            '<@(header_inputs)',
+          ],
+          'outputs': [
+            'include/cef_pack_strings.h',
+          ],
+          'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
+                     '<@(header_inputs)'],
         },
       ],
       'conditions': [
@@ -709,6 +776,8 @@
         'libcef/browser/content_browser_client.h',
         'libcef/browser/context.cc',
         'libcef/browser/context.h',
+        'libcef/browser/context_menu_params_impl.cc',
+        'libcef/browser/context_menu_params_impl.h',
         'libcef/browser/cookie_manager_impl.cc',
         'libcef/browser/cookie_manager_impl.h',
         'libcef/browser/devtools_delegate.cc',
@@ -720,6 +789,10 @@
         'libcef/browser/javascript_dialog.h',
         'libcef/browser/javascript_dialog_creator.cc',
         'libcef/browser/javascript_dialog_creator.h',
+        'libcef/browser/menu_creator.cc',
+        'libcef/browser/menu_creator.h',
+        'libcef/browser/menu_model_impl.cc',
+        'libcef/browser/menu_model_impl.h',
         'libcef/browser/navigate_params.cc',
         'libcef/browser/navigate_params.h',
         'libcef/browser/origin_whitelist_impl.cc',
@@ -810,6 +883,18 @@
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
             'libcef/browser/javascript_dialog_win.cc',
+            'libcef/browser/menu_creator_runner_win.cc',
+            'libcef/browser/menu_creator_runner_win.h',
+            # Include sources for context menu implementation.
+            '<(DEPTH)/ui/views/controls/menu/menu_2.cc',
+            '<(DEPTH)/ui/views/controls/menu/menu_2.h',
+            '<(DEPTH)/ui/views/controls/menu/menu_config.cc',
+            '<(DEPTH)/ui/views/controls/menu/menu_config.h',
+            '<(DEPTH)/ui/views/controls/menu/menu_config_win.cc',
+            '<(DEPTH)/ui/views/controls/menu/menu_listener.cc',
+            '<(DEPTH)/ui/views/controls/menu/menu_listener.h',
+            '<(DEPTH)/ui/views/controls/menu/native_menu_win.cc',
+            '<(DEPTH)/ui/views/controls/menu/native_menu_win.h',
           ],
         }],
         [ 'OS=="mac"', {
@@ -820,12 +905,23 @@
             'libcef/browser/browser_host_impl_mac.mm',
             'libcef/browser/browser_main_mac.mm',
             'libcef/browser/javascript_dialog_mac.mm',
+            'libcef/browser/menu_creator_runner_mac.h',
+            'libcef/browser/menu_creator_runner_mac.mm',
             # Include necessary Mozilla sources. Remove these lines once they're
             # included by content_browser.gypi. See crbug.com/120719.
             '<(DEPTH)/third_party/mozilla/NSString+Utils.h',
             '<(DEPTH)/third_party/mozilla/NSString+Utils.mm',
             '<(DEPTH)/third_party/mozilla/NSURL+Utils.h',
             '<(DEPTH)/third_party/mozilla/NSURL+Utils.m',
+            # Include sources for context menu implementation.
+            '<(DEPTH)/chrome/browser/disposition_utils.cc',
+            '<(DEPTH)/chrome/browser/disposition_utils.h',
+            '<(DEPTH)/chrome/browser/event_disposition.cc',
+            '<(DEPTH)/chrome/browser/event_disposition.h',
+            '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.mm',
+            '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.h',
+            '<(DEPTH)/chrome/browser/ui/cocoa/menu_controller.mm',
+            '<(DEPTH)/chrome/browser/ui/cocoa/menu_controller.h',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
@@ -833,6 +929,18 @@
             '<@(includes_linux)',
             'libcef/browser/browser_host_impl_gtk.cc',
             'libcef/browser/browser_main_gtk.cc',
+            'libcef/browser/gtk_util_stub.cc',
+            'libcef/browser/menu_creator_runner_gtk.cc',
+            'libcef/browser/menu_creator_runner_gtk.h',
+            # Include sources for context menu implementation.
+            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu.cc',
+            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu.h',
+            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu_item.cc',
+            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu_item.h',
+            '<(DEPTH)/chrome/browser/ui/gtk/menu_gtk.cc',
+            '<(DEPTH)/chrome/browser/ui/gtk/menu_gtk.h',
+            '<(DEPTH)/chrome/browser/ui/views/event_utils.cc',
+            '<(DEPTH)/chrome/browser/ui/views/event_utils.h',
           ],
         }],
       ],
