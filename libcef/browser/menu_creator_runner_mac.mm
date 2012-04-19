@@ -11,22 +11,22 @@
 #import "chrome/browser/ui/cocoa/menu_controller.h"
 #include "content/public/browser/web_contents_view.h"
 
-CefMenuCreatorRunnerWin::CefMenuCreatorRunnerMac()
+CefMenuCreatorRunnerMac::CefMenuCreatorRunnerMac()
     : menu_controller_(nil) {
 }
 
-CefMenuCreatorRunnerWin::~CefMenuCreatorRunnerMac() {
+CefMenuCreatorRunnerMac::~CefMenuCreatorRunnerMac() {
   if (menu_controller_ != nil)
     [menu_controller_ release];
 }
 
-bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
+bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
   // Create a menu controller based on the model.
   if (menu_controller_ != nil)
     [menu_controller_ release];
   menu_controller_ =
-      [[MenuController alloc] initWithModel:manager.model()
-                     useWithPopUpButtonCell:NO]);
+      [[MenuController alloc] initWithModel:manager->model()
+                     useWithPopUpButtonCell:NO];
 
   NSView* parent_view =
       manager->browser()->GetWebContents()->GetContentNativeView();

@@ -19,10 +19,10 @@ class CefMenuDelegate : public MenuGtk::Delegate {
 }  // namespace
 
 
-CefMenuCreatorRunnerWin::CefMenuCreatorRunnerWin() {
+CefMenuCreatorRunnerGtk::CefMenuCreatorRunnerGtk) {
 }
 
-bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
+bool CefMenuCreatorRunnerGtk::RunContextMenu(CefMenuCreator* manager) {
   if (!menu_delegate_.get())
     menu_delegate_.reset(new CefMenuDelegate);
 

@@ -155,6 +155,10 @@ void CefMenuCreator::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
 }
 
 void CefMenuCreator::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
+  // May be called for sub-menus as well.
+  if (source.get() != model_.get())
+    return;
+
   // Notify the host before showing the context menu.
   content::RenderWidgetHostView* view =
       browser_->GetWebContents()->GetRenderWidgetHostView();
@@ -163,6 +167,10 @@ void CefMenuCreator::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
 }
 
 void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
+  // May be called for sub-menus as well.
+  if (source.get() != model_.get())
+    return;
+
   // Notify the client.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
