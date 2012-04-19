@@ -19,7 +19,7 @@ class CefMenuDelegate : public MenuGtk::Delegate {
 }  // namespace
 
 
-CefMenuCreatorRunnerGtk::CefMenuCreatorRunnerGtk) {
+CefMenuCreatorRunnerGtk::CefMenuCreatorRunnerGtk() {
 }
 
 bool CefMenuCreatorRunnerGtk::RunContextMenu(CefMenuCreator* manager) {
