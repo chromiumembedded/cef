@@ -484,6 +484,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if(browser.get())
             RunPluginTest(browser);
           return 0;
+        case ID_TESTS_PLUGIN_INFO: // Test plugin info
+          if(browser.get())
+            RunPluginInfoTest(browser);
+          return 0;
         case ID_TESTS_POPUP: // Test a popup window
           if(browser.get())
             RunPopupTest(browser);

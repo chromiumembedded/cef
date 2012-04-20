@@ -58,6 +58,7 @@
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 #include "libcef_dll/ctocpp/web_urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -145,6 +146,7 @@ CEF_GLOBAL void CefShutdown()
   DCHECK(CefV8ExceptionCToCpp::DebugObjCt == 0);
   DCHECK(CefV8HandlerCppToC::DebugObjCt == 0);
   DCHECK(CefV8ValueCToCpp::DebugObjCt == 0);
+  DCHECK(CefWebPluginInfoCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestCToCpp::DebugObjCt == 0);
   DCHECK(CefWebURLRequestClientCppToC::DebugObjCt == 0);
   DCHECK(CefWriteHandlerCppToC::DebugObjCt == 0);
@@ -507,6 +509,50 @@ CEF_GLOBAL bool CefSetStoragePath(CefStorageType type, const CefString& path)
 
   // Return type: bool
   return _retval?true:false;
+}
+
+
+CEF_GLOBAL size_t CefGetWebPluginCount()
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  size_t _retval = cef_get_web_plugin_count();
+
+  // Return type: simple
+  return _retval;
+}
+
+
+CEF_GLOBAL CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(int index)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_web_plugin_info_t* _retval = cef_get_web_plugin_info(
+      index);
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCToCpp::Wrap(_retval);
+}
+
+
+CEF_GLOBAL CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(
+    const CefString& name)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return NULL;
+
+  // Execute
+  cef_web_plugin_info_t* _retval = cef_get_web_plugin_info_byname(
+      name.GetStruct());
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCToCpp::Wrap(_retval);
 }
 
 

@@ -81,6 +81,7 @@ class CefTask;
 class CefV8Context;
 class CefV8Handler;
 class CefV8Value;
+class CefWebPluginInfo;
 class CefWebURLRequest;
 class CefWebURLRequestClient;
 
@@ -415,6 +416,27 @@ bool CefDeleteStorage(CefStorageType type, const CefString& origin,
 ///
 /*--cef(optional_param=path)--*/
 bool CefSetStoragePath(CefStorageType type, const CefString& path);
+
+///
+// Returns the number of installed web plugins. This method must be called on
+// the UI thread.
+///
+/*--cef()--*/
+size_t CefGetWebPluginCount();
+
+///
+// Returns information for web plugin at the specified zero-based index. This
+// method must be called on the UI thread.
+///
+/*--cef()--*/
+CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(int index);
+
+///
+// Returns information for web plugin with the specified name. This method must
+// be called on the UI thread.
+///
+/*--cef(capi_name=cef_get_web_plugin_info_byname)--*/
+CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(const CefString& name);
 
 
 ///
@@ -4047,5 +4069,36 @@ public:
 };
 
 
+///
+// Information about a specific web plugin.
+///
+/*--cef(source=library)--*/
+class CefWebPluginInfo : public virtual CefBase
+{
+public:
+  ///
+  // Returns the plugin name (i.e. Flash).
+  ///
+  /*--cef()--*/
+  virtual CefString GetName() =0;
+
+  ///
+  // Returns the plugin file path (DLL/bundle/library).
+  ///
+  /*--cef()--*/
+  virtual CefString GetPath() =0;
+
+  ///
+  // Returns the version of the plugin (may be OS-specific).
+  ///
+  /*--cef()--*/
+  virtual CefString GetVersion() =0;
+
+  ///
+  // Returns a description of the plugin from the version information.
+  ///
+  /*--cef()--*/
+  virtual CefString GetDescription() =0;
+};
 
 #endif // _CEF_H

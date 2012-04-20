@@ -57,6 +57,7 @@
 #define ID_TESTS_TRANSPARENT_OSRAPP     32797
 #define ID_TESTS_JAVASCRIPT_INVOKE      32798
 #define ID_TESTS_GETIMAGE               32799
+#define ID_TESTS_PLUGIN_INFO            32800
 #define IDC_STATIC                      -1
 #define IDS_LOGO                        1000
 #define IDS_UIPLUGIN                    1001

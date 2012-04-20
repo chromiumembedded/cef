@@ -350,6 +350,25 @@ CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
 CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
     const cef_string_t* path);
 
+///
+// Returns the number of installed web plugins. This function must be called on
+// the UI thread.
+///
+CEF_EXPORT size_t cef_get_web_plugin_count();
+
+///
+// Returns information for web plugin at the specified zero-based index. This
+// function must be called on the UI thread.
+///
+CEF_EXPORT struct _cef_web_plugin_info_t* cef_get_web_plugin_info(int index);
+
+///
+// Returns information for web plugin with the specified name. This function
+// must be called on the UI thread.
+///
+CEF_EXPORT struct _cef_web_plugin_info_t* cef_get_web_plugin_info_byname(
+    const cef_string_t* name);
+
 typedef struct _cef_base_t
 {
   // Size of the data structure.
@@ -3833,6 +3852,45 @@ typedef struct _cef_command_line_t
 // Create a new cef_command_line_t instance.
 ///
 CEF_EXPORT cef_command_line_t* cef_command_line_create();
+
+
+///
+// Information about a specific web plugin.
+///
+typedef struct _cef_web_plugin_info_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Returns the plugin name (i.e. Flash).
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_name)(
+      struct _cef_web_plugin_info_t* self);
+
+  ///
+  // Returns the plugin file path (DLL/bundle/library).
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_path)(
+      struct _cef_web_plugin_info_t* self);
+
+  ///
+  // Returns the version of the plugin (may be OS-specific).
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_version)(
+      struct _cef_web_plugin_info_t* self);
+
+  ///
+  // Returns a description of the plugin from the version information.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_description)(
+      struct _cef_web_plugin_info_t* self);
+
+} cef_web_plugin_info_t;
 
 
 #ifdef __cplusplus

@@ -208,6 +208,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testZoomReset:(id)sender;
 - (IBAction)testDevToolsShow:(id)sender;
 - (IBAction)testDevToolsClose:(id)sender;
+- (IBAction)testPluginInfo:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -297,6 +298,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Close DevTools"
                       action:@selector(testDevToolsClose:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Plugin Info"
+                      action:@selector(testPluginInfo:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -517,6 +521,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->CloseDevTools();
   }
+}
+
+- (IBAction)testPluginInfo:(id)sender {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunPluginInfoTest(g_handler->GetBrowser());
 }
 
 // Sent by the default notification center immediately before the application

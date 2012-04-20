@@ -204,6 +204,14 @@ gboolean ShowDevtoolsActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Debug > Plugin Info... menu item.
+gboolean PluginInfoActivated(GtkWidget* widget) {
+  if(g_handler.get() && g_handler->GetBrowserHwnd())
+    RunPluginInfoTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for when you click the back button.
 void BackButtonClicked(GtkButton* button) {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
@@ -299,6 +307,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(DragDropActivated));
   AddMenuEntry(debug_menu, "Show DevTools",
                G_CALLBACK(ShowDevtoolsActivated));
+  AddMenuEntry(debug_menu, "Plugin Info",
+               G_CALLBACK(PluginInfoActivated));
 
   return menu_bar;
 }

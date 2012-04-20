@@ -227,6 +227,8 @@
       'libcef_dll/ctocpp/v8exception_ctocpp.h',
       'libcef_dll/ctocpp/v8value_ctocpp.cc',
       'libcef_dll/ctocpp/v8value_ctocpp.h',
+      'libcef_dll/ctocpp/web_plugin_info_ctocpp.cc',
+      'libcef_dll/ctocpp/web_plugin_info_ctocpp.h',
       'libcef_dll/ctocpp/web_urlrequest_ctocpp.cc',
       'libcef_dll/ctocpp/web_urlrequest_ctocpp.h',
       'libcef_dll/ctocpp/xml_reader_ctocpp.cc',
