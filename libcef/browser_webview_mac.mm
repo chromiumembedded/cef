@@ -149,6 +149,11 @@
     browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
 }
 
+- (void)flagsChanged:(NSEvent *)theEvent {
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+}
+
 - (BOOL)isOpaque {
   return YES;
 }
