@@ -12,6 +12,7 @@
 #include "include/cef_command_line.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "include/cef_web_plugin.h"
 #include "include/cef_web_urlrequest.h"
 #include "cefclient/cefclient_switches.h"
 #include "cefclient/client_handler.h"
@@ -63,6 +64,46 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser) {
     frame->ExecuteJavaScript("alert('Failed to enter into V8 context!');",
         url, 0);
   }
+}
+
+void UIT_RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
+  std::string html = "<html><head><title>Plugin Info Test</title></head><body>";
+
+  // Find the flash plugin first to test that get by name works.
+  std::string flash_name;
+  CefRefPtr<CefWebPluginInfo> info = CefGetWebPluginInfo("Shockwave Flash");
+  if (info.get()) {
+    flash_name = info->GetName();
+    html += "\n<b>Flash is installed!</b>"
+            "<br/>Name: " + flash_name +
+            "\n<br/>Description: " + info->GetDescription().ToString() +
+            "\n<br/>Version: " + info->GetVersion().ToString() +
+            "\n<br/>Path: " + info->GetPath().ToString();
+  }
+
+  if (!flash_name.empty()) {
+    html += "\n<br/><br/><b>Other installed plugins:</b>";
+  } else {
+    html += "\n<b>Installed plugins:</b>";
+  }
+
+  // Display all other plugins.
+  size_t count = CefGetWebPluginCount();
+  for (size_t i = 0; i < count; ++i) {
+    CefRefPtr<CefWebPluginInfo> info = CefGetWebPluginInfo(i);
+    ASSERT(info.get());
+    if (!flash_name.empty() && info->GetName() == flash_name)
+      continue;
+
+    html += "\n<br/><br/>Name: " + info->GetName().ToString() +
+            "\n<br/>Description: " + info->GetDescription().ToString() +
+            "\n<br/>Version: " + info->GetVersion().ToString() +
+            "\n<br/>Path: " + info->GetPath().ToString();
+  }
+
+  html += "</body></html>";
+
+  browser->GetMainFrame()->LoadString(html, "http://tests/plugin_info");
 }
 
 // Return the int representation of the specified string.
@@ -600,4 +641,14 @@ void RunDragDropTest(CefRefPtr<CefBrowser> browser) {
 
 void RunModalDialogTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/modalmain");
+}
+
+void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
+  if (CefCurrentlyOn(TID_UI)) {
+    UIT_RunPluginInfoTest(browser);
+  } else {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI,
+        NewCefRunnableFunction(&UIT_RunPluginInfoTest, browser));
+  }
 }

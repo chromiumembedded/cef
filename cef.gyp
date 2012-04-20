@@ -767,6 +767,7 @@
         'libcef/url_impl.cc',
         'libcef/v8_impl.cc',
         'libcef/v8_impl.h',
+        'libcef/web_plugin_impl.cc',
         'libcef/web_urlrequest_impl.cc',
         'libcef/web_urlrequest_impl.h',
         'libcef/webview_host.cc',

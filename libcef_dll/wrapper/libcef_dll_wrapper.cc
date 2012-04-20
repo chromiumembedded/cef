@@ -24,6 +24,8 @@
 #include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_web_plugin.h"
+#include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/content_filter_cpptoc.h"
@@ -73,6 +75,7 @@
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
+#include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 #include "libcef_dll/ctocpp/web_urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -158,6 +161,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefV8ExceptionCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefV8HandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8ValueCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefWebPluginInfoCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWebURLRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWebURLRequestClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWriteHandlerCppToC::DebugObjCt, 0);
@@ -483,5 +487,43 @@ CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
 
   // Return type: bool
   return _retval?true:false;
+}
+
+CEF_GLOBAL size_t CefGetWebPluginCount() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  size_t _retval = cef_get_web_plugin_count();
+
+  // Return type: simple
+  return _retval;
+}
+
+CEF_GLOBAL CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(int index) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_web_plugin_info_t* _retval = cef_get_web_plugin_info(
+      index);
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCToCpp::Wrap(_retval);
+}
+
+CEF_GLOBAL CefRefPtr<CefWebPluginInfo> CefGetWebPluginInfo(
+    const CefString& name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return NULL;
+
+  // Execute
+  cef_web_plugin_info_t* _retval = cef_get_web_plugin_info_byname(
+      name.GetStruct());
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCToCpp::Wrap(_retval);
 }
 
