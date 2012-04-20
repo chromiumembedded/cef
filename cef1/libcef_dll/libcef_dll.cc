@@ -24,6 +24,8 @@
 #include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_web_plugin.h"
+#include "include/capi/cef_web_plugin_capi.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
@@ -41,6 +43,7 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/cpptoc/web_urlrequest_cpptoc.h"
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
@@ -156,6 +159,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefV8ExceptionCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8HandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefV8ValueCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWebPluginInfoCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWebURLRequestClientCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWebURLRequestCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWriteHandlerCToCpp::DebugObjCt, 0);
@@ -516,5 +520,43 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 
   // Return type: bool
   return _retval;
+}
+
+CEF_EXPORT size_t cef_get_web_plugin_count() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  size_t _retval = CefGetWebPluginCount();
+
+  // Return type: simple
+  return _retval;
+}
+
+CEF_EXPORT struct _cef_web_plugin_info_t* cef_get_web_plugin_info(int index) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefRefPtr<CefWebPluginInfo> _retval = CefGetWebPluginInfo(
+      index);
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT struct _cef_web_plugin_info_t* cef_get_web_plugin_info_byname(
+    const cef_string_t* name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefWebPluginInfo> _retval = CefGetWebPluginInfo(
+      CefString(name));
+
+  // Return type: refptr_same
+  return CefWebPluginInfoCppToC::Wrap(_retval);
 }
 
