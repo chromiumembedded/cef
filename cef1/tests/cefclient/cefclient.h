@@ -51,6 +51,7 @@ void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser);
 void RunDOMAccessTest(CefRefPtr<CefBrowser> browser);
 void RunDragDropTest(CefRefPtr<CefBrowser> browser);
 void RunModalDialogTest(CefRefPtr<CefBrowser> browser);
+void RunPluginInfoTest(CefRefPtr<CefBrowser> browser);
 
 #if defined(OS_WIN)
 void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
