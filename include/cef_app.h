@@ -44,6 +44,7 @@
 #include "include/cef_proxy_handler.h"
 #include "include/cef_render_process_handler.h"
 #include "include/cef_resource_bundle_handler.h"
+#include "include/cef_scheme.h"
 
 class CefApp;
 
@@ -128,6 +129,17 @@ class CefApp : public virtual CefBase {
   virtual void OnBeforeCommandLineProcessing(
       const CefString& process_type,
       CefRefPtr<CefCommandLine> command_line) {
+  }
+
+  ///
+  // Provides an opportunity to register custom schemes. Do not keep a reference
+  // to the |registrar| object. This method is called on the main thread for
+  // each process and the registered schemes should be the same across all
+  // processes.
+  ///
+  /*--cef()--*/
+  virtual void OnRegisterCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) {
   }
 
   ///

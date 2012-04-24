@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
 #pragma once
 
+#include <list>
 #include <map>
-#include <set>
 #include <string>
 
 #include "libcef/renderer/browser_impl.h"
@@ -36,6 +36,14 @@ class CefContentRendererClient : public content::ContentRendererClient {
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
+
+  // Add a custom scheme registration.
+  void AddCustomScheme(const std::string& scheme_name,
+                       bool is_local,
+                       bool is_display_isolated);
+
+  // Register the custom schemes with WebKit.
+  void RegisterCustomSchemes();
 
   // Render thread message loop proxy.
   base::MessageLoopProxy* render_loop() const { return render_loop_.get(); }
@@ -110,6 +118,11 @@ class CefContentRendererClient : public content::ContentRendererClient {
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
   BrowserMap browsers_;
+
+  // Information about custom schemes that need to be registered with WebKit.
+  struct SchemeInfo;
+  typedef std::list<SchemeInfo> SchemeInfoList;
+  SchemeInfoList scheme_info_list_;
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_

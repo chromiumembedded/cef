@@ -28,6 +28,9 @@ class CefContentClient : public content::ContentClient {
       std::vector<content::PepperPluginInfo>* plugins) OVERRIDE;
   virtual void AddNPAPIPlugins(
       webkit::npapi::PluginList* plugin_list) OVERRIDE;
+  virtual void AddAdditionalSchemes(
+      std::vector<std::string>* standard_schemes,
+      std::vector<std::string>* savable_schemes) OVERRIDE;
   virtual bool HasWebUIScheme(const GURL& url) const OVERRIDE;
   virtual bool CanHandleWhileSwappedOut(const IPC::Message& msg) OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;

@@ -15,3 +15,16 @@ void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   extern void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates);
   CreateV8RendererTests(delegates);
 }
+
+// static
+void ClientApp::RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar) {
+  // Bring in the scheme handler tests.
+  extern void RegisterSchemeHandlerCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar);
+  RegisterSchemeHandlerCustomSchemes(registrar);
+
+  // Bring in the cookie tests.
+  extern void RegisterCookieCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar);
+  RegisterCookieCustomSchemes(registrar);
+}

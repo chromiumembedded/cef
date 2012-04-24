@@ -88,10 +88,17 @@ class ClientApp : public CefApp,
   // client_app_delegates.
   static void CreateRenderDelegates(RenderDelegateSet& delegates);
 
+  // Registers custom schemes. Implemented in client_app_delegates.
+  static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar);
+
   // CefApp methods.
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
+  virtual void OnRegisterCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
+    RegisterCustomSchemes(registrar);
+  }
   virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler()
       OVERRIDE { return this; }
+  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
 
   // CefProxyHandler methods.
   virtual void GetProxyForUrl(const CefString& url,

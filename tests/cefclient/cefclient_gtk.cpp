@@ -72,7 +72,7 @@ gboolean XMLHttpRequestActivated(GtkWidget* widget) {
 // Callback for Debug > Scheme Handler... menu item.
 gboolean SchemeHandlerActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunSchemeTest(g_handler->GetBrowser());
+    scheme_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
   CefInitialize(main_args, settings, app.get());
 
   // Register the scheme handler.
-  InitSchemeTest();
+  scheme_test::InitTest();
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);

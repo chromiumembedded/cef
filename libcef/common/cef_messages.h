@@ -120,13 +120,6 @@ IPC_MESSAGE_ROUTED1(CefMsg_Response,
 IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck,
                     int /* request_id */)
 
-// Sent to child processes to register a scheme.
-IPC_MESSAGE_CONTROL4(CefProcessMsg_RegisterScheme,
-                     std::string  /* sheme_name */,
-                     bool /* is_standard */,
-                     bool /* is_local */,
-                     bool /* is_display_isolated */)
-
 // Sent to child processes to add or remove a cross-origin whitelist entry.
 IPC_MESSAGE_CONTROL5(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
                      bool /* add */,

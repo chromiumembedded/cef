@@ -151,10 +151,10 @@ class CefFrame : public virtual CefBase {
   // error.  The |start_line| parameter is the base line number to use for error
   // reporting.
   ///
-  /*--cef(optional_param=scriptUrl)--*/
-  virtual void ExecuteJavaScript(const CefString& jsCode,
-                                 const CefString& scriptUrl,
-                                 int startLine) =0;
+  /*--cef(optional_param=script_url)--*/
+  virtual void ExecuteJavaScript(const CefString& code,
+                                 const CefString& script_url,
+                                 int start_line) =0;
 
   ///
   // Returns true if this is the main (top-level) frame.

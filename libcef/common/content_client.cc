@@ -6,6 +6,7 @@
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/scheme_registrar_impl.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -40,6 +41,21 @@ void CefContentClient::AddPepperPlugins(
 
 void CefContentClient::AddNPAPIPlugins(
     webkit::npapi::PluginList* plugin_list) {
+}
+
+void CefContentClient::AddAdditionalSchemes(
+    std::vector<std::string>* standard_schemes,
+    std::vector<std::string>* savable_schemes) {
+  if (application_.get()) {
+    CefRefPtr<CefSchemeRegistrarImpl> schemeRegistrar(
+        new CefSchemeRegistrarImpl());
+    application_->OnRegisterCustomSchemes(schemeRegistrar.get());
+    schemeRegistrar->GetStandardSchemes(standard_schemes);
+
+    // No references to the registar should be kept.
+    schemeRegistrar->Detach();
+    DCHECK(schemeRegistrar->VerifyRefCount());
+  }
 }
 
 bool CefContentClient::HasWebUIScheme(const GURL& url) const {

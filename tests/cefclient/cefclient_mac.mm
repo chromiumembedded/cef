@@ -58,43 +58,6 @@ static NSAutoreleasePool* g_autopool = nil;
 @end
 
 
-// Common base class for CEF browser windows. Contains methods relating to hole
-// punching required in order to display OpenGL underlay windows.
-@interface ClientWindow : NSWindow<CefUnderlayableSurface> {
-@private
-  int underlaySurfaceCount_;
-}
-
-// Informs the window that an underlay surface has been added/removed. The
-// window is non-opaque while underlay surfaces are present.
-- (void)underlaySurfaceAdded;
-- (void)underlaySurfaceRemoved;
-
-@end
-
-@implementation ClientWindow
-
-- (void)underlaySurfaceAdded {
-  ASSERT(underlaySurfaceCount_ >= 0);
-  ++underlaySurfaceCount_;
-
-  // We're having the OpenGL surface render under the window, so the window
-  // needs to be not opaque.
-  if (underlaySurfaceCount_ == 1)
-    [self setOpaque:NO];
-}
-
-- (void)underlaySurfaceRemoved {
-  --underlaySurfaceCount_;
-  ASSERT(underlaySurfaceCount_ >= 0);
-
-  if (underlaySurfaceCount_ == 0)
-    [self setOpaque:YES];
-}
-
-@end
-
-
 // Receives notifications from controls and the browser window. Will delete
 // itself when done.
 @interface ClientWindowDelegate : NSObject <NSWindowDelegate>
@@ -307,7 +270,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
   NSRect window_rect = { {0, screen_rect.size.height - kWindowHeight},
     {kWindowWidth, kWindowHeight} };
-  NSWindow* mainWnd = [[ClientWindow alloc]
+  NSWindow* mainWnd = [[UnderlayOpenGLHostingWindow alloc]
                        initWithContentRect:window_rect
                        styleMask:(NSTitledWindowMask |
                                   NSClosableWindowMask |
@@ -415,7 +378,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
 - (IBAction)testSchemeHandler:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunSchemeTest(g_handler->GetBrowser());
+    scheme_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testBinding:(id)sender {
@@ -503,8 +466,8 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get());
 
-  // Initialize tests.
-  InitSchemeTest();
+  // Register the scheme handler.
+  scheme_test::InitTest();
 
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];

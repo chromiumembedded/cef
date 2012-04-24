@@ -9,11 +9,19 @@
 #include "include/cef_base.h"
 
 class CefBrowser;
+class CefSchemeRegistrar;
 
-// Register the scheme handler.
-void InitSchemeTest();
+namespace scheme_test {
+
+// Register the scheme.
+void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar);
+
+// Create the scheme handler.
+void InitTest();
 
 // Run the test.
-void RunSchemeTest(CefRefPtr<CefBrowser> browser);
+void RunTest(CefRefPtr<CefBrowser> browser);
+
+}  // namespace scheme_test
 
 #endif  // CEF_TESTS_CEFCLIENT_SCHEME_TEST_H_

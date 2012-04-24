@@ -286,6 +286,7 @@ struct CefSettingsTraits {
     cef_string_set(src->locales_dir_path.str, src->locales_dir_path.length,
         &target->locales_dir_path, copy);
     target->pack_loading_disabled = src->pack_loading_disabled;
+    target->remote_debugging_port = src->remote_debugging_port;
   }
 };
 

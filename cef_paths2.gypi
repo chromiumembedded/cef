@@ -10,6 +10,8 @@
   'variables': {
     'includes_common': [
       'include/cef_base.h',
+      'include/cef_pack_resources.h',
+      'include/cef_pack_strings.h',
       'include/cef_runnable.h',
       'include/cef_version.h',
       'include/internal/cef_build.h',
@@ -130,6 +132,8 @@
       'tests/cefclient/process_helper_mac.cpp',
       'tests/cefclient/resource_util.h',
       'tests/cefclient/resource_util_mac.mm',
+      'tests/cefclient/scheme_test.cpp',
+      'tests/cefclient/scheme_test.h',
       'tests/cefclient/string_util.cpp',
       'tests/cefclient/string_util.h',
       'tests/cefclient/util.h',

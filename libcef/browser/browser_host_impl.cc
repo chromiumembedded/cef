@@ -22,7 +22,7 @@
 #include "base/bind_helpers.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/renderer_host/resource_request_info_impl.h"
-#include "content/browser/tab_contents/tab_contents.h"
+#include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -160,9 +160,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
   DCHECK(host);
   CEF_REQUIRE_UIT();
-  TabContents* tab_contents = static_cast<TabContents*>(host->GetDelegate());
-  if (tab_contents)
-    return static_cast<CefBrowserHostImpl*>(tab_contents->GetDelegate());
+  WebContentsImpl* web_contents =
+      static_cast<WebContentsImpl*>(host->GetDelegate());
+  if (web_contents)
+    return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
   return NULL;
 }
 

@@ -144,8 +144,8 @@ typedef struct _cef_frame_t {
   // reporting.
   ///
   void (CEF_CALLBACK *execute_java_script)(struct _cef_frame_t* self,
-      const cef_string_t* jsCode, const cef_string_t* scriptUrl,
-      int startLine);
+      const cef_string_t* code, const cef_string_t* script_url,
+      int start_line);
 
   ///
   // Returns true (1) if this is the main (top-level) frame.

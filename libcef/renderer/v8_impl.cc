@@ -2,9 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/renderer/v8_impl.h"
-
 #include <string>
+
+#include "base/compiler_specific.h"
+
+#include "third_party/WebKit/Source/WebCore/config.h"
+MSVC_PUSH_WARNING_LEVEL(0);
+#include "V8Proxy.h"  // NOLINT(build/include)
+#include "V8RecursionScope.h"  // NOLINT(build/include)
+MSVC_POP_WARNING();
+#undef LOG
+
+#include "libcef/renderer/v8_impl.h"
 
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
@@ -15,7 +24,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
-
 
 namespace {
 
@@ -61,7 +69,7 @@ class V8TrackObject : public CefTrackNode {
   inline CefRefPtr<CefV8Accessor> GetAccessor() {
     return accessor_;
   }
-  
+
   inline void SetHandler(CefRefPtr<CefV8Handler> handler) {
     handler_ = handler;
   }
@@ -69,7 +77,7 @@ class V8TrackObject : public CefTrackNode {
   inline CefRefPtr<CefV8Handler> GetHandler() {
     return handler_;
   }
-  
+
   inline void SetUserData(CefRefPtr<CefBase> user_data) {
     user_data_ = user_data;
   }
@@ -530,16 +538,27 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(val);
   v8::Handle<v8::Value> code_val = GetV8String(code);
 
-  // Execute the eval function.
   v8::TryCatch try_catch;
-  v8::Local<v8::Value> func_rv = func->Call(obj, 1, &code_val);
+  try_catch.SetVerbose(true);
+  v8::Local<v8::Value> func_rv;
+
+  retval = NULL;
+  exception = NULL;
+
+  // Execute the function call using the V8Proxy so that inspector
+  // instrumentation works.
+  WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve();
+  DCHECK(proxy);
+  if (proxy)
+    func_rv = proxy->callFunction(func, obj, 1, &code_val);
+
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(try_catch.Message());
     return false;
-  } else {
+  } else if (!func_rv.IsEmpty()) {
     retval = new CefV8ValueImpl(func_rv);
-    return true;
   }
+  return true;
 }
 
 v8::Local<v8::Context> CefV8ContextImpl::GetContext() {
@@ -952,6 +971,7 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key) {
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
 
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   bool del = obj->Delete(GetV8String(key));
   return (!HasCaught(try_catch) && del);
 }
@@ -969,6 +989,7 @@ bool CefV8ValueImpl::DeleteValue(int index) {
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
 
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   bool del = obj->Delete(index);
   return (!HasCaught(try_catch) && del);
 }
@@ -986,6 +1007,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key) {
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
 
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   v8::Local<v8::Value> value = obj->Get(GetV8String(key));
   if (!HasCaught(try_catch) && !value.IsEmpty())
     return new CefV8ValueImpl(value);
@@ -1005,6 +1027,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index) {
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
 
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   v8::Local<v8::Value> value = obj->Get(v8::Number::New(index));
   if (!HasCaught(try_catch) && !value.IsEmpty())
     return new CefV8ValueImpl(value);
@@ -1021,8 +1044,9 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   if (impl && !key.empty()) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
-    
+
     v8::TryCatch try_catch;
+    try_catch.SetVerbose(true);
     bool set = obj->Set(GetV8String(key), impl->GetHandle(),
                         static_cast<v8::PropertyAttribute>(attribute));
     return (!HasCaught(try_catch) && set);
@@ -1045,8 +1069,9 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
   if (impl) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
-    
+
     v8::TryCatch try_catch;
+    try_catch.SetVerbose(true);
     bool set = obj->Set(index, impl->GetHandle());
     return (!HasCaught(try_catch) && set);
   } else {
@@ -1083,6 +1108,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings,
       NULL : AccessorSetterCallbackImpl;
 
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   bool set = obj->SetAccessor(GetV8String(key), getter, setter, obj,
                               static_cast<v8::AccessControl>(settings),
                               static_cast<v8::PropertyAttribute>(attribute));
@@ -1250,10 +1276,21 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
 
   CefRefPtr<CefV8Value> retval;
 
-  v8::TryCatch try_catch;
-  v8::Local<v8::Value> func_rv = func->Call(recv, argc, argv);
-  if (!HasCaught(try_catch))
-    retval = new CefV8ValueImpl(func_rv);
+  {
+    v8::TryCatch try_catch;
+    try_catch.SetVerbose(true);
+    v8::Local<v8::Value> func_rv;
+
+    // Execute the function call using the V8Proxy so that inspector
+    // instrumentation works.
+    WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve();
+    DCHECK(proxy);
+    if (proxy)
+      func_rv = proxy->callFunction(func, recv, argc, argv);
+
+    if (!HasCaught(try_catch) && !func_rv.IsEmpty())
+      retval = new CefV8ValueImpl(func_rv);
+  }
 
   if (argv)
     delete [] argv;

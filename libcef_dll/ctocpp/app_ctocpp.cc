@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -36,6 +37,23 @@ void CefAppCToCpp::OnBeforeCommandLineProcessing(const CefString& process_type,
   struct_->on_before_command_line_processing(struct_,
       process_type.GetStruct(),
       CefCommandLineCppToC::Wrap(command_line));
+}
+
+void CefAppCToCpp::OnRegisterCustomSchemes(
+    CefRefPtr<CefSchemeRegistrar> registrar) {
+  if (CEF_MEMBER_MISSING(struct_, on_register_custom_schemes))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: registrar; type: refptr_diff
+  DCHECK(registrar.get());
+  if (!registrar.get())
+    return;
+
+  // Execute
+  struct_->on_register_custom_schemes(struct_,
+      CefSchemeRegistrarCppToC::Wrap(registrar));
 }
 
 CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {

@@ -232,6 +232,14 @@ typedef struct _cef_settings_t {
   // is disabled.
   ///
   bool pack_loading_disabled;
+
+  ///
+  // Set to a value between 1024 and 65535 to enable remote debugging on the
+  // specified port. For example, if 8080 is specified the remote debugging URL
+  // will be http://localhost:8080. CEF can be remotely debugged from any CEF or
+  // Chrome browser window.
+  ///
+  int remote_debugging_port;
 } cef_settings_t;
 
 ///

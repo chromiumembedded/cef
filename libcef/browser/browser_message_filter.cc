@@ -6,7 +6,6 @@
 #include "libcef/browser/browser_message_filter.h"
 
 #include "libcef/browser/origin_whitelist_impl.h"
-#include "libcef/browser/scheme_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
 
@@ -49,6 +48,5 @@ void CefBrowserMessageFilter::RegisterOnUIThread() {
   CEF_REQUIRE_UIT();
   
   // Send existing registrations to the new render process.
-  RegisterSchemesWithHost(host_);
   RegisterCrossOriginWhitelistEntriesWithHost(host_);
 }

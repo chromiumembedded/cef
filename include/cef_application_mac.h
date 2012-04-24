@@ -66,9 +66,10 @@
 @end
 
 // Copy of definition from ui/base/cocoa/underlay_opengl_hosting_window.h.
-@protocol UnderlayableSurface
-- (void)underlaySurfaceAdded;
-- (void)underlaySurfaceRemoved;
+// Common base class for windows that host a OpenGL surface that renders under
+// the window. Contains methods relating to hole punching so that the OpenGL
+// surface is visible through the window.
+@interface UnderlayOpenGLHostingWindow : NSWindow
 @end
 
 // The Mac OS X 10.6 SDK introduced new protocols used for delegates.  These
@@ -110,11 +111,6 @@ DEFINE_EMPTY_PROTOCOL(NSWindowDelegate)
 // All CEF client applications must subclass NSApplication and implement this
 // protocol.
 @protocol CefAppProtocol<CrAppControlProtocol>
-@end
-
-// All CEF windows should implement this protocol to be informed explicitly
-// about underlay surfaces.
-@protocol CefUnderlayableSurface<UnderlayableSurface>
 @end
 
 // Controls the state of |isHandlingSendEvent| in the event loop so that it is

@@ -6,6 +6,7 @@
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
+#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
 #include "base/path_service.h"
@@ -48,6 +49,9 @@ void CefRenderProcessObserver::WebKitInitialized() {
 
   // TODO(cef): Enable these once the implementation supports it.
   WebKit::WebRuntimeFeatures::enableNotifications(false);
+
+  // Register any custom schemes with WebKit.
+  CefContentRendererClient::Get()->RegisterCustomSchemes();
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

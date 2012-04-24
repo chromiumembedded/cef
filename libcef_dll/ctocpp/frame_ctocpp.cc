@@ -198,24 +198,24 @@ void CefFrameCToCpp::LoadString(const CefString& string_val,
       url.GetStruct());
 }
 
-void CefFrameCToCpp::ExecuteJavaScript(const CefString& jsCode,
-    const CefString& scriptUrl, int startLine) {
+void CefFrameCToCpp::ExecuteJavaScript(const CefString& code,
+    const CefString& script_url, int start_line) {
   if (CEF_MEMBER_MISSING(struct_, execute_java_script))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: jsCode; type: string_byref_const
-  DCHECK(!jsCode.empty());
-  if (jsCode.empty())
+  // Verify param: code; type: string_byref_const
+  DCHECK(!code.empty());
+  if (code.empty())
     return;
-  // Unverified params: scriptUrl
+  // Unverified params: script_url
 
   // Execute
   struct_->execute_java_script(struct_,
-      jsCode.GetStruct(),
-      scriptUrl.GetStruct(),
-      startLine);
+      code.GetStruct(),
+      script_url.GetStruct(),
+      start_line);
 }
 
 bool CefFrameCToCpp::IsMain() {

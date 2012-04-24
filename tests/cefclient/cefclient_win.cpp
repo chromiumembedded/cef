@@ -77,7 +77,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   CefInitialize(main_args, settings, app.get());
 
   // Register the scheme handler.
-  InitSchemeTest();
+  scheme_test::InitTest();
 
   HACCEL hAccelTable;
 
@@ -371,7 +371,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         return 0;
       case ID_TESTS_SCHEME_HANDLER:  // Test the scheme handler
         if (browser.get())
-          RunSchemeTest(browser);
+          scheme_test::RunTest(browser);
         return 0;
       case ID_TESTS_BINDING:  // Test JavaScript binding
         if (browser.get())

@@ -212,24 +212,24 @@ void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
 }
 
 void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
-    const cef_string_t* jsCode, const cef_string_t* scriptUrl,
-    int startLine) {
+    const cef_string_t* code, const cef_string_t* script_url,
+    int start_line) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: jsCode; type: string_byref_const
-  DCHECK(jsCode);
-  if (!jsCode)
+  // Verify param: code; type: string_byref_const
+  DCHECK(code);
+  if (!code)
     return;
-  // Unverified params: scriptUrl
+  // Unverified params: script_url
 
   // Execute
   CefFrameCppToC::Get(self)->ExecuteJavaScript(
-      CefString(jsCode),
-      CefString(scriptUrl),
-      startLine);
+      CefString(code),
+      CefString(script_url),
+      start_line);
 }
 
 int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self) {

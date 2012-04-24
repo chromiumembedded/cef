@@ -3,8 +3,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/scheme_impl.h"
-
 #include <map>
 
 #include "include/cef_browser.h"
@@ -15,7 +13,6 @@
 #include "libcef/browser/resource_request_job.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
@@ -25,7 +22,6 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/synchronization/lock.h"
-#include "content/public/browser/render_process_host.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
@@ -51,13 +47,6 @@ namespace {
 bool IsStandardScheme(const std::string& scheme) {
   url_parse::Component scheme_comp(0, scheme.length());
   return url_util::IsStandard(scheme.c_str(), scheme_comp);
-}
-
-void RegisterStandardScheme(const std::string& scheme) {
-  CEF_REQUIRE_UIT();
-  url_parse::Component scheme_comp(0, scheme.length());
-  if (!url_util::IsStandard(scheme.c_str(), scheme_comp))
-    url_util::AddStandardScheme(scheme.c_str());
 }
 
 // Copied from net/url_request/url_request_job_manager.cc.
@@ -200,69 +189,6 @@ class CefUrlRequestManager {
     handler_map_.clear();
   }
 
-  // Check if a scheme has already been registered.
-  bool HasRegisteredScheme(const std::string& scheme) {
-    std::string scheme_lower = ToLower(scheme);
-
-    // Don't register builtin schemes.
-    if (IsBuiltinScheme(scheme_lower))
-        return true;
-
-    scheme_map_lock_.Acquire();
-    bool registered = (scheme_map_.find(scheme_lower) != scheme_map_.end());
-    scheme_map_lock_.Release();
-    return registered;
-  }
-
-  // Register a scheme.
-  bool RegisterScheme(const std::string& scheme,
-                      bool is_standard,
-                      bool is_local,
-                      bool is_display_isolated) {
-    if (HasRegisteredScheme(scheme)) {
-      NOTREACHED() << "Scheme already registered: " << scheme;
-      return false;
-    }
-
-    std::string scheme_lower = ToLower(scheme);
-
-    SchemeInfo info;
-    info.is_standard = is_standard;
-    info.is_local = is_local;
-    info.is_display_isolated = is_display_isolated;
-
-    scheme_map_lock_.Acquire();
-    scheme_map_.insert(std::make_pair(scheme_lower, info));
-    scheme_map_lock_.Release();
-
-    if (is_standard && !content::RenderProcessHost::run_renderer_in_process()) {
-      // When running in multi-process mode the scheme must be registered with
-      // url_util in the browser process as well.
-      RegisterStandardScheme(scheme_lower);
-    }
-
-    SendRegisterScheme(scheme_lower, is_standard, is_local,
-        is_display_isolated);
-
-    return true;
-  }
-
-  // Send all existing scheme registrations to the specified host.
-  void RegisterSchemesWithHost(content::RenderProcessHost* host) {
-    base::AutoLock lock_scope(scheme_map_lock_);
-
-    if (scheme_map_.empty())
-      return;
-
-    SchemeMap::const_iterator it = scheme_map_.begin();
-    for (; it != scheme_map_.end(); ++it) {
-      host->Send(
-          new CefProcessMsg_RegisterScheme(it->first, it->second.is_standard,
-                                           it->second.is_local,
-                                           it->second.is_display_isolated));
-    }
-  }
-
  private:
   // Retrieve the matching handler factory, if any. |scheme| will already be in
   // lower case.
@@ -328,39 +254,11 @@ class CefUrlRequestManager {
     return job;
   }
 
-  // Send the register scheme message to all currently existing hosts.
-  void SendRegisterScheme(const std::string& scheme_name,
-                          bool is_standard,
-                          bool is_local,
-                          bool is_display_isolated) {
-    CEF_REQUIRE_UIT();
-
-    content::RenderProcessHost::iterator i(
-        content::RenderProcessHost::AllHostsIterator());
-    for (; !i.IsAtEnd(); i.Advance()) {
-      i.GetCurrentValue()->Send(
-          new CefProcessMsg_RegisterScheme(scheme_name, is_standard, is_local,
-                                           is_display_isolated));
-    }
-  }
-
   // Map (scheme, domain) to factories. This map will only be accessed on the IO
   // thread.
   typedef std::map<std::pair<std::string, std::string>,
       CefRefPtr<CefSchemeHandlerFactory> > HandlerMap;
   HandlerMap handler_map_;
-
-  struct SchemeInfo {
-    bool is_standard;
-    bool is_local;
-    bool is_display_isolated;
-  };
-
-  // Map of registered schemes. Access to this map must be protected by the
-  // associated lock.
-  typedef std::map<std::string, SchemeInfo> SchemeMap;
-  SchemeMap scheme_map_;
-  base::Lock scheme_map_lock_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CefUrlRequestManager);
 };
@@ -373,34 +271,6 @@ CefUrlRequestManager* CefUrlRequestManager::GetInstance() {
 
 }  // namespace
 
-
-bool CefRegisterCustomScheme(const CefString& scheme_name,
-                             bool is_standard,
-                             bool is_local,
-                             bool is_display_isolated) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
-  if (CEF_CURRENTLY_ON(CEF_UIT)) {
-    // Must be executed on the UI thread.
-    return CefUrlRequestManager::GetInstance()->RegisterScheme(scheme_name,
-        is_standard, is_local, is_display_isolated);
-  } else {
-    // Verify that the scheme has not already been registered.
-    if (CefUrlRequestManager::GetInstance()->HasRegisteredScheme(scheme_name)) {
-      NOTREACHED() << "Scheme already registered: " << scheme_name;
-      return false;
-    }
-
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefRegisterCustomScheme), scheme_name,
-                   is_standard, is_local, is_display_isolated));
-    return true;
-  }
-}
 
 bool CefRegisterSchemeHandlerFactory(
     const CefString& scheme_name,
@@ -439,9 +309,4 @@ bool CefClearSchemeHandlerFactories() {
   }
 
   return true;
-}
-
-void RegisterSchemesWithHost(content::RenderProcessHost* host) {
-  CEF_REQUIRE_UIT();
-  CefUrlRequestManager::GetInstance()->RegisterSchemesWithHost(host);
 }

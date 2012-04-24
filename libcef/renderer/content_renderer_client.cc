@@ -7,7 +7,6 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
@@ -17,8 +16,17 @@
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
+
+
+struct CefContentRendererClient::SchemeInfo {
+  std::string scheme_name;
+  bool is_local;
+  bool is_display_isolated;
+};
 
 CefContentRendererClient::CefContentRendererClient() {
 }
@@ -71,13 +79,38 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
   NOTREACHED();
 }
 
+void CefContentRendererClient::AddCustomScheme(
+    const std::string& scheme_name,
+    bool is_local,
+    bool is_display_isolated) {
+  SchemeInfo info = {scheme_name, is_local, is_display_isolated};
+  scheme_info_list_.push_back(info);
+}
+
+void CefContentRendererClient::RegisterCustomSchemes() {
+  if (scheme_info_list_.empty())
+    return;
+
+  SchemeInfoList::const_iterator it = scheme_info_list_.begin();
+  for (; it != scheme_info_list_.end(); ++it) {
+    const SchemeInfo& info = *it;
+    if (info.is_local) {
+      WebKit::WebSecurityPolicy::registerURLSchemeAsLocal(
+          WebKit::WebString::fromUTF8(info.scheme_name));
+    }
+    if (info.is_display_isolated) {
+      WebKit::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(
+          WebKit::WebString::fromUTF8(info.scheme_name));
+    }
+  }
+}
+
 void CefContentRendererClient::RenderThreadStarted() {
   render_loop_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
 
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
-  thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   thread->Send(new CefProcessHostMsg_RenderThreadStarted);
 

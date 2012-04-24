@@ -15,6 +15,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/string_number_conversions.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/browser_main_runner.h"
@@ -197,6 +198,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       }
     }
 
+    if (settings.remote_debugging_port >= 1024 &&
+        settings.remote_debugging_port <= 65535) {
+      command_line->AppendSwitchASCII(switches::kRemoteDebuggingPort,
+          base::IntToString(settings.remote_debugging_port));
+    }
+
     // TODO(cef): Figure out how to support the sandbox.
     if (!command_line->HasSwitch(switches::kNoSandbox))
       command_line->AppendSwitch(switches::kNoSandbox);
@@ -211,6 +218,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     commandLinePtr->Detach(NULL);
   }
 
+  content::SetContentClient(&content_client_);
+  InitializeContentClient(process_type);
+
   return false;
 }
 
@@ -220,12 +230,6 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  std::string process_type =
-      command_line.GetSwitchValueASCII(switches::kProcessType);
-
-  content::SetContentClient(&content_client_);
-  InitializeContentClient(process_type);
-
   if (command_line.HasSwitch(switches::kPackLoadingDisabled))
     content_client_.set_pack_loading_disabled(true);
   else
@@ -341,6 +345,8 @@ void CefMainDelegate::InitializeContentClient(
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
+  // Mac OS-X does not support customization of the pack load paths.
+#if !defined(OS_MACOSX)
   FilePath pak_file, locales_dir;
 
   if (command_line.HasSwitch(switches::kPackFilePath))
@@ -360,6 +366,7 @@ void CefMainDelegate::InitializeResourceBundle() {
 
   if (!locales_dir.empty())
     PathService::Override(ui::DIR_LOCALES, locales_dir);
+#endif  // !defined(OS_MACOSX)
 
   std::string locale = command_line.GetSwitchValueASCII(switches::kLocale);
   if (locale.empty())
@@ -372,7 +379,7 @@ void CefMainDelegate::InitializeResourceBundle() {
 #if defined(OS_WIN)
   // Explicitly load cef.pak on Windows.
   if (file_util::PathExists(pak_file))
-    ResourceBundle::AddDataPackToSharedInstance(pak_file);
+    ResourceBundle::GetSharedInstance().AddDataPack(pak_file);
   else
     NOTREACHED() << "Could not load cef.pak";
 #endif

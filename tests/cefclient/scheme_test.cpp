@@ -20,6 +20,9 @@
 #include "cefclient/resource.h"
 #endif
 
+namespace scheme_test {
+
+namespace {
 
 // Implementation of the schema handler for client:// requests.
 class ClientSchemeHandler : public CefResourceHandler {
@@ -160,12 +163,19 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
 };
 
-void InitSchemeTest() {
-  CefRegisterCustomScheme("client", true, false, false);
+}  // namespace
+
+void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar) {
+  registrar->AddCustomScheme("client", true, false, false);
+}
+
+void InitTest() {
   CefRegisterSchemeHandlerFactory("client", "tests",
       new ClientSchemeHandlerFactory());
 }
 
-void RunSchemeTest(CefRefPtr<CefBrowser> browser) {
+void RunTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("client://tests/handler.html");
 }
+
+}  // namespace scheme_test

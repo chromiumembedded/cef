@@ -51,8 +51,8 @@ class CefFrameCToCpp
   virtual void LoadURL(const CefString& url) OVERRIDE;
   virtual void LoadString(const CefString& string_val,
       const CefString& url) OVERRIDE;
-  virtual void ExecuteJavaScript(const CefString& jsCode,
-      const CefString& scriptUrl, int startLine) OVERRIDE;
+  virtual void ExecuteJavaScript(const CefString& code,
+      const CefString& script_url, int start_line) OVERRIDE;
   virtual bool IsMain() OVERRIDE;
   virtual bool IsFocused() OVERRIDE;
   virtual CefString GetName() OVERRIDE;
