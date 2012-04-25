@@ -138,6 +138,8 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out)
 #if defined(CEF_STRING_TYPE_WIDE)
   // Allocate enough space for a worst-case conversion.
   int len = str->Utf8Length();
+  if (len == 0)
+    return;
   char* buf = new char[len + 1];
   str->WriteUtf8(buf, len + 1);
   
@@ -149,11 +151,15 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out)
 #else // !defined(CEF_STRING_TYPE_WIDE)
 #if defined(CEF_STRING_TYPE_UTF16)
   int len = str->Length();
+  if (len == 0)
+    return;
   char16* buf = new char16[len + 1];
   str->Write(reinterpret_cast<uint16_t*>(buf), 0, len + 1);
 #else
   // Allocate enough space for a worst-case conversion.
   int len = str->Utf8Length();
+  if (len == 0)
+    return;
   char* buf = new char[len + 1];
   str->WriteUtf8(buf, len + 1);
 #endif
