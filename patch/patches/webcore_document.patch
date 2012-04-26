@@ -1,0 +1,19 @@
+Index: Document.cpp
+===================================================================
+--- Document.cpp	(revision 102901)
++++ Document.cpp	(working copy)
+@@ -5079,8 +5079,13 @@
+ #if ENABLE(REQUEST_ANIMATION_FRAME)
+ int Document::webkitRequestAnimationFrame(PassRefPtr<RequestAnimationFrameCallback> callback, Element* animationElement)
+ {
+-    if (!m_scriptedAnimationController)
++    if (!m_scriptedAnimationController) {
++#if USE(REQUEST_ANIMATION_FRAME_DISPLAY_MONITOR)
+         m_scriptedAnimationController = ScriptedAnimationController::create(this, page()->displayID());
++#else
++        m_scriptedAnimationController = ScriptedAnimationController::create(this, 0);
++#endif
++    }
+ 
+     return m_scriptedAnimationController->registerCallback(callback, animationElement);
+ }
