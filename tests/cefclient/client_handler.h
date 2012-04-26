@@ -178,8 +178,7 @@ class ClientHandler : public CefClient,
   void SendNotification(NotificationType type);
   void CloseMainWindow();
 
-  void ShowDevTools();
-  void CloseDevTools();
+  void ShowDevTools(CefRefPtr<CefBrowser> browser);
 
  protected:
   void SetLoading(bool isLoading);

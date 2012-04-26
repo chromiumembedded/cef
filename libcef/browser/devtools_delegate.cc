@@ -5,12 +5,90 @@
 #include "libcef/browser/devtools_delegate.h"
 
 #include <algorithm>
+#include <string>
 
+#include "base/command_line.h"
+#include "base/md5.h"
+#include "base/rand_util.h"
+#include "base/stringprintf.h"
+#include "base/string_number_conversions.h"
+#include "base/time.h"
 #include "content/public/browser/devtools_http_handler.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_client.h"
+#include "content/public/common/content_switches.h"
 #include "grit/cef_resources.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ui/base/resource/resource_bundle.h"
+
+namespace {
+
+class CefDevToolsBindingHandler
+    : public content::DevToolsHttpHandler::RenderViewHostBinding {
+ public:
+  CefDevToolsBindingHandler() {
+  }
+
+  virtual std::string GetIdentifier(content::RenderViewHost* rvh) OVERRIDE {
+    int process_id = rvh->GetProcess()->GetID();
+    int routing_id = rvh->GetRoutingID();
+
+    if (random_seed_.empty()) {
+      // Generate a random seed that is used to make identifier guessing more
+      // difficult.
+      random_seed_ = base::StringPrintf("%lf|%llu",
+          base::Time::Now().ToDoubleT(), base::RandUint64());
+    }
+
+    // Create a key that combines RVH IDs and the random seed.
+    std::string key = base::StringPrintf("%d|%d|%s",
+        process_id,
+        routing_id,
+        random_seed_.c_str());
+
+    // Return an MD5 hash of the key.
+    return base::MD5String(key);
+  }
+
+  virtual content::RenderViewHost* ForIdentifier(
+      const std::string& identifier) OVERRIDE {
+    // Iterate through the existing RVH instances to find a match.
+    for (content::RenderProcessHost::iterator it(
+        content::RenderProcessHost::AllHostsIterator());
+       !it.IsAtEnd(); it.Advance()) {
+      content::RenderProcessHost* render_process_host = it.GetCurrentValue();
+      DCHECK(render_process_host);
+
+      // Ignore processes that don't have a connection, such as crashed
+      // contents.
+      if (!render_process_host->HasConnection())
+        continue;
+
+      content::RenderProcessHost::RenderWidgetHostsIterator rwit(
+          render_process_host->GetRenderWidgetHostsIterator());
+      for (; !rwit.IsAtEnd(); rwit.Advance()) {
+        const content::RenderWidgetHost* widget = rwit.GetCurrentValue();
+        DCHECK(widget);
+        if (!widget || !widget->IsRenderView())
+          continue;
+
+        content::RenderViewHost* host =
+            content::RenderViewHost::From(
+                const_cast<content::RenderWidgetHost*>(widget));
+        if (GetIdentifier(host) == identifier)
+          return host;
+      }
+    }
+
+    return NULL;
+  }
+
+ private:
+  std::string random_seed_;
+};
+
+}  // namespace
 
 CefDevToolsDelegate::CefDevToolsDelegate(
     int port,
@@ -21,6 +99,9 @@ CefDevToolsDelegate::CefDevToolsDelegate(
       "",
       context_getter,
       this);
+
+  binding_.reset(new CefDevToolsBindingHandler());
+  devtools_http_handler_->SetRenderViewHostBinding(binding_.get());
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {
@@ -42,4 +123,23 @@ bool CefDevToolsDelegate::BundlesFrontendResources() {
 
 std::string CefDevToolsDelegate::GetFrontendResourcesBaseURL() {
   return "";
+}
+
+std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh) {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  std::string port_str =
+      command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
+  DCHECK(!port_str.empty());
+  int port;
+  if (!base::StringToInt(port_str, &port))
+    return std::string();
+
+  std::string page_id = binding_->GetIdentifier(rvh);
+  
+  return base::StringPrintf(
+      "http://localhost:%d/devtools/devtools.html?"
+      "ws=localhost:%d/devtools/page/%s",
+      port,
+      port,
+      page_id.c_str());
 }

@@ -251,8 +251,11 @@ void ClientHandler::OnBeforeContextMenu(
     // Add a "Show DevTools" item to all context menus.
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
 
-    // TODO(cef): Enable once ShowDevTools() is implemented.
-    model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
+    CefString devtools_url = browser->GetHost()->GetDevToolsURL();
+    if (devtools_url.empty()) {
+      // Disable the menu option if DevTools aren't enabled.
+      model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
+    }
 
     // Test context menu features.
     BuildTestMenu(model);
@@ -267,7 +270,7 @@ bool ClientHandler::OnContextMenuCommand(
     EventFlags event_flags) {
   switch (command_id) {
     case CLIENT_ID_SHOW_DEVTOOLS:
-      ShowDevTools();
+      ShowDevTools(browser);
       return true;
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);
@@ -310,10 +313,12 @@ std::string ClientHandler::GetLastDownloadFile() {
   return m_LastDownloadFile;
 }
 
-void ClientHandler::ShowDevTools() {
-}
-
-void ClientHandler::CloseDevTools() {
+void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser) {
+  std::string devtools_url = browser->GetHost()->GetDevToolsURL();
+  if (!devtools_url.empty()) {
+    browser->GetMainFrame()->ExecuteJavaScript(
+        "window.open('" +  devtools_url + "');", "about:blank", 0);
+  }
 }
 
 // static

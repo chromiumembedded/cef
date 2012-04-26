@@ -66,6 +66,7 @@ class CefContext : public CefBase {
   const CefSettings& settings() const { return settings_; }
   CefRefPtr<CefApp> application() const;
   CefBrowserContext* browser_context() const;
+  CefDevToolsDelegate* devtools_delegate() const;
 
  private:
   // Performs shutdown actions that need to occur on the UI thread before any

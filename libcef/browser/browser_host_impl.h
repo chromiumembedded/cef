@@ -100,6 +100,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
+  virtual CefString GetDevToolsURL() OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -305,6 +306,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefClient> client_;
   scoped_ptr<content::WebContents> web_contents_;
   CefWindowHandle opener_;
+  CefString devtools_url_;
 
   // Unique ids used for routing communication to/from the renderer. We keep a
   // copy of them as member variables so that we can locate matching browsers in

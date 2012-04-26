@@ -196,6 +196,21 @@ struct _cef_client_t* CEF_CALLBACK browser_host_get_client(
   return CefClientCToCpp::Unwrap(_retval);
 }
 
+cef_string_userfree_t CEF_CALLBACK browser_host_get_dev_tools_url(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefBrowserHostCppToC::Get(self)->GetDevToolsURL();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -210,6 +225,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.get_opener_window_handle =
       browser_host_get_opener_window_handle;
   struct_.struct_.get_client = browser_host_get_client;
+  struct_.struct_.get_dev_tools_url = browser_host_get_dev_tools_url;
 }
 
 #ifndef NDEBUG

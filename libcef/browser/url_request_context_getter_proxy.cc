@@ -3,6 +3,9 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/url_request_context_getter_proxy.h"
+
+#include <string>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -62,6 +65,12 @@ class CefCookieStoreProxy : public net::CookieStore {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->DeleteAllCreatedBetweenAsync(delete_begin, delete_end,
                                                callback);
+  }
+
+  virtual void DeleteSessionCookiesAsync(const DeleteCallback& callback)
+                                         OVERRIDE {
+    scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+    cookie_store->DeleteSessionCookiesAsync(callback);
   }
 
   virtual net::CookieMonster* GetCookieMonster() OVERRIDE {

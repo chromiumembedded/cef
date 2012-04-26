@@ -33,36 +33,37 @@
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
 #include "content/public/common/content_paths.h"
+#endif
 
 namespace {
 
+#if defined(OS_MACOSX)
+
 FilePath GetFrameworksPath() {
   // Start out with the path to the running executable.
-  FilePath path;
-  PathService::Get(base::FILE_EXE, &path);
+  FilePath execPath;
+  PathService::Get(base::FILE_EXE, &execPath);
 
-  // Up to Contents.
-  if (base::mac::IsBackgroundOnlyProcess()) {
-    // The running executable is the helper. Go up five steps:
-    // Contents/Frameworks/Helper.app/Contents/MacOS/Helper
-    // ^ to here                                     ^ from here
-    path = path.DirName().DirName().DirName().DirName().DirName();
-  } else {
-    // One step up to MacOS, another to Contents.
-    path = path.DirName().DirName();
-  }
-  DCHECK_EQ(path.BaseName().value(), "Contents");
+  // Get the main bundle path.
+  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
 
-  // Go into the frameworks directory.
-  return path.Append("Frameworks");
+  // Go into the Contents/Frameworks directory.
+  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
+                   .Append(FILE_PATH_LITERAL("Frameworks"));
 }
 
 // The framework bundle path is used for loading resources, libraries, etc.
-void OverrideFrameworkBundlePath() {
-  FilePath helper_path =
-  GetFrameworksPath().Append("Chromium Embedded Framework.framework");
+FilePath GetFrameworkBundlePath() {
+  return GetFrameworksPath().Append(
+      FILE_PATH_LITERAL("Chromium Embedded Framework.framework"));
+}
 
-  base::mac::SetOverrideFrameworkBundlePath(helper_path);
+FilePath GetDefaultPackPath() {
+  return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
+}
+
+void OverrideFrameworkBundlePath() {
+  base::mac::SetOverrideFrameworkBundlePath(GetFrameworkBundlePath());
 }
 
 void OverrideChildProcessPath() {
@@ -72,19 +73,24 @@ void OverrideChildProcessPath() {
 
   std::string name = path.BaseName().value();
 
-  FilePath helper_path = GetFrameworksPath().Append(name+" Helper.app")
-      .Append("Contents")
-      .Append("MacOS")
-      .Append(name+" Helper");
+  FilePath helper_path = GetFrameworksPath()
+      .Append(FILE_PATH_LITERAL(name+" Helper.app"))
+      .Append(FILE_PATH_LITERAL("Contents"))
+      .Append(FILE_PATH_LITERAL("MacOS"))
+      .Append(FILE_PATH_LITERAL(name+" Helper"));
 
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
 
-}  // namespace
+#else  // !defined(OS_MACOSX)
 
-#endif  // OS_MACOSX
+FilePath GetDefaultPackPath() {
+  FilePath pak_dir;
+  PathService::Get(base::DIR_MODULE, &pak_dir);
+  return pak_dir;
+}
 
-namespace {
+#endif  // !defined(OS_MACOSX)
 
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
@@ -345,42 +351,30 @@ void CefMainDelegate::InitializeContentClient(
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
-  // Mac OS-X does not support customization of the pack load paths.
-#if !defined(OS_MACOSX)
   FilePath pak_file, locales_dir;
 
   if (command_line.HasSwitch(switches::kPackFilePath))
     pak_file = command_line.GetSwitchValuePath(switches::kPackFilePath);
 
-  if (pak_file.empty()) {
-    FilePath pak_dir;
-    PathService::Get(base::DIR_MODULE, &pak_dir);
-    pak_file = pak_dir.Append(FILE_PATH_LITERAL("cef.pak"));
-  }
-
-  if (!pak_file.empty())
-    PathService::Override(ui::FILE_RESOURCES_PAK, pak_file);
+  if (pak_file.empty())
+    pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("cef.pak"));
 
   if (command_line.HasSwitch(switches::kLocalesDirPath))
     locales_dir = command_line.GetSwitchValuePath(switches::kLocalesDirPath);
 
   if (!locales_dir.empty())
     PathService::Override(ui::DIR_LOCALES, locales_dir);
-#endif  // !defined(OS_MACOSX)
 
   std::string locale = command_line.GetSwitchValueASCII(switches::kLocale);
   if (locale.empty())
     locale = "en-US";
 
   const std::string loaded_locale =
-      ui::ResourceBundle::InitSharedInstanceWithLocale(locale);
+      ui::ResourceBundle::InitSharedInstanceWithLocaleCef(locale);
   CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
-#if defined(OS_WIN)
-  // Explicitly load cef.pak on Windows.
   if (file_util::PathExists(pak_file))
     ResourceBundle::GetSharedInstance().AddDataPack(pak_file);
   else
     NOTREACHED() << "Could not load cef.pak";
-#endif
 }

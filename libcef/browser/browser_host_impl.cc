@@ -289,6 +289,10 @@ CefRefPtr<CefClient> CefBrowserHostImpl::GetClient() {
   return client_;
 }
 
+CefString CefBrowserHostImpl::GetDevToolsURL() {
+  return devtools_url_;
+}
+
 
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
@@ -1099,6 +1103,13 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
 
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
+
+  // Retrieve the DevTools URL, if any.
+  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
+  if (devtools_delegate) {
+    devtools_url_ = devtools_delegate->GetDevToolsURL(
+        web_contents->GetRenderViewHost());
+  }
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(

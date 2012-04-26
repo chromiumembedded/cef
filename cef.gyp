@@ -143,7 +143,7 @@
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/chrome.pak'
+                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
               ],
             },
             {
@@ -316,7 +316,7 @@
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/chrome.pak'
+                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
               ],
             },
             {

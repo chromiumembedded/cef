@@ -256,6 +256,13 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefClient> GetClient() =0;
+
+  ///
+  // Returns the remote debugging DevTools URL for this browser. If remote
+  // debugging is disabled this method will return an empty string.
+  ///
+  /*--cef()--*/
+  virtual CefString GetDevToolsURL() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

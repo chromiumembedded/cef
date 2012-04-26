@@ -45,6 +45,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   ui::Clipboard* GetClipboard();
   CefBrowserContext* browser_context() const { return browser_context_.get(); }
+  CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_; }
 
  private:
   void PlatformInitialize();

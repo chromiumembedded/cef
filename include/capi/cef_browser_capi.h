@@ -222,6 +222,14 @@ typedef struct _cef_browser_host_t {
   ///
   struct _cef_client_t* (CEF_CALLBACK *get_client)(
       struct _cef_browser_host_t* self);
+
+  ///
+  // Returns the remote debugging DevTools URL for this browser. If remote
+  // debugging is disabled this function will return an NULL string.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_dev_tools_url)(
+      struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 
 

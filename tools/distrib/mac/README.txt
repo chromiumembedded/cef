@@ -83,7 +83,7 @@ Optional components:
   CefSettings.pack_loading_disabled.
 
 * Other resources
-    Resources/chrome.pak
+    Resources/cef.pak
   Note: Contains WebKit image and inspector resources. Pack file loading can be
   disabled completely using CefSettings.pack_loading_disabled.
 

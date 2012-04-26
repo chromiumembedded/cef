@@ -1,0 +1,35 @@
+Index: resource_bundle.cc
+===================================================================
+--- resource_bundle.cc	(revision 133962)
++++ resource_bundle.cc	(working copy)
+@@ -47,6 +47,15 @@
+ ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
+ 
+ // static
++std::string ResourceBundle::InitSharedInstanceWithLocaleCef(
++    const std::string& pref_locale) {
++  DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
++  g_shared_instance_ = new ResourceBundle();
++
++  return g_shared_instance_->LoadLocaleResources(pref_locale);
++}
++
++// static
+ std::string ResourceBundle::InitSharedInstanceWithLocale(
+     const std::string& pref_locale) {
+   DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
+Index: resource_bundle.h
+===================================================================
+--- resource_bundle.h	(revision 133962)
++++ resource_bundle.h	(working copy)
+@@ -63,6 +63,10 @@
+     RTL_DISABLED,
+   };
+ 
++  // Initialize the ResourceBundle without loading any Chrome pack files.
++  static std::string InitSharedInstanceWithLocaleCef(
++      const std::string& pref_locale);
++
+   // Initialize the ResourceBundle for this process.  Returns the language
+   // selected.
+   // NOTE: Mac ignores this and always loads up resources for the language

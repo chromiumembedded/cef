@@ -10,6 +10,8 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/memory/scoped_ptr.h"
+#include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
 
 namespace net {
@@ -17,7 +19,7 @@ class URLRequestContextGetter;
 }
 
 namespace content {
-class DevToolsHttpHandler;
+class RenderViewHost;
 }
 
 class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
@@ -33,8 +35,12 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual std::string GetFrontendResourcesBaseURL() OVERRIDE;
 
+  // Returns the DevTools URL for the specified RenderViewHost.
+  std::string GetDevToolsURL(content::RenderViewHost* rvh);
+
  private:
   content::DevToolsHttpHandler* devtools_http_handler_;
+  scoped_ptr<content::DevToolsHttpHandler::RenderViewHostBinding> binding_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsDelegate);
 };
