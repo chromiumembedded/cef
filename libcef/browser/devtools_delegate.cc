@@ -37,7 +37,7 @@ class CefDevToolsBindingHandler
     if (random_seed_.empty()) {
       // Generate a random seed that is used to make identifier guessing more
       // difficult.
-      random_seed_ = base::StringPrintf("%lf|%llu",
+      random_seed_ = base::StringPrintf("%lf|%lu",
           base::Time::Now().ToDoubleT(), base::RandUint64());
     }
 
