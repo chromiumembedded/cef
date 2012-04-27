@@ -814,6 +814,7 @@
         'libcef/browser/url_request_context_getter_proxy.h',
         'libcef/browser/url_request_interceptor.cc',
         'libcef/browser/url_request_interceptor.h',
+        'libcef/browser/web_plugin_impl.cc',
         'libcef/browser/xml_reader_impl.cc',
         'libcef/browser/xml_reader_impl.h',
         'libcef/browser/zip_reader_impl.cc',

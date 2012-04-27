@@ -85,6 +85,14 @@ gboolean BindingActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Debug > Plugin Info... menu item.
+gboolean PluginInfoActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunPluginInfoTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for Debug > Popup Window... menu item.
 gboolean PopupWindowActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -202,6 +210,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(SchemeHandlerActivated));
   AddMenuEntry(debug_menu, "JavaScript Binding",
                G_CALLBACK(BindingActivated));
+  AddMenuEntry(debug_menu, "Plugin Info",
+               G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "Popup Window",
                G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Accelerated 2D Canvas",

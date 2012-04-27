@@ -22,6 +22,8 @@
 #include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_web_plugin.h"
+#include "include/capi/cef_web_plugin_capi.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -46,6 +48,7 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
@@ -67,6 +70,7 @@
 #include "libcef_dll/ctocpp/task_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
+#include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
 
 
@@ -179,6 +183,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefV8ExceptionCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8HandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefV8ValueCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWebPluginInfoCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWebPluginInfoVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWriteHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefXmlReaderCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefZipReaderCppToC::DebugObjCt, 0);
@@ -435,5 +441,19 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 
   // Return type: bool
   return _retval;
+}
+
+CEF_EXPORT void cef_visit_web_plugin_info(
+    struct _cef_web_plugin_info_visitor_t* visitor) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor);
+  if (!visitor)
+    return;
+
+  // Execute
+  CefVisitWebPluginInfo(
+      CefWebPluginInfoVisitorCToCpp::Wrap(visitor));
 }
 

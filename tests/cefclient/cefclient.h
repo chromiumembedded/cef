@@ -41,6 +41,7 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser);
 void RunRequestTest(CefRefPtr<CefBrowser> browser);
 void RunPopupTest(CefRefPtr<CefBrowser> browser);
 void RunDialogTest(CefRefPtr<CefBrowser> browser);
+void RunPluginInfoTest(CefRefPtr<CefBrowser> browser);
 void RunLocalStorageTest(CefRefPtr<CefBrowser> browser);
 void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser);
 void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser);

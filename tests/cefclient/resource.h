@@ -39,6 +39,7 @@
 #define ID_TESTS_GEOLOCATION            32772
 #define ID_TESTS_BINDING                32773
 #define ID_TESTS_DIALOGS                32774
+#define ID_TESTS_PLUGIN_INFO            32775
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001

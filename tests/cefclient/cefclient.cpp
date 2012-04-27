@@ -12,6 +12,7 @@
 #include "include/cef_command_line.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "include/cef_web_plugin.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/string_util.h"
@@ -324,6 +325,39 @@ void RunPopupTest(CefRefPtr<CefBrowser> browser) {
 
 void RunDialogTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/dialogs");
+}
+
+void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
+  class Visitor : public CefWebPluginInfoVisitor {
+   public:
+    explicit Visitor(CefRefPtr<CefBrowser> browser)
+        : browser_(browser) {
+      html_ = "<html><head><title>Plugin Info Test</title></head><body>"
+              "\n<b>Installed plugins:</b>";
+    }
+    ~Visitor() {
+      html_ += "\n</body></html>";
+
+      // Load the html in the browser.
+      browser_->GetMainFrame()->LoadString(html_, "http://tests/plugin_info");
+    }
+
+    virtual bool Visit(CefRefPtr<CefWebPluginInfo> info, int count, int total)
+        OVERRIDE {
+      html_ +=  "\n<br/><br/>Name: " + info->GetName().ToString() +
+                "\n<br/>Description: " + info->GetDescription().ToString() +
+                "\n<br/>Version: " + info->GetVersion().ToString() +
+                "\n<br/>Path: " + info->GetPath().ToString();
+      return true;
+    }
+
+   private:
+    std::string html_;
+    CefRefPtr<CefBrowser> browser_;
+    IMPLEMENT_REFCOUNTING(Visitor);
+  };
+
+  CefVisitWebPluginInfo(new Visitor(browser));
 }
 
 void RunLocalStorageTest(CefRefPtr<CefBrowser> browser) {
