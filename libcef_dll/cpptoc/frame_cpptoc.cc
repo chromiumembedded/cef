@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
+#include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
 
 
@@ -345,6 +346,23 @@ struct _cef_v8context_t* CEF_CALLBACK frame_get_v8context(
   return CefV8ContextCppToC::Wrap(_retval);
 }
 
+void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
+    cef_domvisitor_t* visitor) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor);
+  if (!visitor)
+    return;
+
+  // Execute
+  CefFrameCppToC::Get(self)->VisitDOM(
+      CefDOMVisitorCToCpp::Wrap(visitor));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -373,6 +391,7 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
   struct_.struct_.get_url = frame_get_url;
   struct_.struct_.get_browser = frame_get_browser;
   struct_.struct_.get_v8context = frame_get_v8context;
+  struct_.struct_.visit_dom = frame_visit_dom;
 }
 
 #ifndef NDEBUG

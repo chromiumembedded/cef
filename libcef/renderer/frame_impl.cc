@@ -8,6 +8,7 @@
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 #include "libcef/renderer/webkit_glue.h"
@@ -238,6 +239,25 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   } else {
     return NULL;
   }
+}
+
+void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+
+  if (!frame_)
+    return;
+
+  // Create a CefDOMDocumentImpl object that is valid only for the scope of this
+  // method.
+  CefRefPtr<CefDOMDocumentImpl> documentImpl;
+  const WebKit::WebDocument& document = frame_->document();
+  if (!document.isNull())
+    documentImpl = new CefDOMDocumentImpl(browser_, frame_);
+
+  visitor->Visit(documentImpl.get());
+
+  if (documentImpl.get())
+    documentImpl->Detach();
 }
 
 void CefFrameImpl::Detach() {

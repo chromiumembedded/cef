@@ -225,6 +225,10 @@ CefRefPtr<CefV8Context> CefFrameHostImpl::GetV8Context() {
   return NULL;
 }
 
+void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
+  NOTREACHED() << "VisitDOM cannot be called from the browser process";
+}
+
 void CefFrameHostImpl::Detach() {
   base::AutoLock lock_scope(state_lock_);
   browser_ = NULL;

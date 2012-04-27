@@ -13,6 +13,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dom_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
@@ -89,6 +90,14 @@ gboolean BindingActivated(GtkWidget* widget) {
 gboolean PluginInfoActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPluginInfoTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > DOM Access... menu item.
+gboolean DOMAccessActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    dom_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -212,6 +221,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(BindingActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
+  AddMenuEntry(debug_menu, "DOM Access",
+               G_CALLBACK(DOMAccessActivated));
   AddMenuEntry(debug_menu, "Popup Window",
                G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Accelerated 2D Canvas",

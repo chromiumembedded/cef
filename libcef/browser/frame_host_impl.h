@@ -49,6 +49,7 @@ class CefFrameHostImpl : public CefFrame {
   virtual CefString GetURL() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
 
   void SetFocused(bool focused);
   void SetURL(const CefString& url);

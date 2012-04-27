@@ -3,10 +3,12 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/client_app.h"
+#include "cefclient/dom_test.h"
 #include "cefclient/scheme_test.h"
 
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
+  dom_test::CreateRenderDelegates(delegates);
 }
 
 // static

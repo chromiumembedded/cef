@@ -12,8 +12,12 @@ void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   CreateProcessMessageRendererTests(delegates);
 
   // Bring in the V8 tests.
-  extern void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates);
+  extern void CreateV8RendererTests(RenderDelegateSet& delegates);
   CreateV8RendererTests(delegates);
+
+  // Bring in the DOM tests.
+  extern void CreateDOMRendererTests(RenderDelegateSet& delegates);
+  CreateDOMRendererTests(delegates);
 }
 
 // static

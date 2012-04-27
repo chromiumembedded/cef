@@ -195,6 +195,13 @@ typedef struct _cef_frame_t {
   ///
   struct _cef_v8context_t* (CEF_CALLBACK *get_v8context)(
       struct _cef_frame_t* self);
+
+  ///
+  // Visit the DOM document. This function can only be called from the render
+  // process.
+  ///
+  void (CEF_CALLBACK *visit_dom)(struct _cef_frame_t* self,
+      struct _cef_domvisitor_t* visitor);
 } cef_frame_t;
 
 

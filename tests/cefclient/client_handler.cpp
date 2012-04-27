@@ -11,6 +11,7 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
+#include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 
@@ -114,6 +115,10 @@ void ClientHandler::OnLoadEnd(CefRefPtr<CefBrowser> browser,
   if (m_BrowserId == browser->GetIdentifier() && frame->IsMain()) {
     // We've just finished loading a page
     SetLoading(false);
+
+    // Continue the DOM test.
+    if (frame->GetURL() == dom_test::kTestUrl)
+      dom_test::OnLoadEnd(browser);
   }
 }
 
@@ -151,6 +156,12 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     // Show the dialogs contents
     CefRefPtr<CefStreamReader> stream =
         GetBinaryResourceReader("dialogs.html");
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/html", stream);
+  } else if (url == dom_test::kTestUrl) {
+    // Show the domaccess contents
+    CefRefPtr<CefStreamReader> stream =
+       GetBinaryResourceReader("domaccess.html");
     ASSERT(stream.get());
     return new CefStreamResourceHandler("text/html", stream);
   } else if (url == "http://tests/localstorage") {
@@ -247,7 +258,7 @@ void ClientHandler::OnBeforeContextMenu(
     // Add a separator if the menu already has items.
     if (model->GetCount() > 0)
       model->AddSeparator();
-  
+
     // Add a "Show DevTools" item to all context menus.
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
 

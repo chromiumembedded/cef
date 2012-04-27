@@ -14,6 +14,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "libcef/common/response_manager.h"
+#include "libcef/common/tracker.h"
 #include "libcef/renderer/frame_impl.h"
 
 #include "content/public/renderer/render_view_observer.h"
@@ -83,6 +84,9 @@ class CefBrowserImpl : public CefBrowser,
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(WebKit::WebFrame* frame);
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64 frame_id);
 
+  // Frame objects will be deleted immediately before the frame is closed.
+  void AddFrameObject(int64 frame_id, CefTrackNode* tracked_object);
+
   int browser_window_id() const { return browser_window_id_; }
   content::RenderView* render_view() {
     return content::RenderViewObserver::render_view();
@@ -114,6 +118,11 @@ class CefBrowserImpl : public CefBrowser,
   // Map of unique frame ids to CefFrameImpl references.
   typedef std::map<int64, CefRefPtr<CefFrameImpl> > FrameMap;
   FrameMap frames_;
+
+  // Map of unique frame ids to CefTrackManager objects that need to be cleaned
+  // up when the frame is deleted.
+  typedef std::map<int64, CefRefPtr<CefTrackManager> > FrameObjectMap;
+  FrameObjectMap frame_objects_;
 
   // Manages response registrations.
   CefResponseManager response_manager_;

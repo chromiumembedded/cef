@@ -15,6 +15,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dom_test.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -384,6 +385,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())
           RunPluginInfoTest(browser);
+        return 0;
+      case ID_TESTS_DOM_ACCESS:  // Test DOM access
+        if (browser.get())
+          dom_test::RunTest(browser);
         return 0;
       case ID_TESTS_LOCALSTORAGE:  // Test localStorage
         if (browser.get())

@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_dom.h"
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_string_visitor.h"
@@ -209,6 +210,13 @@ class CefFrame : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefV8Context> GetV8Context() =0;
+  
+  ///
+  // Visit the DOM document. This method can only be called from the render
+  // process.
+  ///
+  /*--cef()--*/
+  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_FRAME_H_

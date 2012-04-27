@@ -392,6 +392,24 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64 frame_id) {
   return NULL;
 }
 
+void CefBrowserImpl::AddFrameObject(int64 frame_id,
+                                    CefTrackNode* tracked_object) {
+  CefRefPtr<CefTrackManager> manager;
+
+  if (!frame_objects_.empty()) {
+    FrameObjectMap::const_iterator it = frame_objects_.find(frame_id);
+    if (it != frame_objects_.end())
+      manager = it->second;
+  }
+
+  if (!manager.get()) {
+    manager = new CefTrackManager();
+    frame_objects_.insert(std::make_pair(frame_id, manager));
+  }
+
+  manager->Add(tracked_object);
+}
+
 
 // RenderViewObserver methods.
 // -----------------------------------------------------------------------------
@@ -417,11 +435,20 @@ void CefBrowserImpl::DidStartProvisionalLoad(WebKit::WebFrame* frame) {
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
   int64 frame_id = frame->identifier();
 
-  // Remove the frame from the map.
-  FrameMap::iterator it = frames_.find(frame_id);
-  DCHECK(it != frames_.end());
-  it->second->Detach();
-  frames_.erase(it);
+  {
+    // Remove the frame from the map.
+    FrameMap::iterator it = frames_.find(frame_id);
+    DCHECK(it != frames_.end());
+    it->second->Detach();
+    frames_.erase(it);
+  }
+
+  if (!frame_objects_.empty()) {
+    // Remove any tracked objects associated with the frame.
+    FrameObjectMap::iterator it = frame_objects_.find(frame_id);
+    if (it != frame_objects_.end())
+      frame_objects_.erase(it);
+  }
 
   // Notify the browser that the frame has detached.
   Send(new CefHostMsg_FrameDetached(routing_id(), frame_id));

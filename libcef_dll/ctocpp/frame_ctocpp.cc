@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -324,6 +325,22 @@ CefRefPtr<CefV8Context> CefFrameCToCpp::GetV8Context() {
 
   // Return type: refptr_same
   return CefV8ContextCToCpp::Wrap(_retval);
+}
+
+void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
+  if (CEF_MEMBER_MISSING(struct_, visit_dom))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor.get());
+  if (!visitor.get())
+    return;
+
+  // Execute
+  struct_->visit_dom(struct_,
+      CefDOMVisitorCppToC::Wrap(visitor));
 }
 
 

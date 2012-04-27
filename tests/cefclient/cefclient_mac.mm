@@ -13,6 +13,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -195,6 +196,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testBinding:(id)sender;
 - (IBAction)testDialogs:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
+- (IBAction)testDOMAccess:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testAccelerated2DCanvas:(id)sender;
 - (IBAction)testAcceleratedLayers:(id)sender;
@@ -242,6 +244,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"DOM Access"
+                      action:@selector(testDOMAccess:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Local Storage"
                       action:@selector(testLocalStorage:)
@@ -398,6 +403,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testPluginInfo:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPluginInfoTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testDOMAccess:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    dom_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPopupWindow:(id)sender {

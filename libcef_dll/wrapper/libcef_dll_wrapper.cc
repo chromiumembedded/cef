@@ -28,6 +28,8 @@
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
+#include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
@@ -53,6 +55,9 @@
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
+#include "libcef_dll/ctocpp/domdocument_ctocpp.h"
+#include "libcef_dll/ctocpp/domevent_ctocpp.h"
+#include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
@@ -142,6 +147,11 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieManagerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMDocumentCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMEventCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMEventListenerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMNodeCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDOMVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDisplayHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
