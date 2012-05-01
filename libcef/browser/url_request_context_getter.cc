@@ -257,15 +257,16 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->host_resolver(),
         url_request_context_->cert_verifier(),
         url_request_context_->server_bound_cert_service(),
-        NULL,  // tranport_security_state
+        NULL,  /* tranport_security_state */
         url_request_context_->proxy_service(),
-        "",  // ssl_session_cache_shard
+        "",  /* ssl_session_cache_shard */
         url_request_context_->ssl_config_service(),
         url_request_context_->http_auth_handler_factory(),
-        NULL,  // network_delegate
+        NULL,  /* network_delegate */
         url_request_context_->http_server_properties(),
         NULL,
-        main_backend);
+        main_backend,
+        ""  /* trusted_spdy_proxy */);
     storage_->set_http_transaction_factory(main_cache);
 
     storage_->set_ftp_transaction_factory(
