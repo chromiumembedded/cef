@@ -23,6 +23,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/base/resource/resource_handle.h"
 #include "ui/base/ui_base_paths.h"
 
 #if defined(OS_WIN)
@@ -373,8 +374,10 @@ void CefMainDelegate::InitializeResourceBundle() {
       ui::ResourceBundle::InitSharedInstanceWithLocaleCef(locale);
   CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
-  if (file_util::PathExists(pak_file))
-    ResourceBundle::GetSharedInstance().AddDataPack(pak_file);
-  else
+  if (file_util::PathExists(pak_file)) {
+    ResourceBundle::GetSharedInstance().AddDataPack(
+        pak_file, ui::ResourceHandle::kScaleFactor100x);
+  } else {
     NOTREACHED() << "Could not load cef.pak";
+  }
 }
