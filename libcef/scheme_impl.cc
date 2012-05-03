@@ -176,7 +176,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
     if (!request_)
       return;
 
-    net::CookieStore* cookie_store =
+    scoped_refptr<net::CookieStore> cookie_store =
         request_->context()->cookie_store();
     if (cookie_store) {
       net::CookieMonster* cookie_monster = cookie_store->GetCookieMonster();
@@ -196,10 +196,14 @@ class CefUrlRequestJob : public net::URLRequestJob {
   void DoLoadCookies() {
     net::CookieOptions options;
     options.set_include_httponly();
-    request_->context()->cookie_store()->GetCookiesWithInfoAsync(
-        request_->url(), options,
-        base::Bind(&CefUrlRequestJob::OnCookiesLoaded,
-                   weak_factory_.GetWeakPtr()));
+    scoped_refptr<net::CookieStore> cookie_store =
+        request_->context()->cookie_store();
+    if (cookie_store) {
+      cookie_store->GetCookiesWithInfoAsync(
+          request_->url(), options,
+          base::Bind(&CefUrlRequestJob::OnCookiesLoaded,
+                     weak_factory_.GetWeakPtr()));
+    }
   }
 
   void CheckCookiePolicyAndLoad(
@@ -414,10 +418,14 @@ class CefUrlRequestJob : public net::URLRequestJob {
     options.set_include_httponly();
     if (CanSetCookie(
         response_cookies_[response_cookies_save_index_], &options)) {
-      request_->context()->cookie_store()->SetCookieWithOptionsAsync(
-          request_->url(), response_cookies_[response_cookies_save_index_],
-          options, base::Bind(&CefUrlRequestJob::OnCookieSaved,
-                              weak_factory_.GetWeakPtr()));
+      scoped_refptr<net::CookieStore> cookie_store =
+          request_->context()->cookie_store();
+      if (cookie_store) {
+        cookie_store->SetCookieWithOptionsAsync(
+            request_->url(), response_cookies_[response_cookies_save_index_],
+            options, base::Bind(&CefUrlRequestJob::OnCookieSaved,
+                                weak_factory_.GetWeakPtr()));
+      }
       return;
     }
 
