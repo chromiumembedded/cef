@@ -490,9 +490,14 @@ class CefUrlRequestJob : public net::URLRequestJob {
 
               dest_ = NULL;
               dest_size_ = 0;
+            } else {
+              // All done.
+              job_->NotifyDone(URLRequestStatus());
             }
-          } else {
-            // All done.
+          } else if (!job_->GetStatus().is_io_pending()) {
+            // Failed due to an error.
+            NOTREACHED() <<
+                "ReadRawData returned false without setting IO as pending";
             job_->NotifyDone(URLRequestStatus());
           }
         }
