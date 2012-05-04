@@ -1,7 +1,7 @@
-Index: gyp/input.py
+Index: pylib/gyp/input.py
 ===================================================================
---- gyp/input.py	(revision 1344)
-+++ gyp/input.py	(working copy)
+--- pylib/gyp/input.py	(revision 1344)
++++ pylib/gyp/input.py	(working copy)
 @@ -683,7 +683,8 @@
              # that don't load quickly, this can be faster than
              # <!(python modulename param eters). Do this in |build_file_dir|.
