@@ -48,6 +48,7 @@ namespace {
 void AddMenuItem(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefMenuHandler> handler,
                  NSMenu* menu,
+                 id target,
                  cef_menu_id_t menuId,
                  const std::string& label,
                  bool enabled) {
@@ -65,7 +66,8 @@ void AddMenuItem(CefRefPtr<CefBrowser> browser,
   NSMenuItem* item =
       [[[NSMenuItem alloc] initWithTitle:str
                                  action:enabled?@selector(menuItemSelected:):nil
-                           keyEquivalent:@""] autorelease]; 
+                           keyEquivalent:@""] autorelease];
+  [item setTarget:target];
   [item setTag:menuId];
   [menu addItem:item];
 }
@@ -77,6 +79,46 @@ void AddMenuSeparator(NSMenu* menu) {
 
 } // namespace
 
+@interface BrowserMenuDelegate : NSObject <NSMenuDelegate> {
+ @private
+  CefRefPtr<CefBrowserImpl> browser_;
+}
+
+- (id)initWithBrowser:(CefBrowserImpl*)browser;
+- (void)menuItemSelected:(id)sender;
+@end
+
+@implementation BrowserMenuDelegate
+
+- (id)initWithBrowser:(CefBrowserImpl*)browser {
+  self = [super init];
+  if (self)
+    browser_ = browser;
+  return self;
+
+}
+
+// Called when a context menu item is selected by the user.
+- (void)menuItemSelected:(id)sender {
+  cef_menu_id_t menuId = static_cast<cef_menu_id_t>([sender tag]);
+  bool handled = false;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefMenuHandler> handler = client->GetMenuHandler();
+    if (handler.get()) {
+      // Ask the handler if it wants to handle the action.
+      handled = handler->OnMenuAction(browser_.get(), menuId);
+    }
+  }
+
+  if(!handled) {
+    // Execute the action.
+    browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
+  }
+}
+
+@end
 
 // WebViewClient --------------------------------------------------------------
 
@@ -102,12 +144,21 @@ void BrowserWebViewDelegate::showContextMenu(
   if (!host)
     return;
 
-  BrowserWebView *view = static_cast<BrowserWebView*>(host->view_handle());
+  NSView *view = browser_->UIT_GetMainWndHandle();
   if (!view)
     return;
 
   NSWindow* window = [view window];
-  NSPoint position = [window mouseLocationOutsideOfEventStream];
+
+  int screenX = -1;
+  int screenY = -1; 
+  NSPoint mouse_pt = {data.mousePosition.x, data.mousePosition.y};
+  if (!browser_->IsWindowRenderingDisabled()) {
+    mouse_pt = [window mouseLocationOutsideOfEventStream];
+    NSPoint screen_pt = [window convertBaseToScreen:mouse_pt];
+    screenX = screen_pt.x;
+    screenY = screen_pt.y;
+  }
 
   int edit_flags = 0;
   int type_flags = 0;
@@ -117,7 +168,7 @@ void BrowserWebViewDelegate::showContextMenu(
   MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
 
   // Give the client a chance to handle the menu.
-  if (OnBeforeMenu(data, position.x, position.y, edit_flags, type_flags))
+  if (OnBeforeMenu(data, mouse_pt.x, mouse_pt.y, edit_flags, type_flags))
     return;
 
   CefRefPtr<CefClient> client = browser_->GetClient();
@@ -125,43 +176,57 @@ void BrowserWebViewDelegate::showContextMenu(
   if (client.get())
     handler = client->GetMenuHandler();
 
+  if (client.get() && browser_->IsWindowRenderingDisabled()) {
+    // Retrieve the screen coordinates.
+    CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
+    if (!render_handler.get() ||
+        !render_handler->GetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
+                                        screenX, screenY)) {
+      return;
+    }
+  }
+
+  BrowserMenuDelegate* delegate =
+     [[[BrowserMenuDelegate alloc] initWithBrowser:browser_] autorelease];
+
   // Build the correct default context menu
   if (type_flags &  MENUTYPE_EDITABLE) {
     menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 
-    AddMenuItem(browser_, handler, menu, MENU_ID_UNDO, "Undo",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_UNDO, "Undo",
                 !!(edit_flags & MENU_CAN_UNDO));
-    AddMenuItem(browser_, handler, menu, MENU_ID_REDO, "Redo",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_REDO, "Redo",
                 !!(edit_flags & MENU_CAN_REDO));
     AddMenuSeparator(menu);
-    AddMenuItem(browser_, handler, menu, MENU_ID_CUT, "Cut",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_CUT, "Cut",
                 !!(edit_flags & MENU_CAN_CUT));
-    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, "Copy",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_COPY, "Copy",
                 !!(edit_flags & MENU_CAN_COPY));
-    AddMenuItem(browser_, handler, menu, MENU_ID_PASTE, "Paste",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_PASTE, "Paste",
                 !!(edit_flags & MENU_CAN_PASTE));
-    AddMenuItem(browser_, handler, menu, MENU_ID_DELETE, "Delete",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_DELETE, "Delete",
                 !!(edit_flags & MENU_CAN_DELETE));
     AddMenuSeparator(menu);
-    AddMenuItem(browser_, handler, menu, MENU_ID_SELECTALL, "Select All",
-                !!(edit_flags & MENU_CAN_SELECT_ALL));
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_SELECTALL,
+                "Select All", !!(edit_flags & MENU_CAN_SELECT_ALL));
   } else if(type_flags & MENUTYPE_SELECTION) {
     menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 
-    AddMenuItem(browser_, handler, menu, MENU_ID_COPY, "Copy",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_COPY, "Copy",
                 !!(edit_flags & MENU_CAN_COPY));
   } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 
-    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_BACK, "Back",
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_NAV_BACK, "Back",
                 !!(edit_flags & MENU_CAN_GO_BACK));
-    AddMenuItem(browser_, handler, menu, MENU_ID_NAV_FORWARD, "Forward",
-                !!(edit_flags & MENU_CAN_GO_FORWARD));
+    AddMenuItem(browser_, handler, menu, delegate, MENU_ID_NAV_FORWARD,
+                "Forward", !!(edit_flags & MENU_CAN_GO_FORWARD));
     // TODO(port): Enable the below menu items when supported.
     //AddMenuSeparator(menu);
-    //AddMenuItem(browser_, handler, menu, MENU_ID_PRINT, "Print", true);
-    //AddMenuItem(browser_, handler, menu, MENU_ID_VIEWSOURCE, "View Source",
-    //            true);
+    //AddMenuItem(browser_, handler, menu, delegate, MENU_ID_PRINT, "Print",
+    //           true);
+    //AddMenuItem(browser_, handler, menu, delegate, MENU_ID_VIEWSOURCE,
+    //            "View Source", true);
   }
 
   if (!menu)
@@ -169,21 +234,24 @@ void BrowserWebViewDelegate::showContextMenu(
 
   // Synthesize an event for the click, as there is no certainty that
   // [NSApp currentEvent] will return a valid event.
+  NSPoint screen_pt = {screenX, screenY};
+  NSPoint window_pt = [window convertScreenToBase:screen_pt];
+
   NSEvent* currentEvent = [NSApp currentEvent];
   NSTimeInterval eventTime = [currentEvent timestamp];
   NSEvent* clickEvent = [NSEvent mouseEventWithType:NSRightMouseDown
-                                          location:position
-                                     modifierFlags:NSRightMouseDownMask
-                                         timestamp:eventTime
-                                      windowNumber:[window windowNumber]
-                                           context:nil
-                                       eventNumber:0
-                                        clickCount:1
-                                          pressure:1.0];
+                                           location:window_pt
+                                      modifierFlags:NSRightMouseDownMask
+                                          timestamp:eventTime
+                                       windowNumber:[window windowNumber]
+                                            context:nil
+                                        eventNumber:0
+                                         clickCount:1
+                                           pressure:1.0];
     
 
-  // Menu selection events go to the BrowserWebView.
-  [menu setDelegate:view];
+  // Menu selection events go to the BrowserMenuDelegate.
+  [menu setDelegate:delegate];
 
   // Show the menu.
   [NSMenu popUpContextMenu:menu
@@ -194,18 +262,43 @@ void BrowserWebViewDelegate::showContextMenu(
 // WebWidgetClient ------------------------------------------------------------
 
 void BrowserWebViewDelegate::show(WebNavigationPolicy policy) {
+  DCHECK(this != browser_->UIT_GetPopupDelegate());
 }
 
 void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
   NSCursor* ns_cursor = WebCursor(cursor_info).GetNativeCursor();
-  [ns_cursor set];
+
+  if (!browser_->IsWindowRenderingDisabled()) {
+    [ns_cursor set];
+  } else {
+    // Notify the handler of cursor change.
+    CefRefPtr<CefClient> client = browser_->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+      if (handler.get())
+        handler->OnCursorChange(browser_, ns_cursor);
+    }
+  }
 }
 
 WebRect BrowserWebViewDelegate::windowRect() {
   if (WebWidgetHost* host = GetWidgetHost()) {
-    NSView *view = host->view_handle();
-    NSRect rect = [view frame];
-    return gfx::Rect(NSRectToCGRect(rect));
+    if (!browser_->IsWindowRenderingDisabled()) {
+      NSView *view = host->view_handle();
+      NSRect rect = [view frame];
+      return gfx::Rect(NSRectToCGRect(rect));
+    } else {
+      // Retrieve the view rectangle from the handler.
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+        if (handler.get()) {
+          CefRect rect(0, 0, 0, 0);
+          if (handler->GetViewRect(browser_, rect))
+            return WebRect(rect.x, rect.y, rect.width, rect.height);
+        }
+      }
+    }
   }
   return WebRect();
 }
@@ -213,6 +306,8 @@ WebRect BrowserWebViewDelegate::windowRect() {
 void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
   if (this == browser_->UIT_GetWebViewDelegate()) {
     // TODO(port): Set the window rectangle.
+  } else if (this == browser_->UIT_GetPopupDelegate()) {
+    NOTREACHED();
   }
 }
 
@@ -257,7 +352,8 @@ void BrowserWebViewDelegate::startDragging(const WebDragData& data,
                                            WebDragOperationsMask mask,
                                            const WebImage& image,
                                            const WebPoint& image_offset) {
-  if (browser_->settings().drag_drop_disabled) {
+  if (browser_->settings().drag_drop_disabled ||
+      browser_->IsWindowRenderingDisabled()) {
     browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
     return;
   }
@@ -332,15 +428,30 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
     gfx::PluginWindowHandle handle) {
+  if (browser_->IsWindowRenderingDisabled()) {
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host)
+      host->AddWindowedPlugin(handle);
+  }
 }
 
 void BrowserWebViewDelegate::WillDestroyPluginWindow(
     gfx::PluginWindowHandle handle) {
+  if (browser_->IsWindowRenderingDisabled()) {
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host)
+      host->RemoveWindowedPlugin(handle);
+  }
 }
 
 void BrowserWebViewDelegate::DidMovePlugin(
     const webkit::npapi::WebPluginGeometry& move) {
-  // TODO(port): add me once plugins work.
+  if (browser_->IsWindowRenderingDisabled()) {
+    WebViewHost* host = browser_->UIT_GetWebViewHost();
+    if (host) {
+      host->MoveWindowedPlugin(move);
+    }
+  }
 }
 
 // Protected methods ----------------------------------------------------------

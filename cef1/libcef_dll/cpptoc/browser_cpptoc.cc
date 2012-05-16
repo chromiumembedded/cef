@@ -606,21 +606,28 @@ int CEF_CALLBACK browser_get_image(struct _cef_browser_t* self,
 }
 
 void CEF_CALLBACK browser_send_key_event(struct _cef_browser_t* self,
-    enum cef_key_type_t type, int key, int modifiers, int sysChar,
-    int imeChar) {
+    enum cef_key_type_t type, const struct _cef_key_info_t* keyInfo,
+    int modifiers) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: keyInfo; type: struct_byref_const
+  DCHECK(keyInfo);
+  if (!keyInfo)
+    return;
+
+  // Translate param: keyInfo; type: struct_byref_const
+  CefKeyInfo keyInfoObj;
+  if (keyInfo)
+    keyInfoObj.Set(*keyInfo, false);
 
   // Execute
   CefBrowserCppToC::Get(self)->SendKeyEvent(
       type,
-      key,
-      modifiers,
-      sysChar?true:false,
-      imeChar?true:false);
+      keyInfoObj,
+      modifiers);
 }
 
 void CEF_CALLBACK browser_send_mouse_click_event(struct _cef_browser_t* self,
@@ -657,7 +664,7 @@ void CEF_CALLBACK browser_send_mouse_move_event(struct _cef_browser_t* self,
 }
 
 void CEF_CALLBACK browser_send_mouse_wheel_event(struct _cef_browser_t* self,
-    int x, int y, int delta) {
+    int x, int y, int deltaX, int deltaY) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -668,7 +675,8 @@ void CEF_CALLBACK browser_send_mouse_wheel_event(struct _cef_browser_t* self,
   CefBrowserCppToC::Get(self)->SendMouseWheelEvent(
       x,
       y,
-      delta);
+      deltaX,
+      deltaY);
 }
 
 void CEF_CALLBACK browser_send_focus_event(struct _cef_browser_t* self,

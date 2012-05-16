@@ -14,6 +14,7 @@
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
+#include "cefclient/osrtest_mac.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -212,6 +213,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testDevToolsShow:(id)sender;
 - (IBAction)testDevToolsClose:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
+- (IBAction)testOffscreenRendering:(id)sender;
+- (IBAction)testTransparentOffscreenRendering:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -304,6 +307,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Offscreen Rendering"
+                      action:@selector(testOffscreenRendering:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Transparent Offscreen Rendering"
+                      action:@selector(testTransparentOffscreenRendering:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -529,6 +538,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testPluginInfo:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunPluginInfoTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testOffscreenRendering:(id)sender {
+  osrtest::RunTest(false);
+}
+
+- (IBAction)testTransparentOffscreenRendering:(id)sender {
+  osrtest::RunTest(true);
 }
 
 // Sent by the default notification center immediately before the application

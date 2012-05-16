@@ -239,25 +239,6 @@
     browser_->GetFocusedFrame()->SelectAll();
 }
 
-- (void)menuItemSelected:(id)sender {
-  cef_menu_id_t menuId = static_cast<cef_menu_id_t>([sender tag]);
-  bool handled = false;
-
-  CefRefPtr<CefClient> client = browser_->GetClient();
-  if (client.get()) {
-    CefRefPtr<CefMenuHandler> handler = client->GetMenuHandler();
-    if (handler.get()) {
-      // Ask the handler if it wants to handle the action.
-      handled = handler->OnMenuAction(browser_, menuId);
-    }
-  }
-
-  if(!handled) {
-    // Execute the action.
-    browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
-  }
-}
-
 - (void)registerDragDrop {
   dropTarget_.reset([[WebDropTarget alloc] initWithWebView:self]);
 

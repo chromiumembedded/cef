@@ -111,6 +111,8 @@
       'tests/cefclient/client_handler_win.cpp',
       'tests/cefclient/clientplugin.cpp',
       'tests/cefclient/clientplugin.h',
+      'tests/cefclient/osrenderer.cpp',
+      'tests/cefclient/osrenderer.h',
       'tests/cefclient/osrplugin.cpp',
       'tests/cefclient/osrplugin.h',
       'tests/cefclient/osrplugin_test.cpp',
@@ -135,6 +137,10 @@
     'cefclient_sources_mac': [
       'tests/cefclient/cefclient_mac.mm',
       'tests/cefclient/client_handler_mac.mm',
+      'tests/cefclient/osrenderer.cpp',
+      'tests/cefclient/osrenderer.h',
+      'tests/cefclient/osrtest_mac.h',
+      'tests/cefclient/osrtest_mac.mm',
       'tests/cefclient/resource_util_mac.mm',
     ],
     'cefclient_bundle_resources_mac': [
@@ -146,6 +152,9 @@
       'tests/cefclient/res/extensionperf.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',
+      'tests/cefclient/res/logoball.png',
+      'tests/cefclient/res/osrtest.html',
+      'tests/cefclient/res/transparency.html',
       'tests/cefclient/res/xmlhttprequest.html',
     ],
     'cefclient_sources_linux': [
