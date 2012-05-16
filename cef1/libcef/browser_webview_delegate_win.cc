@@ -448,7 +448,7 @@ void BrowserWebViewDelegate::showContextMenu(
   if (client.get() && browser_->IsWindowRenderingDisabled()) {
     // Retrieve the screen coordinates.
     CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
-    if (render_handler.get() &&
+    if (!render_handler.get() ||
         !render_handler->GetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
                                         screenX, screenY)) {
       return;
