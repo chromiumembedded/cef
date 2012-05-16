@@ -7,17 +7,18 @@
 // as the WebViewDelegate for the BrowserWebHost.  The host is expected to
 // have initialized a MessageLoop before these methods are called.
 
-#include "browser_drag_delegate_win.h"
-#include "browser_navigation_controller.h"
-#include "browser_impl.h"
-#include "browser_webview_delegate.h"
-#include "cef_context.h"
-#include "drag_data_impl.h"
-#include "web_drop_target_win.h"
+#include "libcef/browser_webview_delegate.h"
 
 #include <objidl.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+
+#include "libcef/browser_drag_delegate_win.h"
+#include "libcef/browser_navigation_controller.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_context.h"
+#include "libcef/drag_data_impl.h"
+#include "libcef/web_drop_target_win.h"
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -66,8 +67,7 @@ void AddMenuItem(CefRefPtr<CefBrowser> browser,
                  cef_menu_id_t menuId,
                  const wchar_t* label,
                  bool enabled,
-                 std::list<std::wstring>& label_list)
-{
+                 std::list<std::wstring>& label_list) {
   CefString actual_label(label);
   if (handler.get()) {
     // Let the handler change the label if desired,
@@ -91,8 +91,7 @@ void AddMenuItem(CefRefPtr<CefBrowser> browser,
   InsertMenuItem(menu, -1, TRUE, &mii);
 }
 
-void AddMenuSeparator(HMENU menu)
-{
+void AddMenuSeparator(HMENU menu) {
   MENUITEMINFO mii;
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE;
@@ -101,7 +100,7 @@ void AddMenuSeparator(HMENU menu)
   InsertMenuItem(menu, -1, TRUE, &mii);
 }
 
-} // namespace
+}  // namespace
 
 // WebViewClient --------------------------------------------------------------
 
@@ -120,7 +119,7 @@ void BrowserWebViewDelegate::show(WebNavigationPolicy) {
       // Restore the window and bring it to the top if the window is currently
       // visible.
       HWND root = GetAncestor(browser_->UIT_GetMainWndHandle(), GA_ROOT);
-      if(IsWindowVisible(root)) {
+      if (IsWindowVisible(root)) {
         ShowWindow(root, SW_SHOWNORMAL);
         SetWindowPos(root, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
       }
@@ -145,7 +144,7 @@ void BrowserWebViewDelegate::didChangeCursor(const WebCursorInfo& cursor_info) {
   if (WebWidgetHost* host = GetWidgetHost()) {
     current_cursor_.InitFromCursorInfo(cursor_info);
     HMODULE hModule = ::GetModuleHandle(L"libcef.dll");
-    if(!hModule)
+    if (!hModule)
       hModule = ::GetModuleHandle(NULL);
     HCURSOR hCursor = current_cursor_.GetCursor(hModule);
 
@@ -195,7 +194,7 @@ void BrowserWebViewDelegate::setWindowRect(const WebRect& rect) {
     } else {
       browser_->set_popup_rect(rect);
       browser_->UIT_GetPopupHost()->SetSize(rect.width, rect.height);
-        
+
       // Notify the handler of popup size change.
       CefRefPtr<CefClient> client = browser_->GetClient();
       if (client.get()) {
@@ -268,9 +267,9 @@ void BrowserWebViewDelegate::runModal() {
   CefRefPtr<CefClient> client = browser_->GetClient();
   CefRefPtr<CefLifeSpanHandler> handler;
 
-  if( client.get())
+  if (client.get())
     handler = client->GetLifeSpanHandler();
-  
+
   bool handled(false);
 
   if (handler.get()) {
@@ -293,7 +292,7 @@ void BrowserWebViewDelegate::runModal() {
       }
       DWORD dwStyle = ::GetWindowLong(child, GWL_STYLE);
       DWORD dwNewStyle = dwStyle | WS_POPUP;
-      if(dwStyle != dwNewStyle)
+      if (dwStyle != dwNewStyle)
         ::SetWindowLong(child, GWL_STYLE, dwNewStyle);
     }
 
@@ -313,8 +312,7 @@ void BrowserWebViewDelegate::runModal() {
 
 webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
       const FilePath& file_path,
-      const std::string& mime_type)
-{
+      const std::string& mime_type) {
   WebViewHost* host = browser_->UIT_GetWebViewHost();
   if (!host)
     return NULL;
@@ -379,7 +377,7 @@ void BrowserWebViewDelegate::WillDestroyPluginWindow(
 
 void BrowserWebViewDelegate::DidMovePlugin(
     const webkit::npapi::WebPluginGeometry& move) {
-  unsigned long flags = 0;
+  UINT flags = 0;
 
   if (move.rects_valid) {
     HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
@@ -417,10 +415,9 @@ void BrowserWebViewDelegate::DidMovePlugin(
 }
 
 void BrowserWebViewDelegate::showContextMenu(
-    WebFrame* frame, const WebContextMenuData& data)
-{
+    WebFrame* frame, const WebContextMenuData& data) {
   int screenX = -1, screenY = -1;
-  
+
   POINT mouse_pt = {data.mousePosition.x, data.mousePosition.y};
   if (!browser_->IsWindowRenderingDisabled()) {
     // Perform the conversion to screen coordinates only if window rendering is
@@ -451,7 +448,7 @@ void BrowserWebViewDelegate::showContextMenu(
   if (client.get() && browser_->IsWindowRenderingDisabled()) {
     // Retrieve the screen coordinates.
     CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
-    if (render_handler.get() &&
+    if (!render_handler.get() ||
         !render_handler->GetScreenPoint(browser_, mouse_pt.x, mouse_pt.y,
                                         screenX, screenY)) {
       return;
@@ -477,11 +474,11 @@ void BrowserWebViewDelegate::showContextMenu(
     AddMenuSeparator(menu);
     AddMenuItem(browser_, handler, menu, MENU_ID_SELECTALL, L"Select All",
       !!(edit_flags & MENU_CAN_SELECT_ALL), label_list);
-  } else if(type_flags & MENUTYPE_SELECTION) {
+  } else if (type_flags & MENUTYPE_SELECTION) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, handler, menu, MENU_ID_COPY, L"Copy",
       !!(edit_flags & MENU_CAN_COPY), label_list);
-  } else if(type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
+  } else if (type_flags & (MENUTYPE_PAGE | MENUTYPE_FRAME)) {
     menu = CreatePopupMenu();
     AddMenuItem(browser_, handler, menu, MENU_ID_NAV_BACK, L"Back",
       !!(edit_flags & MENU_CAN_GO_BACK), label_list);
@@ -511,7 +508,7 @@ void BrowserWebViewDelegate::showContextMenu(
       handled = handler->OnMenuAction(browser_, menuId);
     }
 
-    if(!handled) {
+    if (!handled) {
       // Execute the action
       browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
     }
@@ -539,8 +536,7 @@ void BrowserWebViewDelegate::EndDragging() {
 }
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
-                                                 const CefString& message)
-{
+                                                 const CefString& message) {
   // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
   std::wstring titleStr = browser_->UIT_GetTitle();
@@ -549,8 +545,7 @@ void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
-                                                   const CefString& message)
-{
+                                                   const CefString& message) {
   // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
   std::wstring titleStr = browser_->UIT_GetTitle();
@@ -562,19 +557,16 @@ bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
                                                   const CefString& message,
                                                  const CefString& default_value,
-                                                  CefString* result)
-{
+                                                  CefString* result) {
   // TODO(cef): Implement a default prompt dialog
   return false;
 }
 
-namespace 
-{
+namespace {
 
 // from chrome/browser/views/shell_dialogs_win.cc
 
-bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path)
-{
+bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -603,8 +595,7 @@ bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path)
 }
 
 bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
-                            std::vector<FilePath>* paths)
-{
+                            std::vector<FilePath>* paths) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -655,15 +646,14 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
   return success;
 }
 
-}
+}  // namespace
 
-bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names, 
-                                             const bool multi_select, 
-                                             const WebKit::WebString& title, 
-                                             const FilePath& default_file)
-{
+bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
+                                             const bool multi_select,
+                                             const WebKit::WebString& title,
+                                             const FilePath& default_file) {
   bool result = false;
-  
+
   if (multi_select) {
     result = RunOpenMultiFileDialog(L"", browser_->UIT_GetMainWndHandle(),
         &file_names);

@@ -28,24 +28,30 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef _CEF_TYPES_MAC_H
-#define _CEF_TYPES_MAC_H
+#ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_MAC_H_
+#define CEF_INCLUDE_INTERNAL_CEF_TYPES_MAC_H_
+#pragma once
+
+#include "include/internal/cef_build.h"
 
 #if defined(OS_MACOSX)
-#include "cef_string.h"
+#include "include/internal/cef_string.h"
 
 // Window handle.
 #ifdef __cplusplus
 #ifdef __OBJC__
+@class NSCursor;
 @class NSView;
 #else
+class NSCursor;
 class NSView;
 #endif
 #define cef_window_handle_t NSView*
+#define cef_cursor_handle_t NSCursor*
 #else
 #define cef_window_handle_t void*
-#endif
 #define cef_cursor_handle_t void*
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,8 +60,7 @@ extern "C" {
 ///
 // Supported graphics implementations.
 ///
-enum cef_graphics_implementation_t
-{
+enum cef_graphics_implementation_t {
   DESKTOP_IN_PROCESS = 0,
   DESKTOP_IN_PROCESS_COMMAND_BUFFER,
 };
@@ -63,8 +68,7 @@ enum cef_graphics_implementation_t
 ///
 // Class representing window information.
 ///
-typedef struct _cef_window_info_t
-{
+typedef struct _cef_window_info_t {
   cef_string_t m_windowName;
   int m_x;
   int m_y;
@@ -74,7 +78,15 @@ typedef struct _cef_window_info_t
 
   // NSView pointer for the parent view.
   cef_window_handle_t m_ParentView;
-  
+
+  // If window rendering is disabled no browser window will be created. Set
+  // |m_ParentView| to the window that will act as the parent for popup menus,
+  // dialog boxes, etc.
+  int m_bWindowRenderingDisabled;
+
+  // Set to true to enable transparent painting.
+  int m_bTransparentPainting;
+
   // NSView pointer for the new browser view.
   cef_window_handle_t m_View;
 } cef_window_info_t;
@@ -82,15 +94,23 @@ typedef struct _cef_window_info_t
 ///
 // Class representing print context information.
 ///
-typedef struct _cef_print_info_t
-{
+typedef struct _cef_print_info_t {
   double m_Scale;
 } cef_print_info_t;
+
+///
+// Class representing key information.
+///
+typedef struct _cef_key_info_t {
+  int keyCode;
+  int character;
+  int characterNoModifiers;
+} cef_key_info_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // OS_MACOSX
+#endif  // OS_MACOSX
 
-#endif // _CEF_TYPES_MAC_H
+#endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_MAC_H_

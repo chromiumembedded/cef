@@ -35,10 +35,15 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
   WebViewHost* host = new WebViewHost(delegate);
 
   NSRect content_rect = {{rect.x(), rect.y()}, {rect.width(), rect.height()}};
-  host->view_ = [[BrowserWebView alloc] initWithFrame:content_rect];
-  [host->view_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [parent_view addSubview:host->view_];
-  [host->view_ release];
+  if (!paint_delegate) {
+    host->view_ = [[BrowserWebView alloc] initWithFrame:content_rect];
+    [host->view_ setAutoresizingMask:(NSViewWidthSizable |
+                                      NSViewHeightSizable)];
+    [parent_view addSubview:host->view_];
+    [host->view_ release];
+  } else {
+    host->paint_delegate_ = paint_delegate;
+  }
 
 #if defined(WEBKIT_HAS_WEB_AUTO_FILL_CLIENT)
   host->webwidget_ = WebView::create(delegate, NULL);

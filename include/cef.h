@@ -933,8 +933,8 @@ public:
   // Send a key event to the browser.
   ///
   /*--cef()--*/
-  virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                            bool imeChar) =0;  
+  virtual void SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo,
+                            int modifiers) =0;
 
   ///
   // Send a mouse click event to the browser. The |x| and |y| coordinates are
@@ -956,7 +956,7 @@ public:
   // relative to the upper-left corner of the view.
   ///
   /*--cef()--*/
-  virtual void SendMouseWheelEvent(int x, int y, int delta) =0;
+  virtual void SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) =0;
 
   ///
   // Send a focus event to the browser.

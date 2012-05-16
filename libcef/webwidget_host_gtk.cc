@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webwidget_host.h"
+#include "libcef/webwidget_host.h"
 
 #include <cairo/cairo.h>
 #include <gdk/gdkx.h>
@@ -379,7 +379,7 @@ void WebWidgetHost::Paint() {
       total_paint = total_paint.Union(rect);
     }
   }
-  //DCHECK(paint_rect_.IsEmpty());
+  // DCHECK(paint_rect_.IsEmpty());
 
   // Invalidate the paint region on the widget's underlying gdk window. Note
   // that gdk_window_invalidate_* will generate extra expose events, which
@@ -410,19 +410,16 @@ void WebWidgetHost::Paint() {
     has_invalidate_task_ = false;
 }
 
-void WebWidgetHost::SetTooltipText(const CefString& tooltip_text)
-{
+void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
-{
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer)
-{
+bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
   if (!canvas_.get())
     return false;
 
@@ -443,57 +440,49 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(false);
 }
 
-void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
-                                 bool sysChar, bool imeChar)
-{
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
+                                 const cef_key_info_t& keyInfo,
+                                 int modifiers) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
 void WebWidgetHost::SendMouseClickEvent(int x, int y,
                                         cef_mouse_button_type_t type,
-                                        bool mouseUp, int clickCount)
-{
+                                        bool mouseUp, int clickCount) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
-{
+void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
-{
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendFocusEvent(bool setFocus)
-{
+void WebWidgetHost::SendFocusEvent(bool setFocus) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendCaptureLostEvent()
-{
+void WebWidgetHost::SendCaptureLostEvent() {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::EnsureTooltip()
-{
+void WebWidgetHost::EnsureTooltip() {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-void WebWidgetHost::ResetTooltip()
-{
+void WebWidgetHost::ResetTooltip() {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-void WebWidgetHost::KeyEvent(GdkEventKey* event)
-{
+void WebWidgetHost::KeyEvent(GdkEventKey* event) {
   WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
   last_key_event_ = keyboard_event;
   webwidget()->handleInputEvent(keyboard_event);

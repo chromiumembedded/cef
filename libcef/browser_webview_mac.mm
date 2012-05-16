@@ -21,6 +21,7 @@
 @implementation BrowserWebView
 
 @synthesize browser = browser_;
+@synthesize in_setfocus = is_in_setfocus_;
 
 - (id)initWithFrame:(NSRect)frame {
   self = [super initWithFrame:frame];
@@ -168,12 +169,14 @@
 
 - (BOOL)becomeFirstResponder {
   if (browser_ && browser_->UIT_GetWebView()) {
-    CefRefPtr<CefClient> client = browser_->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
-      if (handler.get() &&
-          handler->OnSetFocus(browser_, FOCUS_SOURCE_SYSTEM)) {
-        return NO;
+    if (!is_in_setfocus_) {
+      CefRefPtr<CefClient> client = browser_->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+        if (handler.get() &&
+            handler->OnSetFocus(browser_, FOCUS_SOURCE_SYSTEM)) {
+          return NO;
+        }
       }
     }
 
@@ -234,25 +237,6 @@
 - (void)selectAll:(id)sender {
   if (browser_)
     browser_->GetFocusedFrame()->SelectAll();
-}
-
-- (void)menuItemSelected:(id)sender {
-  cef_menu_id_t menuId = static_cast<cef_menu_id_t>([sender tag]);
-  bool handled = false;
-
-  CefRefPtr<CefClient> client = browser_->GetClient();
-  if (client.get()) {
-    CefRefPtr<CefMenuHandler> handler = client->GetMenuHandler();
-    if (handler.get()) {
-      // Ask the handler if it wants to handle the action.
-      handled = handler->OnMenuAction(browser_, menuId);
-    }
-  }
-
-  if(!handled) {
-    // Execute the action.
-    browser_->UIT_HandleAction(menuId, browser_->GetFocusedFrame());
-  }
 }
 
 - (void)registerDragDrop {

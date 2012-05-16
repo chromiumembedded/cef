@@ -3,8 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webwidget_host.h"
-#include "cef_thread.h"
+#include <windows.h>
+#include <commctrl.h>
+
+#include "libcef/webwidget_host.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_thread.h"
 
 #include "base/bind.h"
 #include "base/logging.h"
@@ -25,8 +29,6 @@
 #include "ui/base/win/hwnd_util.h"
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/rect.h"
-
-#include <commctrl.h>
 
 using webkit::npapi::WebPluginGeometry;
 using WebKit::WebInputEvent;
@@ -51,8 +53,7 @@ struct MessageInfo {
   LPARAM lParam;
 };
 
-BOOL CALLBACK SendMessageFunc(HWND hwnd, LPARAM lParam)
-{
+BOOL CALLBACK SendMessageFunc(HWND hwnd, LPARAM lParam) {
   MessageInfo* info = reinterpret_cast<MessageInfo*>(lParam);
   SendMessage(hwnd, info->message, info->wParam, info->lParam);
   return TRUE;
@@ -61,18 +62,16 @@ BOOL CALLBACK SendMessageFunc(HWND hwnd, LPARAM lParam)
 // Plugins are hosted in a Chromium-created parent window so it's necessary to
 // send messages directly to the child window.
 void SendMessageToPlugin(HWND hwnd, UINT message, WPARAM wParam,
-                           LPARAM lParam)
-{
+                           LPARAM lParam) {
   MessageInfo info = {message, wParam, lParam};
   EnumChildWindows(hwnd, SendMessageFunc, reinterpret_cast<LPARAM>(&info));
 }
 
-inline SkIRect convertToSkiaRect(const gfx::Rect& r)
-{
+inline SkIRect convertToSkiaRect(const gfx::Rect& r) {
   return SkIRect::MakeLTRB(r.x(), r.y(), r.right(), r.bottom());
 }
 
-} // namespace
+}  // namespace
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
@@ -254,7 +253,7 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         break;
 
       case WM_NOTIFY:
-        host->OnNotify(0, (NMHDR*)lparam);
+        host->OnNotify(0, reinterpret_cast<NMHDR*>(lparam));
         break;
 
       case WM_GETDLGCODE:
@@ -262,7 +261,7 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
     }
   }
 
-  return DefWindowProc(hwnd, message, wparam, lparam);;
+  return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
 void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
@@ -304,7 +303,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   {
     skia::ScopedPlatformPaint scoped_platform_paint(canvas_.get());
     HDC hdc = scoped_platform_paint.GetPlatformSurface();
-    RECT clip_rect_win32 = clip_rect.ToRECT(), uncovered_rect = {0,0,0,0};
+    RECT clip_rect_win32 = clip_rect.ToRECT(), uncovered_rect = {0, 0, 0, 0};
     ScrollDC(hdc, dx, dy, NULL, &clip_rect_win32, NULL, &uncovered_rect);
 
     UpdatePaintRect(gfx::Rect(uncovered_rect));
@@ -402,8 +401,8 @@ void WebWidgetHost::Paint() {
       canvas_h_ = client_rect.height() + kCanvasGrowSize;
       canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
     }
-  } else if(!canvas_.get() || canvas_w_ != client_rect.width() ||
-           canvas_h_ != client_rect.height()) {
+  } else if (!canvas_.get() || canvas_w_ != client_rect.width() ||
+             canvas_h_ != client_rect.height()) {
     paint_rgn_.setRect(convertToSkiaRect(client_rect));
 
     // The canvas must be the exact size of the client area.
@@ -447,10 +446,10 @@ void WebWidgetHost::Paint() {
   if (!view_ && plugin_map_.size() > 0) {
     typedef std::list<const WebPluginGeometry*> PluginList;
     PluginList visible_plugins;
-    
+
     // Identify the visible plugins.
     PluginMap::const_iterator it = plugin_map_.begin();
-    for(; it != plugin_map_.end(); ++it) {
+    for (; it != plugin_map_.end(); ++it) {
       if (it->second.visible && client_rect.Intersects(it->second.window_rect))
         visible_plugins.push_back(&it->second);
     }
@@ -463,10 +462,10 @@ void WebWidgetHost::Paint() {
 
       // Paint the plugin windows.
       PluginList::const_iterator it = visible_plugins.begin();
-      for(; it != visible_plugins.end(); ++it) {
+      for (; it != visible_plugins.end(); ++it) {
         const WebPluginGeometry* geom = *(it);
-        
-        oldRGN = CreateRectRgn(0,0,1,1);
+
+        oldRGN = CreateRectRgn(0, 0, 1, 1);
         GetClipRgn(drawDC, oldRGN);
 
         // Only paint inside the clip region.
@@ -485,7 +484,7 @@ void WebWidgetHost::Paint() {
         SendMessageToPlugin(geom->window, WM_PRINT,
             reinterpret_cast<WPARAM>(drawDC),
             PRF_OWNED | PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
-        
+
         SetViewportOrgEx(drawDC, oldViewport.x, oldViewport.y, NULL);
         SelectClipRgn(drawDC, oldRGN);
 
@@ -534,11 +533,10 @@ void WebWidgetHost::Paint() {
     has_invalidate_task_ = false;
 }
 
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
-{
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
   if (rect.IsEmpty())
     return;
-  
+
   if (view_) {
     // Let the window handle painting.
     RECT r = rect.ToRECT();
@@ -554,8 +552,7 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect)
   }
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* buffer)
-{
+bool WebWidgetHost::GetImage(int width, int height, void* buffer) {
   const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
   DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
 
@@ -603,11 +600,24 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
     case WebInputEvent::MouseDown:
       if (!popup()) {
         SetCapture(view_);
-        // This mimics a temporary workaround in RenderWidgetHostViewWin 
-        // for bug 765011 to get focus when the mouse is clicked. This 
-        // happens after the mouse down event is sent to the renderer 
-        // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-        ::SetFocus(view_);
+
+        if (::GetFocus() != view_) {
+          // Set focus to this  window.
+          HWND parent_hwnd = ::GetParent(view_);
+          if (parent_hwnd) {
+            CefRefPtr<CefBrowserImpl> browser =
+                static_cast<CefBrowserImpl*>(
+                    ui::GetWindowUserData(parent_hwnd));
+            if (browser.get()) {
+              // This mimics a temporary workaround in RenderWidgetHostViewWin
+              // for bug 765011 to get focus when the mouse is clicked. This
+              // happens after the mouse down event is sent to the renderer
+              // because normally Windows does a WM_SETFOCUS after
+              // WM_LBUTTONDOWN.
+              browser->SetFocus(true);
+            }
+          }
+        }
       }
       break;
     case WebInputEvent::MouseUp:
@@ -646,7 +656,7 @@ void WebWidgetHost::OnNotify(WPARAM wparam, NMHDR* header) {
     return;
 
   switch (header->code) {
-    case TTN_GETDISPINFO: 
+    case TTN_GETDISPINFO:
       {
         NMTTDISPINFOW* tooltip_info = reinterpret_cast<NMTTDISPINFOW*>(header);
         tooltip_info->szText[0] = L'\0';
@@ -680,8 +690,7 @@ void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
       ::SendMessage(tooltip_view_, TTM_POP, 0, 0);
       ::SendMessage(tooltip_view_, TTM_POPUP, 0, 0);
     }
-  }
-  else {
+  } else {
     // Make sure the tooltip gets closed after TTN_POP gets sent. For some
     // reason this doesn't happen automatically, so moving the mouse around
     // within the same link/image/etc doesn't cause the tooltip to re-appear.
@@ -755,7 +764,7 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   if (!popup() && ((WebKit::WebView*)webwidget_)->isTransparent()) {
     // When using transparency mode clear the rectangle before painting.
     SkPaint clearpaint;
-    clearpaint.setARGB(0,0,0,0);
+    clearpaint.setARGB(0, 0, 0, 0);
     clearpaint.setXfermodeMode(SkXfermode::kClear_Mode);
 
     SkRect skrc;
@@ -768,31 +777,31 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(false);
 }
 
-void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
-                                 bool sysChar, bool imeChar)
-{
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
+                                 const cef_key_info_t& keyInfo,
+                                 int modifiers) {
   UINT message = 0;
-  WPARAM wparam = key;
+  WPARAM wparam = keyInfo.key;
   LPARAM lparam = modifiers;
 
   if (type == KT_KEYUP) {
-    if (sysChar)
+    if (keyInfo.sysChar)
       message = WM_SYSKEYUP;
-    else if(imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_KEYUP;
     else
       message = WM_KEYUP;
-  } else if(type == KT_KEYDOWN) {
-    if (sysChar)
+  } else if (type == KT_KEYDOWN) {
+    if (keyInfo.sysChar)
       message = WM_SYSKEYDOWN;
-    else if(imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_KEYDOWN;
     else
       message = WM_KEYDOWN;
-  } else if(type == KT_CHAR) {
-    if (sysChar)
+  } else if (type == KT_CHAR) {
+    if (keyInfo.sysChar)
       message = WM_SYSCHAR;
-    else if(imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_CHAR;
     else
       message = WM_CHAR;
@@ -812,27 +821,26 @@ void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
 
 void WebWidgetHost::SendMouseClickEvent(int x, int y,
                                         cef_mouse_button_type_t type,
-                                        bool mouseUp, int clickCount)
-{
+                                        bool mouseUp, int clickCount) {
   DCHECK(clickCount >=1 && clickCount <= 2);
-  
+
   UINT message = 0;
   WPARAM wparam = 0;
   LPARAM lparam = MAKELPARAM(x, y);
 
   if (type == MBT_LEFT) {
     if (mouseUp)
-      message = (clickCount==1?WM_LBUTTONUP:WM_LBUTTONDBLCLK);
+      message = (clickCount == 1?WM_LBUTTONUP:WM_LBUTTONDBLCLK);
     else
       message = WM_LBUTTONDOWN;
   } else if (type == MBT_MIDDLE) {
     if (mouseUp)
-      message = (clickCount==1?WM_MBUTTONUP:WM_MBUTTONDBLCLK);
+      message = (clickCount == 1?WM_MBUTTONUP:WM_MBUTTONDBLCLK);
     else
       message = WM_MBUTTONDOWN;
   }  else if (type == MBT_RIGHT) {
     if (mouseUp)
-      message = (clickCount==1?WM_RBUTTONUP:WM_RBUTTONDBLCLK);
+      message = (clickCount == 1?WM_RBUTTONUP:WM_RBUTTONDBLCLK);
     else
       message = WM_RBUTTONDOWN;
   }
@@ -841,7 +849,7 @@ void WebWidgetHost::SendMouseClickEvent(int x, int y,
     NOTREACHED();
     return;
   }
-  
+
   if (GetKeyState(VK_CONTROL) & 0x8000)
     wparam |= MK_CONTROL;
   if (GetKeyState(VK_SHIFT) & 0x8000)
@@ -863,12 +871,11 @@ void WebWidgetHost::SendMouseClickEvent(int x, int y,
   }
 }
 
-void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
-{
+void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   UINT message;
   WPARAM wparam = 0;
   LPARAM lparam = 0;
-  
+
   if (mouseLeave) {
     message = WM_MOUSELEAVE;
   } else {
@@ -897,11 +904,10 @@ void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave)
   }
 }
 
-void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
-{
-  WPARAM wparam = MAKEWPARAM(0, delta);
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
+  WPARAM wparam = MAKEWPARAM(0, deltaY);
   LPARAM lparam = MAKELPARAM(x, y);
-  
+
   if (GetKeyState(VK_CONTROL) & 0x8000)
     wparam |= MK_CONTROL;
   if (GetKeyState(VK_SHIFT) & 0x8000)
@@ -923,19 +929,16 @@ void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta)
   }
 }
 
-void WebWidgetHost::SendFocusEvent(bool setFocus)
-{
+void WebWidgetHost::SendFocusEvent(bool setFocus) {
   SetFocus(setFocus);
 }
 
-void WebWidgetHost::SendCaptureLostEvent()
-{
+void WebWidgetHost::SendCaptureLostEvent() {
   CaptureLostEvent();
 }
 
 LRESULT WebWidgetHost::OnImeSetContext(UINT message, WPARAM wparam,
-                                       LPARAM lparam, BOOL& handled)
-{
+                                       LPARAM lparam, BOOL& handled) {
   if (!webwidget_)
     return 0;
 
@@ -963,8 +966,7 @@ LRESULT WebWidgetHost::OnImeSetContext(UINT message, WPARAM wparam,
 }
 
 LRESULT WebWidgetHost::OnImeStartComposition(UINT message, WPARAM wparam,
-                                             LPARAM lparam, BOOL& handled)
-{
+                                             LPARAM lparam, BOOL& handled) {
   if (!webwidget_)
     return 0;
 
@@ -979,8 +981,7 @@ LRESULT WebWidgetHost::OnImeStartComposition(UINT message, WPARAM wparam,
 }
 
 LRESULT WebWidgetHost::OnImeComposition(UINT message, WPARAM wparam,
-                                        LPARAM lparam, BOOL& handled)
-{
+                                        LPARAM lparam, BOOL& handled) {
   if (!webwidget_)
     return 0;
 
@@ -1030,8 +1031,7 @@ LRESULT WebWidgetHost::OnImeComposition(UINT message, WPARAM wparam,
 }
 
 LRESULT WebWidgetHost::OnImeEndComposition(UINT message, WPARAM wparam,
-                                           LPARAM lparam, BOOL& handled)
-{
+                                           LPARAM lparam, BOOL& handled) {
   if (!webwidget_)
     return 0;
 
@@ -1050,8 +1050,7 @@ LRESULT WebWidgetHost::OnImeEndComposition(UINT message, WPARAM wparam,
 }
 
 void WebWidgetHost::OnInputLangChange(DWORD character_set,
-                                      HKL input_language_id)
-{
+                                      HKL input_language_id) {
   // Send the given Locale ID to the ImeInput object and retrieves whether
   // or not the current input context has IMEs.
   // If the current input context has IMEs, a browser process has to send a
@@ -1089,8 +1088,7 @@ void WebWidgetHost::OnInputLangChange(DWORD character_set,
 }
 
 void WebWidgetHost::ImeUpdateTextInputState(WebKit::WebTextInputType type,
-                                            const gfx::Rect& caret_rect)
-{
+                                            const gfx::Rect& caret_rect) {
   if (text_input_type_ != type) {
     text_input_type_ = type;
     if (type == WebKit::WebTextInputTypeText)
@@ -1104,8 +1102,7 @@ void WebWidgetHost::ImeUpdateTextInputState(WebKit::WebTextInputType type,
     ime_input_.UpdateCaretRect(view_, caret_rect);
 }
 
-void WebWidgetHost::UpdateInputMethod()
-{
+void WebWidgetHost::UpdateInputMethod() {
   REQUIRE_UIT();
 
   has_update_input_method_task_ = false;

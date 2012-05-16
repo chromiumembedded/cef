@@ -3,12 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef_context.h"
-#include "browser_impl.h"
-#include "browser_settings.h"
-#include "browser_webview_mac.h"
-
 #import <Cocoa/Cocoa.h>
+
+#include "libcef/cef_context.h"
+#include "libcef/browser_impl.h"
+#include "libcef/browser_settings.h"
+#include "libcef/browser_webview_mac.h"
 
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRect.h"
@@ -19,35 +19,32 @@
 using WebKit::WebRect;
 using WebKit::WebSize;
 
-void CefBrowserImpl::ParentWindowWillClose()
-{
+void CefBrowserImpl::ParentWindowWillClose() {
   // TODO(port): Implement this method if necessary.
 }
 
-CefWindowHandle CefBrowserImpl::GetWindowHandle()
-{
+CefWindowHandle CefBrowserImpl::GetWindowHandle() {
   AutoLock lock_scope(this);
   return window_info_.m_View;
 }
 
-bool CefBrowserImpl::IsWindowRenderingDisabled()
-{
-  // TODO(port): Add support for off-screen rendering.
-  return false;
+bool CefBrowserImpl::IsWindowRenderingDisabled() {
+  return (window_info_.m_bWindowRenderingDisabled ? true : false);
 }
 
 gfx::NativeView CefBrowserImpl::UIT_GetMainWndHandle() {
   REQUIRE_UIT();
-  return window_info_.m_View;
+  return window_info_.m_bWindowRenderingDisabled ?
+      window_info_.m_ParentView : window_info_.m_View;
 }
 
 void CefBrowserImpl::UIT_ClearMainWndHandle() {
   REQUIRE_UIT();
-  window_info_.m_View = NULL;
+  if (!window_info_.m_bWindowRenderingDisabled)
+    window_info_.m_View = NULL;
 }
 
-bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
-{
+bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   REQUIRE_UIT();
   Lock();
 
@@ -65,29 +62,35 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   NSView* parentView = window_info_.m_ParentView;
   gfx::Rect contentRect(window_info_.m_x, window_info_.m_y,
                         window_info_.m_nWidth, window_info_.m_nHeight);
-  if (parentView == nil) {
-    // Create a new window.
-    NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
-    NSRect window_rect = {{window_info_.m_x,
-                           screen_rect.size.height - window_info_.m_y},
-                          {window_info_.m_nWidth, window_info_.m_nHeight}};
-    if (window_rect.size.width == 0)
-      window_rect.size.width = 750;
-    if (window_rect.size.height == 0)
-      window_rect.size.height = 750;
-    contentRect.SetRect(0, 0, window_rect.size.width, window_rect.size.height);
+  if (!window_info_.m_bWindowRenderingDisabled) {
+    if (parentView == nil) {
+      // Create a new window.
+      NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
+      NSRect window_rect = {{window_info_.m_x,
+                             screen_rect.size.height - window_info_.m_y},
+                            {window_info_.m_nWidth, window_info_.m_nHeight}};
+      if (window_rect.size.width == 0)
+        window_rect.size.width = 750;
+      if (window_rect.size.height == 0)
+        window_rect.size.height = 750;
+      contentRect.SetRect(0, 0, window_rect.size.width,
+                          window_rect.size.height);
 
-    newWnd = [[NSWindow alloc]
-              initWithContentRect:window_rect
-              styleMask:(NSTitledWindowMask |
-                         NSClosableWindowMask |
-                         NSMiniaturizableWindowMask |
-                         NSResizableWindowMask |
-                         NSUnifiedTitleAndToolbarWindowMask )
-              backing:NSBackingStoreBuffered
-              defer:NO];
-    parentView = [newWnd contentView];
-    window_info_.m_ParentView = parentView;
+      newWnd = [[NSWindow alloc]
+                initWithContentRect:window_rect
+                styleMask:(NSTitledWindowMask |
+                           NSClosableWindowMask |
+                           NSMiniaturizableWindowMask |
+                           NSResizableWindowMask |
+                           NSUnifiedTitleAndToolbarWindowMask )
+                backing:NSBackingStoreBuffered
+                defer:NO];
+      parentView = [newWnd contentView];
+      window_info_.m_ParentView = parentView;
+    }
+  } else {
+    // Create a new paint delegate.
+    paint_delegate_.reset(new PaintDelegate(this));
   }
 
   WebPreferences prefs;
@@ -96,7 +99,11 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   // Create the webview host object
   webviewhost_.reset(
       WebViewHost::Create(parentView, contentRect, delegate_.get(),
-                          NULL, dev_tools_agent_.get(), prefs));
+                          paint_delegate_.get(), dev_tools_agent_.get(),
+                          prefs));
+
+  if (window_info_.m_bTransparentPainting)
+    webviewhost_->webview()->setIsTransparent(true);
 
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
@@ -105,8 +112,10 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   browserView.browser = this;
   window_info_.m_View = browserView;
 
-  if (!settings_.drag_drop_disabled)
-    [browserView registerDragDrop];
+  if (!window_info_.m_bWindowRenderingDisabled) {
+    if (!settings_.drag_drop_disabled)
+      [browserView registerDragDrop];
+  }
 
   Unlock();
 
@@ -129,26 +138,41 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url)
   return true;
 }
 
-void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable)
-{
+void CefBrowserImpl::UIT_SetFocus(WebWidgetHost* host, bool enable) {
   REQUIRE_UIT();
   if (!host)
     return;
 
-  NSView* view = host->view_handle();
-  if (!view)
+  BrowserWebView* browserView = (BrowserWebView*)host->view_handle();
+  if (!browserView)
     return;
 
-  if (enable)
-    [[view window] makeFirstResponder:view];
+  if (enable) {
+    // Guard against calling OnSetFocus twice.
+    browserView.in_setfocus = true;
+    [[browserView window] makeFirstResponder:browserView];
+    browserView.in_setfocus = false;
+  }
 }
 
-bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame *frame)
-{
+bool CefBrowserImpl::UIT_ViewDocumentString(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
 
-  // TODO(port): Add implementation.
-  NOTIMPLEMENTED();
+  char sztmp[L_tmpnam+4];
+  if (tmpnam(sztmp)) {
+    strcat(sztmp, ".txt");
+
+    FILE* fp = fopen(sztmp, "wb");
+    if (fp) {
+      std::string markup = frame->contentAsMarkup().utf8();
+      fwrite(markup.c_str(), 1, markup.size(), fp);
+      fclose(fp);
+
+      char szopen[L_tmpnam + 14];
+      snprintf(szopen, sizeof(szopen), "open -t \"%s\"", sztmp);
+      return (system(szopen) >= 0);
+    }
+  }
   return false;
 }
 
@@ -168,8 +192,7 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   NOTIMPLEMENTED();
 }
 
-int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
-{
+int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame) {
   REQUIRE_UIT();
 
   // TODO(port): Add implementation.
@@ -178,15 +201,13 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame)
 }
 
 // static
-void CefBrowserImpl::UIT_CloseView(gfx::NativeView view)
-{
+void CefBrowserImpl::UIT_CloseView(gfx::NativeView view) {
   [[view window] performSelector:@selector(performClose:)
                       withObject:nil
                       afterDelay:0];
 }
 
 // static
-bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view)
-{
+bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view) {
   return [[view window] isVisible];
 }

@@ -3,17 +3,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#import <Cocoa/Cocoa.h>
+#include <sstream>
+#include "cefclient.h"
 #include "include/cef.h"
 #import "include/cef_application_mac.h"
-#include "cefclient.h"
 #include "binding_test.h"
 #include "client_handler.h"
 #include "extension_test.h"
+#include "osrtest_mac.h"
 #include "resource_util.h"
 #include "scheme_test.h"
 #include "string_util.h"
-#import <Cocoa/Cocoa.h>
-#include <sstream>
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -141,7 +142,7 @@ static NSAutoreleasePool* g_autopool = nil;
 }
 
 - (void)windowDidBecomeKey:(NSNotification*)notification {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     // Give focus to the browser window.
     g_handler->GetBrowser()->SetFocus(true);
   }
@@ -209,6 +210,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testDevToolsShow:(id)sender;
 - (IBAction)testDevToolsClose:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
+- (IBAction)testOffscreenRendering:(id)sender;
+- (IBAction)testTransparentOffscreenRendering:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -302,6 +305,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
                keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Offscreen Rendering"
+                      action:@selector(testOffscreenRendering:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Transparent Offscreen Rendering"
+                      action:@selector(testTransparentOffscreenRendering:)
+               keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
   
@@ -394,138 +403,146 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 }
 
 - (IBAction)testGetSource:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunGetSourceTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testGetText:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunGetTextTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSBinding:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunBindingTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSExtension:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunExtensionTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSExtensionPerf:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunExtensionPerfTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSExecute:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSInvoke:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptInvokeTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testRequest:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunRequestTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testLocalStorage:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunLocalStorageTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testXMLHttpRequest:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunXMLHTTPRequestTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testWebURLRequest:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunWebURLRequestTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testDOMAccess:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunDOMAccessTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testSchemeHandler:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunSchemeTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPopupWindow:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunPopupTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testAccelerated2DCanvas:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunAccelerated2DCanvasTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testAcceleratedLayers:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunAcceleratedLayersTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testWebGL:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunWebGLTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testHTML5Video:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunHTML5VideoTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testDragDrop:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunDragDropTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testZoomIn:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(browser->GetZoomLevel() + 0.5);
   }
 }
 
 - (IBAction)testZoomOut:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(browser->GetZoomLevel() - 0.5);
   }
 }
 
 - (IBAction)testZoomReset:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->SetZoomLevel(0.0);
   }
 }
 
 - (IBAction)testDevToolsShow:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->ShowDevTools();
   }
 }
 
 - (IBAction)testDevToolsClose:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->CloseDevTools();
   }
 }
 
 - (IBAction)testPluginInfo:(id)sender {
-  if(g_handler.get() && g_handler->GetBrowserHwnd())
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunPluginInfoTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testOffscreenRendering:(id)sender {
+  osrtest::RunTest(false);
+}
+
+- (IBAction)testTransparentOffscreenRendering:(id)sender {
+  osrtest::RunTest(true);
 }
 
 // Sent by the default notification center immediately before the application
@@ -544,8 +561,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 @end
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   // Retrieve the current working directory.
   getcwd(szWorkingDir, sizeof(szWorkingDir));
 
@@ -586,7 +602,6 @@ int main(int argc, char* argv[])
 
 // Global functions
 
-std::string AppGetWorkingDirectory()
-{
+std::string AppGetWorkingDirectory() {
   return szWorkingDir;
 }

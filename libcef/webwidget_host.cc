@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webwidget_host.h"
-#include "cef_thread.h"
+#include "libcef/webwidget_host.h"
+#include "libcef/cef_thread.h"
 
 #include "base/bind.h"
 #include "base/message_loop.h"
@@ -46,7 +46,7 @@ void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
   paint_rgn_.op(rect.x(), rect.y(), rect.right(), rect.bottom(),
       SkRegion::kUnion_Op);
 #else
-  // TODO: Update all ports to use regions instead of rectangles.
+  // TODO(cef): Update all ports to use regions instead of rectangles.
   paint_rect_ = paint_rect_.Union(rect);
 #endif
 }
@@ -68,21 +68,18 @@ void WebWidgetHost::GetSize(int& width, int& height) {
   height = size.height;
 }
 
-void WebWidgetHost::AddWindowedPlugin(gfx::PluginWindowHandle handle)
-{
+void WebWidgetHost::AddWindowedPlugin(gfx::PluginWindowHandle handle) {
   WebPluginGeometry geometry;
   plugin_map_.insert(std::make_pair(handle, geometry));
 }
 
-void WebWidgetHost::RemoveWindowedPlugin(gfx::PluginWindowHandle handle)
-{
+void WebWidgetHost::RemoveWindowedPlugin(gfx::PluginWindowHandle handle) {
   PluginMap::iterator it = plugin_map_.find(handle);
   DCHECK(it != plugin_map_.end());
   plugin_map_.erase(it);
 }
 
-void WebWidgetHost::MoveWindowedPlugin(const WebPluginGeometry& move)
-{
+void WebWidgetHost::MoveWindowedPlugin(const WebPluginGeometry& move) {
   PluginMap::iterator it = plugin_map_.find(move.window);
   DCHECK(it != plugin_map_.end());
 
@@ -96,11 +93,10 @@ void WebWidgetHost::MoveWindowedPlugin(const WebPluginGeometry& move)
   it->second.visible = move.visible;
 }
 
-gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y)
-{
+gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y) {
   if (!plugin_map_.empty()) {
     PluginMap::const_iterator it = plugin_map_.begin();
-    for(; it != plugin_map_.end(); ++it) {
+    for (; it != plugin_map_.end(); ++it) {
       if (it->second.visible && it->second.window_rect.Contains(x, y))
         return it->second.window;
     }
@@ -110,21 +106,18 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y)
 }
 
 void WebWidgetHost::DoPaint() {
-  // TODO(cef): The below code is cross-platform but the IsIdle() method
-  // currently requires patches to Chromium. Since this code is only executed
-  // on Windows it's been stuck behind an #ifdef for now to avoid having to
-  // patch Chromium code on other platforms.
-#if defined(OS_WIN)
-  if (MessageLoop::current()->IsIdle()) {
+ if (MessageLoop::current()->IsIdle()) {
     has_update_task_ = false;
     // Paint to the delegate.
+#if defined(OS_MACOSX)
+    SkRegion region;
+    Paint(region);
+#else
     Paint();
+#endif
   } else {
     // Try again later.
     CefThread::PostTask(CefThread::UI, FROM_HERE,
         base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
   }
-#else
-  NOTIMPLEMENTED();
-#endif
 }

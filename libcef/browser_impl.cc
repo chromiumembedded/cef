@@ -169,6 +169,7 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
     can_go_forward_(false),
     has_document_(false),
     is_dropping_(false),
+    is_in_onsetfocus_(false),
     unique_id_(0)
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
@@ -229,6 +230,26 @@ void CefBrowserImpl::StopLoad() {
 
 void CefBrowserImpl::SetFocus(bool enable) {
   if (CefThread::CurrentlyOn(CefThread::UI)) {
+    // If SetFocus() is called from inside the OnSetFocus() callback do not re-
+    // enter the callback.
+    if (enable && !is_in_onsetfocus_) {
+      WebViewHost* host = UIT_GetWebViewHost();
+      if (host) {
+        CefRefPtr<CefClient> client = GetClient();
+        if (client.get()) {
+          CefRefPtr<CefFocusHandler> handler = client->GetFocusHandler();
+          if (handler.get()) {
+            is_in_onsetfocus_ = true;
+            bool handled = handler->OnSetFocus(this, FOCUS_SOURCE_SYSTEM);
+            is_in_onsetfocus_ = false;
+
+            if (handled)
+              return;
+          }
+        }
+      }
+    }
+
     UIT_SetFocus(UIT_GetWebViewHost(), enable);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
@@ -419,13 +440,13 @@ bool CefBrowserImpl::GetImage(PaintElementType type, int width, int height,
   return false;
 }
 
-void CefBrowserImpl::SendKeyEvent(KeyType type, int key, int modifiers,
-                                  bool sysChar, bool imeChar) {
+void CefBrowserImpl::SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo,
+                                  int modifiers) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      base::Bind(&CefBrowserImpl::UIT_SendKeyEvent, this, type, key, modifiers,
-                 sysChar, imeChar));
+      base::Bind(&CefBrowserImpl::UIT_SendKeyEvent, this, type, keyInfo,
+                 modifiers));
 }
 
 void CefBrowserImpl::SendMouseClickEvent(int x, int y, MouseButtonType type,
@@ -445,11 +466,12 @@ void CefBrowserImpl::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
                  mouseLeave));
 }
 
-void CefBrowserImpl::SendMouseWheelEvent(int x, int y, int delta) {
+void CefBrowserImpl::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
   // Intentially post event tasks in all cases so that painting tasks can be
   // handled at sane times.
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-      base::Bind(&CefBrowserImpl::UIT_SendMouseWheelEvent, this, x, y, delta));
+      base::Bind(&CefBrowserImpl::UIT_SendMouseWheelEvent, this, x, y, deltaX,
+                 deltaY));
 }
 
 void CefBrowserImpl::SendFocusEvent(bool setFocus) {
@@ -1003,7 +1025,6 @@ bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
   return true;
 }
 
-
 void CefBrowserImpl::UIT_SetSize(PaintElementType type, int width, int height) {
   if (type == PET_VIEW) {
     WebViewHost* host = UIT_GetWebViewHost();
@@ -1031,16 +1052,16 @@ void CefBrowserImpl::UIT_Invalidate(const CefRect& dirtyRect) {
   }
 }
 
-void CefBrowserImpl::UIT_SendKeyEvent(KeyType type, int key, int modifiers,
-                                      bool sysChar, bool imeChar) {
+void CefBrowserImpl::UIT_SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo,
+                                      int modifiers) {
   REQUIRE_UIT();
   if (popuphost_) {
     // Send the event to the popup.
-    popuphost_->SendKeyEvent(type, key, modifiers, sysChar, imeChar);
+    popuphost_->SendKeyEvent(type, keyInfo, modifiers);
   } else {
     WebViewHost* host = UIT_GetWebViewHost();
     if (host)
-      host->SendKeyEvent(type, key, modifiers, sysChar, imeChar);
+      host->SendKeyEvent(type, keyInfo, modifiers);
   }
 }
 
@@ -1071,16 +1092,17 @@ void CefBrowserImpl::UIT_SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   }
 }
 
-void CefBrowserImpl::UIT_SendMouseWheelEvent(int x, int y, int delta) {
+void CefBrowserImpl::UIT_SendMouseWheelEvent(int x, int y, int deltaX,
+                                             int deltaY) {
   REQUIRE_UIT();
   if (popuphost_ && popup_rect_.Contains(x, y)) {
     // Send the event to the popup.
     popuphost_->SendMouseWheelEvent(x - popup_rect_.x(), y - popup_rect_.y(),
-        delta);
+        deltaX, deltaY);
   } else {
     WebViewHost* host = UIT_GetWebViewHost();
     if (host)
-      host->SendMouseWheelEvent(x, y, delta);
+      host->SendMouseWheelEvent(x, y, deltaX, deltaY);
   }
 }
 

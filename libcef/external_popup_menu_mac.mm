@@ -33,9 +33,35 @@ void ExternalPopupMenu::show(const WebKit::WebRect& bounds) {
 
   CefBrowserImpl* browser = delegate_->GetBrowser();
 
+  NSView* view = nil;
+  NSRect view_rect;
+ 
+  if (!browser->IsWindowRenderingDisabled()) {
+    view = browser->UIT_GetWebViewWndHandle();
+    view_rect = [view bounds];
+  } else {
+    view = browser->UIT_GetMainWndHandle();
+    if (view != nil) {
+      CefRefPtr<CefClient> client = browser->GetClient();
+      if (client.get()) {
+        // Retrieve the view rect.
+        CefRect rect;
+        CefRefPtr<CefRenderHandler> render_handler = client->GetRenderHandler();
+        if (render_handler.get() &&
+            render_handler->GetViewRect(browser, rect)) {
+          view_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
+        }
+      }
+    }
+  }
+
+  if (view == nil || view_rect.size.width == 0 || view_rect.size.height == 0) {
+    popup_menu_client_->didCancel();
+    delegate_->ClosePopupMenu();
+    return;
+  }
+
   // Set up the menu position.
-  NSView* web_view = browser->UIT_GetWebViewWndHandle();
-  NSRect view_rect = [web_view bounds];
   int y_offset = bounds.y + bounds.height;
   NSRect position = NSMakeRect(bounds.x, view_rect.size.height - y_offset,
                                bounds.width, bounds.height);
@@ -46,7 +72,7 @@ void ExternalPopupMenu::show(const WebKit::WebRect& bounds) {
                                                 fontSize:font_size
                                             rightAligned:right_aligned]);
 
-  [menu_runner runMenuInView:browser->UIT_GetWebViewWndHandle()
+  [menu_runner runMenuInView:view
                   withBounds:position
                 initialIndex:selected_index];
 
