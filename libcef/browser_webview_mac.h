@@ -18,10 +18,11 @@ struct WebDropData;
 // A view to wrap the WebCore view and help it live in a Cocoa world. The
 // (rough) equivalent of Apple's WebView.
 
-@interface BrowserWebView : NSView <NSMenuDelegate> {
+@interface BrowserWebView : NSView {
  @private
   CefBrowserImpl* browser_;  // weak
   NSTrackingArea* trackingArea_;
+  bool is_in_setfocus_;
 
   scoped_nsobject<WebDragSource> dragSource_;
   scoped_nsobject<WebDropTarget> dropTarget_;
@@ -45,9 +46,6 @@ struct WebDropData;
 - (BOOL)isOpaque;
 - (void)setFrame:(NSRect)frameRect;
 
-// Called when a context menu item is selected by the user.
-- (void)menuItemSelected:(id)sender;
-
 // Register this WebView as a drag/drop target.
 - (void)registerDragDrop;
 
@@ -58,6 +56,7 @@ struct WebDropData;
                        offset:(NSPoint)offset;
 
 @property (nonatomic, assign) CefBrowserImpl* browser;
+@property (nonatomic, assign) bool in_setfocus;
 
 @end
 

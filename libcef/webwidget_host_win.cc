@@ -7,6 +7,7 @@
 #include <commctrl.h>
 
 #include "libcef/webwidget_host.h"
+#include "libcef/browser_impl.h"
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
@@ -599,11 +600,24 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
     case WebInputEvent::MouseDown:
       if (!popup()) {
         SetCapture(view_);
-        // This mimics a temporary workaround in RenderWidgetHostViewWin
-        // for bug 765011 to get focus when the mouse is clicked. This
-        // happens after the mouse down event is sent to the renderer
-        // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-        ::SetFocus(view_);
+
+        if (::GetFocus() != view_) {
+          // Set focus to this  window.
+          HWND parent_hwnd = ::GetParent(view_);
+          if (parent_hwnd) {
+            CefRefPtr<CefBrowserImpl> browser =
+                static_cast<CefBrowserImpl*>(
+                    ui::GetWindowUserData(parent_hwnd));
+            if (browser.get()) {
+              // This mimics a temporary workaround in RenderWidgetHostViewWin
+              // for bug 765011 to get focus when the mouse is clicked. This
+              // happens after the mouse down event is sent to the renderer
+              // because normally Windows does a WM_SETFOCUS after
+              // WM_LBUTTONDOWN.
+              browser->SetFocus(true);
+            }
+          }
+        }
       }
       break;
     case WebInputEvent::MouseUp:
@@ -763,30 +777,31 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(false);
 }
 
-void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
-                                 bool sysChar, bool imeChar) {
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
+                                 const cef_key_info_t& keyInfo,
+                                 int modifiers) {
   UINT message = 0;
-  WPARAM wparam = key;
+  WPARAM wparam = keyInfo.key;
   LPARAM lparam = modifiers;
 
   if (type == KT_KEYUP) {
-    if (sysChar)
+    if (keyInfo.sysChar)
       message = WM_SYSKEYUP;
-    else if (imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_KEYUP;
     else
       message = WM_KEYUP;
   } else if (type == KT_KEYDOWN) {
-    if (sysChar)
+    if (keyInfo.sysChar)
       message = WM_SYSKEYDOWN;
-    else if (imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_KEYDOWN;
     else
       message = WM_KEYDOWN;
   } else if (type == KT_CHAR) {
-    if (sysChar)
+    if (keyInfo.sysChar)
       message = WM_SYSCHAR;
-    else if (imeChar)
+    else if (keyInfo.imeChar)
       message = WM_IME_CHAR;
     else
       message = WM_CHAR;
@@ -889,8 +904,8 @@ void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   }
 }
 
-void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta) {
-  WPARAM wparam = MAKEWPARAM(0, delta);
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
+  WPARAM wparam = MAKEWPARAM(0, deltaY);
   LPARAM lparam = MAKELPARAM(x, y);
 
   if (GetKeyState(VK_CONTROL) & 0x8000)

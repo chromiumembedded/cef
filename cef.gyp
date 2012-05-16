@@ -212,6 +212,7 @@
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
             ],
           },
           'sources': [
@@ -490,6 +491,7 @@
       ],
       'xcode_settings': {
         'INSTALL_PATH': '@executable_path',
+        'DYLIB_INSTALL_NAME_BASE': '@executable_path',
         # The libcef_static target contains ObjC categories. Passing the -ObjC flag
         # is necessary to properly load them and avoid a "selector not recognized"
         # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html

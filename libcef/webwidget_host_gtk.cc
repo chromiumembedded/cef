@@ -440,8 +440,9 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   set_painting(false);
 }
 
-void WebWidgetHost::SendKeyEvent(cef_key_type_t type, int key, int modifiers,
-                                 bool sysChar, bool imeChar) {
+void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
+                                 const cef_key_info_t& keyInfo,
+                                 int modifiers) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }
@@ -458,7 +459,7 @@ void WebWidgetHost::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
   NOTIMPLEMENTED();
 }
 
-void WebWidgetHost::SendMouseWheelEvent(int x, int y, int delta) {
+void WebWidgetHost::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
   // TODO(port): Implement this method as part of off-screen rendering support.
   NOTIMPLEMENTED();
 }

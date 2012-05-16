@@ -106,21 +106,18 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y) {
 }
 
 void WebWidgetHost::DoPaint() {
-  // TODO(cef): The below code is cross-platform but the IsIdle() method
-  // currently requires patches to Chromium. Since this code is only executed
-  // on Windows it's been stuck behind an #ifdef for now to avoid having to
-  // patch Chromium code on other platforms.
-#if defined(OS_WIN)
-  if (MessageLoop::current()->IsIdle()) {
+ if (MessageLoop::current()->IsIdle()) {
     has_update_task_ = false;
     // Paint to the delegate.
+#if defined(OS_MACOSX)
+    SkRegion region;
+    Paint(region);
+#else
     Paint();
+#endif
   } else {
     // Try again later.
     CefThread::PostTask(CefThread::UI, FROM_HERE,
         base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
   }
-#else
-  NOTIMPLEMENTED();
-#endif
 }

@@ -106,12 +106,13 @@ class CefBrowserImpl : public CefBrowser {
   virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
   virtual bool GetImage(PaintElementType type, int width, int height,
                         void* buffer) OVERRIDE;
-  virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                            bool imeChar) OVERRIDE;
+  virtual void SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo,
+                            int modifiers) OVERRIDE;
   virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
                                    bool mouseUp, int clickCount) OVERRIDE;
   virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(int x, int y, int delta) OVERRIDE;
+  virtual void SendMouseWheelEvent(int x, int y, int deltaX, int deltaY)
+      OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
 
@@ -269,12 +270,11 @@ class CefBrowserImpl : public CefBrowser {
   void UIT_SetFocus(WebWidgetHost* host, bool enable);
   void UIT_SetSize(PaintElementType type, int width, int height);
   void UIT_Invalidate(const CefRect& dirtyRect);
-  void UIT_SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                        bool imeChar);
+  void UIT_SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo, int modifiers);
   void UIT_SendMouseClickEvent(int x, int y, MouseButtonType type,
                                bool mouseUp, int clickCount);
   void UIT_SendMouseMoveEvent(int x, int y, bool mouseLeave);
-  void UIT_SendMouseWheelEvent(int x, int y, int delta);
+  void UIT_SendMouseWheelEvent(int x, int y, int deltaX, int deltaY);
   void UIT_SendFocusEvent(bool setFocus);
   void UIT_SendCaptureLostEvent();
 
@@ -398,6 +398,10 @@ class CefBrowserImpl : public CefBrowser {
 
   // True if a drop action is occuring.
   bool is_dropping_;
+
+  // True if currently in the OnSetFocus callback. Only accessed on the UI
+  // thread.
+  bool is_in_onsetfocus_;
 
 #if defined(OS_WIN)
   // Context object used to manage printing.

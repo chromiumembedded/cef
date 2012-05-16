@@ -30,7 +30,7 @@
 #include "ui/base/win/ime_input.h"
 #endif
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
@@ -123,12 +123,12 @@ class WebWidgetHost {
 
   void SetTooltipText(const CefString& tooltip_text);
 
-  void SendKeyEvent(cef_key_type_t type, int key, int modifiers, bool sysChar,
-                    bool imeChar);
+  void SendKeyEvent(cef_key_type_t type, const cef_key_info_t& keyInfo,
+                    int modifiers);
   void SendMouseClickEvent(int x, int y, cef_mouse_button_type_t type,
                            bool mouseUp, int clickCount);
   void SendMouseMoveEvent(int x, int y, bool mouseLeave);
-  void SendMouseWheelEvent(int x, int y, int delta);
+  void SendMouseWheelEvent(int x, int y, int deltaX, int deltaY);
   void SendFocusEvent(bool setFocus);
   void SendCaptureLostEvent();
 
@@ -186,7 +186,7 @@ class WebWidgetHost {
   virtual void SetFocus(bool enable);
 
  protected:
-#elif defined(TOOLKIT_USES_GTK)
+#elif defined(TOOLKIT_GTK)
 
  public:
   // ---------------------------------------------------------------------------
@@ -284,7 +284,12 @@ class WebWidgetHost {
   WebKit::WebRect caret_bounds_;
 #endif
 
-#if defined(TOOLKIT_USES_GTK)
+#if defined(OS_MACOSX)
+  int mouse_modifiers_;
+  WebKit::WebMouseEvent::Button mouse_button_down_;
+#endif
+
+#if defined(TOOLKIT_GTK)
   // Since GtkWindow resize is asynchronous, we have to stash the dimensions,
   // so that the backing store doesn't have to wait for sizing to take place.
   gfx::Size logical_size_;
