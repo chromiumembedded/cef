@@ -6,9 +6,14 @@
 #ifndef _CEF_THREAD_H
 #define _CEF_THREAD_H
 
+#include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/task.h"
 #include "base/threading/thread.h"
+
+#if defined(OS_MACOSX)
+#include "base/mac/scoped_nsautorelease_pool.h"
+#endif
 
 namespace base {
 class MessageLoopProxy;
@@ -179,6 +184,10 @@ class CefThread : public base::Thread {
   struct DeleteOnIOThread : public DeleteOnThread<IO> { };
   struct DeleteOnFileThread : public DeleteOnThread<FILE> { };
 
+ protected:
+  virtual void Init();
+  virtual void Cleanup();
+
  private:
   // Common initialization code for the constructors.
   void Initialize();
@@ -210,6 +219,10 @@ class CefThread : public base::Thread {
   // on the UI thread by the g_browser_process object.  CefThreads remove
   // themselves from this array upon destruction.
   static CefThread* cef_threads_[ID_COUNT];
+
+#if defined(OS_MACOSX)
+  scoped_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool_;
+#endif
 };
 
 #define REQUIRE_UIT() DCHECK(CefThread::CurrentlyOn(CefThread::UI))

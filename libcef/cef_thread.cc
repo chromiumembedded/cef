@@ -9,6 +9,10 @@
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
 
+#if defined(OS_WIN)
+#include <Objbase.h>  // NOLINT(build/include_order)
+#endif
+
 using base::MessageLoopProxy;
 
 // Friendly names for the well-known threads.
@@ -100,6 +104,29 @@ CefThread::CefThread(ID identifier, MessageLoop* message_loop)
   message_loop->set_thread_name(cef_thread_names[identifier]);
   set_message_loop(message_loop);
   Initialize();
+}
+
+void CefThread::Init() {
+#if defined(OS_WIN)
+  // Initializes the COM library on the current thread.
+  CoInitialize(NULL);
+#endif
+
+#if defined(OS_MACOSX)
+  autorelease_pool_.reset(new base::mac::ScopedNSAutoreleasePool);
+#endif
+}
+
+void CefThread::Cleanup() {
+#if defined(OS_WIN)
+  // Closes the COM library on the current thread. CoInitialize must
+  // be balanced by a corresponding call to CoUninitialize.
+  CoUninitialize();
+#endif
+
+#if defined(OS_MACOSX)
+  autorelease_pool_.reset(NULL);
+#endif
 }
 
 void CefThread::Initialize() {

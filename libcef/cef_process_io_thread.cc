@@ -31,10 +31,7 @@ CefProcessIOThread::~CefProcessIOThread() {
 }
 
 void CefProcessIOThread::Init() {
-#if defined(OS_WIN)
-  // Initializes the COM library on the current thread.
-  CoInitialize(NULL);
-#endif
+  CefThread::Init();
 
   FilePath cache_path(_Context->cache_path());
   request_context_ = new BrowserRequestContext(cache_path,
@@ -63,9 +60,5 @@ void CefProcessIOThread::CleanUp() {
   _Context->set_request_context(NULL);
   request_context_ = NULL;
 
-#if defined(OS_WIN)
-  // Closes the COM library on the current thread. CoInitialize must
-  // be balanced by a corresponding call to CoUninitialize.
-  CoUninitialize();
-#endif
+  CefThread::Cleanup();
 }

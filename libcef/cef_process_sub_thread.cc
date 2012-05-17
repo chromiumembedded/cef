@@ -6,10 +6,6 @@
 #include "cef_process_sub_thread.h"
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <Objbase.h>
-#endif
-
 CefProcessSubThread::CefProcessSubThread(CefThread::ID identifier)
       : CefThread(identifier) {}
 
@@ -23,22 +19,11 @@ CefProcessSubThread::~CefProcessSubThread() {
   Stop();
 }
 
-void CefProcessSubThread::Init() {
-#if defined(OS_WIN)
-  // Initializes the COM library on the current thread.
-  CoInitialize(NULL);
-#endif
-}
-
 void CefProcessSubThread::CleanUp() {
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
 
-#if defined(OS_WIN)
-  // Closes the COM library on the current thread. CoInitialize must
-  // be balanced by a corresponding call to CoUninitialize.
-  CoUninitialize();
-#endif
+  CefThread::Cleanup();
 }
