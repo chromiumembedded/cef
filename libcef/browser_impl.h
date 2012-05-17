@@ -20,6 +20,7 @@
 #include "libcef/browser_navigation_controller.h"
 #include "libcef/browser_request_context_proxy.h"
 #include "libcef/cef_thread.h"
+#include "libcef/geolocation_client.h"
 #include "libcef/tracker.h"
 #if defined(OS_WIN)
 #include "libcef/printing/win_printing_context.h"
@@ -312,6 +313,7 @@ class CefBrowserImpl : public CefBrowser {
   void UIT_SetZoomLevel(double zoomLevel);
   void UIT_ShowDevTools();
   void UIT_CloseDevTools();
+  WebKit::WebGeolocationClient* UIT_GetGeolocationClient();
 
   void UIT_VisitDOM(CefRefPtr<CefFrame> frame,
                     CefRefPtr<CefDOMVisitor> visitor);
@@ -385,6 +387,9 @@ class CefBrowserImpl : public CefBrowser {
   scoped_ptr<BrowserDevToolsClient> dev_tools_client_;
 
   scoped_refptr<BrowserRequestContextProxy> request_context_proxy_;
+
+  // The geolocation client attached to this view, lazily initialized.
+  scoped_refptr<CefGeolocationClient> geolocation_client_;
 
   CefString title_;
 

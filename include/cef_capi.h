@@ -1656,6 +1656,57 @@ typedef struct _cef_drag_handler_t
 
 
 ///
+// Callback structure used for asynchronous continuation of geolocation
+// permission requests.
+///
+typedef struct _cef_geolocation_callback_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Call to allow or deny geolocation access.
+  ///
+  void (CEF_CALLBACK *cont)(struct _cef_geolocation_callback_t* self,
+      int allow);
+
+} cef_geolocation_callback_t;
+
+
+///
+// Implement this structure to handle events related to geolocation permission
+// requests. The functions of this structure will be called on the UI thread.
+///
+typedef struct _cef_geolocation_handler_t
+{
+  // Base structure.
+  cef_base_t base;
+
+  ///
+  // Called when a page requests permission to access geolocation information.
+  // |requesting_url| is the URL requesting permission and |request_id| is the
+  // unique ID for the permission request. Call
+  // cef_geolocation_callback_t::Continue to allow or deny the permission
+  // request.
+  ///
+  void (CEF_CALLBACK *on_request_geolocation_permission)(
+      struct _cef_geolocation_handler_t* self, struct _cef_browser_t* browser,
+      const cef_string_t* requesting_url, int request_id,
+      struct _cef_geolocation_callback_t* callback);
+
+  ///
+  // Called when a geolocation access request is canceled. |requesting_url| is
+  // the URL that originally requested permission and |request_id| is the unique
+  // ID for the permission request.
+  ///
+  void (CEF_CALLBACK *on_cancel_geolocation_permission)(
+      struct _cef_geolocation_handler_t* self, struct _cef_browser_t* browser,
+      const cef_string_t* requesting_url, int request_id);
+
+} cef_geolocation_handler_t;
+
+
+///
 // Implement this structure to provide handler implementations.
 ///
 typedef struct _cef_client_t
@@ -1745,6 +1796,13 @@ typedef struct _cef_client_t
   // Return the handler for drag events.
   ///
   struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for geolocation permissions requests. If no handler is
+  // provided geolocation access will be denied by default.
+  ///
+  struct _cef_geolocation_handler_t* (CEF_CALLBACK *get_geolocation_handler)(
       struct _cef_client_t* self);
 
 } cef_client_t;

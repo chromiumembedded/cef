@@ -302,6 +302,15 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+void ClientHandler::OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
+      CefRefPtr<CefGeolocationCallback> callback) {
+  // Allow geolocation access from all websites.
+  callback->Continue(true);
+}
+
 void ClientHandler::NotifyDownloadComplete(const CefString& fileName)
 {
   SetLastDownloadFile(fileName);

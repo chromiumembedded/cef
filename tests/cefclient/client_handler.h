@@ -26,6 +26,7 @@ class ClientHandler : public CefClient,
                       public CefPrintHandler,
                       public CefV8ContextHandler,
                       public CefDragHandler,
+                      public CefGeolocationHandler,
                       public DownloadListener
 {
 public:
@@ -50,6 +51,8 @@ public:
   virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE
       { return this; }
   virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE
+      { return this; }
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE
       { return this; }
 
   // CefLifeSpanHandler methods
@@ -143,6 +146,13 @@ public:
   virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefDragData> dragData,
                            DragOperationsMask mask) OVERRIDE;
+
+  // CefGeolocationHandler methods.
+  virtual void OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
+      CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
 
   // DownloadListener methods
   virtual void NotifyDownloadComplete(const CefString& fileName) OVERRIDE;

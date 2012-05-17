@@ -367,6 +367,12 @@ void CefBrowserImpl::CloseDevTools() {
       base::Bind(&CefBrowserImpl::UIT_CloseDevTools, this));
 }
 
+WebKit::WebGeolocationClient* CefBrowserImpl::UIT_GetGeolocationClient() {
+  if (!geolocation_client_)
+    geolocation_client_ = new CefGeolocationClient(this);
+  return geolocation_client_;
+}
+
 bool CefBrowserImpl::GetSize(PaintElementType type, int& width, int& height) {
   if (!CefThread::CurrentlyOn(CefThread::UI)) {
     NOTREACHED() << "called on invalid thread";

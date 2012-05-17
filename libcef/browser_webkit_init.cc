@@ -38,10 +38,10 @@ BrowserWebKitInit::BrowserWebKitInit()
   WebKit::WebRuntimeFeatures::enablePushState(true);
   WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
   WebKit::WebRuntimeFeatures::enableFileSystem(true);
+  WebKit::WebRuntimeFeatures::enableGeolocation(true);
 
   // TODO: Enable these once the implementation supports it.
   WebKit::WebRuntimeFeatures::enableNotifications(false);
-  WebKit::WebRuntimeFeatures::enableGeolocation(false);
   WebKit::WebRuntimeFeatures::enableSpeechInput(false);
   WebKit::WebRuntimeFeatures::enableTouch(false);
   WebKit::WebRuntimeFeatures::enableDeviceMotion(false);

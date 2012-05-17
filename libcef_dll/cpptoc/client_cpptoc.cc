@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -281,6 +282,24 @@ cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
 }
 
 
+cef_geolocation_handler_t* CEF_CALLBACK client_get_geolocation_handler(
+    struct _cef_client_t* self)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefGeolocationHandler> _retval = CefClientCppToC::Get(
+      self)->GetGeolocationHandler();
+
+  // Return type: refptr_same
+  return CefGeolocationHandlerCppToC::Wrap(_retval);
+}
+
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -301,6 +320,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_v8context_handler = client_get_v8context_handler;
   struct_.struct_.get_render_handler = client_get_render_handler;
   struct_.struct_.get_drag_handler = client_get_drag_handler;
+  struct_.struct_.get_geolocation_handler = client_get_geolocation_handler;
 }
 
 #ifndef NDEBUG

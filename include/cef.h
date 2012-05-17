@@ -1881,6 +1881,58 @@ public:
 
 
 ///
+// Callback interface used for asynchronous continuation of geolocation
+// permission requests.
+///
+/*--cef(source=library)--*/
+class CefGeolocationCallback : public virtual CefBase
+{
+public:
+  ///
+  // Call to allow or deny geolocation access.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(bool allow) =0;
+};
+
+
+///
+// Implement this interface to handle events related to geolocation permission
+// requests. The methods of this class will be called on the UI thread.
+///
+/*--cef(source=client)--*/
+class CefGeolocationHandler : public virtual CefBase
+{
+public:
+  ///
+  // Called when a page requests permission to access geolocation information.
+  // |requesting_url| is the URL requesting permission and |request_id| is the
+  // unique ID for the permission request. Call CefGeolocationCallback::Continue
+  // to allow or deny the permission request.
+  ///
+  /*--cef()--*/
+  virtual void OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
+      CefRefPtr<CefGeolocationCallback> callback) {
+  }
+
+  ///
+  // Called when a geolocation access request is canceled. |requesting_url| is
+  // the URL that originally requested permission and |request_id| is the unique
+  // ID for the permission request.
+  ///
+  /*--cef()--*/
+  virtual void OnCancelGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id) {
+  }
+};
+
+
+///
 // Implement this interface to provide handler implementations.
 ///
 /*--cef(source=client,no_debugct_check)--*/
@@ -1972,6 +2024,15 @@ public:
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDragHandler> GetDragHandler() { return NULL; }
+
+  ///
+  // Return the handler for geolocation permissions requests. If no handler is
+  // provided geolocation access will be denied by default.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() {
+    return NULL;
+  }
 };
 
 

@@ -123,6 +123,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void navigateBackForwardSoon(int offset) OVERRIDE;
   virtual int historyBackListCount() OVERRIDE;
   virtual int historyForwardListCount() OVERRIDE;
+  virtual WebKit::WebGeolocationClient* geolocationClient() OVERRIDE;
 
   // WebKit::WebWidgetClient
   virtual void didInvalidateRect(const WebKit::WebRect& rect) OVERRIDE;

@@ -476,6 +476,10 @@ int BrowserWebViewDelegate::historyForwardListCount() {
       - current_index - 1;
 }
 
+WebKit::WebGeolocationClient* BrowserWebViewDelegate::geolocationClient() {
+  return browser_->UIT_GetGeolocationClient();
+}
+
 // WebPermissionClient -------------------------------------------------------
 
 bool BrowserWebViewDelegate::allowScriptExtension(
