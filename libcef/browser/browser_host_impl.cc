@@ -499,6 +499,7 @@ void CefBrowserHostImpl::DestroyBrowser() {
   }
 
   registrar_.reset(NULL);
+  response_manager_.reset(NULL);
   content::WebContentsObserver::Observe(NULL);
   web_contents_.reset(NULL);
 
@@ -669,7 +670,7 @@ void CefBrowserHostImpl::SendCommand(
     params.user_initiated = false;
 
     if (responseHandler.get()) {
-      params.request_id = response_manager_.RegisterHandler(responseHandler);
+      params.request_id = response_manager_->RegisterHandler(responseHandler);
       params.expect_response = true;
     } else {
       params.request_id = -1;
@@ -705,7 +706,7 @@ void CefBrowserHostImpl::SendCode(
     params.user_initiated = false;
 
     if (responseHandler.get()) {
-      params.request_id = response_manager_.RegisterHandler(responseHandler);
+      params.request_id = response_manager_->RegisterHandler(responseHandler);
       params.expect_response = true;
     } else {
       params.request_id = -1;
@@ -1031,13 +1032,13 @@ void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
 }
 
 void CefBrowserHostImpl::OnResponse(const Cef_Response_Params& params) {
-  response_manager_.RunHandler(params);
+  response_manager_->RunHandler(params);
   if (params.expect_response_ack)
     Send(new CefMsg_ResponseAck(routing_id(), params.request_id));
 }
 
 void CefBrowserHostImpl::OnResponseAck(int request_id) {
-  response_manager_.RunAckHandler(request_id);
+  response_manager_->RunAckHandler(request_id);
 }
 
 
@@ -1102,6 +1103,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
+  response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);

@@ -353,14 +353,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Used when no other frame exists. Provides limited functionality.
   CefRefPtr<CefFrameHostImpl> placeholder_frame_;
 
-  // Manages response registrations.
-  CefResponseManager response_manager_;
-
   // Used for managing notification subscriptions.
   scoped_ptr<content::NotificationRegistrar> registrar_;
 
   // Used for proxying cookie requests.
   scoped_refptr<CefURLRequestContextGetterProxy> request_context_proxy_;
+
+  // Manages response registrations.
+  scoped_ptr<CefResponseManager> response_manager_;
 
   // Used for creating and managing JavaScript dialogs.
   scoped_ptr<CefJavaScriptDialogCreator> dialog_creator_;

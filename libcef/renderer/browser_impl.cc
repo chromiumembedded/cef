@@ -11,6 +11,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/common/process_message_impl.h"
+#include "libcef/common/response_manager.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/webkit_glue.h"
@@ -261,6 +262,7 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view)
       browser_window_id_(kInvalidBrowserId),
       is_popup_(false),
       last_focused_frame_id_(kInvalidFrameId) {
+  response_manager_.reset(new CefResponseManager);
 }
 
 CefBrowserImpl::~CefBrowserImpl() {
@@ -423,6 +425,8 @@ void CefBrowserImpl::OnDestruct() {
     if (handler.get())
       handler->OnBrowserDestroyed(this);
   }
+
+  response_manager_.reset(NULL);
 
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
@@ -655,11 +659,11 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
 }
 
 void CefBrowserImpl::OnResponse(const Cef_Response_Params& params) {
-  response_manager_.RunHandler(params);
+  response_manager_->RunHandler(params);
   if (params.expect_response_ack)
     Send(new CefHostMsg_ResponseAck(routing_id(), params.request_id));
 }
 
 void CefBrowserImpl::OnResponseAck(int request_id) {
-  response_manager_.RunAckHandler(request_id);
+  response_manager_->RunAckHandler(request_id);
 }
