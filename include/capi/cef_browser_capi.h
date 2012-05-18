@@ -224,12 +224,14 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  // Returns the remote debugging DevTools URL for this browser. If remote
-  // debugging is disabled this function will return an NULL string.
+  // Returns the DevTools URL for this browser. If |http_scheme| is true (1) the
+  // returned URL will use the http scheme instead of the chrome-devtools
+  // scheme. If remote debugging is disabled this function will return an NULL
+  // string.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_dev_tools_url)(
-      struct _cef_browser_host_t* self);
+      struct _cef_browser_host_t* self, int http_scheme);
 } cef_browser_host_t;
 
 

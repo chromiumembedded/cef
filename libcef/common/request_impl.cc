@@ -163,6 +163,9 @@ void CefRequestImpl::Get(net::URLRequest* request) {
 // static
 void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers,
                                   HeaderMap& map) {
+  if (headers.IsEmpty())
+    return;
+
   net::HttpRequestHeaders::Iterator it(headers);
   do {
     map.insert(std::make_pair(it.name(), it.value()));

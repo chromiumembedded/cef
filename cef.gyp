@@ -783,6 +783,8 @@
         'libcef/browser/cookie_manager_impl.h',
         'libcef/browser/devtools_delegate.cc',
         'libcef/browser/devtools_delegate.h',
+        'libcef/browser/devtools_scheme_handler.cc',
+        'libcef/browser/devtools_scheme_handler.h',
         'libcef/browser/download_manager_delegate.cc',
         'libcef/browser/download_manager_delegate.h',
         'libcef/browser/frame_host_impl.cc',

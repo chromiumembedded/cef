@@ -61,6 +61,14 @@ class CefMediaObserver : public content::MediaObserver {
                                       double volume) OVERRIDE {}
   virtual void OnMediaEvent(int render_process_id,
                             const media::MediaLogEvent& event) OVERRIDE {}
+  virtual void OnCaptureDevicesOpened(
+      int render_process_id,
+      int render_view_id,
+      const content::MediaStreamDevices& devices) OVERRIDE {}
+  virtual void OnCaptureDevicesClosed(
+      int render_process_id,
+      int render_view_id,
+      const content::MediaStreamDevices& devices) OVERRIDE {}
 };
 
 
@@ -381,8 +389,9 @@ bool CefContentBrowserClient::IsFastShutdownPossible() {
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     const GURL& url,
-    WebPreferences* prefs) {
-  CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::GetBrowserForHost(rvh);
+    webkit_glue::WebPreferences* prefs) {
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForHost(rvh);
   DCHECK(browser.get());
 
   // Populate WebPreferences based on CefBrowserSettings.

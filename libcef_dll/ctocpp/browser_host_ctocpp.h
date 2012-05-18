@@ -43,7 +43,7 @@ class CefBrowserHostCToCpp
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
-  virtual CefString GetDevToolsURL() OVERRIDE;
+  virtual CefString GetDevToolsURL(bool http_scheme) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

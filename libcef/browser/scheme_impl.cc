@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/devtools_scheme_handler.h"
 #include "libcef/browser/resource_request_job.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
@@ -43,6 +44,10 @@
 using net::URLRequestStatus;
 
 namespace {
+
+bool IsInternalScheme(const std::string& scheme) {
+  return (scheme == kChromeDevToolsScheme);
+}
 
 bool IsStandardScheme(const std::string& scheme) {
   url_parse::Component scheme_comp(0, scheme.length());
@@ -226,12 +231,14 @@ class CefUrlRequestManager {
     if (factory) {
       CefRefPtr<CefBrowserHostImpl> browser =
           CefBrowserHostImpl::GetBrowserForRequest(request);
-      if (browser.get()) {
+      if (browser.get() || IsInternalScheme(request->url().scheme())) {
         // Populate the request data.
         CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
         requestPtr->Set(request);
 
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+        CefRefPtr<CefFrame> frame;
+        if (browser.get())
+          frame = browser->GetFrameForRequest(request);
 
         // Call the handler factory to create the handler for the request.
         CefRefPtr<CefResourceHandler> handler =
@@ -303,6 +310,9 @@ bool CefClearSchemeHandlerFactories() {
 
   if (CEF_CURRENTLY_ON(CEF_IOT)) {
     CefUrlRequestManager::GetInstance()->ClearFactories();
+
+    // Re-register the DevTools scheme handler.
+    RegisterDevToolsSchemeHandler();
   } else {
     CEF_POST_TASK(CEF_IOT,
         base::Bind(base::IgnoreResult(&CefClearSchemeHandlerFactories)));

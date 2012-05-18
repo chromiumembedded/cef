@@ -48,11 +48,10 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   MessageLoop* file_loop_;
 
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
-
-  scoped_refptr<net::URLRequestContext> url_request_context_;
-  scoped_ptr<net::URLSecurityManager> url_security_manager_;
-  scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<CefRequestInterceptor> request_interceptor_;
+  scoped_ptr<net::URLRequestContextStorage> storage_;
+  scoped_ptr<net::URLRequestContext> url_request_context_;
+  scoped_ptr<net::URLSecurityManager> url_security_manager_;
 
   FilePath cookie_store_path_;
 

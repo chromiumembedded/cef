@@ -14,7 +14,8 @@
 #include "content/public/browser/gpu_data_manager.h"
 #include "webkit/glue/webpreferences.h"
 
-void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
+void BrowserToWebSettings(const CefBrowserSettings& cef,
+                          webkit_glue::WebPreferences& web) {
   if (cef.standard_font_family.length > 0)
     web.standard_font_family = CefString(&cef.standard_font_family);
   else

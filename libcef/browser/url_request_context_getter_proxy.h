@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_GETTER_PROXY_H_
 #pragma once
 
+#include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_context_getter.h"
 
 class CefBrowserHostImpl;
@@ -23,7 +24,7 @@ class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
  private:
   CefBrowserHostImpl* browser_;
   scoped_refptr<net::URLRequestContextGetter> parent_;
-  scoped_refptr<net::URLRequestContext> context_proxy_;
+  scoped_ptr<net::URLRequestContext> context_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterProxy);
 };

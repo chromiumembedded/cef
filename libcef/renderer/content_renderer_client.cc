@@ -149,6 +149,12 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   return false;
 }
 
+WebKit::WebPlugin* CefContentRendererClient::CreatePluginReplacement(
+    content::RenderView* render_view,
+    const FilePath& plugin_path) {
+  return NULL;
+}
+
 bool CefContentRendererClient::HasErrorPage(int http_status_code,
                                             std::string* error_domain) {
   return false;

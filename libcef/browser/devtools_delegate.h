@@ -36,7 +36,7 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual std::string GetFrontendResourcesBaseURL() OVERRIDE;
 
   // Returns the DevTools URL for the specified RenderViewHost.
-  std::string GetDevToolsURL(content::RenderViewHost* rvh);
+  std::string GetDevToolsURL(content::RenderViewHost* rvh, bool http_scheme);
 
  private:
   content::DevToolsHttpHandler* devtools_http_handler_;

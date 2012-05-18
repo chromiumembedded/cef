@@ -197,7 +197,7 @@ struct _cef_client_t* CEF_CALLBACK browser_host_get_client(
 }
 
 cef_string_userfree_t CEF_CALLBACK browser_host_get_dev_tools_url(
-    struct _cef_browser_host_t* self) {
+    struct _cef_browser_host_t* self, int http_scheme) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -205,7 +205,8 @@ cef_string_userfree_t CEF_CALLBACK browser_host_get_dev_tools_url(
     return NULL;
 
   // Execute
-  CefString _retval = CefBrowserHostCppToC::Get(self)->GetDevToolsURL();
+  CefString _retval = CefBrowserHostCppToC::Get(self)->GetDevToolsURL(
+      http_scheme?true:false);
 
   // Return type: string
   return _retval.DetachToUserFree();

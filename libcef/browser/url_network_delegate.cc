@@ -196,13 +196,18 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
   return AUTH_REQUIRED_RESPONSE_NO_ACTION;
 }
 
-bool CefNetworkDelegate::CanGetCookies(const net::URLRequest* request,
-                                       const net::CookieList& cookie_list) {
+bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
+                                         const net::CookieList& cookie_list) {
   return true;
 }
 
-bool CefNetworkDelegate::CanSetCookie(const net::URLRequest* request,
-                                      const std::string& cookie_line,
-                                      net::CookieOptions* options) {
+bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
+                                        const std::string& cookie_line,
+                                        net::CookieOptions* options) {
+  return true;
+}
+
+bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
+                                         const FilePath& path) const {
   return true;
 }

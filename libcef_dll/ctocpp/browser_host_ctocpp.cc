@@ -147,14 +147,15 @@ CefRefPtr<CefClient> CefBrowserHostCToCpp::GetClient() {
   return CefClientCppToC::Unwrap(_retval);
 }
 
-CefString CefBrowserHostCToCpp::GetDevToolsURL() {
+CefString CefBrowserHostCToCpp::GetDevToolsURL(bool http_scheme) {
   if (CEF_MEMBER_MISSING(struct_, get_dev_tools_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_dev_tools_url(struct_);
+  cef_string_userfree_t _retval = struct_->get_dev_tools_url(struct_,
+      http_scheme);
 
   // Return type: string
   CefString _retvalStr;

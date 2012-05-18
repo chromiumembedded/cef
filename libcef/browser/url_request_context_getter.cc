@@ -18,6 +18,8 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_split.h"
+#include "base/threading/thread_restrictions.h"
+#include "base/threading/worker_pool.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/cert_verifier.h"
@@ -140,26 +142,20 @@ CefURLRequestContextGetter::~CefURLRequestContextGetter() {
 net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
-  if (!url_request_context_) {
-    // Create the |cache_path| directory if necessary.
-    bool cache_path_valid = false;
+  if (!url_request_context_.get()) {
     const FilePath& cache_path = _Context->cache_path();
-    if (!cache_path.empty()) {
-      if (file_util::CreateDirectory(cache_path))
-        cache_path_valid = true;
-      else
-        NOTREACHED() << "The cache_path directory could not be created";
-    }
 
-    url_request_context_ = new net::URLRequestContext();
-    storage_.reset(new net::URLRequestContextStorage(url_request_context_));
+    url_request_context_.reset(new net::URLRequestContext());
+    storage_.reset(
+        new net::URLRequestContextStorage(url_request_context_.get()));
 
     SetCookieStoragePath(cache_path);
 
     storage_->set_network_delegate(new CefNetworkDelegate);
 
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
-        new net::DefaultServerBoundCertStore(NULL)));
+        new net::DefaultServerBoundCertStore(NULL),
+        base::WorkerPool::GetTaskRunner(true)));
     url_request_context_->set_accept_language("en-us,en");
     url_request_context_->set_accept_charset("iso-8859-1,*,utf-8");
 
@@ -247,7 +243,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     net::HttpCache::DefaultBackend* main_backend =
         new net::HttpCache::DefaultBackend(
-            cache_path_valid ? net::DISK_CACHE : net::MEMORY_CACHE,
+            cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
             cache_path,
             0,
             BrowserThread::GetMessageLoopProxyForThread(
@@ -277,7 +273,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     request_interceptor_.reset(new CefRequestInterceptor);
   }
 
-  return url_request_context_;
+  return url_request_context_.get();
 }
 
 scoped_refptr<base::MessageLoopProxy>
@@ -301,12 +297,16 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
 
   scoped_refptr<SQLitePersistentCookieStore> persistent_store;
   if (!path.empty()) {
+    // TODO(cef): Move directory creation to the blocking pool instead of
+    // allowing file IO on this thread.
+    base::ThreadRestrictions::SetIOAllowed(true);
     if (file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }
+    base::ThreadRestrictions::SetIOAllowed(false);
   }
 
   // Set the new cookie store that will be used for all new requests. The old

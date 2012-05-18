@@ -15,6 +15,7 @@
 #include "base/bind.h"
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/threading/thread_restrictions.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "googleurl/src/gurl.h"
 #include "net/url_request/url_request_context.h"
@@ -227,6 +228,9 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
 
     scoped_refptr<SQLitePersistentCookieStore> persistent_store;
     if (!new_path.empty()) {
+      // TODO(cef): Move directory creation to the blocking pool instead of
+      // allowing file IO on this thread.
+      base::ThreadRestrictions::SetIOAllowed(true);
       if (file_util::CreateDirectory(new_path)) {
         const FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
@@ -234,6 +238,7 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();
       }
+      base::ThreadRestrictions::SetIOAllowed(false);
     }
 
     // Set the new cookie store that will be used for all new requests. The old

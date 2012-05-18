@@ -8,6 +8,7 @@
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/devtools_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/main_delegate.h"
 
@@ -181,6 +182,10 @@ bool CefContext::Initialize(const CefMainArgs& args,
   settings_ = settings;
 
   cache_path_ = FilePath(CefString(&settings.cache_path));
+  if (!cache_path_.empty() && !file_util::CreateDirectory(cache_path_)) {
+    NOTREACHED() << "The cache_path directory could not be created";
+    cache_path_ = FilePath();
+  }
 
 #if !defined(OS_WIN)
   if (settings.multi_threaded_message_loop) {
@@ -216,6 +221,9 @@ bool CefContext::Initialize(const CefMainArgs& args,
   exit_code = main_runner_->Run();
 
   initialized_ = true;
+
+  // Perform DevTools scheme registration when CEF initialization is complete.
+  CEF_POST_TASK(CEF_UIT, base::Bind(&RegisterDevToolsSchemeHandler));
 
   return true;
 }

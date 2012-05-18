@@ -166,7 +166,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual bool IsFastShutdownPossible() OVERRIDE;
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
-                                   WebPreferences* prefs) OVERRIDE;
+                                   webkit_glue::WebPreferences* prefs) OVERRIDE;
   virtual void UpdateInspectorSetting(content::RenderViewHost* rvh,
                                       const std::string& key,
                                       const std::string& value) OVERRIDE;

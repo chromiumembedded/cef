@@ -231,6 +231,8 @@ class ClientHandler : public CefClient,
   ProcessMessageDelegateSet process_message_delegates_;
   RequestDelegateSet request_delegates_;
 
+  std::set<std::string> m_OpenDevToolsURLs;
+
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);
   // Include the default locking implementation.

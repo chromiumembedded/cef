@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/devtools_scheme_handler.h"
 
 #include <algorithm>
 #include <string>
@@ -118,14 +119,15 @@ std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
 }
 
 bool CefDevToolsDelegate::BundlesFrontendResources() {
-  return true;
+  return false;
 }
 
 std::string CefDevToolsDelegate::GetFrontendResourcesBaseURL() {
-  return "";
+  return kChromeDevToolsURL;
 }
 
-std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh) {
+std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
+                                                bool http_scheme) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   std::string port_str =
       command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
@@ -135,11 +137,13 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh) {
     return std::string();
 
   std::string page_id = binding_->GetIdentifier(rvh);
+  std::string host = http_scheme ?
+      base::StringPrintf("http://localhost:%d/devtools/", port) :
+      kChromeDevToolsURL;
   
   return base::StringPrintf(
-      "http://localhost:%d/devtools/devtools.html?"
-      "ws=localhost:%d/devtools/page/%s",
-      port,
+      "%sdevtools.html?ws=localhost:%d/devtools/page/%s",
+      host.c_str(),
       port,
       page_id.c_str());
 }

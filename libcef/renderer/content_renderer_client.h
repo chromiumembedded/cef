@@ -60,6 +60,9 @@ class CefContentRendererClient : public content::ContentRendererClient {
       WebKit::WebFrame* frame,
       const WebKit::WebPluginParams& params,
       WebKit::WebPlugin** plugin) OVERRIDE;
+  virtual WebKit::WebPlugin* CreatePluginReplacement(
+      content::RenderView* render_view,
+      const FilePath& plugin_path) OVERRIDE;
   virtual bool HasErrorPage(int http_status_code,
                             std::string* error_domain) OVERRIDE;
   virtual void GetNavigationErrorStrings(
