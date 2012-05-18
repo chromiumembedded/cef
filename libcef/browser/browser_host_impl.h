@@ -219,13 +219,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int64 frame_id,
       bool is_main_frame,
       const GURL& url,
-      content::PageTransition transition_type) OVERRIDE;
+      content::PageTransition transition_type,
+      content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DidFailProvisionalLoad(
       int64 frame_id,
       bool is_main_frame,
       const GURL& validated_url,
       int error_code,
-      const string16& error_description) OVERRIDE;
+      const string16& error_description,
+      content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
   virtual void DidFinishLoad(int64 frame_id,
                              const GURL& validated_url,

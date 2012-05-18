@@ -299,14 +299,13 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
   if (!path.empty()) {
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
-    base::ThreadRestrictions::SetIOAllowed(true);
+    base::ThreadRestrictions::ScopedAllowIO allow_io;
     if (file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }
-    base::ThreadRestrictions::SetIOAllowed(false);
   }
 
   // Set the new cookie store that will be used for all new requests. The old

@@ -11,6 +11,7 @@
 
 #include "include/cef_menu_model.h"
 
+#include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
 

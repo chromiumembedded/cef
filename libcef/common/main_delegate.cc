@@ -239,8 +239,8 @@ void CefMainDelegate::PreSandboxStartup() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kPackLoadingDisabled))
     content_client_.set_pack_loading_disabled(true);
-  else
-    InitializeResourceBundle();
+
+  InitializeResourceBundle();
 }
 
 void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
@@ -280,8 +280,7 @@ int CefMainDelegate::RunProcess(
 }
 
 void CefMainDelegate::ProcessExiting(const std::string& process_type) {
-  if (!content_client_.pack_loading_disabled())
-    ResourceBundle::CleanupSharedInstance();
+  ResourceBundle::CleanupSharedInstance();
 }
 
 #if defined(OS_MACOSX)
@@ -351,33 +350,39 @@ void CefMainDelegate::InitializeContentClient(
 
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-
   FilePath pak_file, locales_dir;
 
-  if (command_line.HasSwitch(switches::kPackFilePath))
-    pak_file = command_line.GetSwitchValuePath(switches::kPackFilePath);
+  if (!content_client_.pack_loading_disabled()) {
+    if (command_line.HasSwitch(switches::kPackFilePath))
+      pak_file = command_line.GetSwitchValuePath(switches::kPackFilePath);
 
-  if (pak_file.empty())
-    pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("cef.pak"));
+    if (pak_file.empty())
+      pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("cef.pak"));
 
-  if (command_line.HasSwitch(switches::kLocalesDirPath))
-    locales_dir = command_line.GetSwitchValuePath(switches::kLocalesDirPath);
+    if (command_line.HasSwitch(switches::kLocalesDirPath))
+      locales_dir = command_line.GetSwitchValuePath(switches::kLocalesDirPath);
 
-  if (!locales_dir.empty())
-    PathService::Override(ui::DIR_LOCALES, locales_dir);
+    if (!locales_dir.empty())
+      PathService::Override(ui::DIR_LOCALES, locales_dir);
+  }
 
   std::string locale = command_line.GetSwitchValueASCII(switches::kLocale);
   if (locale.empty())
     locale = "en-US";
 
   const std::string loaded_locale =
-      ui::ResourceBundle::InitSharedInstanceWithLocaleCef(locale);
-  CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
+      ui::ResourceBundle::InitSharedInstanceWithLocale(locale,
+                                                       &content_client_);
+  if (!content_client_.pack_loading_disabled()) {
+    CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
-  if (file_util::PathExists(pak_file)) {
-    ResourceBundle::GetSharedInstance().AddDataPack(
-        pak_file, ui::ResourceHandle::kScaleFactor100x);
-  } else {
-    NOTREACHED() << "Could not load cef.pak";
+    if (file_util::PathExists(pak_file)) {
+      content_client_.set_allow_pack_file_load(true);
+      ResourceBundle::GetSharedInstance().AddDataPack(
+          pak_file, ui::ResourceHandle::kScaleFactor100x);
+      content_client_.set_allow_pack_file_load(false);
+    } else {
+      NOTREACHED() << "Could not load cef.pak";
+    }
   }
 }

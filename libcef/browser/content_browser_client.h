@@ -112,6 +112,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const net::SSLInfo& ssl_info,
       const GURL& request_url,
       bool overridable,
+      bool strict_enforcement,
       const base::Callback<void(bool)>& callback,
       bool* cancel_request) OVERRIDE;
   virtual void SelectClientCertificate(

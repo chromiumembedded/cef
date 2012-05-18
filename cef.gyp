@@ -641,7 +641,7 @@
             'conditions': [
               ['OS != "mac"', {
                 'pak_inputs': [
-                  '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/native_theme/native_theme_resources.pak',
                 ]
               }],
             ],
@@ -672,7 +672,7 @@
             'conditions': [
               ['OS != "mac"', {
                 'header_inputs': [
-                  '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/grit/gfx_resources.h',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/native_theme/grit/native_theme_resources.h',
                 ]
               }],
             ],
@@ -710,7 +710,7 @@
       'conditions': [
         ['OS != "mac"', {
           'dependencies': [
-            '<(DEPTH)/ui/ui.gyp:gfx_resources',
+            '<(DEPTH)/ui/ui.gyp:native_theme_resources',
           ],
         }],
       ],

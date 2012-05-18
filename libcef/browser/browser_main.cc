@@ -3,6 +3,9 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/browser_main.h"
+
+#include <string>
+
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
@@ -31,7 +34,7 @@ base::StringPiece ResourceProvider(int resource_id) {
   return content::GetContentClient()->GetDataResource(resource_id);
 }
 
-}
+}  // namespace
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -56,7 +59,7 @@ int CefBrowserMainParts::PreCreateThreads() {
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
   browser_context_.reset(new CefBrowserContext());
-  
+
   PlatformInitialize();
   net::NetModule::SetResourceProvider(&ResourceProvider);
 

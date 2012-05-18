@@ -902,7 +902,8 @@ void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
     int64 frame_id,
     bool is_main_frame,
     const GURL& url,
-    content::PageTransition transition_type) {
+    content::PageTransition transition_type,
+    content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(), url);
   OnLoadStart(frame, url, transition_type);
@@ -915,7 +916,8 @@ void CefBrowserHostImpl::DidFailProvisionalLoad(
     bool is_main_frame,
     const GURL& validated_url,
     int error_code,
-    const string16& error_description) {
+    const string16& error_description,
+    content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
       validated_url);
