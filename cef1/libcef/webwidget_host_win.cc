@@ -30,6 +30,9 @@
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/rect.h"
 
+#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
+
 using webkit::npapi::WebPluginGeometry;
 using WebKit::WebInputEvent;
 using WebKit::WebInputEventFactory;
@@ -159,7 +162,7 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
       case WM_MOUSEWHEEL:
         {
           // Only send mouse wheel events if the cursor is over the window.
-          POINT mousePt = { LOWORD(lparam), HIWORD(lparam) };
+          POINT mousePt = { GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam) };
           RECT wndRect;
           GetWindowRect(hwnd, &wndRect);
           if (PtInRect(&wndRect, mousePt))
