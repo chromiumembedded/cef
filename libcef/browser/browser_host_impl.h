@@ -327,7 +327,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowInfo pending_window_info_;
   CefBrowserSettings pending_settings_;
   CefRefPtr<CefClient> pending_client_;
-  CefString pending_url_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;

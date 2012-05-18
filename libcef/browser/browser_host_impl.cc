@@ -800,7 +800,6 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
   // TODO(cef): Figure out how to populate these values.
   // See: http://crbug.com/110510
   CefPopupFeatures features;
-  pending_url_ = CefString();
 
   pending_window_info_ = CefWindowInfo();
 #if defined(OS_WIN)
@@ -825,7 +824,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     // or cancel the window creation.
     if (handler.get() &&
         handler->OnBeforePopup(this, features, pending_window_info_,
-                               pending_url_, pending_client_,
+                               target_url.spec(), pending_client_,
                                pending_settings_)) {
       pending_client_ = NULL;
       return false;
@@ -847,8 +846,6 @@ void CefBrowserHostImpl::WebContentsCreated(
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
       pending_window_info_, pending_settings_, pending_client_, new_contents,
       opener);
-  if (browser.get() && !pending_url_.empty())
-    browser->LoadURL(CefFrameHostImpl::kMainFrameId, pending_url_);
 
   pending_client_ = NULL;
 }
