@@ -1,6 +1,6 @@
 Index: pylib/gyp/input.py
 ===================================================================
---- pylib/gyp/input.py	(revision 1323)
+--- pylib/gyp/input.py	(revision 1185)
 +++ pylib/gyp/input.py	(working copy)
 @@ -666,7 +666,8 @@
              # that don't load quickly, this can be faster than
@@ -14,10 +14,10 @@ Index: pylib/gyp/input.py
              py_module = __import__(parsed_contents[0])
 Index: pylib/gyp/mac_tool.py
 ===================================================================
---- pylib/gyp/mac_tool.py	(revision 1323)
+--- pylib/gyp/mac_tool.py	(revision 1185)
 +++ pylib/gyp/mac_tool.py	(working copy)
-@@ -54,16 +54,8 @@
-       return self._CopyXIBFile(source, dest)
+@@ -141,16 +141,8 @@
+       self._CopyXIBFile(source, dest)
      elif extension == '.strings':
        self._CopyStringsFile(source, dest)
 -    # TODO: Given that files with arbitrary extensions can be copied to the
