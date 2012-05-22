@@ -402,6 +402,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
           }
         }
         value = broken_image_data;
+        break;
       }
       case IDR_TEXTAREA_RESIZER: {
         // Use webkit's text area resizer image.
@@ -415,6 +416,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
           }
         }
         value = resize_corner_data;
+        break;
       }
 
       default:
