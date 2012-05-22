@@ -22,7 +22,7 @@ int CefContextMenuParamsImpl::GetXCoord() {
 
 int CefContextMenuParamsImpl::GetYCoord() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().x;
+  return const_value().y;
 }
 
 CefContextMenuParamsImpl::TypeFlags CefContextMenuParamsImpl::GetTypeFlags() {
