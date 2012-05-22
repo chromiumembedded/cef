@@ -627,18 +627,33 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 #endif
 
   if (force_windowless) {
-    WebPluginParams params_copy = params;
-    params_copy.mimeType = WebString::fromUTF8(mime_types.front());
+    DCHECK_EQ(params.attributeNames.size(), params.attributeValues.size());
 
-    bool flash = LowerCaseEqualsASCII(params_copy.mimeType.utf8(),
+    std::string mime_type = mime_types.front();
+    bool flash = LowerCaseEqualsASCII(mime_type,
                                       "application/x-shockwave-flash");
-    bool silverlight = StartsWithASCII(params_copy.mimeType.utf8(),
+    bool silverlight = StartsWithASCII(mime_type,
                                        "application/x-silverlight", false);
 
+    if (flash) {
+      // "wmode" values of "opaque" or "transparent" are allowed.
+      size_t size = params.attributeNames.size();
+      for (size_t i = 0; i < size; ++i) {
+        std::string name = params.attributeNames[i].utf8();
+        if (name == "wmode") {
+          std::string value = params.attributeValues[i].utf8();
+          if (value == "opaque" || value == "transparent")
+            flash = false;
+          break;
+        }
+      }
+    }
+
     if (flash || silverlight) {
+      WebPluginParams params_copy = params;
+      params_copy.mimeType = WebString::fromUTF8(mime_type);
+
       // Force Flash and Silverlight plugins to use windowless mode.
-      DCHECK(params_copy.attributeNames.size() ==
-             params_copy.attributeValues.size());
       size_t size = params_copy.attributeNames.size();
 
       WebVector<WebString> new_names(size+1),  new_values(size+1);
