@@ -96,7 +96,7 @@ void WebDragSource::StartDragging(const WebDropData& drop_data,
       event);
   if (!image.isNull()) {
     const SkBitmap& bitmap = image.getSkBitmap();
-    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&bitmap);
+    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(bitmap);
     gtk_drag_set_icon_pixbuf(context, pixbuf, image_offset.x, image_offset.y);
     g_object_unref(pixbuf);
   } else {
