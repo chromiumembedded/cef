@@ -7,26 +7,40 @@
 #include "base/utf_string_conversions.h"
 #include "webkit/glue/webpreferences.h"
 
+using webkit_glue::WebPreferences;
+
 void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
-  if (cef.standard_font_family.length > 0)
-    web.standard_font_family = CefString(&cef.standard_font_family);
-  else
-    web.standard_font_family = ASCIIToUTF16("Times");
+  if (cef.standard_font_family.length > 0) {
+    web.standard_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.standard_font_family);
+  } else {
+    web.standard_font_family_map[WebPreferences::kCommonScript] =
+        ASCIIToUTF16("Times");
+  }
 
-  if (cef.fixed_font_family.length > 0)
-    web.fixed_font_family = CefString(&cef.fixed_font_family);
-  else
-    web.fixed_font_family = ASCIIToUTF16("Courier");
+  if (cef.fixed_font_family.length > 0) {
+    web.fixed_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.fixed_font_family);
+  } else {
+    web.fixed_font_family_map[WebPreferences::kCommonScript] =
+        ASCIIToUTF16("Courier");
+  }
 
-  if (cef.serif_font_family.length > 0)
-    web.serif_font_family = CefString(&cef.serif_font_family);
-  else
-    web.serif_font_family = ASCIIToUTF16("Times");
+  if (cef.serif_font_family.length > 0) {
+    web.serif_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.serif_font_family);
+  } else {
+    web.serif_font_family_map[WebPreferences::kCommonScript] =
+        ASCIIToUTF16("Times");
+  }
 
-  if (cef.sans_serif_font_family.length > 0)
-    web.sans_serif_font_family = CefString(&cef.sans_serif_font_family);
-  else
-    web.sans_serif_font_family = ASCIIToUTF16("Helvetica");
+  if (cef.sans_serif_font_family.length > 0) {
+    web.sans_serif_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.sans_serif_font_family);
+  } else {
+    web.sans_serif_font_family_map[WebPreferences::kCommonScript] =
+        ASCIIToUTF16("Helvetica");
+  }
 
   // These two fonts below are picked from the intersection of
   // Win XP font list and Vista font list :
@@ -40,22 +54,26 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   // as long as they're available.
 
   if (cef.cursive_font_family.length > 0) {
-    web.cursive_font_family = CefString(&cef.cursive_font_family);
+    web.cursive_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.cursive_font_family);
   } else {
+    web.cursive_font_family_map[WebPreferences::kCommonScript] =
 #if defined(OS_MACOSX)
-    web.cursive_font_family = ASCIIToUTF16("Apple Chancery");
+        ASCIIToUTF16("Apple Chancery");
 #else
-    web.cursive_font_family = ASCIIToUTF16("Comic Sans MS");
+        ASCIIToUTF16("Comic Sans MS");
 #endif
   }
 
   if (cef.fantasy_font_family.length > 0) {
-    web.fantasy_font_family = CefString(&cef.fantasy_font_family);
+    web.fantasy_font_family_map[WebPreferences::kCommonScript] =
+        CefString(&cef.fantasy_font_family);
   } else {
+    web.fantasy_font_family_map[WebPreferences::kCommonScript] =
 #if defined(OS_MACOSX)
-    web.fantasy_font_family = ASCIIToUTF16("Papyrus");
+        ASCIIToUTF16("Papyrus");
 #else
-    web.fantasy_font_family = ASCIIToUTF16("Impact");
+        ASCIIToUTF16("Impact");
 #endif
   }
 

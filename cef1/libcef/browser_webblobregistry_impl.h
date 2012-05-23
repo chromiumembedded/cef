@@ -33,6 +33,9 @@ class BrowserWebBlobRegistryImpl
                                const WebKit::WebURL& src_url);
   virtual void unregisterBlobURL(const WebKit::WebURL& url);
 
+ protected:
+  virtual ~BrowserWebBlobRegistryImpl();
+
  private:
   friend class base::RefCountedThreadSafe<BrowserWebBlobRegistryImpl>;
 

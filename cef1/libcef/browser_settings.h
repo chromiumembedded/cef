@@ -7,8 +7,12 @@
 #pragma once
 
 #include "include/internal/cef_types_wrappers.h"
-struct WebPreferences;
 
-void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web);
+namespace webkit_glue {
+struct WebPreferences;
+}
+
+void BrowserToWebSettings(const CefBrowserSettings& cef,
+                          webkit_glue::WebPreferences& web);
 
 #endif  // CEF_LIBCEF_BROWSER_SETTINGS_H_

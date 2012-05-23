@@ -50,18 +50,13 @@ class ClientV8FunctionHandler : public CefV8Handler {
         return false;
 
       CefV8ValueList argList;
-      bool result;
 
       // Execute the function stored in the first argument to retrieve an
       // object.
-      CefRefPtr<CefV8Value> objectPtr;
-      CefRefPtr<CefV8Exception> exceptionPtr;
-      result = arguments[0]->ExecuteFunction(object, argList, objectPtr,
-                                             exceptionPtr, false);
-      if (exceptionPtr.get())
-        exception = exceptionPtr->GetMessage();
-      if (!result)
-        return false;
+      CefRefPtr<CefV8Value> objectPtr =
+          arguments[0]->ExecuteFunction(object, argList);
+      if (arguments[0]->HasException())
+        exception = arguments[0]->GetException()->GetMessage();
 
       // Verify that the returned value is an object.
       if (!objectPtr.get() || !objectPtr->IsObject())
@@ -80,11 +75,10 @@ class ClientV8FunctionHandler : public CefV8Handler {
         argList.push_back(arguments[i]);
 
       // Execute the member function.
-      result = funcPtr->ExecuteFunction(arguments[0], argList, retval,
-                                        exceptionPtr, false);
-      if (exceptionPtr.get())
-        exception = exceptionPtr->GetMessage();
-      return result;
+      funcPtr->ExecuteFunction(arguments[0], argList);
+      if (funcPtr->HasException())
+        exception = funcPtr->GetException()->GetMessage();
+      return true;
     }
     return false;
   }
@@ -140,7 +134,7 @@ void InitBindingTest(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
                      CefRefPtr<CefV8Value> object) {
   // Create the new V8 object.
-  CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL, NULL);
+  CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL);
   // Add the new V8 object to the global window object with the name
   // "cef_test".
   object->SetValue("cef_test", testObjPtr, V8_PROPERTY_ATTRIBUTE_NONE);

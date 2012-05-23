@@ -93,7 +93,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
     paint_delegate_.reset(new PaintDelegate(this));
   }
 
-  WebPreferences prefs;
+  webkit_glue::WebPreferences prefs;
   BrowserToWebSettings(settings_, prefs);
 
   // Create the webview host object

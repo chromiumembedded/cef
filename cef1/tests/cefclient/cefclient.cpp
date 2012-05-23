@@ -40,10 +40,9 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser) {
     CefV8ValueList args;
     args.push_back(arg0);
 
-    CefRefPtr<CefV8Value> retVal;
-    CefRefPtr<CefV8Exception> exception;
-    if (evalFunc->ExecuteFunctionWithContext(v8Context, globalObj, args, retVal,
-                                             exception, false)) {
+    CefRefPtr<CefV8Value> retVal =
+        evalFunc->ExecuteFunctionWithContext(v8Context, globalObj, args);
+    if (!evalFunc->HasException()) {
       if (retVal.get()) {
         frame->ExecuteJavaScript(
             std::string("alert('InvokeScript returns ") +
@@ -51,12 +50,13 @@ void UIT_InvokeScript(CefRefPtr<CefBrowser> browser) {
             url, 0);
       } else {
         frame->ExecuteJavaScript(
-            std::string("alert('InvokeScript returns exception: ") +
-            exception->GetMessage().ToString() + "!');",
-            url, 0);
+            std::string("alert('InvokeScript returned no value!"), url, 0);
       }
     } else {
-      frame->ExecuteJavaScript("alert('Failed to execute function!');", url, 0);
+      frame->ExecuteJavaScript(
+          std::string("alert('InvokeScript returns exception: ") +
+          evalFunc->GetException()->GetMessage().ToString() + "!');",
+          url, 0);
     }
 
     v8Context->Exit();

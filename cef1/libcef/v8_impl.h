@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vector>
+
 #include "include/cef_v8.h"
 #include "v8/include/v8.h"
 #include "libcef/cef_thread.h"
@@ -68,6 +69,9 @@ class CefV8ContextImpl : public CefV8Context {
   virtual bool Enter() OVERRIDE;
   virtual bool Exit() OVERRIDE;
   virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
+  virtual bool Eval(const CefString& code,
+                    CefRefPtr<CefV8Value>& retval,
+                    CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 
   v8::Local<v8::Context> GetContext();
   WebKit::WebFrame* GetWebFrame();
@@ -115,6 +119,7 @@ class CefV8ValueImpl : public CefV8Value {
   virtual bool IsNull() OVERRIDE;
   virtual bool IsBool() OVERRIDE;
   virtual bool IsInt() OVERRIDE;
+  virtual bool IsUInt() OVERRIDE;
   virtual bool IsDouble() OVERRIDE;
   virtual bool IsDate() OVERRIDE;
   virtual bool IsString() OVERRIDE;
@@ -123,10 +128,17 @@ class CefV8ValueImpl : public CefV8Value {
   virtual bool IsFunction() OVERRIDE;
   virtual bool IsSame(CefRefPtr<CefV8Value> value) OVERRIDE;
   virtual bool GetBoolValue() OVERRIDE;
-  virtual int GetIntValue() OVERRIDE;
+  virtual int32 GetIntValue() OVERRIDE;
+  virtual uint32 GetUIntValue() OVERRIDE;
   virtual double GetDoubleValue() OVERRIDE;
   virtual CefTime GetDateValue() OVERRIDE;
   virtual CefString GetStringValue() OVERRIDE;
+  virtual bool IsUserCreated() OVERRIDE;
+  virtual bool HasException() OVERRIDE;
+  virtual CefRefPtr<CefV8Exception> GetException() OVERRIDE;
+  virtual bool ClearException() OVERRIDE;
+  virtual bool WillRethrowExceptions() OVERRIDE;
+  virtual bool SetRethrowExceptions(bool rethrow) OVERRIDE;
   virtual bool HasValue(const CefString& key) OVERRIDE;
   virtual bool HasValue(int index) OVERRIDE;
   virtual bool DeleteValue(const CefString& key) OVERRIDE;
@@ -139,38 +151,33 @@ class CefV8ValueImpl : public CefV8Value {
   virtual bool SetValue(const CefString& key, AccessControl settings,
                         PropertyAttribute attribute) OVERRIDE;
   virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
+  virtual bool SetUserData(CefRefPtr<CefBase> user_data) OVERRIDE;
   virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
   virtual int GetExternallyAllocatedMemory() OVERRIDE;
   virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
   virtual int GetArrayLength() OVERRIDE;
   virtual CefString GetFunctionName() OVERRIDE;
   virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
-  virtual bool ExecuteFunction(CefRefPtr<CefV8Value> object,
-                               const CefV8ValueList& arguments,
-                               CefRefPtr<CefV8Value>& retval,
-                               CefRefPtr<CefV8Exception>& exception,
-                               bool rethrow_exception) OVERRIDE;
-  virtual bool ExecuteFunctionWithContext(
-                               CefRefPtr<CefV8Context> context,
-                               CefRefPtr<CefV8Value> object,
-                               const CefV8ValueList& arguments,
-                               CefRefPtr<CefV8Value>& retval,
-                               CefRefPtr<CefV8Exception>& exception,
-                               bool rethrow_exception) OVERRIDE;
+  virtual CefRefPtr<CefV8Value> ExecuteFunction(
+      CefRefPtr<CefV8Value> object,
+      const CefV8ValueList& arguments) OVERRIDE;
+  virtual CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
+      CefRefPtr<CefV8Context> context,
+      CefRefPtr<CefV8Value> object,
+      const CefV8ValueList& arguments) OVERRIDE;
 
   inline v8::Handle<v8::Value> GetHandle() {
     DCHECK(v8_value_.get());
     return v8_value_->GetHandle();
   }
 
-  // Returns the accessor assigned for the specified object, if any.
-  static CefV8Accessor* GetAccessor(v8::Handle<v8::Object> object);
-
- private:
-  int* GetExternallyAllocatedMemoryCounter();
-
  protected:
+  // Test for and record any exception.
+  bool HasCaught(v8::TryCatch& try_catch);
+
   scoped_refptr<CefV8ValueHandle> v8_value_;
+  CefRefPtr<CefV8Exception> last_exception_;
+  bool rethrow_exceptions_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8ValueImpl);

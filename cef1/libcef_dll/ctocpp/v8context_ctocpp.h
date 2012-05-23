@@ -38,6 +38,8 @@ class CefV8ContextCToCpp
   virtual bool Enter() OVERRIDE;
   virtual bool Exit() OVERRIDE;
   virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
+  virtual bool Eval(const CefString& code, CefRefPtr<CefV8Value>& retval,
+      CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

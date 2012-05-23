@@ -59,6 +59,12 @@ void CefCookieStoreProxy::DeleteAllCreatedBetweenAsync(
                                              callback);
 }
 
+void CefCookieStoreProxy::DeleteSessionCookiesAsync(
+    const DeleteCallback& callback) {
+  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+  cookie_store->DeleteSessionCookiesAsync(callback);
+}
+
 net::CookieMonster* CefCookieStoreProxy::GetCookieMonster() {
   scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
   return cookie_store->GetCookieMonster();

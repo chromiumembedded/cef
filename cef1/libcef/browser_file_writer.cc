@@ -37,9 +37,6 @@ class BrowserFileWriter::IOThreadProxy
     main_thread_ = base::MessageLoopProxy::current();
   }
 
-  virtual ~IOThreadProxy() {
-  }
-
   void Truncate(const GURL& path, int64 offset) {
     if (!io_thread_->BelongsToCurrentThread()) {
       io_thread_->PostTask(
@@ -82,8 +79,11 @@ class BrowserFileWriter::IOThreadProxy
   }
 
  private:
+  friend class base::RefCountedThreadSafe<IOThreadProxy>;
+  virtual ~IOThreadProxy() {}
+
   FileSystemOperationInterface* GetNewOperation(const GURL& path) {
-    return file_system_context_->CreateFileSystemOperation(path, io_thread_);
+    return file_system_context_->CreateFileSystemOperation(path);
   }
 
   void DidSucceedOnMainThread() {

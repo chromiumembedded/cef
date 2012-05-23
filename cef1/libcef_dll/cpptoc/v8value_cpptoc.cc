@@ -52,11 +52,22 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32 value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateInt(
+      value);
+
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32 value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateUInt(
       value);
 
   // Return type: refptr_same
@@ -106,26 +117,26 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
-    cef_base_t* user_data, cef_v8accessor_t* accessor) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object(
+    cef_v8accessor_t* accessor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: user_data, accessor
+  // Unverified params: accessor
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateObject(
-      CefBaseCToCpp::Wrap(user_data),
       CefV8AccessorCToCpp::Wrap(accessor));
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_array() {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArray();
+  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArray(
+      length);
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
@@ -207,6 +218,20 @@ int CEF_CALLBACK v8value_is_int(struct _cef_v8value_t* self) {
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->IsInt();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_is_uint(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->IsUInt();
 
   // Return type: bool
   return _retval;
@@ -330,7 +355,7 @@ int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
+int32 CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -338,7 +363,21 @@ int CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefV8ValueCppToC::Get(self)->GetIntValue();
+  int32 _retval = CefV8ValueCppToC::Get(self)->GetIntValue();
+
+  // Return type: simple
+  return _retval;
+}
+
+uint32 CEF_CALLBACK v8value_get_uint_value(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  uint32 _retval = CefV8ValueCppToC::Get(self)->GetUIntValue();
 
   // Return type: simple
   return _retval;
@@ -385,6 +424,94 @@ cef_string_userfree_t CEF_CALLBACK v8value_get_string_value(
 
   // Return type: string
   return _retval.DetachToUserFree();
+}
+
+int CEF_CALLBACK v8value_is_user_created(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->IsUserCreated();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_has_exception(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->HasException();
+
+  // Return type: bool
+  return _retval;
+}
+
+cef_v8exception_t* CEF_CALLBACK v8value_get_exception(
+    struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefV8Exception> _retval = CefV8ValueCppToC::Get(self)->GetException(
+      );
+
+  // Return type: refptr_same
+  return CefV8ExceptionCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK v8value_clear_exception(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->ClearException();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_will_rethrow_exceptions(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->WillRethrowExceptions();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_set_rethrow_exceptions(struct _cef_v8value_t* self,
+    int rethrow) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->SetRethrowExceptions(
+      rethrow?true:false);
+
+  // Return type: bool
+  return _retval;
 }
 
 int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
@@ -610,6 +737,23 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
   return _retval;
 }
 
+int CEF_CALLBACK v8value_set_user_data(struct _cef_v8value_t* self,
+    cef_base_t* user_data) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Unverified params: user_data
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->SetUserData(
+      CefBaseCToCpp::Wrap(user_data));
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -700,27 +844,18 @@ cef_v8handler_t* CEF_CALLBACK v8value_get_function_handler(
   return CefV8HandlerCToCpp::Unwrap(_retval);
 }
 
-int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
-    struct _cef_v8value_t* object, size_t argumentsCount,
-    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-    cef_v8exception_t** exception, int rethrow_exception) {
+struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function(
+    struct _cef_v8value_t* self, struct _cef_v8value_t* object,
+    size_t argumentsCount, struct _cef_v8value_t* const* arguments) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
+    return NULL;
   // Verify param: arguments; type: refptr_vec_same_byref_const
   DCHECK(argumentsCount == 0 || arguments);
   if (argumentsCount > 0 && !arguments)
-    return 0;
-  // Verify param: retval; type: refptr_same_byref
-  DCHECK(retval);
-  if (!retval)
-    return 0;
-  // Verify param: exception; type: refptr_same_byref
-  DCHECK(exception);
-  if (!exception)
-    return 0;
+    return NULL;
   // Unverified params: object
 
   // Translate param: arguments; type: refptr_vec_same_byref_const
@@ -730,76 +865,33 @@ int CEF_CALLBACK v8value_execute_function(struct _cef_v8value_t* self,
       argumentsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
     }
   }
-  // Translate param: retval; type: refptr_same_byref
-  CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
-    retvalPtr = CefV8ValueCppToC::Unwrap(*retval);
-  CefV8Value* retvalOrig = retvalPtr.get();
-  // Translate param: exception; type: refptr_same_byref
-  CefRefPtr<CefV8Exception> exceptionPtr;
-  if (exception && *exception)
-    exceptionPtr = CefV8ExceptionCppToC::Unwrap(*exception);
-  CefV8Exception* exceptionOrig = exceptionPtr.get();
 
   // Execute
-  bool _retval = CefV8ValueCppToC::Get(self)->ExecuteFunction(
+  CefRefPtr<CefV8Value> _retval = CefV8ValueCppToC::Get(self)->ExecuteFunction(
       CefV8ValueCppToC::Unwrap(object),
-      argumentsList,
-      retvalPtr,
-      exceptionPtr,
-      rethrow_exception?true:false);
+      argumentsList);
 
-  // Restore param: retval; type: refptr_same_byref
-  if (retval) {
-    if (retvalPtr.get()) {
-      if (retvalPtr.get() != retvalOrig) {
-        *retval = CefV8ValueCppToC::Wrap(retvalPtr);
-      }
-    } else {
-      *retval = NULL;
-    }
-  }
-  // Restore param: exception; type: refptr_same_byref
-  if (exception) {
-    if (exceptionPtr.get()) {
-      if (exceptionPtr.get() != exceptionOrig) {
-        *exception = CefV8ExceptionCppToC::Wrap(exceptionPtr);
-      }
-    } else {
-      *exception = NULL;
-    }
-  }
-
-  // Return type: bool
-  return _retval;
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK v8value_execute_function_with_context(
+struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function_with_context(
     struct _cef_v8value_t* self, cef_v8context_t* context,
     struct _cef_v8value_t* object, size_t argumentsCount,
-    struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-    cef_v8exception_t** exception, int rethrow_exception) {
+    struct _cef_v8value_t* const* arguments) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
+    return NULL;
   // Verify param: context; type: refptr_same
   DCHECK(context);
   if (!context)
-    return 0;
+    return NULL;
   // Verify param: arguments; type: refptr_vec_same_byref_const
   DCHECK(argumentsCount == 0 || arguments);
   if (argumentsCount > 0 && !arguments)
-    return 0;
-  // Verify param: retval; type: refptr_same_byref
-  DCHECK(retval);
-  if (!retval)
-    return 0;
-  // Verify param: exception; type: refptr_same_byref
-  DCHECK(exception);
-  if (!exception)
-    return 0;
+    return NULL;
   // Unverified params: object
 
   // Translate param: arguments; type: refptr_vec_same_byref_const
@@ -809,49 +901,16 @@ int CEF_CALLBACK v8value_execute_function_with_context(
       argumentsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
     }
   }
-  // Translate param: retval; type: refptr_same_byref
-  CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
-    retvalPtr = CefV8ValueCppToC::Unwrap(*retval);
-  CefV8Value* retvalOrig = retvalPtr.get();
-  // Translate param: exception; type: refptr_same_byref
-  CefRefPtr<CefV8Exception> exceptionPtr;
-  if (exception && *exception)
-    exceptionPtr = CefV8ExceptionCppToC::Unwrap(*exception);
-  CefV8Exception* exceptionOrig = exceptionPtr.get();
 
   // Execute
-  bool _retval = CefV8ValueCppToC::Get(self)->ExecuteFunctionWithContext(
+  CefRefPtr<CefV8Value> _retval = CefV8ValueCppToC::Get(
+      self)->ExecuteFunctionWithContext(
       CefV8ContextCppToC::Unwrap(context),
       CefV8ValueCppToC::Unwrap(object),
-      argumentsList,
-      retvalPtr,
-      exceptionPtr,
-      rethrow_exception?true:false);
+      argumentsList);
 
-  // Restore param: retval; type: refptr_same_byref
-  if (retval) {
-    if (retvalPtr.get()) {
-      if (retvalPtr.get() != retvalOrig) {
-        *retval = CefV8ValueCppToC::Wrap(retvalPtr);
-      }
-    } else {
-      *retval = NULL;
-    }
-  }
-  // Restore param: exception; type: refptr_same_byref
-  if (exception) {
-    if (exceptionPtr.get()) {
-      if (exceptionPtr.get() != exceptionOrig) {
-        *exception = CefV8ExceptionCppToC::Wrap(exceptionPtr);
-      }
-    } else {
-      *exception = NULL;
-    }
-  }
-
-  // Return type: bool
-  return _retval;
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
 }
 
 
@@ -863,6 +922,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.is_null = v8value_is_null;
   struct_.struct_.is_bool = v8value_is_bool;
   struct_.struct_.is_int = v8value_is_int;
+  struct_.struct_.is_uint = v8value_is_uint;
   struct_.struct_.is_double = v8value_is_double;
   struct_.struct_.is_date = v8value_is_date;
   struct_.struct_.is_string = v8value_is_string;
@@ -872,9 +932,16 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.is_same = v8value_is_same;
   struct_.struct_.get_bool_value = v8value_get_bool_value;
   struct_.struct_.get_int_value = v8value_get_int_value;
+  struct_.struct_.get_uint_value = v8value_get_uint_value;
   struct_.struct_.get_double_value = v8value_get_double_value;
   struct_.struct_.get_date_value = v8value_get_date_value;
   struct_.struct_.get_string_value = v8value_get_string_value;
+  struct_.struct_.is_user_created = v8value_is_user_created;
+  struct_.struct_.has_exception = v8value_has_exception;
+  struct_.struct_.get_exception = v8value_get_exception;
+  struct_.struct_.clear_exception = v8value_clear_exception;
+  struct_.struct_.will_rethrow_exceptions = v8value_will_rethrow_exceptions;
+  struct_.struct_.set_rethrow_exceptions = v8value_set_rethrow_exceptions;
   struct_.struct_.has_value_bykey = v8value_has_value_bykey;
   struct_.struct_.has_value_byindex = v8value_has_value_byindex;
   struct_.struct_.delete_value_bykey = v8value_delete_value_bykey;
@@ -885,6 +952,7 @@ CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
   struct_.struct_.set_value_byindex = v8value_set_value_byindex;
   struct_.struct_.set_value_byaccessor = v8value_set_value_byaccessor;
   struct_.struct_.get_keys = v8value_get_keys;
+  struct_.struct_.set_user_data = v8value_set_user_data;
   struct_.struct_.get_user_data = v8value_get_user_data;
   struct_.struct_.get_externally_allocated_memory =
       v8value_get_externally_allocated_memory;

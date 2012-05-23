@@ -15,13 +15,13 @@
 #include "libcef/browser_file_system.h"
 #include "libcef/browser_request_context.h"
 #include "libcef/cef_process.h"
-#include "libcef/dom_storage_context.h"
 
 #include "base/at_exit.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
 
 class CefBrowserImpl;
+class CefResourceBundleDelegate;
 class WebViewHost;
 
 namespace base {
@@ -78,12 +78,6 @@ class CefContext : public CefBase {
   }
   BrowserRequestContext* request_context() { return request_context_; }
 
-  // The DOMStorageContext object is managed by CefProcessUIThread.
-  void set_storage_context(DOMStorageContext* storage_context) {
-    storage_context_.reset(storage_context);
-  }
-  DOMStorageContext* storage_context() { return storage_context_.get(); }
-
   BrowserFileSystem* file_system() { return &file_system_; }
 
   // Used to keep track of the web view host we're dragging over. WARNING:
@@ -116,9 +110,9 @@ class CefContext : public CefBase {
   CefSettings settings_;
   CefRefPtr<CefApp> application_;
   FilePath cache_path_;
-  scoped_refptr<BrowserRequestContext> request_context_;
-  scoped_ptr<DOMStorageContext> storage_context_;
+  BrowserRequestContext* request_context_;
   BrowserFileSystem file_system_;
+  scoped_ptr<CefResourceBundleDelegate> resource_bundle_delegate_;
 
   // Map of browsers that currently exist.
   BrowserList browserlist_;

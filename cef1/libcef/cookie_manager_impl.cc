@@ -6,13 +6,13 @@
 
 #include <string>
 
-#include "libcef/browser_persistent_cookie_store.h"
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 #include "libcef/cef_time_util.h"
 
 #include "base/bind.h"
 #include "base/logging.h"
+#include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 
 namespace {
 
@@ -225,11 +225,11 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       return true;
     }
 
-    scoped_refptr<BrowserPersistentCookieStore> persistent_store;
+    scoped_refptr<SQLitePersistentCookieStore> persistent_store;
     if (!new_path.empty()) {
       if (file_util::CreateDirectory(new_path)) {
         const FilePath& cookie_path = new_path.AppendASCII("Cookies");
-        persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
+        persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();

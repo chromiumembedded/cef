@@ -197,7 +197,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   // Add the new browser to the list maintained by the context
   _Context->AddBrowser(this);
 
-  WebPreferences prefs;
+  webkit_glue::WebPreferences prefs;
   BrowserToWebSettings(settings_, prefs);
 
   // Create the webview host object

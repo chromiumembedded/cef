@@ -66,6 +66,9 @@ void BrowserWebBlobRegistryImpl::unregisterBlobURL(const WebURL& url) {
       thread_safe_url));
 }
 
+BrowserWebBlobRegistryImpl::~BrowserWebBlobRegistryImpl() {
+}
+
 void BrowserWebBlobRegistryImpl::AddFinishedBlob(
     const GURL& url, BlobData* blob_data) {
   DCHECK(g_blob_storage_controller);

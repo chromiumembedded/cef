@@ -12,11 +12,11 @@
 #include <algorithm>
 
 #include "libcef/browser_appcache_system.h"
+#include "libcef/browser_dom_storage_system.h"
 #include "libcef/browser_file_system.h"
 #include "libcef/browser_impl.h"
 #include "libcef/browser_navigation_controller.h"
 #include "libcef/browser_webkit_glue.h"
-#include "libcef/browser_webstoragenamespace_impl.h"
 #include "libcef/browser_zoom_map.h"
 #include "libcef/cef_context.h"
 #include "libcef/cef_process_ui_thread.h"
@@ -188,13 +188,7 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
 
 WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
     unsigned quota) {
-#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
-  NOTREACHED();
-#else
-  // Ignore the quota parameter from WebCore as in Chrome.
-  return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_SESSION,
-                                            kLocalStorageNamespaceId + 1);
-#endif
+  return BrowserDomStorageSystem::instance().CreateSessionStorageNamespace();
 }
 
 WebKit::WebGraphicsContext3D* BrowserWebViewDelegate::createGraphicsContext3D(
@@ -516,6 +510,11 @@ bool BrowserWebViewDelegate::allowScriptExtension(
 }
 
 // WebPluginPageDelegate -----------------------------------------------------
+
+WebKit::WebPlugin* BrowserWebViewDelegate::CreatePluginReplacement(
+    const FilePath& file_path) {
+  return NULL;
+}
 
 WebCookieJar* BrowserWebViewDelegate::GetCookieJar() {
   return &cookie_jar_;

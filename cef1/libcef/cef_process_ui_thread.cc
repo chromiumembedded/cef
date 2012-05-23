@@ -24,7 +24,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNetworkStateNotifier.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
 #include "ui/base/ui_base_paths.h"
-#include "ui/gfx/gl/gl_implementation.h"
+#include "ui/gl/gl_implementation.h"
 #include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
@@ -133,17 +133,6 @@ void CefProcessUIThread::Init() {
   gfx::InitializeGLBindings(gfx::kGLImplementationDesktopGL);
 #endif
 
-  // Set storage quota limits.
-  if (settings.local_storage_quota != 0)
-    DOMStorageContext::set_local_storage_quota(settings.local_storage_quota);
-  if (settings.session_storage_quota != 0) {
-    DOMStorageContext::set_session_storage_quota(
-        settings.session_storage_quota);
-  }
-
-  // Create the storage context object.
-  _Context->set_storage_context(new DOMStorageContext(_Context->cache_path()));
-
   if (settings.user_agent.length > 0) {
     webkit_glue::SetUserAgent(CefString(&settings.user_agent), false);
   } else {
@@ -191,9 +180,6 @@ void CefProcessUIThread::CleanUp() {
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
-
-  // Destroy the storage context object.
-  _Context->set_storage_context(NULL);
 
   // Tear down the shared StatsTable.
   base::StatsTable::set_current(NULL);

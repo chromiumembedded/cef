@@ -14,8 +14,11 @@
 #include "webkit/plugins/npapi/gtk_plugin_container_manager.h"
 #endif
 
-struct WebPreferences;
 class BrowserWebViewDelegate;
+
+namespace webkit_glue {
+struct WebPreferences;
+}
 
 namespace WebKit {
 class WebDevToolsAgentClient;
@@ -33,7 +36,7 @@ class WebViewHost : public WebWidgetHost {
                              BrowserWebViewDelegate* delegate,
                              PaintDelegate* paint_delegate,
                              WebKit::WebDevToolsAgentClient* devtools_client,
-                             const WebPreferences& prefs);
+                             const webkit_glue::WebPreferences& prefs);
 
   virtual ~WebViewHost();
 

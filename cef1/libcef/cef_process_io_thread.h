@@ -31,15 +31,13 @@ class CefProcessIOThread : public CefThread {
   explicit CefProcessIOThread(MessageLoop* message_loop);
   virtual ~CefProcessIOThread();
 
-  scoped_refptr<BrowserRequestContext> request_context() {
-    return request_context_;
-  }
+  BrowserRequestContext* request_context() { return request_context_.get(); }
 
  protected:
   virtual void Init();
   virtual void CleanUp();
 
-  scoped_refptr<BrowserRequestContext> request_context_;
+  scoped_ptr<BrowserRequestContext> request_context_;
   scoped_ptr<net::NetworkDelegate> network_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessIOThread);

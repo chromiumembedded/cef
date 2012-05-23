@@ -12,6 +12,7 @@
 #include "base/path_service.h"
 #include "base/synchronization/waitable_event.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/base/resource/resource_handle.h"
 #include "ui/base/ui_base_paths.h"
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
@@ -19,6 +20,7 @@
 #endif
 
 #if defined(OS_MACOSX)
+#include "base/mac/foundation_util.h"
 #include "base/mac/mac_util.h"
 #include "grit/webkit_resources.h"
 #endif
@@ -27,14 +29,32 @@
 #include "base/win/resource_util.h"
 #endif
 
-// Both the CefContext constuctor and the CefContext::RemoveBrowser method need
-// to initialize or reset to the same value.
-const int kNextBrowserIdReset = 1;
-
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
 
 namespace {
+
+// Both the CefContext constuctor and the CefContext::RemoveBrowser method need
+// to initialize or reset to the same value.
+const int kNextBrowserIdReset = 1;
+
+#if defined(OS_MACOSX)
+
+FilePath GetDefaultPackPath() {
+  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
+                   .Append(FILE_PATH_LITERAL("Resources"));
+}
+
+#else  // !defined(OS_MACOSX)
+
+FilePath GetDefaultPackPath() {
+  FilePath pak_dir;
+  PathService::Get(base::DIR_MODULE, &pak_dir);
+  return pak_dir;
+}
+
+#endif  // !defined(OS_MACOSX)
 
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
@@ -65,6 +85,69 @@ base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
 #endif  // defined(OS_MACOSX)
 
 }  // namespace
+
+
+class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
+ public:
+  CefResourceBundleDelegate(CefContext* context)
+      : context_(context),
+        allow_pack_file_load_(false) {
+  }
+
+  void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
+
+ private:
+  virtual FilePath GetPathForResourcePack(const FilePath& pack_path,
+                                          float scale_factor) OVERRIDE {
+    // Only allow the cef pack file to load.
+    if (!context_->settings().pack_loading_disabled && allow_pack_file_load_)
+      return pack_path;
+    return FilePath();
+  }
+
+  virtual FilePath GetPathForLocalePack(const FilePath& pack_path,
+                                        const std::string& locale) OVERRIDE {
+    if (!context_->settings().pack_loading_disabled)
+      return pack_path;
+    return FilePath();
+  }
+
+  virtual gfx::Image GetImageNamed(int resource_id) OVERRIDE {
+    return gfx::Image();
+  }
+
+  virtual gfx::Image GetNativeImageNamed(
+      int resource_id,
+      ui::ResourceBundle::ImageRTL rtl) OVERRIDE {
+    return gfx::Image();
+  }
+
+  virtual base::RefCountedStaticMemory* LoadDataResourceBytes(
+      int resource_id) OVERRIDE {
+    return NULL;
+  }
+
+  virtual bool GetRawDataResource(int resource_id,
+                                  base::StringPiece* value) OVERRIDE {
+    return false;
+  }
+
+  virtual bool GetLocalizedString(int message_id, string16* value) OVERRIDE {
+    return false;
+  }
+
+  virtual scoped_ptr<gfx::Font> GetFont(
+      ui::ResourceBundle::FontStyle style) OVERRIDE {
+    return scoped_ptr<gfx::Font>();
+  }
+
+  // CefContext pointer is guaranteed to outlive this object.
+  CefContext* context_;
+  bool allow_pack_file_load_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefResourceBundleDelegate);
+};
+
 
 bool CefInitialize(const CefSettings& settings, CefRefPtr<CefApp> application) {
   // Return true if the global context already exists.
@@ -157,6 +240,7 @@ void CefQuitMessageLoop() {
 CefContext::CefContext()
   : initialized_(false),
     shutting_down_(false),
+    request_context_(NULL),
     next_browser_id_(kNextBrowserIdReset),
     current_webviewhost_(NULL) {
 }
@@ -293,47 +377,48 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
 }
 
 void CefContext::InitializeResourceBundle() {
-  if (settings_.pack_loading_disabled)
-    return;
-
   FilePath pak_file, locales_dir;
 
-  if (settings_.pack_file_path.length > 0)
-    pak_file = FilePath(CefString(&settings_.pack_file_path));
+  if (!settings_.pack_loading_disabled) {
+    if (settings_.pack_file_path.length > 0)
+      pak_file = FilePath(CefString(&settings_.pack_file_path));
 
-  if (pak_file.empty()) {
-    FilePath pak_dir;
-    PathService::Get(base::DIR_MODULE, &pak_dir);
-    pak_file = pak_dir.Append(FILE_PATH_LITERAL("chrome.pak"));
+    if (pak_file.empty())
+      pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("chrome.pak"));
+
+    if (settings_.locales_dir_path.length > 0)
+      locales_dir = FilePath(CefString(&settings_.locales_dir_path));
+
+    if (!locales_dir.empty())
+      PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
 
-  if (!pak_file.empty())
-    PathService::Override(ui::FILE_RESOURCES_PAK, pak_file);
-
-  if (settings_.locales_dir_path.length > 0)
-    locales_dir = FilePath(CefString(&settings_.locales_dir_path));
-
-  if (!locales_dir.empty())
-    PathService::Override(ui::DIR_LOCALES, locales_dir);
-
   std::string locale_str = locale();
-  const std::string loaded_locale =
-      ui::ResourceBundle::InitSharedInstanceWithLocale(locale_str);
-  CHECK(!loaded_locale.empty()) << "Locale could not be found for " <<
-      locale_str;
+  if (locale_str.empty())
+    locale_str = "en-US";
 
-#if defined(OS_WIN)
-  // Explicitly load chrome.pak on Windows.
-  if (file_util::PathExists(pak_file))
-    ResourceBundle::AddDataPackToSharedInstance(pak_file);
-  else
-    NOTREACHED() << "Could not load chrome.pak";
-#endif
+  resource_bundle_delegate_.reset(new CefResourceBundleDelegate(this));
+  const std::string loaded_locale =
+      ui::ResourceBundle::InitSharedInstanceWithLocale(
+          locale_str, resource_bundle_delegate_.get());
+  if (!settings_.pack_loading_disabled) {
+    CHECK(!loaded_locale.empty()) << "Locale could not be found for "
+        << locale_str;
+
+    if (file_util::PathExists(pak_file)) {
+      resource_bundle_delegate_->set_allow_pack_file_load(true);
+      ResourceBundle::GetSharedInstance().AddDataPack(
+          pak_file, ui::ResourceHandle::kScaleFactor100x);
+      resource_bundle_delegate_->set_allow_pack_file_load(false);
+    } else {
+      NOTREACHED() << "Could not load chrome.pak";
+    }
+  }
 }
 
 void CefContext::CleanupResourceBundle() {
-  if (!settings_.pack_loading_disabled)
-    ResourceBundle::CleanupSharedInstance();
+  ResourceBundle::CleanupSharedInstance();
+  resource_bundle_delegate_.reset(NULL);
 }
 
 string16 CefContext::GetLocalizedString(int message_id) const {
@@ -382,7 +467,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
       hModule = ::GetModuleHandle(file_path.value().c_str());
     if (!hModule)
       hModule = ::GetModuleHandle(NULL);
-    value = GetRawDataResource(hModule, resource_id);
+    value = ::GetRawDataResource(hModule, resource_id);
   }
 #elif defined(OS_MACOSX)
   if (value.empty()) {

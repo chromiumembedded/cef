@@ -28,7 +28,7 @@ WebViewHost* WebViewHost::Create(GtkWidget* parent_view,
                                  BrowserWebViewDelegate* delegate,
                                  PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
-                                 const WebPreferences& prefs) {
+                                 const webkit_glue::WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost(delegate);
 
   host->view_ = WebWidgetHost::CreateWidget(parent_view, host);

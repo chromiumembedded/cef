@@ -11,6 +11,7 @@
 
 #include "libcef/browser_appcache_system.h"
 #include "libcef/browser_database_system.h"
+#include "libcef/browser_dom_storage_system.h"
 #include "libcef/browser_file_system.h"
 #include "libcef/browser_webblobregistry_impl.h"
 #include "libcef/browser_webcookiejar_impl.h"
@@ -63,23 +64,21 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebString defaultLocale() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
       const WebKit::WebString& path, unsigned quota) OVERRIDE;
-  void dispatchStorageEvent(const WebKit::WebString& key,
-      const WebKit::WebString& old_value, const WebKit::WebString& new_value,
-      const WebKit::WebString& origin, const WebKit::WebURL& url,
-      bool is_local_storage) OVERRIDE;
   virtual WebKit::WebIDBFactory* idbFactory() OVERRIDE;
   virtual void createIDBKeysFromSerializedValuesAndKeyPath(
       const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
-      const WebKit::WebString& keyPath,
+      const WebKit::WebIDBKeyPath& keyPath,
       WebKit::WebVector<WebKit::WebIDBKey>& keys_out) OVERRIDE;
   virtual WebKit::WebSerializedScriptValue injectIDBKeyIntoSerializedValue(
       const WebKit::WebIDBKey& key,
       const WebKit::WebSerializedScriptValue& value,
-      const WebKit::WebString& keyPath) OVERRIDE;
+      const WebKit::WebIDBKeyPath& keyPath) OVERRIDE;
   virtual WebKit::WebGraphicsContext3D* createOffscreenGraphicsContext3D(
       const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) OVERRIDE;
   virtual base::StringPiece GetDataResource(int resource_id) OVERRIDE;
+  virtual base::StringPiece GetImageResource(int resource_id,
+                                             float scale_factor) OVERRIDE;
   virtual void GetPlugins(bool refresh,
                           std::vector<webkit::WebPluginInfo>* plugins) OVERRIDE;
   virtual webkit_glue::ResourceLoaderBridge* CreateResourceLoader(
@@ -106,6 +105,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
+  BrowserDomStorageSystem dom_storage_system_;
   BrowserWebCookieJarImpl cookie_jar_;
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
 };

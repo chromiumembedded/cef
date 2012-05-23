@@ -10,7 +10,6 @@
 #endif
 
 #include "libcef/browser_file_system.h"
-#include "libcef/browser_persistent_cookie_store.h"
 #include "libcef/browser_resource_loader_bridge.h"
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
@@ -18,7 +17,9 @@
 #include "base/compiler_specific.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/threading/worker_pool.h"
 #include "build/build_config.h"
+#include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "net/base/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/base/default_server_bound_cert_store.h"
@@ -157,7 +158,8 @@ void BrowserRequestContext::Init(
   SetCookieStoragePath(cache_path);
 
   storage_.set_server_bound_cert_service(new net::ServerBoundCertService(
-      new net::DefaultServerBoundCertStore(NULL)));
+      new net::DefaultServerBoundCertStore(NULL),
+      base::WorkerPool::GetTaskRunner(true)));
 
   // hard-code A-L and A-C for test shells
   set_accept_language("en-us,en");
@@ -243,15 +245,16 @@ void BrowserRequestContext::Init(
       new net::HttpCache(host_resolver(),
                          cert_verifier(),
                          server_bound_cert_service(),
-                         NULL,  // transport_security_state
+                         NULL,  /* transport_security_state */
                          proxy_service(),
-                         "",  // ssl_session_cache_shard
+                         "",  /* ssl_session_cache_shard */
                          ssl_config_service(),
                          http_auth_handler_factory(),
-                         NULL,  // network_delegate
+                         NULL,  /* network_delegate */
                          http_server_properties(),
-                         NULL,  // netlog
-                         backend);
+                         NULL,  /* netlog */
+                         backend,
+                         "" /* trusted_spdy_proxy */ );
 
   cache->set_mode(cache_mode);
   storage_.set_http_transaction_factory(cache);
@@ -275,8 +278,7 @@ void BrowserRequestContext::Init(
     job_factory->SetProtocolHandler(
         "filesystem",
         fileapi::CreateFileSystemProtocolHandler(
-            file_system->file_system_context(),
-            CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
+            file_system->file_system_context()));
   }
 
   storage_.set_job_factory(job_factory);
@@ -297,11 +299,11 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
     return;
   }
 
-  scoped_refptr<BrowserPersistentCookieStore> persistent_store;
+  scoped_refptr<SQLitePersistentCookieStore> persistent_store;
   if (!path.empty()) {
     if (file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
+      persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }

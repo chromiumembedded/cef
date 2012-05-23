@@ -80,7 +80,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
     window_info_.m_ParentWidget = parentView;
   }
 
-  WebPreferences prefs;
+  webkit_glue::WebPreferences prefs;
   BrowserToWebSettings(settings_, prefs);
 
   // Create the webview host object

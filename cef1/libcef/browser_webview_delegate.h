@@ -119,8 +119,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void setToolTipText(
       const WebKit::WebString& text, WebKit::WebTextDirection hint) OVERRIDE;
   virtual void startDragging(
+      WebKit::WebFrame* frame,
       const  WebKit::WebDragData& data,
-       WebKit::WebDragOperationsMask mask,
+      WebKit::WebDragOperationsMask mask,
       const  WebKit::WebImage& image,
       const  WebKit::WebPoint& image_offset) OVERRIDE;
   virtual bool acceptsLoadDrops() OVERRIDE;
@@ -221,6 +222,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(
       const FilePath& file_path,
       const std::string& mime_type) OVERRIDE;
+  virtual WebKit::WebPlugin* CreatePluginReplacement(
+      const FilePath& file_path) OVERRIDE;
   virtual void CreatedPluginWindow(
       gfx::PluginWindowHandle handle) OVERRIDE;
   virtual void WillDestroyPluginWindow(

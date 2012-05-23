@@ -105,7 +105,8 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
     const cef_string_t* javascript_code, struct _cef_v8handler_t* handler);
 
 ///
-// Structure that encapsulates a V8 context handle.
+// Structure that encapsulates a V8 context handle. The functions of this
+// structure may only be called on the UI thread.
 ///
 typedef struct _cef_v8context_t {
   ///
@@ -125,17 +126,18 @@ typedef struct _cef_v8context_t {
   struct _cef_frame_t* (CEF_CALLBACK *get_frame)(struct _cef_v8context_t* self);
 
   ///
-  // Returns the global object for this context.
+  // Returns the global object for this context. The context must be entered
+  // before calling this function.
   ///
   struct _cef_v8value_t* (CEF_CALLBACK *get_global)(
       struct _cef_v8context_t* self);
 
   ///
   // Enter this context. A context must be explicitly entered before creating a
-  // V8 Object, Array or Function asynchronously. exit() must be called the same
-  // number of times as enter() before releasing this context. V8 objects belong
-  // to the context in which they are created. Returns true (1) if the scope was
-  // entered successfully.
+  // V8 Object, Array, Function or Date asynchronously. exit() must be called
+  // the same number of times as enter() before releasing this context. V8
+  // objects belong to the context in which they are created. Returns true (1)
+  // if the scope was entered successfully.
   ///
   int (CEF_CALLBACK *enter)(struct _cef_v8context_t* self);
 
@@ -151,6 +153,16 @@ typedef struct _cef_v8context_t {
   ///
   int (CEF_CALLBACK *is_same)(struct _cef_v8context_t* self,
       struct _cef_v8context_t* that);
+
+  ///
+  // Evaluates the specified JavaScript code using this context's global object.
+  // On success |retval| will be set to the return value, if any, and the
+  // function will return true (1). On failure |exception| will be set to the
+  // exception, if any, and the function will return false (0).
+  ///
+  int (CEF_CALLBACK *eval)(struct _cef_v8context_t* self,
+      const cef_string_t* code, struct _cef_v8value_t** retval,
+      struct _cef_v8exception_t** exception);
 } cef_v8context_t;
 
 
@@ -293,8 +305,8 @@ typedef struct _cef_v8exception_t {
 
 
 ///
-// Structure representing a V8 value. The functions of this structure should
-// only be called on the UI thread.
+// Structure representing a V8 value. The functions of this structure may only
+// be called on the UI thread.
 ///
 typedef struct _cef_v8value_t {
   ///
@@ -321,6 +333,11 @@ typedef struct _cef_v8value_t {
   // True if the value type is int.
   ///
   int (CEF_CALLBACK *is_int)(struct _cef_v8value_t* self);
+
+  ///
+  // True if the value type is unsigned int.
+  ///
+  int (CEF_CALLBACK *is_uint)(struct _cef_v8value_t* self);
 
   ///
   // True if the value type is double.
@@ -369,7 +386,13 @@ typedef struct _cef_v8value_t {
   // Return an int value.  The underlying data will be converted to if
   // necessary.
   ///
-  int (CEF_CALLBACK *get_int_value)(struct _cef_v8value_t* self);
+  int32 (CEF_CALLBACK *get_int_value)(struct _cef_v8value_t* self);
+
+  ///
+  // Return an unisgned int value.  The underlying data will be converted to if
+  // necessary.
+  ///
+  uint32 (CEF_CALLBACK *get_uint_value)(struct _cef_v8value_t* self);
 
   ///
   // Return a double value.  The underlying data will be converted to if
@@ -397,6 +420,45 @@ typedef struct _cef_v8value_t {
   // interchangably with the framework converting between them as necessary.
 
   ///
+  // Returns true (1) if this is a user created object.
+  ///
+  int (CEF_CALLBACK *is_user_created)(struct _cef_v8value_t* self);
+
+  ///
+  // Returns true (1) if the last function call resulted in an exception. This
+  // attribute exists only in the scope of the current CEF value object.
+  ///
+  int (CEF_CALLBACK *has_exception)(struct _cef_v8value_t* self);
+
+  ///
+  // Returns the exception resulting from the last function call. This attribute
+  // exists only in the scope of the current CEF value object.
+  ///
+  struct _cef_v8exception_t* (CEF_CALLBACK *get_exception)(
+      struct _cef_v8value_t* self);
+
+  ///
+  // Clears the last exception and returns true (1) on success.
+  ///
+  int (CEF_CALLBACK *clear_exception)(struct _cef_v8value_t* self);
+
+  ///
+  // Returns true (1) if this object will re-throw future exceptions. This
+  // attribute exists only in the scope of the current CEF value object.
+  ///
+  int (CEF_CALLBACK *will_rethrow_exceptions)(struct _cef_v8value_t* self);
+
+  ///
+  // Set whether this object will re-throw future exceptions. By default
+  // exceptions are not re-thrown. If a exception is re-thrown the current
+  // context should not be accessed again until after the exception has been
+  // caught and not re-thrown. Returns true (1) on success. This attribute
+  // exists only in the scope of the current CEF value object.
+  ///
+  int (CEF_CALLBACK *set_rethrow_exceptions)(struct _cef_v8value_t* self,
+      int rethrow);
+
+  ///
   // Returns true (1) if the object has a value with the specified identifier.
   ///
   int (CEF_CALLBACK *has_value_bykey)(struct _cef_v8value_t* self,
@@ -408,46 +470,62 @@ typedef struct _cef_v8value_t {
   int (CEF_CALLBACK *has_value_byindex)(struct _cef_v8value_t* self, int index);
 
   ///
-  // Delete the value with the specified identifier.
+  // Deletes the value with the specified identifier and returns true (1) on
+  // success. Returns false (0) if this function is called incorrectly or an
+  // exception is thrown. For read-only and don't-delete values this function
+  // will return true (1) even though deletion failed.
   ///
   int (CEF_CALLBACK *delete_value_bykey)(struct _cef_v8value_t* self,
       const cef_string_t* key);
 
   ///
-  // Delete the value with the specified identifier.
+  // Deletes the value with the specified identifier and returns true (1) on
+  // success. Returns false (0) if this function is called incorrectly, deletion
+  // fails or an exception is thrown. For read-only and don't-delete values this
+  // function will return true (1) even though deletion failed.
   ///
   int (CEF_CALLBACK *delete_value_byindex)(struct _cef_v8value_t* self,
       int index);
 
   ///
-  // Returns the value with the specified identifier.
+  // Returns the value with the specified identifier on success. Returns NULL if
+  // this function is called incorrectly or an exception is thrown.
   ///
   struct _cef_v8value_t* (CEF_CALLBACK *get_value_bykey)(
       struct _cef_v8value_t* self, const cef_string_t* key);
 
   ///
-  // Returns the value with the specified identifier.
+  // Returns the value with the specified identifier on success. Returns NULL if
+  // this function is called incorrectly or an exception is thrown.
   ///
   struct _cef_v8value_t* (CEF_CALLBACK *get_value_byindex)(
       struct _cef_v8value_t* self, int index);
 
   ///
-  // Associate a value with the specified identifier.
+  // Associates a value with the specified identifier and returns true (1) on
+  // success. Returns false (0) if this function is called incorrectly or an
+  // exception is thrown. For read-only values this function will return true
+  // (1) even though assignment failed.
   ///
   int (CEF_CALLBACK *set_value_bykey)(struct _cef_v8value_t* self,
       const cef_string_t* key, struct _cef_v8value_t* value,
       enum cef_v8_propertyattribute_t attribute);
 
   ///
-  // Associate a value with the specified identifier.
+  // Associates a value with the specified identifier and returns true (1) on
+  // success. Returns false (0) if this function is called incorrectly or an
+  // exception is thrown. For read-only values this function will return true
+  // (1) even though assignment failed.
   ///
   int (CEF_CALLBACK *set_value_byindex)(struct _cef_v8value_t* self, int index,
       struct _cef_v8value_t* value);
 
   ///
-  // Register an identifier whose access will be forwarded to the
-  // cef_v8accessor_t instance passed to
-  // cef_v8value_t::cef_v8value_create_object_with_accessor().
+  // Registers an identifier and returns true (1) on success. Access to the
+  // identifier will be forwarded to the cef_v8accessor_t instance passed to
+  // cef_v8value_t::cef_v8value_create_object(). Returns false (0) if this
+  // function is called incorrectly or an exception is thrown. For read-only
+  // values this function will return true (1) even though assignment failed.
   ///
   int (CEF_CALLBACK *set_value_byaccessor)(struct _cef_v8value_t* self,
       const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
@@ -461,7 +539,15 @@ typedef struct _cef_v8value_t {
       cef_string_list_t keys);
 
   ///
-  // Returns the user data, if any, specified when the object was created.
+  // Sets the user data for this object and returns true (1) on success. Returns
+  // false (0) if this function is called incorrectly. This function can only be
+  // called on user created objects.
+  ///
+  int (CEF_CALLBACK *set_user_data)(struct _cef_v8value_t* self,
+      struct _cef_base_t* user_data);
+
+  ///
+  // Returns the user data, if any, assigned to this object.
   ///
   struct _cef_base_t* (CEF_CALLBACK *get_user_data)(
       struct _cef_v8value_t* self);
@@ -482,7 +568,7 @@ typedef struct _cef_v8value_t {
   // global total by the appropriate amount on its destruction.
   // |change_in_bytes| specifies the number of bytes to adjust by. This function
   // returns the number of bytes associated with the object after the
-  // adjustment.
+  // adjustment. This function can only be called on user created objects.
   ///
   int (CEF_CALLBACK *adjust_externally_allocated_memory)(
       struct _cef_v8value_t* self, int change_in_bytes);
@@ -516,32 +602,28 @@ typedef struct _cef_v8value_t {
   // only be called from within the scope of a cef_v8handler_t or
   // cef_v8accessor_t callback, or in combination with calling enter() and
   // exit() on a stored cef_v8context_t reference. |object| is the receiver
-  // ('this' object) of the function. |arguments| is the list of arguments that
-  // will be passed to the function. If execution succeeds |retval| will be set
-  // to the function return value. If execution fails |exception| will be set to
-  // the exception that was thrown. If |rethrow_exception| is true (1) any
-  // exception will also be re- thrown. This function returns false (0) if
-  // called incorrectly.
+  // ('this' object) of the function. If |object| is NULL the current context's
+  // global object will be used. |arguments| is the list of arguments that will
+  // be passed to the function. Returns the function return value on success.
+  // Returns NULL if this function is called incorrectly or an exception is
+  // thrown.
   ///
-  int (CEF_CALLBACK *execute_function)(struct _cef_v8value_t* self,
-      struct _cef_v8value_t* object, size_t argumentsCount,
-      struct _cef_v8value_t* const* arguments, struct _cef_v8value_t** retval,
-      struct _cef_v8exception_t** exception, int rethrow_exception);
+  struct _cef_v8value_t* (CEF_CALLBACK *execute_function)(
+      struct _cef_v8value_t* self, struct _cef_v8value_t* object,
+      size_t argumentsCount, struct _cef_v8value_t* const* arguments);
 
   ///
   // Execute the function using the specified V8 context. |object| is the
-  // receiver ('this' object) of the function. |arguments| is the list of
-  // arguments that will be passed to the function. If execution succeeds
-  // |retval| will be set to the function return value. If execution fails
-  // |exception| will be set to the exception that was thrown. If
-  // |rethrow_exception| is true (1) any exception will also be re-thrown. This
-  // function returns false (0) if called incorrectly.
+  // receiver ('this' object) of the function. If |object| is NULL the specified
+  // context's global object will be used. |arguments| is the list of arguments
+  // that will be passed to the function. Returns the function return value on
+  // success. Returns NULL if this function is called incorrectly or an
+  // exception is thrown.
   ///
-  int (CEF_CALLBACK *execute_function_with_context)(struct _cef_v8value_t* self,
-      struct _cef_v8context_t* context, struct _cef_v8value_t* object,
-      size_t argumentsCount, struct _cef_v8value_t* const* arguments,
-      struct _cef_v8value_t** retval, struct _cef_v8exception_t** exception,
-      int rethrow_exception);
+  struct _cef_v8value_t* (CEF_CALLBACK *execute_function_with_context)(
+      struct _cef_v8value_t* self, struct _cef_v8context_t* context,
+      struct _cef_v8value_t* object, size_t argumentsCount,
+      struct _cef_v8value_t* const* arguments);
 } cef_v8value_t;
 
 
@@ -563,7 +645,12 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value);
 ///
 // Create a new cef_v8value_t object of type int.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32 value);
+
+///
+// Create a new cef_v8value_t object of type unsigned int.
+///
+CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32 value);
 
 ///
 // Create a new cef_v8value_t object of type double.
@@ -571,7 +658,10 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int value);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value);
 
 ///
-// Create a new cef_v8value_t object of type Date.
+// Create a new cef_v8value_t object of type Date. This function should only be
+// called from within the scope of a cef_v8context_tHandler, cef_v8handler_t or
+// cef_v8accessor_t callback, or in combination with calling enter() and exit()
+// on a stored cef_v8context_t reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 
@@ -581,22 +671,22 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 
 ///
-// Create a new cef_v8value_t object of type object with optional user data and
-// accessor. This function should only be called from within the scope of a
+// Create a new cef_v8value_t object of type object with optional accessor. This
+// function should only be called from within the scope of a
 // cef_v8context_tHandler, cef_v8handler_t or cef_v8accessor_t callback, or in
 // combination with calling enter() and exit() on a stored cef_v8context_t
 // reference.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object_with_accessor(
-    cef_base_t* user_data, cef_v8accessor_t* accessor);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor);
 
 ///
-// Create a new cef_v8value_t object of type array. This function should only be
-// called from within the scope of a cef_v8context_tHandler, cef_v8handler_t or
-// cef_v8accessor_t callback, or in combination with calling enter() and exit()
-// on a stored cef_v8context_t reference.
+// Create a new cef_v8value_t object of type array with the specified |length|.
+// If |length| is negative the returned array will have length 0. This function
+// should only be called from within the scope of a cef_v8context_tHandler,
+// cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
+// enter() and exit() on a stored cef_v8context_t reference.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_array();
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length);
 
 ///
 // Create a new cef_v8value_t object of type function. This function should only

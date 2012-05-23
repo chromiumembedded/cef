@@ -224,6 +224,7 @@ WebRect BrowserWebViewDelegate::windowResizerRect() {
 }
 
 void BrowserWebViewDelegate::startDragging(
+    WebFrame* frame,
     const WebDragData& data,
     WebDragOperationsMask mask,
     const WebImage& image,

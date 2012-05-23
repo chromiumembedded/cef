@@ -16,8 +16,6 @@
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "include/cef_storage.h"
-#include "include/capi/cef_storage_capi.h"
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
 #include "include/cef_url.h"
@@ -71,7 +69,6 @@
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
-#include "libcef_dll/ctocpp/storage_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_handler_ctocpp.h"
@@ -149,7 +146,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefSchemeHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefStorageVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefStreamWriterCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCToCpp::DebugObjCt, 0);
@@ -303,88 +299,6 @@ CEF_EXPORT int cef_clear_scheme_handler_factories() {
 
   // Execute
   bool _retval = CefClearSchemeHandlerFactories();
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_visit_storage(enum cef_storage_type_t type,
-    const cef_string_t* origin, const cef_string_t* key,
-    struct _cef_storage_visitor_t* visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor);
-  if (!visitor)
-    return 0;
-  // Unverified params: origin, key
-
-  // Execute
-  bool _retval = CefVisitStorage(
-      type,
-      CefString(origin),
-      CefString(key),
-      CefStorageVisitorCToCpp::Wrap(visitor));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_set_storage(enum cef_storage_type_t type,
-    const cef_string_t* origin, const cef_string_t* key,
-    const cef_string_t* value) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: origin; type: string_byref_const
-  DCHECK(origin);
-  if (!origin)
-    return 0;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return 0;
-  // Verify param: value; type: string_byref_const
-  DCHECK(value);
-  if (!value)
-    return 0;
-
-  // Execute
-  bool _retval = CefSetStorage(
-      type,
-      CefString(origin),
-      CefString(key),
-      CefString(value));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_delete_storage(enum cef_storage_type_t type,
-    const cef_string_t* origin, const cef_string_t* key) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: origin, key
-
-  // Execute
-  bool _retval = CefDeleteStorage(
-      type,
-      CefString(origin),
-      CefString(key));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_set_storage_path(enum cef_storage_type_t type,
-    const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path
-
-  // Execute
-  bool _retval = CefSetStoragePath(
-      type,
-      CefString(path));
 
   // Return type: bool
   return _retval;

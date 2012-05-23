@@ -357,7 +357,7 @@ class CefBrowserImpl : public CefBrowser {
   void set_popup_rect(const gfx::Rect& rect) { popup_rect_ = rect; }
 
   net::URLRequestContext* request_context_proxy() {
-    return request_context_proxy_;
+    return request_context_proxy_.get();
   }
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
@@ -386,7 +386,7 @@ class CefBrowserImpl : public CefBrowser {
   scoped_ptr<BrowserDevToolsAgent> dev_tools_agent_;
   scoped_ptr<BrowserDevToolsClient> dev_tools_client_;
 
-  scoped_refptr<BrowserRequestContextProxy> request_context_proxy_;
+  scoped_ptr<BrowserRequestContextProxy> request_context_proxy_;
 
   CefString title_;
 

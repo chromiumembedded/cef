@@ -73,8 +73,8 @@ net::NetworkDelegate::AuthRequiredResponse
   return AUTH_REQUIRED_RESPONSE_NO_ACTION;
 }
 
-bool BrowserNetworkDelegate::CanGetCookies(
-    const net::URLRequest* request,
+bool BrowserNetworkDelegate::OnCanGetCookies(
+    const net::URLRequest& request,
     const net::CookieList& cookie_list) {
   net::StaticCookiePolicy::Type policy_type = accept_all_cookies_ ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
@@ -82,19 +82,25 @@ bool BrowserNetworkDelegate::CanGetCookies(
 
   net::StaticCookiePolicy policy(policy_type);
   int rv = policy.CanGetCookies(
-      request->url(), request->first_party_for_cookies());
+      request.url(), request.first_party_for_cookies());
   return rv == net::OK;
 }
 
-bool BrowserNetworkDelegate::CanSetCookie(const net::URLRequest* request,
-                          const std::string& cookie_line,
-                          net::CookieOptions* options) {
+bool BrowserNetworkDelegate::OnCanSetCookie(
+    const net::URLRequest& request,
+    const std::string& cookie_line,
+    net::CookieOptions* options) {
   net::StaticCookiePolicy::Type policy_type = accept_all_cookies_ ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
       net::StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
 
   net::StaticCookiePolicy policy(policy_type);
   int rv = policy.CanSetCookie(
-      request->url(), request->first_party_for_cookies());
+      request.url(), request.first_party_for_cookies());
   return rv == net::OK;
+}
+
+bool BrowserNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
+                                             const FilePath& path) const {
+  return true;
 }

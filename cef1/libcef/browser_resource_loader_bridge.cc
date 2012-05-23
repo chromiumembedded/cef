@@ -73,6 +73,7 @@
 #include "webkit/fileapi/file_system_dir_url_request_job.h"
 #include "webkit/fileapi/file_system_url_request_job.h"
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
 #include "crypto/nss_util.h"
@@ -95,6 +96,7 @@ struct RequestParams {
   GURL url;
   GURL first_party_for_cookies;
   GURL referrer;
+  WebKit::WebReferrerPolicy referrer_policy;
   std::string headers;
   int load_flags;
   ResourceType::Type request_type;
@@ -562,6 +564,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
       request_->set_referrer(params->referrer.spec());
+      webkit_glue::ConfigureURLRequestForReferrerPolicy(
+          request_.get(), params->referrer_policy);
       net::HttpRequestHeaders headers;
       headers.AddHeadersFromString(params->headers);
       request_->SetExtraRequestHeaders(headers);
@@ -982,6 +986,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->url = request_info.url;
     params_->first_party_for_cookies = request_info.first_party_for_cookies;
     params_->referrer = request_info.referrer;
+    params_->referrer_policy = request_info.referrer_policy;
     params_->headers = request_info.headers;
     params_->load_flags = request_info.load_flags;
     params_->request_type = request_info.request_type;

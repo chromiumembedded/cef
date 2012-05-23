@@ -180,8 +180,8 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
 
-  request_context_proxy_ =
-      new BrowserRequestContextProxy(_Context->request_context(), this);
+  request_context_proxy_.reset(
+      new BrowserRequestContextProxy(_Context->request_context(), this));
 
   if (!file_system_root_.CreateUniqueTempDir()) {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
@@ -785,7 +785,7 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
   UIT_ClearMainWndHandle();
 
   main_frame_ = NULL;
-  request_context_proxy_ = NULL;
+  request_context_proxy_.reset(NULL);
 
   // Remove the reference added in UIT_CreateBrowser().
   Release();

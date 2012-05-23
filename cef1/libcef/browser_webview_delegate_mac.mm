@@ -348,10 +348,12 @@ WebRect BrowserWebViewDelegate::windowResizerRect() {
   return gfx::Rect(NSRectToCGRect(resize_rect));
 }
 
-void BrowserWebViewDelegate::startDragging(const WebDragData& data,
-                                           WebDragOperationsMask mask,
-                                           const WebImage& image,
-                                           const WebPoint& image_offset) {
+void BrowserWebViewDelegate::startDragging(
+    WebFrame* frame,
+    const WebDragData& data,
+    WebDragOperationsMask mask,
+    const WebImage& image,
+    const WebPoint& image_offset) {
   if (browser_->settings().drag_drop_disabled ||
       browser_->IsWindowRenderingDisabled()) {
     browser_->UIT_GetWebView()->dragSourceSystemDragEnded();

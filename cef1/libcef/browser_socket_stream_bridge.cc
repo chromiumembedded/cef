@@ -223,14 +223,11 @@ void WebSocketStreamHandleBridgeImpl::DoOnClose() {
 void BrowserSocketStreamBridge::InitializeOnIOThread(
     net::URLRequestContext* request_context) {
   g_io_thread = MessageLoop::current();
-  if ((g_request_context = request_context))
-    g_request_context->AddRef();
+  g_request_context = request_context;
 }
 
 void BrowserSocketStreamBridge::Cleanup() {
   g_io_thread = NULL;
-  if (g_request_context)
-    g_request_context->Release();
   g_request_context = NULL;
 }
 

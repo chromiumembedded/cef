@@ -37,18 +37,18 @@ void CefProcessIOThread::Init() {
   CefThread::Init();
 
   FilePath cache_path(_Context->cache_path());
-  request_context_ = new BrowserRequestContext(cache_path,
-      net::HttpCache::NORMAL, false);
-  _Context->set_request_context(request_context_);
+  request_context_.reset(new BrowserRequestContext(cache_path,
+      net::HttpCache::NORMAL, false));
+  _Context->set_request_context(request_context_.get());
 
   network_delegate_.reset(new BrowserNetworkDelegate());
   request_context_->set_network_delegate(network_delegate_.get());
 
-  BrowserAppCacheSystem::InitializeOnIOThread(request_context_);
-  BrowserFileWriter::InitializeOnIOThread(request_context_);
+  BrowserAppCacheSystem::InitializeOnIOThread(request_context_.get());
+  BrowserFileWriter::InitializeOnIOThread(request_context_.get());
   BrowserFileSystem::InitializeOnIOThread(
       request_context_->blob_storage_controller());
-  BrowserSocketStreamBridge::InitializeOnIOThread(request_context_);
+  BrowserSocketStreamBridge::InitializeOnIOThread(request_context_.get());
   BrowserWebBlobRegistryImpl::InitializeOnIOThread(
       request_context_->blob_storage_controller());
 }
@@ -71,7 +71,8 @@ void CefProcessIOThread::CleanUp() {
   request_context_->set_network_delegate(NULL);
   network_delegate_.reset(NULL);
 
-  request_context_ = NULL;
+  _Context->set_request_context(NULL);
+  request_context_.reset(NULL);
 
   CefThread::Cleanup();
 }

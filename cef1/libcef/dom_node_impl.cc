@@ -12,7 +12,6 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebAttribute.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEventListener.h"
@@ -20,12 +19,10 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFormControlElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputElement.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebNamedNodeMap.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSelectElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
-using WebKit::WebAttribute;
 using WebKit::WebDocument;
 using WebKit::WebDOMEvent;
 using WebKit::WebDOMEventListener;
@@ -33,7 +30,6 @@ using WebKit::WebElement;
 using WebKit::WebFrame;
 using WebKit::WebFormControlElement;
 using WebKit::WebInputElement;
-using WebKit::WebNamedNodeMap;
 using WebKit::WebNode;
 using WebKit::WebSelectElement;
 using WebKit::WebString;
@@ -356,7 +352,7 @@ bool CefDOMNodeImpl::HasElementAttributes() {
   }
 
   const WebElement& element = node_.toConst<WebKit::WebElement>();
-  return (element.attributes().length() > 0);
+  return (element.attributeCount() > 0);
 }
 
 bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
@@ -400,24 +396,14 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
   }
 
   const WebElement& element = node_.toConst<WebKit::WebElement>();
-  const WebNamedNodeMap& map = element.attributes();
-  unsigned int len = map.length();
+  unsigned int len = element.attributeCount();
   if (len == 0)
     return;
 
-  string16 nameStr, valueStr;
-
   for (unsigned int i = 0; i < len; ++i) {
-    const WebAttribute& attrib = map.attributeItem(i);
-    string16 nameStr, valueStr;
-    const WebString& name = attrib.localName();
-    if (!name.isNull())
-      nameStr = name;
-    const WebString& value = attrib.value();
-    if (!value.isNull())
-      valueStr = value;
-
-    attrMap.insert(std::make_pair(nameStr, valueStr));
+    string16 name = element.attributeLocalName(i);
+    string16 value = element.attributeValue(i);
+    attrMap.insert(std::make_pair(name, value));
   }
 }
 

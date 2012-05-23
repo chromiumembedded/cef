@@ -359,6 +359,8 @@ _simpletypes = {
     'void' : ['void', ''],
     'void*' : ['void*', 'NULL'],
     'int' : ['int', '0'],
+    'int32' : ['int32', '0'],
+    'uint32' : ['uint32', '0'],
     'int64' : ['int64', '0'],
     'uint64' : ['uint64', '0'],
     'double' : ['double', '0'],
@@ -801,6 +803,14 @@ class obj_class:
         """ Return the array of typedef objects. """
         return self.typedefs
     
+    def has_typedef_alias(self, alias):
+        """ Returns true if the specified typedef alias is defined in the scope
+            of this class declaration. """
+        for typedef in self.typedefs:
+          if typedef.get_alias() == alias:
+            return True
+        return False
+    
     def get_static_funcs(self):
         """ Return the array of static function objects. """
         return self.staticfuncs
@@ -1045,8 +1055,10 @@ class obj_function:
                 
         if isimpl and isinstance(self, obj_function_virtual):
             # enumeration return values must be qualified with the class name
+            # if the type is defined in the class declaration scope.
             type = self.get_retval().get_type()
-            if type.is_result_struct() and type.is_result_struct_enum():
+            if type.is_result_struct() and type.is_result_struct_enum() and \
+                self.parent.has_typedef_alias(retval):
                 retval = self.parent.get_name()+'::'+retval
         
         return { 'retval' : retval, 'name' : name, 'args' : args }

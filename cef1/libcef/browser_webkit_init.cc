@@ -7,7 +7,6 @@
 #include "libcef/browser_resource_loader_bridge.h"
 #include "libcef/browser_socket_stream_bridge.h"
 #include "libcef/browser_webkit_glue.h"
-#include "libcef/browser_webstoragenamespace_impl.h"
 #include "libcef/cef_context.h"
 
 #include "base/metrics/stats_counters.h"
@@ -198,22 +197,7 @@ WebKit::WebString BrowserWebKitInit::defaultLocale() {
 
 WebKit::WebStorageNamespace* BrowserWebKitInit::createLocalStorageNamespace(
     const WebKit::WebString& path, unsigned quota) {
-#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
-  NOTREACHED();
-#else
-  return new BrowserWebStorageNamespaceImpl(DOM_STORAGE_LOCAL);
-#endif
-}
-
-void BrowserWebKitInit::dispatchStorageEvent(const WebKit::WebString& key,
-    const WebKit::WebString& old_value, const WebKit::WebString& new_value,
-    const WebKit::WebString& origin, const WebKit::WebURL& url,
-    bool is_local_storage) {
-  // All events are dispatched by the WebCore::StorageAreaProxy in the
-  // simple single process case.
-#ifdef ENABLE_NEW_DOM_STORAGE_BACKEND
-  NOTREACHED();
-#endif
+  return dom_storage_system_.CreateLocalStorageNamespace();
 }
 
 WebKit::WebIDBFactory* BrowserWebKitInit::idbFactory() {
@@ -222,13 +206,11 @@ WebKit::WebIDBFactory* BrowserWebKitInit::idbFactory() {
 
 void BrowserWebKitInit::createIDBKeysFromSerializedValuesAndKeyPath(
     const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
-    const WebKit::WebString& keyPath,
+    const WebKit::WebIDBKeyPath& keyPath,
     WebKit::WebVector<WebKit::WebIDBKey>& keys_out) {
   WebKit::WebVector<WebKit::WebIDBKey> keys(values.size());
-  for (size_t i = 0; i < values.size(); ++i) {
-    keys[i] = WebKit::WebIDBKey::createFromValueAndKeyPath(
-        values[i], WebKit::WebIDBKeyPath::create(keyPath));
-  }
+  for (size_t i = 0; i < values.size(); ++i)
+    keys[i] = WebKit::WebIDBKey::createFromValueAndKeyPath(values[i], keyPath);
   keys_out.swap(keys);
 }
 
@@ -236,9 +218,9 @@ WebKit::WebSerializedScriptValue
 BrowserWebKitInit::injectIDBKeyIntoSerializedValue(
     const WebKit::WebIDBKey& key,
     const WebKit::WebSerializedScriptValue& value,
-    const WebKit::WebString& keyPath) {
+    const WebKit::WebIDBKeyPath& keyPath) {
   return WebKit::WebIDBKey::injectIDBKeyIntoSerializedValue(
-      key, value, WebKit::WebIDBKeyPath::create(keyPath));
+      key, value, keyPath);
 }
 
 WebKit::WebGraphicsContext3D*
@@ -262,6 +244,11 @@ string16 BrowserWebKitInit::GetLocalizedString(int message_id) {
 
 base::StringPiece BrowserWebKitInit::GetDataResource(int resource_id) {
   return _Context->GetDataResource(resource_id);
+}
+
+base::StringPiece BrowserWebKitInit::GetImageResource(int resource_id,
+                                                      float scale_factor) {
+  return GetDataResource(resource_id);
 }
 
 webkit_glue::ResourceLoaderBridge* BrowserWebKitInit::CreateResourceLoader(

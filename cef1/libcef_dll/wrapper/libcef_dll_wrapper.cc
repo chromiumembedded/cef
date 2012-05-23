@@ -16,8 +16,6 @@
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "include/cef_storage.h"
-#include "include/capi/cef_storage_capi.h"
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
 #include "include/cef_url.h"
@@ -51,7 +49,6 @@
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
-#include "libcef_dll/cpptoc/storage_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_handler_cpptoc.h"
@@ -151,7 +148,6 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefSchemeHandlerCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefStorageVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamWriterCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
@@ -305,85 +301,6 @@ CEF_GLOBAL bool CefClearSchemeHandlerFactories() {
 
   // Execute
   int _retval = cef_clear_scheme_handler_factories();
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefVisitStorage(CefStorageType type, const CefString& origin,
-    const CefString& key, CefRefPtr<CefStorageVisitor> visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor.get());
-  if (!visitor.get())
-    return false;
-  // Unverified params: origin, key
-
-  // Execute
-  int _retval = cef_visit_storage(
-      type,
-      origin.GetStruct(),
-      key.GetStruct(),
-      CefStorageVisitorCppToC::Wrap(visitor));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefSetStorage(CefStorageType type, const CefString& origin,
-    const CefString& key, const CefString& value) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: origin; type: string_byref_const
-  DCHECK(!origin.empty());
-  if (origin.empty())
-    return false;
-  // Verify param: key; type: string_byref_const
-  DCHECK(!key.empty());
-  if (key.empty())
-    return false;
-  // Verify param: value; type: string_byref_const
-  DCHECK(!value.empty());
-  if (value.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_set_storage(
-      type,
-      origin.GetStruct(),
-      key.GetStruct(),
-      value.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefDeleteStorage(CefStorageType type, const CefString& origin,
-    const CefString& key) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: origin, key
-
-  // Execute
-  int _retval = cef_delete_storage(
-      type,
-      origin.GetStruct(),
-      key.GetStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefSetStoragePath(CefStorageType type, const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path
-
-  // Execute
-  int _retval = cef_set_storage_path(
-      type,
-      path.GetStruct());
 
   // Return type: bool
   return _retval?true:false;

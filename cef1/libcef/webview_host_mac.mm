@@ -31,7 +31,7 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
                                  BrowserWebViewDelegate* delegate,
                                  PaintDelegate* paint_delegate,
                                  WebDevToolsAgentClient* dev_tools_client,
-                                 const WebPreferences& prefs) {
+                                 const webkit_glue::WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost(delegate);
 
   NSRect content_rect = {{rect.x(), rect.y()}, {rect.width(), rect.height()}};
