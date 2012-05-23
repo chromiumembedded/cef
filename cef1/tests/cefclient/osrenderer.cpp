@@ -355,6 +355,28 @@ void ClientOSRenderer::IncrementSpin(float spinDX, float spinDY) {
   spin_y_ -= spinDY;
 }
 
+bool ClientOSRenderer::GetPixelValue(int x, int y, unsigned char& r,
+                                     unsigned char& g, unsigned char& b,
+                                     unsigned char& a) {
+  if (!view_buffer_)
+    return false;
+
+  ASSERT(x >= 0 && x < view_width_);
+  ASSERT(y >= 0 && y < view_height_);
+                                       
+  int pixel_bytes = transparent_ ? 4 : 3;
+  int y_flipped = view_height_ - y;
+  int index = (view_width_ * y_flipped * pixel_bytes) + (x * pixel_bytes);
+
+  r = view_buffer_[index];
+  g = view_buffer_[index+1];
+  b = view_buffer_[index+2];
+  if (transparent_)
+    a = view_buffer_[index+3];
+
+  return true;
+}
+
 void ClientOSRenderer::SetBufferSize(int width, int height, bool view) {
   int dst_size = width * height * (transparent_?4:3);
 

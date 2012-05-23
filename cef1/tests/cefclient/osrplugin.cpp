@@ -466,6 +466,22 @@ LRESULT CALLBACK PluginWndProc(HWND hWnd, UINT message, WPARAM wParam,
       lastMousePos.x = curMousePos.x = LOWORD(lParam);
       lastMousePos.y = curMousePos.y = HIWORD(lParam);
       mouseRotation = true;
+    } else if (wParam & MK_CONTROL) {
+      // Retrieve the pixel value.
+      int x = LOWORD(lParam);
+      int y = HIWORD(lParam);
+      unsigned char r, g, b, a;
+      if (plugin->renderer.GetPixelValue(x, y, r, g, b, a)) {
+        std::stringstream ss;
+        ss << x << "," << y << " = R:" << static_cast<int>(r) << " G:" <<
+            static_cast<int>(g) << " B:" << static_cast<int>(b);
+        if (plugin->renderer.IsTransparent())
+          ss << " A:" << static_cast<int>(a);
+
+        std::string js =
+            "document.getElementById('pixel').innerText = '" + ss.str() + "';";
+        AppGetBrowser()->GetMainFrame()->ExecuteJavaScript(js, "", 0);
+      }
     } else {
       if (g_offscreenBrowser.get()) {
         g_offscreenBrowser->SendMouseClickEvent(LOWORD(lParam), HIWORD(lParam),
