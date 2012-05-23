@@ -41,7 +41,14 @@ const int kNextBrowserIdReset = 1;
 #if defined(OS_MACOSX)
 
 FilePath GetDefaultPackPath() {
+  // Start out with the path to the running executable.
+  FilePath execPath;
+  PathService::Get(base::FILE_EXE, &execPath);
+  
+  // Get the main bundle path.
   FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+  
+  // Go into the Contents/Resources directory.
   return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
                    .Append(FILE_PATH_LITERAL("Resources"));
 }

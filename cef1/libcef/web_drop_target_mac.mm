@@ -243,8 +243,11 @@ using WebKit::WebView;
         BOOL isDir = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:filename
                                                            isDirectory:&isDir];
-        if (exists && !isDir)
-          data->filenames.push_back(base::SysNSStringToUTF16(filename));
+        if (exists && !isDir) {
+          data->filenames.push_back(
+              WebDropData::FileInfo(base::SysNSStringToUTF16(filename),
+                                    string16()));
+        }
       }
     }
   }

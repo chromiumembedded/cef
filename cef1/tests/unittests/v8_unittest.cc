@@ -21,7 +21,6 @@ const char* kV8TestUrl = "http://tests/V8Test.Test";
 const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
 const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
 const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
-const char* kV8TestMsg = "V8Test.Test";
 
 enum V8TestMode {
   V8TEST_NULL_CREATE = 0,
