@@ -226,8 +226,10 @@ typedef struct _cef_browser_host_t {
   ///
   // Returns the DevTools URL for this browser. If |http_scheme| is true (1) the
   // returned URL will use the http scheme instead of the chrome-devtools
-  // scheme. If remote debugging is disabled this function will return an NULL
-  // string.
+  // scheme. Remote debugging can be enabled by specifying the "remote-
+  // debugging-port" command-line flag or by setting the
+  // CefSettings.remote_debugging_port value. If remote debugging is not enabled
+  // this function will return an NULL string.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_dev_tools_url)(

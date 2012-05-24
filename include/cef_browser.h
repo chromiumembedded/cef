@@ -260,8 +260,10 @@ class CefBrowserHost : public virtual CefBase {
   ///
   // Returns the DevTools URL for this browser. If |http_scheme| is true the
   // returned URL will use the http scheme instead of the chrome-devtools
-  // scheme. If remote debugging is disabled this method will return an empty
-  // string.
+  // scheme. Remote debugging can be enabled by specifying the
+  // "remote-debugging-port" command-line flag or by setting the
+  // CefSettings.remote_debugging_port value. If remote debugging is not enabled
+  // this method will return an empty string.
   ///
   /*--cef()--*/
   virtual CefString GetDevToolsURL(bool http_scheme) =0;
