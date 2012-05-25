@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include "include/cef.h"
 #include "net/url_request/url_request_context.h"
 
 class BrowserRequestContext;
@@ -23,7 +24,7 @@ class BrowserRequestContextProxy : public net::URLRequestContext {
 
  private:
   BrowserRequestContext* context_;
-  CefBrowserImpl* browser_;
+  CefRefPtr<CefBrowserImpl> browser_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_PROXY_H_
