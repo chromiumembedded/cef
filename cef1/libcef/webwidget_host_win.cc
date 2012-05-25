@@ -353,11 +353,14 @@ WebWidgetHost::WebWidgetHost()
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  if (view_)
-    ui::SetWindowUserData(view_, 0);
-
   TrackMouseLeave(false);
   ResetTooltip();
+
+  if (view_) {
+    ui::SetWindowUserData(view_, 0);
+    ui::SetWindowProc(view_, DefWindowProc);
+    view_ = NULL;
+  }
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {

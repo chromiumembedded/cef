@@ -3,6 +3,7 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser_request_context_proxy.h"
+#include "libcef/browser_impl.h"
 #include "libcef/browser_request_context.h"
 #include "libcef/cookie_store_proxy.h"
 
