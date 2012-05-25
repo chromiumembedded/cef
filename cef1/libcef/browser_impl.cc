@@ -180,9 +180,6 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
 
-  request_context_proxy_.reset(
-      new BrowserRequestContextProxy(_Context->request_context(), this));
-
   if (!file_system_root_.CreateUniqueTempDir()) {
     LOG(WARNING) << "Failed to create a temp dir for the filesystem."
                     "FileSystem feature will be disabled.";
@@ -785,7 +782,10 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
   UIT_ClearMainWndHandle();
 
   main_frame_ = NULL;
-  request_context_proxy_.reset(NULL);
+
+  // Delete the proxy on the IO thread.
+  CefThread::DeleteSoon(CefThread::IO, FROM_HERE,
+      request_context_proxy_.release());
 
   // Remove the reference added in UIT_CreateBrowser().
   Release();
@@ -1583,6 +1583,16 @@ void CefBrowserImpl::set_pending_url(const GURL& url) {
 GURL CefBrowserImpl::pending_url() {
   AutoLock lock_scope(this);
   return pending_url_;
+}
+
+net::URLRequestContext* CefBrowserImpl::request_context_proxy() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
+  if (!request_context_proxy_.get()) {
+    request_context_proxy_.reset(
+        new BrowserRequestContextProxy(_Context->request_context(), this));
+  }
+  return request_context_proxy_.get();
 }
 
 void CefBrowserImpl::UIT_CreateDevToolsClient(BrowserDevToolsAgent *agent) {

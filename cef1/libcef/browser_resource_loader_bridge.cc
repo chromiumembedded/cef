@@ -196,12 +196,15 @@ class RequestProxy : public net::URLRequest::Delegate,
       file_stream_(NULL),
       buf_(new net::IOBuffer(kDataSize)),
       browser_(browser),
+      owner_loop_(NULL),
+      peer_(NULL),
       last_upload_position_(0),
       defers_loading_(false),
       defers_loading_want_read_(false) {
   }
 
   void DropPeer() {
+    DCHECK(MessageLoop::current() == owner_loop_);
     peer_ = NULL;
   }
 
@@ -217,6 +220,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void Cancel() {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     if (download_handler_.get()) {
       // WebKit will try to cancel the download but we won't allow it.
       return;
@@ -228,6 +233,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void SetDefersLoading(bool defer) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
         &RequestProxy::AsyncSetDefersLoading, this, defer));
   }
@@ -251,6 +258,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyReceivedRedirect(const GURL& new_url,
                               const ResourceResponseInfo& info) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     bool has_new_first_party_for_cookies = false;
     GURL new_first_party_for_cookies;
     if (peer_ && peer_->OnReceivedRedirect(new_url, info,
@@ -266,6 +275,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyReceivedResponse(const ResourceResponseInfo& info,
                               const GURL& url, bool allow_download) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     if (browser_.get() && info.headers.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
       CefRefPtr<CefRequestHandler> handler;
@@ -316,6 +327,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyReceivedData(int bytes_read) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     if (!peer_)
       return;
 
@@ -359,6 +372,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyDownloadedData(int bytes_read) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     if (!peer_)
       return;
 
@@ -372,6 +387,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   void NotifyCompletedRequest(const net::URLRequestStatus& status,
                               const std::string& security_info,
                               const base::TimeTicks& complete_time) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     // Drain the content filter of all remaining data
     if (content_filter_.get()) {
       CefRefPtr<CefStreamReader> remainder;
@@ -411,6 +428,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyUploadProgress(uint64 position, uint64 size) {
+    DCHECK(MessageLoop::current() == owner_loop_);
+
     if (peer_)
       peer_->OnUploadProgress(position, size);
   }
@@ -420,6 +439,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   // actions performed on the owner's thread.
 
   void AsyncStart(RequestParams* params) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     bool handled = false;
 
     if (browser_.get()) {
@@ -605,6 +626,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void AsyncCancel() {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // This can be null in cases where the request is already done.
     if (!resource_stream_.get() && !request_.get())
       return;
@@ -616,6 +639,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void AsyncFollowDeferredRedirect(bool has_new_first_party_for_cookies,
                                    const GURL& new_first_party_for_cookies) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // This can be null in cases where the request is already done.
     if (!request_.get())
       return;
@@ -626,6 +651,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void AsyncSetDefersLoading(bool defer) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (defers_loading_ != defer) {
       defers_loading_ = defer;
       if (!defers_loading_ && defers_loading_want_read_) {
@@ -637,6 +664,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void AsyncReadData() {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // Pause downloading if we're in deferred mode.
     if (defers_loading_) {
       defers_loading_want_read_ = true;
@@ -679,6 +708,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       const GURL& new_url,
       const ResourceResponseInfo& info,
       bool* defer_redirect) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     *defer_redirect = true;  // See AsyncFollowDeferredRedirect
     owner_loop_->PostTask(FROM_HERE, base::Bind(
         &RequestProxy::NotifyReceivedRedirect, this, new_url, info));
@@ -688,6 +719,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       const ResourceResponseInfo& info,
       // only used when loading from a resource stream
       const GURL& simulated_url) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     GURL url;
     bool allow_download(false);
     if (request_.get()) {
@@ -706,6 +739,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   virtual void OnReceivedData(int bytes_read) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (download_to_file_) {
       file_stream_.WriteSync(buf_->data(), bytes_read);
       owner_loop_->PostTask(FROM_HERE, base::Bind(
@@ -720,6 +755,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (download_to_file_)
       file_stream_.CloseSync();
 
@@ -734,6 +771,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual void OnReceivedRedirect(net::URLRequest* request,
                                   const GURL& new_url,
                                   bool* defer_redirect) OVERRIDE {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     DCHECK(request->status().is_success());
     ResourceResponseInfo info;
     PopulateResponseInfo(request, &info);
@@ -741,6 +780,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   virtual void OnResponseStarted(net::URLRequest* request) OVERRIDE {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (request->status().is_success()) {
       ResourceResponseInfo info;
       PopulateResponseInfo(request, &info);
@@ -753,6 +794,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   virtual void OnAuthRequired(net::URLRequest* request,
                               net::AuthChallengeInfo* auth_info) OVERRIDE {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (browser_.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
       if (client.get()) {
@@ -779,12 +822,16 @@ class RequestProxy : public net::URLRequest::Delegate,
   virtual void OnSSLCertificateError(net::URLRequest* request,
                                      const net::SSLInfo& ssl_info,
                                      bool fatal) OVERRIDE {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // Allow all certificate errors.
     request->ContinueDespiteLastError();
   }
 
   virtual void OnReadCompleted(net::URLRequest* request,
                                int bytes_read) OVERRIDE {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (request->status().is_success() && bytes_read > 0) {
       OnReceivedData(bytes_read);
     } else {
@@ -796,6 +843,8 @@ class RequestProxy : public net::URLRequest::Delegate,
   // Helpers and data:
 
   void Done() {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (resource_stream_.get()) {
       // Resource stream reads always complete successfully
       OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
@@ -812,8 +861,9 @@ class RequestProxy : public net::URLRequest::Delegate,
     }
   }
 
-  // Called on the IO thread.
   void MaybeUpdateUploadProgress() {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // If a redirect is received upload is cancelled in net::URLRequest, we
     // should try to stop the |upload_progress_timer_| timer and return.
     if (!request_->has_upload()) {
@@ -851,6 +901,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void PopulateResponseInfo(net::URLRequest* request,
                             ResourceResponseInfo* info) const {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     info->request_time = request->request_time();
     info->response_time = request->response_time();
     info->headers = request->response_headers();
@@ -926,6 +978,8 @@ class SyncRequestProxy : public RequestProxy {
       const GURL& new_url,
       const ResourceResponseInfo& info,
       bool* defer_redirect) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     // TODO(darin): It would be much better if this could live in WebCore, but
     // doing so requires API changes at all levels.  Similar code exists in
     // WebCore/platform/network/cf/ResourceHandleCFNet.cpp :-(
@@ -939,10 +993,14 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnReceivedResponse(const ResourceResponseInfo& info,
                                   const GURL&) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     *static_cast<ResourceResponseInfo*>(result_) = info;
   }
 
   virtual void OnReceivedData(int bytes_read) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (download_to_file_)
       file_stream_.WriteSync(buf_->data(), bytes_read);
     else
@@ -953,6 +1011,8 @@ class SyncRequestProxy : public RequestProxy {
   virtual void OnCompletedRequest(const net::URLRequestStatus& status,
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
+    DCHECK(CefThread::CurrentlyOn(CefThread::IO));
+
     if (download_to_file_)
       file_stream_.CloseSync();
 
@@ -975,7 +1035,8 @@ class SyncRequestProxy : public RequestProxy {
 
 //-----------------------------------------------------------------------------
 
-class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
+class ResourceLoaderBridgeImpl : public ResourceLoaderBridge,
+                                 public base::NonThreadSafe {
  public:
   ResourceLoaderBridgeImpl(CefRefPtr<CefBrowserImpl> browser,
       const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info)
@@ -998,7 +1059,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     if (proxy_) {
       proxy_->DropPeer();
       // Let the proxy die on the IO thread
-      CefThread::ReleaseSoon(CefThread::IO, FROM_HERE, proxy_);
+      CefThread::ReleaseSoon(CefThread::IO, FROM_HERE, proxy_.release());
     }
   }
 
@@ -1006,6 +1067,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   // ResourceLoaderBridge implementation:
 
   virtual void AppendDataToUpload(const char* data, int data_len) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -1017,6 +1079,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
       uint64 offset,
       uint64 length,
       const base::Time& expected_modification_time) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -1025,6 +1088,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   }
 
   virtual void AppendBlobToUpload(const GURL& blob_url) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -1032,6 +1096,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   }
 
   virtual void SetUploadIdentifier(int64 identifier) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(params_.get());
     if (!params_->upload)
       params_->upload = new net::UploadData();
@@ -1039,38 +1104,38 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
   }
 
   virtual bool Start(Peer* peer) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(!proxy_);
 
     proxy_ = new RequestProxy(browser_);
-    proxy_->AddRef();
-
     proxy_->Start(peer, params_.release());
 
     return true;  // Any errors will be reported asynchronously.
   }
 
   virtual void Cancel() OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(proxy_);
     proxy_->Cancel();
   }
 
   virtual void SetDefersLoading(bool value) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(proxy_);
     proxy_->SetDefersLoading(value);
   }
 
   virtual void SyncLoad(SyncLoadResponse* response) OVERRIDE {
+    DCHECK(CalledOnValidThread());
     DCHECK(!proxy_);
 
     // this may change as the result of a redirect
     response->url = params_->url;
 
     proxy_ = new SyncRequestProxy(browser_, response);
-    proxy_->AddRef();
-
     proxy_->Start(NULL, params_.release());
 
-    static_cast<SyncRequestProxy*>(proxy_)->WaitForCompletion();
+    static_cast<SyncRequestProxy*>(proxy_.get())->WaitForCompletion();
   }
 
   virtual void UpdateRoutingId(int new_routing_id) OVERRIDE {}
@@ -1083,7 +1148,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 
   // The request proxy is allocated when we start the request, and then it
   // sticks around until this ResourceLoaderBridge is destroyed.
-  RequestProxy* proxy_;
+  scoped_refptr<RequestProxy> proxy_;
 };
 
 }  // anonymous namespace
@@ -1093,6 +1158,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 // static
 webkit_glue::ResourceLoaderBridge* BrowserResourceLoaderBridge::Create(
     const webkit_glue::ResourceLoaderBridge::RequestInfo& request_info) {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+
   CefRefPtr<CefBrowserImpl> browser =
       _Context->GetBrowserByID(request_info.routing_id);
   return new ResourceLoaderBridgeImpl(browser.get(), request_info);
