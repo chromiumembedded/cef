@@ -110,8 +110,8 @@ void ClientOSRenderer::Initialize() {
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (transparent_) {
-    // Alpha blending style.
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Alpha blending style. Texture values have premultiplied alpha.
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   initialized_ = true;
@@ -353,6 +353,28 @@ void ClientOSRenderer::SetSpin(float spinX, float spinY) {
 void ClientOSRenderer::IncrementSpin(float spinDX, float spinDY) {
   spin_x_ -= spinDX;
   spin_y_ -= spinDY;
+}
+
+bool ClientOSRenderer::GetPixelValue(int x, int y, unsigned char& r,
+                                     unsigned char& g, unsigned char& b,
+                                     unsigned char& a) {
+  if (!view_buffer_)
+    return false;
+
+  ASSERT(x >= 0 && x < view_width_);
+  ASSERT(y >= 0 && y < view_height_);
+                                       
+  int pixel_bytes = transparent_ ? 4 : 3;
+  int y_flipped = view_height_ - y;
+  int index = (view_width_ * y_flipped * pixel_bytes) + (x * pixel_bytes);
+
+  r = view_buffer_[index];
+  g = view_buffer_[index+1];
+  b = view_buffer_[index+2];
+  if (transparent_)
+    a = view_buffer_[index+3];
+
+  return true;
 }
 
 void ClientOSRenderer::SetBufferSize(int width, int height, bool view) {

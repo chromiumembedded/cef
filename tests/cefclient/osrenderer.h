@@ -39,6 +39,13 @@ class ClientOSRenderer {
   void SetSpin(float spinX, float spinY);
   void IncrementSpin(float spinDX, float spinDY);
 
+  // Retrieve the pixel value from the view buffer. |x| and |y| are relative to
+  // the upper-left corner of the view.
+  bool GetPixelValue(int x, int y, unsigned char& r, unsigned char& g,
+                     unsigned char& b, unsigned char& a);
+
+  bool IsTransparent() { return transparent_; }
+
  private:
   void SetBufferSize(int width, int height, bool view);
   void SetRGBA(const void* src, int width, int height, bool view);
