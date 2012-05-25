@@ -110,8 +110,8 @@ void ClientOSRenderer::Initialize() {
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (transparent_) {
-    // Alpha blending style.
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Alpha blending style. Texture values have premultiplied alpha.
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   initialized_ = true;
