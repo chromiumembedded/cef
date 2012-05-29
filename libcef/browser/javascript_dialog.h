@@ -58,6 +58,7 @@ class CefJavaScriptDialog {
   static bool UninstallMessageHook();
   static LRESULT CALLBACK GetMsgProc(int code, WPARAM wparam, LPARAM lparam);
   static HHOOK msg_hook_;
+  static int msg_hook_user_count_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialog);

@@ -16,6 +16,7 @@
 class CefJavaScriptDialog;
 
 HHOOK CefJavaScriptDialog::msg_hook_ = NULL;
+int CefJavaScriptDialog::msg_hook_user_count_ = 0;
 
 INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog, UINT message,
                                                  WPARAM wparam,
@@ -192,8 +193,12 @@ LRESULT CALLBACK CefJavaScriptDialog::GetMsgProc(int code, WPARAM wparam,
 
 // static
 bool CefJavaScriptDialog::InstallMessageHook() {
+  msg_hook_user_count_++;
+
   // Make sure we only call this once.
-  DCHECK(msg_hook_ == NULL);
+  if (msg_hook_ != NULL)
+    return true;
+
   msg_hook_ = ::SetWindowsHookEx(WH_GETMESSAGE,
                                  &CefJavaScriptDialog::GetMsgProc,
                                  NULL,
@@ -204,6 +209,12 @@ bool CefJavaScriptDialog::InstallMessageHook() {
 
 // static
 bool CefJavaScriptDialog::UninstallMessageHook() {
+  msg_hook_user_count_--;
+  DCHECK_GE(msg_hook_user_count_, 0);
+
+  if (msg_hook_user_count_ > 0)
+    return true;
+
   DCHECK(msg_hook_ != NULL);
   BOOL result = ::UnhookWindowsHookEx(msg_hook_);
   DCHECK(result);
