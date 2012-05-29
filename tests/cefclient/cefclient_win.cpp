@@ -442,7 +442,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       return 0;
 
     case WM_SIZE:
-      if (g_handler.get() && g_handler->GetBrowser()) {
+      // Minimizing resizes the window to 0x0 which causes our layout to go all
+      // screwy, so we just ignore it.
+      if (wParam != SIZE_MINIMIZED && g_handler.get() &&
+          g_handler->GetBrowser()) {
         CefWindowHandle hwnd =
             g_handler->GetBrowser()->GetHost()->GetWindowHandle();
         if (hwnd) {

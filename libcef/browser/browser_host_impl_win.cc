@@ -118,7 +118,9 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SIZE:
-    if (browser) {
+    // Minimizing resizes the window to 0x0 which causes our layout to go all
+    // screwy, so we just ignore it.
+    if (wParam != SIZE_MINIMIZED && browser) {
       // resize the web view window to the full size of the browser window
       RECT rc;
       GetClientRect(hwnd, &rc);
