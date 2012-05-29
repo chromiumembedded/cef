@@ -15,12 +15,45 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_sync_channel.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
 
+
+namespace {
+
+// Stub implementation of WebKit::WebPrerenderingSupport.
+class CefPrerenderingSupport : public WebKit::WebPrerenderingSupport {
+ public:
+  virtual ~CefPrerenderingSupport() {}
+
+ private:
+  virtual void add(const WebKit::WebPrerender& prerender) OVERRIDE {}
+  virtual void cancel(const WebKit::WebPrerender& prerender) OVERRIDE {}
+  virtual void abandon(const WebKit::WebPrerender& prerender) OVERRIDE {}
+};
+
+// Stub implementation of WebKit::WebPrerendererClient.
+class CefPrerendererClient : public content::RenderViewObserver,
+                             public WebKit::WebPrerendererClient {
+ public:
+  explicit CefPrerendererClient(content::RenderView* render_view)
+      : content::RenderViewObserver(render_view) {
+    DCHECK(render_view);
+    render_view->GetWebView()->setPrerendererClient(this);
+  }
+
+ private:
+  virtual ~CefPrerendererClient() {}
+
+  virtual void willAddPrerender(WebKit::WebPrerender* prerender) OVERRIDE {}
+};
+
+}  // namespace
 
 struct CefContentRendererClient::SchemeInfo {
   std::string scheme_name;
@@ -112,6 +145,8 @@ void CefContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
 
+  WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
+
   thread->Send(new CefProcessHostMsg_RenderThreadStarted);
 
   // Notify the render process handler.
@@ -128,6 +163,8 @@ void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   CefRefPtr<CefBrowserImpl> browser = new CefBrowserImpl(render_view);
   browsers_.insert(std::make_pair(render_view, browser));
+
+  new CefPrerendererClient(render_view);
 }
 
 void CefContentRendererClient::SetNumberOfViews(int number_of_views) {
