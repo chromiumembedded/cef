@@ -1019,6 +1019,9 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
       browser_(browser),
       page_id_(-1),
       last_page_id_updated_(-1),
+#if defined(OS_WIN)
+      destroy_on_drag_end_(false),
+#endif
       smart_insert_delete_enabled_(true),
 #if defined(OS_WIN)
       select_trailing_whitespace_enabled_(true),

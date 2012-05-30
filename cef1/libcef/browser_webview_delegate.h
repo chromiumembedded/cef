@@ -251,7 +251,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   BrowserDragDelegate* drag_delegate() { return drag_delegate_.get(); }
   WebDropTarget* drop_target() { return drop_target_.get(); }
-#endif
+
+  void set_destroy_on_drag_end(bool val) { destroy_on_drag_end_ = val; }
+#endif  // defined(OS_WIN)
 
   void set_pending_extra_data(BrowserExtraData* extra_data) {
     pending_extra_data_.reset(extra_data);
@@ -355,6 +357,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 #if defined(OS_WIN)
   // Classes needed by drag and drop.
   scoped_refptr<BrowserDragDelegate> drag_delegate_;
+  bool destroy_on_drag_end_;
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   scoped_refptr<WebDropTarget> drop_target_;
