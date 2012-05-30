@@ -533,6 +533,9 @@ void BrowserWebViewDelegate::EndDragging() {
   if (browser_->UIT_GetWebView())
     browser_->UIT_GetWebView()->dragSourceSystemDragEnded();
   drag_delegate_ = NULL;
+
+  if (destroy_on_drag_end_)
+    browser_->UIT_DestroyBrowser();
 }
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
