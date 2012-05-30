@@ -89,8 +89,15 @@ LRESULT CALLBACK CefBrowserImpl::WndProc(HWND hwnd, UINT message,
       // Clear the user data pointer.
       ui::SetWindowUserData(hwnd, NULL);
 
-      // Destroy the browser.
-      browser->UIT_DestroyBrowser();
+      BrowserWebViewDelegate* delegate = browser->UIT_GetWebViewDelegate();
+      if (delegate && delegate->drag_delegate()) {
+        // Don't destroy the browser while a drag operation is pending. Instead,
+        // destroy the browser once the drag operation completes.
+        delegate->set_destroy_on_drag_end(true);
+      } else {
+        // Destroy the browser.
+        browser->UIT_DestroyBrowser();
+      }
     }
     return 0;
 

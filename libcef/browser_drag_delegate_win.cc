@@ -127,7 +127,9 @@ void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
   // If it is not drag-out, do the drag-and-drop in the current UI thread.
   if (drop_data.download_metadata.empty()) {
     DoDragging(drop_data, ops, page_url, page_encoding, image, image_offset);
-    EndDragging(false);
+    CefThread::PostTask(
+        CefThread::UI, FROM_HERE,
+        NewRunnableMethod(this, &BrowserDragDelegate::EndDragging, false));
     return;
   }
 

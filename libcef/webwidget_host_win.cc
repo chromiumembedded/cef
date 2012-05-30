@@ -358,7 +358,6 @@ WebWidgetHost::~WebWidgetHost() {
 
   if (view_) {
     ui::SetWindowUserData(view_, 0);
-    ui::SetWindowProc(view_, DefWindowProc);
     view_ = NULL;
   }
 }
