@@ -28,6 +28,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPermissionClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
@@ -60,6 +61,7 @@ class FilePath;
 class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
     public WebKit::WebPermissionClient,
+    public WebKit::WebPrerendererClient,
     public webkit::npapi::WebPluginPageDelegate,
     public base::SupportsWeakPtr<BrowserWebViewDelegate> {
  public:
@@ -217,6 +219,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       WebKit::WebFrame*,
       const WebKit::WebString& extensionName,
       int extensionGroup) OVERRIDE;
+
+  // WebKit::WebPrerendererClient
+  virtual void willAddPrerender(WebKit::WebPrerender* prerender) OVERRIDE;
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(

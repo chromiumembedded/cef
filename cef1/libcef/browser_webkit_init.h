@@ -24,6 +24,8 @@
 #include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkitplatformsupport_impl.h"
 
+class BrowserPrerenderingSupport;
+
 class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
  public:
   BrowserWebKitInit();
@@ -108,6 +110,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   BrowserDomStorageSystem dom_storage_system_;
   BrowserWebCookieJarImpl cookie_jar_;
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
+  scoped_ptr<BrowserPrerenderingSupport> prerendering_support_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_WEBKIT_INIT_H_

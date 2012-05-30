@@ -13,6 +13,7 @@
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
 #include "media/base/media.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRuntimeFeatures.h"
@@ -21,6 +22,18 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBKeyPath.h"
 #include "v8/include/v8.h"
 #include "webkit/plugins/npapi/plugin_list.h"
+
+
+// Stub implementation of WebKit::WebPrerenderingSupport.
+class BrowserPrerenderingSupport : public WebKit::WebPrerenderingSupport {
+ public:
+  virtual ~BrowserPrerenderingSupport() {}
+
+ private:
+  virtual void add(const WebKit::WebPrerender& prerender) OVERRIDE {}
+  virtual void cancel(const WebKit::WebPrerender& prerender) OVERRIDE {}
+  virtual void abandon(const WebKit::WebPrerender& prerender) OVERRIDE {}
+};
 
 
 BrowserWebKitInit::BrowserWebKitInit()
@@ -43,6 +56,9 @@ BrowserWebKitInit::BrowserWebKitInit()
   WebKit::WebRuntimeFeatures::enableTouch(false);
   WebKit::WebRuntimeFeatures::enableDeviceMotion(false);
   WebKit::WebRuntimeFeatures::enableDeviceOrientation(false);
+
+  prerendering_support_.reset(new BrowserPrerenderingSupport);
+  WebKit::WebPrerenderingSupport::initialize(prerendering_support_.get());
 
   // Load libraries for media and enable the media player.
   FilePath module_path;

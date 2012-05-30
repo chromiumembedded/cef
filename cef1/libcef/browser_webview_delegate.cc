@@ -509,6 +509,11 @@ bool BrowserWebViewDelegate::allowScriptExtension(
   return allowExtension;
 }
 
+// WebPrerendererClient ------------------------------------------------------
+
+void BrowserWebViewDelegate::willAddPrerender(WebKit::WebPrerender* prerender) {
+}
+
 // WebPluginPageDelegate -----------------------------------------------------
 
 WebKit::WebPlugin* BrowserWebViewDelegate::CreatePluginReplacement(
