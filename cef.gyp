@@ -263,6 +263,9 @@
       ],
       'xcode_settings': {
         'INFOPLIST_FILE': 'tests/unittests/mac/Info.plist',
+        # Necessary to avoid an "install_name_tool: changing install names or
+        # rpaths can't be redone" error.
+        'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
       },
       'include_dirs': [
         '.',
@@ -988,6 +991,9 @@
           ],
           'xcode_settings': {
             'INFOPLIST_FILE': 'tests/cefclient/mac/helper-Info.plist',
+            # Necessary to avoid an "install_name_tool: changing install names or
+            # rpaths can't be redone" error.
+            'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
           },
           'postbuilds': [
             {
@@ -1073,6 +1079,9 @@
           ],
           'xcode_settings': {
             'INFOPLIST_FILE': 'tests/cefclient/mac/helper-Info.plist',
+            # Necessary to avoid an "install_name_tool: changing install names or
+            # rpaths can't be redone" error.
+            'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
           },
           'postbuilds': [
             {
