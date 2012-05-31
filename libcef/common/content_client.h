@@ -38,9 +38,9 @@ class CefContentClient : public content::ContentClient,
   virtual bool CanHandleWhileSwappedOut(const IPC::Message& msg) OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
-  virtual base::StringPiece GetDataResource(int resource_id) const OVERRIDE;
-  virtual base::StringPiece GetImageResource(int resource_id,
-                                             float scale_factor) const OVERRIDE;
+  virtual base::StringPiece GetDataResource(
+      int resource_id,
+      ui::ScaleFactor scale_factor) const OVERRIDE;
 
 #if defined(OS_WIN)
   virtual bool SandboxPlugin(CommandLine* command_line,
@@ -61,8 +61,9 @@ class CefContentClient : public content::ContentClient,
 
  private:
   // ui::ResourceBundle::Delegate methods.
-  virtual FilePath GetPathForResourcePack(const FilePath& pack_path,
-                                          float scale_factor) OVERRIDE;
+  virtual FilePath GetPathForResourcePack(
+      const FilePath& pack_path,
+      ui::ScaleFactor scale_factor) OVERRIDE;
   virtual FilePath GetPathForLocalePack(const FilePath& pack_path,
                                         const std::string& locale) OVERRIDE;
   virtual gfx::Image GetImageNamed(int resource_id) OVERRIDE;
@@ -70,8 +71,10 @@ class CefContentClient : public content::ContentClient,
       int resource_id,
       ui::ResourceBundle::ImageRTL rtl) OVERRIDE;
   virtual base::RefCountedStaticMemory* LoadDataResourceBytes(
-      int resource_id) OVERRIDE;
+      int resource_id,
+      ui::ScaleFactor scale_factor) OVERRIDE;
   virtual bool GetRawDataResource(int resource_id,
+                                  ui::ScaleFactor scale_factor,
                                   base::StringPiece* value) OVERRIDE;
   virtual bool GetLocalizedString(int message_id, string16* value) OVERRIDE;
   virtual scoped_ptr<gfx::Font> GetFont(

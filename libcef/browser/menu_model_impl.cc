@@ -76,8 +76,16 @@ class CefSimpleMenuModel : public ui::MenuModel {
     bool alt_pressed = false;
     if (impl_->GetAcceleratorAt(index, key_code, shift_pressed, ctrl_pressed,
                                 alt_pressed)) {
+      int modifiers = 0;
+      if (shift_pressed)
+        modifiers |= ui::EF_SHIFT_DOWN;
+      if (ctrl_pressed)
+        modifiers |= ui::EF_CONTROL_DOWN;
+      if (alt_pressed)
+        modifiers |= ui::EF_ALT_DOWN;
+
       *accelerator = ui::Accelerator(static_cast<ui::KeyboardCode>(key_code),
-                                     shift_pressed, ctrl_pressed, alt_pressed);
+                                     modifiers);
       return true;
     }
     return false;
@@ -91,7 +99,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetGroupIdAt(index);
   }
 
-  virtual bool GetIconAt(int index, SkBitmap* icon) OVERRIDE {
+  virtual bool GetIconAt(int index, gfx::ImageSkia* icon) OVERRIDE {
     return false;
   }
 

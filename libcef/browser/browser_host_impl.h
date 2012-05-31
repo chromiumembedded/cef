@@ -170,11 +170,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Open the specified text in the default text editor.
   bool ViewText(const std::string& text);
 
+  // Returns true if this browser matches the specified ID values. If
+  // |render_view_id| is 0 any browser with the specified |render_process_id|
+  // will match.
+  bool HasIDMatch(int render_process_id, int render_view_id);
+
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
-  int render_process_id() const { return render_process_id_; }
-  int render_view_id() const { return render_view_id_; }
   int unique_id() const { return unique_id_; }
 
   // Returns the URL that is currently loading (or loaded) in the main frame.
@@ -213,6 +216,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    const gfx::Size& pref_size) OVERRIDE;
 
   // content::WebContentsObserver methods.
+  virtual void RenderViewCreated(content::RenderViewHost* render_view_host)
+      OVERRIDE;
   virtual void RenderViewReady() OVERRIDE;
   virtual void RenderViewGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
@@ -313,7 +318,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Unique ids used for routing communication to/from the renderer. We keep a
   // copy of them as member variables so that we can locate matching browsers in
-  // a thread safe manner.
+  // a thread safe manner. |render_process_id_| may change and access must be
+  // protected by |state_lock_|.
   int render_process_id_;
   int render_view_id_;
 

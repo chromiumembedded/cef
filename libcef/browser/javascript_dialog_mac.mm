@@ -88,7 +88,7 @@
 
 CefJavaScriptDialog::CefJavaScriptDialog(
     CefJavaScriptDialogCreator* creator,
-    ui::JavascriptMessageType javascript_message_type,
+    content::JavaScriptMessageType message_type,
     const string16& display_url,
     const string16& message_text,
     const string16& default_prompt_text,
@@ -96,9 +96,9 @@ CefJavaScriptDialog::CefJavaScriptDialog(
     : creator_(creator),
       callback_(callback) {
   bool text_field =
-      javascript_message_type == ui::JAVASCRIPT_MESSAGE_TYPE_PROMPT;
+      message_type == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT;
   bool one_button =
-      javascript_message_type == ui::JAVASCRIPT_MESSAGE_TYPE_ALERT;
+      message_type == content::JAVASCRIPT_MESSAGE_TYPE_ALERT;
 
   helper_ =
       [[CefJavaScriptDialogHelper alloc] initHelperWithCreator:creator
@@ -115,14 +115,14 @@ CefJavaScriptDialog::CefJavaScriptDialog(
   [alert setInformativeText:base::SysUTF16ToNSString(message_text)];
 
   string16 label;
-  switch (javascript_message_type) {
-    case ui::JAVASCRIPT_MESSAGE_TYPE_ALERT:
+  switch (message_type) {
+    case content::JAVASCRIPT_MESSAGE_TYPE_ALERT:
       label = ASCIIToUTF16("JavaScript Alert");
       break;
-    case ui::JAVASCRIPT_MESSAGE_TYPE_PROMPT:
+    case content::JAVASCRIPT_MESSAGE_TYPE_PROMPT:
       label = ASCIIToUTF16("JavaScript Prompt");
       break;
-    case ui::JAVASCRIPT_MESSAGE_TYPE_CONFIRM:
+    case content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM:
       label = ASCIIToUTF16("JavaScript Confirm");
       break;
   }

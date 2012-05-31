@@ -78,7 +78,7 @@ void CefJavaScriptDialogCreator::RunJavaScriptDialog(
     content::WebContents* web_contents,
     const GURL& origin_url,
     const std::string& accept_lang,
-    ui::JavascriptMessageType javascript_message_type,
+    content::JavaScriptMessageType message_type,
     const string16& message_text,
     const string16& default_prompt_text,
     const DialogClosedCallback& callback,
@@ -95,7 +95,7 @@ void CefJavaScriptDialogCreator::RunJavaScriptDialog(
       // Execute the user callback.
       bool handled = handler->OnJSDialog(browser_, origin_url.spec(),
           accept_lang,
-          static_cast<cef_jsdialog_type_t>(javascript_message_type),
+          static_cast<cef_jsdialog_type_t>(message_type),
           message_text, default_prompt_text, callbackPtr.get(),
           *did_suppress_message);
       if (handled)
@@ -119,7 +119,7 @@ void CefJavaScriptDialogCreator::RunJavaScriptDialog(
   string16 display_url = net::FormatUrl(origin_url, accept_lang);
 
   dialog_.reset(new CefJavaScriptDialog(this,
-                                        javascript_message_type,
+                                        message_type,
                                         display_url,
                                         message_text,
                                         default_prompt_text,
@@ -165,7 +165,7 @@ void CefJavaScriptDialogCreator::RunBeforeUnloadDialog(
       ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
 
   dialog_.reset(new CefJavaScriptDialog(this,
-                                        ui::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
+                                        content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
                                         string16(),  // display_url
                                         new_message_text,
                                         string16(),  // default_prompt_text

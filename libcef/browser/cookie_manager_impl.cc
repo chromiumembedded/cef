@@ -233,7 +233,8 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       base::ThreadRestrictions::ScopedAllowIO allow_io;
       if (file_util::CreateDirectory(new_path)) {
         const FilePath& cookie_path = new_path.AppendASCII("Cookies");
-        persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
+        persistent_store =
+            new SQLitePersistentCookieStore(cookie_path, false, NULL);
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();

@@ -110,9 +110,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
       // Destroy the browser.
       browser->DestroyBrowser();
 
-      // Release the reference added in PlatformCreateWindow(). There should be
-      // no other references to the browser.
-      DCHECK_EQ(browser->GetRefCt(), 1);
+      // Release the reference added in PlatformCreateWindow().
       browser->Release();
     }
     return 0;

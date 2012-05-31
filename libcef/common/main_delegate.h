@@ -36,21 +36,13 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
   virtual void PreSandboxStartup() OVERRIDE;
-  virtual void SandboxInitialized(const std::string& process_type) OVERRIDE;
   virtual int RunProcess(
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) OVERRIDE;
   virtual void ProcessExiting(const std::string& process_type) OVERRIDE;
-#if defined(OS_MACOSX)
-  virtual bool ProcessRegistersWithSystemProcess(
-      const std::string& process_type) OVERRIDE;
-  virtual bool ShouldSendMachPort(const std::string& process_type) OVERRIDE;
-  virtual bool DelaySandboxInitialization(
-      const std::string& process_type) OVERRIDE;
-#elif defined(OS_POSIX)
-  virtual content::ZygoteForkDelegate* ZygoteStarting() OVERRIDE;
+#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_ANDROID)
   virtual void ZygoteForked() OVERRIDE;
-#endif  // OS_MACOSX
+#endif
 
   // Shut down the browser runner.
   void ShutdownBrowser();

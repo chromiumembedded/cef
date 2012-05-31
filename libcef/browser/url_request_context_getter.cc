@@ -302,7 +302,8 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
     base::ThreadRestrictions::ScopedAllowIO allow_io;
     if (file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
+      persistent_store =
+          new SQLitePersistentCookieStore(cookie_path, false, NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }
@@ -321,5 +322,6 @@ void CefURLRequestContextGetter::CreateProxyConfigService() {
     return;
 
   proxy_config_service_.reset(
-      net::ProxyService::CreateSystemProxyConfigService(io_loop_, file_loop_));
+      net::ProxyService::CreateSystemProxyConfigService(
+          io_loop_->message_loop_proxy(), file_loop_));
 }

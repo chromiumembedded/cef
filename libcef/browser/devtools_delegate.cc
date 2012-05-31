@@ -20,7 +20,9 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "grit/cef_resources.h"
+#include "net/base/tcp_listen_socket.h"
 #include "net/url_request/url_request_context_getter.h"
+#include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace {
@@ -95,8 +97,7 @@ CefDevToolsDelegate::CefDevToolsDelegate(
     int port,
     net::URLRequestContextGetter* context_getter) {
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
-      "127.0.0.1",
-      port,
+      new net::TCPListenSocketFactory("127.0.0.1", port),
       "",
       context_getter,
       this);
@@ -115,7 +116,7 @@ void CefDevToolsDelegate::Stop() {
 
 std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
   return content::GetContentClient()->GetDataResource(
-      IDR_CEF_DEVTOOLS_DISCOVERY_PAGE).as_string();
+      IDR_CEF_DEVTOOLS_DISCOVERY_PAGE, ui::SCALE_FACTOR_NONE).as_string();
 }
 
 bool CefDevToolsDelegate::BundlesFrontendResources() {

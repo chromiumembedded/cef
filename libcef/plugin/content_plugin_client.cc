@@ -6,7 +6,3 @@
 
 CefContentPluginClient::~CefContentPluginClient() {
 }
-
-void CefContentPluginClient::PluginProcessStarted(
-    const string16& plugin_name) {
-}

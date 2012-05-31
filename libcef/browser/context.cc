@@ -322,11 +322,8 @@ CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByRoutingID(
 
   BrowserList::const_iterator it = browserlist_.begin();
   for (; it != browserlist_.end(); ++it) {
-    if (it->get()->render_process_id() == render_process_id &&
-        (render_view_id == 0 ||
-         it->get()->render_view_id() == render_view_id)) {
+    if (it->get()->HasIDMatch(render_process_id, render_view_id))
       return it->get();
-    }
   }
 
   return NULL;

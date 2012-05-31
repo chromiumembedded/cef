@@ -638,13 +638,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
               '<(grit_out_dir)/cef_resources.pak',
             ],
-            'conditions': [
-              ['OS != "mac"', {
-                'pak_inputs': [
-                  '<(SHARED_INTERMEDIATE_DIR)/ui/native_theme/native_theme_resources.pak',
-                ]
-              }],
-            ],
           },
           'inputs': [
             '<(repack_path)',
@@ -668,13 +661,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_chromium_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_resources.h',
               '<(grit_out_dir)/grit/cef_resources.h',
-            ],
-            'conditions': [
-              ['OS != "mac"', {
-                'header_inputs': [
-                  '<(SHARED_INTERMEDIATE_DIR)/ui/native_theme/grit/native_theme_resources.h',
-                ]
-              }],
             ],
           },
           'inputs': [
@@ -706,13 +692,6 @@
           'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
                      '<@(header_inputs)'],
         },
-      ],
-      'conditions': [
-        ['OS != "mac"', {
-          'dependencies': [
-            '<(DEPTH)/ui/ui.gyp:native_theme_resources',
-          ],
-        }],
       ],
     },
     {
@@ -882,6 +861,8 @@
         'libcef/renderer/webkit_glue.h',
         'libcef/utility/content_utility_client.cc',
         'libcef/utility/content_utility_client.h',
+        '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.cc',
+        '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.h',
         '<(DEPTH)/chrome/browser/net/sqlite_persistent_cookie_store.cc',
         '<(DEPTH)/chrome/browser/net/sqlite_persistent_cookie_store.h',
       ],

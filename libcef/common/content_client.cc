@@ -102,18 +102,16 @@ string16 CefContentClient::GetLocalizedString(int message_id) const {
   return value;
 }
 
-base::StringPiece CefContentClient::GetDataResource(int resource_id) const {
+base::StringPiece CefContentClient::GetDataResource(
+    int resource_id,
+    ui::ScaleFactor scale_factor) const {
   base::StringPiece value =
-      ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
+      ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id,
+                                                             scale_factor);
   if (value.empty())
     LOG(ERROR) << "No data resource available for id " << resource_id;
 
   return value;
-}
-
-base::StringPiece CefContentClient::GetImageResource(int resource_id,
-                                                     float scale_factor) const {
-  return GetDataResource(resource_id);
 }
 
 #if defined(OS_WIN)
@@ -131,8 +129,9 @@ bool CefContentClient::GetSandboxProfileForSandboxType(
 }
 #endif
 
-FilePath CefContentClient::GetPathForResourcePack(const FilePath& pack_path,
-                                                  float scale_factor) {
+FilePath CefContentClient::GetPathForResourcePack(
+    const FilePath& pack_path,
+    ui::ScaleFactor scale_factor) {
   // Only allow the cef pack file to load.
   if (!pack_loading_disabled_ && allow_pack_file_load_)
     return pack_path;
@@ -157,11 +156,13 @@ gfx::Image CefContentClient::GetNativeImageNamed(
 }
 
 base::RefCountedStaticMemory* CefContentClient::LoadDataResourceBytes(
-    int resource_id) {
+    int resource_id,
+    ui::ScaleFactor scale_factor) {
   return NULL;
 }
 
 bool CefContentClient::GetRawDataResource(int resource_id,
+                                          ui::ScaleFactor scale_factor,
                                           base::StringPiece* value) {
   if (application_.get()) {
     CefRefPtr<CefResourceBundleHandler> handler =

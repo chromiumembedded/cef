@@ -15,10 +15,6 @@ namespace base {
 class Thread;
 }
 
-namespace ui {
-class Clipboard;
-}
-
 namespace content {
 struct MainFunctionParams;
 }
@@ -43,7 +39,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   virtual void PostMainMessageLoopRun() OVERRIDE;
   virtual void PostDestroyThreads() OVERRIDE {}
 
-  ui::Clipboard* GetClipboard();
   CefBrowserContext* browser_context() const { return browser_context_.get(); }
   CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_; }
 
@@ -54,7 +49,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<CefBrowserContext> browser_context_;
 
   scoped_ptr<MessageLoop> message_loop_;
-  scoped_ptr<ui::Clipboard> clipboard_;
   CefDevToolsDelegate* devtools_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);

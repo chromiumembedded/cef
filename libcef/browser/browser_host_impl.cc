@@ -21,13 +21,13 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
-#include "content/browser/renderer_host/resource_request_info_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/resource_request_info.h"
 
 namespace {
 
@@ -183,13 +183,11 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
   int render_process_id = -1;
   int render_view_id = -1;
 
-  const content::ResourceRequestInfoImpl* info =
-      content::ResourceRequestInfoImpl::ForRequest(request);
-  if (info)
-    info->GetAssociatedRenderView(&render_process_id, &render_view_id);
-
-  if (render_process_id == -1 || render_view_id == -1)
+  if (!content::ResourceRequestInfo::GetRenderViewForRequest(request,
+                                                             &render_process_id,
+                                                             &render_view_id)) {
     return NULL;
+  }
 
   return GetBrowserByRoutingID(render_process_id, render_view_id);
 }
@@ -536,8 +534,8 @@ net::URLRequestContextGetter* CefBrowserHostImpl::GetRequestContext() {
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
     net::URLRequest* request) {
   CEF_REQUIRE_IOT();
-  const content::ResourceRequestInfoImpl* info =
-      content::ResourceRequestInfoImpl::ForRequest(request);
+  const content::ResourceRequestInfo* info =
+      content::ResourceRequestInfo::ForRequest(request);
   if (!info)
     return NULL;
   return GetOrCreateFrame(info->GetFrameID(), info->GetParentFrameID(),
@@ -731,6 +729,13 @@ bool CefBrowserHostImpl::ViewText(const std::string& text) {
   return PlatformViewText(text);
 }
 
+bool CefBrowserHostImpl::HasIDMatch(int render_process_id, int render_view_id) {
+  base::AutoLock lock_scope(state_lock_);
+  if (render_process_id != render_process_id_)
+    return false;
+  return (render_view_id == 0 || render_view_id == render_view_id_);
+}
+
 GURL CefBrowserHostImpl::GetLoadingURL() {
   base::AutoLock lock_scope(state_lock_);
   return loading_url_;
@@ -882,6 +887,12 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
 
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------
+
+void CefBrowserHostImpl::RenderViewCreated(
+    content::RenderViewHost* render_view_host) {
+  base::AutoLock lock_scope(state_lock_);
+  render_process_id_ = render_view_host->GetProcess()->GetID();
+}
 
 void CefBrowserHostImpl::RenderViewReady() {
   // Send the queued messages.

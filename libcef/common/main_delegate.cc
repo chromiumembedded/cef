@@ -23,7 +23,6 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "ui/base/resource/resource_handle.h"
 #include "ui/base/ui_base_paths.h"
 
 #if defined(OS_WIN)
@@ -243,9 +242,6 @@ void CefMainDelegate::PreSandboxStartup() {
   InitializeResourceBundle();
 }
 
-void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
-}
-
 int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
@@ -283,33 +279,14 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
   ResourceBundle::CleanupSharedInstance();
 }
 
-#if defined(OS_MACOSX)
-bool CefMainDelegate::ProcessRegistersWithSystemProcess(
-    const std::string& process_type) {
-  return false;
-}
-
-bool CefMainDelegate::ShouldSendMachPort(const std::string& process_type) {
-  return false;
-}
-
-bool CefMainDelegate::DelaySandboxInitialization(
-    const std::string& process_type) {
-  return false;
-}
-
-#elif defined(OS_POSIX)
-content::ZygoteForkDelegate* CefMainDelegate::ZygoteStarting() {
-  return NULL;
-}
-
+#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_ANDROID)
 void CefMainDelegate::ZygoteForked() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line.GetSwitchValueASCII(switches::kProcessType);
   InitializeContentClient(process_type);
 }
-#endif  // OS_MACOSX
+#endif
 
 void CefMainDelegate::ShutdownBrowser() {
   if (browser_runner_.get()) {
@@ -379,7 +356,7 @@ void CefMainDelegate::InitializeResourceBundle() {
     if (file_util::PathExists(pak_file)) {
       content_client_.set_allow_pack_file_load(true);
       ResourceBundle::GetSharedInstance().AddDataPack(
-          pak_file, ui::ResourceHandle::kScaleFactor100x);
+          pak_file, ui::SCALE_FACTOR_NONE);
       content_client_.set_allow_pack_file_load(false);
     } else {
       NOTREACHED() << "Could not load cef.pak";

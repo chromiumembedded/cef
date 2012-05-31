@@ -12,7 +12,6 @@
 class CefContentPluginClient : public content::ContentPluginClient {
  public:
   virtual ~CefContentPluginClient();
-  virtual void PluginProcessStarted(const string16& plugin_name) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_PLUGIN_CONTENT_PLUGIN_CLIENT_H_

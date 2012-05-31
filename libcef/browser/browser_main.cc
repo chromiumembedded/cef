@@ -25,13 +25,13 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/net_module.h"
-#include "ui/base/clipboard/clipboard.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace {
 
 base::StringPiece ResourceProvider(int resource_id) {
-  return content::GetContentClient()->GetDataResource(resource_id);
+  return content::GetContentClient()->GetDataResource(resource_id,
+                                                      ui::SCALE_FACTOR_NONE);
 }
 
 }  // namespace
@@ -91,10 +91,4 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 
 bool CefBrowserMainParts::MainMessageLoopRun(int* result_code) {
   return false;
-}
-
-ui::Clipboard* CefBrowserMainParts::GetClipboard() {
-  if (!clipboard_.get())
-    clipboard_.reset(new ui::Clipboard());
-  return clipboard_.get();
 }

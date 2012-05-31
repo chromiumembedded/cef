@@ -120,7 +120,7 @@ class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory {
       if (base::strcasecmp(kDevtoolsResources[i].name, path) == 0) {
         base::StringPiece piece =
             content::GetContentClient()->GetDataResource(
-                kDevtoolsResources[i].value);
+                kDevtoolsResources[i].value, ui::SCALE_FACTOR_NONE);
         if (!piece.empty()) {
           size = piece.size();
           return CefStreamReader::CreateForData(const_cast<char*>(piece.data()),

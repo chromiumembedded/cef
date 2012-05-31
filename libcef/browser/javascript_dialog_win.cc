@@ -18,7 +18,8 @@ class CefJavaScriptDialog;
 HHOOK CefJavaScriptDialog::msg_hook_ = NULL;
 int CefJavaScriptDialog::msg_hook_user_count_ = 0;
 
-INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog, UINT message,
+INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
+                                                 UINT message,
                                                  WPARAM wparam,
                                                  LPARAM lparam) {
   switch (message) {
@@ -28,7 +29,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog, UINT message,
           reinterpret_cast<CefJavaScriptDialog*>(lparam);
       owner->dialog_win_ = dialog;
       SetDlgItemText(dialog, IDC_DIALOGTEXT, owner->message_text_.c_str());
-      if (owner->message_type_ == ui::JAVASCRIPT_MESSAGE_TYPE_PROMPT)
+      if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT)
         SetDlgItemText(dialog, IDC_PROMPTEDIT,
                        owner->default_prompt_text_.c_str());
       break;
@@ -57,7 +58,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog, UINT message,
         case IDOK:
           finish = true;
           result = true;
-          if (owner->message_type_ == ui::JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
+          if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
             size_t length =
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
             GetDlgItemText(dialog, IDC_PROMPTEDIT,
@@ -84,7 +85,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog, UINT message,
 
 CefJavaScriptDialog::CefJavaScriptDialog(
     CefJavaScriptDialogCreator* creator,
-    ui::JavascriptMessageType javascript_message_type,
+    content::JavaScriptMessageType message_type,
     const string16& display_url,
     const string16& message_text,
     const string16& default_prompt_text,
@@ -93,13 +94,13 @@ CefJavaScriptDialog::CefJavaScriptDialog(
       callback_(callback),
       message_text_(message_text),
       default_prompt_text_(default_prompt_text),
-      message_type_(javascript_message_type) {
+      message_type_(message_type) {
   InstallMessageHook();
 
   int dialog_type;
-  if (javascript_message_type == ui::JAVASCRIPT_MESSAGE_TYPE_ALERT)
+  if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_ALERT)
     dialog_type = IDD_ALERT;
-  else if (javascript_message_type == ui::JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
+  else if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
     dialog_type = IDD_CONFIRM;
   else  // JAVASCRIPT_MESSAGE_TYPE_PROMPT
     dialog_type = IDD_PROMPT;

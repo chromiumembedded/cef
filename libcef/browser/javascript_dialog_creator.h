@@ -26,7 +26,7 @@ class CefJavaScriptDialogCreator : public content::JavaScriptDialogCreator {
       content::WebContents* web_contents,
       const GURL& origin_url,
       const std::string& accept_lang,
-      ui::JavascriptMessageType javascript_message_type,
+      content::JavaScriptMessageType message_type,
       const string16& message_text,
       const string16& default_prompt_text,
       const DialogClosedCallback& callback,

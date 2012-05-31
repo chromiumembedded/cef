@@ -23,7 +23,7 @@ class CefJavaScriptDialog {
  public:
   CefJavaScriptDialog(
       CefJavaScriptDialogCreator* creator,
-      ui::JavascriptMessageType javascript_message_type,
+      content::JavaScriptMessageType message_type,
       const string16& display_url,
       const string16& message_text,
       const string16& default_prompt_text,
@@ -43,7 +43,7 @@ class CefJavaScriptDialog {
 #if defined(OS_MACOSX)
   CefJavaScriptDialogHelper* helper_;  // owned
 #elif defined(OS_WIN)
-  ui::JavascriptMessageType message_type_;
+  content::JavaScriptMessageType message_type_;
   HWND dialog_win_;
   HWND parent_win_;
   string16 message_text_;
