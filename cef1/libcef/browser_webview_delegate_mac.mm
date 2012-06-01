@@ -401,10 +401,17 @@ void BrowserWebViewDelegate::startDragging(
     ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
   }
   NSPoint offset = NSPointFromCGPoint(gfx::Point(image_offset).ToCGPoint());
+
+  // Keep a reference to the NSView so that it won't be destroyed until after
+  // the drag operation has completed.
+  [view retain];
+
   [view startDragWithDropData:drop_data
             dragOperationMask:static_cast<NSDragOperation>(mask)
                         image:ns_image
                        offset:offset];
+
+  [view release];
 }
 
 void BrowserWebViewDelegate::runModal() {
