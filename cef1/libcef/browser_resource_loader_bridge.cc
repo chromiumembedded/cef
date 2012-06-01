@@ -439,7 +439,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         // Transfer request headers
         CefRequest::HeaderMap headerMap;
         HttpHeaderUtils::ParseHeaders(params->headers, headerMap);
-        headerMap.insert(std::make_pair("Referrer", params->referrer.spec()));
+        headerMap.insert(std::make_pair("Referer", params->referrer.spec()));
         requestimpl->SetHeaderMap(headerMap);
 
         // Transfer post data, if any
@@ -473,7 +473,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           // Observe headers from request.
           request->GetHeaderMap(headerMap);
           CefString referrerStr;
-          referrerStr.FromASCII("Referrer");
+          referrerStr.FromASCII("Referer");
           CefRequest::HeaderMap::iterator referrer =
               headerMap.find(referrerStr);
           if (referrer == headerMap.end()) {
