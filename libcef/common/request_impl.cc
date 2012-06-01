@@ -138,7 +138,7 @@ void CefRequestImpl::Get(net::URLRequest* request) {
   }
 
   CefString referrerStr;
-  referrerStr.FromASCII("Referrer");
+  referrerStr.FromASCII(net::HttpRequestHeaders::kReferer);
   HeaderMap headerMap = headermap_;
   HeaderMap::iterator it = headerMap.find(referrerStr);
   if (it == headerMap.end()) {
