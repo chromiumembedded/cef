@@ -63,8 +63,11 @@
 // the same-origin policy. Scripts hosted underneath the fully qualified
 // |source_origin| URL (like http://www.example.com) will be allowed access to
 // all resources hosted on the specified |target_protocol| and |target_domain|.
-// If |allow_target_subdomains| is true access will also be allowed to all
-// subdomains of the target domain.
+// If |target_domain| is non-empty and |allow_target_subdomains| if false only
+// exact domain matches will be allowed. If |target_domain| is non-empty and
+// |allow_target_subdomains| is true sub-domain matches will be allowed. If
+// |target_domain| is empty and |allow_target_subdomains| if true all domains
+// and IP addresses will be allowed.
 //
 // This method cannot be used to bypass the restrictions on local or display
 // isolated schemes. See the comments on CefRegisterCustomScheme for more
@@ -73,7 +76,7 @@
 // This function may be called on any thread. Returns false if |source_origin|
 // is invalid or the whitelist cannot be accessed.
 ///
-/*--cef()--*/
+/*--cef(optional_param=target_domain)--*/
 bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
                                      const CefString& target_protocol,
                                      const CefString& target_domain,
@@ -83,7 +86,7 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
 // Remove an entry from the cross-origin access whitelist. Returns false if
 // |source_origin| is invalid or the whitelist cannot be accessed.
 ///
-/*--cef()--*/
+/*--cef(optional_param=target_domain)--*/
 bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
                                         const CefString& target_protocol,
                                         const CefString& target_domain,
