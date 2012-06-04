@@ -200,10 +200,7 @@ CEF_GLOBAL bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
   DCHECK(!target_protocol.empty());
   if (target_protocol.empty())
     return false;
-  // Verify param: target_domain; type: string_byref_const
-  DCHECK(!target_domain.empty());
-  if (target_domain.empty())
-    return false;
+  // Unverified params: target_domain
 
   // Execute
   int _retval = cef_add_cross_origin_whitelist_entry(
@@ -229,10 +226,7 @@ CEF_GLOBAL bool CefRemoveCrossOriginWhitelistEntry(
   DCHECK(!target_protocol.empty());
   if (target_protocol.empty())
     return false;
-  // Verify param: target_domain; type: string_byref_const
-  DCHECK(!target_domain.empty());
-  if (target_domain.empty())
-    return false;
+  // Unverified params: target_domain
 
   // Execute
   int _retval = cef_remove_cross_origin_whitelist_entry(

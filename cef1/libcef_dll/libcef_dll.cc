@@ -198,10 +198,7 @@ CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
   DCHECK(target_protocol);
   if (!target_protocol)
     return 0;
-  // Verify param: target_domain; type: string_byref_const
-  DCHECK(target_domain);
-  if (!target_domain)
-    return 0;
+  // Unverified params: target_domain
 
   // Execute
   bool _retval = CefAddCrossOriginWhitelistEntry(
@@ -227,10 +224,7 @@ CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
   DCHECK(target_protocol);
   if (!target_protocol)
     return 0;
-  // Verify param: target_domain; type: string_byref_const
-  DCHECK(target_domain);
-  if (!target_domain)
-    return 0;
+  // Unverified params: target_domain
 
   // Execute
   bool _retval = CefRemoveCrossOriginWhitelistEntry(
