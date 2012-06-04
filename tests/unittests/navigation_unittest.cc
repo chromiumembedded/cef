@@ -242,20 +242,26 @@ class FrameNameIdentNavTestHandler : public TestHandler {
     std::string url = request->GetURL();
     if (url == kNav1) {
       frame1_ident_ = frame->GetIdentifier();
-      if (name == "")
+      if (name == "") {
+        frame1_name_ = name;
         got_frame1_name_.yes();
+      }
       if (!parent.get())
         got_frame1_ident_parent_before_.yes();
     } else if (url == kNav2) {
       frame2_ident_ = frame->GetIdentifier();
-      if (name == "nav2")
+      if (name == "nav2") {
+        frame2_name_ = name;
         got_frame2_name_.yes();
+      }
       if (parent.get() && frame1_ident_ == parent->GetIdentifier())
         got_frame2_ident_parent_before_.yes();
     } else if (url == kNav3) {
       frame3_ident_ = frame->GetIdentifier();
-      if (name == "<!--framePath //nav2/<!--frame0-->-->")
+      if (name == "<!--framePath //nav2/<!--frame0-->-->") {
+        frame3_name_ = name;
         got_frame3_name_.yes();
+      }
        if (parent.get() && frame2_ident_ == parent->GetIdentifier())
         got_frame3_ident_parent_before_.yes();
     }
@@ -286,15 +292,35 @@ class FrameNameIdentNavTestHandler : public TestHandler {
         got_frame3_ident_parent_after_.yes();
     }
 
-    if (++browse_ct_ == 3)
+    if (++browse_ct_ == 3) {
+      // Test GetFrameNames
+      std::vector<CefString> names;
+      browser->GetFrameNames(names);
+      EXPECT_EQ((size_t)3, names.size());
+      EXPECT_STREQ(frame1_name_.c_str(), names[0].ToString().c_str());
+      EXPECT_STREQ(frame2_name_.c_str(), names[1].ToString().c_str());
+      EXPECT_STREQ(frame3_name_.c_str(), names[2].ToString().c_str());
+
+      // Test GetFrameIdentifiers
+      std::vector<int64> idents;
+      browser->GetFrameIdentifiers(idents);
+      EXPECT_EQ((size_t)3, idents.size());
+      EXPECT_EQ(frame1_ident_, idents[0]);
+      EXPECT_EQ(frame2_ident_, idents[1]);
+      EXPECT_EQ(frame3_ident_, idents[2]);
+
       DestroyTest();
+    }
   }
 
   int browse_ct_;
 
   int64 frame1_ident_;
+  std::string frame1_name_;
   int64 frame2_ident_;
+  std::string frame2_name_;
   int64 frame3_ident_;
+  std::string frame3_name_;
 
   TrackCallback got_frame1_name_;
   TrackCallback got_frame2_name_;

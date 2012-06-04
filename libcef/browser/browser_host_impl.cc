@@ -434,6 +434,9 @@ size_t CefBrowserHostImpl::GetFrameCount() {
 void CefBrowserHostImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   base::AutoLock lock_scope(state_lock_);
 
+  if (identifiers.size() > 0)
+    identifiers.clear();
+
   FrameMap::const_iterator it = frames_.begin();
   for (; it != frames_.end(); ++it)
     identifiers.push_back(it->first);
@@ -441,6 +444,9 @@ void CefBrowserHostImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
 
 void CefBrowserHostImpl::GetFrameNames(std::vector<CefString>& names) {
   base::AutoLock lock_scope(state_lock_);
+
+  if (names.size() > 0)
+    names.clear();
 
   FrameMap::const_iterator it = frames_.begin();
   for (; it != frames_.end(); ++it)
