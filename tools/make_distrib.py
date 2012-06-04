@@ -279,46 +279,44 @@ if platform == 'windows':
                       'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer build/Debug files
-  if not options.allowpartial or path_exists(os.path.join(cef_dir, 'Debug')):
-    binary_dir = os.path.join(src_dir, 'build/Debug');
-    
+  build_dir = os.path.join(src_dir, 'build/Debug');
+  if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(binary_dir, '*.dll'), dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'cefclient.exe'), dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(binary_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
+    copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
   
     # transfer lib/Debug files
     dst_dir = os.path.join(output_dir, 'lib/Debug')
     make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'lib/libcef.lib'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'lib/libcef.lib'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Debug build files.\n")
 
   # transfer build/Release files
-  if not options.allowpartial or path_exists(os.path.join(cef_dir, 'Release')):
-    binary_dir = os.path.join(src_dir, 'build/Release');
-    
+  build_dir = os.path.join(src_dir, 'build/Release');
+  if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(binary_dir, '*.dll'), dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'cefclient.exe'), dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(binary_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
+    copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
 
     # transfer lib/Release files
     dst_dir = os.path.join(output_dir, 'lib/Release')
     make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(binary_dir, 'lib/libcef.lib'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'lib/libcef.lib'), dst_dir, options.quiet)
 
     if not options.nosymbols:
       # transfer symbols
-      copy_file(os.path.join(binary_dir, 'libcef.pdb'), symbol_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'libcef.pdb'), symbol_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
@@ -412,33 +410,31 @@ elif platform == 'macosx':
   write_file(src_file, data)
 
 elif platform == 'linux':
-  linux_build_dir = os.path.join(cef_dir, os.pardir, 'out')
-
   # create the README.TXT file
   create_readme(os.path.join(script_dir, 'distrib/linux/README.txt'), output_dir, cef_url, \
                 cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
 
-  # transfer build/Debug files
-  if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Debug')):
+  # transfer out/Debug files
+  build_dir = os.path.join(src_dir, 'out/Debug');
+  if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
-    copy_dir(os.path.join(linux_build_dir, 'Debug/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
-    copy_file(os.path.join(linux_build_dir, 'Debug/cefclient'), dst_dir, options.quiet)
-    copy_file(os.path.join(linux_build_dir, 'Debug/cef.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(linux_build_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
-
+    copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
+    copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
   else:
     sys.stderr.write("No Debug build files.\n")
 
-  # transfer build/Release files
-  if not options.allowpartial or path_exists(os.path.join(linux_build_dir, 'Release')):
+  # transfer out/Release files
+  build_dir = os.path.join(src_dir, 'out/Release');
+  if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
-    copy_dir(os.path.join(linux_build_dir, 'Release/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
-    copy_file(os.path.join(linux_build_dir, 'Release/cefclient'), dst_dir, options.quiet)
-    copy_file(os.path.join(linux_build_dir, 'Release/cef.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(linux_build_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
-
+    copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
+    copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
