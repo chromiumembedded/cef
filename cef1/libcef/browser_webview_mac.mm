@@ -12,11 +12,66 @@
 #import "libcef/webwidget_host.h"
 
 #import "base/memory/scoped_ptr.h"
+#import "base/string_util.h"
+#import "base/sys_string_conversions.h"
+#import "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#import "third_party/WebKit/Source/WebKit/chromium/public/mac/WebSubstringUtil.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #import "third_party/mozilla/NSPasteboard+Utils.h"
 #import "third_party/skia/include/core/SkRegion.h"
 #import "ui/gfx/rect.h"
+
+using WebKit::WebColor;
+using WebKit::WebCompositionUnderline;
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebPoint;
+using WebKit::WebRect;
+using WebKit::WebString;
+using WebKit::WebSubstringUtil;
+
+// This code is copied from 
+// content/browser/renderer_host/render_widget_host_mac
+namespace {
+WebColor WebColorFromNSColor(NSColor *color) {
+  CGFloat r, g, b, a;
+  [color getRed:&r green:&g blue:&b alpha:&a];
+
+  return
+      std::max(0, std::min(static_cast<int>(lroundf(255.0f * a)), 255)) << 24 |
+      std::max(0, std::min(static_cast<int>(lroundf(255.0f * r)), 255)) << 16 |
+      std::max(0, std::min(static_cast<int>(lroundf(255.0f * g)), 255)) << 8  |
+      std::max(0, std::min(static_cast<int>(lroundf(255.0f * b)), 255));
+}
+
+// Extract underline information from an attributed string. Mostly copied from
+// third_party/WebKit/Source/WebKit/mac/WebView/WebHTMLView.mm
+void ExtractUnderlines(
+    NSAttributedString* string,
+    std::vector<WebCompositionUnderline>* underlines) {
+  int length = [[string string] length];
+  int i = 0;
+  while (i < length) {
+    NSRange range;
+    NSDictionary* attrs = [string attributesAtIndex:i
+                              longestEffectiveRange:&range
+                                            inRange:NSMakeRange(i, length - i)];
+    if (NSNumber *style = [attrs objectForKey:NSUnderlineStyleAttributeName]) {
+      WebColor color = SK_ColorBLACK;
+      if (NSColor *colorAttr =
+          [attrs objectForKey:NSUnderlineColorAttributeName]) {
+        color = WebColorFromNSColor(
+            [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
+      }
+      underlines->push_back(WebCompositionUnderline(
+          range.location, NSMaxRange(range), color, [style intValue] > 1));
+    }
+    i = range.location + range.length;
+  }
+}
+} // namespace
 
 @implementation BrowserWebView
 
@@ -140,9 +195,75 @@
     browser_->UIT_GetWebViewHost()->MouseEvent(theEvent);
 }
 
+// This code is mostly copied and adapted from
+// content/browser/renderer_host/render_widget_host_mac
 - (void)keyDown:(NSEvent *)theEvent {
-  if (browser_ && browser_->UIT_GetWebView())
-    browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+  // Records the current marked text state, so that we can know if the marked
+  // text was deleted or not after handling the key down event.
+  BOOL oldHasMarkedText = hasMarkedText_;
+
+  // We check if the marked text has only one character and a delete key is
+  // pressed. In such cases, we want to cancel IME composition and delete the
+  // marked character, so we dispatch the event directly to WebKit.
+  if (hasMarkedText_ && underlines_.size() == 1) {
+    // Check for backspace or delete.
+    if ([theEvent keyCode] == 0x33 || [theEvent keyCode] == 0x75)
+      browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+  }
+
+  textToBeInserted_.clear();
+  markedText_.clear();
+  underlines_.clear();
+  unmarkTextCalled_ = NO;
+
+  handlingKeyDown_ = YES;
+  [self interpretKeyEvents:[NSArray arrayWithObject:theEvent]];
+  handlingKeyDown_ = NO;
+
+  // Only send a corresponding key press event if there is no marked text.
+  // We also handle keys like backspace or delete, where the length
+  // of the text to be inserted is 0.
+  if (!hasMarkedText_ && !oldHasMarkedText &&
+      !textToBeInserted_.length() <= 1) {
+    if (textToBeInserted_.length() == 1) {
+      // If a single character was inserted, then we just send it as a keypress
+      // event.
+      WebKeyboardEvent keyboard_event(
+          WebInputEventFactory::keyboardEvent(theEvent));
+      keyboard_event.type = WebInputEvent::Char;
+      keyboard_event.text[0] = textToBeInserted_[0];
+      keyboard_event.text[1] = 0;
+      browser_->UIT_GetWebView()->handleInputEvent(keyboard_event);
+    } else {
+      browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+    }
+  }
+
+  // Calling KeyEvent() could have destroyed the widget.
+  // We perform a sanity check and return if the widget is NULL.
+  if (!browser_ || !browser_->UIT_GetWebView())
+    return;
+
+  BOOL textInserted = NO;
+  if (textToBeInserted_.length() >
+      ((hasMarkedText_ || oldHasMarkedText) ? 0u : 1u)) {
+    browser_->UIT_GetWebView()->confirmComposition(textToBeInserted_);
+    textInserted = YES;
+  }
+
+  if (hasMarkedText_ && markedText_.length()) {
+    browser_->UIT_GetWebView()->setComposition(markedText_, underlines_,
+                                               selectedRange_.location,
+                                               NSMaxRange(selectedRange_));
+  } else if (oldHasMarkedText && !hasMarkedText_ && !textInserted) {
+    if (unmarkTextCalled_) {
+      browser_->UIT_GetWebView()->confirmComposition();
+    } else {
+      // Simulating a cancelComposition
+      browser_->UIT_GetWebView()->setComposition(EmptyString16(), underlines_,
+                                                 0, 0);
+    }
+  }
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
@@ -253,12 +374,12 @@
                         image:(NSImage*)image
                        offset:(NSPoint)offset {
   dragSource_.reset([[WebDragSource alloc]
-                     initWithWebView:self
-                     dropData:&dropData
-                     image:image
-                     offset:offset
-                     pasteboard:[NSPasteboard pasteboardWithName:NSDragPboard]
-                     dragOperationMask:operationMask]);
+        initWithWebView:self
+               dropData:&dropData
+                  image:image
+                 offset:offset
+             pasteboard:[NSPasteboard pasteboardWithName:NSDragPboard]
+      dragOperationMask:operationMask]);
   [dragSource_ startDrag];
 }
 
@@ -326,6 +447,169 @@
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
   return [dropTarget_ performDragOperation:sender view:self];
+}
+
+// NSTextInputClient methods
+
+// This code is mostly copied and adapted from
+// content/browser/renderer_host/render_widget_host_mac
+extern "C" {
+  extern NSString *NSTextInputReplacementRangeAttributeName;
+}
+
+- (NSArray *)validAttributesForMarkedText {
+  if (!validAttributesForMarkedText_) {
+    validAttributesForMarkedText_.reset([[NSArray alloc] initWithObjects:
+        NSUnderlineStyleAttributeName,
+        NSUnderlineColorAttributeName,
+        NSMarkedClauseSegmentAttributeName,
+        NSTextInputReplacementRangeAttributeName,
+        nil]);
+  }
+  return validAttributesForMarkedText_.get();
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)thePoint {
+  DCHECK([self window]);
+  // |thePoint| is in screen coordinates, but needs to be converted to WebKit
+  // coordinates (upper left origin). Scroll offsets will be taken care of in
+  // the renderer.
+  thePoint = [[self window] convertScreenToBase:thePoint];
+  thePoint = [self convertPoint:thePoint fromView:nil];
+  thePoint.y = NSHeight([self frame]) - thePoint.y;
+
+  WebPoint point(thePoint.x, thePoint.y);
+  return (NSUInteger)browser_->UIT_GetWebView()->focusedFrame()->
+      characterIndexForPoint(point);
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)theRange
+                         actualRange:(NSRangePointer) actualRange {
+  if (actualRange)
+    *actualRange = theRange;
+
+  if (!browser_  || !browser_->UIT_GetWebView() ||
+      !browser_->UIT_GetWebView()->focusedFrame()) {
+    return NSMakeRect(0, 0, 0, 0);
+  }
+
+  WebRect webRect;
+  browser_->UIT_GetWebView()->focusedFrame()->firstRectForCharacterRange(
+      theRange.location, theRange.length, webRect);
+  NSRect rect = NSMakeRect(webRect.x, webRect.y, webRect.width, webRect.height);
+
+  // The returned rectangle is in WebKit coordinates (upper left origin), so
+  // flip the coordinate system and then convert it into screen coordinates for
+  // return.
+  NSRect viewFrame = [self frame];
+  rect.origin.y = NSHeight(viewFrame) - rect.origin.y;
+  rect.origin.y -= rect.size.height;
+  rect = [self convertRectToBase:rect];
+  rect.origin = [[self window] convertBaseToScreen:rect.origin];
+  return rect;
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)theRange
+    actualRange:(NSRangePointer) actualRange {
+  if (actualRange)
+    *actualRange = theRange;
+
+  if (!browser_ || !browser_->UIT_GetWebView() ||
+      !browser_->UIT_GetWebView()->focusedFrame()) {
+    return nil;
+  }
+
+  return WebSubstringUtil::attributedSubstringInRange(
+      browser_->UIT_GetWebView()->focusedFrame(),
+      theRange.location,
+      theRange.length);
+}
+
+- (void)doCommandBySelector:(SEL)selector {
+}
+
+- (NSRange)markedRange {
+  return hasMarkedText_ ? markedRange_ : NSMakeRange(NSNotFound, 0);
+}
+
+- (NSRange)selectedRange {
+  return selectedRange_;
+}
+
+- (NSInteger)conversationIdentifier {
+  return reinterpret_cast<NSInteger>(self);
+}
+
+- (BOOL)hasMarkedText {
+  return hasMarkedText_;
+}
+
+- (void)unmarkText {
+  hasMarkedText_ = NO;
+  markedText_.clear();
+  underlines_.clear();
+
+  if (!handlingKeyDown_) {
+    if (browser_ && browser_->UIT_GetWebView())
+      browser_->UIT_GetWebView()->confirmComposition();
+  } else {
+    unmarkTextCalled_ = YES;
+  }
+}
+
+- (void)setMarkedText:(id)string selectedRange:(NSRange)newSelRange
+    replacementRange: (NSRange) replacementRange {
+  // An input method updates the composition string.
+  // We send the given text and range to the renderer so it can update the
+  // composition node of WebKit.
+  BOOL isAttributedString = [string isKindOfClass:[NSAttributedString class]];
+  NSString* im_text = isAttributedString ? [string string] : string;
+  int length = [im_text length];
+
+  // |markedRange_| will get set on a callback from ImeSetComposition().
+  selectedRange_ = newSelRange;
+  markedText_ = base::SysNSStringToUTF16(im_text);
+  hasMarkedText_ = (length > 0);
+
+  underlines_.clear();
+  if (isAttributedString) {
+    ExtractUnderlines(string, &underlines_);
+  } else {
+    // Use a thin black underline by default.
+    underlines_.push_back(
+        WebCompositionUnderline(0, length, SK_ColorBLACK, false));
+  }
+
+  // If we are handling a key down event, then SetComposition() will be
+  // called in keyEvent: method.
+  // Input methods of Mac use setMarkedText calls with an empty text to cancel
+  // an ongoing composition. So, we should check whether or not the given text
+  // is empty to update the input method state. (Our input method backend can
+  // automatically cancels an ongoing composition when we send an empty text.
+  // So, it is OK to send an empty text to the renderer.)
+  if (!handlingKeyDown_) {
+    if (browser_ && browser_->UIT_GetWebView()) {
+      const WebString markedText(markedText_);
+      browser_->UIT_GetWebView()->setComposition(markedText,
+          underlines_,
+          newSelRange.location,
+          NSMaxRange(newSelRange));
+    }
+  }
+}
+
+- (void)insertText:(id)string replacementRange: (NSRange) replacementRange {
+  BOOL isAttributedString = [string isKindOfClass:[NSAttributedString class]];
+  NSString* im_text = isAttributedString ? [string string] : string;
+  if (handlingKeyDown_) {
+    textToBeInserted_.append(base::SysNSStringToUTF16(im_text));
+  } else {
+    browser_->UIT_GetWebViewHost()->webwidget()->confirmComposition(
+        base::SysNSStringToUTF16(im_text));
+  }
+
+  // Inserting text will delete all marked text automatically.
+  hasMarkedText_ = NO;
 }
 
 @end
