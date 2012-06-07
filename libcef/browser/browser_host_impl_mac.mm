@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/gfx/rect.h"
@@ -123,4 +124,11 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
   return window_info_.view;
+}
+
+void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  // Give the top level menu equivalents a chance to handle the event.
+  if ([event.os_event type] == NSKeyDown)
+    [[NSApp mainMenu] performKeyEquivalent:event.os_event];
 }

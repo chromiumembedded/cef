@@ -14,6 +14,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/win/windows_version.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
 #include "ui/base/win/hwnd_util.h"
 
@@ -253,4 +254,12 @@ bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
     return false;
 
   return true;
+}
+
+void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  // Any unhandled keyboard/character messages are sent to DefWindowProc so that
+  // shortcut keys work correctly.
+  DefWindowProc(event.os_event.hwnd, event.os_event.message,
+                event.os_event.wParam, event.os_event.lParam);
 }

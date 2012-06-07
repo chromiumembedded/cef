@@ -22,6 +22,7 @@
 #include "base/bind_helpers.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -796,6 +797,15 @@ bool CefBrowserHostImpl::HandleContextMenu(
   if (!menu_creator_.get())
     menu_creator_.reset(new CefMenuCreator(this));
   return menu_creator_->CreateContextMenu(params);
+}
+
+void CefBrowserHostImpl::HandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  // Check to see if event should be ignored.
+  if (event.skip_in_browser)
+    return;
+
+  PlatformHandleKeyboardEvent(event);
 }
 
 bool CefBrowserHostImpl::ShouldCreateWebContents(

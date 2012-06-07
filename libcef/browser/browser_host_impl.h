@@ -30,6 +30,10 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
+namespace content {
+struct NativeWebKeyboardEvent;
+}
+
 namespace net {
 class URLRequest;
 }
@@ -195,6 +199,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
   virtual bool HandleContextMenu(const content::ContextMenuParams& params)
       OVERRIDE;
+  virtual void HandleKeyboardEvent(
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
   virtual bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
@@ -211,7 +217,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       OVERRIDE;
   virtual void RunFileChooser(
       content::WebContents* tab,
-       const content::FileChooserParams& params) OVERRIDE;
+      const content::FileChooserParams& params) OVERRIDE;
   virtual void UpdatePreferredSize(content::WebContents* source,
                                    const gfx::Size& pref_size) OVERRIDE;
 
@@ -295,6 +301,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowHandle PlatformGetWindowHandle();
   // Open the specified text in the default text editor.
   bool PlatformViewText(const std::string& text);
+  // Forward the keyboard event to the application or frame window to allow
+  // processing of shortcut keys.
+  void PlatformHandleKeyboardEvent(
+      const content::NativeWebKeyboardEvent& event);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);

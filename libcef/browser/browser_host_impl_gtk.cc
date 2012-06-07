@@ -27,40 +27,6 @@ void window_destroyed(GtkWidget* widget, CefBrowserHostImpl* browser) {
 
 }  // namespace
 
-bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
-  CEF_REQUIRE_UIT();
-
-  char buff[] = "/tmp/CEFSourceXXXXXX";
-  int fd = mkstemp(buff);
-
-  if (fd == -1)
-    return false;
-
-  FILE* srcOutput = fdopen(fd, "w+");
-  if (!srcOutput)
-    return false;
-
-  if (fputs(text.c_str(), srcOutput) < 0) {
-    fclose(srcOutput);
-    return false;
-  }
-
-  fclose(srcOutput);
-
-  std::string newName(buff);
-  newName.append(".txt");
-  if (rename(buff, newName.c_str()) != 0)
-    return false;
-
-  std::string openCommand("xdg-open ");
-  openCommand += newName;
-
-  if (system(openCommand.c_str()) != 0)
-    return false;
-
-  return true;
-}
-
 bool CefBrowserHostImpl::PlatformCreateWindow() {
   GtkWidget* window;
   GtkWidget* parentView = window_info_.parent_widget;
@@ -125,4 +91,43 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
   return window_info_.widget;
+}
+
+bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
+  CEF_REQUIRE_UIT();
+
+  char buff[] = "/tmp/CEFSourceXXXXXX";
+  int fd = mkstemp(buff);
+
+  if (fd == -1)
+    return false;
+
+  FILE* srcOutput = fdopen(fd, "w+");
+  if (!srcOutput)
+    return false;
+
+  if (fputs(text.c_str(), srcOutput) < 0) {
+    fclose(srcOutput);
+    return false;
+  }
+
+  fclose(srcOutput);
+
+  std::string newName(buff);
+  newName.append(".txt");
+  if (rename(buff, newName.c_str()) != 0)
+    return false;
+
+  std::string openCommand("xdg-open ");
+  openCommand += newName;
+
+  if (system(openCommand.c_str()) != 0)
+    return false;
+
+  return true;
+}
+
+void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  // TODO(cef): Is something required here to handle shortcut keys?
 }
