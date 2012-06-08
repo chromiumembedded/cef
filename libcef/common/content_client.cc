@@ -32,20 +32,6 @@ CefContentClient* CefContentClient::Get() {
   return static_cast<CefContentClient*>(content::GetContentClient());
 }
 
-void CefContentClient::SetActiveURL(const GURL& url) {
-}
-
-void CefContentClient::SetGpuInfo(const content::GPUInfo& gpu_info) {
-}
-
-void CefContentClient::AddPepperPlugins(
-    std::vector<content::PepperPluginInfo>* plugins) {
-}
-
-void CefContentClient::AddNPAPIPlugins(
-    webkit::npapi::PluginList* plugin_list) {
-}
-
 void CefContentClient::AddAdditionalSchemes(
     std::vector<std::string>* standard_schemes,
     std::vector<std::string>* savable_schemes) {
@@ -66,15 +52,6 @@ void CefContentClient::AddAdditionalSchemes(
     CefContentRendererClient::Get()->AddCustomScheme(kChromeDevToolsScheme,
                                                      true, false);
   }
-}
-
-bool CefContentClient::HasWebUIScheme(const GURL& url) const {
-  // There are no WebUI URLs in CEF.
-  return false;
-}
-
-bool CefContentClient::CanHandleWhileSwappedOut(const IPC::Message& msg) {
-  return false;
 }
 
 std::string CefContentClient::GetUserAgent() const {
@@ -113,21 +90,6 @@ base::StringPiece CefContentClient::GetDataResource(
 
   return value;
 }
-
-#if defined(OS_WIN)
-bool CefContentClient::SandboxPlugin(CommandLine* command_line,
-                                       sandbox::TargetPolicy* policy) {
-  return false;
-}
-#endif
-
-#if defined(OS_MACOSX)
-bool CefContentClient::GetSandboxProfileForSandboxType(
-    int sandbox_type,
-    int* sandbox_profile_resource_id) const {
-  return false;
-}
-#endif
 
 FilePath CefContentClient::GetPathForResourcePack(
     const FilePath& pack_path,

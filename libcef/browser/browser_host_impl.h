@@ -328,8 +328,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Unique ids used for routing communication to/from the renderer. We keep a
   // copy of them as member variables so that we can locate matching browsers in
-  // a thread safe manner. |render_process_id_| may change and access must be
-  // protected by |state_lock_|.
+  // a thread safe manner. All access must be protected by the state lock.
   int render_process_id_;
   int render_view_id_;
 

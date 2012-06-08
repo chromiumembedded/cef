@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -37,10 +37,9 @@ class CefDownloadManagerDelegate
   virtual ~CefDownloadManagerDelegate();
 
   void GenerateFilename(int32 download_id,
-                        DownloadStateInfo state,
                         const FilePath& generated_name);
   void RestartDownload(int32 download_id,
-                       DownloadStateInfo state);
+                       const FilePath& suggested_path);
 
   content::DownloadManager* download_manager_;
 

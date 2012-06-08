@@ -907,6 +907,7 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   base::AutoLock lock_scope(state_lock_);
+  render_view_id_ = render_view_host->GetRoutingID();
   render_process_id_ = render_view_host->GetProcess()->GetID();
 }
 

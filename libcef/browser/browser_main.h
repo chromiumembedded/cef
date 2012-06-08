@@ -28,16 +28,11 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   explicit CefBrowserMainParts(const content::MainFunctionParams& parameters);
   virtual ~CefBrowserMainParts();
 
-  virtual void PreEarlyInitialization() OVERRIDE {}
-  virtual void PostEarlyInitialization() OVERRIDE {}
   virtual void PreMainMessageLoopStart() OVERRIDE;
-  virtual void PostMainMessageLoopStart() OVERRIDE {}
-  virtual void ToolkitInitialized() OVERRIDE {}
   virtual int PreCreateThreads() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
-  virtual void PostDestroyThreads() OVERRIDE {}
 
   CefBrowserContext* browser_context() const { return browser_context_.get(); }
   CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_; }

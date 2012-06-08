@@ -25,33 +25,14 @@ class CefContentClient : public content::ContentClient,
   static CefContentClient* Get();
 
   // content::ContentClient methods.
-  virtual void SetActiveURL(const GURL& url) OVERRIDE;
-  virtual void SetGpuInfo(const content::GPUInfo& gpu_info) OVERRIDE;
-  virtual void AddPepperPlugins(
-      std::vector<content::PepperPluginInfo>* plugins) OVERRIDE;
-  virtual void AddNPAPIPlugins(
-      webkit::npapi::PluginList* plugin_list) OVERRIDE;
   virtual void AddAdditionalSchemes(
       std::vector<std::string>* standard_schemes,
       std::vector<std::string>* savable_schemes) OVERRIDE;
-  virtual bool HasWebUIScheme(const GURL& url) const OVERRIDE;
-  virtual bool CanHandleWhileSwappedOut(const IPC::Message& msg) OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
   virtual base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const OVERRIDE;
-
-#if defined(OS_WIN)
-  virtual bool SandboxPlugin(CommandLine* command_line,
-                             sandbox::TargetPolicy* policy) OVERRIDE;
-#endif
-
-#if defined(OS_MACOSX)
-  virtual bool GetSandboxProfileForSandboxType(
-      int sandbox_type,
-      int* sandbox_profile_resource_id) const OVERRIDE;
-#endif
 
   CefRefPtr<CefApp> application() const { return application_; }
 

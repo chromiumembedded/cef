@@ -313,6 +313,7 @@ CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByID(int id) {
       return it->get();
   }
 
+  DLOG(ERROR) << "No browser matching unique id " << id;
   return NULL;
 }
 
@@ -326,6 +327,8 @@ CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByRoutingID(
       return it->get();
   }
 
+  DLOG(ERROR) << "No browser matching process id " << render_process_id <<
+                 " and view id " << render_view_id;
   return NULL;
 }
 
