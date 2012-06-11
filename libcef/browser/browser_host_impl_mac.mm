@@ -26,6 +26,7 @@
 @interface CefBrowserHostView : NSView {
  @private
   CefBrowserHostImpl* browser_;  // weak
+  bool is_in_onsetfocus_;
 }
 
 @property (nonatomic, assign) CefBrowserHostImpl* browser;
@@ -50,8 +51,14 @@
 }
 
 - (BOOL)becomeFirstResponder {
-  if (browser_ && browser_->GetWebContents())
-    browser_->OnSetFocus(FOCUS_SOURCE_SYSTEM);
+  if (browser_ && browser_->GetWebContents()) {
+    // Avoid re-entering OnSetFocus.
+    if (!is_in_onsetfocus_) {
+      is_in_onsetfocus_ = true;
+      browser_->OnSetFocus(FOCUS_SOURCE_SYSTEM);
+      is_in_onsetfocus_ = false;
+    }
+  }
 
   return YES;
 }
