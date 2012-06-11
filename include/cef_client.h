@@ -137,7 +137,7 @@ class CefClient : public virtual CefBase {
   // or attempt to access the message outside of this callback.
   ///
   /*--cef()--*/
-  virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
+  virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                         CefProcessId source_process,
                                         CefRefPtr<CefProcessMessage> message) {
     return false;

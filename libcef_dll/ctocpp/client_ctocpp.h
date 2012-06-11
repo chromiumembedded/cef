@@ -41,7 +41,7 @@ class CefClientCToCpp
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE;
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE;
-  virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
+  virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 };

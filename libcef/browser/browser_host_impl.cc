@@ -1193,7 +1193,7 @@ void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
       CefRefPtr<CefProcessMessageImpl> message(
           new CefProcessMessageImpl(const_cast<Cef_Request_Params*>(&params),
                                     false, true));
-      success = client_->OnProcessMessageRecieved(this, PID_RENDERER,
+      success = client_->OnProcessMessageReceived(this, PID_RENDERER,
                                                   message.get());
       message->Detach(NULL);
     }

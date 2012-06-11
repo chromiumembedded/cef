@@ -1442,7 +1442,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     }
   }
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
@@ -1532,7 +1532,7 @@ class V8TestHandler : public TestHandler {
     }
   }
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {

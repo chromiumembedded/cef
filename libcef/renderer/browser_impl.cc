@@ -585,7 +585,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         CefRefPtr<CefProcessMessageImpl> message(
             new CefProcessMessageImpl(const_cast<Cef_Request_Params*>(&params),
                                       false, true));
-        success = handler->OnProcessMessageRecieved(this, PID_BROWSER,
+        success = handler->OnProcessMessageReceived(this, PID_BROWSER,
                                                     message.get());
         message->Detach(NULL);
       }

@@ -44,7 +44,7 @@ class SendRecvRendererTest : public ClientApp::RenderDelegate {
  public:
   SendRecvRendererTest() {}
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
@@ -108,7 +108,7 @@ class SendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
   }
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {

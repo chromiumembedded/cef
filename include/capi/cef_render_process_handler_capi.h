@@ -118,7 +118,7 @@ typedef struct _cef_render_process_handler_t {
   // (1) if the message was handled or false (0) otherwise. Do not keep a
   // reference to or attempt to access the message outside of this callback.
   ///
-  int (CEF_CALLBACK *on_process_message_recieved)(
+  int (CEF_CALLBACK *on_process_message_received)(
       struct _cef_render_process_handler_t* self,
       struct _cef_browser_t* browser, enum cef_process_id_t source_process,
       struct _cef_process_message_t* message);

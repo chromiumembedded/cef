@@ -36,7 +36,7 @@ class ClientHandler : public CefClient,
     // handled and should not be passed on to other handlers.
     // ProcessMessageDelegates should check for unique message names to avoid
     // interfering with each other.
-    virtual bool OnProcessMessageRecieved(
+    virtual bool OnProcessMessageReceived(
         CefRefPtr<ClientHandler> handler,
         CefRefPtr<CefBrowser> browser,
         CefProcessId source_process,
@@ -89,7 +89,7 @@ class ClientHandler : public CefClient,
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
     return this;
   }
-  virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
+  virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                         CefProcessId source_process,
                                         CefRefPtr<CefProcessMessage> message)
                                         OVERRIDE;

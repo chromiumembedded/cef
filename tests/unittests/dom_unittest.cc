@@ -227,7 +227,7 @@ class DOMRendererTest : public ClientApp::RenderDelegate {
   DOMRendererTest() {
   }
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
@@ -281,7 +281,7 @@ class TestDOMHandler : public TestHandler {
     }
   }
 
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {

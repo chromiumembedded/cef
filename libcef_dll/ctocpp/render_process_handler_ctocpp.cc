@@ -151,10 +151,10 @@ void CefRenderProcessHandlerCToCpp::OnFocusedNodeChanged(
       CefDOMNodeCppToC::Wrap(node));
 }
 
-bool CefRenderProcessHandlerCToCpp::OnProcessMessageRecieved(
+bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser, CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
-  if (CEF_MEMBER_MISSING(struct_, on_process_message_recieved))
+  if (CEF_MEMBER_MISSING(struct_, on_process_message_received))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -169,7 +169,7 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageRecieved(
     return false;
 
   // Execute
-  int _retval = struct_->on_process_message_recieved(struct_,
+  int _retval = struct_->on_process_message_received(struct_,
       CefBrowserCppToC::Wrap(browser),
       source_process,
       CefProcessMessageCppToC::Wrap(message));

@@ -278,7 +278,7 @@ void ClientApp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
     (*it)->OnFocusedNodeChanged(this, browser, frame, node);
 }
 
-bool ClientApp::OnProcessMessageRecieved(
+bool ClientApp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
@@ -289,7 +289,7 @@ bool ClientApp::OnProcessMessageRecieved(
   // Execute delegate callbacks.
   RenderDelegateSet::iterator it = render_delegates_.begin();
   for (; it != render_delegates_.end() && !handled; ++it) {
-    handled = (*it)->OnProcessMessageRecieved(this, browser, source_process,
+    handled = (*it)->OnProcessMessageReceived(this, browser, source_process,
                                               message);
   }
 

@@ -155,7 +155,7 @@ void CEF_CALLBACK render_process_handler_on_focused_node_changed(
       CefDOMNodeCToCpp::Wrap(node));
 }
 
-int CEF_CALLBACK render_process_handler_on_process_message_recieved(
+int CEF_CALLBACK render_process_handler_on_process_message_received(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
     enum cef_process_id_t source_process, cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -174,7 +174,7 @@ int CEF_CALLBACK render_process_handler_on_process_message_recieved(
 
   // Execute
   bool _retval = CefRenderProcessHandlerCppToC::Get(
-      self)->OnProcessMessageRecieved(
+      self)->OnProcessMessageReceived(
       CefBrowserCToCpp::Wrap(browser),
       source_process,
       CefProcessMessageCToCpp::Wrap(message));
@@ -204,8 +204,8 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_context_released;
   struct_.struct_.on_focused_node_changed =
       render_process_handler_on_focused_node_changed;
-  struct_.struct_.on_process_message_recieved =
-      render_process_handler_on_process_message_recieved;
+  struct_.struct_.on_process_message_received =
+      render_process_handler_on_process_message_received;
 }
 
 #ifndef NDEBUG

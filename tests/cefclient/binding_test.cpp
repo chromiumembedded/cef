@@ -24,7 +24,7 @@ class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
   }
 
   // From ClientHandler::ProcessMessageDelegate.
-  virtual bool OnProcessMessageRecieved(
+  virtual bool OnProcessMessageReceived(
       CefRefPtr<ClientHandler> handler,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,

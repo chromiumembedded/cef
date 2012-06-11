@@ -145,9 +145,9 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
   return CefRequestHandlerCToCpp::Wrap(_retval);
 }
 
-bool CefClientCToCpp::OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
+bool CefClientCToCpp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
     CefProcessId source_process, CefRefPtr<CefProcessMessage> message) {
-  if (CEF_MEMBER_MISSING(struct_, on_process_message_recieved))
+  if (CEF_MEMBER_MISSING(struct_, on_process_message_received))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -162,7 +162,7 @@ bool CefClientCToCpp::OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_process_message_recieved(struct_,
+  int _retval = struct_->on_process_message_received(struct_,
       CefBrowserCppToC::Wrap(browser),
       source_process,
       CefProcessMessageCppToC::Wrap(message));

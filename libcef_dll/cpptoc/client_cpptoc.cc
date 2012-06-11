@@ -170,7 +170,7 @@ struct _cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
   return CefRequestHandlerCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK client_on_process_message_recieved(struct _cef_client_t* self,
+int CEF_CALLBACK client_on_process_message_received(struct _cef_client_t* self,
     cef_browser_t* browser, enum cef_process_id_t source_process,
     struct _cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -188,7 +188,7 @@ int CEF_CALLBACK client_on_process_message_recieved(struct _cef_client_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefClientCppToC::Get(self)->OnProcessMessageRecieved(
+  bool _retval = CefClientCppToC::Get(self)->OnProcessMessageReceived(
       CefBrowserCToCpp::Wrap(browser),
       source_process,
       CefProcessMessageCToCpp::Wrap(message));
@@ -211,8 +211,8 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_life_span_handler = client_get_life_span_handler;
   struct_.struct_.get_load_handler = client_get_load_handler;
   struct_.struct_.get_request_handler = client_get_request_handler;
-  struct_.struct_.on_process_message_recieved =
-      client_on_process_message_recieved;
+  struct_.struct_.on_process_message_received =
+      client_on_process_message_received;
 }
 
 #ifndef NDEBUG
