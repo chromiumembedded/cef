@@ -270,6 +270,10 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 const CefString& failedUrl) {
   REQUIRE_UI_THREAD();
 
+  // Don't display an error for downloaded files.
+  if (errorCode == ERR_ABORTED)
+    return;
+
   // Display a load error message.
   std::stringstream ss;
   ss << "<html><body><h2>Failed to load URL " << std::string(failedUrl) <<

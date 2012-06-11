@@ -200,6 +200,9 @@ CefBrowserContext::CefBrowserContext() {
 }
 
 CefBrowserContext::~CefBrowserContext() {
+  if (download_manager_.get())
+    download_manager_->Shutdown();
+
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
       BrowserThread::IO, FROM_HERE, resource_context_.release());

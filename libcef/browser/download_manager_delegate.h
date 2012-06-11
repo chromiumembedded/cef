@@ -30,6 +30,7 @@ class CefDownloadManagerDelegate
   virtual void ChooseDownloadPath(content::WebContents* web_contents,
                                   const FilePath& suggested_path,
                                   int32 download_id) OVERRIDE;
+  virtual void AddItemToPersistentStore(content::DownloadItem* item) OVERRIDE;
 
  private:
   friend class base::RefCountedThreadSafe<CefDownloadManagerDelegate>;
@@ -40,6 +41,9 @@ class CefDownloadManagerDelegate
                         const FilePath& generated_name);
   void RestartDownload(int32 download_id,
                        const FilePath& suggested_path);
+
+  FilePath PlatformChooseDownloadPath(content::WebContents* web_contents,
+                                      const FilePath& suggested_path);
 
   content::DownloadManager* download_manager_;
 

@@ -76,27 +76,8 @@ void CefDownloadManagerDelegate::ChooseDownloadPath(
     const FilePath& suggested_path,
     int32 download_id) {
   FilePath result;
-#if defined(OS_WIN) && !defined(USE_AURA)
-  std::wstring file_part = FilePath(suggested_path).BaseName().value();
-  wchar_t file_name[MAX_PATH];
-  base::wcslcpy(file_name, file_part.c_str(), arraysize(file_name));
-  OPENFILENAME save_as;
-  ZeroMemory(&save_as, sizeof(save_as));
-  save_as.lStructSize = sizeof(OPENFILENAME);
-  save_as.hwndOwner = web_contents->GetNativeView();
-  save_as.lpstrFile = file_name;
-  save_as.nMaxFile = arraysize(file_name);
-
-  std::wstring directory;
-  if (!suggested_path.empty())
-    directory = suggested_path.DirName().value();
-
-  save_as.lpstrInitialDir = directory.c_str();
-  save_as.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING |
-                  OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
-
-  if (GetSaveFileName(&save_as))
-    result = FilePath(std::wstring(save_as.lpstrFile));
+#if defined(OS_WIN) || defined(OS_MACOSX)
+  result = PlatformChooseDownloadPath(web_contents, suggested_path);
 #else
   NOTIMPLEMENTED();
 #endif
@@ -106,6 +87,12 @@ void CefDownloadManagerDelegate::ChooseDownloadPath(
   } else {
     download_manager_->FileSelected(result, download_id);
   }
+}
+
+void CefDownloadManagerDelegate::AddItemToPersistentStore(
+    content::DownloadItem* item) {
+  static int next_id;
+  download_manager_->OnItemAddedToPersistentStore(item->GetId(), ++next_id);
 }
 
 void CefDownloadManagerDelegate::GenerateFilename(
