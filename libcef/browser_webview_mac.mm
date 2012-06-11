@@ -202,10 +202,10 @@ void ExtractUnderlines(
   // text was deleted or not after handling the key down event.
   BOOL oldHasMarkedText = hasMarkedText_;
 
-  // We check if the marked text has only one character and a delete key is
+  // We check if the marked text has one or less characters and a delete key is
   // pressed. In such cases, we want to cancel IME composition and delete the
   // marked character, so we dispatch the event directly to WebKit.
-  if (hasMarkedText_ && underlines_.size() == 1) {
+  if (hasMarkedText_ && underlines_.size() <= 1) {
     // Check for backspace or delete.
     if ([theEvent keyCode] == 0x33 || [theEvent keyCode] == 0x75)
       browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
