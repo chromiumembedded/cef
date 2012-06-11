@@ -98,7 +98,7 @@ void WebDragSource::StartDragging(const WebDropData& drop_data,
     const SkBitmap& bitmap = image.getSkBitmap();
     GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&bitmap);
     gtk_drag_set_icon_pixbuf(context, pixbuf, image_offset.x, image_offset.y);
-    gdk_pixbuf_unref(pixbuf);
+    g_object_unref(pixbuf);
   } else {
     gtk_drag_set_icon_default(context);
   }
