@@ -45,10 +45,6 @@ inline long CefAtomicDecrement(long volatile *pDest) {  // NOLINT(runtime/int)
   return __sync_sub_and_fetch(pDest, 1);
 }
 
-// Handle types.
-#define CefWindowHandle cef_window_handle_t
-#define CefCursorHandle cef_cursor_handle_t
-
 // Critical section wrapper.
 class CefCriticalSection {
  public:
@@ -71,6 +67,11 @@ class CefCriticalSection {
   pthread_mutex_t lock_;
   pthread_mutexattr_t attr_;
 };
+
+// Handle types.
+#define CefCursorHandle cef_cursor_handle_t
+#define CefEventHandle cef_event_handle_t
+#define CefWindowHandle cef_window_handle_t
 
 struct CefMainArgsTraits {
   typedef cef_main_args_t struct_type;

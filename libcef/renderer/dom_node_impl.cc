@@ -148,6 +148,32 @@ bool CefDOMNodeImpl::IsElement() {
   return node_.isElementNode();
 }
 
+// Logic copied from RenderViewImpl::IsEditableNode.
+bool CefDOMNodeImpl::IsEditable() {
+  if (!VerifyContext())
+    return false;
+
+  if (node_.isContentEditable())
+    return true;
+
+  if (node_.isElementNode()) {
+    const WebElement& element = node_.toConst<WebElement>();
+    if (element.isTextFormControlElement())
+      return true;
+
+    // Also return true if it has an ARIA role of 'textbox'.
+    for (unsigned i = 0; i < element.attributeCount(); ++i) {
+      if (LowerCaseEqualsASCII(element.attributeLocalName(i), "role")) {
+        if (LowerCaseEqualsASCII(element.attributeValue(i), "textbox"))
+          return true;
+        break;
+      }
+    }
+  }
+
+  return false;
+}
+
 bool CefDOMNodeImpl::IsFormControlElement() {
   if (!VerifyContext())
     return false;

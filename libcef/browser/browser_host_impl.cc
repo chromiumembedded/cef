@@ -55,6 +55,47 @@ void CreateBrowserWithHelper(CreateBrowserHelper* helper) {
   delete helper;
 }
 
+// Convert a NativeWebKeyboardEvent to a CefKeyEvent.
+bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
+                    CefKeyEvent& cef_event) {
+  switch (event.type) {
+    case WebKit::WebKeyboardEvent::RawKeyDown:
+      cef_event.type = KEYEVENT_RAWKEYDOWN;
+      break;
+    case WebKit::WebKeyboardEvent::KeyDown:
+      cef_event.type = KEYEVENT_KEYDOWN;
+      break;
+    case WebKit::WebKeyboardEvent::KeyUp:
+      cef_event.type = KEYEVENT_KEYUP;
+      break;
+    case WebKit::WebKeyboardEvent::Char:
+      cef_event.type = KEYEVENT_CHAR;
+      break;
+    default:
+      return false;
+  }
+
+  cef_event.modifiers = 0;
+  if (event.modifiers & WebKit::WebKeyboardEvent::ShiftKey)
+    cef_event.modifiers |= KEY_SHIFT;
+  if (event.modifiers & WebKit::WebKeyboardEvent::ControlKey)
+    cef_event.modifiers |= KEY_CTRL;
+  if (event.modifiers & WebKit::WebKeyboardEvent::AltKey)
+    cef_event.modifiers |= KEY_ALT;
+  if (event.modifiers & WebKit::WebKeyboardEvent::MetaKey)
+    cef_event.modifiers |= KEY_META;
+  if (event.modifiers & WebKit::WebKeyboardEvent::IsKeyPad)
+    cef_event.modifiers |= KEY_KEYPAD;
+
+  cef_event.windows_key_code = event.windowsKeyCode;
+  cef_event.native_key_code = event.nativeKeyCode;
+  cef_event.is_system_key = event.isSystemKey;
+  cef_event.character = event.text[0];
+  cef_event.unmodified_character = event.unmodifiedText[0];
+
+  return true;
+}
+
 }  // namespace
 
 
@@ -268,8 +309,7 @@ void CefBrowserHostImpl::SetFocus(bool enable) {
     return;
 
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents_.get())
-      web_contents_->Focus();
+    OnSetFocus(FOCUS_SOURCE_SYSTEM);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::SetFocus, this, enable));
@@ -572,8 +612,7 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
 
   Send(new CefMsg_LoadRequest(routing_id(), request));
 
-  if (web_contents_.get())
-    web_contents_->Focus();
+  OnSetFocus(FOCUS_SOURCE_NAVIGATION);
 }
 
 void CefBrowserHostImpl::LoadRequest(int64 frame_id,
@@ -629,7 +668,7 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
             content::Referrer(),
             content::PAGE_TRANSITION_TYPED,
             std::string());
-        web_contents_->Focus();
+        OnSetFocus(FOCUS_SOURCE_NAVIGATION);
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
@@ -666,6 +705,7 @@ void CefBrowserHostImpl::SendCommand(
     CefRefPtr<CefResponseManager::Handler> responseHandler) {
   // Only known frame ids are supported.
   DCHECK(frame_id > CefFrameHostImpl::kMainFrameId);
+  DCHECK(!command.empty());
 
   // Execute on the UI thread because CefResponseManager is not thread safe.
   if (CEF_CURRENTLY_ON_UIT()) {
@@ -702,6 +742,8 @@ void CefBrowserHostImpl::SendCode(
     CefRefPtr<CefResponseManager::Handler> responseHandler) {
   // Only known frame ids are supported.
   DCHECK(frame_id >= CefFrameHostImpl::kMainFrameId);
+  DCHECK(!code.empty());
+  DCHECK_GE(script_start_line, 0);
 
   // Execute on the UI thread because CefResponseManager is not thread safe.
   if (CEF_CURRENTLY_ON_UIT()) {
@@ -792,6 +834,24 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
   }
 }
 
+bool CefBrowserHostImpl::TakeFocus(bool reverse) {
+  if (client_.get()) {
+    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+    if (handler.get())
+      handler->OnTakeFocus(this, !reverse);
+  }
+
+  return false;
+}
+
+void CefBrowserHostImpl::WebContentsFocused(content::WebContents* contents) {
+  if (client_.get()) {
+    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+    if (handler.get())
+      handler->OnGotFocus(this);
+  }
+}
+
 bool CefBrowserHostImpl::HandleContextMenu(
     const content::ContextMenuParams& params) {
   if (!menu_creator_.get())
@@ -799,11 +859,56 @@ bool CefBrowserHostImpl::HandleContextMenu(
   return menu_creator_->CreateContextMenu(params);
 }
 
+bool CefBrowserHostImpl::PreHandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event,
+    bool* is_keyboard_shortcut) {
+  if (client_.get()) {
+    CefRefPtr<CefKeyboardHandler> handler = client_->GetKeyboardHandler();
+    if (handler.get()) {
+      CefKeyEvent cef_event;
+      if (!GetCefKeyEvent(event, cef_event))
+        return false;
+
+#if defined(OS_WIN)
+      CefEventHandle os_event = const_cast<CefEventHandle>(&event.os_event);
+#else
+      CefEventHandle os_event = event.os_event;
+#endif
+
+      cef_event.focus_on_editable_field = focus_on_editable_field_;
+
+      return handler->OnPreKeyEvent(this, cef_event, os_event,
+                                    is_keyboard_shortcut);
+    }
+  }
+
+  return false;
+}
+
 void CefBrowserHostImpl::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_in_browser)
     return;
+
+  if (client_.get()) {
+    CefRefPtr<CefKeyboardHandler> handler = client_->GetKeyboardHandler();
+    if (handler.get()) {
+      CefKeyEvent cef_event;
+      if (GetCefKeyEvent(event, cef_event)) {
+#if defined(OS_WIN)
+        CefEventHandle os_event = const_cast<CefEventHandle>(&event.os_event);
+#else
+        CefEventHandle os_event = event.os_event;
+#endif
+
+        cef_event.focus_on_editable_field = focus_on_editable_field_;
+
+        if (handler->OnKeyEvent(this, cef_event, os_event))
+          return;
+      }
+    }
+  }
 
   PlatformHandleKeyboardEvent(event);
 }
@@ -1073,7 +1178,8 @@ void CefBrowserHostImpl::OnResponseAck(int request_id) {
 void CefBrowserHostImpl::Observe(int type,
                                  const content::NotificationSource& source,
                                  const content::NotificationDetails& details) {
-  DCHECK(type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED);
+  DCHECK(type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED ||
+         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE);
 
   if (type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
     std::pair<content::NavigationEntry*, bool>* title =
@@ -1094,6 +1200,8 @@ void CefBrowserHostImpl::Observe(int type,
 
       received_page_title_ = title->second;
     }
+  } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
+    focus_on_editable_field_ = *content::Details<bool>(details).ptr();
   }
 }
 
@@ -1121,13 +1229,18 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
       has_document_(false),
       queue_messages_(true),
       main_frame_id_(CefFrameHostImpl::kInvalidFrameId),
-      focused_frame_id_(CefFrameHostImpl::kInvalidFrameId) {
+      focused_frame_id_(CefFrameHostImpl::kInvalidFrameId),
+      is_in_onsetfocus_(false),
+      focus_on_editable_field_(false) {
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
 
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
+  registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+                  content::Source<content::RenderViewHost>(
+                      web_contents->GetRenderViewHost()));
   response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =
@@ -1289,4 +1402,27 @@ void CefBrowserHostImpl::OnLoadEnd(CefRefPtr<CefFrame> frame,
       handler->OnLoadEnd(this, frame, 200);
     }
   }
+}
+
+void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
+  CEF_REQUIRE_UIT();
+
+  // SetFocus() might be called while inside the OnSetFocus() callback. If so,
+  // don't re-enter the callback.
+  if (!is_in_onsetfocus_) {
+    if (client_.get()) {
+      CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+      if (handler.get()) {
+        is_in_onsetfocus_ = true;
+        bool handled = handler->OnSetFocus(this, source);
+        is_in_onsetfocus_ = false;
+
+        if (handled)
+          return;
+      }
+    }
+  }
+
+  if (web_contents_.get())
+    web_contents_->Focus();
 }

@@ -61,6 +61,20 @@ int CEF_CALLBACK domnode_is_element(struct _cef_domnode_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK domnode_is_editable(struct _cef_domnode_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefDOMNodeCppToC::Get(self)->IsEditable();
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK domnode_is_form_control_element(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -447,6 +461,7 @@ CefDOMNodeCppToC::CefDOMNodeCppToC(CefDOMNode* cls)
   struct_.struct_.get_type = domnode_get_type;
   struct_.struct_.is_text = domnode_is_text;
   struct_.struct_.is_element = domnode_is_element;
+  struct_.struct_.is_editable = domnode_is_editable;
   struct_.struct_.is_form_control_element = domnode_is_form_control_element;
   struct_.struct_.get_form_control_element_type =
       domnode_get_form_control_element_type;

@@ -8,17 +8,6 @@
 #include "include/cef_frame.h"
 #include "cefclient/resource.h"
 
-bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
-                                  const CefPopupFeatures& popupFeatures,
-                                  CefWindowInfo& windowInfo,
-                                  const CefString& url,
-                                  CefRefPtr<CefClient>& client,
-                                  CefBrowserSettings& settings) {
-  REQUIRE_UI_THREAD();
-
-  return false;
-}
-
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {

@@ -201,6 +201,12 @@ class CefDOMNode : public virtual CefBase {
   virtual bool IsElement() =0;
 
   ///
+  // Returns true if this is an editable node.
+  ///
+  /*--cef()--*/
+  virtual bool IsEditable() =0;
+
+  ///
   // Returns true if this is a form control element node.
   ///
   /*--cef()--*/

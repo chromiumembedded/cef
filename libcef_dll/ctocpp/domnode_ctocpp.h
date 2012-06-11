@@ -35,6 +35,7 @@ class CefDOMNodeCToCpp
   virtual Type GetType() OVERRIDE;
   virtual bool IsText() OVERRIDE;
   virtual bool IsElement() OVERRIDE;
+  virtual bool IsEditable() OVERRIDE;
   virtual bool IsFormControlElement() OVERRIDE;
   virtual CefString GetFormControlElementType() OVERRIDE;
   virtual bool IsSame(CefRefPtr<CefDOMNode> that) OVERRIDE;

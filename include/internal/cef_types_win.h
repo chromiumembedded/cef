@@ -42,9 +42,10 @@
 extern "C" {
 #endif
 
-// Window handle.
-#define cef_window_handle_t HWND
+// Handle types.
 #define cef_cursor_handle_t HCURSOR
+#define cef_event_handle_t MSG*
+#define cef_window_handle_t HWND
 
 ///
 // Structure representing CefExecuteProcess arguments.

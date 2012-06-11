@@ -197,8 +197,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* source,
       const content::OpenURLParams& params) OVERRIDE;
   virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
+  virtual bool TakeFocus(bool reverse) OVERRIDE;
+  virtual void WebContentsFocused(content::WebContents* contents) OVERRIDE;
   virtual bool HandleContextMenu(const content::ContextMenuParams& params)
       OVERRIDE;
+  virtual bool PreHandleKeyboardEvent(
+      const content::NativeWebKeyboardEvent& event,
+      bool* is_keyboard_shortcut) OVERRIDE;
   virtual void HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
   virtual bool ShouldCreateWebContents(
@@ -317,6 +322,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    const string16& error_description);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url);
+  void OnSetFocus(cef_focus_source_t source);
 
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
@@ -366,6 +372,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   int64 focused_frame_id_;
   // Used when no other frame exists. Provides limited functionality.
   CefRefPtr<CefFrameHostImpl> placeholder_frame_;
+
+  // True if currently in the OnSetFocus callback. Only accessed on the UI
+  // thread.
+  bool is_in_onsetfocus_;
+
+  // True if the focus is currently on an editable field on the page. Only
+  // accessed on the UI thread.
+  bool focus_on_editable_field_;
 
   // Used for managing notification subscriptions.
   scoped_ptr<content::NotificationRegistrar> registrar_;

@@ -101,6 +101,19 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_v8context_t* context);
 
   ///
+  // Called when a new node in the the browser gets focus. The |node| value may
+  // be NULL if no specific node has gained focus. The node object passed to
+  // this function represents a snapshot of the DOM at the time this function is
+  // executed. DOM objects are only valid for the scope of this function. Do not
+  // keep references to or attempt to access any DOM objects outside the scope
+  // of this function.
+  ///
+  void (CEF_CALLBACK *on_focused_node_changed)(
+      struct _cef_render_process_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_domnode_t* node);
+
+  ///
   // Called when a new message is received from a different process. Return true
   // (1) if the message was handled or false (0) otherwise. Do not keep a
   // reference to or attempt to access the message outside of this callback.

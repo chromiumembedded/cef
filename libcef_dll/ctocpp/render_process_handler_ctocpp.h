@@ -42,6 +42,8 @@ class CefRenderProcessHandlerCToCpp
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
   virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) OVERRIDE;
   virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;

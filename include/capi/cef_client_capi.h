@@ -55,27 +55,22 @@ typedef struct _cef_client_t {
   cef_base_t base;
 
   ///
-  // Return the handler for browser life span events.
+  // Return the handler for context menus. If no handler is provided the default
+  // implementation will be used.
   ///
-  struct _cef_life_span_handler_t* (CEF_CALLBACK *get_life_span_handler)(
-      struct _cef_client_t* self);
-
-  ///
-  // Return the handler for browser load status events.
-  ///
-  struct _cef_load_handler_t* (CEF_CALLBACK *get_load_handler)(
-      struct _cef_client_t* self);
-
-  ///
-  // Return the handler for browser request events.
-  ///
-  struct _cef_request_handler_t* (CEF_CALLBACK *get_request_handler)(
+  struct _cef_context_menu_handler_t* (CEF_CALLBACK *get_context_menu_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for browser display state events.
   ///
   struct _cef_display_handler_t* (CEF_CALLBACK *get_display_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for focus events.
+  ///
+  struct _cef_focus_handler_t* (CEF_CALLBACK *get_focus_handler)(
       struct _cef_client_t* self);
 
   ///
@@ -93,10 +88,27 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
-  // Return the handler for context menus. If no handler is provided the default
-  // implementation will be used.
+  // Return the handler for keyboard events.
   ///
-  struct _cef_context_menu_handler_t* (CEF_CALLBACK *get_context_menu_handler)(
+  struct _cef_keyboard_handler_t* (CEF_CALLBACK *get_keyboard_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for browser life span events.
+  ///
+  struct _cef_life_span_handler_t* (CEF_CALLBACK *get_life_span_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for browser load status events.
+  ///
+  struct _cef_load_handler_t* (CEF_CALLBACK *get_load_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for browser request events.
+  ///
+  struct _cef_request_handler_t* (CEF_CALLBACK *get_request_handler)(
       struct _cef_client_t* self);
 
   ///

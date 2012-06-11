@@ -81,7 +81,7 @@ class CefBrowserImpl : public CefBrowser,
 
   void LoadRequest(const CefMsg_LoadRequest_Params& params);
 
-  // Returns the matching WebFrameImpl reference or creates a new one.
+  // Returns the matching CefFrameImpl reference or creates a new one.
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(WebKit::WebFrame* frame);
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64 frame_id);
 

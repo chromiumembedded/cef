@@ -32,13 +32,15 @@ class CefClientCToCpp
   virtual ~CefClientCToCpp() {}
 
   // CefClient methods
+  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE;
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE;
+  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE;
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE;
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE;
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE;
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE;
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE;
-  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE;
-  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
-  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE;
   virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;

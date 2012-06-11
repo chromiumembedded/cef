@@ -42,9 +42,10 @@
 extern "C" {
 #endif
 
-// Window handle.
+// Handle types.
+#define cef_cursor_handle_t GtkCursor*
+#define cef_event_handle_t GdkEvent*
 #define cef_window_handle_t GtkWidget*
-#define cef_cursor_handle_t void*
 
 ///
 // Structure representing CefExecuteProcess arguments.

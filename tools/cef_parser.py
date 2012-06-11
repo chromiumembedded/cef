@@ -372,6 +372,7 @@ _simpletypes = {
     'bool' : ['int', '0'],
     'char* const': ['char* const', 'NULL'],
     'CefCursorHandle' : ['cef_cursor_handle_t', 'NULL'],
+    'CefEventHandle' : ['cef_event_handle_t', 'NULL'],
     'CefWindowHandle' : ['cef_window_handle_t', 'NULL'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
     'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],

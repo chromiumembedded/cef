@@ -31,8 +31,10 @@
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/proxy_handler_cpptoc.h"
@@ -154,11 +156,13 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefDOMVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDisplayHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefFocusHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefKeyboardHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefLifeSpanHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefListValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefLoadHandlerCppToC::DebugObjCt, 0);

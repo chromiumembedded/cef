@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -133,6 +134,27 @@ void CEF_CALLBACK render_process_handler_on_context_released(
       CefV8ContextCToCpp::Wrap(context));
 }
 
+void CEF_CALLBACK render_process_handler_on_focused_node_changed(
+    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, cef_domnode_t* node) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Unverified params: frame, node
+
+  // Execute
+  CefRenderProcessHandlerCppToC::Get(self)->OnFocusedNodeChanged(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefDOMNodeCToCpp::Wrap(node));
+}
+
 int CEF_CALLBACK render_process_handler_on_process_message_recieved(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
     enum cef_process_id_t source_process, cef_process_message_t* message) {
@@ -180,6 +202,8 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_context_created;
   struct_.struct_.on_context_released =
       render_process_handler_on_context_released;
+  struct_.struct_.on_focused_node_changed =
+      render_process_handler_on_focused_node_changed;
   struct_.struct_.on_process_message_recieved =
       render_process_handler_on_process_message_recieved;
 }

@@ -129,11 +129,8 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SETFOCUS:
-    if (browser) {
-      content::WebContents* web_contents = browser->GetWebContents();
-      if (web_contents)
-        web_contents->Focus();
-    }
+    if (browser)
+      browser->OnSetFocus(FOCUS_SOURCE_SYSTEM);
     return 0;
 
   case WM_ERASEBKGND:

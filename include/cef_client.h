@@ -41,8 +41,10 @@
 #include "include/cef_base.h"
 #include "include/cef_context_menu_handler.h"
 #include "include/cef_display_handler.h"
+#include "include/cef_focus_handler.h"
 #include "include/cef_geolocation_handler.h"
 #include "include/cef_jsdialog_handler.h"
+#include "include/cef_keyboard_handler.h"
 #include "include/cef_life_span_handler.h"
 #include "include/cef_load_handler.h"
 #include "include/cef_process_message.h"
@@ -55,26 +57,11 @@
 class CefClient : public virtual CefBase {
  public:
   ///
-  // Return the handler for browser life span events.
+  // Return the handler for context menus. If no handler is provided the default
+  // implementation will be used.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() {
-    return NULL;
-  }
-
-  ///
-  // Return the handler for browser load status events.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() {
-    return NULL;
-  }
-
-  ///
-  // Return the handler for browser request events.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() {
+  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() {
     return NULL;
   }
 
@@ -83,6 +70,14 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for focus events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() {
     return NULL;
   }
 
@@ -105,11 +100,34 @@ class CefClient : public virtual CefBase {
   }
 
   ///
-  // Return the handler for context menus. If no handler is provided the default
-  // implementation will be used.
+  // Return the handler for keyboard events.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() {
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for browser life span events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for browser load status events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for browser request events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() {
     return NULL;
   }
 

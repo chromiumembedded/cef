@@ -163,6 +163,11 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
                                      int startLine) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
+  if (jsCode.empty())
+    return;
+  if (startLine < 0)
+    startLine = 0;
+
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());
     frame_->executeScript(

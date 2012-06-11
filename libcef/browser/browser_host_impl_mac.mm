@@ -37,6 +37,17 @@
   [super dealloc];
 }
 
+- (BOOL)acceptsFirstResponder {
+  return browser_ && browser_->GetWebContents();
+}
+
+- (BOOL)becomeFirstResponder {
+  if (browser_ && browser_->GetWebContents())
+    browser_->OnSetFocus(FOCUS_SOURCE_SYSTEM);
+
+  return YES;
+}
+
 @end
 
 

@@ -57,6 +57,19 @@ bool CefDOMNodeCToCpp::IsElement() {
   return _retval?true:false;
 }
 
+bool CefDOMNodeCToCpp::IsEditable() {
+  if (CEF_MEMBER_MISSING(struct_, is_editable))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_editable(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefDOMNodeCToCpp::IsFormControlElement() {
   if (CEF_MEMBER_MISSING(struct_, is_form_control_element))
     return false;

@@ -37,18 +37,25 @@
 #if defined(OS_MACOSX)
 #include "include/internal/cef_string.h"
 
-// Window handle.
+// Handle types.
 #ifdef __cplusplus
 #ifdef __OBJC__
+@class NSCursor;
+@class NSEvent;
 @class NSView;
 #else
+class NSCursor;
+class NSEvent;
 struct NSView;
 #endif
+#define cef_cursor_handle_t NSCursor*
+#define cef_event_handle_t NSEvent*
 #define cef_window_handle_t NSView*
 #else
+#define cef_cursor_handle_t void*
+#define cef_event_handle_t void*
 #define cef_window_handle_t void*
 #endif
-#define cef_cursor_handle_t void*
 
 #ifdef __cplusplus
 extern "C" {

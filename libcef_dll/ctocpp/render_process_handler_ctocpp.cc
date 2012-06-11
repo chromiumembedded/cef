@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -127,6 +128,27 @@ void CefRenderProcessHandlerCToCpp::OnContextReleased(
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefV8ContextCppToC::Wrap(context));
+}
+
+void CefRenderProcessHandlerCToCpp::OnFocusedNodeChanged(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefDOMNode> node) {
+  if (CEF_MEMBER_MISSING(struct_, on_focused_node_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Unverified params: frame, node
+
+  // Execute
+  struct_->on_focused_node_changed(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefDOMNodeCppToC::Wrap(node));
 }
 
 bool CefRenderProcessHandlerCToCpp::OnProcessMessageRecieved(

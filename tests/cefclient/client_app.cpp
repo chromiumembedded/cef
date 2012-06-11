@@ -269,6 +269,15 @@ void ClientApp::OnContextReleased(CefRefPtr<CefBrowser> browser,
   }
 }
 
+void ClientApp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
+                                     CefRefPtr<CefDOMNode> node) {
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
+    (*it)->OnFocusedNodeChanged(this, browser, frame, node);
+}
+
 bool ClientApp::OnProcessMessageRecieved(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,

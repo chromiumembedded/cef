@@ -174,6 +174,31 @@ inline bool operator!=(const CefRect& a, const CefRect& b) {
   return !(a == b);
 }
 
+struct CefKeyEventTraits {
+  typedef cef_key_event_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+    target->type = src->type;
+    target->modifiers = src->modifiers;
+    target->windows_key_code = src->windows_key_code;
+    target->native_key_code = src->native_key_code;
+    target->is_system_key = src->is_system_key;
+    target->character = src->character;
+    target->unmodified_character = src->unmodified_character;
+    target->focus_on_editable_field = src->focus_on_editable_field;
+  }
+};
+
+///
+// Class representing a a keyboard event.
+///
+typedef CefStructBase<CefKeyEventTraits> CefKeyEvent;
+
 
 struct CefPopupFeaturesTraits {
   typedef cef_popup_features_t struct_type;

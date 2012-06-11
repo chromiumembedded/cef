@@ -60,8 +60,10 @@
 #include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
@@ -162,11 +164,13 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefDOMVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDisplayHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefFocusHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefKeyboardHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefLifeSpanHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefListValueCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefLoadHandlerCToCpp::DebugObjCt, 0);

@@ -11,6 +11,7 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
+#include "cefclient/client_renderer.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
@@ -34,7 +35,7 @@ ClientHandler::ClientHandler()
     m_ForwardHwnd(NULL),
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
-    m_bFormElementHasFocus(false) {
+    m_bFocusOnEditableField(false) {
   CreateProcessMessageDelegates(process_message_delegates_);
   CreateRequestDelegates(request_delegates_);
 }
@@ -46,6 +47,17 @@ bool ClientHandler::OnProcessMessageRecieved(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
+  // Check for messages from the client renderer.
+  std::string message_name = message->GetName();
+  if (message_name == client_renderer::kFocusedNodeChangedMessage) {
+    // A message is sent from ClientRenderDelegate to tell us whether the
+    // currently focused DOM node is editable. Use of |m_bFocusOnEditableField|
+    // is redundant with CefKeyEvent.focus_on_editable_field in OnPreKeyEvent
+    // but is useful for demonstration purposes.
+    m_bFocusOnEditableField = message->GetArgumentList()->GetBool(0);
+    return true;
+  }
+
   bool handled = false;
 
   // Execute delegate callbacks.
@@ -56,6 +68,129 @@ bool ClientHandler::OnProcessMessageRecieved(
   }
 
   return handled;
+}
+
+void ClientHandler::OnBeforeContextMenu(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    CefRefPtr<CefMenuModel> model) {
+  if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
+    // Add a separator if the menu already has items.
+    if (model->GetCount() > 0)
+      model->AddSeparator();
+
+    // Add a "Show DevTools" item to all context menus.
+    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
+
+    CefString devtools_url = browser->GetHost()->GetDevToolsURL(true);
+    if (devtools_url.empty() ||
+        m_OpenDevToolsURLs.find(devtools_url) != m_OpenDevToolsURLs.end()) {
+      // Disable the menu option if DevTools isn't enabled or if a window is
+      // already open for the current URL.
+      model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
+    }
+
+    // Test context menu features.
+    BuildTestMenu(model);
+  }
+}
+
+bool ClientHandler::OnContextMenuCommand(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    int command_id,
+    EventFlags event_flags) {
+  switch (command_id) {
+    case CLIENT_ID_SHOW_DEVTOOLS:
+      ShowDevTools(browser);
+      return true;
+    default:  // Allow default handling, if any.
+      return ExecuteTestMenu(command_id);
+  }
+}
+
+void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                         bool isLoading,
+                                         bool canGoBack,
+                                         bool canGoForward) {
+  REQUIRE_UI_THREAD();
+  SetLoading(isLoading);
+  SetNavState(canGoBack, canGoForward);
+}
+
+bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                     const CefString& message,
+                                     const CefString& source,
+                                     int line) {
+  REQUIRE_UI_THREAD();
+
+  bool first_message;
+  std::string logFile;
+
+  {
+    AutoLock lock_scope(this);
+
+    first_message = m_LogFile.empty();
+    if (first_message) {
+      std::stringstream ss;
+      ss << AppGetWorkingDirectory();
+#if defined(OS_WIN)
+      ss << "\\";
+#else
+      ss << "/";
+#endif
+      ss << "console.log";
+      m_LogFile = ss.str();
+    }
+    logFile = m_LogFile;
+  }
+
+  FILE* file = fopen(logFile.c_str(), "a");
+  if (file) {
+    std::stringstream ss;
+    ss << "Message: " << std::string(message) << "\r\nSource: " <<
+        std::string(source) << "\r\nLine: " << line <<
+        "\r\n-----------------------\r\n";
+    fputs(ss.str().c_str(), file);
+    fclose(file);
+
+    if (first_message)
+      SendNotification(NOTIFY_CONSOLE_MESSAGE);
+  }
+
+  return false;
+}
+
+void ClientHandler::OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
+      CefRefPtr<CefGeolocationCallback> callback) {
+  // Allow geolocation access from all websites.
+  callback->Continue(true);
+}
+
+bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
+                                  const CefKeyEvent& event,
+                                  CefEventHandle os_event,
+                                  bool* is_keyboard_shortcut) {
+  ASSERT(m_bFocusOnEditableField == event.focus_on_editable_field);
+  if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
+    // Special handling for the space character when an input element does not
+    // have focus. Handling the event in OnPreKeyEvent() keeps the event from
+    // being processed in the renderer. If we instead handled the event in the
+    // OnKeyEvent() method the space key would cause the window to scroll in
+    // addition to showing the alert box.
+    if (event.type == KEYEVENT_RAWKEYDOWN) {
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "alert('You pressed the space bar!');", "", 0);
+    }
+    return true;
+  }
+
+  return false;
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -192,108 +327,6 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     handler = (*it)->GetResourceHandler(this, browser, frame, request);
 
   return handler;
-}
-
-void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                                         bool isLoading,
-                                         bool canGoBack,
-                                         bool canGoForward) {
-  REQUIRE_UI_THREAD();
-  SetLoading(isLoading);
-  SetNavState(canGoBack, canGoForward);
-}
-
-bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
-                                     const CefString& message,
-                                     const CefString& source,
-                                     int line) {
-  REQUIRE_UI_THREAD();
-
-  bool first_message;
-  std::string logFile;
-
-  {
-    AutoLock lock_scope(this);
-
-    first_message = m_LogFile.empty();
-    if (first_message) {
-      std::stringstream ss;
-      ss << AppGetWorkingDirectory();
-#if defined(OS_WIN)
-      ss << "\\";
-#else
-      ss << "/";
-#endif
-      ss << "console.log";
-      m_LogFile = ss.str();
-    }
-    logFile = m_LogFile;
-  }
-
-  FILE* file = fopen(logFile.c_str(), "a");
-  if (file) {
-    std::stringstream ss;
-    ss << "Message: " << std::string(message) << "\r\nSource: " <<
-        std::string(source) << "\r\nLine: " << line <<
-        "\r\n-----------------------\r\n";
-    fputs(ss.str().c_str(), file);
-    fclose(file);
-
-    if (first_message)
-      SendNotification(NOTIFY_CONSOLE_MESSAGE);
-  }
-
-  return false;
-}
-
-void ClientHandler::OnRequestGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
-      int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) {
-  // Allow geolocation access from all websites.
-  callback->Continue(true);
-}
-
-void ClientHandler::OnBeforeContextMenu(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params,
-    CefRefPtr<CefMenuModel> model) {
-  if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
-    // Add a separator if the menu already has items.
-    if (model->GetCount() > 0)
-      model->AddSeparator();
-
-    // Add a "Show DevTools" item to all context menus.
-    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
-
-    CefString devtools_url = browser->GetHost()->GetDevToolsURL(true);
-    if (devtools_url.empty() ||
-        m_OpenDevToolsURLs.find(devtools_url) != m_OpenDevToolsURLs.end()) {
-      // Disable the menu option if DevTools isn't enabled or if a window is
-      // already open for the current URL.
-      model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
-    }
-
-    // Test context menu features.
-    BuildTestMenu(model);
-  }
-}
-
-bool ClientHandler::OnContextMenuCommand(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params,
-    int command_id,
-    EventFlags event_flags) {
-  switch (command_id) {
-    case CLIENT_ID_SHOW_DEVTOOLS:
-      ShowDevTools(browser);
-      return true;
-    default:  // Allow default handling, if any.
-      return ExecuteTestMenu(command_id);
-  }
 }
 
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {

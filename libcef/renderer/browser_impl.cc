@@ -13,6 +13,7 @@
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/response_manager.h"
 #include "libcef/renderer/content_renderer_client.h"
+#include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/webkit_glue.h"
 
@@ -459,6 +460,29 @@ void CefBrowserImpl::FrameDetached(WebFrame* frame) {
 }
 
 void CefBrowserImpl::FocusedNodeChanged(const WebKit::WebNode& node) {
+  // Notify the handler.
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        app->GetRenderProcessHandler();
+    if (handler.get()) {
+      if (node.isNull()) {
+        handler->OnFocusedNodeChanged(this, GetFocusedFrame(), NULL);
+      } else {
+        const WebKit::WebDocument& document = node.document();
+        if (!document.isNull()) {
+          WebKit::WebFrame* frame = document.frame();
+          CefRefPtr<CefDOMDocumentImpl> documentImpl =
+              new CefDOMDocumentImpl(this, frame);
+          handler->OnFocusedNodeChanged(this,
+              GetWebFrameImpl(frame).get(),
+              documentImpl->GetOrCreateNode(node));
+          documentImpl->Detach();
+        }
+      }
+    }
+  }
+
   // TODO(cef): This method is being used as a work-around for identifying frame
   // focus changes. The ideal approach would be implementating delegation from
   // ChromeClientImpl::focusedFrameChanged().
@@ -582,7 +606,6 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         params.arguments.GetString(1, &code);
         DCHECK(!code.empty());
         params.arguments.GetString(2, &script_url);
-        DCHECK(!script_url.empty());
         params.arguments.GetInteger(3, &script_start_line);
         DCHECK_GE(script_start_line, 0);
 
@@ -633,9 +656,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         string16 string, url;
 
         params.arguments.GetString(0, &string);
-        DCHECK(!string.empty());
         params.arguments.GetString(1, &url);
-        DCHECK(!url.empty());
 
         web_frame->loadHTMLString(UTF16ToUTF8(string), GURL(UTF16ToUTF8(url)));
       }

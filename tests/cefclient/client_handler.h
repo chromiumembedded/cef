@@ -20,12 +20,13 @@
 
 // ClientHandler implementation.
 class ClientHandler : public CefClient,
-                      public CefLifeSpanHandler,
-                      public CefLoadHandler,
-                      public CefRequestHandler,
+                      public CefContextMenuHandler,
                       public CefDisplayHandler,
                       public CefGeolocationHandler,
-                      public CefContextMenuHandler {
+                      public CefKeyboardHandler,
+                      public CefLifeSpanHandler,
+                      public CefLoadHandler,
+                      public CefRequestHandler {
  public:
   // Interface for process message delegates. Do not perform work in the
   // RenderDelegate constructor.
@@ -67,6 +68,18 @@ class ClientHandler : public CefClient,
   virtual ~ClientHandler();
 
   // CefClient methods
+  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE {
+    return this;
+  }
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
     return this;
   }
@@ -76,48 +89,21 @@ class ClientHandler : public CefClient,
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
     return this;
   }
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
-    return this;
-  }
-  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
-    return this;
-  }
-  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
-    return this;
-  }
   virtual bool OnProcessMessageRecieved(CefRefPtr<CefBrowser> browser,
                                         CefProcessId source_process,
                                         CefRefPtr<CefProcessMessage> message)
                                         OVERRIDE;
 
-  // CefLifeSpanHandler methods
-  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
-                             const CefPopupFeatures& popupFeatures,
-                             CefWindowInfo& windowInfo,
-                             const CefString& url,
-                             CefRefPtr<CefClient>& client,
-                             CefBrowserSettings& settings) OVERRIDE;
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-
-  // CefLoadHandler methods
-  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame) OVERRIDE;
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE;
-  virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           ErrorCode errorCode,
-                           const CefString& errorText,
-                           const CefString& failedUrl) OVERRIDE;
-
-  // CefRequestHandler methods
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE;
+  // CefContextMenuHandler methods
+  virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefContextMenuParams> params,
+                                   CefRefPtr<CefMenuModel> model) OVERRIDE;
+  virtual bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefContextMenuParams> params,
+                                    int command_id,
+                                    EventFlags event_flags) OVERRIDE;
 
   // CefDisplayHandler methods
   virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -141,16 +127,34 @@ class ClientHandler : public CefClient,
       int request_id,
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
 
-  // CefContextMenuHandler methods
-  virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefContextMenuParams> params,
-                                   CefRefPtr<CefMenuModel> model) OVERRIDE;
-  virtual bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefContextMenuParams> params,
-                                    int command_id,
-                                    EventFlags event_flags) OVERRIDE;
+  // CefKeyboardHandler methods
+  virtual bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
+                             const CefKeyEvent& event,
+                             CefEventHandle os_event,
+                             bool* is_keyboard_shortcut) OVERRIDE;
+
+  // CefLifeSpanHandler methods
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+
+  // CefLoadHandler methods
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE;
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE;
+  virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           ErrorCode errorCode,
+                           const CefString& errorText,
+                           const CefString& failedUrl) OVERRIDE;
+
+  // CefRequestHandler methods
+  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) OVERRIDE;
 
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
@@ -224,8 +228,8 @@ class ClientHandler : public CefClient,
   // Support for downloading files.
   std::string m_LastDownloadFile;
 
-  // True if a form element currently has focus
-  bool m_bFormElementHasFocus;
+  // True if an editable field currently has focus.
+  bool m_bFocusOnEditableField;
 
   // Registered delegates.
   ProcessMessageDelegateSet process_message_delegates_;

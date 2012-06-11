@@ -206,6 +206,11 @@ typedef struct _cef_domnode_t {
   int (CEF_CALLBACK *is_element)(struct _cef_domnode_t* self);
 
   ///
+  // Returns true (1) if this is an editable node.
+  ///
+  int (CEF_CALLBACK *is_editable)(struct _cef_domnode_t* self);
+
+  ///
   // Returns true (1) if this is a form control element node.
   ///
   int (CEF_CALLBACK *is_form_control_element)(struct _cef_domnode_t* self);
