@@ -131,3 +131,10 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // TODO(cef): Is something required here to handle shortcut keys?
 }
+
+void CefBrowserHostImpl::PlatformRunFileChooser(
+    content::WebContents* contents,
+    const content::FileChooserParams& params,
+    std::vector<FilePath>& files) {
+  NOTIMPLEMENTED();
+}

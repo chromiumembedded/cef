@@ -260,3 +260,10 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
   DefWindowProc(event.os_event.hwnd, event.os_event.message,
                 event.os_event.wParam, event.os_event.lParam);
 }
+
+void CefBrowserHostImpl::PlatformRunFileChooser(
+    content::WebContents* contents,
+    const content::FileChooserParams& params,
+    std::vector<FilePath>& files) {
+  NOTIMPLEMENTED();
+}

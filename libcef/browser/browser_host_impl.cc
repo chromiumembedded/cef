@@ -6,6 +6,7 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include <string>
+#include <utility>
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
@@ -29,6 +30,8 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/resource_request_info.h"
+#include "content/public/common/file_chooser_params.h"
+#include "content/public/common/selected_file_info.h"
 
 namespace {
 
@@ -259,7 +262,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByChildID(
         content::RenderProcessHost::FromID(render_process_id);
     if (!render_process_host)
       return NULL;
-  
+
     content::RenderProcessHost::RenderWidgetHostsIterator iter(
         render_process_host->GetRenderWidgetHostsIterator());
     if (!iter.IsAtEnd()) {
@@ -276,7 +279,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByChildID(
             const_cast<content::RenderWidgetHost*>(widget)));
       }
     }
-    
+
     return NULL;
   } else {
     // Use the thread-safe approach.
@@ -1020,7 +1023,35 @@ content::JavaScriptDialogCreator*
 void CefBrowserHostImpl::RunFileChooser(
     content::WebContents* tab,
     const content::FileChooserParams& params) {
-  // TODO(cef): Implement this method to run the file chooser dialog.
+  content::RenderViewHost* render_view_host = tab->GetRenderViewHost();
+  if (!render_view_host)
+    return;
+
+  if (params.mode != content::FileChooserParams::Open &&
+      params.mode != content::FileChooserParams::OpenMultiple) {
+    NOTREACHED() << "unsupported file chooser mode requested";
+    return;
+  }
+
+  std::vector<FilePath> fileList;
+  PlatformRunFileChooser(tab, params, fileList);
+
+  const int kReadFilePermissions =
+      base::PLATFORM_FILE_OPEN |
+      base::PLATFORM_FILE_READ |
+      base::PLATFORM_FILE_EXCLUSIVE_READ |
+      base::PLATFORM_FILE_ASYNC;
+
+  // Convert FilePath list to SelectedFileInfo list.
+  std::vector<content::SelectedFileInfo> selected_files;
+  for (size_t i = 0; i < fileList.size(); ++i) {
+    selected_files.push_back(
+        content::SelectedFileInfo(fileList[i], FilePath::StringType()));
+  }
+
+  // Notify our RenderViewHost in all cases.
+  render_view_host->FilesSelectedInChooser(selected_files,
+                                           kReadFilePermissions);
 }
 
 void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,

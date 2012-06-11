@@ -312,6 +312,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // processing of shortcut keys.
   void PlatformHandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event);
+  // Invoke platform specific file open chooser.
+  void PlatformRunFileChooser(
+      content::WebContents* contents,
+      const content::FileChooserParams& params,
+      std::vector<FilePath>& files);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);

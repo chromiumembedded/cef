@@ -6,10 +6,18 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #import <Cocoa/Cocoa.h>
+#import <CoreServices/CoreServices.h>
 
+#include "base/file_util.h"
+#include "base/mac/mac_util.h"
+#include "base/string_util.h"
+#include "base/sys_string_conversions.h"
+#include "base/threading/thread_restrictions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
-#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
+#include "content/public/common/file_chooser_params.h"
+#import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/gfx/rect.h"
 
 
@@ -50,6 +58,32 @@
 
 @end
 
+namespace {
+
+// Accept-types to file-types helper.
+NSMutableArray* GetFileTypesFromAcceptTypes(
+    const std::vector<string16>& accept_types) {
+  NSMutableArray* acceptArray = [[NSMutableArray alloc] init];
+  for (size_t i=0; i<accept_types.size(); i++) {
+    std::string ascii_type = UTF16ToASCII(accept_types[i]);
+    if (ascii_type.length()) {
+      // Just treat as extension if contains '.' as the first character.
+      if (ascii_type[0] == '.') {
+        [acceptArray addObject:base::SysUTF8ToNSString(ascii_type)];
+      } else {
+        // Otherwise convert mime to UTI.
+        NSString* mimeType = base::SysUTF8ToNSString(ascii_type);
+        NSString* UTI = [NSMakeCollectable(
+            UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType,
+                (CFStringRef) mimeType, NULL)) autorelease];
+        [acceptArray addObject:UTI];
+      }
+    }
+  }
+  return acceptArray;
+}
+
+}  // namespace
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
   NOTIMPLEMENTED();
@@ -142,4 +176,57 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
   // Give the top level menu equivalents a chance to handle the event.
   if ([event.os_event type] == NSKeyDown)
     [[NSApp mainMenu] performKeyEquivalent:event.os_event];
+}
+
+void CefBrowserHostImpl::PlatformRunFileChooser(
+    content::WebContents* contents,
+    const content::FileChooserParams& params,
+    std::vector<FilePath>& files) {
+  NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+  if (!params.title.empty())
+    [openPanel setTitle:base::SysUTF16ToNSString(params.title)];
+
+  // Consider default file name if any.
+  FilePath default_file_name(params.default_file_name);
+
+  if (!default_file_name.empty()) {
+    if (!default_file_name.BaseName().empty()) {
+      NSString* defaultName = base::SysUTF8ToNSString(
+          default_file_name.BaseName().value());
+      [openPanel setNameFieldStringValue:defaultName];
+    }
+
+    if (!default_file_name.DirName().empty()) {
+      NSString* defaultDir = base::SysUTF8ToNSString(
+          default_file_name.DirName().value());
+      [openPanel setDirectoryURL:[NSURL fileURLWithPath:defaultDir]];
+    }
+  }
+
+  // Consider supported file types
+  if (!params.accept_types.empty()) {
+    [openPanel setAllowedFileTypes:GetFileTypesFromAcceptTypes(
+        params.accept_types)];
+  }
+
+  // Further panel configuration.
+  [openPanel setAllowsOtherFileTypes:YES];
+  [openPanel setAllowsMultipleSelection:
+      (params.mode == content::FileChooserParams::OpenMultiple)];
+  [openPanel setCanChooseFiles:YES];
+  [openPanel setCanChooseDirectories:NO];
+
+  // Show panel.
+  NSView* view = contents->GetNativeView();
+  [openPanel beginSheetModalForWindow:[view window] completionHandler:nil];
+  if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+    NSArray *urls = [openPanel URLs];
+    int i, count = [urls count];
+    for (i=0; i<count; i++) {
+      NSURL* url = [urls objectAtIndex:i];
+      if ([url isFileURL])
+        files.push_back(FilePath(base::SysNSStringToUTF8([url path])));
+    }
+  }
+  [NSApp endSheet:openPanel];
 }
