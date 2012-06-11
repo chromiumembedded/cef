@@ -292,9 +292,7 @@ class V8TestHandler : public TestHandler {
     CefTime date;
     date.year = 2200;
     date.month = 4;
-#if !defined(OS_MACOSX)
     date.day_of_week = 5;
-#endif
     date.day_of_month = 11;
     date.hour = 20;
     date.minute = 15;
