@@ -790,6 +790,29 @@ GURL CefBrowserHostImpl::GetLoadingURL() {
   return loading_url_;
 }
 
+void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
+  CEF_REQUIRE_UIT();
+
+  // SetFocus() might be called while inside the OnSetFocus() callback. If so,
+  // don't re-enter the callback.
+  if (!is_in_onsetfocus_) {
+    if (client_.get()) {
+      CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+      if (handler.get()) {
+        is_in_onsetfocus_ = true;
+        bool handled = handler->OnSetFocus(this, source);
+        is_in_onsetfocus_ = false;
+
+        if (handled)
+          return;
+      }
+    }
+  }
+
+  if (web_contents_.get())
+    web_contents_->Focus();
+}
+
 
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
@@ -1404,25 +1427,3 @@ void CefBrowserHostImpl::OnLoadEnd(CefRefPtr<CefFrame> frame,
   }
 }
 
-void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
-  CEF_REQUIRE_UIT();
-
-  // SetFocus() might be called while inside the OnSetFocus() callback. If so,
-  // don't re-enter the callback.
-  if (!is_in_onsetfocus_) {
-    if (client_.get()) {
-      CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-      if (handler.get()) {
-        is_in_onsetfocus_ = true;
-        bool handled = handler->OnSetFocus(this, source);
-        is_in_onsetfocus_ = false;
-
-        if (handled)
-          return;
-      }
-    }
-  }
-
-  if (web_contents_.get())
-    web_contents_->Focus();
-}

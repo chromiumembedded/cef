@@ -191,6 +191,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static void RegisterWindowClass();
 #endif
 
+  void OnSetFocus(cef_focus_source_t source);
+
  private:
   // content::WebContentsDelegate methods.
   virtual content::WebContents* OpenURLFromTab(
@@ -322,7 +324,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    const string16& error_description);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url);
-  void OnSetFocus(cef_focus_source_t source);
 
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
