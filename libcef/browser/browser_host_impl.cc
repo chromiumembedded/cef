@@ -335,6 +335,29 @@ CefString CefBrowserHostImpl::GetDevToolsURL(bool http_scheme) {
   return (http_scheme ? devtools_url_http_ : devtools_url_chrome_);
 }
 
+double CefBrowserHostImpl::GetZoomLevel() {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return 0;
+  }
+
+  if (web_contents_.get())
+    return web_contents_->GetZoomLevel();
+
+  return 0;
+}
+
+void CefBrowserHostImpl::SetZoomLevel(double zoomLevel) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (web_contents_.get() && web_contents_->GetRenderViewHost())
+      web_contents_->GetRenderViewHost()->SetZoomLevel(zoomLevel);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SetZoomLevel, this, zoomLevel));
+  }
+}
+
 
 // CefBrowser methods.
 // -----------------------------------------------------------------------------

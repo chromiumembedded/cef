@@ -181,7 +181,9 @@ class CefBrowser : public virtual CefBase {
 
 ///
 // Class used to represent the browser process aspects of a browser window. The
-// methods of this class can only be called in the browser process.
+// methods of this class can only be called in the browser process. They may be
+// called on any thread in that process unless otherwise indicated in the
+// comments.
 ///
 /*--cef(source=library)--*/
 class CefBrowserHost : public virtual CefBase {
@@ -267,6 +269,18 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefString GetDevToolsURL(bool http_scheme) =0;
+
+  ///
+  // Get the zoom level. This method can only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual double GetZoomLevel() =0;
+
+  ///
+  // Change the zoom level to the specified value.
+  ///
+  /*--cef()--*/
+  virtual void SetZoomLevel(double zoomLevel) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

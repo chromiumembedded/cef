@@ -150,6 +150,37 @@ gboolean HTML5DragDropActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+
+// Callback for Debug > Zoom In... menu item.
+gboolean ZoomInActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + 0.5);
+  }
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Zoom Out... menu item.
+gboolean ZoomOutActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() - 0.5);
+  }
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Zoom Reset... menu item.
+gboolean ZoomResetActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(0.0);
+  }
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for when you click the back button.
 void BackButtonClicked(GtkButton* button) {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -235,6 +266,12 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(HTML5VideoActivated));
   AddMenuEntry(debug_menu, "HTML5 Drag & Drop",
                G_CALLBACK(HTML5DragDropActivated));
+  AddMenuEntry(debug_menu, "Zoom In",
+               G_CALLBACK(ZoomInActivated));
+  AddMenuEntry(debug_menu, "Zoom Out",
+               G_CALLBACK(ZoomOutActivated));
+  AddMenuEntry(debug_menu, "Zoom Reset",
+               G_CALLBACK(ZoomResetActivated));
   return menu_bar;
 }
 

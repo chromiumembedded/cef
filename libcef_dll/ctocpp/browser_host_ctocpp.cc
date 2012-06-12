@@ -163,6 +163,30 @@ CefString CefBrowserHostCToCpp::GetDevToolsURL(bool http_scheme) {
   return _retvalStr;
 }
 
+double CefBrowserHostCToCpp::GetZoomLevel() {
+  if (CEF_MEMBER_MISSING(struct_, get_zoom_level))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  double _retval = struct_->get_zoom_level(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefBrowserHostCToCpp::SetZoomLevel(double zoomLevel) {
+  if (CEF_MEMBER_MISSING(struct_, set_zoom_level))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->set_zoom_level(struct_,
+      zoomLevel);
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,

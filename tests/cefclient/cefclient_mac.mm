@@ -203,6 +203,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testWebGL:(id)sender;
 - (IBAction)testHTML5Video:(id)sender;
 - (IBAction)testDragDrop:(id)sender;
+- (IBAction)testZoomIn:(id)sender;
+- (IBAction)testZoomOut:(id)sender;
+- (IBAction)testZoomReset:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -268,6 +271,15 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Drag & Drop"
                       action:@selector(testDragDrop:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom In"
+                      action:@selector(testZoomIn:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom Out"
+                      action:@selector(testZoomOut:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Zoom Reset"
+                      action:@selector(testZoomReset:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -439,6 +451,28 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunDragDropTest(g_handler->GetBrowser());
 }
+
+- (IBAtion)testZoomIn:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + 0.5);
+  }
+}
+
+- (IBAction)testZoomOut:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() - 0.5);
+  }
+}
+
+- (IBAction)testZoomReset:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    browser->GetHost()->SetZoomLevel(0.0);
+  }
+}
+
 
 // Sent by the default notification center immediately before the application
 // terminates.

@@ -105,6 +105,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
   virtual CefString GetDevToolsURL(bool http_scheme) OVERRIDE;
+  virtual double GetZoomLevel() OVERRIDE;
+  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;

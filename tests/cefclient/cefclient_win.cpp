@@ -180,6 +180,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
   return TRUE;
 }
 
+// Change the zoom factor on the UI thread.
+static void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
+  if (CefCurrentlyOn(TID_UI)) {
+    browser->GetHost()->SetZoomLevel(
+        browser->GetHost()->GetZoomLevel() + delta);
+  } else {
+    CefPostTask(TID_UI, NewCefRunnableFunction(ModifyZoom, browser, delta));
+  }
+}
+
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -421,6 +431,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_GEOLOCATION:  // Test geolocation
         if (browser.get())
           RunGeolocationTest(browser);
+        return 0;
+      case ID_TESTS_ZOOM_IN:
+        if (browser.get())
+          ModifyZoom(browser, 0.5);
+        return 0;
+      case ID_TESTS_ZOOM_OUT:
+        if (browser.get())
+          ModifyZoom(browser, -0.5);
+        return 0;
+      case ID_TESTS_ZOOM_RESET:
+        if (browser.get())
+          browser->GetHost()->SetZoomLevel(0.0);
         return 0;
       }
       break;

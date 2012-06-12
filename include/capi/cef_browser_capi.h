@@ -171,6 +171,8 @@ typedef struct _cef_browser_t {
 ///
 // Structure used to represent the browser process aspects of a browser window.
 // The functions of this structure can only be called in the browser process.
+// They may be called on any thread in that process unless otherwise indicated
+// in the comments.
 ///
 typedef struct _cef_browser_host_t {
   ///
@@ -234,6 +236,17 @@ typedef struct _cef_browser_host_t {
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_dev_tools_url)(
       struct _cef_browser_host_t* self, int http_scheme);
+
+  ///
+  // Get the zoom level. This function can only be called on the UI thread.
+  ///
+  double (CEF_CALLBACK *get_zoom_level)(struct _cef_browser_host_t* self);
+
+  ///
+  // Change the zoom level to the specified value.
+  ///
+  void (CEF_CALLBACK *set_zoom_level)(struct _cef_browser_host_t* self,
+      double zoomLevel);
 } cef_browser_host_t;
 
 

@@ -41,6 +41,9 @@
 #define ID_TESTS_DIALOGS                32774
 #define ID_TESTS_PLUGIN_INFO            32775
 #define ID_TESTS_DOM_ACCESS             32776
+#define ID_TESTS_ZOOM_IN                32777
+#define ID_TESTS_ZOOM_OUT               32778
+#define ID_TESTS_ZOOM_RESET             32779
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
