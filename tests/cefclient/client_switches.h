@@ -21,19 +21,8 @@ extern const char kLogSeverity_Warning[];
 extern const char kLogSeverity_Error[];
 extern const char kLogSeverity_ErrorReport[];
 extern const char kLogSeverity_Disable[];
-extern const char kGraphicsImpl[];
-extern const char kGraphicsImpl_Angle[];
-extern const char kGraphicsImpl_AngleCmdBuffer[];
-extern const char kGraphicsImpl_Desktop[];
-extern const char kGraphicsImpl_DesktopCmdBuffer[];
-extern const char kLocalStorageQuota[];
-extern const char kSessionStorageQuota[];
-extern const char kJavascriptFlags[];
 
 // CefBrowserSettings attributes.
-extern const char kDragDropDisabled[];
-extern const char kLoadDropsDisabled[];
-extern const char kHistoryDisabled[];
 extern const char kRemoteFontsDisabled[];
 extern const char kDefaultEncoding[];
 extern const char kEncodingDetectorEnabled[];

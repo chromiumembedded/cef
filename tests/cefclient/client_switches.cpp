@@ -19,19 +19,8 @@ const char kLogSeverity_Warning[] = "warning";
 const char kLogSeverity_Error[] = "error";
 const char kLogSeverity_ErrorReport[] = "error-report";
 const char kLogSeverity_Disable[] = "disable";
-const char kGraphicsImpl[] = "graphics-implementation";
-const char kGraphicsImpl_Angle[] = "angle";
-const char kGraphicsImpl_AngleCmdBuffer[] = "angle-command-buffer";
-const char kGraphicsImpl_Desktop[] = "desktop";
-const char kGraphicsImpl_DesktopCmdBuffer[] = "desktop-command-buffer";
-const char kLocalStorageQuota[] = "local-storage-quota";
-const char kSessionStorageQuota[] = "session-storage-quota";
-const char kJavascriptFlags[] = "javascript-flags";
 
 // CefBrowserSettings attributes.
-const char kDragDropDisabled[] = "drag-drop-disabled";
-const char kLoadDropsDisabled[] = "load-drops-disabled";
-const char kHistoryDisabled[] = "history-disabled";
 const char kRemoteFontsDisabled[] = "remote-fonts-disabled";
 const char kDefaultEncoding[] = "default-encoding";
 const char kEncodingDetectorEnabled[] = "encoding-detector-enabled";

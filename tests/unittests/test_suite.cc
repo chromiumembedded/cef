@@ -79,34 +79,12 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
     }
   }
 
-  {
-    std::string str =
-        commandline_->GetSwitchValueASCII(cefclient::kGraphicsImpl);
-    if (!str.empty()) {
-#if defined(OS_WIN)
-      if (str == cefclient::kGraphicsImpl_Angle)
-        settings.graphics_implementation = ANGLE_IN_PROCESS;
-      else if (str == cefclient::kGraphicsImpl_AngleCmdBuffer)
-        settings.graphics_implementation = ANGLE_IN_PROCESS_COMMAND_BUFFER;
-      else
-#endif
-      if (str == cefclient::kGraphicsImpl_Desktop)
-        settings.graphics_implementation = DESKTOP_IN_PROCESS;
-      else if (str == cefclient::kGraphicsImpl_DesktopCmdBuffer)
-        settings.graphics_implementation = DESKTOP_IN_PROCESS_COMMAND_BUFFER;
-    }
-  }
-
-  settings.local_storage_quota = atoi(commandline_->GetSwitchValueASCII(
-      cefclient::kLocalStorageQuota).c_str());
-  settings.session_storage_quota = atoi(commandline_->GetSwitchValueASCII(
-      cefclient::kSessionStorageQuota).c_str());
-
   // Always expose the V8 gc() function to give tests finer-grained control over
   // memory management.
   std::string javascript_flags = "--expose-gc";
+  // Value of kJavascriptFlags switch.
   std::string other_javascript_flags =
-      commandline_->GetSwitchValueASCII(cefclient::kJavascriptFlags);
+      commandline_->GetSwitchValueASCII("js-flags");
   if (!other_javascript_flags.empty())
     javascript_flags += " " + other_javascript_flags;
   CefString(&settings.javascript_flags) = javascript_flags;

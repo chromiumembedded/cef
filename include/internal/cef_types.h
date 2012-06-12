@@ -169,12 +169,6 @@ typedef struct _cef_settings_t {
   cef_string_t locale;
 
   ///
-  // List of fully qualified paths to plugins (including plugin name) that will
-  // be loaded in addition to any plugins found in the default search paths.
-  ///
-  cef_string_list_t extra_plugin_paths;
-
-  ///
   // The directory and file name to use for the debug log. If empty, the
   // default name of "debug.log" will be used and the file will be written
   // to the application directory.
@@ -188,35 +182,17 @@ typedef struct _cef_settings_t {
   cef_log_severity_t log_severity;
 
   ///
-  // The graphics implementation that CEF will use for rendering GPU accelerated
-  // content like WebGL, accelerated layers and 3D CSS.
-  ///
-  cef_graphics_implementation_t graphics_implementation;
-
-  ///
-  // Quota limit for localStorage data across all origins. Default size is 5MB.
-  ///
-  unsigned int local_storage_quota;
-
-  ///
-  // Quota limit for sessionStorage data per namespace. Default size is 5MB.
-  ///
-  unsigned int session_storage_quota;
-
-  ///
   // Custom flags that will be used when initializing the V8 JavaScript engine.
   // The consequences of using custom flags may not be well tested.
   ///
   cef_string_t javascript_flags;
 
-#if defined(OS_WIN)
   ///
   // Set to true (1) to use the system proxy resolver on Windows when
   // "Automatically detect settings" is checked. This setting is disabled
   // by default for performance reasons.
   ///
   bool auto_detect_proxy_settings_enabled;
-#endif
 
   ///
   // The fully qualified path for the cef.pak file. If this value is empty
@@ -261,21 +237,6 @@ typedef struct _cef_browser_settings_t {
   // Size of this structure.
   ///
   size_t size;
-
-  ///
-  // Disable drag & drop of URLs from other windows.
-  ///
-  bool drag_drop_disabled;
-
-  ///
-  // Disable default navigation resulting from drag & drop of URLs.
-  ///
-  bool load_drops_disabled;
-
-  ///
-  // Disable history back/forward navigation.
-  ///
-  bool history_disabled;
 
   // The below values map to WebPreferences settings.
 

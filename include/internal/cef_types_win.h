@@ -55,16 +55,6 @@ typedef struct _cef_main_args_t {
 } cef_main_args_t;
 
 ///
-// Supported graphics implementations.
-///
-enum cef_graphics_implementation_t {
-  ANGLE_IN_PROCESS = 0,
-  ANGLE_IN_PROCESS_COMMAND_BUFFER,
-  DESKTOP_IN_PROCESS,
-  DESKTOP_IN_PROCESS_COMMAND_BUFFER,
-};
-
-///
 // Structure representing window information.
 ///
 typedef struct _cef_window_info_t {

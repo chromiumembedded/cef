@@ -140,50 +140,50 @@ void CefResourceRequestJob::Start() {
 
   cef_request_ = CefRequest::CreateRequest();
 
-    // Populate the request data.
-    static_cast<CefRequestImpl*>(cef_request_.get())->Set(request_);
+  // Populate the request data.
+  static_cast<CefRequestImpl*>(cef_request_.get())->Set(request_);
 
-    // Add default headers if not already specified.
-    const net::URLRequestContext* context = request_->context();
-    if (context) {
-      CefRequest::HeaderMap::const_iterator it;
-      CefRequest::HeaderMap headerMap;
-      cef_request_->GetHeaderMap(headerMap);
-      bool changed = false;
+  // Add default headers if not already specified.
+  const net::URLRequestContext* context = request_->context();
+  if (context) {
+    CefRequest::HeaderMap::const_iterator it;
+    CefRequest::HeaderMap headerMap;
+    cef_request_->GetHeaderMap(headerMap);
+    bool changed = false;
 
-      if (!context->accept_language().empty()) {
-        it = headerMap.find(net::HttpRequestHeaders::kAcceptLanguage);
-        if (it == headerMap.end()) {
-          headerMap.insert(
-              std::make_pair(net::HttpRequestHeaders::kAcceptLanguage,
-                             context->accept_language()));
-        }
-        changed = true;
-      }
-
-      if (!context->accept_charset().empty()) {
-        it = headerMap.find(net::HttpRequestHeaders::kAcceptCharset);
-        if (it == headerMap.end()) {
-          headerMap.insert(
-              std::make_pair(net::HttpRequestHeaders::kAcceptCharset,
-                             context->accept_charset()));
-        }
-        changed = true;
-      }
-
-      it = headerMap.find(net::HttpRequestHeaders::kUserAgent);
+    if (!context->accept_language().empty()) {
+      it = headerMap.find(net::HttpRequestHeaders::kAcceptLanguage);
       if (it == headerMap.end()) {
         headerMap.insert(
-            std::make_pair(net::HttpRequestHeaders::kUserAgent,
-                           context->GetUserAgent(request_->url())));
-        changed = true;
+            std::make_pair(net::HttpRequestHeaders::kAcceptLanguage,
+                           context->accept_language()));
       }
-
-      if (changed)
-        cef_request_->SetHeaderMap(headerMap);
+      changed = true;
     }
 
-    AddCookieHeaderAndStart();
+    if (!context->accept_charset().empty()) {
+      it = headerMap.find(net::HttpRequestHeaders::kAcceptCharset);
+      if (it == headerMap.end()) {
+        headerMap.insert(
+            std::make_pair(net::HttpRequestHeaders::kAcceptCharset,
+                           context->accept_charset()));
+      }
+      changed = true;
+    }
+
+    it = headerMap.find(net::HttpRequestHeaders::kUserAgent);
+    if (it == headerMap.end()) {
+      headerMap.insert(
+          std::make_pair(net::HttpRequestHeaders::kUserAgent,
+                         context->GetUserAgent(request_->url())));
+      changed = true;
+    }
+
+    if (changed)
+      cef_request_->SetHeaderMap(headerMap);
+  }
+
+  AddCookieHeaderAndStart();
 }
 
 void CefResourceRequestJob::Kill() {

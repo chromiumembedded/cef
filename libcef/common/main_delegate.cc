@@ -188,6 +188,11 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           CefString(&settings.locale));
     }
 
+    if (settings.javascript_flags.length > 0) {
+      command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
+          CefString(&settings.javascript_flags));
+    }
+
     if (settings.pack_loading_disabled) {
       command_line->AppendSwitch(switches::kPackLoadingDisabled);
     } else {
