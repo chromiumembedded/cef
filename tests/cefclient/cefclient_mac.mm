@@ -452,7 +452,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunDragDropTest(g_handler->GetBrowser());
 }
 
-- (IBAtion)testZoomIn:(id)sender {
+- (IBAction)testZoomIn:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + 0.5);
