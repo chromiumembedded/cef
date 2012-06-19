@@ -948,9 +948,11 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
   ClearTestSchemes();
 }
 
-// Called to register custom schemes.
+// Entry point for registering custom schemes.
+// Called from client_app_delegates.cc.
 void RegisterSchemeHandlerCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) {
+      CefRefPtr<CefSchemeRegistrar> registrar,
+      std::vector<CefString>& cookiable_schemes) {
   // Add a custom standard scheme.
   registrar->AddCustomScheme("customstd", true, false, false);
   // Ad a custom non-standard scheme.

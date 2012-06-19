@@ -26,6 +26,7 @@
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
+#include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
@@ -46,6 +47,7 @@
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
+#include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
@@ -66,14 +68,11 @@
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
-#include "libcef_dll/ctocpp/post_data_ctocpp.h"
-#include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
-#include "libcef_dll/ctocpp/request_ctocpp.h"
-#include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
+#include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -144,6 +143,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefBinaryValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserHostCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefBrowserProcessHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
@@ -167,23 +167,21 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefListValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefLoadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefMenuModelCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefPostDataCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefPostDataElementCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProxyHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRenderProcessHandlerCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRequestHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefResourceBundleHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefResourceHandlerCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefResponseCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeRegistrarCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamWriterCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStringVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefURLRequestCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefURLRequestClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8AccessorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8ContextCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefV8ExceptionCToCpp::DebugObjCt, 0);

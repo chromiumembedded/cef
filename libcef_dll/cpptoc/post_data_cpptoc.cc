@@ -20,7 +20,7 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  CefRefPtr<CefPostData> _retval = CefPostData::CreatePostData();
+  CefRefPtr<CefPostData> _retval = CefPostData::Create();
 
   // Return type: refptr_same
   return CefPostDataCppToC::Wrap(_retval);
@@ -28,6 +28,20 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create() {
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+int CEF_CALLBACK post_data_is_read_only(struct _cef_post_data_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefPostDataCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
 
 size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -134,6 +148,7 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
 
 CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
     : CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>(cls) {
+  struct_.struct_.is_read_only = post_data_is_read_only;
   struct_.struct_.get_element_count = post_data_get_element_count;
   struct_.struct_.get_elements = post_data_get_elements;
   struct_.struct_.remove_element = post_data_remove_element;

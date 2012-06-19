@@ -56,6 +56,11 @@ typedef struct _cef_response_t {
   cef_base_t base;
 
   ///
+  // Returns true (1) if this object is read-only.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_response_t* self);
+
+  ///
   // Get the response status code.
   ///
   int (CEF_CALLBACK *get_status)(struct _cef_response_t* self);
@@ -110,6 +115,12 @@ typedef struct _cef_response_t {
   void (CEF_CALLBACK *set_header_map)(struct _cef_response_t* self,
       cef_string_multimap_t headerMap);
 } cef_response_t;
+
+
+///
+// Create a new cef_response_t object.
+///
+CEF_EXPORT cef_response_t* cef_response_create();
 
 
 #ifdef __cplusplus

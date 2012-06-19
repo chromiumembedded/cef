@@ -63,9 +63,8 @@ void CEF_CALLBACK load_handler_on_load_end(struct _cef_load_handler_t* self,
 }
 
 void CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
-    cef_browser_t* browser, cef_frame_t* frame,
-    enum cef_handler_errorcode_t errorCode, const cef_string_t* errorText,
-    const cef_string_t* failedUrl) {
+    cef_browser_t* browser, cef_frame_t* frame, enum cef_errorcode_t errorCode,
+    const cef_string_t* errorText, const cef_string_t* failedUrl) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

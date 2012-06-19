@@ -86,7 +86,7 @@ typedef struct _cef_load_handler_t {
   ///
   void (CEF_CALLBACK *on_load_error)(struct _cef_load_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      enum cef_handler_errorcode_t errorCode, const cef_string_t* errorText,
+      enum cef_errorcode_t errorCode, const cef_string_t* errorText,
       const cef_string_t* failedUrl);
 } cef_load_handler_t;
 

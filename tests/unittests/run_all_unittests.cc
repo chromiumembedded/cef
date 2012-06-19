@@ -10,6 +10,9 @@
 #include "base/command_line.h"
 #include "base/threading/thread.h"
 
+// Include after base/bind.h to avoid name collisions with cef_tuple.h.
+#include "include/cef_runnable.h"
+
 namespace {
 
 // Thread used to run the test suite.
@@ -25,13 +28,7 @@ class CefTestThread : public base::Thread {
     retval_ = test_suite_->Run();
 
     // Quit the CEF message loop.
-    class QuitTask : public CefTask {
-     public:
-      QuitTask() {}
-      virtual void Execute(CefThreadId threadId) { CefQuitMessageLoop(); }
-      IMPLEMENT_REFCOUNTING(QuitTask);
-    };
-    CefPostTask(TID_UI, new QuitTask());
+    CefPostTask(TID_UI, NewCefRunnableFunction(CefQuitMessageLoop));
   }
 
   int retval() { return retval_; }
@@ -40,6 +37,13 @@ class CefTestThread : public base::Thread {
   CefTestSuite* test_suite_;
   int retval_;
 };
+
+// Called on the UI thread.
+void RunTests(CefTestThread* thread) {
+  // Run the test suite on the test thread.
+  thread->message_loop()->PostTask(FROM_HERE,
+      base::Bind(&CefTestThread::RunTests, base::Unretained(thread)));
+}
 
 }  // namespace
 
@@ -88,9 +92,9 @@ int main(int argc, char* argv[]) {
     if (!thread->Start())
       return 1;
 
-    // Run the test suite on the test thread.
-    thread->message_loop()->PostTask(FROM_HERE,
-        base::Bind(&CefTestThread::RunTests, base::Unretained(thread.get())));
+    // Start the tests from the UI thread so that any pending UI tasks get a
+    // chance to execute first.
+    CefPostTask(TID_UI, NewCefRunnableFunction(RunTests, thread.get()));
 
     // Run the CEF message loop.
     CefRunMessageLoop();

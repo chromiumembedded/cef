@@ -56,6 +56,11 @@ typedef struct _cef_request_t {
   cef_base_t base;
 
   ///
+  // Returns true (1) if this object is read-only.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_request_t* self);
+
+  ///
   // Get the fully qualified URL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
@@ -112,20 +117,20 @@ typedef struct _cef_request_t {
       cef_string_multimap_t headerMap);
 
   ///
-  // Get the flags used in combination with CefWebURLRequest.
+  // Get the flags used in combination with cef_urlrequest_t. See
+  // cef_urlrequest_flags_t for supported values.
   ///
-  enum cef_weburlrequest_flags_t (CEF_CALLBACK *get_flags)(
-      struct _cef_request_t* self);
+  int (CEF_CALLBACK *get_flags)(struct _cef_request_t* self);
 
   ///
-  // Set the flags used in combination with CefWebURLRequest.
+  // Set the flags used in combination with cef_urlrequest_t.  See
+  // cef_urlrequest_flags_t for supported values.
   ///
-  void (CEF_CALLBACK *set_flags)(struct _cef_request_t* self,
-      enum cef_weburlrequest_flags_t flags);
+  void (CEF_CALLBACK *set_flags)(struct _cef_request_t* self, int flags);
 
   ///
   // Set the URL to the first party for cookies used in combination with
-  // CefWebURLRequest.
+  // cef_urlrequest_t.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_first_party_for_cookies)(
@@ -133,7 +138,7 @@ typedef struct _cef_request_t {
 
   ///
   // Get the URL to the first party for cookies used in combination with
-  // CefWebURLRequest.
+  // cef_urlrequest_t.
   ///
   void (CEF_CALLBACK *set_first_party_for_cookies)(struct _cef_request_t* self,
       const cef_string_t* url);
@@ -155,6 +160,11 @@ typedef struct _cef_post_data_t {
   // Base structure.
   ///
   cef_base_t base;
+
+  ///
+  // Returns true (1) if this object is read-only.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_post_data_t* self);
 
   ///
   // Returns the number of existing post data elements.
@@ -202,6 +212,11 @@ typedef struct _cef_post_data_element_t {
   // Base structure.
   ///
   cef_base_t base;
+
+  ///
+  // Returns true (1) if this object is read-only.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_post_data_element_t* self);
 
   ///
   // Remove all contents from the post data element.

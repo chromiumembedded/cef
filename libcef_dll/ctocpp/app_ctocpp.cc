@@ -13,7 +13,7 @@
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
-#include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 
@@ -56,20 +56,6 @@ void CefAppCToCpp::OnRegisterCustomSchemes(
       CefSchemeRegistrarCppToC::Wrap(registrar));
 }
 
-CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_render_process_handler))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_render_process_handler_t* _retval = struct_->get_render_process_handler(
-      struct_);
-
-  // Return type: refptr_same
-  return CefRenderProcessHandlerCToCpp::Wrap(_retval);
-}
-
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_resource_bundle_handler))
     return NULL;
@@ -84,17 +70,32 @@ CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   return CefResourceBundleHandlerCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefProxyHandler> CefAppCToCpp::GetProxyHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_proxy_handler))
+CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_browser_process_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_proxy_handler_t* _retval = struct_->get_proxy_handler(struct_);
+  cef_browser_process_handler_t* _retval = struct_->get_browser_process_handler(
+      struct_);
 
   // Return type: refptr_same
-  return CefProxyHandlerCToCpp::Wrap(_retval);
+  return CefBrowserProcessHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_render_process_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_render_process_handler_t* _retval = struct_->get_render_process_handler(
+      struct_);
+
+  // Return type: refptr_same
+  return CefRenderProcessHandlerCToCpp::Wrap(_retval);
 }
 
 

@@ -17,7 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefRequest> CefRequest::CreateRequest() {
+CefRefPtr<CefRequest> CefRequest::Create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -29,6 +29,19 @@ CefRefPtr<CefRequest> CefRequest::CreateRequest() {
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+bool CefRequestCToCpp::IsReadOnly() {
+  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_read_only(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
 
 CefString CefRequestCToCpp::GetURL() {
   if (CEF_MEMBER_MISSING(struct_, get_url))
@@ -201,20 +214,20 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     cef_string_multimap_free(headerMapMultimap);
 }
 
-CefRequest::RequestFlags CefRequestCToCpp::GetFlags() {
+int CefRequestCToCpp::GetFlags() {
   if (CEF_MEMBER_MISSING(struct_, get_flags))
-    return WUR_FLAG_NONE;
+    return UR_FLAG_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_weburlrequest_flags_t _retval = struct_->get_flags(struct_);
+  int _retval = struct_->get_flags(struct_);
 
   // Return type: simple
   return _retval;
 }
 
-void CefRequestCToCpp::SetFlags(RequestFlags flags) {
+void CefRequestCToCpp::SetFlags(int flags) {
   if (CEF_MEMBER_MISSING(struct_, set_flags))
     return;
 

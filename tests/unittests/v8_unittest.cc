@@ -1495,8 +1495,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 // Browser side.
 class V8TestHandler : public TestHandler {
  public:
-  explicit V8TestHandler(V8TestMode test_mode,
-                         const char* test_url)
+  V8TestHandler(V8TestMode test_mode, const char* test_url)
     : test_mode_(test_mode),
       test_url_(test_url) {
   }

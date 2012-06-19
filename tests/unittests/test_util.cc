@@ -6,6 +6,107 @@
 #include "tests/unittests/test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+void TestMapEqual(CefRequest::HeaderMap& map1,
+                  CefRequest::HeaderMap& map2,
+                  bool allowExtras) {
+  if (!allowExtras)
+    EXPECT_EQ(map1.size(), map2.size());
+  CefRequest::HeaderMap::const_iterator it1, it2;
+
+  for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
+    it2 = map2.find(it1->first);
+    EXPECT_TRUE(it2 != map2.end());
+    if (it2 != map2.end()) {
+      EXPECT_STREQ(it1->second.ToString().c_str(),
+                   it2->second.ToString().c_str());
+    }
+  }
+}
+
+void TestPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
+                              CefRefPtr<CefPostDataElement> elem2) {
+  EXPECT_TRUE(elem1.get());
+  EXPECT_TRUE(elem2.get());
+
+  EXPECT_EQ(elem1->GetType(), elem2->GetType());
+  switch (elem1->GetType()) {
+    case PDE_TYPE_BYTES: {
+      EXPECT_EQ(elem1->GetBytesCount(), elem2->GetBytesCount());
+      size_t bytesCt = elem1->GetBytesCount();
+      char* buff1 = new char[bytesCt];
+      char* buff2 = new char[bytesCt];
+      elem1->GetBytes(bytesCt, buff1);
+      elem2->GetBytes(bytesCt, buff2);
+      EXPECT_TRUE(!memcmp(buff1, buff2, bytesCt));
+      delete [] buff1;
+      delete [] buff2;
+    }  break;
+    case PDE_TYPE_FILE:
+      EXPECT_EQ(elem1->GetFile(), elem2->GetFile());
+      break;
+    default:
+      break;
+  }
+}
+
+void TestPostDataEqual(CefRefPtr<CefPostData> postData1,
+                       CefRefPtr<CefPostData> postData2) {
+  EXPECT_TRUE(postData1.get());
+  EXPECT_TRUE(postData2.get());
+
+  EXPECT_EQ(postData1->GetElementCount(), postData2->GetElementCount());
+
+  CefPostData::ElementVector ev1, ev2;
+  postData1->GetElements(ev1);
+  postData1->GetElements(ev2);
+  ASSERT_EQ(ev1.size(), ev2.size());
+
+  CefPostData::ElementVector::const_iterator it1 = ev1.begin();
+  CefPostData::ElementVector::const_iterator it2 = ev2.begin();
+  for (; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2)
+    TestPostDataElementEqual((*it1), (*it2));
+}
+
+void TestRequestEqual(CefRefPtr<CefRequest> request1,
+                      CefRefPtr<CefRequest> request2,
+                      bool allowExtras) {
+  EXPECT_TRUE(request1.get());
+  EXPECT_TRUE(request2.get());
+
+  EXPECT_STREQ(request1->GetURL().ToString().c_str(),
+               request2->GetURL().ToString().c_str());
+  EXPECT_STREQ(request1->GetMethod().ToString().c_str(),
+               request2->GetMethod().ToString().c_str());
+
+  CefRequest::HeaderMap headers1, headers2;
+  request1->GetHeaderMap(headers1);
+  request2->GetHeaderMap(headers2);
+  TestMapEqual(headers1, headers2, allowExtras);
+
+  CefRefPtr<CefPostData> postData1 = request1->GetPostData();
+  CefRefPtr<CefPostData> postData2 = request2->GetPostData();
+  EXPECT_EQ(!!(postData1.get()), !!(postData2.get()));
+  if (postData1.get() && postData2.get())
+    TestPostDataEqual(postData1, postData2);
+}
+
+void TestResponseEqual(CefRefPtr<CefResponse> response1,
+                       CefRefPtr<CefResponse> response2,
+                       bool allowExtras) {
+  EXPECT_TRUE(response1.get());
+  EXPECT_TRUE(response2.get());
+
+  EXPECT_EQ(response1->GetStatus(), response2->GetStatus());
+  EXPECT_STREQ(response1->GetStatusText().ToString().c_str(),
+               response2->GetStatusText().ToString().c_str());
+  EXPECT_STREQ(response1->GetMimeType().ToString().c_str(),
+               response2->GetMimeType().ToString().c_str());
+
+  CefRequest::HeaderMap headers1, headers2;
+  response1->GetHeaderMap(headers1);
+  response2->GetHeaderMap(headers2);
+  TestMapEqual(headers1, headers2, allowExtras);
+}
 
 void TestBinaryEqual(CefRefPtr<CefBinaryValue> val1,
                      CefRefPtr<CefBinaryValue> val2) {

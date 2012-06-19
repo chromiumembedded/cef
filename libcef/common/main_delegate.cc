@@ -109,8 +109,7 @@ class CefUIThread : public base::Thread {
     // Use our own browser process runner.
     browser_runner_.reset(content::BrowserMainRunner::Create());
 
-    // Initialize browser process state. Results in a call to
-    // CefBrowserMain::GetMainMessageLoop().
+    // Initialize browser process state. Uses the current thread's mesage loop.
     int exit_code = browser_runner_->Initialize(main_function_params_);
     CHECK_EQ(exit_code, -1);
   }
@@ -257,7 +256,8 @@ int CefMainDelegate::RunProcess(
       browser_runner_.reset(content::BrowserMainRunner::Create());
 
       // Initialize browser process state. Results in a call to
-      // CefBrowserMain::GetMainMessageLoop().
+      // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message
+      // loop.
       int exit_code = browser_runner_->Initialize(main_function_params);
       if (exit_code >= 0)
         return exit_code;

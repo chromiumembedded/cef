@@ -21,7 +21,7 @@ CEF_EXPORT cef_request_t* cef_request_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  CefRefPtr<CefRequest> _retval = CefRequest::CreateRequest();
+  CefRefPtr<CefRequest> _retval = CefRequest::Create();
 
   // Return type: refptr_same
   return CefRequestCppToC::Wrap(_retval);
@@ -29,6 +29,20 @@ CEF_EXPORT cef_request_t* cef_request_create() {
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+int CEF_CALLBACK request_is_read_only(struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
 
 cef_string_userfree_t CEF_CALLBACK request_get_url(
     struct _cef_request_t* self) {
@@ -206,23 +220,21 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
       headerMapMultimap);
 }
 
-enum cef_weburlrequest_flags_t CEF_CALLBACK request_get_flags(
-    struct _cef_request_t* self) {
+int CEF_CALLBACK request_get_flags(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return WUR_FLAG_NONE;
+    return UR_FLAG_NONE;
 
   // Execute
-  cef_weburlrequest_flags_t _retval = CefRequestCppToC::Get(self)->GetFlags();
+  int _retval = CefRequestCppToC::Get(self)->GetFlags();
 
   // Return type: simple
   return _retval;
 }
 
-void CEF_CALLBACK request_set_flags(struct _cef_request_t* self,
-    enum cef_weburlrequest_flags_t flags) {
+void CEF_CALLBACK request_set_flags(struct _cef_request_t* self, int flags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -271,6 +283,7 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
 
 CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
     : CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>(cls) {
+  struct_.struct_.is_read_only = request_is_read_only;
   struct_.struct_.get_url = request_get_url;
   struct_.struct_.set_url = request_set_url;
   struct_.struct_.get_method = request_get_method;

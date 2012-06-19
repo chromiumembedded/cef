@@ -35,6 +35,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int* bytes_read)
       OVERRIDE;
   virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE;
+  virtual bool GetResponseCookies(std::vector<std::string>* cookies) OVERRIDE;
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
       OVERRIDE;
   virtual bool GetMimeType(std::string* mime_type) const OVERRIDE;

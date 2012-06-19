@@ -32,6 +32,7 @@ class CefRequestCToCpp
   virtual ~CefRequestCToCpp() {}
 
   // CefRequest methods
+  virtual bool IsReadOnly() OVERRIDE;
   virtual CefString GetURL() OVERRIDE;
   virtual void SetURL(const CefString& url) OVERRIDE;
   virtual CefString GetMethod() OVERRIDE;
@@ -42,8 +43,8 @@ class CefRequestCToCpp
   virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
   virtual void Set(const CefString& url, const CefString& method,
       CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) OVERRIDE;
-  virtual RequestFlags GetFlags() OVERRIDE;
-  virtual void SetFlags(RequestFlags flags) OVERRIDE;
+  virtual int GetFlags() OVERRIDE;
+  virtual void SetFlags(int flags) OVERRIDE;
   virtual CefString GetFirstPartyForCookies() OVERRIDE;
   virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
 };

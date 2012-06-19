@@ -135,29 +135,27 @@ typedef struct _cef_app_t {
       struct _cef_scheme_registrar_t* registrar);
 
   ///
-  // Return the handler for render process events. This function is called by
-  // the render process main thread.
-  ///
-  struct _cef_render_process_handler_t* (
-      CEF_CALLBACK *get_render_process_handler)(struct _cef_app_t* self);
-
-  ///
   // Return the handler for resource bundle events. If
   // CefSettings.pack_loading_disabled is true (1) a handler must be returned.
   // If no handler is returned resources will be loaded from pack files. This
-  // function is called by the browser and rendere processes on multiple
-  // threads.
+  // function is called by the browser and render processes on multiple threads.
   ///
   struct _cef_resource_bundle_handler_t* (
       CEF_CALLBACK *get_resource_bundle_handler)(struct _cef_app_t* self);
 
   ///
-  // Return the handler for proxy events. If no handler is returned the default
-  // system handler will be used. This function is called by the browser process
-  // IO thread.
+  // Return the handler for functionality specific to the browser process. This
+  // function is called on multiple threads in the browser process.
   ///
-  struct _cef_proxy_handler_t* (CEF_CALLBACK *get_proxy_handler)(
-      struct _cef_app_t* self);
+  struct _cef_browser_process_handler_t* (
+      CEF_CALLBACK *get_browser_process_handler)(struct _cef_app_t* self);
+
+  ///
+  // Return the handler for functionality specific to the render process. This
+  // function is called on the render process main thread.
+  ///
+  struct _cef_render_process_handler_t* (
+      CEF_CALLBACK *get_render_process_handler)(struct _cef_app_t* self);
 } cef_app_t;
 
 

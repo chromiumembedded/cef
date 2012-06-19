@@ -40,8 +40,8 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser_process_handler.h"
 #include "include/cef_command_line.h"
-#include "include/cef_proxy_handler.h"
 #include "include/cef_render_process_handler.h"
 #include "include/cef_resource_bundle_handler.h"
 #include "include/cef_scheme.h"
@@ -143,19 +143,10 @@ class CefApp : public virtual CefBase {
   }
 
   ///
-  // Return the handler for render process events. This method is called by the
-  // render process main thread.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() {
-    return NULL;
-  }
-
-  ///
   // Return the handler for resource bundle events. If
   // CefSettings.pack_loading_disabled is true a handler must be returned. If no
   // handler is returned resources will be loaded from pack files. This method
-  // is called by the browser and rendere processes on multiple threads.
+  // is called by the browser and render processes on multiple threads.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() {
@@ -163,12 +154,20 @@ class CefApp : public virtual CefBase {
   }
 
   ///
-  // Return the handler for proxy events. If no handler is returned the default
-  // system handler will be used. This method is called by the browser process
-  // IO thread.
+  // Return the handler for functionality specific to the browser process. This
+  // method is called on multiple threads in the browser process.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() {
+  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for functionality specific to the render process. This
+  // method is called on the render process main thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() {
     return NULL;
   }
 };

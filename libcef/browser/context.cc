@@ -216,14 +216,14 @@ bool CefContext::Initialize(const CefMainArgs& args,
   if (exit_code >= 0)
     return false;
 
-  // Run the process. Results in a call to CefMainDelegate::RunKnownProcess()
-  // which will create the browser runner and message loop without blocking.
+  // Run the process. Results in a call to CefMainDelegate::RunProcess() which
+  // will create the browser runner and message loop without blocking.
   exit_code = main_runner_->Run();
 
   initialized_ = true;
 
-  // Perform DevTools scheme registration when CEF initialization is complete.
-  CEF_POST_TASK(CEF_UIT, base::Bind(&RegisterDevToolsSchemeHandler));
+  // Continue initialization on the UI thread.
+  CEF_POST_TASK(CEF_UIT, base::Bind(&CefContext::OnContextInitialized, this));
 
   return true;
 }
@@ -344,6 +344,22 @@ CefBrowserContext* CefContext::browser_context() const {
 CefDevToolsDelegate* CefContext::devtools_delegate() const {
   return main_delegate_->browser_client()->browser_main_parts()->
       devtools_delegate();
+}
+
+void CefContext::OnContextInitialized() {
+  CEF_REQUIRE_UIT();
+
+  // Perform DevTools scheme registration.
+  RegisterDevToolsSchemeHandler();
+
+  // Notify the handler.
+  CefRefPtr<CefApp> app = application();
+  if (app.get()) {
+    CefRefPtr<CefBrowserProcessHandler> handler =
+        app->GetBrowserProcessHandler();
+    if (handler.get())
+      handler->OnContextInitialized();
+  }
 }
 
 void CefContext::FinishShutdownOnUIThread(

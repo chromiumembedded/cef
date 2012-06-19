@@ -15,7 +15,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement() {
+CefRefPtr<CefPostDataElement> CefPostDataElement::Create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -27,6 +27,19 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::CreatePostDataElement() {
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+bool CefPostDataElementCToCpp::IsReadOnly() {
+  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_read_only(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
 
 void CefPostDataElementCToCpp::SetToEmpty() {
   if (CEF_MEMBER_MISSING(struct_, set_to_empty))

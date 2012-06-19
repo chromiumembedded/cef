@@ -27,14 +27,6 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return NULL;
-  // Verify param: frame; type: refptr_diff
-  DCHECK(frame.get());
-  if (!frame.get())
-    return NULL;
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(!scheme_name.empty());
   if (scheme_name.empty())
@@ -43,6 +35,7 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
   DCHECK(request.get());
   if (!request.get())
     return NULL;
+  // Unverified params: browser, frame
 
   // Execute
   cef_resource_handler_t* _retval = struct_->create(struct_,

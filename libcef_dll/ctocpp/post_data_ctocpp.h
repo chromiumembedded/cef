@@ -32,6 +32,7 @@ class CefPostDataCToCpp
   virtual ~CefPostDataCToCpp() {}
 
   // CefPostData methods
+  virtual bool IsReadOnly() OVERRIDE;
   virtual size_t GetElementCount() OVERRIDE;
   virtual void GetElements(ElementVector& elements) OVERRIDE;
   virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;

@@ -6,6 +6,9 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_GETTER_H_
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "base/compiler_specific.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -39,6 +42,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
   void SetCookieStoragePath(const FilePath& path);
+  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
  private:
   void CreateProxyConfigService();
@@ -54,6 +58,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
 
   FilePath cookie_store_path_;
+  std::vector<std::string> cookie_supported_schemes_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetter);
 };

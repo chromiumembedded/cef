@@ -565,7 +565,8 @@ enum cef_storage_type_t {
 // Supported error code values. See net\base\net_error_list.h for complete
 // descriptions of the error codes.
 ///
-enum cef_handler_errorcode_t {
+enum cef_errorcode_t {
+  ERR_NONE = 0,
   ERR_FAILED = -2,
   ERR_ABORTED = -3,
   ERR_INVALID_ARGUMENT = -4,
@@ -646,14 +647,95 @@ enum cef_postdataelement_type_t {
   PDE_TYPE_FILE,
 };
 
-enum cef_weburlrequest_flags_t {
-  WUR_FLAG_NONE = 0,
-  WUR_FLAG_SKIP_CACHE = 0x1,
-  WUR_FLAG_ALLOW_CACHED_CREDENTIALS = 0x2,
-  WUR_FLAG_ALLOW_COOKIES = 0x4,
-  WUR_FLAG_REPORT_UPLOAD_PROGRESS = 0x8,
-  WUR_FLAG_REPORT_LOAD_TIMING = 0x10,
-  WUR_FLAG_REPORT_RAW_HEADERS = 0x20
+///
+// Flags used to customize the behavior of CefURLRequest.
+///
+enum cef_urlrequest_flags_t {
+  ///
+  // Default behavior.
+  ///
+  UR_FLAG_NONE                      = 0,
+  
+  ///
+  // If set the cache will be skipped when handling the request.
+  ///
+  UR_FLAG_SKIP_CACHE                = 1 << 0,
+  
+  ///
+  // If set user name, password, and cookies may be sent with the request.
+  ///
+  UR_FLAG_ALLOW_CACHED_CREDENTIALS  = 1 << 1,
+  
+  ///
+  // If set cookies may be sent with the request and saved from the response.
+  // UR_FLAG_ALLOW_CACHED_CREDENTIALS must also be set.
+  ///
+  UR_FLAG_ALLOW_COOKIES             = 1 << 2,
+  
+  ///
+  // If set upload progress events will be generated when a request has a body.
+  ///
+  UR_FLAG_REPORT_UPLOAD_PROGRESS    = 1 << 3,
+  
+  ///
+  // If set load timing info will be collected for the request.
+  ///
+  UR_FLAG_REPORT_LOAD_TIMING        = 1 << 4,
+
+  ///
+  // If set the headers sent and received for the request will be recorded.
+  ///
+  UR_FLAG_REPORT_RAW_HEADERS        = 1 << 5,
+
+  ///
+  // If set the CefURLRequestClient::OnDownloadData method will not be called.
+  ///
+  UR_FLAG_NO_DOWNLOAD_DATA          = 1 << 6,
+
+  ///
+  // If set 5XX redirect errors will be propagated to the observer instead of
+  // automatically re-tried. This currently only applies for requests
+  // originated in the browser process.
+  ///
+  UR_FLAG_NO_RETRY_ON_5XX           = 1 << 7,
+};
+
+///
+// Flags that represent CefURLRequest status.
+///
+enum cef_urlrequest_status_t {
+  ///
+  // Unknown status.
+  ///
+  UR_UNKNOWN = 0,
+  
+  ///
+  // Request succeeded.
+  ///
+  UR_SUCCESS,
+  
+  ///
+  // An IO request is pending, and the caller will be informed when it is
+  // completed.
+  ///
+  UR_IO_PENDING,
+  
+  ///
+  // Request was successful but was handled by an external program, so there
+  // is no response data. This usually means the current page should not be
+  // navigated, but no error should be displayed.
+  ///
+  UR_HANDLED_EXTERNALLY,
+  
+  ///
+  // Request was canceled programatically.
+  ///
+  UR_CANCELED,
+  
+  ///
+  // Request failed for some reason.
+  ///
+  UR_FAILED,
 };
 
 ///

@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_callback.h"
+#include "include/cef_cookie.h"
 #include "include/cef_request.h"
 #include "include/cef_response.h"
 
@@ -89,6 +90,21 @@ class CefResourceHandler : public virtual CefBase {
                             int bytes_to_read,
                             int& bytes_read,
                             CefRefPtr<CefCallback> callback) =0;
+
+  ///
+  // Return true if the specified cookie can be sent with the request or false
+  // otherwise. If false is returned for any cookie then no cookies will be sent
+  // with the request.
+  ///
+  /*--cef()--*/
+  virtual bool CanGetCookie(const CefCookie& cookie) { return true; }
+
+  ///
+  // Return true if the specified cookie returned with the response can be set
+  // or false otherwise.
+  ///
+  /*--cef()--*/
+  virtual bool CanSetCookie(const CefCookie& cookie) { return true; }
 
   ///
   // Request processing has been canceled.

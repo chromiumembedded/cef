@@ -49,7 +49,7 @@
 /*--cef(source=client)--*/
 class CefLoadHandler : public virtual CefBase {
  public:
-  typedef cef_handler_errorcode_t ErrorCode;
+  typedef cef_errorcode_t ErrorCode;
 
   ///
   // Called when the browser begins loading a frame. The |frame| value will

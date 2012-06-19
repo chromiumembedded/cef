@@ -169,14 +169,18 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     CefRefPtr<CefApp> app = _Context->application();
     if (app.get()) {
-      CefRefPtr<CefProxyHandler> handler = app->GetProxyHandler();
-      if (handler) {
-        // The client will provide proxy resolution.
-        CreateProxyConfigService();
-        storage_->set_proxy_service(
-            new net::ProxyService(proxy_config_service_.release(),
-                                  new CefProxyResolver(handler), NULL));
-        proxy_service_set = true;
+      CefRefPtr<CefBrowserProcessHandler> handler =
+          app->GetBrowserProcessHandler();
+      if (handler.get()) {
+        CefRefPtr<CefProxyHandler> proxy_handler = handler->GetProxyHandler();
+        if (proxy_handler.get()) {
+          // The client will provide proxy resolution.
+          CreateProxyConfigService();
+          storage_->set_proxy_service(
+              new net::ProxyService(proxy_config_service_.release(),
+                                    new CefProxyResolver(proxy_handler), NULL));
+          proxy_service_set = true;
+        }
       }
     }
 
@@ -315,6 +319,37 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
   storage_->set_cookie_store(
       new net::CookieMonster(persistent_store.get(), NULL));
   cookie_store_path_ = path;
+
+  // Restore the previously supported schemes.
+  SetCookieSupportedSchemes(cookie_supported_schemes_);
+}
+
+void CefURLRequestContextGetter::SetCookieSupportedSchemes(
+    const std::vector<std::string>& schemes) {
+  CEF_REQUIRE_IOT();
+
+  cookie_supported_schemes_ = schemes;
+
+  if (cookie_supported_schemes_.empty()) {
+    cookie_supported_schemes_.push_back("http");
+    cookie_supported_schemes_.push_back("https");
+  }
+
+  std::set<std::string> scheme_set;
+  std::vector<std::string>::const_iterator it =
+      cookie_supported_schemes_.begin();
+  for (; it != cookie_supported_schemes_.end(); ++it)
+    scheme_set.insert(*it);
+
+  const char** arr = new const char*[scheme_set.size()];
+  std::set<std::string>::const_iterator it2 = scheme_set.begin();
+  for (int i = 0; it2 != scheme_set.end(); ++it2, ++i)
+    arr[i] = it2->c_str();
+
+  url_request_context_->cookie_store()->GetCookieMonster()->
+      SetCookieableSchemes(arr, scheme_set.size());
+
+  delete [] arr;
 }
 
 void CefURLRequestContextGetter::CreateProxyConfigService() {

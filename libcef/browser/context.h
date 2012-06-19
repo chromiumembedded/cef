@@ -69,6 +69,8 @@ class CefContext : public CefBase {
   CefDevToolsDelegate* devtools_delegate() const;
 
  private:
+  void OnContextInitialized();
+
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
   void FinishShutdownOnUIThread(base::WaitableEvent* uithread_shutdown_event);

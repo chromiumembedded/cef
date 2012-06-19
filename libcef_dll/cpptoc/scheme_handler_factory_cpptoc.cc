@@ -28,14 +28,6 @@ cef_resource_handler_t* CEF_CALLBACK scheme_handler_factory_create(
   DCHECK(self);
   if (!self)
     return NULL;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return NULL;
-  // Verify param: frame; type: refptr_diff
-  DCHECK(frame);
-  if (!frame)
-    return NULL;
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
   if (!scheme_name)
@@ -44,6 +36,7 @@ cef_resource_handler_t* CEF_CALLBACK scheme_handler_factory_create(
   DCHECK(request);
   if (!request)
     return NULL;
+  // Unverified params: browser, frame
 
   // Execute
   CefRefPtr<CefResourceHandler> _retval = CefSchemeHandlerFactoryCppToC::Get(

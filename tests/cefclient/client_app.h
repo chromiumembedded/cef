@@ -10,9 +10,11 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 #include "include/cef_app.h"
 
 class ClientApp : public CefApp,
+                  public CefBrowserProcessHandler,
                   public CefProxyHandler,
                   public CefRenderProcessHandler {
  public:
@@ -96,16 +98,22 @@ class ClientApp : public CefApp,
   static void CreateRenderDelegates(RenderDelegateSet& delegates);
 
   // Registers custom schemes. Implemented in client_app_delegates.
-  static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar);
+  static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
+                                    std::vector<CefString>& cookiable_schemes);
 
   // CefApp methods.
   virtual void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
-    RegisterCustomSchemes(registrar);
+    RegisterCustomSchemes(registrar, cookieable_schemes_);
   }
+  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
+      OVERRIDE { return this; }
   virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler()
       OVERRIDE { return this; }
+
+  // CefBrowserProcessHandler methods.
   virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
+  virtual void OnContextInitialized();
 
   // CefProxyHandler methods.
   virtual void GetProxyForUrl(const CefString& url,
@@ -139,6 +147,9 @@ class ClientApp : public CefApp,
 
   // Set of supported RenderDelegates.
   RenderDelegateSet render_delegates_;
+
+  // Schemes that will be registered with the global cookie manager.
+  std::vector<CefString> cookieable_schemes_;
 
   IMPLEMENT_REFCOUNTING(ClientApp);
 };

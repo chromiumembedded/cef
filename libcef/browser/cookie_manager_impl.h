@@ -32,12 +32,18 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   net::CookieMonster* cookie_monster() { return cookie_monster_; }
 
+  static bool GetCefCookie(const net::CookieMonster::CanonicalCookie& cc,
+                           CefCookie& cookie);
+  static bool GetCefCookie(const GURL& url, const std::string& cookie_line,
+                           CefCookie& cookie);
+
  private:
   void SetGlobal();
 
   scoped_refptr<net::CookieMonster> cookie_monster_;
   bool is_global_;
   FilePath storage_path_;
+  std::vector<CefString> supported_schemes_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);
 };

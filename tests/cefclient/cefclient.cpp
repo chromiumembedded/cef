@@ -262,18 +262,17 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
 
 void RunRequestTest(CefRefPtr<CefBrowser> browser) {
   // Create a new request
-  CefRefPtr<CefRequest> request(CefRequest::CreateRequest());
+  CefRefPtr<CefRequest> request(CefRequest::Create());
 
   // Set the request URL
   request->SetURL("http://tests/request");
 
   // Add post data to the request.  The correct method and content-
   // type headers will be set by CEF.
-  CefRefPtr<CefPostDataElement> postDataElement(
-      CefPostDataElement::CreatePostDataElement());
+  CefRefPtr<CefPostDataElement> postDataElement(CefPostDataElement::Create());
   std::string data = "arg1=val1&arg2=val2";
   postDataElement->SetToBytes(data.length(), data.c_str());
-  CefRefPtr<CefPostData> postData(CefPostData::CreatePostData());
+  CefRefPtr<CefPostData> postData(CefPostData::Create());
   postData->AddElement(postDataElement);
   request->SetPostData(postData);
 

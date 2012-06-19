@@ -120,6 +120,56 @@ int CEF_CALLBACK resource_handler_read_response(
   return _retval;
 }
 
+int CEF_CALLBACK resource_handler_can_get_cookie(
+    struct _cef_resource_handler_t* self, const struct _cef_cookie_t* cookie) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: cookie; type: struct_byref_const
+  DCHECK(cookie);
+  if (!cookie)
+    return 0;
+
+  // Translate param: cookie; type: struct_byref_const
+  CefCookie cookieObj;
+  if (cookie)
+    cookieObj.Set(*cookie, false);
+
+  // Execute
+  bool _retval = CefResourceHandlerCppToC::Get(self)->CanGetCookie(
+      cookieObj);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK resource_handler_can_set_cookie(
+    struct _cef_resource_handler_t* self, const struct _cef_cookie_t* cookie) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: cookie; type: struct_byref_const
+  DCHECK(cookie);
+  if (!cookie)
+    return 0;
+
+  // Translate param: cookie; type: struct_byref_const
+  CefCookie cookieObj;
+  if (cookie)
+    cookieObj.Set(*cookie, false);
+
+  // Execute
+  bool _retval = CefResourceHandlerCppToC::Get(self)->CanSetCookie(
+      cookieObj);
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK resource_handler_cancel(
     struct _cef_resource_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -141,6 +191,8 @@ CefResourceHandlerCppToC::CefResourceHandlerCppToC(CefResourceHandler* cls)
   struct_.struct_.process_request = resource_handler_process_request;
   struct_.struct_.get_response_headers = resource_handler_get_response_headers;
   struct_.struct_.read_response = resource_handler_read_response;
+  struct_.struct_.can_get_cookie = resource_handler_can_get_cookie;
+  struct_.struct_.can_set_cookie = resource_handler_can_set_cookie;
   struct_.struct_.cancel = resource_handler_cancel;
 }
 

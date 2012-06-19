@@ -14,7 +14,33 @@
 #include "libcef_dll/transfer_util.h"
 
 
+// STATIC METHODS - Body may be edited by hand.
+
+CefRefPtr<CefResponse> CefResponse::Create() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_response_t* _retval = cef_response_create();
+
+  // Return type: refptr_same
+  return CefResponseCToCpp::Wrap(_retval);
+}
+
+
 // VIRTUAL METHODS - Body may be edited by hand.
+
+bool CefResponseCToCpp::IsReadOnly() {
+  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_read_only(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
 
 int CefResponseCToCpp::GetStatus() {
   if (CEF_MEMBER_MISSING(struct_, get_status))

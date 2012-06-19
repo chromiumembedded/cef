@@ -37,7 +37,7 @@ net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
         CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
 
         // Populate the request data.
-        CefRefPtr<CefRequest> req(CefRequest::CreateRequest());
+        CefRefPtr<CefRequest> req(CefRequest::Create());
         static_cast<CefRequestImpl*>(req.get())->Set(request);
 
         // Give the client an opportunity to replace the request.

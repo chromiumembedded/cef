@@ -1462,7 +1462,7 @@ void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
     if (handler.get()) {
       // Notify the handler that loading has failed.
       handler->OnLoadError(this, frame,
-          static_cast<cef_handler_errorcode_t>(error_code),
+          static_cast<cef_errorcode_t>(error_code),
           CefString(error_description),
           url.spec());
     }

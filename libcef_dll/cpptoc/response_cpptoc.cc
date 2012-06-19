@@ -14,7 +14,34 @@
 #include "libcef_dll/transfer_util.h"
 
 
+// GLOBAL FUNCTIONS - Body may be edited by hand.
+
+CEF_EXPORT cef_response_t* cef_response_create() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefRefPtr<CefResponse> _retval = CefResponse::Create();
+
+  // Return type: refptr_same
+  return CefResponseCppToC::Wrap(_retval);
+}
+
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+int CEF_CALLBACK response_is_read_only(struct _cef_response_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefResponseCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
 
 int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -178,6 +205,7 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
 
 CefResponseCppToC::CefResponseCppToC(CefResponse* cls)
     : CefCppToC<CefResponseCppToC, CefResponse, cef_response_t>(cls) {
+  struct_.struct_.is_read_only = response_is_read_only;
   struct_.struct_.get_status = response_get_status;
   struct_.struct_.set_status = response_set_status;
   struct_.struct_.get_status_text = response_get_status_text;

@@ -45,10 +45,6 @@ using net::URLRequestStatus;
 
 namespace {
 
-bool IsInternalScheme(const std::string& scheme) {
-  return (scheme == kChromeDevToolsScheme);
-}
-
 bool IsStandardScheme(const std::string& scheme) {
   url_parse::Component scheme_comp(0, scheme.length());
   return url_util::IsStandard(scheme.c_str(), scheme_comp);
@@ -231,21 +227,19 @@ class CefUrlRequestManager {
     if (factory) {
       CefRefPtr<CefBrowserHostImpl> browser =
           CefBrowserHostImpl::GetBrowserForRequest(request);
-      if (browser.get() || IsInternalScheme(request->url().scheme())) {
-        // Populate the request data.
-        CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
-        requestPtr->Set(request);
+      CefRefPtr<CefFrame> frame;
+      if (browser.get())
+        frame = browser->GetFrameForRequest(request);
 
-        CefRefPtr<CefFrame> frame;
-        if (browser.get())
-          frame = browser->GetFrameForRequest(request);
+      // Populate the request data.
+      CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
+      requestPtr->Set(request);
 
-        // Call the handler factory to create the handler for the request.
-        CefRefPtr<CefResourceHandler> handler =
-            factory->Create(browser.get(), frame, scheme, requestPtr.get());
-        if (handler.get())
-          job = new CefResourceRequestJob(request, handler);
-      }
+      // Call the handler factory to create the handler for the request.
+      CefRefPtr<CefResourceHandler> handler =
+          factory->Create(browser.get(), frame, scheme, requestPtr.get());
+      if (handler.get())
+        job = new CefResourceRequestJob(request, handler);
     }
 
     if (!job && IsBuiltinScheme(scheme)) {

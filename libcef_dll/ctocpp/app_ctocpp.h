@@ -36,10 +36,11 @@ class CefAppCToCpp
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
   virtual void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
-  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE;
   virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler(
       ) OVERRIDE;
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE;
+  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler(
+      ) OVERRIDE;
+  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

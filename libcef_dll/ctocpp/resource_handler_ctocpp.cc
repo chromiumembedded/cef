@@ -90,6 +90,34 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
   return _retval?true:false;
 }
 
+bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
+  if (CEF_MEMBER_MISSING(struct_, can_get_cookie))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->can_get_cookie(struct_,
+      &cookie);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
+  if (CEF_MEMBER_MISSING(struct_, can_set_cookie))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->can_set_cookie(struct_,
+      &cookie);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 void CefResourceHandlerCToCpp::Cancel() {
   if (CEF_MEMBER_MISSING(struct_, cancel))
     return;

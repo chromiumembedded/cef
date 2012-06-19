@@ -12,30 +12,41 @@ namespace net {
 class HttpResponseHeaders;
 }
 
+namespace WebKit {
+class WebURLResponse;
+}
+
 // Implementation of CefResponse.
 class CefResponseImpl : public CefResponse {
  public:
   CefResponseImpl();
   ~CefResponseImpl() {}
 
-  // CefResponse API
-  virtual int GetStatus();
-  virtual void SetStatus(int status);
-  virtual CefString GetStatusText();
-  virtual void SetStatusText(const CefString& statusText);
-  virtual CefString GetMimeType();
-  virtual void SetMimeType(const CefString& mimeType);
-  virtual CefString GetHeader(const CefString& name);
-  virtual void GetHeaderMap(HeaderMap& headerMap);
-  virtual void SetHeaderMap(const HeaderMap& headerMap);
+  // CefResponse methods.
+  virtual bool IsReadOnly() OVERRIDE;
+  virtual int GetStatus() OVERRIDE;
+  virtual void SetStatus(int status) OVERRIDE;
+  virtual CefString GetStatusText() OVERRIDE;
+  virtual void SetStatusText(const CefString& statusText) OVERRIDE;
+  virtual CefString GetMimeType() OVERRIDE;
+  virtual void SetMimeType(const CefString& mimeType) OVERRIDE;
+  virtual CefString GetHeader(const CefString& name) OVERRIDE;
+  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
 
   net::HttpResponseHeaders* GetResponseHeaders();
+  void SetResponseHeaders(const net::HttpResponseHeaders& headers);
+
+  void Set(const WebKit::WebURLResponse& response);
+
+  void SetReadOnly(bool read_only);
 
  protected:
   int status_code_;
   CefString status_text_;
   CefString mime_type_;
   HeaderMap header_map_;
+  bool read_only_;
 
   IMPLEMENT_REFCOUNTING(CefResponseImpl);
   IMPLEMENT_LOCKING(CefResponseImpl);

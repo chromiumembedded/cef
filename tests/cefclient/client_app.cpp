@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "include/cef_cookie.h"
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
@@ -176,6 +177,10 @@ class ClientAppExtensionHandler : public CefV8Handler {
 ClientApp::ClientApp()
     : proxy_type_(PROXY_TYPE_DIRECT) {
   CreateRenderDelegates(render_delegates_);
+
+  // Default schemes that support cookies.
+  cookieable_schemes_.push_back("http");
+  cookieable_schemes_.push_back("https");
 }
 
 void ClientApp::SetMessageCallback(const std::string& message_name,
@@ -201,6 +206,13 @@ bool ClientApp::RemoveMessageCallback(const std::string& message_name,
   }
 
   return false;
+}
+
+void ClientApp::OnContextInitialized() {
+  // Register cookieable schemes with the global cookie manager.
+  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  ASSERT(manager.get());
+  manager->SetSupportedSchemes(cookieable_schemes_);
 }
 
 void ClientApp::GetProxyForUrl(const CefString& url,

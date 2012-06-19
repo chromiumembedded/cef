@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "include/cef_callback.h"
+#include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
@@ -138,7 +139,7 @@ CefResourceRequestJob::~CefResourceRequestJob() {
 void CefResourceRequestJob::Start() {
   CEF_REQUIRE_IOT();
 
-  cef_request_ = CefRequest::CreateRequest();
+  cef_request_ = CefRequest::Create();
 
   // Populate the request data.
   static_cast<CefRequestImpl*>(cef_request_.get())->Set(request_);
@@ -255,6 +256,15 @@ void CefResourceRequestJob::GetResponseInfo(net::HttpResponseInfo* info) {
   info->headers = GetResponseHeaders();
 }
 
+bool CefResourceRequestJob::GetResponseCookies(
+    std::vector<std::string>* cookies) {
+  CEF_REQUIRE_IOT();
+
+  cookies->clear();
+  FetchResponseCookies(cookies);
+  return true;
+}
+
 bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
                                                int* http_status_code) {
   CEF_REQUIRE_IOT();
@@ -360,7 +370,20 @@ void CefResourceRequestJob::DoLoadCookies() {
 
 void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     const net::CookieList& cookie_list) {
-  if (CanGetCookies(cookie_list))
+  bool can_get_cookies = CanGetCookies(cookie_list);
+  if (can_get_cookies) {
+    net::CookieList::const_iterator it = cookie_list.begin();
+    for (; it != cookie_list.end(); ++it) {
+      CefCookie cookie;
+      if (!CefCookieManagerImpl::GetCefCookie(*it, cookie) ||
+          !handler_->CanGetCookie(cookie)) {
+        can_get_cookies = false;
+        break;
+      }
+    }
+  }
+
+  if (can_get_cookies)
     DoLoadCookies();
   else
     DoStartTransaction();
@@ -446,8 +469,19 @@ void CefResourceRequestJob::SaveNextCookie() {
 
   net::CookieOptions options;
   options.set_include_httponly();
-  if (CanSetCookie(
-      response_cookies_[response_cookies_save_index_], &options)) {
+  bool can_set_cookie = CanSetCookie(
+      response_cookies_[response_cookies_save_index_], &options);
+  if (can_set_cookie) {
+    CefCookie cookie;
+    if (CefCookieManagerImpl::GetCefCookie(request_->url(),
+            response_cookies_[response_cookies_save_index_], cookie)) {
+      can_set_cookie = handler_->CanSetCookie(cookie);
+    } else {
+      can_set_cookie = false;
+    }
+  }
+
+  if (can_set_cookie) {
     request_->context()->cookie_store()->SetCookieWithOptionsAsync(
         request_->url(), response_cookies_[response_cookies_save_index_],
         options, base::Bind(&CefResourceRequestJob::OnCookieSaved,

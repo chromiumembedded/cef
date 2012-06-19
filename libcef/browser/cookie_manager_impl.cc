@@ -14,10 +14,12 @@
 
 #include "base/bind.h"
 #include "base/file_util.h"
+#include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "googleurl/src/gurl.h"
+#include "net/cookies/cookie_util.h"
 #include "net/url_request/url_request_context.h"
 
 namespace {
@@ -40,18 +42,7 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
     for (; it != list.end(); ++it, ++count) {
       CefCookie cookie;
       const net::CookieMonster::CanonicalCookie& cc = *(it);
-
-      CefString(&cookie.name).FromString(cc.Name());
-      CefString(&cookie.value).FromString(cc.Value());
-      CefString(&cookie.domain).FromString(cc.Domain());
-      CefString(&cookie.path).FromString(cc.Path());
-      cookie.secure = cc.IsSecure();
-      cookie.httponly = cc.IsHttpOnly();
-      cef_time_from_basetime(cc.CreationDate(), cookie.creation);
-      cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
-      cookie.has_expires = cc.DoesExpire();
-      if (cookie.has_expires)
-        cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
+      CefCookieManagerImpl::GetCefCookie(cc, cookie);
 
       bool deleteCookie = false;
       bool keepLooping = visitor_->Visit(cookie, count, total, deleteCookie);
@@ -68,6 +59,80 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   scoped_refptr<net::CookieMonster> cookie_monster_;
   CefRefPtr<CefCookieVisitor> visitor_;
 };
+
+
+// Methods extracted from net/cookies/cookie_monster.cc
+
+// Determine the cookie domain to use for setting the specified cookie.
+bool GetCookieDomain(const GURL& url,
+                     const net::CookieMonster::ParsedCookie& pc,
+                     std::string* result) {
+  std::string domain_string;
+  if (pc.HasDomain())
+    domain_string = pc.Domain();
+  return net::cookie_util::GetCookieDomainWithString(url, domain_string,
+      result);
+}
+
+std::string CanonPathWithString(const GURL& url,
+                                const std::string& path_string) {
+  // The RFC says the path should be a prefix of the current URL path.
+  // However, Mozilla allows you to set any path for compatibility with
+  // broken websites.  We unfortunately will mimic this behavior.  We try
+  // to be generous and accept cookies with an invalid path attribute, and
+  // default the path to something reasonable.
+
+  // The path was supplied in the cookie, we'll take it.
+  if (!path_string.empty() && path_string[0] == '/')
+    return path_string;
+
+  // The path was not supplied in the cookie or invalid, we will default
+  // to the current URL path.
+  // """Defaults to the path of the request URL that generated the
+  //    Set-Cookie response, up to, but not including, the
+  //    right-most /."""
+  // How would this work for a cookie on /?  We will include it then.
+  const std::string& url_path = url.path();
+
+  size_t idx = url_path.find_last_of('/');
+
+  // The cookie path was invalid or a single '/'.
+  if (idx == 0 || idx == std::string::npos)
+    return std::string("/");
+
+  // Return up to the rightmost '/'.
+  return url_path.substr(0, idx);
+}
+
+std::string CanonPath(const GURL& url,
+                      const net::CookieMonster::ParsedCookie& pc) {
+  std::string path_string;
+  if (pc.HasPath())
+    path_string = pc.Path();
+  return CanonPathWithString(url, path_string);
+}
+
+base::Time CanonExpiration(const net::CookieMonster::ParsedCookie& pc,
+                           const base::Time& current) {
+  // First, try the Max-Age attribute.
+  uint64 max_age = 0;
+  if (pc.HasMaxAge() &&
+#ifdef COMPILER_MSVC
+      sscanf_s(
+#else
+      sscanf(
+#endif
+             pc.MaxAge().c_str(), " %" PRIu64, &max_age) == 1) {
+    return current + base::TimeDelta::FromSeconds(max_age);
+  }
+
+  // Try the Expires attribute.
+  if (pc.HasExpires())
+    return net::CookieMonster::ParseCookieTime(pc.Expires());
+
+  // Invalid or no expiration, persistent cookie.
+  return base::Time();
+}
 
 }  // namespace
 
@@ -89,12 +154,34 @@ void CefCookieManagerImpl::Initialize(const CefString& path) {
 void CefCookieManagerImpl::SetSupportedSchemes(
     const std::vector<CefString>& schemes) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (schemes.empty())
+    if (!cookie_monster_)
       return;
 
+    if (is_global_) {
+      // Global changes are handled by the request context.
+      CefURLRequestContextGetter* getter =
+          static_cast<CefURLRequestContextGetter*>(
+              _Context->browser_context()->GetRequestContext());
+
+      std::vector<std::string> scheme_vec;
+      std::vector<CefString>::const_iterator it = schemes.begin();
+      for (; it != schemes.end(); ++it)
+        scheme_vec.push_back(it->ToString());
+
+      getter->SetCookieSupportedSchemes(scheme_vec);
+      return;
+    }
+
+    supported_schemes_ = schemes;
+
+    if (supported_schemes_.empty()) {
+      supported_schemes_.push_back("http");
+      supported_schemes_.push_back("https");
+    }
+
     std::set<std::string> scheme_set;
-    std::vector<CefString>::const_iterator it = schemes.begin();
-    for (; it != schemes.end(); ++it)
+    std::vector<CefString>::const_iterator it = supported_schemes_.begin();
+    for (; it != supported_schemes_.end(); ++it)
       scheme_set.insert(*it);
 
     const char** arr = new const char*[scheme_set.size()];
@@ -116,6 +203,9 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   if (CEF_CURRENTLY_ON_IOT()) {
+    if (!cookie_monster_)
+      return false;
+
     scoped_refptr<VisitCookiesCallback> callback(
       new VisitCookiesCallback(cookie_monster_, visitor));
 
@@ -135,6 +225,9 @@ bool CefCookieManagerImpl::VisitUrlCookies(
     const CefString& url, bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
   if (CEF_CURRENTLY_ON_IOT()) {
+    if (!cookie_monster_)
+      return false;
+
     net::CookieOptions options;
     if (includeHttpOnly)
       options.set_include_httponly();
@@ -159,6 +252,9 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
                                      const CefCookie& cookie) {
   CEF_REQUIRE_IOT_RETURN(false);
 
+  if (!cookie_monster_)
+    return false;
+
   GURL gurl = GURL(url.ToString());
   if (!gurl.is_valid())
     return false;
@@ -181,6 +277,9 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
 bool CefCookieManagerImpl::DeleteCookies(const CefString& url,
                                          const CefString& cookie_name) {
   CEF_REQUIRE_IOT_RETURN(false);
+
+  if (!cookie_monster_)
+    return false;
 
   if (url.empty()) {
     // Delete all cookies.
@@ -246,6 +345,9 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
     // longer referenced.
     cookie_monster_ = new net::CookieMonster(persistent_store.get(), NULL);
     storage_path_ = new_path;
+
+    // Restore the previously supported schemes.
+    SetSupportedSchemes(supported_schemes_);
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT,
@@ -258,13 +360,66 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
 
 void CefCookieManagerImpl::SetGlobal() {
   if (CEF_CURRENTLY_ON_IOT()) {
-    cookie_monster_ = _Context->browser_context()->GetRequestContext()->
-        GetURLRequestContext()->cookie_store()->GetCookieMonster();
-    DCHECK(cookie_monster_);
+    if (_Context->browser_context()) {
+      cookie_monster_ = _Context->browser_context()->GetRequestContext()->
+          GetURLRequestContext()->cookie_store()->GetCookieMonster();
+      DCHECK(cookie_monster_);
+    }
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(&CefCookieManagerImpl::SetGlobal, this));
   }
+}
+
+// static
+bool CefCookieManagerImpl::GetCefCookie(
+    const net::CookieMonster::CanonicalCookie& cc,
+    CefCookie& cookie) {
+  CefString(&cookie.name).FromString(cc.Name());
+  CefString(&cookie.value).FromString(cc.Value());
+  CefString(&cookie.domain).FromString(cc.Domain());
+  CefString(&cookie.path).FromString(cc.Path());
+  cookie.secure = cc.IsSecure();
+  cookie.httponly = cc.IsHttpOnly();
+  cef_time_from_basetime(cc.CreationDate(), cookie.creation);
+  cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
+  cookie.has_expires = cc.DoesExpire();
+  if (cookie.has_expires)
+    cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
+
+  return true;
+}
+
+// static
+bool CefCookieManagerImpl::GetCefCookie(const GURL& url,
+                                        const std::string& cookie_line,
+                                        CefCookie& cookie) {
+  // Parse the cookie.
+  net::CookieMonster::ParsedCookie pc(cookie_line);
+  if (!pc.IsValid())
+    return false;
+
+  std::string cookie_domain;
+  if (!GetCookieDomain(url, pc, &cookie_domain))
+    return false;
+
+  std::string cookie_path = CanonPath(url, pc);
+  base::Time creation_time = base::Time::Now();
+  base::Time cookie_expires = CanonExpiration(pc, creation_time);
+
+  CefString(&cookie.name).FromString(pc.Name());
+  CefString(&cookie.value).FromString(pc.Value());
+  CefString(&cookie.domain).FromString(cookie_domain);
+  CefString(&cookie.path).FromString(cookie_path);
+  cookie.secure = pc.IsSecure();
+  cookie.httponly = pc.IsHttpOnly();
+  cef_time_from_basetime(creation_time, cookie.creation);
+  cef_time_from_basetime(creation_time, cookie.last_access);
+  cookie.has_expires = !cookie_expires.is_null();
+  if (cookie.has_expires)
+    cef_time_from_basetime(cookie_expires, cookie.expires);
+
+  return true;
 }
 
 

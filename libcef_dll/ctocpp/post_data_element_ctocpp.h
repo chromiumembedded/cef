@@ -34,6 +34,7 @@ class CefPostDataElementCToCpp
   virtual ~CefPostDataElementCToCpp() {}
 
   // CefPostDataElement methods
+  virtual bool IsReadOnly() OVERRIDE;
   virtual void SetToEmpty() OVERRIDE;
   virtual void SetToFile(const CefString& fileName) OVERRIDE;
   virtual void SetToBytes(size_t size, const void* bytes) OVERRIDE;

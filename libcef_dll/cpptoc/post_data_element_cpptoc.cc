@@ -19,8 +19,7 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  CefRefPtr<CefPostDataElement> _retval =
-      CefPostDataElement::CreatePostDataElement();
+  CefRefPtr<CefPostDataElement> _retval = CefPostDataElement::Create();
 
   // Return type: refptr_same
   return CefPostDataElementCppToC::Wrap(_retval);
@@ -28,6 +27,21 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create() {
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+int CEF_CALLBACK post_data_element_is_read_only(
+    struct _cef_post_data_element_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefPostDataElementCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
 
 void CEF_CALLBACK post_data_element_set_to_empty(
     struct _cef_post_data_element_t* self) {
@@ -149,6 +163,7 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
 CefPostDataElementCppToC::CefPostDataElementCppToC(CefPostDataElement* cls)
     : CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
         cef_post_data_element_t>(cls) {
+  struct_.struct_.is_read_only = post_data_element_is_read_only;
   struct_.struct_.set_to_empty = post_data_element_set_to_empty;
   struct_.struct_.set_to_file = post_data_element_set_to_file;
   struct_.struct_.set_to_bytes = post_data_element_set_to_bytes;

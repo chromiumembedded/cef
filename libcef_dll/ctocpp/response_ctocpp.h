@@ -32,6 +32,7 @@ class CefResponseCToCpp
   virtual ~CefResponseCToCpp() {}
 
   // CefResponse methods
+  virtual bool IsReadOnly() OVERRIDE;
   virtual int GetStatus() OVERRIDE;
   virtual void SetStatus(int status) OVERRIDE;
   virtual CefString GetStatusText() OVERRIDE;

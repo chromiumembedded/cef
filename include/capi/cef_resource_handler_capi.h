@@ -91,6 +91,21 @@ typedef struct _cef_resource_handler_t {
       struct _cef_callback_t* callback);
 
   ///
+  // Return true (1) if the specified cookie can be sent with the request or
+  // false (0) otherwise. If false (0) is returned for any cookie then no
+  // cookies will be sent with the request.
+  ///
+  int (CEF_CALLBACK *can_get_cookie)(struct _cef_resource_handler_t* self,
+      const struct _cef_cookie_t* cookie);
+
+  ///
+  // Return true (1) if the specified cookie returned with the response can be
+  // set or false (0) otherwise.
+  ///
+  int (CEF_CALLBACK *can_set_cookie)(struct _cef_resource_handler_t* self,
+      const struct _cef_cookie_t* cookie);
+
+  ///
   // Request processing has been canceled.
   ///
   void (CEF_CALLBACK *cancel)(struct _cef_resource_handler_t* self);
