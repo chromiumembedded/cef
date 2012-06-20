@@ -227,12 +227,13 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
 
     scoped_refptr<BrowserPersistentCookieStore> persistent_store;
     if (!new_path.empty()) {
-      if (file_util::CreateDirectory(new_path)) {
-        const FilePath& cookie_path = new_path.AppendASCII("Cookies");
-        persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
+      if (!file_util::PathExists(new_path) &&
+          !file_util::CreateDirectory(new_path)) {
+        NOTREACHED() << "Failed to create cookie storage directory";
+        new_path.clear();
       } else {
-        NOTREACHED() << "The cookie storage directory could not be created";
-        storage_path_.clear();
+        FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
+        persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
       }
     }
 

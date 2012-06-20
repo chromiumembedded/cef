@@ -145,15 +145,6 @@ void BrowserRequestContext::Init(
     const FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy) {
-  // Create the |cache_path| directory if necessary.
-  bool cache_path_valid = false;
-  if (!cache_path.empty()) {
-    if (file_util::CreateDirectory(cache_path))
-      cache_path_valid = true;
-    else
-      NOTREACHED() << "The cache_path directory could not be created";
-  }
-
   SetCookieStoragePath(cache_path);
 
   storage_.set_server_bound_cert_service(new net::ServerBoundCertService(
@@ -236,7 +227,7 @@ void BrowserRequestContext::Init(
   storage_.set_http_server_properties(new net::HttpServerPropertiesImpl);
 
   net::HttpCache::DefaultBackend* backend = new net::HttpCache::DefaultBackend(
-      cache_path_valid ? net::DISK_CACHE : net::MEMORY_CACHE,
+      cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
   net::HttpCache* cache =
@@ -297,13 +288,17 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
     return;
   }
 
+  FilePath new_path = path;
+
   scoped_refptr<BrowserPersistentCookieStore> persistent_store;
-  if (!path.empty()) {
-    if (file_util::CreateDirectory(path)) {
-      const FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
+  if (!new_path.empty()) {
+    if (!file_util::PathExists(new_path) &&
+        !file_util::CreateDirectory(new_path)) {
+      NOTREACHED() << "Failed to create cookie storage directory";
+      new_path.clear();
     } else {
-      NOTREACHED() << "The cookie storage directory could not be created";
+      FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
+      persistent_store = new BrowserPersistentCookieStore(cookie_path, false);
     }
   }
 
@@ -312,7 +307,7 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
   // longer referenced.
   storage_.set_cookie_store(
       new net::CookieMonster(persistent_store.get(), NULL));
-  cookie_store_path_ = path;
+  cookie_store_path_ = new_path;
 }
 
 const std::string& BrowserRequestContext::GetUserAgent(

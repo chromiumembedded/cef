@@ -172,6 +172,12 @@ bool CefContext::Initialize(const CefSettings& settings,
   application_ = application;
 
   cache_path_ = FilePath(CefString(&settings.cache_path));
+  if (!cache_path_.empty() &&
+      !file_util::PathExists(cache_path_) &&
+      !file_util::CreateDirectory(cache_path_)) {
+    NOTREACHED() << "Failed to create cache_path directory";
+    cache_path_.clear();
+  }
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
   // We want to be sure to init NSPR on the main thread.
