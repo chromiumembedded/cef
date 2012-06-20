@@ -32,10 +32,7 @@ bool CefJSDialogHandlerCToCpp::OnJSAlert(CefRefPtr<CefBrowser> browser,
   DCHECK(frame.get());
   if (!frame.get())
     return false;
-  // Verify param: message; type: string_byref_const
-  DCHECK(!message.empty());
-  if (message.empty())
-    return false;
+  // Unverified params: message
 
   // Execute
   int _retval = struct_->on_jsalert(struct_,
@@ -62,10 +59,7 @@ bool CefJSDialogHandlerCToCpp::OnJSConfirm(CefRefPtr<CefBrowser> browser,
   DCHECK(frame.get());
   if (!frame.get())
     return false;
-  // Verify param: message; type: string_byref_const
-  DCHECK(!message.empty());
-  if (message.empty())
-    return false;
+  // Unverified params: message
 
   // Translate param: retval; type: bool_byref
   int retvalInt = retval;
@@ -100,14 +94,7 @@ bool CefJSDialogHandlerCToCpp::OnJSPrompt(CefRefPtr<CefBrowser> browser,
   DCHECK(frame.get());
   if (!frame.get())
     return false;
-  // Verify param: message; type: string_byref_const
-  DCHECK(!message.empty());
-  if (message.empty())
-    return false;
-  // Verify param: defaultValue; type: string_byref_const
-  DCHECK(!defaultValue.empty());
-  if (defaultValue.empty())
-    return false;
+  // Unverified params: message, defaultValue
 
   // Translate param: retval; type: bool_byref
   int retvalInt = retval;

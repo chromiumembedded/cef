@@ -53,16 +53,17 @@ BrowserWebKitInit::BrowserWebKitInit()
       PathService::Get(base::DIR_MODULE, &module_path) &&
       media::InitializeMediaLibrary(module_path));
 
-  // Construct and initialize an appcache system for this scope.
-  // A new empty temp directory is created to house any cached
-  // content during the run. Upon exit that directory is deleted.
-  // If we can't create a tempdir, we'll use in-memory storage.
-  if (!appcache_dir_.CreateUniqueTempDir()) {
-    LOG(WARNING) << "Failed to create a temp dir for the appcache, "
-                    "using in-memory storage.";
-    DCHECK(appcache_dir_.path().empty());
+  FilePath appcache_path;
+  FilePath cache_path = _Context->cache_path();
+  if (!cache_path.empty()) {
+    appcache_path = cache_path.Append(FILE_PATH_LITERAL("AppCache"));
+    if (!file_util::PathExists(appcache_path) &&
+        !file_util::CreateDirectory(appcache_path)) {
+      LOG(WARNING) << "Failed to create appcache storage directory";
+      appcache_path.clear();
+    }
   }
-  BrowserAppCacheSystem::InitializeOnUIThread(appcache_dir_.path());
+  BrowserAppCacheSystem::InitializeOnUIThread(appcache_path);
 
   WebKit::WebDatabase::setObserver(&database_system_);
 

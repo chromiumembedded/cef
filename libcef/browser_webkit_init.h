@@ -106,7 +106,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   webkit_glue::WebClipboardImpl clipboard_;
   SimpleClipboardClient clipboard_client_;
   webkit_glue::WebFileUtilitiesImpl file_utilities_;
-  ScopedTempDir appcache_dir_;
   BrowserAppCacheSystem appcache_system_;
   BrowserDatabaseSystem database_system_;
   BrowserWebCookieJarImpl cookie_jar_;
