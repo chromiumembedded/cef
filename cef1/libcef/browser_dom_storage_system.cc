@@ -58,10 +58,10 @@ class BrowserDomStorageSystem::AreaImpl : public WebStorageArea {
   virtual WebString key(unsigned index) OVERRIDE;
   virtual WebString getItem(const WebString& key) OVERRIDE;
   virtual void setItem(const WebString& key, const WebString& newValue,
-                       const WebURL&, Result&, WebString& oldValue) OVERRIDE;
-  virtual void removeItem(const WebString& key, const WebURL& url,
-                          WebString& oldValue) OVERRIDE;
-  virtual void clear(const WebURL& url, bool& somethingCleared) OVERRIDE;
+                       const WebURL& pageUrl, Result&) OVERRIDE;
+  virtual void removeItem(const WebString& key,
+                          const WebURL& pageUrl) OVERRIDE;
+  virtual void clear(const WebURL& pageUrl) OVERRIDE;
 
  private:
   DomStorageHost* Host() {
@@ -156,44 +156,36 @@ WebString BrowserDomStorageSystem::AreaImpl::getItem(const WebString& key) {
 
 void BrowserDomStorageSystem::AreaImpl::setItem(
     const WebString& key, const WebString& newValue,
-    const WebURL& pageUrl, Result& result, WebString& oldValue) {
+    const WebURL& pageUrl, Result& result) {
   result = ResultBlockedByQuota;
-  oldValue = NullableString16(true);
   if (!Host())
     return;
 
   AutoReset<AreaImpl*> auto_reset(&parent_->area_being_processed_, this);
-  NullableString16 old_value;
+  NullableString16 unused;
   if (!Host()->SetAreaItem(connection_id_, key, newValue, pageUrl,
-                           &old_value))
+                           &unused))
     return;
 
   result = ResultOK;
-  oldValue = old_value;
 }
 
 void BrowserDomStorageSystem::AreaImpl::removeItem(
-    const WebString& key, const WebURL& pageUrl, WebString& oldValue) {
-  oldValue = NullableString16(true);
+    const WebString& key, const WebURL& pageUrl) {
   if (!Host())
     return;
 
   AutoReset<AreaImpl*> auto_reset(&parent_->area_being_processed_, this);
-  string16 old_value;
-  if (!Host()->RemoveAreaItem(connection_id_, key, pageUrl, &old_value))
-    return;
-
-  oldValue = old_value;
+  string16 notused;
+  Host()->RemoveAreaItem(connection_id_, key, pageUrl, &notused);
 }
 
-void BrowserDomStorageSystem::AreaImpl::clear(
-    const WebURL& pageUrl, bool& somethingCleared) {
-  if (Host()) {
-    AutoReset<AreaImpl*> auto_reset(&parent_->area_being_processed_, this);
-    somethingCleared = Host()->ClearArea(connection_id_, pageUrl);
+void BrowserDomStorageSystem::AreaImpl::clear(const WebURL& pageUrl) {
+  if (!Host())
     return;
-  }
-  somethingCleared = false;
+
+  AutoReset<AreaImpl*> auto_reset(&parent_->area_being_processed_, this);
+  Host()->ClearArea(connection_id_, pageUrl);
 }
 
 // BrowserDomStorageSystem -----------------------------

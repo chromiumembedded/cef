@@ -233,7 +233,8 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
         new_path.clear();
       } else {
         FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
-        persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
+        persistent_store =
+            new SQLitePersistentCookieStore(cookie_path, false, NULL);
       }
     }
 

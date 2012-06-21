@@ -167,8 +167,8 @@ void CefProcessUIThread::Init() {
   // Create a network change notifier before starting the IO & File threads.
   network_change_notifier_.reset(net::NetworkChangeNotifier::Create());
 
-  // Add a listener for OnOnlineStateChanged to notify WebKit of changes.
-  net::NetworkChangeNotifier::AddOnlineStateObserver(this);
+  // Add a listener for OnConnectionTypeChanged to notify WebKit of changes.
+  net::NetworkChangeNotifier::AddConnectionTypeObserver(this);
 
   // Initialize WebKit with the current state.
   WebKit::WebNetworkStateNotifier::setOnLine(
@@ -191,7 +191,7 @@ void CefProcessUIThread::CleanUp() {
   webkit_init_ = NULL;
 
   // Release the network change notifier after all other threads end.
-  net::NetworkChangeNotifier::RemoveOnlineStateObserver(this);
+  net::NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
   network_change_notifier_.reset();
 
   PlatformCleanUp();
@@ -199,8 +199,10 @@ void CefProcessUIThread::CleanUp() {
   _Context->CleanupResourceBundle();
 }
 
-void CefProcessUIThread::OnOnlineStateChanged(bool online) {
+void CefProcessUIThread::OnConnectionTypeChanged(
+    net::NetworkChangeNotifier::ConnectionType type) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
-  WebKit::WebNetworkStateNotifier::setOnLine(online);
+  WebKit::WebNetworkStateNotifier::setOnLine(
+      type != net::NetworkChangeNotifier::CONNECTION_NONE);
 }
 

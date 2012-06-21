@@ -20,6 +20,7 @@
 #include "skia/ext/vector_platform_device_emf_win.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPrintParams.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
@@ -525,7 +526,9 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
           settings.page_setup_pixels().content_area().height(),
           static_cast<int>(params.dpi),
           params.desired_dpi));
-  page_count = frame->printBegin(WebSize(canvas_size));
+  WebKit::WebPrintParams printParams(
+      WebSize(canvas_size.width(), canvas_size.height()));
+  page_count = frame->printBegin(printParams);
 
   if (page_count) {
     bool old_state = MessageLoop::current()->NestableTasksAllowed();

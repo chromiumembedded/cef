@@ -259,13 +259,10 @@ string16 BrowserWebKitInit::GetLocalizedString(int message_id) {
   return _Context->GetLocalizedString(message_id);
 }
 
-base::StringPiece BrowserWebKitInit::GetDataResource(int resource_id) {
+base::StringPiece BrowserWebKitInit::GetDataResource(
+    int resource_id,
+    ui::ScaleFactor scale_factor) {
   return _Context->GetDataResource(resource_id);
-}
-
-base::StringPiece BrowserWebKitInit::GetImageResource(int resource_id,
-                                                      float scale_factor) {
-  return GetDataResource(resource_id);
 }
 
 webkit_glue::ResourceLoaderBridge* BrowserWebKitInit::CreateResourceLoader(

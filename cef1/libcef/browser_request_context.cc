@@ -17,6 +17,7 @@
 #include "base/compiler_specific.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/thread_task_runner_handle.h"
 #include "base/threading/worker_pool.h"
 #include "build/build_config.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
@@ -122,7 +123,7 @@ net::ProxyConfigService* CreateProxyConfigService() {
 #else
   // Use the system proxy settings.
   return net::ProxyService::CreateSystemProxyConfigService(
-      MessageLoop::current(), NULL);
+      base::ThreadTaskRunnerHandle::Get(), NULL);
 #endif
 }
 
@@ -300,7 +301,8 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
       new_path.clear();
     } else {
       FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
-      persistent_store = new SQLitePersistentCookieStore(cookie_path, false);
+      persistent_store =
+          new SQLitePersistentCookieStore(cookie_path, false, NULL);
     }
   }
 

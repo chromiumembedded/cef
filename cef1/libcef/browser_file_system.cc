@@ -23,6 +23,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebVector.h"
 #include "webkit/blob/blob_storage_controller.h"
+#include "webkit/fileapi/file_system_util.h"
 #include "webkit/fileapi/mock_file_system_options.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -249,7 +250,7 @@ void BrowserFileSystem::DidFinish(WebFileSystemCallbacks* callbacks,
   if (result == base::PLATFORM_FILE_OK)
     callbacks->didSucceed();
   else
-    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
 }
 
 void BrowserFileSystem::DidGetMetadata(WebFileSystemCallbacks* callbacks,
@@ -266,7 +267,7 @@ void BrowserFileSystem::DidGetMetadata(WebFileSystemCallbacks* callbacks,
         webkit_glue::FilePathToWebString(platform_path);
     callbacks->didReadMetadata(web_file_info);
   } else {
-    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
   }
 }
 
@@ -287,7 +288,7 @@ void BrowserFileSystem::DidReadDirectory(
     WebVector<WebKit::WebFileSystemEntry> web_entries = web_entries_vector;
     callbacks->didReadDirectory(web_entries, has_more);
   } else {
-    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
   }
 }
 
@@ -301,7 +302,7 @@ void BrowserFileSystem::DidOpenFileSystem(
     else
       callbacks->didOpenFileSystem(WebString::fromUTF8(name), root);
   } else {
-    callbacks->didFail(webkit_glue::PlatformFileErrorToWebFileError(result));
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
   }
 }
 

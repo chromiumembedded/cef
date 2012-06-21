@@ -28,7 +28,7 @@ class StatsTable;
 // COM library functions other than CoGetMalloc and memory allocation
 // functions, so this class initializes COM for those users.
 class CefProcessUIThread
-    : public net::NetworkChangeNotifier::OnlineStateObserver,
+    : public net::NetworkChangeNotifier::ConnectionTypeObserver,
       public CefThread {
  public:
   CefProcessUIThread();
@@ -42,8 +42,9 @@ class CefProcessUIThread
   void PlatformInit();
   void PlatformCleanUp();
 
-  // From net::NetworkChangeNotifier::OnlineStateObserver
-  void OnOnlineStateChanged(bool online);
+  // From net::NetworkChangeNotifier::ConnectionTypeObserver
+  virtual void OnConnectionTypeChanged(
+      net::NetworkChangeNotifier::ConnectionType type);
 
   base::StatsTable* statstable_;
 

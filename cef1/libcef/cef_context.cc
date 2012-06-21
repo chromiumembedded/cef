@@ -12,7 +12,6 @@
 #include "base/path_service.h"
 #include "base/synchronization/waitable_event.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "ui/base/resource/resource_handle.h"
 #include "ui/base/ui_base_paths.h"
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
@@ -104,8 +103,9 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
 
  private:
-  virtual FilePath GetPathForResourcePack(const FilePath& pack_path,
-                                          float scale_factor) OVERRIDE {
+  virtual FilePath GetPathForResourcePack(
+      const FilePath& pack_path,
+      ui::ScaleFactor scale_factor) OVERRIDE {
     // Only allow the cef pack file to load.
     if (!context_->settings().pack_loading_disabled && allow_pack_file_load_)
       return pack_path;
@@ -130,11 +130,13 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   }
 
   virtual base::RefCountedStaticMemory* LoadDataResourceBytes(
-      int resource_id) OVERRIDE {
+      int resource_id,
+      ui::ScaleFactor scale_factor) OVERRIDE {
     return NULL;
   }
 
   virtual bool GetRawDataResource(int resource_id,
+                                  ui::ScaleFactor scale_factor,
                                   base::StringPiece* value) OVERRIDE {
     return false;
   }
@@ -421,7 +423,7 @@ void CefContext::InitializeResourceBundle() {
     if (file_util::PathExists(pak_file)) {
       resource_bundle_delegate_->set_allow_pack_file_load(true);
       ResourceBundle::GetSharedInstance().AddDataPack(
-          pak_file, ui::ResourceHandle::kScaleFactor100x);
+          pak_file, ui::SCALE_FACTOR_NONE);
       resource_bundle_delegate_->set_allow_pack_file_load(false);
     } else {
       NOTREACHED() << "Could not load chrome.pak";
@@ -523,8 +525,10 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
   }
 #endif  // defined(OS_MACOSX)
 
-  if (value.empty() && !settings_.pack_loading_disabled)
-    value = ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
+  if (value.empty() && !settings_.pack_loading_disabled) {
+    value = ResourceBundle::GetSharedInstance().GetRawDataResource(
+        resource_id, ui::SCALE_FACTOR_NONE);
+  }
 
   if (value.empty())
     LOG(ERROR) << "No data resource available for id " << resource_id;
