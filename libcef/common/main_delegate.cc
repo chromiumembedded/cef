@@ -7,9 +7,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
-#include "libcef/plugin/content_plugin_client.h"
 #include "libcef/renderer/content_renderer_client.h"
-#include "libcef/utility/content_utility_client.h"
 
 #include "base/command_line.h"
 #include "base/file_path.h"
@@ -229,7 +227,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   }
 
   content::SetContentClient(&content_client_);
-  InitializeContentClient(process_type);
 
   return false;
 }
@@ -284,14 +281,17 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
   ResourceBundle::CleanupSharedInstance();
 }
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_ANDROID)
-void CefMainDelegate::ZygoteForked() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  std::string process_type =
-      command_line.GetSwitchValueASCII(switches::kProcessType);
-  InitializeContentClient(process_type);
+
+content::ContentBrowserClient* CefMainDelegate::CreateContentBrowserClient() {
+  browser_client_.reset(new CefContentBrowserClient);
+  return browser_client_.get();
 }
-#endif
+
+content::ContentRendererClient*
+    CefMainDelegate::CreateContentRendererClient() {
+  renderer_client_.reset(new CefContentRendererClient);
+  return renderer_client_.get();
+}
 
 void CefMainDelegate::ShutdownBrowser() {
   if (browser_runner_.get()) {
@@ -302,31 +302,6 @@ void CefMainDelegate::ShutdownBrowser() {
     // Blocks until the thread has stopped.
     ui_thread_->Stop();
     ui_thread_.reset();
-  }
-}
-
-void CefMainDelegate::InitializeContentClient(
-    const std::string& process_type) {
-  if (process_type.empty()) {
-    browser_client_.reset(new CefContentBrowserClient);
-    content::GetContentClient()->set_browser(browser_client_.get());
-
-    // Single-process is an unsupported and not fully tested mode.
-    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-    if (command_line.HasSwitch(switches::kSingleProcess)) {
-      content::RenderProcessHost::set_run_renderer_in_process(true);
-      renderer_client_.reset(new CefContentRendererClient);
-      content::GetContentClient()->set_renderer(renderer_client_.get());
-    }
-  } else if (process_type == switches::kRendererProcess) {
-    renderer_client_.reset(new CefContentRendererClient);
-    content::GetContentClient()->set_renderer(renderer_client_.get());
-  } else if (process_type == switches::kPluginProcess) {
-    plugin_client_.reset(new CefContentPluginClient);
-    content::GetContentClient()->set_plugin(plugin_client_.get());
-  } else if (process_type == switches::kUtilityProcess) {
-    utility_client_.reset(new CefContentUtilityClient);
-    content::GetContentClient()->set_utility(utility_client_.get());
   }
 }
 

@@ -229,6 +229,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::FileChooserParams& params) OVERRIDE;
   virtual void UpdatePreferredSize(content::WebContents* source,
                                    const gfx::Size& pref_size) OVERRIDE;
+  virtual void RequestMediaAccessPermission(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest* request,
+      const content::MediaResponseCallback& callback) OVERRIDE;
 
   // content::WebContentsObserver methods.
   virtual void RenderViewCreated(content::RenderViewHost* render_view_host)

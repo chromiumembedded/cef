@@ -36,8 +36,8 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
 
   // net::URLRequestContextGetter implementation.
   virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
-  virtual scoped_refptr<base::MessageLoopProxy>
-      GetIOMessageLoopProxy() const OVERRIDE;
+  virtual scoped_refptr<base::SingleThreadTaskRunner>
+      GetNetworkTaskRunner() const OVERRIDE;
 
   net::HostResolver* host_resolver();
 

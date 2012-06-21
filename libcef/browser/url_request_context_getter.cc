@@ -280,8 +280,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   return url_request_context_.get();
 }
 
-scoped_refptr<base::MessageLoopProxy>
-    CefURLRequestContextGetter::GetIOMessageLoopProxy() const {
+scoped_refptr<base::SingleThreadTaskRunner>
+    CefURLRequestContextGetter::GetNetworkTaskRunner() const {
   return BrowserThread::GetMessageLoopProxyForThread(CEF_IOT);
 }
 

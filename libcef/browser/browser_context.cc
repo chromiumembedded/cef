@@ -180,9 +180,6 @@ class CefSpeechRecognitionPreferences
     return false;
   }
 
-  virtual void SetFilterProfanities(bool filter_profanities) OVERRIDE {
-  }
-
  private:
   DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionPreferences);
 };
@@ -215,9 +212,10 @@ void CefBrowserContext::InitWhileIOAllowed() {
   path_ = path_.Append(std::wstring(L"cef_data"));
 #elif defined(OS_LINUX)
   scoped_ptr<base::Environment> env(base::Environment::Create());
-  FilePath config_dir(base::nix::GetXDGDirectory(env.get(),
-                                                 kXdgConfigHomeEnvVar,
-                                                 kDotConfigDir));
+  FilePath config_dir(
+      base::nix::GetXDGDirectory(env.get(),
+                                 base::nix::kXdgConfigHomeEnvVar,
+                                 base::nix::kDotConfigDir));
   path_ = config_dir.Append("cef_data");
 #elif defined(OS_MACOSX)
   CHECK(PathService::Get(base::DIR_APP_DATA, &path_));
@@ -238,15 +236,10 @@ bool CefBrowserContext::IsOffTheRecord() const {
   return false;
 }
 
-content::DownloadManager* CefBrowserContext::GetDownloadManager() {
-  if (!download_manager_.get()) {
-    download_manager_delegate_ = new CefDownloadManagerDelegate();
-    download_manager_ =
-        content::DownloadManager::Create(download_manager_delegate_, NULL);
-    download_manager_delegate_->SetDownloadManager(download_manager_.get());
-    download_manager_->Init(this);
-  }
-  return download_manager_.get();
+content::DownloadManagerDelegate*
+    CefBrowserContext::GetDownloadManagerDelegate() {
+  download_manager_delegate_ = new CefDownloadManagerDelegate();
+  return download_manager_delegate_.get();
 }
 
 net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {

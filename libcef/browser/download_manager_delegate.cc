@@ -37,11 +37,6 @@ void CefDownloadManagerDelegate::SetDownloadManager(
   download_manager_ = download_manager;
 }
 
-content::DownloadId CefDownloadManagerDelegate::GetNextId() {
-  static int next_id;
-  return content::DownloadId(this, ++next_id);
-}
-
 bool CefDownloadManagerDelegate::ShouldStartDownload(int32 download_id) {
   DownloadItem* download =
       download_manager_->GetActiveDownloadItem(download_id);
@@ -72,20 +67,20 @@ bool CefDownloadManagerDelegate::ShouldStartDownload(int32 download_id) {
 }
 
 void CefDownloadManagerDelegate::ChooseDownloadPath(
-    WebContents* web_contents,
-    const FilePath& suggested_path,
-    int32 download_id) {
+    content::DownloadItem* item) {
   FilePath result;
 #if defined(OS_WIN) || defined(OS_MACOSX)
+  WebContents* web_contents = item->GetWebContents();
+  const FilePath suggested_path(item->GetTargetFilePath());
   result = PlatformChooseDownloadPath(web_contents, suggested_path);
 #else
   NOTIMPLEMENTED();
 #endif
 
   if (result.empty()) {
-    download_manager_->FileSelectionCanceled(download_id);
+    download_manager_->FileSelectionCanceled(item->GetId());
   } else {
-    download_manager_->FileSelected(result, download_id);
+    download_manager_->FileSelected(result, item->GetId());
   }
 }
 

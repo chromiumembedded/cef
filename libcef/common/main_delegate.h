@@ -40,9 +40,9 @@ class CefMainDelegate : public content::ContentMainDelegate {
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) OVERRIDE;
   virtual void ProcessExiting(const std::string& process_type) OVERRIDE;
-#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_ANDROID)
-  virtual void ZygoteForked() OVERRIDE;
-#endif
+  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
+  virtual content::ContentRendererClient*
+      CreateContentRendererClient() OVERRIDE;
 
   // Shut down the browser runner.
   void ShutdownBrowser();
@@ -51,7 +51,6 @@ class CefMainDelegate : public content::ContentMainDelegate {
   CefContentClient* content_client() { return &content_client_; }
 
  private:
-  void InitializeContentClient(const std::string& process_type);
   void InitializeResourceBundle();
 
   scoped_ptr<content::BrowserMainRunner> browser_runner_;
@@ -59,8 +58,6 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
   scoped_ptr<CefContentBrowserClient> browser_client_;
   scoped_ptr<CefContentRendererClient> renderer_client_;
-  scoped_ptr<CefContentPluginClient> plugin_client_;
-  scoped_ptr<CefContentUtilityClient> utility_client_;
   CefContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMainDelegate);

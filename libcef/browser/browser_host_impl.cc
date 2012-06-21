@@ -1082,6 +1082,23 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
   PlatformSizeTo(pref_size.width(), pref_size.height());
 }
 
+void CefBrowserHostImpl::RequestMediaAccessPermission(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest* request,
+    const content::MediaResponseCallback& callback) {
+  CEF_CURRENTLY_ON_UIT();
+
+  content::MediaStreamDevices devices;
+  for (content::MediaStreamDeviceMap::const_iterator it =
+       request->devices.begin(); it != request->devices.end(); ++it) {
+    devices.push_back(*it->second.begin());
+  }
+
+  // TODO(cef): Give the user an opportunity to approve the device list or run
+  // the callback with an empty device list to cancel the request.
+  callback.Run(devices);
+}
+
 
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------

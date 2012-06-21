@@ -109,22 +109,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 }
 
-void CefContentBrowserClient::RequestMediaAccessPermission(
-    const content::MediaStreamRequest* request,
-    const content::MediaResponseCallback& callback) {
-  CEF_CURRENTLY_ON_UIT();
-
-  content::MediaStreamDevices devices;
-  for (content::MediaStreamDeviceMap::const_iterator it =
-       request->devices.begin(); it != request->devices.end(); ++it) {
-    devices.push_back(*it->second.begin());
-  }
-
-  // TODO(cef): Give the user an opportunity to approve the device list or run
-  // the callback with an empty device list to cancel the request.
-  callback.Run(devices);
-}
-
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
   // TODO(cef): Return NULL once it's supported. See crbug.com/116113.
   if (!media_observer_.get())

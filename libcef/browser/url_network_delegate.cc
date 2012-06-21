@@ -211,3 +211,14 @@ bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
                                          const FilePath& path) const {
   return true;
 }
+
+bool CefNetworkDelegate::OnCanThrottleRequest(
+    const net::URLRequest& request) const {
+  return false;
+}
+
+int CefNetworkDelegate::OnBeforeSocketStreamConnect(
+    net::SocketStream* socket,
+    const net::CompletionCallback& callback) {
+  return net::OK;
+}

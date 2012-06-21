@@ -182,7 +182,7 @@ net::URLRequestContext*
   return context_proxy_.get();
 }
 
-scoped_refptr<base::MessageLoopProxy>
-    CefURLRequestContextGetterProxy::GetIOMessageLoopProxy() const {
-  return parent_->GetIOMessageLoopProxy();
+scoped_refptr<base::SingleThreadTaskRunner>
+    CefURLRequestContextGetterProxy::GetNetworkTaskRunner() const {
+  return parent_->GetNetworkTaskRunner();
 }
