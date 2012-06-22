@@ -3,8 +3,11 @@
 // found in the LICENSE file.
 
 #include "libcef/browser_dom_storage_system.h"
+#include "libcef/cef_context.h"
+#include "libcef/cef_thread.h"
 
 #include "base/auto_reset.h"
+#include "base/path_service.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
@@ -13,10 +16,12 @@
 #include "webkit/database/database_util.h"
 #include "webkit/dom_storage/dom_storage_area.h"
 #include "webkit/dom_storage/dom_storage_host.h"
+#include "webkit/dom_storage/dom_storage_task_runner.h"
 
 using dom_storage::DomStorageContext;
 using dom_storage::DomStorageHost;
 using dom_storage::DomStorageSession;
+using dom_storage::DomStorageWorkerPoolTaskRunner;
 using webkit_database::DatabaseUtil;
 using WebKit::WebStorageArea;
 using WebKit::WebStorageNamespace;
@@ -194,10 +199,30 @@ BrowserDomStorageSystem* BrowserDomStorageSystem::g_instance_;
 
 BrowserDomStorageSystem::BrowserDomStorageSystem()
     : weak_factory_(this),
-      context_(new DomStorageContext(FilePath(), FilePath(), NULL, NULL)),
-      host_(new DomStorageHost(context_)),
       area_being_processed_(NULL),
       next_connection_id_(1) {
+  FilePath local_storage_path;
+  FilePath cache_path(_Context->cache_path());
+  if (!cache_path.empty()) {
+    local_storage_path = cache_path.Append(FILE_PATH_LITERAL("Local Storage"));
+    if (!file_util::PathExists(local_storage_path) &&
+        !file_util::CreateDirectory(local_storage_path)) {
+      LOG(WARNING) << "Failed to create Local Storage directory";
+      local_storage_path.clear();
+    }
+  }
+
+  base::SequencedWorkerPool* worker_pool = _Context->blocking_pool();
+
+  context_ = new DomStorageContext(local_storage_path, FilePath(), NULL,
+      new DomStorageWorkerPoolTaskRunner(
+          worker_pool,
+          worker_pool->GetNamedSequenceToken("dom_storage_primary"),
+          worker_pool->GetNamedSequenceToken("dom_storage_commit"),
+          CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
+
+  host_.reset(new DomStorageHost(context_));
+
   DCHECK(!g_instance_);
   g_instance_ = this;
   context_->AddEventObserver(this);

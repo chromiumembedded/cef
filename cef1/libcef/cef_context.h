@@ -19,6 +19,7 @@
 #include "base/at_exit.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "base/threading/sequenced_worker_pool.h"
 
 class CefBrowserImpl;
 class CefResourceBundleDelegate;
@@ -88,6 +89,12 @@ class CefContext : public CefBase {
     current_webviewhost_ = host;
   }
 
+  // The SequencedWorkerPool object is managed by CefProcessUIThread.
+  void set_blocking_pool(base::SequencedWorkerPool* blocking_pool) {
+    blocking_pool_ = blocking_pool;
+  }
+  base::SequencedWorkerPool* blocking_pool() { return blocking_pool_.get(); }
+
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
  private:
@@ -121,6 +128,8 @@ class CefContext : public CefBase {
   int next_browser_id_;
 
   WebViewHost* current_webviewhost_;
+
+  scoped_refptr<base::SequencedWorkerPool> blocking_pool_;
 
   IMPLEMENT_REFCOUNTING(CefContext);
   IMPLEMENT_LOCKING(CefContext);

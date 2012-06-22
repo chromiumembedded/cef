@@ -11,6 +11,7 @@
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "net/base/network_change_notifier.h"
 
 class BrowserWebKitInit;
@@ -52,6 +53,8 @@ class CefProcessUIThread
   BrowserWebKitInit* webkit_init_;
 
   scoped_ptr<net::NetworkChangeNotifier> network_change_notifier_;
+
+  scoped_refptr<base::SequencedWorkerPool> blocking_pool_;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessUIThread);
 };

@@ -100,6 +100,10 @@ void CefProcessUIThread::Init() {
 
   PlatformInit();
 
+  // Initialize the blocking pool.
+  blocking_pool_ = new base::SequencedWorkerPool(3, "BrowserBlocking");
+  _Context->set_blocking_pool(blocking_pool_.get());
+
   // Initialize WebKit.
   webkit_init_ = new BrowserWebKitInit();
 
@@ -193,6 +197,11 @@ void CefProcessUIThread::CleanUp() {
   // Release the network change notifier after all other threads end.
   net::NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
   network_change_notifier_.reset();
+
+  // Shut down the blocking pool.
+  _Context->set_blocking_pool(NULL);
+  blocking_pool_->Shutdown();
+  blocking_pool_ = NULL;
 
   PlatformCleanUp();
 
