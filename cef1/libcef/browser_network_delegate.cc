@@ -104,3 +104,14 @@ bool BrowserNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
                                              const FilePath& path) const {
   return true;
 }
+
+bool BrowserNetworkDelegate::OnCanThrottleRequest(
+    const net::URLRequest& request) const {
+  return false;
+}
+
+int BrowserNetworkDelegate::OnBeforeSocketStreamConnect(
+    net::SocketStream* stream,
+    const net::CompletionCallback& callback) {
+  return net::OK;
+}

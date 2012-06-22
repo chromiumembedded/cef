@@ -107,7 +107,7 @@ WebStorageNamespace* BrowserDomStorageSystem::NamespaceImpl::copy() {
   int new_id = kInvalidNamespaceId;
   if (Context()) {
     new_id = Context()->AllocateSessionId();
-    Context()->CloneSessionNamespace(namespace_id_, new_id);
+    Context()->CloneSessionNamespace(namespace_id_, new_id, std::string());
   }
   return new NamespaceImpl(parent_, new_id);
 }
@@ -215,7 +215,7 @@ WebStorageNamespace* BrowserDomStorageSystem::CreateLocalStorageNamespace() {
 
 WebStorageNamespace* BrowserDomStorageSystem::CreateSessionStorageNamespace() {
   int id = context_->AllocateSessionId();
-  context_->CreateSessionNamespace(id);
+  context_->CreateSessionNamespace(id, std::string());
   return new NamespaceImpl(weak_factory_.GetWeakPtr(), id);
 }
 

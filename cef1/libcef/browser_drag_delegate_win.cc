@@ -279,12 +279,12 @@ void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
     // a shortcut so we add it first.
     if (!drop_data.file_contents.empty())
       PrepareDragForFileContents(drop_data, &data);
-    if (!drop_data.text_html.empty())
-      data.SetHtml(drop_data.text_html, drop_data.html_base_url);
+    if (!drop_data.html.is_null() && !drop_data.html.string().empty())
+      data.SetHtml(drop_data.html.string(), drop_data.html_base_url);
     // We set the text contents before the URL because the URL also sets text
     // content.
-    if (!drop_data.plain_text.empty())
-      data.SetString(drop_data.plain_text);
+    if (!drop_data.text.is_null() && !drop_data.text.string().empty())
+      data.SetString(drop_data.text.string());
     if (drop_data.url.is_valid())
       PrepareDragForUrl(drop_data, &data);
   }

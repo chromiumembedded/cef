@@ -186,7 +186,8 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
         data->target == ui::GetAtomForTarget(ui::TEXT_PLAIN_NO_CHARSET)) {
       guchar* text = gtk_selection_data_get_text(data);
       if (text) {
-        drop_data_->plain_text = UTF8ToUTF16((const char*)text);
+        drop_data_->text =
+            NullableString16(UTF8ToUTF16((const char*)text), false);
         g_free(text);
       }
     } else if (data->target == ui::GetAtomForTarget(ui::TEXT_URI_LIST)) {
@@ -208,7 +209,7 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
             // This is a hack. Some file managers also populate text/plain with
             // a file URL when dragging files, so we clear it to avoid exposing
             // it to the web content.
-            // drop_data_->plain_text.clear();
+            // drop_data_->text = NullableString16(true);
           } else if (!drop_data_->url.is_valid()) {
             // Also set the first non-file URL as the URL content for the drop.
             drop_data_->url = url;
@@ -217,9 +218,9 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
         g_strfreev(uris);
       }
     } else if (data->target == ui::GetAtomForTarget(ui::TEXT_HTML)) {
-      drop_data_->text_html =
+      drop_data_->html = NullableString16(
           UTF8ToUTF16(std::string(reinterpret_cast<char*>(data->data),
-                                  data->length));
+                                  data->length)), false);
       // We leave the base URL empty.
     } else if (data->target == ui::GetAtomForTarget(ui::NETSCAPE_URL)) {
       std::string netscape_url(reinterpret_cast<char*>(data->data),

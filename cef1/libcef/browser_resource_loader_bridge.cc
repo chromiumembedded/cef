@@ -1138,8 +1138,6 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge,
     static_cast<SyncRequestProxy*>(proxy_.get())->WaitForCompletion();
   }
 
-  virtual void UpdateRoutingId(int new_routing_id) OVERRIDE {}
-
  private:
   CefRefPtr<CefBrowserImpl> browser_;
 

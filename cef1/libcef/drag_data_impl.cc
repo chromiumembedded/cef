@@ -35,11 +35,11 @@ CefString CefDragDataImpl::GetLinkMetadata() {
 }
 
 CefString CefDragDataImpl::GetFragmentText() {
-  return data_.plain_text;
+  return data_.text.is_null() ? CefString() : data_.text.string();
 }
 
 CefString CefDragDataImpl::GetFragmentHtml() {
-  return data_.text_html;
+  return data_.html.is_null() ? CefString() : data_.html.string();
 }
 
 CefString CefDragDataImpl::GetFragmentBaseURL() {

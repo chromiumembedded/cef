@@ -153,9 +153,9 @@ void PromiseWriterHelper(const WebDropData& drop_data,
 
   // HTML.
   if ([type isEqualToString:NSHTMLPboardType]) {
-    DCHECK(!dropData_->text_html.empty());
+    DCHECK(!dropData_->html.is_null() && !dropData_->html.string().empty());
     // See comment on |kHtmlHeader| above.
-    [pboard setString:SysUTF16ToNSString(kHtmlHeader + dropData_->text_html)
+    [pboard setString:SysUTF16ToNSString(kHtmlHeader + dropData_->html.string())
               forType:NSHTMLPboardType];
 
   // URL.
@@ -202,8 +202,8 @@ void PromiseWriterHelper(const WebDropData& drop_data,
 
   // Plain text.
   } else if ([type isEqualToString:NSStringPboardType]) {
-    DCHECK(!dropData_->plain_text.empty());
-    [pboard setString:SysUTF16ToNSString(dropData_->plain_text)
+    DCHECK(!dropData_->text.is_null() && !dropData_->text.string().empty());
+    [pboard setString:SysUTF16ToNSString(dropData_->text.string())
               forType:NSStringPboardType];
 
   // Oops!
@@ -359,7 +359,7 @@ void PromiseWriterHelper(const WebDropData& drop_data,
   [pasteboard_ declareTypes:[NSArray array] owner:view_];
 
   // HTML.
-  if (!dropData_->text_html.empty())
+  if (!dropData_->html.is_null() && !dropData_->html.string().empty())
     [pasteboard_ addTypes:[NSArray arrayWithObject:NSHTMLPboardType]
                     owner:view_];
 
@@ -419,7 +419,7 @@ void PromiseWriterHelper(const WebDropData& drop_data,
   }
 
   // Plain text.
-  if (!dropData_->plain_text.empty())
+  if (!dropData_->text.is_null() && !dropData_->text.string().empty())
     [pasteboard_ addTypes:[NSArray arrayWithObject:NSStringPboardType]
                     owner:view_];
 }

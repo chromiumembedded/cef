@@ -79,14 +79,14 @@ void WebDragSource::StartDragging(const WebDropData& drop_data,
                                   const WebKit::WebPoint& image_offset) {
   drop_data_.reset(new WebDropData(drop_data));
   int targets_mask = 0;
-  if (!drop_data.plain_text.empty())
+  if (!drop_data.text.is_null() && !drop_data.text.string().empty())
     targets_mask |= ui::TEXT_PLAIN;
   if (drop_data.url.is_valid()) {
     targets_mask |= ui::TEXT_URI_LIST;
     targets_mask |= ui::CHROME_NAMED_URL;
     targets_mask |= ui::NETSCAPE_URL;
   }
-  if (!drop_data.text_html.empty())
+  if (!drop_data.html.is_null() && !drop_data.html.string().empty())
     targets_mask |= ui::TEXT_HTML;
   GtkTargetList* tl = ui::GetTargetListFromCodeMask(targets_mask);
 
@@ -125,14 +125,16 @@ void WebDragSource::OnDragDataGet(GtkWidget* sender, GdkDragContext* context,
                                   guint target_type, guint time) {
   switch (target_type) {
     case ui::TEXT_PLAIN: {
-      std::string utf8_text = UTF16ToUTF8(drop_data_->plain_text);
+      std::string utf8_text = drop_data_->text.is_null() ?
+          std::string() : UTF16ToUTF8(drop_data_->text.string());
       gtk_selection_data_set_text(selection_data, utf8_text.c_str(),
                                   utf8_text.length());
       break;
     }
 
     case ui::TEXT_HTML: {
-      std::string utf8_text = UTF16ToUTF8(drop_data_->text_html);
+      std::string utf8_text = drop_data_->html.is_null() ?
+          std::string() : UTF16ToUTF8(drop_data_->html.string());
       gtk_selection_data_set(selection_data,
                              ui::GetAtomForTarget(ui::TEXT_HTML),
                              8,

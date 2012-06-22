@@ -221,17 +221,19 @@ using WebKit::WebView;
 
   // Get plain text.
   if ([types containsObject:NSStringPboardType]) {
-    data->plain_text =
-        base::SysNSStringToUTF16([pboard stringForType:NSStringPboardType]);
+    data->text = NullableString16(
+        base::SysNSStringToUTF16([pboard stringForType:NSStringPboardType]),
+        false);
   }
 
   // Get HTML. If there's no HTML, try RTF.
   if ([types containsObject:NSHTMLPboardType]) {
-    data->text_html =
-        base::SysNSStringToUTF16([pboard stringForType:NSHTMLPboardType]);
+    data->html = NullableString16(
+        base::SysNSStringToUTF16([pboard stringForType:NSHTMLPboardType]),
+        false);
   } else if ([types containsObject:NSRTFPboardType]) {
     NSString* html = [pboard htmlFromRtf];
-    data->text_html = base::SysNSStringToUTF16(html);
+    data->html = NullableString16(base::SysNSStringToUTF16(html), false);
   }
 
   // Get files.
