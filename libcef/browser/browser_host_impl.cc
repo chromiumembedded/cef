@@ -1125,6 +1125,20 @@ void CefBrowserHostImpl::RenderViewReady() {
 
 void CefBrowserHostImpl::RenderViewGone(base::TerminationStatus status) {
   queue_messages_ = true;
+
+  cef_termination_status_t ts = TS_ABNORMAL_TERMINATION;
+  if (status == base::TERMINATION_STATUS_PROCESS_WAS_KILLED)
+    ts = TS_PROCESS_WAS_KILLED;
+  else if (status == base::TERMINATION_STATUS_PROCESS_CRASHED)
+    ts = TS_PROCESS_CRASHED;
+  else if (status != base::TERMINATION_STATUS_ABNORMAL_TERMINATION)
+    return;
+
+  if (client_.get()) {
+    CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
+    if (handler.get())
+      handler->OnRenderProcessTerminated(this, ts);
+  }
 }
 
 void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
@@ -1177,6 +1191,14 @@ void CefBrowserHostImpl::DidFailLoad(int64 frame_id,
       validated_url);
   OnLoadError(frame, validated_url, error_code, error_description);
   OnLoadEnd(frame, validated_url);
+}
+
+void CefBrowserHostImpl::PluginCrashed(const FilePath& plugin_path) {
+  if (client_.get()) {
+    CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
+    if (handler.get())
+      handler->OnPluginCrashed(this, plugin_path.value());
+  }
 }
 
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {

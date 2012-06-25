@@ -50,6 +50,7 @@
 class CefLoadHandler : public virtual CefBase {
  public:
   typedef cef_errorcode_t ErrorCode;
+  typedef cef_termination_status_t TerminationStatus;
 
   ///
   // Called when the browser begins loading a frame. The |frame| value will
@@ -88,6 +89,22 @@ class CefLoadHandler : public virtual CefBase {
                            ErrorCode errorCode,
                            const CefString& errorText,
                            const CefString& failedUrl) {}
+
+  ///
+  // Called when the render process terminates unexpectedly. |status| indicates
+  // how the process terminated.
+  ///
+  /*--cef()--*/
+  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                         TerminationStatus status) {}
+
+  ///
+  // Called when a plugin has crashed. |plugin_path| is the path of the plugin
+  // that crashed.
+  ///
+  /*--cef()--*/
+  virtual void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+                               const CefString& plugin_path) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_LOAD_HANDLER_H_

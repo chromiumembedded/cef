@@ -93,6 +93,46 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
       failedUrl.GetStruct());
 }
 
+void CefLoadHandlerCToCpp::OnRenderProcessTerminated(
+    CefRefPtr<CefBrowser> browser, TerminationStatus status) {
+  if (CEF_MEMBER_MISSING(struct_, on_render_process_terminated))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->on_render_process_terminated(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      status);
+}
+
+void CefLoadHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+    const CefString& plugin_path) {
+  if (CEF_MEMBER_MISSING(struct_, on_plugin_crashed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: plugin_path; type: string_byref_const
+  DCHECK(!plugin_path.empty());
+  if (plugin_path.empty())
+    return;
+
+  // Execute
+  struct_->on_plugin_crashed(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      plugin_path.GetStruct());
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,

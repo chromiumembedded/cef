@@ -41,6 +41,10 @@ class CefLoadHandlerCToCpp
   virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, ErrorCode errorCode,
       const CefString& errorText, const CefString& failedUrl) OVERRIDE;
+  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+      TerminationStatus status) OVERRIDE;
+  virtual void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+      const CefString& plugin_path) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

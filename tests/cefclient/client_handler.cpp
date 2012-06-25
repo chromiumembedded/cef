@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/client_handler.h"
+#include <algorithm>
 #include <stdio.h>
 #include <sstream>
 #include <string>
@@ -280,6 +281,18 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
         " with error " << std::string(errorText) << " (" << errorCode <<
         ").</h2></body></html>";
   frame->LoadString(ss.str(), failedUrl);
+}
+
+void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                              TerminationStatus status) {
+  // Load google.com if that's not the website that we terminated on.
+  CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+  std::string url = frame->GetURL();
+  std::transform(url.begin(), url.end(), url.begin(), tolower);
+
+  const char kLoadURL[] = "http://www.google.com";
+  if (url.find(kLoadURL) != 0)
+    frame->LoadURL(kLoadURL);
 }
 
 CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(

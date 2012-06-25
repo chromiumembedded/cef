@@ -581,6 +581,26 @@ typedef struct _cef_cookie_t {
 } cef_cookie_t;
 
 ///
+// Process termination status values.
+///
+enum cef_termination_status_t {
+  ///
+  // Non-zero exit status.
+  ///
+  TS_ABNORMAL_TERMINATION,
+
+  ///
+  // SIGKILL or task manager kill.
+  ///
+  TS_PROCESS_WAS_KILLED,
+
+  ///
+  // Segmentation fault.
+  ///
+  TS_PROCESS_CRASHED,
+};
+
+///
 // Storage types.
 ///
 enum cef_storage_type_t {

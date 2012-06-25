@@ -262,6 +262,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            bool is_main_frame,
                            int error_code,
                            const string16& error_description) OVERRIDE;
+  virtual void PluginCrashed(const FilePath& plugin_path) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   // Override to provide a thread safe implementation.
   virtual bool Send(IPC::Message* message) OVERRIDE;
