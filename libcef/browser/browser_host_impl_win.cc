@@ -5,17 +5,19 @@
 
 #include "libcef/browser/browser_host_impl.h"
 
+#include <commdlg.h>
 #include <dwmapi.h>
 #include <shellapi.h>
-#include <shlwapi.h>
 #include <wininet.h>
 #include <winspool.h>
 
 #include "libcef/browser/thread_util.h"
 
+#include "base/string_util.h"
 #include "base/win/windows_version.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/common/file_chooser_params.h"
 #include "ui/base/win/hwnd_util.h"
 
 #pragma comment(lib, "dwmapi.lib")
@@ -46,6 +48,89 @@ void WriteTextToFile(const std::string& data, const std::wstring& file_path) {
       return;
   fwrite(data.c_str(), 1, data.size(), fp);
   fclose(fp);
+}
+
+
+// from chrome/browser/views/shell_dialogs_win.cc
+
+bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path) {
+  OPENFILENAME ofn;
+
+  // We must do this otherwise the ofn's FlagsEx may be initialized to random
+  // junk in release builds which can cause the Places Bar not to show up!
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = owner;
+
+  wchar_t filename[MAX_PATH];
+  base::wcslcpy(filename, path->value().c_str(), arraysize(filename));
+
+  ofn.lpstrFile = filename;
+  ofn.nMaxFile = MAX_PATH;
+
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
+  bool success = !!GetOpenFileName(&ofn);
+  if (success)
+    *path = FilePath(filename);
+  return success;
+}
+
+bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
+                            std::vector<FilePath>* paths) {
+  OPENFILENAME ofn;
+
+  // We must do this otherwise the ofn's FlagsEx may be initialized to random
+  // junk in release builds which can cause the Places Bar not to show up!
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = owner;
+
+  scoped_array<wchar_t> filename(new wchar_t[UNICODE_STRING_MAX_CHARS]);
+  filename[0] = 0;
+
+  ofn.lpstrFile = filename.get();
+  ofn.nMaxFile = UNICODE_STRING_MAX_CHARS;
+
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER
+               | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT;
+
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
+  bool success = !!GetOpenFileName(&ofn);
+
+  if (success) {
+    std::vector<FilePath> files;
+    const wchar_t* selection = ofn.lpstrFile;
+    while (*selection) {  // Empty string indicates end of list.
+      files.push_back(FilePath(selection));
+      // Skip over filename and null-terminator.
+      selection += files.back().value().length() + 1;
+    }
+    if (files.empty()) {
+      success = false;
+    } else if (files.size() == 1) {
+      // When there is one file, it contains the path and filename.
+      paths->swap(files);
+    } else {
+      // Otherwise, the first string is the path, and the remainder are
+      // filenames.
+      std::vector<FilePath>::iterator path = files.begin();
+      for (std::vector<FilePath>::iterator file = path + 1;
+           file != files.end(); ++file) {
+        paths->push_back(path->Append(*file));
+      }
+    }
+  }
+  return success;
 }
 
 }  // namespace
@@ -265,5 +350,11 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
     content::WebContents* contents,
     const content::FileChooserParams& params,
     std::vector<FilePath>& files) {
-  NOTIMPLEMENTED();
+  if (params.mode == content::FileChooserParams::OpenMultiple) {
+    RunOpenMultiFileDialog(L"", PlatformGetWindowHandle(), &files);
+  } else {
+    FilePath file_name;
+    if (RunOpenFileDialog(L"", PlatformGetWindowHandle(), &file_name))
+      files.push_back(file_name);
+  }
 }
