@@ -95,7 +95,7 @@ void CefDownloadManagerDelegate::GenerateFilename(
     const FilePath& generated_name) {
   FilePath suggested_path = download_manager_->GetBrowserContext()->GetPath().
       Append(FILE_PATH_LITERAL("Downloads"));
-  if (!file_util::PathExists(suggested_path))
+  if (!file_util::DirectoryExists(suggested_path))
     file_util::CreateDirectory(suggested_path);
 
   suggested_path = suggested_path.Append(generated_name);

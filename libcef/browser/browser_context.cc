@@ -7,37 +7,23 @@
 #include <map>
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 
 #include "base/bind.h"
-#include "base/environment.h"
-#include "base/file_util.h"
 #include "base/logging.h"
-#include "base/path_service.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/geolocation_permission_context.h"
 #include "content/public/browser/speech_recognition_preferences.h"
 
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#elif defined(OS_LINUX)
-#include "base/nix/xdg_util.h"
-#endif
-
 using content::BrowserThread;
 
 namespace {
-
-#if defined(OS_LINUX)
-const char kDotConfigDir[] = ".config";
-const char kXdgConfigHomeEnvVar[] = "XDG_CONFIG_HOME";
-#endif
-
 
 class CefGeolocationPermissionContext
     : public content::GeolocationPermissionContext {
@@ -187,8 +173,6 @@ class CefSpeechRecognitionPreferences
 }  // namespace
 
 CefBrowserContext::CefBrowserContext() {
-  InitWhileIOAllowed();
-
   // Initialize the request context getter.
   url_request_getter_ = new CefURLRequestContextGetter(
       GetPath(),
@@ -206,30 +190,8 @@ CefBrowserContext::~CefBrowserContext() {
   }
 }
 
-void CefBrowserContext::InitWhileIOAllowed() {
-#if defined(OS_WIN)
-  CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &path_));
-  path_ = path_.Append(std::wstring(L"cef_data"));
-#elif defined(OS_LINUX)
-  scoped_ptr<base::Environment> env(base::Environment::Create());
-  FilePath config_dir(
-      base::nix::GetXDGDirectory(env.get(),
-                                 base::nix::kXdgConfigHomeEnvVar,
-                                 base::nix::kDotConfigDir));
-  path_ = config_dir.Append("cef_data");
-#elif defined(OS_MACOSX)
-  CHECK(PathService::Get(base::DIR_APP_DATA, &path_));
-  path_ = path_.Append("cef_data");
-#else
-  NOTIMPLEMENTED();
-#endif
-
-  if (!file_util::PathExists(path_))
-    file_util::CreateDirectory(path_);
-}
-
 FilePath CefBrowserContext::GetPath() {
-  return path_;
+  return _Context->cache_path();
 }
 
 bool CefBrowserContext::IsOffTheRecord() const {

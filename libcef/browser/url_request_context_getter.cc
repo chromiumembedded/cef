@@ -304,7 +304,8 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
     base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (file_util::CreateDirectory(path)) {
+    if (file_util::DirectoryExists(path) ||
+        file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =
           new SQLitePersistentCookieStore(cookie_path, false, NULL);

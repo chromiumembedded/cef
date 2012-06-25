@@ -330,7 +330,8 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       // TODO(cef): Move directory creation to the blocking pool instead of
       // allowing file IO on this thread.
       base::ThreadRestrictions::ScopedAllowIO allow_io;
-      if (file_util::CreateDirectory(new_path)) {
+      if (file_util::DirectoryExists(new_path) ||
+          file_util::CreateDirectory(new_path)) {
         const FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
             new SQLitePersistentCookieStore(cookie_path, false, NULL);

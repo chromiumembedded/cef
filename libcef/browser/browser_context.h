@@ -25,8 +25,6 @@ class CefBrowserContext : public content::BrowserContext {
   CefBrowserContext();
   virtual ~CefBrowserContext();
 
-  void InitWhileIOAllowed();
-
   // BrowserContext methods.
   virtual FilePath GetPath() OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
@@ -45,7 +43,6 @@ class CefBrowserContext : public content::BrowserContext {
 
  private:
 
-  FilePath path_;
   scoped_ptr<content::ResourceContext> resource_context_;
   scoped_refptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<content::DownloadManager> download_manager_;
