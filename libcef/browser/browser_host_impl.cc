@@ -883,6 +883,10 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
   }
 }
 
+void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
+  PlatformCloseWindow();
+}
+
 bool CefBrowserHostImpl::TakeFocus(bool reverse) {
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
