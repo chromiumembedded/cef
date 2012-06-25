@@ -787,6 +787,8 @@
         'libcef/browser/origin_whitelist_impl.h',
         'libcef/browser/resource_context.cc',
         'libcef/browser/resource_context.h',
+        'libcef/browser/resource_dispatcher_host_delegate.cc',
+        'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
         'libcef/browser/resource_request_job.h',
         'libcef/browser/scheme_impl.cc',
@@ -866,6 +868,7 @@
         'libcef/renderer/v8_impl.h',
         'libcef/renderer/webkit_glue.cc',
         'libcef/renderer/webkit_glue.h',
+        # Include sources for persistent cookie storage.
         '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.cc',
         '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.h',
         '<(DEPTH)/chrome/browser/net/sqlite_persistent_cookie_store.cc',

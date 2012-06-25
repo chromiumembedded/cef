@@ -48,6 +48,8 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefAuthCallback> callback) OVERRIDE;
   virtual CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefBrowser> browser, const CefString& main_url) OVERRIDE;
+  virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+      const CefString& url, bool& allow_os_execution) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

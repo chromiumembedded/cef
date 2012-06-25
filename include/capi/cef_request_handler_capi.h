@@ -128,6 +128,17 @@ typedef struct _cef_request_handler_t {
   struct _cef_cookie_manager_t* (CEF_CALLBACK *get_cookie_manager)(
       struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
       const cef_string_t* main_url);
+
+  ///
+  // Called on the UI thread to handle requests for URLs with an unknown
+  // protocol component. Set |allow_os_execution| to true (1) to attempt
+  // execution via the registered OS protocol handler, if any. SECURITY WARNING:
+  // YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR
+  // OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
+  ///
+  void (CEF_CALLBACK *on_protocol_execution)(
+      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
+      const cef_string_t* url, int* allow_os_execution);
 } cef_request_handler_t;
 
 

@@ -12,14 +12,17 @@
 
 #define CEF_UIT content::BrowserThread::UI
 #define CEF_IOT content::BrowserThread::IO
+#define CEF_FILET content::BrowserThread::FILE
 
 #define CEF_CURRENTLY_ON(id) content::BrowserThread::CurrentlyOn(id)
 #define CEF_CURRENTLY_ON_UIT() CEF_CURRENTLY_ON(CEF_UIT)
 #define CEF_CURRENTLY_ON_IOT() CEF_CURRENTLY_ON(CEF_IOT)
+#define CEF_CURRENTLY_ON_FILET() CEF_CURRENTLY_ON(CEF_FILET)
 
 #define CEF_REQUIRE(id) DCHECK(CEF_CURRENTLY_ON(id))
 #define CEF_REQUIRE_UIT() CEF_REQUIRE(CEF_UIT)
 #define CEF_REQUIRE_IOT() CEF_REQUIRE(CEF_IOT)
+#define CEF_REQUIRE_FILET() CEF_REQUIRE(CEF_FILET)
 
 #define CEF_REQUIRE_RETURN(id, var) \
   if (!CEF_CURRENTLY_ON(id)) { \

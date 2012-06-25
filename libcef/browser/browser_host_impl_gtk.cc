@@ -138,3 +138,6 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
     std::vector<FilePath>& files) {
   NOTIMPLEMENTED();
 }
+
+void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
+}

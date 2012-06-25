@@ -804,6 +804,24 @@ bool CefBrowserHostImpl::ViewText(const std::string& text) {
   return PlatformViewText(text);
 }
 
+void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    bool allow_os_execution = false;
+
+    if (client_.get()) {
+      CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
+      if (handler.get())
+        handler->OnProtocolExecution(this, url.spec(), allow_os_execution);
+    }
+
+    if (allow_os_execution)
+      PlatformHandleExternalProtocol(url);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::HandleExternalProtocol, this, url));
+  }
+}
+
 bool CefBrowserHostImpl::HasIDMatch(int render_process_id, int render_view_id) {
   base::AutoLock lock_scope(state_lock_);
   if (render_process_id != render_process_id_)

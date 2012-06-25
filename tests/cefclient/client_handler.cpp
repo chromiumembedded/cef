@@ -275,6 +275,14 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   if (errorCode == ERR_ABORTED)
     return;
 
+  // Don't display an error for external protocols that we allow the OS to
+  // handle. See OnProtocolExecution().
+  if (errorCode == ERR_UNKNOWN_URL_SCHEME) {
+    std::string urlStr = frame->GetURL();
+    if (urlStr.find("spotify:") == 0)
+      return;
+  }
+
   // Display a load error message.
   std::stringstream ss;
   ss << "<html><body><h2>Failed to load URL " << std::string(failedUrl) <<
@@ -344,6 +352,16 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     handler = (*it)->GetResourceHandler(this, browser, frame, request);
 
   return handler;
+}
+
+void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+                                        const CefString& url,
+                                        bool& allow_os_execution) {
+  std::string urlStr = url;
+
+  // Allow OS execution of Spotify URIs.
+  if (urlStr.find("spotify:") == 0)
+    allow_os_execution = true;
 }
 
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {

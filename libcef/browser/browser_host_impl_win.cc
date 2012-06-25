@@ -14,6 +14,8 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/string_util.h"
+#include "base/utf_string_conversions.h"
+#include "base/win/registry.h"
 #include "base/win/windows_version.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
@@ -131,6 +133,31 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
     }
   }
   return success;
+}
+
+
+// According to Mozilla in uriloader/exthandler/win/nsOSHelperAppService.cpp:
+// "Some versions of windows (Win2k before SP3, Win XP before SP1) crash in
+// ShellExecute on long URLs (bug 161357 on bugzilla.mozilla.org). IE 5 and 6
+// support URLS of 2083 chars in length, 2K is safe."
+const int kMaxAddressLengthChars = 2048;
+
+bool HasExternalHandler(const std::string& scheme) {
+  base::win::RegKey key;
+  const std::wstring registry_path =
+      ASCIIToWide(scheme + "\\shell\\open\\command");
+  key.Open(HKEY_CLASSES_ROOT, registry_path.c_str(), KEY_READ);
+  if (key.Valid()) {
+    DWORD size = 0;
+    key.ReadValue(NULL, NULL, &size, NULL);
+    if (size > 2) {
+       // ShellExecute crashes the process when the command is empty.
+       // We check for "2" because it always returns the trailing NULL.
+       return true;
+    }
+  }
+
+  return false;
 }
 
 }  // namespace
@@ -356,5 +383,23 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
     FilePath file_name;
     if (RunOpenFileDialog(L"", PlatformGetWindowHandle(), &file_name))
       files.push_back(file_name);
+  }
+}
+
+void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
+  if (CEF_CURRENTLY_ON_FILET()) {
+    if (!HasExternalHandler(url.scheme()))
+      return;
+
+    const std::string& address = url.spec();
+    if (address.length() > kMaxAddressLengthChars)
+      return;
+
+    ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);
+  } else {
+    // Execute on the FILE thread.
+    CEF_POST_TASK(CEF_FILET,
+        base::Bind(&CefBrowserHostImpl::PlatformHandleExternalProtocol, this,
+                   url));
   }
 }

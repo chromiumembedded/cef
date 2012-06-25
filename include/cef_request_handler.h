@@ -141,6 +141,18 @@ class CefRequestHandler : public virtual CefBase {
   virtual CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefBrowser> browser,
       const CefString& main_url) { return NULL; }
+
+  ///
+  // Called on the UI thread to handle requests for URLs with an unknown
+  // protocol component. Set |allow_os_execution| to true to attempt execution
+  // via the registered OS protocol handler, if any.
+  // SECURITY WARNING: YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED
+  // ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
+  ///
+  /*--cef()--*/
+  virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+                                   const CefString& url,
+                                   bool& allow_os_execution) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_HANDLER_H_

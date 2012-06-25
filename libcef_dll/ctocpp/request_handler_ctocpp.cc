@@ -182,6 +182,35 @@ CefRefPtr<CefCookieManager> CefRequestHandlerCToCpp::GetCookieManager(
   return CefCookieManagerCppToC::Unwrap(_retval);
 }
 
+void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+    const CefString& url, bool& allow_os_execution) {
+  if (CEF_MEMBER_MISSING(struct_, on_protocol_execution))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return;
+
+  // Translate param: allow_os_execution; type: bool_byref
+  int allow_os_executionInt = allow_os_execution;
+
+  // Execute
+  struct_->on_protocol_execution(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      url.GetStruct(),
+      &allow_os_executionInt);
+
+  // Restore param:allow_os_execution; type: bool_byref
+  allow_os_execution = allow_os_executionInt?true:false;
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,

@@ -9,6 +9,7 @@
 #include "libcef/browser/browser_message_filter.h"
 #include "libcef/browser/browser_settings.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 
@@ -17,6 +18,7 @@
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/media_observer.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
 #include "googleurl/src/gurl.h"
 
@@ -120,6 +122,13 @@ content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
   return new CefAccessTokenStore;
+}
+
+void CefContentBrowserClient::ResourceDispatcherHostCreated() {
+  resource_dispatcher_host_delegate_.reset(
+      new CefResourceDispatcherHostDelegate());
+  content::ResourceDispatcherHost::Get()->SetDelegate(
+      resource_dispatcher_host_delegate_.get());
 }
 
 void CefContentBrowserClient::OverrideWebkitPrefs(

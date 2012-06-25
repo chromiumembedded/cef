@@ -176,6 +176,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Open the specified text in the default text editor.
   bool ViewText(const std::string& text);
 
+  // Handler for URLs involving external protocols.
+  void HandleExternalProtocol(const GURL& url);
+
   // Returns true if this browser matches the specified ID values. If
   // |render_view_id| is 0 any browser with the specified |render_process_id|
   // will match.
@@ -325,6 +328,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* contents,
       const content::FileChooserParams& params,
       std::vector<FilePath>& files);
+  // Invoke platform specific handling for the external protocol.
+  void PlatformHandleExternalProtocol(const GURL& url);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);

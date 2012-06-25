@@ -16,6 +16,7 @@
 
 class CefBrowserMainParts;
 class CefMediaObserver;
+class CefResourceDispatcherHostDelegate;
 
 namespace content {
 class SiteInstance;
@@ -38,6 +39,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                               int child_process_id) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
                                    webkit_glue::WebPreferences* prefs) OVERRIDE;
@@ -47,6 +49,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefBrowserMainParts* browser_main_parts_;
 
   scoped_ptr<CefMediaObserver> media_observer_;
+  scoped_ptr<CefResourceDispatcherHostDelegate>
+      resource_dispatcher_host_delegate_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_

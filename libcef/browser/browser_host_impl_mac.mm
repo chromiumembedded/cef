@@ -237,3 +237,6 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
   }
   [NSApp endSheet:openPanel];
 }
+
+void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
+}

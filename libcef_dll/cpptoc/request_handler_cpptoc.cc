@@ -194,6 +194,42 @@ cef_cookie_manager_t* CEF_CALLBACK request_handler_get_cookie_manager(
   return CefCookieManagerCToCpp::Unwrap(_retval);
 }
 
+void CEF_CALLBACK request_handler_on_protocol_execution(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* url, int* allow_os_execution) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: url; type: string_byref_const
+  DCHECK(url);
+  if (!url)
+    return;
+  // Verify param: allow_os_execution; type: bool_byref
+  DCHECK(allow_os_execution);
+  if (!allow_os_execution)
+    return;
+
+  // Translate param: allow_os_execution; type: bool_byref
+  bool allow_os_executionBool = (
+      allow_os_execution && *allow_os_execution)?true:false;
+
+  // Execute
+  CefRequestHandlerCppToC::Get(self)->OnProtocolExecution(
+      CefBrowserCToCpp::Wrap(browser),
+      CefString(url),
+      allow_os_executionBool);
+
+  // Restore param: allow_os_execution; type: bool_byref
+  if (allow_os_execution)
+    *allow_os_execution = allow_os_executionBool?true:false;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -206,6 +242,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_resource_redirect = request_handler_on_resource_redirect;
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;
   struct_.struct_.get_cookie_manager = request_handler_get_cookie_manager;
+  struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
 }
 
 #ifndef NDEBUG
