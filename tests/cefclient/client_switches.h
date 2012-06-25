@@ -13,14 +13,6 @@ namespace cefclient {
 // CefSettings attributes.
 extern const char kMultiThreadedMessageLoop[];
 extern const char kCachePath[];
-extern const char kLogFile[];
-extern const char kLogSeverity[];
-extern const char kLogSeverity_Verbose[];
-extern const char kLogSeverity_Info[];
-extern const char kLogSeverity_Warning[];
-extern const char kLogSeverity_Error[];
-extern const char kLogSeverity_ErrorReport[];
-extern const char kLogSeverity_Disable[];
 
 // CefBrowserSettings attributes.
 extern const char kRemoteFontsDisabled[];

@@ -76,35 +76,6 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app) {
 
   CefString(&settings.cache_path) =
       g_command_line->GetSwitchValue(cefclient::kCachePath);
-  CefString(&settings.log_file) =
-      g_command_line->GetSwitchValue(cefclient::kLogFile);
-
-  {
-    std::string str = g_command_line->GetSwitchValue(cefclient::kLogSeverity);
-    bool invalid = false;
-    if (!str.empty()) {
-      if (str == cefclient::kLogSeverity_Verbose)
-        settings.log_severity = LOGSEVERITY_VERBOSE;
-      else if (str == cefclient::kLogSeverity_Info)
-        settings.log_severity = LOGSEVERITY_INFO;
-      else if (str == cefclient::kLogSeverity_Warning)
-        settings.log_severity = LOGSEVERITY_WARNING;
-      else if (str == cefclient::kLogSeverity_Error)
-        settings.log_severity = LOGSEVERITY_ERROR;
-      else if (str == cefclient::kLogSeverity_ErrorReport)
-        settings.log_severity = LOGSEVERITY_ERROR_REPORT;
-      else if (str == cefclient::kLogSeverity_Disable)
-        settings.log_severity = LOGSEVERITY_DISABLE;
-      else
-        invalid = true;
-    }
-    if (str.empty() || invalid) {
-#ifdef NDEBUG
-      // Only log error messages and higher in release build.
-      settings.log_severity = LOGSEVERITY_ERROR;
-#endif
-    }
-  }
 
   // Retrieve command-line proxy configuration, if any.
   bool has_proxy = false;

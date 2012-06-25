@@ -14,6 +14,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_number_conversions.h"
+#include "base/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/browser_main_runner.h"
@@ -185,6 +186,38 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           CefString(&settings.locale));
     }
 
+    if (settings.log_file.length > 0) {
+      FilePath file_path = FilePath(CefString(&settings.log_file));
+      if (!file_path.empty())
+        command_line->AppendSwitchPath(switches::kLogFile, file_path);
+    }
+
+    if (settings.log_severity != LOGSEVERITY_DEFAULT) {
+      std::string log_severity;
+      switch (settings.log_severity) {
+        case LOGSEVERITY_VERBOSE:
+          log_severity = switches::kLogSeverity_Verbose;
+          break;
+        case LOGSEVERITY_INFO:
+          log_severity = switches::kLogSeverity_Info;
+          break;
+        case LOGSEVERITY_WARNING:
+          log_severity = switches::kLogSeverity_Warning;
+          break;
+        case LOGSEVERITY_ERROR:
+          log_severity = switches::kLogSeverity_Error;
+          break;
+        case LOGSEVERITY_ERROR_REPORT:
+          log_severity = switches::kLogSeverity_ErrorReport;
+          break;
+        case LOGSEVERITY_DISABLE:
+          log_severity = switches::kLogSeverity_Disable;
+          break;
+      }
+      if (!log_severity.empty())
+        command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
+    }
+
     if (settings.javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
           CefString(&settings.javascript_flags));
@@ -225,6 +258,47 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         CefString(process_type), commandLinePtr.get());
     commandLinePtr->Detach(NULL);
   }
+
+  // Initialize logging.
+  FilePath log_file = command_line->GetSwitchValuePath(switches::kLogFile);
+  std::string log_severity_str =
+      command_line->GetSwitchValueASCII(switches::kLogSeverity);
+
+  logging::LogSeverity log_severity = logging::LOG_INFO;
+  if (!log_severity_str.empty()) {
+    if (LowerCaseEqualsASCII(log_severity_str,
+                             switches::kLogSeverity_Verbose)) {
+      log_severity = logging::LOG_VERBOSE;
+    } else if (LowerCaseEqualsASCII(log_severity_str,
+                                    switches::kLogSeverity_Warning)) {
+      log_severity = logging::LOG_WARNING;
+    } else if (LowerCaseEqualsASCII(log_severity_str,
+                                    switches::kLogSeverity_Error)) {
+      log_severity = logging::LOG_ERROR;
+    } else if (LowerCaseEqualsASCII(log_severity_str,
+                                    switches::kLogSeverity_ErrorReport)) {
+      log_severity = logging::LOG_ERROR_REPORT;
+    } else if (LowerCaseEqualsASCII(log_severity_str,
+                                    switches::kLogSeverity_Disable)) {
+      log_severity = LOGSEVERITY_DISABLE;
+    }
+  }
+
+  logging::LoggingDestination logging_dest;
+  if (log_severity == LOGSEVERITY_DISABLE) {
+    logging_dest = logging::LOG_NONE;
+  } else {
+#if defined(OS_WIN)
+    logging_dest = logging::LOG_ONLY_TO_FILE;
+#else
+    logging_dest = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+#endif
+    logging::SetMinLogLevel(log_severity);
+  }
+
+  logging::InitLogging(log_file.value().c_str(), logging_dest,
+      logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
 
   content::SetContentClient(&content_client_);
 
