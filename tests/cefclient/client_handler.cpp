@@ -9,10 +9,14 @@
 #include <string>
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_path_util.h"
+#include "include/cef_process_util.h"
+#include "include/cef_runnable.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/client_renderer.h"
+#include "cefclient/client_switches.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
@@ -39,6 +43,17 @@ ClientHandler::ClientHandler()
     m_bFocusOnEditableField(false) {
   CreateProcessMessageDelegates(process_message_delegates_);
   CreateRequestDelegates(request_delegates_);
+
+  // Read command line settings.
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+
+  if (command_line->HasSwitch(cefclient::kUrl))
+    m_StartupURL = command_line->GetSwitchValue(cefclient::kUrl);
+  if (m_StartupURL.empty())
+    m_StartupURL = "http://www.google.com/";
+
+  m_bExternalDevTools = command_line->HasSwitch(cefclient::kExternalDevTools);
 }
 
 ClientHandler::~ClientHandler() {
@@ -293,14 +308,14 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                               TerminationStatus status) {
-  // Load google.com if that's not the website that we terminated on.
+  // Load the startup URL if that's not the website that we terminated on.
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
   std::string url = frame->GetURL();
   std::transform(url.begin(), url.end(), url.begin(), tolower);
 
-  const char kLoadURL[] = "http://www.google.com";
-  if (url.find(kLoadURL) != 0)
-    frame->LoadURL(kLoadURL);
+  std::string startupURL = GetStartupURL();
+  if (url.find(startupURL) != 0)
+    frame->LoadURL(startupURL);
 }
 
 CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
@@ -402,11 +417,40 @@ std::string ClientHandler::GetLastDownloadFile() {
 
 void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser) {
   std::string devtools_url = browser->GetHost()->GetDevToolsURL(true);
-  if (!devtools_url.empty() &&
-      m_OpenDevToolsURLs.find(devtools_url) == m_OpenDevToolsURLs.end()) {
-    m_OpenDevToolsURLs.insert(devtools_url);
-    browser->GetMainFrame()->ExecuteJavaScript(
-        "window.open('" +  devtools_url + "');", "about:blank", 0);
+  if (!devtools_url.empty()) {
+    if (m_bExternalDevTools) {
+      // Open DevTools in an external browser window.
+      LaunchExternalBrowser(devtools_url);
+    } else if (m_OpenDevToolsURLs.find(devtools_url) ==
+               m_OpenDevToolsURLs.end()) {
+      // Open DevTools in a popup window.
+      m_OpenDevToolsURLs.insert(devtools_url);
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "window.open('" +  devtools_url + "');", "about:blank", 0);
+    }
+  }
+}
+
+// static
+void ClientHandler::LaunchExternalBrowser(const std::string& url) {
+  if (CefCurrentlyOn(TID_PROCESS_LAUNCHER)) {
+    // Retrieve the current executable path.
+    CefString file_exe;
+    if (!CefGetPath(PK_FILE_EXE, file_exe))
+      return;
+
+    // Create the command line.
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::CreateCommandLine();
+    command_line->SetProgram(file_exe);
+    command_line->AppendSwitchWithValue(cefclient::kUrl, url);
+
+    // Launch the process.
+    CefLaunchProcess(command_line);
+  } else {
+    // Execute on the PROCESS_LAUNCHER thread.
+    CefPostTask(TID_PROCESS_LAUNCHER,
+        NewCefRunnableFunction(&ClientHandler::LaunchExternalBrowser, url));
   }
 }
 

@@ -189,6 +189,12 @@ class ClientHandler : public CefClient,
 
   void ShowDevTools(CefRefPtr<CefBrowser> browser);
 
+  // Returns the startup URL.
+  std::string GetStartupURL() { return m_StartupURL; }
+
+  // Create an external browser window that loads the specified URL.
+  static void LaunchExternalBrowser(const std::string& url);
+
  protected:
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
@@ -240,7 +246,14 @@ class ClientHandler : public CefClient,
   ProcessMessageDelegateSet process_message_delegates_;
   RequestDelegateSet request_delegates_;
 
+  // If true DevTools will be opened in an external browser window.
+  bool m_bExternalDevTools;
+
+  // List of open DevTools URLs if not using an external browser window.
   std::set<std::string> m_OpenDevToolsURLs;
+
+  // The startup URL.
+  std::string m_StartupURL;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

@@ -39,6 +39,9 @@ class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
   virtual void GetArguments(ArgumentList& arguments) OVERRIDE;
   virtual void AppendArgument(const CefString& argument) OVERRIDE;
 
+  // Must hold the controller lock while using this value.
+  const CommandLine& command_line() { return const_value(); }
+
   DISALLOW_COPY_AND_ASSIGN(CefCommandLineImpl);
 };
 

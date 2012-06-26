@@ -14,6 +14,10 @@
 #include "include/capi/cef_app_capi.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
+#include "include/cef_path_util.h"
+#include "include/capi/cef_path_util_capi.h"
+#include "include/cef_process_util.h"
+#include "include/capi/cef_process_util_capi.h"
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
 #include "include/cef_task.h"
@@ -29,6 +33,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
+#include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
@@ -281,6 +286,42 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist() {
 
   // Execute
   bool _retval = CefClearCrossOriginWhitelist();
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_get_path(enum cef_path_key_t key, cef_string_t* path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref
+  DCHECK(path);
+  if (!path)
+    return 0;
+
+  // Translate param: path; type: string_byref
+  CefString pathStr(path);
+
+  // Execute
+  bool _retval = CefGetPath(
+      key,
+      pathStr);
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_launch_process(struct _cef_command_line_t* command_line) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: command_line; type: refptr_same
+  DCHECK(command_line);
+  if (!command_line)
+    return 0;
+
+  // Execute
+  bool _retval = CefLaunchProcess(
+      CefCommandLineCppToC::Unwrap(command_line));
 
   // Return type: bool
   return _retval;

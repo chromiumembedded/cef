@@ -384,9 +384,8 @@ int main(int argc, char* argv[]) {
   window_info.SetAsChild(vbox);
 
   CefBrowserHost::CreateBrowserSync(
-      window_info,
-      static_cast<CefRefPtr<CefClient> >(g_handler),
-      "http://www.google.com", browserSettings);
+      window_info, g_handler.get(),
+      g_handler->GetStartupURL(), browserSettings);
 
   gtk_container_add(GTK_CONTAINER(window), vbox);
   gtk_widget_show_all(GTK_WIDGET(window));

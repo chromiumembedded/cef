@@ -8,6 +8,9 @@
 
 namespace cefclient {
 
+const char kUrl[] = "url";
+const char kExternalDevTools[] = "external-devtools";
+
 // CefSettings attributes.
 const char kMultiThreadedMessageLoop[] = "multi-threaded-message-loop";
 const char kCachePath[] = "cache-path";

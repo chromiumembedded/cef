@@ -601,6 +601,42 @@ enum cef_termination_status_t {
 };
 
 ///
+// Path key values.
+///
+enum cef_path_key_t {
+  ///
+  // Current directory.
+  ///
+  PK_DIR_CURRENT,
+
+  ///
+  // Directory containing PK_FILE_EXE.
+  ///
+  PK_DIR_EXE,
+
+  ///
+  // Directory containing PK_FILE_MODULE.
+  ///
+  PK_DIR_MODULE,
+
+  ///
+  // Temporary directory.
+  ///
+  PK_DIR_TEMP,
+
+  ///
+  // Path and filename of the current executable.
+  ///
+  PK_FILE_EXE,
+
+  ///
+  // Path and filename of the module containing the CEF code (usually the libcef
+  // module).
+  ///
+  PK_FILE_MODULE,
+};
+
+///
 // Storage types.
 ///
 enum cef_storage_type_t {

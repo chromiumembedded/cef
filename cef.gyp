@@ -785,6 +785,8 @@
         'libcef/browser/navigate_params.h',
         'libcef/browser/origin_whitelist_impl.cc',
         'libcef/browser/origin_whitelist_impl.h',
+        'libcef/browser/path_util_impl.cc',
+        'libcef/browser/process_util_impl.cc',
         'libcef/browser/resource_context.cc',
         'libcef/browser/resource_context.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
