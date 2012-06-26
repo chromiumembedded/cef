@@ -332,6 +332,7 @@ CefRefPtr<CefClient> CefBrowserHostImpl::GetClient() {
 }
 
 CefString CefBrowserHostImpl::GetDevToolsURL(bool http_scheme) {
+  base::AutoLock lock_scope(state_lock_);
   return (http_scheme ? devtools_url_http_ : devtools_url_chrome_);
 }
 
@@ -1128,8 +1129,18 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   base::AutoLock lock_scope(state_lock_);
+
   render_view_id_ = render_view_host->GetRoutingID();
   render_process_id_ = render_view_host->GetProcess()->GetID();
+
+  // Update the DevTools URLs, if any.
+  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
+  if (devtools_delegate) {
+    devtools_url_http_ = devtools_delegate->GetDevToolsURL(render_view_host,
+        true);
+    devtools_url_chrome_ = devtools_delegate->GetDevToolsURL(render_view_host,
+        false);
+  }
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
@@ -1384,7 +1395,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
 
-  // Retrieve the DevTools URL, if any.
+  // Retrieve the DevTools URLs, if any.
   CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
   if (devtools_delegate) {
     devtools_url_http_ = devtools_delegate->GetDevToolsURL(

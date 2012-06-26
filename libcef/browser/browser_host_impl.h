@@ -348,8 +348,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefClient> client_;
   scoped_ptr<content::WebContents> web_contents_;
   CefWindowHandle opener_;
-  CefString devtools_url_http_;
-  CefString devtools_url_chrome_;
 
   // Unique ids used for routing communication to/from the renderer. We keep a
   // copy of them as member variables so that we can locate matching browsers in
@@ -375,6 +373,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool can_go_forward_;
   bool has_document_;
   GURL loading_url_;
+  CefString devtools_url_http_;
+  CefString devtools_url_chrome_;
 
   // Messages we queue while waiting for the RenderView to be ready. We queue
   // them here instead of in the RenderProcessHost to ensure that they're sent
