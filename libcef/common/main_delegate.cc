@@ -213,6 +213,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         case LOGSEVERITY_DISABLE:
           log_severity = switches::kLogSeverity_Disable;
           break;
+        default:
+          break;
       }
       if (!log_severity.empty())
         command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
