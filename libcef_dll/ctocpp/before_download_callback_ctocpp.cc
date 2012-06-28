@@ -22,10 +22,7 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: download_path; type: string_byref_const
-  DCHECK(!download_path.empty());
-  if (download_path.empty())
-    return;
+  // Unverified params: download_path
 
   // Execute
   struct_->cont(struct_,

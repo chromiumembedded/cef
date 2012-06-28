@@ -23,10 +23,7 @@ void CEF_CALLBACK before_download_callback_cont(
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: download_path; type: string_byref_const
-  DCHECK(download_path);
-  if (!download_path)
-    return;
+  // Unverified params: download_path
 
   // Execute
   CefBeforeDownloadCallbackCppToC::Get(self)->Continue(
