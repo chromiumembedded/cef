@@ -22,6 +22,7 @@
 class ClientHandler : public CefClient,
                       public CefContextMenuHandler,
                       public CefDisplayHandler,
+                      public CefDownloadHandler,
                       public CefGeolocationHandler,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
@@ -74,6 +75,9 @@ class ClientHandler : public CefClient,
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
     return this;
   }
+  virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE {
+    return this;
+  }
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
@@ -119,6 +123,17 @@ class ClientHandler : public CefClient,
                                 const CefString& message,
                                 const CefString& source,
                                 int line) OVERRIDE;
+
+  // CefDownloadHandler methods
+  virtual void OnBeforeDownload(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      const CefString& suggested_name,
+      CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE;
+  virtual void OnDownloadUpdated(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      CefRefPtr<CefDownloadItemCallback> callback) OVERRIDE;
 
   // CefGeolocationHandler methods
   virtual void OnRequestGeolocationPermission(
@@ -214,6 +229,10 @@ class ClientHandler : public CefClient,
     bool check_item;
     int radio_item;
   } m_TestMenuState;
+
+  // Returns the full download path for the specified file, or an empty path to
+  // use the default temp directory.
+  std::string GetDownloadPath(const std::string& file_name);
 
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;

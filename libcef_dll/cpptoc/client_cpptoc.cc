@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
@@ -56,6 +57,22 @@ struct _cef_display_handler_t* CEF_CALLBACK client_get_display_handler(
 
   // Return type: refptr_same
   return CefDisplayHandlerCppToC::Wrap(_retval);
+}
+
+struct _cef_download_handler_t* CEF_CALLBACK client_get_download_handler(
+    struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefDownloadHandler> _retval = CefClientCppToC::Get(
+      self)->GetDownloadHandler();
+
+  // Return type: refptr_same
+  return CefDownloadHandlerCppToC::Wrap(_retval);
 }
 
 struct _cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
@@ -204,6 +221,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
     : CefCppToC<CefClientCppToC, CefClient, cef_client_t>(cls) {
   struct_.struct_.get_context_menu_handler = client_get_context_menu_handler;
   struct_.struct_.get_display_handler = client_get_display_handler;
+  struct_.struct_.get_download_handler = client_get_download_handler;
   struct_.struct_.get_focus_handler = client_get_focus_handler;
   struct_.struct_.get_geolocation_handler = client_get_geolocation_handler;
   struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;

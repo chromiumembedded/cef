@@ -179,6 +179,27 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+void ClientHandler::OnBeforeDownload(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDownloadItem> download_item,
+    const CefString& suggested_name,
+    CefRefPtr<CefBeforeDownloadCallback> callback) {
+  REQUIRE_UI_THREAD();
+  // Continue the download and show the "Save As" dialog.
+  callback->Continue(GetDownloadPath(suggested_name), true);
+}
+
+void ClientHandler::OnDownloadUpdated(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDownloadItem> download_item,
+    CefRefPtr<CefDownloadItemCallback> callback) {
+  REQUIRE_UI_THREAD();
+  if (download_item->IsComplete()) {
+    SetLastDownloadFile(download_item->GetFullPath());
+    SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
+  }
+}
+
 void ClientHandler::OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,

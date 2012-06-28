@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_context_menu_handler.h"
 #include "include/cef_display_handler.h"
+#include "include/cef_download_handler.h"
 #include "include/cef_focus_handler.h"
 #include "include/cef_geolocation_handler.h"
 #include "include/cef_jsdialog_handler.h"
@@ -70,6 +71,15 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for download events. If no handler is returned downloads
+  // will not be allowed.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() {
     return NULL;
   }
 

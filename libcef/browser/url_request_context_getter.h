@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_GETTER_H_
 #pragma once
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,7 @@
 #include "net/url_request/url_request_context_getter.h"
 
 class CefRequestInterceptor;
+class CefURLRequestContextProxy;
 class MessageLoop;
 
 namespace net {
@@ -44,6 +46,12 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   void SetCookieStoragePath(const FilePath& path);
   void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
+  // Manage URLRequestContext proxy objects. It's important that proxy objects
+  // not be destroyed while any in-flight URLRequests exist. These methods
+  // manage that requirement.
+  CefURLRequestContextProxy* CreateURLRequestContextProxy();
+  void ReleaseURLRequestContextProxy(CefURLRequestContextProxy* proxy);
+
  private:
   void CreateProxyConfigService();
 
@@ -56,6 +64,9 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+
+  typedef std::set<CefURLRequestContextProxy*> RequestContextProxySet;
+  RequestContextProxySet url_request_context_proxies_;
 
   FilePath cookie_store_path_;
   std::vector<std::string> cookie_supported_schemes_;

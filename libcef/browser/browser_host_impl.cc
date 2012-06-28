@@ -13,6 +13,8 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/url_request_context_getter.h"
+#include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/main_delegate.h"
@@ -600,7 +602,8 @@ net::URLRequestContextGetter* CefBrowserHostImpl::GetRequestContext() {
   if (!request_context_proxy_) {
     request_context_proxy_ =
         new CefURLRequestContextGetterProxy(this,
-            _Context->browser_context()->GetRequestContext());
+            static_cast<CefURLRequestContextGetter*>(
+                _Context->browser_context()->GetRequestContext()));
   }
   return request_context_proxy_.get();
 }
@@ -1128,19 +1131,13 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  base::AutoLock lock_scope(state_lock_);
+  SetRenderViewHost(render_view_host);
+}
 
-  render_view_id_ = render_view_host->GetRoutingID();
-  render_process_id_ = render_view_host->GetProcess()->GetID();
-
-  // Update the DevTools URLs, if any.
-  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
-  if (devtools_delegate) {
-    devtools_url_http_ = devtools_delegate->GetDevToolsURL(render_view_host,
-        true);
-    devtools_url_chrome_ = devtools_delegate->GetDevToolsURL(render_view_host,
-        false);
-  }
+void CefBrowserHostImpl::RenderViewDeleted(
+    content::RenderViewHost* render_view_host) {
+  registrar_->Remove(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+      content::Source<content::RenderViewHost>(render_view_host));
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
@@ -1368,8 +1365,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
       settings_(settings),
       client_(client),
       opener_(opener),
-      render_process_id_(web_contents->GetRenderProcessHost()->GetID()),
-      render_view_id_(routing_id()),
+      render_process_id_(0),
+      render_view_id_(0),
       unique_id_(0),
       received_page_title_(false),
       is_loading_(false),
@@ -1387,21 +1384,35 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
-  registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-                  content::Source<content::RenderViewHost>(
-                      web_contents->GetRenderViewHost()));
+  
   response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
 
-  // Retrieve the DevTools URLs, if any.
-  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
-  if (devtools_delegate) {
-    devtools_url_http_ = devtools_delegate->GetDevToolsURL(
-        web_contents->GetRenderViewHost(), true);
-    devtools_url_chrome_ = devtools_delegate->GetDevToolsURL(
-        web_contents->GetRenderViewHost(), false);
+  SetRenderViewHost(web_contents->GetRenderViewHost());
+}
+
+void CefBrowserHostImpl::SetRenderViewHost(content::RenderViewHost* rvh) {
+  {
+    base::AutoLock lock_scope(state_lock_);
+
+    render_view_id_ = rvh->GetRoutingID();
+    render_process_id_ = rvh->GetProcess()->GetID();
+
+    // Update the DevTools URLs, if any.
+    CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
+    if (devtools_delegate) {
+      devtools_url_http_ = devtools_delegate->GetDevToolsURL(rvh, true);
+      devtools_url_chrome_ = devtools_delegate->GetDevToolsURL(rvh, false);
+    }
+  }
+
+  if (!registrar_->IsRegistered(
+      this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+      content::Source<content::RenderViewHost>(rvh))) {
+    registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+                    content::Source<content::RenderViewHost>(rvh));
   }
 }
 

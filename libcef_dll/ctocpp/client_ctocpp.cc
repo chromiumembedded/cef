@@ -15,6 +15,7 @@
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -51,6 +52,19 @@ CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {
 
   // Return type: refptr_same
   return CefDisplayHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefDownloadHandler> CefClientCToCpp::GetDownloadHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_download_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_download_handler_t* _retval = struct_->get_download_handler(struct_);
+
+  // Return type: refptr_same
+  return CefDownloadHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {

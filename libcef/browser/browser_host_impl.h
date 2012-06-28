@@ -18,7 +18,6 @@
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_creator.h"
 #include "libcef/browser/menu_creator.h"
-#include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/response_manager.h"
 
 #include "base/memory/scoped_ptr.h"
@@ -29,6 +28,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "net/url_request/url_request_context_getter.h"
 
 namespace content {
 struct NativeWebKeyboardEvent;
@@ -239,8 +239,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::MediaResponseCallback& callback) OVERRIDE;
 
   // content::WebContentsObserver methods.
-  virtual void RenderViewCreated(content::RenderViewHost* render_view_host)
-      OVERRIDE;
+  virtual void RenderViewCreated(
+      content::RenderViewHost* render_view_host) OVERRIDE;
+  virtual void RenderViewDeleted(
+      content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void RenderViewReady() OVERRIDE;
   virtual void RenderViewGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
@@ -287,6 +289,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      CefRefPtr<CefClient> client,
                      content::WebContents* web_contents,
                      CefWindowHandle opener);
+
+  // Initialize settings based on the specified RenderViewHost.
+  void SetRenderViewHost(content::RenderViewHost* rvh);
 
   // Updates and returns an existing frame or creates a new frame. Pass
   // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.
@@ -404,7 +409,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   scoped_ptr<content::NotificationRegistrar> registrar_;
 
   // Used for proxying cookie requests.
-  scoped_refptr<CefURLRequestContextGetterProxy> request_context_proxy_;
+  scoped_refptr<net::URLRequestContextGetter> request_context_proxy_;
 
   // Manages response registrations.
   scoped_ptr<CefResponseManager> response_manager_;

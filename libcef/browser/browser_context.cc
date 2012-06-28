@@ -181,12 +181,14 @@ CefBrowserContext::CefBrowserContext() {
 }
 
 CefBrowserContext::~CefBrowserContext() {
-  if (download_manager_.get())
-    download_manager_->Shutdown();
+  // Clear the download manager delegate here because otherwise we'll crash
+  // when it's accessed from the content::BrowserContext destructor.
+  if (download_manager_delegate_.get())
+    BrowserContext::GetDownloadManager(this)->SetDelegate(NULL);
 
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
-      BrowserThread::IO, FROM_HERE, resource_context_.release());
+        BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
 }
 
@@ -200,6 +202,8 @@ bool CefBrowserContext::IsOffTheRecord() const {
 
 content::DownloadManagerDelegate*
     CefBrowserContext::GetDownloadManagerDelegate() {
+  DCHECK(!download_manager_delegate_.get());
+
   download_manager_delegate_ = new CefDownloadManagerDelegate();
   return download_manager_delegate_.get();
 }

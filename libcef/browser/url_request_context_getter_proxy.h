@@ -10,11 +10,14 @@
 #include "net/url_request/url_request_context_getter.h"
 
 class CefBrowserHostImpl;
+class CefURLRequestContextGetter;
+class CefURLRequestContextProxy;
 
 class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetterProxy(CefBrowserHostImpl* browser,
-                                  net::URLRequestContextGetter* parent);
+                                  CefURLRequestContextGetter* parent);
+  virtual ~CefURLRequestContextGetterProxy();
 
   // net::URLRequestContextGetter implementation.
   virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
@@ -23,8 +26,10 @@ class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
 
  private:
   CefBrowserHostImpl* browser_;
-  scoped_refptr<net::URLRequestContextGetter> parent_;
-  scoped_ptr<net::URLRequestContext> context_proxy_;
+  scoped_refptr<CefURLRequestContextGetter> parent_;
+
+  // The |context_proxy_| object is owned by |parent_|.
+  CefURLRequestContextProxy* context_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterProxy);
 };

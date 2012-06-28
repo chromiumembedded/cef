@@ -29,6 +29,7 @@
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -40,6 +41,8 @@
 #include "libcef_dll/cpptoc/domevent_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
+#include "libcef_dll/cpptoc/download_item_cpptoc.h"
+#include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
@@ -63,6 +66,7 @@
 #include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -153,6 +157,7 @@ CEF_EXPORT void cef_shutdown() {
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
   DCHECK_EQ(CefAuthCallbackCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefBeforeDownloadCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBinaryValueCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserHostCppToC::DebugObjCt, 0);
@@ -169,6 +174,9 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefDOMVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDisplayHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDownloadHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDownloadItemCallbackCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDownloadItemCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFocusHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationCallbackCppToC::DebugObjCt, 0);

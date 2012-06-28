@@ -68,6 +68,13 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
+  // Return the handler for download events. If no handler is returned downloads
+  // will not be allowed.
+  ///
+  struct _cef_download_handler_t* (CEF_CALLBACK *get_download_handler)(
+      struct _cef_client_t* self);
+
+  ///
   // Return the handler for focus events.
   ///
   struct _cef_focus_handler_t* (CEF_CALLBACK *get_focus_handler)(

@@ -54,17 +54,18 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
 }
 
 int CefBrowserMainParts::PreCreateThreads() {
+  PlatformInitialize();
+  net::NetModule::SetResourceProvider(&ResourceProvider);
+
+  // Initialize the GpuDataManager before IO access restrictions are applied and
+  // before the IO thread is started.
+  content::GpuDataManager::GetInstance();
+
   return 0;
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
   browser_context_.reset(new CefBrowserContext());
-
-  PlatformInitialize();
-  net::NetModule::SetResourceProvider(&ResourceProvider);
-
-  // Initialize the GpuDataManager before IO access restrictions are applied.
-  content::GpuDataManager::GetInstance();
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
@@ -82,13 +83,11 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
-  PlatformCleanup();
-
   if (devtools_delegate_)
     devtools_delegate_->Stop();
   browser_context_.reset();
 }
 
-bool CefBrowserMainParts::MainMessageLoopRun(int* result_code) {
-  return false;
+void CefBrowserMainParts::PostDestroyThreads() {
+  PlatformCleanup();
 }

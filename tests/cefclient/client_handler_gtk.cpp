@@ -57,3 +57,7 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
 void ClientHandler::CloseMainWindow() {
   // TODO(port): Close main window.
 }
+
+std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
+  return std::string();
+}

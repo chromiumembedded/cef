@@ -14,11 +14,11 @@
 
 namespace content {
 class DownloadManagerDelegate;
-class ResourceContext;
 class SpeechRecognitionPreferences;
 }
 
 class CefDownloadManagerDelegate;
+class CefResourceContext;
 
 class CefBrowserContext : public content::BrowserContext {
  public:
@@ -43,9 +43,8 @@ class CefBrowserContext : public content::BrowserContext {
 
  private:
 
-  scoped_ptr<content::ResourceContext> resource_context_;
+  scoped_ptr<CefResourceContext> resource_context_;
   scoped_refptr<CefDownloadManagerDelegate> download_manager_delegate_;
-  scoped_refptr<content::DownloadManager> download_manager_;
   scoped_refptr<net::URLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
       geolocation_permission_context_;

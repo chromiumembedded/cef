@@ -12,6 +12,11 @@ CefResourceContext::CefResourceContext(
 }
 
 CefResourceContext::~CefResourceContext() {
+  // Destroy the getter after content::ResourceContext has finished destructing.
+  // Otherwise, the URLRequestContext objects will be deleted before
+  // ResourceDispatcherHost has canceled any pending URLRequests.
+  content::BrowserThread::ReleaseSoon(
+      content::BrowserThread::IO, FROM_HERE, getter_.release());
 }
 
 net::HostResolver* CefResourceContext::GetHostResolver() {
