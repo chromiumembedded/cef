@@ -44,7 +44,7 @@
 @class NSView;
 #else
 class NSCursor;
-struct NSView;
+class NSView;
 #endif
 #define cef_window_handle_t NSView*
 #define cef_cursor_handle_t NSCursor*
