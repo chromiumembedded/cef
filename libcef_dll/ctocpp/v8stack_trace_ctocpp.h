@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef _V8CONTEXT_CTOCPP_H
-#define _V8CONTEXT_CTOCPP_H
+#ifndef _V8STACKTRACE_CTOCPP_H
+#define _V8STACKTRACE_CTOCPP_H
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
@@ -23,25 +23,21 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefV8ContextCToCpp
-    : public CefCToCpp<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>
+class CefV8StackTraceCToCpp
+    : public CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace,
+        cef_v8stack_trace_t>
 {
 public:
-  CefV8ContextCToCpp(cef_v8context_t* str)
-      : CefCToCpp<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>(str) {}
-  virtual ~CefV8ContextCToCpp() {}
+  CefV8StackTraceCToCpp(cef_v8stack_trace_t* str)
+      : CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace, cef_v8stack_trace_t>(
+          str) {}
+  virtual ~CefV8StackTraceCToCpp() {}
 
-  // CefV8Context methods
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
-  virtual bool Enter() OVERRIDE;
-  virtual bool Exit() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
-  virtual bool Eval(const CefString& code, CefRefPtr<CefV8Value>& retval,
-      CefRefPtr<CefV8Exception>& exception) OVERRIDE;
+  // CefV8StackTrace methods
+  virtual int GetFrameCount() OVERRIDE;
+  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
 };
 
 #endif // USING_CEF_SHARED
-#endif // _V8CONTEXT_CTOCPP_H
+#endif // _V8STACKTRACE_CTOCPP_H
 

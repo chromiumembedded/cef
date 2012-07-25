@@ -13,6 +13,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
+#include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 
 
@@ -147,6 +148,58 @@ bool CefV8ContextCToCpp::IsSame(CefRefPtr<CefV8Context> that)
   // Execute
   int _retval = struct_->is_same(struct_,
       CefV8ContextCToCpp::Unwrap(that));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+
+bool CefV8ContextCToCpp::Eval(const CefString& code,
+    CefRefPtr<CefV8Value>& retval, CefRefPtr<CefV8Exception>& exception)
+{
+  if (CEF_MEMBER_MISSING(struct_, eval))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: code; type: string_byref_const
+  DCHECK(!code.empty());
+  if (code.empty())
+    return false;
+
+  // Translate param: retval; type: refptr_same_byref
+  cef_v8value_t* retvalStruct = NULL;
+  if(retval.get())
+    retvalStruct = CefV8ValueCToCpp::Unwrap(retval);
+  cef_v8value_t* retvalOrig = retvalStruct;
+  // Translate param: exception; type: refptr_same_byref
+  cef_v8exception_t* exceptionStruct = NULL;
+  if(exception.get())
+    exceptionStruct = CefV8ExceptionCToCpp::Unwrap(exception);
+  cef_v8exception_t* exceptionOrig = exceptionStruct;
+
+  // Execute
+  int _retval = struct_->eval(struct_,
+      code.GetStruct(),
+      &retvalStruct,
+      &exceptionStruct);
+
+  // Restore param:retval; type: refptr_same_byref
+  if (retvalStruct) {
+    if (retvalStruct != retvalOrig) {
+      retval = CefV8ValueCToCpp::Wrap(retvalStruct);
+    }
+  } else {
+    retval = NULL;
+  }
+  // Restore param:exception; type: refptr_same_byref
+  if (exceptionStruct) {
+    if (exceptionStruct != exceptionOrig) {
+      exception = CefV8ExceptionCToCpp::Wrap(exceptionStruct);
+    }
+  } else {
+    exception = NULL;
+  }
 
   // Return type: bool
   return _retval?true:false;

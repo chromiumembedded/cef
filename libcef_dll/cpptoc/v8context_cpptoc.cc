@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
+#include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 
 
@@ -160,6 +161,71 @@ int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
 }
 
 
+int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
+    const cef_string_t* code, struct _cef_v8value_t** retval,
+    struct _cef_v8exception_t** exception)
+{
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: code; type: string_byref_const
+  DCHECK(code);
+  if (!code)
+    return 0;
+  // Verify param: retval; type: refptr_same_byref
+  DCHECK(retval);
+  if (!retval)
+    return 0;
+  // Verify param: exception; type: refptr_same_byref
+  DCHECK(exception);
+  if (!exception)
+    return 0;
+
+  // Translate param: retval; type: refptr_same_byref
+  CefRefPtr<CefV8Value> retvalPtr;
+  if (retval && *retval)
+    retvalPtr = CefV8ValueCppToC::Unwrap(*retval);
+  CefV8Value* retvalOrig = retvalPtr.get();
+  // Translate param: exception; type: refptr_same_byref
+  CefRefPtr<CefV8Exception> exceptionPtr;
+  if (exception && *exception)
+    exceptionPtr = CefV8ExceptionCppToC::Unwrap(*exception);
+  CefV8Exception* exceptionOrig = exceptionPtr.get();
+
+  // Execute
+  bool _retval = CefV8ContextCppToC::Get(self)->Eval(
+      CefString(code),
+      retvalPtr,
+      exceptionPtr);
+
+  // Restore param: retval; type: refptr_same_byref
+  if (retval) {
+    if (retvalPtr.get()) {
+      if (retvalPtr.get() != retvalOrig) {
+        *retval = CefV8ValueCppToC::Wrap(retvalPtr);
+      }
+    } else {
+      *retval = NULL;
+    }
+  }
+  // Restore param: exception; type: refptr_same_byref
+  if (exception) {
+    if (exceptionPtr.get()) {
+      if (exceptionPtr.get() != exceptionOrig) {
+        *exception = CefV8ExceptionCppToC::Wrap(exceptionPtr);
+      }
+    } else {
+      *exception = NULL;
+    }
+  }
+
+  // Return type: bool
+  return _retval;
+}
+
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -172,6 +238,7 @@ CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
   struct_.struct_.enter = v8context_enter;
   struct_.struct_.exit = v8context_exit;
   struct_.struct_.is_same = v8context_is_same;
+  struct_.struct_.eval = v8context_eval;
 }
 
 #ifndef NDEBUG

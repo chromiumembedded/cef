@@ -79,7 +79,9 @@ class CefStreamReader;
 class CefStreamWriter;
 class CefTask;
 class CefV8Context;
+class CefV8Exception;
 class CefV8Handler;
+class CefV8StackFrame;
 class CefV8Value;
 class CefWebPluginInfo;
 class CefWebURLRequest;
@@ -2545,6 +2547,17 @@ public:
   ///
   /*--cef()--*/
   virtual bool IsSame(CefRefPtr<CefV8Context> that) =0;
+
+  ///
+  // Evaluates the specified JavaScript code using this context's global object.
+  // On success |retval| will be set to the return value, if any, and the
+  // function will return true. On failure |exception| will be set to the
+  // exception, if any, and the function will return false.
+  ///
+  /*--cef()--*/
+  virtual bool Eval(const CefString& code,
+                    CefRefPtr<CefV8Value>& retval,
+                    CefRefPtr<CefV8Exception>& exception) =0;
 };
 
 
@@ -2971,6 +2984,89 @@ public:
                                           CefRefPtr<CefV8Value>& retval,
                                           CefRefPtr<CefV8Exception>& exception,
                                           bool rethrow_exception) =0;
+};
+
+///
+// Class representing a V8 stack trace. The methods of this class may only be
+// called on the UI thread.
+///
+/*--cef(source=library)--*/
+class CefV8StackTrace : public virtual CefBase
+{
+public:
+  ///
+  // Returns the stack trace for the currently active context. |frame_limit| is
+  // the maximum number of frames that will be captured.
+  ///
+  /*--cef()--*/
+  static CefRefPtr<CefV8StackTrace> GetCurrent(int frame_limit);
+
+  ///
+  // Returns the number of stack frames.
+  ///
+  /*--cef()--*/
+  virtual int GetFrameCount() =0;
+
+  ///
+  // Returns the stack frame at the specified 0-based index.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) =0;
+};
+
+
+///
+// Class representing a V8 stack frame. The methods of this class may only be
+// called on the UI thread.
+///
+/*--cef(source=library)--*/
+class CefV8StackFrame : public virtual CefBase
+{
+public:
+  ///
+  // Returns the name of the resource script that contains the function.
+  ///
+  /*--cef()--*/
+  virtual CefString GetScriptName() =0;
+
+  ///
+  // Returns the name of the resource script that contains the function or the
+  // sourceURL value if the script name is undefined and its source ends with
+  // a "//@ sourceURL=..." string.
+  ///
+  /*--cef()--*/
+  virtual CefString GetScriptNameOrSourceURL() =0;
+
+  ///
+  // Returns the name of the function.
+  ///
+  /*--cef()--*/
+  virtual CefString GetFunctionName() =0;
+
+  ///
+  // Returns the 1-based line number for the function call or 0 if unknown.
+  ///
+  /*--cef()--*/
+  virtual int GetLineNumber() =0;
+
+  ///
+  // Returns the 1-based column offset on the line for the function call or 0 if
+  // unknown.
+  ///
+  /*--cef()--*/
+  virtual int GetColumn() =0;
+
+  ///
+  // Returns true if the function was compiled using eval().
+  ///
+  /*--cef()--*/
+  virtual bool IsEval() =0;
+
+  ///
+  // Returns true if the function was called as a constructor via "new".
+  ///
+  /*--cef()--*/
+  virtual bool IsConstructor() =0;
 };
 
 

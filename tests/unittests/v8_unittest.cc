@@ -1,1800 +1,1487 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
 #include "include/cef.h"
 #include "include/cef_runnable.h"
+#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "test_handler.h"
+
+// How to add a new test:
+// 1. Add a new value to the V8TestMode enumeration.
+// 2. Add a method that implements the test in V8TestHandler.
+// 3. Add a case for the new enumeration value in V8TestHandler::RunTest.
+// 4. Add a line for the test in the "Define the tests" section at the bottom of
+//    the file.
 
 namespace {
 
-bool g_V8TestV8HandlerExecuteCalled;
-bool g_V8TestV8HandlerExecute2Called;
+// Unique values for V8 tests.
+const char* kV8TestUrl = "http://tests/V8Test.Test";
+const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
+const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
+const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
 
-class V8TestV8Handler : public CefV8Handler
-{
-public:
-  V8TestV8Handler(bool bindingTest) { binding_test_ = bindingTest; }
-
-  virtual bool Execute(const CefString& name,
-                       CefRefPtr<CefV8Value> object,
-                       const CefV8ValueList& arguments,
-                       CefRefPtr<CefV8Value>& retval,
-                       CefString& exception)
-  {
-    TestExecute(name, object, arguments, retval, exception);
-    return true;
-  }
-
-  void TestExecute(const CefString& name,
-                   CefRefPtr<CefV8Value> object,
-                   const CefV8ValueList& arguments,
-                   CefRefPtr<CefV8Value>& retval,
-                   CefString& exception)
-  {
-    if(name == "execute") {
-      g_V8TestV8HandlerExecuteCalled = true;
-      
-      ASSERT_EQ((size_t)9, arguments.size());
-      int argct = 0;
-      
-      // basic types
-      ASSERT_TRUE(arguments[argct]->IsInt());
-      ASSERT_EQ(5, arguments[argct]->GetIntValue());
-      argct++;
-
-      ASSERT_TRUE(arguments[argct]->IsDouble());
-      ASSERT_EQ(6.543, arguments[argct]->GetDoubleValue());
-      argct++;
-
-      ASSERT_TRUE(arguments[argct]->IsBool());
-      ASSERT_EQ(true, arguments[argct]->GetBoolValue());
-      argct++;
-
-      ASSERT_TRUE(arguments[argct]->IsDate());
-      CefTime date = arguments[argct]->GetDateValue();
-      ASSERT_EQ(date.year, 2010);
-      ASSERT_EQ(date.month, 5);
-      ASSERT_EQ(date.day_of_month, 3);
-#if !defined(OS_MACOSX)
-      ASSERT_EQ(date.day_of_week, 1);
-#endif
-      ASSERT_EQ(date.hour, 12);
-      ASSERT_EQ(date.minute, 30);
-      ASSERT_EQ(date.second, 10);
-      ASSERT_NEAR(date.millisecond, 100, 1);
-      argct++;
-
-      ASSERT_TRUE(arguments[argct]->IsString());
-      ASSERT_EQ(arguments[argct]->GetStringValue(), "test string");
-      argct++;
-
-      CefRefPtr<CefV8Value> value;
-
-      // array
-      ASSERT_TRUE(arguments[argct]->IsArray());
-      ASSERT_EQ(4, arguments[argct]->GetArrayLength());
-      {
-        int subargct = 0;
-        value = arguments[argct]->GetValue(subargct);
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsInt());
-        ASSERT_EQ(7, value->GetIntValue());
-        subargct++;
-
-        value = arguments[argct]->GetValue(subargct);
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsDouble());
-        ASSERT_EQ(5.432, value->GetDoubleValue());
-        subargct++;
-
-        value = arguments[argct]->GetValue(subargct);
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsBool());
-        ASSERT_FALSE(value->GetBoolValue());
-        subargct++;
-
-        value = arguments[argct]->GetValue(subargct);
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(value->GetStringValue(), "another string");
-        subargct++;
-      }
-      argct++;
-
-      // object
-      ASSERT_TRUE(arguments[argct]->IsObject());
-      {
-        value = arguments[argct]->GetValue("arg0");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsInt());
-        ASSERT_EQ(2, value->GetIntValue());
-
-        value = arguments[argct]->GetValue("arg1");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsDouble());
-        ASSERT_EQ(3.433, value->GetDoubleValue());
-
-        value = arguments[argct]->GetValue("arg2");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsBool());
-        ASSERT_EQ(true, value->GetBoolValue());
-
-        value = arguments[argct]->GetValue("arg3");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(value->GetStringValue(), "some string");
-      }
-      argct++;
-
-      // function that returns a value
-      ASSERT_TRUE(arguments[argct]->IsFunction());
-      {
-        CefV8ValueList args;
-        args.push_back(CefV8Value::CreateInt(5));
-        args.push_back(CefV8Value::CreateDouble(3.5));
-        args.push_back(CefV8Value::CreateBool(true));
-        args.push_back(CefV8Value::CreateString("10"));
-        CefRefPtr<CefV8Value> rv;
-        CefRefPtr<CefV8Exception> exception;
-        ASSERT_TRUE(arguments[argct]->ExecuteFunction(
-            arguments[argct], args, rv, exception, false));
-        ASSERT_TRUE(rv.get() != NULL);
-        ASSERT_TRUE(rv->IsDouble());
-        ASSERT_EQ(19.5, rv->GetDoubleValue());
-      }
-      argct++;
-
-      // function that throws an exception
-      ASSERT_TRUE(arguments[argct]->IsFunction());
-      {
-        CefV8ValueList args;
-        args.push_back(CefV8Value::CreateDouble(5));
-        args.push_back(CefV8Value::CreateDouble(0));
-        CefRefPtr<CefV8Value> rv;
-        CefRefPtr<CefV8Exception> exception;
-        ASSERT_TRUE(arguments[argct]->ExecuteFunction(
-            arguments[argct], args, rv, exception, false));
-        ASSERT_TRUE(exception.get());
-        ASSERT_EQ(exception->GetMessage(), "Uncaught My Exception");
-      }
-      argct++;
-
-      if(binding_test_)
-      {
-        // values
-        value = object->GetValue("intVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsInt());
-        ASSERT_EQ(12, value->GetIntValue());
-
-        value = object->GetValue("doubleVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsDouble());
-        ASSERT_EQ(5.432, value->GetDoubleValue());
-
-        value = object->GetValue("boolVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsBool());
-        ASSERT_EQ(true, value->GetBoolValue());
-
-        value = object->GetValue("stringVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsString());
-        ASSERT_EQ(value->GetStringValue(), "the string");
-
-        value = object->GetValue("dateVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsDate());
-        CefTime date = value->GetDateValue();
-        ASSERT_EQ(date.year, 2010);
-        ASSERT_EQ(date.month, 5);
-#if !defined(OS_MACOSX)
-        ASSERT_EQ(date.day_of_week, 1);
-#endif
-        ASSERT_EQ(date.day_of_month, 3);
-        ASSERT_EQ(date.hour, 12);
-        ASSERT_EQ(date.minute, 30);
-        ASSERT_EQ(date.second, 10);
-        ASSERT_NEAR(date.millisecond, 100, 1);
-
-        value = object->GetValue("arrayVal");
-        ASSERT_TRUE(value.get() != NULL);
-        ASSERT_TRUE(value->IsArray());
-        {
-          CefRefPtr<CefV8Value> value2;
-          int subargct = 0;
-          value2 = value->GetValue(subargct);
-          ASSERT_TRUE(value2.get() != NULL);
-          ASSERT_TRUE(value2->IsInt());
-          ASSERT_EQ(4, value2->GetIntValue());
-          subargct++;
-
-          value2 = value->GetValue(subargct);
-          ASSERT_TRUE(value2.get() != NULL);
-          ASSERT_TRUE(value2->IsDouble());
-          ASSERT_EQ(120.43, value2->GetDoubleValue());
-          subargct++;
-
-          value2 = value->GetValue(subargct);
-          ASSERT_TRUE(value2.get() != NULL);
-          ASSERT_TRUE(value2->IsBool());
-          ASSERT_EQ(true, value2->GetBoolValue());
-          subargct++;
-
-          value2 = value->GetValue(subargct);
-          ASSERT_TRUE(value2.get() != NULL);
-          ASSERT_TRUE(value2->IsString());
-          ASSERT_EQ(value2->GetStringValue(), "a string");
-          subargct++;
-        }
-      }
-
-      retval = CefV8Value::CreateInt(5);
-    } else if(name == "execute2") {
-      g_V8TestV8HandlerExecute2Called = true;
-      
-      // check the result of calling the "execute" function
-      ASSERT_EQ((size_t)1, arguments.size());
-      ASSERT_TRUE(arguments[0]->IsInt());
-      ASSERT_EQ(5, arguments[0]->GetIntValue());
-    }
-  }
-
-  bool binding_test_;
-
-  IMPLEMENT_REFCOUNTING(V8TestV8Handler);
+enum V8TestMode {
+  V8TEST_NULL_CREATE = 0,
+  V8TEST_BOOL_CREATE,
+  V8TEST_INT_CREATE,
+  V8TEST_DOUBLE_CREATE,
+  V8TEST_DATE_CREATE,
+  V8TEST_STRING_CREATE,
+  V8TEST_ARRAY_CREATE,
+  V8TEST_ARRAY_VALUE,
+  V8TEST_OBJECT_CREATE,
+  V8TEST_OBJECT_USERDATA,
+  V8TEST_OBJECT_ACCESSOR,
+  V8TEST_OBJECT_ACCESSOR_FAIL,
+  V8TEST_OBJECT_ACCESSOR_READONLY,
+  V8TEST_OBJECT_VALUE,
+  V8TEST_OBJECT_VALUE_READONLY,
+  V8TEST_OBJECT_VALUE_ENUM,
+  V8TEST_OBJECT_VALUE_DONTENUM,
+  V8TEST_OBJECT_VALUE_DELETE,
+  V8TEST_OBJECT_VALUE_DONTDELETE,
+  V8TEST_FUNCTION_CREATE,
+  V8TEST_FUNCTION_HANDLER,
+  V8TEST_FUNCTION_HANDLER_EXCEPTION,
+  V8TEST_FUNCTION_HANDLER_FAIL,
+  V8TEST_FUNCTION_HANDLER_NO_OBJECT,
+  V8TEST_FUNCTION_HANDLER_WITH_CONTEXT,
+  V8TEST_CONTEXT_EVAL,
+  V8TEST_CONTEXT_EVAL_EXCEPTION,
+  V8TEST_CONTEXT_ENTERED,
+  V8TEST_BINDING,
+  V8TEST_STACK_TRACE,
 };
 
-class V8TestHandler : public TestHandler
-{
-public:
-  V8TestHandler(bool bindingTest) { binding_test_ = bindingTest; }
 
-  virtual void RunTest() OVERRIDE
-  {
-    std::string object;
-    if(binding_test_) {
-      // binding uses the window object
-      object = "window.test";
+class V8TestHandler : public TestHandler {
+ public:
+  explicit V8TestHandler(V8TestMode test_mode,
+                         const char* test_url)
+    : test_mode_(test_mode),
+      test_url_(test_url) {
+  }
+
+  virtual void RunTest() OVERRIDE {
+    if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
+      AddResource(kV8ContextParentTestUrl, "<html><body><iframe src=\"" +
+          std::string(kV8ContextChildTestUrl) + "\" id=\"f\"></iframe></body>"
+          "</html>", "text/html");
+      AddResource(kV8ContextChildTestUrl, "<html><body>CHILD</body></html>",
+          "text/html");
+      CreateBrowser(kV8ContextParentTestUrl);
     } else {
-      // extension uses a global object
-      object = "test";
+      EXPECT_TRUE(test_url_ != NULL);
+      AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
+      CreateBrowser(test_url_);
     }
-
-    std::stringstream testHtml;
-    testHtml <<
-      "<html><body>"
-      "<script language=\"JavaScript\">"
-      "function func(a,b,c,d) { return a+b+(c?1:0)+parseFloat(d); }"
-      "function func2(a,b) { throw('My Exception'); }"
-      << object << ".execute2("
-      "  " << object << ".execute(5, 6.543, true,"
-      "    new Date(Date.UTC(2010, 4, 3, 12, 30, 10, 100)), \"test string\","
-      "    [7, 5.432, false, \"another string\"],"
-      "    {arg0:2, arg1:3.433, arg2:true, arg3:\"some string\"}, func, func2)"
-      ");"
-      "</script>"
-      "</body></html>";
-	
-    AddResource("http://tests/run.html", testHtml.str(), "text/html");
-    CreateBrowser("http://tests/run.html");
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    if(!browser->IsPopup() && frame->IsMain())
-      DestroyTest();
-  }
-
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
-    if(binding_test_)
-      TestHandleJSBinding(browser, frame, context->GetGlobal());
-  }
-
-  void TestHandleJSBinding(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           CefRefPtr<CefV8Value> object)
-  {
-    // Create the new V8 object
-    CefRefPtr<CefV8Value> testObj = CefV8Value::CreateObject(NULL, NULL);
-    ASSERT_TRUE(testObj.get() != NULL);
-    ASSERT_TRUE(object->SetValue("test", testObj, V8_PROPERTY_ATTRIBUTE_NONE));
-
-    // Create an instance of V8ExecuteV8Handler
-    CefRefPtr<CefV8Handler> testHandler(new V8TestV8Handler(true));
-    ASSERT_TRUE(testHandler.get() != NULL);
-
-    // Add the functions
-    CefRefPtr<CefV8Value> testFunc;
-    testFunc = CefV8Value::CreateFunction("execute", testHandler);
-    ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("execute", testFunc,
-        V8_PROPERTY_ATTRIBUTE_NONE));
-    testFunc = CefV8Value::CreateFunction("execute2", testHandler);
-    ASSERT_TRUE(testFunc.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("execute2", testFunc,
-        V8_PROPERTY_ATTRIBUTE_NONE));
-
-    // Add the values
-    ASSERT_TRUE(testObj->SetValue("intVal",
-        CefV8Value::CreateInt(12), V8_PROPERTY_ATTRIBUTE_NONE));
-    ASSERT_TRUE(testObj->SetValue("doubleVal",
-        CefV8Value::CreateDouble(5.432), V8_PROPERTY_ATTRIBUTE_NONE));
-    ASSERT_TRUE(testObj->SetValue("boolVal",
-        CefV8Value::CreateBool(true), V8_PROPERTY_ATTRIBUTE_NONE));
-    ASSERT_TRUE(testObj->SetValue("stringVal",
-        CefV8Value::CreateString("the string"), V8_PROPERTY_ATTRIBUTE_NONE));
-
-    cef_time_t date = {
-        2010,
-        5,
-#if !defined(OS_MACOSX)
-        1,
-#endif
-        3,
-        12,
-        30,
-        10,
-        100
-    };
-    ASSERT_TRUE(testObj->SetValue("dateVal", CefV8Value::CreateDate(date),
-        V8_PROPERTY_ATTRIBUTE_NONE));
-
-    CefRefPtr<CefV8Value> testArray(CefV8Value::CreateArray());
-    ASSERT_TRUE(testArray.get() != NULL);
-    ASSERT_TRUE(testObj->SetValue("arrayVal", testArray,
-        V8_PROPERTY_ATTRIBUTE_NONE));
-    ASSERT_TRUE(testArray->SetValue(0, CefV8Value::CreateInt(4)));
-    ASSERT_TRUE(testArray->SetValue(1, CefV8Value::CreateDouble(120.43)));
-    ASSERT_TRUE(testArray->SetValue(2, CefV8Value::CreateBool(true)));
-    ASSERT_TRUE(testArray->SetValue(3, CefV8Value::CreateString("a string")));
-  }
-
-  bool binding_test_;
-};
-
-} // namespace
-
-// Verify window binding
-TEST(V8Test, Binding)
-{
-  g_V8TestV8HandlerExecuteCalled = false;
-  g_V8TestV8HandlerExecute2Called = false;
-
-  CefRefPtr<V8TestHandler> handler = new V8TestHandler(true);
-  handler->ExecuteTest();
-
-  ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);
-  ASSERT_TRUE(g_V8TestV8HandlerExecute2Called);
-}
-
-// Verify extensions
-TEST(V8Test, Extension)
-{
-  g_V8TestV8HandlerExecuteCalled = false;
-  g_V8TestV8HandlerExecute2Called = false;
-
-  std::string extensionCode =
-    "var test;"
-    "if (!test)"
-    "  test = {};"
-    "(function() {"
-    "  test.execute = function(a,b,c,d,e,f,g,h,i) {"
-    "    native function execute();"
-    "    return execute(a,b,c,d,e,f,g,h,i);"
-    "  };"
-    "  test.execute2 = function(a) {"
-    "    native function execute2();"
-    "    return execute2(a);"
-    "  };"
-    "})();";
-  CefRegisterExtension("v8/test", extensionCode, new V8TestV8Handler(false));
-
-  CefRefPtr<V8TestHandler> handler = new V8TestHandler(false);
-  handler->ExecuteTest();
-
-  ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);
-  ASSERT_TRUE(g_V8TestV8HandlerExecute2Called);
-}
-
-namespace {
-
-class TestNoNativeHandler : public TestHandler
-{
-public:
-  class TestHandler : public CefV8Handler
-  {
-  public:
-    TestHandler(CefRefPtr<TestNoNativeHandler> test)
-      : test_(test)
-    {
+  // Run the specified test.
+  void RunTest(V8TestMode test_mode) {
+    switch (test_mode) {
+      case V8TEST_NULL_CREATE:
+        RunNullCreateTest();
+        break;
+      case V8TEST_BOOL_CREATE:
+        RunBoolCreateTest();
+        break;
+      case V8TEST_INT_CREATE:
+        RunIntCreateTest();
+        break;
+      case V8TEST_DOUBLE_CREATE:
+        RunDoubleCreateTest();
+        break;
+      case V8TEST_DATE_CREATE:
+        RunDateCreateTest();
+        break;
+      case V8TEST_STRING_CREATE:
+        RunStringCreateTest();
+        break;
+      case V8TEST_ARRAY_CREATE:
+        RunArrayCreateTest();
+        break;
+      case V8TEST_ARRAY_VALUE:
+        RunArrayValueTest();
+        break;
+      case V8TEST_OBJECT_CREATE:
+        RunObjectCreateTest();
+        break;
+      case V8TEST_OBJECT_USERDATA:
+        RunObjectUserDataTest();
+        break;
+      case V8TEST_OBJECT_ACCESSOR:
+        RunObjectAccessorTest();
+        break;
+      case V8TEST_OBJECT_ACCESSOR_FAIL:
+        RunObjectAccessorFailTest();
+        break;
+      case V8TEST_OBJECT_ACCESSOR_READONLY:
+        RunObjectAccessorReadOnlyTest();
+        break;
+      case V8TEST_OBJECT_VALUE:
+        RunObjectValueTest();
+        break;
+      case V8TEST_OBJECT_VALUE_READONLY:
+        RunObjectValueReadOnlyTest();
+        break;
+      case V8TEST_OBJECT_VALUE_ENUM:
+        RunObjectValueEnumTest();
+        break;
+      case V8TEST_OBJECT_VALUE_DONTENUM:
+        RunObjectValueDontEnumTest();
+        break;
+      case V8TEST_OBJECT_VALUE_DELETE:
+        RunObjectValueDeleteTest();
+        break;
+      case V8TEST_OBJECT_VALUE_DONTDELETE:
+        RunObjectValueDontDeleteTest();
+        break;
+      case V8TEST_FUNCTION_CREATE:
+        RunFunctionCreateTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER:
+        RunFunctionHandlerTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER_EXCEPTION:
+        RunFunctionHandlerExceptionTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER_FAIL:
+        RunFunctionHandlerFailTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER_NO_OBJECT:
+        RunFunctionHandlerNoObjectTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER_WITH_CONTEXT:
+        RunFunctionHandlerWithContextTest();
+        break;
+      case V8TEST_CONTEXT_EVAL:
+        RunContextEvalTest();
+        break;
+      case V8TEST_CONTEXT_EVAL_EXCEPTION:
+        RunContextEvalExceptionTest();
+        break;
+      case V8TEST_CONTEXT_ENTERED:
+        RunContextEnteredTest();
+        break;
+      case V8TEST_BINDING:
+        RunBindingTest();
+        break;
+      case V8TEST_STACK_TRACE:
+        RunStackTraceTest();
+        break;
+      default:
+        ADD_FAILURE();
+        DestroyTest();
+        break;
     }
-
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE
-    {
-      if (name == "result") {
-        if (arguments.size() == 1 && arguments[0]->IsString()) {
-          std::string value = arguments[0]->GetStringValue();
-          if (value == "correct")
-            test_->got_correct_.yes();
-          else
-            return false;
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    CefRefPtr<TestNoNativeHandler> test_;
-
-    IMPLEMENT_REFCOUNTING(TestHandler);
-  };
-  
-  TestNoNativeHandler()
-  {
   }
 
-  virtual void RunTest() OVERRIDE
-  {
-    std::string testHtml =
-        "<html><body>\n"
-        "<script language=\"JavaScript\">\n"
-        "var result = test_nonative.add(1, 2);\n"
-        "if (result == 3)\n"
-        "  window.test.result('correct');\n"
-        "</script>\n"
-        "</body></html>";
-    AddResource("http://tests/run.html", testHtml, "text/html");
+  void RunNullCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateNull();
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsNull());
 
-    CreateBrowser("http://tests/run.html");
-  }
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsString());
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
     DestroyTest();
   }
 
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
-    // Retrieve the 'window' object.
-    CefRefPtr<CefV8Value> object = context->GetGlobal();
+  void RunBoolCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateBool(true);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsBool());
+    EXPECT_EQ(true, value->GetBoolValue());
 
-    // Create the functions that will be used during the test.
-    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
-    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
-    obj->SetValue("result",
-                  CefV8Value::CreateFunction("result", handler),
-                  V8_PROPERTY_ATTRIBUTE_NONE);
-    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
   }
 
-  TrackCallback got_correct_;
-};
+  void RunIntCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateInt(12);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsInt());
+    EXPECT_TRUE(value->IsDouble());
+    EXPECT_EQ(12, value->GetIntValue());
+    EXPECT_EQ(12, value->GetDoubleValue());
 
-} // namespace
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsString());
 
-// Verify extensions with no native functions
-TEST(V8Test, ExtensionNoNative)
-{
-  std::string extensionCode =
-    "var test_nonative;"
-    "if (!test_nonative)"
-    "  test_nonative = {};"
-    "(function() {"
-    "  test_nonative.add = function(a, b) {"
-    "    return a + b;"
-    "  };"
-    "})();";
-  CefRegisterExtension("v8/test_nonative", extensionCode, NULL);
+    DestroyTest();
+  }
 
-  CefRefPtr<TestNoNativeHandler> handler = new TestNoNativeHandler();
-  handler->ExecuteTest();
+  void RunDoubleCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateDouble(12.1223);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsDouble());
+    EXPECT_EQ(12.1223, value->GetDoubleValue());
 
-  EXPECT_TRUE(handler->got_correct_);
-}
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsString());
 
-namespace {
+    DestroyTest();
+  }
 
-// Using a delegate so that the code below can remain inline.
-class CefV8HandlerDelegate
-{
-public:
-  virtual bool Execute(const CefString& name,
-                       CefRefPtr<CefV8Value> object,
-                       const CefV8ValueList& arguments,
+  void RunDateCreateTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefTime date;
+    date.year = 2200;
+    date.month = 4;
+#if !defined(OS_MACOSX)
+    date.day_of_week = 5;
+#endif
+    date.day_of_month = 11;
+    date.hour = 20;
+    date.minute = 15;
+    date.second = 42;
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateDate(date);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsDate());
+    EXPECT_TRUE(value->IsObject());
+    EXPECT_EQ(date.GetTimeT(), value->GetDateValue().GetTimeT());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunStringCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateString("My string");
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsString());
+    EXPECT_STREQ("My string", value->GetStringValue().ToString().c_str());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+
+    DestroyTest();
+  }
+
+  void RunArrayCreateTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateArray();
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsArray());
+    EXPECT_TRUE(value->IsObject());
+    EXPECT_EQ(0, value->GetArrayLength());
+    EXPECT_FALSE(value->HasValue(0));
+    EXPECT_FALSE(value->HasValue(1));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunArrayValueTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateArray();
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsArray());
+    EXPECT_EQ(0, value->GetArrayLength());
+
+    // Test addng values.
+    EXPECT_FALSE(value->HasValue(0));
+    EXPECT_FALSE(value->HasValue(1));
+
+    EXPECT_TRUE(value->SetValue(0, CefV8Value::CreateInt(10)));
+    EXPECT_TRUE(value->HasValue(0));
+    EXPECT_FALSE(value->HasValue(1));
+
+    EXPECT_TRUE(value->GetValue(0)->IsInt());
+    EXPECT_EQ(10, value->GetValue(0)->GetIntValue());
+    EXPECT_EQ(1, value->GetArrayLength());
+
+    EXPECT_TRUE(value->SetValue(1, CefV8Value::CreateInt(43)));
+    EXPECT_TRUE(value->HasValue(0));
+    EXPECT_TRUE(value->HasValue(1));
+
+    EXPECT_TRUE(value->GetValue(1)->IsInt());
+    EXPECT_EQ(43, value->GetValue(1)->GetIntValue());
+    EXPECT_EQ(2, value->GetArrayLength());
+
+    EXPECT_TRUE(value->DeleteValue(0));
+    EXPECT_FALSE(value->HasValue(0));
+    EXPECT_TRUE(value->HasValue(1));
+    EXPECT_EQ(2, value->GetArrayLength());
+
+    EXPECT_TRUE(value->DeleteValue(1));
+    EXPECT_FALSE(value->HasValue(0));
+    EXPECT_FALSE(value->HasValue(1));
+    EXPECT_EQ(2, value->GetArrayLength());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectCreateTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL);
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsObject());
+    EXPECT_FALSE(value->GetUserData().get());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunObjectUserDataTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    class UserData : public CefBase {
+     public:
+      explicit UserData(int value) : value_(value) {}
+      int value_;
+      IMPLEMENT_REFCOUNTING(UserData);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(new UserData(10));
+    EXPECT_TRUE(value.get());
+
+    CefRefPtr<CefBase> user_data = value->GetUserData();
+    EXPECT_TRUE(user_data.get());
+    UserData* user_data_impl = static_cast<UserData*>(user_data.get());
+    EXPECT_EQ(10, user_data_impl->value_);
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectAccessorTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kName = "val";
+    static const int kValue = 20;
+
+    class Accessor : public CefV8Accessor {
+     public:
+      Accessor() : value_(0) {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) = 0;
+                       CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kName, name.ToString().c_str());
 
-  virtual bool Get(const CefString& name,
-                   const CefRefPtr<CefV8Value> object, 
-                   CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) = 0;
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
 
-  virtual bool Set(const CefString& name,
-                   const CefRefPtr<CefV8Value> object, 
-                   const CefRefPtr<CefV8Value> value,
-                   CefString& exception) = 0;
-};
+        EXPECT_FALSE(retval.get());
+        EXPECT_TRUE(exception.empty());
 
-class DelegatingV8Handler : public CefV8Handler
-{
-public:
-  DelegatingV8Handler(CefV8HandlerDelegate *delegate): 
-  delegate_(delegate) { }
-  
-  ~DelegatingV8Handler()
-  {
-  }
-  
-  bool Execute(const CefString& name, 
-               CefRefPtr<CefV8Value> object,
-               const CefV8ValueList& arguments,
-               CefRefPtr<CefV8Value>& retval,
-               CefString& exception) OVERRIDE
-  {
-    return delegate_->Execute(name, object, arguments, retval, exception);
-  }
-  
-private:
-  CefV8HandlerDelegate *delegate_;
-
-  IMPLEMENT_REFCOUNTING(DelegatingV8Handler);
-};
-
-class DelegatingV8Accessor: public CefV8Accessor
-{
-public:
-  DelegatingV8Accessor(CefV8HandlerDelegate *delegate)
-    : delegate_(delegate) { }
-
-  bool Get(const CefString& name,
-           const CefRefPtr<CefV8Value> object, 
-           CefRefPtr<CefV8Value>& retval,
-           CefString& exception) OVERRIDE
-  {
-    return delegate_->Get(name, object, retval, exception);
-  }
-
-  bool Set(const CefString& name,
-           const CefRefPtr<CefV8Value> object, 
-           const CefRefPtr<CefV8Value> value,
-           CefString& exception) OVERRIDE
-  {
-    return delegate_->Set(name, object, value, exception);
-  }
-
-private:
-  CefV8HandlerDelegate *delegate_;
-
-  IMPLEMENT_REFCOUNTING(DelegatingV8Accessor);
-};
-
-class TestContextHandler: public TestHandler, public CefV8HandlerDelegate
-{
-public:
-  TestContextHandler() {}
-  
-  virtual void RunTest() OVERRIDE
-  {
-    // Test Flow: 
-    // load main.html.
-    // 1. main.html calls hello("main", callIFrame) in the execute handler.
-    //    The excute handler checks that "main" was called and saves 
-    //    the callIFrame function, context, and receiver object.
-    // 2. iframe.html calls hello("iframe") in the execute handler.
-    //    The execute handler checks that "iframe" was called. if both main 
-    //    and iframe were called, it calls CallIFrame()
-    // 3. CallIFrame calls "callIFrame" in main.html
-    // 4. which calls iframe.html "calledFromMain()".
-    // 5. which calls "fromIFrame()" in execute handler.
-    //    The execute handler checks that the entered and current urls are
-    //    what we expect: "main.html" and "iframe.html", respectively 
-    // 6. It then posts a task to call AsyncTestContext
-    //      you can validate the entered and current context are still the 
-    //      same here, but it is not checked by this test case.
-    // 7. AsyncTestContext tests to make sure that no context is set at 
-    //    this point and loads "begin.html"
-    // 8. begin.html calls "begin(func1, func2)" in the execute handler
-    //    The execute handler posts a tasks to call both of those functions 
-    //    when no context is defined. Both should work with the specified 
-    //    context. AsyncTestException should run first, followed by 
-    //    AsyncTestNavigate() which calls the func2 to do a document.location 
-    //    based loading of "end.html".
-    // 9. end.html calls "end()" in the execute handler.
-    //    which concludes the test.
-
-    y_ = 0;
-
-    std::stringstream mainHtml;
-    mainHtml <<
-    "<html><body>"
-    "<h1>Hello From Main Frame</h1>"
-    "<script language=\"JavaScript\">"
-    "aaa = function(){}; bbb = function(a){ a=1; };"
-    "comp(false,{},{});\n"
-    "comp(true,aaa,aaa);\n"
-    "comp(true,bbb,bbb);\n"
-    "comp(false,aaa,bbb);\n"
-    "comp(false,{},bbb);\n"
-    "comp(false,{},bbb);\n"
-    "comp(true,0,0);\n"
-    "comp(true,\"a\",\"a\");\n"
-    "comp(false,\"a\",\"b\");\n"
-    "try { point.x = -1; } catch(e) {  }\n" // should not have any effect.
-    "try { point.y = point.x;  theY = point.y; } catch(e) { point.y = 4321; }\n"
-    // Test get and set exceptions.
-    "try { exceptObj.makeException = 1; }"
-    " catch(e) { gotSetException(e.toString()); }\n"
-    "try { var x = exceptObj.makeException; }"
-    " catch(e) { gotGetException(e.toString()); }\n"
-    "hello(\"main\", callIFrame);"
-    "function callIFrame() {"
-    " var iframe = document.getElementById('iframe');"
-    " iframe.contentWindow.calledFromMain();"
-    "}"
-    "</script>"
-    "<iframe id=\"iframe\" src=\"http://tests/iframe.html\""
-    " width=\"300\" height=\"300\">"
-    "</iframe>"
-    "</body></html>";
-    
-    AddResource("http://tests/main.html", mainHtml.str(), "text/html");
-    
-    std::stringstream iframeHtml;
-    iframeHtml <<
-    "<html><body>"
-    "<h1>Hello From IFRAME</h1>"
-    "<script language=\"JavaScript\">"
-    "hello(\"iframe\");"
-    "function calledFromMain() { fromIFrame(); }"
-    "</script>"
-    "</body></html>";
-    
-    AddResource("http://tests/iframe.html", iframeHtml.str(), "text/html");
-    
-    std::stringstream beginHtml;
-    beginHtml <<
-    "<html><body>"
-    "<h1>V8 Context Test</h1>"
-    "<script language=\"JavaScript\">"
-    "function TestException() { throw('My Exception'); }"
-    "function TestNavigate(a) { document.location = a.url; }"
-    "begin(TestException, TestNavigate);"
-    "</script>"
-    "</body></html>";
-  	
-    AddResource("http://tests/begin.html", beginHtml.str(), "text/html");
-    
-    std::stringstream endHtml;
-    endHtml <<
-    "<html><body>"
-    "<h1>Navigation Succeeded!</h1>"
-    "<script language=\"JavaScript\">"
-    "end();"
-    "</script>"
-    "</body></html>";
-    
-    AddResource("http://tests/end.html", endHtml.str(), "text/html");
-    
-    CreateBrowser("http://tests/main.html");
-  }
-  
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-  }
-  
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
-    // Retrieve the 'window' object.
-    CefRefPtr<CefV8Value> object = context->GetGlobal();
-
-    CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
-    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-    CefString currentURL = currentFrame->GetURL();
-    
-    CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
-    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-    CefString enteredURL = enteredFrame->GetURL();
-    
-    CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
-    CefRefPtr<CefV8Value> helloFunc = 
-        CefV8Value::CreateFunction("hello", funcHandler);
-    object->SetValue("hello", helloFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-    
-    CefRefPtr<CefV8Value> fromIFrameFunc = 
-        CefV8Value::CreateFunction("fromIFrame", funcHandler);
-    object->SetValue("fromIFrame", fromIFrameFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-    
-    CefRefPtr<CefV8Value> goFunc = 
-        CefV8Value::CreateFunction("begin", funcHandler);
-    object->SetValue("begin", goFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-    
-    CefRefPtr<CefV8Value> doneFunc = 
-        CefV8Value::CreateFunction("end", funcHandler);
-    object->SetValue("end", doneFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-
-    CefRefPtr<CefV8Value> compFunc = 
-        CefV8Value::CreateFunction("comp", funcHandler);
-    object->SetValue("comp", compFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-
-    // Used for testing exceptions returned from accessors.
-    CefRefPtr<CefV8Value> gotGetExceptionFunc = 
-        CefV8Value::CreateFunction("gotGetException", funcHandler);
-    object->SetValue("gotGetException", gotGetExceptionFunc,
-        V8_PROPERTY_ATTRIBUTE_NONE);
-    CefRefPtr<CefV8Value> gotSetExceptionFunc = 
-        CefV8Value::CreateFunction("gotSetException", funcHandler);
-    object->SetValue("gotSetException", gotSetExceptionFunc,
-        V8_PROPERTY_ATTRIBUTE_NONE);
-
-    // Create an object with accessor based properties:
-    CefRefPtr<CefBase> blankBase;
-    CefRefPtr<CefV8Accessor> accessor(new DelegatingV8Accessor(this));
-    CefRefPtr<CefV8Value> point = CefV8Value::CreateObject(blankBase, accessor);
-
-    point->SetValue("x", V8_ACCESS_CONTROL_DEFAULT, 
-        V8_PROPERTY_ATTRIBUTE_READONLY);
-    point->SetValue("y", V8_ACCESS_CONTROL_DEFAULT, 
-        V8_PROPERTY_ATTRIBUTE_NONE);
-
-    object->SetValue("point", point, V8_PROPERTY_ATTRIBUTE_NONE);
-
-    // Create another object with accessor based properties:
-    CefRefPtr<CefV8Value> exceptObj =
-        CefV8Value::CreateObject(NULL, new DelegatingV8Accessor(this));
-
-    exceptObj->SetValue("makeException", V8_ACCESS_CONTROL_DEFAULT, 
-        V8_PROPERTY_ATTRIBUTE_NONE);
-
-    object->SetValue("exceptObj", exceptObj, V8_PROPERTY_ATTRIBUTE_NONE);
-  }
-  
-  void CallIFrame()
-  {
-    CefV8ValueList args;
-    CefRefPtr<CefV8Value> rv;
-    CefRefPtr<CefV8Exception> exception;
-    CefRefPtr<CefV8Value> empty;
-    ASSERT_TRUE(funcIFrame_->ExecuteFunctionWithContext(contextIFrame_, empty,
-                                                        args, rv, exception,
-                                                        false));
-  }
-  
-  void AsyncTestContext(CefRefPtr<CefV8Context> ec, 
-                        CefRefPtr<CefV8Context> cc)
-  {
-    // we should not be in a context in this call.
-    CefRefPtr<CefV8Context> noContext = CefV8Context::GetCurrentContext();
-    if (!noContext.get())
-      got_no_context_.yes();
-    
-    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-    CefString enteredURL = enteredFrame->GetURL();
-    CefString enteredName = enteredFrame->GetName();
-    CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
-    CefString enteredMainURL = enteredMainFrame->GetURL();
-    CefString enteredMainName = enteredMainFrame->GetName();
-    
-    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-    CefString currentURL = currentFrame->GetURL();
-    CefString currentName = currentFrame->GetName();
-    CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
-    CefString currentMainURL = currentMainFrame->GetURL();
-    CefString currentMainName = currentMainFrame->GetName();
-    
-    CefRefPtr<CefBrowser> copyFromMainFrame = 
-    currentMainFrame->GetBrowser();
-    
-    currentMainFrame->LoadURL("http://tests/begin.html");
-  }
-  
-  void AsyncTestException(CefRefPtr<CefV8Context> context,
-                          CefRefPtr<CefV8Value> func)
-  {
-    CefV8ValueList args;
-    CefRefPtr<CefV8Value> rv;
-    CefRefPtr<CefV8Exception> exception;
-    CefRefPtr<CefV8Value> empty;
-    ASSERT_TRUE(func->ExecuteFunctionWithContext(context, empty, args, rv,
-                                                 exception, false));
-    if(exception.get() && exception->GetMessage() == "Uncaught My Exception")
-      got_exception_.yes();
-  }
-  
-  void AsyncTestNavigation(CefRefPtr<CefV8Context> context,
-                           CefRefPtr<CefV8Value> func)
-  {
-    CefRefPtr<CefV8Exception> exception;
-    CefV8ValueList args;
-    CefRefPtr<CefV8Value> rv, obj, url;
-
-    // Need to enter the context in order to create an Object, 
-    // Array, or Function. Simple types like String, Int, 
-    // Boolean, and Double don't require you to be in the 
-    // context before creating them.
-    if ( context->Enter() ) {
-      CefRefPtr<CefV8Value> global = context->GetGlobal();
-      CefRefPtr<CefV8Value> anArray = CefV8Value::CreateArray();
-      CefRefPtr<CefV8Handler> funcHandler(new DelegatingV8Handler(this));
-      CefRefPtr<CefV8Value> foobarFunc = 
-        CefV8Value::CreateFunction("foobar", funcHandler);
-
-      obj = CefV8Value::CreateObject(NULL, NULL);
-      url = CefV8Value::CreateString("http://tests/end.html");
-
-      obj->SetValue("url", url, V8_PROPERTY_ATTRIBUTE_NONE);
-      obj->SetValue("foobar", foobarFunc, V8_PROPERTY_ATTRIBUTE_NONE);
-      obj->SetValue("anArray", anArray, V8_PROPERTY_ATTRIBUTE_NONE);
-
-      args.push_back(obj);
-  
-      ASSERT_TRUE(func->ExecuteFunctionWithContext(context, global, args, rv,
-                                                   exception, false));
-      if(!exception.get())
-        got_navigation_.yes();
-  
-      context->Exit();
-    }
-  }
-  
-  bool Execute(const CefString& name, 
-               CefRefPtr<CefV8Value> object,
-               const CefV8ValueList& arguments,
-               CefRefPtr<CefV8Value>& retval,
-               CefString& exception) OVERRIDE
-  {
-    CefRefPtr<CefV8Context> cc = CefV8Context::GetCurrentContext();
-    CefRefPtr<CefV8Context> ec = CefV8Context::GetEnteredContext();
-    
-    CefRefPtr<CefBrowser> enteredBrowser = ec->GetBrowser();
-    CefRefPtr<CefFrame> enteredFrame = ec->GetFrame();
-    CefString enteredURL = enteredFrame->GetURL();
-    CefString enteredName = enteredFrame->GetName();
-    CefRefPtr<CefFrame> enteredMainFrame = enteredBrowser->GetMainFrame();
-    CefString enteredMainURL = enteredMainFrame->GetURL();
-    CefString enteredMainName = enteredMainFrame->GetName();
-    
-    CefRefPtr<CefBrowser> currentBrowser = cc->GetBrowser();
-    CefRefPtr<CefFrame> currentFrame = cc->GetFrame();
-    CefString currentURL = currentFrame->GetURL();
-    CefString currentName = currentFrame->GetName();
-    CefRefPtr<CefFrame> currentMainFrame = currentBrowser->GetMainFrame();
-    CefString currentMainURL = currentMainFrame->GetURL();
-    CefString currentMainName = currentMainFrame->GetName();
-    
-    if (name == "hello") {
-      if(arguments.size() == 2 && arguments[0]->IsString() &&
-         arguments[1]->IsFunction()) {
-        CefString msg = arguments[0]->GetStringValue();
-        if(msg == "main") {
-          got_hello_main_.yes();
-          contextIFrame_ = cc;
-          funcIFrame_ = arguments[1];
-        }
-      } else if(arguments.size() == 1 && arguments[0]->IsString()) {
-        CefString msg = arguments[0]->GetStringValue();
-        if(msg == "iframe")
-          got_hello_iframe_.yes();
-      }
-      else
-        return false;
-      
-      if(got_hello_main_ && got_hello_iframe_ && funcIFrame_->IsFunction()) {
-        // NB: At this point, enteredURL == http://tests/iframe.html which is
-        // expected since the iframe made the call on its own. The unexpected
-        // behavior is that in the call to fromIFrame (below) the enteredURL
-        // == http://tests/main.html even though the iframe.html context was 
-        // entered first.
-        //  -- Perhaps WebKit does something other than look at the bottom 
-        //     of stack for the entered context.
-        if(enteredURL == "http://tests/iframe.html")
-          got_iframe_as_entered_url_.yes();
-        CallIFrame();
-      }
-      return true;
-    } else if(name == "fromIFrame") {
-      if(enteredURL == "http://tests/main.html")
-        got_correct_entered_url_.yes();
-      if(currentURL == "http://tests/iframe.html")
-        got_correct_current_url_.yes();
-      CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-          &TestContextHandler::AsyncTestContext, ec, cc));
-      return true;
-    } else if(name == "begin") {
-      if(arguments.size() == 2 && arguments[0]->IsFunction() &&
-         arguments[1]->IsFunction()) {
-        CefRefPtr<CefV8Value> funcException = arguments[0];
-        CefRefPtr<CefV8Value> funcNavigate  = arguments[1];
-        CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-            &TestContextHandler::AsyncTestException, cc, funcException));
-        CefPostTask(TID_UI, NewCefRunnableMethod(this, 
-            &TestContextHandler::AsyncTestNavigation, cc, funcNavigate));
+        got_get_.yes();
+        retval = CefV8Value::CreateInt(value_);
+        EXPECT_EQ(kValue, retval->GetIntValue());
         return true;
       }
-    } else if (name == "comp") {
-      if(arguments.size() == 3)
-      {
-        CefRefPtr<CefV8Value> expected = arguments[0];
-        CefRefPtr<CefV8Value> one = arguments[1];
-        CefRefPtr<CefV8Value> two = arguments[2];
 
-        bool bExpected = expected->GetBoolValue();
-        bool bOne2Two = one->IsSame(two);
-        bool bTwo2One = two->IsSame(one);
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kName, name.ToString().c_str());
 
-        // IsSame should match the expected
-        if ( bExpected != bOne2Two || bExpected != bTwo2One)
-          got_bad_is_same_.yes();
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_TRUE(value.get());
+        EXPECT_TRUE(exception.empty());
+
+        got_set_.yes();
+        value_ = value->GetIntValue();
+        EXPECT_EQ(kValue, value_);
+        return true;
       }
-      else
-      {
-        got_bad_is_same_.yes();
-      }
-    } else if (name == "end") {
-      got_testcomplete_.yes();
-      DestroyTest();
-      return true;
-    } else if (name == "gotGetException") {
-      if (arguments.size() == 1 &&
-          arguments[0]->GetStringValue() == "Error: My Get Exception") {
-        got_getexception_.yes();
-      }
-      return true;
-    } else if (name == "gotSetException") {
-      if (arguments.size() == 1 &&
-          arguments[0]->GetStringValue() == "Error: My Set Exception") {
-        got_setexception_.yes();
-      }
-      return true;
-    }
-    return false;
+
+      CefRefPtr<CefV8Value> object_;
+      int value_;
+      TrackCallback got_get_;
+      TrackCallback got_set_;
+
+      IMPLEMENT_REFCOUNTING(Accessor);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Accessor* accessor = new Accessor;
+    CefRefPtr<CefV8Accessor> accessorPtr(accessor);
+
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, accessor);
+    EXPECT_TRUE(object.get());
+    accessor->object_ = object;
+
+    EXPECT_FALSE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
+        V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(kValue),
+        V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(accessor->got_set_);
+    EXPECT_EQ(kValue, accessor->value_);
+
+    CefRefPtr<CefV8Value> val = object->GetValue(kName);
+    EXPECT_TRUE(val.get());
+    EXPECT_TRUE(accessor->got_get_);
+    EXPECT_TRUE(val->IsInt());
+    EXPECT_EQ(kValue, val->GetIntValue());
+
+    accessor->object_ = NULL;
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
-  bool Get(const CefString& name,
-           const CefRefPtr<CefV8Value> object, 
-           CefRefPtr<CefV8Value>& retval,
-           CefString& exception) OVERRIDE
-  {
-    if(name == "x") {
-      got_point_x_read_.yes();
-      retval = CefV8Value::CreateInt(1234);
-      return true;
-    } else if(name == "y") {
-      got_point_y_read_.yes();
-      retval = CefV8Value::CreateInt(y_);
-      return true;
-    } else if(name == "makeException") {
-      exception = "My Get Exception";
-      return true;
-    }
-    return false;
-  }
+  void RunObjectAccessorFailTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-  bool Set(const CefString& name,
-           const CefRefPtr<CefV8Value> object, 
-           const CefRefPtr<CefV8Value> value,
-           CefString& exception) OVERRIDE
-  {
-    if(name == "y") {
-      y_ = value->GetIntValue();
-      if( y_ == 1234)
-        got_point_y_write_.yes();
-      return true;
-    } else if(name == "makeException") {
-      exception = "My Set Exception";
-      return true;
-    }
-    return false;
-  }
+    static const char* kName = "val";
 
-  // This function we will be called later to make it call into the
-  // IFRAME, which then calls "fromIFrame" so that we can check the 
-  // entered vs current contexts are working as expected.
-  CefRefPtr<CefV8Context> contextIFrame_;
-  CefRefPtr<CefV8Value> funcIFrame_;
-  
-  TrackCallback got_point_x_read_;
-  TrackCallback got_point_y_read_;
-  TrackCallback got_point_y_write_;
-  TrackCallback got_bad_is_same_;
-  TrackCallback got_hello_main_;
-  TrackCallback got_hello_iframe_;
-  TrackCallback got_correct_entered_url_;
-  TrackCallback got_correct_current_url_;
-  TrackCallback got_iframe_as_entered_url_;
-  TrackCallback got_no_context_;
-  TrackCallback got_exception_;
-  TrackCallback got_getexception_;
-  TrackCallback got_setexception_;
-  TrackCallback got_navigation_;
-  TrackCallback got_testcomplete_;
-
-  int y_;
-};
-
-} // namespace
-
-// Verify context works to allow async v8 callbacks
-TEST(V8Test, Context)
-{
-  CefRefPtr<TestContextHandler> handler = new TestContextHandler();
-  handler->ExecuteTest();
-
-  EXPECT_TRUE(handler->got_point_x_read_);  
-  EXPECT_TRUE(handler->got_point_y_read_); 
-  EXPECT_TRUE(handler->got_point_y_write_); 
-  EXPECT_FALSE(handler->got_bad_is_same_);
-  EXPECT_TRUE(handler->got_hello_main_);
-  EXPECT_TRUE(handler->got_hello_iframe_);
-  EXPECT_TRUE(handler->got_no_context_);
-  EXPECT_TRUE(handler->got_iframe_as_entered_url_);
-  EXPECT_TRUE(handler->got_correct_entered_url_);
-  EXPECT_TRUE(handler->got_correct_current_url_);
-  EXPECT_TRUE(handler->got_exception_);
-  EXPECT_TRUE(handler->got_getexception_);
-  EXPECT_TRUE(handler->got_setexception_);
-  EXPECT_TRUE(handler->got_navigation_);
-  EXPECT_TRUE(handler->got_testcomplete_);
-}
-
-namespace {
-
-class TestInternalHandler : public TestHandler
-{
-public:
-  class UserData : public CefBase
-  {
-  public:
-    UserData(CefRefPtr<TestInternalHandler> test)
-      : test_(test)
-    {
-    }
-
-    void Test(const std::string& name)
-    {
-      if (name == "obj1-before") {
-        if (test_->nav_ == 0)
-          test_->got_userdata_obj1_before_test1_fail_.yes();
-        else
-          test_->got_userdata_obj1_before_test2_fail_.yes();
-      } else if (name == "obj2-before") {
-        if (test_->nav_ == 0)
-          test_->got_userdata_obj2_before_test1_.yes();
-        else
-          test_->got_userdata_obj2_before_test2_fail_.yes();
-      }else if (name == "obj1-after") {
-        if (test_->nav_ == 0)
-          test_->got_userdata_obj1_after_test1_fail_.yes();
-        else
-          test_->got_userdata_obj1_after_test2_fail_.yes();
-      } else if (name == "obj2-after") {
-        if (test_->nav_ == 0)
-          test_->got_userdata_obj2_after_test1_.yes();
-        else
-          test_->got_userdata_obj2_after_test2_fail_.yes();
-      }
-    }
-
-    CefRefPtr<TestInternalHandler> test_;
-
-    IMPLEMENT_REFCOUNTING(UserData);
-  };
-
-  class Accessor : public CefV8Accessor
-  {
-  public:
-    Accessor(CefRefPtr<TestInternalHandler> test)
-      : test_(test)
-    {
-    }
-
-    virtual bool Get(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) OVERRIDE
-    {
-      if (test_->nav_ == 0)
-        test_->got_accessor_get1_.yes();
-      else
-        test_->got_accessor_get2_fail_.yes();
-      
-      retval = CefV8Value::CreateString("default2");
-      return true;
-    }
-
-    virtual bool Set(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) OVERRIDE
-    {
-      if (test_->nav_ == 0)
-        test_->got_accessor_set1_.yes();
-      else
-        test_->got_accessor_set2_fail_.yes();
-      
-      return true;
-    }
-
-    CefRefPtr<TestInternalHandler> test_;
-
-    IMPLEMENT_REFCOUNTING(Accessor);
-  };
-
-  class Handler : public CefV8Handler
-  {
-  public:
-    Handler(CefRefPtr<TestInternalHandler> test)
-      : test_(test),
-        execute_ct_(0)
-    {
-    }
-
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE
-    {
-      CefRefPtr<CefV8Handler> handler =
-          object->GetValue("func")->GetFunctionHandler();
-           
-      if (execute_ct_ == 0) {
-        if (handler.get() == this)
-          test_->got_execute1_.yes();
-        else
-          test_->got_execute1_fail_.yes();
-      } else {
-        if (handler.get() == this)
-          test_->got_execute2_.yes();
-        else
-          test_->got_execute2_fail_.yes();
+    class Accessor : public CefV8Accessor {
+     public:
+      Accessor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_.yes();
+        return false;
       }
 
-      execute_ct_++;
-
-      return true;
-    }
-
-    CefRefPtr<TestInternalHandler> test_;
-    int execute_ct_;
-
-    IMPLEMENT_REFCOUNTING(Accessor);
-  };
-
-  class TestHandler : public CefV8Handler
-  {
-  public:
-    TestHandler(CefRefPtr<TestInternalHandler> test)
-      : test_(test)
-    {
-    }
-
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE
-    {
-      if (name == "store") {
-        // Store a JSON value.
-        if (arguments.size() == 2 && arguments[0]->IsString() &&
-            arguments[1]->IsString()) {
-          std::string name = arguments[0]->GetStringValue();
-          std::string val = arguments[1]->GetStringValue();
-          if (name == "obj1") {
-            test_->obj1_json_ = val;
-            if (val == "{\"value\":\"testval1\",\"value2\":\"default1\"}")
-              test_->got_obj1_json_.yes();
-          } else if (name == "obj2") {
-            test_->obj2_json_ = val;
-            if (val == "{\"value\":\"testval2\",\"value2\":\"default2\"}")
-              test_->got_obj2_json_.yes();
-          } else {
-            return false;
-          }
-          retval = CefV8Value::CreateBool(true);
-          return true;
-        }
-      } else if (name == "retrieve") {
-        // Retrieve a JSON value.
-        if (arguments.size() == 1 && arguments[0]->IsString()) {
-          std::string name = arguments[0]->GetStringValue();
-          std::string val;
-          if (name == "obj1")
-            val = test_->obj1_json_;
-          else if (name == "obj2")
-            val = test_->obj2_json_;
-          if (!val.empty()) {
-            retval = CefV8Value::CreateString(val);
-            return true;
-          }
-        }
-      } else if (name == "userdata") {
-        if (arguments.size() == 2 && arguments[0]->IsString() &&
-            arguments[1]->IsObject()) {
-          std::string name = arguments[0]->GetStringValue();
-          CefRefPtr<UserData> userData =
-              reinterpret_cast<UserData*>(arguments[1]->GetUserData().get());
-          if (!userData.get()) {
-            // No UserData object.
-            if (name == "obj1-before") {
-              if (test_->nav_ == 0)
-                test_->got_userdata_obj1_before_null1_.yes();
-              else
-                test_->got_userdata_obj1_before_null2_.yes();
-            } else if (name == "obj2-before") {
-              if (test_->nav_ == 0)
-                test_->got_userdata_obj2_before_null1_fail_.yes();
-              else
-                test_->got_userdata_obj2_before_null2_.yes();
-            } else if (name == "obj1-after") {
-              if (test_->nav_ == 0)
-                test_->got_userdata_obj1_after_null1_.yes();
-              else
-                test_->got_userdata_obj1_after_null2_.yes();
-            } else if (name == "obj2-after") {
-              if (test_->nav_ == 0)
-                test_->got_userdata_obj2_after_null1_fail_.yes();
-              else
-                test_->got_userdata_obj2_after_null2_.yes();
-            }
-          } else {
-            // Call the test function.
-            userData->Test(name);
-          }
-          return true;
-        }
-      }  else if (name == "record") {
-        if (arguments.size() == 1 && arguments[0]->IsString()) {
-          std::string name = arguments[0]->GetStringValue();
-          if (name == "userdata-obj1-set-succeed") {
-            if (test_->nav_ == 0)
-              test_->got_userdata_obj1_set_succeed1_.yes();
-            else
-              test_->got_userdata_obj1_set_succeed2_.yes();
-          } else if (name == "userdata-obj1-set-except") {
-            if (test_->nav_ == 0)
-              test_->got_userdata_obj1_set_except1_fail_.yes();
-            else
-              test_->got_userdata_obj1_set_except2_fail_.yes();
-          } else if (name == "userdata-obj2-set-succeed") {
-            if (test_->nav_ == 0)
-              test_->got_userdata_obj2_set_succeed1_.yes();
-            else
-              test_->got_userdata_obj2_set_succeed2_.yes();
-          } else if (name == "userdata-obj2-set-except") {
-            if (test_->nav_ == 0)
-              test_->got_userdata_obj2_set_except1_fail_.yes();
-            else
-              test_->got_userdata_obj2_set_except2_fail_.yes();
-          } else if (name == "func-set-succeed") {
-            test_->got_func_set_succeed_.yes();
-          } else if (name == "func-set-except") {
-            test_->got_func_set_except_fail_.yes();
-          }
-          return true;
-        }
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_.yes();
+        return false;
       }
 
-      return false;
-    }
+      TrackCallback got_get_;
+      TrackCallback got_set_;
 
-    CefRefPtr<TestInternalHandler> test_;
+      IMPLEMENT_REFCOUNTING(Accessor);
+    };
 
-    IMPLEMENT_REFCOUNTING(TestHandler);
-  };
-  
-  TestInternalHandler()
-    : nav_(0)
-  {
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Exception> exception;
+    Accessor* accessor = new Accessor;
+    CefRefPtr<CefV8Accessor> accessorPtr(accessor);
+
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, accessor);
+    EXPECT_TRUE(object.get());
+
+    EXPECT_FALSE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
+        V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(1),
+        V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(accessor->got_set_);
+
+    CefRefPtr<CefV8Value> val = object->GetValue(kName);
+    EXPECT_TRUE(val.get());
+    EXPECT_TRUE(accessor->got_get_);
+    EXPECT_TRUE(val->IsUndefined());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
-  virtual void RunTest() OVERRIDE
-  {
-    std::string tests =
-        // Test userdata retrieval.
-        "window.test.userdata('obj1-before', window.obj1);\n"
-        "window.test.userdata('obj2-before', window.obj2);\n"
-        // Test accessors.
-        "window.obj1.value2 = 'newval1';\n"
-        "window.obj2.value2 = 'newval2';\n"
-        "val1 = window.obj1.value2;\n"
-        "val2 = window.obj2.value2;\n"
-        // Test setting the hidden internal values.
-        "try { window.obj1['Cef::UserData'] = 1;\n"
-              "window.obj1['Cef::Accessor'] = 1;\n"
-              "window.test.record('userdata-obj1-set-succeed'); }\n"
-        "catch(e) { window.test.record('userdata-obj1-set-except'); }\n"
-        "try { window.obj2['Cef::UserData'] = 1;\n"
-              "window.obj2['Cef::Accessor'] = 1;\n"
-              "window.test.record('userdata-obj2-set-succeed'); }\n"
-        "catch(e) { window.test.record('userdata-obj2-set-except'); }\n"
-        // Test userdata retrieval after messing with the internal values.
-        "window.test.userdata('obj1-after', window.obj1);\n"
-        "window.test.userdata('obj2-after', window.obj2);\n"
-        // Test accessors after messing with the internal values.
-        "window.obj1.value2 = 'newval1';\n"
-        "window.obj2.value2 = 'newval2';\n"
-        "val1 = window.obj1.value2;\n"
-        "val2 = window.obj2.value2;\n";
+  void RunObjectAccessorReadOnlyTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-    std::stringstream testHtml;
+    static const char* kName = "val";
 
-    testHtml <<
-        "<html><body>\n"
-        "<script language=\"JavaScript\">\n"
-        // Serialize the bound values.
-        "window.test.store('obj1', JSON.stringify(window.obj1));\n"
-        "window.test.store('obj2', JSON.stringify(window.obj2));\n"
-        // Run the tests.
-        << tests.c_str() <<
-        // Test function call.
-        "window.func();\n"
-        // Test setting the hidden internal values.
-        "try { window.func['Cef::Handler'] = 1;\n"
-              "window.test.record('func-set-succeed'); }\n"
-        "catch(e) { window.test.record('func-set-except'); }\n"
-        // Test function call after messing with internal values.
-        "window.func();\n"
-        "</script>\n"
-        "</body></html>";
-	  AddResource("http://tests/run1.html", testHtml.str(), "text/html");
-    testHtml.str("");
-    
-    testHtml <<
-        "<html><body>\n"
-        "<script language=\"JavaScript\">\n"
-        // Deserialize the bound values.
-        "window.obj1 = JSON.parse(window.test.retrieve('obj1'));\n"
-        "window.obj2 = JSON.parse(window.test.retrieve('obj2'));\n"
-        // Run the tests.
-        << tests.c_str() <<
-        "</script>\n"
-        "</body></html>";
-	  AddResource("http://tests/run2.html", testHtml.str(), "text/html");
-    testHtml.str("");
+    class Accessor : public CefV8Accessor {
+     public:
+      Accessor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_.yes();
+        return true;
+      }
 
-    CreateBrowser("http://tests/run1.html");
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_.yes();
+        return true;
+      }
+
+      TrackCallback got_get_;
+      TrackCallback got_set_;
+
+      IMPLEMENT_REFCOUNTING(Accessor);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Exception> exception;
+    Accessor* accessor = new Accessor;
+    CefRefPtr<CefV8Accessor> accessorPtr(accessor);
+
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, accessor);
+    EXPECT_TRUE(object.get());
+
+    EXPECT_FALSE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
+        V8_PROPERTY_ATTRIBUTE_READONLY));
+    EXPECT_TRUE(object->HasValue(kName));
+
+    EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(1),
+        V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(accessor->got_set_);
+
+    CefRefPtr<CefV8Value> val = object->GetValue(kName);
+    EXPECT_TRUE(val.get());
+    EXPECT_TRUE(accessor->got_get_);
+    EXPECT_TRUE(val->IsUndefined());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    if (nav_ == 0) {
-      // Navigate to the next page.
-      frame->LoadURL("http://tests/run2.html");
-    } else {
-      DestroyTest();
-    }
+  void RunObjectValueTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-    nav_++;
-  }
+    static const char* kName = "test_arg";
+    static const int kVal1 = 13;
+    static const int kVal2 = 65;
 
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
-    // Retrieve the 'window' object.
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
     CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
 
-    if (nav_ == 0) {
-      // Create an object without any internal values.
-      CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL, NULL);
-      obj1->SetValue("value", CefV8Value::CreateString("testval1"),
-          V8_PROPERTY_ATTRIBUTE_NONE);
-      obj1->SetValue("value2", CefV8Value::CreateString("default1"),
-          V8_PROPERTY_ATTRIBUTE_NONE);
-      object->SetValue("obj1", obj1, V8_PROPERTY_ATTRIBUTE_NONE);
-      
-      // Create an object with Cef::Accessor and Cef::UserData internal values.
-      CefRefPtr<CefV8Value> obj2 =
-          CefV8Value::CreateObject(new UserData(this), new Accessor(this));
-      obj2->SetValue("value", CefV8Value::CreateString("testval2"),
-          V8_PROPERTY_ATTRIBUTE_NONE);
-      obj2->SetValue("value2", V8_ACCESS_CONTROL_DEFAULT,
-          V8_PROPERTY_ATTRIBUTE_NONE);
-      object->SetValue("obj2", obj2, V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue(kName, CefV8Value::CreateInt(kVal1),
+        V8_PROPERTY_ATTRIBUTE_NONE);
 
-      // Create a function with Cef::Handler internal value.
-      CefRefPtr<CefV8Value> func =
-          CefV8Value::CreateFunction("func", new Handler(this));
-      object->SetValue("func", func, V8_PROPERTY_ATTRIBUTE_NONE);
-    }
+    std::stringstream test;
+    test <<
+        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
+        "window." << kName << " = " << kVal2 << ";";
 
-    // Used for executing the test.
-    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
-    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
-    obj->SetValue("store", CefV8Value::CreateFunction("store", handler),
-        V8_PROPERTY_ATTRIBUTE_NONE);
-    obj->SetValue("retrieve", CefV8Value::CreateFunction("retrieve", handler),
-        V8_PROPERTY_ATTRIBUTE_NONE);
-    obj->SetValue("userdata", CefV8Value::CreateFunction("userdata", handler),
-        V8_PROPERTY_ATTRIBUTE_NONE);
-    obj->SetValue("record", CefV8Value::CreateFunction("record", handler),
-        V8_PROPERTY_ATTRIBUTE_NONE);
-    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    CefRefPtr<CefV8Value> newval = object->GetValue(kName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(kVal2, newval->GetIntValue());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
-  int nav_;
-  std::string obj1_json_, obj2_json_;
+  void RunObjectValueReadOnlyTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-  TrackCallback got_obj1_json_;
-  TrackCallback got_obj2_json_;
+    static const char* kName = "test_arg";
+    static const int kVal1 = 13;
+    static const int kVal2 = 65;
 
-  TrackCallback got_userdata_obj1_before_null1_;
-  TrackCallback got_userdata_obj2_before_null1_fail_;
-  TrackCallback got_userdata_obj1_before_test1_fail_;
-  TrackCallback got_userdata_obj2_before_test1_;
-  TrackCallback got_userdata_obj1_set_succeed1_;
-  TrackCallback got_userdata_obj1_set_except1_fail_;
-  TrackCallback got_userdata_obj2_set_succeed1_;
-  TrackCallback got_userdata_obj2_set_except1_fail_;
-  TrackCallback got_userdata_obj1_after_null1_;
-  TrackCallback got_userdata_obj2_after_null1_fail_;
-  TrackCallback got_userdata_obj1_after_test1_fail_;
-  TrackCallback got_userdata_obj2_after_test1_;
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
 
-  TrackCallback got_userdata_obj1_before_null2_;
-  TrackCallback got_userdata_obj2_before_null2_;
-  TrackCallback got_userdata_obj1_before_test2_fail_;
-  TrackCallback got_userdata_obj2_before_test2_fail_;
-  TrackCallback got_userdata_obj1_set_succeed2_;
-  TrackCallback got_userdata_obj1_set_except2_fail_;
-  TrackCallback got_userdata_obj2_set_succeed2_;
-  TrackCallback got_userdata_obj2_set_except2_fail_;
-  TrackCallback got_userdata_obj1_after_null2_;
-  TrackCallback got_userdata_obj2_after_null2_;
-  TrackCallback got_userdata_obj1_after_test2_fail_;
-  TrackCallback got_userdata_obj2_after_test2_fail_;
-  
-  TrackCallback got_accessor_get1_;
-  TrackCallback got_accessor_get2_fail_;
-  TrackCallback got_accessor_set1_;
-  TrackCallback got_accessor_set2_fail_;
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
 
-  TrackCallback got_execute1_;
-  TrackCallback got_execute1_fail_;
-  TrackCallback got_func_set_succeed_;
-  TrackCallback got_func_set_except_fail_;
-  TrackCallback got_execute2_;
-  TrackCallback got_execute2_fail_;
-};
+    object->SetValue(kName, CefV8Value::CreateInt(kVal1),
+        V8_PROPERTY_ATTRIBUTE_READONLY);
 
-} // namespace
+    std::stringstream test;
+    test <<
+        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
+        "window." << kName << " = " << kVal2 << ";";
 
-// Test that messing around with CEF internal values doesn't cause crashes.
-TEST(V8Test, Internal)
-{
-  CefRefPtr<TestInternalHandler> handler = new TestInternalHandler();
-  handler->ExecuteTest();
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
 
-  EXPECT_TRUE(handler->got_obj1_json_.isSet());
-  EXPECT_TRUE(handler->got_obj2_json_.isSet());
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
 
-  EXPECT_TRUE(handler->got_userdata_obj1_before_null1_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_before_null1_fail_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_before_test1_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_before_test1_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj1_set_succeed1_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_set_except1_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_set_succeed1_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_set_except1_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj1_after_null1_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_after_null1_fail_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_after_test1_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_after_test1_.isSet());
+    CefRefPtr<CefV8Value> newval = object->GetValue(kName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(kVal1, newval->GetIntValue());
 
-  EXPECT_TRUE(handler->got_userdata_obj1_before_null2_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_before_null2_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_before_test2_fail_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_before_test2_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj1_set_succeed2_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_set_except2_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_set_succeed2_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_set_except2_fail_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj1_after_null2_.isSet());
-  EXPECT_TRUE(handler->got_userdata_obj2_after_null2_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj1_after_test2_fail_.isSet());
-  EXPECT_FALSE(handler->got_userdata_obj2_after_test2_fail_.isSet());
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
 
-  EXPECT_TRUE(handler->got_accessor_get1_.isSet());
-  EXPECT_FALSE(handler->got_accessor_get2_fail_.isSet());
-  EXPECT_TRUE(handler->got_accessor_set1_.isSet());
-  EXPECT_FALSE(handler->got_accessor_set2_fail_.isSet());
+    DestroyTest();
+  }
 
-  EXPECT_TRUE(handler->got_execute1_.isSet());
-  EXPECT_FALSE(handler->got_execute1_fail_.isSet());
-  EXPECT_TRUE(handler->got_execute2_.isSet());
-  EXPECT_FALSE(handler->got_execute2_fail_.isSet());
-}
+  void RunObjectValueEnumTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-namespace {
+    static const char* kObjName = "test_obj";
+    static const char* kArgName = "test_arg";
 
-static const int kNumExceptionTests = 3;
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
 
-class TestExceptionHandler : public TestHandler
-{
-public:
-  class TestHandler : public CefV8Handler
-  {
-  public:
-    TestHandler(CefRefPtr<TestExceptionHandler> test)
-      : test_(test)
-    {
-    }
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
 
-    virtual bool Execute(const CefString& name,
+    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL);
+    object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
+
+    obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+
+    std::stringstream test;
+    test <<
+        "for (var i in window." << kObjName << ") {\n"
+        "window." << kObjName << "[i]++;\n"
+        "}";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    CefRefPtr<CefV8Value> newval = obj1->GetValue(kArgName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(1, newval->GetIntValue());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectValueDontEnumTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kObjName = "test_obj";
+    static const char* kArgName = "test_arg";
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+
+    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL);
+    object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
+
+    obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
+        V8_PROPERTY_ATTRIBUTE_DONTENUM);
+
+    std::stringstream test;
+    test <<
+        "for (var i in window." << kObjName << ") {\n"
+        "window." << kObjName << "[i]++;\n"
+        "}";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    CefRefPtr<CefV8Value> newval = obj1->GetValue(kArgName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(0, newval->GetIntValue());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectValueDeleteTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kName = "test_arg";
+    static const int kVal1 = 13;
+    static const int kVal2 = 65;
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+
+    object->SetValue(kName, CefV8Value::CreateInt(kVal1),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+
+    std::stringstream test;
+    test <<
+        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
+        "window." << kName << " = " << kVal2 << ";\n"
+        "delete window." << kName << ";";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    CefRefPtr<CefV8Value> newval = object->GetValue(kName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsUndefined());
+    EXPECT_FALSE(newval->IsInt());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectValueDontDeleteTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kName = "test_arg";
+    static const int kVal1 = 13;
+    static const int kVal2 = 65;
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+
+    object->SetValue(kName, CefV8Value::CreateInt(kVal1),
+        V8_PROPERTY_ATTRIBUTE_DONTDELETE);
+
+    std::stringstream test;
+    test <<
+        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
+        "window." << kName << " = " << kVal2 << ";\n"
+        "delete window." << kName << ";";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    CefRefPtr<CefV8Value> newval = object->GetValue(kName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(kVal2, newval->GetIntValue());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunFunctionCreateTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
                          CefRefPtr<CefV8Value> object,
                          const CefV8ValueList& arguments,
                          CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE
-    {
-      if (name == "register") {
-        if (arguments.size() == 1 && arguments[0]->IsFunction()) {
-          test_->got_register_.yes();
+                         CefString& exception) OVERRIDE { return false; }
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
 
-          // Keep pointers to the callback function and context.
-          test_->test_func_ = arguments[0];
-          test_->test_context_ = CefV8Context::GetCurrentContext();
-          return true;
-        }
-      } else if (name == "execute") {
-        if (arguments.size() == 2 && arguments[0]->IsInt() &&
-            arguments[1]->IsBool()) {
-          // Execute the test callback function.
-          test_->ExecuteTestCallback(arguments[0]->GetIntValue(),
-              arguments[1]->GetBoolValue());
-          return true;
-        }
-      } else if (name == "result") {
-        if (arguments.size() == 1 && arguments[0]->IsString()) {
-          std::string value = arguments[0]->GetStringValue();
-          if (value == "no_exception")
-            test_->got_no_exception_result_.yes();
-          else if (value == "exception")
-            test_->got_exception_result_.yes();
-          else if (value == "done")
-            test_->got_done_result_.yes();
-          else
-            return false;
-          return true;
-        }
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateFunction("f", new Handler);
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsFunction());
+    EXPECT_TRUE(value->IsObject());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunFunctionHandlerTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kFuncName = "myfunc";
+    static const int kVal1 = 32;
+    static const int kVal2 = 41;
+    static const int kRetVal = 8;
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kFuncName, name.ToString().c_str());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_EQ((size_t)2, arguments.size());
+        EXPECT_TRUE(arguments[0]->IsInt());
+        EXPECT_EQ(kVal1, arguments[0]->GetIntValue());
+        EXPECT_TRUE(arguments[1]->IsInt());
+        EXPECT_EQ(kVal2, arguments[1]->GetIntValue());
+
+        EXPECT_TRUE(exception.empty());
+
+        retval = CefV8Value::CreateInt(kRetVal);
+        EXPECT_TRUE(retval.get());
+        EXPECT_EQ(kRetVal, retval->GetIntValue());
+
+        got_execute_.yes();
+        return true;
       }
 
-      return false;
-    }
+      CefRefPtr<CefV8Value> object_;
+      TrackCallback got_execute_;
 
-    CefRefPtr<TestExceptionHandler> test_;
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
 
-    IMPLEMENT_REFCOUNTING(TestHandler);
-  };
-  
-  TestExceptionHandler()
-  {
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction(kFuncName, handler);
+    EXPECT_TRUE(func.get());
+
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL);
+    EXPECT_TRUE(obj.get());
+    handler->object_ = obj;
+
+    CefV8ValueList args;
+    args.push_back(CefV8Value::CreateInt(kVal1));
+    args.push_back(CefV8Value::CreateInt(kVal2));
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(func->ExecuteFunction(obj, args, retval, exception, false));
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsInt());
+    EXPECT_FALSE(exception.get());
+    EXPECT_EQ(kRetVal, retval->GetIntValue());
+
+    handler->object_ = NULL;
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
-  virtual void RunTest() OVERRIDE
-  {
-    std::string testHtml =
-        "<html><body>\n"
-        "<script language=\"JavaScript\">\n"
-        // JS callback function that throws an exception.
-        "function testFunc() {\n"
-        "  throw 'Some test exception';\n"
-        "}\n"
-        // Register the callback function.
-        "window.test.register(testFunc);\n"
-        // Test 1: Execute the callback without re-throwing the exception.
-        "window.test.execute(1, false);\n"
-        // Test 2: Execute the callback, re-throw and catch the exception.
-        "try {\n"
-        "  window.test.execute(2, true);\n"
-        // This line should never execute.
-        "  window.test.result('no_exception');\n"
-        "} catch(e) {\n"
-        "  window.test.result('exception');\n"
-        "}\n"
-        // Verify that JS execution continues.
-         "window.test.result('done');\n"
-        "</script>\n"
-        "</body></html>";
-    AddResource("http://tests/run.html", testHtml, "text/html");
+  void RunFunctionHandlerExceptionTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-    CreateBrowser("http://tests/run.html");
-  }
+    static const char* kException = "My error";
+    static const char* kExceptionMsg = "Uncaught Error: My error";
 
-  // Execute the callback function.
-  void ExecuteTestCallback(int test, bool rethrow_exception)
-  {
-    if(test <= 0 || test > kNumExceptionTests)
-      return;
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        exception = kException;
+        got_execute_.yes();
+        return true;
+      }
 
-    got_execute_test_[test-1].yes();
+      TrackCallback got_execute_;
 
-    if (!test_func_.get())
-      return;
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction("myfunc", handler);
+    EXPECT_TRUE(func.get());
 
     CefV8ValueList args;
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
-    if (test_func_->ExecuteFunctionWithContext(test_context_, NULL, args,
-        retval, exception, rethrow_exception)) {
-      got_execute_function_[test-1].yes();
 
-      if (exception.get()) {
-        got_exception_[test-1].yes();
+    EXPECT_TRUE(func->ExecuteFunction(NULL, args, retval, exception, false));
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_FALSE(retval.get());
+    EXPECT_TRUE(exception.get());
+    EXPECT_STREQ(kExceptionMsg, exception->GetMessage().ToString().c_str());
 
-        std::string message = exception->GetMessage();
-        EXPECT_EQ("Uncaught Some test exception", message) << "test = " << test;
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
 
-        std::string source_line = exception->GetSourceLine();
-        EXPECT_EQ("  throw 'Some test exception';", source_line) << "test = " <<
-            test;
+    DestroyTest();
+  }
 
-        std::string script = exception->GetScriptResourceName();
-        EXPECT_EQ("http://tests/run.html", script) << "test = " << test;
+  void RunFunctionHandlerFailTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-        int line_number = exception->GetLineNumber();
-        EXPECT_EQ(4, line_number) << "test = " << test;
-
-        int start_pos = exception->GetStartPosition();
-        EXPECT_EQ(25, start_pos) << "test = " << test;
-
-        int end_pos = exception->GetEndPosition();
-        EXPECT_EQ(26, end_pos) << "test = " << test;
-
-        int start_col = exception->GetStartColumn();
-        EXPECT_EQ(2, start_col) << "test = " << test;
-
-        int end_col = exception->GetEndColumn();
-        EXPECT_EQ(3, end_col) << "test = " << test;
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        got_execute_.yes();
+        return false;
       }
-    }
-    
-    if (test == kNumExceptionTests)
-      DestroyTest();
+
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction("myfunc", handler);
+    EXPECT_TRUE(func.get());
+
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(func->ExecuteFunction(NULL, args, retval, exception, false));
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_TRUE(retval.get());
+    EXPECT_FALSE(exception.get());
+    EXPECT_TRUE(retval->IsUndefined());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunFunctionHandlerNoObjectTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        EXPECT_TRUE(object.get());
+        CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+        EXPECT_TRUE(context.get());
+        CefRefPtr<CefV8Value> global = context->GetGlobal();
+        EXPECT_TRUE(global.get());
+        EXPECT_TRUE(global->IsSame(object));
+
+        got_execute_.yes();
+        return true;
+      }
+
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction("myfunc", handler);
+    EXPECT_TRUE(func.get());
+
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(func->ExecuteFunction(NULL, args, retval, exception, false));
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_TRUE(retval.get());
+    EXPECT_FALSE(exception.get());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunFunctionHandlerWithContextTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+        EXPECT_TRUE(context.get());
+        EXPECT_TRUE(context->IsSame(context_));
+        got_execute_.yes();
+        return true;
+      }
+
+      CefRefPtr<CefV8Context> context_;
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+    handler->context_ = context;
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction("myfunc", handler);
+    EXPECT_TRUE(func.get());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    CefV8ValueList args;
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(func->ExecuteFunctionWithContext(
+        context, NULL, args, retval, exception, false));
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_TRUE(retval.get());
+    EXPECT_FALSE(exception.get());
+
+    handler->context_ = NULL;
+
+    DestroyTest();
+  }
+
+  void RunContextEvalTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval("1+2", retval, exception));
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsInt());
+    EXPECT_EQ(3, retval->GetIntValue());
+    EXPECT_FALSE(exception.get());
+
+    DestroyTest();
+  }
+
+  void RunContextEvalExceptionTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_FALSE(context->Eval("1+foo", retval, exception));
+    EXPECT_FALSE(retval.get());
+    EXPECT_TRUE(exception.get());
+
+    DestroyTest();
+  }
+
+  void RunContextEnteredTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    // Test value defined in OnContextCreated
+    EXPECT_TRUE(context->Eval(
+        "document.getElementById('f').contentWindow.v8_context_entered_test()",
+        retval, exception));
+    if (exception.get())
+      ADD_FAILURE() << exception->GetMessage().c_str();
+
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsInt());
+    EXPECT_EQ(21, retval->GetIntValue());
+
+    DestroyTest();
+  }
+
+  void RunBindingTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+
+    // Test value defined in OnContextCreated
+    CefRefPtr<CefV8Value> value = object->GetValue("v8_binding_test");
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsInt());
+    EXPECT_EQ(12, value->GetIntValue());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunStackTraceTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kFuncName = "myfunc";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kFuncName, name.ToString().c_str());
+
+        stack_trace_ = CefV8StackTrace::GetCurrent(10);
+
+        retval = CefV8Value::CreateInt(3);
+        got_execute_.yes();
+        return true;
+      }
+
+      TrackCallback got_execute_;
+      CefRefPtr<CefV8StackTrace> stack_trace_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction(kFuncName, handler);
+    EXPECT_TRUE(func.get());
+    CefRefPtr<CefV8Value> obj = context->GetGlobal();
+    EXPECT_TRUE(obj.get());
+    obj->SetValue(kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE);
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(
+        "function jsfunc() { return window.myfunc(); }\n"
+        "jsfunc();",
+        retval, exception));
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsInt());
+    EXPECT_EQ(3, retval->GetIntValue());
+    EXPECT_FALSE(exception.get());
+
+    EXPECT_TRUE(handler->stack_trace_.get());
+    EXPECT_EQ(2, handler->stack_trace_->GetFrameCount());
+
+    CefRefPtr<CefV8StackFrame> frame;
+
+    frame = handler->stack_trace_->GetFrame(0);
+    EXPECT_TRUE(frame->GetScriptName().empty());
+    EXPECT_TRUE(frame->GetScriptNameOrSourceURL().empty());
+    EXPECT_STREQ("jsfunc", frame->GetFunctionName().ToString().c_str());
+    EXPECT_EQ(1, frame->GetLineNumber());
+    EXPECT_EQ(35, frame->GetColumn());
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsConstructor());
+
+    frame = handler->stack_trace_->GetFrame(1);
+    EXPECT_TRUE(frame->GetScriptName().empty());
+    EXPECT_TRUE(frame->GetScriptNameOrSourceURL().empty());
+    EXPECT_TRUE(frame->GetFunctionName().empty());
+    EXPECT_EQ(2, frame->GetLineNumber());
+    EXPECT_EQ(1, frame->GetColumn());
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsConstructor());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE
-  {
-    got_load_end_.yes();
-    
-    // Test 3: Execute the callback asynchronously without re-throwing the
-    // exception.
-    CefPostTask(TID_UI,
-        NewCefRunnableMethod(this, &TestExceptionHandler::ExecuteTestCallback,
-                             3, false));
+                         int httpStatusCode) OVERRIDE {
+    if (frame->IsMain())
+      RunTest(test_mode_);
   }
 
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE
-  {
-    // Retrieve the 'window' object.
-    CefRefPtr<CefV8Value> object = context->GetGlobal();
+                                CefRefPtr<CefV8Context> context) OVERRIDE {
+    std::string url = frame->GetURL();
+    if (url == kV8ContextChildTestUrl) {
+      // For V8TEST_CONTEXT_ENTERED
+      class Handler : public CefV8Handler {
+       public:
+        Handler() {}
+        virtual bool Execute(const CefString& name,
+                           CefRefPtr<CefV8Value> object,
+                           const CefV8ValueList& arguments,
+                           CefRefPtr<CefV8Value>& retval,
+                           CefString& exception) OVERRIDE {
+          // context for the sub-frame
+          CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+          EXPECT_TRUE(context.get());
 
-    // Create the functions that will be used during the test.
-    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
-    CefRefPtr<CefV8Handler> handler = new TestHandler(this);
-    obj->SetValue("register",
-                  CefV8Value::CreateFunction("register", handler),
-                  V8_PROPERTY_ATTRIBUTE_NONE);
-    obj->SetValue("execute",
-                  CefV8Value::CreateFunction("execute", handler),
-                  V8_PROPERTY_ATTRIBUTE_NONE);
-    obj->SetValue("result",
-                  CefV8Value::CreateFunction("result", handler),
-                  V8_PROPERTY_ATTRIBUTE_NONE);
-    object->SetValue("test", obj, V8_PROPERTY_ATTRIBUTE_NONE);
+          // entered context should be the same as the main frame context
+          CefRefPtr<CefV8Context> entered = CefV8Context::GetEnteredContext();
+          EXPECT_TRUE(entered.get());
+          EXPECT_TRUE(entered->IsSame(context_));
+
+          context_ = NULL;
+          retval = CefV8Value::CreateInt(21);
+          return true;
+        }
+
+        CefRefPtr<CefV8Context> context_;
+        IMPLEMENT_REFCOUNTING(Handler);
+      };
+
+      Handler* handler = new Handler;
+      CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+      // main frame context
+      handler->context_ = GetContext();
+
+      // Function that will be called from the parent frame context.
+      CefRefPtr<CefV8Value> func =
+          CefV8Value::CreateFunction("v8_context_entered_test", handler);
+      EXPECT_TRUE(func.get());
+
+      CefRefPtr<CefV8Value> object = context->GetGlobal();
+      EXPECT_TRUE(object.get());
+      EXPECT_TRUE(object->SetValue("v8_context_entered_test", func,
+          V8_PROPERTY_ATTRIBUTE_NONE));
+    } else if (url == kV8BindingTestUrl) {
+      // For V8TEST_BINDING
+      CefRefPtr<CefV8Value> object = context->GetGlobal();
+      EXPECT_TRUE(object.get());
+      EXPECT_TRUE(object->SetValue("v8_binding_test",
+          CefV8Value::CreateInt(12),
+          V8_PROPERTY_ATTRIBUTE_NONE));
+    }
   }
 
-  CefRefPtr<CefV8Value> test_func_;
-  CefRefPtr<CefV8Context> test_context_;
+  // Return the V8 context.
+  CefRefPtr<CefV8Context> GetContext() {
+    CefRefPtr<CefV8Context> context =
+        GetBrowser()->GetMainFrame()->GetV8Context();
+    EXPECT_TRUE(context.get());
+    return context;
+  }
 
-  TrackCallback got_register_;
-  TrackCallback got_load_end_;
-  TrackCallback got_execute_test_[kNumExceptionTests];
-  TrackCallback got_execute_function_[kNumExceptionTests];
-  TrackCallback got_exception_[kNumExceptionTests];
-  TrackCallback got_exception_result_;
-  TrackCallback got_no_exception_result_;
-  TrackCallback got_done_result_;
+  V8TestMode test_mode_;
+  const char* test_url_;
 };
 
-} // namespace
+}  // namespace
 
-// Test V8 exception results.
-TEST(V8Test, Exception)
-{
-  CefRefPtr<TestExceptionHandler> handler = new TestExceptionHandler();
-  handler->ExecuteTest();
 
-  EXPECT_TRUE(handler->got_register_);
-  EXPECT_TRUE(handler->got_load_end_);
-  EXPECT_TRUE(handler->got_exception_result_);
-  EXPECT_FALSE(handler->got_no_exception_result_);
-  EXPECT_TRUE(handler->got_done_result_);
-
-  for (int i = 0; i < kNumExceptionTests; ++i) {
-    EXPECT_TRUE(handler->got_execute_test_[i]) << "test = " << i+1;
-    EXPECT_TRUE(handler->got_execute_function_[i]) << "test = " << i+1;
-    EXPECT_TRUE(handler->got_exception_[i]) << "test = " << i+1;
-  }
-}
-
-namespace {
-
-class TestPermissionsHandler : public V8TestHandler
-{
-public:
-  TestPermissionsHandler(bool denyExtensions) : V8TestHandler(false) {
-    deny_extensions_ = denyExtensions;
+// Helpers for defining V8 tests.
+#define V8_TEST_EX(name, test_mode, test_url) \
+  TEST(V8Test, name) { \
+    CefRefPtr<V8TestHandler> handler = \
+        new V8TestHandler(test_mode, test_url); \
+    handler->ExecuteTest(); \
   }
 
-  virtual bool OnBeforeScriptExtensionLoad(CefRefPtr<CefBrowser> browser,
-                                           CefRefPtr<CefFrame> frame,
-                                           const CefString& extensionName)
-  {
-    return deny_extensions_;
-  }
+#define V8_TEST(name, test_mode) \
+  V8_TEST_EX(name, test_mode, kV8TestUrl)
 
-  bool deny_extensions_;
-};
 
-};  // namespace
-
-// Verify extension permissions
-TEST(V8Test, Permissions)
-{
-  g_V8TestV8HandlerExecuteCalled = false;
-
-  std::string extensionCode =
-    "var test;"
-    "if (!test)"
-    "  test = {};"
-    "(function() {"
-    "  test.execute = function(a,b,c,d,e,f,g,h,i) {"
-    "    native function execute();"
-    "    return execute(a,b,c,d,e,f,g,h,i);"
-    "  };"
-    "})();";
-  CefRegisterExtension("v8/test", extensionCode, new V8TestV8Handler(false));
-
-  CefRefPtr<V8TestHandler> deny_handler = new TestPermissionsHandler(true);
-  deny_handler->ExecuteTest();
-
-  ASSERT_FALSE(g_V8TestV8HandlerExecuteCalled);
-
-  CefRefPtr<V8TestHandler> allow_handler = new TestPermissionsHandler(false);
-  allow_handler->ExecuteTest();
-
-  ASSERT_TRUE(g_V8TestV8HandlerExecuteCalled);
-}
-
+// Define the tests.
+V8_TEST(NullCreate, V8TEST_NULL_CREATE);
+V8_TEST(BoolCreate, V8TEST_BOOL_CREATE);
+V8_TEST(IntCreate, V8TEST_INT_CREATE);
+V8_TEST(DoubleCreate, V8TEST_DOUBLE_CREATE);
+V8_TEST(DateCreate, V8TEST_DATE_CREATE);
+V8_TEST(StringCreate, V8TEST_STRING_CREATE);
+V8_TEST(ArrayCreate, V8TEST_ARRAY_CREATE);
+V8_TEST(ArrayValue, V8TEST_ARRAY_VALUE);
+V8_TEST(ObjectCreate, V8TEST_OBJECT_CREATE);
+V8_TEST(ObjectUserData, V8TEST_OBJECT_USERDATA);
+V8_TEST(ObjectAccessor, V8TEST_OBJECT_ACCESSOR);
+V8_TEST(ObjectAccessorFail, V8TEST_OBJECT_ACCESSOR_FAIL);
+V8_TEST(ObjectAccessorReadOnly, V8TEST_OBJECT_ACCESSOR_READONLY);
+V8_TEST(ObjectValue, V8TEST_OBJECT_VALUE);
+V8_TEST(ObjectValueReadOnly, V8TEST_OBJECT_VALUE_READONLY);
+V8_TEST(ObjectValueEnum, V8TEST_OBJECT_VALUE_ENUM);
+V8_TEST(ObjectValueDontEnum, V8TEST_OBJECT_VALUE_DONTENUM);
+V8_TEST(ObjectValueDelete, V8TEST_OBJECT_VALUE_DELETE);
+V8_TEST(ObjectValueDontDelete, V8TEST_OBJECT_VALUE_DONTDELETE);
+V8_TEST(FunctionCreate, V8TEST_FUNCTION_CREATE);
+V8_TEST(FunctionHandler, V8TEST_FUNCTION_HANDLER);
+V8_TEST(FunctionHandlerException, V8TEST_FUNCTION_HANDLER_EXCEPTION);
+V8_TEST(FunctionHandlerFail, V8TEST_FUNCTION_HANDLER_FAIL);
+V8_TEST(FunctionHandlerNoObject, V8TEST_FUNCTION_HANDLER_NO_OBJECT);
+V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT);
+V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
+V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
+V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
+V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
+V8_TEST(StackTrace, V8TEST_STACK_TRACE);
