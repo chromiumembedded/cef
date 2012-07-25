@@ -40,6 +40,8 @@
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
+#include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
+#include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/cpptoc/web_urlrequest_cpptoc.h"
@@ -154,6 +156,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefV8ContextHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefV8ExceptionCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8HandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefV8StackFrameCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefV8StackTraceCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8ValueCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWebPluginInfoCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWebURLRequestClientCToCpp::DebugObjCt, 0);
