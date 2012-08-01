@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Off-Screen Rendering App Example</title>
+</head>
+<body bottommargin="2" rightmargin="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="font-family: Verdana, Arial;">
+<div align="center">
+<table border="0" cellpadding="0" cellspacing="0" width="99.9%" height="100%">
+<tr>
+   <td height="100%" align="center" valign="top">
+      <table border="0" cellpadding="2" cellspacing="0">
+      <tr>
+         <td colspan="2" style="font-size: 18pt;">Off-Screen Rendering App Example</td>
+      </tr>
+      <tr>
+         <td colspan="2" style="font-size: 8pt;"><i>An embedded OpenGL plugin window that renders content from an off-screen browser window.</i>
+         <a href="#" id="viewSource">View Page Source</a></td>
+      </tr>
+      <tr>
+         <td colspan="2" height="10"></td>
+      </tr>
+      <tr>
+         <td width="100" valign="top"><img src="logoball.png" width="100" height="101"></td>
+         <td style="font-size: 10pt;"><span style="font-size: 12pt;">You can rotate the view!</span>
+             <ul>
+               <li>Click and drag the view with the left mouse button while holding the shift key.</li>
+               <li>Enter a URL and click the "Go!" button to browse to a new Website.</li>
+               <li><a href="#" id="testTransparency">Click here</a> to test transparency.</li>
+               <li><a href="#" id="testWindowlessPlugin">Click here</a> to test a windowless plugin.</li>
+             </ul>
+          </td>
+      </tr>
+      </table>
+      
+      <div style="padding: 2px; margin: 5px; width: 960px;" align="left">
+        <span id="title" style="font-size: 12pt; font-weight: bold;">&nbsp;</span>
+        <br>
+        <input type="button" id="back" value="Back">
+        <input type="button" id="forward" value="Forward">
+        <input type="button" id="stop" value="Stop">
+        <input type="button" id="reload" value="Reload">
+        <input type="text" id="url" size="80"><input type="button" id="go" value="Go!">
+      </div>
+      <div style="padding: 2px; margin: 5px; border: red 1px solid; width: 960px;">
+      <embed type="application/x-client-osr-plugin" width=960 height=400></embed>
+      </div>
+      <div style="padding: 2px; margin: 5px; width: 960px;" align="left">
+        <span style="font-size: 10pt; text-align:left;">Pixel value: <span id="pixel">Click the left mouse button while holding the control key to test a pixel value.</span></span>
+      </div>
+   </td>
+</tr>
+</table>
+</div>
+</body>
+</html>
