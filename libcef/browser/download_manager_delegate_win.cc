@@ -11,7 +11,7 @@
 #include "base/string_util.h"
 #include "content/public/browser/web_contents.h"
 
-
+// static
 FilePath CefDownloadManagerDelegate::PlatformChooseDownloadPath(
     content::WebContents* web_contents,
     const FilePath& suggested_path) {

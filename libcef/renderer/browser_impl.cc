@@ -319,7 +319,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
     WebKit::WebHTTPBody body;
     body.initialize();
 
-    std::vector<net::UploadData::Element>* elements =
+    const std::vector<net::UploadData::Element>* elements =
         params.upload_data->elements();
     std::vector<net::UploadData::Element>::const_iterator it =
         elements->begin();

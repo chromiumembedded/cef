@@ -19,6 +19,7 @@
 #include "content/public/common/url_fetcher.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_response_headers.h"
+#include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_fetcher_delegate.h"
 #include "net/url_request/url_request_status.h"
 
@@ -109,8 +110,8 @@ class CefBrowserURLRequest::Context
     fetcher_delegate_.reset(
         new CefURLFetcherDelegate(this, request_->GetFlags()));
 
-    fetcher_.reset(content::URLFetcher::Create(url, request_type,
-                                               fetcher_delegate_.get()));
+    fetcher_.reset(net::URLFetcher::Create(url, request_type,
+                                           fetcher_delegate_.get()));
     fetcher_->SetRequestContext(
         _Context->browser_context()->GetRequestContext());
 

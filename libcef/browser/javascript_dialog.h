@@ -9,6 +9,10 @@
 
 #include "content/public/browser/javascript_dialogs.h"
 
+#if defined(TOOLKIT_GTK)
+#include "ui/base/gtk/gtk_signal.h"
+#endif
+
 #if defined(OS_MACOSX)
 #if __OBJC__
 @class CefJavaScriptDialogHelper;
@@ -59,6 +63,9 @@ class CefJavaScriptDialog {
   static LRESULT CALLBACK GetMsgProc(int code, WPARAM wparam, LPARAM lparam);
   static HHOOK msg_hook_;
   static int msg_hook_user_count_;
+#elif defined(TOOLKIT_GTK)
+  GtkWidget* gtk_dialog_;
+  CHROMEGTK_CALLBACK_1(CefJavaScriptDialog, void, OnResponse, int);
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialog);

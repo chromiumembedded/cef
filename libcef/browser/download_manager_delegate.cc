@@ -58,9 +58,11 @@ scoped_refptr<content::DownloadManager> GetDownloadManager() {
 class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
  public:
   CefBeforeDownloadCallbackImpl(int32 download_id,
-                                const FilePath& suggested_name)
+                                const FilePath& suggested_name,
+                                const content::DownloadTargetCallback& callback)
     : download_id_(download_id),
-      suggested_name_(suggested_name) {
+      suggested_name_(suggested_name),
+      callback_(callback) {
   }
 
   virtual void Continue(const CefString& download_path,
@@ -74,10 +76,12 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
         FilePath path = FilePath(download_path);
         CEF_POST_TASK(CEF_FILET,
             base::Bind(&CefBeforeDownloadCallbackImpl::GenerateFilename,
-                       download_id_, suggested_name_, path, show_dialog));
+                       download_id_, suggested_name_, path, show_dialog,
+                       callback_));
       }
 
       download_id_ = 0;
+      callback_.Reset();
     } else {
       CEF_POST_TASK(CEF_UIT,
           base::Bind(&CefBeforeDownloadCallbackImpl::Continue, this,
@@ -86,10 +90,12 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   }
 
  private:
-  static void GenerateFilename(int32 download_id,
-                               const FilePath& suggested_name,
-                               const FilePath& download_path,
-                               bool show_dialog) {
+  static void GenerateFilename(
+      int32 download_id,
+      const FilePath& suggested_name,
+      const FilePath& download_path,
+      bool show_dialog,
+      const content::DownloadTargetCallback& callback) {
     FilePath suggested_path = download_path;
     if (!suggested_path.empty()) {
       // Create the directory if necessary.
@@ -111,18 +117,16 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       }
     }
 
-    content::DownloadItem::TargetDisposition disposition = show_dialog ?
-        DownloadItem::TARGET_DISPOSITION_PROMPT :
-        DownloadItem::TARGET_DISPOSITION_OVERWRITE;
-
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBeforeDownloadCallbackImpl::RestartDownload,
-                   download_id, suggested_path, disposition));
+        base::Bind(&CefBeforeDownloadCallbackImpl::ChooseDownloadPath,
+                   download_id, suggested_path, show_dialog, callback));
   }
 
-  static void RestartDownload(int32 download_id,
-                              const FilePath& suggested_path,
-                              DownloadItem::TargetDisposition disposition) {
+  static void ChooseDownloadPath(
+      int32 download_id,
+      const FilePath& suggested_path,
+      bool show_dialog,
+      const content::DownloadTargetCallback& callback) {
     scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
     if (!manager)
       return;
@@ -131,14 +135,28 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     if (!item)
       return;
 
-    item->OnTargetPathDetermined(suggested_path,
-                                 disposition,
-                                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS);
-    manager->RestartDownload(download_id);
+    FilePath result;
+    if (show_dialog) {
+#if defined(OS_WIN) || defined(OS_MACOSX)
+      WebContents* web_contents = item->GetWebContents();
+      result = CefDownloadManagerDelegate::PlatformChooseDownloadPath(
+          web_contents, suggested_path);
+#else
+      NOTIMPLEMENTED();
+#endif
+    } else {
+      result = suggested_path;
+    }
+
+    callback.Run(result,
+                 DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+                 result);
   }
 
   int32 download_id_;
   FilePath suggested_name_;
+  content::DownloadTargetCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefBeforeDownloadCallbackImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBeforeDownloadCallbackImpl);
@@ -183,20 +201,25 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 
 
 CefDownloadManagerDelegate::CefDownloadManagerDelegate() {
+  // Balanced in Shutdown();
+  AddRef();
 }
 
 CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
 }
 
-bool CefDownloadManagerDelegate::ShouldStartDownload(int32 download_id) {
-  scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
-  DownloadItem* item = manager->GetActiveDownloadItem(download_id);
+void CefDownloadManagerDelegate::Shutdown() {
+  Release();
+}
 
+bool CefDownloadManagerDelegate::DetermineDownloadTarget(
+    content::DownloadItem* item,
+    const content::DownloadTargetCallback& callback) {
   if (!item->GetForcedFilePath().empty()) {
-    item->OnTargetPathDetermined(
-        item->GetForcedFilePath(),
-        DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-        content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS);
+    callback.Run(item->GetForcedFilePath(),
+                 DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+                 item->GetForcedFilePath());
     return true;
   }
 
@@ -215,35 +238,17 @@ bool CefDownloadManagerDelegate::ShouldStartDownload(int32 download_id) {
         "download");
 
     CefRefPtr<CefDownloadItemImpl> download_item(new CefDownloadItemImpl(item));
-    CefRefPtr<CefBeforeDownloadCallback> callback(
-        new CefBeforeDownloadCallbackImpl(download_id, suggested_name));
+    CefRefPtr<CefBeforeDownloadCallback> callbackObj(
+        new CefBeforeDownloadCallbackImpl(item->GetId(), suggested_name,
+                                          callback));
 
     handler->OnBeforeDownload(browser.get(), download_item.get(),
-                              suggested_name.value(), callback);
+                              suggested_name.value(), callbackObj);
 
     download_item->Detach(NULL);
   }
 
-  return false;
-}
-
-void CefDownloadManagerDelegate::ChooseDownloadPath(
-    content::DownloadItem* item) {
-  FilePath result;
-#if defined(OS_WIN) || defined(OS_MACOSX)
-  WebContents* web_contents = item->GetWebContents();
-  const FilePath suggested_path(item->GetTargetFilePath());
-  result = PlatformChooseDownloadPath(web_contents, suggested_path);
-#else
-  NOTIMPLEMENTED();
-#endif
-
-  scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
-  if (result.empty()) {
-    manager->FileSelectionCanceled(item->GetId());
-  } else {
-    manager->FileSelected(result, item->GetId());
-  }
+  return true;
 }
 
 void CefDownloadManagerDelegate::AddItemToPersistentStore(

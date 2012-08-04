@@ -96,11 +96,13 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
   if (id >= 0) {
     // Browser process.
     return CEF_POST_DELAYED_TASK(static_cast<BrowserThread::ID>(id),
-        base::Bind(&CefTask::Execute, task, threadId), delay_ms);
+        base::Bind(&CefTask::Execute, task, threadId),
+            base::TimeDelta::FromMilliseconds(delay_ms));
   } else if (id == kRenderThreadId) {
     // Renderer process.
     return CEF_POST_DELAYED_TASK_RT(
-        base::Bind(&CefTask::Execute, task, threadId), delay_ms);
+        base::Bind(&CefTask::Execute, task, threadId),
+            base::TimeDelta::FromMilliseconds(delay_ms));
   }
   return false;
 }

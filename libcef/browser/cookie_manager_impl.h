@@ -32,8 +32,7 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   net::CookieMonster* cookie_monster() { return cookie_monster_; }
 
-  static bool GetCefCookie(const net::CookieMonster::CanonicalCookie& cc,
-                           CefCookie& cookie);
+  static bool GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
   static bool GetCefCookie(const GURL& url, const std::string& cookie_line,
                            CefCookie& cookie);
 

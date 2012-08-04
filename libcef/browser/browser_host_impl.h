@@ -261,12 +261,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
   virtual void DidFinishLoad(int64 frame_id,
                              const GURL& validated_url,
-                             bool is_main_frame) OVERRIDE;
+                             bool is_main_frame,
+                             content::RenderViewHost* render_view_host)
+                             OVERRIDE;
   virtual void DidFailLoad(int64 frame_id,
                            const GURL& validated_url,
                            bool is_main_frame,
                            int error_code,
-                           const string16& error_description) OVERRIDE;
+                           const string16& error_description,
+                           content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void PluginCrashed(const FilePath& plugin_path) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   // Override to provide a thread safe implementation.

@@ -50,7 +50,7 @@ class CefJavaScriptDialogCreator : public content::JavaScriptDialogCreator {
   // This pointer is guaranteed to outlive the CefJavaScriptDialogCreator.
   CefBrowserHostImpl* browser_;
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   // The dialog being shown. No queueing.
   scoped_ptr<CefJavaScriptDialog> dialog_;
 #endif

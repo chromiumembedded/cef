@@ -19,7 +19,6 @@
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/common/content_switches.h"
-#include "sandbox/src/sandbox_types.h"
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_MACOSX)
@@ -28,6 +27,7 @@
 
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"
+#include "sandbox/win/src/sandbox_types.h"
 #endif
 
 // Both the CefContext constuctor and the CefContext::RemoveBrowser method need

@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "base/mac/cocoa_protocols.h"
 #import "base/memory/scoped_nsobject.h"
 #include "base/sys_string_conversions.h"
 #include "base/utf_string_conversions.h"

@@ -528,7 +528,7 @@ bool CefV8ContextImpl::IsSame(CefRefPtr<CefV8Context> that) {
 bool CefV8ContextImpl::Eval(const CefString& code,
                             CefRefPtr<CefV8Value>& retval,
                             CefRefPtr<CefV8Exception>& exception) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(false);
 
   if (code.empty()) {
     NOTREACHED() << "invalid input parameter";
@@ -915,8 +915,8 @@ CefRefPtr<CefV8Exception> CefV8ValueImpl::GetException() {
 }
 
 bool CefV8ValueImpl::ClearException() {
-  CEF_REQUIRE_RT_RETURN(NULL);
-  CEF_V8_REQUIRE_OBJECT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   last_exception_ = NULL;
   return true;

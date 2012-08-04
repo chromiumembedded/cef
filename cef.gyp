@@ -619,7 +619,6 @@
         '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
-        '<(DEPTH)/ui/ui.gyp:ui_resources_standard',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
         'cef_locales',
         'cef_resources',
@@ -635,8 +634,7 @@
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources_standard/ui_resources_standard.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
@@ -660,7 +658,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources_standard/grit/ui_resources_standard.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/devtools_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_chromium_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_resources.h',
@@ -936,6 +933,7 @@
             'libcef/browser/browser_host_impl_gtk.cc',
             'libcef/browser/browser_main_gtk.cc',
             'libcef/browser/gtk_util_stub.cc',
+            'libcef/browser/javascript_dialog_gtk.cc',
             'libcef/browser/menu_creator_runner_gtk.cc',
             'libcef/browser/menu_creator_runner_gtk.h',
             # Include sources for context menu implementation.

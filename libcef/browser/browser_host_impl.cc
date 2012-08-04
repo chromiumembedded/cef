@@ -33,7 +33,7 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/file_chooser_params.h"
-#include "content/public/common/selected_file_info.h"
+#include "ui/base/dialogs/selected_file_info.h"
 
 namespace {
 
@@ -1092,11 +1092,9 @@ void CefBrowserHostImpl::RunFileChooser(
       base::PLATFORM_FILE_ASYNC;
 
   // Convert FilePath list to SelectedFileInfo list.
-  std::vector<content::SelectedFileInfo> selected_files;
-  for (size_t i = 0; i < fileList.size(); ++i) {
-    selected_files.push_back(
-        content::SelectedFileInfo(fileList[i], FilePath::StringType()));
-  }
+  std::vector<ui::SelectedFileInfo> selected_files;
+  for (size_t i = 0; i < fileList.size(); ++i)
+    selected_files.push_back(ui::SelectedFileInfo(fileList[i], FilePath()));
 
   // Notify our RenderViewHost in all cases.
   render_view_host->FilesSelectedInChooser(selected_files,
@@ -1198,20 +1196,24 @@ void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
   has_document_ = true;
 }
 
-void CefBrowserHostImpl::DidFinishLoad(int64 frame_id,
-                                       const GURL& validated_url,
-                                       bool is_main_frame) {
+void CefBrowserHostImpl::DidFinishLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
       validated_url);
   OnLoadEnd(frame, validated_url);
 }
 
-void CefBrowserHostImpl::DidFailLoad(int64 frame_id,
-                                     const GURL& validated_url,
-                                     bool is_main_frame,
-                                     int error_code,
-                                     const string16& error_description) {
+void CefBrowserHostImpl::DidFailLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    int error_code,
+    const string16& error_description,
+    content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
       validated_url);
@@ -1384,7 +1386,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
-  
+
   response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =

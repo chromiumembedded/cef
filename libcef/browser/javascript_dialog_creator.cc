@@ -107,7 +107,7 @@ void CefJavaScriptDialogCreator::RunJavaScriptDialog(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   *did_suppress_message = false;
 
   if (dialog_.get()) {
@@ -153,7 +153,7 @@ void CefJavaScriptDialogCreator::RunBeforeUnloadDialog(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   if (dialog_.get()) {
     // Seriously!?
     callback.Run(true, string16());
@@ -164,12 +164,13 @@ void CefJavaScriptDialogCreator::RunBeforeUnloadDialog(
       message_text +
       ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
 
-  dialog_.reset(new CefJavaScriptDialog(this,
-                                        content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
-                                        string16(),  // display_url
-                                        new_message_text,
-                                        string16(),  // default_prompt_text
-                                        callback));
+  dialog_.reset(
+      new CefJavaScriptDialog(this,
+                              content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
+                              string16(),  // display_url
+                              new_message_text,
+                              string16(),  // default_prompt_text
+                              callback));
 #else
   // TODO(port): implement CefJavaScriptDialog for other platforms.
   callback.Run(true, string16());
@@ -188,7 +189,7 @@ void CefJavaScriptDialogCreator::ResetJavaScriptState(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   if (dialog_.get()) {
     dialog_->Cancel();
     dialog_.reset();
@@ -197,7 +198,7 @@ void CefJavaScriptDialogCreator::ResetJavaScriptState(
 }
 
 void CefJavaScriptDialogCreator::DialogClosed(CefJavaScriptDialog* dialog) {
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   DCHECK_EQ(dialog, dialog_.get());
   dialog_.reset();
 #endif

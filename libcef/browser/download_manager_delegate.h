@@ -23,19 +23,21 @@ class CefDownloadManagerDelegate
   CefDownloadManagerDelegate();
 
   // DownloadManagerDelegate methods.
-  virtual bool ShouldStartDownload(int32 download_id) OVERRIDE;
-  virtual void ChooseDownloadPath(content::DownloadItem* item) OVERRIDE;
+  virtual void Shutdown() OVERRIDE;
+  virtual bool DetermineDownloadTarget(
+      content::DownloadItem* item,
+      const content::DownloadTargetCallback& callback) OVERRIDE;
   virtual void AddItemToPersistentStore(content::DownloadItem* item) OVERRIDE;
   virtual void UpdateItemInPersistentStore(
       content::DownloadItem* item) OVERRIDE;
+
+  static FilePath PlatformChooseDownloadPath(content::WebContents* web_contents,
+                                             const FilePath& suggested_path);
 
  private:
   friend class base::RefCountedThreadSafe<CefDownloadManagerDelegate>;
 
   virtual ~CefDownloadManagerDelegate();
-
-  FilePath PlatformChooseDownloadPath(content::WebContents* web_contents,
-                                      const FilePath& suggested_path);
 
   DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);
 };

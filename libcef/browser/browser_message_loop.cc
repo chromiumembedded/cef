@@ -11,8 +11,8 @@ CefBrowserMessageLoop::CefBrowserMessageLoop()
 CefBrowserMessageLoop::~CefBrowserMessageLoop() {
 #if defined(OS_MACOSX)
   // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
-  // the state_ variable to avoid an assertion in the MessageLoop destructor.
-  state_ = NULL;
+  // the run_loop_ variable to avoid an assertion in the MessageLoop destructor.
+  run_loop_ = NULL;
 #endif
 }
 
@@ -32,11 +32,7 @@ bool CefBrowserMessageLoop::DoIdleWork() {
 
 // Do a single interation of the UI message loop.
 void CefBrowserMessageLoop::DoMessageLoopIteration() {
-#if defined(OS_MACOSX)
   Run();
-#else
-  RunWithDispatcher(NULL);
-#endif
 }
 
 // Run the UI message loop.

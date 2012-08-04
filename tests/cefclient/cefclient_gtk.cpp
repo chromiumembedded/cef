@@ -38,7 +38,7 @@ gboolean GetSourceActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Get Source... menu item.
+// Callback for Debug > Get Text... menu item.
 gboolean GetTextActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunGetTextTest(g_handler->GetBrowser());
@@ -82,6 +82,14 @@ gboolean SchemeHandlerActivated(GtkWidget* widget) {
 gboolean BindingActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     binding_test::RunTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > JavaScript Dialogs... menu item.
+gboolean DialogsActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunDialogTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -250,6 +258,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(SchemeHandlerActivated));
   AddMenuEntry(debug_menu, "JavaScript Binding",
                G_CALLBACK(BindingActivated));
+  AddMenuEntry(debug_menu, "JavaScript Dialogs",
+               G_CALLBACK(DialogsActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "DOM Access",

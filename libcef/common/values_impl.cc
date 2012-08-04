@@ -226,7 +226,7 @@ bool CefDictionaryValueImpl::Remove(const CefString& key) {
 CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, VTYPE_INVALID);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   if (const_value().GetWithoutPathExpansion(key, &out_value)) {
     switch (out_value->GetType()) {
       case base::Value::TYPE_NULL:
@@ -254,7 +254,7 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
 bool CefDictionaryValueImpl::GetBool(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, false);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   bool ret_value = false;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value))
@@ -266,7 +266,7 @@ bool CefDictionaryValueImpl::GetBool(const CefString& key) {
 int CefDictionaryValueImpl::GetInt(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   int ret_value = 0;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value))
@@ -278,7 +278,7 @@ int CefDictionaryValueImpl::GetInt(const CefString& key) {
 double CefDictionaryValueImpl::GetDouble(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   double ret_value = 0;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value))
@@ -290,7 +290,7 @@ double CefDictionaryValueImpl::GetDouble(const CefString& key) {
 CefString CefDictionaryValueImpl::GetString(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   string16 ret_value;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value))
@@ -303,12 +303,12 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueImpl::GetBinary(
     const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value) &&
       out_value->IsType(base::Value::TYPE_BINARY)) {
     base::BinaryValue* binary_value =
-        static_cast<base::BinaryValue*>(out_value);
+        static_cast<base::BinaryValue*>(const_cast<base::Value*>(out_value));
     return CefBinaryValueImpl::GetOrCreateRef(binary_value,
         const_cast<base::DictionaryValue*>(&const_value()), controller());
   }
@@ -320,12 +320,13 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetDictionary(
     const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value) &&
       out_value->IsType(base::Value::TYPE_DICTIONARY)) {
     base::DictionaryValue* dict_value =
-        static_cast<base::DictionaryValue*>(out_value);
+        static_cast<base::DictionaryValue*>(
+            const_cast<base::Value*>(out_value));
     return CefDictionaryValueImpl::GetOrCreateRef(
         dict_value,
         const_cast<base::DictionaryValue*>(&const_value()),
@@ -339,11 +340,12 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetDictionary(
 CefRefPtr<CefListValue> CefDictionaryValueImpl::GetList(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value) &&
       out_value->IsType(base::Value::TYPE_LIST)) {
-    base::ListValue* list_value = static_cast<base::ListValue*>(out_value);
+    base::ListValue* list_value =
+        static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
         list_value,
         const_cast<base::DictionaryValue*>(&const_value()),

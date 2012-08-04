@@ -126,7 +126,7 @@ class CefResourceRequestJobCallback : public CefCallback {
 CefResourceRequestJob::CefResourceRequestJob(
     net::URLRequest* request,
     CefRefPtr<CefResourceHandler> handler)
-    : net::URLRequestJob(request),
+    : net::URLRequestJob(request, request->context()->network_delegate()),
       handler_(handler),
       remaining_bytes_(0),
       response_cookies_save_index_(0),
