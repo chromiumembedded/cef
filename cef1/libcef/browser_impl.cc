@@ -783,9 +783,11 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
 
   main_frame_ = NULL;
 
-  // Release the proxy on the IO thread.
-  CefThread::ReleaseSoon(CefThread::IO, FROM_HERE,
-      request_context_proxy_.release());
+  if (request_context_proxy_) {
+    // Release the proxy on the IO thread.
+    CefThread::ReleaseSoon(CefThread::IO, FROM_HERE,
+        request_context_proxy_.release());
+  }
 
   // Remove the reference added in UIT_CreateBrowser().
   Release();
