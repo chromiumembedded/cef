@@ -81,19 +81,10 @@ class CefThread : public base::Thread {
   static bool PostDelayedTask(ID identifier,
                               const tracked_objects::Location& from_here,
                               const base::Closure& task,
-                              int64 delay_ms);
-  static bool PostDelayedTask(ID identifier,
-                              const tracked_objects::Location& from_here,
-                              const base::Closure& task,
                               base::TimeDelta delay);
   static bool PostNonNestableTask(ID identifier,
                                   const tracked_objects::Location& from_here,
                                   const base::Closure& task);
-  static bool PostNonNestableDelayedTask(
-      ID identifier,
-      const tracked_objects::Location& from_here,
-      const base::Closure& task,
-      int64 delay_ms);
   static bool PostNonNestableDelayedTask(
       ID identifier,
       const tracked_objects::Location& from_here,
@@ -179,7 +170,7 @@ class CefThread : public base::Thread {
       ID identifier,
       const tracked_objects::Location& from_here,
       const base::Closure& task,
-      int64 delay_ms,
+      base::TimeDelta delay,
       bool nestable);
 
   // The identifier of this thread.  Only one thread can exist with a given

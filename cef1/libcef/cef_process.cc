@@ -22,8 +22,9 @@ class CefMessageLoopForUI : public MessageLoopForUI {
 #if defined(OS_MACOSX)
   virtual ~CefMessageLoopForUI() {
     // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
-    // the state_ variable to avoid an assertion in the MessageLoop destructor.
-    state_ = NULL;
+    // the run_loop_ variable to avoid an assertion in the MessageLoop
+    // destructor.
+    run_loop_ = NULL;
   }
 #endif
 
@@ -43,11 +44,7 @@ class CefMessageLoopForUI : public MessageLoopForUI {
 
   // Do a single interation of the UI message loop.
   void DoMessageLoopIteration() {
-#if defined(OS_MACOSX)
     Run();
-#else
-    RunWithDispatcher(NULL);
-#endif
   }
 
   // Run the UI message loop.

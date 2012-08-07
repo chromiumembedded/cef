@@ -580,7 +580,10 @@ class RequestProxy : public net::URLRequest::Delegate,
             ResolveBlobReferencesInUploadData(params->upload.get());
       }
 
-      request_.reset(new net::URLRequest(params->url, this));
+      net::URLRequestContext* context = browser_.get() ?
+          browser_->request_context_proxy() : _Context->request_context();
+
+      request_.reset(new net::URLRequest(params->url, this, context));
       request_->set_priority(params->priority);
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
@@ -592,8 +595,6 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
       request_->set_upload(params->upload.get());
-      request_->set_context(browser_.get() ? browser_->request_context_proxy() :
-                                             _Context->request_context());
       request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
@@ -874,7 +875,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     // GetContentLengthSync() may perform file IO, but it's ok here, as file
     // IO is not prohibited in IOThread defined in the file.
-    uint64 size = request_->get_upload()->GetContentLengthSync();
+    uint64 size = request_->get_upload_mutable()->GetContentLengthSync();
     uint64 position = request_->GetUploadProgress();
     if (position == last_upload_position_)
       return;  // no progress made since last time

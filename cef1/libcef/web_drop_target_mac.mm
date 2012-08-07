@@ -119,7 +119,8 @@ using WebKit::WebView;
       webview->dragTargetDragEnter(drop_data.ToDragData(),
                                    WebPoint(viewPoint.x, viewPoint.y),
                                    WebPoint(screenPoint.x, screenPoint.y),
-                                   static_cast<WebDragOperationsMask>(mask));
+                                   static_cast<WebDragOperationsMask>(mask),
+                                   0);
   return static_cast<NSDragOperation>(op);
 }
 
@@ -164,7 +165,8 @@ using WebKit::WebView;
   WebDragOperation op =
       webview->dragTargetDragOver(WebPoint(viewPoint.x, viewPoint.y),
                                   WebPoint(screenPoint.x, screenPoint.y),
-                                  static_cast<WebDragOperationsMask>(mask));
+                                  static_cast<WebDragOperationsMask>(mask),
+                                  0);
   return static_cast<NSDragOperation>(op);
 }
 
@@ -198,7 +200,8 @@ using WebKit::WebView;
 
   view_.browser->set_is_dropping(true);
   webview->dragTargetDrop(gfx::Point(viewPoint.x, viewPoint.y),
-                          gfx::Point(screenPoint.x, screenPoint.y));
+                          gfx::Point(screenPoint.x, screenPoint.y),
+                          0);
   view_.browser->set_is_dropping(false);
 
   return YES;

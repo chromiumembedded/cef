@@ -25,6 +25,7 @@ class WebURL;
 
 namespace fileapi {
 class FileSystemContext;
+class FileSystemURL;
 }
 
 namespace webkit_blob {
@@ -97,9 +98,17 @@ class BrowserFileSystem
   static void CleanupOnIOThread();
 
  private:
+  enum FilePermission {
+    FILE_PERMISSION_READ,
+    FILE_PERMISSION_WRITE,
+    FILE_PERMISSION_CREATE,
+  };
+
   // Helpers.
+  bool HasFilePermission(const fileapi::FileSystemURL& url,
+                         FilePermission permission);
   fileapi::FileSystemOperationInterface* GetNewOperation(
-      const WebKit::WebURL& path);
+      const fileapi::FileSystemURL& url);
 
   // Callback Handlers
   fileapi::FileSystemOperationInterface::StatusCallback FinishHandler(

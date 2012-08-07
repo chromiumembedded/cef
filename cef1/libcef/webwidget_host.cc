@@ -33,7 +33,7 @@ void WebWidgetHost::ScheduleComposite() {
     // Maintain the desired rate.
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         base::Bind(&WebWidgetHost::Invalidate, weak_factory_.GetWeakPtr()),
-        kDesiredRate - actualRate);
+        base::TimeDelta::FromMilliseconds(kDesiredRate - actualRate));
   }
 }
 

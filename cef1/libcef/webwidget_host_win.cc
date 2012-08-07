@@ -283,7 +283,7 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
     CefThread::PostDelayedTask(CefThread::UI, FROM_HERE,
         base::Bind(&WebWidgetHost::UpdateInputMethod,
             weak_factory_.GetWeakPtr()),
-        100);
+        base::TimeDelta::FromMilliseconds(100));
   }
 }
 

@@ -110,7 +110,8 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
         drop_data.ToDragData(),
         WebPoint(client_pt.x, client_pt.y),
         WebPoint(cursor_position.x, cursor_position.y),
-        mask);
+        mask,
+        0);
   } else {
     operation = WebDragOperationNone;
   }
@@ -136,7 +137,8 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
     operation = browser_->UIT_GetWebView()->dragTargetDragOver(
         WebPoint(client_pt.x, client_pt.y),
         WebPoint(cursor_position.x, cursor_position.y),
-        web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects));
+        web_drag_utils_win::WinDragOpMaskToWebDragOpMask(effects),
+        0);
   } else {
     operation = WebDragOperationNone;
   }
@@ -171,7 +173,8 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
   if (browser_->UIT_GetWebView()) {
     browser_->UIT_GetWebView()->dragTargetDrop(
         WebPoint(client_pt.x, client_pt.y),
-        WebPoint(cursor_position.x, cursor_position.y));
+        WebPoint(cursor_position.x, cursor_position.y),
+        0);
   }
   browser_->set_is_dropping(false);
 

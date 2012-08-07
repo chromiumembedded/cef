@@ -126,7 +126,8 @@ bool WebDropTarget::OnDragMove(GtkWidget* widget, GdkDragContext* context,
   } else if (data_requests_ == 0) {
     operation = webview->dragTargetDragOver(WebPoint(x, y),
                                   WebPoint(widget_x, widget_y),
-                                  _mask(context));
+                                  _mask(context),
+                                  0);
     gdk_drag_status(context,
         (GdkDragAction)DragDropTypes::DragOperationToGdkDragAction(operation),
         time);
@@ -162,7 +163,8 @@ bool WebDropTarget::OnDragDrop(GtkWidget* widget, GdkDragContext* context,
   if (browser_->UIT_GetWebView()) {
     browser_->UIT_GetWebView()->dragTargetDrop(
         WebPoint(x, y),
-        WebPoint(widget_x, widget_y));
+        WebPoint(widget_x, widget_y),
+        0);
   }
   browser_->set_is_dropping(false);
   context_ = NULL;
@@ -260,7 +262,8 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
     operation = webview->dragTargetDragEnter(drop_data_->ToDragData(),
                                    WebPoint(x, y),
                                    WebPoint(widget_x, widget_y),
-                                   _mask(context));
+                                   _mask(context),
+                                   0);
     gdk_drag_status(context,
         (GdkDragAction)DragDropTypes::DragOperationToGdkDragAction(operation),
         time);

@@ -150,13 +150,10 @@ WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
 #endif
 
   if (use_command_buffer) {
-    WebKit::WebGraphicsContext3D* view_context = NULL;
-    if (!renderDirectlyToWebView)
-        view_context = web_view->graphicsContext3D();
     scoped_ptr<webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl>
         context(
             new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl());
-    if (!context->Initialize(attributes, view_context))
+    if (!context->Initialize(attributes, NULL))
       return NULL;
     return context.release();
   } else {

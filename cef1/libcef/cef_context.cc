@@ -422,7 +422,7 @@ void CefContext::InitializeResourceBundle() {
 
     if (file_util::PathExists(pak_file)) {
       resource_bundle_delegate_->set_allow_pack_file_load(true);
-      ResourceBundle::GetSharedInstance().AddDataPack(
+      ResourceBundle::GetSharedInstance().AddDataPackFromPath(
           pak_file, ui::SCALE_FACTOR_NONE);
       resource_bundle_delegate_->set_allow_pack_file_load(false);
     } else {

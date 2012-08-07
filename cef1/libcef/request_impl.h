@@ -76,7 +76,7 @@ class CefPostDataImpl : public CefPostData {
   virtual bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
   virtual void RemoveElements();
 
-  void Set(net::UploadData& data);
+  void Set(const net::UploadData& data);
   void Get(net::UploadData& data);
   void Set(const WebKit::WebHTTPBody& data);
   void Get(WebKit::WebHTTPBody& data);

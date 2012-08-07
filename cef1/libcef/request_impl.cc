@@ -103,7 +103,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   GetHeaderMap(headers, headermap_);
 
   // Transfer post data, if any
-  net::UploadData* data = request->get_upload();
+  const net::UploadData* data = request->get_upload();
   if (data) {
     postdata_ = CefPostData::CreatePostData();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
@@ -291,12 +291,12 @@ void CefPostDataImpl::RemoveElements() {
   elements_.clear();
 }
 
-void CefPostDataImpl::Set(net::UploadData& data) {
+void CefPostDataImpl::Set(const net::UploadData& data) {
   AutoLock lock_scope(this);
 
   CefRefPtr<CefPostDataElement> postelem;
 
-  std::vector<net::UploadData::Element>* elements = data.elements();
+  const std::vector<net::UploadData::Element>* elements = data.elements();
   std::vector<net::UploadData::Element>::const_iterator it = elements->begin();
   for (; it != elements->end(); ++it) {
     postelem = CefPostDataElement::CreatePostDataElement();

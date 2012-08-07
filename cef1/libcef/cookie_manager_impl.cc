@@ -33,7 +33,7 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
     net::CookieList::const_iterator it = list.begin();
     for (; it != list.end(); ++it, ++count) {
       CefCookie cookie;
-      const net::CookieMonster::CanonicalCookie& cc = *(it);
+      const net::CanonicalCookie& cc = *(it);
 
       CefString(&cookie.name).FromString(cc.Name());
       CefString(&cookie.value).FromString(cc.Value());
@@ -43,7 +43,7 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
       cookie.httponly = cc.IsHttpOnly();
       cef_time_from_basetime(cc.CreationDate(), cookie.creation);
       cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
-      cookie.has_expires = cc.DoesExpire();
+      cookie.has_expires = cc.IsPersistent();
       if (cookie.has_expires)
         cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
 

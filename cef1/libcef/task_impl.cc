@@ -44,5 +44,6 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
     return false;
 
   return CefThread::PostDelayedTask(static_cast<CefThread::ID>(id), FROM_HERE,
-      base::Bind(&CefTask::Execute, task, threadId), delay_ms);
+      base::Bind(&CefTask::Execute, task, threadId),
+      base::TimeDelta::FromMilliseconds(delay_ms));
 }

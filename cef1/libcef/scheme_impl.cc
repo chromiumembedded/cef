@@ -107,7 +107,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
  public:
   CefUrlRequestJob(net::URLRequest* request,
                    CefRefPtr<CefSchemeHandler> handler)
-    : net::URLRequestJob(request),
+    : net::URLRequestJob(request, request->context()->network_delegate()),
       handler_(handler),
       remaining_bytes_(0),
       response_cookies_save_index_(0),
