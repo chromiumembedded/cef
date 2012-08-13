@@ -6,6 +6,7 @@
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWidget.h"
@@ -15,26 +16,18 @@ using WebKit::WebSize;
 
 
 void WebWidgetHost::ScheduleComposite() {
-  if (has_invalidate_task_)
+  if (invalidate_timer_.IsRunning())
     return;
-
-  has_invalidate_task_ = true;
 
   // Try to paint at 60fps.
   static int64 kDesiredRate = 16;
 
-  base::TimeDelta delta = base::TimeTicks::Now() - paint_last_call_;
-  int64 actualRate = delta.InMilliseconds();
-  if (actualRate >= kDesiredRate) {
-    // Can't keep up so run as fast as possible.
-    MessageLoop::current()->PostTask(FROM_HERE,
-        base::Bind(&WebWidgetHost::Invalidate, weak_factory_.GetWeakPtr()));
-  } else {
-    // Maintain the desired rate.
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-        base::Bind(&WebWidgetHost::Invalidate, weak_factory_.GetWeakPtr()),
-        kDesiredRate - actualRate);
-  }
+  // Maintain the desired rate.
+  invalidate_timer_.Start(
+      FROM_HERE,
+      base::TimeDelta::FromMilliseconds(kDesiredRate),
+      this,
+      &WebWidgetHost::Invalidate);
 }
 
 void WebWidgetHost::ScheduleAnimation() {
@@ -105,9 +98,19 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y) {
   return gfx::kNullPluginWindow;
 }
 
+void WebWidgetHost::SchedulePaintTimer() {
+  if (layouting_ || paint_timer_.IsRunning())
+    return;
+
+  paint_timer_.Start(
+      FROM_HERE,
+      base::TimeDelta::FromMilliseconds(0),  // Fire immediately.
+      this,
+      &WebWidgetHost::DoPaint);
+}
+
 void WebWidgetHost::DoPaint() {
  if (MessageLoop::current()->IsIdle()) {
-    has_update_task_ = false;
     // Paint to the delegate.
 #if defined(OS_MACOSX)
     SkRegion region;
@@ -117,7 +120,6 @@ void WebWidgetHost::DoPaint() {
 #endif
   } else {
     // Try again later.
-    CefThread::PostTask(CefThread::UI, FROM_HERE,
-        base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
+    SchedulePaintTimer();
   }
 }
