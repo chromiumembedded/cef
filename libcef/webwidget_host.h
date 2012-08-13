@@ -15,8 +15,8 @@
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/memory/weak_ptr.h"
 #include "base/time.h"
+#include "base/timer.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
@@ -139,10 +139,6 @@ class WebWidgetHost {
   void MoveWindowedPlugin(const webkit::npapi::WebPluginGeometry& geometry);
   gfx::PluginWindowHandle GetWindowedPluginAt(int x, int y);
 
-  // If window rendering is disabled paint messages are generated after all
-  // other pending messages have been processed.
-  void DoPaint();
-
   void set_popup(bool popup) { popup_ = popup; }
   bool popup() { return popup_; }
 
@@ -150,6 +146,11 @@ class WebWidgetHost {
 
  protected:
   WebWidgetHost();
+
+  // If window rendering is disabled paint messages are generated after all
+  // other pending messages have been processed.
+  void SchedulePaintTimer();
+  void DoPaint();
 
 #if defined(OS_WIN)
   // Per-class wndproc.  Returns true if the event should be swallowed.
@@ -173,9 +174,8 @@ class WebWidgetHost {
   LRESULT OnImeEndComposition(UINT message, WPARAM wparam, LPARAM lparam,
       BOOL& handled);
   void OnInputLangChange(DWORD character_set, HKL input_language_id);
-  void ImeUpdateTextInputState(WebKit::WebTextInputType type,
-      const gfx::Rect& caret_rect);
-  void UpdateInputMethod();
+  void UpdateImeInputState();
+  void ToggleImeTimer();
 #elif defined(OS_MACOSX)
   // These need to be called from a non-subclass, so they need to be public.
  public:
@@ -237,19 +237,17 @@ class WebWidgetHost {
   gfx::Rect paint_rect_;
 #endif
 
-  // True if an update task is pending when window rendering is disabled.
-  bool has_update_task_;
+  // Used to coalesce DidInvalidateRect() events into a single DoPaint() call.
+  // Used when window rendering is disabled.
+  base::OneShotTimer<WebWidgetHost> paint_timer_;
 
-  // True if an invalidate task is pending due to the Schedule*() methods.
-  bool has_invalidate_task_;
+  // Used to coalesce Schedule*() events into a single Invalidate() call.
+  base::OneShotTimer<WebWidgetHost> invalidate_timer_;
 
 #if defined(OS_WIN)
-  // True if an update input method task is pending due to DidInvalidateRect().
-  bool has_update_input_method_task_;
+  // Used to call UpdateImeInputState() while IME is active.
+  base::RepeatingTimer<WebWidgetHost> ime_timer_;
 #endif
-
-  // When the Paint() method last completed.
-  base::TimeTicks paint_last_call_;
 
   // Redraw rectangle requested by an explicit call to CefBrowser::Invalidate().
   gfx::Rect redraw_rect_;
@@ -269,20 +267,16 @@ class WebWidgetHost {
   // Wrapper class for IME input.
   ui::ImeInput ime_input_;
 
-  // Represents whether or not this browser process is receiving status
-  // messages about the focused edit control from a renderer process.
+  // Represents whether or not this browser process is receiving status messages
+  // about the focused edit control from a renderer process.
   bool ime_notification_;
 
-  // Represents whether or not the IME of a browser process is active.
-  bool input_method_is_active_;
-
-  // Stores the current text input type received by ImeUpdateTextInputState()
-  // method.
+  // Stores the current text input type.
   WebKit::WebTextInputType text_input_type_;
 
   // Stores the current caret bounds of input focus.
   WebKit::WebRect caret_bounds_;
-#endif
+#endif  // OS_WIN
 
 #if defined(OS_MACOSX)
   int mouse_modifiers_;
@@ -299,9 +293,6 @@ class WebWidgetHost {
 
   bool painting_;
   bool layouting_;
-
- private:
-  base::WeakPtrFactory<WebWidgetHost> weak_factory_;
 };
 
 #endif  // CEF_LIBCEF_WEBWIDGET_HOST_H_

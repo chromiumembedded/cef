@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_navigation_controller.h"
-#include "browser_impl.h"
+#include "libcef/browser_navigation_controller.h"
+#include "libcef/browser_impl.h"
 
 #include "base/logging.h"
 #include "net/base/upload_data.h"
@@ -29,7 +29,7 @@ BrowserNavigationEntry::BrowserNavigationEntry(int page_id,
       method_(method),
       headers_(headers),
       target_frame_(target_frame) {
-  if(!upload.isNull())
+  if (!upload.isNull())
     upload_ = upload;
 }
 
@@ -57,7 +57,7 @@ BrowserNavigationController::~BrowserNavigationController() {
 }
 
 void BrowserNavigationController::Reset() {
-  entries_.clear();
+  entries_.reset();
   DiscardPendingEntry();
 
   last_committed_entry_index_ = -1;
@@ -88,8 +88,8 @@ void BrowserNavigationController::GoToOffset(int offset) {
 }
 
 void BrowserNavigationController::GoToIndex(int index) {
-  DCHECK(index >= 0);
-  DCHECK(index < static_cast<int>(entries_.size()));
+  DCHECK_GE(index, 0);
+  DCHECK_LT(index, static_cast<int>(entries_.size()));
 
   DiscardPendingEntry();
 
@@ -111,7 +111,8 @@ BrowserNavigationEntry* BrowserNavigationController::GetLastCommittedEntry()
     const {
   if (last_committed_entry_index_ == -1)
     return NULL;
-  return entries_[last_committed_entry_index_].get();
+  return const_cast<BrowserNavigationEntry*>(
+      entries_[last_committed_entry_index_]);
 }
 
 BrowserNavigationEntry* BrowserNavigationController::GetActiveEntry() const {
@@ -133,13 +134,14 @@ BrowserNavigationEntry* BrowserNavigationController::GetEntryAtIndex(
   if (index < 0 || index >= GetEntryCount())
     return NULL;
 
-  return entries_[index].get();
+  return const_cast<BrowserNavigationEntry*>(entries_[index]);
 }
 
 BrowserNavigationEntry* BrowserNavigationController::GetEntryWithPageID(
     int32 page_id) const {
   int index = GetEntryIndexWithPageID(page_id);
-  return (index != -1) ? entries_[index].get() : NULL;
+  return (index != -1) ?
+      const_cast<BrowserNavigationEntry*>(entries_[index]) : NULL;
 }
 
 void BrowserNavigationController::DidNavigateToEntry(
@@ -158,7 +160,7 @@ void BrowserNavigationController::DidNavigateToEntry(
 
   int existing_entry_index = GetEntryIndexWithPageID(entry->GetPageID());
   BrowserNavigationEntry* existing_entry = (existing_entry_index != -1) ?
-      entries_[existing_entry_index].get() : NULL;
+      entries_[existing_entry_index] : NULL;
   if (!existing_entry) {
     // No existing entry, then simply ignore this navigation!
     DLOG(WARNING) << "ignoring navigation for page: " << entry->GetPageID();
@@ -191,7 +193,7 @@ void BrowserNavigationController::DidNavigateToEntry(
 }
 
 void BrowserNavigationController::DiscardPendingEntry() {
-  if (pending_entry_index_ == -1)
+  if (pending_entry_index_ == -1 && pending_entry_)
     delete pending_entry_;
   pending_entry_ = NULL;
   pending_entry_index_ = -1;
@@ -204,19 +206,19 @@ void BrowserNavigationController::InsertEntry(BrowserNavigationEntry* entry) {
   if (settings.history_disabled) {
     // History is disabled. Remove any existing entries.
     if (entries_.size() > 0)
-      entries_.clear();
+      entries_.reset();
   } else {
     // Prune any entry which are in front of the current entry.
     int current_size = static_cast<int>(entries_.size());
     if (current_size > 0) {
       while (last_committed_entry_index_ < (current_size - 1)) {
-        entries_.pop_back();
+        entries_.erase(entries_.end() - 1);
         current_size--;
       }
     }
   }
 
-  entries_.push_back(linked_ptr<BrowserNavigationEntry>(entry));
+  entries_.push_back(entry);
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
   UpdateMaxPageID();
 }
@@ -233,8 +235,8 @@ void BrowserNavigationController::NavigateToPendingEntry(bool reload,
                                                          bool ignoreCache) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
-    DCHECK(pending_entry_index_ != -1); 
-    pending_entry_ = entries_[pending_entry_index_].get();
+    DCHECK_NE(pending_entry_index_, -1);
+    pending_entry_ = entries_[pending_entry_index_];
   }
 
   if (browser_->UIT_Navigate(*pending_entry_, reload, ignoreCache)) {

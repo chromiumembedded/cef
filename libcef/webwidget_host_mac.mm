@@ -82,12 +82,9 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
-      has_update_task_(false),
-      has_invalidate_task_(false),
       mouse_modifiers_(0),
       painting_(false),
-      layouting_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
+      layouting_(false) {
   set_painting(false);
 }
 
@@ -100,24 +97,17 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   const gfx::Rect client_rect(width, height);
 
   const gfx::Rect damaged_rect_in_client = client_rect.Intersect(damaged_rect);
+  if (damaged_rect_in_client.IsEmpty())
+    return;
 
-  if (!damaged_rect_in_client.IsEmpty()) {
-    UpdatePaintRect(damaged_rect_in_client);
+  UpdatePaintRect(damaged_rect_in_client);
 
-    if (view_) {
-      NSRect cocoa_rect = NSRectFromCGRect(damaged_rect_in_client.ToCGRect());
-      cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
-      [view_ setNeedsDisplayInRect:cocoa_rect];
-    } else {
-      // Don't post a paint task if this invalidation occurred during layout or
-      // if a paint task is already pending. Paint() will be called by
-      // DoPaint().
-      if (!layouting_ && !has_update_task_) {
-        has_update_task_ = true;
-        CefThread::PostTask(CefThread::UI, FROM_HERE,
-            base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
-      }
-    }
+  if (view_) {
+    NSRect cocoa_rect = NSRectFromCGRect(damaged_rect_in_client.ToCGRect());
+    cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
+    [view_ setNeedsDisplayInRect:cocoa_rect];
+  } else {
+    SchedulePaintTimer();
   }
 }
 
@@ -309,6 +299,9 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
       skia::DrawToNativeContext(canvas_.get(), context, x, y, &copy_rect);
     }
   } else {
+    if (damaged_rgn.isEmpty())
+      return;
+
     // Paint to the delegate.
     DCHECK(paint_delegate_);
     const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
@@ -325,20 +318,14 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
 
     paint_delegate_->Paint(popup_, damaged_rects, pixels);
   }
-
-  // Used with scheduled invalidation to maintain a consistent frame rate.
-  paint_last_call_ = base::TimeTicks::Now();
-  if (has_invalidate_task_)
-    has_invalidate_task_ = false;
 }
 
 void WebWidgetHost::Invalidate() {
-  if (view_) {
-    [view_ setNeedsDisplay:YES];
-  } else if (webwidget_) {
-    WebSize size = webwidget_->size();
-    InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
-  }
+  if (!webwidget_)
+    return;
+
+  WebSize size = webwidget_->size();
+  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
 }
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
@@ -349,17 +336,7 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
   if (rect.IsEmpty())
     return;
 
-  if (!view_) {
-    // Don't post a paint task if this invalidation occurred during layout or if
-    // a paint task is already pending. Paint() will be called by DoPaint().
-    if (!layouting_ && !has_update_task_) {
-      has_update_task_ = true;
-      CefThread::PostTask(CefThread::UI, FROM_HERE,
-          base::Bind(&WebWidgetHost::DoPaint, weak_factory_.GetWeakPtr()));
-    }
-  } else {
-    NOTIMPLEMENTED();
-  }
+  DidInvalidateRect(rect);
 }
 
 bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {

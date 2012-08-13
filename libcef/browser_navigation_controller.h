@@ -3,15 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef _BROWSER_NAVIGATION_CONTROLLER_H
-#define _BROWSER_NAVIGATION_CONTROLLER_H
+#ifndef CEF_LIBCEF_BROWSER_NAVIGATION_CONTROLLER_H_
+#define CEF_LIBCEF_BROWSER_NAVIGATION_CONTROLLER_H_
+#pragma once
 
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/scoped_vector.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHTTPBody.h"
@@ -24,7 +25,7 @@ class CefBrowserImpl;
 // Associated with browser-initated navigations to hold tracking data.
 class BrowserExtraData : public WebKit::WebDataSource::ExtraData {
  public:
-  BrowserExtraData(int32 pending_page_id)
+  explicit BrowserExtraData(int32 pending_page_id)
       : pending_page_id(pending_page_id),
         request_committed(false) {
   }
@@ -76,7 +77,7 @@ class BrowserNavigationEntry {
   const WebKit::WebHTTPBody& GetUploadData() const { return upload_; }
   const CefRequest::HeaderMap& GetHeaders() const { return headers_; }
 
-private:
+ private:
   // Describes the current page that the tab represents. This is not relevant
   // for all tab contents types.
   int32 page_id_;
@@ -97,7 +98,7 @@ private:
 // version as possible.
 class BrowserNavigationController {
  public:
-  BrowserNavigationController(CefBrowserImpl* browser);
+  explicit BrowserNavigationController(CefBrowserImpl* browser);
   ~BrowserNavigationController();
 
   void Reset();
@@ -186,8 +187,7 @@ class BrowserNavigationController {
   void UpdateMaxPageID();
 
   // List of NavigationEntry for this tab
-  typedef std::vector< linked_ptr<BrowserNavigationEntry> > NavigationEntryList;
-  typedef NavigationEntryList::iterator NavigationEntryListIterator;
+  typedef ScopedVector<BrowserNavigationEntry> NavigationEntryList;
   NavigationEntryList entries_;
 
   // An entry we haven't gotten a response for yet.  This will be discarded
@@ -208,5 +208,4 @@ class BrowserNavigationController {
   DISALLOW_EVIL_CONSTRUCTORS(BrowserNavigationController);
 };
 
-#endif // _BROWSER_NAVIGATION_CONTROLLER_H
-
+#endif  // CEF_LIBCEF_BROWSER_NAVIGATION_CONTROLLER_H_

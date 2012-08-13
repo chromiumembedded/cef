@@ -1,16 +1,17 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "dom_node_impl.h"
-#include "browser_impl.h"
-#include "cef_thread.h"
-#include "dom_document_impl.h"
-#include "dom_event_impl.h"
-#include "tracker.h"
+#include "libcef/dom_node_impl.h"
+#include "libcef/browser_impl.h"
+#include "libcef/cef_thread.h"
+#include "libcef/dom_document_impl.h"
+#include "libcef/dom_event_impl.h"
+#include "libcef/tracker.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/threading/non_thread_safe.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebAttribute.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
@@ -38,31 +39,28 @@ using WebKit::WebNode;
 using WebKit::WebSelectElement;
 using WebKit::WebString;
 
-
 namespace {
 
 // Wrapper implementation for WebDOMEventListener.
 class CefDOMEventListenerWrapper : public WebDOMEventListener,
-                                   public CefTrackObject
-{
-public:
+                                   public CefTrackObject,
+                                   public base::NonThreadSafe {
+ public:
   CefDOMEventListenerWrapper(CefBrowserImpl* browser, WebFrame* frame,
                              CefRefPtr<CefDOMEventListener> listener)
-    : browser_(browser), frame_(frame), listener_(listener)
-  {
+    : browser_(browser),
+      frame_(frame),
+      listener_(listener) {
     // Cause this object to be deleted immediately before the frame is closed.
     browser->UIT_AddFrameObject(frame, this);
   }
-  virtual ~CefDOMEventListenerWrapper()
-  {
-    REQUIRE_UIT();
+  virtual ~CefDOMEventListenerWrapper() {
   }
 
-  virtual void handleEvent(const WebDOMEvent& event)
-  {
+  virtual void handleEvent(const WebDOMEvent& event) {
     CefRefPtr<CefDOMDocumentImpl> documentImpl;
     CefRefPtr<CefDOMEventImpl> eventImpl;
-    
+
     if (!event.isNull()) {
       // Create CefDOMDocumentImpl and CefDOMEventImpl objects that are valid
       // only for the scope of this method.
@@ -72,32 +70,31 @@ public:
         eventImpl = new CefDOMEventImpl(documentImpl, event);
       }
     }
-    
+
     listener_->HandleEvent(eventImpl.get());
-    
-    if(eventImpl.get())
+
+    if (eventImpl.get())
       eventImpl->Detach();
     if (documentImpl.get())
       documentImpl->Detach();
   }
 
-protected:
+ protected:
   CefBrowserImpl* browser_;
   WebFrame* frame_;
   CefRefPtr<CefDOMEventListener> listener_;
 };
 
-} // namespace
+}  // namespace
 
 
 CefDOMNodeImpl::CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                                const WebKit::WebNode& node)
-    : document_(document), node_(node)
-{
+    : document_(document),
+      node_(node) {
 }
 
-CefDOMNodeImpl::~CefDOMNodeImpl()
-{
+CefDOMNodeImpl::~CefDOMNodeImpl() {
   REQUIRE_UIT();
 
   if (document_.get() && !node_.isNull()) {
@@ -106,8 +103,7 @@ CefDOMNodeImpl::~CefDOMNodeImpl()
   }
 }
 
-CefDOMNodeImpl::Type CefDOMNodeImpl::GetType()
-{
+CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
   if (!VerifyContext())
     return DOM_NODE_TYPE_UNSUPPORTED;
 
@@ -143,24 +139,21 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType()
   }
 }
 
-bool CefDOMNodeImpl::IsText()
-{
+bool CefDOMNodeImpl::IsText() {
   if (!VerifyContext())
     return false;
 
   return node_.isTextNode();
 }
 
-bool CefDOMNodeImpl::IsElement()
-{
+bool CefDOMNodeImpl::IsElement() {
   if (!VerifyContext())
     return false;
 
   return node_.isElementNode();
 }
 
-bool CefDOMNodeImpl::IsFormControlElement()
-{
+bool CefDOMNodeImpl::IsFormControlElement() {
   if (!VerifyContext())
     return false;
 
@@ -172,8 +165,7 @@ bool CefDOMNodeImpl::IsFormControlElement()
   return false;
 }
 
-CefString CefDOMNodeImpl::GetFormControlElementType()
-{
+CefString CefDOMNodeImpl::GetFormControlElementType() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -193,8 +185,7 @@ CefString CefDOMNodeImpl::GetFormControlElementType()
   return str;
 }
 
-bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that)
-{
+bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that) {
   if (!VerifyContext())
     return false;
 
@@ -205,8 +196,7 @@ bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that)
   return node_.equals(impl->node_);
 }
 
-CefString CefDOMNodeImpl::GetName()
-{
+CefString CefDOMNodeImpl::GetName() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -218,8 +208,7 @@ CefString CefDOMNodeImpl::GetName()
   return str;
 }
 
-CefString CefDOMNodeImpl::GetValue()
-{
+CefString CefDOMNodeImpl::GetValue() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -257,8 +246,7 @@ CefString CefDOMNodeImpl::GetValue()
   return str;
 }
 
-bool CefDOMNodeImpl::SetValue(const CefString& value)
-{
+bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (!VerifyContext())
     return false;
 
@@ -268,8 +256,7 @@ bool CefDOMNodeImpl::SetValue(const CefString& value)
   return node_.setNodeValue(string16(value));
 }
 
-CefString CefDOMNodeImpl::GetAsMarkup()
-{
+CefString CefDOMNodeImpl::GetAsMarkup() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -281,56 +268,49 @@ CefString CefDOMNodeImpl::GetAsMarkup()
   return str;
 }
 
-CefRefPtr<CefDOMDocument> CefDOMNodeImpl::GetDocument()
-{
+CefRefPtr<CefDOMDocument> CefDOMNodeImpl::GetDocument() {
   if (!VerifyContext())
     return NULL;
 
   return document_.get();
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetParent()
-{
+CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetParent() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(node_.parentNode());
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetPreviousSibling()
-{
+CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetPreviousSibling() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(node_.previousSibling());
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetNextSibling()
-{
+CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetNextSibling() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(node_.nextSibling());
 }
 
-bool CefDOMNodeImpl::HasChildren()
-{
+bool CefDOMNodeImpl::HasChildren() {
   if (!VerifyContext())
     return false;
 
   return node_.hasChildNodes();
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetFirstChild()
-{
+CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetFirstChild() {
   if (!VerifyContext())
     return NULL;
 
   return document_->GetOrCreateNode(node_.firstChild());
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild()
-{
+CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild() {
   if (!VerifyContext())
     return NULL;
 
@@ -339,8 +319,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild()
 
 void CefDOMNodeImpl::AddEventListener(const CefString& eventType,
                                       CefRefPtr<CefDOMEventListener> listener,
-                                      bool useCapture)
-{
+                                      bool useCapture) {
   if (!VerifyContext())
     return;
 
@@ -350,8 +329,7 @@ void CefDOMNodeImpl::AddEventListener(const CefString& eventType,
       useCapture);
 }
 
-CefString CefDOMNodeImpl::GetElementTagName()
-{
+CefString CefDOMNodeImpl::GetElementTagName() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -369,8 +347,7 @@ CefString CefDOMNodeImpl::GetElementTagName()
   return str;
 }
 
-bool CefDOMNodeImpl::HasElementAttributes()
-{
+bool CefDOMNodeImpl::HasElementAttributes() {
   if (!VerifyContext())
     return false;
 
@@ -383,8 +360,7 @@ bool CefDOMNodeImpl::HasElementAttributes()
   return (element.attributes().length() > 0);
 }
 
-bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName)
-{
+bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
   if (!VerifyContext())
     return false;
 
@@ -397,8 +373,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName)
   return element.hasAttribute(string16(attrName));
 }
 
-CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName)
-{
+CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -416,8 +391,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName)
   return str;
 }
 
-void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap)
-{
+void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
   if (!VerifyContext())
     return;
 
@@ -449,8 +423,7 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap)
 }
 
 bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
-                                         const CefString& value)
-{
+                                         const CefString& value) {
   if (!VerifyContext())
     return false;
 
@@ -463,8 +436,7 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   return element.setAttribute(string16(attrName), string16(value));
 }
 
-CefString CefDOMNodeImpl::GetElementInnerText()
-{
+CefString CefDOMNodeImpl::GetElementInnerText() {
   CefString str;
   if (!VerifyContext())
     return str;
@@ -482,21 +454,19 @@ CefString CefDOMNodeImpl::GetElementInnerText()
   return str;
 }
 
-void CefDOMNodeImpl::Detach()
-{
+void CefDOMNodeImpl::Detach() {
   document_ = NULL;
   node_.assign(WebNode());
 }
 
-bool CefDOMNodeImpl::VerifyContext()
-{
+bool CefDOMNodeImpl::VerifyContext() {
   if (!document_.get()) {
     NOTREACHED();
     return false;
   }
   if (!document_->VerifyContext())
     return false;
-  if(node_.isNull()) {
+  if (node_.isNull()) {
     NOTREACHED();
     return false;
   }
