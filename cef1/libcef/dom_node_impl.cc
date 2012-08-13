@@ -11,6 +11,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/threading/non_thread_safe.h"
 #include "base/utf_string_conversions.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
@@ -38,7 +39,8 @@ namespace {
 
 // Wrapper implementation for WebDOMEventListener.
 class CefDOMEventListenerWrapper : public WebDOMEventListener,
-                                   public CefTrackNode {
+                                   public CefTrackNode,
+                                   public base::NonThreadSafe {
  public:
   CefDOMEventListenerWrapper(CefBrowserImpl* browser, WebFrame* frame,
                              CefRefPtr<CefDOMEventListener> listener)
@@ -49,7 +51,6 @@ class CefDOMEventListenerWrapper : public WebDOMEventListener,
     browser->UIT_AddFrameObject(frame, this);
   }
   virtual ~CefDOMEventListenerWrapper() {
-    REQUIRE_UIT();
   }
 
   virtual void handleEvent(const WebDOMEvent& event) {

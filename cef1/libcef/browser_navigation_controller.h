@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/scoped_vector.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPBody.h"
@@ -187,8 +187,7 @@ class BrowserNavigationController {
   void UpdateMaxPageID();
 
   // List of NavigationEntry for this tab
-  typedef std::vector< linked_ptr<BrowserNavigationEntry> > NavigationEntryList;
-  typedef NavigationEntryList::iterator NavigationEntryListIterator;
+  typedef ScopedVector<BrowserNavigationEntry> NavigationEntryList;
   NavigationEntryList entries_;
 
   // An entry we haven't gotten a response for yet.  This will be discarded
@@ -210,4 +209,3 @@ class BrowserNavigationController {
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NAVIGATION_CONTROLLER_H_
-
