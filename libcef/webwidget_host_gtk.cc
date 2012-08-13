@@ -309,10 +309,7 @@ WebWidgetHost::WebWidgetHost()
       webwidget_(NULL),
       canvas_w_(0),
       canvas_h_(0),
-      popup_(false),
-      has_update_task_(false),
-      has_invalidate_task_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
+      popup_(false) {
   set_painting(false);
 }
 
@@ -403,11 +400,6 @@ void WebWidgetHost::Paint() {
   cairo_destroy(cairo_drawable);
 
   gdk_window_end_paint(window);
-
-  // Used with scheduled invalidation to maintain a consistent frame rate.
-  paint_last_call_ = base::TimeTicks::Now();
-  if (has_invalidate_task_)
-    has_invalidate_task_ = false;
 }
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {

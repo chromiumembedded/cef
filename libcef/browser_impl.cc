@@ -771,12 +771,22 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
     dev_tools_agent_.reset();
   }
 
+  if (frame_objects_.size() > 0)
+    frame_objects_.clear();
+
   // Clean up anything associated with the WebViewHost widget.
   if (webviewhost_.get()) {
     if (webviewhost_->webwidget())
       webviewhost_->webwidget()->close();
     webviewhost_.reset();
   }
+
+  delegate_.reset(NULL);
+  popup_delegate_.reset(NULL);
+  nav_controller_.reset(NULL);
+
+  if (paint_delegate_.get())
+    paint_delegate_.reset(NULL);
 
   // Remove the reference to the window handle.
   UIT_ClearMainWndHandle();
@@ -789,11 +799,11 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
         request_context_proxy_.release());
   }
 
-  // Remove the reference added in UIT_CreateBrowser().
-  Release();
-
   // Remove the browser from the list maintained by the context.
   _Context->RemoveBrowser(this);
+
+  // Remove the reference added in UIT_CreateBrowser().
+  Release();
 }
 
 void CefBrowserImpl::UIT_CloseBrowser() {

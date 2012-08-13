@@ -1225,8 +1225,8 @@ void BrowserWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
   if (page_id_ == -1)
     return;
 
-  BrowserNavigationEntry* entry = static_cast<BrowserNavigationEntry*>(
-      browser_->UIT_GetNavigationController()->GetEntryWithPageID(page_id_));
+  BrowserNavigationEntry* entry =
+      browser_->UIT_GetNavigationController()->GetEntryWithPageID(page_id_);
   if (!entry)
     return;
 
