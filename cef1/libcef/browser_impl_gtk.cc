@@ -92,6 +92,8 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
 
+  webviewhost_->SetFrameRate(settings_.animation_frame_rate);
+
   window_info_.m_Widget = webviewhost_->view_handle();
   g_signal_connect(G_OBJECT(window_info_.m_Widget), "destroy",
                    G_CALLBACK(window_destroyed), this);

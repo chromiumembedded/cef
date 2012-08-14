@@ -38,6 +38,7 @@ const char kPackLoadingDisabled[] = "pack-loading-disabled";
 const char kDragDropDisabled[] = "drag-drop-disabled";
 const char kLoadDropsDisabled[] = "load-drops-disabled";
 const char kHistoryDisabled[] = "history-disabled";
+const char kAnimationFrameRate[] = "animation-frame-rate";
 const char kRemoteFontsDisabled[] = "remote-fonts-disabled";
 const char kDefaultEncoding[] = "default-encoding";
 const char kEncodingDetectorEnabled[] = "encoding-detector-enabled";
