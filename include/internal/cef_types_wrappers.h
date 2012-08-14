@@ -331,6 +331,7 @@ struct CefBrowserSettingsTraits {
     target->drag_drop_disabled = src->drag_drop_disabled;
     target->load_drops_disabled = src->load_drops_disabled;
     target->history_disabled = src->history_disabled;
+    target->animation_frame_rate = src->animation_frame_rate;
 
     cef_string_set(src->standard_font_family.str,
         src->standard_font_family.length, &target->standard_font_family, copy);
