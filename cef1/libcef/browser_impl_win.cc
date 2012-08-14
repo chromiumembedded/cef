@@ -220,6 +220,8 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   if (!settings_.developer_tools_disabled)
     dev_tools_agent_->SetWebView(webviewhost_->webview());
 
+  webviewhost_->SetFrameRate(settings_.animation_frame_rate);
+
   Unlock();
 
   if (!window_info_.m_bWindowRenderingDisabled) {

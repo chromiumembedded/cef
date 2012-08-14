@@ -297,6 +297,10 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
       g_command_line->HasSwitch(cefclient::kLoadDropsDisabled);
   settings.history_disabled =
       g_command_line->HasSwitch(cefclient::kHistoryDisabled);
+
+  settings.animation_frame_rate = GetIntValue(
+      g_command_line->GetSwitchValue(cefclient::kAnimationFrameRate));
+
   settings.remote_fonts_disabled =
       g_command_line->HasSwitch(cefclient::kRemoteFontsDisabled);
 

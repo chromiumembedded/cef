@@ -14,24 +14,15 @@
 using webkit::npapi::WebPluginGeometry;
 using WebKit::WebSize;
 
+const int WebWidgetHost::kDefaultFrameRate = 30;
+const int WebWidgetHost::kMaxFrameRate = 90;
 
 void WebWidgetHost::ScheduleComposite() {
-  if (invalidate_timer_.IsRunning())
-    return;
-
-  // Try to paint at 60fps.
-  static int64 kDesiredRate = 16;
-
-  // Maintain the desired rate.
-  invalidate_timer_.Start(
-      FROM_HERE,
-      base::TimeDelta::FromMilliseconds(kDesiredRate),
-      this,
-      &WebWidgetHost::Invalidate);
+  ScheduleInvalidateTimer();
 }
 
 void WebWidgetHost::ScheduleAnimation() {
-  ScheduleComposite();
+  ScheduleInvalidateTimer();
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
@@ -47,6 +38,12 @@ void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
 void WebWidgetHost::UpdateRedrawRect(const gfx::Rect& rect) {
   if (!view_)
     redraw_rect_ = redraw_rect_.Union(rect);
+}
+
+void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
+  if (rect.IsEmpty())
+    return;
+  DidInvalidateRect(rect);
 }
 
 void WebWidgetHost::SetSize(int width, int height) {
@@ -98,28 +95,69 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y) {
   return gfx::kNullPluginWindow;
 }
 
+void WebWidgetHost::SetFrameRate(int frames_per_second) {
+  if (frames_per_second <= 0)
+    frames_per_second = kDefaultFrameRate;
+  if (frames_per_second > kMaxFrameRate)
+    frames_per_second = kMaxFrameRate;
+
+  frame_delay_ = 1000 / frames_per_second;
+}
+
+void WebWidgetHost::ScheduleInvalidateTimer() {
+  if (invalidate_timer_.IsRunning())
+    return;
+
+  // Maintain the desired rate.
+  base::TimeDelta delta = base::TimeTicks::Now() - last_invalidate_time_;
+  int64 actualRate = delta.InMilliseconds();
+  if (actualRate >= frame_delay_)
+    delta = base::TimeDelta::FromMilliseconds(1);
+  else
+    delta = base::TimeDelta::FromMilliseconds(frame_delay_ - actualRate);
+
+  invalidate_timer_.Start(
+      FROM_HERE,
+      delta,
+      this,
+      &WebWidgetHost::DoInvalidate);
+}
+
+void WebWidgetHost::DoInvalidate() {
+  if (!webwidget_)
+    return;
+  WebSize size = webwidget_->size();
+  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
+
+  last_invalidate_time_ = base::TimeTicks::Now();
+}
+
 void WebWidgetHost::SchedulePaintTimer() {
   if (layouting_ || paint_timer_.IsRunning())
     return;
 
+  // Maintain the desired rate.
+  base::TimeDelta delta = base::TimeTicks::Now() - last_paint_time_;
+  int64 actualRate = delta.InMilliseconds();
+  if (actualRate >= frame_delay_)
+    delta = base::TimeDelta::FromMilliseconds(1);
+  else
+    delta = base::TimeDelta::FromMilliseconds(frame_delay_ - actualRate);
+
   paint_timer_.Start(
       FROM_HERE,
-      base::TimeDelta::FromMilliseconds(0),  // Fire immediately.
+      delta,
       this,
       &WebWidgetHost::DoPaint);
 }
 
 void WebWidgetHost::DoPaint() {
- if (MessageLoop::current()->IsIdle()) {
-    // Paint to the delegate.
 #if defined(OS_MACOSX)
-    SkRegion region;
-    Paint(region);
+  SkRegion region;
+  Paint(region);
 #else
-    Paint();
+  Paint();
 #endif
-  } else {
-    // Try again later.
-    SchedulePaintTimer();
-  }
+
+  last_paint_time_ = base::TimeTicks::Now();
 }
