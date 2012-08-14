@@ -200,6 +200,13 @@ typedef struct _cef_browser_settings_t {
   ///
   bool history_disabled;
 
+  ///
+  // The number of frames per second (fps) for the requestAnimationFrame timer
+  // and calls to CefRenderHandler::OnPaint(). The value must be between 0 and
+  // 90. Specify zero for the default frame rate of 30 fps.
+  ///
+  int animation_frame_rate;
+
   // The below values map to WebPreferences settings.
 
   ///

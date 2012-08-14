@@ -85,10 +85,6 @@ class WebWidgetHost {
   // Called for requestAnimationFrame animations.
   void ScheduleAnimation();
 
-  // Invalidate the complete client area. This is called at a reasonable frame
-  // rate by the Schedule*() methods.
-  void Invalidate();
-
 #if defined(OS_WIN)
   void SetCursor(HCURSOR cursor);
 #endif
@@ -139,6 +135,8 @@ class WebWidgetHost {
   void MoveWindowedPlugin(const webkit::npapi::WebPluginGeometry& geometry);
   gfx::PluginWindowHandle GetWindowedPluginAt(int x, int y);
 
+  void SetFrameRate(int frames_per_second);
+
   void set_popup(bool popup) { popup_ = popup; }
   bool popup() { return popup_; }
 
@@ -146,6 +144,10 @@ class WebWidgetHost {
 
  protected:
   WebWidgetHost();
+
+  // Called from the Schedule*() methods.
+  void ScheduleInvalidateTimer();
+  void DoInvalidate();
 
   // If window rendering is disabled paint messages are generated after all
   // other pending messages have been processed.
@@ -240,9 +242,13 @@ class WebWidgetHost {
   // Used to coalesce DidInvalidateRect() events into a single DoPaint() call.
   // Used when window rendering is disabled.
   base::OneShotTimer<WebWidgetHost> paint_timer_;
+  base::TimeTicks last_paint_time_;
 
   // Used to coalesce Schedule*() events into a single Invalidate() call.
   base::OneShotTimer<WebWidgetHost> invalidate_timer_;
+  base::TimeTicks last_invalidate_time_;
+
+  int64 frame_delay_;
 
 #if defined(OS_WIN)
   // Used to call UpdateImeInputState() while IME is active.
@@ -293,6 +299,9 @@ class WebWidgetHost {
 
   bool painting_;
   bool layouting_;
+
+  static const int kDefaultFrameRate;
+  static const int kMaxFrameRate;
 };
 
 #endif  // CEF_LIBCEF_WEBWIDGET_HOST_H_

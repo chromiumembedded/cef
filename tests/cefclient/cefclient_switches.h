@@ -36,6 +36,7 @@ extern const char kJavascriptFlags[];
 extern const char kDragDropDisabled[];
 extern const char kLoadDropsDisabled[];
 extern const char kHistoryDisabled[];
+extern const char kAnimationFrameRate[];
 extern const char kRemoteFontsDisabled[];
 extern const char kDefaultEncoding[];
 extern const char kEncodingDetectorEnabled[];
