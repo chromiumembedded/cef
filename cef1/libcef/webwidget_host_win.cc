@@ -316,13 +316,6 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   ::InvalidateRect(view_, &r, FALSE);
 }
 
-void WebWidgetHost::Invalidate() {
-  if (!webwidget_)
-    return;
-  WebSize size = webwidget_->size();
-  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
-}
-
 void WebWidgetHost::SetCursor(HCURSOR cursor) {
   DCHECK(view_);
   SetClassLong(view_, GCL_HCURSOR,
@@ -338,6 +331,7 @@ WebWidgetHost::WebWidgetHost()
       canvas_h_(0),
       popup_(false),
       track_mouse_leave_(false),
+      frame_delay_(1000 / kDefaultFrameRate),
       tooltip_view_(NULL),
       tooltip_showing_(false),
       ime_notification_(false),
@@ -528,13 +522,6 @@ void WebWidgetHost::Paint() {
 
     paint_delegate_->Paint(popup_, damaged_rects, pixels);
   }
-}
-
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
-  if (rect.IsEmpty())
-    return;
-
-  DidInvalidateRect(rect);
 }
 
 bool WebWidgetHost::GetImage(int width, int height, void* buffer) {

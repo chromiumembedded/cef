@@ -64,6 +64,11 @@ class ClientOSRHandler : public CefClient,
   ~ClientOSRHandler() {
   }
 
+  // Called immediately before the plugin is destroyed.
+  void Detach() {
+    plugin_ = NULL;
+  }
+
   // CefClient methods
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
     return this;
@@ -202,6 +207,9 @@ class ClientOSRHandler : public CefClient,
                            CefRect& rect) OVERRIDE {
     REQUIRE_UI_THREAD();
 
+    if (!plugin_)
+      return false;
+
     // The simulated screen and view rectangle are the same. This is necessary
     // for popup menus to be located and sized inside the view.
     RECT clientRect;
@@ -225,6 +233,9 @@ class ClientOSRHandler : public CefClient,
                               int& screenY) OVERRIDE {
     REQUIRE_UI_THREAD();
 
+    if (!plugin_)
+      return false;
+
     // Convert the point from view coordinates to actual screen coordinates.
     POINT screen_pt = {viewX, viewY};
     MapWindowPoints(plugin_->hWnd, HWND_DESKTOP, &screen_pt, 1);
@@ -236,12 +247,20 @@ class ClientOSRHandler : public CefClient,
   virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
                            bool show) OVERRIDE {
     REQUIRE_UI_THREAD();
+
+    if (!plugin_)
+      return;
+
     plugin_->renderer.OnPopupShow(browser, show);
   }
 
   virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
                            const CefRect& rect) OVERRIDE {
     REQUIRE_UI_THREAD();
+
+    if (!plugin_)
+      return;
+
     plugin_->renderer.OnPopupSize(browser, rect);
   }
 
@@ -251,6 +270,9 @@ class ClientOSRHandler : public CefClient,
                        const void* buffer) OVERRIDE {
     REQUIRE_UI_THREAD();
 
+    if (!plugin_)
+      return;
+
     wglMakeCurrent(plugin_->hDC, plugin_->hRC);
     plugin_->renderer.OnPaint(browser, type, dirtyRects, buffer);
   }
@@ -258,6 +280,9 @@ class ClientOSRHandler : public CefClient,
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
                               CefCursorHandle cursor) OVERRIDE {
     REQUIRE_UI_THREAD();
+
+    if (!plugin_)
+      return;
 
     // Change the plugin window's cursor.
     SetClassLong(plugin_->hWnd, GCL_HCURSOR,
@@ -357,6 +382,11 @@ NPError NPP_DestroyImpl(NPP instance, NPSavedData** save) {
   ClientPlugin* plugin = reinterpret_cast<ClientPlugin*>(instance->pdata);
 
   if (plugin) {
+    if (g_offscreenBrowser.get()) {
+      CefRefPtr<ClientOSRHandler> handler =
+          static_cast<ClientOSRHandler*>(g_offscreenBrowser->GetClient().get());
+      handler->Detach();
+    }
     if (plugin->hWnd) {
       DestroyWindow(plugin->hWnd);
       DisableGL(plugin);

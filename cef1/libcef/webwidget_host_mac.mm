@@ -82,6 +82,7 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
+      frame_delay_(1000 / kDefaultFrameRate),
       mouse_modifiers_(0),
       painting_(false),
       layouting_(false) {
@@ -320,23 +321,8 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
   }
 }
 
-void WebWidgetHost::Invalidate() {
-  if (!webwidget_)
-    return;
-
-  WebSize size = webwidget_->size();
-  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
-}
-
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
-}
-
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
-  if (rect.IsEmpty())
-    return;
-
-  DidInvalidateRect(rect);
 }
 
 bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {

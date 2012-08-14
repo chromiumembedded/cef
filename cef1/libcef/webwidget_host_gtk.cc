@@ -290,26 +290,14 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DidInvalidateRect(clip_rect);
 }
 
-void WebWidgetHost::Invalidate() {
-  int width = logical_size_.width();
-  int height = logical_size_.height();
-  GdkRectangle grect = {
-    0,
-    0,
-    width,
-    height
-  };
-  GdkWindow* window = view_->window;
-  gdk_window_invalidate_rect(window, &grect, 0);
-}
-
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       paint_delegate_(NULL),
       webwidget_(NULL),
       canvas_w_(0),
       canvas_h_(0),
-      popup_(false) {
+      popup_(false),
+      frame_delay_(1000 / kDefaultFrameRate) {
   set_painting(false);
 }
 
@@ -404,11 +392,6 @@ void WebWidgetHost::Paint() {
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
-}
-
-void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
 }
 
 bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
