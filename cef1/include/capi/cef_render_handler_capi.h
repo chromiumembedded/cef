@@ -96,7 +96,9 @@ typedef struct _cef_render_handler_t {
   // element is the view or the popup widget. |buffer| contains the pixel data
   // for the whole image. |dirtyRects| contains the set of rectangles that need
   // to be repainted. On Windows |buffer| will be width*height*4 bytes in size
-  // and represents a BGRA image with an upper-left origin.
+  // and represents a BGRA image with an upper-left origin. The
+  // cef_browser_tSettings.animation_frame_rate value controls the rate at which
+  // this function is called.
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, enum cef_paint_element_type_t type,

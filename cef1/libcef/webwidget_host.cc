@@ -105,7 +105,8 @@ void WebWidgetHost::SetFrameRate(int frames_per_second) {
 }
 
 void WebWidgetHost::ScheduleInvalidateTimer() {
-  if (invalidate_timer_.IsRunning())
+  // Invalidation is only required when window rendering is enabled.
+  if (!view_ || invalidate_timer_.IsRunning())
     return;
 
   // Maintain the desired rate.
