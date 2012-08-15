@@ -436,10 +436,13 @@ NPError NPP_SetWindowImpl(NPP instance, NPWindow* window_info) {
 
     // Create the off-screen rendering window.
     CefWindowInfo windowInfo;
-    CefBrowserSettings settings;
     windowInfo.SetAsOffScreen(plugin->hWnd);
     if (g_offscreenTransparent)
       windowInfo.SetTransparentPainting(TRUE);
+
+    CefBrowserSettings settings;
+    AppGetBrowserSettings(settings);
+
     CefBrowser::CreateBrowser(windowInfo, new ClientOSRHandler(plugin),
         "http://www.google.com", settings);
   }

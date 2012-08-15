@@ -7,8 +7,9 @@
 
 #include "osrtest_mac.h"
 #include "include/cef.h"
-#include "osrenderer.h"
+#include "cefclient.h"
 #include "client_popup_handler.h"
+#include "osrenderer.h"
 #include "resource_util.h"
 #include "util.h"
 
@@ -735,11 +736,13 @@ void RunTest(bool transparent) {
   [view release];
 
   CefWindowInfo info;
-  CefBrowserSettings settings;
 
   // Initialize the window info as off-screen.
   info.SetAsOffScreen(view);
   info.SetTransparentPainting(transparent);
+
+  CefBrowserSettings settings;
+  AppGetBrowserSettings(settings);
 
   // Creat the browser window.
   CefBrowser::CreateBrowser(info, new ClientOSRHandler(view),

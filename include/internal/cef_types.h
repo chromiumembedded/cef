@@ -201,9 +201,14 @@ typedef struct _cef_browser_settings_t {
   bool history_disabled;
 
   ///
-  // The number of frames per second (fps) for the requestAnimationFrame timer
-  // and calls to CefRenderHandler::OnPaint(). The value must be between 0 and
-  // 90. Specify zero for the default frame rate of 30 fps.
+  // The number of frames per second (fps) for animation and windowless
+  // rendering. When window rendering is enabled and the JavaScript
+  // requestAnimationFrame method is used the browser client area will be
+  // invalidated at the rate specified. When window rendering is disabled the
+  // CefRenderHandler::OnPaint() method will be called at the rate specified.
+  // This value must be between 0 and 90. Specify a value of zero for the
+  // default frame rate of 30 fps. Changing this value may affect display
+  // performance and/or CPU usage.
   ///
   int animation_frame_rate;
 
