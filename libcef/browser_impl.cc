@@ -1061,10 +1061,6 @@ void CefBrowserImpl::UIT_Invalidate(const CefRect& dirtyRect) {
     gfx::Rect rect(dirtyRect.x, dirtyRect.y, dirtyRect.width,
                    dirtyRect.height);
 
-    // Used when window rendering is disabled to send the specified region to
-    // the paint delegate when WebWidget::Paint() is next called.
-    host->UpdateRedrawRect(rect);
-
     // Cause WebWidget::Paint() to be called when next appropriate.
     host->InvalidateRect(rect);
   }

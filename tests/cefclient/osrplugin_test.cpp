@@ -62,6 +62,10 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
         // Transparency test.
         browser->GetMainFrame()->LoadURL(
             "http://tests/transparency");
+      } else if(elementId == "testAnimation") {
+        // requestAnimationFrame test.
+        browser->GetMainFrame()->LoadURL(
+            "http://mrdoob.com/lab/javascript/requestanimationframe/");
       } else if(elementId == "testWindowlessPlugin") {
         // Load flash, which is a windowless plugin.
         browser->GetMainFrame()->LoadURL(
@@ -103,6 +107,7 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
       RegisterClickListener(document, listener, "reload");
       RegisterClickListener(document, listener, "go");
       RegisterClickListener(document, listener, "testTransparency");
+      RegisterClickListener(document, listener, "testAnimation");
       RegisterClickListener(document, listener, "testWindowlessPlugin");
       RegisterClickListener(document, listener, "viewSource");
     }
@@ -113,7 +118,7 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent)
   // Center the window on the screen.
   int screenX = GetSystemMetrics(SM_CXFULLSCREEN);
   int screenY = GetSystemMetrics(SM_CYFULLSCREEN);
-  int width = 1000, height = 760;
+  int width = 1000, height = 780;
   int x = (screenX - width) / 2;
   int y = (screenY - height) / 2;
 

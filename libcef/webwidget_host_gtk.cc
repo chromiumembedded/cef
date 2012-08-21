@@ -128,14 +128,14 @@ class WebWidgetHostGtkWidget {
   static void HandleSizeAllocate(GtkWidget* widget,
                                  GtkAllocation* allocation,
                                  WebWidgetHost* host) {
-    host->Resize(WebSize(allocation->width, allocation->height));
+    host->SetSize(allocation->width, allocation->height);
   }
 
   // Size, position, or stacking of the GdkWindow changed.
   static gboolean HandleConfigure(GtkWidget* widget,
                                   GdkEventConfigure* config,
                                   WebWidgetHost* host) {
-    host->Resize(WebSize(config->width, config->height));
+    host->SetSize(config->width, config->height);
     return FALSE;
   }
 
@@ -146,7 +146,7 @@ class WebWidgetHostGtkWidget {
     // See comments above about what g_handling_expose is for.
     g_handling_expose = true;
     gfx::Rect rect(expose->area);
-    host->UpdatePaintRect(rect);
+    host->InvalidateRect(rect);
     host->Paint();
     g_handling_expose = false;
     return FALSE;
@@ -273,21 +273,10 @@ WebWidgetHost* WebWidgetHost::Create(GtkWidget* parent_view,
   return host;
 }
 
-void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
-  DLOG_IF(WARNING, painting_) << "unexpected invalidation while painting";
-
-  UpdatePaintRect(damaged_rect);
-
-  if (!g_handling_expose) {
-    gtk_widget_queue_draw_area(GTK_WIDGET(view_), damaged_rect.x(),
-        damaged_rect.y(), damaged_rect.width(), damaged_rect.height());
-  }
-}
-
-void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
+void WebWidgetHost::ScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   // This is used for optimizing painting when the renderer is scrolled. We're
   // currently not doing any optimizations so just invalidate the region.
-  DidInvalidateRect(clip_rect);
+  InvalidateRect(clip_rect);
 }
 
 WebWidgetHost::WebWidgetHost()
@@ -297,6 +286,8 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
+      timer_executing_(false),
+      timer_wanted_(false),
       frame_delay_(1000 / kDefaultFrameRate) {
   set_painting(false);
 }
@@ -311,14 +302,24 @@ WebWidgetHost::~WebWidgetHost() {
   // webwidget_->close();
 }
 
-void WebWidgetHost::Resize(const gfx::Size &newsize) {
-  logical_size_ = newsize;
-  SetSize(newsize.width(), newsize.height());
+void WebWidgetHost::InvalidateWindow() {
+  int width, height;
+  GetSize(width, height);
+  const gfx::Rect client_rect(width, height);
+  InvalidateWindowRect(client_rect);
+}
+
+void WebWidgetHost::InvalidateWindowRect(const gfx::Rect& rect) {
+  DCHECK(view_);
+  if (!g_handling_expose) {
+    gtk_widget_queue_draw_area(GTK_WIDGET(view_), rect.x(),
+        rect.y(), rect.width(), rect.height());
+  }
 }
 
 void WebWidgetHost::Paint() {
-  int width = logical_size_.width();
-  int height = logical_size_.height();
+  int width, height;
+  GetSize(width, height);
   gfx::Rect client_rect(width, height);
 
   // Number of pixels that the canvas is allowed to differ from the client area.
@@ -394,25 +395,10 @@ void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
-  if (!canvas_.get())
-    return false;
-
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
-  return false;
-}
-
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
   Display* display = GtkWidgetGetDisplay(view_);
   int screen_num = GtkWidgetGetScreenNum(view_);
   return WebScreenInfoFactory::screenInfo(display, screen_num);
-}
-
-void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
-  set_painting(true);
-  webwidget_->paint(canvas_.get(), rect);
-  set_painting(false);
 }
 
 void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
