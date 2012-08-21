@@ -10,6 +10,7 @@
 #include "base/message_loop.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWidget.h"
+#include "webkit/glue/webkit_glue.h"
 
 using webkit::npapi::WebPluginGeometry;
 using WebKit::WebSize;
@@ -17,38 +18,67 @@ using WebKit::WebSize;
 const int WebWidgetHost::kDefaultFrameRate = 30;
 const int WebWidgetHost::kMaxFrameRate = 90;
 
-void WebWidgetHost::ScheduleComposite() {
-  ScheduleInvalidateTimer();
-}
-
-void WebWidgetHost::ScheduleAnimation() {
-  ScheduleInvalidateTimer();
-}
-
-void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
-#if defined(OS_WIN) || defined(OS_MACOSX)
-  paint_rgn_.op(rect.x(), rect.y(), rect.right(), rect.bottom(),
-      SkRegion::kUnion_Op);
-#else
-  // TODO(cef): Update all ports to use regions instead of rectangles.
-  paint_rect_ = paint_rect_.Union(rect);
-#endif
-}
-
-void WebWidgetHost::UpdateRedrawRect(const gfx::Rect& rect) {
-  if (!view_)
-    redraw_rect_ = redraw_rect_.Union(rect);
-}
-
 void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
   if (rect.IsEmpty())
     return;
-  DidInvalidateRect(rect);
+
+  int width, height;
+  GetSize(width, height);
+  const gfx::Rect client_rect(width, height);
+
+  const gfx::Rect rect_in_client = client_rect.Intersect(rect);
+  if (rect_in_client.IsEmpty())
+    return;
+
+  UpdatePaintRect(rect_in_client);
+
+  if (view_)
+    InvalidateWindowRect(rect_in_client);
+  else
+    ScheduleTimer();
+}
+
+void WebWidgetHost::ScheduleComposite() {
+  ScheduleTimer();
+}
+
+void WebWidgetHost::ScheduleAnimation() {
+  ScheduleTimer();
+}
+
+bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
+  if (!canvas_.get())
+    return false;
+
+  const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
+  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
+
+  if (width == canvas_->getDevice()->width() &&
+      height == canvas_->getDevice()->height()) {
+    // The specified width and height values are the same as the canvas size.
+    // Return the existing canvas contents.
+    const void* pixels = bitmap.getPixels();
+    memcpy(rgba_buffer, pixels, width * height * 4);
+    return true;
+  }
+
+  // Create a new canvas of the requested size.
+  scoped_ptr<skia::PlatformCanvas> new_canvas(
+      new skia::PlatformCanvas(width, height, true));
+
+  new_canvas->writePixels(bitmap, 0, 0);
+  const SkBitmap& new_bitmap = new_canvas->getDevice()->accessBitmap(false);
+  DCHECK(new_bitmap.config() == SkBitmap::kARGB_8888_Config);
+
+  // Return the new canvas contents.
+  const void* pixels = new_bitmap.getPixels();
+  memcpy(rgba_buffer, pixels, width * height * 4);
+  return true;
 }
 
 void WebWidgetHost::SetSize(int width, int height) {
   webwidget_->resize(WebSize(width, height));
-  DidInvalidateRect(gfx::Rect(0, 0, width, height));
+  InvalidateRect(gfx::Rect(0, 0, width, height));
   EnsureTooltip();
 }
 
@@ -104,61 +134,94 @@ void WebWidgetHost::SetFrameRate(int frames_per_second) {
   frame_delay_ = 1000 / frames_per_second;
 }
 
-void WebWidgetHost::ScheduleInvalidateTimer() {
-  // Invalidation is only required when window rendering is enabled.
-  if (!view_ || invalidate_timer_.IsRunning())
-    return;
-
-  // Maintain the desired rate.
-  base::TimeDelta delta = base::TimeTicks::Now() - last_invalidate_time_;
-  int64 actualRate = delta.InMilliseconds();
-  if (actualRate >= frame_delay_)
-    delta = base::TimeDelta::FromMilliseconds(1);
-  else
-    delta = base::TimeDelta::FromMilliseconds(frame_delay_ - actualRate);
-
-  invalidate_timer_.Start(
-      FROM_HERE,
-      delta,
-      this,
-      &WebWidgetHost::DoInvalidate);
-}
-
-void WebWidgetHost::DoInvalidate() {
-  if (!webwidget_)
-    return;
-  WebSize size = webwidget_->size();
-  InvalidateRect(gfx::Rect(0, 0, size.width, size.height));
-
-  last_invalidate_time_ = base::TimeTicks::Now();
-}
-
-void WebWidgetHost::SchedulePaintTimer() {
-  if (layouting_ || paint_timer_.IsRunning())
-    return;
-
-  // Maintain the desired rate.
-  base::TimeDelta delta = base::TimeTicks::Now() - last_paint_time_;
-  int64 actualRate = delta.InMilliseconds();
-  if (actualRate >= frame_delay_)
-    delta = base::TimeDelta::FromMilliseconds(1);
-  else
-    delta = base::TimeDelta::FromMilliseconds(frame_delay_ - actualRate);
-
-  paint_timer_.Start(
-      FROM_HERE,
-      delta,
-      this,
-      &WebWidgetHost::DoPaint);
-}
-
-void WebWidgetHost::DoPaint() {
-#if defined(OS_MACOSX)
-  SkRegion region;
-  Paint(region);
+void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
+#if defined(OS_WIN) || defined(OS_MACOSX)
+  paint_rgn_.op(rect.x(), rect.y(), rect.right(), rect.bottom(),
+      SkRegion::kUnion_Op);
 #else
-  Paint();
+  // TODO(cef): Update all ports to use regions instead of rectangles.
+  paint_rect_ = paint_rect_.Union(rect);
 #endif
+}
 
-  last_paint_time_ = base::TimeTicks::Now();
+void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
+#ifndef NDEBUG
+  DCHECK(!painting_);
+#endif
+  DCHECK(canvas_.get());
+
+  if (rect.IsEmpty())
+    return;
+
+  if (IsTransparent()) {
+    // When using transparency mode clear the rectangle before painting.
+    SkPaint clearpaint;
+    clearpaint.setARGB(0, 0, 0, 0);
+    clearpaint.setXfermodeMode(SkXfermode::kClear_Mode);
+
+    SkRect skrc;
+    skrc.set(rect.x(), rect.y(), rect.right(), rect.bottom());
+    canvas_->drawRect(skrc, clearpaint);
+  }
+
+  set_painting(true);
+  webwidget_->paint(webkit_glue::ToWebCanvas(canvas_.get()), rect);
+  set_painting(false);
+}
+
+void WebWidgetHost::ScheduleTimer() {
+  if (timer_.IsRunning())
+    return;
+
+  // This method may be called multiple times while the timer callback is
+  // executing. If so re-execute this method a single time after the callback
+  // has completed.
+  if (timer_executing_) {
+    if (!timer_wanted_)
+      timer_wanted_ = true;
+    return;
+  }
+
+  // Maintain the desired rate.
+  base::TimeDelta delta = base::TimeTicks::Now() - timer_last_;
+  int64 actualRate = delta.InMilliseconds();
+  if (actualRate >= frame_delay_)
+    delta = base::TimeDelta::FromMilliseconds(1);
+  else
+    delta = base::TimeDelta::FromMilliseconds(frame_delay_ - actualRate);
+
+  timer_.Start(
+      FROM_HERE,
+      delta,
+      this,
+      &WebWidgetHost::DoTimer);
+}
+
+void WebWidgetHost::DoTimer() {
+  timer_executing_ = true;
+
+  if (view_) {
+    // Window rendering is enabled and we've received a requestAnimationFrame
+    // or similar call. Trigger the OS to invalidate/repaint the client area at
+    // the requested frequency.
+    InvalidateWindow();
+  } else {
+    // Window rendering is disabled. Generate OnPaint() calls at the requested
+    // frequency.
+#if defined(OS_MACOSX)
+    SkRegion region;
+    Paint(region);
+#else
+    Paint();
+#endif
+  }
+
+  timer_executing_ = false;
+
+  timer_last_ = base::TimeTicks::Now();
+
+  if (timer_wanted_) {
+    timer_wanted_ = false;
+    ScheduleTimer();
+  }
 }

@@ -321,7 +321,8 @@ void ExtractUnderlines(
   [super setFrame:frameRect];
   if (browser_ && browser_->UIT_GetWebView()) {
     const NSRect bounds = [self bounds];
-    browser_->UIT_GetWebViewHost()->Resize(gfx::Rect(NSRectToCGRect(bounds)));
+    browser_->UIT_GetWebViewHost()->SetSize(bounds.size.width,
+                                            bounds.size.height);
   }
 }
 
