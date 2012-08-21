@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "libcef/webview_host.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
 WebViewHost::WebViewHost(BrowserWebViewDelegate* delegate)
   : delegate_(delegate) {
@@ -12,3 +13,7 @@ WebViewHost::WebViewHost(BrowserWebViewDelegate* delegate)
 WebViewHost::~WebViewHost() {
 }
 #endif
+
+bool WebViewHost::IsTransparent() {
+  return static_cast<WebKit::WebView*>(webwidget_)->isTransparent();
+}

@@ -20,7 +20,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebVector.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "third_party/skia/include/core/SkRegion.h"
@@ -134,9 +133,12 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         // during painting.
         return 0;
 
-      case WM_SIZE:
-        host->Resize(lparam);
+      case WM_SIZE: {
+        int width = LOWORD(lparam);
+        int height = HIWORD(lparam);
+        host->SetSize(width, height);
         return 0;
+      }
 
       case WM_MOUSEMOVE:
       case WM_MOUSELEAVE:
@@ -266,26 +268,7 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
   return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
-  int width, height;
-  GetSize(width, height);
-  const gfx::Rect client_rect(width, height);
-
-  const gfx::Rect damaged_rect_in_client = client_rect.Intersect(damaged_rect);
-  if (damaged_rect_in_client.IsEmpty())
-    return;
-
-  UpdatePaintRect(damaged_rect_in_client);
-
-  if (view_) {
-    RECT r = damaged_rect_in_client.ToRECT();
-    ::InvalidateRect(view_, &r, FALSE);
-  } else {
-    SchedulePaintTimer();
-  }
-}
-
-void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
+void WebWidgetHost::ScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DCHECK(dx || dy);
 
   // Invalidate and re-paint the entire scroll rect if:
@@ -296,7 +279,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   if (!view_ || !canvas_.get() || layouting_ || painting_ ||
       abs(dx) >= clip_rect.width() || abs(dy) >= clip_rect.height() ||
       paint_rgn_.intersects(convertToSkiaRect(clip_rect))) {
-    DidInvalidateRect(clip_rect);
+    InvalidateRect(clip_rect);
     return;
   }
 
@@ -330,6 +313,8 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
+      timer_executing_(false),
+      timer_wanted_(false),
       track_mouse_leave_(false),
       frame_delay_(1000 / kDefaultFrameRate),
       tooltip_view_(NULL),
@@ -348,6 +333,20 @@ WebWidgetHost::~WebWidgetHost() {
     ui::SetWindowUserData(view_, 0);
     view_ = NULL;
   }
+}
+
+void WebWidgetHost::InvalidateWindow() {
+  int width, height;
+  GetSize(width, height);
+  const gfx::Rect client_rect(width, height);
+  InvalidateWindowRect(client_rect);
+}
+
+void WebWidgetHost::InvalidateWindowRect(const gfx::Rect& rect) {
+  DCHECK(view_);
+
+  RECT r = rect.ToRECT();
+  ::InvalidateRect(view_, &r, FALSE);
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -370,12 +369,6 @@ void WebWidgetHost::Paint() {
 
   // Damaged rectangle used for drawing when window rendering is disabled.
   SkRegion damaged_rgn;
-  if (!view_ && !redraw_rect_.IsEmpty()) {
-    // At a minimum we need to send the delegate the rectangle that was
-    // requested by calling CefBrowser::InvalidateRect().
-    damaged_rgn.setRect(convertToSkiaRect(redraw_rect_));
-    redraw_rect_ = gfx::Rect();
-  }
 
   if (view_ && !webwidget_->isAcceleratedCompositingActive()) {
     // Number of pixels that the canvas is allowed to differ from the client
@@ -524,39 +517,8 @@ void WebWidgetHost::Paint() {
   }
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* buffer) {
-  const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
-  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  if (width == canvas_->getDevice()->width() &&
-      height == canvas_->getDevice()->height()) {
-    // The specified width and height values are the same as the canvas size.
-    // Return the existing canvas contents.
-    const void* pixels = bitmap.getPixels();
-    memcpy(buffer, pixels, width * height * 4);
-    return true;
-  }
-
-  // Create a new canvas of the requested size.
-  scoped_ptr<skia::PlatformCanvas> new_canvas(
-      new skia::PlatformCanvas(width, height, true));
-
-  new_canvas->writePixels(bitmap, 0, 0);
-  const SkBitmap& new_bitmap = new_canvas->getDevice()->accessBitmap(false);
-  DCHECK(new_bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  // Return the new canvas contents.
-  const void* pixels = new_bitmap.getPixels();
-  memcpy(buffer, pixels, width * height * 4);
-  return true;
-}
-
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
   return WebScreenInfoFactory::screenInfo(view_);
-}
-
-void WebWidgetHost::Resize(LPARAM lparam) {
-  SetSize(LOWORD(lparam), HIWORD(lparam));
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
@@ -725,28 +687,6 @@ void WebWidgetHost::TrackMouseLeave(bool track) {
   tme.hwndTrack = view_;
 
   TrackMouseEvent(&tme);
-}
-
-void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
-#ifndef NDEBUG
-  DCHECK(!painting_);
-#endif
-  DCHECK(canvas_.get());
-
-  if (!popup() && ((WebKit::WebView*)webwidget_)->isTransparent()) {
-    // When using transparency mode clear the rectangle before painting.
-    SkPaint clearpaint;
-    clearpaint.setARGB(0, 0, 0, 0);
-    clearpaint.setXfermodeMode(SkXfermode::kClear_Mode);
-
-    SkRect skrc;
-    skrc.set(rect.x(), rect.y(), rect.right(), rect.bottom());
-    canvas_->drawRect(skrc, clearpaint);
-  }
-
-  set_painting(true);
-  webwidget_->paint(canvas_.get(), rect);
-  set_painting(false);
 }
 
 void WebWidgetHost::SendKeyEvent(cef_key_type_t type,

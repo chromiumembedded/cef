@@ -61,6 +61,8 @@ class WebViewHost : public WebWidgetHost {
   virtual void SetFocus(bool enable);
 #endif
 
+  virtual bool IsTransparent();
+
  protected:
   explicit WebViewHost(BrowserWebViewDelegate* delegate);
 
