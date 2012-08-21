@@ -22,12 +22,10 @@ MSVC_POP_WARNING();
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
-#import "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSize.h"
 #import "third_party/skia/include/core/SkRegion.h"
 #import "ui/gfx/rect.h"
 #import "ui/gfx/size.h"
-#import "webkit/glue/webkit_glue.h"
 
 using webkit::npapi::WebPluginGeometry;
 using WebKit::WebInputEvent;
@@ -82,6 +80,8 @@ WebWidgetHost::WebWidgetHost()
       canvas_w_(0),
       canvas_h_(0),
       popup_(false),
+      timer_executing_(false),
+      timer_wanted_(false),
       frame_delay_(1000 / kDefaultFrameRate),
       mouse_modifiers_(0),
       painting_(false),
@@ -92,27 +92,7 @@ WebWidgetHost::WebWidgetHost()
 WebWidgetHost::~WebWidgetHost() {
 }
 
-void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
-  int width, height;
-  GetSize(width, height);
-  const gfx::Rect client_rect(width, height);
-
-  const gfx::Rect damaged_rect_in_client = client_rect.Intersect(damaged_rect);
-  if (damaged_rect_in_client.IsEmpty())
-    return;
-
-  UpdatePaintRect(damaged_rect_in_client);
-
-  if (view_) {
-    NSRect cocoa_rect = NSRectFromCGRect(damaged_rect_in_client.ToCGRect());
-    cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
-    [view_ setNeedsDisplayInRect:cocoa_rect];
-  } else {
-    SchedulePaintTimer();
-  }
-}
-
-void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
+void WebWidgetHost::ScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DCHECK(dx || dy);
 
   int width, height;
@@ -137,7 +117,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   // of the view means we can just invalidate the entire scroll rect.
   if (!view_ || [view_ canDraw] || painting_ || layouting_ || Dx >= w ||
       Dy >= h) {
-    DidInvalidateRect(clip_rect);
+    InvalidateRect(clip_rect);
     return;
   }
 
@@ -161,7 +141,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   // to the screen buffer.
   rect = gfx::Rect(dx>=0? x: r - Dx, dy>=0? y: b - Dy,
                    dx>0? Dx: w, dy>0? Dy: h);
-  DidInvalidateRect(rect);
+  InvalidateRect(rect);
 
   // If any part of the scrolled rect was marked as dirty make sure to redraw
   // it in the new scrolled-to location. Otherwise we can end up with artifacts
@@ -170,7 +150,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   SkRegion moved_paint_rgn(paint_rgn_);
   moved_paint_rgn.translate(dx, dy);
   moved_paint_rgn.op(convertToSkiaRect(client_rect), SkRegion::kIntersect_Op);
-  DidInvalidateRect(convertFromSkiaRect(moved_paint_rgn.getBounds()));
+  InvalidateRect(convertFromSkiaRect(moved_paint_rgn.getBounds()));
 }
 
 void WebWidgetHost::Paint(SkRegion& update_rgn) {
@@ -179,12 +159,6 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
   gfx::Rect client_rect(width, height);
 
   SkRegion damaged_rgn;
-  if (!view_ && !redraw_rect_.IsEmpty()) {
-    // At a minimum we need to send the delegate the rectangle that was
-    // requested by calling CefBrowser::InvalidateRect().
-    damaged_rgn.setRect(convertToSkiaRect(redraw_rect_));
-    redraw_rect_ = gfx::Rect();
-  }
 
   if (view_) {
     // Union the rectangle that WebKit think needs repainting with the rectangle
@@ -325,42 +299,8 @@ void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
   // TODO(port): Implement this method as part of tooltip support.
 }
 
-bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
-  if (!canvas_.get())
-    return false;
-
-  const SkBitmap& bitmap = canvas_->getDevice()->accessBitmap(false);
-  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  if (width == canvas_->getDevice()->width() &&
-      height == canvas_->getDevice()->height()) {
-    // The specified width and height values are the same as the canvas size.
-    // Return the existing canvas contents.
-    const void* pixels = bitmap.getPixels();
-    memcpy(rgba_buffer, pixels, width * height * 4);
-    return true;
-  }
-
-  // Create a new canvas of the requested size.
-  scoped_ptr<skia::PlatformCanvas> new_canvas(
-      new skia::PlatformCanvas(width, height, true));
-
-  new_canvas->writePixels(bitmap, 0, 0);
-  const SkBitmap& new_bitmap = new_canvas->getDevice()->accessBitmap(false);
-  DCHECK(new_bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  // Return the new canvas contents.
-  const void* pixels = new_bitmap.getPixels();
-  memcpy(rgba_buffer, pixels, width * height * 4);
-  return true;
-}
-
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
   return WebScreenInfoFactory::screenInfo(view_);
-}
-
-void WebWidgetHost::Resize(const gfx::Rect& rect) {
-  SetSize(rect.width(), rect.height());
 }
 
 void WebWidgetHost::MouseEvent(NSEvent *event) {
@@ -419,31 +359,6 @@ void WebWidgetHost::KeyEvent(NSEvent *event) {
 
 void WebWidgetHost::SetFocus(bool enable) {
   webwidget_->setFocus(enable);
-}
-
-void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
-#ifndef NDEBUG
-  DCHECK(!painting_);
-#endif
-  DCHECK(canvas_.get());
-
-  if (rect.IsEmpty())
-    return;
-
-  if (!popup() && ((WebKit::WebView*)webwidget_)->isTransparent()) {
-    // When using transparency mode clear the rectangle before painting.
-    SkPaint clearpaint;
-    clearpaint.setARGB(0, 0, 0, 0);
-    clearpaint.setXfermodeMode(SkXfermode::kClear_Mode);
-
-    SkRect skrc;
-    skrc.set(rect.x(), rect.y(), rect.right(), rect.bottom());
-    canvas_->drawRect(skrc, clearpaint);
-  }
-
-  set_painting(true);
-  webwidget_->paint(webkit_glue::ToWebCanvas(canvas_.get()), rect);
-  set_painting(false);
 }
 
 void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
@@ -634,6 +549,23 @@ void WebWidgetHost::SendFocusEvent(bool setFocus) {
 }
 
 void WebWidgetHost::SendCaptureLostEvent() {
+}
+
+void WebWidgetHost::InvalidateWindow() {
+  DCHECK(view_);
+  [view_ setNeedsDisplay:YES];
+}
+
+void WebWidgetHost::InvalidateWindowRect(const gfx::Rect& rect) {
+  DCHECK(view_);
+
+  int width, height;
+  GetSize(width, height);
+  const gfx::Rect client_rect(width, height);
+
+  NSRect cocoa_rect = NSRectFromCGRect(rect.ToCGRect());
+  cocoa_rect.origin.y = client_rect.height() - NSMaxY(cocoa_rect);
+  [view_ setNeedsDisplayInRect:cocoa_rect];
 }
 
 void WebWidgetHost::EnsureTooltip() {

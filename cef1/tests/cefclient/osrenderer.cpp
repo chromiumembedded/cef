@@ -136,8 +136,6 @@ void ClientOSRenderer::Render() {
     // Disable alpha blending.
     glDisable(GL_BLEND);
   }
-
-  glFlush();
 }
 
 void ClientOSRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser,
