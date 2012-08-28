@@ -407,8 +407,8 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
 
   CefRefPtr<CefPostDataElement> postelem;
 
-  const std::vector<net::UploadData::Element>* elements = data.elements();
-  std::vector<net::UploadData::Element>::const_iterator it = elements->begin();
+  const std::vector<net::UploadElement>* elements = data.elements();
+  std::vector<net::UploadElement>::const_iterator it = elements->begin();
   for (; it != elements->end(); ++it) {
     postelem = CefPostDataElement::Create();
     static_cast<CefPostDataElementImpl*>(postelem.get())->Set(*it);
@@ -419,8 +419,8 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
 void CefPostDataImpl::Get(net::UploadData& data) {
   AutoLock lock_scope(this);
 
-  net::UploadData::Element element;
-  std::vector<net::UploadData::Element> data_elements;
+  net::UploadElement element;
+  std::vector<net::UploadElement> data_elements;
   ElementVector::const_iterator it = elements_.begin();
   for (; it != elements_.end(); ++it) {
     static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
@@ -574,23 +574,20 @@ size_t CefPostDataElementImpl::GetBytes(size_t size, void* bytes) {
   return rv;
 }
 
-void CefPostDataElementImpl::Set(const net::UploadData::Element& element) {
+void CefPostDataElementImpl::Set(const net::UploadElement& element) {
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
 
-  if (element.type() == net::UploadData::TYPE_BYTES) {
-    SetToBytes(element.bytes().size(),
-        static_cast<const void*>(
-            std::string(element.bytes().begin(),
-            element.bytes().end()).c_str()));
-  } else if (element.type() == net::UploadData::TYPE_FILE) {
+  if (element.type() == net::UploadElement::TYPE_BYTES) {
+    SetToBytes(element.bytes_length(), element.bytes());
+  } else if (element.type() == net::UploadElement::TYPE_FILE) {
     SetToFile(element.file_path().value());
   } else {
     NOTREACHED();
   }
 }
 
-void CefPostDataElementImpl::Get(net::UploadData::Element& element) {
+void CefPostDataElementImpl::Get(net::UploadElement& element) {
   AutoLock lock_scope(this);
 
   if (type_ == PDE_TYPE_BYTES) {

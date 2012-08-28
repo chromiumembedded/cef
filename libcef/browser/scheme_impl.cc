@@ -71,12 +71,15 @@ bool IsBuiltinScheme(const std::string& scheme) {
   return false;
 }
 
-net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
-                                               const std::string& scheme) {
+net::URLRequestJob* GetBuiltinSchemeRequestJob(
+    net::URLRequest* request,
+    net::NetworkDelegate* network_delegate,
+    const std::string& scheme) {
   // See if the request should be handled by a built-in protocol factory.
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i) {
     if (scheme == kBuiltinFactories[i].scheme) {
-      net::URLRequestJob* job = (kBuiltinFactories[i].factory)(request, scheme);
+      net::URLRequestJob* job =
+          (kBuiltinFactories[i].factory)(request, network_delegate, scheme);
       DCHECK(job);  // The built-in factories are not expected to fail!
       return job;
     }
@@ -104,10 +107,11 @@ class CefUrlRequestManager {
 
     // From net::URLRequestJobFactory::ProtocolHandler
     virtual net::URLRequestJob* MaybeCreateJob(
-        net::URLRequest* request) const OVERRIDE {
+        net::URLRequest* request,
+        net::NetworkDelegate* network_delegate) const OVERRIDE {
       CEF_REQUIRE_IOT();
-      return CefUrlRequestManager::GetInstance()->GetRequestJob(request,
-                                                                scheme_);
+      return CefUrlRequestManager::GetInstance()->GetRequestJob(
+          request, network_delegate, scheme_);
     }
 
    private:
@@ -220,6 +224,7 @@ class CefUrlRequestManager {
   // Create the job that will handle the request. |scheme| will already be in
   // lower case.
   net::URLRequestJob* GetRequestJob(net::URLRequest* request,
+                                    net::NetworkDelegate* network_delegate,
                                     const std::string& scheme) {
     net::URLRequestJob* job = NULL;
     CefRefPtr<CefSchemeHandlerFactory> factory =
@@ -239,12 +244,12 @@ class CefUrlRequestManager {
       CefRefPtr<CefResourceHandler> handler =
           factory->Create(browser.get(), frame, scheme, requestPtr.get());
       if (handler.get())
-        job = new CefResourceRequestJob(request, handler);
+        job = new CefResourceRequestJob(request, network_delegate, handler);
     }
 
     if (!job && IsBuiltinScheme(scheme)) {
       // Give the built-in scheme handler a chance to handle the request.
-      job = GetBuiltinSchemeRequestJob(request, scheme);
+      job = GetBuiltinSchemeRequestJob(request, network_delegate, scheme);
     }
 
 #ifndef NDEBUG

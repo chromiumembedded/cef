@@ -985,6 +985,33 @@ enum cef_menu_item_type_t {
 };
 
 ///
+// Supported menu separator types.
+///
+enum cef_menu_separator_type_t {
+  MENUSEPARATORTYPE_NONE,
+
+  ///
+  // Normal - top to bottom: Spacing, line, spacing
+  ///
+  MENUSEPARATORTYPE_NORMAL,
+
+  ///
+  // Upper - top to bottom: Line, spacing
+  ///
+  MENUSEPARATORTYPE_UPPER,
+
+  ///
+  // Lower - top to bottom: Spacing, line
+  ///
+  MENUSEPARATORTYPE_LOWER,
+
+  ///
+  // Spacing - top to bottom: Spacing only.
+  ///
+  MENUSEPARATORTYPE_SPACING,
+};
+
+///
 // Supported context menu type flags.
 ///
 enum cef_context_menu_type_flags_t {

@@ -26,7 +26,8 @@ CefRequestInterceptor::~CefRequestInterceptor() {
 }
 
 net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
-    net::URLRequest* request) {
+    net::URLRequest* request,
+    net::NetworkDelegate* network_delegate) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -44,7 +45,8 @@ net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
         CefRefPtr<CefResourceHandler> resourceHandler =
             handler->GetResourceHandler(browser.get(), frame, req);
         if (resourceHandler.get())
-          return new CefResourceRequestJob(request, resourceHandler);
+          return new CefResourceRequestJob(request, network_delegate,
+                                           resourceHandler);
       }
     }
   }
@@ -53,7 +55,9 @@ net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
 }
 
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
-    net::URLRequest* request, const GURL& location) {
+    net::URLRequest* request,
+    net::NetworkDelegate* network_delegate,
+    const GURL& location) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -70,7 +74,8 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
         if (newUrlStr != location.spec()) {
           GURL new_url = GURL(std::string(newUrlStr));
           if (!new_url.is_empty() && new_url.is_valid())
-            return new net::URLRequestRedirectJob(request, new_url);
+            return new net::URLRequestRedirectJob(request, network_delegate,
+                                                  new_url);
         }
       }
     }
@@ -80,6 +85,7 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
 }
 
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
-    net::URLRequest* request) {
+    net::URLRequest* request,
+    net::NetworkDelegate* network_delegate) {
   return NULL;
 }

@@ -10,6 +10,7 @@
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Page.h"
+#include "ScriptController.h"
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebViewImpl.h"
 MSVC_POP_WARNING();
@@ -33,8 +34,7 @@ void GoBackOrForward(WebKit::WebView* view, int distance) {
 
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {
   WebKit::WebFrameImpl* impl = static_cast<WebKit::WebFrameImpl*>(frame);
-  WebCore::Frame* core_frame = impl->frame();
-  return WebCore::V8Proxy::context(core_frame);
+  return WebCore::ScriptController::mainWorldContext(impl->frame());
 }
 
 }  // webkit_glue

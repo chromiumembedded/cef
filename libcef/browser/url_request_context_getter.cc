@@ -41,7 +41,7 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
 
 using content::BrowserThread;
@@ -275,7 +275,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_ftp_transaction_factory(
       new net::FtpNetworkLayer(url_request_context_->host_resolver()));
 
-    storage_->set_job_factory(new net::URLRequestJobFactory);
+    storage_->set_job_factory(new net::URLRequestJobFactoryImpl);
 
     request_interceptor_.reset(new CefRequestInterceptor);
   }

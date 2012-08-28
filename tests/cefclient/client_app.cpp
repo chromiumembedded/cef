@@ -222,6 +222,13 @@ void ClientApp::GetProxyForUrl(const CefString& url,
     CefString(&proxy_info.proxyList) = proxy_config_;
 }
 
+void ClientApp::OnRenderThreadCreated() {
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
+    (*it)->OnRenderThreadCreated(this);
+}
+
 void ClientApp::OnWebKitInitialized() {
   // Register the client_app extension.
   std::string app_code =

@@ -70,7 +70,8 @@ typedef struct _cef_menu_model_t {
   //
   // Add a separator to the menu. Returns true (1) on success.
   ///
-  int (CEF_CALLBACK *add_separator)(struct _cef_menu_model_t* self);
+  int (CEF_CALLBACK *add_separator)(struct _cef_menu_model_t* self,
+      enum cef_menu_separator_type_t type);
 
   //
   // Add an item to the menu. Returns true (1) on success.
@@ -103,7 +104,7 @@ typedef struct _cef_menu_model_t {
   // on success.
   ///
   int (CEF_CALLBACK *insert_separator_at)(struct _cef_menu_model_t* self,
-      int index);
+      int index, enum cef_menu_separator_type_t type);
 
   //
   // Insert an item in the menu at the specified |index|. Returns true (1) on
@@ -203,6 +204,12 @@ typedef struct _cef_menu_model_t {
   // Returns the item type at the specified |index|.
   ///
   enum cef_menu_item_type_t (CEF_CALLBACK *get_type_at)(
+      struct _cef_menu_model_t* self, int index);
+
+  ///
+  // Returns the separator type at the specified |index|.
+  ///
+  enum cef_menu_separator_type_t (CEF_CALLBACK *get_separator_type_at)(
       struct _cef_menu_model_t* self, int index);
 
   ///

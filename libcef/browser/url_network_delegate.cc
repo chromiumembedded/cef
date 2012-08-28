@@ -223,6 +223,6 @@ int CefNetworkDelegate::OnBeforeSocketStreamConnect(
   return net::OK;
 }
 
-void CefNetworkDelegate::OnCacheWaitStateChange(const net::URLRequest& request,
-                                                CacheWaitState state) {
+void CefNetworkDelegate::OnRequestWaitStateChange(const net::URLRequest& request,
+                                                  RequestWaitState state) {
 }

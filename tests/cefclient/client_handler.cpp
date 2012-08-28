@@ -94,7 +94,7 @@ void ClientHandler::OnBeforeContextMenu(
   if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
     // Add a separator if the menu already has items.
     if (model->GetCount() > 0)
-      model->AddSeparator();
+      model->AddSeparator(MENUSEPARATORTYPE_NORMAL);
 
     // Add a "Show DevTools" item to all context menus.
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
@@ -490,7 +490,7 @@ void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
   if (model->GetCount() > 0)
-    model->AddSeparator();
+    model->AddSeparator(MENUSEPARATORTYPE_NORMAL);
 
   // Build the sub menu.
   CefRefPtr<CefMenuModel> submenu =

@@ -56,6 +56,10 @@ class CefSimpleMenuModel : public ui::MenuModel {
     }
   }
 
+  virtual ui::MenuSeparatorType GetSeparatorTypeAt(int index) const OVERRIDE {
+    return ui::NORMAL_SEPARATOR;
+  }
+
   virtual int GetCommandIdAt(int index) const OVERRIDE {
     return impl_->GetCommandIdAt(index);
   }
@@ -99,7 +103,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetGroupIdAt(index);
   }
 
-  virtual bool GetIconAt(int index, gfx::ImageSkia* icon) OVERRIDE {
+  virtual bool GetIconAt(int index, gfx::Image* icon) OVERRIDE {
     return false;
   }
 
@@ -163,6 +167,7 @@ struct CefMenuModelImpl::Item {
        const CefString& label,
        int group_id)
       : type_(type),
+        separator_type_(MENUSEPARATORTYPE_NONE),
         command_id_(command_id),
         label_(label),
         group_id_(group_id),
@@ -178,6 +183,7 @@ struct CefMenuModelImpl::Item {
 
   // Basic information.
   cef_menu_item_type_t type_;
+  cef_menu_separator_type_t separator_type_;
   int command_id_;
   CefString label_;
   int group_id_;
@@ -221,11 +227,17 @@ int CefMenuModelImpl::GetCount() {
   return static_cast<int>(items_.size());
 }
 
-bool CefMenuModelImpl::AddSeparator() {
+bool CefMenuModelImpl::AddSeparator(MenuSeparatorType type) {
   if (!VerifyContext())
     return false;
 
-  AppendItem(Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), -1));
+  DCHECK(type != MENUSEPARATORTYPE_NONE);
+  if (type == MENUSEPARATORTYPE_NONE)
+    return false;
+
+  Item item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), -1);
+  item.separator_type_ = type;
+  AppendItem(item);
   return true;
 }
 
@@ -265,12 +277,17 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::AddSubMenu(int command_id,
   return item.submenu_.get();
 }
 
-bool CefMenuModelImpl::InsertSeparatorAt(int index) {
+bool CefMenuModelImpl::InsertSeparatorAt(int index, MenuSeparatorType type) {
   if (!VerifyContext())
     return false;
 
-  InsertItemAt(Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), -1),
-               index);
+  DCHECK(type != MENUSEPARATORTYPE_NONE);
+  if (type == MENUSEPARATORTYPE_NONE)
+    return false;
+
+  Item item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), -1);
+  item.separator_type_ = type;
+  InsertItemAt(item, index);
   return true;
 }
 
@@ -398,6 +415,16 @@ CefMenuModelImpl::MenuItemType CefMenuModelImpl::GetTypeAt(int index) {
   if (index >= 0 && index < static_cast<int>(items_.size()))
     return items_[index].type_;
   return MENUITEMTYPE_NONE;
+}
+
+CefMenuModelImpl::MenuSeparatorType
+    CefMenuModelImpl::GetSeparatorTypeAt(int index) {
+  if (!VerifyContext())
+    return MENUSEPARATORTYPE_NONE;
+
+  if (index >= 0 && index < static_cast<int>(items_.size()))
+    return items_[index].separator_type_;
+  return MENUSEPARATORTYPE_NONE;
 }
 
 int CefMenuModelImpl::GetGroupId(int command_id) {

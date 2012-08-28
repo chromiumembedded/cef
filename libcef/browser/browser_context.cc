@@ -223,7 +223,13 @@ net::URLRequestContextGetter*
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::GetRequestContextForMedia() {
+    CefBrowserContext::GetMediaRequestContext() {
+  return GetRequestContext();
+}
+
+net::URLRequestContextGetter*
+    CefBrowserContext::GetMediaRequestContextForRenderProcess(
+        int renderer_child_id)  {
   return GetRequestContext();
 }
 

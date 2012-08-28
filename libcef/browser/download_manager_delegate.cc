@@ -137,7 +137,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
     FilePath result;
     if (show_dialog) {
-#if defined(OS_WIN) || defined(OS_MACOSX)
+#if defined(OS_WIN) || defined(OS_MACOSX) || defined(TOOLKIT_GTK)
       WebContents* web_contents = item->GetWebContents();
       result = CefDownloadManagerDelegate::PlatformChooseDownloadPath(
           web_contents, suggested_path);

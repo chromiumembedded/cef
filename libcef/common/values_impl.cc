@@ -565,7 +565,7 @@ bool CefListValueImpl::Remove(int index) {
 CefValueType CefListValueImpl::GetType(int index) {
   CEF_VALUE_VERIFY_RETURN(false, VTYPE_INVALID);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   if (const_value().Get(index, &out_value)) {
     switch (out_value->GetType()) {
       case base::Value::TYPE_NULL:
@@ -593,7 +593,7 @@ CefValueType CefListValueImpl::GetType(int index) {
 bool CefListValueImpl::GetBool(int index) {
   CEF_VALUE_VERIFY_RETURN(false, false);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   bool ret_value = false;
 
   if (const_value().Get(index, &out_value))
@@ -605,7 +605,7 @@ bool CefListValueImpl::GetBool(int index) {
 int CefListValueImpl::GetInt(int index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   int ret_value = 0;
 
   if (const_value().Get(index, &out_value))
@@ -617,7 +617,7 @@ int CefListValueImpl::GetInt(int index) {
 double CefListValueImpl::GetDouble(int index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   double ret_value = 0;
 
   if (const_value().Get(index, &out_value))
@@ -629,7 +629,7 @@ double CefListValueImpl::GetDouble(int index) {
 CefString CefListValueImpl::GetString(int index) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
   string16 ret_value;
 
   if (const_value().Get(index, &out_value))
@@ -641,12 +641,12 @@ CefString CefListValueImpl::GetString(int index) {
 CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(int index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
       out_value->IsType(base::Value::TYPE_BINARY)) {
     base::BinaryValue* binary_value =
-        static_cast<base::BinaryValue*>(out_value);
+        static_cast<base::BinaryValue*>(const_cast<base::Value*>(out_value));
     return CefBinaryValueImpl::GetOrCreateRef(binary_value,
         const_cast<base::ListValue*>(&const_value()), controller());
   }
@@ -657,12 +657,13 @@ CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(int index) {
 CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(int index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
       out_value->IsType(base::Value::TYPE_DICTIONARY)) {
     base::DictionaryValue* dict_value =
-        static_cast<base::DictionaryValue*>(out_value);
+        static_cast<base::DictionaryValue*>(
+            const_cast<base::Value*>(out_value));
     return CefDictionaryValueImpl::GetOrCreateRef(
         dict_value,
         const_cast<base::ListValue*>(&const_value()),
@@ -676,11 +677,12 @@ CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(int index) {
 CefRefPtr<CefListValue> CefListValueImpl::GetList(int index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
-  base::Value* out_value = NULL;
+  const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
       out_value->IsType(base::Value::TYPE_LIST)) {
-    base::ListValue* list_value = static_cast<base::ListValue*>(out_value);
+    base::ListValue* list_value =
+        static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
         list_value,
         const_cast<base::ListValue*>(&const_value()),

@@ -25,6 +25,7 @@ class CefResourceRequestJobCallback;
 class CefResourceRequestJob : public net::URLRequestJob {
  public:
   CefResourceRequestJob(net::URLRequest* request,
+                        net::NetworkDelegate* network_delegate,
                         CefRefPtr<CefResourceHandler> handler);
   virtual ~CefResourceRequestJob();
 

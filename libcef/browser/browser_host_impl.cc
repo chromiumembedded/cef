@@ -181,7 +181,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
         _Context->browser_context(),
         NULL,
         MSG_ROUTING_NONE,
-        NULL,
         NULL);
   }
 
@@ -909,7 +908,8 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
   PlatformCloseWindow();
 }
 
-bool CefBrowserHostImpl::TakeFocus(bool reverse) {
+bool CefBrowserHostImpl::TakeFocus(content::WebContents* source,
+                                   bool reverse) {
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
     if (handler.get())
@@ -935,6 +935,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
 }
 
 bool CefBrowserHostImpl::PreHandleKeyboardEvent(
+    content::WebContents* source,
     const content::NativeWebKeyboardEvent& event,
     bool* is_keyboard_shortcut) {
   if (client_.get()) {
@@ -961,6 +962,7 @@ bool CefBrowserHostImpl::PreHandleKeyboardEvent(
 }
 
 void CefBrowserHostImpl::HandleKeyboardEvent(
+    content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_in_browser)

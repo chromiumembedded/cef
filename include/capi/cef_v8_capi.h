@@ -308,7 +308,7 @@ typedef struct _cef_v8exception_t {
 
 ///
 // Structure representing a V8 value. The functions of this structure may only
-// be called on the UI thread.
+// be called on the render process main thread.
 ///
 typedef struct _cef_v8value_t {
   ///

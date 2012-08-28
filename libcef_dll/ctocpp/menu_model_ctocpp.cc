@@ -41,14 +41,15 @@ int CefMenuModelCToCpp::GetCount() {
   return _retval;
 }
 
-bool CefMenuModelCToCpp::AddSeparator() {
+bool CefMenuModelCToCpp::AddSeparator(MenuSeparatorType type) {
   if (CEF_MEMBER_MISSING(struct_, add_separator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->add_separator(struct_);
+  int _retval = struct_->add_separator(struct_,
+      type);
 
   // Return type: bool
   return _retval?true:false;
@@ -137,7 +138,7 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
   return CefMenuModelCToCpp::Wrap(_retval);
 }
 
-bool CefMenuModelCToCpp::InsertSeparatorAt(int index) {
+bool CefMenuModelCToCpp::InsertSeparatorAt(int index, MenuSeparatorType type) {
   if (CEF_MEMBER_MISSING(struct_, insert_separator_at))
     return false;
 
@@ -145,7 +146,8 @@ bool CefMenuModelCToCpp::InsertSeparatorAt(int index) {
 
   // Execute
   int _retval = struct_->insert_separator_at(struct_,
-      index);
+      index,
+      type);
 
   // Return type: bool
   return _retval?true:false;
@@ -405,6 +407,21 @@ CefMenuModel::MenuItemType CefMenuModelCToCpp::GetTypeAt(int index) {
 
   // Execute
   cef_menu_item_type_t _retval = struct_->get_type_at(struct_,
+      index);
+
+  // Return type: simple
+  return _retval;
+}
+
+CefMenuModel::MenuSeparatorType CefMenuModelCToCpp::GetSeparatorTypeAt(
+    int index) {
+  if (CEF_MEMBER_MISSING(struct_, get_separator_type_at))
+    return MENUSEPARATORTYPE_NONE;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_menu_separator_type_t _retval = struct_->get_separator_type_at(struct_,
       index);
 
   // Return type: simple

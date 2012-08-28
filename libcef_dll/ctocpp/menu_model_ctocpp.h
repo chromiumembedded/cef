@@ -34,14 +34,14 @@ class CefMenuModelCToCpp
   // CefMenuModel methods
   virtual bool Clear() OVERRIDE;
   virtual int GetCount() OVERRIDE;
-  virtual bool AddSeparator() OVERRIDE;
+  virtual bool AddSeparator(MenuSeparatorType type) OVERRIDE;
   virtual bool AddItem(int command_id, const CefString& label) OVERRIDE;
   virtual bool AddCheckItem(int command_id, const CefString& label) OVERRIDE;
   virtual bool AddRadioItem(int command_id, const CefString& label,
       int group_id) OVERRIDE;
   virtual CefRefPtr<CefMenuModel> AddSubMenu(int command_id,
       const CefString& label) OVERRIDE;
-  virtual bool InsertSeparatorAt(int index) OVERRIDE;
+  virtual bool InsertSeparatorAt(int index, MenuSeparatorType type) OVERRIDE;
   virtual bool InsertItemAt(int index, int command_id,
       const CefString& label) OVERRIDE;
   virtual bool InsertCheckItemAt(int index, int command_id,
@@ -61,6 +61,7 @@ class CefMenuModelCToCpp
   virtual bool SetLabelAt(int index, const CefString& label) OVERRIDE;
   virtual MenuItemType GetType(int command_id) OVERRIDE;
   virtual MenuItemType GetTypeAt(int index) OVERRIDE;
+  virtual MenuSeparatorType GetSeparatorTypeAt(int index) OVERRIDE;
   virtual int GetGroupId(int command_id) OVERRIDE;
   virtual int GetGroupIdAt(int index) OVERRIDE;
   virtual bool SetGroupId(int command_id, int group_id) OVERRIDE;

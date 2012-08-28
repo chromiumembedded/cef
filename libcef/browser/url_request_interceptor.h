@@ -16,12 +16,16 @@ class CefRequestInterceptor : public net::URLRequest::Interceptor {
   ~CefRequestInterceptor();
 
   // net::URLRequest::Interceptor methods.
-  virtual net::URLRequestJob* MaybeIntercept(net::URLRequest* request)
-      OVERRIDE;
-  virtual net::URLRequestJob* MaybeInterceptRedirect(net::URLRequest* request,
+  virtual net::URLRequestJob* MaybeIntercept(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate) OVERRIDE;
+  virtual net::URLRequestJob* MaybeInterceptRedirect(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate,
       const GURL& location) OVERRIDE;
-  virtual net::URLRequestJob* MaybeInterceptResponse(net::URLRequest* request)
-      OVERRIDE;
+  virtual net::URLRequestJob* MaybeInterceptResponse(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(CefRequestInterceptor);
 };

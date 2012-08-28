@@ -206,13 +206,13 @@ void CefMenuCreator::CreateDefaultModel() {
     model_->AddItem(MENU_ID_UNDO, GetLabel(IDS_MENU_UNDO));
     model_->AddItem(MENU_ID_REDO, GetLabel(IDS_MENU_REDO));
 
-    model_->AddSeparator();
+    model_->AddSeparator(MENUSEPARATORTYPE_NORMAL);
     model_->AddItem(MENU_ID_CUT, GetLabel(IDS_MENU_CUT));
     model_->AddItem(MENU_ID_COPY, GetLabel(IDS_MENU_COPY));
     model_->AddItem(MENU_ID_PASTE, GetLabel(IDS_MENU_PASTE));
     model_->AddItem(MENU_ID_DELETE, GetLabel(IDS_MENU_DELETE));
 
-    model_->AddSeparator();
+    model_->AddSeparator(MENUSEPARATORTYPE_NORMAL);
     model_->AddItem(MENU_ID_SELECT_ALL, GetLabel(IDS_MENU_SELECT_ALL));
 
     if (!(params_.edit_flags & CM_EDITFLAG_CAN_UNDO))
@@ -237,7 +237,7 @@ void CefMenuCreator::CreateDefaultModel() {
     model_->AddItem(MENU_ID_BACK, GetLabel(IDS_MENU_BACK));
     model_->AddItem(MENU_ID_FORWARD, GetLabel(IDS_MENU_FORWARD));
 
-    model_->AddSeparator();
+    model_->AddSeparator(MENUSEPARATORTYPE_NORMAL);
     model_->AddItem(MENU_ID_PRINT, GetLabel(IDS_MENU_PRINT));
     model_->AddItem(MENU_ID_VIEW_SOURCE, GetLabel(IDS_MENU_VIEW_SOURCE));
 

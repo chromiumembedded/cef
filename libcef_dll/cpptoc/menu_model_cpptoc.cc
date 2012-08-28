@@ -43,7 +43,8 @@ int CEF_CALLBACK menu_model_get_count(struct _cef_menu_model_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK menu_model_add_separator(struct _cef_menu_model_t* self) {
+int CEF_CALLBACK menu_model_add_separator(struct _cef_menu_model_t* self,
+    enum cef_menu_separator_type_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,7 +52,8 @@ int CEF_CALLBACK menu_model_add_separator(struct _cef_menu_model_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefMenuModelCppToC::Get(self)->AddSeparator();
+  bool _retval = CefMenuModelCppToC::Get(self)->AddSeparator(
+      type);
 
   // Return type: bool
   return _retval;
@@ -144,7 +146,7 @@ struct _cef_menu_model_t* CEF_CALLBACK menu_model_add_sub_menu(
 }
 
 int CEF_CALLBACK menu_model_insert_separator_at(struct _cef_menu_model_t* self,
-    int index) {
+    int index, enum cef_menu_separator_type_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -153,7 +155,8 @@ int CEF_CALLBACK menu_model_insert_separator_at(struct _cef_menu_model_t* self,
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->InsertSeparatorAt(
-      index);
+      index,
+      type);
 
   // Return type: bool
   return _retval;
@@ -431,6 +434,23 @@ enum cef_menu_item_type_t CEF_CALLBACK menu_model_get_type_at(
 
   // Execute
   cef_menu_item_type_t _retval = CefMenuModelCppToC::Get(self)->GetTypeAt(
+      index);
+
+  // Return type: simple
+  return _retval;
+}
+
+enum cef_menu_separator_type_t CEF_CALLBACK menu_model_get_separator_type_at(
+    struct _cef_menu_model_t* self, int index) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return MENUSEPARATORTYPE_NONE;
+
+  // Execute
+  cef_menu_separator_type_t _retval = CefMenuModelCppToC::Get(
+      self)->GetSeparatorTypeAt(
       index);
 
   // Return type: simple
@@ -985,6 +1005,7 @@ CefMenuModelCppToC::CefMenuModelCppToC(CefMenuModel* cls)
   struct_.struct_.set_label_at = menu_model_set_label_at;
   struct_.struct_.get_type = menu_model_get_type;
   struct_.struct_.get_type_at = menu_model_get_type_at;
+  struct_.struct_.get_separator_type_at = menu_model_get_separator_type_at;
   struct_.struct_.get_group_id = menu_model_get_group_id;
   struct_.struct_.get_group_id_at = menu_model_get_group_id_at;
   struct_.struct_.set_group_id = menu_model_set_group_id;

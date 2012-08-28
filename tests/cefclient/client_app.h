@@ -23,9 +23,13 @@ class ClientApp : public CefApp,
   // constructor.
   class RenderDelegate : public virtual CefBase {
    public:
+    // Called after the render process main thread has been created.
+    virtual void OnRenderThreadCreated(CefRefPtr<ClientApp> app) {
+    }
+
     // Called when WebKit is initialized. Used to register V8 extensions.
     virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
-    };
+    }
 
     // Called when a V8 context is created. Used to create V8 window bindings
     // and set message callbacks. RenderDelegates should check for unique URLs
@@ -34,7 +38,7 @@ class ClientApp : public CefApp,
                                   CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
                                   CefRefPtr<CefV8Context> context) {
-    };
+    }
 
     // Called when a V8 context is released. Used to clean up V8 window
     // bindings. RenderDelegates should check for unique URLs to avoid
@@ -43,7 +47,7 @@ class ClientApp : public CefApp,
                                    CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
                                    CefRefPtr<CefV8Context> context) {
-    };
+    }
 
     // Called when the focused node in a frame has changed.
     virtual void OnFocusedNodeChanged(CefRefPtr<ClientApp> app,
@@ -120,6 +124,7 @@ class ClientApp : public CefApp,
                               CefProxyInfo& proxy_info) OVERRIDE;
 
   // CefRenderProcessHandler methods.
+  virtual void OnRenderThreadCreated() OVERRIDE;
   virtual void OnWebKitInitialized() OVERRIDE;
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
