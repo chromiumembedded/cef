@@ -688,7 +688,7 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 }
 
 WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
-    WebFrame* frame, WebMediaPlayerClient* client) {
+    WebFrame* frame, const WebKit::WebURL&, WebMediaPlayerClient* client) {
   scoped_ptr<media::MessageLoopFactory> message_loop_factory(
      new media::MessageLoopFactory());
 

@@ -19,12 +19,15 @@
 #include "libcef/web_drop_target_win.h"
 
 #include "base/bind.h"
+#include "base/pickle.h"
 #include "base/utf_string_conversions.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_util.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/clipboard/clipboard_util_win.h"
+#include "ui/base/clipboard/custom_data_helper.h"
 #include "ui/base/dragdrop/drag_utils.h"
 #include "ui/gfx/image/image_skia.h"
 #include "webkit/glue/webdropdata.h"
@@ -101,8 +104,7 @@ class DragDropThread : public base::Thread {
 BrowserDragDelegate::BrowserDragDelegate(BrowserWebViewDelegate* view)
     : drag_drop_thread_id_(0),
       view_(view),
-      drag_ended_(false),
-      old_drop_target_suspended_state_(false) {
+      drag_ended_(false) {
 }
 
 BrowserDragDelegate::~BrowserDragDelegate() {
@@ -130,13 +132,9 @@ void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
     DoDragging(drop_data, ops, page_url, page_encoding, image, image_offset);
     CefThread::PostTask(
         CefThread::UI, FROM_HERE,
-        base::Bind(&BrowserDragDelegate::EndDragging, this, false));
+        base::Bind(&BrowserDragDelegate::EndDragging, this));
     return;
   }
-
-  // We do not want to drag and drop the download to itself.
-  old_drop_target_suspended_state_ = view_->drop_target()->suspended();
-  view_->drop_target()->set_suspended(true);
 
   // Start a background thread to do the drag-and-drop.
   DCHECK(!drag_drop_thread_.get());
@@ -183,7 +181,7 @@ void BrowserDragDelegate::StartBackgroundDragging(
   DoDragging(drop_data, ops, page_url, page_encoding, image, image_offset);
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      base::Bind(&BrowserDragDelegate::EndDragging, this, true));
+      base::Bind(&BrowserDragDelegate::EndDragging, this));
 }
 
 void BrowserDragDelegate::PrepareDragForDownload(
@@ -273,20 +271,26 @@ void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
 
     // Set the observer.
     ui::OSExchangeDataProviderWin::GetDataObjectImpl(data)->set_observer(this);
-  } else {
-    // We set the file contents before the URL because the URL also sets file
-    // contents (to a .URL shortcut).  We want to prefer file content data over
-    // a shortcut so we add it first.
-    if (!drop_data.file_contents.empty())
-      PrepareDragForFileContents(drop_data, &data);
-    if (!drop_data.html.is_null() && !drop_data.html.string().empty())
-      data.SetHtml(drop_data.html.string(), drop_data.html_base_url);
-    // We set the text contents before the URL because the URL also sets text
-    // content.
-    if (!drop_data.text.is_null() && !drop_data.text.string().empty())
-      data.SetString(drop_data.text.string());
-    if (drop_data.url.is_valid())
-      PrepareDragForUrl(drop_data, &data);
+  }
+
+  // We set the file contents before the URL because the URL also sets file
+  // contents (to a .URL shortcut).  We want to prefer file content data over
+  // a shortcut so we add it first.
+  if (!drop_data.file_contents.empty())
+    PrepareDragForFileContents(drop_data, &data);
+  if (!drop_data.html.string().empty())
+    data.SetHtml(drop_data.html.string(), drop_data.html_base_url);
+  // We set the text contents before the URL because the URL also sets text
+  // content.
+  if (!drop_data.text.string().empty())
+    data.SetString(drop_data.text.string());
+  if (drop_data.url.is_valid())
+    PrepareDragForUrl(drop_data, &data);
+  if (!drop_data.custom_data.empty()) {
+    Pickle pickle;
+    ui::WriteCustomDataToPickle(drop_data.custom_data, &pickle);
+    data.SetPickledData(ui::ClipboardUtil::GetWebCustomDataFormat()->cfFormat,
+                        pickle);
   }
 
   // Set drag image.
@@ -298,27 +302,30 @@ void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
 
   // We need to enable recursive tasks on the message loop so we can get
   // updates while in the system DoDragDrop loop.
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
   DWORD effect;
-  DoDragDrop(ui::OSExchangeDataProviderWin::GetIDataObject(data), drag_source_,
-             web_drag_utils_win::WebDragOpMaskToWinDragOpMask(ops), &effect);
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
+  {
+    MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+    DoDragDrop(ui::OSExchangeDataProviderWin::GetIDataObject(data),
+               drag_source_,
+               web_drag_utils_win::WebDragOpMaskToWinDragOpMask(ops),
+               &effect);
+  }
 
-  // This works because WebDragSource::OnDragSourceDrop uses PostTask to
-  // dispatch the actual event.
+  // Normally, the drop and dragend events get dispatched in the system
+  // DoDragDrop message loop so it'd be too late to set the effect to send back
+  // to the renderer here. However, we use PostTask to delay the execution of
+  // WebDragSource::OnDragSourceDrop, which means that the delayed dragend
+  // callback to the renderer doesn't run until this has been set to the correct
+  // value.
   drag_source_->set_effect(effect);
 }
 
-void BrowserDragDelegate::EndDragging(bool restore_suspended_state) {
+void BrowserDragDelegate::EndDragging() {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
   if (drag_ended_)
     return;
   drag_ended_ = true;
-
-  if (restore_suspended_state)
-    view_->drop_target()->set_suspended(old_drop_target_suspended_state_);
 
   if (msg_hook) {
     AttachThreadInput(drag_out_thread_id, GetCurrentThreadId(), FALSE);
@@ -349,7 +356,7 @@ void BrowserDragDelegate::OnWaitForData() {
   // mode so that it can start to process the normal input events.
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
-      base::Bind(&BrowserDragDelegate::EndDragging, this, true));
+      base::Bind(&BrowserDragDelegate::EndDragging, this));
 }
 
 void BrowserDragDelegate::OnDataObjectDisposed() {

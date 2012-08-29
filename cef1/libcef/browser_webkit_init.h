@@ -67,14 +67,6 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
       const WebKit::WebString& path, unsigned quota) OVERRIDE;
   virtual WebKit::WebIDBFactory* idbFactory() OVERRIDE;
-  virtual void createIDBKeysFromSerializedValuesAndKeyPath(
-      const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
-      const WebKit::WebIDBKeyPath& keyPath,
-      WebKit::WebVector<WebKit::WebIDBKey>& keys_out) OVERRIDE;
-  virtual WebKit::WebSerializedScriptValue injectIDBKeyIntoSerializedValue(
-      const WebKit::WebIDBKey& key,
-      const WebKit::WebSerializedScriptValue& value,
-      const WebKit::WebIDBKeyPath& keyPath) OVERRIDE;
   virtual WebKit::WebGraphicsContext3D* createOffscreenGraphicsContext3D(
       const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) OVERRIDE;

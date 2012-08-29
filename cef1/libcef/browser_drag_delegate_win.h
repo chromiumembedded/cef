@@ -71,7 +71,7 @@ class BrowserDragDelegate
                                const SkBitmap& image,
                                const gfx::Point& image_offset);
   // Called on UI thread.
-  void EndDragging(bool restore_suspended_state);
+  void EndDragging();
   void CloseThread();
 
   // For debug check only. Access only on drag-and-drop thread.
@@ -93,9 +93,6 @@ class BrowserDragDelegate
 
   // The flag to guard that EndDragging is not called twice.
   bool drag_ended_;
-
-  // Keep track of the old suspended state of the drop target.
-  bool old_drop_target_suspended_state_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserDragDelegate);
 };

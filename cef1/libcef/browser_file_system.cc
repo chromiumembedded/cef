@@ -23,6 +23,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebVector.h"
 #include "webkit/blob/blob_storage_controller.h"
+#include "webkit/fileapi/file_system_task_runners.h"
 #include "webkit/fileapi/file_system_url.h"
 #include "webkit/fileapi/file_system_util.h"
 #include "webkit/fileapi/mock_file_system_options.h"
@@ -44,9 +45,10 @@ using WebKit::WebVector;
 
 using webkit_blob::BlobData;
 using webkit_blob::BlobStorageController;
-using fileapi::FileSystemURL;
 using fileapi::FileSystemContext;
-using fileapi::FileSystemOperationInterface;
+using fileapi::FileSystemOperation;
+using fileapi::FileSystemTaskRunners;
+using fileapi::FileSystemURL;
 
 namespace {
 MessageLoop* g_io_thread;
@@ -64,7 +66,7 @@ void RegisterBlob(const GURL& blob_url, const FilePath& file_path) {
   net::GetWellKnownMimeTypeFromExtension(extension, &mime_type);
 
   BlobData::Item item;
-  item.SetToFile(file_path, 0, -1, base::Time());
+  item.SetToFilePathRange(file_path, 0, -1, base::Time());
   g_blob_storage_controller->StartBuildingBlob(blob_url);
   g_blob_storage_controller->AppendBlobDataItem(blob_url, item);
   g_blob_storage_controller->FinishBuildingBlob(blob_url, mime_type);
@@ -83,8 +85,10 @@ void BrowserFileSystem::CreateContext() {
     additional_allowed_schemes.push_back("file");
 
     file_system_context_ = new FileSystemContext(
-        CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
-        CefThread::GetMessageLoopProxyForThread(CefThread::IO),
+        make_scoped_ptr(new FileSystemTaskRunners(
+            CefThread::GetMessageLoopProxyForThread(CefThread::IO),
+            CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
+            CefThread::GetMessageLoopProxyForThread(CefThread::FILE))),
         NULL /* special storage policy */,
         NULL /* quota manager */,
         file_system_dir_.path(),
@@ -101,7 +105,7 @@ BrowserFileSystem::~BrowserFileSystem() {
 }
 
 void BrowserFileSystem::OpenFileSystem(
-    WebFrame* frame, WebFileSystem::Type web_filesystem_type,
+    WebFrame* frame, WebFileSystem::Type type,
     long long, bool create,  // NOLINT(runtime/int)
     WebFileSystemCallbacks* callbacks) {
   if (!frame || !file_system_context_.get()) {
@@ -110,22 +114,24 @@ void BrowserFileSystem::OpenFileSystem(
     return;
   }
 
-  fileapi::FileSystemType type;
-  if (web_filesystem_type == WebFileSystem::TypeTemporary)
-    type = fileapi::kFileSystemTypeTemporary;
-  else if (web_filesystem_type == WebFileSystem::TypePersistent)
-    type = fileapi::kFileSystemTypePersistent;
-  else if (web_filesystem_type == WebFileSystem::TypeExternal)
-    type = fileapi::kFileSystemTypeExternal;
-  else {
-    // Unknown type filesystem is requested.
+  GURL origin_url(frame->document().securityOrigin().toString());
+  file_system_context_->OpenFileSystem(
+      origin_url, static_cast<fileapi::FileSystemType>(type), create,
+      OpenFileSystemHandler(callbacks));
+}
+
+void BrowserFileSystem::DeleteFileSystem(
+    WebFrame* frame, WebFileSystem::Type type,
+    WebFileSystemCallbacks* callbacks) {
+  if (!frame || !file_system_context_.get()) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
 
   GURL origin_url(frame->document().securityOrigin().toString());
-  file_system_context_->OpenFileSystem(
-      origin_url, type, create, OpenFileSystemHandler(callbacks));
+  file_system_context_->DeleteFileSystem(
+      origin_url, static_cast<fileapi::FileSystemType>(type),
+      DeleteFileSystemHandler(callbacks));
 }
 
 void BrowserFileSystem::move(
@@ -272,29 +278,29 @@ void BrowserFileSystem::CleanupOnIOThread() {
 
 bool BrowserFileSystem::HasFilePermission(
     const fileapi::FileSystemURL& url, FilePermission permission) {
-  // Disallow writing on isolated file system, otherwise return ok.
-  return (url.type() != fileapi::kFileSystemTypeIsolated ||
+  // Disallow writing on dragged file system, otherwise return ok.
+  return (url.type() != fileapi::kFileSystemTypeDragged ||
           permission == FILE_PERMISSION_READ);
 }
 
-FileSystemOperationInterface* BrowserFileSystem::GetNewOperation(
+FileSystemOperation* BrowserFileSystem::GetNewOperation(
     const fileapi::FileSystemURL& url) {
   return file_system_context_->CreateFileSystemOperation(url);
 }
 
-FileSystemOperationInterface::StatusCallback
+FileSystemOperation::StatusCallback
 BrowserFileSystem::FinishHandler(WebFileSystemCallbacks* callbacks) {
   return base::Bind(&BrowserFileSystem::DidFinish,
                     AsWeakPtr(), base::Unretained(callbacks));
 }
 
-FileSystemOperationInterface::ReadDirectoryCallback
+FileSystemOperation::ReadDirectoryCallback
 BrowserFileSystem::ReadDirectoryHandler(WebFileSystemCallbacks* callbacks) {
   return base::Bind(&BrowserFileSystem::DidReadDirectory,
                     AsWeakPtr(), base::Unretained(callbacks));
 }
 
-FileSystemOperationInterface::GetMetadataCallback
+FileSystemOperation::GetMetadataCallback
 BrowserFileSystem::GetMetadataHandler(WebFileSystemCallbacks* callbacks) {
   return base::Bind(&BrowserFileSystem::DidGetMetadata,
                     AsWeakPtr(), base::Unretained(callbacks));
@@ -306,7 +312,13 @@ BrowserFileSystem::OpenFileSystemHandler(WebFileSystemCallbacks* callbacks) {
                     AsWeakPtr(), base::Unretained(callbacks));
 }
 
-FileSystemOperationInterface::SnapshotFileCallback
+FileSystemContext::DeleteFileSystemCallback
+BrowserFileSystem::DeleteFileSystemHandler(WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidDeleteFileSystem,
+                    AsWeakPtr(), callbacks);
+}
+
+FileSystemOperation::SnapshotFileCallback
 BrowserFileSystem::SnapshotFileHandler(const GURL& blob_url,
                                       WebFileSystemCallbacks* callbacks) {
   return base::Bind(&BrowserFileSystem::DidCreateSnapshotFile,
@@ -372,6 +384,15 @@ void BrowserFileSystem::DidOpenFileSystem(
   } else {
     callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
   }
+}
+
+void BrowserFileSystem::DidDeleteFileSystem(
+    WebFileSystemCallbacks* callbacks,
+    base::PlatformFileError result) {
+  if (result == base::PLATFORM_FILE_OK)
+    callbacks->didSucceed();
+  else
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
 }
 
 void BrowserFileSystem::DidCreateSnapshotFile(

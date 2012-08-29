@@ -11,14 +11,14 @@
 #include "base/message_loop_proxy.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/fileapi/file_system_context.h"
-#include "webkit/fileapi/file_system_operation_interface.h"
+#include "webkit/fileapi/file_system_operation.h"
 #include "webkit/fileapi/file_system_types.h"
 #include "webkit/fileapi/file_system_url.h"
 #include "webkit/glue/webkit_glue.h"
 
 using fileapi::FileSystemURL;
 using fileapi::FileSystemContext;
-using fileapi::FileSystemOperationInterface;
+using fileapi::FileSystemOperation;
 using fileapi::WebFileWriterBase;
 using WebKit::WebFileWriterClient;
 using WebKit::WebString;
@@ -90,13 +90,13 @@ class BrowserFileWriter::IOThreadProxy
   friend class base::RefCountedThreadSafe<IOThreadProxy>;
   virtual ~IOThreadProxy() {}
 
-  FileSystemOperationInterface* GetNewOperation( const FileSystemURL& url) {
+  FileSystemOperation* GetNewOperation( const FileSystemURL& url) {
     return file_system_context_->CreateFileSystemOperation(url);
   }
 
   // Returns true if it is not writable.
   bool FailIfNotWritable(const FileSystemURL& url) {
-    if (url.type() == fileapi::kFileSystemTypeIsolated) {
+    if (url.type() == fileapi::kFileSystemTypeDragged) {
       // Write is not allowed in isolate file system in BrowserFileWriter.
       DidFailOnMainThread(base::PLATFORM_FILE_ERROR_SECURITY);
       return true;
@@ -169,7 +169,7 @@ class BrowserFileWriter::IOThreadProxy
   base::WeakPtr<BrowserFileWriter> simple_writer_;
 
   // Only used on the io thread.
-  FileSystemOperationInterface* operation_;
+  FileSystemOperation* operation_;
 
   scoped_refptr<FileSystemContext> file_system_context_;
 };

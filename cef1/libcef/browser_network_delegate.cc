@@ -116,7 +116,7 @@ int BrowserNetworkDelegate::OnBeforeSocketStreamConnect(
   return net::OK;
 }
 
-void BrowserNetworkDelegate::OnCacheWaitStateChange(
+void BrowserNetworkDelegate::OnRequestWaitStateChange(
     const net::URLRequest& request,
-    CacheWaitState state) {
+    RequestWaitState state) {
 }

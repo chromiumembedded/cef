@@ -104,8 +104,8 @@ class CefPostDataElementImpl : public CefPostDataElement {
 
   void* GetBytes() { return data_.bytes.bytes; }
 
-  void Set(const net::UploadData::Element& element);
-  void Get(net::UploadData::Element& element);
+  void Set(const net::UploadElement& element);
+  void Get(net::UploadElement& element);
   void Set(const WebKit::WebHTTPBody::Element& element);
   void Get(WebKit::WebHTTPBody::Element& element);
 

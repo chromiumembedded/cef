@@ -34,7 +34,7 @@
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "net/url_request/url_request_job_factory_impl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
 #include "webkit/blob/blob_storage_controller.h"
@@ -254,7 +254,7 @@ void BrowserRequestContext::Init(
   storage_.set_ftp_transaction_factory(
       new net::FtpNetworkLayer(host_resolver()));
 
-  net::URLRequestJobFactory* job_factory = new net::URLRequestJobFactory;
+  net::URLRequestJobFactory* job_factory = new net::URLRequestJobFactoryImpl();
 
   blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
   job_factory->SetProtocolHandler(

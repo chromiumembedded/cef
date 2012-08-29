@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,6 +11,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "webkit/blob/blob_data.h"
 #include "webkit/blob/blob_storage_controller.h"
+#include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebBlobData;
 using WebKit::WebURL;
@@ -20,6 +21,46 @@ namespace {
 
 MessageLoop* g_io_thread;
 webkit_blob::BlobStorageController* g_blob_storage_controller;
+
+// Creates a new BlobData from WebBlobData.
+BlobData* NewBlobData(const WebBlobData& data) {
+  BlobData* blob = new BlobData;
+  size_t i = 0;
+  WebBlobData::Item item;
+  while (data.itemAt(i++, item)) {
+    switch (item.type) {
+      case WebBlobData::Item::TypeData:
+        if (!item.data.isEmpty()) {
+          // WebBlobData does not allow partial data.
+          DCHECK(!item.offset && item.length == -1);
+          blob->AppendData(item.data);
+        }
+        break;
+      case WebBlobData::Item::TypeFile:
+        if (item.length) {
+          blob->AppendFile(
+              webkit_glue::WebStringToFilePath(item.filePath),
+              static_cast<uint64>(item.offset),
+              static_cast<uint64>(item.length),
+              base::Time::FromDoubleT(item.expectedModificationTime));
+        }
+        break;
+      case WebBlobData::Item::TypeBlob:
+        if (item.length) {
+          blob->AppendBlob(
+              item.blobURL,
+              static_cast<uint64>(item.offset),
+              static_cast<uint64>(item.length));
+        }
+        break;
+      default:
+        NOTREACHED();
+    }
+  }
+  blob->set_content_type(data.contentType().utf8().data());
+  blob->set_content_disposition(data.contentDisposition().utf8().data());
+  return blob;
+}
 
 }  // namespace
 
@@ -45,7 +86,7 @@ void BrowserWebBlobRegistryImpl::registerBlobURL(
   GURL thread_safe_url = url;  // WebURL uses refcounted strings.
   g_io_thread->PostTask(FROM_HERE, base::Bind(
       &BrowserWebBlobRegistryImpl::AddFinishedBlob, this,
-      thread_safe_url, make_scoped_refptr(new BlobData(data))));
+      thread_safe_url, make_scoped_refptr(NewBlobData(data))));
 }
 
 void BrowserWebBlobRegistryImpl::registerBlobURL(

@@ -11,6 +11,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "CrossOriginPreflightResultCache.h"  // NOLINT(build/include)
 #include "DocumentLoader.h"  // NOLINT(build/include)
 #include "MemoryCache.h"  // NOLINT(build/include)
+#include "ScriptController.h"  // NOLINT(build/include)
 #include "TextEncoding.h"  // NOLINT(build/include)
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
 MSVC_POP_WARNING();
@@ -44,9 +45,8 @@ void InitializeTextEncoding() {
 }
 
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {
-  WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(frame);
-  WebCore::Frame* core_frame = webFrameImpl->frame();
-  return WebCore::V8Proxy::context(core_frame);
+  WebFrameImpl* impl = static_cast<WebFrameImpl*>(frame);
+  return WebCore::ScriptController::mainWorldContext(impl->frame());
 }
 
 void ClearCache() {

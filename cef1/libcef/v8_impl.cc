@@ -8,7 +8,10 @@
 
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "V8Proxy.h"  // NOLINT(build/include)
+#include "Frame.h"  // NOLINT(build/include)
+#include "ScriptController.h"  // NOLINT(build/include)
+#include "ScriptControllerBase.h"  // NOLINT(build/include)
+#include "V8Binding.h"  // NOLINT(build/include)
 #include "V8RecursionScope.h"  // NOLINT(build/include)
 MSVC_POP_WARNING();
 #undef LOG
@@ -597,12 +600,14 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   retval = NULL;
   exception = NULL;
 
-  // Execute the function call using the V8Proxy so that inspector
+  // Execute the function call using the ScriptController so that inspector
   // instrumentation works.
-  WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve();
-  DCHECK(proxy);
-  if (proxy)
-    func_rv = proxy->callFunction(func, obj, 1, &code_val);
+  RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(GetHandle());
+  DCHECK(frame);
+  if (frame &&
+      frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
+    func_rv = frame->script()->callFunction(func, obj, 1, &code_val);
+  }
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(try_catch.Message());
@@ -1342,12 +1347,14 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
     try_catch.SetVerbose(true);
     v8::Local<v8::Value> func_rv;
 
-    // Execute the function call using the V8Proxy so that inspector
+    // Execute the function call using the ScriptController so that inspector
     // instrumentation works.
-    WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve();
-    DCHECK(proxy);
-    if (proxy)
-      func_rv = proxy->callFunction(func, recv, argc, argv);
+    RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(context_local);
+    DCHECK(frame);
+    if (frame &&
+        frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
+      func_rv = frame->script()->callFunction(func, recv, argc, argv);
+    }
 
     if (!HasCaught(try_catch) && !func_rv.IsEmpty())
       retval = new CefV8ValueImpl(func_rv);

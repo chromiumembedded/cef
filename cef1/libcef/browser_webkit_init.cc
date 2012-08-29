@@ -18,8 +18,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBFactory.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBKey.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebIDBKeyPath.h"
 #include "v8/include/v8.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
@@ -219,25 +217,6 @@ WebKit::WebStorageNamespace* BrowserWebKitInit::createLocalStorageNamespace(
 
 WebKit::WebIDBFactory* BrowserWebKitInit::idbFactory() {
   return WebKit::WebIDBFactory::create();
-}
-
-void BrowserWebKitInit::createIDBKeysFromSerializedValuesAndKeyPath(
-    const WebKit::WebVector<WebKit::WebSerializedScriptValue>& values,
-    const WebKit::WebIDBKeyPath& keyPath,
-    WebKit::WebVector<WebKit::WebIDBKey>& keys_out) {
-  WebKit::WebVector<WebKit::WebIDBKey> keys(values.size());
-  for (size_t i = 0; i < values.size(); ++i)
-    keys[i] = WebKit::WebIDBKey::createFromValueAndKeyPath(values[i], keyPath);
-  keys_out.swap(keys);
-}
-
-WebKit::WebSerializedScriptValue
-BrowserWebKitInit::injectIDBKeyIntoSerializedValue(
-    const WebKit::WebIDBKey& key,
-    const WebKit::WebSerializedScriptValue& value,
-    const WebKit::WebIDBKeyPath& keyPath) {
-  return WebKit::WebIDBKey::injectIDBKeyIntoSerializedValue(
-      key, value, keyPath);
 }
 
 WebKit::WebGraphicsContext3D*

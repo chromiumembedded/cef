@@ -73,6 +73,7 @@
 #include "webkit/fileapi/file_system_dir_url_request_job.h"
 #include "webkit/fileapi/file_system_url_request_job.h"
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/resource_request_body.h"
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
@@ -84,6 +85,7 @@ using net::StaticCookiePolicy;
 using net::URLRequestStatus;
 using webkit_blob::ShareableFileReference;
 using webkit_glue::ResourceLoaderBridge;
+using webkit_glue::ResourceRequestBody;
 using webkit_glue::ResourceResponseInfo;
 
 
@@ -102,7 +104,7 @@ struct RequestParams {
   ResourceType::Type request_type;
   int appcache_host_id;
   bool download_to_file;
-  scoped_refptr<net::UploadData> upload;
+  scoped_refptr<ResourceRequestBody> request_body;
   net::RequestPriority priority;
 };
 
@@ -146,12 +148,16 @@ class RequestInterceptor : public net::URLRequest::Interceptor {
         UnregisterRequestInterceptor(this);
   }
 
-  virtual net::URLRequestJob* MaybeIntercept(net::URLRequest* request)
+  virtual net::URLRequestJob* MaybeIntercept(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate)
       OVERRIDE {
     return NULL;
   }
 
-  virtual net::URLRequestJob* MaybeInterceptRedirect(net::URLRequest* request,
+  virtual net::URLRequestJob* MaybeInterceptRedirect(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate,
       const GURL& location) OVERRIDE {
     REQUIRE_IOT();
 
@@ -175,7 +181,9 @@ class RequestInterceptor : public net::URLRequest::Interceptor {
     if (newUrlStr != location.spec()) {
       GURL new_url = GURL(std::string(newUrlStr));
       if (!new_url.is_empty() && new_url.is_valid())
-        return new net::URLRequestRedirectJob(request, new_url);
+        return new net::URLRequestRedirectJob(request,
+                                              network_delegate,
+                                              new_url);
     }
 
     return NULL;
@@ -443,6 +451,12 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     bool handled = false;
 
+    scoped_refptr<net::UploadData> upload_data;
+    if (params->request_body) {
+      upload_data = params->request_body->ResolveElementsAndCreateUploadData(
+          _Context->request_context()->blob_storage_controller());
+    }
+
     if (browser_.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
       CefRefPtr<CefRequestHandler> handler;
@@ -466,10 +480,10 @@ class RequestProxy : public net::URLRequest::Delegate,
         requestimpl->SetHeaderMap(headerMap);
 
         // Transfer post data, if any
-        scoped_refptr<net::UploadData> upload = params->upload;
-        if (upload.get()) {
+        if (upload_data.get()) {
           CefRefPtr<CefPostData> postdata(new CefPostDataImpl());
-          static_cast<CefPostDataImpl*>(postdata.get())->Set(*upload.get());
+          static_cast<CefPostDataImpl*>(postdata.get())->Set(
+              *upload_data.get());
           requestimpl->SetPostData(postdata);
         }
 
@@ -510,8 +524,8 @@ class RequestProxy : public net::URLRequest::Delegate,
           // Observe post data from request.
           CefRefPtr<CefPostData> postData = request->GetPostData();
           if (postData.get()) {
-            params->upload = new net::UploadData();
-            static_cast<CefPostDataImpl*>(postData.get())->Get(*params->upload);
+            upload_data = new net::UploadData();
+            static_cast<CefPostDataImpl*>(postData.get())->Get(*upload_data);
           }
         }
 
@@ -574,12 +588,6 @@ class RequestProxy : public net::URLRequest::Delegate,
     }
 
     if (!handled) {
-      // Might need to resolve the blob references in the upload data.
-      if (params->upload) {
-        _Context->request_context()->blob_storage_controller()->
-            ResolveBlobReferencesInUploadData(params->upload.get());
-      }
-
       net::URLRequestContext* context = browser_.get() ?
           browser_->request_context_proxy() : _Context->request_context();
 
@@ -594,7 +602,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       headers.AddHeadersFromString(params->headers);
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
-      request_->set_upload(params->upload.get());
+      request_->set_upload(upload_data);
       request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
@@ -1067,41 +1075,11 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge,
   // --------------------------------------------------------------------------
   // ResourceLoaderBridge implementation:
 
-  virtual void AppendDataToUpload(const char* data, int data_len) OVERRIDE {
+  virtual void SetRequestBody(ResourceRequestBody* request_body) OVERRIDE {
     DCHECK(CalledOnValidThread());
     DCHECK(params_.get());
-    if (!params_->upload)
-      params_->upload = new net::UploadData();
-    params_->upload->AppendBytes(data, data_len);
-  }
-
-  virtual void AppendFileRangeToUpload(
-      const FilePath& file_path,
-      uint64 offset,
-      uint64 length,
-      const base::Time& expected_modification_time) OVERRIDE {
-    DCHECK(CalledOnValidThread());
-    DCHECK(params_.get());
-    if (!params_->upload)
-      params_->upload = new net::UploadData();
-    params_->upload->AppendFileRange(file_path, offset, length,
-                                     expected_modification_time);
-  }
-
-  virtual void AppendBlobToUpload(const GURL& blob_url) OVERRIDE {
-    DCHECK(CalledOnValidThread());
-    DCHECK(params_.get());
-    if (!params_->upload)
-      params_->upload = new net::UploadData();
-    params_->upload->AppendBlob(blob_url);
-  }
-
-  virtual void SetUploadIdentifier(int64 identifier) OVERRIDE {
-    DCHECK(CalledOnValidThread());
-    DCHECK(params_.get());
-    if (!params_->upload)
-      params_->upload = new net::UploadData();
-    params_->upload->set_identifier(identifier);
+    DCHECK(!params_->request_body);
+    params_->request_body = request_body;
   }
 
   virtual bool Start(Peer* peer) OVERRIDE {

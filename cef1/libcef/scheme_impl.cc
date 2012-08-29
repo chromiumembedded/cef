@@ -80,12 +80,15 @@ bool IsBuiltinScheme(const std::string& scheme) {
   return false;
 }
 
-net::URLRequestJob* GetBuiltinSchemeRequestJob(net::URLRequest* request,
-                                               const std::string& scheme) {
+net::URLRequestJob* GetBuiltinSchemeRequestJob(
+    net::URLRequest* request,
+    net::NetworkDelegate* network_delegate,
+    const std::string& scheme) {
   // See if the request should be handled by a built-in protocol factory.
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i) {
     if (scheme == kBuiltinFactories[i].scheme) {
-      net::URLRequestJob* job = (kBuiltinFactories[i].factory)(request, scheme);
+      net::URLRequestJob* job =
+          (kBuiltinFactories[i].factory)(request, network_delegate, scheme);
       DCHECK(job);  // The built-in factories are not expected to fail!
       return job;
     }
@@ -106,8 +109,9 @@ std::string ToLower(const std::string& str) {
 class CefUrlRequestJob : public net::URLRequestJob {
  public:
   CefUrlRequestJob(net::URLRequest* request,
+                   net::NetworkDelegate* network_delegate,
                    CefRefPtr<CefSchemeHandler> handler)
-    : net::URLRequestJob(request, request->context()->network_delegate()),
+    : net::URLRequestJob(request, network_delegate),
       handler_(handler),
       remaining_bytes_(0),
       response_cookies_save_index_(0),
@@ -574,10 +578,11 @@ class CefUrlRequestManager {
 
     // From net::URLRequestJobFactory::ProtocolHandler
     virtual net::URLRequestJob* MaybeCreateJob(
-        net::URLRequest* request) const OVERRIDE {
+        net::URLRequest* request,
+        net::NetworkDelegate* network_delegate) const OVERRIDE {
       REQUIRE_IOT();
-      return CefUrlRequestManager::GetInstance()->GetRequestJob(request,
-                                                                scheme_);
+      return CefUrlRequestManager::GetInstance()->GetRequestJob(
+          request, network_delegate, scheme_);
     }
 
    private:
@@ -732,6 +737,7 @@ class CefUrlRequestManager {
   // Create the job that will handle the request. |scheme| will already be in
   // lower case.
   net::URLRequestJob* GetRequestJob(net::URLRequest* request,
+                                    net::NetworkDelegate* network_delegate,
                                     const std::string& scheme) {
     net::URLRequestJob* job = NULL;
     CefRefPtr<CefSchemeHandlerFactory> factory =
@@ -745,12 +751,12 @@ class CefUrlRequestManager {
       CefRefPtr<CefSchemeHandler> handler =
           factory->Create(browser.get(), scheme, requestPtr);
       if (handler.get())
-        job = new CefUrlRequestJob(request, handler);
+        job = new CefUrlRequestJob(request, network_delegate, handler);
     }
 
     if (!job && IsBuiltinScheme(scheme)) {
       // Give the built-in scheme handler a chance to handle the request.
-      job = GetBuiltinSchemeRequestJob(request, scheme);
+      job = GetBuiltinSchemeRequestJob(request, network_delegate, scheme);
     }
 
 #ifndef NDEBUG

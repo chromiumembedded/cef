@@ -56,8 +56,8 @@ class BrowserNetworkDelegate : public net::NetworkDelegate {
   virtual int OnBeforeSocketStreamConnect(
       net::SocketStream* stream,
       const net::CompletionCallback& callback) OVERRIDE;
-  virtual void OnCacheWaitStateChange(const net::URLRequest& request,
-                                      CacheWaitState state) OVERRIDE;
+  virtual void OnRequestWaitStateChange(const net::URLRequest& request,
+                                        RequestWaitState state) OVERRIDE;
 
   bool accept_all_cookies_;
 };
