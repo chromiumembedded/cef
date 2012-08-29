@@ -50,7 +50,6 @@
 class CefMenuModel : public virtual CefBase {
  public:
   typedef cef_menu_item_type_t MenuItemType;
-  typedef cef_menu_separator_type_t MenuSeparatorType;
 
   ///
   // Clears the menu. Returns true on success.
@@ -68,7 +67,7 @@ class CefMenuModel : public virtual CefBase {
   // Add a separator to the menu. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool AddSeparator(MenuSeparatorType type) =0;
+  virtual bool AddSeparator() =0;
 
   //
   // Add an item to the menu. Returns true on success.
@@ -104,7 +103,7 @@ class CefMenuModel : public virtual CefBase {
   // success.
   ///
   /*--cef()--*/
-  virtual bool InsertSeparatorAt(int index, MenuSeparatorType type) =0;
+  virtual bool InsertSeparatorAt(int index) =0;
 
   //
   // Insert an item in the menu at the specified |index|. Returns true on
@@ -212,12 +211,6 @@ class CefMenuModel : public virtual CefBase {
   ///
   /*--cef(default_retval=MENUITEMTYPE_NONE)--*/
   virtual MenuItemType GetTypeAt(int index) =0;
-
-  ///
-  // Returns the separator type at the specified |index|.
-  ///
-  /*--cef(default_retval=MENUSEPARATORTYPE_NONE)--*/
-  virtual MenuSeparatorType GetSeparatorTypeAt(int index) =0;
 
   ///
   // Returns the group id for the specified |command_id| or -1 if invalid.
