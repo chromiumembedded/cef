@@ -1089,9 +1089,9 @@ enum cef_dom_node_type_t {
 // Proxy types.
 ///
 enum cef_proxy_type_t {
-  PROXY_TYPE_DIRECT = 0,
-  PROXY_TYPE_NAMED,
-  PROXY_TYPE_PAC_STRING,
+  CEF_PROXY_TYPE_DIRECT = 0,
+  CEF_PROXY_TYPE_NAMED,
+  CEF_PROXY_TYPE_PAC_STRING,
 };
 
 ///
