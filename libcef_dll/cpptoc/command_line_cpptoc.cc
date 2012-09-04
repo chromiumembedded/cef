@@ -128,6 +128,31 @@ void CEF_CALLBACK command_line_reset(struct _cef_command_line_t* self) {
   CefCommandLineCppToC::Get(self)->Reset();
 }
 
+void CEF_CALLBACK command_line_get_argv(struct _cef_command_line_t* self,
+    cef_string_list_t argv) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: argv; type: string_vec_byref
+  DCHECK(argv);
+  if (!argv)
+    return;
+
+  // Translate param: argv; type: string_vec_byref
+  std::vector<CefString> argvList;
+  transfer_string_list_contents(argv, argvList);
+
+  // Execute
+  CefCommandLineCppToC::Get(self)->GetArgv(
+      argvList);
+
+  // Restore param: argv; type: string_vec_byref
+  cef_string_list_clear(argv);
+  transfer_string_list_contents(argvList, argv);
+}
+
 cef_string_userfree_t CEF_CALLBACK command_line_get_command_line_string(
     struct _cef_command_line_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -361,6 +386,7 @@ CefCommandLineCppToC::CefCommandLineCppToC(CefCommandLine* cls)
   struct_.struct_.init_from_argv = command_line_init_from_argv;
   struct_.struct_.init_from_string = command_line_init_from_string;
   struct_.struct_.reset = command_line_reset;
+  struct_.struct_.get_argv = command_line_get_argv;
   struct_.struct_.get_command_line_string =
       command_line_get_command_line_string;
   struct_.struct_.get_program = command_line_get_program;

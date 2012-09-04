@@ -25,6 +25,7 @@ class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
   virtual void InitFromArgv(int argc, const char* const* argv) OVERRIDE;
   virtual void InitFromString(const CefString& command_line) OVERRIDE;
   virtual void Reset() OVERRIDE;
+  virtual void GetArgv(std::vector<CefString>& argv) OVERRIDE;
   virtual CefString GetCommandLineString() OVERRIDE;
   virtual CefString GetProgram() OVERRIDE;
   virtual void SetProgram(const CefString& program) OVERRIDE;

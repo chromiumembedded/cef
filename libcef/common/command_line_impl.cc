@@ -57,6 +57,14 @@ void CefCommandLineImpl::Reset() {
   const_cast<CommandLine::SwitchMap*>(&map)->clear();
 }
 
+void CefCommandLineImpl::GetArgv(std::vector<CefString>& argv) {
+  CEF_VALUE_VERIFY_RETURN_VOID(false);
+  const CommandLine::StringVector& cmd_argv = const_value().argv();
+  CommandLine::StringVector::const_iterator it = cmd_argv.begin();
+  for (; it != cmd_argv.end(); ++it)
+    argv.push_back(*it);
+}
+
 CefString CefCommandLineImpl::GetCommandLineString() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
   return const_value().GetCommandLineString();
