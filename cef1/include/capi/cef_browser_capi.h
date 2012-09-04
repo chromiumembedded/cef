@@ -180,12 +180,14 @@ typedef struct _cef_browser_t {
       int clearSelection);
 
   ///
-  // Get the zoom level.
+  // Get the current zoom level. The default zoom level is 0.0. This function
+  // can only be called on the UI thread.
   ///
   double (CEF_CALLBACK *get_zoom_level)(struct _cef_browser_t* self);
 
   ///
-  // Change the zoom level to the specified value.
+  // Change the zoom level to the specified value. Specify 0.0 to reset the zoom
+  // level. The change will be applied asynchronously on the UI thread.
   ///
   void (CEF_CALLBACK *set_zoom_level)(struct _cef_browser_t* self,
       double zoomLevel);
