@@ -625,7 +625,7 @@ public:
   ///
   void UseDirect()
   {
-    proxyType = PROXY_TYPE_DIRECT;
+    proxyType = CEF_PROXY_TYPE_DIRECT;
   }
 
   ///
@@ -639,7 +639,7 @@ public:
   ///
   void UseNamedProxy(const CefString& proxy_uri_list)
   {
-    proxyType = PROXY_TYPE_NAMED;
+    proxyType = CEF_PROXY_TYPE_NAMED;
     (CefString(&proxyList)) = proxy_uri_list;
   }
 
@@ -649,13 +649,13 @@ public:
   ///
   void UsePacString(const CefString& pac_string)
   {
-    proxyType = PROXY_TYPE_PAC_STRING;
+    proxyType = CEF_PROXY_TYPE_PAC_STRING;
     (CefString(&proxyList)) = pac_string;
   }
 
-  bool IsDirect() const { return proxyType == PROXY_TYPE_DIRECT; }
-  bool IsNamedProxy() const { return proxyType == PROXY_TYPE_NAMED; }
-  bool IsPacString() const { return proxyType == PROXY_TYPE_PAC_STRING; }
+  bool IsDirect() const { return proxyType == CEF_PROXY_TYPE_DIRECT; }
+  bool IsNamedProxy() const { return proxyType == CEF_PROXY_TYPE_NAMED; }
+  bool IsPacString() const { return proxyType == CEF_PROXY_TYPE_PAC_STRING; }
 
   CefString ProxyList() const { return CefString(&proxyList); }
 };

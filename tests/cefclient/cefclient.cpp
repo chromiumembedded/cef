@@ -258,21 +258,21 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app)
 
   // Retrieve command-line proxy configuration, if any.
   bool has_proxy = false;
-  cef_proxy_type_t proxy_type = PROXY_TYPE_DIRECT;
+  cef_proxy_type_t proxy_type = CEF_PROXY_TYPE_DIRECT;
   CefString proxy_config;
 
   if (g_command_line->HasSwitch(cefclient::kProxyType)) {
     std::string str = g_command_line->GetSwitchValue(cefclient::kProxyType);
     if (str == cefclient::kProxyType_Direct) {
       has_proxy = true;
-      proxy_type = PROXY_TYPE_DIRECT;
+      proxy_type = CEF_PROXY_TYPE_DIRECT;
     } else if (str == cefclient::kProxyType_Named ||
                str == cefclient::kProxyType_Pac) {
       proxy_config = g_command_line->GetSwitchValue(cefclient::kProxyConfig);
       if (!proxy_config.empty()) {
         has_proxy = true;
         proxy_type = (str == cefclient::kProxyType_Named?
-                      PROXY_TYPE_NAMED:PROXY_TYPE_PAC_STRING);
+                      CEF_PROXY_TYPE_NAMED:CEF_PROXY_TYPE_PAC_STRING);
       }
     }
   }
