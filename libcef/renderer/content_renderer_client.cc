@@ -2,6 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/compiler_specific.h"
+
+#include "third_party/WebKit/Source/WebCore/config.h"
+MSVC_PUSH_WARNING_LEVEL(0);
+#include "V8RecursionScope.h"  // NOLINT(build/include)
+#include "V8Utilities.h"  // NOLINT(build/include)
+MSVC_POP_WARNING();
+#undef LOG
+
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "libcef/common/cef_messages.h"
@@ -190,6 +199,8 @@ void CefContentRendererClient::DidCreateScriptContext(
 
   v8::HandleScope handle_scope;
   v8::Context::Scope scope(context);
+  WebCore::V8RecursionScope recursion_scope(
+      WebCore::getScriptExecutionContext());
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
@@ -218,6 +229,8 @@ void CefContentRendererClient::WillReleaseScriptContext(
 
   v8::HandleScope handle_scope;
   v8::Context::Scope scope(context);
+  WebCore::V8RecursionScope recursion_scope(
+      WebCore::getScriptExecutionContext());
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
