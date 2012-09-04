@@ -556,7 +556,7 @@ class CefProxyInfo : public CefStructBase<CefProxyInfoTraits> {
   // Use a direction connection instead of a proxy.
   ///
   void UseDirect() {
-    proxyType = PROXY_TYPE_DIRECT;
+    proxyType = CEF_PROXY_TYPE_DIRECT;
   }
 
   ///
@@ -569,7 +569,7 @@ class CefProxyInfo : public CefStructBase<CefProxyInfoTraits> {
   // "foo1:80;foo2:80".
   ///
   void UseNamedProxy(const CefString& proxy_uri_list) {
-    proxyType = PROXY_TYPE_NAMED;
+    proxyType = CEF_PROXY_TYPE_NAMED;
     (CefString(&proxyList)) = proxy_uri_list;
   }
 
@@ -578,13 +578,13 @@ class CefProxyInfo : public CefStructBase<CefProxyInfoTraits> {
   // example, "PROXY foobar:99; SOCKS fml:2; DIRECT".
   ///
   void UsePacString(const CefString& pac_string) {
-    proxyType = PROXY_TYPE_PAC_STRING;
+    proxyType = CEF_PROXY_TYPE_PAC_STRING;
     (CefString(&proxyList)) = pac_string;
   }
 
-  bool IsDirect() const { return proxyType == PROXY_TYPE_DIRECT; }
-  bool IsNamedProxy() const { return proxyType == PROXY_TYPE_NAMED; }
-  bool IsPacString() const { return proxyType == PROXY_TYPE_PAC_STRING; }
+  bool IsDirect() const { return proxyType == CEF_PROXY_TYPE_DIRECT; }
+  bool IsNamedProxy() const { return proxyType == CEF_PROXY_TYPE_NAMED; }
+  bool IsPacString() const { return proxyType == CEF_PROXY_TYPE_PAC_STRING; }
 
   CefString ProxyList() const { return CefString(&proxyList); }
 };

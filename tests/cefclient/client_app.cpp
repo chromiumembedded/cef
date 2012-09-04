@@ -175,7 +175,7 @@ class ClientAppExtensionHandler : public CefV8Handler {
 
 
 ClientApp::ClientApp()
-    : proxy_type_(PROXY_TYPE_DIRECT) {
+    : proxy_type_(CEF_PROXY_TYPE_DIRECT) {
   CreateRenderDelegates(render_delegates_);
 
   // Default schemes that support cookies.
