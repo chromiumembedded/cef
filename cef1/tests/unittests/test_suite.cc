@@ -117,8 +117,8 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
     javascript_flags += " " + other_javascript_flags;
   CefString(&settings.javascript_flags) = javascript_flags;
 
-  CefString(&settings.pack_file_path) =
-      commandline_->GetSwitchValueASCII(cefclient::kPackFilePath);
+  CefString(&settings.resources_dir_path) =
+      commandline_->GetSwitchValueASCII(cefclient::kResourcesDirPath);
   CefString(&settings.locales_dir_path) =
       commandline_->GetSwitchValueASCII(cefclient::kLocalesDirPath);
 

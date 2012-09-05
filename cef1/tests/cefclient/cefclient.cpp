@@ -250,8 +250,8 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
   CefString(&settings.javascript_flags) =
       g_command_line->GetSwitchValue(cefclient::kJavascriptFlags);
 
-  CefString(&settings.pack_file_path) =
-      g_command_line->GetSwitchValue(cefclient::kPackFilePath);
+  CefString(&settings.resources_dir_path) =
+      g_command_line->GetSwitchValue(cefclient::kResourcesDirPath);
   CefString(&settings.locales_dir_path) =
       g_command_line->GetSwitchValue(cefclient::kLocalesDirPath);
 

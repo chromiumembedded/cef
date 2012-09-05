@@ -63,14 +63,21 @@ Required components:
 
 * Localized resources
     locales/
-  Note: A .pak file is loaded from this folder based on the value of
-  CefSettings.locale. Only configured locales need to be distributed. If no
-  locale is configured the default locale of "en-US" will be used. The
-  locales folder must exist in the same directory as the executable.
+  Note: Contains localized strings for WebKit UI controls. A .pak file is loaded
+  from this folder based on the value of environment variables which are read
+  with the following precedence order: LANGUAGE, LC_ALL, LC_MESSAGES and LANG.
+  Only configured locales need to be distributed. If no locale is configured the
+  default locale of "en-US" will be used. Locale file loading can be disabled
+  completely using CefSettings.pack_loading_disabled. The locales folder path
+  can be customized using CefSettings.locales_dir_path.
 
 * Other resources
     chrome.pak
-  Note: The chrome.pak file must exist in the same directory as the executable.
+    devtools_resources.pak
+  Note: The devtools_resources.pak file contains WebKit inspector resources and
+  is optional. All other resources are required. Pack file loading can be
+  disabled completely using CefSettings.pack_loading_disabled. The resources
+  directory path can be customized using CefSettings.resources_dir_path.
 
 
 LICENSING

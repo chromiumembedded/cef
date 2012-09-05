@@ -68,14 +68,21 @@ Required components:
 
 * Localized resources
     Resources/*.lproj/
-  Note: A .pak file is loaded from this folder based on the value of
-  CefSettings.locale. Only configured locales need to be distributed. If no
-  locale is configured the default locale of "en" will be used.
+  Note: Contains localized strings for WebKit UI controls. A .pak file is loaded
+  from this folder based on the CefSettings.locale value. Only configured
+  locales need to be distributed. If no locale is configured the default locale
+  of "en" will be used. Locale file loading can be disabled completely using
+  CefSettings.pack_loading_disabled.
 
 * Other resources
     Resources/chrome.pak
+    Resources/devtools_resources.pak
     Resources/*.png
     Resources/*.tiff
+  Note: The devtools_resources.pak file contains WebKit inspector resources and
+  is optional. All other resources are required. Pack file loading can be
+  disabled completely using CefSettings.pack_loading_disabled. The resources
+  directory path can be customized using CefSettings.resources_dir_path.
 
 Optional components:
 

@@ -188,18 +188,18 @@ typedef struct _cef_settings_t {
 #endif
 
   ///
-  // The fully qualified path for the cef.pak file. If this value is empty
-  // the cef.pak file must be located in the module directory. This value is
-  // ignored on Mac OS X where pack files are always loaded from the app bundle
-  // resource directory.
+  // The fully qualified path for the resources directory. If this value is
+  // empty the chrome.pak and/or devtools_resources.pak files must be located in
+  // the module directory on Windows/Linux or the app bundle Resources directory
+  // on Mac OS X.
   ///
-  cef_string_t pack_file_path;
+  cef_string_t resources_dir_path;
 
   ///
   // The fully qualified path for the locales directory. If this value is empty
   // the locales directory must be located in the module directory. This value
   // is ignored on Mac OS X where pack files are always loaded from the app
-  // bundle resource directory.
+  // bundle Resources directory.
   ///
   cef_string_t locales_dir_path;
 

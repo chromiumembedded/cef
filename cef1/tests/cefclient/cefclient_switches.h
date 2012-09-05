@@ -32,7 +32,7 @@ extern const char kGraphicsImpl_DesktopCmdBuffer[];
 extern const char kLocalStorageQuota[];
 extern const char kSessionStorageQuota[];
 extern const char kJavascriptFlags[];
-extern const char kPackFilePath[];
+extern const char kResourcesDirPath[];
 extern const char kLocalesDirPath[];
 extern const char kPackLoadingDisabled[];
 
