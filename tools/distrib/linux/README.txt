@@ -70,7 +70,8 @@ Required components:
 
 * Other resources
     chrome.pak
-  Note: The chrome.pak file must exist in the same directory as the executable.
+    devtools_resources.pak
+  Note: The pak files must exist in the same directory as libcef.so.
 
 
 LICENSING

@@ -12,6 +12,7 @@
 #undef LOG
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/mac/foundation_util.h"
 #include "base/mac/mac_util.h"
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
@@ -21,24 +22,17 @@
 
 
 namespace webkit_glue {
-  
-// Helper method for getting the path to the CEF resources directory.
+
 FilePath GetResourcesFilePath() {
-  FilePath path;
-  // We need to know if we're bundled or not to know which path to use.
-  if (base::mac::AmIBundled()) {
-    PathService::Get(base::DIR_EXE, &path);
-    path = path.Append(FilePath::kParentDirectory);
-    return path.AppendASCII("Resources");
-  } else {
-    // TODO(port): Allow the embedder to customize the resource path.
-    PathService::Get(base::DIR_SOURCE_ROOT, &path);
-    path = path.AppendASCII("src");
-    path = path.AppendASCII("cef");
-    path = path.AppendASCII("tests");
-    path = path.AppendASCII("cefclient");
-    return path.AppendASCII("res");
-  }
+  // Start out with the path to the running executable.
+  FilePath execPath;
+  PathService::Get(base::FILE_EXE, &execPath);
+
+  // Get the main bundle path.
+  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+
+  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
+                   .Append(FILE_PATH_LITERAL("Resources"));
 }
 
 base::StringPiece GetDataResource(int resource_id) {

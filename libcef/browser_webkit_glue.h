@@ -20,9 +20,7 @@ namespace webkit {
 struct WebPluginInfo;
 }
 
-#if defined(OS_MACOSX)
 class FilePath;
-#endif
 
 namespace webkit_glue {
 
@@ -34,13 +32,10 @@ void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
 // Save a bitmap image to file, providing optional alternative data in |lpBits|
 BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
 #endif
-  
+ 
+FilePath GetResourcesFilePath();
 void InitializeResourceBundle(const std::string& locale);
 void CleanupResourceBundle();
-
-#if defined(OS_MACOSX)
-FilePath GetResourcesFilePath();
-#endif
 
 string16 GetLocalizedString(int message_id);
 base::StringPiece GetDataResource(int resource_id);

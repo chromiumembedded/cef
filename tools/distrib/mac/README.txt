@@ -74,6 +74,7 @@ Required components:
 
 * Other resources
     Resources/chrome.pak
+    Resources/devtools_resources.pak
     Resources/*.png
     Resources/*.tiff
 

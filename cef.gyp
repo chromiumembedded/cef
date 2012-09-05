@@ -46,6 +46,7 @@
       ],
       'mac_bundle_resources': [
         '<@(cefclient_bundle_resources_mac)',
+        '<(grit_out_dir)/devtools_resources.pak',
       ],
       'mac_bundle_resources!': [
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
@@ -84,24 +85,6 @@
                 '<@(locales)',
               ],
             },
-            {
-              # On Windows chrome.pak will contain only the inspector resources.
-              # Other resources are built into libcef.dll.
-              'action_name': 'repack_resources',
-              'variables': {
-                'pak_inputs': [
-                  '<(grit_out_dir)/devtools_resources.pak',
-                ],
-              },
-              'inputs': [
-                '<(repack_path)',
-                '<@(pak_inputs)',
-              ],
-              'outputs': [
-                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
-              ],
-              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
-            },
           ],
           'copies': [
             {
@@ -113,7 +96,7 @@
             {
               'destination': '<(PRODUCT_DIR)',
               'files': [
-                '<(INTERMEDIATE_DIR)/repack/chrome.pak'
+                '<(grit_out_dir)/devtools_resources.pak'
               ],
             },
           ],
@@ -172,7 +155,6 @@
               'process_outputs_as_mac_bundle_resources': 1,
               'variables': {
                 'pak_inputs': [
-                  '<(grit_out_dir)/devtools_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
@@ -252,7 +234,6 @@
               'action_name': 'repack_resources',
               'variables': {
                 'pak_inputs': [
-                  '<(grit_out_dir)/devtools_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
@@ -279,7 +260,8 @@
             {
               'destination': '<(PRODUCT_DIR)',
               'files': [
-                '<(INTERMEDIATE_DIR)/repack/chrome.pak'
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
+                '<(grit_out_dir)/devtools_resources.pak',
               ],
             },
             {

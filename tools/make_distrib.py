@@ -259,7 +259,7 @@ if platform == 'windows':
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
     copy_files(os.path.join(cef_dir, 'Debug/*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Debug/cefclient.exe'), dst_dir, options.quiet)
-    copy_file(os.path.join(cef_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(cef_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
   
@@ -277,7 +277,7 @@ if platform == 'windows':
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
     copy_files(os.path.join(cef_dir, 'Release/*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Release/cefclient.exe'), dst_dir, options.quiet)
-    copy_file(os.path.join(cef_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(cef_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
 
@@ -352,6 +352,7 @@ elif platform == 'macosx':
   make_dir(dst_dir, options.quiet)
   copy_files(os.path.join(cef_dir, '../third_party/WebKit/Source/WebCore/Resources/*.*'), dst_dir, options.quiet)
   copy_file(os.path.join(cef_dir, '../xcodebuild/Release/cefclient.app/Contents/Resources/chrome.pak'), dst_dir, options.quiet)
+  copy_file(os.path.join(cef_dir, '../xcodebuild/Release/cefclient.app/Contents/Resources/devtools_resources.pak'), dst_dir, options.quiet)
   copy_files(os.path.join(cef_dir, '../xcodebuild/Release/cefclient.app/Contents/Resources/*.lproj'), dst_dir, options.quiet)
   remove_dir(os.path.join(dst_dir, 'English.lproj'))
   
@@ -385,6 +386,7 @@ elif platform == 'linux':
     copy_dir(os.path.join(linux_build_dir, 'Debug/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Debug/cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Debug/chrome.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Debug/devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(linux_build_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   else:
@@ -397,6 +399,7 @@ elif platform == 'linux':
     copy_dir(os.path.join(linux_build_dir, 'Release/lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Release/cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(linux_build_dir, 'Release/chrome.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(linux_build_dir, 'Release/devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(linux_build_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   else:

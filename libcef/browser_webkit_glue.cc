@@ -40,23 +40,25 @@ using WebKit::WebFrameImpl;
 
 namespace webkit_glue {
 
+#if !defined(OS_MACOSX)
+FilePath GetResourcesFilePath() {
+  FilePath pak_dir;
+  PathService::Get(base::DIR_MODULE, &pak_dir);
+  return pak_dir;
+}
+#endif  // !defined(OS_MACOSX)
+
 void InitializeResourceBundle(const std::string& locale) {
   // Load chrome.pak (on Mac) and the appropiate locale pack.
   const std::string loaded_locale =
       ResourceBundle::InitSharedInstance(locale);
   CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
-#if defined(OS_WIN)
-  // Explicitly load chrome.pak on Windows. Use the module (libcef.dll)
-  // directory to match the location of the locale folder.
-  FilePath chrome_pack_path;
-  PathService::Get(base::DIR_MODULE, &chrome_pack_path);
-  chrome_pack_path = chrome_pack_path.AppendASCII("chrome.pak");
-  if (file_util::PathExists(chrome_pack_path))
-    ResourceBundle::AddDataPackToSharedInstance(chrome_pack_path);
-  else
-    NOTREACHED() << "Could not load chrome.pak";
-#endif
+  // Load devtools_resources.pak if it exists.
+  FilePath pack_path =
+      GetResourcesFilePath().AppendASCII("devtools_resources.pak");
+  if (file_util::PathExists(pack_path))
+    ResourceBundle::AddDataPackToSharedInstance(pack_path);
 }
 
 void CleanupResourceBundle() {

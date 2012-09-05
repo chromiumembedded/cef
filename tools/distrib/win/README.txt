@@ -80,8 +80,8 @@ Required components:
   locales folder must exist in the same directory as libcef.dll.
 
 * Other resources
-    chrome.pak
-  Note: The chrome.pak file must exist in the same directory as libcef.dll.
+    devtools_resources.pak
+  Note: The pak file must exist in the same directory as libcef.dll.
 
 Optional components:
 
