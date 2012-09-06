@@ -72,6 +72,8 @@ Required components:
 * Unicode support
     icudt.dll
 
+Optional components:
+
 * Localized resources
     locales/
   Note: Contains localized strings for WebKit UI controls. A .pak file is loaded
@@ -81,14 +83,11 @@ Required components:
   CefSettings.pack_loading_disabled. The locales folder path can be customized
   using CefSettings.locales_dir_path.
 
-Optional components:
-
 * Other resources
     devtools_resources.pak
-  Note: The devtools_resources.pak file contains WebKit inspector resources.
-  Pack file loading can be disabled completely using CefSettings.
-  pack_loading_disabled. The resources directory path can be customized using
-  CefSettings.resources_dir_path.
+  Note: Contains WebKit image and inspector resources. Pack file loading can be
+  disabled completely using CefSettings.pack_loading_disabled. The resources
+  directory path can be customized using CefSettings.resources_dir_path.
 
 * FFmpeg audio and video support
     avcodec-54.dll
