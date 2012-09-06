@@ -939,12 +939,6 @@
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
-            # Include necessary Mozilla sources. Remove these lines once they're
-            # included by content_browser.gypi. See crbug.com/120719.
-            '<(DEPTH)/third_party/mozilla/NSString+Utils.h',
-            '<(DEPTH)/third_party/mozilla/NSString+Utils.mm',
-            '<(DEPTH)/third_party/mozilla/NSURL+Utils.h',
-            '<(DEPTH)/third_party/mozilla/NSURL+Utils.m',
             # Include sources for context menu implementation.
             '<(DEPTH)/chrome/browser/disposition_utils.cc',
             '<(DEPTH)/chrome/browser/disposition_utils.h',
