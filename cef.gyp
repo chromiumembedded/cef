@@ -138,12 +138,21 @@
               ],
             },
             {
-              'postbuild_name': 'Copy Pack File',
+              'postbuild_name': 'Copy cef.pak File',
               'action': [
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
                 '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
+              ],
+            },
+            {
+              'postbuild_name': 'Copy devtools_resources.pak File',
+              'action': [
+                'cp',
+                '-f',
+                '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
+                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
               ],
             },
             {
@@ -316,12 +325,21 @@
               ],
             },
             {
-              'postbuild_name': 'Copy Pack File',
+              'postbuild_name': 'Copy cef.pak File',
               'action': [
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
                 '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
+              ],
+            },
+            {
+              'postbuild_name': 'Copy devtools_resources.pak File',
+              'action': [
+                'cp',
+                '-f',
+                '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
+                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
               ],
             },
             {
@@ -635,7 +653,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
               '<(grit_out_dir)/cef_resources.pak',
@@ -692,6 +709,15 @@
           ],
           'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
                      '<@(header_inputs)'],
+        },
+      ],
+      'copies': [
+        {
+          # Keep the devtools_resources.pak file separate.
+          'destination': '<(PRODUCT_DIR)',
+          'files': [
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+          ],
         },
       ],
     },

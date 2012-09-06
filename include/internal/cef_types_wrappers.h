@@ -264,7 +264,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->locale);
     cef_string_clear(&s->log_file);
     cef_string_clear(&s->javascript_flags);
-    cef_string_clear(&s->pack_file_path);
+    cef_string_clear(&s->resources_dir_path);
     cef_string_clear(&s->locales_dir_path);
   }
 
@@ -294,8 +294,8 @@ struct CefSettingsTraits {
     target->auto_detect_proxy_settings_enabled =
         src->auto_detect_proxy_settings_enabled;
 
-    cef_string_set(src->pack_file_path.str, src->pack_file_path.length,
-        &target->pack_file_path, copy);
+    cef_string_set(src->resources_dir_path.str, src->resources_dir_path.length,
+        &target->resources_dir_path, copy);
     cef_string_set(src->locales_dir_path.str, src->locales_dir_path.length,
         &target->locales_dir_path, copy);
     target->pack_loading_disabled = src->pack_loading_disabled;
