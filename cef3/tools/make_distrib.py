@@ -287,6 +287,7 @@ if platform == 'windows':
     copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
   
@@ -306,6 +307,7 @@ if platform == 'windows':
     copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
 
@@ -422,6 +424,7 @@ elif platform == 'linux':
     copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
   else:
     sys.stderr.write("No Debug build files.\n")
@@ -434,6 +437,7 @@ elif platform == 'linux':
     copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
     copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")

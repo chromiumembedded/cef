@@ -103,7 +103,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kLogSeverity,
         switches::kProductVersion,
         switches::kLocale,
-        switches::kPackFilePath,
+        switches::kResourcesDirPath,
         switches::kLocalesDirPath,
         switches::kPackLoadingDisabled,
       };

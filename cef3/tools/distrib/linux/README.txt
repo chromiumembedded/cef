@@ -73,9 +73,10 @@ Optional components:
 
 * Other resources
     cef.pak
+    devtools_resources.pak
   Note: Contains WebKit image and inspector resources. Pack file loading can be
-  disabled completely using CefSettings.pack_loading_disabled. The cef.pak file
-  path can be customized using CefSettings.pack_file_path.
+  disabled completely using CefSettings.pack_loading_disabled. The resources
+  directory path can be customized using CefSettings.resources_dir_path.
 
 
 LICENSING

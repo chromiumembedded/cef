@@ -57,7 +57,7 @@ FilePath GetFrameworkBundlePath() {
       FILE_PATH_LITERAL("Chromium Embedded Framework.framework"));
 }
 
-FilePath GetDefaultPackPath() {
+FilePath GetResourcesFilePath() {
   return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
 }
 
@@ -83,7 +83,7 @@ void OverrideChildProcessPath() {
 
 #else  // !defined(OS_MACOSX)
 
-FilePath GetDefaultPackPath() {
+FilePath GetResourcesFilePath() {
   FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
@@ -228,10 +228,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     if (settings.pack_loading_disabled) {
       command_line->AppendSwitch(switches::kPackLoadingDisabled);
     } else {
-      if (settings.pack_file_path.length > 0) {
-        FilePath file_path = FilePath(CefString(&settings.pack_file_path));
-        if (!file_path.empty())
-          command_line->AppendSwitchPath(switches::kPackFilePath, file_path);
+      if (settings.resources_dir_path.length > 0) {
+        FilePath file_path = FilePath(CefString(&settings.resources_dir_path));
+        if (!file_path.empty()) {
+          command_line->AppendSwitchPath(switches::kResourcesDirPath,
+                                         file_path);
+        }
       }
 
       if (settings.locales_dir_path.length > 0) {
@@ -383,14 +385,22 @@ void CefMainDelegate::ShutdownBrowser() {
 
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  FilePath pak_file, locales_dir;
+  FilePath cef_pak_file, devtools_pak_file, locales_dir;
 
   if (!content_client_.pack_loading_disabled()) {
-    if (command_line.HasSwitch(switches::kPackFilePath))
-      pak_file = command_line.GetSwitchValuePath(switches::kPackFilePath);
+    FilePath resources_dir;
+    if (command_line.HasSwitch(switches::kResourcesDirPath)) {
+      resources_dir =
+          command_line.GetSwitchValuePath(switches::kResourcesDirPath);
+    }
+    if (resources_dir.empty())
+      resources_dir = GetResourcesFilePath();
 
-    if (pak_file.empty())
-      pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("cef.pak"));
+    if (!resources_dir.empty()) {
+      cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
+      devtools_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("devtools_resources.pak"));
+    }
 
     if (command_line.HasSwitch(switches::kLocalesDirPath))
       locales_dir = command_line.GetSwitchValuePath(switches::kLocalesDirPath);
@@ -409,13 +419,20 @@ void CefMainDelegate::InitializeResourceBundle() {
   if (!content_client_.pack_loading_disabled()) {
     CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
 
-    if (file_util::PathExists(pak_file)) {
-      content_client_.set_allow_pack_file_load(true);
+    content_client_.set_allow_pack_file_load(true);
+
+    if (file_util::PathExists(cef_pak_file)) {
       ResourceBundle::GetSharedInstance().AddDataPack(
-          pak_file, ui::SCALE_FACTOR_NONE);
-      content_client_.set_allow_pack_file_load(false);
+          cef_pak_file, ui::SCALE_FACTOR_NONE);
     } else {
       NOTREACHED() << "Could not load cef.pak";
     }
+
+    if (file_util::PathExists(devtools_pak_file)) {
+      ResourceBundle::GetSharedInstance().AddDataPack(
+          devtools_pak_file, ui::SCALE_FACTOR_NONE);
+    }
+
+    content_client_.set_allow_pack_file_load(false);
   }
 }
