@@ -37,31 +37,6 @@ namespace {
 // to initialize or reset to the same value.
 const int kNextBrowserIdReset = 1;
 
-#if defined(OS_MACOSX)
-
-FilePath GetDefaultPackPath() {
-  // Start out with the path to the running executable.
-  FilePath execPath;
-  PathService::Get(base::FILE_EXE, &execPath);
-  
-  // Get the main bundle path.
-  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
-  
-  // Go into the Contents/Resources directory.
-  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
-                   .Append(FILE_PATH_LITERAL("Resources"));
-}
-
-#else  // !defined(OS_MACOSX)
-
-FilePath GetDefaultPackPath() {
-  FilePath pak_dir;
-  PathService::Get(base::DIR_MODULE, &pak_dir);
-  return pak_dir;
-}
-
-#endif  // !defined(OS_MACOSX)
-
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
 class DestructionObserver : public MessageLoop::DestructionObserver {
@@ -392,14 +367,26 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
 }
 
 void CefContext::InitializeResourceBundle() {
-  FilePath pak_file, locales_dir;
+#if !defined(OS_WIN)
+  FilePath chrome_pak_file;
+#endif
+  FilePath devtools_pak_file, locales_dir;
 
   if (!settings_.pack_loading_disabled) {
-    if (settings_.pack_file_path.length > 0)
-      pak_file = FilePath(CefString(&settings_.pack_file_path));
+    FilePath resources_dir_path;
+    if (settings_.resources_dir_path.length > 0)
+      resources_dir_path = FilePath(CefString(&settings_.resources_dir_path));
+    if (resources_dir_path.empty())
+      resources_dir_path = GetResourcesFilePath();
 
-    if (pak_file.empty())
-      pak_file = GetDefaultPackPath().Append(FILE_PATH_LITERAL("chrome.pak"));
+    if (!resources_dir_path.empty()) {
+#if !defined(OS_WIN)
+      chrome_pak_file = resources_dir_path.Append(
+          FILE_PATH_LITERAL("chrome.pak"));
+#endif
+      devtools_pak_file = resources_dir_path.Append(
+          FILE_PATH_LITERAL("devtools_resources.pak"));
+    }
 
     if (settings_.locales_dir_path.length > 0)
       locales_dir = FilePath(CefString(&settings_.locales_dir_path));
@@ -420,14 +407,25 @@ void CefContext::InitializeResourceBundle() {
     CHECK(!loaded_locale.empty()) << "Locale could not be found for "
         << locale_str;
 
-    if (file_util::PathExists(pak_file)) {
-      resource_bundle_delegate_->set_allow_pack_file_load(true);
+    resource_bundle_delegate_->set_allow_pack_file_load(true);
+
+    // The chrome.pak file is required on non-Windows platforms.
+#if !defined(OS_WIN)
+    if (file_util::PathExists(chrome_pak_file)) {
       ResourceBundle::GetSharedInstance().AddDataPack(
-          pak_file, ui::SCALE_FACTOR_NONE);
-      resource_bundle_delegate_->set_allow_pack_file_load(false);
+          chrome_pak_file, ui::SCALE_FACTOR_NONE);
     } else {
       NOTREACHED() << "Could not load chrome.pak";
     }
+#endif
+
+    // The devtools_resources.pak file is optional.
+    if (file_util::PathExists(devtools_pak_file)) {
+      ResourceBundle::GetSharedInstance().AddDataPack(
+          devtools_pak_file, ui::SCALE_FACTOR_NONE);
+    }
+
+    resource_bundle_delegate_->set_allow_pack_file_load(false);
   }
 }
 
@@ -536,25 +534,24 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
   return value;
 }
 
-#if defined(OS_MACOSX)
 FilePath CefContext::GetResourcesFilePath() const {
-  FilePath path;
-  // We need to know if we're bundled or not to know which path to use.
-  if (base::mac::AmIBundled()) {
-    PathService::Get(base::DIR_EXE, &path);
-    path = path.Append(FilePath::kParentDirectory);
-    return path.AppendASCII("Resources");
-  } else {
-    // TODO(port): Allow the embedder to customize the resource path.
-    PathService::Get(base::DIR_SOURCE_ROOT, &path);
-    path = path.AppendASCII("src");
-    path = path.AppendASCII("cef");
-    path = path.AppendASCII("tests");
-    path = path.AppendASCII("cefclient");
-    return path.AppendASCII("res");
-  }
+#if defined(OS_MACOSX)
+  // Start out with the path to the running executable.
+  FilePath execPath;
+  PathService::Get(base::FILE_EXE, &execPath);
+
+  // Get the main bundle path.
+  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+
+  // Go into the Contents/Resources directory.
+  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
+                   .Append(FILE_PATH_LITERAL("Resources"));
+#else
+  FilePath pak_dir;
+  PathService::Get(base::DIR_MODULE, &pak_dir);
+  return pak_dir;
+#endif
 }
-#endif  // defined(OS_MACOSX)
 
 std::string CefContext::locale() const {
   std::string localeStr = CefString(&settings_.locale);

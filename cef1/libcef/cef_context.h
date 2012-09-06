@@ -59,9 +59,7 @@ class CefContext : public CefBase {
   string16 GetLocalizedString(int message_id) const;
   base::StringPiece GetDataResource(int resource_id) const;
 
-#if defined(OS_MACOSX)
   FilePath GetResourcesFilePath() const;
-#endif
 
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.

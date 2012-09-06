@@ -48,6 +48,10 @@ USAGE
 
 Xcode 3 and 4: Open the cefclient.xcodeproj project and build.
 
+When using Xcode 4.2 or newer you will need to change the "Compiler for
+C/C++/Objective-C" setting to "LLVM GCC 4.2" under "Build Settings" for
+each target.
+
 Please visit the CEF Website for additional usage information.
 
 http://code.google.com/p/chromiumembedded
@@ -66,18 +70,26 @@ Required components:
 * CEF core library
     libcef.dylib
 
-* Localized resources
-    Resources/*.lproj/
-  Note: A .pak file is loaded from this folder based on the value of
-  CefSettings.locale. Only configured locales need to be distributed. If no
-  locale is configured the default locale of "en" will be used.
-
-* Other resources
-    Resources/chrome.pak
+* Cursor resources
     Resources/*.png
     Resources/*.tiff
 
 Optional components:
+
+* Localized resources
+    Resources/*.lproj/
+  Note: Contains localized strings for WebKit UI controls. A .pak file is loaded
+  from this folder based on the CefSettings.locale value. Only configured
+  locales need to be distributed. If no locale is configured the default locale
+  of "en" will be used. Locale file loading can be disabled completely using
+  CefSettings.pack_loading_disabled.
+
+* Other resources
+    Resources/chrome.pak
+    Resources/devtools_resources.pak
+  Note: Contains WebKit image and inspector resources. Pack file loading can be
+  disabled completely using CefSettings.pack_loading_disabled. The resources
+  directory path can be customized using CefSettings.resources_dir_path.
 
 * FFmpeg audio and video support
     ffmpegsumo.so
