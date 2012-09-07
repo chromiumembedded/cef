@@ -909,6 +909,30 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
   PlatformCloseWindow();
 }
 
+void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
+                                         int32 page_id,
+                                         const GURL& url) {
+  if (client_.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler.get())
+      handler->OnStatusMessage(this, url.spec());
+  }
+}
+
+bool CefBrowserHostImpl::AddMessageToConsole(content::WebContents* source,
+                                             int32 level,
+                                             const string16& message,
+                                             int32 line_no,
+                                             const string16& source_id) {
+  if (client_.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler.get())
+      return handler->OnConsoleMessage(this, message, source_id, line_no);
+  }
+
+  return false;
+}
+
 bool CefBrowserHostImpl::TakeFocus(bool reverse) {
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
@@ -1563,4 +1587,3 @@ void CefBrowserHostImpl::OnLoadEnd(CefRefPtr<CefFrame> frame,
     }
   }
 }
-

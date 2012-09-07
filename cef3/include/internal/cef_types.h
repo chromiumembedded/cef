@@ -1200,15 +1200,6 @@ enum cef_xml_node_type_t {
 };
 
 ///
-// Status message types.
-///
-enum cef_handler_statustype_t {
-  STATUSTYPE_TEXT = 0,
-  STATUSTYPE_MOUSEOVER_URL,
-  STATUSTYPE_KEYBOARD_FOCUS_URL,
-};
-
-///
 // Popup window features.
 ///
 typedef struct _cef_popup_features_t {

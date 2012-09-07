@@ -205,6 +205,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::OpenURLParams& params) OVERRIDE;
   virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
+  virtual void UpdateTargetURL(content::WebContents* source,
+                               int32 page_id,
+                               const GURL& url) OVERRIDE;
+  virtual bool AddMessageToConsole(content::WebContents* source,
+                                   int32 level,
+                                   const string16& message,
+                                   int32 line_no,
+                                   const string16& source_id) OVERRIDE;
   virtual bool TakeFocus(bool reverse) OVERRIDE;
   virtual void WebContentsFocused(content::WebContents* contents) OVERRIDE;
   virtual bool HandleContextMenu(const content::ContextMenuParams& params)
