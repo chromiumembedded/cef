@@ -181,6 +181,8 @@ class ClientHandler : public CefClient,
 
   std::string GetLogFile();
 
+  std::string GetStartupURL() const { return m_StartupURL; }
+
   void SetLastDownloadFile(const std::string& fileName);
   std::string GetLastDownloadFile();
 
@@ -232,6 +234,9 @@ class ClientHandler : public CefClient,
 
   // True if a form element currently has focus
   bool m_bFormElementHasFocus;
+
+  // The URL to be loaded at application startup.
+  std::string m_StartupURL;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

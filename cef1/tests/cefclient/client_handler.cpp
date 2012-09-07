@@ -7,12 +7,13 @@
 #include <sstream>
 #include <string>
 #include "include/cef_browser.h"
+#include "include/cef_command_line.h"
 #include "include/cef_frame.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
+#include "cefclient/cefclient_switches.h"
 #include "cefclient/download_handler.h"
 #include "cefclient/string_util.h"
-
 
 ClientHandler::ClientHandler()
   : m_MainHwnd(NULL),
@@ -23,6 +24,13 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFormElementHasFocus(false) {
+  CefRefPtr<CefCommandLine> commandLine = AppGetCommandLine();
+  if (commandLine.get()) {
+    if (commandLine->HasSwitch(cefclient::kUrl))
+      m_StartupURL = commandLine->GetSwitchValue(cefclient::kUrl);
+    else
+      m_StartupURL = "http://www.google.com/";
+  }
 }
 
 ClientHandler::~ClientHandler() {

@@ -393,7 +393,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
   window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
   CefBrowser::CreateBrowser(window_info, g_handler.get(),
-                            "http://www.google.com", settings);
+                            g_handler->GetStartupURL(), settings);
 
   // Show the window.
   [mainWnd makeKeyAndOrderFront: nil];
