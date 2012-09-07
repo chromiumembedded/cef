@@ -107,7 +107,7 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
 }
 
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
-    const CefString& value, StatusType type) {
+    const CefString& value) {
   if (CEF_MEMBER_MISSING(struct_, on_status_message))
     return;
 
@@ -122,8 +122,7 @@ void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
   // Execute
   struct_->on_status_message(struct_,
       CefBrowserCppToC::Wrap(browser),
-      value.GetStruct(),
-      type);
+      value.GetStruct());
 }
 
 bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,

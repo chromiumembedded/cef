@@ -43,7 +43,7 @@ class CefDisplayHandlerCToCpp
   virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
       CefString& text) OVERRIDE;
   virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
-      const CefString& value, StatusType type) OVERRIDE;
+      const CefString& value) OVERRIDE;
   virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
       const CefString& message, const CefString& source, int line) OVERRIDE;
 };
