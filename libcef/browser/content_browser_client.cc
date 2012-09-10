@@ -93,23 +93,33 @@ void CefContentBrowserClient::RenderProcessHostCreated(
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line, int child_process_id) {
+  const CommandLine& browser_cmd = *CommandLine::ForCurrentProcess();
+
+  {
+    // Propagate the following switches to all command lines (along with any
+    // associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+      switches::kLogFile,
+      switches::kLogSeverity,
+    };
+    command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
+                                   arraysize(kSwitchNames));
+  }
+
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
   if (process_type == switches::kRendererProcess) {
-      // Propagate the following switches to the renderer command line (along
-      // with any associated values) if present in the browser command line.
-      static const char* const kSwitchNames[] = {
-        switches::kLogFile,
-        switches::kLogSeverity,
-        switches::kProductVersion,
-        switches::kLocale,
-        switches::kResourcesDirPath,
-        switches::kLocalesDirPath,
-        switches::kPackLoadingDisabled,
-      };
-      const CommandLine& browser_cmd = *CommandLine::ForCurrentProcess();
-      command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
-                                     arraysize(kSwitchNames));
+    // Propagate the following switches to the renderer command line (along with
+    // any associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+      switches::kProductVersion,
+      switches::kLocale,
+      switches::kResourcesDirPath,
+      switches::kLocalesDirPath,
+      switches::kPackLoadingDisabled,
+    };
+    command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
+                                   arraysize(kSwitchNames));
   }
 }
 
