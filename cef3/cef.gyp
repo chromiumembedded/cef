@@ -460,6 +460,9 @@
           },
           'sources': [
             '<@(includes_win)',
+            # TODO(cef): Remove webkit_resources.rc once custom cursor resources
+            # can be loaded via ResourceBundle. See crbug.com/147663.
+            '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {

@@ -3,6 +3,9 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/content_browser_client.h"
+
+#include <algorithm>
+
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
@@ -15,6 +18,7 @@
 
 #include "base/command_line.h"
 #include "base/file_path.h"
+#include "base/path_service.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/media_observer.h"
 #include "content/public/browser/render_process_host.h"
@@ -156,3 +160,21 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
 std::string CefContentBrowserClient::GetDefaultDownloadName() {
   return "download";
 }
+
+#if defined(OS_WIN)
+const wchar_t* CefContentBrowserClient::GetResourceDllName() {
+  static wchar_t file_path[MAX_PATH+1] = {0};
+
+  if (file_path[0] == 0) {
+    // Retrieve the module path (usually libcef.dll).
+    FilePath module;
+    PathService::Get(base::FILE_MODULE, &module);
+    const std::wstring wstr = module.value();
+    size_t count = std::min(static_cast<size_t>(MAX_PATH), wstr.size());
+    wcsncpy(file_path, wstr.c_str(), count);
+    file_path[count] = 0;
+  }
+
+  return file_path;
+}
+#endif  // defined(OS_WIN)
