@@ -313,12 +313,7 @@ void CefBrowserHostImpl::SetFocus(bool enable) {
   if (!enable)
     return;
 
-  if (CEF_CURRENTLY_ON_UIT()) {
-    OnSetFocus(FOCUS_SOURCE_SYSTEM);
-  } else {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::SetFocus, this, enable));
-  }
+  OnSetFocus(FOCUS_SOURCE_SYSTEM);
 }
 
 CefWindowHandle CefBrowserHostImpl::GetWindowHandle() {
@@ -839,26 +834,29 @@ GURL CefBrowserHostImpl::GetLoadingURL() {
 }
 
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
-  CEF_REQUIRE_UIT();
+  if (CEF_CURRENTLY_ON_UIT()) {
+    // SetFocus() might be called while inside the OnSetFocus() callback. If so,
+    // don't re-enter the callback.
+    if (!is_in_onsetfocus_) {
+      if (client_.get()) {
+        CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+        if (handler.get()) {
+          is_in_onsetfocus_ = true;
+          bool handled = handler->OnSetFocus(this, source);
+          is_in_onsetfocus_ = false;
 
-  // SetFocus() might be called while inside the OnSetFocus() callback. If so,
-  // don't re-enter the callback.
-  if (!is_in_onsetfocus_) {
-    if (client_.get()) {
-      CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-      if (handler.get()) {
-        is_in_onsetfocus_ = true;
-        bool handled = handler->OnSetFocus(this, source);
-        is_in_onsetfocus_ = false;
-
-        if (handled)
-          return;
+          if (handled)
+            return;
+        }
       }
     }
-  }
 
-  if (web_contents_.get())
-    web_contents_->Focus();
+    if (web_contents_.get())
+      web_contents_->Focus();
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::OnSetFocus, this, source));
+  }
 }
 
 
@@ -1408,7 +1406,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
-  
+
   response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =
