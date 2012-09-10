@@ -44,6 +44,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                    const GURL& url,
                                    webkit_glue::WebPreferences* prefs) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
+#if defined(OS_WIN)
+  const wchar_t* GetResourceDllName() OVERRIDE;
+#endif
 
  private:
   CefBrowserMainParts* browser_main_parts_;
