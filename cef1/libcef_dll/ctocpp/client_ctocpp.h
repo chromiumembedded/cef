@@ -46,6 +46,7 @@ class CefClientCToCpp
   virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE;
   virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE;
   virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE;
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -524,6 +524,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunDragDropTest(browser);
         return 0;
+      case ID_TESTS_GEOLOCATION:  // Test geolocation
+        if (browser.get())
+          RunGeolocationTest(browser);
+        return 0;
       case ID_TESTS_XMLHTTPREQUEST:  // Test XMLHttpRequest
         if (browser.get())
           RunXMLHTTPRequestTest(browser);

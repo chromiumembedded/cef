@@ -654,3 +654,7 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
         NewCefRunnableFunction(&UIT_RunPluginInfoTest, browser));
   }
 }
+
+void RunGeolocationTest(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://html5demos.com/geo");
+}

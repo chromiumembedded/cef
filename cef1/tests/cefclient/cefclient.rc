@@ -96,6 +96,7 @@ BEGIN
         MENUITEM "WebGL",                       ID_TESTS_WEBGL
         MENUITEM "HTML5 Video",                 ID_TESTS_HTML5VIDEO
         MENUITEM "Drag && Drop",                ID_TESTS_DRAGDROP
+        MENUITEM "Geolocation",                 ID_TESTS_GEOLOCATION
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
         MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
         MENUITEM "Reset Zoom",                  ID_TESTS_ZOOM_RESET

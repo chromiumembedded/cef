@@ -197,6 +197,15 @@ gboolean DragDropActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+gboolean GeolocationActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    RunGeolocationTest(browser);
+  }
+
+  return FALSE;  // Don't stop this message.
+}
+
 gboolean ShowDevtoolsActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -305,8 +314,10 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(ZoomOutActivated));
   AddMenuEntry(debug_menu, "Zoom Reset",
                G_CALLBACK(ZoomResetActivated));
-  AddMenuEntry(debug_menu, "Test DragDrop",
+  AddMenuEntry(debug_menu, "Drag & Drop",
                G_CALLBACK(DragDropActivated));
+  AddMenuEntry(debug_menu, "Geolocation",
+               G_CALLBACK(GeolocationActivated));
   AddMenuEntry(debug_menu, "Show DevTools",
                G_CALLBACK(ShowDevtoolsActivated));
   AddMenuEntry(debug_menu, "Plugin Info",

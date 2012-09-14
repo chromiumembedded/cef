@@ -207,6 +207,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testWebGL:(id)sender;
 - (IBAction)testHTML5Video:(id)sender;
 - (IBAction)testDragDrop:(id)sender;
+- (IBAction)testGeolocation:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
@@ -289,6 +290,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Drag & Drop"
                       action:@selector(testDragDrop:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Geolocation"
+                      action:@selector(testGeolocation:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom In"
                       action:@selector(testZoomIn:)
@@ -498,6 +502,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testDragDrop:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunDragDropTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testGeolocation:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunGeolocationTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testZoomIn:(id)sender {
