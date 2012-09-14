@@ -137,6 +137,13 @@ typedef struct _cef_client_t {
   ///
   struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
       struct _cef_client_t* self);
+
+  ///
+  // Return the handler for geolocation permissions requests. If no handler is
+  // provided geolocation access will be denied by default.
+  ///
+  struct _cef_geolocation_handler_t* (CEF_CALLBACK *get_geolocation_handler)(
+      struct _cef_client_t* self);
 } cef_client_t;
 
 

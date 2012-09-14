@@ -30,6 +30,7 @@ class ClientHandler : public CefClient,
                       public CefV8ContextHandler,
                       public CefDragHandler,
                       public CefPermissionHandler,
+                      public CefGeolocationHandler,
                       public DownloadListener {
  public:
   ClientHandler();
@@ -64,6 +65,9 @@ class ClientHandler : public CefClient,
     return this;
   }
   virtual CefRefPtr<CefPermissionHandler> GetPermissionHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
 
@@ -163,6 +167,13 @@ class ClientHandler : public CefClient,
   virtual bool OnBeforeScriptExtensionLoad(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& extensionName) OVERRIDE;
+
+  // CefGeolocationHandler methods.
+  virtual void OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
+      CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
 
   // DownloadListener methods
   virtual void NotifyDownloadComplete(const CefString& fileName) OVERRIDE;

@@ -35,6 +35,7 @@
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -62,6 +63,7 @@
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -131,6 +133,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefFindHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFocusHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefGeolocationCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefGeolocationHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefKeyboardHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefLifeSpanHandlerCppToC::DebugObjCt, 0);
