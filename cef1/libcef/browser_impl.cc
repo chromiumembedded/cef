@@ -334,6 +334,9 @@ void CefBrowserImpl::SetZoomLevel(double zoomLevel) {
 
 void CefBrowserImpl::ClearHistory() {
   if (CefThread::CurrentlyOn(CefThread::UI)) {
+    if (!nav_controller_.get())
+      return;
+
     bool old_can_go_back = !nav_controller_->IsAtStart();
     bool old_can_go_forward = !nav_controller_->IsAtEnd();
     nav_controller_->Reset();
@@ -849,11 +852,12 @@ void CefBrowserImpl::UIT_LoadURLForRequestRef(CefRefPtr<CefFrame> frame,
   UIT_LoadURLForRequest(frame, url, method, upload_data, headers);
 }
 
-void CefBrowserImpl::UIT_LoadURLForRequest(CefRefPtr<CefFrame> frame,
-                                         const CefString& url,
-                                         const CefString& method,
-                                         const WebKit::WebHTTPBody& upload_data,
-                                         const CefRequest::HeaderMap& headers) {
+void CefBrowserImpl::UIT_LoadURLForRequest(
+    CefRefPtr<CefFrame> frame,
+    const CefString& url,
+    const CefString& method,
+    const WebKit::WebHTTPBody& upload_data,
+    const CefRequest::HeaderMap& headers) {
   REQUIRE_UIT();
 
   if (url.empty())
@@ -870,9 +874,11 @@ void CefBrowserImpl::UIT_LoadURLForRequest(CefRefPtr<CefFrame> frame,
       return;
   }
 
-  nav_controller_->LoadEntry(
-      new BrowserNavigationEntry(-1, gurl, CefString(), frame->GetName(),
-          method, upload_data, headers));
+  if (nav_controller_.get()) {
+    nav_controller_->LoadEntry(
+        new BrowserNavigationEntry(-1, gurl, CefString(), frame->GetName(),
+            method, upload_data, headers));
+  }
 }
 
 void CefBrowserImpl::UIT_LoadHTML(CefRefPtr<CefFrame> frame,
@@ -945,12 +951,14 @@ void CefBrowserImpl::UIT_ExecuteJavaScript(CefRefPtr<CefFrame> frame,
 
 void CefBrowserImpl::UIT_GoBackOrForward(int offset) {
   REQUIRE_UIT();
-  nav_controller_->GoToOffset(offset);
+  if (nav_controller_.get())
+    nav_controller_->GoToOffset(offset);
 }
 
 void CefBrowserImpl::UIT_Reload(bool ignoreCache) {
   REQUIRE_UIT();
-  nav_controller_->Reload(ignoreCache);
+  if (nav_controller_.get())
+    nav_controller_->Reload(ignoreCache);
 }
 
 bool CefBrowserImpl::UIT_Navigate(const BrowserNavigationEntry& entry,
