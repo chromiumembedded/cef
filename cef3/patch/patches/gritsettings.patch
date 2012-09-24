@@ -1,17 +1,17 @@
 Index: resource_ids
 ===================================================================
---- resource_ids	(revision 131752)
+--- resource_ids	(revision 157234)
 +++ resource_ids	(working copy)
 @@ -16,6 +16,12 @@
  {
    "SRCDIR": "../..",
  
 +  "cef/libcef/resources/cef_resources.grd": {
-+    "includes": [26000],
++    "includes": [27000],
 +  },
 +  "cef/libcef/resources/cef_strings.grd": {
-+    "messages": [26500],
++    "messages": [27500],
 +  },
    "chrome/browser/browser_resources.grd": {
      "includes": [500],
-   },
+     "structures": [750],

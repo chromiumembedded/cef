@@ -91,6 +91,15 @@ base::StringPiece CefContentClient::GetDataResource(
   return value;
 }
 
+gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
+  gfx::Image& value =
+  ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
+  if (value.IsEmpty())
+    LOG(ERROR) << "No native image available for id " << resource_id;
+
+  return value;
+}
+
 FilePath CefContentClient::GetPathForResourcePack(
     const FilePath& pack_path,
     ui::ScaleFactor scale_factor) {
