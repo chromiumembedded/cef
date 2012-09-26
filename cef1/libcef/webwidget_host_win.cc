@@ -942,14 +942,14 @@ LRESULT WebWidgetHost::OnImeEndComposition(UINT message, WPARAM wparam,
     return 0;
 
   if (ime_input_.is_composing()) {
-    // A composition has been ended while there is an ongoing composition,
-    // i.e. the ongoing composition has been canceled.
-    // Reset the composition status of both of the ImeInput object and the
-    // window.
-    ime_input_.CancelIME(view_);
-    ime_input_.ResetComposition(view_);
+    webwidget_->setComposition(WebKit::WebString(),
+                               std::vector<WebKit::WebCompositionUnderline>(),
+                               0, 0);
   }
+
+  ime_input_.ResetComposition(view_);
   ime_input_.DestroyImeWindow(view_);
+
   // Let WTL call ::DefWindowProc() and release its resources.
   handled = FALSE;
   return 0;
