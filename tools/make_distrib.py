@@ -367,9 +367,10 @@ elif platform == 'macosx':
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
   else:
     build_dir = None
-  
+
   # transfer xcodebuild/Release files
   build_dir = os.path.join(src_dir, 'xcodebuild/Release')
   if not options.allowpartial or path_exists(build_dir):
@@ -377,6 +378,7 @@ elif platform == 'macosx':
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
 
     if not options.nosymbols:
       # create the real dSYM file from the "fake" dSYM file

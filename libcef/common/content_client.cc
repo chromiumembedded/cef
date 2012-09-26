@@ -18,6 +18,14 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "webkit/glue/user_agent.h"
 
+namespace {
+
+const char kInterposeLibraryPath[] =
+    "@executable_path/../../../libplugin_carbon_interpose.dylib";
+
+}  // namespace
+
+
 CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
@@ -99,6 +107,12 @@ gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
 
   return value;
 }
+
+#if defined(OS_MACOSX) && !defined(OS_IOS)
+std::string CefContentClient::GetCarbonInterposePath() const {
+  return std::string(kInterposeLibraryPath);
+}
+#endif
 
 FilePath CefContentClient::GetPathForResourcePack(
     const FilePath& pack_path,

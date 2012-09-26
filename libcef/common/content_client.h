@@ -35,6 +35,10 @@ class CefContentClient : public content::ContentClient,
       ui::ScaleFactor scale_factor) const OVERRIDE;
   virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
 
+#if defined(OS_MACOSX) && !defined(OS_IOS)
+  virtual std::string GetCarbonInterposePath() const OVERRIDE;
+#endif
+
   CefRefPtr<CefApp> application() const { return application_; }
 
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }

@@ -100,6 +100,7 @@
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks',
               'files': [
                 '<(PRODUCT_DIR)/cefclient Helper.app',
+                '$(CONFIGURATION)/libplugin_carbon_interpose.dylib',
               ],
             },
           ],
