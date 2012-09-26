@@ -198,6 +198,9 @@ void ExtractUnderlines(
 // This code is mostly copied and adapted from
 // content/browser/renderer_host/render_widget_host_mac
 - (void)keyDown:(NSEvent *)theEvent {
+  if (browser_ && browser_->UIT_GetWebView())
+    browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+
   // Records the current marked text state, so that we can know if the marked
   // text was deleted or not after handling the key down event.
   BOOL oldHasMarkedText = hasMarkedText_;
@@ -208,7 +211,7 @@ void ExtractUnderlines(
   if (hasMarkedText_ && underlines_.size() <= 1) {
     // Check for backspace or delete.
     if ([theEvent keyCode] == 0x33 || [theEvent keyCode] == 0x75)
-      browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+      [self forwardKeyEventToEditor: theEvent];
   }
 
   textToBeInserted_.clear();
@@ -235,7 +238,7 @@ void ExtractUnderlines(
       keyboard_event.text[1] = 0;
       browser_->UIT_GetWebView()->handleInputEvent(keyboard_event);
     } else {
-      browser_->UIT_GetWebViewHost()->KeyEvent(theEvent);
+      [self forwardKeyEventToEditor: theEvent];
     }
   }
 
@@ -263,6 +266,46 @@ void ExtractUnderlines(
       browser_->UIT_GetWebView()->setComposition(EmptyString16(), underlines_,
                                                  0, 0);
     }
+  }
+}
+
+- (void)forwardKeyEventToEditor: (NSEvent *)theEvent {
+  if ([theEvent type] != NSKeyDown)
+    return;
+
+  if ([theEvent modifierFlags] & (NSNumericPadKeyMask | NSFunctionKeyMask)) {
+    // Don't send a Char event for non-char keys like arrows, function keys and
+    // clear.
+    switch ([theEvent keyCode]) {
+      case 81: // =
+      case 75: // /
+      case 67: // *
+      case 78: // -
+      case 69: // +
+      case 76: // Enter
+      case 65: // .
+      case 82: // 0
+      case 83: // 1
+      case 84: // 2
+      case 85: // 3
+      case 86: // 4
+      case 87: // 5
+      case 88: // 6
+      case 89: // 7
+      case 91: // 8
+      case 92: // 9
+        break;
+      default:
+        return;
+    }
+  }
+  
+  if (browser_ && browser_->UIT_GetWebView()) {
+    WebKeyboardEvent keyboard_event(
+        WebInputEventFactory::keyboardEvent(theEvent));
+    keyboard_event.type = WebInputEvent::Char;
+    browser_->UIT_GetWebViewHost()->SetLastKeyEvent(keyboard_event);
+    browser_->UIT_GetWebView()->handleInputEvent(keyboard_event);
   }
 }
 

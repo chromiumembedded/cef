@@ -106,6 +106,9 @@ class WebWidgetHost {
   WebKit::WebScreenInfo GetScreenInfo();
 
   WebKit::WebKeyboardEvent GetLastKeyEvent() const { return last_key_event_; }
+  
+  void SetLastKeyEvent(WebKit::WebKeyboardEvent keyEvent) 
+      { last_key_event_ = keyEvent; }
 
   void SetTooltipText(const CefString& tooltip_text);
 
