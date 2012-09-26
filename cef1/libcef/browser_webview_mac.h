@@ -80,6 +80,9 @@ struct WebDropData;
 - (BOOL)isOpaque;
 - (void)setFrame:(NSRect)frameRect;
 
+// Forward the keyboard event to the editor
+- (void)forwardKeyEventToEditor: (NSEvent *)theEvent;
+
 // Register this WebView as a drag/drop target.
 - (void)registerDragDrop;
 
