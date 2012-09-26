@@ -8,6 +8,10 @@
     'chromium_code': 1,
     'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
+    'revision': '<!(python tools/revision.py)',
+    # Need to be creative to match dylib version formatting requirements.
+    'version_mac_dylib':
+        '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "1<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
   },
   'conditions': [
     [ 'os_posix==1 and OS!="mac" and OS!="android" and gcc_version==46', {
@@ -477,6 +481,8 @@
         # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
         # for more information.
         'OTHER_LDFLAGS': ['-Wl,-ObjC'],
+        'DYLIB_COMPATIBILITY_VERSION': '<(version_mac_dylib)',
+        'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
       },
       'conditions': [
         ['OS=="win"', {
