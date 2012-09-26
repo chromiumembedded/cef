@@ -521,10 +521,7 @@ int CEF_CALLBACK v8value_has_value_bykey(struct _cef_v8value_t* self,
   DCHECK(self);
   if (!self)
     return 0;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return 0;
+  // Unverified params: key
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->HasValue(
@@ -561,10 +558,7 @@ int CEF_CALLBACK v8value_delete_value_bykey(struct _cef_v8value_t* self,
   DCHECK(self);
   if (!self)
     return 0;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return 0;
+  // Unverified params: key
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->DeleteValue(
@@ -601,10 +595,7 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_bykey(
   DCHECK(self);
   if (!self)
     return NULL;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return NULL;
+  // Unverified params: key
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8ValueCppToC::Get(self)->GetValue(
@@ -642,14 +633,11 @@ int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
   DCHECK(self);
   if (!self)
     return 0;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return 0;
   // Verify param: value; type: refptr_same
   DCHECK(value);
   if (!value)
     return 0;
+  // Unverified params: key
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->SetValue(
@@ -694,10 +682,7 @@ int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
   DCHECK(self);
   if (!self)
     return 0;
-  // Verify param: key; type: string_byref_const
-  DCHECK(key);
-  if (!key)
-    return 0;
+  // Unverified params: key
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->SetValue(

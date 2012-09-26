@@ -47,6 +47,7 @@ enum V8TestMode {
   V8TEST_OBJECT_VALUE_DONTENUM,
   V8TEST_OBJECT_VALUE_DELETE,
   V8TEST_OBJECT_VALUE_DONTDELETE,
+  V8TEST_OBJECT_VALUE_EMPTYKEY,
   V8TEST_FUNCTION_CREATE,
   V8TEST_FUNCTION_HANDLER,
   V8TEST_FUNCTION_HANDLER_EXCEPTION,
@@ -129,6 +130,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         break;
       case V8TEST_OBJECT_VALUE_DONTDELETE:
         RunObjectValueDontDeleteTest();
+        break;
+      case V8TEST_OBJECT_VALUE_EMPTYKEY:
+        RunObjectValueEmptyKeyTest();
         break;
       case V8TEST_FUNCTION_CREATE:
         RunFunctionCreateTest();
@@ -1007,6 +1011,38 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     DestroyTest();
   }
 
+  void RunObjectValueEmptyKeyTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kName = "";
+    static const int kVal = 13;
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+
+    EXPECT_FALSE(object->HasValue(kName));
+
+    object->SetValue(kName, CefV8Value::CreateInt(kVal),
+        V8_PROPERTY_ATTRIBUTE_NONE);
+    EXPECT_TRUE(object->HasValue(kName));
+
+    CefRefPtr<CefV8Value> newval = object->GetValue(kName);
+    EXPECT_TRUE(newval.get());
+    EXPECT_TRUE(newval->IsInt());
+    EXPECT_EQ(kVal, newval->GetIntValue());
+
+    EXPECT_TRUE(object->DeleteValue(kName));
+    EXPECT_FALSE(object->HasValue(kName));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
   void RunFunctionCreateTest() {
     CefRefPtr<CefV8Context> context = GetContext();
 
@@ -1603,6 +1639,7 @@ V8_TEST(ObjectValueEnum, V8TEST_OBJECT_VALUE_ENUM);
 V8_TEST(ObjectValueDontEnum, V8TEST_OBJECT_VALUE_DONTENUM);
 V8_TEST(ObjectValueDelete, V8TEST_OBJECT_VALUE_DELETE);
 V8_TEST(ObjectValueDontDelete, V8TEST_OBJECT_VALUE_DONTDELETE);
+V8_TEST(ObjectValueEmptyKey, V8TEST_OBJECT_VALUE_EMPTYKEY);
 V8_TEST(FunctionCreate, V8TEST_FUNCTION_CREATE);
 V8_TEST(FunctionHandler, V8TEST_FUNCTION_HANDLER);
 V8_TEST(FunctionHandlerException, V8TEST_FUNCTION_HANDLER_EXCEPTION);
