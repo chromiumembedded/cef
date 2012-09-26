@@ -995,11 +995,6 @@ bool CefV8ValueImpl::HasValue(const CefString& key) {
   CEF_REQUIRE_UI_THREAD(false);
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
-  if (key.empty()) {
-    NOTREACHED() << "invalid input parameter";
-    return false;
-  }
-
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
   return obj->Has(GetV8String(key));
@@ -1022,11 +1017,6 @@ bool CefV8ValueImpl::HasValue(int index) {
 bool CefV8ValueImpl::DeleteValue(const CefString& key) {
   CEF_REQUIRE_UI_THREAD(false);
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
-
-  if (key.empty()) {
-    NOTREACHED() << "invalid input parameter";
-    return false;
-  }
 
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
@@ -1058,11 +1048,6 @@ bool CefV8ValueImpl::DeleteValue(int index) {
 CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key) {
   CEF_REQUIRE_UI_THREAD(NULL);
   CEF_V8_REQUIRE_OBJECT_RETURN(NULL);
-
-  if (key.empty()) {
-    NOTREACHED() << "invalid input parameter";
-    return NULL;
-  }
 
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
@@ -1102,7 +1087,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   CefV8ValueImpl* impl = static_cast<CefV8ValueImpl*>(value.get());
-  if (impl && !key.empty()) {
+  if (impl) {
     v8::HandleScope handle_scope;
     v8::Local<v8::Object> obj = GetHandle()->ToObject();
 
@@ -1145,11 +1130,6 @@ bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings,
                               PropertyAttribute attribute) {
   CEF_REQUIRE_UI_THREAD(false);
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
-
-  if (key.empty()) {
-    NOTREACHED() << "invalid input parameter";
-    return false;
-  }
 
   v8::HandleScope handle_scope;
   v8::Local<v8::Object> obj = GetHandle()->ToObject();
