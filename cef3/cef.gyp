@@ -7,6 +7,10 @@
     'pkg-config': 'pkg-config',
     'chromium_code': 1,
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
+    'revision': '<!(python tools/revision.py)',
+    # Need to be creative to match dylib version formatting requirements.
+    'version_mac_dylib':
+        '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "3<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
   },
   'includes': [
     # Bring in the source file lists.
@@ -101,6 +105,7 @@
           'product_name': 'cefclient',
           'dependencies': [
             'cefclient_helper_app',
+            'interpose_dependency_shim',
           ],
           'copies': [
             {
@@ -123,6 +128,7 @@
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks',
               'files': [
                 '<(PRODUCT_DIR)/cefclient Helper.app',
+                '<(PRODUCT_DIR)/libplugin_carbon_interpose.dylib',
               ],
             },
           ],
@@ -441,6 +447,8 @@
         # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
         # for more information.
         'OTHER_LDFLAGS': ['-Wl,-ObjC'],
+        'DYLIB_COMPATIBILITY_VERSION': '<(version_mac_dylib)',
+        'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
       },
       'conditions': [
         ['OS=="win" and win_use_allocator_shim==1', {
@@ -985,6 +993,82 @@
     }],
     ['OS=="mac"', {
       'targets': [
+        {
+          # Dummy target to allow cefclient to require plugin_carbon_interpose
+          # to build without actually linking to the resulting library.
+          'target_name': 'interpose_dependency_shim',
+          'type': 'executable',
+          'variables': { 'enable_wexit_time_destructors': 1, },
+          'dependencies': [
+            'plugin_carbon_interpose',
+          ],
+          # In release, we end up with a strip step that is unhappy if there is
+          # no binary. Rather than check in a new file for this temporary hack,
+          # just generate a source file on the fly.
+          'actions': [
+            {
+              'action_name': 'generate_stub_main',
+              'process_outputs_as_sources': 1,
+              'inputs': [],
+              'outputs': [ '<(INTERMEDIATE_DIR)/dummy_main.c' ],
+              'action': [
+                'bash', '-c',
+                'echo "int main() { return 0; }" > <(INTERMEDIATE_DIR)/dummy_main.c'
+              ],
+            },
+          ],
+        },
+        {
+          # dylib for interposing Carbon calls in the plugin process.
+          'target_name': 'plugin_carbon_interpose',
+          'type': 'shared_library',
+          'variables': { 'enable_wexit_time_destructors': 1, },
+          # This target must not depend on static libraries, else the code in
+          # those libraries would appear twice in plugin processes: Once from
+          # Chromium Framework, and once from this dylib.
+          'dependencies': [
+            'libcef',
+          ],
+          'conditions': [
+            ['component=="shared_library"', {
+              'dependencies': [
+                '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
+                '<(DEPTH)/content/content.gyp:content_plugin',
+              ],
+            }],
+          ],
+          'sources': [
+            '<(DEPTH)/content/plugin/plugin_carbon_interpose_mac.cc',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+            ],
+          },
+          'xcode_settings': {
+            'DYLIB_COMPATIBILITY_VERSION': '<(version_mac_dylib)',
+            'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
+          },
+          'postbuilds': [
+            {
+              # The framework defines its load-time path
+              # (DYLIB_INSTALL_NAME_BASE) relative to the main executable
+              # (chrome).  A different relative path needs to be used in
+              # libplugin_carbon_interpose.dylib.
+              'postbuild_name': 'Fix Framework Link',
+              'action': [
+                'install_name_tool',
+                '-change',
+                '@executable_path/libcef.dylib',
+                '@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
+              ],
+            },
+          ],
+        },
         {
           'target_name': 'cefclient_helper_app',
           'type': 'executable',
