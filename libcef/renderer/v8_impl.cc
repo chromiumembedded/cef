@@ -502,6 +502,7 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
 
 bool CefV8ContextImpl::Enter() {
   CEF_REQUIRE_RT_RETURN(false);
+  WebCore::V8PerIsolateData::current()->incrementRecursionLevel();
   GetHandle()->Enter();
 #ifndef NDEBUG
   ++enter_count_;
@@ -513,6 +514,7 @@ bool CefV8ContextImpl::Exit() {
   CEF_REQUIRE_RT_RETURN(false);
   DLOG_ASSERT(enter_count_ > 0);
   GetHandle()->Exit();
+  WebCore::V8PerIsolateData::current()->decrementRecursionLevel();
 #ifndef NDEBUG
   --enter_count_;
 #endif
