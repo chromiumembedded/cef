@@ -318,43 +318,6 @@ void WebWidgetHost::KeyEvent(NSEvent *event) {
   WebKeyboardEvent keyboard_event(WebInputEventFactory::keyboardEvent(event));
   last_key_event_ = keyboard_event;
   webwidget_->handleInputEvent(keyboard_event);
-
-  if ([event type] != NSKeyDown)
-    return;
-
-  if ([event modifierFlags] & (NSNumericPadKeyMask | NSFunctionKeyMask)) {
-    // Don't send a Char event for non-char keys like arrows, function keys and
-    // clear.
-    switch ([event keyCode]) {
-      case 81: // =
-      case 75: // /
-      case 67: // *
-      case 78: // -
-      case 69: // +
-      case 76: // Enter
-      case 65: // .
-      case 82: // 0
-      case 83: // 1
-      case 84: // 2
-      case 85: // 3
-      case 86: // 4
-      case 87: // 5
-      case 88: // 6
-      case 89: // 7
-      case 91: // 8
-      case 92: // 9
-        break;
-      default:
-        return;
-    }
-  }
-
-  // Send a Char event here to emulate the keyboard events. 
-  // TODO(hbono): Bug 20852 <http://crbug.com/20852> implement the NSTextInput
-  // protocol and remove this code.
-  keyboard_event.type = WebInputEvent::Char;
-  last_key_event_ = keyboard_event;
-  webwidget_->handleInputEvent(keyboard_event);
 }
 
 void WebWidgetHost::SetFocus(bool enable) {
