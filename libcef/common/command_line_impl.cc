@@ -132,6 +132,11 @@ void CefCommandLineImpl::AppendArgument(const CefString& argument) {
   mutable_value()->AppendArgNative(argument);
 }
 
+void CefCommandLineImpl::PrependWrapper(const CefString& wrapper) {
+  CEF_VALUE_VERIFY_RETURN_VOID(true);
+  mutable_value()->PrependWrapper(wrapper);
+}
+
 
 // CefCommandLine implementation.
 
