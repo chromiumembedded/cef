@@ -1075,13 +1075,8 @@ void CefBrowserHostImpl::WebContentsCreated(
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
     content::WebContents* tab) {
-  {
-    base::AutoLock lock_scope(state_lock_);
-    has_document_ = false;
-  }
-
-  // Allow the new page to set the title again.
-  received_page_title_ = false;
+  base::AutoLock lock_scope(state_lock_);
+  has_document_ = false;
 }
 
 content::JavaScriptDialogCreator*
@@ -1354,9 +1349,6 @@ void CefBrowserHostImpl::Observe(int type,
         content::Details<std::pair<content::NavigationEntry*, bool> >(
             details).ptr();
 
-    if (received_page_title_)
-      return;
-
     if (title->first) {
       if (client_.get()) {
         CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
@@ -1365,8 +1357,6 @@ void CefBrowserHostImpl::Observe(int type,
           handler->OnTitleChange(this, title_str);
         }
       }
-
-      received_page_title_ = title->second;
     }
   } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
     focus_on_editable_field_ = *content::Details<bool>(details).ptr();
@@ -1390,7 +1380,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
       render_process_id_(0),
       render_view_id_(0),
       unique_id_(0),
-      received_page_title_(false),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),

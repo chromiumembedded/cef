@@ -371,9 +371,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Unique id for the browser.
   int unique_id_;
 
-  // True if the browser has received the page title for the current load.
-  bool received_page_title_;
-
   // Used when creating a new popup window.
   CefWindowInfo pending_window_info_;
   CefBrowserSettings pending_settings_;
