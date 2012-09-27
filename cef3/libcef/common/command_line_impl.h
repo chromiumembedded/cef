@@ -38,6 +38,7 @@ class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
   virtual bool HasArguments() OVERRIDE;
   virtual void GetArguments(ArgumentList& arguments) OVERRIDE;
   virtual void AppendArgument(const CefString& argument) OVERRIDE;
+  virtual void PrependWrapper(const CefString& wrapper) OVERRIDE;
 
   // Must hold the controller lock while using this value.
   const CommandLine& command_line() { return const_value(); }

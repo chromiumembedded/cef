@@ -350,6 +350,23 @@ void CEF_CALLBACK command_line_append_argument(struct _cef_command_line_t* self,
       CefString(argument));
 }
 
+void CEF_CALLBACK command_line_prepend_wrapper(struct _cef_command_line_t* self,
+    const cef_string_t* wrapper) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: wrapper; type: string_byref_const
+  DCHECK(wrapper);
+  if (!wrapper)
+    return;
+
+  // Execute
+  CefCommandLineCppToC::Get(self)->PrependWrapper(
+      CefString(wrapper));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -375,6 +392,7 @@ CefCommandLineCppToC::CefCommandLineCppToC(CefCommandLine* cls)
   struct_.struct_.has_arguments = command_line_has_arguments;
   struct_.struct_.get_arguments = command_line_get_arguments;
   struct_.struct_.append_argument = command_line_append_argument;
+  struct_.struct_.prepend_wrapper = command_line_prepend_wrapper;
 }
 
 #ifndef NDEBUG

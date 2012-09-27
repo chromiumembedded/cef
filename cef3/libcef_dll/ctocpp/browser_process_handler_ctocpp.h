@@ -36,6 +36,8 @@ class CefBrowserProcessHandlerCToCpp
   // CefBrowserProcessHandler methods
   virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE;
   virtual void OnContextInitialized() OVERRIDE;
+  virtual void OnBeforeChildProcessLaunch(
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

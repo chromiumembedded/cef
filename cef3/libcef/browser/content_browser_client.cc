@@ -15,6 +15,7 @@
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
 #include "base/file_path.h"
@@ -124,6 +125,18 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
+  }
+
+  CefRefPtr<CefApp> app = _Context->application();
+  if (app.get()) {
+    CefRefPtr<CefBrowserProcessHandler> handler =
+        app->GetBrowserProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefCommandLineImpl> commandLinePtr(
+          new CefCommandLineImpl(command_line, false, false));
+      handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
+      commandLinePtr->Detach(NULL);
+    }
   }
 }
 
