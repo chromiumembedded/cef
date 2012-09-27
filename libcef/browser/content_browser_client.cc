@@ -22,6 +22,7 @@
 #include "base/path_service.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/media_observer.h"
+#include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
@@ -47,6 +48,117 @@ class CefAccessTokenStore : public content::AccessTokenStore {
 
  private:
   AccessTokenSet access_token_set_;
+};
+
+class CefQuotaCallbackImpl : public CefQuotaCallback {
+ public:
+  explicit CefQuotaCallbackImpl(
+      const content::QuotaPermissionContext::PermissionCallback& callback)
+      : callback_(callback) {
+  }
+  ~CefQuotaCallbackImpl() {
+    if (!callback_.is_null()) {
+      // The callback is still pending. Cancel it now.
+      if (CEF_CURRENTLY_ON_IOT()) {
+        CancelNow(callback_);
+      } else {
+        CEF_POST_TASK(CEF_IOT,
+            base::Bind(&CefQuotaCallbackImpl::CancelNow, callback_));
+      }
+    }
+  }
+
+  virtual void Continue(bool allow) OVERRIDE {
+    if (CEF_CURRENTLY_ON_IOT()) {
+      if (!callback_.is_null()) {
+        callback_.Run(allow ?
+          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_ALLOW :
+          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_DISALLOW);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_IOT,
+          base::Bind(&CefQuotaCallbackImpl::Continue, this, allow));
+    }
+  }
+
+  virtual void Cancel() OVERRIDE {
+    if (CEF_CURRENTLY_ON_IOT()) {
+      if (!callback_.is_null()) {
+        CancelNow(callback_);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_IOT, base::Bind(&CefQuotaCallbackImpl::Cancel, this));
+    }
+  }
+
+  void Disconnect() {
+    callback_.Reset();
+  }
+
+ private:
+  static void CancelNow(
+      const content::QuotaPermissionContext::PermissionCallback& callback) {
+    CEF_REQUIRE_IOT();
+    callback.Run(
+        content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_CANCELLED);
+  }
+
+  content::QuotaPermissionContext::PermissionCallback callback_;
+
+  IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
+};
+
+class CefQuotaPermissionContext : public content::QuotaPermissionContext {
+ public:
+  CefQuotaPermissionContext() {
+  }
+
+  // The callback will be dispatched on the IO thread.
+  virtual void RequestQuotaPermission(
+      const GURL& origin_url,
+      quota::StorageType type,
+      int64 new_quota,
+      int render_process_id,
+      int render_view_id,
+      const PermissionCallback& callback) OVERRIDE {
+    if (type != quota::kStorageTypePersistent) {
+      // To match Chrome behavior we only support requesting quota with this
+      // interface for Persistent storage type.
+      callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
+      return;
+    }
+
+    bool handled = false;
+
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
+                                                  render_view_id);
+    if (browser.get()) {
+      CefRefPtr<CefClient> client = browser->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+        if (handler.get()) {
+          CefRefPtr<CefQuotaCallbackImpl> callbackImpl(
+              new CefQuotaCallbackImpl(callback));
+          handled = handler->OnQuotaRequest(browser.get(), origin_url.spec(),
+                                            new_quota, callbackImpl.get());
+          if (!handled)
+            callbackImpl->Disconnect();
+        }
+      }
+    }
+
+    if (!handled) {
+      // Disallow the request by default.
+      callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
+    }
+  }
+
+ private:
+  virtual ~CefQuotaPermissionContext() {
+  }
 };
 
 }  // namespace
@@ -138,6 +250,11 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       commandLinePtr->Detach(NULL);
     }
   }
+}
+
+content::QuotaPermissionContext*
+    CefContentBrowserClient::CreateQuotaPermissionContext() {
+  return new CefQuotaPermissionContext();
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {

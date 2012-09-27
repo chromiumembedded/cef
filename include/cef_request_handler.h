@@ -69,6 +69,27 @@ class CefAuthCallback : public virtual CefBase {
 
 
 ///
+// Callback interface used for asynchronous continuation of quota requests.
+///
+/*--cef(source=library)--*/
+class CefQuotaCallback : public virtual CefBase {
+ public:
+  ///
+  // Continue the quota request. If |allow| is true the request will be
+  // allowed. Otherwise, the request will be denied.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(bool allow) =0;
+
+  ///
+  // Cancel the quota request.
+  ///
+  /*--cef()--*/
+  virtual void Cancel() =0;
+};
+
+
+///
 // Implement this interface to handle events related to browser requests. The
 // methods of this class will be called on the thread indicated.
 ///
@@ -128,6 +149,22 @@ class CefRequestHandler : public virtual CefBase {
                                   const CefString& realm,
                                   const CefString& scheme,
                                   CefRefPtr<CefAuthCallback> callback) {
+    return false;
+  }
+
+  ///
+  // Called on the IO thread when JavaScript requests a specific storage quota
+  // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
+  // origin of the page making the request. |new_size| is the requested quota
+  // size in bytes. Return true and call CefQuotaCallback::Complete() either in
+  // this function or at a later time to grant or deny the request. Return false
+  // to cancel the request.
+  ///
+  /*--cef(optional_param=realm)--*/
+  virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
+                              const CefString& origin_url,
+                              int64 new_size,
+                              CefRefPtr<CefQuotaCallback> callback) {
     return false;
   }
 

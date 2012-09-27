@@ -69,6 +69,28 @@ typedef struct _cef_auth_callback_t {
 
 
 ///
+// Callback structure used for asynchronous continuation of quota requests.
+///
+typedef struct _cef_quota_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Continue the quota request. If |allow| is true (1) the request will be
+  // allowed. Otherwise, the request will be denied.
+  ///
+  void (CEF_CALLBACK *cont)(struct _cef_quota_callback_t* self, int allow);
+
+  ///
+  // Cancel the quota request.
+  ///
+  void (CEF_CALLBACK *cancel)(struct _cef_quota_callback_t* self);
+} cef_quota_callback_t;
+
+
+///
 // Implement this structure to handle events related to browser requests. The
 // functions of this structure will be called on the thread indicated.
 ///
@@ -118,6 +140,18 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, struct _cef_frame_t* frame, int isProxy,
       const cef_string_t* host, int port, const cef_string_t* realm,
       const cef_string_t* scheme, struct _cef_auth_callback_t* callback);
+
+  ///
+  // Called on the IO thread when JavaScript requests a specific storage quota
+  // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
+  // origin of the page making the request. |new_size| is the requested quota
+  // size in bytes. Return true (1) and call cef_quota_callback_t::Complete()
+  // either in this function or at a later time to grant or deny the request.
+  // Return false (0) to cancel the request.
+  ///
+  int (CEF_CALLBACK *on_quota_request)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* origin_url,
+      int64 new_size, struct _cef_quota_callback_t* callback);
 
   ///
   // Called on the IO thread to retrieve the cookie manager. |main_url| is the
