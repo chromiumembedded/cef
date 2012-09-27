@@ -188,6 +188,14 @@ bool CefContext::Initialize(const CefMainArgs& args,
     NOTREACHED() << "The cache_path directory could not be created";
     cache_path_ = FilePath();
   }
+  if (cache_path_.empty()) {
+    // Create and use a temporary directory.
+    if (cache_temp_dir_.CreateUniqueTempDir()) {
+      cache_path_ = cache_temp_dir_.path();
+    } else {
+      NOTREACHED() << "Failed to create temporary cache_path directory";
+    }
+  }
 
 #if !defined(OS_WIN)
   if (settings.multi_threaded_message_loop) {
