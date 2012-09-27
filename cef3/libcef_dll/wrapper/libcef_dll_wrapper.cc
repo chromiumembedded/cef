@@ -78,6 +78,7 @@
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
+#include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -182,6 +183,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefMenuModelCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProxyHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefQuotaCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRenderProcessHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRequestHandlerCppToC::DebugObjCt, 0);

@@ -37,6 +37,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* host) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
+  virtual content::QuotaPermissionContext*
+      CreateQuotaPermissionContext() OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;

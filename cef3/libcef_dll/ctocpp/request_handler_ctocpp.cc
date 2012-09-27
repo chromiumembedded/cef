@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
@@ -152,6 +153,38 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
       realm.GetStruct(),
       scheme.GetStruct(),
       CefAuthCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
+    const CefString& origin_url, int64 new_size,
+    CefRefPtr<CefQuotaCallback> callback) {
+  if (CEF_MEMBER_MISSING(struct_, on_quota_request))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: origin_url; type: string_byref_const
+  DCHECK(!origin_url.empty());
+  if (origin_url.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_quota_request(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      origin_url.GetStruct(),
+      new_size,
+      CefQuotaCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;

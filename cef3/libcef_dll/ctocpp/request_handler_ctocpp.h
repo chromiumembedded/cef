@@ -46,6 +46,9 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
       const CefString& realm, const CefString& scheme,
       CefRefPtr<CefAuthCallback> callback) OVERRIDE;
+  virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
+      const CefString& origin_url, int64 new_size,
+      CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
   virtual CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefBrowser> browser, const CefString& main_url) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,

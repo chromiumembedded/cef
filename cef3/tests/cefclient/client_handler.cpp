@@ -390,6 +390,17 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
   return handler;
 }
 
+bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
+                                   const CefString& origin_url,
+                                   int64 new_size,
+                                   CefRefPtr<CefQuotaCallback> callback) {
+  static const int64 max_size = 1024 * 1024 * 20;  // 20mb.
+
+  // Grant the quota request if the size is reasonable.
+  callback->Continue(new_size <= max_size);
+  return true;
+}
+
 void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                         const CefString& url,
                                         bool& allow_os_execution) {

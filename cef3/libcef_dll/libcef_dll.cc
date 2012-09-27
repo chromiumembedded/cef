@@ -49,6 +49,7 @@
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
+#include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
@@ -190,6 +191,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefMenuModelCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefProxyHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefQuotaCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRenderProcessHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRequestHandlerCToCpp::DebugObjCt, 0);
