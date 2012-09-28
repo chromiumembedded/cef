@@ -176,6 +176,7 @@ class ClientAppExtensionHandler : public CefV8Handler {
 
 ClientApp::ClientApp()
     : proxy_type_(CEF_PROXY_TYPE_DIRECT) {
+  CreateBrowserDelegates(browser_delegates_);
   CreateRenderDelegates(render_delegates_);
 
   // Default schemes that support cookies.
@@ -213,6 +214,19 @@ void ClientApp::OnContextInitialized() {
   CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
   ASSERT(manager.get());
   manager->SetSupportedSchemes(cookieable_schemes_);
+
+  // Execute delegate callbacks.
+  BrowserDelegateSet::iterator it = browser_delegates_.begin();
+  for (; it != browser_delegates_.end(); ++it)
+    (*it)->OnContextInitialized(this);
+}
+
+void ClientApp::OnBeforeChildProcessLaunch(
+      CefRefPtr<CefCommandLine> command_line) {
+  // Execute delegate callbacks.
+  BrowserDelegateSet::iterator it = browser_delegates_.begin();
+  for (; it != browser_delegates_.end(); ++it)
+    (*it)->OnBeforeChildProcessLaunch(this, command_line);
 }
 
 void ClientApp::GetProxyForUrl(const CefString& url,

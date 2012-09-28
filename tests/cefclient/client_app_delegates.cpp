@@ -8,6 +8,10 @@
 #include "cefclient/scheme_test.h"
 
 // static
+void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
+}
+
+// static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   client_renderer::CreateRenderDelegates(delegates);
   dom_test::CreateRenderDelegates(delegates);

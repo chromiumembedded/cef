@@ -5,6 +5,13 @@
 #include "tests/cefclient/client_app.h"
 
 // static
+void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
+  // Bring in the V8 tests.
+  extern void CreateV8BrowserTests(BrowserDelegateSet& delegates);
+  CreateV8BrowserTests(delegates);
+}
+
+// static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   // Bring in the process message tests.
   extern void CreateProcessMessageRendererTests(
