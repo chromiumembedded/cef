@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <sstream>
+#include "include/cef_runnable.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 #include "tests/cefclient/client_app.h"
@@ -24,9 +25,11 @@ const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
 const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
 const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
 const char* kV8TestMsg = "V8Test.Test";
+const char* kV8TestCmdArg = "v8-test";
 
 enum V8TestMode {
-  V8TEST_NULL_CREATE = 0,
+  V8TEST_NONE = 0,
+  V8TEST_NULL_CREATE,
   V8TEST_BOOL_CREATE,
   V8TEST_INT_CREATE,
   V8TEST_UINT_CREATE,
@@ -58,16 +61,46 @@ enum V8TestMode {
   V8TEST_CONTEXT_EVAL_EXCEPTION,
   V8TEST_CONTEXT_ENTERED,
   V8TEST_BINDING,
+  V8TEST_STACK_TRACE,
+  V8TEST_EXTENSION,
 };
+
+// Set to the current test being run in the browser process. Will always be
+// V8TEST_NONE in the render process.
+V8TestMode g_current_test_mode = V8TEST_NONE;
+
+// Browser side.
+class V8BrowserTest : public ClientApp::BrowserDelegate {
+ public:
+  V8BrowserTest() {}
+
+  virtual void OnBeforeChildProcessLaunch(
+      CefRefPtr<ClientApp> app,
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE {
+    CefString process_type = command_line->GetSwitchValue("type");
+    if (process_type == "renderer") {
+      // Add the current test mode to the render process command line arguments.
+      char buff[33];
+      sprintf(buff, "%d", g_current_test_mode);
+      command_line->AppendSwitchWithValue(kV8TestCmdArg, buff);
+    }
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(V8BrowserTest);
+};
+
 
 // Renderer side.
 class V8RendererTest : public ClientApp::RenderDelegate {
  public:
-  V8RendererTest() {}
+  V8RendererTest()
+      : test_mode_(V8TEST_NONE) {
+  }
 
-  // Run the specified test.
-  void RunTest(V8TestMode test_mode) {
-    switch (test_mode) {
+  // Run a test when the process message is received from the browser.
+  void RunTest() {
+    switch (test_mode_) {
       case V8TEST_NULL_CREATE:
         RunNullCreateTest();
         break;
@@ -165,8 +198,20 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         RunBindingTest();
         break;
       default:
-        ADD_FAILURE();
+        // Was a startup test.
+        EXPECT_TRUE(startup_test_success_);
         DestroyTest();
+        break;
+    }
+  }
+
+  // Run a test on render process startup.
+  void RunStartupTest() {
+    switch (test_mode_) {
+      case V8TEST_EXTENSION:
+        RunExtensionTest();
+        break;
+      default:
         break;
     }
   }
@@ -1420,10 +1465,57 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     DestroyTest();
   }
 
+  // Test execution of a native function when the extension is loaded.
+  void RunExtensionTest() {
+    std::string code = "native function v8_extension_test();"
+                       "v8_extension_test();";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler(TrackCallback* callback)
+          : callback_(callback) {
+      }
+
+      virtual bool Execute(const CefString& name,
+                           CefRefPtr<CefV8Value> object,
+                           const CefV8ValueList& arguments,
+                           CefRefPtr<CefV8Value>& retval,
+                           CefString& exception) OVERRIDE {
+        EXPECT_STREQ("v8_extension_test", name.ToString().c_str());
+        callback_->yes();
+        return true;
+      }
+
+      TrackCallback* callback_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    CefRegisterExtension("v8/test-extension", code,
+                         new Handler(&startup_test_success_));
+  }
+
+  virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
+    test_mode_ = g_current_test_mode;
+    if (test_mode_ == V8TEST_NONE) {
+      // Retrieve the test mode from the command line.
+      CefRefPtr<CefCommandLine> command_line =
+          CefCommandLine::GetGlobalCommandLine();
+      CefString value = command_line->GetSwitchValue(kV8TestCmdArg);
+      if (!value.empty())
+        test_mode_ = static_cast<V8TestMode>(atoi(value.ToString().c_str()));
+    }
+    EXPECT_GT(test_mode_, V8TEST_NONE);
+    RunStartupTest();
+  }
+
   virtual void OnContextCreated(CefRefPtr<ClientApp> app,
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+    app_ = app;
+    browser_ = browser;
+
     std::string url = frame->GetURL();
     if (url == kV8ContextChildTestUrl) {
       // For V8TEST_CONTEXT_ENTERED
@@ -1468,6 +1560,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       EXPECT_TRUE(object.get());
       EXPECT_TRUE(object->SetValue("v8_context_entered_test", func,
           V8_PROPERTY_ATTRIBUTE_NONE));
+    } else if (url == kV8ContextParentTestUrl) {
+      // For V8TEST_CONTEXT_ENTERED. Do nothing.
+      return;
     } else if (url == kV8BindingTestUrl) {
       // For V8TEST_BINDING
       CefRefPtr<CefV8Value> object = context->GetGlobal();
@@ -1476,27 +1571,10 @@ class V8RendererTest : public ClientApp::RenderDelegate {
           CefV8Value::CreateInt(12),
           V8_PROPERTY_ATTRIBUTE_NONE));
     }
-  }
 
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    if (message->GetName() == kV8TestMsg) {
-      app_ = app;
-      browser_ = browser;
-
-      V8TestMode test_mode =
-          static_cast<V8TestMode>(message->GetArgumentList()->GetInt(0));
-
-      // Run the test.
-      RunTest(test_mode);
-      return true;
-    }
-
-    // Message not handled.
-    return false;
+    // Run the test asynchronously.
+    CefPostTask(TID_RENDERER,
+                NewCefRunnableMethod(this, &V8RendererTest::RunTest));
   }
 
  protected:
@@ -1524,8 +1602,12 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 
   CefRefPtr<ClientApp> app_;
   CefRefPtr<CefBrowser> browser_;
+  V8TestMode test_mode_;
 
-  IMPLEMENT_REFCOUNTING(SendRecvRendererTest);
+  // Used by startup tests to indicate success.
+  TrackCallback startup_test_success_;
+
+  IMPLEMENT_REFCOUNTING(V8RendererTest);
 };
 
 // Browser side.
@@ -1537,33 +1619,21 @@ class V8TestHandler : public TestHandler {
   }
 
   virtual void RunTest() OVERRIDE {
+    // Nested script tag forces creation of the V8 context.
     if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
-      AddResource(kV8ContextParentTestUrl, "<html><body><iframe src=\"" +
+      AddResource(kV8ContextParentTestUrl, "<html><body>"
+          "<script>var i = 0;</script><iframe src=\"" +
           std::string(kV8ContextChildTestUrl) + "\" id=\"f\"></iframe></body>"
           "</html>", "text/html");
-      AddResource(kV8ContextChildTestUrl, "<html><body>CHILD</body></html>",
+      AddResource(kV8ContextChildTestUrl, "<html><body>"
+          "<script>var i = 0;</script>CHILD</body></html>",
           "text/html");
       CreateBrowser(kV8ContextParentTestUrl);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
-      AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
+      AddResource(test_url_, "<html><body>"
+          "<script>var i = 0;</script>TEST</body></html>", "text/html");
       CreateBrowser(test_url_);
-    }
-  }
-
-  CefRefPtr<CefProcessMessage> CreateTestMessage() {
-    CefRefPtr<CefProcessMessage> msg = CefProcessMessage::Create(kV8TestMsg);
-    EXPECT_TRUE(msg->GetArgumentList()->SetInt(0, test_mode_));
-    return msg;
-  }
-
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
-    if (frame->IsMain()) {
-      // Send the message to the renderer process to run the test.
-      EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER,
-          CreateTestMessage()));
     }
   }
 
@@ -1596,6 +1666,12 @@ class V8TestHandler : public TestHandler {
 }  // namespace
 
 
+// Entry point for creating V8 browser test objects.
+// Called from client_app_delegates.cc.
+void CreateV8BrowserTests(ClientApp::BrowserDelegateSet& delegates) {
+  delegates.insert(new V8BrowserTest);
+}
+
 // Entry point for creating V8 renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
@@ -1606,6 +1682,7 @@ void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
 // Helpers for defining V8 tests.
 #define V8_TEST_EX(name, test_mode, test_url) \
   TEST(V8Test, name) { \
+    g_current_test_mode = test_mode; \
     CefRefPtr<V8TestHandler> handler = \
         new V8TestHandler(test_mode, test_url); \
     handler->ExecuteTest(); \
@@ -1650,3 +1727,4 @@ V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
+V8_TEST(Extension, V8TEST_EXTENSION);

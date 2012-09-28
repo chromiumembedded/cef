@@ -18,6 +18,26 @@ class ClientApp : public CefApp,
                   public CefProxyHandler,
                   public CefRenderProcessHandler {
  public:
+  // Interface for browser delegates. All BrowserDelegates must be returned via
+  // CreateBrowserDelegates. Do not perform work in the BrowserDelegate
+  // constructor.
+  class BrowserDelegate : public virtual CefBase {
+   public:
+    // Called on the browser process UI thread immediately after the CEF context
+    // has been initialized.
+    virtual void OnContextInitialized(CefRefPtr<ClientApp> app) {
+    }
+
+    // Called on the browser process IO thread before a child process is launched.
+    // Provides an opportunity to modify the child process command line.
+    virtual void OnBeforeChildProcessLaunch(
+        CefRefPtr<ClientApp> app,
+        CefRefPtr<CefCommandLine> command_line) {
+    }
+  };
+
+  typedef std::set<CefRefPtr<BrowserDelegate> > BrowserDelegateSet;
+
   // Interface for renderer delegates. All RenderDelegates must be returned via
   // CreateRenderDelegates. Do not perform work in the RenderDelegate
   // constructor.
@@ -93,6 +113,10 @@ class ClientApp : public CefApp,
                              int browser_id);
 
  private:
+  // Creates all of the BrowserDelegate objects. Implemented in
+  // client_app_delegates.
+  static void CreateBrowserDelegates(BrowserDelegateSet& delegates);
+
   // Creates all of the RenderDelegate objects. Implemented in
   // client_app_delegates.
   static void CreateRenderDelegates(RenderDelegateSet& delegates);
@@ -113,7 +137,9 @@ class ClientApp : public CefApp,
 
   // CefBrowserProcessHandler methods.
   virtual CefRefPtr<CefProxyHandler> GetProxyHandler() OVERRIDE { return this; }
-  virtual void OnContextInitialized();
+  virtual void OnContextInitialized() OVERRIDE;
+  virtual void OnBeforeChildProcessLaunch(
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
 
   // CefProxyHandler methods.
   virtual void GetProxyForUrl(const CefString& url,
@@ -144,6 +170,9 @@ class ClientApp : public CefApp,
                    std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value> > >
                    CallbackMap;
   CallbackMap callback_map_;
+
+  // Set of supported BrowserDelegates.
+  BrowserDelegateSet browser_delegates_;
 
   // Set of supported RenderDelegates.
   RenderDelegateSet render_delegates_;
