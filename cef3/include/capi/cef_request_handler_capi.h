@@ -173,6 +173,14 @@ typedef struct _cef_request_handler_t {
   void (CEF_CALLBACK *on_protocol_execution)(
       struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
       const cef_string_t* url, int* allow_os_execution);
+
+  ///
+  // Called on the browser process IO thread before a plugin is loaded. Return
+  // true (1) to block loading of the plugin.
+  ///
+  int (CEF_CALLBACK *on_before_plugin_load)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* url,
+      const cef_string_t* policy_url, struct _cef_web_plugin_info_t* info);
 } cef_request_handler_t;
 
 

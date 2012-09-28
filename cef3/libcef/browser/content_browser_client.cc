@@ -14,14 +14,17 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/path_service.h"
+#include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/media_observer.h"
+#include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_dispatcher_host.h"
@@ -161,6 +164,42 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   }
 };
 
+class CefPluginServiceFilter : public content::PluginServiceFilter {
+ public:
+  CefPluginServiceFilter() {}
+  virtual ~CefPluginServiceFilter() {}
+
+  virtual bool ShouldUsePlugin(int render_process_id,
+                               int render_view_id,
+                               const void* context,
+                               const GURL& url,
+                               const GURL& policy_url,
+                               webkit::WebPluginInfo* plugin) OVERRIDE {
+    bool allowed = true;
+
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
+                                                  render_view_id);
+    if (browser.get()) {
+      CefRefPtr<CefClient> client = browser->GetClient();
+      if (client.get()) {
+        CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+        if (handler.get()) {
+          CefRefPtr<CefWebPluginInfoImpl> pluginInfo(
+              new CefWebPluginInfoImpl(*plugin));
+          allowed =
+              !handler->OnBeforePluginLoad(browser.get(),
+                                           url.possibly_invalid_spec(),
+                                           policy_url.possibly_invalid_spec(),
+                                           pluginInfo.get());
+        }
+      }
+    }
+
+    return allowed;
+  }
+};
+
 }  // namespace
 
 
@@ -192,6 +231,8 @@ class CefMediaObserver : public content::MediaObserver {
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL) {
+  plugin_service_filter_.reset(new CefPluginServiceFilter);
+  PluginServiceImpl::GetInstance()->SetFilter(plugin_service_filter_.get());
 }
 
 CefContentBrowserClient::~CefContentBrowserClient() {

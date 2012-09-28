@@ -16,6 +16,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 
@@ -242,6 +243,35 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
 
   // Restore param:allow_os_execution; type: bool_byref
   allow_os_execution = allow_os_executionInt?true:false;
+}
+
+bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
+    const CefString& url, const CefString& policy_url,
+    CefRefPtr<CefWebPluginInfo> info) {
+  if (CEF_MEMBER_MISSING(struct_, on_before_plugin_load))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: info; type: refptr_diff
+  DCHECK(info.get());
+  if (!info.get())
+    return false;
+  // Unverified params: url, policy_url
+
+  // Execute
+  int _retval = struct_->on_before_plugin_load(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      url.GetStruct(),
+      policy_url.GetStruct(),
+      CefWebPluginInfoCppToC::Wrap(info));
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 

@@ -53,6 +53,9 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefBrowser> browser, const CefString& main_url) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
       const CefString& url, bool& allow_os_execution) OVERRIDE;
+  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
+      const CefString& url, const CefString& policy_url,
+      CefRefPtr<CefWebPluginInfo> info) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED
