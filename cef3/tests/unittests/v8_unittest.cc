@@ -197,6 +197,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       case V8TEST_BINDING:
         RunBindingTest();
         break;
+      case V8TEST_STACK_TRACE:
+        RunStackTraceTest();
+        break;
       default:
         // Was a startup test.
         EXPECT_TRUE(startup_test_success_);
@@ -1465,6 +1468,90 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     DestroyTest();
   }
 
+  void RunStackTraceTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kFuncName = "myfunc";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kFuncName, name.ToString().c_str());
+
+        stack_trace_ = CefV8StackTrace::GetCurrent(10);
+
+        retval = CefV8Value::CreateInt(3);
+        got_execute_.yes();
+        return true;
+      }
+
+      TrackCallback got_execute_;
+      CefRefPtr<CefV8StackTrace> stack_trace_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction(kFuncName, handler);
+    EXPECT_TRUE(func.get());
+    CefRefPtr<CefV8Value> obj = context->GetGlobal();
+    EXPECT_TRUE(obj.get());
+    obj->SetValue(kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE);
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    EXPECT_TRUE(context->Eval(
+        "function jsfunc() { return window.myfunc(); }\n"
+        "jsfunc();",
+        retval, exception));
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsInt());
+    EXPECT_EQ(3, retval->GetIntValue());
+    EXPECT_FALSE(exception.get());
+
+    EXPECT_TRUE(handler->stack_trace_.get());
+    EXPECT_EQ(2, handler->stack_trace_->GetFrameCount());
+
+    CefRefPtr<CefV8StackFrame> frame;
+
+    frame = handler->stack_trace_->GetFrame(0);
+    EXPECT_TRUE(frame->GetScriptName().empty());
+    EXPECT_TRUE(frame->GetScriptNameOrSourceURL().empty());
+    EXPECT_STREQ("jsfunc", frame->GetFunctionName().ToString().c_str());
+    EXPECT_EQ(1, frame->GetLineNumber());
+    EXPECT_EQ(35, frame->GetColumn());
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsConstructor());
+
+    frame = handler->stack_trace_->GetFrame(1);
+    EXPECT_TRUE(frame->GetScriptName().empty());
+    EXPECT_TRUE(frame->GetScriptNameOrSourceURL().empty());
+    EXPECT_TRUE(frame->GetFunctionName().empty());
+    EXPECT_EQ(2, frame->GetLineNumber());
+    EXPECT_EQ(1, frame->GetColumn());
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsConstructor());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
   // Test execution of a native function when the extension is loaded.
   void RunExtensionTest() {
     std::string code = "native function v8_extension_test();"
@@ -1727,4 +1814,5 @@ V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
+V8_TEST(StackTrace, V8TEST_STACK_TRACE);
 V8_TEST(Extension, V8TEST_EXTENSION);

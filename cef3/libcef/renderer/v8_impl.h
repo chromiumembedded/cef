@@ -21,43 +21,37 @@ class WebFrame;
 };
 
 // Template for V8 Handle types. This class is used to ensure that V8 objects
-// are only released on the UI thread.
-template <class v8class>
-class CefReleaseV8HandleOnUIThread
-    : public base::RefCountedThreadSafe<CefReleaseV8HandleOnUIThread<v8class>,
-                                        CefDeleteOnRenderThread> {
+// are only released on the render thread.
+template <typename v8class>
+class CefV8Handle :
+    public base::RefCountedThreadSafe<CefV8Handle<v8class>,
+                                      CefDeleteOnRenderThread> {
  public:
   typedef v8::Handle<v8class> handleType;
   typedef v8::Persistent<v8class> persistentType;
-  typedef CefReleaseV8HandleOnUIThread<v8class> superType;
 
-  explicit CefReleaseV8HandleOnUIThread(handleType v) {
-    v8_handle_ = persistentType::New(v);
+  CefV8Handle(handleType v)
+      : handle_(persistentType::New(v)) {
   }
-  virtual ~CefReleaseV8HandleOnUIThread() {
-  }
-
-  handleType GetHandle() {
-    return v8_handle_;
+  ~CefV8Handle() {
+    handle_.Dispose();
+    handle_.Clear();
   }
 
-  persistentType v8_handle_;
+  handleType GetHandle() { return handle_; }
+
+ protected:
+  persistentType handle_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefV8Handle);
 };
 
-// Special class for a v8::Context to ensure that it is deleted from the UI
-// thread.
-class CefV8ContextHandle : public CefReleaseV8HandleOnUIThread<v8::Context> {
- public:
-  explicit CefV8ContextHandle(handleType context)
-    : superType(context) {
-  }
-
-  // Context handles are disposed rather than makeweak.
-  ~CefV8ContextHandle() {
-    v8_handle_.Dispose();
-    v8_handle_.Clear();
-  }
+// Specialization for v8::Value with empty implementation to avoid incorrect
+// usage.
+template <>
+class CefV8Handle<v8::Value> {
 };
+
 
 class CefV8ContextImpl : public CefV8Context {
  public:
@@ -77,8 +71,11 @@ class CefV8ContextImpl : public CefV8Context {
   v8::Local<v8::Context> GetContext();
   WebKit::WebFrame* GetWebFrame();
 
+  v8::Handle<v8::Context> GetHandle() { return handle_->GetHandle(); }
+
  protected:
-  scoped_refptr<CefV8ContextHandle> v8_context_;
+  typedef CefV8Handle<v8::Context> Handle;
+  scoped_refptr<Handle> handle_;
 
 #ifndef NDEBUG
   // Used in debug builds to catch missing Exits in destructor.
@@ -86,29 +83,7 @@ class CefV8ContextImpl : public CefV8Context {
 #endif
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);
-};
-
-// Special class for a v8::Value to ensure that it is deleted from the UI
-// thread.
-class CefV8ValueHandle: public CefReleaseV8HandleOnUIThread<v8::Value> {
- public:
-  CefV8ValueHandle(handleType value, CefTrackNode* tracker)
-    : superType(value),
-      tracker_(tracker) {
-  }
-  // Destructor implementation is provided in v8_impl.cc.
-  ~CefV8ValueHandle();
-
-  CefTrackNode* GetTracker() {
-    return tracker_;
-  }
-
- private:
-  // For Object and Function types, we need to hold on to a reference to their
-  // internal data or function handler objects that are reference counted.
-  CefTrackNode* tracker_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefV8ValueHandle);
+  DISALLOW_COPY_AND_ASSIGN(CefV8ContextImpl);
 };
 
 class CefV8ValueImpl : public CefV8Value {
@@ -167,21 +142,83 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 
-  inline v8::Handle<v8::Value> GetHandle() {
-    DCHECK(v8_value_.get());
-    return v8_value_->GetHandle();
-  }
+  v8::Handle<v8::Value> GetHandle() { return handle_->GetHandle(); }
 
  protected:
   // Test for and record any exception.
   bool HasCaught(v8::TryCatch& try_catch);
 
-  scoped_refptr<CefV8ValueHandle> v8_value_;
+  class Handle :
+      public base::RefCountedThreadSafe<Handle, CefDeleteOnRenderThread> {
+   public:
+    typedef v8::Handle<v8::Value> handleType;
+    typedef v8::Persistent<v8::Value> persistentType;
+
+    Handle(handleType v, CefTrackNode* tracker)
+        : handle_(persistentType::New(v)),
+          tracker_(tracker) {
+    }
+    ~Handle();
+
+    handleType GetHandle() { return handle_; }
+
+   private:
+    persistentType handle_;
+
+    // For Object and Function types, we need to hold on to a reference to their
+    // internal data or function handler objects that are reference counted.
+    CefTrackNode* tracker_;
+
+    DISALLOW_COPY_AND_ASSIGN(Handle);
+  };
+  scoped_refptr<Handle> handle_;
+
   CefRefPtr<CefV8Exception> last_exception_;
   bool rethrow_exceptions_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8ValueImpl);
+};
+
+class CefV8StackTraceImpl : public CefV8StackTrace {
+ public:
+  explicit CefV8StackTraceImpl(v8::Handle<v8::StackTrace> handle);
+  virtual ~CefV8StackTraceImpl();
+
+  virtual int GetFrameCount() OVERRIDE;
+  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
+
+  v8::Handle<v8::StackTrace> GetHandle() { return handle_->GetHandle(); }
+
+ protected:
+  typedef CefV8Handle<v8::StackTrace> Handle;
+  scoped_refptr<Handle> handle_;
+
+  IMPLEMENT_REFCOUNTING(CefV8StackTraceImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefV8StackTraceImpl);
+};
+
+class CefV8StackFrameImpl : public CefV8StackFrame {
+ public:
+  explicit CefV8StackFrameImpl(v8::Handle<v8::StackFrame> handle);
+  virtual ~CefV8StackFrameImpl();
+
+  virtual CefString GetScriptName() OVERRIDE;
+  virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
+  virtual CefString GetFunctionName() OVERRIDE;
+  virtual int GetLineNumber() OVERRIDE;
+  virtual int GetColumn() OVERRIDE;
+  virtual bool IsEval() OVERRIDE;
+  virtual bool IsConstructor() OVERRIDE;
+
+  v8::Handle<v8::StackFrame> GetHandle() { return handle_->GetHandle(); }
+
+ protected:
+  typedef CefV8Handle<v8::StackFrame> Handle;
+  scoped_refptr<Handle> handle_;
+
+  IMPLEMENT_REFCOUNTING(CefV8StackFrameImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefV8StackFrameImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_V8_IMPL_H_
