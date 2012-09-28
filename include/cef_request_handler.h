@@ -45,6 +45,7 @@
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 #include "include/cef_request.h"
+#include "include/cef_web_plugin.h"
 
 ///
 // Callback interface used for asynchronous continuation of authentication
@@ -190,6 +191,18 @@ class CefRequestHandler : public virtual CefBase {
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                    const CefString& url,
                                    bool& allow_os_execution) {}
+
+  ///
+  // Called on the browser process IO thread before a plugin is loaded. Return
+  // true to block loading of the plugin.
+  ///
+  /*--cef(optional_param=url,optional_param=policy_url)--*/
+  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
+                                  const CefString& url,
+                                  const CefString& policy_url,
+                                  CefRefPtr<CefWebPluginInfo> info) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_HANDLER_H_

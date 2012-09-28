@@ -56,6 +56,7 @@
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
@@ -208,6 +209,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefV8ValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWebPluginInfoCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefWebPluginInfoVisitorCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefWebPluginUnstableCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefWriteHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefXmlReaderCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefZipReaderCToCpp::DebugObjCt, 0);
@@ -468,5 +470,109 @@ CEF_GLOBAL void CefVisitWebPluginInfo(
   // Execute
   cef_visit_web_plugin_info(
       CefWebPluginInfoVisitorCppToC::Wrap(visitor));
+}
+
+CEF_GLOBAL void CefRefreshWebPlugins() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_refresh_web_plugins();
+}
+
+CEF_GLOBAL void CefAddWebPluginPath(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_add_web_plugin_path(
+      path.GetStruct());
+}
+
+CEF_GLOBAL void CefAddWebPluginDirectory(const CefString& dir) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: dir; type: string_byref_const
+  DCHECK(!dir.empty());
+  if (dir.empty())
+    return;
+
+  // Execute
+  cef_add_web_plugin_directory(
+      dir.GetStruct());
+}
+
+CEF_GLOBAL void CefRemoveWebPluginPath(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_remove_web_plugin_path(
+      path.GetStruct());
+}
+
+CEF_GLOBAL void CefUnregisterInternalWebPlugin(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_unregister_internal_web_plugin(
+      path.GetStruct());
+}
+
+CEF_GLOBAL void CefForceWebPluginShutdown(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_force_web_plugin_shutdown(
+      path.GetStruct());
+}
+
+CEF_GLOBAL void CefRegisterWebPluginCrash(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_register_web_plugin_crash(
+      path.GetStruct());
+}
+
+CEF_GLOBAL void CefIsWebPluginUnstable(const CefString& path,
+    CefRefPtr<CefWebPluginUnstableCallback> callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return;
+
+  // Execute
+  cef_is_web_plugin_unstable(
+      path.GetStruct(),
+      CefWebPluginUnstableCallbackCppToC::Wrap(callback));
 }
 
