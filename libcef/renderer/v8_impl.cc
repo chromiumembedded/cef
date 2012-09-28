@@ -213,7 +213,7 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out) {
 v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args) {
   v8::HandleScope handle_scope;
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::getScriptExecutionContext());
+      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
   CefV8Handler* handler =
       static_cast<CefV8Handler*>(v8::External::Unwrap(args.Data()));
@@ -247,7 +247,7 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
                                                  const v8::AccessorInfo& info) {
   v8::HandleScope handle_scope;
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::getScriptExecutionContext());
+      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
   v8::Handle<v8::Object> obj = info.This();
 
@@ -282,7 +282,7 @@ void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
                                 const v8::AccessorInfo& info) {
   v8::HandleScope handle_scope;
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::getScriptExecutionContext());
+      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
   v8::Handle<v8::Object> obj = info.This();
 
