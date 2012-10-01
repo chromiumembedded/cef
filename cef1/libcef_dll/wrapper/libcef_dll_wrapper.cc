@@ -56,6 +56,7 @@
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/web_urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/zoom_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
@@ -171,6 +172,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefWriteHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefXmlReaderCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefZipReaderCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefZoomHandlerCppToC::DebugObjCt, 0);
 #endif  // !NDEBUG
 }
 

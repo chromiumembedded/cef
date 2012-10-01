@@ -26,6 +26,7 @@
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/zoom_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -224,6 +225,19 @@ CefRefPtr<CefGeolocationHandler> CefClientCToCpp::GetGeolocationHandler() {
 
   // Return type: refptr_same
   return CefGeolocationHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefZoomHandler> CefClientCToCpp::GetZoomHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_zoom_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_zoom_handler_t* _retval = struct_->get_zoom_handler(struct_);
+
+  // Return type: refptr_same
+  return CefZoomHandlerCToCpp::Wrap(_retval);
 }
 
 

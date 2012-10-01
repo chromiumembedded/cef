@@ -1465,8 +1465,16 @@ void CefBrowserImpl::UIT_SetZoomLevel(double zoomLevel) {
   REQUIRE_UIT();
   WebKit::WebFrame* web_frame = UIT_GetMainWebFrame();
   if (web_frame) {
+    GURL url = web_frame->document().url();
     web_frame->view()->setZoomLevel(false, zoomLevel);
-    ZoomMap::GetInstance()->set(web_frame->document().url(), zoomLevel);
+    bool didHandleZoom = false;
+    if (client_.get()) {
+      CefRefPtr<CefZoomHandler> handler = client_->GetZoomHandler();
+      if (handler.get())
+        didHandleZoom = handler->OnSetZoomLevel(this, url.spec(), zoomLevel);
+    }
+    if (!didHandleZoom)
+      ZoomMap::GetInstance()->set(url, zoomLevel);
     set_zoom_level(zoomLevel);
   }
 }

@@ -79,6 +79,7 @@
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 #include "libcef_dll/ctocpp/web_urlrequest_client_ctocpp.h"
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/zoom_handler_ctocpp.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -169,6 +170,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefWriteHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefXmlReaderCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefZipReaderCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefZoomHandlerCToCpp::DebugObjCt, 0);
 #endif  // !NDEBUG
 }
 
