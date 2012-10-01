@@ -28,7 +28,6 @@
 #include "libcef/printing/win_printing_context.h"
 #endif
 
-#include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFindOptions.h"
 
 namespace base {
@@ -327,7 +326,6 @@ class CefBrowserImpl : public CefBrowser {
 
   // These variables are read-only.
   const CefBrowserSettings& settings() const { return settings_; }
-  const FilePath& file_system_root() const { return file_system_root_.path(); }
   gfx::NativeView opener_window() { return opener_; }
   bool is_popup() { return (opener_ != NULL); }
 
@@ -428,9 +426,6 @@ class CefBrowserImpl : public CefBrowser {
 
   // Unique browser ID assigned by the context.
   int unique_id_;
-
-  // A temporary directory for FileSystem API.
-  ScopedTempDir file_system_root_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserImpl);
   IMPLEMENT_LOCKING(CefBrowserImpl);

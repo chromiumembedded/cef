@@ -180,12 +180,6 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
 
-  if (!file_system_root_.CreateUniqueTempDir()) {
-    LOG(WARNING) << "Failed to create a temp dir for the filesystem."
-                    "FileSystem feature will be disabled.";
-    DCHECK(file_system_root_.path().empty());
-  }
-
   // Create the singleton main frame reference.
   main_frame_ = new CefFrameImpl(this, 0, CefString(), CefString());
 }

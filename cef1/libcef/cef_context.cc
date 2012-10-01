@@ -243,8 +243,16 @@ bool CefContext::Initialize(const CefSettings& settings,
   if (!cache_path_.empty() &&
       !file_util::PathExists(cache_path_) &&
       !file_util::CreateDirectory(cache_path_)) {
-    NOTREACHED() << "Failed to create cache_path directory";
+    NOTREACHED() << "The cache_path directory could not be created";
     cache_path_.clear();
+  }
+  if (cache_path_.empty()) {
+    // Create and use a temporary directory.
+    if (cache_temp_dir_.CreateUniqueTempDir()) {
+      cache_path_ = cache_temp_dir_.path();
+    } else {
+      NOTREACHED() << "Failed to create temporary cache_path directory";
+    }
   }
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
