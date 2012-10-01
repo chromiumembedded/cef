@@ -25,6 +25,7 @@
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/zoom_handler_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -253,6 +254,22 @@ struct _cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
   return CefDragHandlerCppToC::Wrap(_retval);
 }
 
+struct _cef_zoom_handler_t* CEF_CALLBACK client_get_zoom_handler(
+    struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefZoomHandler> _retval = CefClientCppToC::Get(
+      self)->GetZoomHandler();
+
+  // Return type: refptr_same
+  return CefZoomHandlerCppToC::Wrap(_retval);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -272,6 +289,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_v8context_handler = client_get_v8context_handler;
   struct_.struct_.get_render_handler = client_get_render_handler;
   struct_.struct_.get_drag_handler = client_get_drag_handler;
+  struct_.struct_.get_zoom_handler = client_get_zoom_handler;
 }
 
 #ifndef NDEBUG

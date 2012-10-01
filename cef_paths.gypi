@@ -51,6 +51,7 @@
       'include/cef_web_urlrequest.h',
       'include/cef_xml_reader.h',
       'include/cef_zip_reader.h',
+      'include/cef_zoom_handler.h',
     ],
     'autogen_capi_includes': [
       'include/capi/cef_app_capi.h',
@@ -92,6 +93,7 @@
       'include/capi/cef_web_urlrequest_capi.h',
       'include/capi/cef_xml_reader_capi.h',
       'include/capi/cef_zip_reader_capi.h',
+      'include/capi/cef_zoom_handler_capi.h',
     ],
     'autogen_library_side': [
       'libcef_dll/ctocpp/app_ctocpp.cc',
@@ -202,6 +204,8 @@
       'libcef_dll/cpptoc/xml_reader_cpptoc.h',
       'libcef_dll/cpptoc/zip_reader_cpptoc.cc',
       'libcef_dll/cpptoc/zip_reader_cpptoc.h',
+      'libcef_dll/ctocpp/zoom_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/zoom_handler_ctocpp.h',
     ],
     'autogen_client_side': [
       'libcef_dll/cpptoc/app_cpptoc.cc',
@@ -312,6 +316,8 @@
       'libcef_dll/ctocpp/xml_reader_ctocpp.h',
       'libcef_dll/ctocpp/zip_reader_ctocpp.cc',
       'libcef_dll/ctocpp/zip_reader_ctocpp.h',
+      'libcef_dll/cpptoc/zoom_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/zoom_handler_cpptoc.h',
     ],
   },
 }

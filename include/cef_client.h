@@ -53,6 +53,7 @@
 #include "include/cef_render_handler.h"
 #include "include/cef_request_handler.h"
 #include "include/cef_v8context_handler.h"
+#include "include/cef_zoom_handler.h"
 
 ///
 // Implement this interface to provide handler implementations.
@@ -169,6 +170,15 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDragHandler> GetDragHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for zoom events. If no handler is provided the default
+  // zoom behavior will be used.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefZoomHandler> GetZoomHandler() {
     return NULL;
   }
 };
