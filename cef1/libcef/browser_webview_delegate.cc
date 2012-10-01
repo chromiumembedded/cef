@@ -909,8 +909,21 @@ void BrowserWebViewDelegate::didCommitProvisionalLoad(
   // Apply zoom settings only on top-level frames.
   if (is_main_frame) {
     // Restore the zoom value that we have for this URL, if any.
+    GURL url = frame->document().url();
     double zoomLevel = 0.0;
-    ZoomMap::GetInstance()->get(frame->document().url(), zoomLevel);
+    bool didGetCustomZoom = false;
+    if (client.get()) {
+      CefRefPtr<CefZoomHandler> handler = client->GetZoomHandler();
+      if (handler.get()) {
+        double newZoomLevel = zoomLevel;
+        didGetCustomZoom =
+            handler->OnGetZoomLevel(browser_, url.spec(), newZoomLevel);
+        if (didGetCustomZoom)
+          zoomLevel = newZoomLevel;
+      }
+    }
+    if (!didGetCustomZoom)
+      ZoomMap::GetInstance()->get(url, zoomLevel);
     frame->view()->setZoomLevel(false, zoomLevel);
     browser_->set_zoom_level(zoomLevel);
   }

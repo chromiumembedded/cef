@@ -144,6 +144,13 @@ typedef struct _cef_client_t {
   ///
   struct _cef_geolocation_handler_t* (CEF_CALLBACK *get_geolocation_handler)(
       struct _cef_client_t* self);
+
+  ///
+  // Return the handler for zoom events. If no handler is provided the default
+  // zoom behavior will be used.
+  ///
+  struct _cef_zoom_handler_t* (CEF_CALLBACK *get_zoom_handler)(
+      struct _cef_client_t* self);
 } cef_client_t;
 
 
