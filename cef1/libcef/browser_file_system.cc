@@ -4,6 +4,7 @@
 
 #include "libcef/browser_file_system.h"
 #include "libcef/browser_file_writer.h"
+#include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
@@ -76,23 +77,18 @@ BrowserFileSystem::BrowserFileSystem() {
 void BrowserFileSystem::CreateContext() {
   if (file_system_context_.get())
     return;
-  if (file_system_dir_.CreateUniqueTempDir()) {
-    std::vector<std::string> additional_allowed_schemes;
-    additional_allowed_schemes.push_back("file");
+  std::vector<std::string> additional_allowed_schemes;
+  additional_allowed_schemes.push_back("file");
 
-    file_system_context_ = new FileSystemContext(
-        CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
-        CefThread::GetMessageLoopProxyForThread(CefThread::IO),
-        NULL /* special storage policy */,
-        NULL /* quota manager */,
-        file_system_dir_.path(),
-        fileapi::FileSystemOptions(
-            fileapi::FileSystemOptions::PROFILE_MODE_NORMAL,
-            additional_allowed_schemes));
-  } else {
-    LOG(WARNING) << "Failed to create a temp dir for the filesystem."
-                    "FileSystem feature will be disabled.";
-  }
+  file_system_context_ = new FileSystemContext(
+      CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
+      CefThread::GetMessageLoopProxyForThread(CefThread::IO),
+      NULL /* special storage policy */,
+      NULL /* quota manager */,
+      _Context->cache_path(),
+      fileapi::FileSystemOptions(
+          fileapi::FileSystemOptions::PROFILE_MODE_NORMAL,
+          additional_allowed_schemes));
 }
 
 BrowserFileSystem::~BrowserFileSystem() {

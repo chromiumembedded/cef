@@ -10,7 +10,6 @@
 #include "base/hash_tables.h"
 #include "base/memory/ref_counted.h"
 #include "base/platform_file.h"
-#include "base/scoped_temp_dir.h"
 #include "base/string16.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/thread.h"
@@ -85,9 +84,6 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
 
   void ResetTracker();
   void ThreadCleanup(base::WaitableEvent* done_event);
-
-  // Where the tracker database file and per origin database files reside.
-  ScopedTempDir temp_dir_;
 
   // All access to the db_tracker (except for its construction) and
   // vfs operations are serialized on a background thread.

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "libcef/browser_database_system.h"
+#include "libcef/cef_context.h"
 
 #include "base/auto_reset.h"
 #include "base/bind.h"
@@ -37,9 +38,8 @@ BrowserDatabaseSystem::BrowserDatabaseSystem()
       open_connections_(new webkit_database::DatabaseConnectionsWrapper) {
   DCHECK(!instance_);
   instance_ = this;
-  CHECK(temp_dir_.CreateUniqueTempDir());
   db_tracker_ =
-      new DatabaseTracker(temp_dir_.path(), false, NULL, NULL, NULL);
+      new DatabaseTracker(_Context->cache_path(), false, NULL, NULL, NULL);
   db_tracker_->AddObserver(this);
   db_thread_.Start();
   db_thread_proxy_ = db_thread_.message_loop_proxy();
