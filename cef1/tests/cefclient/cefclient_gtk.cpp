@@ -150,14 +150,6 @@ gboolean WebGLActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > HTML5 Video... menu item.
-gboolean HTML5VideoActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunHTML5VideoTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
 // Callback for Debug > Zoom In... menu item.
 gboolean ZoomInActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd()) {
@@ -306,8 +298,6 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(AcceleratedLayersActivated));
   AddMenuEntry(debug_menu, "WebGL",
                G_CALLBACK(WebGLActivated));
-  AddMenuEntry(debug_menu, "HTML5 Video",
-               G_CALLBACK(HTML5VideoActivated));
   AddMenuEntry(debug_menu, "Zoom In",
                G_CALLBACK(ZoomInActivated));
   AddMenuEntry(debug_menu, "Zoom Out",
