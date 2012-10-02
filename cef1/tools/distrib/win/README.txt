@@ -89,12 +89,6 @@ Optional components:
   disabled completely using CefSettings.pack_loading_disabled. The resources
   directory path can be customized using CefSettings.resources_dir_path.
 
-* FFmpeg audio and video support
-    avcodec-54.dll
-    avformat-54.dll
-    avutil-51.dll
-  Note: Without these components HTML5 audio and video will not function.
-
 * Angle and Direct3D support
     d3dcompiler_43.dll
     d3dx9_43.dll

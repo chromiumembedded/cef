@@ -94,7 +94,6 @@ BEGIN
         MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
         MENUITEM "Accelerated Layers",          ID_TESTS_ACCELERATEDLAYERS
         MENUITEM "WebGL",                       ID_TESTS_WEBGL
-        MENUITEM "HTML5 Video",                 ID_TESTS_HTML5VIDEO
         MENUITEM "Drag && Drop",                ID_TESTS_DRAGDROP
         MENUITEM "Geolocation",                 ID_TESTS_GEOLOCATION
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN

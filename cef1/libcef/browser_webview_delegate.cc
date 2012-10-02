@@ -30,11 +30,6 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/stringprintf.h"
-#include "media/audio/null_audio_sink.h"
-#include "media/base/filter_collection.h"
-#include "media/base/media_log.h"
-#include "media/base/message_loop_factory.h"
-#include "media/filters/audio_renderer_impl.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
@@ -70,7 +65,6 @@
 #include "webkit/glue/weburlrequest_extradata_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
-#include "webkit/media/webmediaplayer_impl.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
 #include "webkit/plugins/npapi/webplugin_impl.h"
@@ -689,31 +683,6 @@ WebPlugin* BrowserWebViewDelegate::createPlugin(
 
   return new webkit::npapi::WebPluginImpl(
       frame, params, plugins.front().path, AsWeakPtr());
-}
-
-WebMediaPlayer* BrowserWebViewDelegate::createMediaPlayer(
-    WebFrame* frame, WebMediaPlayerClient* client) {
-  scoped_ptr<media::MessageLoopFactory> message_loop_factory(
-     new media::MessageLoopFactory());
-
-  scoped_ptr<media::FilterCollection> collection(
-      new media::FilterCollection());
-
-  // Add the audio renderer.
-  // TODO(vrk): Re-enable audio. (crbug.com/112159)
-  collection->AddAudioRenderer(
-      new media::AudioRendererImpl(new media::NullAudioSink()));
-
-  return new webkit_media::WebMediaPlayerImpl(
-      frame,
-      client,
-      base::WeakPtr<webkit_media::WebMediaPlayerDelegate>(),
-      collection.release(),
-      NULL,
-      NULL,
-      message_loop_factory.release(),
-      NULL,
-      new media::MediaLog());
 }
 
 WebApplicationCacheHost* BrowserWebViewDelegate::createApplicationCacheHost(

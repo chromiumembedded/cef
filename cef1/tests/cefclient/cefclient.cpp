@@ -480,11 +480,6 @@ void RunWebGLTest(CefRefPtr<CefBrowser> browser) {
       "http://webglsamples.googlecode.com/hg/field/field.html");
 }
 
-void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://www.youtube.com/watch?v=siOHh0uzcuY&html5=True");
-}
-
 void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
 }

@@ -40,7 +40,6 @@
 #define ID_TESTS_ACCELERATED2DCANVAS    32780
 #define ID_TESTS_ACCELERATEDLAYERS      32781
 #define ID_TESTS_WEBGL                  32782
-#define ID_TESTS_HTML5VIDEO             32783
 #define ID_TESTS_XMLHTTPREQUEST         32784
 #define ID_TESTS_ZOOM_IN                32785
 #define ID_TESTS_ZOOM_OUT               32786

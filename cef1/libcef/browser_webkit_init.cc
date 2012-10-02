@@ -12,7 +12,6 @@
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
-#include "media/base/media.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
@@ -59,12 +58,6 @@ BrowserWebKitInit::BrowserWebKitInit()
 
   prerendering_support_.reset(new BrowserPrerenderingSupport);
   WebKit::WebPrerenderingSupport::initialize(prerendering_support_.get());
-
-  // Load libraries for media and enable the media player.
-  FilePath module_path;
-  WebKit::WebRuntimeFeatures::enableMediaPlayer(
-      PathService::Get(base::DIR_MODULE, &module_path) &&
-      media::InitializeMediaLibrary(module_path));
 
   FilePath appcache_path;
   FilePath cache_path = _Context->cache_path();

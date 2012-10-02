@@ -516,10 +516,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunWebGLTest(browser);
         return 0;
-      case ID_TESTS_HTML5VIDEO:  // Test HTML5 video
-        if (browser.get())
-          RunHTML5VideoTest(browser);
-        return 0;
       case ID_TESTS_DRAGDROP:  // Test drag & drop
         if (browser.get())
           RunDragDropTest(browser);

@@ -82,7 +82,6 @@
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/MacOS/',
               'files': [
                 '$(CONFIGURATION)/libcef.dylib',
-                '$(CONFIGURATION)/ffmpegsumo.so',
               ],
             },
             {

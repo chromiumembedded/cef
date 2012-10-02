@@ -45,7 +45,6 @@ void RunLocalStorageTest(CefRefPtr<CefBrowser> browser);
 void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser);
 void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser);
 void RunWebGLTest(CefRefPtr<CefBrowser> browser);
-void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser);
 void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser);
 void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser);
 void RunDOMAccessTest(CefRefPtr<CefBrowser> browser);

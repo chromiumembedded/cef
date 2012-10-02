@@ -276,9 +276,12 @@ if platform == 'windows':
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(cef_dir, 'Debug/*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Debug/cefclient.exe'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Debug/devtools_resources.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/icudt.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/libcef.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/libEGL.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Debug/libGLESv2.dll'), dst_dir, options.quiet)
     copy_dir(os.path.join(cef_dir, 'Debug/locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
   
@@ -294,9 +297,12 @@ if platform == 'windows':
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(cef_dir, 'Release/*.dll'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Release/cefclient.exe'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, 'Release/devtools_resources.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/icudt.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/libcef.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/libEGL.dll'), dst_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/libGLESv2.dll'), dst_dir, options.quiet)
     copy_dir(os.path.join(cef_dir, 'Release/locales'), os.path.join(dst_dir, 'locales'), \
              options.quiet)
 
@@ -350,14 +356,12 @@ elif platform == 'macosx':
   if not options.allowpartial or path_exists(os.path.join(cef_dir, '../xcodebuild/Debug')):
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, '../xcodebuild/Debug/libcef.dylib'), dst_dir, options.quiet)
   
   # transfer xcodebuild/Release files
   if not options.allowpartial or path_exists(os.path.join(cef_dir, '../xcodebuild/Release')):
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(cef_dir, '../xcodebuild/Release/ffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(cef_dir, '../xcodebuild/Release/libcef.dylib'), dst_dir, options.quiet)
 
     # create the real dSYM file from the "fake" dSYM file
