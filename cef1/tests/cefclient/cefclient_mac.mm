@@ -205,7 +205,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testAccelerated2DCanvas:(id)sender;
 - (IBAction)testAcceleratedLayers:(id)sender;
 - (IBAction)testWebGL:(id)sender;
-- (IBAction)testHTML5Video:(id)sender;
 - (IBAction)testDragDrop:(id)sender;
 - (IBAction)testGeolocation:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
@@ -284,9 +283,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"WebGL"
                       action:@selector(testWebGL:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"HTML5 Video"
-                      action:@selector(testHTML5Video:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Drag & Drop"
                       action:@selector(testDragDrop:)
@@ -492,11 +488,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testWebGL:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunWebGLTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testHTML5Video:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunHTML5VideoTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testDragDrop:(id)sender {
