@@ -91,10 +91,6 @@ Optional components:
   disabled completely using CefSettings.pack_loading_disabled. The resources
   directory path can be customized using CefSettings.resources_dir_path.
 
-* FFmpeg audio and video support
-    ffmpegsumo.so
-  Note: Without this component HTML5 audio and video will not function.
-
 
 LICENSING
 ---------
