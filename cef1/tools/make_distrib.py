@@ -347,6 +347,8 @@ elif platform == 'macosx':
   # transfer cefclient files
   transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_mac'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer cefclient/mac files
   copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac/'), os.path.join(output_dir, 'cefclient/mac/'), \

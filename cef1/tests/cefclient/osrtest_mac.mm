@@ -593,10 +593,11 @@ class ClientOSRHandler : public CefClient,
 - (NSPoint)getClickPointForEvent:(NSEvent*)event {
   NSPoint windowLocal = [event locationInWindow];
   NSPoint contentLocal = [self convertPoint:windowLocal fromView:nil];
-  int x = contentLocal.x;
-  int y = [self frame].size.height - contentLocal.y;  // Flip y.
 
-  return {x,y};
+  NSPoint point;
+  point.x = contentLocal.x;
+  point.y = [self frame].size.height - contentLocal.y;  // Flip y.
+  return point;
 }
 
 - (void)getKeyInfo:(CefKeyInfo&)info forEvent:(NSEvent*)event {
