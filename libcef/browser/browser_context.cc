@@ -175,6 +175,7 @@ class CefSpeechRecognitionPreferences
 CefBrowserContext::CefBrowserContext() {
   // Initialize the request context getter.
   url_request_getter_ = new CefURLRequestContextGetter(
+      false,
       GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE));
@@ -231,6 +232,18 @@ net::URLRequestContextGetter*
     CefBrowserContext::GetMediaRequestContextForRenderProcess(
         int renderer_child_id)  {
   return GetRequestContext();
+}
+
+net::URLRequestContextGetter*
+    CefBrowserContext::GetMediaRequestContextForStoragePartition(
+        const std::string& partition_id) {
+  return GetRequestContext();
+}
+
+net::URLRequestContextGetter*
+    CefBrowserContext::GetRequestContextForStoragePartition(
+        const std::string& partition_id)  {
+  return NULL;
 }
 
 content::ResourceContext* CefBrowserContext::GetResourceContext() {

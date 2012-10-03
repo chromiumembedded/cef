@@ -16,7 +16,7 @@
 #include "base/stringprintf.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/glue/user_agent.h"
+#include "webkit/user_agent/user_agent_util.h"
 
 namespace {
 

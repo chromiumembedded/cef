@@ -172,7 +172,7 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
         content::GpuDataManager::GetInstance();
     DCHECK(gpu_data_manager);
     content::GpuFeatureType blacklist_flags =
-        gpu_data_manager->GetGpuFeatureType();
+        gpu_data_manager->GetBlacklistedFeatures();
     if (blacklist_flags & content::GPU_FEATURE_TYPE_ACCELERATED_COMPOSITING)
       web.accelerated_compositing_enabled = false;
     if (blacklist_flags & content::GPU_FEATURE_TYPE_WEBGL)

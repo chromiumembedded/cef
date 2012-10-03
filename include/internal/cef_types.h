@@ -804,13 +804,6 @@ enum cef_urlrequest_status_t {
   UR_IO_PENDING,
   
   ///
-  // Request was successful but was handled by an external program, so there
-  // is no response data. This usually means the current page should not be
-  // navigated, but no error should be displayed.
-  ///
-  UR_HANDLED_EXTERNALLY,
-  
-  ///
   // Request was canceled programatically.
   ///
   UR_CANCELED,

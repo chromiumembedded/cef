@@ -35,6 +35,11 @@ class CefBrowserContext : public content::BrowserContext {
   virtual net::URLRequestContextGetter* GetMediaRequestContext() OVERRIDE;
   virtual net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
       int renderer_child_id) OVERRIDE;
+  virtual net::URLRequestContextGetter*
+      GetMediaRequestContextForStoragePartition(
+          const std::string& partition_id) OVERRIDE;
+  virtual net::URLRequestContextGetter* GetRequestContextForStoragePartition(
+      const std::string& partition_id) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;

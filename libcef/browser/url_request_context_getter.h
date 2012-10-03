@@ -31,7 +31,8 @@ class URLSecurityManager;
 class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetter(
-      const FilePath& base_path_,
+      bool ignore_certificate_errors,
+      const FilePath& base_path,
       MessageLoop* io_loop,
       MessageLoop* file_loop);
   virtual ~CefURLRequestContextGetter();
@@ -55,6 +56,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  private:
   void CreateProxyConfigService();
 
+  bool ignore_certificate_errors_;
   FilePath base_path_;
   MessageLoop* io_loop_;
   MessageLoop* file_loop_;

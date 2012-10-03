@@ -244,9 +244,6 @@ class CefBrowserURLRequest::Context
         case net::URLRequestStatus::IO_PENDING:
           status_ = UR_IO_PENDING;
           break;
-        case net::URLRequestStatus::HANDLED_EXTERNALLY:
-          status_ = UR_HANDLED_EXTERNALLY;
-          break;
         case net::URLRequestStatus::CANCELED:
           status_ = UR_CANCELED;
           break;
