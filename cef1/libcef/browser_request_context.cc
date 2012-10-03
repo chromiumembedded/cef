@@ -41,7 +41,7 @@
 #include "webkit/blob/blob_url_request_job_factory.h"
 #include "webkit/fileapi/file_system_context.h"
 #include "webkit/fileapi/file_system_url_request_job_factory.h"
-#include "webkit/glue/webkit_glue.h"
+#include "webkit/user_agent/user_agent.h"
 
 #if defined(OS_WIN)
 #pragma comment(lib, "winhttp.lib")
@@ -233,21 +233,19 @@ void BrowserRequestContext::Init(
       cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
       cache_path, 0, BrowserResourceLoaderBridge::GetCacheThread());
 
-  net::HttpCache* cache =
-      new net::HttpCache(host_resolver(),
-                         cert_verifier(),
-                         server_bound_cert_service(),
-                         NULL,  /* transport_security_state */
-                         proxy_service(),
-                         "",  /* ssl_session_cache_shard */
-                         ssl_config_service(),
-                         http_auth_handler_factory(),
-                         NULL,  /* network_delegate */
-                         http_server_properties(),
-                         NULL,  /* netlog */
-                         backend,
-                         "" /* trusted_spdy_proxy */ );
+  net::HttpNetworkSession::Params network_session_params;
+  network_session_params.host_resolver = host_resolver();
+  network_session_params.cert_verifier = cert_verifier();
+  network_session_params.server_bound_cert_service =
+      server_bound_cert_service();
+  network_session_params.proxy_service = proxy_service();
+  network_session_params.ssl_config_service = ssl_config_service();
+  network_session_params.http_auth_handler_factory =
+      http_auth_handler_factory();
+  network_session_params.http_server_properties = http_server_properties();
+  network_session_params.host_resolver = host_resolver();
 
+  net::HttpCache* cache = new net::HttpCache(network_session_params, backend);
   cache->set_mode(cache_mode);
   storage_.set_http_transaction_factory(cache);
 

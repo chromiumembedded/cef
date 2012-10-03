@@ -392,7 +392,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     peer_->OnDownloadedData(bytes_read);
   }
 
-  void NotifyCompletedRequest(const net::URLRequestStatus& status,
+  void NotifyCompletedRequest(int error_code,
                               const std::string& security_info,
                               const base::TimeTicks& complete_time) {
     DCHECK(MessageLoop::current() == owner_loop_);
@@ -430,7 +430,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     }
 
     if (peer_) {
-      peer_->OnCompletedRequest(status, security_info, complete_time);
+      peer_->OnCompletedRequest(error_code, false, security_info, complete_time);
       DropPeer();  // ensure no further notifications
     }
   }
@@ -531,9 +531,8 @@ class RequestProxy : public net::URLRequest::Delegate,
 
         if (handled) {
           // cancel the resource load
-          OnCompletedRequest(
-              URLRequestStatus(URLRequestStatus::CANCELED, net::ERR_ABORTED),
-              std::string(), base::TimeTicks());
+          OnCompletedRequest(net::ERR_ABORTED, std::string(),
+                             base::TimeTicks());
         } else if (resourceStream.get()) {
           // load from the provided resource stream
           handled = true;
@@ -578,11 +577,8 @@ class RequestProxy : public net::URLRequest::Delegate,
             handled = true;
           }
 
-          if (handled) {
-            OnCompletedRequest(
-                URLRequestStatus(URLRequestStatus::HANDLED_EXTERNALLY, net::OK),
-                std::string(), base::TimeTicks());
-          }
+          if (handled)
+            OnCompletedRequest(net::OK, std::string(), base::TimeTicks());
         }
       }
     }
@@ -761,7 +757,7 @@ class RequestProxy : public net::URLRequest::Delegate,
         &RequestProxy::NotifyReceivedData, this, bytes_read));
   }
 
-  virtual void OnCompletedRequest(const net::URLRequestStatus& status,
+  virtual void OnCompletedRequest(int error_code,
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
@@ -770,7 +766,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       file_stream_.CloseSync();
 
     owner_loop_->PostTask(FROM_HERE, base::Bind(
-        &RequestProxy::NotifyCompletedRequest, this, status, security_info,
+        &RequestProxy::NotifyCompletedRequest, this, error_code, security_info,
         complete_time));
   }
 
@@ -856,8 +852,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     if (resource_stream_.get()) {
       // Resource stream reads always complete successfully
-      OnCompletedRequest(URLRequestStatus(URLRequestStatus::SUCCESS, 0),
-          std::string(), base::TimeTicks());
+      OnCompletedRequest(0, std::string(), base::TimeTicks());
       resource_stream_ = NULL;
     } else if (request_.get()) {
       if (upload_progress_timer_.IsRunning()) {
@@ -865,7 +860,8 @@ class RequestProxy : public net::URLRequest::Delegate,
         upload_progress_timer_.Stop();
       }
       DCHECK(request_.get());
-      OnCompletedRequest(request_->status(), std::string(), base::TimeTicks());
+      OnCompletedRequest(request_->status().error(), std::string(),
+                         base::TimeTicks());
       request_.reset();  // destroy on the io thread
     }
   }
@@ -881,30 +877,29 @@ class RequestProxy : public net::URLRequest::Delegate,
       return;
     }
 
-    // GetContentLengthSync() may perform file IO, but it's ok here, as file
-    // IO is not prohibited in IOThread defined in the file.
-    uint64 size = request_->get_upload_mutable()->GetContentLengthSync();
-    uint64 position = request_->GetUploadProgress();
-    if (position == last_upload_position_)
+    net::UploadProgress progress = request_->GetUploadProgress();
+    if (progress.position() == last_upload_position_)
       return;  // no progress made since last time
 
     const uint64 kHalfPercentIncrements = 200;
     const base::TimeDelta kOneSecond = base::TimeDelta::FromMilliseconds(1000);
 
-    uint64 amt_since_last = position - last_upload_position_;
+    uint64 amt_since_last = progress.position() - last_upload_position_;
     base::TimeDelta time_since_last = base::TimeTicks::Now() -
                                       last_upload_ticks_;
 
-    bool is_finished = (size == position);
-    bool enough_new_progress = (amt_since_last > (size /
+    bool is_finished = (progress.size() == progress.position());
+    bool enough_new_progress = (amt_since_last > (progress.size() /
                                                   kHalfPercentIncrements));
     bool too_much_time_passed = time_since_last > kOneSecond;
 
     if (is_finished || enough_new_progress || too_much_time_passed) {
-      owner_loop_->PostTask(FROM_HERE, base::Bind(
-          &RequestProxy::NotifyUploadProgress, this, position, size));
+      owner_loop_->PostTask(
+          FROM_HERE,
+          base::Bind(&RequestProxy::NotifyUploadProgress, this,
+                     progress.position(), progress.size()));
       last_upload_ticks_ = base::TimeTicks::Now();
-      last_upload_position_ = position;
+      last_upload_position_ = progress.position();
     }
   }
 
@@ -1017,7 +1012,7 @@ class SyncRequestProxy : public RequestProxy {
     AsyncReadData();  // read more (may recurse)
   }
 
-  virtual void OnCompletedRequest(const net::URLRequestStatus& status,
+  virtual void OnCompletedRequest(int error_code,
                                   const std::string& security_info,
                                   const base::TimeTicks& complete_time) {
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
@@ -1025,7 +1020,7 @@ class SyncRequestProxy : public RequestProxy {
     if (download_to_file_)
       file_stream_.CloseSync();
 
-    result_->status = status;
+    result_->error_code = error_code;
     event_.Signal();
   }
 

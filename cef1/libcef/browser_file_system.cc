@@ -281,7 +281,7 @@ bool BrowserFileSystem::HasFilePermission(
 
 FileSystemOperation* BrowserFileSystem::GetNewOperation(
     const fileapi::FileSystemURL& url) {
-  return file_system_context_->CreateFileSystemOperation(url);
+  return file_system_context_->CreateFileSystemOperation(url, NULL);
 }
 
 FileSystemOperation::StatusCallback

@@ -91,7 +91,7 @@ class BrowserFileWriter::IOThreadProxy
   virtual ~IOThreadProxy() {}
 
   FileSystemOperation* GetNewOperation( const FileSystemURL& url) {
-    return file_system_context_->CreateFileSystemOperation(url);
+    return file_system_context_->CreateFileSystemOperation(url, NULL);
   }
 
   // Returns true if it is not writable.

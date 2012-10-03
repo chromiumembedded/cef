@@ -165,7 +165,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
                 ],
               },
               'inputs': [
@@ -243,7 +243,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
                 ],
               },
               'inputs': [
@@ -378,7 +378,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
                 ],
               },
               'inputs': [
@@ -445,10 +445,10 @@
         '<(DEPTH)/webkit/support/webkit_support.gyp:fileapi',
         '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
         '<(DEPTH)/webkit/support/webkit_support.gyp:quota',
+        '<(DEPTH)/webkit/support/webkit_support.gyp:user_agent',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_gpu',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_user_agent',
         'libcef_static',
       ],
       'defines': [
@@ -630,10 +630,10 @@
         '<(DEPTH)/webkit/support/webkit_support.gyp:fileapi',
         '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
         '<(DEPTH)/webkit/support/webkit_support.gyp:quota',
+        '<(DEPTH)/webkit/support/webkit_support.gyp:user_agent',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_gpu',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_user_agent',
       ],
       'sources': [
         '<@(includes_common)',

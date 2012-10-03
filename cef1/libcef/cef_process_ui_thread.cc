@@ -25,9 +25,10 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/gl/gl_implementation.h"
-#include "webkit/glue/user_agent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/plugins/npapi/plugin_list.h"
+#include "webkit/user_agent/user_agent.h"
+#include "webkit/user_agent/user_agent_util.h"
 
 #if defined(OS_WIN)
 #include <commctrl.h>  // NOLINT(build/include_order)
