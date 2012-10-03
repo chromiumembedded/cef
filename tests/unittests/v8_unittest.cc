@@ -1592,8 +1592,8 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       if (!value.empty())
         test_mode_ = static_cast<V8TestMode>(atoi(value.ToString().c_str()));
     }
-    EXPECT_GT(test_mode_, V8TEST_NONE);
-    RunStartupTest();
+    if (test_mode_ > V8TEST_NONE)
+      RunStartupTest();
   }
 
   virtual void OnContextCreated(CefRefPtr<ClientApp> app,
@@ -1659,9 +1659,11 @@ class V8RendererTest : public ClientApp::RenderDelegate {
           V8_PROPERTY_ATTRIBUTE_NONE));
     }
 
-    // Run the test asynchronously.
-    CefPostTask(TID_RENDERER,
-                NewCefRunnableMethod(this, &V8RendererTest::RunTest));
+    if (test_mode_ > V8TEST_NONE) {
+      // Run the test asynchronously.
+      CefPostTask(TID_RENDERER,
+                  NewCefRunnableMethod(this, &V8RendererTest::RunTest));
+    }
   }
 
  protected:
@@ -1775,6 +1777,7 @@ void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
     handler->ExecuteTest(); \
     EXPECT_TRUE(handler->got_message_); \
     EXPECT_TRUE(handler->got_success_); \
+    g_current_test_mode = V8TEST_NONE; \
   }
 
 #define V8_TEST(name, test_mode) \
