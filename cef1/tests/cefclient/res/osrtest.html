@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>Off-Screen Rendering Test</title>
+</head>
+<body bottommargin="2" rightmargin="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="font-family: Verdana, Arial;" bgcolor="white">
+<div align="center">
+<table border="0" cellpadding="2" cellspacing="0">
+  <tr>
+    <td colspan="2" style="font-size: 18pt;">Off-Screen Rendering App Example</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="font-size: 8pt;"><i>An OpenGL view that renders content from an off-screen browser window.</i></td>
+  </tr>
+  <tr>
+    <td colspan="2" height="10"></td>
+  </tr>
+  <tr>
+    <td width="100" valign="top"><img src="logoball.png" width="100" height="101"></td>
+    <td style="font-size: 10pt;"><span style="font-size: 12pt;">You can rotate the view!</span>
+      <ul>
+        <li>Click and drag the view with the left mouse button while holding the shift key.</li>
+        <li>Enter a URL and click the "Go!" button to browse to a new Website.</li>
+        <li><a href="http://tests/transparency">Click here</a> to test transparency.</li>
+        <li><a href="http://mrdoob.com/lab/javascript/requestanimationframe/">Click here</a> to test requestAnimationFrame.</li>
+        <li><a href="http://www.adobe.com/software/flash/about/">Click here</a> to test a windowless plugin.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <form>
+        <input type="text" id="url" size="100" value="http://www.google.com"/>
+        <input type="button" value="Go!" onClick="document.location=document.getElementById('url').value;"/>
+      </form>
+    </td>
+  </tr>
+</table>
+</div>
+</body>
+</html>
+
