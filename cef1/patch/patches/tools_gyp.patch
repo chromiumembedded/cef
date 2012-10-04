@@ -1,8 +1,8 @@
 Index: pylib/gyp/input.py
 ===================================================================
---- pylib/gyp/input.py	(revision 1501)
+--- pylib/gyp/input.py	(revision 1508)
 +++ pylib/gyp/input.py	(working copy)
-@@ -685,7 +685,8 @@
+@@ -824,7 +824,8 @@
            # that don't load quickly, this can be faster than
            # <!(python modulename param eters). Do this in |build_file_dir|.
            oldwd = os.getcwd()  # Python doesn't like os.open('.'): no fchdir.

@@ -295,7 +295,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
   WebFrame* it = main_frame;
   do {
     if (it != main_frame) {
-      string16 str = it->name();
+      string16 str = it->uniqueName();
       names.push_back(str);
     }
     it = it->traverseNext(true);
@@ -688,7 +688,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::UIT_GetCefFrame(WebFrame* frame) {
     cef_frame = GetMainCefFrame(frame->identifier(), url);
   } else {
     // Locate or create the appropriate reference.
-    CefString name = string16(frame->name());
+    CefString name = string16(frame->uniqueName());
     DCHECK(!name.empty());
     cef_frame = GetOrCreateCefFrame(frame->identifier(), name, url);
   }

@@ -42,7 +42,6 @@ BrowserWebKitInit::BrowserWebKitInit()
   WebKit::WebRuntimeFeatures::enableSockets(true);
   WebKit::WebRuntimeFeatures::enableApplicationCache(true);
   WebKit::WebRuntimeFeatures::enableDatabase(true);
-  WebKit::WebRuntimeFeatures::enablePushState(true);
   WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);
   WebKit::WebRuntimeFeatures::enableFileSystem(true);
   WebKit::WebRuntimeFeatures::enableGeolocation(true);
