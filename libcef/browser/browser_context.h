@@ -45,7 +45,6 @@ class CefBrowserContext : public content::BrowserContext {
       GetGeolocationPermissionContext() OVERRIDE;
   virtual content::SpeechRecognitionPreferences*
       GetSpeechRecognitionPreferences() OVERRIDE;
-  virtual bool DidLastSessionExitCleanly() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
  private:

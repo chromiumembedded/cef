@@ -73,9 +73,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
         command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
-      devtools_delegate_ = new CefDevToolsDelegate(
-          port,
-          browser_context_->GetRequestContext());
+      devtools_delegate_ = new CefDevToolsDelegate(port);
     } else {
       DLOG(WARNING) << "Invalid http debugger port number " << port;
     }

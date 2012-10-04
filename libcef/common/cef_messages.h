@@ -169,3 +169,23 @@ IPC_MESSAGE_ROUTED1(CefHostMsg_Response,
 // has been processed.
 IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck,
                     int /* request_id */)
+
+
+// Singly-included section for struct and custom IPC traits.
+#ifndef CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
+#define CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
+
+namespace IPC {
+
+// Extracted from chrome/common/automation_messages.h.
+template <>
+struct ParamTraits<scoped_refptr<net::UploadData> > {
+  typedef scoped_refptr<net::UploadData> param_type;
+  static void Write(Message* m, const param_type& p);
+  static bool Read(const Message* m, PickleIterator* iter, param_type* r);
+  static void Log(const param_type& p, std::string* l);
+};
+
+}  // namespace IPC
+
+#endif  // CEF_LIBCEF_COMMON_CEF_MESSAGES_H_

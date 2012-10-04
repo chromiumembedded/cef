@@ -225,7 +225,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
     if (main_frame) {
       WebFrame* cur = main_frame;
       do {
-        names.push_back(CefString(cur->name().utf8()));
+        names.push_back(CefString(cur->uniqueName().utf8()));
         cur = cur->traverseNext(true);
       } while (cur != main_frame);
     }
@@ -357,7 +357,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
 
   int64 parent_id = frame->parent() == NULL ?
       kInvalidFrameId : frame->parent()->identifier();
-  string16 name = frame->name();
+  string16 name = frame->uniqueName();
 
   // Notify the browser that the frame has been identified.
   Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));

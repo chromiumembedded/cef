@@ -852,6 +852,7 @@
         'libcef/browser/zip_reader_impl.h',
         'libcef/common/cef_message_generator.cc',
         'libcef/common/cef_message_generator.h',
+        'libcef/common/cef_messages.cc',
         'libcef/common/cef_messages.h',
         'libcef/common/cef_switches.cc',
         'libcef/common/cef_switches.h',

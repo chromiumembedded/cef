@@ -196,7 +196,7 @@ CefString CefFrameImpl::GetName() {
   CEF_REQUIRE_RT_RETURN(name);
 
   if (frame_)
-    name = frame_->name();
+    name = frame_->uniqueName();
   return name;
 }
 

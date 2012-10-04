@@ -270,10 +270,6 @@ content::SpeechRecognitionPreferences*
   return speech_recognition_preferences_.get();
 }
 
-bool CefBrowserContext::DidLastSessionExitCleanly() {
-  return true;
-}
-
 quota::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
   return NULL;
 }

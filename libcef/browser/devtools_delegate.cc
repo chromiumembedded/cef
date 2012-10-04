@@ -21,7 +21,6 @@
 #include "content/public/common/content_switches.h"
 #include "grit/cef_resources.h"
 #include "net/base/tcp_listen_socket.h"
-#include "net/url_request/url_request_context_getter.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -93,13 +92,10 @@ class CefDevToolsBindingHandler
 
 }  // namespace
 
-CefDevToolsDelegate::CefDevToolsDelegate(
-    int port,
-    net::URLRequestContextGetter* context_getter) {
+CefDevToolsDelegate::CefDevToolsDelegate(int port) {
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       new net::TCPListenSocketFactory("127.0.0.1", port),
       "",
-      context_getter,
       this);
 
   binding_.reset(new CefDevToolsBindingHandler());
@@ -120,11 +116,15 @@ std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
 }
 
 bool CefDevToolsDelegate::BundlesFrontendResources() {
-  return false;
+  return true;
 }
 
-std::string CefDevToolsDelegate::GetFrontendResourcesBaseURL() {
-  return kChromeDevToolsURL;
+FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
+  return FilePath();
+}
+
+std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
+  return std::string();
 }
 
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,

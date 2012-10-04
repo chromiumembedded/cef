@@ -131,8 +131,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     if (!manager)
       return;
 
-    DownloadItem* item = manager->GetActiveDownloadItem(download_id);
-    if (!item)
+    DownloadItem* item = manager->GetDownload(download_id);
+    if (!item || !item->IsInProgress())
       return;
 
     FilePath result;
@@ -182,8 +182,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 
     scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
     if (manager) {
-      content::DownloadItem* item =
-          manager->GetActiveDownloadItem(download_id_);
+      DownloadItem* item = manager->GetDownload(download_id_);
       if (item && item->IsInProgress())
         item->Cancel(true);
     }

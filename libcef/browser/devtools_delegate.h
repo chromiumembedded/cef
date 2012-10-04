@@ -14,17 +14,13 @@
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
 
-namespace net {
-class URLRequestContextGetter;
-}
-
 namespace content {
 class RenderViewHost;
 }
 
 class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  CefDevToolsDelegate(int port, net::URLRequestContextGetter* context_getter);
+  explicit CefDevToolsDelegate(int port);
   virtual ~CefDevToolsDelegate();
 
   // Stops http server.
@@ -33,7 +29,8 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   // DevToolsHttpProtocolHandler::Delegate overrides.
   virtual std::string GetDiscoveryPageHTML() OVERRIDE;
   virtual bool BundlesFrontendResources() OVERRIDE;
-  virtual std::string GetFrontendResourcesBaseURL() OVERRIDE;
+  virtual FilePath GetDebugFrontendDir() OVERRIDE;
+  virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
 
   // Returns the DevTools URL for the specified RenderViewHost.
   std::string GetDevToolsURL(content::RenderViewHost* rvh, bool http_scheme);
