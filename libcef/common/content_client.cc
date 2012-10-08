@@ -5,10 +5,9 @@
 #include "libcef/common/content_client.h"
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
-#include "libcef/browser/devtools_scheme_handler.h"
+#include "libcef/browser/scheme_registration.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/scheme_registrar_impl.h"
-#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -54,12 +53,7 @@ void CefContentClient::AddAdditionalSchemes(
     DCHECK(schemeRegistrar->VerifyRefCount());
   }
 
-  standard_schemes->push_back(kChromeDevToolsScheme);
-  if (CefContentRendererClient::Get()) {
-    // Register the DevTools scheme with WebKit.
-    CefContentRendererClient::Get()->AddCustomScheme(kChromeDevToolsScheme,
-                                                     true, false);
-  }
+  scheme::AddStandardSchemes(standard_schemes);
 }
 
 std::string CefContentClient::GetUserAgent() const {

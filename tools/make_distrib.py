@@ -175,15 +175,12 @@ chromium_rev = chromium_info['revision']
 date = get_date()
 
 # Read and parse the version file (key=value pairs, one per line)
-chrome = {}
-lines = read_file(os.path.join(cef_dir, '../chrome/VERSION')).split("\n")
-for line in lines:
-  parts = line.split('=', 1)
-  if len(parts) == 2:
-    chrome[parts[0]] = parts[1]
+args = {}
+read_version_file('VERSION', args)
+read_version_file('../chrome/VERSION', args)
 
-cef_ver = '3.'+chrome['BUILD']+'.'+cef_rev
-chromium_ver = chrome['MAJOR']+'.'+chrome['MINOR']+'.'+chrome['BUILD']+'.'+chrome['PATCH']
+cef_ver = args['CEF_MAJOR']+'.'+args['BUILD']+'.'+cef_rev
+chromium_ver = args['MAJOR']+'.'+args['MINOR']+'.'+args['BUILD']+'.'+args['PATCH']
 
 # Test the operating system.
 platform = '';

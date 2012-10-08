@@ -10,8 +10,8 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools_scheme_handler.h"
 #include "libcef/browser/resource_request_job.h"
+#include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/common/request_impl.h"
@@ -310,8 +310,8 @@ bool CefClearSchemeHandlerFactories() {
   if (CEF_CURRENTLY_ON(CEF_IOT)) {
     CefUrlRequestManager::GetInstance()->ClearFactories();
 
-    // Re-register the DevTools scheme handler.
-    RegisterDevToolsSchemeHandler();
+    // Register internal scheme handlers.
+    scheme::RegisterInternalHandlers();
   } else {
     CEF_POST_TASK(CEF_IOT,
         base::Bind(base::IgnoreResult(&CefClearSchemeHandlerFactories)));

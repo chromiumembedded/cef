@@ -140,8 +140,8 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
   std::string page_id = binding_->GetIdentifier(rvh);
   std::string host = http_scheme ?
       base::StringPrintf("http://localhost:%d/devtools/", port) :
-      kChromeDevToolsURL;
-  
+      scheme::kChromeDevToolsURL;
+
   return base::StringPrintf(
       "%sdevtools.html?ws=localhost:%d/devtools/page/%s",
       host.c_str(),

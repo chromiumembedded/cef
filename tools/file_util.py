@@ -109,3 +109,11 @@ def make_dir(name, quiet = True):
 def get_files(search_glob):
     """ Returns all files matching the search glob. """
     return iglob(search_glob)
+
+def read_version_file(file, args):
+    """ Read and parse a version file (key=value pairs, one per line). """
+    lines = read_file(file).split("\n")
+    for line in lines:
+        parts = line.split('=', 1)
+        if len(parts) == 2:
+            args[parts[0]] = parts[1]
