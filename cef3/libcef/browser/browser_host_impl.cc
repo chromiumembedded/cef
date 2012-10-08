@@ -12,6 +12,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/navigate_params.h"
+#include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
@@ -1223,6 +1224,10 @@ void CefBrowserHostImpl::DidFinishLoad(
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
       validated_url);
+
+  // Give internal scheme handlers an opportunity to update content.
+  scheme::DidFinishLoad(frame, validated_url);
+
   OnLoadEnd(frame, validated_url);
 }
 

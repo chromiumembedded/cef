@@ -23,7 +23,9 @@ This utility creates the version header file.
 parser = OptionParser(description=disc)
 parser.add_option('--header', dest='header', metavar='FILE',
                   help='output version header file [required]')
-parser.add_option('--version', dest='version', metavar='FILE',
+parser.add_option('--cef_version', dest='cef_version', metavar='FILE',
+                  help='input CEF version config file [required]')
+parser.add_option('--chrome_version', dest='chrome_version', metavar='FILE',
                   help='input Chrome version config file [required]')
 parser.add_option('-q', '--quiet',
                   action='store_true', dest='quiet', default=False,
@@ -31,24 +33,22 @@ parser.add_option('-q', '--quiet',
 (options, args) = parser.parse_args()
 
 # the header option is required
-if options.header is None or options.version is None:
+if options.header is None or options.cef_version is None or options.chrome_version is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-def write_svn_header(header, version):
+def write_svn_header(header, chrome_version, cef_version):
     """ Creates the header file for the current revision and Chrome version information
        if the information has changed or if the file doesn't already exist. """
 
-    if not path_exists(version):
-      raise Exception('Version file '+version+' does not exist.')
+    if not path_exists(chrome_version):
+      raise Exception('Chrome version file '+chrome_version+' does not exist.')
+    if not path_exists(cef_version):
+      raise Exception('CEF version file '+cef_version+' does not exist.')
 
-    # Read and parse the version file (key=value pairs, one per line)
-    chrome = {}
-    lines = read_file(version).split("\n")
-    for line in lines:
-      parts = line.split('=', 1)
-      if len(parts) == 2:
-        chrome[parts[0]] = parts[1]
+    args = {}
+    read_version_file(chrome_version, args)
+    read_version_file(cef_version, args)
 
     if path_exists(header):
         oldcontents = read_file(header)
@@ -97,12 +97,13 @@ def write_svn_header(header, version):
                   '//\n\n'+\
                   '#ifndef CEF_INCLUDE_CEF_VERSION_H_\n'+\
                   '#define CEF_INCLUDE_CEF_VERSION_H_\n\n'+\
+                  '#define CEF_VERSION_MAJOR ' + args['CEF_MAJOR'] + '\n'+\
                   '#define CEF_REVISION ' + revision + '\n'+\
                   '#define COPYRIGHT_YEAR ' + year + '\n\n'+\
-                  '#define CHROME_VERSION_MAJOR ' + chrome['MAJOR'] + '\n'+\
-                  '#define CHROME_VERSION_MINOR ' + chrome['MINOR'] + '\n'+\
-                  '#define CHROME_VERSION_BUILD ' + chrome['BUILD'] + '\n'+\
-                  '#define CHROME_VERSION_PATCH ' + chrome['PATCH'] + '\n\n'+\
+                  '#define CHROME_VERSION_MAJOR ' + args['MAJOR'] + '\n'+\
+                  '#define CHROME_VERSION_MINOR ' + args['MINOR'] + '\n'+\
+                  '#define CHROME_VERSION_BUILD ' + args['BUILD'] + '\n'+\
+                  '#define CHROME_VERSION_PATCH ' + args['PATCH'] + '\n\n'+\
                   '#define DO_MAKE_STRING(p) #p\n'+\
                   '#define MAKE_STRING(p) DO_MAKE_STRING(p)\n\n'+\
                   '#ifndef APSTUDIO_HIDDEN_SYMBOLS\n\n'\
@@ -125,7 +126,7 @@ def write_svn_header(header, version):
 
     return False
 
-written = write_svn_header(options.header, options.version)
+written = write_svn_header(options.header, options.chrome_version, options.cef_version)
 if not options.quiet:
   if written:
     sys.stdout.write('File '+options.header+' updated.\n')

@@ -10,6 +10,11 @@
   <release seq="1">
     <includes>
       <include name="IDR_CEF_DEVTOOLS_DISCOVERY_PAGE" file="devtools_discovery_page.html" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_HTML" file="..\..\..\chrome\browser\resources\about_credits.html" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_JS" file="..\..\..\chrome\browser\resources\about_credits.js" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_SWIFTSHADER_JPG" file="..\..\..\chrome\browser\resources\swiftshader.jpg" type="BINDATA" />
+      <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
+      <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
     </includes>
   </release>
 </grit>
