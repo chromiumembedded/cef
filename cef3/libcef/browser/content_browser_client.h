@@ -46,6 +46,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
                                    webkit_glue::WebPreferences* prefs) OVERRIDE;
+  virtual void BrowserURLHandlerCreated(
+      content::BrowserURLHandler* handler) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() OVERRIDE;

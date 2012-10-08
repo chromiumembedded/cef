@@ -6,11 +6,15 @@
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_SCHEME_HANDLER_H_
 #pragma once
 
+namespace scheme {
+
 extern const char kChromeDevToolsScheme[];
 extern const char kChromeDevToolsHost[];
 extern const char kChromeDevToolsURL[];
 
-// Register the DevTools scheme handler.
-void RegisterDevToolsSchemeHandler();
+// Register the chrome-devtools scheme handler.
+void RegisterChromeDevToolsHandler();
+
+}  // namespace scheme
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_SCHEME_HANDLER_H_

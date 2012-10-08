@@ -10,7 +10,7 @@
     'revision': '<!(python tools/revision.py)',
     # Need to be creative to match dylib version formatting requirements.
     'version_mac_dylib':
-        '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "3<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
+        '<!(python ../chrome/tools/build/version.py -f VERSION -f ../chrome/VERSION -t "@CEF_MAJOR@<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
   },
   'includes': [
     # Bring in the source file lists.
@@ -795,6 +795,8 @@
         'libcef/browser/browser_settings.h',
         'libcef/browser/browser_urlrequest_impl.cc',
         'libcef/browser/browser_urlrequest_impl.h',
+        'libcef/browser/chrome_scheme_handler.cc',
+        'libcef/browser/chrome_scheme_handler.h',
         'libcef/browser/content_browser_client.cc',
         'libcef/browser/content_browser_client.h',
         'libcef/browser/context.cc',
@@ -813,6 +815,8 @@
         'libcef/browser/download_manager_delegate.h',
         'libcef/browser/frame_host_impl.cc',
         'libcef/browser/frame_host_impl.h',
+        'libcef/browser/internal_scheme_handler.cc',
+        'libcef/browser/internal_scheme_handler.h',
         'libcef/browser/javascript_dialog.h',
         'libcef/browser/javascript_dialog_creator.cc',
         'libcef/browser/javascript_dialog_creator.h',
@@ -833,6 +837,8 @@
         'libcef/browser/resource_request_job.cc',
         'libcef/browser/resource_request_job.h',
         'libcef/browser/scheme_impl.cc',
+        'libcef/browser/scheme_registration.cc',
+        'libcef/browser/scheme_registration.h',
         'libcef/browser/sqlite_diagnostics_stub.cc',
         'libcef/browser/stream_impl.cc',
         'libcef/browser/stream_impl.h',

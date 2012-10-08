@@ -11,6 +11,7 @@
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_filter.h"
 #include "libcef/browser/browser_settings.h"
+#include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/thread_util.h"
@@ -23,6 +24,7 @@
 #include "base/path_service.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
+#include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/media_observer.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
@@ -326,6 +328,13 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
 
   // Populate WebPreferences based on CefBrowserSettings.
   BrowserToWebSettings(browser->settings(), *prefs);
+}
+
+void CefContentBrowserClient::BrowserURLHandlerCreated(
+    content::BrowserURLHandler* handler) {
+  // Used to redirect about: URLs to chrome: URLs.
+  handler->AddHandlerPair(&scheme::WillHandleBrowserAboutURL,
+                          content::BrowserURLHandler::null_handler());
 }
 
 std::string CefContentBrowserClient::GetDefaultDownloadName() {

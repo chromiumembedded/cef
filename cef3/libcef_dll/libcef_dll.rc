@@ -95,8 +95,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,CHROME_VERSION_BUILD,CEF_REVISION,0
- PRODUCTVERSION 3,CHROME_VERSION_BUILD,CEF_REVISION,0
+ FILEVERSION CEF_VERSION_MAJOR,CHROME_VERSION_BUILD,CEF_REVISION,0
+ PRODUCTVERSION CEF_VERSION_MAJOR,CHROME_VERSION_BUILD,CEF_REVISION,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -112,12 +112,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "Chromium Embedded Framework (CEF) Dynamic Link Library"
-            VALUE "FileVersion", "3." MAKE_STRING(CHROME_VERSION_BUILD) "." MAKE_STRING(CEF_REVISION)
+            VALUE "FileVersion", MAKE_STRING(CEF_VERSION_MAJOR) "." MAKE_STRING(CHROME_VERSION_BUILD) "." MAKE_STRING(CEF_REVISION)
             VALUE "InternalName", "libcef"
             VALUE "LegalCopyright", "Copyright (C) " MAKE_STRING(COPYRIGHT_YEAR) " The Chromium Embedded Framework Authors"
             VALUE "OriginalFilename", "libcef.dll"
             VALUE "ProductName", "Chromium Embedded Framework (CEF) Dynamic Link Library"
-            VALUE "ProductVersion", "3." MAKE_STRING(CHROME_VERSION_BUILD) "." MAKE_STRING(CEF_REVISION)
+            VALUE "ProductVersion", MAKE_STRING(CEF_VERSION_MAJOR) "." MAKE_STRING(CHROME_VERSION_BUILD) "." MAKE_STRING(CEF_REVISION)
         END
     END
     BLOCK "VarFileInfo"
