@@ -1,35 +1,39 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 103399)
+--- page/FrameView.cpp	(revision 130131)
 +++ page/FrameView.cpp	(working copy)
-@@ -176,10 +176,12 @@
-             m_page = page;
-             m_page->addScrollableArea(this);
+@@ -201,10 +201,12 @@
+     if (!page)
+         return;
  
 +#if 0
-             if (m_frame == m_page->mainFrame()) {
-                 ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
-                 ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
-             }
-+#endif
-         }
+     if (m_frame == page->mainFrame()) {
+         ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+         ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
      }
++#endif
  }
-Index: platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm
-===================================================================
---- platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(revision 101144)
-+++ platform/chromium/ScrollbarOverlayUtilitiesChromiumMac.mm	(working copy)
-@@ -356,9 +356,13 @@
  
+ PassRefPtr<FrameView> FrameView::create(Frame* frame)
+Index: platform/mac/NSScrollerImpDetails.mm
+===================================================================
+--- platform/mac/NSScrollerImpDetails.mm	(revision 130131)
++++ platform/mac/NSScrollerImpDetails.mm	(working copy)
+@@ -33,6 +33,7 @@
+ #if PLATFORM(CHROMIUM)
  bool isScrollbarOverlayAPIAvailable()
  {
 +#if 0
-     static bool apiAvailable = [lookUpNSScrollerImpClass() respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)] &&
-                                [lookUpNSScrollerImpPairClass() instancesRespondToSelector:@selector(scrollerStyle)];
+     static bool apiAvailable;
+     static bool shouldInitialize = true;
+     if (shouldInitialize) {
+@@ -43,6 +44,9 @@
+                        && [scrollerImpPairClass instancesRespondToSelector:@selector(scrollerStyle)];
+     }
      return apiAvailable;
 +#else
 +    return false;
 +#endif
  }
+ #endif
  
- #endif // USE(WK_SCROLLBAR_PAINTER)
