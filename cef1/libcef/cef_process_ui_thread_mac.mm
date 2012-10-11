@@ -9,7 +9,9 @@
 #include "libcef/cef_process_ui_thread.h"
 #include "libcef/browser_webkit_glue.h"
 #include "libcef/cef_context.h"
+#include "base/command_line.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/ui_base_switches.h"
 
 void CefProcessUIThread::PlatformInit() {
   // The NSApplication instance must implement the CefAppProtocol protocol.
@@ -18,6 +20,10 @@ void CefProcessUIThread::PlatformInit() {
 
   // On Mac, the select popup menus are rendered by the browser.
   WebKit::WebView::setUseExternalPopupMenus(true);
+  
+  // Core Animation mode for plugins is not supported.
+  CommandLine::ForCurrentProcess()->AppendSwitch(
+      switches::kDisableCoreAnimationPlugins);
 }
 
 void CefProcessUIThread::PlatformCleanUp() {
