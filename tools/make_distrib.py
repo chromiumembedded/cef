@@ -176,8 +176,8 @@ date = get_date()
 
 # Read and parse the version file (key=value pairs, one per line)
 args = {}
-read_version_file('VERSION', args)
-read_version_file('../chrome/VERSION', args)
+read_version_file(os.path.join(cef_dir, 'VERSION'), args)
+read_version_file(os.path.join(cef_dir, '../chrome/VERSION'), args)
 
 cef_ver = args['CEF_MAJOR']+'.'+args['BUILD']+'.'+cef_rev
 chromium_ver = args['MAJOR']+'.'+args['MINOR']+'.'+args['BUILD']+'.'+args['PATCH']
