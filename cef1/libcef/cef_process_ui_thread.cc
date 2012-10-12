@@ -11,6 +11,7 @@
 #include "libcef/browser_webkit_glue.h"
 #include "libcef/browser_webkit_init.h"
 #include "libcef/cef_context.h"
+#include "libcef/v8_impl.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -125,6 +126,13 @@ void CefProcessUIThread::Init() {
   if (settings.javascript_flags.length > 0) {
     // Pass the JavaScript flags to V8.
     webkit_glue::SetJavaScriptFlags(CefString(&settings.javascript_flags));
+  }
+
+  if (settings.uncaught_exception_stack_size > 0) {
+    v8::V8::AddMessageListener(&CefV8MessageHandler);
+    v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+        settings.uncaught_exception_stack_size,
+        v8::StackTrace::kDetailed);
   }
 
 #if defined(OS_WIN)

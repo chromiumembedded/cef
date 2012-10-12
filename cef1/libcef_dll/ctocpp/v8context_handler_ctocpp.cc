@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
+#include "libcef_dll/cpptoc/v8exception_cpptoc.h"
+#include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
 #include "libcef_dll/ctocpp/v8context_handler_ctocpp.h"
 
 
@@ -70,6 +72,45 @@ void CefV8ContextHandlerCToCpp::OnContextReleased(CefRefPtr<CefBrowser> browser,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefV8ContextCppToC::Wrap(context));
+}
+
+void CefV8ContextHandlerCToCpp::OnUncaughtException(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Exception> exception,
+    CefRefPtr<CefV8StackTrace> stackTrace) {
+  if (CEF_MEMBER_MISSING(struct_, on_uncaught_exception))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return;
+  // Verify param: context; type: refptr_diff
+  DCHECK(context.get());
+  if (!context.get())
+    return;
+  // Verify param: exception; type: refptr_diff
+  DCHECK(exception.get());
+  if (!exception.get())
+    return;
+  // Verify param: stackTrace; type: refptr_diff
+  DCHECK(stackTrace.get());
+  if (!stackTrace.get())
+    return;
+
+  // Execute
+  struct_->on_uncaught_exception(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefV8ContextCppToC::Wrap(context),
+      CefV8ExceptionCppToC::Wrap(exception),
+      CefV8StackTraceCppToC::Wrap(stackTrace));
 }
 
 

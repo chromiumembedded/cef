@@ -1460,3 +1460,28 @@ bool CefV8StackFrameImpl::IsConstructor() {
   v8::HandleScope handle_scope;
   return GetHandle()->IsConstructor();
 }
+
+void CefV8MessageHandler(v8::Handle<v8::Message> message,
+                         v8::Handle<v8::Value> data) {
+  CEF_REQUIRE_VALID_CONTEXT(void());
+  CEF_REQUIRE_UI_THREAD(void());
+
+  CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+  CefRefPtr<CefBrowser> browser = context->GetBrowser();
+  CefRefPtr<CefFrame> frame = context->GetFrame();
+
+  v8::Handle<v8::StackTrace> v8Stack = message->GetStackTrace();
+  DCHECK(!v8Stack.IsEmpty());
+  CefRefPtr<CefV8StackTrace> stackTrace = new CefV8StackTraceImpl(v8Stack);
+
+  CefRefPtr<CefClient> client = browser->GetClient();
+  if (!client.get())
+    return;
+
+  CefRefPtr<CefV8ContextHandler> handler = client->GetV8ContextHandler();
+  if (!handler.get())
+    return;
+
+  CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(message);
+  handler->OnUncaughtException(browser, frame, context, exception, stackTrace);
+}

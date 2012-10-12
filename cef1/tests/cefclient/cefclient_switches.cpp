@@ -35,6 +35,7 @@ const char kJavascriptFlags[] = "javascript-flags";
 const char kResourcesDirPath[] = "resources-dir-path";
 const char kLocalesDirPath[] = "locales-dir-path";
 const char kPackLoadingDisabled[] = "pack-loading-disabled";
+const char kUncaughtExceptionStackSize[] = "uncaught-exception-stack-size";
 
 // CefBrowserSettings attributes.
 const char kDragDropDisabled[] = "drag-drop-disabled";
