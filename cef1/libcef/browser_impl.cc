@@ -1621,6 +1621,7 @@ net::URLRequestContext* CefBrowserImpl::request_context_proxy() {
 
 void CefBrowserImpl::UIT_CreateDevToolsClient(BrowserDevToolsAgent *agent) {
   dev_tools_client_.reset(new BrowserDevToolsClient(this, agent));
+  _Context->UIT_DevToolsClientCreated();
 }
 
 void CefBrowserImpl::UIT_DestroyDevToolsClient() {
@@ -1628,6 +1629,7 @@ void CefBrowserImpl::UIT_DestroyDevToolsClient() {
     // Free the client. This will cause the client to clear pending messages
     // and detach from the agent.
     dev_tools_client_.reset();
+    _Context->UIT_DevToolsClientDestroyed();
   }
 }
 

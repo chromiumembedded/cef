@@ -5,6 +5,7 @@
 #include "include/cef_runnable.h"
 #include "include/cef_v8.h"
 #include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_suite.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // How to add a new test:
@@ -21,6 +22,8 @@ const char* kV8TestUrl = "http://tests/V8Test.Test";
 const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
 const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
 const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
+const char* kV8OnUncaughtExceptionTestUrl =
+    "http://tests/V8Test.OnUncaughtException";
 
 enum V8TestMode {
   V8TEST_NULL_CREATE = 0,
@@ -56,6 +59,8 @@ enum V8TestMode {
   V8TEST_CONTEXT_ENTERED,
   V8TEST_BINDING,
   V8TEST_STACK_TRACE,
+  V8TEST_ON_UNCAUGHT_EXCEPTION,
+  V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
 };
 
 
@@ -75,6 +80,17 @@ class V8TestHandler : public TestHandler {
       AddResource(kV8ContextChildTestUrl, "<html><body>CHILD</body></html>",
           "text/html");
       CreateBrowser(kV8ContextParentTestUrl);
+    } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+               test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      AddResource(kV8OnUncaughtExceptionTestUrl, "<html><body>"
+          "<h1>OnUncaughtException</h1>"
+          "<script>\n"
+          "function test(){ test2(); }\n"
+          "function test2(){ asd(); }\n"
+          "</script>\n"
+          "</body></html>\n",
+          "text/html");
+      CreateBrowser(kV8OnUncaughtExceptionTestUrl);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
       AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
@@ -183,6 +199,12 @@ class V8TestHandler : public TestHandler {
         break;
       case V8TEST_STACK_TRACE:
         RunStackTraceTest();
+        break;
+      case V8TEST_ON_UNCAUGHT_EXCEPTION:
+        RunOnUncaughtExceptionTest();
+        break;
+      case V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS:
+        RunOnUncaughtExceptionDevToolsTest();
         break;
       default:
         ADD_FAILURE();
@@ -1522,11 +1544,57 @@ class V8TestHandler : public TestHandler {
     DestroyTest();
   }
 
+  void RunOnUncaughtExceptionTest() {
+    on_uncaught_exception_context_ =
+        GetBrowser()->GetMainFrame()->GetV8Context();
+    GetBrowser()->GetMainFrame()->ExecuteJavaScript("test()",
+        CefString(), 0);
+  }
+
+  void RunOnUncaughtExceptionDevToolsTest() {
+    on_uncaught_exception_context_ =
+        GetBrowser()->GetMainFrame()->GetV8Context();
+    GetBrowser()->ShowDevTools();
+  }
+
+  void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Context> context,
+                           CefRefPtr<CefV8Exception> exception,
+                           CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE {
+    got_on_uncaught_exception_.yes();
+
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+        test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      EXPECT_TRUE(on_uncaught_exception_context_->IsSame(context));
+      EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
+          exception->GetMessage().ToString().c_str());
+      std::ostringstream stackFormatted;
+      for (int i = 0; i < stackTrace->GetFrameCount(); ++i)
+        stackFormatted << "at "
+            << stackTrace->GetFrame(i)->GetFunctionName().ToString()
+            << "() in " << stackTrace->GetFrame(i)->GetScriptName().ToString()
+            << " on line " << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
+      const char* stackFormattedShouldBe =
+          "at test2() in http://tests/V8Test.OnUncaughtException on line 3\n"
+          "at test() in http://tests/V8Test.OnUncaughtException on line 2\n"
+          "at () in  on line 0\n";
+      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
+      DestroyTest();
+    }
+  }
+
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
     if (frame->IsMain())
       RunTest(test_mode_);
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
+        browser->IsPopup()) {
+      GetBrowser()->CloseDevTools();
+      GetBrowser()->GetMainFrame()->ExecuteJavaScript("test()",
+          CefString(), 0);
+    }
   }
 
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
@@ -1586,6 +1654,16 @@ class V8TestHandler : public TestHandler {
     }
   }
 
+  virtual void DestroyTest() OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+        test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      EXPECT_TRUE(got_on_uncaught_exception_);
+    }
+
+    got_destroy_test_.yes();
+    TestHandler::DestroyTest();
+  }
+
   // Return the V8 context.
   CefRefPtr<CefV8Context> GetContext() {
     CefRefPtr<CefV8Context> context =
@@ -1596,6 +1674,10 @@ class V8TestHandler : public TestHandler {
 
   V8TestMode test_mode_;
   const char* test_url_;
+  CefRefPtr<CefV8Context> on_uncaught_exception_context_;
+
+  TrackCallback got_destroy_test_;
+  TrackCallback got_on_uncaught_exception_;
 };
 
 }  // namespace
@@ -1607,6 +1689,7 @@ class V8TestHandler : public TestHandler {
     CefRefPtr<V8TestHandler> handler = \
         new V8TestHandler(test_mode, test_url); \
     handler->ExecuteTest(); \
+    EXPECT_TRUE(handler->got_destroy_test_); \
   }
 
 #define V8_TEST(name, test_mode) \
@@ -1647,6 +1730,8 @@ V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
 V8_TEST(StackTrace, V8TEST_STACK_TRACE);
+V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION);
+V8_TEST(OnUncaughtExceptionDevTools, V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS);
 
 
 namespace {
@@ -1737,7 +1822,8 @@ TEST(V8Test, ExternalMemoryAllocation) {
   Test* test = new Test();
   CefRegisterExtension("v8/externalMemory", test->GetExtensionCode(), test);
 
-  V8ExternalMemTestHandler* test_handler = new V8ExternalMemTestHandler(test->GetTestCode());
+  V8ExternalMemTestHandler* test_handler =
+      new V8ExternalMemTestHandler(test->GetTestCode());
   test_handler->ExecuteTest();
 
   ASSERT_TRUE(test->object_created_);
