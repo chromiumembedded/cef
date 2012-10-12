@@ -124,6 +124,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 
   settings.pack_loading_disabled =
       commandline_->HasSwitch(cefclient::kPackLoadingDisabled);
+
+  // Necessary for V8Test.OnUncaughtException tests.
+  settings.uncaught_exception_stack_size = 10;
 }
 
 // static

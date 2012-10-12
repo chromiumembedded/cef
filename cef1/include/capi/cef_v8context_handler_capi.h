@@ -71,6 +71,17 @@ typedef struct _cef_v8context_handler_t {
   void (CEF_CALLBACK *on_context_released)(
       struct _cef_v8context_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_frame_t* frame, struct _cef_v8context_t* context);
+
+  ///
+  // Called for global uncaught exceptions. Execution of this callback is
+  // disabled by default. To enable set
+  // CefSettings.uncaught_exception_stack_size > 0.
+  ///
+  void (CEF_CALLBACK *on_uncaught_exception)(
+      struct _cef_v8context_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, struct _cef_v8context_t* context,
+      struct _cef_v8exception_t* exception,
+      struct _cef_v8stack_trace_t* stackTrace);
 } cef_v8context_handler_t;
 
 

@@ -220,4 +220,8 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   DISALLOW_COPY_AND_ASSIGN(CefV8StackFrameImpl);
 };
 
+// Used to catch global exceptions.
+void CefV8MessageHandler(v8::Handle<v8::Message> message,
+                         v8::Handle<v8::Value> data);
+
 #endif  // CEF_LIBCEF_V8_IMPL_H_

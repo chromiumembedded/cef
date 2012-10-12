@@ -6,6 +6,7 @@
 #include "libcef/browser_devtools_scheme_handler.h"
 #include "libcef/browser_impl.h"
 #include "libcef/browser_webkit_glue.h"
+#include "libcef/v8_impl.h"
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -226,7 +227,8 @@ CefContext::CefContext()
     shutting_down_(false),
     request_context_(NULL),
     next_browser_id_(kNextBrowserIdReset),
-    current_webviewhost_(NULL) {
+    current_webviewhost_(NULL),
+    dev_tools_client_count_(0) {
 }
 
 CefContext::~CefContext() {
@@ -599,5 +601,22 @@ void CefContext::UIT_FinishShutdown(
 
     // Signal the browser shutdown event now.
     browser_shutdown_event->Signal();
+  }
+}
+
+void CefContext::UIT_DevToolsClientCreated() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  ++dev_tools_client_count_;
+}
+
+void CefContext::UIT_DevToolsClientDestroyed() {
+  DCHECK(CefThread::CurrentlyOn(CefThread::UI));
+  --dev_tools_client_count_;
+  if (dev_tools_client_count_ == 0) {
+    if (settings_.uncaught_exception_stack_size > 0) {
+      v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+          settings_.uncaught_exception_stack_size,
+          v8::StackTrace::kDetailed);
+    }
   }
 }

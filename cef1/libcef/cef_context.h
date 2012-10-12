@@ -96,6 +96,11 @@ class CefContext : public CefBase {
 
   static bool ImplementsThreadSafeReferenceCounting() { return true; }
 
+  // Keep count of DevTools windows, need to re-enable stack trace
+  // functionality for uncaught exceptions.
+  void UIT_DevToolsClientCreated();
+  void UIT_DevToolsClientDestroyed();
+
  private:
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
@@ -131,6 +136,8 @@ class CefContext : public CefBase {
   WebViewHost* current_webviewhost_;
 
   scoped_refptr<base::SequencedWorkerPool> blocking_pool_;
+
+  int dev_tools_client_count_;
 
   IMPLEMENT_REFCOUNTING(CefContext);
   IMPLEMENT_LOCKING(CefContext);

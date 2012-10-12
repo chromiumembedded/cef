@@ -87,7 +87,7 @@ class TestHandler : public CefClient,
  protected:
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
-  void DestroyTest();
+  virtual void DestroyTest();
 
   void CreateBrowser(const CefString& url);
 

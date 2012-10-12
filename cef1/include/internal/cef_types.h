@@ -210,6 +210,14 @@ typedef struct _cef_settings_t {
   // is disabled.
   ///
   bool pack_loading_disabled;
+
+  ///
+  // The number of stack trace frames to capture for uncaught exceptions.
+  // Specify a positive value to enable the CefV8ContextHandler::
+  // OnUncaughtException() callback. Specify 0 (default value) and
+  // OnUncaughtException() will not be called.
+  ///
+  int uncaught_exception_stack_size;
 } cef_settings_t;
 
 ///
