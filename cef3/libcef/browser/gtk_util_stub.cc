@@ -4,7 +4,7 @@
 
 #include <gtk/gtk.h>
 
-#include "ui/base/events.h"
+#include "ui/base/events/event.h"
 
 // This file includes a selection of methods copied from
 // chrome/browser/ui/gtk/gtk_util.cc.
