@@ -31,6 +31,7 @@ class TrackCallback {
 // Base implementation of CefClient for unit tests. Add new interfaces as needed
 // by test cases.
 class TestHandler : public CefClient,
+                    public CefDialogHandler,
                     public CefDisplayHandler,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
@@ -44,6 +45,9 @@ class TestHandler : public CefClient,
   virtual void RunTest() =0;
 
   // CefClient methods. Add new methods as needed by test cases.
+  virtual CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE {
+    return this;
+  }
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
     return this;
   }
@@ -81,7 +85,7 @@ class TestHandler : public CefClient,
  protected:
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
-  void DestroyTest();
+  virtual void DestroyTest();
 
   void CreateBrowser(const CefString& url);
 

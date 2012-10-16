@@ -262,10 +262,6 @@ void RunPopupTest(CefRefPtr<CefBrowser> browser) {
       "window.open('http://www.google.com');", "about:blank", 0);
 }
 
-void RunDialogTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/dialogs");
-}
-
 void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefWebPluginInfoVisitor {
    public:

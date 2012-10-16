@@ -69,7 +69,7 @@ BEGIN
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "JavaScript Binding",          ID_TESTS_BINDING
-        MENUITEM "JavaScript Dialogs",          ID_TESTS_DIALOGS
+        MENUITEM "Dialogs",                     ID_TESTS_DIALOGS
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
         MENUITEM "DOM Access",                  ID_TESTS_DOM_ACCESS
         MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE

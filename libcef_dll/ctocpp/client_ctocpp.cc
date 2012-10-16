@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
@@ -39,6 +40,19 @@ CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
 
   // Return type: refptr_same
   return CefContextMenuHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefDialogHandler> CefClientCToCpp::GetDialogHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_dialog_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_dialog_handler_t* _retval = struct_->get_dialog_handler(struct_);
+
+  // Return type: refptr_same
+  return CefDialogHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {

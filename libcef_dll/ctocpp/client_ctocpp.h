@@ -33,6 +33,7 @@ class CefClientCToCpp
 
   // CefClient methods
   virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE;
+  virtual CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE;
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE;
   virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE;
   virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE;

@@ -31,9 +31,6 @@ class CefDownloadManagerDelegate
   virtual void UpdateItemInPersistentStore(
       content::DownloadItem* item) OVERRIDE;
 
-  static FilePath PlatformChooseDownloadPath(content::WebContents* web_contents,
-                                             const FilePath& suggested_path);
-
  private:
   friend class base::RefCountedThreadSafe<CefDownloadManagerDelegate>;
 

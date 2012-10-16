@@ -17,7 +17,10 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
+#include "grit/ui_strings.h"
+#include "net/base/mime_util.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/rect.h"
 
 
@@ -76,18 +79,127 @@ NSMutableArray* GetFileTypesFromAcceptTypes(
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {
-        [acceptArray addObject:base::SysUTF8ToNSString(ascii_type)];
+        [acceptArray addObject:base::SysUTF8ToNSString(ascii_type.substr(1))];
       } else {
-        // Otherwise convert mime to UTI.
-        NSString* mimeType = base::SysUTF8ToNSString(ascii_type);
-        NSString* UTI = [NSMakeCollectable(
-            UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType,
-                (CFStringRef) mimeType, NULL)) autorelease];
-        [acceptArray addObject:UTI];
+        // Otherwise convert mime type to one or more extensions.
+        std::vector<FilePath::StringType> ext;
+        net::GetExtensionsForMimeType(ascii_type, &ext);
+        for (size_t x = 0; x < ext.size(); ++x)
+          [acceptArray addObject:base::SysUTF8ToNSString(ext[x])];
       }
     }
   }
   return acceptArray;
+}
+
+void RunOpenFileDialog(const content::FileChooserParams& params,
+                       NSView* view,
+                       std::vector<FilePath>* files) {
+  NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+  
+  string16 title;
+  if (!params.title.empty()) {
+    title = params.title;
+  } else {
+    title = l10n_util::GetStringUTF16(
+        params.mode == content::FileChooserParams::Open ?
+            IDS_OPEN_FILE_DIALOG_TITLE : IDS_OPEN_FILES_DIALOG_TITLE);
+  }
+  [openPanel setTitle:base::SysUTF16ToNSString(title)];
+
+  // Consider default file name if any.
+  FilePath default_file_name(params.default_file_name);
+
+  if (!default_file_name.empty()) {
+    if (!default_file_name.BaseName().empty()) {
+      NSString* defaultName = base::SysUTF8ToNSString(
+          default_file_name.BaseName().value());
+      [openPanel setNameFieldStringValue:defaultName];
+    }
+
+    if (!default_file_name.DirName().empty()) {
+      NSString* defaultDir = base::SysUTF8ToNSString(
+          default_file_name.DirName().value());
+      [openPanel setDirectoryURL:[NSURL fileURLWithPath:defaultDir]];
+    }
+  }
+
+  // Consider supported file types
+  if (!params.accept_types.empty()) {
+    [openPanel setAllowedFileTypes:GetFileTypesFromAcceptTypes(
+        params.accept_types)];
+  }
+
+  // Further panel configuration.
+  [openPanel setAllowsOtherFileTypes:YES];
+  [openPanel setAllowsMultipleSelection:
+      (params.mode == content::FileChooserParams::OpenMultiple)];
+  [openPanel setCanChooseFiles:YES];
+  [openPanel setCanChooseDirectories:NO];
+
+  // Show panel.
+  [openPanel beginSheetModalForWindow:[view window] completionHandler:nil];
+  if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+    NSArray *urls = [openPanel URLs];
+    int i, count = [urls count];
+    for (i=0; i<count; i++) {
+      NSURL* url = [urls objectAtIndex:i];
+      if ([url isFileURL])
+        files->push_back(FilePath(base::SysNSStringToUTF8([url path])));
+    }
+  }
+  [NSApp endSheet:openPanel];
+}
+
+bool RunSaveFileDialog(const content::FileChooserParams& params,
+                       NSView* view,
+                       FilePath* file) {
+  NSSavePanel* savePanel = [NSSavePanel savePanel];
+  
+  string16 title;
+  if (!params.title.empty())
+    title = params.title;
+  else
+    title = l10n_util::GetStringUTF16(IDS_SAVE_AS_DIALOG_TITLE);
+  [savePanel setTitle:base::SysUTF16ToNSString(title)];
+
+  // Consider default file name if any.
+  FilePath default_file_name(params.default_file_name);
+
+  if (!default_file_name.empty()) {
+    if (!default_file_name.BaseName().empty()) {
+      NSString* defaultName = base::SysUTF8ToNSString(
+          default_file_name.BaseName().value());
+      [savePanel setNameFieldStringValue:defaultName];
+    }
+
+    if (!default_file_name.DirName().empty()) {
+      NSString* defaultDir = base::SysUTF8ToNSString(
+          default_file_name.DirName().value());
+      [savePanel setDirectoryURL:[NSURL fileURLWithPath:defaultDir]];
+    }
+  }
+
+  // Consider supported file types
+  if (!params.accept_types.empty()) {
+    [savePanel setAllowedFileTypes:GetFileTypesFromAcceptTypes(
+        params.accept_types)];
+  }
+
+  [savePanel setAllowsOtherFileTypes:YES];
+
+  bool success = false;
+
+  [savePanel beginSheetModalForWindow:[view window] completionHandler:nil];
+  if ([savePanel runModal] == NSFileHandlingPanelOKButton) {
+    NSURL * url = [savePanel URL];
+    NSString* path = [url path];
+    *file = FilePath([path UTF8String]);
+    success = true;
+  }
+  [NSApp endSheet:savePanel];
+
+  return success;
 }
 
 }  // namespace
@@ -186,56 +298,22 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(
-    content::WebContents* contents,
     const content::FileChooserParams& params,
-    std::vector<FilePath>& files) {
-  NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-  if (!params.title.empty())
-    [openPanel setTitle:base::SysUTF16ToNSString(params.title)];
+    RunFileChooserCallback callback) {
+  std::vector<FilePath> files;
 
-  // Consider default file name if any.
-  FilePath default_file_name(params.default_file_name);
-
-  if (!default_file_name.empty()) {
-    if (!default_file_name.BaseName().empty()) {
-      NSString* defaultName = base::SysUTF8ToNSString(
-          default_file_name.BaseName().value());
-      [openPanel setNameFieldStringValue:defaultName];
-    }
-
-    if (!default_file_name.DirName().empty()) {
-      NSString* defaultDir = base::SysUTF8ToNSString(
-          default_file_name.DirName().value());
-      [openPanel setDirectoryURL:[NSURL fileURLWithPath:defaultDir]];
-    }
+  if (params.mode == content::FileChooserParams::Open ||
+      params.mode == content::FileChooserParams::OpenMultiple) {
+    RunOpenFileDialog(params, PlatformGetWindowHandle(), &files);
+  } else if (params.mode == content::FileChooserParams::Save) {
+    FilePath file;
+    if (RunSaveFileDialog(params, PlatformGetWindowHandle(), &file))
+      files.push_back(file);
+  }  else {
+    NOTIMPLEMENTED();
   }
 
-  // Consider supported file types
-  if (!params.accept_types.empty()) {
-    [openPanel setAllowedFileTypes:GetFileTypesFromAcceptTypes(
-        params.accept_types)];
-  }
-
-  // Further panel configuration.
-  [openPanel setAllowsOtherFileTypes:YES];
-  [openPanel setAllowsMultipleSelection:
-      (params.mode == content::FileChooserParams::OpenMultiple)];
-  [openPanel setCanChooseFiles:YES];
-  [openPanel setCanChooseDirectories:NO];
-
-  // Show panel.
-  NSView* view = contents->GetNativeView();
-  [openPanel beginSheetModalForWindow:[view window] completionHandler:nil];
-  if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
-    NSArray *urls = [openPanel URLs];
-    int i, count = [urls count];
-    for (i=0; i<count; i++) {
-      NSURL* url = [urls objectAtIndex:i];
-      if ([url isFileURL])
-        files.push_back(FilePath(base::SysNSStringToUTF8([url path])));
-    }
-  }
-  [NSApp endSheet:openPanel];
+  callback.Run(files);
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
