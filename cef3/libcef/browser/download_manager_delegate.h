@@ -32,10 +32,11 @@ class CefDownloadManagerDelegate
  private:
   friend class base::RefCountedThreadSafe<CefDownloadManagerDelegate>;
 
-  virtual ~CefDownloadManagerDelegate();
+  void ChooseDownloadPathCallback(
+      content::DownloadItem* item,
+      const std::vector<FilePath>& file_paths);
 
-  FilePath PlatformChooseDownloadPath(content::WebContents* web_contents,
-                                      const FilePath& suggested_path);
+  virtual ~CefDownloadManagerDelegate();
 
   DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);
 };

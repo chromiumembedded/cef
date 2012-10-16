@@ -13,6 +13,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
@@ -242,7 +243,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"JavaScript Binding"
                       action:@selector(testBinding:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"JavaScript Dialogs"
+  [testMenu addItemWithTitle:@"Dialogs"
                       action:@selector(testDialogs:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
@@ -409,7 +410,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
 - (IBAction)testDialogs:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunDialogTest(g_handler->GetBrowser());
+    dialog_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPluginInfo:(id)sender {

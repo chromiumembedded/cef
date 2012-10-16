@@ -10,8 +10,15 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
+#include "base/threading/thread_restrictions.h"
+#include "base/utf_string_conversions.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/common/file_chooser_params.h"
 #include "content/public/common/renderer_preferences.h"
+#include "grit/cef_strings.h"
+#include "grit/ui_strings.h"
+#include "net/base/mime_util.h"
+#include "ui/base/l10n/l10n_util.h"
 
 namespace {
 
@@ -23,6 +30,183 @@ void DestroyBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
 void window_destroyed(GtkWidget* widget, CefBrowserHostImpl* browser) {
   // Destroy the browser host after window destruction is complete.
   CEF_POST_TASK(CEF_UIT, base::Bind(DestroyBrowser, browser));
+}
+
+std::string GetDescriptionFromMimeType(const std::string& mime_type) {
+  // Check for wild card mime types and return an appropriate description.
+  static const struct {
+    const char* mime_type;
+    int string_id;
+  } kWildCardMimeTypes[] = {
+    { "audio", IDS_APP_AUDIO_FILES },
+    { "image", IDS_APP_IMAGE_FILES },
+    { "text", IDS_APP_TEXT_FILES },
+    { "video", IDS_APP_VIDEO_FILES },
+  };
+
+  for (size_t i = 0;
+       i < sizeof(kWildCardMimeTypes) / sizeof(kWildCardMimeTypes[0]); ++i) {
+    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
+      return l10n_util::GetStringUTF8(kWildCardMimeTypes[i].string_id);
+  }
+
+  return std::string();
+}
+
+void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
+                              const std::vector<string16>& accept_types,
+                              bool include_all_files) {
+  bool has_filter = false;
+
+  for (size_t i = 0; i < accept_types.size(); ++i) {
+    std::string ascii_type = UTF16ToASCII(accept_types[i]);
+    if (ascii_type.length()) {
+      // Just treat as extension if contains '.' as the first character.
+      if (ascii_type[0] == '.') {
+        GtkFileFilter* filter = gtk_file_filter_new();
+        std::string pattern = "*" + ascii_type;
+        gtk_file_filter_add_pattern(filter, pattern.c_str());
+        gtk_file_filter_set_name(filter, pattern.c_str());
+        gtk_file_chooser_add_filter(chooser, filter);
+        if (!has_filter)
+          has_filter = true;
+      } else {
+        // Otherwise convert mime type to one or more extensions.
+        GtkFileFilter* filter = NULL;
+        std::string description = GetDescriptionFromMimeType(ascii_type);
+        bool description_from_ext = description.empty();
+
+        std::vector<FilePath::StringType> ext;
+        net::GetExtensionsForMimeType(ascii_type, &ext);
+        for (size_t x = 0; x < ext.size(); ++x) {
+          if (!filter)
+            filter = gtk_file_filter_new();
+          std::string pattern = "*." + ext[x];
+          gtk_file_filter_add_pattern(filter, pattern.c_str());
+
+          if (description_from_ext) {
+            if (x != 0)
+              description += ";";
+            description += pattern;
+          }
+        }
+
+        if (filter) {
+          gtk_file_filter_set_name(filter, description.c_str());
+          gtk_file_chooser_add_filter(chooser, filter);
+          if (!has_filter)
+            has_filter = true;
+        }
+      }
+    }
+  }
+
+  // Add the *.* filter, but only if we have added other filters (otherwise it
+  // is implied).
+  if (include_all_files && has_filter) {
+    GtkFileFilter* filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*");
+    gtk_file_filter_set_name(filter,
+        l10n_util::GetStringUTF8(IDS_SAVEAS_ALL_FILES).c_str());
+    gtk_file_chooser_add_filter(chooser, filter);
+  }
+}
+
+bool RunFileDialog(const content::FileChooserParams& params,
+                   CefWindowHandle widget,
+                   std::vector<FilePath>* files) {
+  GtkFileChooserAction action;
+  const gchar* accept_button;
+  if (params.mode == content::FileChooserParams::Open ||
+      params.mode == content::FileChooserParams::OpenMultiple) {
+    action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    accept_button = GTK_STOCK_OPEN;
+  } else if (params.mode == content::FileChooserParams::Save) {
+    action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    accept_button = GTK_STOCK_SAVE;
+  } else {
+    NOTREACHED();
+    return false;
+  }
+
+  // Consider default file name if any.
+  FilePath default_file_name(params.default_file_name);
+
+  std::string base_name;
+  if (!default_file_name.empty())
+    base_name = default_file_name.BaseName().value();
+
+  std::string title;
+  if (!params.title.empty()) {
+    title = UTF16ToUTF8(params.title);
+  } else {
+    int string_id = 0;
+    switch (params.mode) {
+      case content::FileChooserParams::Open:
+        string_id = IDS_OPEN_FILE_DIALOG_TITLE;
+        break;
+      case content::FileChooserParams::OpenMultiple:
+        string_id = IDS_OPEN_FILES_DIALOG_TITLE;
+        break;
+      case content::FileChooserParams::Save:
+        string_id = IDS_SAVE_AS_DIALOG_TITLE;
+        break;
+      default:
+        break;
+    }
+    title = l10n_util::GetStringUTF8(string_id);
+  }
+
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(widget));
+  GtkWidget* dialog = gtk_file_chooser_dialog_new(
+      title.c_str(),
+      GTK_WINDOW(window),
+      action,
+      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+      accept_button, GTK_RESPONSE_ACCEPT,
+      NULL);
+
+  if (params.mode == content::FileChooserParams::OpenMultiple) {
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+  } else if (params.mode == content::FileChooserParams::Save) {
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),
+                                                   TRUE);
+  }
+
+  if (params.mode == content::FileChooserParams::Save && !base_name.empty()) {
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
+                                      base_name.c_str());
+  }
+
+  AddFiltersForAcceptTypes(GTK_FILE_CHOOSER(dialog), params.accept_types, true);
+
+  bool success = false;
+
+  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+    if (params.mode == content::FileChooserParams::Open ||
+        params.mode == content::FileChooserParams::Save) {
+      char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      files->push_back(FilePath(filename));
+      success = true;
+    } else if (params.mode == content::FileChooserParams::OpenMultiple) {
+      GSList* filenames =
+          gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
+      if (filenames) {
+        for (GSList* iter = filenames; iter != NULL;
+             iter = g_slist_next(iter)) {
+          FilePath path(static_cast<char*>(iter->data));
+          g_free(iter->data);
+          files->push_back(path);
+        }
+        g_slist_free(filenames);
+        success = true;
+      }
+    }
+  }
+
+  gtk_widget_destroy(dialog);
+
+  return success;
 }
 
 }  // namespace
@@ -133,10 +317,21 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(
-    content::WebContents* contents,
     const content::FileChooserParams& params,
-    std::vector<FilePath>& files) {
-  NOTIMPLEMENTED();
+    RunFileChooserCallback callback) {
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+
+  std::vector<FilePath> files;
+
+  if (params.mode == content::FileChooserParams::Open ||
+      params.mode == content::FileChooserParams::OpenMultiple ||
+      params.mode == content::FileChooserParams::Save) {
+    ::RunFileDialog(params, PlatformGetWindowHandle(), &files);
+  } else {
+    NOTIMPLEMENTED();
+  }
+
+  callback.Run(files);
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {

@@ -17,6 +17,7 @@
 #include "cefclient/cefclient.h"
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
@@ -491,6 +492,8 @@ void ClientHandler::CreateProcessMessageDelegates(
       ProcessMessageDelegateSet& delegates) {
   // Create the binding test delegates.
   binding_test::CreateProcessMessageDelegates(delegates);
+  // Create the dialog test delegates.
+  dialog_test::CreateProcessMessageDelegates(delegates);
 }
 
 // static

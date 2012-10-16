@@ -107,6 +107,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefString GetDevToolsURL(bool http_scheme) OVERRIDE;
   virtual double GetZoomLevel() OVERRIDE;
   virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
+  virtual void RunFileDialog(
+      FileDialogMode mode,
+      const CefString& title,
+      const CefString& default_file_name,
+      const std::vector<CefString>& accept_types,
+      CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -197,6 +203,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
 #endif
 
   void OnSetFocus(cef_focus_source_t source);
+
+  // The argument vector will be empty if the dialog was cancelled.
+  typedef base::Callback<void(const std::vector<FilePath>&)>
+      RunFileChooserCallback;
+
+  // Run the file chooser dialog specified by |params|. Only a single dialog may
+  // be pending at any given time. |callback| will be executed asynchronously
+  // after the dialog is dismissed or if another dialog is already pending.
+  void RunFileChooser(const content::FileChooserParams& params,
+                      const RunFileChooserCallback& callback);
 
  private:
   // content::WebContentsDelegate methods.
@@ -336,13 +352,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // processing of shortcut keys.
   void PlatformHandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event);
-  // Invoke platform specific file open chooser.
-  void PlatformRunFileChooser(
-      content::WebContents* contents,
-      const content::FileChooserParams& params,
-      std::vector<FilePath>& files);
   // Invoke platform specific handling for the external protocol.
   void PlatformHandleExternalProtocol(const GURL& url);
+  // Invoke platform specific file chooser dialog.
+  void PlatformRunFileChooser(const content::FileChooserParams& params,
+                              RunFileChooserCallback callback);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);
@@ -355,6 +369,19 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    const string16& error_description);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url);
+
+  // Continuation from RunFileChooser.
+  void RunFileChooserOnUIThread(const content::FileChooserParams& params,
+                                const RunFileChooserCallback& callback);
+
+  // Used with RunFileChooser to clear the |file_chooser_pending_| flag.
+  void OnRunFileChooserCallback(const RunFileChooserCallback& callback,
+                                const std::vector<FilePath>& file_paths);
+
+  // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
+  void OnRunFileChooserDelegateCallback(
+      content::WebContents* tab,
+      const std::vector<FilePath>& file_paths);
 
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
@@ -424,6 +451,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for creating and managing context menus.
   scoped_ptr<CefMenuCreator> menu_creator_;
+
+  // True if a file chooser is currently pending.
+  bool file_chooser_pending_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

@@ -13,6 +13,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -82,6 +83,14 @@ gboolean SchemeHandlerActivated(GtkWidget* widget) {
 gboolean BindingActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     binding_test::RunTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Dialogs... menu item.
+gboolean DialogsActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    dialog_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -250,6 +259,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(SchemeHandlerActivated));
   AddMenuEntry(debug_menu, "JavaScript Binding",
                G_CALLBACK(BindingActivated));
+  AddMenuEntry(debug_menu, "Dialogs",
+               G_CALLBACK(DialogsActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "DOM Access",

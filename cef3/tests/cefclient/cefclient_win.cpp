@@ -15,6 +15,7 @@
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
@@ -389,7 +390,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         return 0;
       case ID_TESTS_DIALOGS:  // Test JavaScript dialogs
         if (browser.get())
-          RunDialogTest(browser);
+          dialog_test::RunTest(browser);
         return 0;
       case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())

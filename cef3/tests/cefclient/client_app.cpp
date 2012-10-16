@@ -329,8 +329,13 @@ bool ClientApp::OnProcessMessageReceived(
         std::make_pair(message_name.ToString(),
                        browser->GetIdentifier()));
     if (it != callback_map_.end()) {
+      // Keep a local reference to the objects. The callback may remove itself
+      // from the callback map.
+      CefRefPtr<CefV8Context> context = it->second.first;
+      CefRefPtr<CefV8Value> callback = it->second.second;
+
       // Enter the context.
-      it->second.first->Enter();
+      context->Enter();
 
       CefV8ValueList arguments;
 
@@ -344,15 +349,14 @@ bool ClientApp::OnProcessMessageReceived(
       arguments.push_back(args);
 
       // Execute the callback.
-      CefRefPtr<CefV8Value> retval =
-          it->second.second->ExecuteFunction(NULL, arguments);
+      CefRefPtr<CefV8Value> retval = callback->ExecuteFunction(NULL, arguments);
       if (retval.get()) {
         if (retval->IsBool())
           handled = retval->GetBoolValue();
       }
 
       // Exit the context.
-      it->second.first->Exit();
+      context->Exit();
     }
   }
 

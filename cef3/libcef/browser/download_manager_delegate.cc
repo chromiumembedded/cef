@@ -20,6 +20,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_params.h"
 #include "net/base/net_util.h"
 
 using content::DownloadItem;
@@ -229,20 +230,31 @@ bool CefDownloadManagerDelegate::ShouldStartDownload(int32 download_id) {
 
 void CefDownloadManagerDelegate::ChooseDownloadPath(
     content::DownloadItem* item) {
-  FilePath result;
-#if defined(OS_WIN) || defined(OS_MACOSX)
-  WebContents* web_contents = item->GetWebContents();
   const FilePath suggested_path(item->GetTargetFilePath());
-  result = PlatformChooseDownloadPath(web_contents, suggested_path);
-#else
-  NOTIMPLEMENTED();
-#endif
 
-  scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
-  if (result.empty()) {
-    manager->FileSelectionCanceled(item->GetId());
+  WebContents* web_contents = item->GetWebContents();
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (browser.get()) {
+    content::FileChooserParams params;
+    params.mode = content::FileChooserParams::Save;
+    if (!suggested_path.empty()) {
+      params.default_file_name = suggested_path;
+      if (!suggested_path.Extension().empty()) {
+        params.accept_types.push_back(
+            CefString(suggested_path.Extension()));
+      }
+    }
+
+    browser->RunFileChooser(params,
+        base::Bind(
+            &CefDownloadManagerDelegate::ChooseDownloadPathCallback, this,
+            item));
   } else {
-    manager->FileSelected(result, item->GetId());
+    std::vector<FilePath> file_paths;
+    if (!suggested_path.empty())
+      file_paths.push_back(suggested_path);
+    ChooseDownloadPathCallback(item, file_paths);
   }
 }
 
@@ -268,5 +280,18 @@ void CefDownloadManagerDelegate::UpdateItemInPersistentStore(
     handler->OnDownloadUpdated(browser.get(), download_item.get(), callback);
 
     download_item->Detach(NULL);
+  }
+}
+
+void CefDownloadManagerDelegate::ChooseDownloadPathCallback(
+    content::DownloadItem* item,
+    const std::vector<FilePath>& file_paths) {
+  DCHECK_LE(file_paths.size(), (size_t) 1);
+
+  scoped_refptr<content::DownloadManager> manager = GetDownloadManager();
+  if (file_paths.empty()) {
+    manager->FileSelectionCanceled(item->GetId());
+  } else {
+    manager->FileSelected(file_paths.front(), item->GetId());
   }
 }

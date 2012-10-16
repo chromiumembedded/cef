@@ -242,6 +242,7 @@
         'tests/cefclient/client_switches.h',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
+        'tests/unittests/dialog_unittest.cc',
         'tests/unittests/dom_unittest.cc',
         'tests/unittests/jsdialog_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
@@ -747,6 +748,7 @@
         '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/public',
         # CEF grit resource includes
         '<(grit_out_dir)',
+        '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
       ],
       'dependencies': [
         '<(DEPTH)/content/content.gyp:content_app',
@@ -930,7 +932,6 @@
             '<@(includes_win)',
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
-            'libcef/browser/download_manager_delegate_win.cc',
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
@@ -953,7 +954,6 @@
             'libcef/browser/application_mac.mm',
             'libcef/browser/browser_host_impl_mac.mm',
             'libcef/browser/browser_main_mac.mm',
-            'libcef/browser/download_manager_delegate_mac.mm',
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',

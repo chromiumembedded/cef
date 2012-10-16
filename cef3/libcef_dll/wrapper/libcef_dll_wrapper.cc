@@ -35,6 +35,7 @@
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
+#include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
@@ -49,6 +50,7 @@
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
@@ -73,6 +75,7 @@
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
@@ -168,11 +171,13 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefDOMEventListenerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDOMNodeCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDOMVisitorCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefDialogHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDictionaryValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDisplayHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDownloadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDownloadItemCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDownloadItemCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefFileDialogCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefFocusHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationCallbackCToCpp::DebugObjCt, 0);
@@ -192,6 +197,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefRequestHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefResourceBundleHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefResourceHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefRunFileDialogCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeRegistrarCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCToCpp::DebugObjCt, 0);

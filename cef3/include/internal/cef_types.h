@@ -1307,6 +1307,26 @@ enum cef_dom_node_type_t {
   DOM_NODE_TYPE_XPATH_NAMESPACE,
 };
 
+///
+// Supported file dialog modes.
+///
+enum cef_file_dialog_mode_t {
+  ///
+  // Requires that the file exists before allowing the user to pick it.
+  ///
+  FILE_DIALOG_OPEN = 0,
+
+  ///
+  // Like Open, but allows picking multiple files to open.
+  ///
+  FILE_DIALOG_OPEN_MULTIPLE,
+
+  ///
+  // Allows picking a nonexistent file, and prompts to overwrite if the file
+  // already exists.
+  ///
+  FILE_DIALOG_SAVE,
+};
 
 #ifdef __cplusplus
 }

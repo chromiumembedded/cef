@@ -56,4 +56,8 @@ void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
 void TestProcessMessageEqual(CefRefPtr<CefProcessMessage> val1,
                              CefRefPtr<CefProcessMessage> val2);
 
+// Test if two CefString vectors are equal.
+void TestStringVectorEqual(const std::vector<CefString>& val1,
+                           const std::vector<CefString>& val2);
+
 #endif  // CEF_TESTS_UNITTESTS_TEST_UTIL_H_
