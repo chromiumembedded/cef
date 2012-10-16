@@ -20,6 +20,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_params.h"
 #include "net/base/net_util.h"
 
 using content::DownloadItem;
@@ -135,23 +136,54 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     if (!item)
       return;
 
-    FilePath result;
+    bool handled = false;
+
     if (show_dialog) {
-#if defined(OS_WIN) || defined(OS_MACOSX) || defined(TOOLKIT_GTK)
       WebContents* web_contents = item->GetWebContents();
-      result = CefDownloadManagerDelegate::PlatformChooseDownloadPath(
-          web_contents, suggested_path);
-#else
-      NOTIMPLEMENTED();
-#endif
-    } else {
-      result = suggested_path;
+      CefRefPtr<CefBrowserHostImpl> browser =
+          CefBrowserHostImpl::GetBrowserForContents(web_contents);
+      if (browser.get()) {
+        handled = true;
+
+        content::FileChooserParams params;
+        params.mode = content::FileChooserParams::Save;
+        if (!suggested_path.empty()) {
+          params.default_file_name = suggested_path;
+          if (!suggested_path.Extension().empty()) {
+            params.accept_types.push_back(
+                CefString(suggested_path.Extension()));
+          }
+        }
+
+        browser->RunFileChooser(params,
+            base::Bind(
+                &CefBeforeDownloadCallbackImpl::ChooseDownloadPathCallback,
+                callback));
+      }
     }
 
-    callback.Run(result,
+    if (!handled) {
+      callback.Run(suggested_path,
+                   DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                   content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+                   suggested_path);
+    }
+  }
+
+  static void ChooseDownloadPathCallback(
+      const content::DownloadTargetCallback& callback,
+      const std::vector<FilePath>& file_paths) {
+    DCHECK_LE(file_paths.size(), (size_t) 1);
+
+    FilePath path;
+    if (file_paths.size() > 0)
+      path = file_paths.front();
+
+    // The download will be cancelled if |path| is empty.
+    callback.Run(path,
                  DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                  content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-                 result);
+                 path);
   }
 
   int32 download_id_;

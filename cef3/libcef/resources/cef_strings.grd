@@ -162,6 +162,18 @@ need to be translated for each locale.-->
       <message name="IDS_MENU_VIEW_SOURCE" desc="The text label for the View Source... menu item.">
         View Source...
       </message>
+      <message name="IDS_APP_AUDIO_FILES" desc="The text label for the Audio Files filter in file open/save dialogs.">
+        Audio Files
+      </message>
+      <message name="IDS_APP_IMAGE_FILES" desc="The text label for the Image Files filter in file open/save dialogs.">
+        Image Files
+      </message>
+      <message name="IDS_APP_TEXT_FILES" desc="The text label for the Text Files filter in file open/save dialogs.">
+        Text Files
+      </message>
+      <message name="IDS_APP_VIDEO_FILES" desc="The text label for the Video Files filter in file open/save dialogs.">
+        Video Files
+      </message>
     </messages>
   </release>
 </grit>
