@@ -56,6 +56,11 @@ class CefFrameHostImpl : public CefFrame {
   void SetName(const CefString& name);
   void SetParentId(int64 frame_id);
 
+  // Avoids unnecessary string type conversions.
+  void SendJavaScript(const std::string& jsCode,
+                      const std::string& scriptUrl,
+                      int startLine);
+
   // Detach the frame from the browser.
   void Detach();
 

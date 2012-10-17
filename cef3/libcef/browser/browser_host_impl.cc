@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/navigate_params.h"
@@ -651,21 +652,14 @@ void CefBrowserHostImpl::GetFrameNames(std::vector<CefString>& names) {
 bool CefBrowserHostImpl::SendProcessMessage(
     CefProcessId target_process,
     CefRefPtr<CefProcessMessage> message) {
-  DCHECK_EQ(PID_RENDERER, target_process);
   DCHECK(message.get());
 
   Cef_Request_Params params;
   CefProcessMessageImpl* impl =
       static_cast<CefProcessMessageImpl*>(message.get());
   if (impl->CopyTo(params)) {
-    DCHECK(!params.name.empty());
-
-    params.frame_id = -1;
-    params.user_initiated = true;
-    params.request_id = -1;
-    params.expect_response = false;
-
-    return Send(new CefMsg_Request(routing_id(), params));
+    return SendProcessMessage(target_process, params.name, &params.arguments,
+                              true);
   }
 
   return false;
@@ -836,8 +830,8 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
   }
 }
 
-void CefBrowserHostImpl::LoadString(int64 frame_id, const CefString& string,
-                                    const CefString& url) {
+void CefBrowserHostImpl::LoadString(int64 frame_id, const std::string& string,
+                                    const std::string& url) {
   // Only known frame ids or kMainFrameId are supported.
   DCHECK(frame_id >= CefFrameHostImpl::kMainFrameId);
 
@@ -848,15 +842,15 @@ void CefBrowserHostImpl::LoadString(int64 frame_id, const CefString& string,
   params.request_id = -1;
   params.expect_response = false;
 
-  params.arguments.Append(base::Value::CreateStringValue(string.ToString16()));
-  params.arguments.Append(base::Value::CreateStringValue(url.ToString16()));
+  params.arguments.Append(base::Value::CreateStringValue(string));
+  params.arguments.Append(base::Value::CreateStringValue(url));
 
   Send(new CefMsg_Request(routing_id(), params));
 }
 
 void CefBrowserHostImpl::SendCommand(
     int64 frame_id,
-    const CefString& command,
+    const std::string& command,
     CefRefPtr<CefResponseManager::Handler> responseHandler) {
   // Only known frame ids are supported.
   DCHECK(frame_id > CefFrameHostImpl::kMainFrameId);
@@ -877,8 +871,7 @@ void CefBrowserHostImpl::SendCommand(
       params.expect_response = false;
     }
 
-    params.arguments.Append(
-        base::Value::CreateStringValue(command.ToString16()));
+    params.arguments.Append(base::Value::CreateStringValue(command));
 
     Send(new CefMsg_Request(routing_id(), params));
   } else {
@@ -891,8 +884,8 @@ void CefBrowserHostImpl::SendCommand(
 void CefBrowserHostImpl::SendCode(
     int64 frame_id,
     bool is_javascript,
-    const CefString& code,
-    const CefString& script_url,
+    const std::string& code,
+    const std::string& script_url,
     int script_start_line,
     CefRefPtr<CefResponseManager::Handler> responseHandler) {
   // Only known frame ids are supported.
@@ -916,9 +909,8 @@ void CefBrowserHostImpl::SendCode(
     }
 
     params.arguments.Append(base::Value::CreateBooleanValue(is_javascript));
-    params.arguments.Append(base::Value::CreateStringValue(code.ToString16()));
-    params.arguments.Append(
-        base::Value::CreateStringValue(script_url.ToString16()));
+    params.arguments.Append(base::Value::CreateStringValue(code));
+    params.arguments.Append(base::Value::CreateStringValue(script_url));
     params.arguments.Append(base::Value::CreateIntegerValue(script_start_line));
 
     Send(new CefMsg_Request(routing_id(), params));
@@ -927,6 +919,25 @@ void CefBrowserHostImpl::SendCode(
         base::Bind(&CefBrowserHostImpl::SendCode, this, frame_id, is_javascript,
                    code, script_url, script_start_line, responseHandler));
   }
+}
+
+bool CefBrowserHostImpl::SendProcessMessage(CefProcessId target_process,
+                                            const std::string& name,
+                                            base::ListValue* arguments,
+                                            bool user_initiated) {
+  DCHECK_EQ(PID_RENDERER, target_process);
+  DCHECK(!name.empty());
+
+  Cef_Request_Params params;
+  params.name = name;
+  if (arguments)
+    params.arguments.Swap(arguments);
+  params.frame_id = -1;
+  params.user_initiated = user_initiated;
+  params.request_id = -1;
+  params.expect_response = false;
+
+  return Send(new CefMsg_Request(routing_id(), params));
 }
 
 bool CefBrowserHostImpl::ViewText(const std::string& text) {
@@ -1433,6 +1444,8 @@ void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
                                                   message.get());
       message->Detach(NULL);
     }
+  } else if (params.name == scheme::kChromeProcessMessage) {
+    scheme::OnChromeProcessMessage(this, params.arguments);
   } else {
     // Invalid request.
     NOTREACHED();

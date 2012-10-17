@@ -444,6 +444,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           browser->GetHost()->SetZoomLevel(0.0);
         return 0;
+      case ID_TESTS_BEGIN_TRACING:
+        g_handler->BeginTracing();
+        return 0;
+      case ID_TESTS_END_TRACING:
+        g_handler->EndTracing();
+        return 0;
       }
       break;
     }

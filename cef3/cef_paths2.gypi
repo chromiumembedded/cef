@@ -13,6 +13,7 @@
       'include/cef_pack_resources.h',
       'include/cef_pack_strings.h',
       'include/cef_runnable.h',
+      'include/cef_trace_event.h',
       'include/cef_version.h',
       'include/internal/cef_build.h',
       'include/internal/cef_export.h',
