@@ -167,17 +167,22 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void LoadURL(int64 frame_id, const std::string& url);
 
   // Load the specified string.
-  void LoadString(int64 frame_id, const CefString& string,
-                  const CefString& url);
+  void LoadString(int64 frame_id, const std::string& string,
+                  const std::string& url);
 
   // Send a command to the renderer for execution.
-  void SendCommand(int64 frame_id, const CefString& command,
+  void SendCommand(int64 frame_id, const std::string& command,
                    CefRefPtr<CefResponseManager::Handler> responseHandler);
 
   // Send code to the renderer for execution.
-  void SendCode(int64 frame_id, bool is_javascript, const CefString& code,
-                const CefString& script_url, int script_start_line,
+  void SendCode(int64 frame_id, bool is_javascript, const std::string& code,
+                const std::string& script_url, int script_start_line,
                 CefRefPtr<CefResponseManager::Handler> responseHandler);
+
+  bool SendProcessMessage(CefProcessId target_process,
+                          const std::string& name,
+                          base::ListValue* arguments,
+                          bool user_initiated);
 
   // Open the specified text in the default text editor.
   bool ViewText(const std::string& text);

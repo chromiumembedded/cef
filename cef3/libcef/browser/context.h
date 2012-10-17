@@ -30,6 +30,7 @@ class CefBrowserContext;
 class CefBrowserHostImpl;
 class CefDevToolsDelegate;
 class CefMainDelegate;
+class CefTraceSubscriber;
 
 class CefContext : public CefBase {
  public:
@@ -69,6 +70,8 @@ class CefContext : public CefBase {
   CefBrowserContext* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 
+  CefTraceSubscriber* GetTraceSubscriber();
+
  private:
   void OnContextInitialized();
 
@@ -98,6 +101,7 @@ class CefContext : public CefBase {
 
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;
+  scoped_ptr<CefTraceSubscriber> trace_subscriber_;
 
   IMPLEMENT_REFCOUNTING(CefContext);
   IMPLEMENT_LOCKING(CefContext);

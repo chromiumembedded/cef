@@ -153,16 +153,7 @@ void CefFrameHostImpl::LoadString(const CefString& string,
 void CefFrameHostImpl::ExecuteJavaScript(const CefString& jsCode,
                                          const CefString& scriptUrl,
                                          int startLine) {
-  if (jsCode.empty())
-    return;
-  if (startLine < 0)
-    startLine = 0;
-
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_) {
-    browser_->SendCode((is_main_frame_ ? kMainFrameId : frame_id_), true,
-                       jsCode, scriptUrl, startLine, NULL);
-  }
+  SendJavaScript(jsCode, scriptUrl, startLine);
 }
 
 bool CefFrameHostImpl::IsMain() {
@@ -232,6 +223,22 @@ CefRefPtr<CefV8Context> CefFrameHostImpl::GetV8Context() {
 
 void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   NOTREACHED() << "VisitDOM cannot be called from the browser process";
+}
+
+void CefFrameHostImpl::SendJavaScript(
+    const std::string& jsCode,
+    const std::string& scriptUrl,
+    int startLine) {
+  if (jsCode.empty())
+    return;
+  if (startLine < 0)
+    startLine = 0;
+
+  base::AutoLock lock_scope(state_lock_);
+  if (browser_) {
+    browser_->SendCode((is_main_frame_ ? kMainFrameId : frame_id_), true,
+                       jsCode, scriptUrl, startLine, NULL);
+  }
 }
 
 void CefFrameHostImpl::Detach() {

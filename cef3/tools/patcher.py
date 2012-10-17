@@ -69,6 +69,11 @@ else:
               dir = patch['path']
               patchObj = from_file(file)
               patchObj.apply(dir)
+              if 'note' in patch:
+                  separator = '-' * 79 + '\n'
+                  sys.stderr.write(separator)
+                  sys.stderr.write('NOTE: '+patch['note']+'\n')
+                  sys.stderr.write(separator)
 
 # read the current include file, if any
 incfile = patchdir + 'patch_state.h'

@@ -190,6 +190,22 @@ gboolean ZoomResetActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Debug > Begin Tracing menu item.
+gboolean BeginTracingActivated(GtkWidget* widget) {
+  if (g_handler.get())
+    g_handler->BeginTracing();
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > End Tracing menu item.
+gboolean EndTracingActivated(GtkWidget* widget) {
+  if (g_handler.get())
+    g_handler->EndTracing();
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for when you click the back button.
 void BackButtonClicked(GtkButton* button) {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -283,6 +299,10 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(ZoomOutActivated));
   AddMenuEntry(debug_menu, "Zoom Reset",
                G_CALLBACK(ZoomResetActivated));
+  AddMenuEntry(debug_menu, "Begin Tracing",
+               G_CALLBACK(BeginTracingActivated));
+  AddMenuEntry(debug_menu, "End Tracing",
+               G_CALLBACK(EndTracingActivated));
   return menu_bar;
 }
 

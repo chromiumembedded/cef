@@ -22,6 +22,8 @@
 #include "include/capi/cef_scheme_capi.h"
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
+#include "include/cef_trace.h"
+#include "include/capi/cef_trace_capi.h"
 #include "include/cef_url.h"
 #include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
@@ -54,6 +56,7 @@
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
+#include "libcef_dll/cpptoc/trace_client_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -204,6 +207,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefStreamWriterCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStringVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefTraceClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8AccessorCppToC::DebugObjCt, 0);
@@ -406,6 +410,41 @@ CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
       threadId,
       CefTaskCppToC::Wrap(task),
       delay_ms);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
+    const CefString& categories) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: client, categories
+
+  // Execute
+  int _retval = cef_begin_tracing(
+      CefTraceClientCppToC::Wrap(client),
+      categories.GetStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefGetTraceBufferPercentFullAsync() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_get_trace_buffer_percent_full_async();
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefEndTracingAsync() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_end_tracing_async();
 
   // Return type: bool
   return _retval?true:false;

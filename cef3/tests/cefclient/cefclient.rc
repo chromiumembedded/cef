@@ -83,6 +83,8 @@ BEGIN
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
         MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
         MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET
+        MENUITEM "Begin Tracing",               ID_TESTS_BEGIN_TRACING
+        MENUITEM "End Tracing",                 ID_TESTS_END_TRACING
    END
 END
 

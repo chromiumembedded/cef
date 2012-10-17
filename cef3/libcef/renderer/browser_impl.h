@@ -81,6 +81,12 @@ class CefBrowserImpl : public CefBrowser,
 
   void LoadRequest(const CefMsg_LoadRequest_Params& params);
 
+  // Avoids unnecessary string type conversions.
+  bool SendProcessMessage(CefProcessId target_process,
+                          const std::string& name,
+                          base::ListValue* arguments,
+                          bool user_initiated);
+
   // Returns the matching CefFrameImpl reference or creates a new one.
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(WebKit::WebFrame* frame);
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64 frame_id);

@@ -7,6 +7,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/chrome_bindings.h"
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
@@ -170,16 +171,6 @@ void CefContentRendererClient::RenderViewCreated(
 void CefContentRendererClient::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (!application.get())
-    return;
-
-  CefRefPtr<CefRenderProcessHandler> handler =
-      application->GetRenderProcessHandler();
-  if (!handler.get())
-    return;
-
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->top());
   DCHECK(browserPtr.get());
@@ -193,7 +184,16 @@ void CefContentRendererClient::DidCreateScriptContext(
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
-  handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
+  scheme::OnContextCreated(browserPtr, framePtr, contextPtr);
+
+  // Notify the render process handler.
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get())
+      handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
+  }
 }
 
 void CefContentRendererClient::WillReleaseScriptContext(

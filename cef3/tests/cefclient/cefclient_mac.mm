@@ -207,6 +207,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
+- (IBAction)testBeginTracing:(id)sender;
+- (IBAction)testEndTracing:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -281,6 +283,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom Reset"
                       action:@selector(testZoomReset:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Begin Tracing"
+                      action:@selector(testBeginTracing:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"End Tracing"
+                      action:@selector(testEndTracing:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -474,6 +482,15 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   }
 }
 
+- (IBAction)testBeginTracing:(id)sender {
+  if (g_handler.get())
+    g_handler->BeginTracing();
+}
+
+- (IBAction)testEndTracing:(id)sender {
+  if (g_handler.get())
+    g_handler->EndTracing();
+}
 
 // Sent by the default notification center immediately before the application
 // terminates.

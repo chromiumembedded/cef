@@ -10,6 +10,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/main_delegate.h"
 
 #include "base/bind.h"
@@ -356,6 +357,15 @@ CefDevToolsDelegate* CefContext::devtools_delegate() const {
       devtools_delegate();
 }
 
+CefTraceSubscriber* CefContext::GetTraceSubscriber() {
+  CEF_REQUIRE_UIT();
+  if (shutting_down_)
+    return NULL;
+  if (!trace_subscriber_.get())
+    trace_subscriber_.reset(new CefTraceSubscriber());
+  return trace_subscriber_.get();
+}
+
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
@@ -392,6 +402,9 @@ void CefContext::FinishShutdownOnUIThread(
     for (; it != list.end(); ++it)
       (*it)->DestroyBrowser();
   }
+
+  if (trace_subscriber_.get())
+    trace_subscriber_.reset(NULL);
 
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();

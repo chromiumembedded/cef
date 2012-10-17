@@ -22,6 +22,8 @@
 #include "include/capi/cef_scheme_capi.h"
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
+#include "include/cef_trace.h"
+#include "include/capi/cef_trace_capi.h"
 #include "include/cef_url.h"
 #include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
@@ -88,6 +90,7 @@
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
+#include "libcef_dll/ctocpp/trace_client_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -212,6 +215,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefStreamWriterCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefStringVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefTraceClientCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestClientCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8AccessorCToCpp::DebugObjCt, 0);
@@ -423,6 +427,41 @@ CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
       threadId,
       CefTaskCToCpp::Wrap(task),
       delay_ms);
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_begin_tracing(struct _cef_trace_client_t* client,
+    const cef_string_t* categories) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: client, categories
+
+  // Execute
+  bool _retval = CefBeginTracing(
+      CefTraceClientCToCpp::Wrap(client),
+      CefString(categories));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_get_trace_buffer_percent_full_async() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefGetTraceBufferPercentFullAsync();
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_end_tracing_async() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefEndTracingAsync();
 
   // Return type: bool
   return _retval;

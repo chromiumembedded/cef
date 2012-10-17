@@ -1,0 +1,13 @@
+Index: DEPS
+===================================================================
+--- DEPS	(revision 162531)
++++ DEPS	(working copy)
+@@ -265,7 +265,7 @@
+    'src/third_party/webpagereplay':
+       'http://web-page-replay.googlecode.com/svn/trunk@476',
+    'src/third_party/trace-viewer':
+-      'http://trace-viewer.googlecode.com/svn/trunk@26',
++      'http://trace-viewer.googlecode.com/svn/trunk@168',
+    'src/seccompsandbox':
+       'http://seccompsandbox.googlecode.com/svn/trunk@186',
+    'src/third_party/WebKit/LayoutTests':
