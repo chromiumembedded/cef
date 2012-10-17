@@ -234,21 +234,12 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
 
 bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
                                         CefRefPtr<CefProcessMessage> message) {
-  DCHECK_EQ(PID_BROWSER, target_process);
-  DCHECK(message.get());
-
   Cef_Request_Params params;
   CefProcessMessageImpl* impl =
       static_cast<CefProcessMessageImpl*>(message.get());
   if (impl->CopyTo(params)) {
-    DCHECK(!params.name.empty());
-
-    params.frame_id = -1;
-    params.user_initiated = true;
-    params.request_id = -1;
-    params.expect_response = false;
-
-    return Send(new CefHostMsg_Request(routing_id(), params));
+    return SendProcessMessage(target_process, params.name, &params.arguments,
+                              true);
   }
 
   return false;
@@ -340,6 +331,25 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
   }
 
   web_frame->loadRequest(request);
+}
+
+bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
+                                        const std::string& name,
+                                        base::ListValue* arguments,
+                                        bool user_initiated) {
+  DCHECK_EQ(PID_BROWSER, target_process);
+  DCHECK(!name.empty());
+
+  Cef_Request_Params params;
+  params.name = name;
+  if (arguments)
+    params.arguments.Swap(arguments);
+  params.frame_id = -1;
+  params.user_initiated = user_initiated;
+  params.request_id = -1;
+  params.expect_response = false;
+
+  return Send(new CefHostMsg_Request(routing_id(), params));
 }
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
@@ -597,7 +607,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         DCHECK_EQ(params.arguments.GetSize(), (size_t)4);
 
         bool is_javascript = false;
-        string16 code, script_url;
+        std::string code, script_url;
         int script_start_line = 0;
 
         params.arguments.GetBoolean(0, &is_javascript);
@@ -609,8 +619,8 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
 
         if (is_javascript) {
           web_frame->executeScript(
-              WebScriptSource(code,
-                              GURL(UTF16ToUTF8(script_url)),
+              WebScriptSource(UTF8ToUTF16(code),
+                              GURL(script_url),
                               script_start_line));
           success = true;
         } else {
@@ -627,7 +637,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
       if (web_frame) {
         DCHECK_EQ(params.arguments.GetSize(), (size_t)1);
 
-        string16 command;
+        std::string command;
 
         params.arguments.GetString(0, &command);
         DCHECK(!command.empty());
@@ -638,7 +648,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         } else if (LowerCaseEqualsASCII(command, "gettext")) {
           response = UTF16ToUTF8(webkit_glue::DumpDocumentText(web_frame));
           success = true;
-        } else if (web_frame->executeCommand(command)) {
+        } else if (web_frame->executeCommand(UTF8ToUTF16(command))) {
           success = true;
         }
       }
@@ -651,12 +661,12 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
       if (web_frame) {
         DCHECK_EQ(params.arguments.GetSize(), (size_t)2);
 
-        string16 string, url;
+        std::string string, url;
 
         params.arguments.GetString(0, &string);
         params.arguments.GetString(1, &url);
 
-        web_frame->loadHTMLString(UTF16ToUTF8(string), GURL(UTF16ToUTF8(url)));
+        web_frame->loadHTMLString(string, GURL(url));
       }
     }
   } else {

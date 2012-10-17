@@ -291,7 +291,7 @@ CefString CefDictionaryValueImpl::GetString(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
   const base::Value* out_value = NULL;
-  string16 ret_value;
+  std::string ret_value;
 
   if (const_value().GetWithoutPathExpansion(key, &out_value))
     out_value->GetAsString(&ret_value);
@@ -392,7 +392,7 @@ bool CefDictionaryValueImpl::SetString(const CefString& key,
   CEF_VALUE_VERIFY_RETURN(true, false);
   RemoveInternal(key);
   mutable_value()->SetWithoutPathExpansion(key,
-      base::Value::CreateStringValue(value.ToString16()));
+      base::Value::CreateStringValue(value.ToString()));
   return true;
 }
 
@@ -630,7 +630,7 @@ CefString CefListValueImpl::GetString(int index) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
   const base::Value* out_value = NULL;
-  string16 ret_value;
+  std::string ret_value;
 
   if (const_value().Get(index, &out_value))
     out_value->GetAsString(&ret_value);
@@ -735,7 +735,7 @@ bool CefListValueImpl::SetDouble(int index, double value) {
 
 bool CefListValueImpl::SetString(int index, const CefString& value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  base::Value* new_value = base::Value::CreateStringValue(value.ToString16());
+  base::Value* new_value = base::Value::CreateStringValue(value.ToString());
   if (RemoveInternal(index))
     mutable_value()->Insert(index, new_value);
   else

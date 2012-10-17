@@ -7,8 +7,14 @@
 #pragma once
 
 #include <string>
+#include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_process_message.h"
 #include "googleurl/src/gurl.h"
+
+namespace base {
+class ListValue;
+}
 
 namespace content {
 class BrowserContext;
@@ -18,6 +24,7 @@ namespace scheme {
 
 extern const char kChromeScheme[];
 extern const char kChromeURL[];
+extern const char kChromeProcessMessage[];
 
 // Register the chrome scheme handler.
 void RegisterChromeHandler();
@@ -29,6 +36,10 @@ bool WillHandleBrowserAboutURL(GURL* url,
 // Used to fire any asynchronous content updates.
 void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
                          const GURL& validated_url);
+
+// Used to execute messages from render process bindings.
+void OnChromeProcessMessage(CefRefPtr<CefBrowser> browser,
+                            const base::ListValue& arguments);
 
 }  // namespace scheme
 

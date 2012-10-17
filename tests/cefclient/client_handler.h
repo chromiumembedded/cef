@@ -214,6 +214,11 @@ class ClientHandler : public CefClient,
   // Create an external browser window that loads the specified URL.
   static void LaunchExternalBrowser(const std::string& url);
 
+  void BeginTracing();
+  void EndTracing();
+
+  bool Save(const std::string& path, const std::string& data);
+
  protected:
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);

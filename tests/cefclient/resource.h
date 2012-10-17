@@ -44,6 +44,8 @@
 #define ID_TESTS_ZOOM_IN                32777
 #define ID_TESTS_ZOOM_OUT               32778
 #define ID_TESTS_ZOOM_RESET             32779
+#define ID_TESTS_BEGIN_TRACING          32780
+#define ID_TESTS_END_TRACING            32781
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001

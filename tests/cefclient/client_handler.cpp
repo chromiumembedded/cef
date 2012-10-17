@@ -12,6 +12,7 @@
 #include "include/cef_path_util.h"
 #include "include/cef_process_util.h"
 #include "include/cef_runnable.h"
+#include "include/cef_trace.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
@@ -485,6 +486,80 @@ void ClientHandler::LaunchExternalBrowser(const std::string& url) {
     CefPostTask(TID_PROCESS_LAUNCHER,
         NewCefRunnableFunction(&ClientHandler::LaunchExternalBrowser, url));
   }
+}
+
+void ClientHandler::BeginTracing() {
+  if (CefCurrentlyOn(TID_UI)) {
+    class Client : public CefTraceClient,
+                   public CefRunFileDialogCallback {
+     public:
+      explicit Client(CefRefPtr<ClientHandler> handler)
+          : handler_(handler),
+            trace_data_("{\"traceEvents\":["),
+            first_(true) {
+      }
+
+      virtual void OnTraceDataCollected(const char* fragment,
+                                        size_t fragment_size) OVERRIDE {
+        if (first_)
+          first_ = false;
+        else
+          trace_data_.append(",");
+        trace_data_.append(fragment, fragment_size);
+      }
+
+      virtual void OnEndTracingComplete() OVERRIDE {
+        REQUIRE_UI_THREAD();
+        trace_data_.append("]}");
+
+        static const char kDefaultFileName[] = "trace.txt";
+        std::string path = handler_->GetDownloadPath(kDefaultFileName);
+        if (path.empty())
+          path = kDefaultFileName;
+
+        handler_->GetBrowser()->GetHost()->RunFileDialog(
+            FILE_DIALOG_SAVE, CefString(), path, std::vector<CefString>(),
+            this);
+      }
+
+      virtual void OnFileDialogDismissed(
+          CefRefPtr<CefBrowserHost> browser_host,
+          const std::vector<CefString>& file_paths) OVERRIDE {
+        if (!file_paths.empty())
+          handler_->Save(file_paths.front(), trace_data_);
+      }
+
+     private:
+      CefRefPtr<ClientHandler> handler_;
+      std::string trace_data_;
+      bool first_;
+
+      IMPLEMENT_REFCOUNTING(Callback);
+    };
+
+    CefBeginTracing(new Client(this), CefString());
+  } else {
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &ClientHandler::BeginTracing));
+  }
+}
+
+void ClientHandler::EndTracing() {
+  if (CefCurrentlyOn(TID_UI)) {
+    CefEndTracingAsync();
+  } else {
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &ClientHandler::BeginTracing));
+  }
+}
+
+bool ClientHandler::Save(const std::string& path, const std::string& data) {
+  FILE* f = fopen(path.c_str(), "w");
+  if (!f)
+    return false;
+  fwrite(data.c_str(), data.size(), 1, f);
+  fclose(f);
+  return true;
 }
 
 // static
