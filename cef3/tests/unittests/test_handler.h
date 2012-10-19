@@ -33,6 +33,7 @@ class TrackCallback {
 class TestHandler : public CefClient,
                     public CefDialogHandler,
                     public CefDisplayHandler,
+                    public CefGeolocationHandler,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
@@ -49,6 +50,9 @@ class TestHandler : public CefClient,
     return this;
   }
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {

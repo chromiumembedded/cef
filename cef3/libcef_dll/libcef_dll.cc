@@ -12,6 +12,8 @@
 
 #include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
+#include "include/cef_geolocation.h"
+#include "include/capi/cef_geolocation_capi.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/cef_path_util.h"
@@ -76,6 +78,7 @@
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/get_geolocation_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -193,6 +196,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefFrameCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefGeolocationHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefGetGeolocationCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefJSDialogHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefKeyboardHandlerCToCpp::DebugObjCt, 0);
@@ -253,6 +257,23 @@ CEF_EXPORT void cef_quit_message_loop() {
 
   // Execute
   CefQuitMessageLoop();
+}
+
+CEF_EXPORT int cef_get_geolocation(
+    struct _cef_get_geolocation_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
+
+  // Execute
+  bool _retval = CefGetGeolocation(
+      CefGetGeolocationCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
 }
 
 CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
