@@ -34,61 +34,33 @@
 // tools directory for more information.
 //
 
-#ifndef CEF_INCLUDE_CEF_GEOLOCATION_HANDLER_H_
-#define CEF_INCLUDE_CEF_GEOLOCATION_HANDLER_H_
+#ifndef CEF_INCLUDE_CEF_GEOLOCATION_H_
+#define CEF_INCLUDE_CEF_GEOLOCATION_H_
 #pragma once
 
 #include "include/cef_base.h"
-#include "include/cef_browser.h"
 
 ///
-// Callback interface used for asynchronous continuation of geolocation
-// permission requests.
-///
-/*--cef(source=library)--*/
-class CefGeolocationCallback : public virtual CefBase {
- public:
-  ///
-  // Call to allow or deny geolocation access.
-  ///
-  /*--cef(capi_name=cont)--*/
-  virtual void Continue(bool allow) =0;
-};
-
-
-///
-// Implement this interface to handle events related to geolocation permission
-// requests. The methods of this class will be called on the browser process UI
-// thread.
+// Implement this interface to receive geolocation updates. The methods of this
+// class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefGeolocationHandler : public virtual CefBase {
+class CefGetGeolocationCallback : public virtual CefBase {
  public:
   ///
-  // Called when a page requests permission to access geolocation information.
-  // |requesting_url| is the URL requesting permission and |request_id| is the
-  // unique ID for the permission request. Call CefGeolocationCallback::Continue
-  // to allow or deny the permission request.
+  // Called with the 'best available' location information or, if the location
+  // update failed, with error information.
   ///
   /*--cef()--*/
-  virtual void OnRequestGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
-      int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) {
-  }
-
-  ///
-  // Called when a geolocation access request is canceled. |requesting_url| is
-  // the URL that originally requested permission and |request_id| is the unique
-  // ID for the permission request.
-  ///
-  /*--cef()--*/
-  virtual void OnCancelGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
-      int request_id) {
-  }
+  virtual void OnLocationUpdate(const CefGeoposition& position) =0;
 };
 
-#endif  // CEF_INCLUDE_CEF_GEOLOCATION_HANDLER_H_
+///
+// Request a one-time geolocation update. This function bypasses any user
+// permission checks so should only be used by code that is allowed to access
+// location information.
+///
+/*--cef()--*/
+bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback);
+
+#endif  // CEF_INCLUDE_CEF_GEOLOCATION_H_

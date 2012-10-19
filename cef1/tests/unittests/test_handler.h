@@ -32,6 +32,7 @@ class TrackCallback {
 // by test cases.
 class TestHandler : public CefClient,
                     public CefDisplayHandler,
+                    public CefGeolocationHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
                     public CefRequestHandler,
@@ -46,6 +47,9 @@ class TestHandler : public CefClient,
 
   // CefClient methods. Add new methods as needed by test cases.
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {

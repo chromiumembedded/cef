@@ -178,7 +178,7 @@ void CefGeolocationClient::requestPermission(
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
   int bridge_id = pending_permissions_->add(permissionRequest);
-  string16 origin = permissionRequest.securityOrigin().toString();
+  GURL origin = GURL(permissionRequest.securityOrigin().toString());
 
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -188,8 +188,8 @@ void CefGeolocationClient::requestPermission(
       CefRefPtr<CefGeolocationCallbackImpl> callbackPtr(
           new CefGeolocationCallbackImpl(this, bridge_id));
 
-      handler->OnRequestGeolocationPermission(browser_, origin, bridge_id,
-          callbackPtr.get());
+      handler->OnRequestGeolocationPermission(browser_, origin.spec(),
+                                              bridge_id, callbackPtr.get());
       return;
     }
   }
@@ -205,14 +205,16 @@ void CefGeolocationClient::cancelPermissionRequest(
   int bridge_id;
   if (!pending_permissions_->remove(permissionRequest, bridge_id))
     return;
-  string16 origin = permissionRequest.securityOrigin().toString();
+  GURL origin = GURL(permissionRequest.securityOrigin().toString());
 
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefGeolocationHandler> handler =
         client->GetGeolocationHandler();
-    if (handler.get())
-      handler->OnCancelGeolocationPermission(browser_, origin, bridge_id);
+    if (handler.get()) {
+      handler->OnCancelGeolocationPermission(browser_, origin.spec(),
+                                             bridge_id);
+    }
   }
 }
 
