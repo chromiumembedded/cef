@@ -1118,6 +1118,74 @@ typedef struct _cef_proxy_info_t {
   cef_string_t proxyList;
 } cef_proxy_info_t;
 
+///
+// Geoposition error codes.
+///
+enum cef_geoposition_error_code_t {
+  GEOPOSITON_ERROR_NONE = 0,
+  GEOPOSITON_ERROR_PERMISSION_DENIED,
+  GEOPOSITON_ERROR_POSITION_UNAVAILABLE,
+  GEOPOSITON_ERROR_TIMEOUT,
+};
+
+///
+// Structure representing geoposition information. The properties of this
+// structure correspond to those of the JavaScript Position object although
+// their types may differ.
+///
+typedef struct _cef_geoposition_t {
+  ///
+  // Latitude in decimal degrees north (WGS84 coordinate frame).
+  ///
+  double latitude;
+
+  ///
+  // Longitude in decimal degrees west (WGS84 coordinate frame).
+  ///
+  double longitude;
+
+  ///
+  // Altitude in meters (above WGS84 datum).
+  ///
+  double altitude;
+
+  ///
+  // Accuracy of horizontal position in meters.
+  ///
+  double accuracy;
+
+  ///
+  // Accuracy of altitude in meters.
+  ///
+  double altitude_accuracy;
+
+  ///
+  // Heading in decimal degrees clockwise from true north.
+  ///
+  double heading;
+
+  ///
+  // Horizontal component of device velocity in meters per second.
+  ///
+  double speed;
+
+  ///
+  // Time of position measurement in miliseconds since Epoch in UTC time. This
+  // is taken from the host computer's system clock.
+  ///
+  cef_time_t timestamp;
+
+  ///
+  // Error code, see enum above.
+  ///
+  cef_geoposition_error_code_t error_code;
+
+  ///
+  // Human-readable error message.
+  ///
+  cef_string_t error_message;
+} cef_geoposition_t;
+
 #ifdef __cplusplus
 }
 #endif

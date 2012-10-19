@@ -38,16 +38,19 @@ class CefGeolocationClient
   friend class CefGeolocationCallbackImpl;
 
   // WebGeolocationClient methods.
-  virtual void geolocationDestroyed();
-  virtual void startUpdating();
-  virtual void stopUpdating();
-  virtual void setEnableHighAccuracy(bool enable_high_accuracy);
-  virtual void setController(WebKit::WebGeolocationController* controller);
-  virtual bool lastPosition(WebKit::WebGeolocationPosition& position);
+  virtual void geolocationDestroyed() OVERRIDE;
+  virtual void startUpdating() OVERRIDE;
+  virtual void stopUpdating() OVERRIDE;
+  virtual void setEnableHighAccuracy(bool enable_high_accuracy) OVERRIDE;
+  virtual void setController(
+      WebKit::WebGeolocationController* controller) OVERRIDE;
+  virtual bool lastPosition(WebKit::WebGeolocationPosition& position) OVERRIDE;
   virtual void requestPermission(
-      const WebKit::WebGeolocationPermissionRequest& permissionRequest);
+      const WebKit::WebGeolocationPermissionRequest& permissionRequest)
+      OVERRIDE;
   virtual void cancelPermissionRequest(
-      const WebKit::WebGeolocationPermissionRequest& permissionRequest);
+      const WebKit::WebGeolocationPermissionRequest& permissionRequest)
+      OVERRIDE;
 
   // Called to continue processing on the IO thread.
   void OnStartUpdating(bool enable_high_accuracy);
