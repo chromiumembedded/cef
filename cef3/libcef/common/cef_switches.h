@@ -11,7 +11,6 @@
 namespace switches {
 
 extern const char kProductVersion[];
-extern const char kLocale[];
 extern const char kLogFile[];
 extern const char kLogSeverity[];
 extern const char kLogSeverity_Verbose[];
