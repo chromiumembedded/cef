@@ -9,9 +9,6 @@ namespace switches {
 // Product version string.
 const char kProductVersion[]          = "product-version";
 
-// Locale string.
-const char kLocale[]                  = "locale";
-
 // Log file path.
 const char kLogFile[]                 = "log-file";
 

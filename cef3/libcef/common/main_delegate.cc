@@ -23,6 +23,7 @@
 #include "content/public/common/main_function_params.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
+#include "ui/base/ui_base_switches.h"
 
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
@@ -182,8 +183,10 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings.locale.length > 0) {
-      command_line->AppendSwitchASCII(switches::kLocale,
+      command_line->AppendSwitchASCII(switches::kLang,
           CefString(&settings.locale));
+    } else if (!command_line->HasSwitch(switches::kLang)) {
+      command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
     if (settings.log_file.length > 0) {
@@ -409,9 +412,8 @@ void CefMainDelegate::InitializeResourceBundle() {
       PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
 
-  std::string locale = command_line.GetSwitchValueASCII(switches::kLocale);
-  if (locale.empty())
-    locale = "en-US";
+  std::string locale = command_line.GetSwitchValueASCII(switches::kLang);
+  DCHECK(!locale.empty());
 
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(locale,
