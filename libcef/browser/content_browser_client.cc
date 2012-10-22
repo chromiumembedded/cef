@@ -32,6 +32,7 @@
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
 #include "googleurl/src/gurl.h"
+#include "ui/base/ui_base_switches.h"
 
 namespace {
 
@@ -273,7 +274,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kProductVersion,
-      switches::kLocale,
+      switches::kLang,
       switches::kResourcesDirPath,
       switches::kLocalesDirPath,
       switches::kPackLoadingDisabled,
