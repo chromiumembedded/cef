@@ -46,6 +46,7 @@
 #define ID_TESTS_ZOOM_RESET             32779
 #define ID_TESTS_BEGIN_TRACING          32780
 #define ID_TESTS_END_TRACING            32781
+#define ID_TESTS_PERFORMANCE            32782
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
@@ -54,6 +55,7 @@
 #define IDS_LOCALSTORAGE                1004
 #define IDS_XMLHTTPREQUEST              1005
 #define IDS_DOMACCESS                   1006
+#define IDS_PERFORMANCE                 1007
 
 // Avoid files associated with MacOS
 #define _X86_

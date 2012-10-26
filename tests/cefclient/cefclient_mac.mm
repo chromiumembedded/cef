@@ -15,6 +15,7 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -195,6 +196,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testXMLHttpRequest:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testBinding:(id)sender;
+- (IBAction)testPerformance:(id)sender;
 - (IBAction)testDialogs:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
@@ -244,6 +246,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Binding"
                       action:@selector(testBinding:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Performance Tests"
+                      action:@selector(testPerformance:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Dialogs"
                       action:@selector(testDialogs:)
@@ -414,6 +419,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testBinding:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     binding_test::RunTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testPerformance:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    performance_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testDialogs:(id)sender {
