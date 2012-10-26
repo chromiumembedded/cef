@@ -67,3 +67,27 @@ CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time) {
   cef_time_from_basetime(base_time, *cef_time);
   return 1;
 }
+
+CEF_EXPORT int cef_time_now(cef_time_t* cef_time) {
+  if (!cef_time)
+    return 0;
+
+  base::Time base_time = base::Time::Now();
+  cef_time_from_basetime(base_time, *cef_time);
+  return 1;
+}
+
+CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
+                              const cef_time_t* cef_time2,
+                              long long* delta) {
+  if (!cef_time1 || !cef_time2 || !delta)
+    return 0;
+
+  base::Time base_time1, base_time2;
+  cef_time_to_basetime(*cef_time1, base_time1);
+  cef_time_to_basetime(*cef_time2, base_time2);
+
+  base::TimeDelta time_delta = base_time2 - base_time1;
+  *delta = time_delta.InMilliseconds();
+  return 1;
+}

@@ -37,7 +37,7 @@ IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 IDS_DOMACCESS BINARY "res\\domaccess.html"
 IDS_MODALMAIN BINARY "res\\modalmain.html"
 IDS_MODALDIALOG BINARY "res\\modaldialog.html"
-IDS_EXTENSIONPERF BINARY "res\\extensionperf.html"
+IDS_PERFORMANCE BINARY "res\\performance.html"
 IDS_TRANSPARENCY BINARY "res\\transparency.html"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ BEGIN
         MENUITEM "Get Text",                    ID_TESTS_GETTEXT
         MENUITEM "JavaScript Binding Handler",  ID_TESTS_JAVASCRIPT_BINDING
         MENUITEM "JavaScript Extension Handler",ID_TESTS_JAVASCRIPT_EXTENSION
-        MENUITEM "JavaScript Extension Performance",ID_TESTS_JAVASCRIPT_PERFORMANCE
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "JavaScript Invoke",           ID_TESTS_JAVASCRIPT_INVOKE
+        MENUITEM "Performance Tests",           ID_TESTS_PERFORMANCE
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
         MENUITEM "Popup Window",                ID_TESTS_POPUP

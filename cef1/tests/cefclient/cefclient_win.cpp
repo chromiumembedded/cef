@@ -17,6 +17,7 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
 #include "cefclient/osrplugin_test.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/plugin_test.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
@@ -448,10 +449,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunExtensionTest(browser);
         return 0;
-      case ID_TESTS_JAVASCRIPT_PERFORMANCE:  // Test the V8 performance
-        if (browser.get())
-          RunExtensionPerfTest(browser);
-        return 0;
       case ID_TESTS_JAVASCRIPT_EXECUTE:  // Test execution of javascript
         if (browser.get())
           RunJavaScriptExecuteTest(browser);
@@ -459,6 +456,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_JAVASCRIPT_INVOKE:
         if (browser.get())
           RunJavaScriptInvokeTest(browser);
+        return 0;
+      case ID_TESTS_PERFORMANCE:  // Run performance tests
+        if (browser.get())
+          performance_test::RunTest(browser);
         return 0;
       case ID_TESTS_PLUGIN:  // Test the custom plugin
         if (browser.get())

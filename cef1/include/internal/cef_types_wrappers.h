@@ -499,6 +499,18 @@ class CefTime : public CefStructBase<CefTimeTraits> {
     cef_time_to_doublet(this, &time);
     return time;
   }
+
+  // Set this object to now.
+  void Now() {
+    cef_time_now(this);
+  }
+
+  // Return the delta between this object and |other| in milliseconds.
+  int64 Delta(const CefTime& other) {
+    int64 delta = 0;
+    cef_time_delta(this, &other, &delta);
+    return delta;
+  }
 };
 
 
