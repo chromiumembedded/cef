@@ -167,6 +167,20 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+int CEF_CALLBACK v8value_is_valid(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->IsValid();
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK v8value_is_undefined(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -903,6 +917,7 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function_with_context(
 
 CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
     : CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>(cls) {
+  struct_.struct_.is_valid = v8value_is_valid;
   struct_.struct_.is_undefined = v8value_is_undefined;
   struct_.struct_.is_null = v8value_is_null;
   struct_.struct_.is_bool = v8value_is_bool;

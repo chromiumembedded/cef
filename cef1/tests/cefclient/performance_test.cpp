@@ -13,7 +13,13 @@
 
 namespace performance_test {
 
+// Use more interations for a Release build.
+#ifdef NDEBUG
+const size_t kDefaultIterations = 100000;
+#else
 const size_t kDefaultIterations = 10000;
+#endif
+
 const char kTestUrl[] = "http://tests/performance";
 
 namespace {

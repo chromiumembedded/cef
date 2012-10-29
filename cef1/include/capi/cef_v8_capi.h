@@ -115,6 +115,12 @@ typedef struct _cef_v8context_t {
   cef_base_t base;
 
   ///
+  // Returns true (1) if this object is valid. Do not call any other functions
+  // if this function returns false (0).
+  ///
+  int (CEF_CALLBACK *is_valid)(struct _cef_v8context_t* self);
+
+  ///
   // Returns the browser for this context.
   ///
   struct _cef_browser_t* (CEF_CALLBACK *get_browser)(
@@ -313,6 +319,12 @@ typedef struct _cef_v8value_t {
   // Base structure.
   ///
   cef_base_t base;
+
+  ///
+  // Returns true (1) if this object is valid. Do not call any other functions
+  // if this function returns false (0).
+  ///
+  int (CEF_CALLBACK *is_valid)(struct _cef_v8value_t* self);
 
   ///
   // True if the value type is undefined.
@@ -709,6 +721,12 @@ typedef struct _cef_v8stack_trace_t {
   cef_base_t base;
 
   ///
+  // Returns true (1) if this object is valid. Do not call any other functions
+  // if this function returns false (0).
+  ///
+  int (CEF_CALLBACK *is_valid)(struct _cef_v8stack_trace_t* self);
+
+  ///
   // Returns the number of stack frames.
   ///
   int (CEF_CALLBACK *get_frame_count)(struct _cef_v8stack_trace_t* self);
@@ -737,6 +755,12 @@ typedef struct _cef_v8stack_frame_t {
   // Base structure.
   ///
   cef_base_t base;
+
+  ///
+  // Returns true (1) if this object is valid. Do not call any other functions
+  // if this function returns false (0).
+  ///
+  int (CEF_CALLBACK *is_valid)(struct _cef_v8stack_frame_t* self);
 
   ///
   // Returns the name of the resource script that contains the function.

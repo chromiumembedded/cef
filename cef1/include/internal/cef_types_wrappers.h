@@ -300,6 +300,7 @@ struct CefSettingsTraits {
         &target->locales_dir_path, copy);
     target->pack_loading_disabled = src->pack_loading_disabled;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
+    target->context_safety_implementation = src->context_safety_implementation;
   }
 };
 

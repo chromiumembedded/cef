@@ -218,6 +218,25 @@ typedef struct _cef_settings_t {
   // OnUncaughtException() will not be called.
   ///
   int uncaught_exception_stack_size;
+
+  ///
+  // By default CEF V8 references will be invalidated (the IsValid() method will
+  // return false) after the owning context has been released. This reduces the
+  // need for external record keeping and avoids crashes due to the use of V8
+  // references after the associated context has been released.
+  //
+  // CEF currently offers two context safety implementations with different
+  // performance characteristics. The default implementation (value of 0) uses a
+  // map of hash values and should provide better performance in situations with
+  // a small number contexts. The alternate implementation (value of 1) uses a
+  // hidden value attached to each context and should provide better performance
+  // in situations with a large number of contexts.
+  //
+  // If you need better performance in the creation of V8 references and you
+  // plan to manually track context lifespan you can disable context safety by
+  // specifying a value of -1.
+  ///
+  int context_safety_implementation;
 } cef_settings_t;
 
 ///

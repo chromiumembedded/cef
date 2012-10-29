@@ -141,6 +141,13 @@ class CefV8Context : public virtual CefBase {
   static bool InContext();
 
   ///
+  // Returns true if this object is valid. Do not call any other methods if this
+  // method returns false.
+  ///
+  /*--cef()--*/
+  virtual bool IsValid() =0;
+
+  ///
   // Returns the browser for this context.
   ///
   /*--cef()--*/
@@ -406,6 +413,13 @@ class CefV8Value : public virtual CefBase {
   /*--cef()--*/
   static CefRefPtr<CefV8Value> CreateFunction(const CefString& name,
                                               CefRefPtr<CefV8Handler> handler);
+
+  ///
+  // Returns true if this object is valid. Do not call any other methods if this
+  // method returns false.
+  ///
+  /*--cef()--*/
+  virtual bool IsValid() =0;
 
   ///
   // True if the value type is undefined.
@@ -755,6 +769,13 @@ class CefV8StackTrace : public virtual CefBase {
   static CefRefPtr<CefV8StackTrace> GetCurrent(int frame_limit);
 
   ///
+  // Returns true if this object is valid. Do not call any other methods if this
+  // method returns false.
+  ///
+  /*--cef()--*/
+  virtual bool IsValid() =0;
+
+  ///
   // Returns the number of stack frames.
   ///
   /*--cef()--*/
@@ -774,6 +795,13 @@ class CefV8StackTrace : public virtual CefBase {
 /*--cef(source=library)--*/
 class CefV8StackFrame : public virtual CefBase {
  public:
+  ///
+  // Returns true if this object is valid. Do not call any other methods if this
+  // method returns false.
+  ///
+  /*--cef()--*/
+  virtual bool IsValid() =0;
+
   ///
   // Returns the name of the resource script that contains the function.
   ///

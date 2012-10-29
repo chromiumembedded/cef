@@ -18,12 +18,13 @@
 namespace {
 
 // Unique values for V8 tests.
-const char* kV8TestUrl = "http://tests/V8Test.Test";
-const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
-const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
-const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
-const char* kV8OnUncaughtExceptionTestUrl =
+const char kV8TestUrl[] = "http://tests/V8Test.Test";
+const char kV8BindingTestUrl[] = "http://tests/V8Test.BindingTest";
+const char kV8ContextParentTestUrl[] = "http://tests/V8Test.ContextParentTest";
+const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
+const char kV8OnUncaughtExceptionTestUrl[] =
     "http://tests/V8Test.OnUncaughtException";
+const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
 
 enum V8TestMode {
   V8TEST_NULL_CREATE = 0,
@@ -57,6 +58,7 @@ enum V8TestMode {
   V8TEST_CONTEXT_EVAL,
   V8TEST_CONTEXT_EVAL_EXCEPTION,
   V8TEST_CONTEXT_ENTERED,
+  V8TEST_CONTEXT_INVALID,
   V8TEST_BINDING,
   V8TEST_STACK_TRACE,
   V8TEST_ON_UNCAUGHT_EXCEPTION,
@@ -73,11 +75,14 @@ class V8TestHandler : public TestHandler {
   }
 
   virtual void RunTest() OVERRIDE {
+    // Nested script tag forces creation of the V8 context.
     if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
-      AddResource(kV8ContextParentTestUrl, "<html><body><iframe src=\"" +
+      AddResource(kV8ContextParentTestUrl, "<html><body>"
+          "<script>var i = 0;</script><iframe src=\"" +
           std::string(kV8ContextChildTestUrl) + "\" id=\"f\"></iframe></body>"
           "</html>", "text/html");
-      AddResource(kV8ContextChildTestUrl, "<html><body>CHILD</body></html>",
+      AddResource(kV8ContextChildTestUrl, "<html><body>"
+          "<script>var i = 0;</script>CHILD</body></html>",
           "text/html");
       CreateBrowser(kV8ContextParentTestUrl);
     } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
@@ -92,8 +97,14 @@ class V8TestHandler : public TestHandler {
           "text/html");
       CreateBrowser(kV8OnUncaughtExceptionTestUrl);
     } else {
+      if (test_mode_ == V8TEST_CONTEXT_INVALID) {
+        AddResource(kV8NavTestUrl, "<html><body>"
+            "<script>var i = 0;</script>TEST</body></html>", "text/html");
+      }
+
       EXPECT_TRUE(test_url_ != NULL);
-      AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
+      AddResource(test_url_, "<html><body>"
+          "<script>var i = 0;</script>TEST</body></html>", "text/html");
       CreateBrowser(test_url_);
     }
   }
@@ -193,6 +204,10 @@ class V8TestHandler : public TestHandler {
         break;
       case V8TEST_CONTEXT_ENTERED:
         RunContextEnteredTest();
+        break;
+      case V8TEST_CONTEXT_INVALID:
+        // The test is triggered when the context is released.
+        GetBrowser()->GetMainFrame()->LoadURL(kV8NavTestUrl);
         break;
       case V8TEST_BINDING:
         RunBindingTest();
@@ -1545,14 +1560,14 @@ class V8TestHandler : public TestHandler {
   }
 
   void RunOnUncaughtExceptionTest() {
-    on_uncaught_exception_context_ =
+    test_context_ =
         GetBrowser()->GetMainFrame()->GetV8Context();
     GetBrowser()->GetMainFrame()->ExecuteJavaScript("test()",
         CefString(), 0);
   }
 
   void RunOnUncaughtExceptionDevToolsTest() {
-    on_uncaught_exception_context_ =
+    test_context_ =
         GetBrowser()->GetMainFrame()->GetV8Context();
     GetBrowser()->ShowDevTools();
   }
@@ -1566,7 +1581,7 @@ class V8TestHandler : public TestHandler {
 
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
         test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
-      EXPECT_TRUE(on_uncaught_exception_context_->IsSame(context));
+      EXPECT_TRUE(test_context_->IsSame(context));
       EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
           exception->GetMessage().ToString().c_str());
       std::ostringstream stackFormatted;
@@ -1587,7 +1602,8 @@ class V8TestHandler : public TestHandler {
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
-    if (frame->IsMain())
+    std::string url = frame->GetURL();
+    if (frame->IsMain() && url != kV8NavTestUrl)
       RunTest(test_mode_);
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
         browser->IsPopup()) {
@@ -1654,8 +1670,25 @@ class V8TestHandler : public TestHandler {
     }
   }
 
+  virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+    std::string url = frame->GetURL();
+    if (test_mode_ == V8TEST_CONTEXT_INVALID && url == test_url_) {
+      test_context_ = context;
+      test_object_ = CefV8Value::CreateArray(10);
+      CefPostTask(TID_UI,
+          NewCefRunnableMethod(this, &V8TestHandler::DestroyTest));
+    }
+  }
+
   virtual void DestroyTest() OVERRIDE {
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+    if (test_mode_ == V8TEST_CONTEXT_INVALID) {
+      // Verify that objects related to a particular context are not valid after
+      // OnContextReleased is called for that context.
+      EXPECT_FALSE(test_context_->IsValid());
+      EXPECT_FALSE(test_object_->IsValid());
+    } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
         test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       EXPECT_TRUE(got_on_uncaught_exception_);
     }
@@ -1674,7 +1707,8 @@ class V8TestHandler : public TestHandler {
 
   V8TestMode test_mode_;
   const char* test_url_;
-  CefRefPtr<CefV8Context> on_uncaught_exception_context_;
+  CefRefPtr<CefV8Context> test_context_;
+  CefRefPtr<CefV8Value> test_object_;
 
   TrackCallback got_destroy_test_;
   TrackCallback got_on_uncaught_exception_;
@@ -1728,6 +1762,7 @@ V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT);
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
+V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
 V8_TEST(StackTrace, V8TEST_STACK_TRACE);
 V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION);

@@ -3,6 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_suite.h"
+
+#include <cstdlib>
+
 #include "tests/cefclient/cefclient_switches.h"
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -15,6 +18,18 @@
 #include "base/process_util.h"
 #include "base/test/test_timeouts.h"
 #endif
+
+namespace {
+
+// Return the int representation of the specified string.
+int GetIntValue(const std::string& str) {
+  if (str.empty())
+    return 0;
+
+  return atoi(str.c_str());
+}
+
+}  // namespace
 
 CommandLine* CefTestSuite::commandline_ = NULL;
 
@@ -127,6 +142,10 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 
   // Necessary for V8Test.OnUncaughtException tests.
   settings.uncaught_exception_stack_size = 10;
+
+  settings.context_safety_implementation = GetIntValue(
+      commandline_->GetSwitchValueASCII(
+          cefclient::kContextSafetyImplementation));
 }
 
 // static
