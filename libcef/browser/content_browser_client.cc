@@ -277,6 +277,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to the renderer command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
+      switches::kContextSafetyImplementation,
       switches::kProductVersion,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,

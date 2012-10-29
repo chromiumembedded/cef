@@ -30,4 +30,7 @@ const char kLocalesDirPath[]          = "locales-dir-path";
 // Path to locales directory.
 const char kPackLoadingDisabled[]     = "pack-loading-disabled";
 
+// Context safety implementation type.
+const char kContextSafetyImplementation[] = "context-safety-implementation";
+
 }  // namespace switches

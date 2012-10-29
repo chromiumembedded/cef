@@ -252,6 +252,11 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           base::IntToString(settings.remote_debugging_port));
     }
 
+    if (settings.context_safety_implementation != 0) {
+      command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
+          base::IntToString(settings.context_safety_implementation));
+    }
+
     // TODO(cef): Figure out how to support the sandbox.
     if (!command_line->HasSwitch(switches::kNoSandbox))
       command_line->AppendSwitch(switches::kNoSandbox);

@@ -227,12 +227,16 @@ void CefContentRendererClient::WillReleaseScriptContext(
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::HandleScope handle_scope;
-  v8::Context::Scope scope(context);
-  WebCore::V8RecursionScope recursion_scope(
-      WebCore::getScriptExecutionContext());
+  {
+    v8::HandleScope handle_scope;
+    v8::Context::Scope scope(context);
+    WebCore::V8RecursionScope recursion_scope(
+        WebCore::getScriptExecutionContext());
 
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+    CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
-  handler->OnContextReleased(browserPtr.get(), framePtr.get(), contextPtr);
+    handler->OnContextReleased(browserPtr.get(), framePtr.get(), contextPtr);
+  }
+
+  CefV8ReleaseContext(context);
 }
