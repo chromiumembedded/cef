@@ -11,6 +11,7 @@
 #include "include/cef_v8.h"
 #include "v8/include/v8.h"
 #include "libcef/cef_thread.h"
+#include "libcef/tracker.h"
 #include "base/memory/ref_counted.h"
 
 class CefTrackNode;
@@ -29,10 +30,25 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
   virtual ~CefV8ContextState() {}
 
   bool IsValid() { return valid_; }
-  void Detach() { valid_ = false; }
+  void Detach() {
+    DCHECK(valid_);
+    valid_ = false;
+    track_manager_.DeleteAll();
+  }
+
+  void AddTrackObject(CefTrackNode* object) {
+    DCHECK(valid_);
+    track_manager_.Add(object);
+  }
+
+  void DeleteTrackObject(CefTrackNode* object) {
+    DCHECK(valid_);
+    track_manager_.Delete(object);
+  }
 
  private:
   bool valid_;
+  CefTrackManager track_manager_;
 };
 
 // Base class for V8 Handle types.
@@ -53,7 +69,7 @@ class CefV8HandleBase :
   // context will be used.
   explicit CefV8HandleBase(v8::Handle<v8::Context> context);
 
- private:
+ protected:
   scoped_refptr<CefV8ContextState> context_state_;
 };
 
@@ -183,7 +199,9 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 
-  v8::Handle<v8::Value> GetHandle() { return handle_->GetHandle(); }
+  v8::Handle<v8::Value> GetHandle(bool should_persist) {
+    return handle_->GetHandle(should_persist);
+  }
 
  protected:
   // Test for and record any exception.
@@ -197,12 +215,15 @@ class CefV8ValueImpl : public CefV8Value {
     Handle(v8::Handle<v8::Context> context, handleType v, CefTrackNode* tracker)
         : CefV8HandleBase(context),
           handle_(persistentType::New(v)),
-          tracker_(tracker) {
+          tracker_(tracker),
+          tracker_should_persist_(false) {
     }
     virtual ~Handle();
 
-    handleType GetHandle() {
+    handleType GetHandle(bool should_persist) {
       DCHECK(IsValid());
+      if (should_persist && tracker_ && !tracker_should_persist_)
+        tracker_should_persist_ = true;
       return handle_;
     }
 
@@ -212,6 +233,10 @@ class CefV8ValueImpl : public CefV8Value {
     // For Object and Function types, we need to hold on to a reference to their
     // internal data or function handler objects that are reference counted.
     CefTrackNode* tracker_;
+
+    // True if the |tracker_| object needs to persist due to an Object or
+    // Function type being passed into V8.
+    bool tracker_should_persist_;
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };
