@@ -20,6 +20,7 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 
@@ -575,6 +576,9 @@ void ClientHandler::CreateProcessMessageDelegates(
 void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
   // Create the binding test delegates.
   binding_test::CreateRequestDelegates(delegates);
+
+  // Create the performance test delegates.
+  performance_test::CreateRequestDelegates(delegates);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

@@ -159,6 +159,19 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(const CefString& name,
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+bool CefV8ValueCToCpp::IsValid() {
+  if (CEF_MEMBER_MISSING(struct_, is_valid))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_valid(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefV8ValueCToCpp::IsUndefined() {
   if (CEF_MEMBER_MISSING(struct_, is_undefined))
     return false;

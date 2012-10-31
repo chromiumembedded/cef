@@ -32,6 +32,7 @@ class CefV8ContextCToCpp
   virtual ~CefV8ContextCToCpp() {}
 
   // CefV8Context methods
+  virtual bool IsValid() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
   virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;

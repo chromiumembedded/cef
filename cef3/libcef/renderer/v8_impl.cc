@@ -2,8 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <map>
 #include <string>
 
+#include "base/command_line.h"
 #include "base/compiler_specific.h"
 
 #include "third_party/WebKit/Source/WebCore/config.h"
@@ -18,12 +20,14 @@ MSVC_POP_WARNING();
 
 #include "libcef/renderer/v8_impl.h"
 
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/thread_util.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
+#include "base/string_number_conversions.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
@@ -31,19 +35,139 @@ MSVC_POP_WARNING();
 namespace {
 
 static const char kCefTrackObject[] = "Cef::TrackObject";
+static const char kCefContextState[] = "Cef::ContextState";
 
 // Memory manager.
 
-base::LazyInstance<CefTrackManager> g_v8_tracker = LAZY_INSTANCE_INITIALIZER;
+class CefV8TrackManager {
+ public:
+  CefV8TrackManager()
+      : context_safety_impl_(IMPL_HASH) {
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    if (command_line.HasSwitch(switches::kContextSafetyImplementation)) {
+      std::string value = command_line.GetSwitchValueASCII(
+          switches::kContextSafetyImplementation);
+      int mode;
+      if (base::StringToInt(value, &mode)) {
+        if (mode < 0)
+          context_safety_impl_ = IMPL_DISABLED;
+        else if (mode == 1)
+          context_safety_impl_ = IMPL_VALUE;
+      }
+    }
+  }
+
+  scoped_refptr<CefV8ContextState> GetContextState(
+      v8::Handle<v8::Context> context) {
+    if (context_safety_impl_ == IMPL_DISABLED)
+      return scoped_refptr<CefV8ContextState>();
+
+    if (context.IsEmpty()) {
+      if (v8::Context::InContext())
+        context = v8::Context::GetCurrent();
+      else
+        return scoped_refptr<CefV8ContextState>();
+    }
+
+    if (context_safety_impl_ == IMPL_HASH) {
+      int hash = context->Global()->GetIdentityHash();
+      ContextMap::const_iterator it = context_map_.find(hash);
+      if (it != context_map_.end())
+        return it->second;
+
+      scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
+      context_map_.insert(std::make_pair(hash, state));
+
+      return state;
+    } else {
+      if (context_state_key_.IsEmpty()) {
+        context_state_key_ =
+            v8::Persistent<v8::String>::New(v8::String::New(kCefContextState));
+      }
+
+      v8::Handle<v8::Object> object = context->Global();
+      v8::Handle<v8::Value> value = object->GetHiddenValue(context_state_key_);
+      if (!value.IsEmpty())
+        return static_cast<CefV8ContextState*>(v8::External::Unwrap(value));
+
+      scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
+      object->SetHiddenValue(context_state_key_,
+                             v8::External::New(state.get()));
+
+      // Reference will be released in ReleaseContext.
+      state->AddRef();
+
+      return state;
+    }
+  }
+
+  void ReleaseContext(v8::Handle<v8::Context> context) {
+    if (context_safety_impl_ == IMPL_DISABLED)
+      return;
+
+    if (context_safety_impl_ == IMPL_HASH) {
+      int hash = context->Global()->GetIdentityHash();
+      ContextMap::iterator it = context_map_.find(hash);
+      if (it != context_map_.end()) {
+        it->second->Detach();
+        context_map_.erase(it);
+      }
+    } else {
+      if (context_state_key_.IsEmpty())
+        return;
+
+      v8::Handle<v8::Object> object = context->Global();
+      v8::Handle<v8::Value> value = object->GetHiddenValue(context_state_key_);
+      scoped_refptr<CefV8ContextState> state =
+          static_cast<CefV8ContextState*>(v8::External::Unwrap(value));
+      state->Detach();
+      object->DeleteHiddenValue(context_state_key_);
+
+      // Match the AddRef in GetContextState.
+      state->Release();
+    }
+  }
+
+  void AddGlobalTrackObject(CefTrackNode* object) {
+    global_manager_.Add(object);
+  }
+
+  void DeleteGlobalTrackObject(CefTrackNode* object) {
+    global_manager_.Delete(object);
+  }
+
+ private:
+  enum ContextSafetyImpl {
+    IMPL_DISABLED,
+    IMPL_HASH,
+    IMPL_VALUE,
+  };
+  ContextSafetyImpl context_safety_impl_;
+
+  // Used with IMPL_HASH.
+  typedef std::map<int, scoped_refptr<CefV8ContextState> > ContextMap;
+  ContextMap context_map_;
+
+  // Used with IMPL_VALUE.
+  v8::Persistent<v8::String> context_state_key_;
+
+  // Used for globally tracked objects that are not associated with a particular
+  // context.
+  CefTrackManager global_manager_;
+};
+
+base::LazyInstance<CefV8TrackManager> g_v8_tracker = LAZY_INSTANCE_INITIALIZER;
 
 class V8TrackObject : public CefTrackNode {
  public:
   V8TrackObject()
       : external_memory_(0) {
+    v8::V8::AdjustAmountOfExternalAllocatedMemory(
+        static_cast<int>(sizeof(V8TrackObject)));
   }
   ~V8TrackObject() {
-    if (external_memory_ != 0)
-      v8::V8::AdjustAmountOfExternalAllocatedMemory(-external_memory_);
+    v8::V8::AdjustAmountOfExternalAllocatedMemory(
+        -static_cast<int>(sizeof(V8TrackObject)) - external_memory_);
   }
 
   inline int GetExternallyAllocatedMemory() {
@@ -121,22 +245,61 @@ class V8TrackString : public CefTrackNode {
   std::string string_;
 };
 
-void TrackAdd(CefTrackNode* object) {
-  g_v8_tracker.Pointer()->Add(object);
-}
 
-void TrackDelete(CefTrackNode* object) {
-  g_v8_tracker.Pointer()->Delete(object);
-}
+// Manages the life span of a CefTrackNode associated with a persistent Object
+// or Function.
+class CefV8MakeWeakParam {
+ public:
+  CefV8MakeWeakParam(scoped_refptr<CefV8ContextState> context_state,
+                     CefTrackNode* object)
+      : context_state_(context_state),
+        object_(object) {
+    DCHECK(object_);
+
+    v8::V8::AdjustAmountOfExternalAllocatedMemory(
+        static_cast<int>(sizeof(CefV8MakeWeakParam)));
+
+    if (context_state_.get()) {
+      // |object_| will be deleted when:
+      // A. The associated context is released, or
+      // B. TrackDestructor is called for the weak handle.
+      DCHECK(context_state_->IsValid());
+      context_state_->AddTrackObject(object_);
+    } else {
+      // |object_| will be deleted when:
+      // A. The process shuts down, or
+      // B. TrackDestructor is called for the weak handle.
+      g_v8_tracker.Pointer()->AddGlobalTrackObject(object_);
+    }
+  }
+  ~CefV8MakeWeakParam() {
+    if (context_state_.get()) {
+      // If the associated context is still valid then delete |object_|.
+      // Otherwise, |object_| will already have been deleted.
+      if (context_state_->IsValid())
+        context_state_->DeleteTrackObject(object_);
+    } else {
+      g_v8_tracker.Pointer()->DeleteGlobalTrackObject(object_);
+    }
+
+    v8::V8::AdjustAmountOfExternalAllocatedMemory(
+        -static_cast<int>(sizeof(CefV8MakeWeakParam)));
+  }
+
+ private:
+  scoped_refptr<CefV8ContextState> context_state_;
+  CefTrackNode* object_;
+};
 
 // Callback for weak persistent reference destruction.
 void TrackDestructor(v8::Persistent<v8::Value> object, void* parameter) {
   if (parameter)
-    TrackDelete(static_cast<CefTrackNode*>(parameter));
+    delete static_cast<CefV8MakeWeakParam*>(parameter);
 
   object.Dispose();
   object.Clear();
 }
+
 
 // Convert a CefString to a V8::String.
 v8::Handle<v8::String> GetV8String(const CefString& str) {
@@ -235,7 +398,7 @@ v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args) {
     } else {
       CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
       if (rv)
-        return rv->GetHandle();
+        return rv->GetHandle(true);
     }
   }
 
@@ -269,7 +432,7 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
       } else {
           CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
           if (rv)
-            return rv->GetHandle();
+            return rv->GetHandle(true);
       }
     }
   }
@@ -317,7 +480,7 @@ class ExtensionWrapper : public v8::Extension {
       // The reference will be released when the process exits.
       V8TrackObject* object = new V8TrackObject;
       object->SetHandler(handler);
-      TrackAdd(object);
+      g_v8_tracker.Pointer()->AddGlobalTrackObject(object);
     }
   }
 
@@ -385,6 +548,10 @@ class CefV8ExceptionImpl : public CefV8Exception {
 
 // Global functions.
 
+void CefV8ReleaseContext(v8::Handle<v8::Context> context) {
+  g_v8_tracker.Pointer()->ReleaseContext(context);
+}
+
 bool CefRegisterExtension(const CefString& extension_name,
                           const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler) {
@@ -392,15 +559,22 @@ bool CefRegisterExtension(const CefString& extension_name,
   CEF_REQUIRE_RT_RETURN(false);
 
   V8TrackString* name = new V8TrackString(extension_name);
-  TrackAdd(name);
+  g_v8_tracker.Pointer()->AddGlobalTrackObject(name);
   V8TrackString* code = new V8TrackString(javascript_code);
-  TrackAdd(code);
+  g_v8_tracker.Pointer()->AddGlobalTrackObject(code);
 
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
       code->GetString(), handler.get());
 
   content::RenderThread::Get()->RegisterExtension(wrapper);
   return true;
+}
+
+
+// CefV8HandleBase
+
+CefV8HandleBase::CefV8HandleBase(v8::Handle<v8::Context> context) {
+  context_state_ = g_v8_tracker.Pointer()->GetContextState(context);
 }
 
 
@@ -437,26 +611,35 @@ bool CefV8Context::InContext() {
 
 // CefV8ContextImpl
 
+#define CEF_V8_REQUIRE_VALID_RETURN(ret) \
+  if (!handle_->IsValid()) { \
+    NOTREACHED() << "V8 handle is not valid"; \
+    return ret; \
+  }
+
 #define CEF_V8_REQUIRE_OBJECT_RETURN(ret) \
-  if (!GetHandle()->IsObject()) { \
+  CEF_V8_REQUIRE_VALID_RETURN(ret); \
+  if (!GetHandle(false)->IsObject()) { \
     NOTREACHED() << "V8 value is not an object"; \
     return ret; \
   }
 
 #define CEF_V8_REQUIRE_ARRAY_RETURN(ret) \
-  if (!GetHandle()->IsArray()) { \
+  CEF_V8_REQUIRE_VALID_RETURN(ret); \
+  if (!GetHandle(false)->IsArray()) { \
     NOTREACHED() << "V8 value is not an array"; \
     return ret; \
   }
 
 #define CEF_V8_REQUIRE_FUNCTION_RETURN(ret) \
-  if (!GetHandle()->IsFunction()) { \
+  CEF_V8_REQUIRE_VALID_RETURN(ret); \
+  if (!GetHandle(false)->IsFunction()) { \
     NOTREACHED() << "V8 value is not a function"; \
     return ret; \
   }
 
 CefV8ContextImpl::CefV8ContextImpl(v8::Handle<v8::Context> context)
-  : handle_(new Handle(context))
+  : handle_(new Handle(context, context))
 #ifndef NDEBUG
     , enter_count_(0)
 #endif
@@ -467,9 +650,15 @@ CefV8ContextImpl::~CefV8ContextImpl() {
   DLOG_ASSERT(0 == enter_count_);
 }
 
+bool CefV8ContextImpl::IsValid() {
+  CEF_REQUIRE_RT_RETURN(false);
+  return handle_->IsValid();
+}
+
 CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
   CefRefPtr<CefBrowser> browser;
   CEF_REQUIRE_RT_RETURN(browser);
+  CEF_V8_REQUIRE_VALID_RETURN(browser);
 
   WebKit::WebFrame* webframe = GetWebFrame();
   if (webframe)
@@ -481,6 +670,7 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
 CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   CefRefPtr<CefFrame> frame;
   CEF_REQUIRE_RT_RETURN(frame);
+  CEF_V8_REQUIRE_VALID_RETURN(frame);
 
   WebKit::WebFrame* webframe = GetWebFrame();
   if (webframe) {
@@ -494,6 +684,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
 
 CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
   CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_V8_REQUIRE_VALID_RETURN(NULL);
 
   v8::HandleScope handle_scope;
   v8::Context::Scope context_scope(GetHandle());
@@ -502,6 +693,8 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
 
 bool CefV8ContextImpl::Enter() {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+
   WebCore::V8PerIsolateData::current()->incrementRecursionLevel();
   GetHandle()->Enter();
 #ifndef NDEBUG
@@ -512,6 +705,8 @@ bool CefV8ContextImpl::Enter() {
 
 bool CefV8ContextImpl::Exit() {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+
   DLOG_ASSERT(enter_count_ > 0);
   GetHandle()->Exit();
   WebCore::V8PerIsolateData::current()->decrementRecursionLevel();
@@ -523,6 +718,7 @@ bool CefV8ContextImpl::Exit() {
 
 bool CefV8ContextImpl::IsSame(CefRefPtr<CefV8Context> that) {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
 
   v8::HandleScope handle_scope;
 
@@ -540,6 +736,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
                             CefRefPtr<CefV8Value>& retval,
                             CefRefPtr<CefV8Exception>& exception) {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
 
   if (code.empty()) {
     NOTREACHED() << "invalid input parameter";
@@ -598,12 +795,21 @@ WebKit::WebFrame* CefV8ContextImpl::GetWebFrame() {
 // CefV8ValueImpl::Handle
 
 CefV8ValueImpl::Handle::~Handle() {
-  if (tracker_) {
-    TrackAdd(tracker_);
-    handle_.MakeWeak(tracker_, TrackDestructor);
+  // Persist the |tracker_| object (call MakeWeak) if:
+  // A. The value represents an Object or Function, and
+  // B. The handle has been passed into a V8 function or used as a return value
+  //    from a V8 callback, and
+  // C. The associated context, if any, is still valid.
+  if (tracker_ && tracker_should_persist_ &&
+      (!context_state_.get() || context_state_->IsValid())) {
+    handle_.MakeWeak(new CefV8MakeWeakParam(context_state_, tracker_),
+                     TrackDestructor);
   } else {
     handle_.Dispose();
     handle_.Clear();
+
+    if (tracker_)
+      delete tracker_;
   }
   tracker_ = NULL;
 }
@@ -774,122 +980,145 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
 
 CefV8ValueImpl::CefV8ValueImpl(v8::Handle<v8::Value> value,
                                CefTrackNode* tracker)
-    : handle_(new Handle(value, tracker)),
+    : handle_(new Handle(v8::Handle<v8::Context>(), value, tracker)),
       rethrow_exceptions_(false) {
 }
 
 CefV8ValueImpl::~CefV8ValueImpl() {
 }
 
+
+bool CefV8ValueImpl::IsValid() {
+  CEF_REQUIRE_RT_RETURN(false);
+  return handle_->IsValid();
+}
+
 bool CefV8ValueImpl::IsUndefined() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsUndefined();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsUndefined();
 }
 
 bool CefV8ValueImpl::IsNull() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsNull();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsNull();
 }
 
 bool CefV8ValueImpl::IsBool() {
   CEF_REQUIRE_RT_RETURN(false);
-  return (GetHandle()->IsBoolean() || GetHandle()->IsTrue()
-             || GetHandle()->IsFalse());
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return (GetHandle(false)->IsBoolean() || GetHandle(false)->IsTrue() ||
+          GetHandle(false)->IsFalse());
 }
 
 bool CefV8ValueImpl::IsInt() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsInt32();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsInt32();
 }
 
 bool CefV8ValueImpl::IsUInt() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsUint32();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsUint32();
 }
 
 bool CefV8ValueImpl::IsDouble() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsNumber();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsNumber();
 }
 
 bool CefV8ValueImpl::IsDate() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsDate();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsDate();
 }
 
 bool CefV8ValueImpl::IsString() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsString();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsString();
 }
 
 bool CefV8ValueImpl::IsObject() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsObject();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsObject();
 }
 
 bool CefV8ValueImpl::IsArray() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsArray();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsArray();
 }
 
 bool CefV8ValueImpl::IsFunction() {
   CEF_REQUIRE_RT_RETURN(false);
-  return GetHandle()->IsFunction();
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  return GetHandle(false)->IsFunction();
 }
 
 bool CefV8ValueImpl::IsSame(CefRefPtr<CefV8Value> that) {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
 
   v8::HandleScope handle_scope;
 
   v8::Handle<v8::Value> thatHandle;
-  v8::Handle<v8::Value> thisHandle = GetHandle();
+  v8::Handle<v8::Value> thisHandle = GetHandle(false);
 
   CefV8ValueImpl* impl = static_cast<CefV8ValueImpl*>(that.get());
   if (impl)
-    thatHandle = impl->GetHandle();
+    thatHandle = impl->GetHandle(false);
 
   return (thisHandle == thatHandle);
 }
 
 bool CefV8ValueImpl::GetBoolValue() {
   CEF_REQUIRE_RT_RETURN(false);
-  if (GetHandle()->IsTrue()) {
+  CEF_V8_REQUIRE_VALID_RETURN(false);
+  if (GetHandle(false)->IsTrue()) {
     return true;
-  } else if (GetHandle()->IsFalse()) {
+  } else if (GetHandle(false)->IsFalse()) {
     return false;
   } else {
     v8::HandleScope handle_scope;
-    v8::Local<v8::Boolean> val = GetHandle()->ToBoolean();
+    v8::Local<v8::Boolean> val = GetHandle(false)->ToBoolean();
     return val->Value();
   }
 }
 
 int32 CefV8ValueImpl::GetIntValue() {
   CEF_REQUIRE_RT_RETURN(0);
+  CEF_V8_REQUIRE_VALID_RETURN(0);
   v8::HandleScope handle_scope;
-  v8::Local<v8::Int32> val = GetHandle()->ToInt32();
+  v8::Local<v8::Int32> val = GetHandle(false)->ToInt32();
   return val->Value();
 }
 
 uint32 CefV8ValueImpl::GetUIntValue() {
   CEF_REQUIRE_RT_RETURN(0);
+  CEF_V8_REQUIRE_VALID_RETURN(0);
   v8::HandleScope handle_scope;
-  v8::Local<v8::Uint32> val = GetHandle()->ToUint32();
+  v8::Local<v8::Uint32> val = GetHandle(false)->ToUint32();
   return val->Value();
 }
 
 double CefV8ValueImpl::GetDoubleValue() {
   CEF_REQUIRE_RT_RETURN(0.);
+  CEF_V8_REQUIRE_VALID_RETURN(0.);
   v8::HandleScope handle_scope;
-  v8::Local<v8::Number> val = GetHandle()->ToNumber();
+  v8::Local<v8::Number> val = GetHandle(false)->ToNumber();
   return val->Value();
 }
 
 CefTime CefV8ValueImpl::GetDateValue() {
   CEF_REQUIRE_RT_RETURN(CefTime(0.));
+  CEF_V8_REQUIRE_VALID_RETURN(CefTime(0.));
   v8::HandleScope handle_scope;
-  v8::Local<v8::Number> val = GetHandle()->ToNumber();
+  v8::Local<v8::Number> val = GetHandle(false)->ToNumber();
   // Convert from milliseconds to seconds.
   return CefTime(val->Value() / 1000);
 }
@@ -897,8 +1126,9 @@ CefTime CefV8ValueImpl::GetDateValue() {
 CefString CefV8ValueImpl::GetStringValue() {
   CefString rv;
   CEF_REQUIRE_RT_RETURN(rv);
+  CEF_V8_REQUIRE_VALID_RETURN(rv);
   v8::HandleScope handle_scope;
-  GetCefString(GetHandle()->ToString(), rv);
+  GetCefString(GetHandle(false)->ToString(), rv);
   return rv;
 }
 
@@ -907,7 +1137,7 @@ bool CefV8ValueImpl::IsUserCreated() {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   return (tracker != NULL);
@@ -955,7 +1185,7 @@ bool CefV8ValueImpl::HasValue(const CefString& key) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   return obj->Has(GetV8String(key));
 }
 
@@ -969,7 +1199,7 @@ bool CefV8ValueImpl::HasValue(int index) {
   }
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   return obj->Has(index);
 }
 
@@ -978,7 +1208,7 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
@@ -996,7 +1226,7 @@ bool CefV8ValueImpl::DeleteValue(int index) {
   }
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
@@ -1009,7 +1239,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key) {
   CEF_V8_REQUIRE_OBJECT_RETURN(NULL);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
@@ -1029,7 +1259,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index) {
   }
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
@@ -1048,11 +1278,11 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
   CefV8ValueImpl* impl = static_cast<CefV8ValueImpl*>(value.get());
   if (impl) {
     v8::HandleScope handle_scope;
-    v8::Local<v8::Object> obj = GetHandle()->ToObject();
+    v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
-    bool set = obj->Set(GetV8String(key), impl->GetHandle(),
+    bool set = obj->Set(GetV8String(key), impl->GetHandle(true),
                         static_cast<v8::PropertyAttribute>(attribute));
     return (!HasCaught(try_catch) && set);
   } else {
@@ -1073,11 +1303,11 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
   CefV8ValueImpl* impl = static_cast<CefV8ValueImpl*>(value.get());
   if (impl) {
     v8::HandleScope handle_scope;
-    v8::Local<v8::Object> obj = GetHandle()->ToObject();
+    v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
-    bool set = obj->Set(index, impl->GetHandle());
+    bool set = obj->Set(index, impl->GetHandle(true));
     return (!HasCaught(try_catch) && set);
   } else {
     NOTREACHED() << "invalid input parameter";
@@ -1091,7 +1321,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings,
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   CefRefPtr<CefV8Accessor> accessorPtr;
 
@@ -1120,7 +1350,7 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   v8::Local<v8::Array> arr_keys = obj->GetPropertyNames();
   uint32_t len = arr_keys->Length();
   for (uint32_t i = 0; i < len; ++i) {
@@ -1137,7 +1367,7 @@ bool CefV8ValueImpl::SetUserData(CefRefPtr<CefBase> user_data) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   if (tracker) {
@@ -1153,7 +1383,7 @@ CefRefPtr<CefBase> CefV8ValueImpl::GetUserData() {
   CEF_V8_REQUIRE_OBJECT_RETURN(NULL);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   if (tracker)
@@ -1167,7 +1397,7 @@ int CefV8ValueImpl::GetExternallyAllocatedMemory() {
   CEF_V8_REQUIRE_OBJECT_RETURN(0);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   if (tracker)
@@ -1181,7 +1411,7 @@ int CefV8ValueImpl::AdjustExternallyAllocatedMemory(int change_in_bytes) {
   CEF_V8_REQUIRE_OBJECT_RETURN(0);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   if (tracker)
@@ -1195,7 +1425,7 @@ int CefV8ValueImpl::GetArrayLength() {
   CEF_V8_REQUIRE_ARRAY_RETURN(0);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   v8::Local<v8::Array> arr = v8::Local<v8::Array>::Cast(obj);
   return arr->Length();
 }
@@ -1206,7 +1436,7 @@ CefString CefV8ValueImpl::GetFunctionName() {
   CEF_V8_REQUIRE_FUNCTION_RETURN(rv);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(obj);
   GetCefString(v8::Handle<v8::String>::Cast(func->GetName()), rv);
   return rv;
@@ -1217,7 +1447,7 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler() {
   CEF_V8_REQUIRE_FUNCTION_RETURN(NULL);
 
   v8::HandleScope handle_scope;
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
 
   V8TrackObject* tracker = V8TrackObject::Unwrap(obj);
   if (tracker)
@@ -1254,14 +1484,14 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
 
   v8::Context::Scope context_scope(context_local);
 
-  v8::Local<v8::Object> obj = GetHandle()->ToObject();
+  v8::Local<v8::Object> obj = GetHandle(false)->ToObject();
   v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(obj);
   v8::Handle<v8::Object> recv;
 
   // Default to the global object if no object or a non-object was provided.
   if (object.get() && object->IsObject()) {
     CefV8ValueImpl* recv_impl = static_cast<CefV8ValueImpl*>(object.get());
-    recv = v8::Handle<v8::Object>::Cast(recv_impl->GetHandle());
+    recv = v8::Handle<v8::Object>::Cast(recv_impl->GetHandle(true));
   } else {
     recv = context_local->Global();
   }
@@ -1270,8 +1500,10 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
   v8::Handle<v8::Value> *argv = NULL;
   if (argc > 0) {
     argv = new v8::Handle<v8::Value>[argc];
-    for (int i = 0; i < argc; ++i)
-      argv[i] = static_cast<CefV8ValueImpl*>(arguments[i].get())->GetHandle();
+    for (int i = 0; i < argc; ++i) {
+      argv[i] =
+          static_cast<CefV8ValueImpl*>(arguments[i].get())->GetHandle(true);
+    }
   }
 
   CefRefPtr<CefV8Value> retval;
@@ -1320,6 +1552,7 @@ bool CefV8ValueImpl::HasCaught(v8::TryCatch& try_catch) {
 CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
   CEF_REQUIRE_RT_RETURN(NULL);
 
+  v8::HandleScope handle_scope;
   v8::Handle<v8::StackTrace> stackTrace =
         v8::StackTrace::CurrentStackTrace(
             frame_limit, v8::StackTrace::kDetailed);
@@ -1332,20 +1565,27 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
 // CefV8StackTraceImpl
 
 CefV8StackTraceImpl::CefV8StackTraceImpl(v8::Handle<v8::StackTrace> handle)
-    : handle_(new Handle(handle)) {
+    : handle_(new Handle(v8::Handle<v8::Context>(), handle)) {
 }
 
 CefV8StackTraceImpl::~CefV8StackTraceImpl() {
 }
 
+bool CefV8StackTraceImpl::IsValid() {
+  CEF_REQUIRE_RT_RETURN(false);
+  return handle_->IsValid();
+}
+
 int CefV8StackTraceImpl::GetFrameCount() {
   CEF_REQUIRE_RT_RETURN(0);
+  CEF_V8_REQUIRE_VALID_RETURN(0);
   v8::HandleScope handle_scope;
   return GetHandle()->GetFrameCount();
 }
 
 CefRefPtr<CefV8StackFrame> CefV8StackTraceImpl::GetFrame(int index) {
   CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_V8_REQUIRE_VALID_RETURN(NULL);
   v8::HandleScope handle_scope;
   v8::Handle<v8::StackFrame> stackFrame = GetHandle()->GetFrame(index);
   if (stackFrame.IsEmpty())
@@ -1357,15 +1597,21 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceImpl::GetFrame(int index) {
 // CefV8StackFrameImpl
 
 CefV8StackFrameImpl::CefV8StackFrameImpl(v8::Handle<v8::StackFrame> handle)
-    : handle_(new Handle(handle)) {
+    : handle_(new Handle(v8::Handle<v8::Context>(), handle)) {
 }
 
 CefV8StackFrameImpl::~CefV8StackFrameImpl() {
 }
 
+bool CefV8StackFrameImpl::IsValid() {
+  CEF_REQUIRE_RT_RETURN(false);
+  return handle_->IsValid();
+}
+
 CefString CefV8StackFrameImpl::GetScriptName() {
   CefString rv;
   CEF_REQUIRE_RT_RETURN(rv);
+  CEF_V8_REQUIRE_VALID_RETURN(rv);
   v8::HandleScope handle_scope;
   GetCefString(v8::Handle<v8::String>::Cast(GetHandle()->GetScriptName()), rv);
   return rv;
@@ -1374,6 +1620,7 @@ CefString CefV8StackFrameImpl::GetScriptName() {
 CefString CefV8StackFrameImpl::GetScriptNameOrSourceURL() {
   CefString rv;
   CEF_REQUIRE_RT_RETURN(rv);
+  CEF_V8_REQUIRE_VALID_RETURN(rv);
   v8::HandleScope handle_scope;
   GetCefString(
       v8::Handle<v8::String>::Cast(GetHandle()->GetScriptNameOrSourceURL()),
@@ -1384,6 +1631,7 @@ CefString CefV8StackFrameImpl::GetScriptNameOrSourceURL() {
 CefString CefV8StackFrameImpl::GetFunctionName() {
   CefString rv;
   CEF_REQUIRE_RT_RETURN(rv);
+  CEF_V8_REQUIRE_VALID_RETURN(rv);
   v8::HandleScope handle_scope;
   GetCefString(
       v8::Handle<v8::String>::Cast(GetHandle()->GetFunctionName()), rv);
@@ -1392,24 +1640,28 @@ CefString CefV8StackFrameImpl::GetFunctionName() {
 
 int CefV8StackFrameImpl::GetLineNumber() {
   CEF_REQUIRE_RT_RETURN(0);
+  CEF_V8_REQUIRE_VALID_RETURN(0);
   v8::HandleScope handle_scope;
   return GetHandle()->GetLineNumber();
 }
 
 int CefV8StackFrameImpl::GetColumn() {
   CEF_REQUIRE_RT_RETURN(0);
+  CEF_V8_REQUIRE_VALID_RETURN(0);
   v8::HandleScope handle_scope;
   return GetHandle()->GetColumn();
 }
 
 bool CefV8StackFrameImpl::IsEval() {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
   v8::HandleScope handle_scope;
   return GetHandle()->IsEval();
 }
 
 bool CefV8StackFrameImpl::IsConstructor() {
   CEF_REQUIRE_RT_RETURN(false);
+  CEF_V8_REQUIRE_VALID_RETURN(false);
   v8::HandleScope handle_scope;
   return GetHandle()->IsConstructor();
 }

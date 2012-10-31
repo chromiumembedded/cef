@@ -20,12 +20,13 @@
 namespace {
 
 // Unique values for V8 tests.
-const char* kV8TestUrl = "http://tests/V8Test.Test";
-const char* kV8BindingTestUrl = "http://tests/V8Test.BindingTest";
-const char* kV8ContextParentTestUrl = "http://tests/V8Test.ContextParentTest";
-const char* kV8ContextChildTestUrl = "http://tests/V8Test.ContextChildTest";
-const char* kV8TestMsg = "V8Test.Test";
-const char* kV8TestCmdArg = "v8-test";
+const char kV8TestUrl[] = "http://tests/V8Test.Test";
+const char kV8BindingTestUrl[] = "http://tests/V8Test.BindingTest";
+const char kV8ContextParentTestUrl[] = "http://tests/V8Test.ContextParentTest";
+const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
+const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
+const char kV8TestMsg[] = "V8Test.Test";
+const char kV8TestCmdArg[] = "v8-test";
 
 enum V8TestMode {
   V8TEST_NONE = 0,
@@ -60,6 +61,7 @@ enum V8TestMode {
   V8TEST_CONTEXT_EVAL,
   V8TEST_CONTEXT_EVAL_EXCEPTION,
   V8TEST_CONTEXT_ENTERED,
+  V8TEST_CONTEXT_INVALID,
   V8TEST_BINDING,
   V8TEST_STACK_TRACE,
   V8TEST_EXTENSION,
@@ -193,6 +195,10 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         break;
       case V8TEST_CONTEXT_ENTERED:
         RunContextEnteredTest();
+        break;
+      case V8TEST_CONTEXT_INVALID:
+        // The test is triggered when the context is released.
+        browser_->GetMainFrame()->LoadURL(kV8NavTestUrl);
         break;
       case V8TEST_BINDING:
         RunBindingTest();
@@ -1659,16 +1665,37 @@ class V8RendererTest : public ClientApp::RenderDelegate {
           V8_PROPERTY_ATTRIBUTE_NONE));
     }
 
-    if (test_mode_ > V8TEST_NONE) {
+    if (test_mode_ > V8TEST_NONE && url != kV8NavTestUrl) {
       // Run the test asynchronously.
       CefPostTask(TID_RENDERER,
                   NewCefRunnableMethod(this, &V8RendererTest::RunTest));
     }
   }
 
+  virtual void OnContextReleased(CefRefPtr<ClientApp> app,
+                                 CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+    if (test_mode_ == V8TEST_CONTEXT_INVALID &&
+        frame->GetURL().ToString() != kV8NavTestUrl) {
+      test_context_ =
+          browser_->GetMainFrame()->GetV8Context();
+      test_object_ = CefV8Value::CreateArray(10);
+      CefPostTask(TID_RENDERER,
+          NewCefRunnableMethod(this, &V8RendererTest::DestroyTest));
+    }
+  }
+
  protected:
   // Return from the test.
   void DestroyTest() {
+    if (test_mode_ == V8TEST_CONTEXT_INVALID) {
+      // Verify that objects related to a particular context are not valid after
+      // OnContextReleased is called for that context.
+      EXPECT_FALSE(test_context_->IsValid());
+      EXPECT_FALSE(test_object_->IsValid());
+    }
+
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -1692,6 +1719,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
   CefRefPtr<ClientApp> app_;
   CefRefPtr<CefBrowser> browser_;
   V8TestMode test_mode_;
+
+  CefRefPtr<CefV8Context> test_context_;
+  CefRefPtr<CefV8Value> test_object_;
 
   // Used by startup tests to indicate success.
   TrackCallback startup_test_success_;
@@ -1816,6 +1846,7 @@ V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT);
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
+V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
 V8_TEST(StackTrace, V8TEST_STACK_TRACE);
 V8_TEST(Extension, V8TEST_EXTENSION);
