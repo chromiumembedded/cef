@@ -15,6 +15,7 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
 #include "cefclient/osrtest_mac.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -192,9 +193,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testGetText:(id)sender;
 - (IBAction)testJSBinding:(id)sender;
 - (IBAction)testJSExtension:(id)sender;
-- (IBAction)testJSExtensionPerf:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testJSInvoke:(id)sender;
+- (IBAction)testPerformance:(id)sender;
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testLocalStorage:(id)sender;
 - (IBAction)testXMLHttpRequest:(id)sender;
@@ -245,14 +246,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"JavaScript Extension Handler"
                       action:@selector(testJSExtension:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"JavaScript Extension Performance"
-                      action:@selector(testJSExtensionPerf:)
-               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Execute"
                       action:@selector(testJSExecute:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Invoke"
                       action:@selector(testJSInvoke:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Performance Tests"
+                      action:@selector(testPerformance:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Popup Window"
                       action:@selector(testPopupWindow:)
@@ -425,11 +426,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunExtensionTest(g_handler->GetBrowser());
 }
 
-- (IBAction)testJSExtensionPerf:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunExtensionPerfTest(g_handler->GetBrowser());
-}
-
 - (IBAction)testJSExecute:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
@@ -438,6 +434,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSInvoke:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptInvokeTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testPerformance:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    performance_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testRequest:(id)sender {

@@ -13,6 +13,7 @@
 #include "cefclient/cefclient.h"
 #include "cefclient/cefclient_switches.h"
 #include "cefclient/download_handler.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/string_util.h"
 
 ClientHandler::ClientHandler()
@@ -262,8 +263,14 @@ void ClientHandler::OnContextCreated(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefV8Context> context) {
   REQUIRE_UI_THREAD();
 
+  CefRefPtr<CefV8Value> object = context->GetGlobal();
+
   // Add the V8 bindings.
-  InitBindingTest(browser, frame, context->GetGlobal());
+  InitBindingTest(browser, frame, object);
+
+  std::string url = frame->GetURL();
+  if (url == performance_test::kTestUrl)
+    performance_test::InitTest(browser, frame, object);
 }
 
 bool ClientHandler::OnDragStart(CefRefPtr<CefBrowser> browser,

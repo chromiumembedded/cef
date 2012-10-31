@@ -33,6 +33,7 @@ class CefV8ValueCToCpp
   virtual ~CefV8ValueCToCpp() {}
 
   // CefV8Value methods
+  virtual bool IsValid() OVERRIDE;
   virtual bool IsUndefined() OVERRIDE;
   virtual bool IsNull() OVERRIDE;
   virtual bool IsBool() OVERRIDE;

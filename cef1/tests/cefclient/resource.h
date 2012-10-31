@@ -51,7 +51,7 @@
 #define ID_TESTS_DRAGDROP               32792
 #define ID_TESTS_OSRAPP                 32793
 #define ID_TESTS_MODALDIALOG            32794
-#define ID_TESTS_JAVASCRIPT_PERFORMANCE 32795
+#define ID_TESTS_PERFORMANCE            32795
 #define ID_TESTS_TRANSPARENT_POPUP      32796
 #define ID_TESTS_TRANSPARENT_OSRAPP     32797
 #define ID_TESTS_JAVASCRIPT_INVOKE      32798
@@ -68,7 +68,7 @@
 #define IDS_OSRPLUGIN                   1006
 #define IDS_MODALMAIN                   1007
 #define IDS_MODALDIALOG                 1008
-#define IDS_EXTENSIONPERF               1009
+#define IDS_PERFORMANCE                 1009
 #define IDS_TRANSPARENCY                1010
 
 // Avoid files associated with MacOS

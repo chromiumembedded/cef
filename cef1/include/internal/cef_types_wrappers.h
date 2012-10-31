@@ -300,6 +300,7 @@ struct CefSettingsTraits {
         &target->locales_dir_path, copy);
     target->pack_loading_disabled = src->pack_loading_disabled;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
+    target->context_safety_implementation = src->context_safety_implementation;
   }
 };
 
@@ -498,6 +499,18 @@ class CefTime : public CefStructBase<CefTimeTraits> {
     double time = 0;
     cef_time_to_doublet(this, &time);
     return time;
+  }
+
+  // Set this object to now.
+  void Now() {
+    cef_time_now(this);
+  }
+
+  // Return the delta between this object and |other| in milliseconds.
+  int64 Delta(const CefTime& other) {
+    int64 delta = 0;
+    cef_time_delta(this, &other, &delta);
+    return delta;
   }
 };
 

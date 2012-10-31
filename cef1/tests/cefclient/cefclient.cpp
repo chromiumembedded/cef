@@ -259,6 +259,8 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
       g_command_line->HasSwitch(cefclient::kPackLoadingDisabled);
   settings.uncaught_exception_stack_size = GetIntValue(
       g_command_line->GetSwitchValue(cefclient::kUncaughtExceptionStackSize));
+  settings.context_safety_implementation = GetIntValue(
+      g_command_line->GetSwitchValue(cefclient::kContextSafetyImplementation));
 
   // Retrieve command-line proxy configuration, if any.
   bool has_proxy = false;

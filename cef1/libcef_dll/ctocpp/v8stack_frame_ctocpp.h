@@ -34,6 +34,7 @@ class CefV8StackFrameCToCpp
   virtual ~CefV8StackFrameCToCpp() {}
 
   // CefV8StackFrame methods
+  virtual bool IsValid() OVERRIDE;
   virtual CefString GetScriptName() OVERRIDE;
   virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
   virtual CefString GetFunctionName() OVERRIDE;

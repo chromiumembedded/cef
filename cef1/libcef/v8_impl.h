@@ -11,6 +11,7 @@
 #include "include/cef_v8.h"
 #include "v8/include/v8.h"
 #include "libcef/cef_thread.h"
+#include "libcef/tracker.h"
 #include "base/memory/ref_counted.h"
 
 class CefTrackNode;
@@ -19,25 +20,80 @@ namespace WebKit {
 class WebFrame;
 };
 
+// Call to detach all handles associated with the specified contxt.
+void CefV8ReleaseContext(v8::Handle<v8::Context> context);
+
+// Used to detach handles when the associated context is released.
+class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
+ public:
+  CefV8ContextState() : valid_(true) {}
+  virtual ~CefV8ContextState() {}
+
+  bool IsValid() { return valid_; }
+  void Detach() {
+    DCHECK(valid_);
+    valid_ = false;
+    track_manager_.DeleteAll();
+  }
+
+  void AddTrackObject(CefTrackNode* object) {
+    DCHECK(valid_);
+    track_manager_.Add(object);
+  }
+
+  void DeleteTrackObject(CefTrackNode* object) {
+    DCHECK(valid_);
+    track_manager_.Delete(object);
+  }
+
+ private:
+  bool valid_;
+  CefTrackManager track_manager_;
+};
+
+// Base class for V8 Handle types.
+class CefV8HandleBase :
+    public base::RefCountedThreadSafe<CefV8HandleBase,
+                                      CefThread::DeleteOnUIThread> {
+ public:
+  virtual ~CefV8HandleBase() {}
+
+  // Returns true if there is no underlying context or if the underlying context
+  // is valid.
+  bool IsValid() {
+    return (!context_state_.get() || context_state_->IsValid());
+  }
+
+ protected:
+  // |context| is the context that owns this handle. If empty the current
+  // context will be used.
+  explicit CefV8HandleBase(v8::Handle<v8::Context> context);
+
+ protected:
+  scoped_refptr<CefV8ContextState> context_state_;
+};
+
 // Template for V8 Handle types. This class is used to ensure that V8 objects
 // are only released on the UI thread.
 template <typename v8class>
-class CefV8Handle :
-    public base::RefCountedThreadSafe<CefV8Handle<v8class>,
-                                      CefThread::DeleteOnUIThread> {
+class CefV8Handle : public CefV8HandleBase {
  public:
   typedef v8::Handle<v8class> handleType;
   typedef v8::Persistent<v8class> persistentType;
 
-  CefV8Handle(handleType v)
-      : handle_(persistentType::New(v)) {
+  CefV8Handle(v8::Handle<v8::Context> context, handleType v)
+      : CefV8HandleBase(context),
+        handle_(persistentType::New(v)) {
   }
-  ~CefV8Handle() {
+  virtual ~CefV8Handle() {
     handle_.Dispose();
     handle_.Clear();
   }
 
-  handleType GetHandle() { return handle_; }
+  handleType GetHandle() {
+    DCHECK(IsValid());
+    return handle_;
+  }
 
  protected:
   persistentType handle_;
@@ -57,6 +113,7 @@ class CefV8ContextImpl : public CefV8Context {
   explicit CefV8ContextImpl(v8::Handle<v8::Context> context);
   virtual ~CefV8ContextImpl();
 
+  virtual bool IsValid() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
   virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
@@ -90,6 +147,7 @@ class CefV8ValueImpl : public CefV8Value {
   CefV8ValueImpl(v8::Handle<v8::Value> value, CefTrackNode* tracker = NULL);
   virtual ~CefV8ValueImpl();
 
+  virtual bool IsValid() OVERRIDE;
   virtual bool IsUndefined() OVERRIDE;
   virtual bool IsNull() OVERRIDE;
   virtual bool IsBool() OVERRIDE;
@@ -141,25 +199,33 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 
-  v8::Handle<v8::Value> GetHandle() { return handle_->GetHandle(); }
+  v8::Handle<v8::Value> GetHandle(bool should_persist) {
+    return handle_->GetHandle(should_persist);
+  }
 
  protected:
   // Test for and record any exception.
   bool HasCaught(v8::TryCatch& try_catch);
 
-  class Handle :
-      public base::RefCountedThreadSafe<Handle, CefThread::DeleteOnUIThread> {
+  class Handle : public CefV8HandleBase {
    public:
     typedef v8::Handle<v8::Value> handleType;
     typedef v8::Persistent<v8::Value> persistentType;
 
-    Handle(handleType v, CefTrackNode* tracker)
-        : handle_(persistentType::New(v)),
-          tracker_(tracker) {
+    Handle(v8::Handle<v8::Context> context, handleType v, CefTrackNode* tracker)
+        : CefV8HandleBase(context),
+          handle_(persistentType::New(v)),
+          tracker_(tracker),
+          tracker_should_persist_(false) {
     }
-    ~Handle();
+    virtual ~Handle();
 
-    handleType GetHandle() { return handle_; }
+    handleType GetHandle(bool should_persist) {
+      DCHECK(IsValid());
+      if (should_persist && tracker_ && !tracker_should_persist_)
+        tracker_should_persist_ = true;
+      return handle_;
+    }
 
    private:
     persistentType handle_;
@@ -167,6 +233,10 @@ class CefV8ValueImpl : public CefV8Value {
     // For Object and Function types, we need to hold on to a reference to their
     // internal data or function handler objects that are reference counted.
     CefTrackNode* tracker_;
+
+    // True if the |tracker_| object needs to persist due to an Object or
+    // Function type being passed into V8.
+    bool tracker_should_persist_;
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };
@@ -184,6 +254,7 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
   explicit CefV8StackTraceImpl(v8::Handle<v8::StackTrace> handle);
   virtual ~CefV8StackTraceImpl();
 
+  virtual bool IsValid() OVERRIDE;
   virtual int GetFrameCount() OVERRIDE;
   virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
 
@@ -202,6 +273,7 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   explicit CefV8StackFrameImpl(v8::Handle<v8::StackFrame> handle);
   virtual ~CefV8StackFrameImpl();
 
+  virtual bool IsValid() OVERRIDE;
   virtual CefString GetScriptName() OVERRIDE;
   virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
   virtual CefString GetFunctionName() OVERRIDE;

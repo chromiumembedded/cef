@@ -38,6 +38,7 @@ extern const char kResourcesDirPath[];
 extern const char kLocalesDirPath[];
 extern const char kPackLoadingDisabled[];
 extern const char kUncaughtExceptionStackSize[];
+extern const char kContextSafetyImplementation[];
 
 // CefBrowserSettings attributes.
 extern const char kDragDropDisabled[];

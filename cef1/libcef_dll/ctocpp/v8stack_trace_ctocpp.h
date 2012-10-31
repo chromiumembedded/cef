@@ -34,6 +34,7 @@ class CefV8StackTraceCToCpp
   virtual ~CefV8StackTraceCToCpp() {}
 
   // CefV8StackTrace methods
+  virtual bool IsValid() OVERRIDE;
   virtual int GetFrameCount() OVERRIDE;
   virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
 };

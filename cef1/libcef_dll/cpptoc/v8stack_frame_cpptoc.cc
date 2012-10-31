@@ -15,6 +15,20 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+int CEF_CALLBACK v8stack_frame_is_valid(struct _cef_v8stack_frame_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8StackFrameCppToC::Get(self)->IsValid();
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_script_name(
     struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -125,6 +139,7 @@ int CEF_CALLBACK v8stack_frame_is_constructor(
 CefV8StackFrameCppToC::CefV8StackFrameCppToC(CefV8StackFrame* cls)
     : CefCppToC<CefV8StackFrameCppToC, CefV8StackFrame, cef_v8stack_frame_t>(
         cls) {
+  struct_.struct_.is_valid = v8stack_frame_is_valid;
   struct_.struct_.get_script_name = v8stack_frame_get_script_name;
   struct_.struct_.get_script_name_or_source_url =
       v8stack_frame_get_script_name_or_source_url;
