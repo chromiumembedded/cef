@@ -14,6 +14,7 @@
 #include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
@@ -66,6 +67,14 @@ gboolean JSExtensionActivated(GtkWidget* widget) {
 gboolean JSExecuteActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Performance Tests... menu item.
+gboolean PerformanceActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    performance_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -280,6 +289,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(JSExtensionActivated));
   AddMenuEntry(debug_menu, "JS Execute",
                G_CALLBACK(JSExecuteActivated));
+  AddMenuEntry(debug_menu, "Performance Tests",
+               G_CALLBACK(PerformanceActivated));
   AddMenuEntry(debug_menu, "Request",
                G_CALLBACK(RequestActivated));
   AddMenuEntry(debug_menu, "Local Storage",

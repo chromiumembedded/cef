@@ -921,20 +921,21 @@ void BrowserWebViewDelegate::didCreateScriptContext(
 void BrowserWebViewDelegate::willReleaseScriptContext(
     WebFrame* frame, v8::Handle<v8::Context> context, int worldId) {
   CefRefPtr<CefClient> client = browser_->GetClient();
-  if (!client.get())
-    return;
+  if (client.get()) {
+    CefRefPtr<CefV8ContextHandler> handler = client->GetV8ContextHandler();
+    if (handler.get()) {
+      v8::HandleScope handle_scope;
+      v8::Context::Scope scope(context);
 
-  CefRefPtr<CefV8ContextHandler> handler = client->GetV8ContextHandler();
-  if (!handler.get())
-    return;
+      CefRefPtr<CefFrame> framePtr(browser_->UIT_GetCefFrame(frame));
+      CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
-  v8::HandleScope handle_scope;
-  v8::Context::Scope scope(context);
+      handler->OnContextReleased(browser_, framePtr, contextPtr);
+    }
+  }
 
-  CefRefPtr<CefFrame> framePtr(browser_->UIT_GetCefFrame(frame));
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
-
-  handler->OnContextReleased(browser_, framePtr, contextPtr);
+  // Disconnect any handles still associated with the context.
+  CefV8ReleaseContext(context);
 }
 
 void BrowserWebViewDelegate::didReceiveTitle(

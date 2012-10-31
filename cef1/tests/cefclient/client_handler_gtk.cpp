@@ -7,6 +7,7 @@
 #include "cefclient/client_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 
@@ -59,6 +60,10 @@ bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
   } else if (url == "http://tests/domaccess") {
     // Show the domaccess HTML contents
     resourceStream = GetBinaryResourceReader("domaccess.html");
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
+  } else if (url == performance_test::kTestUrl) {
+    resourceStream = GetBinaryResourceReader("performance.html");
     response->SetMimeType("text/html");
     response->SetStatus(200);
   }
