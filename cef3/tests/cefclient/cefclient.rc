@@ -33,6 +33,7 @@ IDS_DIALOGS BINARY "res\\dialogs.html"
 IDS_LOGO BINARY "res\\logo.png"
 IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
+IDS_PERFORMANCE BINARY "res\\performance.html"
 IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 IDS_DOMACCESS BINARY "res\\domaccess.html"
 
@@ -69,6 +70,7 @@ BEGIN
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "JavaScript Binding",          ID_TESTS_BINDING
+        MENUITEM "Performance Tests",           ID_TESTS_PERFORMANCE
         MENUITEM "Dialogs",                     ID_TESTS_DIALOGS
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
         MENUITEM "DOM Access",                  ID_TESTS_DOM_ACCESS

@@ -200,26 +200,26 @@ void CefContentRendererClient::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (!application.get())
-    return;
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefBrowserImpl> browserPtr =
+          CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+      DCHECK(browserPtr.get());
+      if (browserPtr.get()) {
+        CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  CefRefPtr<CefRenderProcessHandler> handler =
-      application->GetRenderProcessHandler();
-  if (!handler.get())
-    return;
+        v8::HandleScope handle_scope;
+        v8::Context::Scope scope(context);
 
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-  DCHECK(browserPtr.get());
-  if (!browserPtr.get())
-    return;
+        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
-  CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
+        handler->OnContextReleased(browserPtr.get(), framePtr.get(),
+                                   contextPtr);
+      }
+    }
+  }
 
-  v8::HandleScope handle_scope;
-  v8::Context::Scope scope(context);
-
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
-
-  handler->OnContextReleased(browserPtr.get(), framePtr.get(), contextPtr);
+  CefV8ReleaseContext(context);
 }

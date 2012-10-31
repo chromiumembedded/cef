@@ -22,6 +22,7 @@ extern const char kLogSeverity_Disable[];
 extern const char kResourcesDirPath[];
 extern const char kLocalesDirPath[];
 extern const char kPackLoadingDisabled[];
+extern const char kContextSafetyImplementation[];
 
 }  // namespace switches
 

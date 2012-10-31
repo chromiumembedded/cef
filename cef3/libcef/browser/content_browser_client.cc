@@ -260,8 +260,12 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to all command lines (along with any
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
+      switches::kLang,
+      switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
+      switches::kPackLoadingDisabled,
+      switches::kResourcesDirPath,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
@@ -273,11 +277,8 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to the renderer command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
+      switches::kContextSafetyImplementation,
       switches::kProductVersion,
-      switches::kLang,
-      switches::kResourcesDirPath,
-      switches::kLocalesDirPath,
-      switches::kPackLoadingDisabled,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));

@@ -52,6 +52,20 @@ CEF_EXPORT int cef_v8context_in_context() {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+int CEF_CALLBACK v8context_is_valid(struct _cef_v8context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ContextCppToC::Get(self)->IsValid();
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_browser_t* CEF_CALLBACK v8context_get_browser(
     struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -212,6 +226,7 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
 
 CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
     : CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t>(cls) {
+  struct_.struct_.is_valid = v8context_is_valid;
   struct_.struct_.get_browser = v8context_get_browser;
   struct_.struct_.get_frame = v8context_get_frame;
   struct_.struct_.get_global = v8context_get_global;

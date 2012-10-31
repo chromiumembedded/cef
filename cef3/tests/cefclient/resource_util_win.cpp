@@ -49,6 +49,7 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
     {"dialogs.html", IDS_DIALOGS},
     {"domaccess.html", IDS_DOMACCESS},
     {"localstorage.html", IDS_LOCALSTORAGE},
+    {"performance.html", IDS_PERFORMANCE},
     {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},
   };
 

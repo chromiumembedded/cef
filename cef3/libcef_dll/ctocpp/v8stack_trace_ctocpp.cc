@@ -30,6 +30,19 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+bool CefV8StackTraceCToCpp::IsValid() {
+  if (CEF_MEMBER_MISSING(struct_, is_valid))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_valid(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 int CefV8StackTraceCToCpp::GetFrameCount() {
   if (CEF_MEMBER_MISSING(struct_, get_frame_count))
     return 0;
