@@ -23,7 +23,6 @@ class CefRenderMessageFilter : public IPC::ChannelProxy::MessageFilter {
  private:
   // Message handlers called on the IO thread.
   void OnDevToolsAgentAttach();
-  void OnDevToolsAgentReattach(const std::string& agent_state);
   void OnDevToolsAgentDetach();
 
   void OnDevToolsAgentAttach_RT();

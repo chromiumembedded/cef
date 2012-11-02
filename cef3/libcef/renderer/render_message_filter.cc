@@ -32,7 +32,6 @@ void CefRenderMessageFilter::OnFilterRemoved() {
 bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   if (message.type() == DevToolsAgentMsg_Attach::ID ||
-      message.type() == DevToolsAgentMsg_Reattach::ID ||
       message.type() == DevToolsAgentMsg_Detach::ID) {
     // Observe the DevTools messages but don't handle them.
     handled = false;
@@ -40,7 +39,6 @@ bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
 
   IPC_BEGIN_MESSAGE_MAP(CefRenderMessageFilter, message)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnDevToolsAgentAttach)
-    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Reattach, OnDevToolsAgentReattach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDevToolsAgentDetach)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
@@ -50,12 +48,6 @@ bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
 void CefRenderMessageFilter::OnDevToolsAgentAttach() {
   CEF_POST_TASK_RT(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
-}
-
-void CefRenderMessageFilter::OnDevToolsAgentReattach(
-    const std::string& agent_state) {
-  // Treat reattach the same as attach.
-  OnDevToolsAgentAttach();
 }
 
 void CefRenderMessageFilter::OnDevToolsAgentDetach() {
