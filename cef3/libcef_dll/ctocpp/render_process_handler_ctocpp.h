@@ -42,6 +42,10 @@ class CefRenderProcessHandlerCToCpp
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
   virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context,
+      CefRefPtr<CefV8Exception> exception,
+      CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE;
   virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) OVERRIDE;
   virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,

@@ -252,6 +252,11 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           base::IntToString(settings.remote_debugging_port));
     }
 
+    if (settings.uncaught_exception_stack_size > 0) {
+      command_line->AppendSwitchASCII(switches::kUncaughtExceptionStackSize,
+        base::IntToString(settings.uncaught_exception_stack_size));
+    }
+
     if (settings.context_safety_implementation != 0) {
       command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
           base::IntToString(settings.context_safety_implementation));

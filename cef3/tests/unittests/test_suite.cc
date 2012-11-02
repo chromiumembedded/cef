@@ -58,6 +58,10 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
   if (!other_javascript_flags.empty())
     javascript_flags += " " + other_javascript_flags;
   CefString(&settings.javascript_flags) = javascript_flags;
+
+  // Necessary for V8Test.OnUncaughtException tests.
+  settings.uncaught_exception_stack_size = 10;
+  settings.remote_debugging_port = 12345;
 }
 
 // static

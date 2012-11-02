@@ -5,11 +5,15 @@
 
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/cef_switches.h"
+#include "libcef/common/command_line_impl.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/content_renderer_client.h"
+#include "libcef/renderer/v8_impl.h"
 
 #include "base/bind.h"
 #include "base/path_service.h"
+#include "base/string_number_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_util.h"
 #include "media/base/media.h"
@@ -52,6 +56,23 @@ void CefRenderProcessObserver::WebKitInitialized() {
 
   // Register any custom schemes with WebKit.
   CefContentRendererClient::Get()->RegisterCustomSchemes();
+
+  // The number of stack trace frames to capture for uncaught exceptions.
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kUncaughtExceptionStackSize)) {
+    int uncaught_exception_stack_size = 0;
+    base::StringToInt(
+        command_line.GetSwitchValueASCII(switches::kUncaughtExceptionStackSize),
+        &uncaught_exception_stack_size);
+
+    if (uncaught_exception_stack_size > 0) {
+      CefContentRendererClient::Get()->SetUncaughtExceptionStackSize(
+          uncaught_exception_stack_size);
+      v8::V8::AddMessageListener(&CefV8MessageHandler);
+      v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+          uncaught_exception_stack_size, v8::StackTrace::kDetailed);
+    }
+  }
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

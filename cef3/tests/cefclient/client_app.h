@@ -28,8 +28,9 @@ class ClientApp : public CefApp,
     virtual void OnContextInitialized(CefRefPtr<ClientApp> app) {
     }
 
-    // Called on the browser process IO thread before a child process is launched.
-    // Provides an opportunity to modify the child process command line.
+    // Called on the browser process IO thread before a child process is
+    // launched Provides an opportunity to modify the child process command
+    // line.
     virtual void OnBeforeChildProcessLaunch(
         CefRefPtr<ClientApp> app,
         CefRefPtr<CefCommandLine> command_line) {
@@ -46,6 +47,11 @@ class ClientApp : public CefApp,
     // Called when WebKit is initialized. Used to register V8 extensions.
     virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
     };
+
+    // Called before a browser is destroyed.
+    virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
+                                    CefRefPtr<CefBrowser> browser) {
+    }
 
     // Called when a V8 context is created. Used to create V8 window bindings
     // and set message callbacks. RenderDelegates should check for unique URLs
@@ -64,6 +70,16 @@ class ClientApp : public CefApp,
                                    CefRefPtr<CefFrame> frame,
                                    CefRefPtr<CefV8Context> context) {
     };
+
+    // Global V8 exception handler, disabled by default, to enable set
+    // CefSettings.uncaught_exception_stack_size > 0.
+    virtual void OnUncaughtException(CefRefPtr<ClientApp> app,
+                                     CefRefPtr<CefBrowser> browser,
+                                     CefRefPtr<CefFrame> frame,
+                                     CefRefPtr<CefV8Context> context,
+                                     CefRefPtr<CefV8Exception> exception,
+                                     CefRefPtr<CefV8StackTrace> stackTrace) {
+    }
 
     // Called when the focused node in a frame has changed.
     virtual void OnFocusedNodeChanged(CefRefPtr<ClientApp> app,
@@ -147,12 +163,19 @@ class ClientApp : public CefApp,
 
   // CefRenderProcessHandler methods.
   virtual void OnWebKitInitialized() OVERRIDE;
+  virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE;
   virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefV8Context> context,
+                                   CefRefPtr<CefV8Exception> exception,
+                                   CefRefPtr<CefV8StackTrace> stackTrace)
+                                   OVERRIDE;
   virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefDOMNode> node) OVERRIDE;

@@ -919,6 +919,8 @@
         'libcef/renderer/dom_node_impl.h',
         'libcef/renderer/frame_impl.cc',
         'libcef/renderer/frame_impl.h',
+        'libcef/renderer/render_message_filter.cc',
+        'libcef/renderer/render_message_filter.h',
         'libcef/renderer/render_process_observer.cc',
         'libcef/renderer/render_process_observer.h',
         'libcef/renderer/render_urlrequest_impl.cc',

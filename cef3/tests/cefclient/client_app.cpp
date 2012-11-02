@@ -265,6 +265,13 @@ void ClientApp::OnWebKitInitialized() {
     (*it)->OnWebKitInitialized(this);
 }
 
+void ClientApp::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it)
+    (*it)->OnBrowserDestroyed(this, browser);
+}
+
 void ClientApp::OnContextCreated(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
                                CefRefPtr<CefV8Context> context) {
@@ -292,6 +299,19 @@ void ClientApp::OnContextReleased(CefRefPtr<CefBrowser> browser,
       else
         ++it;
     }
+  }
+}
+
+void ClientApp::OnUncaughtException(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefV8Context> context,
+                                 CefRefPtr<CefV8Exception> exception,
+                                 CefRefPtr<CefV8StackTrace> stackTrace) {
+  // Execute delegate callbacks.
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end(); ++it) {
+    (*it)->OnUncaughtException(this, browser, frame, context, exception,
+                               stackTrace);
   }
 }
 

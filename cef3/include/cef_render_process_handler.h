@@ -96,6 +96,18 @@ class CefRenderProcessHandler : public virtual CefBase {
                                  CefRefPtr<CefV8Context> context) {}
 
   ///
+  // Called for global uncaught exceptions. Execution of this callback is
+  // disabled by default. To enable set
+  // CefSettings.uncaught_exception_stack_size > 0.
+  ///
+  /*--cef()--*/
+  virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefV8Context> context,
+                                   CefRefPtr<CefV8Exception> exception,
+                                   CefRefPtr<CefV8StackTrace> stackTrace) {}
+
+  ///
   // Called when a new node in the the browser gets focus. The |node| value may
   // be empty if no specific node has gained focus. The node object passed to
   // this method represents a snapshot of the DOM at the time this method is

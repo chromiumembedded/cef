@@ -30,6 +30,9 @@ const char kLocalesDirPath[]          = "locales-dir-path";
 // Path to locales directory.
 const char kPackLoadingDisabled[]     = "pack-loading-disabled";
 
+// Stack size for uncaught exceptions.
+const char kUncaughtExceptionStackSize[]  = "uncaught-exception-stack-size";
+
 // Context safety implementation type.
 const char kContextSafetyImplementation[] = "context-safety-implementation";
 
