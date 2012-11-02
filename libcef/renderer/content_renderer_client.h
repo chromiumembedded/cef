@@ -48,6 +48,10 @@ class CefContentRendererClient : public content::ContentRendererClient {
   // Render thread message loop proxy.
   base::MessageLoopProxy* render_loop() const { return render_loop_.get(); }
 
+  void DevToolsAgentAttached();
+  void DevToolsAgentDetached();
+  void SetUncaughtExceptionStackSize(int stackSize);
+
  private:
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
@@ -71,6 +75,9 @@ class CefContentRendererClient : public content::ContentRendererClient {
   struct SchemeInfo;
   typedef std::list<SchemeInfo> SchemeInfoList;
   SchemeInfoList scheme_info_list_;
+
+  int devtools_agent_count_;
+  int uncaught_exception_stack_size_;
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_

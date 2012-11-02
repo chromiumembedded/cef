@@ -21,6 +21,7 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/v8_impl.h"
 
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/content_client.h"
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/thread_util.h"
@@ -1664,4 +1665,29 @@ bool CefV8StackFrameImpl::IsConstructor() {
   CEF_V8_REQUIRE_VALID_RETURN(false);
   v8::HandleScope handle_scope;
   return GetHandle()->IsConstructor();
+}
+
+void CefV8MessageHandler(v8::Handle<v8::Message> message,
+                         v8::Handle<v8::Value> data) {
+  CEF_REQUIRE_RT_RETURN(void());
+
+  CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+  CefRefPtr<CefBrowser> browser = context->GetBrowser();
+  CefRefPtr<CefFrame> frame = context->GetFrame();
+
+  v8::Handle<v8::StackTrace> v8Stack = message->GetStackTrace();
+  DCHECK(!v8Stack.IsEmpty());
+  CefRefPtr<CefV8StackTrace> stackTrace = new CefV8StackTraceImpl(v8Stack);
+
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (!application.get())
+    return;
+
+  CefRefPtr<CefRenderProcessHandler> handler =
+      application->GetRenderProcessHandler();
+  if (!handler.get())
+    return;
+
+  CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(message);
+  handler->OnUncaughtException(browser, frame, context, exception, stackTrace);
 }

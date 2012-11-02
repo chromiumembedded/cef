@@ -16,6 +16,8 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
+#include "libcef_dll/ctocpp/v8exception_ctocpp.h"
+#include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -134,6 +136,46 @@ void CEF_CALLBACK render_process_handler_on_context_released(
       CefV8ContextCToCpp::Wrap(context));
 }
 
+void CEF_CALLBACK render_process_handler_on_uncaught_exception(
+    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, struct _cef_v8context_t* context,
+    struct _cef_v8exception_t* exception,
+    struct _cef_v8stack_trace_t* stackTrace) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return;
+  // Verify param: context; type: refptr_diff
+  DCHECK(context);
+  if (!context)
+    return;
+  // Verify param: exception; type: refptr_diff
+  DCHECK(exception);
+  if (!exception)
+    return;
+  // Verify param: stackTrace; type: refptr_diff
+  DCHECK(stackTrace);
+  if (!stackTrace)
+    return;
+
+  // Execute
+  CefRenderProcessHandlerCppToC::Get(self)->OnUncaughtException(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefV8ContextCToCpp::Wrap(context),
+      CefV8ExceptionCToCpp::Wrap(exception),
+      CefV8StackTraceCToCpp::Wrap(stackTrace));
+}
+
 void CEF_CALLBACK render_process_handler_on_focused_node_changed(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, cef_domnode_t* node) {
@@ -202,6 +244,8 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_context_created;
   struct_.struct_.on_context_released =
       render_process_handler_on_context_released;
+  struct_.struct_.on_uncaught_exception =
+      render_process_handler_on_uncaught_exception;
   struct_.struct_.on_focused_node_changed =
       render_process_handler_on_focused_node_changed;
   struct_.struct_.on_process_message_received =

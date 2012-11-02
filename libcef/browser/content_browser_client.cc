@@ -279,6 +279,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
       switches::kProductVersion,
+      switches::kUncaughtExceptionStackSize,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
