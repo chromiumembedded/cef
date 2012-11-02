@@ -101,6 +101,17 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_v8context_t* context);
 
   ///
+  // Called for global uncaught exceptions. Execution of this callback is
+  // disabled by default. To enable set
+  // CefSettings.uncaught_exception_stack_size > 0.
+  ///
+  void (CEF_CALLBACK *on_uncaught_exception)(
+      struct _cef_render_process_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_v8context_t* context, struct _cef_v8exception_t* exception,
+      struct _cef_v8stack_trace_t* stackTrace);
+
+  ///
   // Called when a new node in the the browser gets focus. The |node| value may
   // be NULL if no specific node has gained focus. The node object passed to
   // this function represents a snapshot of the DOM at the time this function is

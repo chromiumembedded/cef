@@ -254,6 +254,14 @@ typedef struct _cef_settings_t {
   int remote_debugging_port;
 
   ///
+  // The number of stack trace frames to capture for uncaught exceptions.
+  // Specify a positive value to enable the CefV8ContextHandler::
+  // OnUncaughtException() callback. Specify 0 (default value) and
+  // OnUncaughtException() will not be called.
+  ///
+  int uncaught_exception_stack_size;
+
+  ///
   // By default CEF V8 references will be invalidated (the IsValid() method will
   // return false) after the owning context has been released. This reduces the
   // need for external record keeping and avoids crashes due to the use of V8
@@ -757,28 +765,28 @@ enum cef_urlrequest_flags_t {
   // Default behavior.
   ///
   UR_FLAG_NONE                      = 0,
-  
+
   ///
   // If set the cache will be skipped when handling the request.
   ///
   UR_FLAG_SKIP_CACHE                = 1 << 0,
-  
+
   ///
   // If set user name, password, and cookies may be sent with the request.
   ///
   UR_FLAG_ALLOW_CACHED_CREDENTIALS  = 1 << 1,
-  
+
   ///
   // If set cookies may be sent with the request and saved from the response.
   // UR_FLAG_ALLOW_CACHED_CREDENTIALS must also be set.
   ///
   UR_FLAG_ALLOW_COOKIES             = 1 << 2,
-  
+
   ///
   // If set upload progress events will be generated when a request has a body.
   ///
   UR_FLAG_REPORT_UPLOAD_PROGRESS    = 1 << 3,
-  
+
   ///
   // If set load timing info will be collected for the request.
   ///
@@ -810,23 +818,23 @@ enum cef_urlrequest_status_t {
   // Unknown status.
   ///
   UR_UNKNOWN = 0,
-  
+
   ///
   // Request succeeded.
   ///
   UR_SUCCESS,
-  
+
   ///
   // An IO request is pending, and the caller will be informed when it is
   // completed.
   ///
   UR_IO_PENDING,
-  
+
   ///
   // Request was canceled programatically.
   ///
   UR_CANCELED,
-  
+
   ///
   // Request failed for some reason.
   ///
@@ -1121,7 +1129,7 @@ typedef struct _cef_key_event_t {
   // The type of keyboard event.
   ///
   cef_key_event_type_t type;
-  
+
   ///
   // Bit flags describing any pressed modifier keys. See
   // cef_key_event_modifiers_t for values.

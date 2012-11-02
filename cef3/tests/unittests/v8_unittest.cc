@@ -25,8 +25,12 @@ const char kV8BindingTestUrl[] = "http://tests/V8Test.BindingTest";
 const char kV8ContextParentTestUrl[] = "http://tests/V8Test.ContextParentTest";
 const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
 const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
+const char kV8OnUncaughtExceptionTestUrl[] =
+    "http://tests/V8Test.OnUncaughtException";
 const char kV8TestMsg[] = "V8Test.Test";
 const char kV8TestCmdArg[] = "v8-test";
+const char kV8DevToolsURLMsg[] = "V8Test.DevToolsURL";
+const char kV8DevToolsLoadHookMsg[] = "V8Test.DevToolsLoadHook";
 
 enum V8TestMode {
   V8TEST_NONE = 0,
@@ -65,6 +69,8 @@ enum V8TestMode {
   V8TEST_BINDING,
   V8TEST_STACK_TRACE,
   V8TEST_EXTENSION,
+  V8TEST_ON_UNCAUGHT_EXCEPTION,
+  V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
 };
 
 // Set to the current test being run in the browser process. Will always be
@@ -97,7 +103,8 @@ class V8BrowserTest : public ClientApp::BrowserDelegate {
 class V8RendererTest : public ClientApp::RenderDelegate {
  public:
   V8RendererTest()
-      : test_mode_(V8TEST_NONE) {
+      : test_mode_(V8TEST_NONE),
+        devtools_url_("") {
   }
 
   // Run a test when the process message is received from the browser.
@@ -205,6 +212,12 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         break;
       case V8TEST_STACK_TRACE:
         RunStackTraceTest();
+        break;
+      case V8TEST_ON_UNCAUGHT_EXCEPTION:
+        RunOnUncaughtExceptionTest();
+        break;
+      case V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS:
+        RunOnUncaughtExceptionDevToolsTest();
         break;
       default:
         // Was a startup test.
@@ -1558,6 +1571,49 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     DestroyTest();
   }
 
+  void RunOnUncaughtExceptionTest() {
+    test_context_ =
+        browser_->GetMainFrame()->GetV8Context();
+    browser_->GetMainFrame()->ExecuteJavaScript(
+        "window.setTimeout(test, 0)", "about:blank", 0);
+  }
+
+  void RunOnUncaughtExceptionDevToolsTest() {
+    EXPECT_FALSE(browser_->IsPopup());
+    test_context_ =
+        browser_->GetMainFrame()->GetV8Context();
+    // Show DevTools.
+    EXPECT_FALSE(devtools_url_.empty());
+    browser_->GetMainFrame()->ExecuteJavaScript(
+        "window.open('" + devtools_url_ + "');", "about:blank", 0);
+  }
+
+  void OnUncaughtException(CefRefPtr<ClientApp> app,
+                           CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Context> context,
+                           CefRefPtr<CefV8Exception> exception,
+                           CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+        test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      EXPECT_TRUE(test_context_->IsSame(context));
+      EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
+        exception->GetMessage().ToString().c_str());
+      std::ostringstream stackFormatted;
+      for (int i = 0; i < stackTrace->GetFrameCount(); ++i) {
+        stackFormatted << "at "
+            << stackTrace->GetFrame(i)->GetFunctionName().ToString()
+            << "() in " << stackTrace->GetFrame(i)->GetScriptName().ToString()
+            << " on line " << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
+      }
+      const char* stackFormattedShouldBe =
+          "at test2() in http://tests/V8Test.OnUncaughtException on line 3\n"
+          "at test() in http://tests/V8Test.OnUncaughtException on line 2\n";
+      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
+      DestroyTest();
+    }
+  }
+
   // Test execution of a native function when the extension is loaded.
   void RunExtensionTest() {
     std::string code = "native function v8_extension_test();"
@@ -1606,6 +1662,16 @@ class V8RendererTest : public ClientApp::RenderDelegate {
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      if (browser_.get() == NULL) {
+        app_ = app;
+        browser_ = browser;
+      }
+      // The test is run from OnProcessMessageReceived(), after the message
+      // and the devtools url has been received from OnLoadEnd().
+      return;
+    }
+
     app_ = app;
     browser_ = browser;
 
@@ -1686,6 +1752,119 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     }
   }
 
+  virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
+                                  CefRefPtr<CefBrowser> browser) OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      if (browser->IsPopup()) {
+        // After window destruction there is still a call to
+        // ScriptController::setCaptureCallStackForUncaughtExceptions(0),
+        // for which we have to wait.
+        CefPostDelayedTask(TID_RENDERER, NewCefRunnableMethod(
+            this, &V8RendererTest::DevToolsClosed), 1000);
+      }
+    }
+  }
+
+  virtual bool OnProcessMessageReceived(CefRefPtr<ClientApp> app,
+                                        CefRefPtr<CefBrowser> browser,
+                                        CefProcessId source_process,
+                                        CefRefPtr<CefProcessMessage> message)
+                                        OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      EXPECT_TRUE(browser.get());
+      EXPECT_EQ(PID_BROWSER, source_process);
+      EXPECT_TRUE(message.get());
+      EXPECT_TRUE(message->IsReadOnly());
+
+      if (message->GetName() == kV8DevToolsURLMsg) {
+        EXPECT_FALSE(browser->IsPopup());
+        devtools_url_ = message->GetArgumentList()->GetString(0);
+        EXPECT_FALSE(devtools_url_.empty());
+        if (!TestFailed()) {
+          CefPostTask(TID_RENDERER,
+              NewCefRunnableMethod(this, &V8RendererTest::RunTest));
+        }
+      } else if (message->GetName() == kV8DevToolsLoadHookMsg) {
+        EXPECT_TRUE(browser->IsPopup());
+        DevToolsLoadHook(browser);
+      } else {
+        EXPECT_TRUE(false) << "not reached";
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  void DevToolsLoadHook(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(browser->IsPopup());
+    CefRefPtr<CefV8Context> context = browser->GetMainFrame()->GetV8Context();
+    static const char* kFuncName = "DevToolsLoaded";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                           CefRefPtr<CefV8Value> object,
+                           const CefV8ValueList& arguments,
+                           CefRefPtr<CefV8Value>& retval,
+                           CefString& exception) OVERRIDE {
+          EXPECT_STREQ(kFuncName, name.ToString().c_str());
+          if (name == kFuncName) {
+            EXPECT_TRUE(exception.empty());
+            retval = CefV8Value::CreateNull();
+            EXPECT_TRUE(retval.get());
+            renderer_test_->DevToolsLoaded(browser_);
+            return true;
+          }
+          return false;
+      }
+      CefRefPtr<V8RendererTest> renderer_test_;
+      CefRefPtr<CefBrowser> browser_;
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    EXPECT_TRUE(context->Enter());
+    Handler* handler = new Handler;
+    handler->renderer_test_ = this;
+    handler->browser_ = browser;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+    CefRefPtr<CefV8Value> func =
+      CefV8Value::CreateFunction(kFuncName, handler);
+    EXPECT_TRUE(func.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(
+        kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(context->Exit());
+
+    // Call DevToolsLoaded() when DevTools window completed loading.
+    std::string jsCode = "(function(){"
+      "  var oldLoadCompleted = InspectorFrontendAPI.loadCompleted;"
+      "  InspectorFrontendAPI.loadCompleted = function(){"
+      "    oldLoadCompleted.call(InspectorFrontendAPI);"
+      "    console.log('InspectorFrontendAPI.loadCompleted event fired');"
+      "    window.DevToolsLoaded();"
+      "  };"
+      "})();";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+    EXPECT_TRUE(context->Eval(CefString(jsCode), retval, exception));
+  }
+
+  void DevToolsLoaded(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(browser->IsPopup());
+    EXPECT_NE(browser->GetIdentifier(), browser_->GetIdentifier());
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+    EXPECT_TRUE(browser->GetMainFrame()->GetV8Context()->Eval(
+        "window.close()", retval, exception));
+  }
+
+  void DevToolsClosed() {
+    browser_->GetMainFrame()->ExecuteJavaScript(
+      "window.setTimeout(test, 0);", "about:blank", 0);
+  }
+
  protected:
   // Return from the test.
   void DestroyTest() {
@@ -1707,6 +1886,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 
     app_ = NULL;
     browser_ = NULL;
+    test_context_ = NULL;
+    test_object_ = NULL;
+    devtools_url_ = "";
   }
 
   // Return the V8 context.
@@ -1719,6 +1901,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
   CefRefPtr<ClientApp> app_;
   CefRefPtr<CefBrowser> browser_;
   V8TestMode test_mode_;
+  std::string devtools_url_;
 
   CefRefPtr<CefV8Context> test_context_;
   CefRefPtr<CefV8Value> test_object_;
@@ -1748,11 +1931,43 @@ class V8TestHandler : public TestHandler {
           "<script>var i = 0;</script>CHILD</body></html>",
           "text/html");
       CreateBrowser(kV8ContextParentTestUrl);
+    } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
+               test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      AddResource(kV8OnUncaughtExceptionTestUrl, "<html><body>"
+          "<h1>OnUncaughtException</h1>"
+          "<script>\n"
+          "function test(){ test2(); }\n"
+          "function test2(){ asd(); }\n"
+          "</script>\n"
+          "</body></html>\n",
+          "text/html");
+      CreateBrowser(kV8OnUncaughtExceptionTestUrl);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
       AddResource(test_url_, "<html><body>"
           "<script>var i = 0;</script>TEST</body></html>", "text/html");
       CreateBrowser(test_url_);
+    }
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+      if (browser->IsPopup()) {
+        EXPECT_STREQ(GetBrowser()->GetHost()->GetDevToolsURL(true).c_str(),
+                     frame->GetURL().c_str());
+        CefRefPtr<CefProcessMessage> return_msg =
+            CefProcessMessage::Create(kV8DevToolsLoadHookMsg);
+        EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
+      } else {
+        // Send the DevTools url message only for the main browser.
+        CefRefPtr<CefProcessMessage> return_msg =
+            CefProcessMessage::Create(kV8DevToolsURLMsg);
+        EXPECT_TRUE(return_msg->GetArgumentList()->SetString(0,
+            browser->GetHost()->GetDevToolsURL(true)));
+        EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
+      }
     }
   }
 
@@ -1849,4 +2064,6 @@ V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
 V8_TEST(StackTrace, V8TEST_STACK_TRACE);
+V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION);
+V8_TEST(OnUncaughtExceptionDevTools, V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS);
 V8_TEST(Extension, V8TEST_EXTENSION);

@@ -17,6 +17,7 @@ MSVC_POP_WARNING();
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/chrome_bindings.h"
+#include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
@@ -71,7 +72,9 @@ struct CefContentRendererClient::SchemeInfo {
   bool is_display_isolated;
 };
 
-CefContentRendererClient::CefContentRendererClient() {
+CefContentRendererClient::CefContentRendererClient()
+    : devtools_agent_count_(0),
+      uncaught_exception_stack_size_(0) {
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
@@ -148,12 +151,33 @@ void CefContentRendererClient::RegisterCustomSchemes() {
   }
 }
 
+void CefContentRendererClient::DevToolsAgentAttached() {
+  CEF_REQUIRE_RT();
+  ++devtools_agent_count_;
+}
+
+void CefContentRendererClient::DevToolsAgentDetached() {
+  CEF_REQUIRE_RT();
+  --devtools_agent_count_;
+  if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
+    // When the last DevToolsAgent is detached the stack size is set to 0.
+    // Restore the user-specified stack size here.
+    v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+        uncaught_exception_stack_size_, v8::StackTrace::kDetailed);
+  }
+}
+
+void CefContentRendererClient::SetUncaughtExceptionStackSize(int stackSize) {
+  uncaught_exception_stack_size_ = stackSize;
+}
+
 void CefContentRendererClient::RenderThreadStarted() {
   render_loop_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
 
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
+  thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
 
