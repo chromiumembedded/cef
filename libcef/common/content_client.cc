@@ -85,8 +85,8 @@ base::StringPiece CefContentClient::GetDataResource(
     int resource_id,
     ui::ScaleFactor scale_factor) const {
   base::StringPiece value =
-      ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id,
-                                                             scale_factor);
+      ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
+          resource_id, scale_factor);
   if (value.empty())
     LOG(ERROR) << "No data resource available for id " << resource_id;
 

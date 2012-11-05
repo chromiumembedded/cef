@@ -9,6 +9,7 @@
 #include "base/test/test_suite.h"
 
 #if defined(OS_MACOSX)
+#include "base/debug/stack_trace.h"
 #include "base/file_path.h"
 #include "base/i18n/icu_util.h"
 #include "base/path_service.h"
@@ -96,7 +97,7 @@ void CefTestSuite::Initialize() {
   // Note: temporarily enabled timestamps in an effort to catch bug 6361.
   logging::SetLogItems(true, true, true, true);
 
-  CHECK(base::EnableInProcessStackDumping());
+  CHECK(base::debug::EnableInProcessStackDumping());
 
   // In some cases, we do not want to see standard error dialogs.
   if (!base::debug::BeingDebugged() &&

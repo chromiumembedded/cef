@@ -11,11 +11,12 @@ CefResourceDispatcherHostDelegate::CefResourceDispatcherHostDelegate() {
 CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {
 }
 
-void CefResourceDispatcherHostDelegate::HandleExternalProtocol(const GURL& url,
+bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(const GURL& url,
                                                                int child_id,
                                                                int route_id) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserByRoutingID(child_id, route_id);
   if (browser.get())
     browser->HandleExternalProtocol(url);
+  return false;
 }

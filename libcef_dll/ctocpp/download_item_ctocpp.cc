@@ -233,21 +233,6 @@ CefString CefDownloadItemCToCpp::GetMimeType() {
   return _retvalStr;
 }
 
-CefString CefDownloadItemCToCpp::GetReferrerCharset() {
-  if (CEF_MEMBER_MISSING(struct_, get_referrer_charset))
-    return CefString();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_string_userfree_t _retval = struct_->get_referrer_charset(struct_);
-
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
-}
-
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem,

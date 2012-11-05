@@ -251,21 +251,6 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_mime_type(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_referrer_charset(
-    struct _cef_download_item_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefString _retval = CefDownloadItemCppToC::Get(self)->GetReferrerCharset();
-
-  // Return type: string
-  return _retval.DetachToUserFree();
-}
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -290,7 +275,6 @@ CefDownloadItemCppToC::CefDownloadItemCppToC(CefDownloadItem* cls)
   struct_.struct_.get_content_disposition =
       download_item_get_content_disposition;
   struct_.struct_.get_mime_type = download_item_get_mime_type;
-  struct_.struct_.get_referrer_charset = download_item_get_referrer_charset;
 }
 
 #ifndef NDEBUG

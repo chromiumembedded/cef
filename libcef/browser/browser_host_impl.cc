@@ -301,8 +301,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
   DCHECK(host);
   CEF_REQUIRE_UIT();
-  WebContentsImpl* web_contents =
-      static_cast<WebContentsImpl*>(host->GetDelegate());
+  content::WebContentsImpl* web_contents =
+      static_cast<content::WebContentsImpl*>(host->GetDelegate());
   if (web_contents)
     return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
   return NULL;

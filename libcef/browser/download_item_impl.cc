@@ -100,8 +100,3 @@ CefString CefDownloadItemImpl::GetMimeType() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
   return const_value().GetMimeType();
 }
-
-CefString CefDownloadItemImpl::GetReferrerCharset() {
-  CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetReferrerCharset();
-}

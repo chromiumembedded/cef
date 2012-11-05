@@ -50,7 +50,6 @@ class CefDownloadItemCToCpp
   virtual CefString GetSuggestedFileName() OVERRIDE;
   virtual CefString GetContentDisposition() OVERRIDE;
   virtual CefString GetMimeType() OVERRIDE;
-  virtual CefString GetReferrerCharset() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

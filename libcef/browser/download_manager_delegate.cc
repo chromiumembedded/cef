@@ -263,7 +263,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     FilePath suggested_name = net::GenerateFileName(
         item->GetURL(),
         item->GetContentDisposition(),
-        item->GetReferrerCharset(),
+        EmptyString(),
         item->GetSuggestedFilename(),
         item->GetMimeType(),
         "download");

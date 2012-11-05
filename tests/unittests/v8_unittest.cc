@@ -1955,8 +1955,9 @@ class V8TestHandler : public TestHandler {
                          int httpStatusCode) OVERRIDE {
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser->IsPopup()) {
-        EXPECT_STREQ(GetBrowser()->GetHost()->GetDevToolsURL(true).c_str(),
-                     frame->GetURL().c_str());
+        EXPECT_STREQ(
+            GetBrowser()->GetHost()->GetDevToolsURL(true).ToString().c_str(),
+            frame->GetURL().ToString().c_str());
         CefRefPtr<CefProcessMessage> return_msg =
             CefProcessMessage::Create(kV8DevToolsLoadHookMsg);
         EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));

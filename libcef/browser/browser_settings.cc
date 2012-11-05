@@ -148,19 +148,19 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
       cef.universal_access_from_file_urls_allowed;
   web.allow_file_access_from_file_urls = cef.file_access_from_file_urls_allowed;
   web.experimental_webgl_enabled =
-      GpuProcessHost::gpu_enabled() && !cef.webgl_disabled;
+      content::GpuProcessHost::gpu_enabled() && !cef.webgl_disabled;
   web.gl_multisampling_enabled = web.experimental_webgl_enabled;
   web.show_composited_layer_borders = false;
   web.accelerated_compositing_enabled =
-      GpuProcessHost::gpu_enabled() && !cef.accelerated_compositing_disabled;
+      content::GpuProcessHost::gpu_enabled() && !cef.accelerated_compositing_disabled;
   web.accelerated_layers_enabled = !cef.accelerated_layers_disabled;
   web.accelerated_video_enabled = !cef.accelerated_video_disabled;
   web.accelerated_2d_canvas_enabled =
-      GpuProcessHost::gpu_enabled() && !cef.accelerated_2d_canvas_disabled;
+      content::GpuProcessHost::gpu_enabled() && !cef.accelerated_2d_canvas_disabled;
   web.accelerated_painting_enabled =
-      GpuProcessHost::gpu_enabled() && cef.accelerated_painting_enabled;
+      content::GpuProcessHost::gpu_enabled() && cef.accelerated_painting_enabled;
   web.accelerated_filters_enabled =
-      GpuProcessHost::gpu_enabled() && cef.accelerated_filters_enabled;
+      content::GpuProcessHost::gpu_enabled() && cef.accelerated_filters_enabled;
   web.accelerated_plugins_enabled = !cef.accelerated_plugins_disabled;
   web.memory_info_enabled = false;
   web.fullscreen_enabled = cef.fullscreen_enabled;

@@ -145,13 +145,6 @@ typedef struct _cef_download_item_t {
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_mime_type)(
       struct _cef_download_item_t* self);
-
-  ///
-  // Returns the referrer character set.
-  ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_referrer_charset)(
-      struct _cef_download_item_t* self);
 } cef_download_item_t;
 
 

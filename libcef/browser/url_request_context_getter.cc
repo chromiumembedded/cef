@@ -164,10 +164,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     url_request_context_->set_accept_language("en-us,en");
     url_request_context_->set_accept_charset("iso-8859-1,*,utf-8");
 
-    storage_->set_host_resolver(
-        net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
-                                      net::HostResolver::kDefaultRetryAttempts,
-                                      NULL));
+    storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
 
     bool proxy_service_set = false;

@@ -16,7 +16,7 @@ class CefResourceDispatcherHostDelegate
   virtual ~CefResourceDispatcherHostDelegate();
 
   // ResourceDispatcherHostDelegate methods.
-  virtual void HandleExternalProtocol(const GURL& url,
+  virtual bool HandleExternalProtocol(const GURL& url,
                                       int child_id,
                                       int route_id) OVERRIDE;
 

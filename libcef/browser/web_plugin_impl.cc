@@ -70,7 +70,7 @@ void CefVisitWebPluginInfo(CefRefPtr<CefWebPluginInfoVisitor> visitor) {
   }
 
   if (CEF_CURRENTLY_ON_UIT()) {
-    PluginServiceImpl::GetInstance()->GetPlugins(
+    content::PluginServiceImpl::GetInstance()->GetPlugins(
         base::Bind(PluginsCallbackImpl, visitor));
   } else {
     // Execute on the UI thread.
@@ -86,7 +86,7 @@ void CefRefreshWebPlugins() {
   }
 
   // No thread affinity.
-  PluginServiceImpl::GetInstance()->RefreshPlugins();
+  content::PluginServiceImpl::GetInstance()->RefreshPlugins();
 }
 
 void CefAddWebPluginPath(const CefString& path) {
@@ -102,7 +102,7 @@ void CefAddWebPluginPath(const CefString& path) {
   }
 
   // No thread affinity.
-  PluginServiceImpl::GetInstance()->AddExtraPluginPath(FilePath(path));
+  content::PluginServiceImpl::GetInstance()->AddExtraPluginPath(FilePath(path));
 }
 
 void CefAddWebPluginDirectory(const CefString& dir) {
@@ -118,7 +118,7 @@ void CefAddWebPluginDirectory(const CefString& dir) {
   }
 
   // No thread affinity.
-  PluginServiceImpl::GetInstance()->AddExtraPluginDir(FilePath(dir));
+  content::PluginServiceImpl::GetInstance()->AddExtraPluginDir(FilePath(dir));
 }
 
 void CefRemoveWebPluginPath(const CefString& path) {
@@ -134,7 +134,8 @@ void CefRemoveWebPluginPath(const CefString& path) {
   }
 
   // No thread affinity.
-  PluginServiceImpl::GetInstance()->RemoveExtraPluginPath(FilePath(path));
+  content::PluginServiceImpl::GetInstance()->RemoveExtraPluginPath(
+      FilePath(path));
 }
 
 void CefUnregisterInternalWebPlugin(const CefString& path) {
@@ -150,7 +151,8 @@ void CefUnregisterInternalWebPlugin(const CefString& path) {
   }
 
   // No thread affinity.
-  PluginServiceImpl::GetInstance()->UnregisterInternalPlugin(FilePath(path));
+  content::PluginServiceImpl::GetInstance()->UnregisterInternalPlugin(
+      FilePath(path));
 }
 
 void CefForceWebPluginShutdown(const CefString& path) {
@@ -166,7 +168,8 @@ void CefForceWebPluginShutdown(const CefString& path) {
   }
 
   if (CEF_CURRENTLY_ON_IOT()) {
-    PluginServiceImpl::GetInstance()->ForcePluginShutdown(FilePath(path));
+    content::PluginServiceImpl::GetInstance()->ForcePluginShutdown(
+        FilePath(path));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefForceWebPluginShutdown, path));
@@ -186,7 +189,8 @@ void CefRegisterWebPluginCrash(const CefString& path) {
   }
 
   if (CEF_CURRENTLY_ON_IOT()) {
-    PluginServiceImpl::GetInstance()->RegisterPluginCrash(FilePath(path));
+    content::PluginServiceImpl::GetInstance()->RegisterPluginCrash(
+        FilePath(path));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefRegisterWebPluginCrash, path));
@@ -209,7 +213,8 @@ void CefIsWebPluginUnstable(
 
   if (CEF_CURRENTLY_ON_IOT()) {
     callback->IsUnstable(path,
-        PluginServiceImpl::GetInstance()->IsPluginUnstable(FilePath(path)));
+        content::PluginServiceImpl::GetInstance()->IsPluginUnstable(
+            FilePath(path)));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefIsWebPluginUnstable, path, callback));

@@ -33,6 +33,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "webkit/base/file_path_string_conversions.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebFrame;
@@ -321,7 +322,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
         data.assign(element.bytes(), element.bytes_length());
         body.appendData(data);
       } else if (element.type() == net::UploadElement::TYPE_FILE) {
-        body.appendFile(webkit_glue::FilePathToWebString(element.file_path()));
+        body.appendFile(webkit_base::FilePathToWebString(element.file_path()));
       } else {
         NOTREACHED();
       }

@@ -36,7 +36,6 @@ class CefDownloadItemImpl
   virtual CefString GetSuggestedFileName() OVERRIDE;
   virtual CefString GetContentDisposition() OVERRIDE;
   virtual CefString GetMimeType() OVERRIDE;
-  virtual CefString GetReferrerCharset() OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefDownloadItemImpl);

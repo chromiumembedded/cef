@@ -127,6 +127,10 @@ std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
 }
 
+content::RenderViewHost* CefDevToolsDelegate::CreateNewTarget() {
+  return NULL;
+}
+
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
                                                 bool http_scheme) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();

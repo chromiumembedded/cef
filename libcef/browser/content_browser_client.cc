@@ -229,13 +229,19 @@ class CefMediaObserver : public content::MediaObserver {
       int render_process_id,
       int render_view_id,
       const content::MediaStreamDevices& devices) OVERRIDE {}
+  virtual void OnMediaRequestStateChanged(
+      int render_process_id,
+      int render_view_id,
+      const content::MediaStreamDevice& device,
+      content::MediaRequestState state) OVERRIDE {}
 };
 
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
-  PluginServiceImpl::GetInstance()->SetFilter(plugin_service_filter_.get());
+  content::PluginServiceImpl::GetInstance()->SetFilter(
+      plugin_service_filter_.get());
 }
 
 CefContentBrowserClient::~CefContentBrowserClient() {

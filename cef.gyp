@@ -416,14 +416,14 @@
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/skia/skia.gyp:skia',
+        '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
+        '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
         '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:appcache',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:database',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:fileapi',
         '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:quota',
+        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_storage',
         'libcef_static',
       ],
       'defines': [
@@ -770,13 +770,11 @@
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
         '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
         '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
+        '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:appcache',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:database',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:fileapi',
         '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:quota',
+        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_storage',
         # Necessary to generate the grit include files.
         'cef_pak',
       ],
@@ -1000,7 +998,7 @@
     },
   ],
   'conditions': [
-    ['os_posix==1 and OS!="mac" and OS!="android" and gcc_version==46', {
+    ['os_posix==1 and OS!="mac" and OS!="android" and gcc_version>=46', {
       'target_defaults': {
         # Disable warnings about c++0x compatibility, as some names (such
         # as nullptr) conflict with upcoming c++0x types.
