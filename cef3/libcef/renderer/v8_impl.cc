@@ -88,6 +88,9 @@ class CefV8TrackManager {
 
       v8::Handle<v8::Object> object = context->Global();
       v8::Handle<v8::Value> value = object->GetHiddenValue(context_state_key_);
+      if (value.IsEmpty())
+        return;
+
       if (!value.IsEmpty())
         return static_cast<CefV8ContextState*>(v8::External::Unwrap(value));
 
