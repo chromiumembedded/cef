@@ -842,6 +842,9 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
 class RequestTestHandler : public TestHandler,
                            public RequestTestRunner::Delegate {
  public:
+  // Don't hide the DestroyTest method.
+  using TestHandler::DestroyTest;
+
   RequestTestHandler(RequestTestMode test_mode,
                      bool test_in_browser,
                      const char* test_url)

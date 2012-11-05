@@ -14,7 +14,7 @@
         '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "1<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
   },
   'conditions': [
-    [ 'os_posix==1 and OS!="mac" and OS!="android" and gcc_version==46', {
+    [ 'os_posix==1 and OS!="mac" and OS!="android" and gcc_version>=46', {
       'target_defaults': {
         # Disable warnings about c++0x compatibility, as some names (such
         # as nullptr) conflict with upcoming c++0x types.

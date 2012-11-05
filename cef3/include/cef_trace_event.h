@@ -184,7 +184,7 @@ CEF_EXPORT void cef_trace_event_end(const char* category,
                                     const char* arg2_name,
                                     uint64 arg2_val,
                                     int copy);
-CEF_EXPORT void cef_trace_event_if_longer_than(long long threshold_us,
+CEF_EXPORT void cef_trace_event_if_longer_than(int64 threshold_us,
                                                const char* category,
                                                const char* name,
                                                const char* arg1_name,

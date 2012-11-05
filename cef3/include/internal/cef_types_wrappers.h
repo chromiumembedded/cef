@@ -503,8 +503,8 @@ class CefTime : public CefStructBase<CefTimeTraits> {
   }
 
   // Return the delta between this object and |other| in milliseconds.
-  int64 Delta(const CefTime& other) {
-    int64 delta = 0;
+  long long Delta(const CefTime& other) {
+    long long delta = 0;
     cef_time_delta(this, &other, &delta);
     return delta;
   }
