@@ -20,5 +20,15 @@
         'clang_use_chrome_plugins': 0,
       }],
     ]
-  },
+  }, 'conditions': [
+    ['OS=="mac" and clang==1', {
+      'target_defaults': {
+        'xcode_settings': {
+          # Temporary workaround for an Xcode 4 build error. This can be
+          # removed with the next Chromium update. See crbug.com/156530.
+          'WARNING_CFLAGS': ['-Wno-unknown-warning-option'],
+        },
+      },
+    }]
+  ]
 }

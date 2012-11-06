@@ -35,7 +35,6 @@ BrowserRequestContextProxy::BrowserRequestContextProxy(
   set_transport_security_state(context->transport_security_state());
   set_accept_charset(context->accept_charset());
   set_accept_language(context->accept_language());
-  set_referrer_charset(context->referrer_charset());
   set_job_factory(context->job_factory());
 }
 

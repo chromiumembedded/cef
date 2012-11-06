@@ -23,12 +23,12 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebVector.h"
+#include "webkit/base/file_path_string_conversions.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/fileapi/file_system_task_runners.h"
 #include "webkit/fileapi/file_system_url.h"
 #include "webkit/fileapi/file_system_util.h"
 #include "webkit/fileapi/mock_file_system_options.h"
-#include "webkit/glue/webkit_glue.h"
 
 using base::WeakPtr;
 
@@ -340,7 +340,7 @@ void BrowserFileSystem::DidGetMetadata(WebFileSystemCallbacks* callbacks,
     web_file_info.type = info.is_directory ?
         WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
     web_file_info.platformPath =
-        webkit_glue::FilePathToWebString(platform_path);
+        webkit_base::FilePathToWebString(platform_path);
     callbacks->didReadMetadata(web_file_info);
   } else {
     callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
@@ -357,7 +357,7 @@ void BrowserFileSystem::DidReadDirectory(
     for (std::vector<base::FileUtilProxy::Entry>::const_iterator it =
             entries.begin(); it != entries.end(); ++it) {
       WebFileSystemEntry entry;
-      entry.name = webkit_glue::FilePathStringToWebString(it->name);
+      entry.name = webkit_base::FilePathStringToWebString(it->name);
       entry.isDirectory = it->is_directory;
       web_entries_vector.push_back(entry);
     }

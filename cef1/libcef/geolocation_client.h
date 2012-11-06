@@ -15,8 +15,11 @@
 
 class CefBrowserImpl;
 class CefGeolocationCallbackImpl;
+
+namespace content {
 class GeolocationProvider;
 struct Geoposition;
+}
 
 namespace WebKit {
 class WebGeolocationController;
@@ -28,7 +31,7 @@ class WebGeolocationPosition;
 // Delegate for Geolocation messages used by WebKit.
 class CefGeolocationClient
     : public WebKit::WebGeolocationClient,
-      public GeolocationObserver,
+      public content::GeolocationObserver,
       public base::RefCountedThreadSafe<CefGeolocationClient> {
  public:
   explicit CefGeolocationClient(CefBrowserImpl* browser);
@@ -83,7 +86,7 @@ class CefGeolocationClient
   // The following members are only accessed on the IO thread.
 
   // Only set whilst we are registered with the arbitrator.
-  GeolocationProvider* location_provider_;
+  content::GeolocationProvider* location_provider_;
   
   DISALLOW_COPY_AND_ASSIGN(CefGeolocationClient);
 };

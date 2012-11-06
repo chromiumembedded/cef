@@ -104,6 +104,11 @@ void SimpleClipboardClient::ReadCustomData(ui::Clipboard::Buffer buffer,
   GetClipboard()->ReadCustomData(buffer, type, data);
 }
 
+void SimpleClipboardClient::ReadData(const ui::Clipboard::FormatType& format,
+                                     std::string* data) {
+  GetClipboard()->ReadData(format, data);
+}
+
 webkit_glue::ClipboardClient::WriteContext*
 SimpleClipboardClient::CreateWriteContext() {
   return NULL;

@@ -253,7 +253,7 @@ void BrowserWebViewDelegate::startDragging(
 
   drag_delegate_ = new BrowserDragDelegate(this);
   drag_delegate_->StartDragging(drop_data, mask, image.getSkBitmap(),
-                                image_offset);
+                                gfx::Point(image_offset).OffsetFromOrigin());
 }
 
 void BrowserWebViewDelegate::runModal() {
@@ -318,25 +318,17 @@ webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
   if (!host)
     return NULL;
 
-  HWND hwnd;
-
-  if (!browser_->IsWindowRenderingDisabled()) {
-    // Parent the plugin container to the existing browser window.
-    hwnd = browser_->UIT_GetWebViewHost()->view_handle();
-    DCHECK(hwnd != NULL);
-  } else {
-    // Parent the plugin container to the main window handle provided by the
-    // user.
-    hwnd = browser_->UIT_GetMainWndHandle();
-    DCHECK(hwnd != NULL);
-  }
-
-  return WebPluginDelegateImpl::Create(file_path, mime_type, hwnd);
+  return WebPluginDelegateImpl::Create(file_path, mime_type);
 }
 
 void BrowserWebViewDelegate::CreatedPluginWindow(
     gfx::PluginWindowHandle handle) {
-  if (browser_->IsWindowRenderingDisabled()) {
+  if (!browser_->IsWindowRenderingDisabled()) {
+    // Parent the plugin container to the existing browser window.
+    HWND parent = browser_->UIT_GetWebViewHost()->view_handle();
+    DCHECK(parent != NULL);
+    SetParent(handle, parent);
+  } else {
     static bool registered_class = false;
     if (!registered_class) {
       WNDCLASSEX wcex = {0};

@@ -533,10 +533,8 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
   }
 #endif  // defined(OS_MACOSX)
 
-  if (value.empty() && !settings_.pack_loading_disabled) {
-    value = ResourceBundle::GetSharedInstance().GetRawDataResource(
-        resource_id, ui::SCALE_FACTOR_NONE);
-  }
+  if (value.empty() && !settings_.pack_loading_disabled)
+    value = ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
 
   if (value.empty())
     LOG(ERROR) << "No data resource available for id " << resource_id;

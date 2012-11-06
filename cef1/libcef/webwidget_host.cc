@@ -24,16 +24,15 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
 
   int width, height;
   GetSize(width, height);
-  const gfx::Rect client_rect(width, height);
-
-  const gfx::Rect rect_in_client = client_rect.Intersect(rect);
-  if (rect_in_client.IsEmpty())
+  gfx::Rect client_rect(width, height);
+  client_rect.Intersect(rect);
+  if (client_rect.IsEmpty())
     return;
 
-  UpdatePaintRect(rect_in_client);
+  UpdatePaintRect(client_rect);
 
   if (view_)
-    InvalidateWindowRect(rect_in_client);
+    InvalidateWindowRect(client_rect);
   else
     ScheduleTimer();
 }
@@ -140,7 +139,7 @@ void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
       SkRegion::kUnion_Op);
 #else
   // TODO(cef): Update all ports to use regions instead of rectangles.
-  paint_rect_ = paint_rect_.Union(rect);
+  paint_rect_.Union(rect);
 #endif
 }
 

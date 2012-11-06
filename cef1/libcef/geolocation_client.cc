@@ -77,7 +77,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
 
 void NotifyArbitratorPermissionGranted() {
   DCHECK(CefThread::CurrentlyOn(CefThread::IO));
-  GeolocationProvider::GetInstance()->OnPermissionGranted();
+  content::GeolocationProvider::GetInstance()->OnPermissionGranted();
 }
 
 }  // namespace
@@ -222,11 +222,11 @@ void CefGeolocationClient::OnStartUpdating(bool enable_high_accuracy) {
   DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
   if (!location_provider_)
-    location_provider_ = GeolocationProvider::GetInstance();
+    location_provider_ = content::GeolocationProvider::GetInstance();
 
   // Re-add to re-establish our options, in case they changed.
   location_provider_->AddObserver(
-      this, GeolocationObserverOptions(enable_high_accuracy));
+      this, content::GeolocationObserverOptions(enable_high_accuracy));
 }
 
 void CefGeolocationClient::OnStopUpdating() {
@@ -310,38 +310,40 @@ void CefGeolocationClient::OnPositionUpdated(
 // Replacement for content/browser/geolocation/arbitrator_dependency_factory.cc
 
 // GeolocationArbitratorDependencyFactory
-GeolocationArbitratorDependencyFactory::
+content::GeolocationArbitratorDependencyFactory::
 ~GeolocationArbitratorDependencyFactory() {
 }
 
 // DefaultGeolocationArbitratorDependencyFactory
-DefaultGeolocationArbitratorDependencyFactory::
+content::DefaultGeolocationArbitratorDependencyFactory::
 ~DefaultGeolocationArbitratorDependencyFactory() {
 }
 
-DefaultGeolocationArbitratorDependencyFactory::GetTimeNow
-DefaultGeolocationArbitratorDependencyFactory::GetTimeFunction() {
+content::DefaultGeolocationArbitratorDependencyFactory::GetTimeNow
+content::DefaultGeolocationArbitratorDependencyFactory::GetTimeFunction() {
   return base::Time::Now;
 }
 
 content::AccessTokenStore*
-DefaultGeolocationArbitratorDependencyFactory::NewAccessTokenStore() {
+content::DefaultGeolocationArbitratorDependencyFactory::NewAccessTokenStore() {
   return new CefAccessTokenStore;
 }
 
-LocationProviderBase*
-DefaultGeolocationArbitratorDependencyFactory::NewNetworkLocationProvider(
+content::LocationProviderBase*
+content::DefaultGeolocationArbitratorDependencyFactory::
+    NewNetworkLocationProvider(
     content::AccessTokenStore* access_token_store,
     net::URLRequestContextGetter* context,
     const GURL& url,
     const string16& access_token) {
-  return ::NewNetworkLocationProvider(access_token_store, context,
-                                      url, access_token);
+  return content::NewNetworkLocationProvider(access_token_store, context,
+                                             url, access_token);
 }
 
-LocationProviderBase*
-DefaultGeolocationArbitratorDependencyFactory::NewSystemLocationProvider() {
-  return ::NewSystemLocationProvider();
+content::LocationProviderBase*
+content::DefaultGeolocationArbitratorDependencyFactory::
+    NewSystemLocationProvider() {
+  return content::NewSystemLocationProvider();
 }
 
 

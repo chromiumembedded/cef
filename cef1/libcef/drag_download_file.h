@@ -12,6 +12,7 @@
 #include "base/file_path.h"
 #include "base/memory/linked_ptr.h"
 #include "base/message_loop.h"
+#include "base/run_loop.h"
 #include "googleurl/src/gurl.h"
 #include "ui/base/dragdrop/download_file_interface.h"
 
@@ -42,22 +43,14 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   // DownloadFileProvider methods.
   // Called on drag-and-drop thread (Windows).
   // Called on UI thread (MacOSX).
-  virtual bool Start(ui::DownloadFileObserver* observer);
-  virtual void Stop();
-#if defined(OS_WIN)
-  virtual IStream* GetStream() { return NULL; }
-#endif
+  virtual void Start(ui::DownloadFileObserver* observer) OVERRIDE;
+  virtual bool Wait() OVERRIDE;
+  virtual void Stop() OVERRIDE;
 
  private:
   // Called on drag-and-drop thread (Windows).
   // Called on UI thread (Windows).
   virtual ~DragDownloadFile();
-
-  // Called on drag-and-drop thread (Windows only).
-#if defined(OS_WIN)
-  void StartNestedMessageLoop();
-  void QuitNestedMessageLoop();
-#endif
 
   // Called on either drag-and-drop thread or UI thread (Windows).
   // Called on UI thread (MacOSX).
@@ -86,6 +79,7 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   bool is_started_;
   bool is_successful_;
   scoped_refptr<ui::DownloadFileObserver> observer_;
+  base::RunLoop nested_loop_;
 
   // Accessed on drag-and-drop thread (Windows only).
 #if defined(OS_WIN)

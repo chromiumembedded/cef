@@ -38,7 +38,7 @@ class BrowserDragDelegate
   void StartDragging(const WebDropData& drop_data,
                      WebKit::WebDragOperationsMask ops,
                      const SkBitmap& image,
-                     const gfx::Point& image_offset);
+                     const gfx::Vector2d& image_offset);
   void CancelDrag();
 
   // DataObjectImpl::Observer implementation.
@@ -61,7 +61,7 @@ class BrowserDragDelegate
                   const GURL& page_url,
                   const std::string& page_encoding,
                   const SkBitmap& image,
-                  const gfx::Point& image_offset);
+                  const gfx::Vector2d& image_offset);
 
   // Called on drag-and-drop thread.
   void StartBackgroundDragging(const WebDropData& drop_data,
@@ -69,7 +69,7 @@ class BrowserDragDelegate
                                const GURL& page_url,
                                const std::string& page_encoding,
                                const SkBitmap& image,
-                               const gfx::Point& image_offset);
+                               const gfx::Vector2d& image_offset);
   // Called on UI thread.
   void EndDragging();
   void CloseThread();

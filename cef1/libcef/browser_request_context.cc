@@ -204,10 +204,7 @@ void BrowserRequestContext::Init(
             CreateProxyConfigService(), 0, NULL));
   }
 
-  storage_.set_host_resolver(
-      net::CreateSystemHostResolver(net::HostResolver::kDefaultParallelism,
-                                    net::HostResolver::kDefaultRetryAttempts,
-                                    NULL));
+  storage_.set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
   storage_.set_cert_verifier(net::CertVerifier::CreateDefault());
   storage_.set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
@@ -254,13 +251,6 @@ void BrowserRequestContext::Init(
 
   net::URLRequestJobFactory* job_factory = new net::URLRequestJobFactoryImpl();
 
-  blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
-  job_factory->SetProtocolHandler(
-      "blob",
-      new webkit_blob::BlobProtocolHandler(
-          blob_storage_controller_.get(),
-          CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
-
   BrowserFileSystem* file_system = _Context->file_system();
   // Create the context if it doesn't already exist.
   file_system->CreateContext();
@@ -269,6 +259,14 @@ void BrowserRequestContext::Init(
         "filesystem",
         fileapi::CreateFileSystemProtocolHandler(
             file_system->file_system_context()));
+
+    blob_storage_controller_.reset(new webkit_blob::BlobStorageController());
+    job_factory->SetProtocolHandler(
+        "blob",
+        new webkit_blob::BlobProtocolHandler(
+            blob_storage_controller_.get(),
+            file_system->file_system_context(),
+            CefThread::GetMessageLoopProxyForThread(CefThread::FILE)));
   }
 
   storage_.set_job_factory(job_factory);

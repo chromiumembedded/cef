@@ -9,9 +9,9 @@
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebBlobData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
+#include "webkit/base/file_path_string_conversions.h"
 #include "webkit/blob/blob_data.h"
 #include "webkit/blob/blob_storage_controller.h"
-#include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebBlobData;
 using WebKit::WebURL;
@@ -39,7 +39,7 @@ BlobData* NewBlobData(const WebBlobData& data) {
       case WebBlobData::Item::TypeFile:
         if (item.length) {
           blob->AppendFile(
-              webkit_glue::WebStringToFilePath(item.filePath),
+              webkit_base::WebStringToFilePath(item.filePath),
               static_cast<uint64>(item.offset),
               static_cast<uint64>(item.length),
               base::Time::FromDoubleT(item.expectedModificationTime));

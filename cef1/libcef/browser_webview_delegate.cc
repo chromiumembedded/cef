@@ -60,10 +60,10 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/point.h"
 #include "webkit/appcache/web_application_cache_host_impl.h"
+#include "webkit/base/file_path_string_conversions.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/weburlrequest_extradata_impl.h"
-#include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
@@ -302,13 +302,13 @@ bool BrowserWebViewDelegate::runFileChooser(
   std::vector<FilePath> file_names;
 
   if (!ShowFileChooser(file_names, params.multiSelect, params.title,
-      webkit_glue::WebStringToFilePath(params.initialValue))) {
+      webkit_base::WebStringToFilePath(params.initialValue))) {
     return false;
   }
 
   WebVector<WebString> ws_file_names(file_names.size());
   for (size_t i = 0; i < file_names.size(); ++i) {
-    ws_file_names[i] = webkit_glue::FilePathToWebString(file_names[i]);
+    ws_file_names[i] = webkit_base::FilePathToWebString(file_names[i]);
   }
 
   chooser_completion->didChooseFile(ws_file_names);

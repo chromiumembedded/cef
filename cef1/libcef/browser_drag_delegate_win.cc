@@ -115,7 +115,7 @@ BrowserDragDelegate::~BrowserDragDelegate() {
 void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
                                         WebDragOperationsMask ops,
                                         const SkBitmap& image,
-                                        const gfx::Point& image_offset) {
+                                        const gfx::Vector2d& image_offset) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
   CefBrowserImpl* browser = view_->GetBrowser();
@@ -175,7 +175,7 @@ void BrowserDragDelegate::StartBackgroundDragging(
     const GURL& page_url,
     const std::string& page_encoding,
     const SkBitmap& image,
-    const gfx::Point& image_offset) {
+    const gfx::Vector2d& image_offset) {
   drag_drop_thread_id_ = base::PlatformThread::CurrentId();
 
   DoDragging(drop_data, ops, page_url, page_encoding, image, image_offset);
@@ -263,7 +263,7 @@ void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
                                      const GURL& page_url,
                                      const std::string& page_encoding,
                                      const SkBitmap& image,
-                                     const gfx::Point& image_offset) {
+                                     const gfx::Vector2d& image_offset) {
   ui::OSExchangeData data;
 
   if (!drop_data.download_metadata.empty()) {

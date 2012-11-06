@@ -51,11 +51,11 @@ DragDownloadFile::~DragDownloadFile() {
 #endif
 }
 
-bool DragDownloadFile::Start(ui::DownloadFileObserver* observer) {
+void DragDownloadFile::Start(ui::DownloadFileObserver* observer) {
   AssertCurrentlyOnDragThread();
 
   if (is_started_)
-    return true;
+    return;
   is_started_ = true;
 
   DCHECK(!observer_.get());
@@ -68,18 +68,19 @@ bool DragDownloadFile::Start(ui::DownloadFileObserver* observer) {
     // name already exists.
     if (!file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome"),
                                            &temp_dir_path_))
-      return false;
+      return;
 
     file_path_ = temp_dir_path_.Append(file_name_);
   }
 
   InitiateDownload();
+}
 
-  // On Windows, we need to wait till the download file is completed.
-#if defined(OS_WIN)
-  StartNestedMessageLoop();
-#endif
+bool DragDownloadFile::Wait() {
+  AssertCurrentlyOnDragThread();
 
+  if (is_started_)
+    nested_loop_.Run();
   return is_successful_;
 }
 
@@ -118,10 +119,8 @@ void DragDownloadFile::DownloadCompleted(bool is_successful) {
 
   is_successful_ = is_successful;
 
-  // On Windows, we need to stop the waiting.
-#if defined(OS_WIN)
-  QuitNestedMessageLoop();
-#endif
+  if (nested_loop_.running())
+    nested_loop_.Quit();
 }
 
 void DragDownloadFile::AssertCurrentlyOnDragThread() {
@@ -137,24 +136,3 @@ void DragDownloadFile::AssertCurrentlyOnUIThread() {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 #endif
 }
-
-#if defined(OS_WIN)
-void DragDownloadFile::StartNestedMessageLoop() {
-  AssertCurrentlyOnDragThread();
-
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
-  is_running_nested_message_loop_ = true;
-  MessageLoop::current()->Run();
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
-}
-
-void DragDownloadFile::QuitNestedMessageLoop() {
-  AssertCurrentlyOnDragThread();
-
-  if (is_running_nested_message_loop_) {
-    is_running_nested_message_loop_ = false;
-    MessageLoop::current()->Quit();
-  }
-}
-#endif

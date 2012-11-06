@@ -98,7 +98,8 @@ void WebWidgetHost::ScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   int width, height;
   GetSize(width, height);
   const gfx::Rect client_rect(width, height);
-  gfx::Rect rect = clip_rect.Intersect(client_rect);
+  gfx::Rect rect = clip_rect;
+  rect.Intersect(client_rect);
 
   const int x = rect.x();
   const int y = rect.y();

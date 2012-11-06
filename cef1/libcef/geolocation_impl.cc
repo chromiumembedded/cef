@@ -66,7 +66,8 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
   }
 
   if (CefThread::CurrentlyOn(CefThread::IO)) {
-    GeolocationProvider* provider = GeolocationProvider::GetInstance();
+    content::GeolocationProvider* provider =
+        content::GeolocationProvider::GetInstance();
     if (provider) {
       provider->RequestCallback(base::Bind(LocationCallback, callback));
       return true;

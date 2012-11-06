@@ -39,6 +39,8 @@ class SimpleClipboardClient : public webkit_glue::ClipboardClient {
   virtual void ReadCustomData(ui::Clipboard::Buffer buffer,
                               const string16& type,
                               string16* data) OVERRIDE;
+  virtual void ReadData(const ui::Clipboard::FormatType& format,
+                        std::string* data) OVERRIDE;
   virtual WriteContext* CreateWriteContext() OVERRIDE;
 };
 
