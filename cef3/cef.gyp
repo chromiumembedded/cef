@@ -1192,6 +1192,7 @@
             'tests/unittests/client_app_delegates.cc',
             'tests/unittests/cookie_unittest.cc',
             'tests/unittests/dom_unittest.cc',
+            'tests/unittests/navigation_unittest.cc',
             'tests/unittests/process_message_unittest.cc',
             'tests/unittests/scheme_handler_unittest.cc',
             'tests/unittests/urlrequest_unittest.cc',

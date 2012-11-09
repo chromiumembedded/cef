@@ -48,9 +48,26 @@ class ClientApp : public CefApp,
     virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
     };
 
+    // Called after a browser has been created.
+    virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
+                                  CefRefPtr<CefBrowser> browser) {
+    }
+
     // Called before a browser is destroyed.
     virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
                                     CefRefPtr<CefBrowser> browser) {
+    }
+
+    // Called before browser navigation. Return true to cancel the navigation or
+    // false to allow the navigation to proceed. The |request| object cannot be
+    // modified in this callback.
+    virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+                                    CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    cef_navigation_type_t navigation_type,
+                                    bool is_redirect) {
+      return false;
     }
 
     // Called when a V8 context is created. Used to create V8 window bindings
@@ -163,7 +180,13 @@ class ClientApp : public CefApp,
 
   // CefRenderProcessHandler methods.
   virtual void OnWebKitInitialized() OVERRIDE;
+  virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  NavigationType navigation_type,
+                                  bool is_redirect) OVERRIDE;
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE;
