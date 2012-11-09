@@ -15,6 +15,7 @@
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
+#include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
@@ -78,6 +79,40 @@ void CEF_CALLBACK render_process_handler_on_browser_destroyed(
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnBrowserDestroyed(
       CefBrowserCToCpp::Wrap(browser));
+}
+
+int CEF_CALLBACK render_process_handler_on_before_navigation(
+    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, struct _cef_request_t* request,
+    enum cef_navigation_type_t navigation_type, int is_redirect) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return 0;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request);
+  if (!request)
+    return 0;
+
+  // Execute
+  bool _retval = CefRenderProcessHandlerCppToC::Get(self)->OnBeforeNavigation(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefRequestCToCpp::Wrap(request),
+      navigation_type,
+      is_redirect?true:false);
+
+  // Return type: bool
+  return _retval;
 }
 
 void CEF_CALLBACK render_process_handler_on_context_created(
@@ -240,6 +275,8 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_browser_created;
   struct_.struct_.on_browser_destroyed =
       render_process_handler_on_browser_destroyed;
+  struct_.struct_.on_before_navigation =
+      render_process_handler_on_before_navigation;
   struct_.struct_.on_context_created =
       render_process_handler_on_context_created;
   struct_.struct_.on_context_released =

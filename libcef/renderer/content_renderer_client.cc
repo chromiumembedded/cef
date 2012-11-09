@@ -15,6 +15,7 @@ MSVC_POP_WARNING();
 
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/request_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/chrome_bindings.h"
 #include "libcef/renderer/render_message_filter.h"
@@ -199,6 +200,62 @@ void CefContentRendererClient::RenderViewCreated(
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
+}
+
+bool CefContentRendererClient::HandleNavigation(
+    WebKit::WebFrame* frame,
+    const WebKit::WebURLRequest& request,
+    WebKit::WebNavigationType type,
+    WebKit::WebNavigationPolicy default_policy,
+    bool is_redirect) {
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefBrowserImpl> browserPtr =
+          CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+      DCHECK(browserPtr.get());
+      if (browserPtr.get()) {
+        CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
+        CefRefPtr<CefRequest> requestPtr(CefRequest::Create());
+        CefRequestImpl* requestImpl =
+            static_cast<CefRequestImpl*>(requestPtr.get());
+        requestImpl->Set(request);
+        requestImpl->SetReadOnly(true);
+
+        cef_navigation_type_t navigation_type;
+        switch (type) {
+          case WebKit::WebNavigationTypeLinkClicked:
+            navigation_type = NAVIGATION_LINK_CLICKED;
+            break;
+          case WebKit::WebNavigationTypeFormSubmitted:
+            navigation_type = NAVIGATION_FORM_SUBMITTED;
+            break;
+          case WebKit::WebNavigationTypeBackForward:
+            navigation_type = NAVIGATION_BACK_FORWARD;
+            break;
+          case WebKit::WebNavigationTypeReload:
+            navigation_type = NAVIGATION_RELOAD;
+            break;
+          case WebKit::WebNavigationTypeFormResubmitted:
+            navigation_type = NAVIGATION_FORM_RESUBMITTED;
+            break;
+          case WebKit::WebNavigationTypeOther:
+            navigation_type = NAVIGATION_OTHER;
+            break;
+        }
+
+        if (handler->OnBeforeNavigation(browserPtr.get(), framePtr.get(),
+                                        requestPtr.get(), navigation_type,
+                                        is_redirect)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 void CefContentRendererClient::DidCreateScriptContext(

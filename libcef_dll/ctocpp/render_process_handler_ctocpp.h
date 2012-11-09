@@ -38,6 +38,9 @@ class CefRenderProcessHandlerCToCpp
   virtual void OnWebKitInitialized() OVERRIDE;
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      NavigationType navigation_type, bool is_redirect) OVERRIDE;
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
   virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
