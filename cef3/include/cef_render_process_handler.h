@@ -52,6 +52,8 @@
 /*--cef(source=client)--*/
 class CefRenderProcessHandler : public virtual CefBase {
  public:
+  typedef cef_navigation_type_t NavigationType;
+
   ///
   // Called after the render process main thread has been created.
   ///
@@ -75,6 +77,18 @@ class CefRenderProcessHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {}
+
+  ///
+  // Called before browser navigation. Return true to cancel the navigation or
+  // false to allow the navigation to proceed. The |request| object cannot be
+  // modified in this callback.
+  ///
+  /*--cef()--*/
+  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  NavigationType navigation_type,
+                                  bool is_redirect) { return false; }
 
   ///
   // Called immediately after the V8 context for a frame has been created. To

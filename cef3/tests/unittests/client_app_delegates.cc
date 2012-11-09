@@ -29,6 +29,10 @@ void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   // Bring in the URLRequest tests.
   extern void CreateURLRequestRendererTests(RenderDelegateSet& delegates);
   CreateURLRequestRendererTests(delegates);
+
+  // Bring in the Navigation tests.
+  extern void CreateNavigationRendererTests(RenderDelegateSet& delegates);
+  CreateNavigationRendererTests(delegates);
 }
 
 // static

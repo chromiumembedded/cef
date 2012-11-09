@@ -1,0 +1,65 @@
+Index: public/renderer/content_renderer_client.cc
+===================================================================
+--- public/renderer/content_renderer_client.cc	(revision 159829)
++++ public/renderer/content_renderer_client.cc	(working copy)
+@@ -56,6 +56,15 @@
+   return false;
+ }
+ 
++bool ContentRendererClient::HandleNavigation(
++    WebKit::WebFrame* frame,
++    const WebKit::WebURLRequest& request,
++    WebKit::WebNavigationType type,
++    WebKit::WebNavigationPolicy default_policy,
++    bool is_redirect) {
++  return false;
++}
++
+ bool ContentRendererClient::ShouldFork(WebKit::WebFrame* frame,
+                                        const GURL& url,
+                                        bool is_initial_navigation,
+Index: public/renderer/content_renderer_client.h
+===================================================================
+--- public/renderer/content_renderer_client.h	(revision 159829)
++++ public/renderer/content_renderer_client.h	(working copy)
+@@ -12,6 +12,8 @@
+ #include "ipc/ipc_message.h"
+ #include "content/public/common/content_client.h"
+ #include "content/public/common/page_transition_types.h"
++#include "third_party/WebKit/Source/WebKit/chromium/public/WebNavigationPolicy.h"
++#include "third_party/WebKit/Source/WebKit/chromium/public/WebNavigationType.h"
+ #include "third_party/WebKit/Source/WebKit/chromium/public/WebPageVisibilityState.h"
+ #include "v8/include/v8.h"
+ 
+@@ -130,6 +132,14 @@
+   // Returns true if the given url can create popup windows.
+   virtual bool AllowPopup(const GURL& creator);
+ 
++  // Returns true if the navigation was handled by the embedder and should be
++  // ignored by WebKit. This method is used by CEF.
++  virtual bool HandleNavigation(WebKit::WebFrame* frame,
++                                const WebKit::WebURLRequest& request,
++                                WebKit::WebNavigationType type,
++                                WebKit::WebNavigationPolicy default_policy,
++                                bool is_redirect);
++
+   // Returns true if we should fork a new process for the given navigation.
+   virtual bool ShouldFork(WebKit::WebFrame* frame,
+                           const GURL& url,
+Index: renderer/render_view_impl.cc
+===================================================================
+--- renderer/render_view_impl.cc	(revision 159829)
++++ renderer/render_view_impl.cc	(working copy)
+@@ -2646,6 +2646,12 @@
+ WebNavigationPolicy RenderViewImpl::decidePolicyForNavigation(
+     WebFrame* frame, const WebURLRequest& request, WebNavigationType type,
+     const WebNode&, WebNavigationPolicy default_policy, bool is_redirect) {
++  if (request.url() != GURL(content::kSwappedOutURL) &&
++      content::GetContentClient()->renderer()->HandleNavigation(
++          frame, request, type, default_policy, is_redirect)) {
++    return WebKit::WebNavigationPolicyIgnore;
++  }
++
+   Referrer referrer(
+       GURL(request.httpHeaderField(WebString::fromUTF8("Referer"))),
+       GetReferrerPolicyFromRequest(frame, request));

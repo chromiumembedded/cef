@@ -1189,6 +1189,18 @@ enum cef_focus_source_t {
 };
 
 ///
+// Navigation types.
+///
+enum cef_navigation_type_t {
+  NAVIGATION_LINK_CLICKED = 0,
+  NAVIGATION_FORM_SUBMITTED,
+  NAVIGATION_BACK_FORWARD,
+  NAVIGATION_RELOAD,
+  NAVIGATION_FORM_RESUBMITTED,
+  NAVIGATION_OTHER,
+};
+
+///
 // Supported XML encoding types. The parser supports ASCII, ISO-8859-1, and
 // UTF16 (LE and BE) by default. All other types must be translated to UTF8
 // before being passed to the parser. If a BOM is detected and the correct
