@@ -130,7 +130,8 @@ enum cef_log_severity_t {
 
 ///
 // Initialization settings. Specify NULL or 0 to get the recommended default
-// values.
+// values. Many of these and other settings can also configured using command-
+// line flags.
 ///
 typedef struct _cef_settings_t {
   ///
@@ -284,7 +285,8 @@ typedef struct _cef_settings_t {
 ///
 // Browser initialization settings. Specify NULL or 0 to get the recommended
 // default values. The consequences of using custom values may not be well
-// tested.
+// tested. Many of these and other settings can also configured using command-
+// line flags.
 ///
 typedef struct _cef_browser_settings_t {
   ///
@@ -480,16 +482,6 @@ typedef struct _cef_browser_settings_t {
   bool accelerated_2d_canvas_disabled;
 
   ///
-  // Set to true (1) to enable accelerated painting.
-  ///
-  bool accelerated_painting_enabled;
-
-  ///
-  // Set to true (1) to enable accelerated filters.
-  ///
-  bool accelerated_filters_enabled;
-
-  ///
   // Set to true (1) to disable accelerated plugins.
   ///
   bool accelerated_plugins_disabled;
@@ -498,11 +490,6 @@ typedef struct _cef_browser_settings_t {
   // Set to true (1) to disable developer tools (WebKit inspector).
   ///
   bool developer_tools_disabled;
-
-  ///
-  // Set to true (1) to enable fullscreen mode.
-  ///
-  bool fullscreen_enabled;
 } cef_browser_settings_t;
 
 ///

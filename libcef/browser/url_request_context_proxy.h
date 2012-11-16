@@ -21,8 +21,6 @@ class CefURLRequestContextProxy : public net::URLRequestContext {
   explicit CefURLRequestContextProxy(net::URLRequestContextGetter* parent);
   virtual ~CefURLRequestContextProxy();
 
-  virtual const std::string& GetUserAgent(const GURL& url) const OVERRIDE;
-
   void Initialize(CefBrowserHostImpl* browser);
 
   // We may try to delete this proxy multiple times if URLRequests are still

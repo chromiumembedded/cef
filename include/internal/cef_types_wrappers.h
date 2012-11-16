@@ -398,11 +398,8 @@ struct CefBrowserSettingsTraits {
     target->accelerated_video_disabled = src->accelerated_video_disabled;
     target->accelerated_2d_canvas_disabled =
         src->accelerated_2d_canvas_disabled;
-    target->accelerated_painting_enabled = src->accelerated_painting_enabled;
-    target->accelerated_filters_enabled = src->accelerated_filters_enabled;
     target->accelerated_plugins_disabled = src->accelerated_plugins_disabled;
     target->developer_tools_disabled = src->developer_tools_disabled;
-    target->fullscreen_enabled = src->fullscreen_enabled;
   }
 };
 
@@ -503,8 +500,8 @@ class CefTime : public CefStructBase<CefTimeTraits> {
   }
 
   // Return the delta between this object and |other| in milliseconds.
-  int64 Delta(const CefTime& other) {
-    int64 delta = 0;
+  long long Delta(const CefTime& other) {
+    long long delta = 0;
     cef_time_delta(this, &other, &delta);
     return delta;
   }

@@ -20,6 +20,7 @@
 #include "base/logging.h"
 #include "base/stl_util.h"
 #include "base/string_split.h"
+#include "base/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
@@ -38,6 +39,7 @@
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
+#include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
@@ -161,8 +163,9 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
-    url_request_context_->set_accept_language("en-us,en");
-    url_request_context_->set_accept_charset("iso-8859-1,*,utf-8");
+    storage_->set_http_user_agent_settings(
+        new net::StaticHttpUserAgentSettings(
+            "en-us,en", "iso-8859-1,*,utf-8", EmptyString()));
 
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());

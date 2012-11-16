@@ -311,12 +311,12 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
     WebKit::WebHTTPBody body;
     body.initialize();
 
-    const std::vector<net::UploadElement>* elements =
+    const ScopedVector<net::UploadElement>& elements =
         params.upload_data->elements();
-    std::vector<net::UploadElement>::const_iterator it =
-        elements->begin();
-    for (; it != elements->end(); ++it) {
-      const net::UploadElement& element = *it;
+    ScopedVector<net::UploadElement>::const_iterator it =
+        elements.begin();
+    for (; it != elements.end(); ++it) {
+      const net::UploadElement& element = **it;
       if (element.type() == net::UploadElement::TYPE_BYTES) {
         WebKit::WebData data;
         data.assign(element.bytes(), element.bytes_length());

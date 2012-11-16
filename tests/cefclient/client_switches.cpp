@@ -55,11 +55,8 @@ const char kAcceleratedCompositingDisabled[] =
 const char kAcceleratedLayersDisabled[] = "accelerated-layers-disabled";
 const char kAcceleratedVideoDisabled[] = "accelerated-video-disabled";
 const char kAcceledated2dCanvasDisabled[] = "accelerated-2d-canvas-disabled";
-const char kAcceleratedPaintingEnabled[] = "accelerated-painting-enabled";
-const char kAcceleratedFiltersEnabled[] = "accelerated-filters-enabled";
 const char kAcceleratedPluginsDisabled[] = "accelerated-plugins-disabled";
 const char kDeveloperToolsDisabled[] = "developer-tools-disabled";
-const char kFullscreenEnabled[] = "fullscreen-enabled";
 
 // Other attributes.
 const char kProxyType[] = "proxy-type";

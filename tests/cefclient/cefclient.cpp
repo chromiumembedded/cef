@@ -181,16 +181,10 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
       g_command_line->HasSwitch(cefclient::kAcceleratedVideoDisabled);
   settings.accelerated_2d_canvas_disabled =
       g_command_line->HasSwitch(cefclient::kAcceledated2dCanvasDisabled);
-  settings.accelerated_painting_enabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedPaintingEnabled);
-  settings.accelerated_filters_enabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedFiltersEnabled);
   settings.accelerated_plugins_disabled =
       g_command_line->HasSwitch(cefclient::kAcceleratedPluginsDisabled);
   settings.developer_tools_disabled =
       g_command_line->HasSwitch(cefclient::kDeveloperToolsDisabled);
-  settings.fullscreen_enabled =
-      g_command_line->HasSwitch(cefclient::kFullscreenEnabled);
 }
 
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
