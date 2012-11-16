@@ -335,7 +335,7 @@ void WebWidgetHost::Paint() {
     // Resize the canvas to be within a reasonable size of the client area.
     canvas_w_ = client_rect.width() + kCanvasGrowSize;
     canvas_h_ = client_rect.height() + kCanvasGrowSize;
-    canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+    canvas_.reset(skia::CreatePlatformCanvas(canvas_w_, canvas_h_, true));
     if (!canvas_.get()) {
       // memory allocation failed, we can't paint.
       LOG(ERROR) << "Failed to allocate memory for " << width << "x" << height;

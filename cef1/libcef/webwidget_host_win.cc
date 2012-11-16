@@ -385,7 +385,7 @@ void WebWidgetHost::Paint() {
       // Resize the canvas to be within a reasonable size of the client area.
       canvas_w_ = client_rect.width() + kCanvasGrowSize;
       canvas_h_ = client_rect.height() + kCanvasGrowSize;
-      canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+      canvas_.reset(skia::CreatePlatformCanvas(canvas_w_, canvas_h_, true));
     }
   } else if (!canvas_.get() || canvas_w_ != client_rect.width() ||
              canvas_h_ != client_rect.height()) {
@@ -394,7 +394,7 @@ void WebWidgetHost::Paint() {
     // The canvas must be the exact size of the client area.
     canvas_w_ = client_rect.width();
     canvas_h_ = client_rect.height();
-    canvas_.reset(new skia::PlatformCanvas(canvas_w_, canvas_h_, true));
+    canvas_.reset(skia::CreatePlatformCanvas(canvas_w_, canvas_h_, true));
   }
 
   webwidget_->animate(0.0);

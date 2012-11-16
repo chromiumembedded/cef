@@ -63,7 +63,7 @@ bool WebWidgetHost::GetImage(int width, int height, void* rgba_buffer) {
 
   // Create a new canvas of the requested size.
   scoped_ptr<skia::PlatformCanvas> new_canvas(
-      new skia::PlatformCanvas(width, height, true));
+      skia::CreatePlatformCanvas(width, height, true));
 
   new_canvas->writePixels(bitmap, 0, 0);
   const SkBitmap& new_bitmap = new_canvas->getDevice()->accessBitmap(false);

@@ -28,15 +28,6 @@ struct WebPluginInfo;
 
 namespace webkit_glue {
 
-#if defined(OS_WIN)
-// Capture a bitmap of the web view.
-void CaptureWebViewBitmap(HWND mainWnd, WebKit::WebView* webview,
-                          HBITMAP& bitmap, SIZE& size);
-
-// Save a bitmap image to file, providing optional alternative data in |lpBits|
-BOOL SaveBitmapToFile(HBITMAP hBmp, HDC hDC, LPCTSTR file, LPBYTE lpBits);
-#endif
-
 // Text encoding objects must be initialized on the main thread.
 void InitializeTextEncoding();
 

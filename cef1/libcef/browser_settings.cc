@@ -143,13 +143,17 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   web.experimental_webgl_enabled = !cef.webgl_disabled;
   web.show_composited_layer_borders = false;
   web.accelerated_compositing_enabled = cef.accelerated_compositing_enabled;
-  web.accelerated_layers_enabled = !cef.accelerated_layers_disabled;
-  web.accelerated_animation_enabled = !cef.accelerated_layers_disabled;
-  web.accelerated_video_enabled = !cef.accelerated_video_disabled;
+  web.accelerated_compositing_for_3d_transforms_enabled =
+      !cef.accelerated_layers_disabled;
+  web.accelerated_compositing_for_animation_enabled =
+      !cef.accelerated_layers_disabled;
+  web.accelerated_compositing_for_video_enabled =
+      !cef.accelerated_video_disabled;
   web.accelerated_2d_canvas_enabled = !cef.accelerated_2d_canvas_disabled;
   web.accelerated_painting_enabled = !cef.accelerated_painting_disabled;
   web.accelerated_filters_enabled = !cef.accelerated_filters_disabled;
-  web.accelerated_plugins_enabled = !cef.accelerated_plugins_disabled;
+  web.accelerated_compositing_for_plugins_enabled =
+      !cef.accelerated_plugins_disabled;
   web.memory_info_enabled = false;
   web.fullscreen_enabled = cef.fullscreen_enabled;
 }

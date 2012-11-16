@@ -296,11 +296,11 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
 
   CefRefPtr<CefPostDataElement> postelem;
 
-  const std::vector<net::UploadElement>* elements = data.elements();
-  std::vector<net::UploadElement>::const_iterator it = elements->begin();
-  for (; it != elements->end(); ++it) {
+  const ScopedVector<net::UploadElement>& elements = data.elements();
+  ScopedVector<net::UploadElement>::const_iterator it = elements.begin();
+  for (; it != elements.end(); ++it) {
     postelem = CefPostDataElement::CreatePostDataElement();
-    static_cast<CefPostDataElementImpl*>(postelem.get())->Set(*it);
+    static_cast<CefPostDataElementImpl*>(postelem.get())->Set(**it);
     AddElement(postelem);
   }
 }
@@ -308,14 +308,14 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
 void CefPostDataImpl::Get(net::UploadData& data) {
   AutoLock lock_scope(this);
 
-  net::UploadElement element;
-  std::vector<net::UploadElement> data_elements;
+  ScopedVector<net::UploadElement> data_elements;
   ElementVector::iterator it = elements_.begin();
   for (; it != elements_.end(); ++it) {
-    static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
+    net::UploadElement* element = new net::UploadElement();
+    static_cast<CefPostDataElementImpl*>(it->get())->Get(*element);
     data_elements.push_back(element);
   }
-  data.SetElements(data_elements);
+  data.swap_elements(&data_elements);
 }
 
 void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data) {

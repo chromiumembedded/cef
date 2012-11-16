@@ -14,12 +14,12 @@
 
 DragDownloadFile::DragDownloadFile(
     const FilePath& file_name_or_path,
-    linked_ptr<net::FileStream> file_stream,
+    scoped_ptr<net::FileStream> file_stream,
     const GURL& url,
     const GURL& referrer,
     const std::string& referrer_encoding,
     BrowserWebViewDelegate* view)
-    : file_stream_(file_stream),
+    : file_stream_(file_stream.Pass()),
       url_(url),
       referrer_(referrer),
       referrer_encoding_(referrer_encoding),

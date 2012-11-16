@@ -20,8 +20,6 @@ class BrowserRequestContextProxy : public net::URLRequestContext {
   BrowserRequestContextProxy(BrowserRequestContext* context,
                              CefBrowserImpl* browser);
 
-  virtual const std::string& GetUserAgent(const GURL& url) const OVERRIDE;
-
  private:
   BrowserRequestContext* context_;
   CefRefPtr<CefBrowserImpl> browser_;

@@ -34,8 +34,6 @@ class BrowserRequestContext : public net::URLRequestContext {
                         net::HttpCache::Mode cache_mode,
                         bool no_proxy);
 
-  virtual const std::string& GetUserAgent(const GURL& url) const OVERRIDE;
-
   // Set the path used for cookie storage. If |path| is empty memory only
   // storage will be used. If the old cookie data is being stored on disk it
   // will be flushed and closed.

@@ -34,6 +34,7 @@
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
+#include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
@@ -127,6 +128,27 @@ net::ProxyConfigService* CreateProxyConfigService() {
 #endif
 }
 
+class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
+ public:
+  CefHttpUserAgentSettings() {}
+  virtual ~CefHttpUserAgentSettings() {}
+
+  // hard-code A-L and A-C for test shells
+  virtual std::string GetAcceptLanguage() const OVERRIDE {
+    return "en-us,en";
+  }
+  virtual std::string GetAcceptCharset() const OVERRIDE {
+    return "iso-8859-1,*,utf-8";
+  }
+
+  virtual std::string GetUserAgent(const GURL& url) const OVERRIDE {
+    return webkit_glue::GetUserAgent(url);
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefHttpUserAgentSettings);
+};
+
 }  // namespace
 
 
@@ -153,9 +175,7 @@ void BrowserRequestContext::Init(
       new net::DefaultServerBoundCertStore(NULL),
       base::WorkerPool::GetTaskRunner(true)));
 
-  // hard-code A-L and A-C for test shells
-  set_accept_language("en-us,en");
-  set_accept_charset("iso-8859-1,*,utf-8");
+  storage_.set_http_user_agent_settings(new CefHttpUserAgentSettings);
 
   CefRefPtr<CefApp> app = _Context->application();
   if (app.get()) {
@@ -308,9 +328,4 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
   storage_.set_cookie_store(
       new net::CookieMonster(persistent_store.get(), NULL));
   cookie_store_path_ = new_path;
-}
-
-const std::string& BrowserRequestContext::GetUserAgent(
-    const GURL& url) const {
-  return webkit_glue::GetUserAgent(url);
 }

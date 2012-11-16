@@ -28,6 +28,7 @@
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
+#include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_about_job.h"
 #include "net/url_request/url_request_data_job.h"
@@ -104,6 +105,21 @@ std::string ToLower(const std::string& str) {
   return str;
 }
 
+bool SetHeaderIfMissing(CefRequest::HeaderMap& headerMap,
+                        const std::string& name,
+                        const std::string& value) {
+  if (value.empty())
+    return false;
+                              
+  CefRequest::HeaderMap::const_iterator it = headerMap.find(name);
+  if (it == headerMap.end()) {
+    headerMap.insert(std::make_pair(name, value));
+    return true;
+  }
+
+  return false;
+}
+
 
 // net::URLRequestJob implementation.
 class CefUrlRequestJob : public net::URLRequestJob {
@@ -132,37 +148,30 @@ class CefUrlRequestJob : public net::URLRequestJob {
     // Add default headers if not already specified.
     const net::URLRequestContext* context = request_->context();
     if (context) {
-      CefRequest::HeaderMap::const_iterator it;
       CefRequest::HeaderMap headerMap;
       cef_request_->GetHeaderMap(headerMap);
       bool changed = false;
 
-      if (!context->accept_language().empty()) {
-        it = headerMap.find(net::HttpRequestHeaders::kAcceptLanguage);
-        if (it == headerMap.end()) {
-          headerMap.insert(
-              std::make_pair(net::HttpRequestHeaders::kAcceptLanguage,
-                             context->accept_language()));
+      const net::HttpUserAgentSettings* ua_settings =
+          context->http_user_agent_settings();
+      if (ua_settings) {
+        if (SetHeaderIfMissing(headerMap,
+                               net::HttpRequestHeaders::kAcceptLanguage,
+                               ua_settings->GetAcceptLanguage())) {
+          changed = true;
         }
-        changed = true;
-      }
 
-      if (!context->accept_charset().empty()) {
-        it = headerMap.find(net::HttpRequestHeaders::kAcceptCharset);
-        if (it == headerMap.end()) {
-          headerMap.insert(
-              std::make_pair(net::HttpRequestHeaders::kAcceptCharset,
-                             context->accept_charset()));
+        if (SetHeaderIfMissing(headerMap,
+                               net::HttpRequestHeaders::kAcceptCharset,
+                               ua_settings->GetAcceptCharset())) {
+          changed = true;
         }
-        changed = true;
-      }
 
-      it = headerMap.find(net::HttpRequestHeaders::kUserAgent);
-      if (it == headerMap.end()) {
-        headerMap.insert(
-            std::make_pair(net::HttpRequestHeaders::kUserAgent,
-                           context->GetUserAgent(request_->url())));
-        changed = true;        
+        if (SetHeaderIfMissing(headerMap,
+                               net::HttpRequestHeaders::kUserAgent,
+                               ua_settings->GetUserAgent(request_->url()))) {
+          changed = true;
+        }
       }
 
       if (changed)

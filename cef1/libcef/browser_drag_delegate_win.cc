@@ -212,10 +212,10 @@ void BrowserDragDelegate::PrepareDragForDownload(
 
   // Provide the data as file (CF_HDROP). A temporary download file with the
   // Zone.Identifier ADS (Alternate Data Stream) attached will be created.
-  linked_ptr<net::FileStream> empty_file_stream;
+  scoped_ptr<net::FileStream> empty_file_stream;
   scoped_refptr<DragDownloadFile> download_file =
       new DragDownloadFile(generated_file_name,
-                           empty_file_stream,
+                           empty_file_stream.Pass(),
                            download_url,
                            page_url,
                            page_encoding,

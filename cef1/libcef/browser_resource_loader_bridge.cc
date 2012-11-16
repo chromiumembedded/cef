@@ -201,7 +201,6 @@ class RequestProxy : public net::URLRequest::Delegate,
   // Takes ownership of the params.
   explicit RequestProxy(CefRefPtr<CefBrowserImpl> browser)
     : download_to_file_(false),
-      file_stream_(NULL),
       buf_(new net::IOBuffer(kDataSize)),
       browser_(browser),
       owner_loop_(NULL),
@@ -611,7 +610,8 @@ class RequestProxy : public net::URLRequest::Delegate,
           downloaded_file_ = ShareableFileReference::GetOrCreate(
               path, ShareableFileReference::DELETE_ON_FINAL_RELEASE,
               base::MessageLoopProxy::current());
-          file_stream_.OpenSync(
+        file_stream_.reset(new net::FileStream(NULL));
+        file_stream_->OpenSync(
               path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
         }
       }
@@ -747,7 +747,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
     if (download_to_file_) {
-      file_stream_.WriteSync(buf_->data(), bytes_read);
+      file_stream_->WriteSync(buf_->data(), bytes_read);
       owner_loop_->PostTask(FROM_HERE, base::Bind(
           &RequestProxy::NotifyDownloadedData, this, bytes_read));
       return;
@@ -763,7 +763,7 @@ class RequestProxy : public net::URLRequest::Delegate,
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
     if (download_to_file_)
-      file_stream_.CloseSync();
+      file_stream_.reset();
 
     owner_loop_->PostTask(FROM_HERE, base::Bind(
         &RequestProxy::NotifyCompletedRequest, this, error_code, security_info,
@@ -926,7 +926,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   // Support for request.download_to_file behavior.
   bool download_to_file_;
-  net::FileStream file_stream_;
+  scoped_ptr<net::FileStream> file_stream_;
   scoped_refptr<ShareableFileReference> downloaded_file_;
 
   // Size of our async IO data buffers. Limited by the sanity check in
@@ -1006,7 +1006,7 @@ class SyncRequestProxy : public RequestProxy {
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
     if (download_to_file_)
-      file_stream_.WriteSync(buf_->data(), bytes_read);
+      file_stream_->WriteSync(buf_->data(), bytes_read);
     else
       result_->data.append(buf_->data(), bytes_read);
     AsyncReadData();  // read more (may recurse)
@@ -1018,7 +1018,7 @@ class SyncRequestProxy : public RequestProxy {
     DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
     if (download_to_file_)
-      file_stream_.CloseSync();
+      file_stream_.reset();
 
     result_->error_code = error_code;
     event_.Signal();

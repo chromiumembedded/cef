@@ -10,7 +10,7 @@
 #include <string>
 
 #include "base/file_path.h"
-#include "base/memory/linked_ptr.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/message_loop.h"
 #include "base/run_loop.h"
 #include "googleurl/src/gurl.h"
@@ -34,7 +34,7 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   // The file path and file stream should be provided as the first two
   // parameters.
   DragDownloadFile(const FilePath& file_name_or_path,
-                   linked_ptr<net::FileStream> file_stream,
+                   scoped_ptr<net::FileStream> file_stream,
                    const GURL& url,
                    const GURL& referrer,
                    const std::string& referrer_encoding,
@@ -66,7 +66,7 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   // Accessed on UI thread (MacOSX).
   FilePath file_path_;
   FilePath file_name_;
-  linked_ptr<net::FileStream> file_stream_;
+  scoped_ptr<net::FileStream> file_stream_;
   GURL url_;
   GURL referrer_;
   std::string referrer_encoding_;

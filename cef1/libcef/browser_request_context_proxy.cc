@@ -33,12 +33,7 @@ BrowserRequestContextProxy::BrowserRequestContextProxy(
   set_network_delegate(context->network_delegate());
   set_http_server_properties(context->http_server_properties());
   set_transport_security_state(context->transport_security_state());
-  set_accept_charset(context->accept_charset());
-  set_accept_language(context->accept_language());
+  set_http_user_agent_settings(const_cast<net::HttpUserAgentSettings*>(
+      context->http_user_agent_settings()));
   set_job_factory(context->job_factory());
-}
-
-const std::string&
-    BrowserRequestContextProxy::GetUserAgent(const GURL& url) const {
-  return context_->GetUserAgent(url);
 }
