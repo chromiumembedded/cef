@@ -168,7 +168,6 @@ void CefResourceRequestJob::Start() {
   // Add default headers if not already specified.
   const net::URLRequestContext* context = request_->context();
   if (context) {
-    CefRequest::HeaderMap::const_iterator it;
     CefRequest::HeaderMap headerMap;
     cef_request_->GetHeaderMap(headerMap);
     bool changed = false;
