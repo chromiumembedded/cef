@@ -76,7 +76,9 @@ class CefBrowserImpl : public CefBrowser,
       CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
-  explicit CefBrowserImpl(content::RenderView* render_view);
+  CefBrowserImpl(content::RenderView* render_view,
+                 int browser_id,
+                 bool is_popup);
   virtual ~CefBrowserImpl();
 
   void LoadRequest(const CefMsg_LoadRequest_Params& params);
@@ -110,7 +112,6 @@ class CefBrowserImpl : public CefBrowser,
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   // RenderViewObserver::OnMessageReceived message handlers.
-  void OnUpdateBrowserWindowId(int window_id, bool is_popup);
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);

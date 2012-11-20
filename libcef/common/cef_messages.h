@@ -58,14 +58,16 @@ IPC_STRUCT_BEGIN(Cef_Response_Params)
   IPC_STRUCT_MEMBER(std::string, response)
 IPC_STRUCT_END()
 
+// Parameters structure for a cross-origin white list entry.
+IPC_STRUCT_BEGIN(Cef_CrossOriginWhiteListEntry_Params)
+  IPC_STRUCT_MEMBER(std::string, source_origin)
+  IPC_STRUCT_MEMBER(std::string, target_protocol)
+  IPC_STRUCT_MEMBER(std::string, target_domain)
+  IPC_STRUCT_MEMBER(bool, allow_target_subdomains)
+IPC_STRUCT_END()
 
 
 // Messages sent from the browser to the renderer.
-
-// Tell the renderer which browser window it's being attached to.
-IPC_MESSAGE_ROUTED2(CefMsg_UpdateBrowserWindowId,
-                    int /* browser_id */,
-                    bool /* is_popup */)
 
 // Parameters for a resource request.
 IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
@@ -121,12 +123,9 @@ IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck,
                     int /* request_id */)
 
 // Sent to child processes to add or remove a cross-origin whitelist entry.
-IPC_MESSAGE_CONTROL5(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
+IPC_MESSAGE_CONTROL2(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
                      bool /* add */,
-                     std::string  /* source_origin */,
-                     std::string  /* target_protocol */,
-                     std::string  /* target_domain */,
-                     bool /* allow_target_subdomains */)
+                     Cef_CrossOriginWhiteListEntry_Params /* params */)
 
 // Sent to child processes to clear the cross-origin whitelist.
 IPC_MESSAGE_CONTROL0(CefProcessMsg_ClearCrossOriginWhitelist)
@@ -134,8 +133,30 @@ IPC_MESSAGE_CONTROL0(CefProcessMsg_ClearCrossOriginWhitelist)
 
 // Messages sent from the renderer to the browser.
 
-// Sent when the render thread has started and all filters are attached.
-IPC_MESSAGE_CONTROL0(CefProcessHostMsg_RenderThreadStarted)
+// Parameters for a newly created render thread.
+IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewRenderThreadInfo_Params)
+  IPC_STRUCT_MEMBER(std::vector<Cef_CrossOriginWhiteListEntry_Params>,
+                    cross_origin_whitelist_entries)
+
+  IPC_STRUCT_MEMBER(ListValue, extra_info)
+IPC_STRUCT_END()
+
+// Retrieve information about a newly created render thread.
+IPC_SYNC_MESSAGE_CONTROL0_1(
+    CefProcessHostMsg_GetNewRenderThreadInfo,
+    CefProcessHostMsg_GetNewRenderThreadInfo_Params /* params*/)
+
+// Parameters for a newly created browser window.
+IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewBrowserInfo_Params)
+  IPC_STRUCT_MEMBER(int, browser_id)
+  IPC_STRUCT_MEMBER(bool, is_popup)
+IPC_STRUCT_END()
+
+// Retrieve information about a newly created browser window.
+IPC_SYNC_MESSAGE_CONTROL1_1(
+    CefProcessHostMsg_GetNewBrowserInfo,
+    int /* routing_id */,
+    CefProcessHostMsg_GetNewBrowserInfo_Params /* params*/)
 
 // Sent when a frame is identified for the first time.
 IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,

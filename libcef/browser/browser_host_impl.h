@@ -78,6 +78,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
+      int browser_id,
       CefWindowHandle opener);
 
   // Returns the browser associated with the specified RenderViewHost.
@@ -138,9 +139,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
-  // Set the unique identifier for this browser.
-  void SetUniqueId(int unique_id);
-
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
   void DestroyBrowser();
@@ -198,7 +196,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
-  int unique_id() const { return unique_id_; }
+  int browser_id() const { return browser_id_; }
 
   // Returns the URL that is currently loading (or loaded) in the main frame.
   GURL GetLoadingURL();
@@ -323,6 +321,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      const CefBrowserSettings& settings,
                      CefRefPtr<CefClient> client,
                      content::WebContents* web_contents,
+                     int browser_id,
                      CefWindowHandle opener);
 
   // Initialize settings based on the specified RenderViewHost.
@@ -398,6 +397,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
   scoped_ptr<content::WebContents> web_contents_;
+  int browser_id_;
   CefWindowHandle opener_;
 
   // Unique ids used for routing communication to/from the renderer. We keep a
@@ -405,9 +405,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // a thread safe manner. All access must be protected by the state lock.
   int render_process_id_;
   int render_view_id_;
-
-  // Unique id for the browser.
-  int unique_id_;
 
   // Used when creating a new popup window.
   CefWindowInfo pending_window_info_;

@@ -229,6 +229,14 @@ void ClientApp::OnBeforeChildProcessLaunch(
     (*it)->OnBeforeChildProcessLaunch(this, command_line);
 }
 
+void ClientApp::OnRenderProcessThreadCreated(
+    CefRefPtr<CefListValue> extra_info) {
+  // Execute delegate callbacks.
+  BrowserDelegateSet::iterator it = browser_delegates_.begin();
+  for (; it != browser_delegates_.end(); ++it)
+    (*it)->OnRenderProcessThreadCreated(this, extra_info);
+}
+
 void ClientApp::GetProxyForUrl(const CefString& url,
                                CefProxyInfo& proxy_info) {
   proxy_info.proxyType = proxy_type_;
@@ -236,11 +244,11 @@ void ClientApp::GetProxyForUrl(const CefString& url,
     CefString(&proxy_info.proxyList) = proxy_config_;
 }
 
-void ClientApp::OnRenderThreadCreated() {
+void ClientApp::OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) {
   // Execute delegate callbacks.
   RenderDelegateSet::iterator it = render_delegates_.begin();
   for (; it != render_delegates_.end(); ++it)
-    (*it)->OnRenderThreadCreated(this);
+    (*it)->OnRenderThreadCreated(this, extra_info);
 }
 
 void ClientApp::OnWebKitInitialized() {

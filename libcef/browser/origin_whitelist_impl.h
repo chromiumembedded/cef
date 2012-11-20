@@ -5,13 +5,17 @@
 #ifndef CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 #define CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 
+#include <vector>
+
 namespace content {
 class RenderProcessHost;
 }
 
-// Called when a new RenderProcessHost is created to send existing cross-origin
-// whitelist entry information.
-void RegisterCrossOriginWhitelistEntriesWithHost(
-    content::RenderProcessHost* host);
+struct Cef_CrossOriginWhiteListEntry_Params;
+
+// Called to retrieve the current list of cross-origin white list entries. This
+// method is thread safe.
+void GetCrossOriginWhitelistEntries(
+    std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries);
 
 #endif  // CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
