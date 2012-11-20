@@ -38,6 +38,14 @@ CefRefPtr<CefBinaryValue> CefBinaryValueImpl::GetOrCreateRef(
       CefBinaryValueImpl::kReference, controller);
 }
 
+CefBinaryValueImpl::CefBinaryValueImpl(base::BinaryValue* value,
+                                       bool will_delete,
+                                       bool read_only)
+  : CefValueBase<CefBinaryValue, base::BinaryValue>(
+        value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
+        read_only, NULL) {
+}
+
 base::BinaryValue* CefBinaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
   return const_value().DeepCopy();
@@ -137,6 +145,14 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetOrCreateRef(
 
   return new CefDictionaryValueImpl(value, parent_value,
       CefDictionaryValueImpl::kReference, read_only, controller);
+}
+
+CefDictionaryValueImpl::CefDictionaryValueImpl(base::DictionaryValue* value,
+                                               bool will_delete,
+                                               bool read_only)
+  : CefValueBase<CefDictionaryValue, base::DictionaryValue>(
+        value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
+        read_only, NULL) {
 }
 
 base::DictionaryValue* CefDictionaryValueImpl::CopyValue() {
@@ -483,6 +499,14 @@ CefRefPtr<CefListValue> CefListValueImpl::GetOrCreateRef(
 
   return new CefListValueImpl(value, parent_value,
       CefListValueImpl::kReference, read_only, controller);
+}
+
+CefListValueImpl::CefListValueImpl(base::ListValue* value,
+                                   bool will_delete,
+                                   bool read_only)
+  : CefValueBase<CefListValue, base::ListValue>(
+        value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
+        read_only, NULL) {
 }
 
 base::ListValue* CefListValueImpl::CopyValue() {

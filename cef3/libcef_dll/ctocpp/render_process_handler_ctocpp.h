@@ -34,7 +34,8 @@ class CefRenderProcessHandlerCToCpp
   virtual ~CefRenderProcessHandlerCToCpp() {}
 
   // CefRenderProcessHandler methods
-  virtual void OnRenderThreadCreated() OVERRIDE;
+  virtual void OnRenderThreadCreated(
+      CefRefPtr<CefListValue> extra_info) OVERRIDE;
   virtual void OnWebKitInitialized() OVERRIDE;
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;

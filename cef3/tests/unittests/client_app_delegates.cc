@@ -9,6 +9,10 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
   // Bring in the V8 tests.
   extern void CreateV8BrowserTests(BrowserDelegateSet& delegates);
   CreateV8BrowserTests(delegates);
+
+  // Bring in the Navigation tests.
+  extern void CreateNavigationBrowserTests(BrowserDelegateSet& delegates);
+  CreateNavigationBrowserTests(delegates);
 }
 
 // static

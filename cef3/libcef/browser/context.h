@@ -13,6 +13,7 @@
 #include "include/cef_app.h"
 #include "include/cef_base.h"
 
+#include "base/atomic_sequence_num.h"
 #include "base/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/scoped_temp_dir.h"
@@ -54,8 +55,9 @@ class CefContext : public CefBase {
   // Returns true if the context is shutting down.
   bool shutting_down() { return shutting_down_; }
 
-  bool AddBrowser(CefRefPtr<CefBrowserHostImpl> browser);
-  bool RemoveBrowser(CefRefPtr<CefBrowserHostImpl> browser);
+  int GetNextBrowserID();
+  void AddBrowser(CefRefPtr<CefBrowserHostImpl> browser);
+  void RemoveBrowser(CefRefPtr<CefBrowserHostImpl> browser);
   CefRefPtr<CefBrowserHostImpl> GetBrowserByID(int id);
   CefRefPtr<CefBrowserHostImpl> GetBrowserByRoutingID(int render_process_id,
                                                       int render_view_id);
@@ -97,7 +99,7 @@ class CefContext : public CefBase {
   BrowserList browserlist_;
 
   // Used for assigning unique IDs to browser instances.
-  int next_browser_id_;
+  base::AtomicSequenceNumber next_browser_id_;
 
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;

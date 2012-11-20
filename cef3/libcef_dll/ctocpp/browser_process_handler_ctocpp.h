@@ -38,6 +38,8 @@ class CefBrowserProcessHandlerCToCpp
   virtual void OnContextInitialized() OVERRIDE;
   virtual void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
+  virtual void OnRenderProcessThreadCreated(
+      CefRefPtr<CefListValue> extra_info) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

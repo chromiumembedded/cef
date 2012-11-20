@@ -7,6 +7,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/chrome_bindings.h"
 #include "libcef/renderer/render_message_filter.h"
@@ -173,7 +174,44 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
 
-  thread->Send(new CefProcessHostMsg_RenderThreadStarted);
+  // Retrieve the new render thread information synchronously.
+  CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
+  thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
+
+  if (params.cross_origin_whitelist_entries.size() > 0) {
+    // Cross-origin entries need to be added after WebKit is initialized.
+    observer_->set_pending_cross_origin_whitelist_entries(
+        params.cross_origin_whitelist_entries);
+  }
+
+  // Notify the render process handler.
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefListValueImpl> listValuePtr(
+        new CefListValueImpl(&params.extra_info, false, true));
+      handler->OnRenderThreadCreated(listValuePtr.get());
+      listValuePtr->Detach(NULL);
+    }
+  }
+}
+
+void CefContentRendererClient::RenderViewCreated(
+    content::RenderView* render_view) {
+  // Retrieve the new browser information synchronously.
+  CefProcessHostMsg_GetNewBrowserInfo_Params params;
+  content::RenderThread::Get()->Send(
+      new CefProcessHostMsg_GetNewBrowserInfo(render_view->GetRoutingID(),
+                                              &params));
+  DCHECK_GT(params.browser_id, 0);
+
+  CefRefPtr<CefBrowserImpl> browser =
+      new CefBrowserImpl(render_view, params.browser_id, params.is_popup);
+  browsers_.insert(std::make_pair(render_view, browser));
+
+  new CefPrerendererClient(render_view);
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
@@ -181,16 +219,8 @@ void CefContentRendererClient::RenderThreadStarted() {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
     if (handler.get())
-      handler->OnRenderThreadCreated();
+      handler->OnBrowserCreated(browser.get());
   }
-}
-
-void CefContentRendererClient::RenderViewCreated(
-    content::RenderView* render_view) {
-  CefRefPtr<CefBrowserImpl> browser = new CefBrowserImpl(render_view);
-  browsers_.insert(std::make_pair(render_view, browser));
-
-  new CefPrerendererClient(render_view);
 }
 
 bool CefContentRendererClient::HandleNavigation(

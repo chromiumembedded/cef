@@ -167,8 +167,7 @@ void CefQuitMessageLoop() {
 CefContext::CefContext()
   : initialized_(false),
     shutting_down_(false),
-    init_thread_id_(0),
-    next_browser_id_(kNextBrowserIdReset) {
+    init_thread_id_(0) {
 }
 
 CefContext::~CefContext() {
@@ -271,48 +270,26 @@ bool CefContext::OnInitThread() {
   return (base::PlatformThread::CurrentId() == init_thread_id_);
 }
 
-bool CefContext::AddBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
-  bool found = false;
+int CefContext::GetNextBrowserID() {
+  return next_browser_id_.GetNext() + 1;
+}
 
+void CefContext::AddBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
   AutoLock lock_scope(this);
 
-  // check that the browser isn't already in the list before adding
-  BrowserList::const_iterator it = browserlist_.begin();
+  browserlist_.push_back(browser);
+}
+
+void CefContext::RemoveBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
+  AutoLock lock_scope(this);
+
+  BrowserList::iterator it = browserlist_.begin();
   for (; it != browserlist_.end(); ++it) {
     if (it->get() == browser.get()) {
-      found = true;
+      browserlist_.erase(it);
       break;
     }
   }
-
-  if (!found) {
-    browser->SetUniqueId(next_browser_id_++);
-    browserlist_.push_back(browser);
-  }
-
-  return !found;
-}
-
-bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
-  bool deleted = false;
-
-  {
-    AutoLock lock_scope(this);
-
-    BrowserList::iterator it = browserlist_.begin();
-    for (; it != browserlist_.end(); ++it) {
-      if (it->get() == browser.get()) {
-        browserlist_.erase(it);
-        deleted = true;
-        break;
-      }
-    }
-
-    if (browserlist_.empty())
-      next_browser_id_ = kNextBrowserIdReset;
-  }
-
-  return deleted;
 }
 
 CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByID(int id) {
@@ -320,7 +297,7 @@ CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByID(int id) {
 
   BrowserList::const_iterator it = browserlist_.begin();
   for (; it != browserlist_.end(); ++it) {
-    if (it->get()->unique_id() == id)
+    if (it->get()->browser_id() == id)
       return it->get();
   }
 

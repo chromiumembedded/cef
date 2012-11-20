@@ -29,11 +29,21 @@ class ClientApp : public CefApp,
     }
 
     // Called on the browser process IO thread before a child process is
-    // launched Provides an opportunity to modify the child process command
-    // line.
+    // launched. Provides an opportunity to modify the child process command
+    // line. Do not keep a reference to |command_line| outside of this method.
     virtual void OnBeforeChildProcessLaunch(
         CefRefPtr<ClientApp> app,
         CefRefPtr<CefCommandLine> command_line) {
+    }
+
+    // Called on the browser process IO thread after the main thread has been
+    // created for a new render process. Provides an opportunity to specify
+    // extra information that will be passed to
+    // CefRenderProcessHandler::OnRenderThreadCreated() in the render process.
+    // Do not keep a reference to |extra_info| outside of this method.
+    virtual void OnRenderProcessThreadCreated(
+        CefRefPtr<ClientApp> app,
+        CefRefPtr<CefListValue> extra_info) {
     }
   };
 
@@ -44,9 +54,14 @@ class ClientApp : public CefApp,
   // constructor.
   class RenderDelegate : public virtual CefBase {
    public:
+    // Called after the render process main thread has been created.
+    virtual void OnRenderThreadCreated(CefRefPtr<ClientApp> app,
+                                       CefRefPtr<CefListValue> extra_info) {
+    }
+
     // Called when WebKit is initialized. Used to register V8 extensions.
     virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
-    };
+    }
 
     // Called after a browser has been created.
     virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
@@ -77,7 +92,7 @@ class ClientApp : public CefApp,
                                   CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
                                   CefRefPtr<CefV8Context> context) {
-    };
+    }
 
     // Called when a V8 context is released. Used to clean up V8 window
     // bindings. RenderDelegates should check for unique URLs to avoid
@@ -86,7 +101,7 @@ class ClientApp : public CefApp,
                                    CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
                                    CefRefPtr<CefV8Context> context) {
-    };
+    }
 
     // Global V8 exception handler, disabled by default, to enable set
     // CefSettings.uncaught_exception_stack_size > 0.
@@ -173,12 +188,16 @@ class ClientApp : public CefApp,
   virtual void OnContextInitialized() OVERRIDE;
   virtual void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
+  virtual void OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info)
+                                            OVERRIDE;
 
   // CefProxyHandler methods.
   virtual void GetProxyForUrl(const CefString& url,
                               CefProxyInfo& proxy_info) OVERRIDE;
 
   // CefRenderProcessHandler methods.
+  virtual void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info)
+                                     OVERRIDE;
   virtual void OnWebKitInitialized() OVERRIDE;
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;

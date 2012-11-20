@@ -14,6 +14,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -24,15 +25,21 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK render_process_handler_on_render_thread_created(
-    struct _cef_render_process_handler_t* self) {
+    struct _cef_render_process_handler_t* self,
+    struct _cef_list_value_t* extra_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: extra_info; type: refptr_diff
+  DCHECK(extra_info);
+  if (!extra_info)
+    return;
 
   // Execute
-  CefRenderProcessHandlerCppToC::Get(self)->OnRenderThreadCreated();
+  CefRenderProcessHandlerCppToC::Get(self)->OnRenderThreadCreated(
+      CefListValueCToCpp::Wrap(extra_info));
 }
 
 void CEF_CALLBACK render_process_handler_on_web_kit_initialized(

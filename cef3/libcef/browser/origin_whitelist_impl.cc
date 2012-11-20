@@ -5,7 +5,7 @@
 #include "libcef/browser/origin_whitelist_impl.h"
 
 #include <string>
-#include <list>
+#include <vector>
 
 #include "include/cef_origin_whitelist.h"
 #include "libcef/browser/context.h"
@@ -14,6 +14,7 @@
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
+#include "base/synchronization/lock.h"
 #include "content/public/browser/render_process_host.h"
 #include "googleurl/src/gurl.h"
 
@@ -31,25 +32,26 @@ class CefOriginWhitelistManager {
                       const std::string& target_protocol,
                       const std::string& target_domain,
                       bool allow_target_subdomains) {
-    CEF_REQUIRE_UIT();
-
-    OriginInfo info;
+    Cef_CrossOriginWhiteListEntry_Params info;
     info.source_origin = source_origin;
     info.target_protocol = target_protocol;
     info.target_domain = target_domain;
     info.allow_target_subdomains = allow_target_subdomains;
 
-    // Verify that the origin entry doesn't already exist.
-    OriginList::const_iterator it = origin_list_.begin();
-    for (; it != origin_list_.end(); ++it) {
-      if (it->Equals(info))
-        return false;
+    {
+      base::AutoLock lock_scope(lock_);
+
+      // Verify that the origin entry doesn't already exist.
+      OriginList::const_iterator it = origin_list_.begin();
+      for (; it != origin_list_.end(); ++it) {
+        if (IsEqual(*it, info))
+          return false;
+      }
+
+      origin_list_.push_back(info);
     }
 
-    origin_list_.push_back(info);
-
-    SendModifyCrossOriginWhitelistEntry(true, source_origin, target_protocol,
-        target_domain, allow_target_subdomains);
+    SendModifyCrossOriginWhitelistEntry(true, info);
     return true;
   }
 
@@ -57,9 +59,7 @@ class CefOriginWhitelistManager {
                          const std::string& target_protocol,
                          const std::string& target_domain,
                          bool allow_target_subdomains) {
-    CEF_REQUIRE_UIT();
-
-    OriginInfo info;
+    Cef_CrossOriginWhiteListEntry_Params info;
     info.source_origin = source_origin;
     info.target_protocol = target_protocol;
     info.target_domain = target_domain;
@@ -67,70 +67,63 @@ class CefOriginWhitelistManager {
 
     bool found = false;
 
-    OriginList::iterator it = origin_list_.begin();
-    for (; it != origin_list_.end(); ++it) {
-      if (it->Equals(info)) {
-        origin_list_.erase(it);
-        found = true;
-        break;
+    {
+      base::AutoLock lock_scope(lock_);
+
+      OriginList::iterator it = origin_list_.begin();
+      for (; it != origin_list_.end(); ++it) {
+        if (IsEqual(*it, info)) {
+          origin_list_.erase(it);
+          found = true;
+          break;
+        }
       }
     }
 
     if (!found)
       return false;
 
-    SendModifyCrossOriginWhitelistEntry(false, source_origin, target_protocol,
-        target_domain, allow_target_subdomains);
+    SendModifyCrossOriginWhitelistEntry(false, info);
     return true;
   }
 
   void ClearOrigins() {
-    CEF_REQUIRE_UIT();
-
-    origin_list_.clear();
+    {
+      base::AutoLock lock_scope(lock_);
+      origin_list_.clear();
+    }
 
     SendClearCrossOriginWhitelist();
   }
 
-  // Send all existing cross-origin registrations to the specified host.
-  void RegisterOriginsWithHost(content::RenderProcessHost* host) {
-    CEF_REQUIRE_UIT();
+  void GetCrossOriginWhitelistEntries(
+      std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries) {
+    base::AutoLock lock_scope(lock_);
 
     if (origin_list_.empty())
       return;
-
-    OriginList::const_iterator it = origin_list_.begin();
-    for (; it != origin_list_.end(); ++it) {
-      host->Send(
-          new CefProcessMsg_ModifyCrossOriginWhitelistEntry(
-              true, it->source_origin, it->target_protocol, it->target_domain,
-              it->allow_target_subdomains));
-    }
+    entries->insert(entries->end(), origin_list_.begin(), origin_list_.end());
   }
 
  private:
   // Send the modify cross-origin whitelist entry message to all currently
   // existing hosts.
-  void SendModifyCrossOriginWhitelistEntry(bool add,
-                                           const std::string& source_origin,
-                                           const std::string& target_protocol,
-                                           const std::string& target_domain,
-                                           bool allow_target_subdomains) {
+  static void SendModifyCrossOriginWhitelistEntry(
+      bool add,
+      Cef_CrossOriginWhiteListEntry_Params& params) {
     CEF_REQUIRE_UIT();
 
     content::RenderProcessHost::iterator i(
         content::RenderProcessHost::AllHostsIterator());
     for (; !i.IsAtEnd(); i.Advance()) {
       i.GetCurrentValue()->Send(
-          new CefProcessMsg_ModifyCrossOriginWhitelistEntry(
-              add, source_origin, target_protocol, target_domain,
-              allow_target_subdomains));
+          new CefProcessMsg_ModifyCrossOriginWhitelistEntry(add, params));
     }
   }
 
   // Send the clear cross-origin whitelists message to all currently existing
   // hosts.
-  void SendClearCrossOriginWhitelist() {
+  static void SendClearCrossOriginWhitelist() {
     CEF_REQUIRE_UIT();
 
     content::RenderProcessHost::iterator i(
@@ -140,22 +133,18 @@ class CefOriginWhitelistManager {
     }
   }
 
-  struct OriginInfo {
-    std::string source_origin;
-    std::string target_protocol;
-    std::string target_domain;
-    bool allow_target_subdomains;
+  static bool IsEqual(const Cef_CrossOriginWhiteListEntry_Params& param1,
+                      const Cef_CrossOriginWhiteListEntry_Params& param2) {
+    return (param1.source_origin == param2.source_origin &&
+            param1.target_protocol == param2.target_protocol &&
+            param1.target_domain == param2.target_domain &&
+            param1.allow_target_subdomains == param2.allow_target_subdomains);
+  }
 
-    bool Equals(const OriginInfo& info) const {
-      return (source_origin == info.source_origin &&
-              target_protocol == info.target_protocol &&
-              target_domain == info.target_domain &&
-              allow_target_subdomains == info.allow_target_subdomains);
-    }
-  };
+  base::Lock lock_;
 
-  // List of registered origins.
-  typedef std::list<OriginInfo> OriginList;
+  // List of registered origins. Access must be protected by |lock_|.
+  typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> OriginList;
   OriginList origin_list_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CefOriginWhitelistManager);
@@ -247,8 +236,8 @@ bool CefClearCrossOriginWhitelist() {
   return true;
 }
 
-void RegisterCrossOriginWhitelistEntriesWithHost(
-    content::RenderProcessHost* host) {
-  CEF_REQUIRE_UIT();
-  CefOriginWhitelistManager::GetInstance()->RegisterOriginsWithHost(host);
+void GetCrossOriginWhitelistEntries(
+    std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries) {
+  CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
+      entries);
 }
