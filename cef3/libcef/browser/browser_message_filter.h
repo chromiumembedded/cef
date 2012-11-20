@@ -13,6 +13,9 @@ namespace content {
 class RenderProcessHost;
 }
 
+struct CefProcessHostMsg_GetNewBrowserInfo_Params;
+struct CefProcessHostMsg_GetNewRenderThreadInfo_Params;
+
 // This class sends and receives control messages on the browser process.
 class CefBrowserMessageFilter : public IPC::ChannelProxy::MessageFilter {
  public:
@@ -24,11 +27,14 @@ class CefBrowserMessageFilter : public IPC::ChannelProxy::MessageFilter {
   virtual void OnFilterRemoved() OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
+  bool Send(IPC::Message* message);
+
  private:
   // Message handlers.
-  void OnRenderThreadStarted();
-
-  void RegisterOnUIThread();
+  void OnGetNewRenderThreadInfo(
+      CefProcessHostMsg_GetNewRenderThreadInfo_Params* params);
+  void OnGetNewBrowserInfo(int routing_id,
+                           CefProcessHostMsg_GetNewBrowserInfo_Params* params);
 
   content::RenderProcessHost* host_;
   IPC::Channel* channel_;

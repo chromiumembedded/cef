@@ -241,6 +241,44 @@ CefContentBrowserClient::CefContentBrowserClient()
 CefContentBrowserClient::~CefContentBrowserClient() {
 }
 
+// static
+CefContentBrowserClient* CefContentBrowserClient::Get() {
+  return static_cast<CefContentBrowserClient*>(
+      content::GetContentClient()->browser());
+}
+
+void CefContentBrowserClient::GetNewPopupBrowserInfo(
+    int render_process_id, int render_view_id, NewPopupBrowserInfo* info) {
+  base::AutoLock lock_scope(new_popup_browser_lock_);
+
+  NewPopupBrowserInfoMap::const_iterator it =
+      new_popup_browser_info_map_.find(
+          std::make_pair(render_process_id, render_view_id));
+  if (it != new_popup_browser_info_map_.end()) {
+    *info = it->second;
+    return;
+  }
+
+  // Create the info now.
+  NewPopupBrowserInfo new_info;
+  new_info.browser_id = _Context->GetNextBrowserID();
+  new_popup_browser_info_map_.insert(
+      std::make_pair(
+          std::make_pair(render_process_id, render_view_id), new_info));
+  *info = new_info;
+}
+
+void CefContentBrowserClient::ClearNewPopupBrowserInfo(int render_process_id,
+                                                       int render_view_id) {
+  base::AutoLock lock_scope(new_popup_browser_lock_);
+
+  NewPopupBrowserInfoMap::iterator it =
+      new_popup_browser_info_map_.find(
+          std::make_pair(render_process_id, render_view_id));
+  if (it != new_popup_browser_info_map_.end())
+    new_popup_browser_info_map_.erase(it);
+}
+
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);

@@ -249,10 +249,12 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 // CefBrowserImpl public methods.
 // -----------------------------------------------------------------------------
 
-CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view)
+CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
+                               int browser_id,
+                               bool is_popup)
     : content::RenderViewObserver(render_view),
-      browser_window_id_(kInvalidBrowserId),
-      is_popup_(false),
+      browser_window_id_(browser_id),
+      is_popup_(is_popup),
       last_focused_frame_id_(kInvalidFrameId) {
   response_manager_.reset(new CefResponseManager);
 }
@@ -546,8 +548,6 @@ void CefBrowserImpl::DidCreateDataSource(WebKit::WebFrame* frame,
 bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefBrowserImpl, message)
-    IPC_MESSAGE_HANDLER(CefMsg_UpdateBrowserWindowId,
-                        OnUpdateBrowserWindowId)
     IPC_MESSAGE_HANDLER(CefMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
@@ -560,23 +560,6 @@ bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
 
 // RenderViewObserver::OnMessageReceived message handlers.
 // -----------------------------------------------------------------------------
-
-void CefBrowserImpl::OnUpdateBrowserWindowId(int window_id, bool is_popup) {
-  // This message should only be sent one time.
-  DCHECK(browser_window_id_ == kInvalidBrowserId);
-
-  browser_window_id_ = window_id;
-  is_popup_ = is_popup;
-
-  // Notify that the browser window has been created.
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnBrowserCreated(this);
-  }
-}
 
 void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
   bool success = false;

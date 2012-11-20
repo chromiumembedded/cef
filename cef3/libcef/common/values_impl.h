@@ -25,6 +25,11 @@ class CefBinaryValueImpl
       void* parent_value,
       CefValueController* controller);
 
+  // Simple constructor for referencing existing value objects.
+  CefBinaryValueImpl(base::BinaryValue* value,
+                     bool will_delete,
+                     bool read_only);
+
   // Return a copy of the value.
   base::BinaryValue* CopyValue();
 
@@ -71,6 +76,11 @@ class CefDictionaryValueImpl
       void* parent_value,
       bool read_only,
       CefValueController* controller);
+
+  // Simple constructor for referencing existing value objects.
+  CefDictionaryValueImpl(base::DictionaryValue* value,
+                         bool will_delete,
+                         bool read_only);
 
   // Return a copy of the value.
   base::DictionaryValue* CopyValue();
@@ -139,6 +149,11 @@ class CefListValueImpl
       void* parent_value,
       bool read_only,
       CefValueController* controller);
+
+  // Simple constructor for referencing existing value objects.
+  CefListValueImpl(base::ListValue* value,
+                   bool will_delete,
+                   bool read_only);
 
   // Return a copy of the value.
   base::ListValue* CopyValue();

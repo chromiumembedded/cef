@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -23,14 +24,21 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefRenderProcessHandlerCToCpp::OnRenderThreadCreated() {
+void CefRenderProcessHandlerCToCpp::OnRenderThreadCreated(
+    CefRefPtr<CefListValue> extra_info) {
   if (CEF_MEMBER_MISSING(struct_, on_render_thread_created))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: extra_info; type: refptr_diff
+  DCHECK(extra_info.get());
+  if (!extra_info.get())
+    return;
+
   // Execute
-  struct_->on_render_thread_created(struct_);
+  struct_->on_render_thread_created(struct_,
+      CefListValueCppToC::Wrap(extra_info));
 }
 
 void CefRenderProcessHandlerCToCpp::OnWebKitInitialized() {

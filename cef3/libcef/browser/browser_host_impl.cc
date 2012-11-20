@@ -10,6 +10,7 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/chrome_scheme_handler.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/navigate_params.h"
@@ -251,8 +252,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return NULL;
   }
 
+  int browser_id = _Context->GetNextBrowserID();
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(windowInfo, settings, client, NULL, NULL);
+      CefBrowserHostImpl::Create(windowInfo, settings, client, NULL, browser_id,
+                                 NULL);
   if (!url.empty())
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url);
   return browser.get();
@@ -268,6 +271,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
     content::WebContents* web_contents,
+    int browser_id,
     CefWindowHandle opener) {
   CEF_REQUIRE_UIT();
 
@@ -281,7 +285,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(window_info, settings, client, web_contents,
-                             opener);
+                             browser_id, opener);
   if (!browser->PlatformCreateWindow())
     return NULL;
 
@@ -561,7 +565,7 @@ void CefBrowserHostImpl::StopLoad() {
 }
 
 int CefBrowserHostImpl::GetIdentifier() {
-  return unique_id();
+  return browser_id();
 }
 
 bool CefBrowserHostImpl::IsPopup() {
@@ -668,12 +672,6 @@ bool CefBrowserHostImpl::SendProcessMessage(
 
 // CefBrowserHostImpl public methods.
 // -----------------------------------------------------------------------------
-
-void CefBrowserHostImpl::SetUniqueId(int unique_id) {
-  CEF_REQUIRE_UIT();
-  unique_id_ = unique_id;
-  Send(new CefMsg_UpdateBrowserWindowId(routing_id(), unique_id, IsPopup()));
-}
 
 void CefBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
@@ -1218,9 +1216,16 @@ void CefBrowserHostImpl::WebContentsCreated(
   if (source_contents)
     opener = GetBrowserForContents(source_contents)->GetWindowHandle();
 
+  CefContentBrowserClient::NewPopupBrowserInfo info;
+  CefContentBrowserClient::Get()->GetNewPopupBrowserInfo(
+      new_contents->GetRenderProcessHost()->GetID(),
+      new_contents->GetRoutingID(),
+      &info);
+  DCHECK_GT(info.browser_id, 0);
+
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
       pending_window_info_, pending_settings_, pending_client_, new_contents,
-      opener);
+      info.browser_id, opener);
 
   pending_client_ = NULL;
 }
@@ -1288,6 +1293,12 @@ void CefBrowserHostImpl::RenderViewDeleted(
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
+  if (IsPopup()) {
+    CefContentBrowserClient::Get()->ClearNewPopupBrowserInfo(
+        web_contents()->GetRenderProcessHost()->GetID(),
+        web_contents()->GetRoutingID());
+  }
+
   // Send the queued messages.
   queue_messages_ = false;
   while (!queued_messages_.empty()) {
@@ -1511,15 +1522,16 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
                                        const CefBrowserSettings& settings,
                                        CefRefPtr<CefClient> client,
                                        content::WebContents* web_contents,
+                                       int browser_id,
                                        CefWindowHandle opener)
     : content::WebContentsObserver(web_contents),
       window_info_(window_info),
       settings_(settings),
       client_(client),
+      browser_id_(browser_id),
       opener_(opener),
-      render_process_id_(0),
-      render_view_id_(0),
-      unique_id_(0),
+      render_process_id_(MSG_ROUTING_NONE),
+      render_view_id_(MSG_ROUTING_NONE),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),

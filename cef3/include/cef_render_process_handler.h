@@ -44,6 +44,7 @@
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
 #include "include/cef_v8.h"
+#include "include/cef_values.h"
 
 ///
 // Class used to implement render process callbacks. The methods of this class
@@ -55,10 +56,13 @@ class CefRenderProcessHandler : public virtual CefBase {
   typedef cef_navigation_type_t NavigationType;
 
   ///
-  // Called after the render process main thread has been created.
+  // Called after the render process main thread has been created. |extra_info|
+  // is a read-only value originating from
+  // CefBrowserProcessHandler::OnRenderProcessThreadCreated(). Do not keep a
+  // reference to |extra_info| outside of this method.
   ///
   /*--cef()--*/
-  virtual void OnRenderThreadCreated() {}
+  virtual void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) {}
 
   ///
   // Called after WebKit has been initialized.

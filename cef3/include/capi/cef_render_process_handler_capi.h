@@ -56,10 +56,14 @@ typedef struct _cef_render_process_handler_t {
   cef_base_t base;
 
   ///
-  // Called after the render process main thread has been created.
+  // Called after the render process main thread has been created. |extra_info|
+  // is a read-only value originating from
+  // cef_browser_process_handler_t::on_render_process_thread_created(). Do not
+  // keep a reference to |extra_info| outside of this function.
   ///
   void (CEF_CALLBACK *on_render_thread_created)(
-      struct _cef_render_process_handler_t* self);
+      struct _cef_render_process_handler_t* self,
+      struct _cef_list_value_t* extra_info);
 
   ///
   // Called after WebKit has been initialized.

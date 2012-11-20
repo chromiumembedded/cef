@@ -57,6 +57,22 @@ void CefRenderProcessObserver::WebKitInitialized() {
   // Register any custom schemes with WebKit.
   CefContentRendererClient::Get()->RegisterCustomSchemes();
 
+  if (pending_cross_origin_whitelist_entries_.size() > 0) {
+    // Add pending cross-origin white list entries.
+    for (size_t i = 0;
+         i < pending_cross_origin_whitelist_entries_.size(); ++i) {
+      const Cef_CrossOriginWhiteListEntry_Params& entry =
+          pending_cross_origin_whitelist_entries_[i];
+      GURL gurl = GURL(entry.source_origin);
+      WebKit::WebSecurityPolicy::addOriginAccessWhitelistEntry(
+          gurl,
+          WebKit::WebString::fromUTF8(entry.target_protocol),
+          WebKit::WebString::fromUTF8(entry.target_domain),
+          entry.allow_target_subdomains);
+    }
+    pending_cross_origin_whitelist_entries_.clear();
+  }
+
   // The number of stack trace frames to capture for uncaught exceptions.
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kUncaughtExceptionStackSize)) {
@@ -86,23 +102,20 @@ void CefRenderProcessObserver::WebKitInitialized() {
 
 void CefRenderProcessObserver::OnModifyCrossOriginWhitelistEntry(
     bool add,
-    const std::string& source_origin,
-    const std::string& target_protocol,
-    const std::string& target_domain,
-    bool allow_target_subdomains) {
-  GURL gurl = GURL(source_origin);
+    const Cef_CrossOriginWhiteListEntry_Params& params) {
+  GURL gurl = GURL(params.source_origin);
   if (add) {
     WebKit::WebSecurityPolicy::addOriginAccessWhitelistEntry(
         gurl,
-        WebKit::WebString::fromUTF8(target_protocol),
-        WebKit::WebString::fromUTF8(target_domain),
-        allow_target_subdomains);
+        WebKit::WebString::fromUTF8(params.target_protocol),
+        WebKit::WebString::fromUTF8(params.target_domain),
+        params.allow_target_subdomains);
   } else {
     WebKit::WebSecurityPolicy::removeOriginAccessWhitelistEntry(
         gurl,
-        WebKit::WebString::fromUTF8(target_protocol),
-        WebKit::WebString::fromUTF8(target_domain),
-        allow_target_subdomains);
+        WebKit::WebString::fromUTF8(params.target_protocol),
+        WebKit::WebString::fromUTF8(params.target_domain),
+        params.allow_target_subdomains);
   }
 }
 

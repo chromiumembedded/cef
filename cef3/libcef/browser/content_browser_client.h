@@ -6,12 +6,14 @@
 #define CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
 #pragma once
 
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
 
 class CefBrowserMainParts;
@@ -28,9 +30,28 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefContentBrowserClient();
   virtual ~CefContentBrowserClient();
 
+  // Returns the singleton CefContentBrowserClient instance.
+  static CefContentBrowserClient* Get();
+
   CefBrowserMainParts* browser_main_parts() const {
     return browser_main_parts_;
   }
+
+  // During popup window creation there is a race between the call to
+  // CefBrowserMessageFilter::OnGetNewBrowserInfo on the IO thread and the call
+  // to CefBrowserHostImpl::WebContentsCreated on the UI thread. To resolve this
+  // race we create the info when requested for the first time.
+  class NewPopupBrowserInfo {
+   public:
+    NewPopupBrowserInfo()
+        : browser_id(0) {}
+    int browser_id;
+  };
+  void GetNewPopupBrowserInfo(int render_process_id,
+                              int render_view_id,
+                              NewPopupBrowserInfo* info);
+  void ClearNewPopupBrowserInfo(int render_process_id,
+                                int render_view_id);
 
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
@@ -60,6 +81,14 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
+
+  base::Lock new_popup_browser_lock_;
+
+  // Map of (render_process_id, render_view_id) to info. Access must be
+  // protected by |new_popup_browser_lock_|.
+  typedef std::map<std::pair<int, int>, NewPopupBrowserInfo>
+      NewPopupBrowserInfoMap;
+  NewPopupBrowserInfoMap new_popup_browser_info_map_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_

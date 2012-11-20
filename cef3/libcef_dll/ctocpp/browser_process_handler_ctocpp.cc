@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
+#include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 
@@ -55,6 +56,23 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
   // Execute
   struct_->on_before_child_process_launch(struct_,
       CefCommandLineCppToC::Wrap(command_line));
+}
+
+void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
+    CefRefPtr<CefListValue> extra_info) {
+  if (CEF_MEMBER_MISSING(struct_, on_render_process_thread_created))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extra_info; type: refptr_diff
+  DCHECK(extra_info.get());
+  if (!extra_info.get())
+    return;
+
+  // Execute
+  struct_->on_render_process_thread_created(struct_,
+      CefListValueCppToC::Wrap(extra_info));
 }
 
 
