@@ -1838,13 +1838,16 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 
     // Call DevToolsLoaded() when DevTools window completed loading.
     std::string jsCode = "(function(){"
-      "  var oldLoadCompleted = InspectorFrontendAPI.loadCompleted;"
-      "  InspectorFrontendAPI.loadCompleted = function(){"
-      "    oldLoadCompleted.call(InspectorFrontendAPI);"
-      "    console.log('InspectorFrontendAPI.loadCompleted event fired');"
-      "    window.DevToolsLoaded();"
-      "  };"
-      "})();";
+        "  var oldLoadCompleted = InspectorFrontendAPI.loadCompleted;"
+        "  if (InspectorFrontendAPI._isLoaded) {"
+        "      window.DevToolsLoaded();"
+        "  } else {"
+        "    InspectorFrontendAPI.loadCompleted = function(){"
+        "      oldLoadCompleted.call(InspectorFrontendAPI);"
+        "      window.DevToolsLoaded();"
+        "    };"
+        "  }"
+        "})();";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
