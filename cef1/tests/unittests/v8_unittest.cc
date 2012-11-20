@@ -1562,14 +1562,99 @@ class V8TestHandler : public TestHandler {
   void RunOnUncaughtExceptionTest() {
     test_context_ =
         GetBrowser()->GetMainFrame()->GetV8Context();
-    GetBrowser()->GetMainFrame()->ExecuteJavaScript("test()",
-        CefString(), 0);
+    GetBrowser()->GetMainFrame()->ExecuteJavaScript(
+        "window.setTimeout(test, 0);", "about:blank", 0);
   }
 
   void RunOnUncaughtExceptionDevToolsTest() {
     test_context_ =
         GetBrowser()->GetMainFrame()->GetV8Context();
     GetBrowser()->ShowDevTools();
+  }
+
+  void DevToolsLoadHook(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(browser->IsPopup());
+    CefRefPtr<CefV8Context> context = browser->GetMainFrame()->GetV8Context();
+    static const char* kFuncName = "DevToolsLoaded";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                           CefRefPtr<CefV8Value> object,
+                           const CefV8ValueList& arguments,
+                           CefRefPtr<CefV8Value>& retval,
+                           CefString& exception) OVERRIDE {
+        EXPECT_STREQ(kFuncName, name.ToString().c_str());
+        if (name == kFuncName) {
+          EXPECT_TRUE(exception.empty());
+          retval = CefV8Value::CreateNull();
+          EXPECT_TRUE(retval.get());
+          test_handler_->DevToolsLoaded(browser_);
+          return true;
+        }
+        return false;
+      }
+      CefRefPtr<V8TestHandler> test_handler_;
+      CefRefPtr<CefBrowser> browser_;
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    EXPECT_TRUE(context->Enter());
+    Handler* handler = new Handler;
+    handler->test_handler_ = this;
+    handler->browser_ = browser;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction(kFuncName, handler);
+    EXPECT_TRUE(func.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(
+        kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(context->Exit());
+
+    // Call DevToolsLoaded() when DevTools window completed loading.
+    std::string jsCode = "(function(){"
+        "  var oldLoadCompleted = InspectorFrontendAPI.loadCompleted;"
+        "  if (InspectorFrontendAPI._isLoaded) {"
+        "      window.DevToolsLoaded();"
+        "  } else {"
+        "    InspectorFrontendAPI.loadCompleted = function(){"
+        "      oldLoadCompleted.call(InspectorFrontendAPI);"
+        "      window.DevToolsLoaded();"
+        "    };"
+        "  }"
+        "})();";
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+    EXPECT_TRUE(context->Eval(CefString(jsCode), retval, exception));
+  }
+
+  void DevToolsLoaded(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(browser->IsPopup());
+    // A call to setCaptureCallStackForUncaughtException(true) is delayed,
+    // posting a task solves the timing issue. 
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &V8TestHandler::DevToolsFullyLoaded));
+    // The order of calls will be:
+    // DevToolsLoaded()
+    // ScriptController::setCaptureCallStackForUncaughtExceptions(1)
+    // DevToolsFullyLoaded()
+    // ScriptController::setCaptureCallStackForUncaughtExceptions(0)
+    // DevToolsClosed()
+  }
+
+  void DevToolsFullyLoaded() {
+    GetBrowser()->CloseDevTools();
+    // A call to setCaptureCallStackForUncaughtException(false) is delayed,
+    // posting a task solves the timing issue.
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &V8TestHandler::DevToolsClosed));
+  }
+
+  void DevToolsClosed() {
+    GetBrowser()->GetMainFrame()->ExecuteJavaScript(
+        "window.setTimeout(test, 0);", "about:blank", 0);
   }
 
   void OnUncaughtException(CefRefPtr<CefBrowser> browser,
@@ -1592,8 +1677,7 @@ class V8TestHandler : public TestHandler {
             << " on line " << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
       const char* stackFormattedShouldBe =
           "at test2() in http://tests/V8Test.OnUncaughtException on line 3\n"
-          "at test() in http://tests/V8Test.OnUncaughtException on line 2\n"
-          "at () in  on line 0\n";
+          "at test() in http://tests/V8Test.OnUncaughtException on line 2\n";
       EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
       DestroyTest();
     }
@@ -1602,15 +1686,14 @@ class V8TestHandler : public TestHandler {
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
+        browser->IsPopup()) {
+      DevToolsLoadHook(browser);
+      return;
+    }
     std::string url = frame->GetURL();
     if (frame->IsMain() && url != kV8NavTestUrl)
       RunTest(test_mode_);
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
-        browser->IsPopup()) {
-      GetBrowser()->CloseDevTools();
-      GetBrowser()->GetMainFrame()->ExecuteJavaScript("test()",
-          CefString(), 0);
-    }
   }
 
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
