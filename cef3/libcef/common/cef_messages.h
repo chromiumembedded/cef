@@ -172,6 +172,13 @@ IPC_MESSAGE_ROUTED1(CefHostMsg_FrameDetached,
 IPC_MESSAGE_ROUTED1(CefHostMsg_FrameFocusChange,
                     int64 /* frame_id */)
 
+// Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
+IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
+                    int64 /* frame_id */,
+                    GURL /* validated_url */,
+                    bool /* is_main_frame */,
+                    int /* http_status_code */)
+
 // Sent when a new URL is about to be loaded in the main frame. Used for the
 // cookie manager.
 IPC_MESSAGE_ROUTED1(CefHostMsg_LoadingURLChange,

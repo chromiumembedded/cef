@@ -289,11 +289,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const string16& error_description,
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
-  virtual void DidFinishLoad(int64 frame_id,
-                             const GURL& validated_url,
-                             bool is_main_frame,
-                             content::RenderViewHost* render_view_host)
-                             OVERRIDE;
   virtual void DidFailLoad(int64 frame_id,
                            const GURL& validated_url,
                            bool is_main_frame,
@@ -307,6 +302,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // content::WebContentsObserver::OnMessageReceived() message handlers.
   void OnFrameIdentified(int64 frame_id, int64 parent_frame_id, string16 name);
+  void OnDidFinishLoad(
+      int64 frame_id,
+      const GURL& validated_url,
+      bool is_main_frame,
+      int http_status_code);
   void OnLoadingURLChange(const GURL& pending_url);
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
@@ -378,7 +378,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    int error_code,
                    const string16& error_description);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
-                 const GURL& url);
+                 const GURL& url,
+                 int http_status_code);
 
   // Continuation from RunFileChooser.
   void RunFileChooserOnUIThread(const content::FileChooserParams& params,

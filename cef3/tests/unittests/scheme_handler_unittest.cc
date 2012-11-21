@@ -125,9 +125,7 @@ class TestSchemeHandler : public TestHandler {
       test_results_->got_output.yes();
 
       // Test that the status code is correct.
-      // TODO(cef): Enable this check once the HTTP status code is passed
-      // correctly.
-      // EXPECT_EQ(httpStatusCode, test_results_->status_code);
+      EXPECT_EQ(httpStatusCode, test_results_->status_code);
 
       if (test_results_->sub_url.empty())
         DestroyTest();

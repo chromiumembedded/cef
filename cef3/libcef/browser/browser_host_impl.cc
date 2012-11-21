@@ -1356,21 +1356,6 @@ void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
   has_document_ = true;
 }
 
-void CefBrowserHostImpl::DidFinishLoad(
-    int64 frame_id,
-    const GURL& validated_url,
-    bool is_main_frame,
-    content::RenderViewHost* render_view_host) {
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
-      validated_url);
-
-  // Give internal scheme handlers an opportunity to update content.
-  scheme::DidFinishLoad(frame, validated_url);
-
-  OnLoadEnd(frame, validated_url);
-}
-
 void CefBrowserHostImpl::DidFailLoad(
     int64 frame_id,
     const GURL& validated_url,
@@ -1382,7 +1367,7 @@ void CefBrowserHostImpl::DidFailLoad(
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
       validated_url);
   OnLoadError(frame, validated_url, error_code, error_description);
-  OnLoadEnd(frame, validated_url);
+  OnLoadEnd(frame, validated_url, error_code);
 }
 
 void CefBrowserHostImpl::PluginCrashed(const FilePath& plugin_path) {
@@ -1399,6 +1384,7 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameIdentified, OnFrameIdentified)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameDetached, DetachFrame)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameFocusChange, SetFocusedFrame)
+    IPC_MESSAGE_HANDLER(CefHostMsg_DidFinishLoad, OnDidFinishLoad)
     IPC_MESSAGE_HANDLER(CefHostMsg_LoadingURLChange, OnLoadingURLChange)
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
@@ -1433,6 +1419,20 @@ void CefBrowserHostImpl::OnFrameIdentified(int64 frame_id,
                                            string16 name) {
   bool is_main_frame = (parent_frame_id == CefFrameHostImpl::kMainFrameId);
   GetOrCreateFrame(frame_id, parent_frame_id, is_main_frame, name, GURL());
+}
+
+void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
+                                         const GURL& validated_url,
+                                         bool is_main_frame,
+                                         int http_status_code) {
+  CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
+      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
+      validated_url);
+
+  // Give internal scheme handlers an opportunity to update content.
+  scheme::DidFinishLoad(frame, validated_url);
+
+  OnLoadEnd(frame, validated_url, http_status_code);
 }
 
 void CefBrowserHostImpl::OnLoadingURLChange(const GURL& loading_url) {
@@ -1717,14 +1717,12 @@ void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserHostImpl::OnLoadEnd(CefRefPtr<CefFrame> frame,
-                                   const GURL& url) {
+                                   const GURL& url,
+                                   int http_status_code) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
-    if (handler.get()) {
-      // Notify the handler that loading has ended.
-      // TODO(cef): Identify the HTTP status code.
-      handler->OnLoadEnd(this, frame, 200);
-    }
+    if (handler.get())
+      handler->OnLoadEnd(this, frame, http_status_code);
   }
 }
 
