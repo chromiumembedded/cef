@@ -216,7 +216,6 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
                                   CefEventHandle os_event,
                                   bool* is_keyboard_shortcut) {
-  ASSERT(m_bFocusOnEditableField == event.focus_on_editable_field);
   if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
     // Special handling for the space character when an input element does not
     // have focus. Handling the event in OnPreKeyEvent() keeps the event from
@@ -242,6 +241,19 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     m_Browser = browser;
     m_BrowserId = browser->GetIdentifier();
   }
+}
+
+bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
+    const CefPopupFeatures& popupFeatures,
+    CefWindowInfo& windowInfo,
+    const CefString& url,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings) {
+  if (parentBrowser->GetHost()->IsWindowRenderingDisabled()) {
+    // Cancel popups in off-screen rendering mode.
+    return true;
+  }
+  return false;
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -412,6 +424,61 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   // Allow OS execution of Spotify URIs.
   if (urlStr.find("spotify:") == 0)
     allow_os_execution = true;
+}
+
+bool ClientHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+    CefRect& rect) {
+  if (!m_OSRHandler.get())
+    return false;
+  return m_OSRHandler->GetRootScreenRect(browser, rect);
+}
+
+bool ClientHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+  if (!m_OSRHandler.get())
+    return false;
+  return m_OSRHandler->GetViewRect(browser, rect);
+}
+
+bool ClientHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                                   int viewX,
+                                   int viewY,
+                                   int& screenX,
+                                   int& screenY) {
+  if (!m_OSRHandler.get())
+    return false;
+  return m_OSRHandler->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
+}
+
+void ClientHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
+                                bool show) {
+  if (!m_OSRHandler.get())
+    return;
+  return m_OSRHandler->OnPopupShow(browser, show);
+}
+
+void ClientHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
+                                const CefRect& rect) {
+  if (!m_OSRHandler.get())
+    return;
+  return m_OSRHandler->OnPopupSize(browser, rect);
+}
+
+void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser,
+                            PaintElementType type,
+                            const RectList& dirtyRects,
+                            const void* buffer,
+                            int width,
+                            int height) {
+  if (!m_OSRHandler.get())
+    return;
+  m_OSRHandler->OnPaint(browser, type, dirtyRects, buffer, width, height);
+}
+
+void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                   CefCursorHandle cursor) {
+  if (!m_OSRHandler.get())
+    return;
+  m_OSRHandler->OnCursorChange(browser, cursor);
 }
 
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {
@@ -617,3 +684,4 @@ bool ClientHandler::ExecuteTestMenu(int command_id) {
   // Allow default handling to proceed.
   return false;
 }
+

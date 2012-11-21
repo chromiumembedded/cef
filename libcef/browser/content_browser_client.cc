@@ -34,6 +34,10 @@
 #include "googleurl/src/gurl.h"
 #include "ui/base/ui_base_switches.h"
 
+#if defined(OS_WIN)
+#include "libcef/browser/web_contents_view_osr.h"
+#endif
+
 namespace {
 
 // In-memory store for access tokens used by geolocation.
@@ -289,6 +293,29 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
   return browser_main_parts_;
+}
+
+content::WebContentsView*
+CefContentBrowserClient::OverrideCreateWebContentsView(
+    content::WebContents* web_contents,
+    content::RenderViewHostDelegateView** render_view_host_delegate_view) {
+  content::WebContentsView* view = NULL;
+  *render_view_host_delegate_view = NULL;
+  // TODO(port): Implement this method to work on other platforms as part of
+  // off-screen rendering support.
+#if defined(OS_WIN)
+  CefBrowserContext* browserContext =
+      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
+
+  if (browserContext && browserContext->use_osr_next_contents_view()) {
+    CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR(web_contents,
+        GetWebContentsViewDelegate(web_contents));
+    *render_view_host_delegate_view = view_or;
+    view = view_or;
+  }
+#endif  // OS_WIN
+
+  return view;
 }
 
 void CefContentBrowserClient::RenderProcessHostCreated(

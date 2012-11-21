@@ -333,3 +333,45 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 }
+
+//static
+bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  return false;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateKeyEvent(
+    gfx::NativeEvent& native_event, const CefKeyEvent& event) {
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+  return false;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateClickEvent(
+    WebKit::WebMouseEvent& ev, 
+    int x, int y, MouseButtonType type, 
+    bool mouseUp, int clickCount) {
+  // TODO(port): Implement this method as part of off-screen rendering support. 
+  NOTIMPLEMENTED();
+  return false;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateMoveEvent(
+    WebKit::WebMouseEvent& ev,
+    int x, int y, bool mouseLeave) {
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+  return false;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateWheelEvent(
+    WebKit::WebMouseWheelEvent& ev,
+    int x, int y, int deltaX, int deltaY) {
+  // TODO(port): Implement this method as part of off-screen rendering support.
+  NOTIMPLEMENTED();
+  return false;
+}

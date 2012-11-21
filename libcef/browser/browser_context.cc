@@ -172,7 +172,8 @@ class CefSpeechRecognitionPreferences
 
 }  // namespace
 
-CefBrowserContext::CefBrowserContext() {
+CefBrowserContext::CefBrowserContext()
+    : use_osr_next_contents_view_(false) {
   // Initialize the request context getter.
   url_request_getter_ = new CefURLRequestContextGetter(
       false,
@@ -274,4 +275,12 @@ content::SpeechRecognitionPreferences*
 
 quota::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
   return NULL;
+}
+
+bool CefBrowserContext::use_osr_next_contents_view() const {
+  return use_osr_next_contents_view_;
+}
+
+void CefBrowserContext::set_use_osr_next_contents_view(bool override) {
+  use_osr_next_contents_view_ = override;
 }

@@ -27,6 +27,7 @@ class ClientHandler : public CefClient,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
+                      public CefRenderHandler,
                       public CefRequestHandler {
  public:
   // Interface for process message delegates. Do not perform work in the
@@ -88,6 +89,9 @@ class ClientHandler : public CefClient,
     return this;
   }
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
@@ -152,6 +156,13 @@ class ClientHandler : public CefClient,
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool OnBeforePopup(
+      CefRefPtr<CefBrowser> parentBrowser,
+      const CefPopupFeatures& popupFeatures,
+      CefWindowInfo& windowInfo,
+      const CefString& url,
+      CefRefPtr<CefClient>& client,
+      CefBrowserSettings& settings) OVERRIDE;
 
   // CefLoadHandler methods
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -180,9 +191,35 @@ class ClientHandler : public CefClient,
                                    const CefString& url,
                                    bool& allow_os_execution) OVERRIDE;
 
+  // CefRenderHandler methods
+  virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+                                 CefRect& rect) OVERRIDE;
+  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
+                           CefRect& rect) OVERRIDE;
+  virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                              int viewX,
+                              int viewY,
+                              int& screenX,
+                              int& screenY) OVERRIDE;
+  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
+  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
+                           const CefRect& rect) OVERRIDE;
+  virtual void OnPaint(CefRefPtr<CefBrowser> browser,
+                       PaintElementType type,
+                       const RectList& dirtyRects,
+                       const void* buffer,
+                       int width,
+                       int height) OVERRIDE;
+  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                              CefCursorHandle cursor) OVERRIDE;
+
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
   void SetEditHwnd(CefWindowHandle hwnd);
+  void SetOSRHandler(CefRefPtr<CefRenderHandler> handler) {
+    m_OSRHandler = handler;
+  }
+  CefRefPtr<CefRenderHandler> GetOSRHandler() { return m_OSRHandler; }
   void SetButtonHwnds(CefWindowHandle backHwnd,
                       CefWindowHandle forwardHwnd,
                       CefWindowHandle reloadHwnd,
@@ -260,6 +297,8 @@ class ClientHandler : public CefClient,
   CefWindowHandle m_ForwardHwnd;
   CefWindowHandle m_StopHwnd;
   CefWindowHandle m_ReloadHwnd;
+
+  CefRefPtr<CefRenderHandler> m_OSRHandler;
 
   // Support for logging.
   std::string m_LogFile;

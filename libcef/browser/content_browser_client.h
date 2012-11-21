@@ -57,6 +57,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const content::MainFunctionParams& parameters) OVERRIDE;
   virtual void RenderProcessHostCreated(
       content::RenderProcessHost* host) OVERRIDE;
+  virtual content::WebContentsView* OverrideCreateWebContentsView(
+      content::WebContents* web_contents,
+      content::RenderViewHostDelegateView** rvhdv) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
   virtual content::QuotaPermissionContext*
@@ -70,6 +73,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
+
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() OVERRIDE;
 #endif

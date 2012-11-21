@@ -118,8 +118,12 @@
     ],
     'cefclient_sources_win': [
       'tests/cefclient/cefclient.rc',
+      'tests/cefclient/cefclient_osr_widget_win.h',
+      'tests/cefclient/cefclient_osr_widget_win.cpp',
       'tests/cefclient/cefclient_win.cpp',
       'tests/cefclient/client_handler_win.cpp',
+      'tests/cefclient/osrenderer.h',
+      'tests/cefclient/osrenderer.cpp',
       'tests/cefclient/resource.h',
       'tests/cefclient/res/cefclient.ico',
       'tests/cefclient/res/logoball.png',

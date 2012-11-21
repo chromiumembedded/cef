@@ -120,6 +120,12 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
+  // Return the handler for off-screen rendering events.
+  ///
+  struct _cef_render_handler_t* (CEF_CALLBACK *get_render_handler)(
+      struct _cef_client_t* self);
+
+  ///
   // Return the handler for browser request events.
   ///
   struct _cef_request_handler_t* (CEF_CALLBACK *get_request_handler)(

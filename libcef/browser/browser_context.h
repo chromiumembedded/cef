@@ -49,6 +49,13 @@ class CefBrowserContext : public content::BrowserContext {
       GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
+  // To disable window rendering call this function with |override|=true
+  // just before calling WebContents::Create. This will cause
+  // CefContentBrowserClient::OverrideCreateWebContentsView to create
+  // a windowless WebContentsView object.
+  void set_use_osr_next_contents_view(bool override);
+  bool use_osr_next_contents_view() const;
+
  private:
 
   scoped_ptr<CefResourceContext> resource_context_;
@@ -58,6 +65,8 @@ class CefBrowserContext : public content::BrowserContext {
       geolocation_permission_context_;
   scoped_refptr<content::SpeechRecognitionPreferences>
       speech_recognition_preferences_;
+
+  bool use_osr_next_contents_view_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

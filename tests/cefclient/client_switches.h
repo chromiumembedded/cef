@@ -53,6 +53,7 @@ extern const char kAcceleratedVideoDisabled[];
 extern const char kAcceledated2dCanvasDisabled[];
 extern const char kAcceleratedPluginsDisabled[];
 extern const char kDeveloperToolsDisabled[];
+extern const char kOffScreenRenderingEnabled[];
 
 // Other attributes.
 extern const char kProxyType[];

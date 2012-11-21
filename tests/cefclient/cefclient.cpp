@@ -104,6 +104,14 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app) {
   }
 }
 
+bool AppIsOffScreenRenderingEnabled() {
+  ASSERT(g_command_line.get());
+  if (!g_command_line.get())
+    return false;
+
+  return g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled);
+}
+
 // Returns the application browser settings based on command line arguments.
 void AppGetBrowserSettings(CefBrowserSettings& settings) {
   ASSERT(g_command_line.get());

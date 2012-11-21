@@ -290,6 +290,69 @@ typedef struct _cef_browser_host_t {
       enum cef_file_dialog_mode_t mode, const cef_string_t* title,
       const cef_string_t* default_file_name, cef_string_list_t accept_types,
       struct _cef_run_file_dialog_callback_t* callback);
+
+  ///
+  // Returns true (1) if window rendering is disabled.
+  ///
+  int (CEF_CALLBACK *is_window_rendering_disabled)(
+      struct _cef_browser_host_t* self);
+
+  ///
+  // Notify the browser that the widget has been resized. The browser will first
+  // call cef_render_handler_t::GetViewRect to get the new size and then call
+  // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
+  // function is only used when window rendering is disabled.
+  ///
+  void (CEF_CALLBACK *was_resized)(struct _cef_browser_host_t* self);
+
+  ///
+  // Invalidate the |dirtyRect| region of the view. The browser will call
+  // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
+  // function is only used when window rendering is disabled.
+  ///
+  void (CEF_CALLBACK *invalidate)(struct _cef_browser_host_t* self,
+      const cef_rect_t* dirtyRect);
+
+  ///
+  // Send a key event to the browser.
+  ///
+  void (CEF_CALLBACK *send_key_event)(struct _cef_browser_host_t* self,
+      const struct _cef_key_event_t* event);
+
+  ///
+  // Send a mouse click event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view.
+  ///
+  void (CEF_CALLBACK *send_mouse_click_event)(struct _cef_browser_host_t* self,
+      int x, int y, enum cef_mouse_button_type_t type, int mouseUp,
+      int clickCount);
+
+  ///
+  // Send a mouse move event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view.
+  ///
+  void (CEF_CALLBACK *send_mouse_move_event)(struct _cef_browser_host_t* self,
+      int x, int y, int mouseLeave);
+
+  ///
+  // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
+  // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
+  // values represent the movement delta in the X and Y directions respectively.
+  ///
+  void (CEF_CALLBACK *send_mouse_wheel_event)(struct _cef_browser_host_t* self,
+      int x, int y, int deltaX, int deltaY);
+
+  ///
+  // Send a focus event to the browser.
+  ///
+  void (CEF_CALLBACK *send_focus_event)(struct _cef_browser_host_t* self,
+      int setFocus);
+
+  ///
+  // Send a capture lost event to the browser.
+  ///
+  void (CEF_CALLBACK *send_capture_lost_event)(
+      struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 
 

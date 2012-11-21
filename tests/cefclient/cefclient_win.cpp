@@ -14,6 +14,7 @@
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
 #include "cefclient/binding_test.h"
+#include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
@@ -31,6 +32,7 @@
 HINSTANCE hInst;   // current instance
 TCHAR szTitle[MAX_LOADSTRING];  // The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];  // the main window class name
+TCHAR szOSRWindowClass[MAX_LOADSTRING];  // the OSR window class name
 char szWorkingDir[MAX_PATH];  // The current working directory
 
 // Forward declarations of functions included in this code module:
@@ -41,6 +43,15 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
+
+class MainBrowserProvider : public OSRBrowserProvider {
+  virtual CefRefPtr<CefBrowser> GetBrowser() {
+    if (g_handler.get())
+      return g_handler->GetBrowser();
+
+    return NULL;
+  }
+} g_main_browser_provider;
 
 #if defined(OS_WIN)
 // Add Common Controls to the application manifest because it's required to
@@ -87,6 +98,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Initialize global strings
   LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
   LoadString(hInstance, IDC_CEFCLIENT, szWindowClass, MAX_LOADSTRING);
+  LoadString(hInstance, IDS_OSR_WIDGET_CLASS, szOSRWindowClass, MAX_LOADSTRING);
   MyRegisterClass(hInstance);
 
   // Perform application initialization
@@ -298,8 +310,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       // Populate the settings based on command line arguments.
       AppGetBrowserSettings(settings);
 
-      // Initialize window info to the defaults for a child window
-      info.SetAsChild(hWnd, rect);
+      if (AppIsOffScreenRenderingEnabled()) {
+        CefRefPtr<OSRWindow> osr_window =
+            OSRWindow::Create(&g_main_browser_provider, false);
+        osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
+        info.SetAsOffScreen(osr_window->hwnd());
+        info.SetTransparentPainting(FALSE);
+        g_handler->SetOSRHandler(osr_window.get());
+      } else {
+        // Initialize window info to the defaults for a child window.
+        info.SetAsChild(hWnd, rect);
+      }
 
       // Creat the new child browser window
       CefBrowserHost::CreateBrowser(info, g_handler.get(),
@@ -525,6 +546,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
     case WM_DESTROY:
       // The frame window has exited
+      if (g_handler->GetOSRHandler().get()) {
+        OSRWindow::From(g_handler->GetOSRHandler())->DestroyWidget();
+        g_handler->SetOSRHandler(NULL);
+      }
+
       PostQuitMessage(0);
       return 0;
     }

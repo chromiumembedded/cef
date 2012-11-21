@@ -962,6 +962,23 @@ enum cef_menu_id_t {
 };
 
 ///
+// Mouse button types.
+///
+enum cef_mouse_button_type_t {
+  MBT_LEFT   = 0,
+  MBT_MIDDLE,
+  MBT_RIGHT,
+};
+
+///
+// Paint element types.
+///
+enum cef_paint_element_type_t {
+  PET_VIEW  = 0,
+  PET_POPUP,
+};
+
+///
 // Supported event bit flags.
 ///
 enum cef_event_flags_t {

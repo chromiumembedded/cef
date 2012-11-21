@@ -38,6 +38,11 @@
 #include "content/public/common/file_chooser_params.h"
 #include "ui/base/dialogs/selected_file_info.h"
 
+#if defined(OS_WIN)
+#include "libcef/browser/render_widget_host_view_osr.h"
+#include "libcef/browser/web_contents_view_osr.h"
+#endif
+
 namespace {
 
 class CreateBrowserHelper {
@@ -220,6 +225,13 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
     return false;
   }
 
+  // Verify that render handler is in place for a windowless browser.
+  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo) &&
+      !client->GetRenderHandler().get()) {
+    NOTREACHED() << "CefRenderHandler implementation is required";
+    return false;
+  }
+
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
       new CreateBrowserHelper(windowInfo, client, url, settings);
@@ -251,6 +263,15 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     NOTREACHED() << "called on invalid thread";
     return NULL;
   }
+
+  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo) &&
+      !client->GetRenderHandler().get()) {
+    NOTREACHED() << "CefRenderHandler implementation is required";
+    return NULL;
+  }
+
+  _Context->browser_context()->set_use_osr_next_contents_view(
+      CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
 
   int browser_id = _Context->GetNextBrowserID();
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -286,8 +307,22 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(window_info, settings, client, web_contents,
                              browser_id, opener);
-  if (!browser->PlatformCreateWindow())
+  if (!browser->IsWindowRenderingDisabled() &&
+      !browser->PlatformCreateWindow()) {
     return NULL;
+  }
+
+  // TODO(port): Implement this method to work on other platforms as part of
+  // off-screen rendering support.
+#if defined(OS_WIN)
+  if (browser->IsWindowRenderingDisabled()) {
+    CefRenderWidgetHostViewOSR* view =
+        static_cast<CefRenderWidgetHostViewOSR*>(
+            web_contents->GetRenderViewHost()->GetView());
+    if (view)
+      view->set_browser_impl(browser);
+  }
+#endif  // OS_WIN
 
   _Context->AddBrowser(browser);
 
@@ -397,10 +432,17 @@ CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
 
 void CefBrowserHostImpl::CloseBrowser() {
   if (CEF_CURRENTLY_ON_UIT()) {
-    PlatformCloseWindow();
+    if (IsWindowRenderingDisabled()) {
+      if (AllowDestroyBrowser()) {
+        ParentWindowWillClose();
+        DestroyBrowser();
+      }
+    } else {
+      PlatformCloseWindow();
+    }
   } else {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::PlatformCloseWindow, this));
+        base::Bind(&CefBrowserHostImpl::CloseBrowser, this));
   }
 }
 
@@ -491,6 +533,177 @@ void CefBrowserHostImpl::RunFileDialog(
       base::Bind(&CefRunFileDialogCallbackWrapper::Callback, wrapper));
 }
 
+bool CefBrowserHostImpl::IsWindowRenderingDisabled() {
+  return IsWindowRenderingDisabled(window_info_);
+}
+
+void CefBrowserHostImpl::WasResized() {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+ 
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::WasResized, this));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (widget)
+    widget->WasResized();
+}
+
+void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect) {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::Invalidate, this, dirtyRect));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+#if defined(OS_WIN)
+  content::RenderWidgetHostView* view =
+      web_contents()->GetRenderViewHost()->GetView();
+  CefRenderWidgetHostViewOSR* orview =
+      static_cast<CefRenderWidgetHostViewOSR*>(view);
+
+  if (orview) {
+    gfx::Rect rect(dirtyRect.x, dirtyRect.y,
+                   dirtyRect.width, dirtyRect.height);
+    orview->Invalidate(rect);
+  }
+#else
+  // TODO(port): Implement this method to work on other platforms as part of
+  // off-screen rendering support.
+  NOTREACHED();
+#endif
+}
+
+void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendKeyEvent, this, event));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (!widget)
+    return;
+  gfx::NativeEvent native_event;
+  if (PlatformTranslateKeyEvent(native_event, event))
+    widget->ForwardKeyboardEvent(content::NativeWebKeyboardEvent(native_event));
+}
+
+void CefBrowserHostImpl::SendMouseClickEvent(int x, int y,
+    MouseButtonType type, bool mouseUp, int clickCount) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendMouseClickEvent, this, x, y, type,
+                   mouseUp, clickCount));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (!widget)
+    return;
+  WebKit::WebMouseEvent event;
+  if (PlatformTranslateClickEvent(event, x, y, type, mouseUp, clickCount))
+    widget->ForwardMouseEvent(event);
+}
+
+void CefBrowserHostImpl::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendMouseMoveEvent, this, x, y,
+                   mouseLeave));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (!widget)
+    return;
+  WebKit::WebMouseEvent event;
+  if (PlatformTranslateMoveEvent(event, x, y, mouseLeave))
+    widget->ForwardMouseEvent(event);
+}
+
+void CefBrowserHostImpl::SendMouseWheelEvent(int x, int y,
+                                             int deltaX, int deltaY) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendMouseWheelEvent, this, x, y,
+                   deltaX, deltaY));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (!widget)
+    return;
+  WebKit::WebMouseWheelEvent event;
+  if (PlatformTranslateWheelEvent(event, x, y, deltaX, deltaY))
+    widget->ForwardWheelEvent(event);
+}
+
+void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendFocusEvent, this, setFocus));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHostImpl* widget =
+      content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost());
+  if (!widget)
+    return;
+  if (setFocus) {
+    widget->GotFocus();
+    widget->SetActive(true);
+  } else {
+    widget->SetActive(false);
+    widget->Blur();
+  }
+}
+void CefBrowserHostImpl::SendCaptureLostEvent() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SendCaptureLostEvent, this));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHostImpl* widget =
+      content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost());
+  if (!widget)
+    return;
+  widget->LostCapture();
+}
 
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
@@ -672,6 +885,19 @@ bool CefBrowserHostImpl::SendProcessMessage(
 
 // CefBrowserHostImpl public methods.
 // -----------------------------------------------------------------------------
+
+bool CefBrowserHostImpl::AllowDestroyBrowser() {
+  if (client_.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler =
+        client_->GetLifeSpanHandler();
+    if (handler.get()) {
+      // Give the client a chance to handle this one.
+      return !handler->DoClose(this);
+    }
+  }
+
+  return true;
+}
 
 void CefBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
@@ -1203,6 +1429,15 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
       return false;
     }
   }
+
+  if (IsWindowRenderingDisabled(pending_window_info_) &&
+      !pending_client_->GetRenderHandler().get()) {
+    NOTREACHED() << "CefRenderHandler implementation is required";
+    return false;
+  }
+
+  _Context->browser_context()->set_use_osr_next_contents_view(
+      IsWindowRenderingDisabled(pending_window_info_));
 
   return true;
 }

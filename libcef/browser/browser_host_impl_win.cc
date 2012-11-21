@@ -24,6 +24,8 @@
 #include "grit/cef_strings.h"
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/hwnd_util.h"
 
@@ -408,6 +410,23 @@ bool HasExternalHandler(const std::string& scheme) {
   return false;
 }
 
+WORD KeyStatesToWord() {
+  static const USHORT kHighBitMaskShort = 0x8000;
+  WORD result = 0;
+
+  if (GetKeyState(VK_CONTROL) & kHighBitMaskShort)
+    result |= MK_CONTROL;
+  if (GetKeyState(VK_SHIFT) & kHighBitMaskShort)
+    result |= MK_SHIFT;
+  if (GetKeyState(VK_LBUTTON) & kHighBitMaskShort)
+    result |= MK_LBUTTON;
+  if (GetKeyState(VK_MBUTTON) & kHighBitMaskShort)
+    result |= MK_MBUTTON;
+  if (GetKeyState(VK_RBUTTON) & kHighBitMaskShort)
+    result |= MK_RBUTTON;
+  return result;
+}
+
 }  // namespace
 
 // static
@@ -575,7 +594,9 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return window_info_.window;
+  return IsWindowRenderingDisabled() ?
+      window_info_.parent_window :
+      window_info_.window;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -659,4 +680,104 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
         base::Bind(&CefBrowserHostImpl::PlatformHandleExternalProtocol, this,
                    url));
   }
+}
+
+// static
+bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
+  return info.window_rendering_disabled ? true : false;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateKeyEvent(
+    gfx::NativeEvent& native_event, const CefKeyEvent& key_event) {
+  UINT message = 0;
+  WPARAM wparam = key_event.windows_key_code;
+  LPARAM lparam = key_event.native_key_code;
+
+  switch (key_event.type) {
+    case KEYEVENT_KEYUP:
+      message = key_event.is_system_key ? WM_SYSKEYUP : WM_KEYUP;
+      break;
+    case KEYEVENT_RAWKEYDOWN:
+    case KEYEVENT_KEYDOWN:
+      message = key_event.is_system_key ? WM_SYSKEYDOWN : WM_KEYDOWN;
+      break;
+    case KEYEVENT_CHAR:
+      message = key_event.is_system_key ? WM_SYSCHAR : WM_CHAR;
+      break;
+    default:
+      return false;
+  }
+
+  gfx::NativeEvent ev = {NULL, message, wparam, lparam};
+  native_event = ev;
+  return true;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateClickEvent(
+    WebKit::WebMouseEvent& ev,
+    int x, int y, MouseButtonType type,
+    bool mouseUp, int clickCount) {
+  DCHECK(clickCount >=1 && clickCount <= 2);
+
+  UINT message = 0;
+  WPARAM wparam = KeyStatesToWord();
+  LPARAM lparam = MAKELPARAM(x, y);
+
+  if (type == MBT_LEFT) {
+    if (mouseUp)
+      message = (clickCount == 1 ? WM_LBUTTONUP : WM_LBUTTONDBLCLK);
+    else
+      message = WM_LBUTTONDOWN;
+  } else if (type == MBT_MIDDLE) {
+    if (mouseUp)
+      message = (clickCount == 1 ? WM_MBUTTONUP : WM_MBUTTONDBLCLK);
+    else
+      message = WM_MBUTTONDOWN;
+  }  else if (type == MBT_RIGHT) {
+    if (mouseUp)
+      message = (clickCount == 1 ? WM_RBUTTONUP : WM_RBUTTONDBLCLK);
+    else
+      message = WM_RBUTTONDOWN;
+  }
+
+  if (message == 0) {
+    NOTREACHED();
+    return false;
+  }
+
+  ev = WebKit::WebInputEventFactory::mouseEvent(NULL, message, wparam, lparam);
+  return true;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateMoveEvent(
+    WebKit::WebMouseEvent& ev,
+    int x, int y, bool mouseLeave) {
+  UINT message;
+  WPARAM wparam = KeyStatesToWord();
+  LPARAM lparam = 0;
+
+  if (mouseLeave) {
+    message = WM_MOUSELEAVE;
+  } else {
+    message = WM_MOUSEMOVE;
+    lparam = MAKELPARAM(x, y);
+  }
+
+  ev = WebKit::WebInputEventFactory::mouseEvent(NULL, message, wparam, lparam);
+  return true;
+}
+
+// static
+bool CefBrowserHostImpl::PlatformTranslateWheelEvent(
+    WebKit::WebMouseWheelEvent& ev,
+    int x, int y, int deltaX, int deltaY) {
+  WPARAM wparam = MAKEWPARAM(KeyStatesToWord(), deltaY);
+  LPARAM lparam = MAKELPARAM(x, y);
+
+  ev = WebKit::WebInputEventFactory::mouseWheelEvent(NULL, WM_MOUSEWHEEL,
+                                                     wparam, lparam);
+  return true;
 }

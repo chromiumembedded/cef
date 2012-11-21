@@ -270,6 +270,148 @@ void CEF_CALLBACK browser_host_run_file_dialog(struct _cef_browser_host_t* self,
       CefRunFileDialogCallbackCToCpp::Wrap(callback));
 }
 
+int CEF_CALLBACK browser_host_is_window_rendering_disabled(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsWindowRenderingDisabled();
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK browser_host_was_resized(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->WasResized();
+}
+
+void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
+    const cef_rect_t* dirtyRect) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: dirtyRect; type: simple_byref_const
+  DCHECK(dirtyRect);
+  if (!dirtyRect)
+    return;
+
+  // Translate param: dirtyRect; type: simple_byref_const
+  CefRect dirtyRectVal = dirtyRect?*dirtyRect:CefRect();
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->Invalidate(
+      dirtyRectVal);
+}
+
+void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
+    const struct _cef_key_event_t* event) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefKeyEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendKeyEvent(
+      eventObj);
+}
+
+void CEF_CALLBACK browser_host_send_mouse_click_event(
+    struct _cef_browser_host_t* self, int x, int y,
+    enum cef_mouse_button_type_t type, int mouseUp, int clickCount) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendMouseClickEvent(
+      x,
+      y,
+      type,
+      mouseUp?true:false,
+      clickCount);
+}
+
+void CEF_CALLBACK browser_host_send_mouse_move_event(
+    struct _cef_browser_host_t* self, int x, int y, int mouseLeave) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendMouseMoveEvent(
+      x,
+      y,
+      mouseLeave?true:false);
+}
+
+void CEF_CALLBACK browser_host_send_mouse_wheel_event(
+    struct _cef_browser_host_t* self, int x, int y, int deltaX, int deltaY) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendMouseWheelEvent(
+      x,
+      y,
+      deltaX,
+      deltaY);
+}
+
+void CEF_CALLBACK browser_host_send_focus_event(
+    struct _cef_browser_host_t* self, int setFocus) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendFocusEvent(
+      setFocus?true:false);
+}
+
+void CEF_CALLBACK browser_host_send_capture_lost_event(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendCaptureLostEvent();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -288,6 +430,17 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.get_zoom_level = browser_host_get_zoom_level;
   struct_.struct_.set_zoom_level = browser_host_set_zoom_level;
   struct_.struct_.run_file_dialog = browser_host_run_file_dialog;
+  struct_.struct_.is_window_rendering_disabled =
+      browser_host_is_window_rendering_disabled;
+  struct_.struct_.was_resized = browser_host_was_resized;
+  struct_.struct_.invalidate = browser_host_invalidate;
+  struct_.struct_.send_key_event = browser_host_send_key_event;
+  struct_.struct_.send_mouse_click_event = browser_host_send_mouse_click_event;
+  struct_.struct_.send_mouse_move_event = browser_host_send_mouse_move_event;
+  struct_.struct_.send_mouse_wheel_event = browser_host_send_mouse_wheel_event;
+  struct_.struct_.send_focus_event = browser_host_send_focus_event;
+  struct_.struct_.send_capture_lost_event =
+      browser_host_send_capture_lost_event;
 }
 
 #ifndef NDEBUG

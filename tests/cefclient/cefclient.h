@@ -35,6 +35,10 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app);
 // Returns the application browser settings based on command line arguments.
 void AppGetBrowserSettings(CefBrowserSettings& settings);
 
+// Returns true if off-screen rendering is enabled via the command line
+// argument.
+bool AppIsOffScreenRenderingEnabled();
+
 // Implementations for various tests.
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser);
 void RunGetTextTest(CefRefPtr<CefBrowser> browser);

@@ -223,6 +223,116 @@ void CefBrowserHostCToCpp::RunFileDialog(FileDialogMode mode,
     cef_string_list_free(accept_typesList);
 }
 
+bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
+  if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_window_rendering_disabled(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+void CefBrowserHostCToCpp::WasResized() {
+  if (CEF_MEMBER_MISSING(struct_, was_resized))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->was_resized(struct_);
+}
+
+void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect) {
+  if (CEF_MEMBER_MISSING(struct_, invalidate))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->invalidate(struct_,
+      &dirtyRect);
+}
+
+void CefBrowserHostCToCpp::SendKeyEvent(const CefKeyEvent& event) {
+  if (CEF_MEMBER_MISSING(struct_, send_key_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_key_event(struct_,
+      &event);
+}
+
+void CefBrowserHostCToCpp::SendMouseClickEvent(int x, int y,
+    MouseButtonType type, bool mouseUp, int clickCount) {
+  if (CEF_MEMBER_MISSING(struct_, send_mouse_click_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_mouse_click_event(struct_,
+      x,
+      y,
+      type,
+      mouseUp,
+      clickCount);
+}
+
+void CefBrowserHostCToCpp::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
+  if (CEF_MEMBER_MISSING(struct_, send_mouse_move_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_mouse_move_event(struct_,
+      x,
+      y,
+      mouseLeave);
+}
+
+void CefBrowserHostCToCpp::SendMouseWheelEvent(int x, int y, int deltaX,
+    int deltaY) {
+  if (CEF_MEMBER_MISSING(struct_, send_mouse_wheel_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_mouse_wheel_event(struct_,
+      x,
+      y,
+      deltaX,
+      deltaY);
+}
+
+void CefBrowserHostCToCpp::SendFocusEvent(bool setFocus) {
+  if (CEF_MEMBER_MISSING(struct_, send_focus_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_focus_event(struct_,
+      setFocus);
+}
+
+void CefBrowserHostCToCpp::SendCaptureLostEvent() {
+  if (CEF_MEMBER_MISSING(struct_, send_capture_lost_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->send_capture_lost_event(struct_);
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,

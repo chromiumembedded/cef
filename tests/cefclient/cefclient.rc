@@ -157,6 +157,7 @@ STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "cefclient"
     IDC_CEFCLIENT           "CEFCLIENT"
+    IDS_OSR_WIDGET_CLASS    "CEFCLIENT-OSR-WIDGET"
 END
 
 #endif    // English (U.S.) resources

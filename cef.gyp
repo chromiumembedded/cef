@@ -84,6 +84,8 @@
               '-lcomctl32.lib',
               '-lshlwapi.lib',
               '-lrpcrt4.lib',
+              '-lopengl32.lib',
+              '-lglu32.lib', 
             ],
           },
           'sources': [
@@ -290,6 +292,11 @@
         '.',
       ],
       'conditions': [
+        [ 'OS=="win"', {
+          'sources': [
+            'tests/unittests/os_rendering_unittest.cc',
+          ],
+        }],
         [ 'OS=="mac"', {
           'product_name': 'cef_unittests',
           'dependencies': [
@@ -936,11 +943,18 @@
         ['OS=="win"', {
           'sources': [
             '<@(includes_win)',
+            'libcef/browser/backing_store_osr.cc',
+            'libcef/browser/backing_store_osr.h',
+            'libcef/browser/backing_store_osr_win.cc',
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
+            'libcef/browser/render_widget_host_view_osr.h',
+            'libcef/browser/render_widget_host_view_osr.cc',
+            'libcef/browser/web_contents_view_osr.cc',
+            'libcef/browser/web_contents_view_osr.h',
             # Include sources for context menu implementation.
             '<(DEPTH)/ui/views/controls/menu/menu_2.cc',
             '<(DEPTH)/ui/views/controls/menu/menu_2.h',

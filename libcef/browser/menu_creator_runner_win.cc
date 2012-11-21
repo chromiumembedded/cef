@@ -21,11 +21,32 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
   // Make sure events can be pumped while the menu is up.
   MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
 
-  gfx::Point screen_point(manager->params().x, manager->params().y);
-  POINT temp = screen_point.ToPOINT();
-  HWND hwnd = manager->browser()->GetWebContents()->GetView()->GetNativeView();
-  ClientToScreen(hwnd, &temp);
-  screen_point = temp;
+  gfx::Point screen_point;
+
+  if (manager->browser()->IsWindowRenderingDisabled()) {
+    CefRefPtr<CefClient> client = manager->browser()->GetClient();
+    if (!client.get())
+      return false;
+
+    CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+    if (!handler.get())
+      return false;
+
+    int screenX = 0, screenY = 0;
+    if (!handler->GetScreenPoint(manager->browser(),
+                                 manager->params().x, manager->params().y,
+                                 screenX, screenY)) {
+      return false;
+    }
+
+    screen_point = gfx::Point(screenX, screenY);
+  } else {
+    POINT temp = {manager->params().x, manager->params().y};
+    HWND hwnd =
+        manager->browser()->GetWebContents()->GetView()->GetNativeView();
+    ClientToScreen(hwnd, &temp);
+    screen_point = temp;
+  }
 
   // Show the menu. Blocks until the menu is dismissed.
   menu_->RunMenuAt(screen_point, views::Menu2::ALIGN_TOPLEFT);

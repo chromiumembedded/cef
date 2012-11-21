@@ -51,6 +51,17 @@ class CefBrowserHostCToCpp
       const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
+  virtual bool IsWindowRenderingDisabled() OVERRIDE;
+  virtual void WasResized() OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
+  virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
+  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+      bool mouseUp, int clickCount) OVERRIDE;
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(int x, int y, int deltaX,
+      int deltaY) OVERRIDE;
+  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
+  virtual void SendCaptureLostEvent() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

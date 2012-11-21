@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 // Handle types.
-#define cef_cursor_handle_t GtkCursor*
+#define cef_cursor_handle_t void*
 #define cef_event_handle_t GdkEvent*
 #define cef_window_handle_t GtkWidget*
 

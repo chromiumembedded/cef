@@ -34,6 +34,11 @@ namespace content {
 struct NativeWebKeyboardEvent;
 }
 
+namespace WebKit {
+  class WebMouseEvent;
+  class WebMouseWheelEvent;
+}
+
 namespace net {
 class URLRequest;
 }
@@ -97,6 +102,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static CefRefPtr<CefBrowserHostImpl> GetBrowserByChildID(
       int render_process_id);
 
+  // Returns true if window rendering is disabled in CefWindowInfo.
+  static bool IsWindowRenderingDisabled(const CefWindowInfo& info);
+
   // CefBrowserHost methods.
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void CloseBrowser() OVERRIDE;
@@ -114,6 +122,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
+  virtual bool IsWindowRenderingDisabled() OVERRIDE;
+  virtual void WasResized() OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
+  virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
+  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+                                   bool mouseUp, int clickCount) OVERRIDE;
+  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(int x, int y,
+                                   int deltaX, int deltaY) OVERRIDE;
+  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
+  virtual void SendCaptureLostEvent() OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -138,6 +157,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual bool SendProcessMessage(
       CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
+
+
+  // Call LifeSpanHandler before destroying. Returns true if destruction
+  // is allowed at this time.
+  bool AllowDestroyBrowser();
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
@@ -367,6 +391,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Invoke platform specific file chooser dialog.
   void PlatformRunFileChooser(const content::FileChooserParams& params,
                               RunFileChooserCallback callback);
+
+  static bool PlatformTranslateKeyEvent(gfx::NativeEvent& native_event,
+                                        const CefKeyEvent& key_event);
+  static bool PlatformTranslateClickEvent(WebKit::WebMouseEvent& ev,
+                                          int x, int y, MouseButtonType type,
+                                          bool mouseUp, int clickCount);
+  static bool PlatformTranslateMoveEvent(WebKit::WebMouseEvent& ev,
+                                         int x, int y, bool mouseLeave);
+  static bool PlatformTranslateWheelEvent(WebKit::WebMouseWheelEvent& ev,
+                                          int x, int y,
+                                          int deltaX, int deltaY);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);
