@@ -104,6 +104,7 @@ class CefBrowserImpl : public CefBrowser,
  private:
   // RenderViewObserver methods.
   virtual void OnDestruct() OVERRIDE;
+  virtual void DidFinishLoad(WebKit::WebFrame* frame) OVERRIDE;
   virtual void DidStartProvisionalLoad(WebKit::WebFrame* frame) OVERRIDE;
   virtual void FrameDetached(WebKit::WebFrame* frame) OVERRIDE;
   virtual void FocusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;

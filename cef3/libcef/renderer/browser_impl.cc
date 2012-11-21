@@ -24,6 +24,7 @@
 #include "content/public/renderer/navigation_state.h"
 #include "content/public/renderer/render_view.h"
 #include "net/http/http_util.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURLResponse.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDataSource.h"
@@ -442,6 +443,15 @@ void CefBrowserImpl::OnDestruct() {
   response_manager_.reset(NULL);
 
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
+}
+
+void CefBrowserImpl::DidFinishLoad(WebKit::WebFrame* frame) {
+  WebKit::WebDataSource* ds = frame->dataSource();
+  Send(new CefHostMsg_DidFinishLoad(routing_id(),
+                                    frame->identifier(),
+                                    ds->request().url(),
+                                    !frame->parent(),
+                                    ds->response().httpStatusCode()));
 }
 
 void CefBrowserImpl::DidStartProvisionalLoad(WebKit::WebFrame* frame) {
