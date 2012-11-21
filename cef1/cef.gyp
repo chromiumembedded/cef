@@ -774,6 +774,7 @@
         '<(DEPTH)/content/common/net/url_fetcher.cc',
         '<(DEPTH)/content/common/net/url_request_user_data.cc',
         '<(DEPTH)/content/public/common/geoposition.cc',
+        '<(DEPTH)/google_apis/google_api_keys.cc',
       ],
       'conditions': [
         ['OS=="win"', {

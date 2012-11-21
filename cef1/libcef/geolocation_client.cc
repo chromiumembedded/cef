@@ -352,14 +352,3 @@ namespace switches {
 const char kExperimentalLocationFeatures[]  = "experimental-location-features";
 
 }  // namespace switches
-
-
-// Stub implementation of google_apis/google_api_keys.h.
-
-namespace google_apis {
-
-std::string GetAPIKey() {
-  return std::string();
-}
-
-}  // namespace google_apis
