@@ -517,8 +517,18 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
   [dialog setCanChooseFiles:YES];
   [dialog setCanChooseDirectories:NO];
 
-  NSInteger result = [dialog runModalForDirectory:default_dir
-                                             file:default_filename];
+  // [NSOpenPanel runModalForDirectory:file:] was deprecated on OS-X 10.7.
+  NSInteger result;
+  if ([NSOpenPanel respondsToSelector:@selector(runModalForDirectory:file:)]) {
+    result = (NSInteger) [dialog performSelector:@selector(runModalForDirectory:file:)
+                                      withObject:default_dir
+                                      withObject:default_filename];
+  } else {
+    [dialog setDirectoryURL:[NSURL URLWithString:default_dir]];
+    [dialog setNameFieldStringValue:default_filename];
+    result = [dialog runModal];
+  }
+
   if (result == NSFileHandlingPanelCancelButton)
     return false;
 
