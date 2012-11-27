@@ -317,8 +317,7 @@ LRESULT CALLBACK OSRWindow::WndProc(HWND hWnd, UINT message,
   case WM_SYSKEYUP:
   case WM_KEYDOWN:
   case WM_KEYUP:
-  case WM_CHAR:
-  case WM_IME_CHAR: {
+  case WM_CHAR: {
     CefKeyEvent event;
     event.windows_key_code = wParam;
     event.native_key_code = lParam;
