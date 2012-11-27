@@ -254,7 +254,7 @@ bool CefContentRendererClient::HandleNavigation(
         requestImpl->Set(request);
         requestImpl->SetReadOnly(true);
 
-        cef_navigation_type_t navigation_type;
+        cef_navigation_type_t navigation_type = NAVIGATION_OTHER;
         switch (type) {
           case WebKit::WebNavigationTypeLinkClicked:
             navigation_type = NAVIGATION_LINK_CLICKED;
