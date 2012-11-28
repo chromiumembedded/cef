@@ -335,6 +335,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
+      switches::kReleaseDcheckEnabled,
       switches::kPackLoadingDisabled,
       switches::kResourcesDirPath,
     };
