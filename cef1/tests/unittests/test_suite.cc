@@ -101,6 +101,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
     }
   }
 
+  settings.release_dcheck_enabled =
+      commandline_->HasSwitch(cefclient::kReleaseDcheckEnabled);
+
   {
     std::string str =
         commandline_->GetSwitchValueASCII(cefclient::kGraphicsImpl);
