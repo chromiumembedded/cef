@@ -151,6 +151,10 @@ class CefSimpleMenuModel : public ui::MenuModel {
     menu_model_delegate_ = menu_model_delegate;
   }
 
+  virtual ui::MenuModelDelegate* GetMenuModelDelegate() const OVERRIDE {
+    return menu_model_delegate_;
+  }
+
  private:
   CefMenuModelImpl* impl_;
   ui::MenuModelDelegate* menu_model_delegate_;

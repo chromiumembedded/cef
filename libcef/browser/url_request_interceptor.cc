@@ -73,9 +73,11 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
             newUrlStr);
         if (newUrlStr != location.spec()) {
           GURL new_url = GURL(std::string(newUrlStr));
-          if (!new_url.is_empty() && new_url.is_valid())
-            return new net::URLRequestRedirectJob(request, network_delegate,
-                                                  new_url);
+          if (!new_url.is_empty() && new_url.is_valid()) {
+            return new net::URLRequestRedirectJob(
+                request, network_delegate, new_url,
+                net::URLRequestRedirectJob::REDIRECT_302_FOUND);
+          }
         }
       }
     }

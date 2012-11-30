@@ -33,6 +33,10 @@ content::RenderWidgetHostView* CefWebContentsViewOSR::CreateViewForWidget(
   return view_;
 }
 
+void CefWebContentsViewOSR::SetView(content::RenderWidgetHostView* view) {
+  view_ = view;
+}
+
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
   return gfx::NativeView();
 }

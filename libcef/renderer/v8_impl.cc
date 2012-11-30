@@ -88,8 +88,10 @@ class CefV8TrackManager {
 
       v8::Handle<v8::Object> object = context->Global();
       v8::Handle<v8::Value> value = object->GetHiddenValue(context_state_key_);
-      if (!value.IsEmpty())
-        return static_cast<CefV8ContextState*>(v8::External::Unwrap(value));
+      if (!value.IsEmpty()) {
+        return static_cast<CefV8ContextState*>(
+            v8::External::Cast(*value)->Value());
+      }
 
       scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
       object->SetHiddenValue(context_state_key_,
@@ -123,7 +125,7 @@ class CefV8TrackManager {
         return;
 
       scoped_refptr<CefV8ContextState> state =
-          static_cast<CefV8ContextState*>(v8::External::Unwrap(value));
+          static_cast<CefV8ContextState*>(v8::External::Cast(*value)->Value());
       state->Detach();
       object->DeleteHiddenValue(context_state_key_);
 
@@ -220,7 +222,7 @@ class V8TrackObject : public CefTrackNode {
   // Attach this track object to the specified V8 object.
   void AttachTo(v8::Handle<v8::Object> object) {
     object->SetHiddenValue(v8::String::New(kCefTrackObject),
-                           v8::External::Wrap(this));
+                           v8::External::New(this));
   }
 
   // Retrieve the track object for the specified V8 object.
@@ -228,7 +230,7 @@ class V8TrackObject : public CefTrackNode {
     v8::Local<v8::Value> value =
         object->GetHiddenValue(v8::String::New(kCefTrackObject));
     if (!value.IsEmpty())
-      return static_cast<V8TrackObject*>(v8::External::Unwrap(value));
+      return static_cast<V8TrackObject*>(v8::External::Cast(*value)->Value());
 
     return NULL;
   }
@@ -383,7 +385,7 @@ v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args) {
       WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
   CefV8Handler* handler =
-      static_cast<CefV8Handler*>(v8::External::Unwrap(args.Data()));
+      static_cast<CefV8Handler*>(v8::External::Cast(*args.Data())->Value());
 
   CefV8ValueList params;
   for (int i = 0; i < args.Length(); i++)
@@ -494,7 +496,7 @@ class ExtensionWrapper : public v8::Extension {
       return v8::Handle<v8::FunctionTemplate>();
 
     return v8::FunctionTemplate::New(FunctionCallbackImpl,
-                                     v8::External::Wrap(handler_));
+                                     v8::External::New(handler_));
   }
 
  private:
@@ -952,7 +954,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
   // Create a new V8 function template.
   v8::Local<v8::FunctionTemplate> tmpl = v8::FunctionTemplate::New();
 
-  v8::Local<v8::Value> data = v8::External::Wrap(handler.get());
+  v8::Local<v8::Value> data = v8::External::New(handler.get());
 
   // Set the function handler callback.
   tmpl->SetCallHandler(FunctionCallbackImpl, data);

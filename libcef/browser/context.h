@@ -15,8 +15,8 @@
 
 #include "base/atomic_sequence_num.h"
 #include "base/file_path.h"
+#include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/scoped_temp_dir.h"
 #include "base/threading/platform_thread.h"
 
 namespace base {
@@ -93,7 +93,7 @@ class CefContext : public CefBase {
 
   CefSettings settings_;
   FilePath cache_path_;
-  ScopedTempDir cache_temp_dir_;
+  base::ScopedTempDir cache_temp_dir_;
 
   // Map of browsers that currently exist.
   BrowserList browserlist_;

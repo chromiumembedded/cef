@@ -233,6 +233,10 @@ class CefMediaObserver : public content::MediaObserver {
       int render_process_id,
       int render_view_id,
       const content::MediaStreamDevices& devices) OVERRIDE {}
+  virtual void OnAudioCaptureDevicesChanged(
+      const content::MediaStreamDevices& devices) OVERRIDE {}
+  virtual void OnVideoCaptureDevicesChanged(
+      const content::MediaStreamDevices& devices) OVERRIDE {}
   virtual void OnMediaRequestStateChanged(
       int render_process_id,
       int render_view_id,

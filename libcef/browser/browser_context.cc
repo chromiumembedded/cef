@@ -183,10 +183,10 @@ CefBrowserContext::CefBrowserContext()
 }
 
 CefBrowserContext::~CefBrowserContext() {
-  // Clear the download manager delegate here because otherwise we'll crash
+  // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
   if (download_manager_delegate_.get())
-    BrowserContext::GetDownloadManager(this)->SetDelegate(NULL);
+    download_manager_delegate_.reset(NULL);
 
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
@@ -206,7 +206,8 @@ content::DownloadManagerDelegate*
     CefBrowserContext::GetDownloadManagerDelegate() {
   DCHECK(!download_manager_delegate_.get());
 
-  download_manager_delegate_ = new CefDownloadManagerDelegate();
+  content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
+  download_manager_delegate_.reset(new CefDownloadManagerDelegate(manager));
   return download_manager_delegate_.get();
 }
 

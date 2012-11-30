@@ -12,12 +12,11 @@
 #include "content/public/browser/web_contents_view.h"
 
 namespace content {
-  class WebContents;
-  class WebContentsViewDelegate;
+class WebContents;
+class WebContentsViewDelegate;
 }
 
 class CefBrowserHostImpl;
-class CefRenderWidgetHostViewOSR;
 
 // An implementation of WebContentsView for off-screen rendering.
 class CefWebContentsViewOSR : public content::WebContentsView,
@@ -31,6 +30,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   virtual void CreateView(const gfx::Size& initial_size) OVERRIDE;
   virtual content::RenderWidgetHostView* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host) OVERRIDE;
+  virtual void SetView(content::RenderWidgetHostView* view) OVERRIDE;
   virtual gfx::NativeView GetNativeView() const OVERRIDE;
   virtual gfx::NativeView GetContentNativeView() const OVERRIDE;
   virtual gfx::NativeWindow GetTopLevelNativeWindow() const OVERRIDE;
@@ -65,7 +65,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
 
  private:
   content::WebContents* web_contents_;
-  CefRenderWidgetHostViewOSR* view_;
+  content::RenderWidgetHostView* view_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWebContentsViewOSR);
 };

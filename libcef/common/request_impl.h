@@ -7,11 +7,14 @@
 #pragma once
 
 #include "include/cef_request.h"
-#include "net/base/upload_data.h"
-#include "net/http/http_request_headers.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPBody.h"
 
 namespace net {
+class HttpRequestHeaders;
+class UploadData;
+class UploadDataStream;
+class UploadElement;
+class UploadElementReader;
 class URLRequest;
 };
 
@@ -95,6 +98,7 @@ class CefPostDataImpl : public CefPostData {
   virtual void RemoveElements();
 
   void Set(const net::UploadData& data);
+  void Set(const net::UploadDataStream& data_stream);
   void Get(net::UploadData& data);
   void Set(const WebKit::WebHTTPBody& data);
   void Get(WebKit::WebHTTPBody& data);
@@ -129,6 +133,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void* GetBytes() { return data_.bytes.bytes; }
 
   void Set(const net::UploadElement& element);
+  void Set(const net::UploadElementReader& element_reader);
   void Get(net::UploadElement& element);
   void Set(const WebKit::WebHTTPBody::Element& element);
   void Get(WebKit::WebHTTPBody::Element& element);

@@ -59,7 +59,7 @@ class CefBrowserContext : public content::BrowserContext {
  private:
 
   scoped_ptr<CefResourceContext> resource_context_;
-  scoped_refptr<CefDownloadManagerDelegate> download_manager_delegate_;
+  scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<net::URLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
       geolocation_permission_context_;
