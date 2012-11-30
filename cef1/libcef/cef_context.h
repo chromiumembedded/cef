@@ -19,7 +19,7 @@
 #include "base/at_exit.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/scoped_temp_dir.h"
+#include "base/files/scoped_temp_dir.h"
 #include "base/threading/sequenced_worker_pool.h"
 
 class CefBrowserImpl;
@@ -121,7 +121,7 @@ class CefContext : public CefBase {
   CefSettings settings_;
   CefRefPtr<CefApp> application_;
   FilePath cache_path_;
-  ScopedTempDir cache_temp_dir_;
+  base::ScopedTempDir cache_temp_dir_;
 
   BrowserRequestContext* request_context_;
   BrowserFileSystem file_system_;

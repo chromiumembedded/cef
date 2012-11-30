@@ -180,10 +180,13 @@ class RequestInterceptor : public net::URLRequest::Interceptor {
     handler->OnResourceRedirect(browser, request->url().spec(), newUrlStr);
     if (newUrlStr != location.spec()) {
       GURL new_url = GURL(std::string(newUrlStr));
-      if (!new_url.is_empty() && new_url.is_valid())
-        return new net::URLRequestRedirectJob(request,
-                                              network_delegate,
-                                              new_url);
+      if (!new_url.is_empty() && new_url.is_valid()) {
+        return new net::URLRequestRedirectJob(
+            request,
+            network_delegate,
+            new_url,
+            net::URLRequestRedirectJob::REDIRECT_302_FOUND);
+      }
     }
 
     return NULL;
@@ -597,7 +600,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       headers.AddHeadersFromString(params->headers);
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
-      request_->set_upload(upload_data);
+      if (upload_data)
+        request_->set_upload(upload_data);
       request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
@@ -610,8 +614,8 @@ class RequestProxy : public net::URLRequest::Delegate,
           downloaded_file_ = ShareableFileReference::GetOrCreate(
               path, ShareableFileReference::DELETE_ON_FINAL_RELEASE,
               base::MessageLoopProxy::current());
-        file_stream_.reset(new net::FileStream(NULL));
-        file_stream_->OpenSync(
+          file_stream_.reset(new net::FileStream(NULL));
+          file_stream_->OpenSync(
               path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_WRITE);
         }
       }

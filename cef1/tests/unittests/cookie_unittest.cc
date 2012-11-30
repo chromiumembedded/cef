@@ -8,7 +8,7 @@
 #include "include/cef_scheme.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
-#include "base/scoped_temp_dir.h"
+#include "base/files/scoped_temp_dir.h"
 #include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -379,7 +379,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   base::WaitableEvent event(false, false);
   CefCookie cookie;
 
-  ScopedTempDir temp_dir;
+  base::ScopedTempDir temp_dir;
 
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
@@ -448,7 +448,7 @@ TEST(CookieTest, DomainCookieInMemory) {
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookieOnDisk) {
-  ScopedTempDir temp_dir;
+  base::ScopedTempDir temp_dir;
 
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
@@ -479,7 +479,7 @@ TEST(CookieTest, HostCookieInMemory) {
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookieOnDisk) {
-  ScopedTempDir temp_dir;
+  base::ScopedTempDir temp_dir;
 
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
@@ -510,7 +510,7 @@ TEST(CookieTest, MultipleCookiesInMemory) {
 
 // Test creation of multiple cookies.
 TEST(CookieTest, MultipleCookiesOnDisk) {
-  ScopedTempDir temp_dir;
+  base::ScopedTempDir temp_dir;
 
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
@@ -538,7 +538,7 @@ TEST(CookieTest, AllCookiesInMemory) {
 }
 
 TEST(CookieTest, AllCookiesOnDisk) {
-  ScopedTempDir temp_dir;
+  base::ScopedTempDir temp_dir;
 
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());

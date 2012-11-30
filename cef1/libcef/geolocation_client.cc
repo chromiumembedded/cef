@@ -10,12 +10,13 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "content/browser/geolocation/arbitrator_dependency_factory.h"
 #include "content/browser/geolocation/geolocation_observer.h"
 #include "content/browser/geolocation/geolocation_provider.h"
 #include "content/browser/geolocation/location_provider.h"
 #include "content/public/browser/access_token_store.h"
+#include "content/public/browser/content_browser_client.h"
 #include "content/public/common/geoposition.h"
+#include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationPermissionRequest.h"
@@ -25,6 +26,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationError.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
+#include "webkit/user_agent/user_agent.h"
 
 using WebKit::WebGeolocationController;
 using WebKit::WebGeolocationError;
@@ -73,6 +75,26 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   scoped_refptr<CefURLRequestContextGetter> request_context_getter_;
 
   DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
+};
+
+// Stub implementation of ContentClient.
+class CefContentClient : public content::ContentClient {
+ public:
+  CefContentClient() {}
+
+  virtual std::string GetUserAgent() const OVERRIDE {
+    return webkit_glue::GetUserAgent(GURL());
+  }
+};
+
+// Stub implementation of ContentBrowserClient.
+class CefContentBrowserClient : public content::ContentBrowserClient {
+ public:
+  CefContentBrowserClient() {}
+
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE {
+    return new CefAccessTokenStore();
+  }
 };
 
 void NotifyArbitratorPermissionGranted() {
@@ -221,6 +243,15 @@ void CefGeolocationClient::cancelPermissionRequest(
 void CefGeolocationClient::OnStartUpdating(bool enable_high_accuracy) {
   DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
+  // GeolocationArbitrator uses ContentClient to retrieve the AccessTokenStore.
+  // Simulate the necessary interfaces here.
+  if (!content::GetContentClient()) {
+    static CefContentClient content_client;
+    static CefContentBrowserClient browser_client;
+    content_client.set_browser_for_testing(&browser_client);
+    content::SetContentClient(&content_client);
+  }
+
   if (!location_provider_)
     location_provider_ = content::GeolocationProvider::GetInstance();
 
@@ -304,46 +335,6 @@ void CefGeolocationClient::OnPositionUpdated(
         WebGeolocationError(
             code, WebKit::WebString::fromUTF8(geoposition.error_message)));
   }
-}
-
-
-// Replacement for content/browser/geolocation/arbitrator_dependency_factory.cc
-
-// GeolocationArbitratorDependencyFactory
-content::GeolocationArbitratorDependencyFactory::
-~GeolocationArbitratorDependencyFactory() {
-}
-
-// DefaultGeolocationArbitratorDependencyFactory
-content::DefaultGeolocationArbitratorDependencyFactory::
-~DefaultGeolocationArbitratorDependencyFactory() {
-}
-
-content::DefaultGeolocationArbitratorDependencyFactory::GetTimeNow
-content::DefaultGeolocationArbitratorDependencyFactory::GetTimeFunction() {
-  return base::Time::Now;
-}
-
-content::AccessTokenStore*
-content::DefaultGeolocationArbitratorDependencyFactory::NewAccessTokenStore() {
-  return new CefAccessTokenStore;
-}
-
-content::LocationProviderBase*
-content::DefaultGeolocationArbitratorDependencyFactory::
-    NewNetworkLocationProvider(
-    content::AccessTokenStore* access_token_store,
-    net::URLRequestContextGetter* context,
-    const GURL& url,
-    const string16& access_token) {
-  return content::NewNetworkLocationProvider(access_token_store, context,
-                                             url, access_token);
-}
-
-content::LocationProviderBase*
-content::DefaultGeolocationArbitratorDependencyFactory::
-    NewSystemLocationProvider() {
-  return content::NewSystemLocationProvider();
 }
 
 

@@ -17,7 +17,6 @@
 #include "libcef/browser_webcookiejar_impl.h"
 #include "libcef/simple_clipboard_impl.h"
 
-#include "base/scoped_temp_dir.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebGraphicsContext3D.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webclipboard_impl.h"

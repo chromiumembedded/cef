@@ -10,7 +10,14 @@
 #include "libcef/http_header_utils.h"
 
 #include "base/logging.h"
+#include "net/base/upload_data.h"
+#include "net/base/upload_data_stream.h"
+#include "net/base/upload_element_reader.h"
+#include "net/base/upload_bytes_element_reader.h"
+#include "net/base/upload_file_element_reader.h"
+#include "net/http/http_request_headers.h"
 #include "net/url_request/url_request.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLRequest.h"
 
 using WebKit::WebHTTPBody;
 using WebKit::WebString;
@@ -103,7 +110,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   GetHeaderMap(headers, headermap_);
 
   // Transfer post data, if any
-  const net::UploadData* data = request->get_upload();
+  const net::UploadDataStream* data = request->get_upload();
   if (data) {
     postdata_ = CefPostData::CreatePostData();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
@@ -305,6 +312,21 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
   }
 }
 
+void CefPostDataImpl::Set(const net::UploadDataStream& data_stream) {
+  AutoLock lock_scope(this);
+
+  CefRefPtr<CefPostDataElement> postelem;
+
+  const ScopedVector<net::UploadElementReader>& elements =
+      data_stream.element_readers();
+  ScopedVector<net::UploadElementReader>::const_iterator it = elements.begin();
+  for (; it != elements.end(); ++it) {
+    postelem = CefPostDataElement::CreatePostDataElement();
+    static_cast<CefPostDataElementImpl*>(postelem.get())->Set(**it);
+    AddElement(postelem);
+  }
+}
+
 void CefPostDataImpl::Get(net::UploadData& data) {
   AutoLock lock_scope(this);
 
@@ -446,6 +468,27 @@ void CefPostDataElementImpl::Set(const net::UploadElement& element) {
   } else {
     NOTREACHED();
   }
+}
+
+void CefPostDataElementImpl::Set(
+    const net::UploadElementReader& element_reader) {
+  AutoLock lock_scope(this);
+
+  const net::UploadBytesElementReader* bytes_reader =
+      element_reader.AsBytesReader();
+  if (bytes_reader) {
+    SetToBytes(bytes_reader->length(), bytes_reader->bytes());
+    return;
+  }
+
+  const net::UploadFileElementReader* file_reader =
+      element_reader.AsFileReader();
+  if (file_reader) {
+    SetToFile(file_reader->path().value());
+    return;
+  }
+
+  NOTREACHED();
 }
 
 void CefPostDataElementImpl::Get(net::UploadElement& element) {
