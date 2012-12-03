@@ -1,0 +1,18 @@
+Index: dom_storage_area.cc
+===================================================================
+--- dom_storage_area.cc	(revision 157234)
++++ dom_storage_area.cc	(working copy)
+@@ -289,8 +289,11 @@
+ void DomStorageArea::CommitChanges(const CommitBatch* commit_batch) {
+   // This method executes on the commit sequence.
+   DCHECK(task_runner_->IsRunningOnCommitSequence());
+-  bool success = backing_->CommitChanges(commit_batch->clear_all_first,
+-                                         commit_batch->changed_values);
++  bool success = false;
++  if (backing_.get()) {
++    success = backing_->CommitChanges(commit_batch->clear_all_first,
++                                      commit_batch->changed_values);
++  }
+   DCHECK(success);  // TODO(michaeln): what if it fails?
+   task_runner_->PostTask(
+       FROM_HERE,
