@@ -265,6 +265,9 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 // CefBrowserHostImpl static methods.
 // -----------------------------------------------------------------------------
 
+CefBrowserHostImpl::~CefBrowserHostImpl() {
+}
+
 // static
 CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     const CefWindowInfo& window_info,
