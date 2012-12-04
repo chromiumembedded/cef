@@ -7,6 +7,7 @@
 #pragma once
 
 #include "include/cef_render_handler.h"
+#include "tests/cefclient/client_handler.h"
 #include "tests/cefclient/osrenderer.h"
 
 class OSRBrowserProvider {
@@ -17,14 +18,15 @@ class OSRBrowserProvider {
   virtual ~OSRBrowserProvider() {}
 };
 
-class OSRWindow : public CefRenderHandler {
+class OSRWindow : public ClientHandler::RenderHandler {
  public:
   // Create a new OSRWindow instance. |browser_provider| must outlive this
   // object.
   static CefRefPtr<OSRWindow> Create(OSRBrowserProvider* browser_provider,
                                      bool transparent);
 
-  static CefRefPtr<OSRWindow> From(CefRefPtr<CefRenderHandler> renderHandler);
+  static CefRefPtr<OSRWindow> From(
+      CefRefPtr<ClientHandler::RenderHandler> renderHandler);
 
   // Create the underlying window.
   bool CreateWidget(HWND hWndParent, const RECT& rect,
@@ -36,6 +38,9 @@ class OSRWindow : public CefRenderHandler {
   HWND hwnd() const {
     return hWnd_;
   }
+
+  // ClientHandler::RenderHandler methods
+  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRenderHandler methods
   virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
@@ -66,7 +71,7 @@ class OSRWindow : public CefRenderHandler {
 
   void EnableGL();
   void DisableGL();
-  void Reset();
+  void OnDestroyed();
   static ATOM RegisterOSRClass(HINSTANCE hInstance, LPCTSTR className);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
                                   LPARAM lParam);

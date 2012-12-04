@@ -64,6 +64,12 @@ class ClientHandler : public CefClient,
     }
   };
 
+  // Interface implemented to handle off-screen rendering.
+  class RenderHandler : public CefRenderHandler {
+   public:
+    virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) =0;
+  };
+
   typedef std::set<CefRefPtr<RequestDelegate> > RequestDelegateSet;
 
   ClientHandler();
@@ -216,10 +222,10 @@ class ClientHandler : public CefClient,
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
   void SetEditHwnd(CefWindowHandle hwnd);
-  void SetOSRHandler(CefRefPtr<CefRenderHandler> handler) {
+  void SetOSRHandler(CefRefPtr<RenderHandler> handler) {
     m_OSRHandler = handler;
   }
-  CefRefPtr<CefRenderHandler> GetOSRHandler() { return m_OSRHandler; }
+  CefRefPtr<RenderHandler> GetOSRHandler() { return m_OSRHandler; }
   void SetButtonHwnds(CefWindowHandle backHwnd,
                       CefWindowHandle forwardHwnd,
                       CefWindowHandle reloadHwnd,
@@ -298,7 +304,7 @@ class ClientHandler : public CefClient,
   CefWindowHandle m_StopHwnd;
   CefWindowHandle m_ReloadHwnd;
 
-  CefRefPtr<CefRenderHandler> m_OSRHandler;
+  CefRefPtr<RenderHandler> m_OSRHandler;
 
   // Support for logging.
   std::string m_LogFile;

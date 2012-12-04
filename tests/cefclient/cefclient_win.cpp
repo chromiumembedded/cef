@@ -545,12 +545,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       break;
 
     case WM_DESTROY:
-      // The frame window has exited
-      if (g_handler->GetOSRHandler().get()) {
-        OSRWindow::From(g_handler->GetOSRHandler())->DestroyWidget();
-        g_handler->SetOSRHandler(NULL);
-      }
-
       PostQuitMessage(0);
       return 0;
     }

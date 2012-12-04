@@ -18,14 +18,13 @@ CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
 
 // static
 CefRefPtr<OSRWindow> OSRWindow::From(
-    CefRefPtr<CefRenderHandler> renderHandler) {
+    CefRefPtr<ClientHandler::RenderHandler> renderHandler) {
   return static_cast<OSRWindow*>(renderHandler.get());
 }
 
 bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
                              HINSTANCE hInst, LPCTSTR className) {
   ASSERT(hWnd_ == NULL && hDC_ == NULL && hRC_ == NULL);
-  Reset();
 
   RegisterOSRClass(hInst, className);
   hWnd_ = ::CreateWindow(className, 0,
@@ -37,19 +36,20 @@ bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
     return false;
 
   SetWindowLongPtr(hWnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+  // Reference released in OnDestroyed().
   AddRef();
 
-  // Enable GL drawing for the window.
-  EnableGL();
   return true;
 }
 
 void OSRWindow::DestroyWidget() {
-  if (::IsWindow(hWnd_)) {
-    DisableGL();
+  if (IsWindow(hWnd_))
     DestroyWindow(hWnd_);
-  }
-  Reset();
+}
+
+void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  DisableGL();
 }
 
 bool OSRWindow::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
@@ -108,6 +108,9 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
                         const RectList& dirtyRects,
                         const void* buffer,
                         int width, int height) {
+  if (!hDC_)
+    EnableGL();
+
   wglMakeCurrent(hDC_, hRC_);
   renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
   renderer_.Render();
@@ -127,8 +130,10 @@ void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
 
 OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
     : renderer_(transparent),
-      browser_provider_(browser_provider) {
-  Reset();
+      browser_provider_(browser_provider),
+      hWnd_(NULL),
+      hDC_(NULL),
+      hRC_(NULL) {
 }
 
 OSRWindow::~OSRWindow() {
@@ -136,6 +141,8 @@ OSRWindow::~OSRWindow() {
 }
 
 void OSRWindow::EnableGL() {
+  ASSERT(CefCurrentlyOn(TID_UI));
+
   PIXELFORMATDESCRIPTOR pfd;
   int format;
 
@@ -162,16 +169,27 @@ void OSRWindow::EnableGL() {
 }
 
 void OSRWindow::DisableGL() {
-  renderer_.Cleanup();
-  wglMakeCurrent(NULL, NULL);
-  wglDeleteContext(hRC_);
-  ReleaseDC(hWnd_, hDC_);
-}
+  ASSERT(CefCurrentlyOn(TID_UI));
 
-void OSRWindow::Reset() {
-  hWnd_ = NULL;
+  if (!hDC_)
+    return;
+
+  renderer_.Cleanup();
+
+  if (IsWindow(hWnd_)) {
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(hRC_);
+    ReleaseDC(hWnd_, hDC_);
+  }
+
   hDC_ = NULL;
   hRC_ = NULL;
+}
+
+void OSRWindow::OnDestroyed() {
+  SetWindowLongPtr(hWnd_, GWLP_USERDATA, 0L);
+  hWnd_ = NULL;
+  Release();
 }
 
 ATOM OSRWindow::RegisterOSRClass(HINSTANCE hInstance, LPCTSTR className) {
@@ -208,10 +226,8 @@ LRESULT CALLBACK OSRWindow::WndProc(HWND hWnd, UINT message,
 
   switch (message) {
   case WM_DESTROY:
-    if (window) {
-      SetWindowLongPtr(hWnd, GWLP_USERDATA, 0L);
-      window->Release();
-    }
+    if (window)
+      window->OnDestroyed();
     return 0;
 
   case WM_LBUTTONDOWN:
