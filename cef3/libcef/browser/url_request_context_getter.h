@@ -28,6 +28,45 @@ class URLRequestJobFactory;
 class URLSecurityManager;
 }
 
+// Classes used in network request processing:
+//
+// RC = net::URLRequestContext
+//   Owns various network-related objects including the global cookie manager.
+//
+// RCP = CefURLRequestContextProxy
+//    Creates the CSP and forwards requests to the objects owned by RC.
+//
+// CSP = CefCookieStoreProxy
+//    Gives the CefCookieManager associated with CefBrowserHostImpl an
+//    opportunity to handle cookie requests. Otherwise forwards requests via RC
+//    to the global cookie manager.
+//
+// RCG = CefURLRequestContextGetter
+//    Creates the RC and manages RCP lifespan.
+//
+// RCGP = CefURLRequestContextGetterProxy
+//    Causes the RCG to create and destroy browser-specific RCPs.
+//
+// Relationship diagram:
+//    ref = reference (scoped_refptr)
+//    own = ownership (scoped_ptr)
+//    ptr = raw pointer
+//
+//                          global cookie manager, etc...
+//                                      ^
+//                                      |
+//                              /-own-> RC <-ptr-\
+//                             /                  \
+//                            / /<-ptr-\           \
+//                           / /        \           \
+// CefBrowserContext -ref-> RCG --own-> RCP --ref-> CSP
+//                           ^          ^           /
+//                          ref        ptr         /
+//                           |        /           /
+// CefBrowserHostImpl -ref-> RCGP----/           /
+//             ^                                /
+//              \-ref--------------------------/
+
 class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetter(

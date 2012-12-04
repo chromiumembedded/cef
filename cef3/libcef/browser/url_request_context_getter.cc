@@ -139,6 +139,7 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
 }
 
 CefURLRequestContextGetter::~CefURLRequestContextGetter() {
+  CEF_REQUIRE_IOT();
   STLDeleteElements(&url_request_context_proxies_);
 }
 

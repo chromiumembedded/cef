@@ -70,7 +70,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
      virtual void OnResponse(const std::string& response) =0;
   };
 
-  virtual ~CefBrowserHostImpl() {}
+  virtual ~CefBrowserHostImpl();
 
   // Create a new CefBrowserHostImpl instance.
   static CefRefPtr<CefBrowserHostImpl> Create(

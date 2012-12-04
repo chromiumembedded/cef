@@ -24,6 +24,9 @@ class CefCookieStoreProxy : public net::CookieStore {
       : parent_(parent),
         browser_(browser) {
   }
+  virtual ~CefCookieStoreProxy() {
+    CEF_REQUIRE_IOT();
+  }
 
   // net::CookieStore methods.
   virtual void SetCookieWithOptionsAsync(
@@ -90,7 +93,7 @@ class CefCookieStoreProxy : public net::CookieStore {
       if (handler.get()) {
         // Get the manager from the handler.
         CefRefPtr<CefCookieManager> manager =
-            handler->GetCookieManager(browser_,
+            handler->GetCookieManager(browser_.get(),
                                       browser_->GetLoadingURL().spec());
         if (manager.get()) {
           cookie_store =
@@ -112,7 +115,7 @@ class CefCookieStoreProxy : public net::CookieStore {
 
   // This pointer is guaranteed by the CefRequestContextProxy object.
   net::URLRequestContext* parent_;
-  CefBrowserHostImpl* browser_;
+  CefRefPtr<CefBrowserHostImpl> browser_;
 
   DISALLOW_COPY_AND_ASSIGN(CefCookieStoreProxy);
 };
@@ -127,6 +130,7 @@ CefURLRequestContextProxy::CefURLRequestContextProxy(
 }
 
 CefURLRequestContextProxy::~CefURLRequestContextProxy() {
+  CEF_REQUIRE_IOT();
 }
 
 const std::string& CefURLRequestContextProxy::GetUserAgent(const GURL& url) const {
