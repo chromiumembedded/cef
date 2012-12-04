@@ -180,8 +180,16 @@ class ClientDownloadHandler : public CefDownloadHandler {
     std::vector<std::vector<char>*>::iterator it = data.begin();
     for (; it != data.end(); ++it) {
       std::vector<char>* buffer = *it;
-      if (file_)
-        fwrite(&(*buffer)[0], buffer->size(), 1, file_);
+      if (file_) {
+        size_t total = 0;
+        do {
+          size_t write =
+              fwrite(&(*buffer)[total], 1, buffer->size() - total, file_);
+          if (write == 0)
+            break;
+          total += write;
+        } while (total < buffer->size());
+      }
       delete buffer;
     }
     data.clear();
