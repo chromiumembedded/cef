@@ -9,7 +9,7 @@ Index: dom_storage_area.cc
 -  bool success = backing_->CommitChanges(commit_batch->clear_all_first,
 -                                         commit_batch->changed_values);
 +  bool success = false;
-+  if (backing_.get()) {
++  if (backing_.get() && commit_batch) {
 +    success = backing_->CommitChanges(commit_batch->clear_all_first,
 +                                      commit_batch->changed_values);
 +  }
