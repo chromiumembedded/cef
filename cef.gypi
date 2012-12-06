@@ -27,6 +27,11 @@
           'WARNING_CFLAGS': ['-Wno-unknown-warning-option'],
         },
       },
+    }],
+    ['os_posix==1 and OS!="mac" and OS!="android"', {
+      'target_defaults': {
+        'cflags_cc': ['-Wno-deprecated-declarations'],
+      },
     }]
   ]
 }

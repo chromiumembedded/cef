@@ -28,6 +28,7 @@ class URLRequestJobFactory;
 class URLSecurityManager;
 }
 
+/*
 // Classes used in network request processing:
 //
 // RC = net::URLRequestContext
@@ -66,6 +67,7 @@ class URLSecurityManager;
 // CefBrowserHostImpl -ref-> RCGP----/           /
 //             ^                                /
 //              \-ref--------------------------/
+*/
 
 class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
