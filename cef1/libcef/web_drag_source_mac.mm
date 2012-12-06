@@ -88,7 +88,6 @@ void PromiseWriterHelper(const WebDropData& drop_data,
 @interface WebDragSource(Private)
 
 - (void)fillPasteboard;
-- (NSImage*)dragImage;
 
 @end  // @interface WebDragSource(Private)
 
@@ -238,9 +237,10 @@ void PromiseWriterHelper(const WebDropData& drop_data,
     // Deal with Cocoa's flipped coordinate system.
     position.y -= [dragImage_.get() size].height - imageOffset_.y;
   }
+
   // Per kwebster, offset arg is ignored, see -_web_DragImageForElement: in
   // third_party/WebKit/Source/WebKit/mac/Misc/WebNSViewExtras.m.
-  [window dragImage:[self dragImage]
+  [window dragImage:dragImage_
                  at:position
              offset:NSZeroSize
               event:dragEvent
@@ -421,14 +421,6 @@ void PromiseWriterHelper(const WebDropData& drop_data,
   if (!dropData_->text.is_null() && !dropData_->text.string().empty())
     [pasteboard_ addTypes:[NSArray arrayWithObject:NSStringPboardType]
                     owner:view_];
-}
-
-- (NSImage*)dragImage {
-  if (dragImage_)
-    return dragImage_;
-
-  // Default to returning a generic image.
-  return gfx::GetCachedImageWithName(@"nav.pdf");
 }
 
 @end  // @implementation WebDragSource (Private)

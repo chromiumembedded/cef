@@ -22,6 +22,9 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/layout.h"
+#include "ui/gfx/image/image_skia.h"
+#include "ui/gfx/image/image_skia_util_mac.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/plugins/npapi/plugin_list.h"
@@ -396,9 +399,11 @@ void BrowserWebViewDelegate::startDragging(
   
   NSImage* ns_image = nil;
   if (!image.isNull()) {
-    const SkBitmap& bitmap = image.getSkBitmap();
-    CGColorSpaceRef color_space = base::mac::GetSystemColorSpace();
-    ns_image = gfx::SkBitmapToNSImageWithColorSpace(bitmap, color_space);
+    ui::ScaleFactor scale_factor =
+        ui::GetScaleFactorForNativeView(host->view_handle());
+    gfx::ImageSkia image_skia(
+        gfx::ImageSkiaRep(image.getSkBitmap(), scale_factor));
+    ns_image = gfx::NSImageFromImageSkia(image_skia);
   }
   NSPoint offset = NSPointFromCGPoint(gfx::Point(image_offset).ToCGPoint());
 
