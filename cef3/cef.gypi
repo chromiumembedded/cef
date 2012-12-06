@@ -18,5 +18,11 @@
         'clang_use_chrome_plugins': 0,
       }],
     ]
-  },
+  }, 'conditions': [
+    ['os_posix==1 and OS!="mac" and OS!="android"', {
+      'target_defaults': {
+        'cflags_cc': ['-Wno-deprecated-declarations'],
+      },
+    }],
+  ]
 }
