@@ -24,11 +24,7 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
     const CefBrowserSettings& settings) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: client; type: refptr_diff
-  DCHECK(client.get());
-  if (!client.get())
-    return false;
-  // Unverified params: url
+  // Unverified params: client, url
 
   // Execute
   int _retval = cef_browser_host_create_browser(
@@ -46,11 +42,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     const CefString& url, const CefBrowserSettings& settings) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: client; type: refptr_diff
-  DCHECK(client.get());
-  if (!client.get())
-    return NULL;
-  // Unverified params: url
+  // Unverified params: client, url
 
   // Execute
   cef_browser_t* _retval = cef_browser_host_create_browser_sync(

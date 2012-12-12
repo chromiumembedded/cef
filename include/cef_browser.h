@@ -219,7 +219,7 @@ class CefBrowserHost : public virtual CefBase {
   // will be created on the UI thread. This method can be called on any browser
   // process thread and will not block.
   ///
-  /*--cef(optional_param=url)--*/
+  /*--cef(optional_param=client,optional_param=url)--*/
   static bool CreateBrowser(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
                             const CefString& url,
@@ -230,7 +230,7 @@ class CefBrowserHost : public virtual CefBase {
   // |windowInfo|. This method can only be called on the browser process UI
   // thread.
   ///
-  /*--cef(optional_param=url)--*/
+  /*--cef(optional_param=client,optional_param=url)--*/
   static CefRefPtr<CefBrowser> CreateBrowserSync(
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,

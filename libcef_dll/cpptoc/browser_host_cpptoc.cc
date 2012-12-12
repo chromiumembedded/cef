@@ -28,15 +28,11 @@ CEF_EXPORT int cef_browser_host_create_browser(
   DCHECK(windowInfo);
   if (!windowInfo)
     return 0;
-  // Verify param: client; type: refptr_diff
-  DCHECK(client);
-  if (!client)
-    return 0;
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
     return 0;
-  // Unverified params: url
+  // Unverified params: client, url
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -67,15 +63,11 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   DCHECK(windowInfo);
   if (!windowInfo)
     return NULL;
-  // Verify param: client; type: refptr_diff
-  DCHECK(client);
-  if (!client)
-    return NULL;
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
     return NULL;
-  // Unverified params: url
+  // Unverified params: client, url
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
