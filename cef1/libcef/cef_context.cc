@@ -34,10 +34,6 @@ CefRefPtr<CefContext> _Context;
 
 namespace {
 
-// Both the CefContext constuctor and the CefContext::RemoveBrowser method need
-// to initialize or reset to the same value.
-const int kNextBrowserIdReset = 1;
-
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
 class DestructionObserver : public MessageLoop::DestructionObserver {
@@ -226,7 +222,6 @@ CefContext::CefContext()
   : initialized_(false),
     shutting_down_(false),
     request_context_(NULL),
-    next_browser_id_(kNextBrowserIdReset),
     current_webviewhost_(NULL),
     dev_tools_client_count_(0) {
 }
@@ -308,30 +303,17 @@ void CefContext::Shutdown() {
   }
 }
 
-bool CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser) {
-  bool found = false;
-
-  AutoLock lock_scope(this);
-
-  // check that the browser isn't already in the list before adding
-  BrowserList::const_iterator it = browserlist_.begin();
-  for (; it != browserlist_.end(); ++it) {
-    if (it->get() == browser.get()) {
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    browser->UIT_SetUniqueID(next_browser_id_++);
-    browserlist_.push_back(browser);
-  }
-
-  return !found;
+int CefContext::GetNextBrowserID() {
+  return next_browser_id_.GetNext() + 1;
 }
 
-bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
-  bool deleted = false;
+void CefContext::AddBrowser(CefRefPtr<CefBrowserImpl> browser) {
+  AutoLock lock_scope(this);
+
+  browserlist_.push_back(browser);
+}
+
+void CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
   bool empty = false;
 
   {
@@ -341,15 +323,12 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
     for (; it != browserlist_.end(); ++it) {
       if (it->get() == browser.get()) {
         browserlist_.erase(it);
-        deleted = true;
         break;
       }
     }
 
-    if (browserlist_.empty()) {
-      next_browser_id_ = kNextBrowserIdReset;
+    if (browserlist_.empty())
       empty = true;
-    }
   }
 
   if (empty) {
@@ -360,8 +339,6 @@ bool CefContext::RemoveBrowser(CefRefPtr<CefBrowserImpl> browser) {
           base::Bind(webkit_glue::ClearCache));
     }
   }
-
-  return deleted;
 }
 
 CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
@@ -369,7 +346,7 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
 
   BrowserList::const_iterator it = browserlist_.begin();
   for (; it != browserlist_.end(); ++it) {
-    if (it->get()->UIT_GetUniqueID() == id)
+    if (it->get()->browser_id() == id)
       return it->get();
   }
 

@@ -148,6 +148,12 @@ class CefBrowser : public virtual CefBase {
   virtual CefWindowHandle GetOpenerWindowHandle() =0;
 
   ///
+  // Returns the globally unique identifier for this browser.
+  ///
+  /*--cef()--*/
+  virtual int GetIdentifier() =0;
+
+  ///
   // Returns true if the window is a popup window.
   ///
   /*--cef()--*/
