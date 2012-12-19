@@ -17,6 +17,7 @@
 #include "libcef/cef_process.h"
 
 #include "base/at_exit.h"
+#include "base/atomic_sequence_num.h"
 #include "base/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/scoped_temp_dir.h"
@@ -49,8 +50,9 @@ class CefContext : public CefBase {
 
   CefProcess* process() { return process_.get(); }
 
-  bool AddBrowser(CefRefPtr<CefBrowserImpl> browser);
-  bool RemoveBrowser(CefRefPtr<CefBrowserImpl> browser);
+  int GetNextBrowserID();
+  void AddBrowser(CefRefPtr<CefBrowserImpl> browser);
+  void RemoveBrowser(CefRefPtr<CefBrowserImpl> browser);
   CefRefPtr<CefBrowserImpl> GetBrowserByID(int id);
   BrowserList* GetBrowserList() { return &browserlist_; }
 
@@ -131,7 +133,7 @@ class CefContext : public CefBase {
   BrowserList browserlist_;
 
   // Used for assigning unique IDs to browser instances.
-  int next_browser_id_;
+  base::AtomicSequenceNumber next_browser_id_;
 
   WebViewHost* current_webviewhost_;
 

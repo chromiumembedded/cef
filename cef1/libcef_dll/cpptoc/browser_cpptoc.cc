@@ -256,6 +256,20 @@ cef_window_handle_t CEF_CALLBACK browser_get_opener_window_handle(
   return _retval;
 }
 
+int CEF_CALLBACK browser_get_identifier(struct _cef_browser_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefBrowserCppToC::Get(self)->GetIdentifier();
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -733,6 +747,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.set_focus = browser_set_focus;
   struct_.struct_.get_window_handle = browser_get_window_handle;
   struct_.struct_.get_opener_window_handle = browser_get_opener_window_handle;
+  struct_.struct_.get_identifier = browser_get_identifier;
   struct_.struct_.is_popup = browser_is_popup;
   struct_.struct_.has_document = browser_has_document;
   struct_.struct_.get_client = browser_get_client;

@@ -198,6 +198,19 @@ CefWindowHandle CefBrowserCToCpp::GetOpenerWindowHandle() {
   return _retval;
 }
 
+int CefBrowserCToCpp::GetIdentifier() {
+  if (CEF_MEMBER_MISSING(struct_, get_identifier))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->get_identifier(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
 bool CefBrowserCToCpp::IsPopup() {
   if (CEF_MEMBER_MISSING(struct_, is_popup))
     return false;
