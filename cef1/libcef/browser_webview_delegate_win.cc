@@ -495,10 +495,14 @@ void BrowserWebViewDelegate::showContextMenu(
   if (!menu)
     return;
 
+  MessageLoop::current()->set_os_modal_loop(true);
+
   // Show the context menu
   int selected_id = TrackPopupMenu(menu,
       TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
       screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
+
+  MessageLoop::current()->set_os_modal_loop(false);
 
   if (selected_id != 0) {
     // An action was chosen

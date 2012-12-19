@@ -605,6 +605,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       }
       break;
 
+    case WM_ENTERMENULOOP:
+      if (!wParam && g_handler.get() && g_handler->GetBrowserHwnd()) {
+        // Entering the menu loop for the application menu.
+        g_handler->GetBrowser()->SetOSModalLoop(true);
+      }
+      break;
+
+    case WM_EXITMENULOOP:
+      if (!wParam && g_handler.get() && g_handler->GetBrowserHwnd()) {
+        // Exiting the menu loop for the application menu.
+        g_handler->GetBrowser()->SetOSModalLoop(false);
+      }
+      break;
+
     case WM_CLOSE:
       if (g_handler.get()) {
         CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
