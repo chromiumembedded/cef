@@ -47,6 +47,7 @@ class CefBrowserCToCpp
   virtual void SetFocus(bool enable) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
+  virtual int GetIdentifier() OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
   virtual bool HasDocument() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;

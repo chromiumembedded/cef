@@ -170,7 +170,7 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
     has_document_(false),
     is_dropping_(false),
     is_in_onsetfocus_(false),
-    unique_id_(0)
+    browser_id_(_Context->GetNextBrowserID())
 #if defined(OS_WIN)
     , opener_was_disabled_by_modal_loop_(false),
     internal_modal_message_loop_is_active_(false)

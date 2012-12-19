@@ -190,7 +190,7 @@ WebKit::WebGraphicsContext3D* BrowserWebViewDelegate::createGraphicsContext3D(
   WebKit::WebView* web_view = browser_->UIT_GetWebView();
   if (!web_view)
     return NULL;
-      
+
   const CefSettings& settings = _Context->settings();
   return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
       attributes, web_view, true);
@@ -981,7 +981,7 @@ void BrowserWebViewDelegate::willSendRequest(
 
   // The requestor ID is used by the resource loader bridge to locate the
   // browser that originated the request.
-  request.setRequestorID(browser_->UIT_GetUniqueID());
+  request.setRequestorID(browser_->browser_id());
 }
 
 void BrowserWebViewDelegate::didChangeContentsSize(

@@ -123,6 +123,11 @@ typedef struct _cef_browser_t {
       struct _cef_browser_t* self);
 
   ///
+  // Returns the globally unique identifier for this browser.
+  ///
+  int (CEF_CALLBACK *get_identifier)(struct _cef_browser_t* self);
+
+  ///
   // Returns true (1) if the window is a popup window.
   ///
   int (CEF_CALLBACK *is_popup)(struct _cef_browser_t* self);

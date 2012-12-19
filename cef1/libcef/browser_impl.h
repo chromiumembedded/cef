@@ -83,6 +83,7 @@ class CefBrowserImpl : public CefBrowser {
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE
       { return opener_window(); }
+  virtual int GetIdentifier() OVERRIDE { return browser_id(); }
   virtual bool IsPopup() OVERRIDE { return is_popup(); }
   virtual bool HasDocument() OVERRIDE { return has_document(); }
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE { return client_; }
@@ -303,9 +304,6 @@ class CefBrowserImpl : public CefBrowser {
                      const gfx::Size& canvas_size, WebKit::WebFrame* frame);
   int UIT_GetPagesCount(WebKit::WebFrame* frame);
 
-  void UIT_SetUniqueID(int id) { unique_id_ = id; }
-  int UIT_GetUniqueID() { return unique_id_; }
-
   void UIT_Find(int identifier, const CefString& search_text,
                 const WebKit::WebFindOptions& options);
   void UIT_StopFinding(bool clear_selection);
@@ -328,6 +326,7 @@ class CefBrowserImpl : public CefBrowser {
   // These variables are read-only.
   const CefBrowserSettings& settings() const { return settings_; }
   gfx::NativeView opener_window() { return opener_; }
+  int browser_id() const { return browser_id_; }
   bool is_popup() { return (opener_ != NULL); }
 
   // These variables may be read/written from multiple threads.
@@ -425,8 +424,8 @@ class CefBrowserImpl : public CefBrowser {
       FrameObjectMap;
   FrameObjectMap frame_objects_;
 
-  // Unique browser ID assigned by the context.
-  int unique_id_;
+  // Globally unique identifier for this browser.
+  int browser_id_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserImpl);
   IMPLEMENT_LOCKING(CefBrowserImpl);
@@ -491,7 +490,7 @@ class CefFrameImpl : public CefFrame {
  private:
   CefRefPtr<CefBrowserImpl> browser_;
   CefString name_;
-  
+
   // The below values must be protected by the lock.
   base::Lock lock_;
   int64 id_;
