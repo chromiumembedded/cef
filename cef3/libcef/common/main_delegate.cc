@@ -223,6 +223,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
     }
 
+    if (settings.release_dcheck_enabled)
+      command_line->AppendSwitch(switches::kReleaseDcheckEnabled);
+
     if (settings.javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
           CefString(&settings.javascript_flags));
@@ -305,17 +308,18 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   if (log_severity == LOGSEVERITY_DISABLE) {
     logging_dest = logging::LOG_NONE;
   } else {
-#if defined(OS_WIN)
-    logging_dest = logging::LOG_ONLY_TO_FILE;
-#else
     logging_dest = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
-#endif
     logging::SetMinLogLevel(log_severity);
   }
 
+  logging::DcheckState dcheck_state =
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  if (command_line->HasSwitch(switches::kReleaseDcheckEnabled))
+    dcheck_state = logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+
   logging::InitLogging(log_file.value().c_str(), logging_dest,
       logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
-      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
+      dcheck_state);
 
   content::SetContentClient(&content_client_);
 

@@ -288,6 +288,7 @@ struct CefSettingsTraits {
     cef_string_set(src->log_file.str, src->log_file.length, &target->log_file,
         copy);
     target->log_severity = src->log_severity;
+    target->release_dcheck_enabled = src->release_dcheck_enabled;
     cef_string_set(src->javascript_flags.str, src->javascript_flags.length,
         &target->javascript_flags, copy);
 
