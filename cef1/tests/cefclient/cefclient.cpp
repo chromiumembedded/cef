@@ -225,6 +225,9 @@ void AppGetSettings(CefSettings& settings, CefRefPtr<CefApp>& app) {
     }
   }
 
+  settings.release_dcheck_enabled =
+      g_command_line->HasSwitch(cefclient::kReleaseDcheckEnabled);
+
   {
     std::string str = g_command_line->GetSwitchValue(cefclient::kGraphicsImpl);
     if (!str.empty()) {

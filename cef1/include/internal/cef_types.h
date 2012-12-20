@@ -157,6 +157,11 @@ typedef struct _cef_settings_t {
   cef_log_severity_t log_severity;
 
   ///
+  // Enable DCHECK in release mode to ease debugging.
+  ///
+  bool release_dcheck_enabled;
+
+  ///
   // The graphics implementation that CEF will use for rendering GPU accelerated
   // content like WebGL, accelerated layers and 3D CSS.
   ///

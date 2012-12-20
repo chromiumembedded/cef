@@ -26,6 +26,7 @@ extern const char kLogSeverity_Warning[];
 extern const char kLogSeverity_Error[];
 extern const char kLogSeverity_ErrorReport[];
 extern const char kLogSeverity_Disable[];
+extern const char kReleaseDcheckEnabled[];
 extern const char kGraphicsImpl[];
 extern const char kGraphicsImpl_Angle[];
 extern const char kGraphicsImpl_AngleCmdBuffer[];
