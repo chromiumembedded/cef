@@ -71,18 +71,19 @@ void CefProcessUIThread::Init() {
   if (settings.log_severity == LOGSEVERITY_DISABLE) {
     logging_dest = logging::LOG_NONE;
   } else {
-#if defined(OS_WIN)
-    logging_dest = logging::LOG_ONLY_TO_FILE;
-#else
     logging_dest = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
-#endif
     logging::SetMinLogLevel(settings.log_severity);
   }
 
   FilePath log_file = FilePath(CefString(&settings.log_file));
+  logging::DcheckState dcheck_state =
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  if (settings.release_dcheck_enabled)
+    dcheck_state = logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+
   logging::InitLogging(log_file.value().c_str(), logging_dest,
       logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
-      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
+      dcheck_state);
 
   // Load ICU data tables.
   bool ret = icu_util::Initialize();
