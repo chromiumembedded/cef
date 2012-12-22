@@ -1662,6 +1662,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+    if (test_mode_ == V8TEST_NONE)
+      return;
+
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser_.get() == NULL) {
         app_ = app;
@@ -1742,6 +1745,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
                                  CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Context> context) OVERRIDE {
+    if (test_mode_ == V8TEST_NONE)
+      return;
+
     if (test_mode_ == V8TEST_CONTEXT_INVALID &&
         frame->GetURL().ToString() != kV8NavTestUrl) {
       test_context_ =
@@ -1754,6 +1760,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 
   virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
                                   CefRefPtr<CefBrowser> browser) OVERRIDE {
+    if (test_mode_ == V8TEST_NONE)
+      return;
+
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser->IsPopup()) {
         // After window destruction there is still a call to
@@ -1770,6 +1779,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
                                         CefProcessId source_process,
                                         CefRefPtr<CefProcessMessage> message)
                                         OVERRIDE {
+    if (test_mode_ == V8TEST_NONE)
+      return false;
+
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(PID_BROWSER, source_process);
