@@ -45,6 +45,7 @@ class CefBrowserCToCpp
   virtual void ReloadIgnoreCache() OVERRIDE;
   virtual void StopLoad() OVERRIDE;
   virtual int GetIdentifier() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
   virtual bool HasDocument() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;

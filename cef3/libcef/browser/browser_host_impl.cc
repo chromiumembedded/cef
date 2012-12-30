@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_info.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -252,9 +253,11 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return NULL;
   }
 
-  int browser_id = _Context->GetNextBrowserID();
+  scoped_refptr<CefBrowserInfo> info =
+      CefContentBrowserClient::Get()->CreateBrowserInfo();
+  DCHECK(!info->is_popup());
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(windowInfo, settings, client, NULL, browser_id,
+      CefBrowserHostImpl::Create(windowInfo, settings, client, NULL, info,
                                  NULL);
   if (!url.empty())
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url);
@@ -274,9 +277,13 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
     content::WebContents* web_contents,
-    int browser_id,
+    scoped_refptr<CefBrowserInfo> browser_info,
     CefWindowHandle opener) {
   CEF_REQUIRE_UIT();
+  DCHECK(browser_info.get());
+
+  // If |opener| is non-NULL it must be a popup window.
+  DCHECK(opener == NULL || browser_info->is_popup());
 
   if (web_contents == NULL) {
     web_contents = content::WebContents::Create(
@@ -288,11 +295,9 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(window_info, settings, client, web_contents,
-                             browser_id, opener);
+                             browser_info, opener);
   if (!browser->PlatformCreateWindow())
     return NULL;
-
-  _Context->AddBrowser(browser);
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
@@ -571,8 +576,13 @@ int CefBrowserHostImpl::GetIdentifier() {
   return browser_id();
 }
 
+bool CefBrowserHostImpl::IsSame(CefRefPtr<CefBrowser> that) {
+  CefBrowserHostImpl* impl = static_cast<CefBrowserHostImpl*>(that.get());
+  return (impl == this);
+}
+
 bool CefBrowserHostImpl::IsPopup() {
-  return (opener_ != NULL);
+  return browser_info_->is_popup();
 }
 
 bool CefBrowserHostImpl::HasDocument() {
@@ -701,8 +711,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   request_context_proxy_ = NULL;
 
-  // Remove the browser from the list maintained by the context.
-  _Context->RemoveBrowser(this);
+  CefContentBrowserClient::Get()->RemoveBrowserInfo(browser_info_);
+  browser_info_->set_browser(NULL);
 }
 
 gfx::NativeView CefBrowserHostImpl::GetContentView() const {
@@ -963,11 +973,8 @@ void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
   }
 }
 
-bool CefBrowserHostImpl::HasIDMatch(int render_process_id, int render_view_id) {
-  base::AutoLock lock_scope(state_lock_);
-  if (render_process_id != render_process_id_)
-    return false;
-  return (render_view_id == 0 || render_view_id == render_view_id_);
+int CefBrowserHostImpl::browser_id() const {
+  return browser_info_->browser_id();
 }
 
 GURL CefBrowserHostImpl::GetLoadingURL() {
@@ -1216,19 +1223,25 @@ void CefBrowserHostImpl::WebContentsCreated(
     const GURL& target_url,
     content::WebContents* new_contents) {
   CefWindowHandle opener = NULL;
-  if (source_contents)
+  scoped_refptr<CefBrowserInfo> info;
+  if (source_contents) {
     opener = GetBrowserForContents(source_contents)->GetWindowHandle();
 
-  CefContentBrowserClient::NewPopupBrowserInfo info;
-  CefContentBrowserClient::Get()->GetNewPopupBrowserInfo(
-      new_contents->GetRenderProcessHost()->GetID(),
-      new_contents->GetRoutingID(),
-      &info);
-  DCHECK_GT(info.browser_id, 0);
+    // Popup windows may not have info yet.
+    info = CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
+        new_contents->GetRenderProcessHost()->GetID(),
+        new_contents->GetRoutingID());
+    DCHECK(info->is_popup());
+  } else {
+    info = CefContentBrowserClient::Get()->GetBrowserInfo(
+        new_contents->GetRenderProcessHost()->GetID(),
+        new_contents->GetRoutingID());
+    DCHECK(!info->is_popup());
+  }
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
       pending_window_info_, pending_settings_, pending_client_, new_contents,
-      info.browser_id, opener);
+      info, opener);
 
   pending_client_ = NULL;
 }
@@ -1286,7 +1299,24 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  SetRenderViewHost(render_view_host);
+  // When navigating cross-origin the new (pending) RenderViewHost will be
+  // created before the old (current) RenderViewHost is destroyed. It may be
+  // necessary in the future to track both current and pending render IDs.
+  browser_info_->set_render_ids(render_view_host->GetProcess()->GetID(),
+                                render_view_host->GetRoutingID());
+
+  // Update the DevTools URLs, if any.
+  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
+  if (devtools_delegate) {
+    base::AutoLock lock_scope(state_lock_);
+    devtools_url_http_ =
+        devtools_delegate->GetDevToolsURL(render_view_host, true);
+    devtools_url_chrome_ =
+        devtools_delegate->GetDevToolsURL(render_view_host, false);
+  }
+
+  registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+                  content::Source<content::RenderViewHost>(render_view_host));
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(
@@ -1296,12 +1326,6 @@ void CefBrowserHostImpl::RenderViewDeleted(
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
-  if (IsPopup()) {
-    CefContentBrowserClient::Get()->ClearNewPopupBrowserInfo(
-        web_contents()->GetRenderProcessHost()->GetID(),
-        web_contents()->GetRoutingID());
-  }
-
   // Send the queued messages.
   queue_messages_ = false;
   while (!queued_messages_.empty()) {
@@ -1521,20 +1545,19 @@ void CefBrowserHostImpl::Observe(int type,
 // CefBrowserHostImpl private methods.
 // -----------------------------------------------------------------------------
 
-CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
-                                       const CefBrowserSettings& settings,
-                                       CefRefPtr<CefClient> client,
-                                       content::WebContents* web_contents,
-                                       int browser_id,
-                                       CefWindowHandle opener)
+CefBrowserHostImpl::CefBrowserHostImpl(
+    const CefWindowInfo& window_info,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefClient> client,
+    content::WebContents* web_contents,
+    scoped_refptr<CefBrowserInfo> browser_info,
+    CefWindowHandle opener)
     : content::WebContentsObserver(web_contents),
       window_info_(window_info),
       settings_(settings),
       client_(client),
-      browser_id_(browser_id),
+      browser_info_(browser_info),
       opener_(opener),
-      render_process_id_(MSG_ROUTING_NONE),
-      render_view_id_(MSG_ROUTING_NONE),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),
@@ -1545,6 +1568,9 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
       file_chooser_pending_(false) {
+  DCHECK(!browser_info_->browser().get());
+  browser_info_->set_browser(this);
+
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
 
@@ -1556,31 +1582,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(const CefWindowInfo& window_info,
 
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
-
-  SetRenderViewHost(web_contents->GetRenderViewHost());
-}
-
-void CefBrowserHostImpl::SetRenderViewHost(content::RenderViewHost* rvh) {
-  {
-    base::AutoLock lock_scope(state_lock_);
-
-    render_view_id_ = rvh->GetRoutingID();
-    render_process_id_ = rvh->GetProcess()->GetID();
-
-    // Update the DevTools URLs, if any.
-    CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
-    if (devtools_delegate) {
-      devtools_url_http_ = devtools_delegate->GetDevToolsURL(rvh, true);
-      devtools_url_chrome_ = devtools_delegate->GetDevToolsURL(rvh, false);
-    }
-  }
-
-  if (!registrar_->IsRegistered(
-      this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-      content::Source<content::RenderViewHost>(rvh))) {
-    registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-                    content::Source<content::RenderViewHost>(rvh));
-  }
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(

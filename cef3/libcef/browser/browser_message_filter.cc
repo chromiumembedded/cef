@@ -6,6 +6,7 @@
 #include "libcef/browser/browser_message_filter.h"
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_info.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/origin_whitelist_impl.h"
@@ -68,18 +69,10 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
 
 void CefBrowserMessageFilter::OnGetNewBrowserInfo(
     int routing_id, CefProcessHostMsg_GetNewBrowserInfo_Params* params) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserByRoutingID(host_->GetID(), routing_id);
-  if (browser.get()) {
-    params->browser_id = browser->GetIdentifier();
-    params->is_popup = browser->IsPopup();
-  } else {
-    CefContentBrowserClient::NewPopupBrowserInfo info;
-    CefContentBrowserClient::Get()->GetNewPopupBrowserInfo(host_->GetID(),
-                                                           routing_id,
-                                                           &info);
-    DCHECK_GT(info.browser_id, 0);
-    params->browser_id = info.browser_id;
-    params->is_popup = true;
-  }
+  // Popup windows may not have info yet.
+  scoped_refptr<CefBrowserInfo> info =
+      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(host_->GetID(),
+                                                             routing_id);
+  params->browser_id = info->browser_id();
+  params->is_popup = info->is_popup();
 }

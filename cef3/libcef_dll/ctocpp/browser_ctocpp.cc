@@ -134,6 +134,25 @@ int CefBrowserCToCpp::GetIdentifier() {
   return _retval;
 }
 
+bool CefBrowserCToCpp::IsSame(CefRefPtr<CefBrowser> that) {
+  if (CEF_MEMBER_MISSING(struct_, is_same))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: that; type: refptr_same
+  DCHECK(that.get());
+  if (!that.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->is_same(struct_,
+      CefBrowserCToCpp::Unwrap(that));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefBrowserCToCpp::IsPopup() {
   if (CEF_MEMBER_MISSING(struct_, is_popup))
     return false;
