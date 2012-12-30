@@ -789,6 +789,8 @@
         'libcef/browser/browser_context.h',
         'libcef/browser/browser_host_impl.cc',
         'libcef/browser/browser_host_impl.h',
+        'libcef/browser/browser_info.cc',
+        'libcef/browser/browser_info.h',
         'libcef/browser/browser_main.cc',
         'libcef/browser/browser_main.h',
         'libcef/browser/browser_message_filter.cc',

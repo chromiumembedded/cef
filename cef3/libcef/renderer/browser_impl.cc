@@ -130,13 +130,20 @@ void CefBrowserImpl::StopLoad() {
 int CefBrowserImpl::GetIdentifier() {
   CEF_REQUIRE_RT_RETURN(0);
 
-  return browser_window_id();
+  return browser_id();
+}
+
+bool CefBrowserImpl::IsSame(CefRefPtr<CefBrowser> that) {
+  CEF_REQUIRE_RT_RETURN(false);
+
+  CefBrowserImpl* impl = static_cast<CefBrowserImpl*>(that.get());
+  return (impl == this);
 }
 
 bool CefBrowserImpl::IsPopup() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  return is_popup_;
+  return is_popup();
 }
 
 bool CefBrowserImpl::HasDocument() {
@@ -254,7 +261,7 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
                                int browser_id,
                                bool is_popup)
     : content::RenderViewObserver(render_view),
-      browser_window_id_(browser_id),
+      browser_id_(browser_id),
       is_popup_(is_popup),
       last_focused_frame_id_(kInvalidFrameId) {
   response_manager_.reset(new CefResponseManager);

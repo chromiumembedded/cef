@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_filter.h"
@@ -231,9 +232,9 @@ class CefMediaObserver : public content::MediaObserver {
       const content::MediaStreamDevices& devices) OVERRIDE {}
 };
 
-
 CefContentBrowserClient::CefContentBrowserClient()
-    : browser_main_parts_(NULL) {
+    : browser_main_parts_(NULL),
+      next_browser_id_(0) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   PluginServiceImpl::GetInstance()->SetFilter(plugin_service_filter_.get());
 }
@@ -247,36 +248,92 @@ CefContentBrowserClient* CefContentBrowserClient::Get() {
       content::GetContentClient()->browser());
 }
 
-void CefContentBrowserClient::GetNewPopupBrowserInfo(
-    int render_process_id, int render_view_id, NewPopupBrowserInfo* info) {
-  base::AutoLock lock_scope(new_popup_browser_lock_);
+scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo() {
+  base::AutoLock lock_scope(browser_info_lock_);
 
-  NewPopupBrowserInfoMap::const_iterator it =
-      new_popup_browser_info_map_.find(
-          std::make_pair(render_process_id, render_view_id));
-  if (it != new_popup_browser_info_map_.end()) {
-    *info = it->second;
-    return;
-  }
-
-  // Create the info now.
-  NewPopupBrowserInfo new_info;
-  new_info.browser_id = _Context->GetNextBrowserID();
-  new_popup_browser_info_map_.insert(
-      std::make_pair(
-          std::make_pair(render_process_id, render_view_id), new_info));
-  *info = new_info;
+  scoped_refptr<CefBrowserInfo> browser_info =
+      new CefBrowserInfo(++next_browser_id_, false);
+  browser_info_list_.push_back(browser_info);
+  return browser_info;
 }
 
-void CefContentBrowserClient::ClearNewPopupBrowserInfo(int render_process_id,
-                                                       int render_view_id) {
-  base::AutoLock lock_scope(new_popup_browser_lock_);
+scoped_refptr<CefBrowserInfo>
+    CefContentBrowserClient::GetOrCreateBrowserInfo(int render_process_id,
+                                                    int render_view_id) {
+  base::AutoLock lock_scope(browser_info_lock_);
 
-  NewPopupBrowserInfoMap::iterator it =
-      new_popup_browser_info_map_.find(
-          std::make_pair(render_process_id, render_view_id));
-  if (it != new_popup_browser_info_map_.end())
-    new_popup_browser_info_map_.erase(it);
+  BrowserInfoList::const_iterator it = browser_info_list_.begin();
+  for (; it != browser_info_list_.end(); ++it) {
+    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
+    if (browser_info->is_render_id_match(render_process_id, render_view_id))
+      return browser_info;
+  }
+
+  // Must be a popup if it hasn't already been created.
+  scoped_refptr<CefBrowserInfo> browser_info =
+      new CefBrowserInfo(++next_browser_id_, true);
+  browser_info->set_render_ids(render_process_id, render_view_id);
+  browser_info_list_.push_back(browser_info);
+  return browser_info;
+}
+
+void CefContentBrowserClient::RemoveBrowserInfo(
+    scoped_refptr<CefBrowserInfo> browser_info) {
+  base::AutoLock lock_scope(browser_info_lock_);
+
+  BrowserInfoList::iterator it = browser_info_list_.begin();
+  for (; it != browser_info_list_.end(); ++it) {
+    if (*it == browser_info) {
+      browser_info_list_.erase(it);
+      return;
+    }
+  }
+
+  NOTREACHED();
+}
+
+void CefContentBrowserClient::DestroyAllBrowsers() {
+  BrowserInfoList list;
+
+  {
+    base::AutoLock lock_scope(browser_info_lock_);
+    list = browser_info_list_;
+  }
+
+  // Destroy any remaining browser windows.
+  if (!list.empty()) {
+    BrowserInfoList::iterator it = list.begin();
+    for (; it != list.end(); ++it) {
+      CefRefPtr<CefBrowserHostImpl> browser = (*it)->browser();
+      if (browser.get())
+        browser->DestroyBrowser();
+    }
+  }
+
+#ifndef NDEBUG
+  {
+    // Verify that all browser windows have been destroyed.
+    base::AutoLock lock_scope(browser_info_lock_);
+    DCHECK(browser_info_list_.empty());
+  }
+#endif
+}
+
+scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfo(
+    int render_process_id, int render_view_id) {
+  base::AutoLock lock_scope(browser_info_lock_);
+
+  BrowserInfoList::const_iterator it = browser_info_list_.begin();
+  for (; it != browser_info_list_.end(); ++it) {
+    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
+    if (browser_info->is_render_id_match(render_process_id, render_view_id))
+      return browser_info;
+  }
+
+  DLOG(WARNING) << "No browser info matching process id " <<
+                   render_process_id << " and view id " << render_view_id;
+
+  return scoped_refptr<CefBrowserInfo>();
 }
 
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(

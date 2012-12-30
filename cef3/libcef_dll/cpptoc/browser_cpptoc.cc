@@ -145,6 +145,26 @@ int CEF_CALLBACK browser_get_identifier(struct _cef_browser_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK browser_is_same(struct _cef_browser_t* self,
+    struct _cef_browser_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserCppToC::Get(self)->IsSame(
+      CefBrowserCppToC::Unwrap(that));
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -350,6 +370,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.reload_ignore_cache = browser_reload_ignore_cache;
   struct_.struct_.stop_load = browser_stop_load;
   struct_.struct_.get_identifier = browser_get_identifier;
+  struct_.struct_.is_same = browser_is_same;
   struct_.struct_.is_popup = browser_is_popup;
   struct_.struct_.has_document = browser_has_document;
   struct_.struct_.get_main_frame = browser_get_main_frame;

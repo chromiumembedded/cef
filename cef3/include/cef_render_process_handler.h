@@ -71,7 +71,9 @@ class CefRenderProcessHandler : public virtual CefBase {
   virtual void OnWebKitInitialized() {}
 
   ///
-  // Called after a browser has been created.
+  // Called after a browser has been created. When browsing cross-origin a new
+  // browser will be created before the old browser with the same identifier is
+  // destroyed.
   ///
   /*--cef()--*/
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) {}

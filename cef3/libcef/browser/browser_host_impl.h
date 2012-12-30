@@ -40,6 +40,7 @@ class URLRequest;
 
 struct Cef_Request_Params;
 struct Cef_Response_Params;
+class CefBrowserInfo;
 struct CefNavigateParams;
 class SiteInstance;
 
@@ -78,7 +79,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
-      int browser_id,
+      scoped_refptr<CefBrowserInfo> browser_info,
       CefWindowHandle opener);
 
   // Returns the browser associated with the specified RenderViewHost.
@@ -126,6 +127,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void ReloadIgnoreCache() OVERRIDE;
   virtual void StopLoad() OVERRIDE;
   virtual int GetIdentifier() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
   virtual bool HasDocument() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
@@ -188,15 +190,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Handler for URLs involving external protocols.
   void HandleExternalProtocol(const GURL& url);
 
-  // Returns true if this browser matches the specified ID values. If
-  // |render_view_id| is 0 any browser with the specified |render_process_id|
-  // will match.
-  bool HasIDMatch(int render_process_id, int render_view_id);
-
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
-  int browser_id() const { return browser_id_; }
+  int browser_id() const;
 
   // Returns the URL that is currently loading (or loaded) in the main frame.
   GURL GetLoadingURL();
@@ -317,11 +314,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      const CefBrowserSettings& settings,
                      CefRefPtr<CefClient> client,
                      content::WebContents* web_contents,
-                     int browser_id,
+                     scoped_refptr<CefBrowserInfo> browser_info,
                      CefWindowHandle opener);
-
-  // Initialize settings based on the specified RenderViewHost.
-  void SetRenderViewHost(content::RenderViewHost* rvh);
 
   // Updates and returns an existing frame or creates a new frame. Pass
   // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.
@@ -394,14 +388,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
   scoped_ptr<content::WebContents> web_contents_;
-  int browser_id_;
+  scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
-
-  // Unique ids used for routing communication to/from the renderer. We keep a
-  // copy of them as member variables so that we can locate matching browsers in
-  // a thread safe manner. All access must be protected by the state lock.
-  int render_process_id_;
-  int render_view_id_;
 
   // Used when creating a new popup window.
   CefWindowInfo pending_window_info_;

@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <list>
 #include "include/cef_callback.h"
 #include "include/cef_scheme.h"
 #include "tests/cefclient/client_app.h"
@@ -76,12 +77,14 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate {
   virtual void OnRenderThreadCreated(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefListValue> extra_info) OVERRIDE {
-    // Check that the test should be run.
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const std::string& test = command_line->GetSwitchValue("test");
-    if (test != kHistoryNavMsg)
-      return;
+    if (!g_history_nav_test) {
+      // Check that the test should be run.
+      CefRefPtr<CefCommandLine> command_line =
+          CefCommandLine::GetGlobalCommandLine();
+      const std::string& test = command_line->GetSwitchValue("test");
+      if (test != kHistoryNavMsg)
+        return;
+    }
 
     run_test_ = true;
   }
@@ -814,12 +817,14 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
   virtual void OnRenderThreadCreated(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefListValue> extra_info) OVERRIDE {
-    // Check that the test should be run.
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const std::string& test = command_line->GetSwitchValue("test");
-    if (test != kOrderNavMsg)
-      return;
+    if (!g_order_nav_test) {
+      // Check that the test should be run.
+      CefRefPtr<CefCommandLine> command_line =
+          CefCommandLine::GetGlobalCommandLine();
+      const std::string& test = command_line->GetSwitchValue("test");
+      if (test != kOrderNavMsg)
+        return;
+    }
 
     run_test_ = true;
 
@@ -1132,11 +1137,315 @@ TEST(NavigationTest, Order) {
 }
 
 
+namespace {
+
+const char kCrossOriginNav1[] = "http://tests-conav1/nav1.html";
+const char kCrossOriginNav2[] = "http://tests-conav2/nav2.html";
+const char kCrossOriginNavMsg[] = "NavigationTest.CrossOriginNav";
+
+bool g_cross_origin_nav_test = false;
+
+// Browser side.
+class CrossOriginNavBrowserTest : public ClientApp::BrowserDelegate {
+ public:
+  CrossOriginNavBrowserTest() {}
+
+  virtual void OnBeforeChildProcessLaunch(
+      CefRefPtr<ClientApp> app,
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE {
+    if (!g_cross_origin_nav_test)
+      return;
+
+    // Indicate to the render process that the test should be run.
+    command_line->AppendSwitchWithValue("test", kCrossOriginNavMsg);
+  }
+
+ protected:
+  IMPLEMENT_REFCOUNTING(CrossOriginNavBrowserTest);
+};
+
+// Renderer side.
+class CrossOriginNavRendererTest : public ClientApp::RenderDelegate {
+ public:
+  CrossOriginNavRendererTest()
+      : run_test_(false) {}
+  virtual ~CrossOriginNavRendererTest() {
+    EXPECT_TRUE(status_list_.empty());
+  }
+
+  virtual void OnRenderThreadCreated(
+      CefRefPtr<ClientApp> app,
+      CefRefPtr<CefListValue> extra_info) OVERRIDE {
+    if (!g_cross_origin_nav_test) {
+      // Check that the test should be run.
+      CefRefPtr<CefCommandLine> command_line =
+          CefCommandLine::GetGlobalCommandLine();
+      const std::string& test = command_line->GetSwitchValue("test");
+      if (test != kCrossOriginNavMsg)
+        return;
+    }
+
+    run_test_ = true;
+
+    EXPECT_FALSE(got_webkit_initialized_);
+
+    got_render_thread_created_.yes();
+  }
+
+  virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) OVERRIDE {
+    if (!run_test_)
+      return;
+
+    EXPECT_TRUE(got_render_thread_created_);
+
+    got_webkit_initialized_.yes();
+  }
+
+  virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
+                                CefRefPtr<CefBrowser> browser) OVERRIDE {
+    if (!run_test_)
+      return;
+
+    EXPECT_TRUE(got_render_thread_created_);
+    EXPECT_TRUE(got_webkit_initialized_);
+
+    EXPECT_FALSE(GetStatus(browser));
+    Status* status = AddStatus(browser);
+    status->got_browser_created.yes();
+  }
+
+  virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
+                                  CefRefPtr<CefBrowser> browser) OVERRIDE {
+    if (!run_test_)
+      return;
+
+    EXPECT_TRUE(got_render_thread_created_);
+    EXPECT_TRUE(got_webkit_initialized_);
+
+    Status* status = GetStatus(browser);
+    EXPECT_TRUE(status);
+
+    EXPECT_TRUE(status->got_browser_created);
+    EXPECT_TRUE(status->got_before_navigation);
+
+    EXPECT_EQ(status->browser_id, browser->GetIdentifier());
+
+    EXPECT_TRUE(RemoveStatus(browser));
+  }
+
+  virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+                                  CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  cef_navigation_type_t navigation_type,
+                                  bool is_redirect) OVERRIDE {
+    if (!run_test_)
+      return false;
+
+    EXPECT_TRUE(got_render_thread_created_);
+    EXPECT_TRUE(got_webkit_initialized_);
+
+    Status* status = GetStatus(browser);
+    EXPECT_TRUE(status);
+
+    EXPECT_TRUE(status->got_browser_created);
+    EXPECT_FALSE(status->got_before_navigation);
+
+    status->got_before_navigation.yes();
+
+    EXPECT_EQ(status->browser_id, browser->GetIdentifier());
+
+    SendTestResults(browser);
+    return false;
+  }
+
+ protected:
+  // Send the test results.
+  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+    // Check if the test has failed.
+    bool result = !TestFailed();
+
+    // Return the result to the browser process.
+    CefRefPtr<CefProcessMessage> return_msg =
+        CefProcessMessage::Create(kCrossOriginNavMsg);
+    CefRefPtr<CefListValue> args = return_msg->GetArgumentList();
+    EXPECT_TRUE(args.get());
+    EXPECT_TRUE(args->SetBool(0, result));
+    EXPECT_TRUE(args->SetInt(1, browser->GetIdentifier()));
+    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+  }
+
+  bool run_test_;
+
+  TrackCallback got_render_thread_created_;
+  TrackCallback got_webkit_initialized_;
+
+  struct Status {
+    Status() : browser_id(0) {}
+
+    CefRefPtr<CefBrowser> browser;
+    int browser_id;
+    TrackCallback got_browser_created;
+    TrackCallback got_before_navigation;
+  };
+  typedef std::list<Status> StatusList;
+  StatusList status_list_;
+
+  Status* GetStatus(CefRefPtr<CefBrowser> browser) {
+    StatusList::iterator it = status_list_.begin();
+    for (; it != status_list_.end(); ++it) {
+      Status& status = (*it);
+      if (status.browser->IsSame(browser))
+        return &status;
+    }
+
+    return NULL;
+  }
+
+  Status* AddStatus(CefRefPtr<CefBrowser> browser) {
+    Status status;
+    status.browser = browser;
+    status.browser_id = browser->GetIdentifier();
+    EXPECT_GT(status.browser_id, 0);
+    status_list_.push_back(status);
+    return &status_list_.back();
+  }
+
+  bool RemoveStatus(CefRefPtr<CefBrowser> browser) {
+    StatusList::iterator it = status_list_.begin();
+    for (; it != status_list_.end(); ++it) {
+      Status& status = (*it);
+      if (status.browser->IsSame(browser)) {
+        status_list_.erase(it);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  IMPLEMENT_REFCOUNTING(CrossOriginNavRendererTest);
+};
+
+// Browser side.
+class CrossOriginNavTestHandler : public TestHandler {
+ public:
+  CrossOriginNavTestHandler()
+      : browser_id_current_(0),
+        got_message_(false),
+        got_load_end_(false) {}
+
+  virtual void RunTest() OVERRIDE {
+    // Add the resources that we will navigate to/from.
+    AddResource(kCrossOriginNav1, "<html>Nav1</html>", "text/html");
+    AddResource(kCrossOriginNav2, "<html>Nav2</html>", "text/html");
+
+    // Create the browser.
+    CreateBrowser(kCrossOriginNav1);
+  }
+
+  void ContinueIfReady(CefRefPtr<CefBrowser> browser) {
+    if (!got_message_ || !got_load_end_)
+      return;
+
+    got_message_ = false;
+    got_load_end_ = false;
+
+    std::string url = browser->GetMainFrame()->GetURL();
+    if (url == kCrossOriginNav1) {
+      // Load the next url.
+      browser->GetMainFrame()->LoadURL(kCrossOriginNav2);
+    } else {
+      // Done with the test.
+      DestroyTest();
+    }
+  }
+
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
+    TestHandler::OnAfterCreated(browser);
+
+    EXPECT_EQ(browser_id_current_, 0);
+    browser_id_current_ = browser->GetIdentifier();
+    EXPECT_GT(browser_id_current_, 0);
+  }
+
+  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request) OVERRIDE {
+    EXPECT_GT(browser_id_current_, 0);
+    EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+    
+    return false;
+  }
+
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE {
+    EXPECT_GT(browser_id_current_, 0);
+    EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE {
+    EXPECT_GT(browser_id_current_, 0);
+    EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    got_load_end_ = true;
+    ContinueIfReady(browser);
+  }
+
+  virtual bool OnProcessMessageReceived(
+      CefRefPtr<CefBrowser> browser,
+      CefProcessId source_process,
+      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+    EXPECT_GT(browser_id_current_, 0);
+    EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    const std::string& msg_name = message->GetName();
+    if (msg_name == kCrossOriginNavMsg) {
+      // Test that the renderer side succeeded.
+      CefRefPtr<CefListValue> args = message->GetArgumentList();
+      EXPECT_TRUE(args.get());
+      EXPECT_TRUE(args->GetBool(0));
+
+      EXPECT_EQ(browser_id_current_, args->GetInt(1));
+
+      // Continue with the test.
+      got_message_ = true;
+      ContinueIfReady(browser);
+
+      return true;
+    }
+
+    // Message not handled.
+    return false;
+  }
+
+ protected:
+  int browser_id_current_;
+
+  bool got_message_;
+  bool got_load_end_;
+};
+
+}  // namespace
+
+// Verify navigation-related callbacks when browsing cross-origin.
+TEST(NavigationTest, CrossOrigin) {
+  g_cross_origin_nav_test = true;
+  CefRefPtr<CrossOriginNavTestHandler> handler =
+      new CrossOriginNavTestHandler();
+  handler->ExecuteTest();
+  g_cross_origin_nav_test = false;
+}
+
+
 // Entry point for creating navigation browser test objects.
 // Called from client_app_delegates.cc.
 void CreateNavigationBrowserTests(ClientApp::BrowserDelegateSet& delegates) {
   delegates.insert(new HistoryNavBrowserTest);
   delegates.insert(new OrderNavBrowserTest);
+  delegates.insert(new CrossOriginNavBrowserTest);
 }
 
 // Entry point for creating navigation renderer test objects.
@@ -1144,4 +1453,5 @@ void CreateNavigationBrowserTests(ClientApp::BrowserDelegateSet& delegates) {
 void CreateNavigationRendererTests(ClientApp::RenderDelegateSet& delegates) {
   delegates.insert(new HistoryNavRendererTest);
   delegates.insert(new OrderNavRendererTest);
+  delegates.insert(new CrossOriginNavRendererTest);
 }

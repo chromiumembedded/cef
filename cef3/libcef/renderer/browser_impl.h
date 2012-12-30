@@ -63,6 +63,7 @@ class CefBrowserImpl : public CefBrowser,
   virtual void ReloadIgnoreCache() OVERRIDE;
   virtual void StopLoad() OVERRIDE;
   virtual int GetIdentifier() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
   virtual bool IsPopup() OVERRIDE;
   virtual bool HasDocument() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
@@ -96,7 +97,8 @@ class CefBrowserImpl : public CefBrowser,
   // Frame objects will be deleted immediately before the frame is closed.
   void AddFrameObject(int64 frame_id, CefTrackNode* tracked_object);
 
-  int browser_window_id() const { return browser_window_id_; }
+  int browser_id() const { return browser_id_; }
+  bool is_popup() const { return is_popup_; }
   content::RenderView* render_view() {
     return content::RenderViewObserver::render_view();
   }
@@ -117,8 +119,10 @@ class CefBrowserImpl : public CefBrowser,
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
 
-  // Id number of browser window which RenderView is attached to.
-  int browser_window_id_;
+  // ID of the browser that this RenderView is associated with. During loading
+  // of cross-origin requests multiple RenderViews may be associated with the
+  // same browser ID.
+  int browser_id_;
   bool is_popup_;
 
   // Id of the last frame that had focus.

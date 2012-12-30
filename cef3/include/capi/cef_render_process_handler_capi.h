@@ -72,7 +72,9 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_render_process_handler_t* self);
 
   ///
-  // Called after a browser has been created.
+  // Called after a browser has been created. When browsing cross-origin a new
+  // browser will be created before the old browser with the same identifier is
+  // destroyed.
   ///
   void (CEF_CALLBACK *on_browser_created)(
       struct _cef_render_process_handler_t* self,
