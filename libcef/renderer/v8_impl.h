@@ -10,10 +10,12 @@
 
 #include "include/cef_v8.h"
 #include "libcef/common/tracker.h"
-#include "libcef/renderer/thread_util.h"
 
 #include "v8/include/v8.h"
+#include "base/location.h"
+#include "base/logging.h"
 #include "base/memory/ref_counted.h"
+#include "base/message_loop_proxy.h"
 
 class CefTrackNode;
 
@@ -52,18 +54,40 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
   CefTrackManager track_manager_;
 };
 
+
+// Use this template in conjuction with RefCountedThreadSafe to ensure that a
+// V8 object is deleted on the correct thread.
+struct CefV8DeleteOnMessageLoopThread {
+  template<typename T>
+  static void Destruct(const T* x) {
+    if (x->message_loop_proxy_->BelongsToCurrentThread()) {
+      delete x;
+    } else {
+      if (!x->message_loop_proxy_->DeleteSoon(FROM_HERE, x)) {
+#if defined(UNIT_TEST)
+        // Only logged under unit testing because leaks at shutdown
+        // are acceptable under normal circumstances.
+        LOG(ERROR) << "DeleteSoon failed on thread " << thread;
+#endif  // UNIT_TEST
+      }
+    }
+  }
+};
+
 // Base class for V8 Handle types.
 class CefV8HandleBase :
     public base::RefCountedThreadSafe<CefV8HandleBase,
-                                      CefDeleteOnRenderThread> {
+                                      CefV8DeleteOnMessageLoopThread> {
  public:
-  virtual ~CefV8HandleBase() {}
+  virtual ~CefV8HandleBase();
 
   // Returns true if there is no underlying context or if the underlying context
   // is valid.
-  bool IsValid() {
+  bool IsValid() const {
     return (!context_state_.get() || context_state_->IsValid());
   }
+
+  bool BelongsToCurrentThread() const;
 
  protected:
   // |context| is the context that owns this handle. If empty the current
@@ -71,6 +95,9 @@ class CefV8HandleBase :
   explicit CefV8HandleBase(v8::Handle<v8::Context> context);
 
  protected:
+  friend struct CefV8DeleteOnMessageLoopThread;
+
+  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
   scoped_refptr<CefV8ContextState> context_state_;
 };
 

@@ -116,8 +116,10 @@ bool CefRegisterExtension(const CefString& extension_name,
 
 
 ///
-// Class that encapsulates a V8 context handle. The methods of this class may
-// only be called on the render process main thread.
+// Class representing a V8 context handle. Static methods may only be called
+// on a render process thread that has entered a V8 isolate (usually the render
+// process main thread). Non-static methods may only be called on the thread
+// that initially returned the handle.
 ///
 /*--cef(source=library)--*/
 class CefV8Context : public virtual CefBase {
@@ -141,8 +143,9 @@ class CefV8Context : public virtual CefBase {
   static bool InContext();
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // method returns false.
+  // Returns true if the underlying handle is valid and it can be accessed on
+  // the current thread. Do not call any other methods if this method returns
+  // false.
   ///
   /*--cef()--*/
   virtual bool IsValid() =0;
@@ -207,7 +210,8 @@ typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 
 ///
 // Interface that should be implemented to handle V8 function calls. The methods
-// of this class will always be called on the render process main thread.
+// of this class will only be called on a render process thread that the handler
+// was registered on.
 ///
 /*--cef(source=client)--*/
 class CefV8Handler : public virtual CefBase {
@@ -230,7 +234,8 @@ class CefV8Handler : public virtual CefBase {
 ///
 // Interface that should be implemented to handle V8 accessor calls. Accessor
 // identifiers are registered by calling CefV8Value::SetValue(). The methods
-// of this class will always be called on the render process main thread.
+// of this class will only be called on a render process thread that the
+// accessor was registered on.
 ///
 /*--cef(source=client)--*/
 class CefV8Accessor : public virtual CefBase {
@@ -263,7 +268,8 @@ class CefV8Accessor : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 exception.
+// Class representing a V8 exception. The methods of this class may be called on
+// any render process thread.
 ///
 /*--cef(source=library)--*/
 class CefV8Exception : public virtual CefBase {
@@ -324,8 +330,10 @@ class CefV8Exception : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 value. The methods of this class may only be called
-// on the render process main thread.
+// Class representing a V8 value handle. Static methods may only be called on a
+// render process thread that has entered a V8 isolate (usually the render
+// process main thread). Non-static methods may only be called on the thread
+// that initially returned the handle.
 ///
 /*--cef(source=library)--*/
 class CefV8Value : public virtual CefBase {
@@ -415,8 +423,9 @@ class CefV8Value : public virtual CefBase {
                                               CefRefPtr<CefV8Handler> handler);
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // method returns false.
+  // Returns true if the underlying handle is valid and it can be accessed on
+  // the current thread. Do not call any other methods if this method returns
+  // false.
   ///
   /*--cef()--*/
   virtual bool IsValid() =0;
@@ -755,8 +764,10 @@ class CefV8Value : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 stack trace. The methods of this class may only be
-// called on the render process main thread.
+// Class representing a V8 stack trace handle. Static methods may only be called
+// on a render process thread that has entered a V8 isolate (usually the render
+// process main thread). Non-static methods may only be called on the thread
+// that initially returned the handle.
 ///
 /*--cef(source=library)--*/
 class CefV8StackTrace : public virtual CefBase {
@@ -769,8 +780,9 @@ class CefV8StackTrace : public virtual CefBase {
   static CefRefPtr<CefV8StackTrace> GetCurrent(int frame_limit);
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // method returns false.
+  // Returns true if the underlying handle is valid and it can be accessed on
+  // the current thread. Do not call any other methods if this method returns
+  // false.
   ///
   /*--cef()--*/
   virtual bool IsValid() =0;
@@ -789,15 +801,18 @@ class CefV8StackTrace : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 stack frame. The methods of this class may only be
-// called on the render process main thread.
+// Class representing a V8 stack frame handle. Static methods may only be called
+// on a render process thread that has entered a V8 isolate (usually the render
+// process main thread). Non-static methods may only be called on the thread
+// that initially returned the handle.
 ///
 /*--cef(source=library)--*/
 class CefV8StackFrame : public virtual CefBase {
  public:
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // method returns false.
+  // Returns true if the underlying handle is valid and it can be accessed on
+  // the current thread. Do not call any other methods if this method returns
+  // false.
   ///
   /*--cef()--*/
   virtual bool IsValid() =0;

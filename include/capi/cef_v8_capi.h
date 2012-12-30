@@ -105,8 +105,10 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
     const cef_string_t* javascript_code, struct _cef_v8handler_t* handler);
 
 ///
-// Structure that encapsulates a V8 context handle. The functions of this
-// structure may only be called on the render process main thread.
+// Structure representing a V8 context handle. Static functions may only be
+// called on a render process thread that has entered a V8 isolate (usually the
+// render process main thread). Non-static functions may only be called on the
+// thread that initially returned the handle.
 ///
 typedef struct _cef_v8context_t {
   ///
@@ -115,8 +117,9 @@ typedef struct _cef_v8context_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if the underlying handle is valid and it can be accessed
+  // on the current thread. Do not call any other functions if this function
+  // returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_v8context_t* self);
 
@@ -190,8 +193,8 @@ CEF_EXPORT int cef_v8context_in_context();
 
 ///
 // Structure that should be implemented to handle V8 function calls. The
-// functions of this structure will always be called on the render process main
-// thread.
+// functions of this structure will only be called on a render process thread
+// that the handler was registered on.
 ///
 typedef struct _cef_v8handler_t {
   ///
@@ -216,8 +219,8 @@ typedef struct _cef_v8handler_t {
 ///
 // Structure that should be implemented to handle V8 accessor calls. Accessor
 // identifiers are registered by calling cef_v8value_t::set_value_byaccessor().
-// The functions of this structure will always be called on the render process
-// main thread.
+// The functions of this structure will only be called on a render process
+// thread that the accessor was registered on.
 ///
 typedef struct _cef_v8accessor_t {
   ///
@@ -250,7 +253,8 @@ typedef struct _cef_v8accessor_t {
 
 
 ///
-// Structure representing a V8 exception.
+// Structure representing a V8 exception. The functions of this structure may be
+// called on any render process thread.
 ///
 typedef struct _cef_v8exception_t {
   ///
@@ -313,8 +317,10 @@ typedef struct _cef_v8exception_t {
 
 
 ///
-// Structure representing a V8 value. The functions of this structure may only
-// be called on the render process main thread.
+// Structure representing a V8 value handle. Static functions may only be called
+// on a render process thread that has entered a V8 isolate (usually the render
+// process main thread). Non-static functions may only be called on the thread
+// that initially returned the handle.
 ///
 typedef struct _cef_v8value_t {
   ///
@@ -323,8 +329,9 @@ typedef struct _cef_v8value_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if the underlying handle is valid and it can be accessed
+  // on the current thread. Do not call any other functions if this function
+  // returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_v8value_t* self);
 
@@ -713,8 +720,10 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 
 
 ///
-// Structure representing a V8 stack trace. The functions of this structure may
-// only be called on the render process main thread.
+// Structure representing a V8 stack trace handle. Static functions may only be
+// called on a render process thread that has entered a V8 isolate (usually the
+// render process main thread). Non-static functions may only be called on the
+// thread that initially returned the handle.
 ///
 typedef struct _cef_v8stack_trace_t {
   ///
@@ -723,8 +732,9 @@ typedef struct _cef_v8stack_trace_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if the underlying handle is valid and it can be accessed
+  // on the current thread. Do not call any other functions if this function
+  // returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_v8stack_trace_t* self);
 
@@ -749,8 +759,10 @@ CEF_EXPORT cef_v8stack_trace_t* cef_v8stack_trace_get_current(int frame_limit);
 
 
 ///
-// Structure representing a V8 stack frame. The functions of this structure may
-// only be called on the render process main thread.
+// Structure representing a V8 stack frame handle. Static functions may only be
+// called on a render process thread that has entered a V8 isolate (usually the
+// render process main thread). Non-static functions may only be called on the
+// thread that initially returned the handle.
 ///
 typedef struct _cef_v8stack_frame_t {
   ///
@@ -759,8 +771,9 @@ typedef struct _cef_v8stack_frame_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if the underlying handle is valid and it can be accessed
+  // on the current thread. Do not call any other functions if this function
+  // returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_v8stack_frame_t* self);
 
