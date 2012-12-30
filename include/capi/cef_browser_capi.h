@@ -110,6 +110,13 @@ typedef struct _cef_browser_t {
   int (CEF_CALLBACK *get_identifier)(struct _cef_browser_t* self);
 
   ///
+  // Returns true (1) if this object is pointing to the same handle as |that|
+  // object.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_browser_t* self,
+      struct _cef_browser_t* that);
+
+  ///
   // Returns true (1) if the window is a popup window.
   ///
   int (CEF_CALLBACK *is_popup)(struct _cef_browser_t* self);

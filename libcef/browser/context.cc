@@ -5,6 +5,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
@@ -270,53 +271,20 @@ bool CefContext::OnInitThread() {
   return (base::PlatformThread::CurrentId() == init_thread_id_);
 }
 
-int CefContext::GetNextBrowserID() {
-  return next_browser_id_.GetNext() + 1;
-}
-
-void CefContext::AddBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
-  AutoLock lock_scope(this);
-
-  browserlist_.push_back(browser);
-}
-
-void CefContext::RemoveBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
-  AutoLock lock_scope(this);
-
-  BrowserList::iterator it = browserlist_.begin();
-  for (; it != browserlist_.end(); ++it) {
-    if (it->get() == browser.get()) {
-      browserlist_.erase(it);
-      break;
-    }
-  }
-}
-
-CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByID(int id) {
-  AutoLock lock_scope(this);
-
-  BrowserList::const_iterator it = browserlist_.begin();
-  for (; it != browserlist_.end(); ++it) {
-    if (it->get()->browser_id() == id)
-      return it->get();
-  }
-
-  DLOG(ERROR) << "No browser matching unique id " << id;
-  return NULL;
-}
-
 CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByRoutingID(
     int render_process_id, int render_view_id) {
-  AutoLock lock_scope(this);
-
-  BrowserList::const_iterator it = browserlist_.begin();
-  for (; it != browserlist_.end(); ++it) {
-    if (it->get()->HasIDMatch(render_process_id, render_view_id))
-      return it->get();
+  scoped_refptr<CefBrowserInfo> info =
+      CefContentBrowserClient::Get()->GetBrowserInfo(render_process_id,
+                                                     render_view_id);
+  if (info.get()) {
+    CefRefPtr<CefBrowserHostImpl> browser = info->browser();
+    if (!browser.get()) {
+      DLOG(WARNING) << "Found browser id " << info->browser_id() <<
+                       " but no browser object matching process id " <<
+                       render_process_id << " and view id " << render_view_id;
+    }
+    return browser;
   }
-
-  DLOG(ERROR) << "No browser matching process id " << render_process_id <<
-                 " and view id " << render_view_id;
   return NULL;
 }
 
@@ -363,22 +331,7 @@ void CefContext::FinishShutdownOnUIThread(
     base::WaitableEvent* uithread_shutdown_event) {
   CEF_REQUIRE_UIT();
 
-  BrowserList list;
-
-  {
-    AutoLock lock_scope(this);
-    if (!browserlist_.empty()) {
-      list = browserlist_;
-      browserlist_.clear();
-    }
-  }
-
-  // Destroy any remaining browser windows.
-  if (!list.empty()) {
-    BrowserList::iterator it = list.begin();
-    for (; it != list.end(); ++it)
-      (*it)->DestroyBrowser();
-  }
+  CefContentBrowserClient::Get()->DestroyAllBrowsers();
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
