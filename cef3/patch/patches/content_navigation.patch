@@ -1,6 +1,6 @@
 Index: public/renderer/content_renderer_client.cc
 ===================================================================
---- public/renderer/content_renderer_client.cc	(revision 159829)
+--- public/renderer/content_renderer_client.cc	(revision 169798)
 +++ public/renderer/content_renderer_client.cc	(working copy)
 @@ -56,6 +56,15 @@
    return false;
@@ -20,7 +20,7 @@ Index: public/renderer/content_renderer_client.cc
                                         bool is_initial_navigation,
 Index: public/renderer/content_renderer_client.h
 ===================================================================
---- public/renderer/content_renderer_client.h	(revision 159829)
+--- public/renderer/content_renderer_client.h	(revision 169798)
 +++ public/renderer/content_renderer_client.h	(working copy)
 @@ -12,6 +12,8 @@
  #include "ipc/ipc_message.h"
@@ -48,9 +48,9 @@ Index: public/renderer/content_renderer_client.h
                            const GURL& url,
 Index: renderer/render_view_impl.cc
 ===================================================================
---- renderer/render_view_impl.cc	(revision 159829)
+--- renderer/render_view_impl.cc	(revision 169798)
 +++ renderer/render_view_impl.cc	(working copy)
-@@ -2646,6 +2646,12 @@
+@@ -2653,6 +2653,12 @@
  WebNavigationPolicy RenderViewImpl::decidePolicyForNavigation(
      WebFrame* frame, const WebURLRequest& request, WebNavigationType type,
      const WebNode&, WebNavigationPolicy default_policy, bool is_redirect) {
