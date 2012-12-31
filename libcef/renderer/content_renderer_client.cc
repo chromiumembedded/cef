@@ -14,6 +14,7 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/content_client.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
@@ -24,15 +25,21 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 
+#include "base/command_line.h"
+#include "base/path_service.h"
+#include "base/string_number_conversions.h"
 #include "content/common/child_thread.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_sync_channel.h"
+#include "media/base/media.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
 
@@ -135,21 +142,68 @@ void CefContentRendererClient::AddCustomScheme(
   scheme_info_list_.push_back(info);
 }
 
-void CefContentRendererClient::RegisterCustomSchemes() {
-  if (scheme_info_list_.empty())
-    return;
+void CefContentRendererClient::WebKitInitialized() {
+  WebKit::WebRuntimeFeatures::enableMediaPlayer(
+      media::IsMediaLibraryInitialized());
 
-  SchemeInfoList::const_iterator it = scheme_info_list_.begin();
-  for (; it != scheme_info_list_.end(); ++it) {
-    const SchemeInfo& info = *it;
-    if (info.is_local) {
-      WebKit::WebSecurityPolicy::registerURLSchemeAsLocal(
-          WebKit::WebString::fromUTF8(info.scheme_name));
+  // TODO(cef): Enable these once the implementation supports it.
+  WebKit::WebRuntimeFeatures::enableNotifications(false);
+
+  if (!scheme_info_list_.empty()) {
+    // Register the custom schemes.
+    SchemeInfoList::const_iterator it = scheme_info_list_.begin();
+    for (; it != scheme_info_list_.end(); ++it) {
+      const SchemeInfo& info = *it;
+      if (info.is_local) {
+        WebKit::WebSecurityPolicy::registerURLSchemeAsLocal(
+            WebKit::WebString::fromUTF8(info.scheme_name));
+      }
+      if (info.is_display_isolated) {
+        WebKit::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(
+            WebKit::WebString::fromUTF8(info.scheme_name));
+      }
     }
-    if (info.is_display_isolated) {
-      WebKit::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(
-          WebKit::WebString::fromUTF8(info.scheme_name));
+  }
+
+  if (!cross_origin_whitelist_entries_.empty()) {
+    // Add the cross-origin white list entries.
+    for (size_t i = 0; i < cross_origin_whitelist_entries_.size(); ++i) {
+      const Cef_CrossOriginWhiteListEntry_Params& entry =
+          cross_origin_whitelist_entries_[i];
+      GURL gurl = GURL(entry.source_origin);
+      WebKit::WebSecurityPolicy::addOriginAccessWhitelistEntry(
+          gurl,
+          WebKit::WebString::fromUTF8(entry.target_protocol),
+          WebKit::WebString::fromUTF8(entry.target_domain),
+          entry.allow_target_subdomains);
     }
+    cross_origin_whitelist_entries_.clear();
+  }
+
+  // The number of stack trace frames to capture for uncaught exceptions.
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kUncaughtExceptionStackSize)) {
+    int uncaught_exception_stack_size = 0;
+    base::StringToInt(
+        command_line.GetSwitchValueASCII(switches::kUncaughtExceptionStackSize),
+        &uncaught_exception_stack_size);
+
+    if (uncaught_exception_stack_size > 0) {
+      CefContentRendererClient::Get()->SetUncaughtExceptionStackSize(
+          uncaught_exception_stack_size);
+      v8::V8::AddMessageListener(&CefV8MessageHandler);
+      v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+          uncaught_exception_stack_size, v8::StackTrace::kDetailed);
+    }
+  }
+
+  // Notify the render process handler.
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get())
+      handler->OnWebKitInitialized();
   }
 }
 
@@ -181,17 +235,21 @@ void CefContentRendererClient::RenderThreadStarted() {
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
+  // Note that under Linux, the media library will normally already have
+  // been initialized by the Zygote before this instance became a Renderer.
+  FilePath media_path;
+  PathService::Get(base::DIR_MODULE, &media_path);
+  if (!media_path.empty())
+    media::InitializeMediaLibrary(media_path);
+
   WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
 
   // Retrieve the new render thread information synchronously.
   CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
   thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
 
-  if (params.cross_origin_whitelist_entries.size() > 0) {
-    // Cross-origin entries need to be added after WebKit is initialized.
-    observer_->set_pending_cross_origin_whitelist_entries(
-        params.cross_origin_whitelist_entries);
-  }
+  // Cross-origin entries need to be added after WebKit is initialized.
+  cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

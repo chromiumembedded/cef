@@ -9,6 +9,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "libcef/renderer/browser_impl.h"
 
@@ -18,7 +19,7 @@
 #include "content/public/renderer/content_renderer_client.h"
 
 class CefRenderProcessObserver;
-
+struct Cef_CrossOriginWhiteListEntry_Params;
 
 class CefContentRendererClient : public content::ContentRendererClient {
  public:
@@ -42,11 +43,10 @@ class CefContentRendererClient : public content::ContentRendererClient {
                        bool is_local,
                        bool is_display_isolated);
 
-  // Register the custom schemes with WebKit.
-  void RegisterCustomSchemes();
-
   // Render thread message loop proxy.
   base::MessageLoopProxy* render_loop() const { return render_loop_.get(); }
+
+  void WebKitInitialized();
 
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
@@ -76,10 +76,14 @@ class CefContentRendererClient : public content::ContentRendererClient {
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
   BrowserMap browsers_;
 
-  // Information about custom schemes that need to be registered with WebKit.
+  // Custom schemes that need to be registered with WebKit.
   struct SchemeInfo;
   typedef std::list<SchemeInfo> SchemeInfoList;
   SchemeInfoList scheme_info_list_;
+
+  // Cross-origin white list entries that need to be registered with WebKit.
+  typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
+  CrossOriginList cross_origin_whitelist_entries_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;
