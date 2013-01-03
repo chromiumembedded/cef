@@ -9,6 +9,9 @@
     CEF Changes
     -----------
     
+    2013/01/03
+        - Add support for patches containing new files
+
     2009/07/22
         - Add a 'root_directory' argument to PatchInfo::apply
         - Fix a Python 2.4 compile error in PatchInfo::parse_stream
@@ -312,6 +315,17 @@ class PatchInfo(object):
       if not root_directory is None:
           f2patch = root_directory + f2patch
       if not exists(f2patch):
+        # if the patch contains a single hunk at position 0 consider it a new file
+        if len(self.hunks[fileno]) == 1 and self.hunks[fileno][0].startsrc == 0:
+          hunklines = [x[1:].rstrip("\r\n") for x in self.hunks[fileno][0].text if x[0] in " +"]
+          if len(hunklines) > 0:
+            warning("creating file %s" % (f2patch))
+            f = open(f2patch, "wb")
+            for line in hunklines:
+              f.write(line + "\n")
+            f.close()
+            continue
+
         f2patch = self.target[fileno]
         if not exists(f2patch):
           warning("source/target file does not exist\n--- %s\n+++ %s" % (filename, f2patch))
@@ -369,7 +383,8 @@ class PatchInfo(object):
               canpatch = True
               break
       else:
-        if hunkno < len(self.hunks[fileno]):
+        if hunkno < len(self.hunks[fileno]) and \
+            (len(self.hunks[fileno]) != 1 or self.hunks[fileno][0].startsrc != 0):
           warning("premature end of source file %s at hunk %d" % (filename, hunkno+1))
 
       f2fp.close()
@@ -406,6 +421,24 @@ def check_patched(filename, hunks):
 
   class NoMatch(Exception):
     pass
+
+  # special case for new files
+  try:
+    if len(hunks) == 1 and hunks[0].startsrc == 0:
+      hunklines = [x[1:].rstrip("\r\n") for x in hunks[0].text if x[0] in " +"]
+      if len(hunklines) > 0:
+        for line in hunklines:
+          srcline = fp.readline()
+          if not len(srcline) or srcline.rstrip("\r\n") != line:
+            raise NoMatch
+        srcline = fp.readline()
+        if len(srcline):
+          raise NoMatch
+        fp.close()
+        return True
+  except NoMatch:
+    fp.close()
+    fp = open(filename)
 
   lineno = 1
   line = fp.readline()
