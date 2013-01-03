@@ -93,6 +93,7 @@
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
+#include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -213,6 +214,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefStreamWriterCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStringVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefTaskRunnerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefTraceClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestClientCppToC::DebugObjCt, 0);

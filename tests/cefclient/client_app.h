@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -20,62 +20,38 @@ class ClientApp : public CefApp,
  public:
   // Interface for browser delegates. All BrowserDelegates must be returned via
   // CreateBrowserDelegates. Do not perform work in the BrowserDelegate
-  // constructor.
+  // constructor. See CefBrowserProcessHandler for documentation.
   class BrowserDelegate : public virtual CefBase {
    public:
-    // Called on the browser process UI thread immediately after the CEF context
-    // has been initialized.
-    virtual void OnContextInitialized(CefRefPtr<ClientApp> app) {
-    }
+    virtual void OnContextInitialized(CefRefPtr<ClientApp> app) {}
 
-    // Called on the browser process IO thread before a child process is
-    // launched. Provides an opportunity to modify the child process command
-    // line. Do not keep a reference to |command_line| outside of this method.
     virtual void OnBeforeChildProcessLaunch(
         CefRefPtr<ClientApp> app,
-        CefRefPtr<CefCommandLine> command_line) {
-    }
+        CefRefPtr<CefCommandLine> command_line) {}
 
-    // Called on the browser process IO thread after the main thread has been
-    // created for a new render process. Provides an opportunity to specify
-    // extra information that will be passed to
-    // CefRenderProcessHandler::OnRenderThreadCreated() in the render process.
-    // Do not keep a reference to |extra_info| outside of this method.
     virtual void OnRenderProcessThreadCreated(
         CefRefPtr<ClientApp> app,
-        CefRefPtr<CefListValue> extra_info) {
-    }
+        CefRefPtr<CefListValue> extra_info) {}
   };
 
   typedef std::set<CefRefPtr<BrowserDelegate> > BrowserDelegateSet;
 
   // Interface for renderer delegates. All RenderDelegates must be returned via
   // CreateRenderDelegates. Do not perform work in the RenderDelegate
-  // constructor.
+  // constructor. See CefRenderProcessHandler for documentation.
   class RenderDelegate : public virtual CefBase {
    public:
-    // Called after the render process main thread has been created.
     virtual void OnRenderThreadCreated(CefRefPtr<ClientApp> app,
-                                       CefRefPtr<CefListValue> extra_info) {
-    }
+                                       CefRefPtr<CefListValue> extra_info) {}
 
-    // Called when WebKit is initialized. Used to register V8 extensions.
-    virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
-    }
+    virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {}
 
-    // Called after a browser has been created.
     virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
-                                  CefRefPtr<CefBrowser> browser) {
-    }
+                                  CefRefPtr<CefBrowser> browser) {}
 
-    // Called before a browser is destroyed.
     virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
-                                    CefRefPtr<CefBrowser> browser) {
-    }
+                                    CefRefPtr<CefBrowser> browser) {}
 
-    // Called before browser navigation. Return true to cancel the navigation or
-    // false to allow the navigation to proceed. The |request| object cannot be
-    // modified in this callback.
     virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
                                     CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
@@ -85,40 +61,45 @@ class ClientApp : public CefApp,
       return false;
     }
 
-    // Called when a V8 context is created. Used to create V8 window bindings
-    // and set message callbacks. RenderDelegates should check for unique URLs
-    // to avoid interfering with each other.
     virtual void OnContextCreated(CefRefPtr<ClientApp> app,
                                   CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefV8Context> context) {
-    }
+                                  CefRefPtr<CefV8Context> context) {}
 
-    // Called when a V8 context is released. Used to clean up V8 window
-    // bindings. RenderDelegates should check for unique URLs to avoid
-    // interfering with each other.
     virtual void OnContextReleased(CefRefPtr<ClientApp> app,
                                    CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefV8Context> context) {
-    }
+                                   CefRefPtr<CefV8Context> context) {}
 
-    // Global V8 exception handler, disabled by default, to enable set
-    // CefSettings.uncaught_exception_stack_size > 0.
     virtual void OnUncaughtException(CefRefPtr<ClientApp> app,
                                      CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
                                      CefRefPtr<CefV8Context> context,
                                      CefRefPtr<CefV8Exception> exception,
-                                     CefRefPtr<CefV8StackTrace> stackTrace) {
-    }
+                                     CefRefPtr<CefV8StackTrace> stackTrace) {}
 
-    // Called when the focused node in a frame has changed.
+    virtual void OnWorkerContextCreated(CefRefPtr<ClientApp> app,
+                                        int worker_id,
+                                        const CefString& url,
+                                        CefRefPtr<CefV8Context> context) {}
+
+    virtual void OnWorkerContextReleased(CefRefPtr<ClientApp> app,
+                                         int worker_id,
+                                         const CefString& url,
+                                         CefRefPtr<CefV8Context> context) {}
+
+    virtual void OnWorkerUncaughtException(
+        CefRefPtr<ClientApp> app,
+        int worker_id,
+        const CefString& url,
+        CefRefPtr<CefV8Context> context,
+        CefRefPtr<CefV8Exception> exception,
+        CefRefPtr<CefV8StackTrace> stackTrace) {}
+
     virtual void OnFocusedNodeChanged(CefRefPtr<ClientApp> app,
                                       CefRefPtr<CefBrowser> browser,
                                       CefRefPtr<CefFrame> frame,
-                                      CefRefPtr<CefDOMNode> node) {
-    }
+                                      CefRefPtr<CefDOMNode> node) {}
 
     // Called when a process message is received. Return true if the message was
     // handled and should not be passed on to other handlers. RenderDelegates
@@ -218,6 +199,21 @@ class ClientApp : public CefApp,
                                    CefRefPtr<CefV8Exception> exception,
                                    CefRefPtr<CefV8StackTrace> stackTrace)
                                    OVERRIDE;
+  virtual void OnWorkerContextCreated(
+      int worker_id,
+      const CefString& url,
+      CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnWorkerContextReleased(
+      int worker_id,
+      const CefString& url,
+      CefRefPtr<CefV8Context> context) OVERRIDE;
+  virtual void OnWorkerUncaughtException(
+      int worker_id,
+      const CefString& url,
+      CefRefPtr<CefV8Context> context,
+      CefRefPtr<CefV8Exception> exception,
+      CefRefPtr<CefV8StackTrace> stackTrace)
+      OVERRIDE;
   virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefDOMNode> node) OVERRIDE;

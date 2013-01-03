@@ -12,6 +12,7 @@
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -51,6 +52,19 @@ bool CefV8Context::InContext() {
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+CefRefPtr<CefTaskRunner> CefV8ContextCToCpp::GetTaskRunner() {
+  if (CEF_MEMBER_MISSING(struct_, get_task_runner))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_task_runner_t* _retval = struct_->get_task_runner(struct_);
+
+  // Return type: refptr_same
+  return CefTaskRunnerCToCpp::Wrap(_retval);
+}
 
 bool CefV8ContextCToCpp::IsValid() {
   if (CEF_MEMBER_MISSING(struct_, is_valid))

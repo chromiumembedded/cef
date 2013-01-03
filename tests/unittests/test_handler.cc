@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -127,6 +127,12 @@ void TestHandler::ClearResources() {
 void WaitForThread(CefThreadId thread_id) {
   base::WaitableEvent event(true, false);
   CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
+  event.Wait();
+}
+
+void WaitForThread(CefRefPtr<CefTaskRunner> task_runner) {
+  base::WaitableEvent event(true, false);
+  task_runner->PostTask(NewCefRunnableFunction(&NotifyEvent, &event));
   event.Wait();
 }
 

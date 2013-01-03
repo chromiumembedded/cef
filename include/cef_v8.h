@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2013 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -42,6 +42,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_task.h"
 #include <vector>
 
 class CefV8Exception;
@@ -116,10 +117,11 @@ bool CefRegisterExtension(const CefString& extension_name,
 
 
 ///
-// Class representing a V8 context handle. Static methods may only be called
-// on a render process thread that has entered a V8 isolate (usually the render
-// process main thread). Non-static methods may only be called on the thread
-// that initially returned the handle.
+// Class representing a V8 context handle. V8 handles can only be accessed from
+// the thread on which they are created. Valid threads for creating a V8 handle
+// include the render process main thread (TID_RENDERER) and WebWorker threads.
+// A task runner for posting tasks on the associated thread can be retrieved via
+// the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
 class CefV8Context : public virtual CefBase {
@@ -143,6 +145,14 @@ class CefV8Context : public virtual CefBase {
   static bool InContext();
 
   ///
+  // Returns the task runner associated with this context. V8 handles can only
+  // be accessed from the thread on which they are created. This method can be
+  // called on any render process thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() =0;
+
+  ///
   // Returns true if the underlying handle is valid and it can be accessed on
   // the current thread. Do not call any other methods if this method returns
   // false.
@@ -151,13 +161,15 @@ class CefV8Context : public virtual CefBase {
   virtual bool IsValid() =0;
 
   ///
-  // Returns the browser for this context.
+  // Returns the browser for this context. This method will return an empty
+  // reference for WebWorker contexts.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowser> GetBrowser() =0;
 
   ///
-  // Returns the frame for this context.
+  // Returns the frame for this context. This method will return an empty
+  // reference for WebWorker contexts.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefFrame> GetFrame() =0;
@@ -210,8 +222,7 @@ typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 
 ///
 // Interface that should be implemented to handle V8 function calls. The methods
-// of this class will only be called on a render process thread that the handler
-// was registered on.
+// of this class will be called on the thread associated with the V8 function.
 ///
 /*--cef(source=client)--*/
 class CefV8Handler : public virtual CefBase {
@@ -234,8 +245,7 @@ class CefV8Handler : public virtual CefBase {
 ///
 // Interface that should be implemented to handle V8 accessor calls. Accessor
 // identifiers are registered by calling CefV8Value::SetValue(). The methods
-// of this class will only be called on a render process thread that the
-// accessor was registered on.
+// of this class will be called on the thread associated with the V8 accessor.
 ///
 /*--cef(source=client)--*/
 class CefV8Accessor : public virtual CefBase {
@@ -330,10 +340,11 @@ class CefV8Exception : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 value handle. Static methods may only be called on a
-// render process thread that has entered a V8 isolate (usually the render
-// process main thread). Non-static methods may only be called on the thread
-// that initially returned the handle.
+// Class representing a V8 value handle. V8 handles can only be accessed from
+// the thread on which they are created. Valid threads for creating a V8 handle
+// include the render process main thread (TID_RENDERER) and WebWorker threads.
+// A task runner for posting tasks on the associated thread can be retrieved via
+// the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
 class CefV8Value : public virtual CefBase {
@@ -764,10 +775,11 @@ class CefV8Value : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 stack trace handle. Static methods may only be called
-// on a render process thread that has entered a V8 isolate (usually the render
-// process main thread). Non-static methods may only be called on the thread
-// that initially returned the handle.
+// Class representing a V8 stack trace handle. V8 handles can only be accessed
+// from the thread on which they are created. Valid threads for creating a V8
+// handle include the render process main thread (TID_RENDERER) and WebWorker
+// threads. A task runner for posting tasks on the associated thread can be
+// retrieved via the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
 class CefV8StackTrace : public virtual CefBase {
@@ -801,10 +813,11 @@ class CefV8StackTrace : public virtual CefBase {
 };
 
 ///
-// Class representing a V8 stack frame handle. Static methods may only be called
-// on a render process thread that has entered a V8 isolate (usually the render
-// process main thread). Non-static methods may only be called on the thread
-// that initially returned the handle.
+// Class representing a V8 stack frame handle. V8 handles can only be accessed
+// from the thread on which they are created. Valid threads for creating a V8
+// handle include the render process main thread (TID_RENDERER) and WebWorker
+// threads. A task runner for posting tasks on the associated thread can be
+// retrieved via the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
 class CefV8StackFrame : public virtual CefBase {

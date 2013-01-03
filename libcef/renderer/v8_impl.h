@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -15,16 +15,29 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
-#include "base/message_loop_proxy.h"
+#include "base/sequenced_task_runner.h"
 
 class CefTrackNode;
+class GURL;
 
 namespace WebKit {
 class WebFrame;
 };
 
-// Call to detach all handles associated with the specified contxt.
+// Call after a V8 Isolate has been created and entered for the first time.
+void CefV8IsolateCreated();
+
+// Call before a V8 Isolate is exited and destroyed.
+void CefV8IsolateDestroyed();
+
+// Call to detach all handles associated with the specified context.
 void CefV8ReleaseContext(v8::Handle<v8::Context> context);
+
+// Set the stack size for uncaught exceptions.
+void CefV8SetUncaughtExceptionStackSize(int stack_size);
+
+// Set attributes associated with a WebWorker thread.
+void CefV8SetWorkerAttributes(int worker_id, const GURL& worker_url);
 
 // Used to detach handles when the associated context is released.
 class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
@@ -60,10 +73,10 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
 struct CefV8DeleteOnMessageLoopThread {
   template<typename T>
   static void Destruct(const T* x) {
-    if (x->message_loop_proxy_->BelongsToCurrentThread()) {
+    if (x->task_runner()->RunsTasksOnCurrentThread()) {
       delete x;
     } else {
-      if (!x->message_loop_proxy_->DeleteSoon(FROM_HERE, x)) {
+      if (!x->task_runner()->DeleteSoon(FROM_HERE, x)) {
 #if defined(UNIT_TEST)
         // Only logged under unit testing because leaks at shutdown
         // are acceptable under normal circumstances.
@@ -89,15 +102,17 @@ class CefV8HandleBase :
 
   bool BelongsToCurrentThread() const;
 
+  scoped_refptr<base::SequencedTaskRunner> task_runner() const {
+    return task_runner_;
+  }
+
  protected:
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
   explicit CefV8HandleBase(v8::Handle<v8::Context> context);
 
  protected:
-  friend struct CefV8DeleteOnMessageLoopThread;
-
-  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
   scoped_refptr<CefV8ContextState> context_state_;
 };
 
@@ -141,6 +156,7 @@ class CefV8ContextImpl : public CefV8Context {
   explicit CefV8ContextImpl(v8::Handle<v8::Context> context);
   virtual ~CefV8ContextImpl();
 
+  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
   virtual bool IsValid() OVERRIDE;
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
@@ -319,8 +335,5 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   IMPLEMENT_REFCOUNTING(CefV8StackFrameImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8StackFrameImpl);
 };
-
-void CefV8MessageHandler(v8::Handle<v8::Message> message,
-                         v8::Handle<v8::Value> data);
 
 #endif  // CEF_LIBCEF_RENDERER_V8_IMPL_H_

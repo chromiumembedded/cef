@@ -47,7 +47,8 @@ extern "C" {
 
 ///
 // Structure used to implement render process callbacks. The functions of this
-// structure will always be called on the render process main thread.
+// structure will be called on the render process main thread (TID_RENDERER)
+// unless otherwise indicated.
 ///
 typedef struct _cef_render_process_handler_t {
   ///
@@ -101,7 +102,10 @@ typedef struct _cef_render_process_handler_t {
   ///
   // Called immediately after the V8 context for a frame has been created. To
   // retrieve the JavaScript 'window' object use the
-  // cef_v8context_t::get_global() function.
+  // cef_v8context_t::get_global() function. V8 handles can only be accessed
+  // from the thread on which they are created. A task runner for posting tasks
+  // on the associated thread can be retrieved via the
+  // cef_v8context_t::get_task_runner() function.
   ///
   void (CEF_CALLBACK *on_context_created)(
       struct _cef_render_process_handler_t* self,
@@ -118,14 +122,47 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_v8context_t* context);
 
   ///
-  // Called for global uncaught exceptions. Execution of this callback is
-  // disabled by default. To enable set
+  // Called for global uncaught exceptions in a frame. Execution of this
+  // callback is disabled by default. To enable set
   // CefSettings.uncaught_exception_stack_size > 0.
   ///
   void (CEF_CALLBACK *on_uncaught_exception)(
       struct _cef_render_process_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
       struct _cef_v8context_t* context, struct _cef_v8exception_t* exception,
+      struct _cef_v8stack_trace_t* stackTrace);
+
+  ///
+  // Called on the WebWorker thread immediately after the V8 context for a new
+  // WebWorker has been created. To retrieve the JavaScript 'self' object use
+  // the cef_v8context_t::get_global() function. V8 handles can only be accessed
+  // from the thread on which they are created. A task runner for posting tasks
+  // on the associated thread can be retrieved via the
+  // cef_v8context_t::get_task_runner() function.
+  ///
+  void (CEF_CALLBACK *on_worker_context_created)(
+      struct _cef_render_process_handler_t* self, int worker_id,
+      const cef_string_t* url, struct _cef_v8context_t* context);
+
+  ///
+  // Called on the WebWorker thread immediately before the V8 context for a
+  // WebWorker is released. No references to the context should be kept after
+  // this function is called. Any tasks posted or pending on the WebWorker
+  // thread after this function is called may not be executed.
+  ///
+  void (CEF_CALLBACK *on_worker_context_released)(
+      struct _cef_render_process_handler_t* self, int worker_id,
+      const cef_string_t* url, struct _cef_v8context_t* context);
+
+  ///
+  // Called on the WebWorker thread for global uncaught exceptions in a
+  // WebWorker. Execution of this callback is disabled by default. To enable set
+  // CefSettings.uncaught_exception_stack_size > 0.
+  ///
+  void (CEF_CALLBACK *on_worker_uncaught_exception)(
+      struct _cef_render_process_handler_t* self, int worker_id,
+      const cef_string_t* url, struct _cef_v8context_t* context,
+      struct _cef_v8exception_t* exception,
       struct _cef_v8stack_trace_t* stackTrace);
 
   ///

@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -51,6 +52,22 @@ CEF_EXPORT int cef_v8context_in_context() {
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+cef_task_runner_t* CEF_CALLBACK v8context_get_task_runner(
+    struct _cef_v8context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefTaskRunner> _retval = CefV8ContextCppToC::Get(
+      self)->GetTaskRunner();
+
+  // Return type: refptr_same
+  return CefTaskRunnerCppToC::Wrap(_retval);
+}
 
 int CEF_CALLBACK v8context_is_valid(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -226,6 +243,7 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
 
 CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
     : CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t>(cls) {
+  struct_.struct_.get_task_runner = v8context_get_task_runner;
   struct_.struct_.is_valid = v8context_is_valid;
   struct_.struct_.get_browser = v8context_get_browser;
   struct_.struct_.get_frame = v8context_get_frame;

@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -69,7 +69,7 @@ class BeginTracingTask : public CefTask {
       : client_(client) {
   }
 
-  virtual void Execute(CefThreadId threadId) OVERRIDE {
+  virtual void Execute() OVERRIDE {
     EXPECT_TRUE(CefBeginTracing(client_, kTraceTestCategory));
   }
 
@@ -86,7 +86,7 @@ class EndTracingTask : public CefTask {
  public:
   EndTracingTask() {}
 
-  virtual void Execute(CefThreadId threadId) OVERRIDE {
+  virtual void Execute() OVERRIDE {
     EXPECT_TRUE(CefEndTracingAsync());
   }
 

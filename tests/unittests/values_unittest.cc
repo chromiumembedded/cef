@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -88,7 +88,7 @@ class BinaryTask : public CefTask {
       data_(data),
       data_size_(data_size) {}
 
-  virtual void Execute(CefThreadId threadId) OVERRIDE {
+  virtual void Execute() OVERRIDE {
     TestBinary(value_, data_, data_size_);
   }
 
@@ -295,7 +295,7 @@ class DictionaryTask : public CefTask {
       binary_data_(binary_data),
       binary_data_size_(binary_data_size)  {}
 
-  virtual void Execute(CefThreadId threadId) OVERRIDE {
+  virtual void Execute() OVERRIDE {
     TestDictionary(value_, binary_data_, binary_data_size_);
   }
 
@@ -554,7 +554,7 @@ class ListTask : public CefTask {
       binary_data_(binary_data),
       binary_data_size_(binary_data_size)  {}
 
-  virtual void Execute(CefThreadId threadId) OVERRIDE {
+  virtual void Execute() OVERRIDE {
     TestList(value_, binary_data_, binary_data_size_);
   }
 

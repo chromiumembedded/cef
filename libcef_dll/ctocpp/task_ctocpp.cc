@@ -15,15 +15,14 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefTaskCToCpp::Execute(CefThreadId threadId) {
+void CefTaskCToCpp::Execute() {
   if (CEF_MEMBER_MISSING(struct_, execute))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->execute(struct_,
-      threadId);
+  struct_->execute(struct_);
 }
 
 

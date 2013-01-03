@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -15,6 +15,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ScriptControllerBase.h"  // NOLINT(build/include)
 #include "V8Binding.h"  // NOLINT(build/include)
 #include "V8RecursionScope.h"  // NOLINT(build/include)
+#include "WorkerContext.h"  // NOLINT(build/include)
+#include "WorkerScriptController.h"  // NOLINT(build/include)
 MSVC_POP_WARNING();
 #undef LOG
 
@@ -22,6 +24,7 @@ MSVC_POP_WARNING();
 
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/task_runner_impl.h"
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/thread_util.h"
@@ -29,6 +32,8 @@ MSVC_POP_WARNING();
 #include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/string_number_conversions.h"
+#include "base/threading/thread_local.h"
+#include "googleurl/src/gurl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
@@ -38,12 +43,21 @@ namespace {
 static const char kCefTrackObject[] = "Cef::TrackObject";
 static const char kCefContextState[] = "Cef::ContextState";
 
-// Memory manager.
+void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
+                                 v8::Handle<v8::Value> data);
 
-class CefV8TrackManager {
+// Manages memory and state information associated with a single Isolate.
+class CefV8IsolateManager {
  public:
-  CefV8TrackManager()
-      : context_safety_impl_(IMPL_HASH) {
+  CefV8IsolateManager()
+      : isolate_(v8::Isolate::GetCurrent()),
+        task_runner_(CefContentRendererClient::Get()->GetCurrentTaskRunner()),
+        context_safety_impl_(IMPL_HASH),
+        message_listener_registered_(false),
+        worker_id_(0) {
+    DCHECK(isolate_);
+    DCHECK(task_runner_.get());
+
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
     if (command_line.HasSwitch(switches::kContextSafetyImplementation)) {
       std::string value = command_line.GetSwitchValueASCII(
@@ -57,9 +71,15 @@ class CefV8TrackManager {
       }
     }
   }
+  ~CefV8IsolateManager() {
+    DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
+    DCHECK(context_map_.empty());
+  }
 
   scoped_refptr<CefV8ContextState> GetContextState(
       v8::Handle<v8::Context> context) {
+    DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
+
     if (context_safety_impl_ == IMPL_DISABLED)
       return scoped_refptr<CefV8ContextState>();
 
@@ -105,6 +125,8 @@ class CefV8TrackManager {
   }
 
   void ReleaseContext(v8::Handle<v8::Context> context) {
+    DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
+
     if (context_safety_impl_ == IMPL_DISABLED)
       return;
 
@@ -135,14 +157,49 @@ class CefV8TrackManager {
   }
 
   void AddGlobalTrackObject(CefTrackNode* object) {
+    DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
     global_manager_.Add(object);
   }
 
   void DeleteGlobalTrackObject(CefTrackNode* object) {
+    DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
     global_manager_.Delete(object);
   }
 
+  void SetUncaughtExceptionStackSize(int stack_size) {
+    if (stack_size <= 0)
+      return;
+
+    if (!message_listener_registered_) {
+      v8::V8::AddMessageListener(&MessageListenerCallbackImpl);
+      message_listener_registered_ = true;
+    }
+
+    v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
+          stack_size, v8::StackTrace::kDetailed);
+  }
+
+  void SetWorkerAttributes(int worker_id, const GURL& worker_url) {
+    worker_id_ = worker_id;
+    worker_url_ = worker_url;
+  }
+
+  scoped_refptr<base::SequencedTaskRunner> task_runner() const {
+    return task_runner_;
+  }
+
+  int worker_id() const {
+    return worker_id_;
+  }
+
+  const GURL& worker_url() const {
+    return worker_url_;
+  }
+
  private:
+  v8::Isolate* isolate_;
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
+
   enum ContextSafetyImpl {
     IMPL_DISABLED,
     IMPL_HASH,
@@ -160,9 +217,51 @@ class CefV8TrackManager {
   // Used for globally tracked objects that are not associated with a particular
   // context.
   CefTrackManager global_manager_;
+
+  // True if the message listener has been registered.
+  bool message_listener_registered_;
+
+  // Attributes associated with WebWorker threads.
+  int worker_id_;
+  GURL worker_url_;
 };
 
-base::LazyInstance<CefV8TrackManager> g_v8_tracker = LAZY_INSTANCE_INITIALIZER;
+// Chromium uses the default Isolate for the main render process thread and a
+// new Isolate for each WebWorker thread. Continue this pattern by tracking
+// Isolate information on a per-thread basis. This implementation will need to
+// be re-worked (perhaps using a map keyed on v8::Isolate::GetCurrent()) if
+// in the future Chromium begins using the same Isolate across multiple threads.
+class CefV8StateManager {
+public:
+  CefV8StateManager() {
+  }
+
+  void CreateIsolateManager() {
+    DCHECK(!current_tls_.Get());
+    current_tls_.Set(new CefV8IsolateManager());
+  }
+
+  void DestroyIsolateManager() {
+    DCHECK(current_tls_.Get());
+    delete current_tls_.Get();
+    current_tls_.Set(NULL);
+  }
+
+  CefV8IsolateManager* GetIsolateManager() {
+    CefV8IsolateManager* manager = current_tls_.Get();
+    DCHECK(manager);
+    return manager;
+  }
+
+ private:
+  base::ThreadLocalPointer<CefV8IsolateManager> current_tls_;
+};
+
+base::LazyInstance<CefV8StateManager> g_v8_state = LAZY_INSTANCE_INITIALIZER;
+
+CefV8IsolateManager* GetIsolateManager() {
+  return g_v8_state.Pointer()->GetIsolateManager();
+}
 
 class V8TrackObject : public CefTrackNode {
  public:
@@ -275,7 +374,7 @@ class CefV8MakeWeakParam {
       // |object_| will be deleted when:
       // A. The process shuts down, or
       // B. TrackDestructor is called for the weak handle.
-      g_v8_tracker.Pointer()->AddGlobalTrackObject(object_);
+      GetIsolateManager()->AddGlobalTrackObject(object_);
     }
   }
   ~CefV8MakeWeakParam() {
@@ -285,7 +384,7 @@ class CefV8MakeWeakParam {
       if (context_state_->IsValid())
         context_state_->DeleteTrackObject(object_);
     } else {
-      g_v8_tracker.Pointer()->DeleteGlobalTrackObject(object_);
+      GetIsolateManager()->DeleteGlobalTrackObject(object_);
     }
 
     v8::V8::AdjustAmountOfExternalAllocatedMemory(
@@ -474,6 +573,37 @@ void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
   }
 }
 
+v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
+                                    v8::Handle<v8::Function> function,
+                                    v8::Handle<v8::Object> receiver,
+                                    int argc,
+                                    v8::Handle<v8::Value> args[]) {
+  v8::Local<v8::Value> func_rv;
+
+  // Execute the function call using the ScriptController so that inspector
+  // instrumentation works.
+  if (CEF_CURRENTLY_ON_RT()) {
+    RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(context);
+    DCHECK(frame);
+    if (frame &&
+        frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
+      func_rv = frame->script()->callFunction(function, receiver, argc, args);
+    }
+  } else {
+    WebCore::WorkerScriptController* controller =
+        WebCore::WorkerScriptController::controllerForContext();
+    DCHECK(controller);
+    if (controller) {
+      func_rv = WebCore::ScriptController::callFunctionWithInstrumentation(
+          controller->workerContext()->scriptExecutionContext(),
+          function, receiver, argc, args);
+    }
+  }
+
+  return func_rv;
+}
+
+
 // V8 extension registration.
 
 class ExtensionWrapper : public v8::Extension {
@@ -486,7 +616,7 @@ class ExtensionWrapper : public v8::Extension {
       // The reference will be released when the process exits.
       V8TrackObject* object = new V8TrackObject;
       object->SetHandler(handler);
-      g_v8_tracker.Pointer()->AddGlobalTrackObject(object);
+      GetIsolateManager()->AddGlobalTrackObject(object);
     }
   }
 
@@ -549,13 +679,58 @@ class CefV8ExceptionImpl : public CefV8Exception {
   IMPLEMENT_REFCOUNTING(CefV8ExceptionImpl);
 };
 
+void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
+                                 v8::Handle<v8::Value> data) {
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (!application.get())
+    return;
+
+  CefRefPtr<CefRenderProcessHandler> handler =
+      application->GetRenderProcessHandler();
+  if (!handler.get())
+    return;
+
+  CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+  v8::Handle<v8::StackTrace> v8Stack = message->GetStackTrace();
+  DCHECK(!v8Stack.IsEmpty());
+  CefRefPtr<CefV8StackTrace> stackTrace = new CefV8StackTraceImpl(v8Stack);
+
+  CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(message);
+
+  if (CEF_CURRENTLY_ON_RT()) {
+    handler->OnUncaughtException(context->GetBrowser(), context->GetFrame(),
+        context, exception, stackTrace);
+  } else {
+    CefV8IsolateManager* manager = GetIsolateManager();
+    DCHECK_GT(manager->worker_id(), 0);
+    handler->OnWorkerUncaughtException(manager->worker_id(),
+        manager->worker_url().spec(), context, exception, stackTrace);
+  }
+}
+
 }  // namespace
 
 
 // Global functions.
 
+void CefV8IsolateCreated() {
+  g_v8_state.Pointer()->CreateIsolateManager();
+}
+
+void CefV8IsolateDestroyed() {
+  g_v8_state.Pointer()->DestroyIsolateManager();
+}
+
 void CefV8ReleaseContext(v8::Handle<v8::Context> context) {
-  g_v8_tracker.Pointer()->ReleaseContext(context);
+  GetIsolateManager()->ReleaseContext(context);
+}
+
+void CefV8SetUncaughtExceptionStackSize(int stack_size) {
+  GetIsolateManager()->SetUncaughtExceptionStackSize(stack_size);
+}
+
+void CefV8SetWorkerAttributes(int worker_id, const GURL& worker_url) {
+  GetIsolateManager()->SetWorkerAttributes(worker_id, worker_url);
 }
 
 bool CefRegisterExtension(const CefString& extension_name,
@@ -565,9 +740,9 @@ bool CefRegisterExtension(const CefString& extension_name,
   CEF_REQUIRE_RT_RETURN(false);
 
   V8TrackString* name = new V8TrackString(extension_name);
-  g_v8_tracker.Pointer()->AddGlobalTrackObject(name);
+  GetIsolateManager()->AddGlobalTrackObject(name);
   V8TrackString* code = new V8TrackString(javascript_code);
-  g_v8_tracker.Pointer()->AddGlobalTrackObject(code);
+  GetIsolateManager()->AddGlobalTrackObject(code);
 
   ExtensionWrapper* wrapper = new ExtensionWrapper(name->GetString(),
       code->GetString(), handler.get());
@@ -579,7 +754,7 @@ bool CefRegisterExtension(const CefString& extension_name,
 
 // Helper macros
 
-#define CEF_V8_HAS_ISOLATE() (!!v8::Isolate::GetCurrent())
+#define CEF_V8_HAS_ISOLATE() (!!GetIsolateManager())
 #define CEF_V8_REQUIRE_ISOLATE_RETURN(var) \
   if (!CEF_V8_HAS_ISOLATE()) { \
     NOTREACHED() << "V8 isolate is not valid"; \
@@ -636,13 +811,14 @@ CefV8HandleBase::~CefV8HandleBase() {
 }
 
 bool CefV8HandleBase::BelongsToCurrentThread() const {
-  return message_loop_proxy_->BelongsToCurrentThread();
+  return task_runner_->RunsTasksOnCurrentThread();
 }
 
-CefV8HandleBase::CefV8HandleBase(v8::Handle<v8::Context> context)
-    : message_loop_proxy_(base::MessageLoopProxy::current()) {
-  DCHECK(message_loop_proxy_.get());
-  context_state_ = g_v8_tracker.Pointer()->GetContextState(context);
+CefV8HandleBase::CefV8HandleBase(v8::Handle<v8::Context> context) {
+  CefV8IsolateManager* manager = GetIsolateManager();
+  DCHECK(manager);
+  task_runner_ = manager->task_runner();
+  context_state_ = manager->GetContextState(context);
 }
 
 
@@ -691,6 +867,10 @@ CefV8ContextImpl::~CefV8ContextImpl() {
   DLOG_ASSERT(0 == enter_count_);
 }
 
+CefRefPtr<CefTaskRunner> CefV8ContextImpl::GetTaskRunner() {
+  return new CefTaskRunnerImpl(handle_->task_runner());
+}
+
 bool CefV8ContextImpl::IsValid() {
   return CEF_V8_IS_VALID();
 }
@@ -698,6 +878,10 @@ bool CefV8ContextImpl::IsValid() {
 CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
   CefRefPtr<CefBrowser> browser;
   CEF_V8_REQUIRE_VALID_RETURN(browser);
+
+  // Return NULL for WebWorkers.
+  if (!CEF_CURRENTLY_ON_RT())
+    return browser;
 
   WebKit::WebFrame* webframe = GetWebFrame();
   if (webframe)
@@ -709,6 +893,10 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
 CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   CefRefPtr<CefFrame> frame;
   CEF_V8_REQUIRE_VALID_RETURN(frame);
+
+  // Return NULL for WebWorkers.
+  if (!CEF_CURRENTLY_ON_RT())
+    return frame;
 
   WebKit::WebFrame* webframe = GetWebFrame();
   if (webframe) {
@@ -777,8 +965,9 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   }
 
   v8::HandleScope handle_scope;
-  v8::Context::Scope context_scope(GetHandle());
-  v8::Local<v8::Object> obj = GetHandle()->Global();
+  v8::Local<v8::Context> context = GetContext();
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Object> obj = context->Global();
 
   // Retrieve the eval function.
   v8::Local<v8::Value> val = obj->Get(v8::String::New("eval"));
@@ -790,19 +979,12 @@ bool CefV8ContextImpl::Eval(const CefString& code,
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
-  v8::Local<v8::Value> func_rv;
 
   retval = NULL;
   exception = NULL;
 
-  // Execute the function call using the ScriptController so that inspector
-  // instrumentation works.
-  RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(GetHandle());
-  DCHECK(frame);
-  if (frame &&
-      frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
-    func_rv = frame->script()->callFunction(func, obj, 1, &code_val);
-  }
+  v8::Local<v8::Value> func_rv =
+      CallV8Function(context, func, obj, 1, &code_val);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(try_catch.Message());
@@ -818,6 +1000,7 @@ v8::Local<v8::Context> CefV8ContextImpl::GetContext() {
 }
 
 WebKit::WebFrame* CefV8ContextImpl::GetWebFrame() {
+  CEF_REQUIRE_RT();
   v8::HandleScope handle_scope;
   v8::Context::Scope context_scope(GetHandle());
   WebKit::WebFrame* frame = WebKit::WebFrame::frameForCurrentContext();
@@ -1019,7 +1202,6 @@ CefV8ValueImpl::CefV8ValueImpl(v8::Handle<v8::Value> value,
 
 CefV8ValueImpl::~CefV8ValueImpl() {
 }
-
 
 bool CefV8ValueImpl::IsValid() {
   return CEF_V8_IS_VALID();
@@ -1519,16 +1701,9 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
   {
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
-    v8::Local<v8::Value> func_rv;
 
-    // Execute the function call using the ScriptController so that inspector
-    // instrumentation works.
-    RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(context_local);
-    DCHECK(frame);
-    if (frame &&
-        frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
-      func_rv = frame->script()->callFunction(func, recv, argc, argv);
-    }
+    v8::Local<v8::Value> func_rv =
+        CallV8Function(context_local, func, recv, argc, argv);
 
     if (!HasCaught(try_catch) && !func_rv.IsEmpty())
       retval = new CefV8ValueImpl(func_rv);
@@ -1661,27 +1836,4 @@ bool CefV8StackFrameImpl::IsConstructor() {
   CEF_V8_REQUIRE_VALID_RETURN(false);
   v8::HandleScope handle_scope;
   return GetHandle()->IsConstructor();
-}
-
-void CefV8MessageHandler(v8::Handle<v8::Message> message,
-                         v8::Handle<v8::Value> data) {
-  CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
-  CefRefPtr<CefBrowser> browser = context->GetBrowser();
-  CefRefPtr<CefFrame> frame = context->GetFrame();
-
-  v8::Handle<v8::StackTrace> v8Stack = message->GetStackTrace();
-  DCHECK(!v8Stack.IsEmpty());
-  CefRefPtr<CefV8StackTrace> stackTrace = new CefV8StackTraceImpl(v8Stack);
-
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (!application.get())
-    return;
-
-  CefRefPtr<CefRenderProcessHandler> handler =
-      application->GetRenderProcessHandler();
-  if (!handler.get())
-    return;
-
-  CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(message);
-  handler->OnUncaughtException(browser, frame, context, exception, stackTrace);
 }

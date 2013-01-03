@@ -1,4 +1,5 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2013 The Chromium Embedded Framework Authors.
+// Portions copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -41,8 +42,11 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerRunLoop.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerScriptObserver.h"
 #include "v8/include/v8.h"
-
+#include "webkit/glue/worker_task_runner.h"
 
 namespace {
 
@@ -73,7 +77,128 @@ class CefPrerendererClient : public content::RenderViewObserver,
   virtual void willAddPrerender(WebKit::WebPrerender* prerender) OVERRIDE {}
 };
 
+// Implementation of SequencedTaskRunner for WebWorker threads.
+class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
+                               public webkit_glue::WorkerTaskRunner::Observer {
+ public:
+  CefWebWorkerTaskRunner(webkit_glue::WorkerTaskRunner* runner,
+                         int worker_id)
+      : runner_(runner),
+        worker_id_(worker_id) {
+    DCHECK(runner_);
+    DCHECK_GT(worker_id_, 0);
+    DCHECK(RunsTasksOnCurrentThread());
+
+    // Adds an observer for the current thread.
+    runner_->AddStopObserver(this);
+  }
+
+  // SequencedTaskRunner methods:
+  virtual bool PostNonNestableDelayedTask(
+      const tracked_objects::Location& from_here,
+      const base::Closure& task,
+      base::TimeDelta delay) OVERRIDE {
+    return PostDelayedTask(from_here, task, delay);
+  }
+
+  // TaskRunner methods:
+  virtual bool PostDelayedTask(const tracked_objects::Location& from_here,
+                               const base::Closure& task,
+                               base::TimeDelta delay) OVERRIDE {
+    if (delay != base::TimeDelta())
+      DLOG(WARNING) << "Delayed tasks are not supported on WebWorker threads";
+    runner_->PostTask(worker_id_, task);
+    return true;
+  }
+
+  virtual bool RunsTasksOnCurrentThread() const OVERRIDE {
+    return (runner_->CurrentWorkerId() == worker_id_);
+  }
+
+  // WorkerTaskRunner::Observer methods:
+  virtual void OnWorkerRunLoopStopped() OVERRIDE {
+    CefContentRendererClient::Get()->RemoveWorkerTaskRunner(worker_id_);
+  }
+
+ private:
+  webkit_glue::WorkerTaskRunner* runner_;
+  int worker_id_;
+};
+
 }  // namespace
+
+
+class CefWebWorkerScriptObserver : public WebKit::WebWorkerScriptObserver {
+ public:
+  CefWebWorkerScriptObserver() {
+  }
+
+  virtual void didCreateWorkerScriptContext(
+      const WebKit::WebWorkerRunLoop& run_loop,
+      const WebKit::WebURL& url,
+      v8::Handle<v8::Context> context) OVERRIDE {
+    // Create global objects associated with the WebWorker Isolate.
+    CefV8IsolateCreated();
+
+    int stack_size =
+        CefContentRendererClient::Get()->uncaught_exception_stack_size();
+    if (stack_size > 0)
+      CefV8SetUncaughtExceptionStackSize(stack_size);
+
+    webkit_glue::WorkerTaskRunner* worker_runner =
+        webkit_glue::WorkerTaskRunner::Instance();
+    int worker_id = worker_runner->CurrentWorkerId();
+    DCHECK_GT(worker_id, 0);
+    GURL gurl = GURL(url);
+
+    CefV8SetWorkerAttributes(worker_id, gurl);
+
+    // Notify the render process handler.
+    CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+    if (application.get()) {
+      CefRefPtr<CefRenderProcessHandler> handler =
+          application->GetRenderProcessHandler();
+      if (handler.get()) {
+        v8::HandleScope handle_scope;
+        v8::Context::Scope scope(context);
+
+        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+        handler->OnWorkerContextCreated(worker_id, gurl.spec(), contextPtr);
+      }
+    }
+  }
+
+  virtual void willReleaseWorkerScriptContext(
+      const WebKit::WebWorkerRunLoop& run_loop,
+      const WebKit::WebURL& url,
+      v8::Handle<v8::Context> context) OVERRIDE {
+    v8::HandleScope handle_scope;
+    v8::Context::Scope scope(context);
+
+    // Notify the render process handler.
+    CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+    if (application.get()) {
+      CefRefPtr<CefRenderProcessHandler> handler =
+          application->GetRenderProcessHandler();
+      if (handler.get()) {
+        webkit_glue::WorkerTaskRunner* worker_runner =
+            webkit_glue::WorkerTaskRunner::Instance();
+        int worker_id = worker_runner->CurrentWorkerId();
+        DCHECK_GT(worker_id, 0);
+
+        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+        GURL gurl = GURL(url);
+        handler->OnWorkerContextReleased(worker_id, gurl.spec(), contextPtr);
+      }
+    }
+
+    CefV8ReleaseContext(context);
+
+    // Destroy global objects associated with the WebWorker Isolate.
+    CefV8IsolateDestroyed();
+  }
+};
+
 
 struct CefContentRendererClient::SchemeInfo {
   std::string scheme_name;
@@ -149,6 +274,9 @@ void CefContentRendererClient::WebKitInitialized() {
   // TODO(cef): Enable these once the implementation supports it.
   WebKit::WebRuntimeFeatures::enableNotifications(false);
 
+  worker_script_observer_.reset(new CefWebWorkerScriptObserver());
+  WebKit::WebWorkerInfo::addScriptObserver(worker_script_observer_.get());
+
   if (!scheme_info_list_.empty()) {
     // Register the custom schemes.
     SchemeInfoList::const_iterator it = scheme_info_list_.begin();
@@ -189,11 +317,8 @@ void CefContentRendererClient::WebKitInitialized() {
         &uncaught_exception_stack_size);
 
     if (uncaught_exception_stack_size > 0) {
-      CefContentRendererClient::Get()->SetUncaughtExceptionStackSize(
-          uncaught_exception_stack_size);
-      v8::V8::AddMessageListener(&CefV8MessageHandler);
-      v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
-          uncaught_exception_stack_size, v8::StackTrace::kDetailed);
+      uncaught_exception_stack_size_ = uncaught_exception_stack_size;
+      CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
     }
   }
 
@@ -207,6 +332,11 @@ void CefContentRendererClient::WebKitInitialized() {
   }
 }
 
+void CefContentRendererClient::OnRenderProcessShutdown() {
+  // Destroy global objects associated with the default Isolate.
+  CefV8IsolateDestroyed();
+}
+
 void CefContentRendererClient::DevToolsAgentAttached() {
   CEF_REQUIRE_RT();
   ++devtools_agent_count_;
@@ -218,17 +348,71 @@ void CefContentRendererClient::DevToolsAgentDetached() {
   if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
     // When the last DevToolsAgent is detached the stack size is set to 0.
     // Restore the user-specified stack size here.
-    v8::V8::SetCaptureStackTraceForUncaughtExceptions(true,
-        uncaught_exception_stack_size_, v8::StackTrace::kDetailed);
+    CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
+
+    // And do the same for any WebWorker threads.
+    WorkerTaskRunnerMap map_copy;
+
+    {
+      base::AutoLock lock_scope(worker_task_runner_lock_);
+      map_copy = worker_task_runner_map_;
+    }
+
+    WorkerTaskRunnerMap::const_iterator it = map_copy.begin();
+    for (; it != map_copy.end(); ++it) {
+      it->second->PostTask(FROM_HERE,
+          base::Bind(CefV8SetUncaughtExceptionStackSize,
+                     uncaught_exception_stack_size_));
+    }
   }
 }
 
-void CefContentRendererClient::SetUncaughtExceptionStackSize(int stackSize) {
-  uncaught_exception_stack_size_ = stackSize;
+scoped_refptr<base::SequencedTaskRunner>
+    CefContentRendererClient::GetCurrentTaskRunner() {
+  // Check if currently on the render thread.
+  if (CEF_CURRENTLY_ON_RT())
+    return render_task_runner_;
+
+  // Check if a WebWorker exists for the current thread.
+  webkit_glue::WorkerTaskRunner* worker_runner =
+      webkit_glue::WorkerTaskRunner::Instance();
+  int worker_id = worker_runner->CurrentWorkerId();
+  if (worker_id > 0) {
+    base::AutoLock lock_scope(worker_task_runner_lock_);
+    WorkerTaskRunnerMap::const_iterator it =
+        worker_task_runner_map_.find(worker_id);
+    if (it != worker_task_runner_map_.end())
+      return it->second;
+
+    scoped_refptr<base::SequencedTaskRunner> task_runner =
+        new CefWebWorkerTaskRunner(worker_runner, worker_id);
+    worker_task_runner_map_[worker_id] = task_runner;
+    return task_runner;
+  }
+
+  return NULL;
+}
+
+scoped_refptr<base::SequencedTaskRunner>
+    CefContentRendererClient::GetWorkerTaskRunner(int worker_id) {
+  base::AutoLock lock_scope(worker_task_runner_lock_);
+  WorkerTaskRunnerMap::const_iterator it =
+      worker_task_runner_map_.find(worker_id);
+  if (it != worker_task_runner_map_.end())
+    return it->second;
+
+  return NULL;
+}
+
+void CefContentRendererClient::RemoveWorkerTaskRunner(int worker_id) {
+  base::AutoLock lock_scope(worker_task_runner_lock_);
+  WorkerTaskRunnerMap::iterator it = worker_task_runner_map_.find(worker_id);
+  if (it != worker_task_runner_map_.end())
+    worker_task_runner_map_.erase(it);
 }
 
 void CefContentRendererClient::RenderThreadStarted() {
-  render_loop_ = base::MessageLoopProxy::current();
+  render_task_runner_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
 
   content::RenderThread* thread = content::RenderThread::Get();
@@ -243,6 +427,9 @@ void CefContentRendererClient::RenderThreadStarted() {
     media::InitializeMediaLibrary(media_path);
 
   WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
+
+  // Create global objects associated with the default Isolate.
+  CefV8IsolateCreated();
 
   // Retrieve the new render thread information synchronously.
   CefProcessHostMsg_GetNewRenderThreadInfo_Params params;

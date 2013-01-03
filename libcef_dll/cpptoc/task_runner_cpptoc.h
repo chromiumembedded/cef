@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_
 #pragma once
 
 #ifndef BUILDING_CEF_SHARED
@@ -20,21 +20,17 @@
 
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/cpptoc/cpptoc.h"
 
-// Wrap a C structure with a C++ class.
+// Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefTaskCToCpp
-    : public CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t> {
+class CefTaskRunnerCppToC
+    : public CefCppToC<CefTaskRunnerCppToC, CefTaskRunner, cef_task_runner_t> {
  public:
-  explicit CefTaskCToCpp(cef_task_t* str)
-      : CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>(str) {}
-  virtual ~CefTaskCToCpp() {}
-
-  // CefTask methods
-  virtual void Execute() OVERRIDE;
+  explicit CefTaskRunnerCppToC(CefTaskRunner* cls);
+  virtual ~CefTaskRunnerCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_
 

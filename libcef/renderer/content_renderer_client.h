@@ -1,4 +1,5 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
+// Copyright (c) 2013 The Chromium Embedded Framework Authors.
+// Portions copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -15,10 +16,11 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/message_loop_proxy.h"
+#include "base/sequenced_task_runner.h"
 #include "content/public/renderer/content_renderer_client.h"
 
 class CefRenderProcessObserver;
+class CefWebWorkerScriptObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 
 class CefContentRendererClient : public content::ContentRendererClient {
@@ -43,14 +45,32 @@ class CefContentRendererClient : public content::ContentRendererClient {
                        bool is_local,
                        bool is_display_isolated);
 
-  // Render thread message loop proxy.
-  base::MessageLoopProxy* render_loop() const { return render_loop_.get(); }
+  // Render thread task runner.
+  base::SequencedTaskRunner* render_task_runner() const {
+    return render_task_runner_.get();
+  }
+
+  int uncaught_exception_stack_size() const {
+    return uncaught_exception_stack_size_;
+  }
 
   void WebKitInitialized();
+  void OnRenderProcessShutdown();
 
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
-  void SetUncaughtExceptionStackSize(int stackSize);
+
+  // Returns the task runner for the current thread. If this is a WebWorker
+  // thread and the task runner does not already exist it will be created.
+  // Returns NULL if the current thread is not a valid render process thread.
+  scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
+
+  // Returns the task runner for the specified worker ID or NULL if the
+  // specified worker ID is not valid.
+  scoped_refptr<base::SequencedTaskRunner> GetWorkerTaskRunner(int worker_id);
+
+  // Remove the task runner associated with the specified worker ID.
+  void RemoveWorkerTaskRunner(int worker_id);
 
  private:
   // ContentRendererClient implementation.
@@ -69,8 +89,9 @@ class CefContentRendererClient : public content::ContentRendererClient {
                                         v8::Handle<v8::Context> context,
                                         int world_id) OVERRIDE;
 
-  scoped_refptr<base::MessageLoopProxy> render_loop_;
+  scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;
+  scoped_ptr<CefWebWorkerScriptObserver> worker_script_observer_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
@@ -87,6 +108,13 @@ class CefContentRendererClient : public content::ContentRendererClient {
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;
+
+  // Map of worker thread IDs to task runners. Access must be protected by
+  // |worker_task_runner_lock_|.
+  typedef std::map<int, scoped_refptr<base::SequencedTaskRunner> >
+      WorkerTaskRunnerMap;
+  WorkerTaskRunnerMap worker_task_runner_map_;
+  base::Lock worker_task_runner_lock_;
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
