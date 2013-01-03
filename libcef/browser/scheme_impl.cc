@@ -283,10 +283,8 @@ bool CefRegisterSchemeHandlerFactory(
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
   // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+  if (!CONTEXT_STATE_VALID())
     return false;
-  }
 
   if (CEF_CURRENTLY_ON(CEF_IOT)) {
     return CefUrlRequestManager::GetInstance()->AddFactory(scheme_name,
@@ -302,10 +300,8 @@ bool CefRegisterSchemeHandlerFactory(
 
 bool CefClearSchemeHandlerFactories() {
   // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+  if (!CONTEXT_STATE_VALID())
     return false;
-  }
 
   if (CEF_CURRENTLY_ON(CEF_IOT)) {
     CefUrlRequestManager::GetInstance()->ClearFactories();
