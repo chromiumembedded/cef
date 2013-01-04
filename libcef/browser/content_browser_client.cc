@@ -319,8 +319,15 @@ void CefContentBrowserClient::DestroyAllBrowsers() {
     BrowserInfoList::iterator it = list.begin();
     for (; it != list.end(); ++it) {
       CefRefPtr<CefBrowserHostImpl> browser = (*it)->browser();
-      if (browser.get())
+      if (browser.get()) {
+        // DestroyBrowser will call RemoveBrowserInfo.
         browser->DestroyBrowser();
+      } else {
+        // Canceled popup windows may have browser info but no browser because
+        // CefBrowserMessageFilter::OnGetNewBrowserInfo is still called.
+        DCHECK((*it)->is_popup());
+        RemoveBrowserInfo(*it);
+      }
     }
   }
 
