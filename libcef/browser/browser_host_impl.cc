@@ -1647,14 +1647,23 @@ void CefBrowserHostImpl::RenderViewCreated(
         devtools_delegate->GetDevToolsURL(render_view_host, false);
   }
 
-  registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-                  content::Source<content::RenderViewHost>(render_view_host));
+  // May be already registered if the renderer crashed previously.
+  if (!registrar_->IsRegistered(
+      this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+      content::Source<content::RenderViewHost>(render_view_host))) {
+    registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+                    content::Source<content::RenderViewHost>(render_view_host));
+  }
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(
     content::RenderViewHost* render_view_host) {
-  registrar_->Remove(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-      content::Source<content::RenderViewHost>(render_view_host));
+  if (registrar_->IsRegistered(
+      this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+      content::Source<content::RenderViewHost>(render_view_host))) {
+    registrar_->Remove(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+        content::Source<content::RenderViewHost>(render_view_host));
+  }
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
