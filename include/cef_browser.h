@@ -219,6 +219,7 @@ class CefBrowserHost : public virtual CefBase {
  public:
   typedef cef_file_dialog_mode_t FileDialogMode;
   typedef cef_mouse_button_type_t MouseButtonType;
+  typedef cef_paint_element_type_t PaintElementType;
 
   ///
   // Create a new browser window using the window parameters specified by
@@ -359,7 +360,7 @@ class CefBrowserHost : public virtual CefBase {
   // method is only used when window rendering is disabled.
   ///
   /*--cef()--*/
-  virtual void Invalidate(const CefRect& dirtyRect) =0;
+  virtual void Invalidate(const CefRect& dirtyRect, PaintElementType type) =0;
 
   ///
   // Send a key event to the browser.
@@ -372,7 +373,8 @@ class CefBrowserHost : public virtual CefBase {
   // relative to the upper-left corner of the view.
   ///
   /*--cef()--*/
-  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+  virtual void SendMouseClickEvent(const CefMouseEvent& event,
+                                   MouseButtonType type,
                                    bool mouseUp, int clickCount) =0;
 
   ///
@@ -380,15 +382,19 @@ class CefBrowserHost : public virtual CefBase {
   // relative to the upper-left corner of the view.
   ///
   /*--cef()--*/
-  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) =0;
+  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
+                                  bool mouseLeave) =0;
 
   ///
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
   // values represent the movement delta in the X and Y directions respectively.
+  // In order to scroll inside select popups with window rendering disabled
+  // CefRenderHandler::GetScreenPoint should be implemented properly.
   ///
   /*--cef()--*/
-  virtual void SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) =0;
+  virtual void SendMouseWheelEvent(const CefMouseEvent& event,
+                                   int deltaX, int deltaY) =0;
 
   ///
   // Send a focus event to the browser.

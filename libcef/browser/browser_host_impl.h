@@ -35,8 +35,9 @@ struct NativeWebKeyboardEvent;
 }
 
 namespace WebKit {
-  class WebMouseEvent;
-  class WebMouseWheelEvent;
+class WebMouseEvent;
+class WebMouseWheelEvent;
+class WebInputEvent;
 }
 
 namespace net {
@@ -125,12 +126,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void WasResized() OVERRIDE;
-  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect,
+                          PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
-  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
+  virtual void SendMouseClickEvent(const CefMouseEvent& event,
+                                   MouseButtonType type,
                                    bool mouseUp, int clickCount) OVERRIDE;
-  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(int x, int y,
+  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
+                                  bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(const CefMouseEvent& event,
                                    int deltaX, int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
@@ -220,6 +224,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Returns the URL that is currently loading (or loaded) in the main frame.
   GURL GetLoadingURL();
+
+  bool IsTransparent();
 
 #if defined(OS_WIN)
   static void RegisterWindowClass();
@@ -385,16 +391,22 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void PlatformRunFileChooser(const content::FileChooserParams& params,
                               RunFileChooserCallback callback);
 
-  static bool PlatformTranslateKeyEvent(gfx::NativeEvent& native_event,
-                                        const CefKeyEvent& key_event);
-  static bool PlatformTranslateClickEvent(WebKit::WebMouseEvent& ev,
-                                          int x, int y, MouseButtonType type,
-                                          bool mouseUp, int clickCount);
-  static bool PlatformTranslateMoveEvent(WebKit::WebMouseEvent& ev,
-                                         int x, int y, bool mouseLeave);
-  static bool PlatformTranslateWheelEvent(WebKit::WebMouseWheelEvent& ev,
-                                          int x, int y,
-                                          int deltaX, int deltaY);
+  void PlatformTranslateKeyEvent(content::NativeWebKeyboardEvent& native_event,
+                                 const CefKeyEvent& key_event);
+  void PlatformTranslateClickEvent(WebKit::WebMouseEvent& web_event,
+                                   const CefMouseEvent& mouse_event,
+                                   CefBrowserHost::MouseButtonType type,
+                                   bool mouseUp, int clickCount);
+  void PlatformTranslateMoveEvent(WebKit::WebMouseEvent& web_event,
+                                  const CefMouseEvent& mouse_event,
+                                  bool mouseLeave);
+  void PlatformTranslateWheelEvent(WebKit::WebMouseWheelEvent& web_event,
+                                   const CefMouseEvent& mouse_event,
+                                   int deltaX, int deltaY);
+  void PlatformTranslateMouseEvent(WebKit::WebMouseEvent& web_event,
+                                  const CefMouseEvent& mouse_event);
+  int TranslateModifiers(uint32 cefKeyStates);
+  void SendMouseEvent(const WebKit::WebMouseEvent& web_event);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);

@@ -392,6 +392,12 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
         GetBinaryResourceReader("localstorage.html");
     ASSERT(stream.get());
     return new CefStreamResourceHandler("text/html", stream);
+  } else if (url == "http://tests/transparency") {
+    // Show the transparency contents
+    CefRefPtr<CefStreamReader> stream =
+       GetBinaryResourceReader("transparency.html");
+    ASSERT(stream.get());
+    return new CefStreamResourceHandler("text/html", stream);
   } else if (url == "http://tests/xmlhttprequest") {
     // Show the xmlhttprequest contents
     CefRefPtr<CefStreamReader> stream =

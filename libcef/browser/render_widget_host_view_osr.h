@@ -10,7 +10,9 @@
 #include <vector>
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
 
+#include "base/memory/weak_ptr.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 
 namespace content {
@@ -90,7 +92,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
-      const base::Callback<void(bool)>& callback,
+      const base::Callback<void(bool b)>& callback,
       skia::PlatformBitmap* output) OVERRIDE;
   virtual void OnAcceleratedCompositingStateChange() OVERRIDE;
   virtual void SetHasHorizontalScrollbar(
@@ -113,12 +115,31 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void SetClickthroughRegion(SkRegion* region) OVERRIDE;
 #endif
 
-  // CefRenderWidgetHostViewOSR methods
-  void Invalidate(const gfx::Rect& rect);
+  // RenderWidgetHostViewBase methods.
+  virtual void SetBackground(const SkBitmap& background) OVERRIDE;
+
+  void SendKeyEvent(const content::NativeWebKeyboardEvent& event);
+  void SendMouseEvent(const WebKit::WebMouseEvent& event);
+  void SendMouseWheelEvent(const WebKit::WebMouseWheelEvent& event);
+
+  void Invalidate(const gfx::Rect& rect,
+                  CefBrowserHost::PaintElementType type);
   void Paint(const std::vector<gfx::Rect>& copy_rects);
+  bool InstallTransparency();
+
+  void CancelWidget();
+  void NotifyShowWidget();
+  void NotifyHideWidget();
+  void NotifySizeWidget();
 
   CefRefPtr<CefBrowserHostImpl> get_browser_impl() const;
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser);
+  void set_popup_host_view(CefRenderWidgetHostViewOSR* popup_view);
+  void set_parent_host_view(CefRenderWidgetHostViewOSR* parent_view);
+
+  bool IsPopupWidget() const {
+    return popup_type_ != WebKit::WebPopupTypeNone;
+  }
 
  private:
   friend class CefWebContentsViewOSR;
@@ -126,15 +147,25 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   explicit CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget);
   virtual ~CefRenderWidgetHostViewOSR();
 
+  // After calling this function, object gets deleted
+  void ShutdownHost();
+
+  // Factory used to safely scope delayed calls to ShutdownHost().
+  base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_factory_;
+
   // The associated Model.  While |this| is being Destroyed,
   // |render_widget_host_| is NULL and the Windows message loop is run one last
   // time. Message handlers must check for a NULL |render_widget_host_|.
   content::RenderWidgetHostImpl* render_widget_host_;
+  CefRenderWidgetHostViewOSR* parent_host_view_;
+  CefRenderWidgetHostViewOSR* popup_host_view_;
 
   CefRefPtr<CefBrowserHostImpl> browser_impl_;
 
   bool about_to_validate_and_paint_;
   std::vector<gfx::Rect> pending_update_rects_;
+
+  gfx::Rect popup_position_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderWidgetHostViewOSR);
 };

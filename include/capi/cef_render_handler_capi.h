@@ -57,8 +57,7 @@ typedef struct _cef_render_handler_t {
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return
-  // true (1) if the rectangle was provided. Return false (0) if the screen
-  // rectangle is the same as the view rectangle.
+  // true (1) if the rectangle was provided.
   ///
   int (CEF_CALLBACK *get_root_screen_rect)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, cef_rect_t* rect);
@@ -81,15 +80,13 @@ typedef struct _cef_render_handler_t {
   ///
   // Called when the browser wants to show or hide the popup widget. The popup
   // should be shown if |show| is true (1) and hidden if |show| is false (0).
-  // NOTE: Popup widgets are not yet supported.
   ///
   void (CEF_CALLBACK *on_popup_show)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, int show);
 
   ///
   // Called when the browser wants to move or resize the popup widget. |rect|
-  // contains the new location and size. NOTE: Popup widgets are not yet
-  // supported.
+  // contains the new location and size.
   ///
   void (CEF_CALLBACK *on_popup_size)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, const cef_rect_t* rect);
@@ -99,8 +96,7 @@ typedef struct _cef_render_handler_t {
   // element is the view or the popup widget. |buffer| contains the pixel data
   // for the whole image. |dirtyRects| contains the set of rectangles that need
   // to be repainted. On Windows |buffer| will be |width|*|height|*4 bytes in
-  // size and represents a BGRA image with an upper-left origin. NOTE: Popup
-  // widgets are not yet supported.
+  // size and represents a BGRA image with an upper-left origin.
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, enum cef_paint_element_type_t type,

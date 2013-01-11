@@ -53,12 +53,14 @@ class CefBrowserHostCToCpp
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void WasResized() OVERRIDE;
-  virtual void Invalidate(const CefRect& dirtyRect) OVERRIDE;
+  virtual void Invalidate(const CefRect& dirtyRect,
+      PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
-  virtual void SendMouseClickEvent(int x, int y, MouseButtonType type,
-      bool mouseUp, int clickCount) OVERRIDE;
-  virtual void SendMouseMoveEvent(int x, int y, bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(int x, int y, int deltaX,
+  virtual void SendMouseClickEvent(const CefMouseEvent& event,
+      MouseButtonType type, bool mouseUp, int clickCount) OVERRIDE;
+  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
+      bool mouseLeave) OVERRIDE;
+  virtual void SendMouseWheelEvent(const CefMouseEvent& event, int deltaX,
       int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;

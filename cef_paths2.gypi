@@ -128,6 +128,7 @@
       'tests/cefclient/res/cefclient.ico',
       'tests/cefclient/res/logoball.png',
       'tests/cefclient/res/small.ico',
+      'tests/cefclient/res/transparency.html',
       'tests/cefclient/resource_util_win.cpp',
     ],
     'cefclient_sources_mac': [

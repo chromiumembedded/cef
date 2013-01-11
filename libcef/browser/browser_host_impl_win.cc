@@ -687,97 +687,168 @@ bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
   return info.window_rendering_disabled ? true : false;
 }
 
-// static
-bool CefBrowserHostImpl::PlatformTranslateKeyEvent(
-    gfx::NativeEvent& native_event, const CefKeyEvent& key_event) {
-  UINT message = 0;
-  WPARAM wparam = key_event.windows_key_code;
-  LPARAM lparam = key_event.native_key_code;
+bool CefBrowserHostImpl::IsTransparent() {
+  return window_info_.transparent_painting != 0;
+}
 
+void CefBrowserHostImpl::PlatformTranslateKeyEvent(
+    content::NativeWebKeyboardEvent& result, const CefKeyEvent& key_event) {
+  result.timeStampSeconds = GetMessageTime() / 1000.0;
+
+  result.windowsKeyCode = key_event.windows_key_code;
+  result.nativeKeyCode = key_event.native_key_code;
+  result.isSystemKey = key_event.is_system_key;
   switch (key_event.type) {
-    case KEYEVENT_KEYUP:
-      message = key_event.is_system_key ? WM_SYSKEYUP : WM_KEYUP;
-      break;
-    case KEYEVENT_RAWKEYDOWN:
-    case KEYEVENT_KEYDOWN:
-      message = key_event.is_system_key ? WM_SYSKEYDOWN : WM_KEYDOWN;
-      break;
-    case KEYEVENT_CHAR:
-      message = key_event.is_system_key ? WM_SYSCHAR : WM_CHAR;
-      break;
-    default:
-      return false;
-  }
-
-  gfx::NativeEvent ev = {NULL, message, wparam, lparam};
-  native_event = ev;
-  return true;
-}
-
-// static
-bool CefBrowserHostImpl::PlatformTranslateClickEvent(
-    WebKit::WebMouseEvent& ev,
-    int x, int y, MouseButtonType type,
-    bool mouseUp, int clickCount) {
-  DCHECK(clickCount >=1 && clickCount <= 2);
-
-  UINT message = 0;
-  WPARAM wparam = KeyStatesToWord();
-  LPARAM lparam = MAKELPARAM(x, y);
-
-  if (type == MBT_LEFT) {
-    if (mouseUp)
-      message = (clickCount == 1 ? WM_LBUTTONUP : WM_LBUTTONDBLCLK);
-    else
-      message = WM_LBUTTONDOWN;
-  } else if (type == MBT_MIDDLE) {
-    if (mouseUp)
-      message = (clickCount == 1 ? WM_MBUTTONUP : WM_MBUTTONDBLCLK);
-    else
-      message = WM_MBUTTONDOWN;
-  }  else if (type == MBT_RIGHT) {
-    if (mouseUp)
-      message = (clickCount == 1 ? WM_RBUTTONUP : WM_RBUTTONDBLCLK);
-    else
-      message = WM_RBUTTONDOWN;
-  }
-
-  if (message == 0) {
+  case KEYEVENT_RAWKEYDOWN:
+  case KEYEVENT_KEYDOWN:
+    result.type = WebKit::WebInputEvent::RawKeyDown;
+    break;
+  case KEYEVENT_KEYUP:
+    result.type = WebKit::WebInputEvent::KeyUp;
+    break;
+  case KEYEVENT_CHAR:
+    result.type = WebKit::WebInputEvent::Char;
+    break;
+  default:
     NOTREACHED();
-    return false;
   }
 
-  ev = WebKit::WebInputEventFactory::mouseEvent(NULL, message, wparam, lparam);
-  return true;
+  if (result.type == WebKit::WebInputEvent::Char ||
+      result.type == WebKit::WebInputEvent::RawKeyDown) {
+    result.text[0] = result.windowsKeyCode;
+    result.unmodifiedText[0] = result.windowsKeyCode;
+  }
+  if (result.type != WebKit::WebInputEvent::Char)
+    result.setKeyIdentifierFromWindowsKeyCode();
+
+  result.modifiers |= TranslateModifiers(key_event.modifiers);
 }
 
-// static
-bool CefBrowserHostImpl::PlatformTranslateMoveEvent(
-    WebKit::WebMouseEvent& ev,
-    int x, int y, bool mouseLeave) {
-  UINT message;
-  WPARAM wparam = KeyStatesToWord();
-  LPARAM lparam = 0;
+void CefBrowserHostImpl::PlatformTranslateClickEvent(
+    WebKit::WebMouseEvent& result,
+    const CefMouseEvent& mouse_event,
+    CefBrowserHost::MouseButtonType type,
+    bool mouseUp, int clickCount) {
+  PlatformTranslateMouseEvent(result, mouse_event);
 
-  if (mouseLeave) {
-    message = WM_MOUSELEAVE;
+  switch (type) {
+  case MBT_LEFT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonLeft;
+    break;
+  case MBT_MIDDLE:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    break;
+  case MBT_RIGHT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonRight;
+    break;
+  default:
+    NOTREACHED();
+  }
+
+  result.clickCount = clickCount;
+}
+
+void CefBrowserHostImpl::PlatformTranslateMoveEvent(
+    WebKit::WebMouseEvent& result,
+    const CefMouseEvent& mouse_event,
+    bool mouseLeave) {
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  if (!mouseLeave) {
+    result.type = WebKit::WebInputEvent::MouseMove;
+    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonLeft;
+    else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonRight;
+    else
+      result.button = WebKit::WebMouseEvent::ButtonNone;
   } else {
-    message = WM_MOUSEMOVE;
-    lparam = MAKELPARAM(x, y);
+    result.type = WebKit::WebInputEvent::MouseLeave;
+    result.button = WebKit::WebMouseEvent::ButtonNone;
   }
 
-  ev = WebKit::WebInputEventFactory::mouseEvent(NULL, message, wparam, lparam);
-  return true;
+  result.clickCount = 0;
 }
 
-// static
-bool CefBrowserHostImpl::PlatformTranslateWheelEvent(
-    WebKit::WebMouseWheelEvent& ev,
-    int x, int y, int deltaX, int deltaY) {
-  WPARAM wparam = MAKEWPARAM(KeyStatesToWord(), deltaY);
-  LPARAM lparam = MAKELPARAM(x, y);
+void CefBrowserHostImpl::PlatformTranslateWheelEvent(
+    WebKit::WebMouseWheelEvent& result,
+    const CefMouseEvent& mouse_event,
+    int deltaX, int deltaY) {
+  PlatformTranslateMouseEvent(result, mouse_event);
 
-  ev = WebKit::WebInputEventFactory::mouseWheelEvent(NULL, WM_MOUSEWHEEL,
-                                                     wparam, lparam);
-  return true;
+  result.type = WebKit::WebInputEvent::MouseWheel;
+  result.button = WebKit::WebMouseEvent::ButtonNone;
+
+  float wheelDelta;
+  bool horizontalScroll = false;
+
+  wheelDelta = static_cast<float>(deltaY ? deltaY : deltaX);
+
+  horizontalScroll = (deltaY == 0);
+
+  static const ULONG defaultScrollCharsPerWheelDelta = 1;
+  static const FLOAT scrollbarPixelsPerLine = 100.0f / 3.0f;
+  static const ULONG defaultScrollLinesPerWheelDelta = 3;
+  wheelDelta /= WHEEL_DELTA;
+  float scrollDelta = wheelDelta;
+  if (horizontalScroll) {
+    ULONG scrollChars = defaultScrollCharsPerWheelDelta;
+    SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scrollChars, 0);
+    scrollDelta *= static_cast<FLOAT>(scrollChars) * scrollbarPixelsPerLine;
+  } else {
+    ULONG scrollLines = defaultScrollLinesPerWheelDelta;
+    SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
+    if (scrollLines == WHEEL_PAGESCROLL)
+      result.scrollByPage = true;
+    if (!result.scrollByPage)
+      scrollDelta *= static_cast<FLOAT>(scrollLines) * scrollbarPixelsPerLine;
+  }
+
+  // Set scroll amount based on above calculations.  WebKit expects positive
+  // deltaY to mean "scroll up" and positive deltaX to mean "scroll left".
+  if (horizontalScroll) {
+    result.deltaX = scrollDelta;
+    result.wheelTicksX = wheelDelta;
+  } else {
+    result.deltaY = scrollDelta;
+    result.wheelTicksY = wheelDelta;
+  }
+}
+
+void CefBrowserHostImpl::PlatformTranslateMouseEvent(
+    WebKit::WebMouseEvent& result,
+    const CefMouseEvent& mouse_event) {
+  // position
+  result.x = mouse_event.x;
+  result.y = mouse_event.y;
+  result.windowX = result.x;
+  result.windowY = result.y;
+  result.globalX = result.x;
+  result.globalY = result.y;
+
+  // global position
+  if (IsWindowRenderingDisabled()) {
+    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
+        result.x, result.y,
+        result.globalX, result.globalY);
+  } else {
+    POINT globalPoint = { result.x, result.y };
+    ClientToScreen(GetWindowHandle(), &globalPoint);
+    result.globalX = globalPoint.x;
+    result.globalY = globalPoint.y;
+  }
+
+  // modifiers
+  result.modifiers |= TranslateModifiers(mouse_event.modifiers);
+
+  // timestamp
+  result.timeStampSeconds = GetMessageTime() / 1000.0;
 }

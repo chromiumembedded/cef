@@ -30,12 +30,13 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDS_BINDING BINARY "res\\binding.html"
 IDS_DIALOGS BINARY "res\\dialogs.html"
+IDS_DOMACCESS BINARY "res\\domaccess.html"
+IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
 IDS_LOGO BINARY "res\\logo.png"
 IDS_LOGOBALL BINARY "res\\logoball.png"
-IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
 IDS_PERFORMANCE BINARY "res\\performance.html"
+IDS_TRANSPARENCY BINARY "res\\transparency.html"
 IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
-IDS_DOMACCESS BINARY "res\\domaccess.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -82,6 +83,7 @@ BEGIN
         MENUITEM "HTML5 Video",                 ID_TESTS_HTML5VIDEO
         MENUITEM "Drag && Drop",                ID_TESTS_DRAGDROP
         MENUITEM "Geolocation",                 ID_TESTS_GEOLOCATION
+        MENUITEM "Transparency",                ID_TESTS_TRANSPARENCY
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
         MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
         MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET

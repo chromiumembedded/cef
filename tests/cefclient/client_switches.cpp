@@ -58,6 +58,7 @@ const char kAcceledated2dCanvasDisabled[] = "accelerated-2d-canvas-disabled";
 const char kAcceleratedPluginsDisabled[] = "accelerated-plugins-disabled";
 const char kDeveloperToolsDisabled[] = "developer-tools-disabled";
 const char kOffScreenRenderingEnabled[] = "off-screen-rendering-enabled";
+const char kTransparentPaintingEnabled[] = "transparent-painting-enabled";
 
 // Other attributes.
 const char kProxyType[] = "proxy-type";

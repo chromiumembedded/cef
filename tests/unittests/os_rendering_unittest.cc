@@ -17,16 +17,22 @@ const char kOsrHtml[] =
 "  <head><title>OSR Test</title></head>                                       "
 "  <style>                                                                    "
 "  .red_hover:hover {color:red;}                                              "
+"  body {background:rgba(255, 0, 0, 0.5);}                                    "
+"  #LI11select {width: 75px;}                                                 "
 "  </style>                                                                   "
 "  <script>                                                                   "
 "  function getElement(id) { return document.getElementById(id); }            "
 "  function makeH1Red() { getElement('LI00').style.color='red'; }             "
 "  function makeH1Black() { getElement('LI00').style.color='black'; }         "
 "  function navigate() { location.href='?k='+getElement('editbox').value; }   "
+"  function load() { var select = document.getElementById('LI11select');      "
+"    for (var i = 1; i < 21; i++)                                             "
+"      select.options.add(new Option('Option ' + i, i));}                     "
 "  </script>                                                                  "
-"  <body onfocus='makeH1Red()' onblur='makeH1Black()'>                        "
-"  <h1 id='LI00'>OSR Testing h1 - Focus and blur this page and will get this  "
-"      red black</h1>                                                         "
+"  <body onfocus='makeH1Red()' onblur='makeH1Black()' onload='load();'>       "
+"  <h1 id='LI00'>OSR Testing h1 - Focus and blur                              "
+"      <select id='LI11select'><option value='0'>Default</option></select>    "
+"      this page and will get this red black</h1>                             "
 "  <ol>                                                                       "
 "  <li id='LI01'>OnPaint should be called each time a page loads</li>         "
 "  <li id='LI02' style='cursor:pointer;'><span>Move mouse                     "
@@ -54,7 +60,7 @@ const char kOsrHtml[] =
 "  </body>                                                                    "
 "</html>                                                                      ";
 
-// #define(DEBUGGER_ATTACHED)
+// #define DEBUGGER_ATTACHED
 
 // default osr widget size
 const int kOsrWidth = 600;
@@ -78,6 +84,8 @@ const CefRect kExpectedRectLI[] = {
 // bounding client rects for edit box and navigate button
 const CefRect kEditBoxRect(412, 245, 153, 22);
 const CefRect kNavigateButtonRect(360, 271, 140, 22);
+const CefRect kSelectRect(467, 22, 75, 20);
+const CefRect kExpandedSelectRect(467, 42, 81, 322);
 const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const int kHorizontalScrollbarWidth = GetSystemMetrics(SM_CXHSCROLL);
 
@@ -109,6 +117,8 @@ enum OSRTestType {
   OSR_TEST_FOCUS,
   // loading webview should trigger a full paint (L01)
   OSR_TEST_PAINT,
+  // same as OSR_TEST_PAINT but with alpha values
+  OSR_TEST_TRANSPARENCY,
   // moving mouse over L02, OnCursorChange will be called
   OSR_TEST_CURSOR,
   // moving mouse on L03, OnPaint will be called for its bounding rectangle
@@ -131,6 +141,22 @@ enum OSRTestType {
   OSR_TEST_TOOLTIP,
   // mouse wheel will trigger a scroll event
   OSR_TEST_SCROLLING,
+  // clicking on dropdown box, PET_POPUP OnPaint is triggered
+  OSR_TEST_POPUP_PAINT,
+  // clicking on dropdown box, a popup will show up
+  OSR_TEST_POPUP_SHOW,
+  // clicking on dropdown box, OnPopupSize should be called
+  OSR_TEST_POPUP_SIZE,
+  // taking focus away from the webview, will close popup
+  OSR_TEST_POPUP_HIDE_ON_BLUR,
+  // clicking outside the popup widget will close popup
+  OSR_TEST_POPUP_HIDE_ON_CLICK,
+  // scrolling outside the popup widget will close popup
+  OSR_TEST_POPUP_HIDE_ON_SCROLL,
+  // pressing ESC will close popup
+  OSR_TEST_POPUP_HIDE_ON_ESC,
+  // scrolling inside the popup should trigger repaint for popup area
+  OSR_TEST_POPUP_SCROLL_INSIDE,
 };
 
 // Used in the browser process.
@@ -213,14 +239,38 @@ class OSRTestHandler : public TestHandler,
 
   virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
                            bool show) OVERRIDE {
-    // popup widgets are not yet supported
-    EXPECT_FALSE("OnPopupShow should not be reached");
+    if (show && started()) {
+      switch (test_type_) {
+        case OSR_TEST_POPUP_SHOW:
+          if (!succeeded()) {
+            EXPECT_TRUE(show);
+            DestroySucceededTestSoon();
+          }
+          break;
+      }
+    }
+    if (!show && started()) {
+      switch (test_type_) {
+        case OSR_TEST_POPUP_HIDE_ON_BLUR:
+        case OSR_TEST_POPUP_HIDE_ON_CLICK:
+        case OSR_TEST_POPUP_HIDE_ON_ESC:
+        case OSR_TEST_POPUP_HIDE_ON_SCROLL:
+          DestroySucceededTestSoon();
+          break;
+      }
+    }
   }
 
   virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
                            const CefRect& rect) OVERRIDE {
-    // popup widgets are not yet supported
-    EXPECT_FALSE("OnPopupSize should not be reached");
+    if (started()) {
+      switch (test_type_) {
+      case OSR_TEST_POPUP_SIZE:
+        EXPECT_EQ(kExpandedSelectRect, rect);
+        DestroySucceededTestSoon();
+        break;
+      }
+    }
   }
 
   virtual void OnPaint(CefRefPtr<CefBrowser> browser,
@@ -229,21 +279,23 @@ class OSRTestHandler : public TestHandler,
                        const void* buffer,
                        int width, int height) OVERRIDE {
     // bitmap must as big as GetViewRect said
-    if (test_type_ != OSR_TEST_RESIZE || !started()) {
+    if (test_type_ != OSR_TEST_RESIZE && type == PET_VIEW) {
       EXPECT_EQ(kOsrWidth, width);
       EXPECT_EQ(kOsrHeight, height);
+    } else if (type == PET_POPUP) {
+      EXPECT_EQ(kExpandedSelectRect.width, width);
+      EXPECT_EQ(kExpandedSelectRect.height, height);
     }
 
     EXPECT_TRUE(browser->GetHost()->IsWindowRenderingDisabled());
 
-    // We don't support popup widgets yet
-    EXPECT_EQ(type, PET_VIEW);
-
     // start test only when painting something else then background
     if (IsBackgroundInBuffer(reinterpret_cast<const uint32*>(buffer),
-                             width * height, RGB(255, 255, 255))) {
+                             width * height,
+                             test_type_ == OSR_TEST_TRANSPARENCY ?
+                                0x00000000 :
+                                0xFFFFFFFF))
       return;
-    }
 
     // Send events after the first full repaint
     switch (test_type_) {
@@ -251,6 +303,14 @@ class OSRTestHandler : public TestHandler,
         // test that we have a full repaint
         EXPECT_EQ(dirtyRects.size(), 1);
         EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
+        EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xffff8080);
+        DestroySucceededTestSoon();
+        break;
+      case OSR_TEST_TRANSPARENCY:
+        // test that we have a full repaint
+        EXPECT_EQ(dirtyRects.size(), 1);
+        EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
+        EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0x7f7f0000);
         DestroySucceededTestSoon();
         break;
       case OSR_TEST_FOCUS:
@@ -266,16 +326,24 @@ class OSRTestHandler : public TestHandler,
       case OSR_TEST_CURSOR:
         if (StartTest()) {
           // make mouse leave first
-          browser->GetHost()->SendMouseMoveEvent(0, 0, true);
+          CefMouseEvent mouse_event;
+          mouse_event.x = 0;
+          mouse_event.y = 0;
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseMoveEvent(mouse_event, true);
           // enter mouse in the LI2 element having hand cursor
-          browser->GetHost()->SendMouseMoveEvent(MiddleX(ExpectedRect(2)),
-              MiddleY(ExpectedRect(2)), false);
+          mouse_event.x = MiddleX(ExpectedRect(2));
+          mouse_event.y = MiddleY(ExpectedRect(2));
+          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
         }
         break;
       case OSR_TEST_MOUSE_MOVE:
         if (StartTest()) {
-          browser->GetHost()->SendMouseMoveEvent(MiddleX(ExpectedRect(3)),
-              MiddleY(ExpectedRect(3)), false);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(ExpectedRect(3));
+          mouse_event.y = MiddleY(ExpectedRect(3));
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1);
           EXPECT_EQ(dirtyRects[0], ExpectedRect(3));
@@ -285,18 +353,26 @@ class OSRTestHandler : public TestHandler,
       case OSR_TEST_CLICK_RIGHT:
       case OSR_TEST_SCREEN_POINT:
         if (StartTest()) {
-          browser->GetHost()->SendMouseClickEvent(MiddleX(ExpectedRect(4)),
-              MiddleY(ExpectedRect(4)), MBT_RIGHT, false, 1);
-          browser->GetHost()->SendMouseClickEvent(MiddleX(ExpectedRect(4)),
-              MiddleY(ExpectedRect(4)), MBT_RIGHT, true, 1);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(ExpectedRect(4));
+          mouse_event.y = MiddleY(ExpectedRect(4));
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_RIGHT, false, 1);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_RIGHT, true, 1);
         }
         break;
       case OSR_TEST_CLICK_LEFT:
         if (StartTest()) {
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kEditBoxRect),
-              MiddleY(kEditBoxRect), MBT_LEFT, false, 1);
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kEditBoxRect),
-              MiddleY(kEditBoxRect), MBT_LEFT, true, 1);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(kEditBoxRect);
+          mouse_event.y = MiddleY(kEditBoxRect);
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, false, 1);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, true, 1);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1);
           EXPECT_EQ(dirtyRects[0], kEditBoxRect);
@@ -305,10 +381,14 @@ class OSRTestHandler : public TestHandler,
         break;
       case OSR_TEST_CLICK_MIDDLE:
         if (StartTest()) {
-          browser->GetHost()->SendMouseClickEvent(MiddleX(ExpectedRect(0)),
-              MiddleY(ExpectedRect(0)), MBT_MIDDLE, false, 1);
-          browser->GetHost()->SendMouseClickEvent(MiddleX(ExpectedRect(0)),
-              MiddleY(ExpectedRect(0)), MBT_MIDDLE, true, 1);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(ExpectedRect(0));
+          mouse_event.y = MiddleY(ExpectedRect(0));
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_MIDDLE, false, 1);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_MIDDLE, true, 1);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1);
           CefRect expectedRect(
@@ -335,7 +415,7 @@ class OSRTestHandler : public TestHandler,
         static const CefRect invalidate_rect(0, 0, 1, 1);
         if (StartTest()) {
           invalidating = true;
-          browser->GetHost()->Invalidate(invalidate_rect);
+          browser->GetHost()->Invalidate(invalidate_rect, PET_VIEW);
           invalidating = false;
         } else {
           EXPECT_TRUE(invalidating);
@@ -348,14 +428,19 @@ class OSRTestHandler : public TestHandler,
       case OSR_TEST_KEY_EVENTS:
         if (StartTest()) {
           // click inside edit box
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kEditBoxRect),
-              MiddleY(kEditBoxRect), MBT_LEFT, false, 1);
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kEditBoxRect),
-              MiddleY(kEditBoxRect), MBT_LEFT, true, 1);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(kEditBoxRect);
+          mouse_event.y = MiddleY(kEditBoxRect);
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, false, 1);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, true, 1);
 
           // write "done" word
           CefKeyEvent event;
           event.is_system_key = false;
+          event.modifiers = 0;
 
           size_t word_lenght = strlen(kKeyTestWord);
           for (size_t i = 0; i < word_lenght; ++i) {
@@ -376,24 +461,32 @@ class OSRTestHandler : public TestHandler,
             browser->GetHost()->SendKeyEvent(event);
           }
           // click button to navigate
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kNavigateButtonRect),
-              MiddleY(kNavigateButtonRect), MBT_LEFT, false, 1);
-          browser->GetHost()->SendMouseClickEvent(MiddleX(kNavigateButtonRect),
-              MiddleY(kNavigateButtonRect), MBT_LEFT, true, 1);
+          mouse_event.x = MiddleX(kNavigateButtonRect);
+          mouse_event.y = MiddleY(kNavigateButtonRect);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, false, 1);
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, true, 1);
         }
         break;
       case OSR_TEST_TOOLTIP:
         if (StartTest()) {
-          browser->GetHost()->SendMouseMoveEvent(MiddleX(ExpectedRect(10)),
-              MiddleY(ExpectedRect(10)), false);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(ExpectedRect(10));
+          mouse_event.y = MiddleY(ExpectedRect(10));
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
         }
         break;
       case OSR_TEST_SCROLLING: {
         static const int deltaY = 10;
         if (StartTest()) {
           // scroll down once
-          browser->GetHost()->SendMouseWheelEvent(MiddleX(ExpectedRect(0)),
-              MiddleY(ExpectedRect(0)), 0, - deltaY);
+          CefMouseEvent mouse_event;
+          mouse_event.x = MiddleX(ExpectedRect(0));
+          mouse_event.y = MiddleY(ExpectedRect(0));
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, - deltaY);
         } else {
           // there should be 3 update areas:
           // 1) vertical scrollbar
@@ -412,6 +505,99 @@ class OSRTestHandler : public TestHandler,
         }
         break;
       }
+      case OSR_TEST_POPUP_HIDE_ON_CLICK:
+        if (StartTest()) {
+          ExpandDropDown();
+          // Wait for the first popup paint to occur
+        } else if (type == PET_POPUP) {
+          CefMouseEvent mouse_event;
+          mouse_event.x = 1;
+          mouse_event.y = 1;
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(
+              mouse_event, MBT_LEFT, false, 1);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_SCROLL:
+        if (StartTest()) {
+          ExpandDropDown();
+          // Wait for the first popup paint to occur
+        } else if (type == PET_POPUP) {
+          CefMouseEvent mouse_event;
+          mouse_event.x = mouse_event.y = 1;
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_BLUR:
+        if (StartTest()) {
+          ExpandDropDown();
+          // Wait for the first popup paint to occur
+        } else if (type == PET_POPUP) {
+          browser->GetHost()->SendFocusEvent(false);
+        }
+        break;
+      case OSR_TEST_POPUP_HIDE_ON_ESC:
+        if (StartTest()) {
+          ExpandDropDown();
+          // Wait for the first popup paint to occur
+        } else if (type == PET_POPUP) {
+          CefKeyEvent event;
+          event.is_system_key = false;
+          BYTE VkCode = LOBYTE(VK_ESCAPE);
+          UINT scanCode = MapVirtualKey(VkCode, MAPVK_VK_TO_VSC);
+          event.native_key_code = (scanCode << 16) |  // key scan code
+            1;  // key repeat count
+          event.windows_key_code = VkCode;
+          event.type = KEYEVENT_CHAR;
+          browser->GetHost()->SendKeyEvent(event);
+        }
+        break;
+      case OSR_TEST_POPUP_SHOW:
+      case OSR_TEST_POPUP_SIZE:
+        if (StartTest()) {
+          ExpandDropDown();
+        }
+        break;
+      case OSR_TEST_POPUP_PAINT:
+        if (StartTest()) {
+          ExpandDropDown();
+        } else if (type == PET_POPUP) {
+          EXPECT_EQ(dirtyRects.size(), 1);
+          EXPECT_EQ(dirtyRects[0],
+              CefRect(0, 0,
+                      kExpandedSelectRect.width,
+                      kExpandedSelectRect.height));
+          // first pixel of border
+          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xff7f9db9);
+          EXPECT_EQ(kExpandedSelectRect.width, width);
+          EXPECT_EQ(kExpandedSelectRect.height, height);
+          DestroySucceededTestSoon();
+        }
+        break;
+      case OSR_TEST_POPUP_SCROLL_INSIDE:
+        static enum {NotStarted, Started, Scrolled}
+            scroll_inside_state = NotStarted;
+        if (StartTest()) {
+          ExpandDropDown();
+          scroll_inside_state = Started;
+        } else if (type == PET_POPUP) {
+          if (scroll_inside_state == Started) {
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kExpandedSelectRect);
+            mouse_event.y = MiddleY(kExpandedSelectRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, -10);
+            scroll_inside_state = Scrolled;
+          } else if (scroll_inside_state == Scrolled) {
+            EXPECT_EQ(dirtyRects.size(), 1);
+            // border is not redrawn
+            EXPECT_EQ(dirtyRects[0], CefRect(1, 1,
+                kExpandedSelectRect.width - 3,
+                kExpandedSelectRect.height - 2));
+            DestroySucceededTestSoon();
+          }
+        }
     }
   }
 
@@ -447,6 +633,8 @@ class OSRTestHandler : public TestHandler,
     CefWindowInfo windowInfo;
     CefBrowserSettings settings;
     windowInfo.SetAsOffScreen(GetDesktopWindow());
+    if (test_type_ ==  OSR_TEST_TRANSPARENCY)
+      windowInfo.SetTransparentPainting(TRUE);
     CefBrowserHost::CreateBrowser(windowInfo, this, url, settings);
   }
 
@@ -475,8 +663,18 @@ class OSRTestHandler : public TestHandler,
 
   void DestroySucceededTestSoon() {
     succeeded_ = true;
-    CefPostTask(TID_IO, NewCefRunnableMethod(this,
+    CefPostTask(TID_UI, NewCefRunnableMethod(this,
         &OSRTestHandler::DestroyTest));
+  }
+
+  void ExpandDropDown() {
+    GetBrowser()->GetHost()->SendFocusEvent(true);
+    CefMouseEvent mouse_event;
+    mouse_event.x = MiddleX(kSelectRect);
+    mouse_event.y = MiddleY(kSelectRect);
+    mouse_event.modifiers = 0;
+    GetBrowser()->GetHost()->SendMouseClickEvent(
+        mouse_event, MBT_LEFT, false, 1);
   }
 
   // true if the events for this test are already sent
@@ -517,6 +715,7 @@ TEST(OSRTest, name) {\
 OSR_TEST(Windowless, OSR_TEST_IS_WINDOWLESS);
 OSR_TEST(Focus, OSR_TEST_FOCUS);
 OSR_TEST(Paint, OSR_TEST_PAINT);
+OSR_TEST(TransparentPaint, OSR_TEST_TRANSPARENCY);
 OSR_TEST(Cursor, OSR_TEST_CURSOR);
 OSR_TEST(MouseMove, OSR_TEST_MOUSE_MOVE);
 OSR_TEST(MouseRightClick, OSR_TEST_CLICK_RIGHT);
@@ -528,3 +727,11 @@ OSR_TEST(Invalidate, OSR_TEST_INVALIDATE);
 OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS);
 OSR_TEST(Tooltip, OSR_TEST_TOOLTIP);
 OSR_TEST(Scrolling, OSR_TEST_SCROLLING);
+OSR_TEST(PopupPaint, OSR_TEST_POPUP_PAINT);
+OSR_TEST(PopupShow, OSR_TEST_POPUP_SHOW);
+OSR_TEST(PopupSize, OSR_TEST_POPUP_SIZE);
+OSR_TEST(PopupHideOnBlur, OSR_TEST_POPUP_HIDE_ON_BLUR);
+OSR_TEST(PopupHideOnClick, OSR_TEST_POPUP_HIDE_ON_CLICK);
+OSR_TEST(PopupHideOnScroll, OSR_TEST_POPUP_HIDE_ON_SCROLL);
+OSR_TEST(PopupHideOnEsc, OSR_TEST_POPUP_HIDE_ON_ESC);
+OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE);

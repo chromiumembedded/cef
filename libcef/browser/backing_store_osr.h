@@ -42,7 +42,8 @@ class BackingStoreOSR : public content::BackingStore {
       const gfx::Size& size);
   virtual ~BackingStoreOSR() {}
 
-  skia::PlatformBitmap bitmap_;
+  SkDevice device_;
+  SkCanvas canvas_;
 
   DISALLOW_COPY_AND_ASSIGN(BackingStoreOSR);
 };

@@ -332,3 +332,7 @@ void RunDragDropTest(CefRefPtr<CefBrowser> browser) {
 void RunGeolocationTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://html5demos.com/geo");
 }
+
+void RunTransparencyTest(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://tests/transparency");
+}

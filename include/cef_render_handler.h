@@ -54,8 +54,7 @@ class CefRenderHandler : public virtual CefBase {
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return
-  // true if the rectangle was provided. Return false if the screen rectangle is
-  // the same as the view rectangle.
+  // true if the rectangle was provided.
   ///
   /*--cef()--*/
   virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
@@ -82,7 +81,6 @@ class CefRenderHandler : public virtual CefBase {
   ///
   // Called when the browser wants to show or hide the popup widget. The popup
   // should be shown if |show| is true and hidden if |show| is false.
-  // NOTE: Popup widgets are not yet supported.
   ///
   /*--cef()--*/
   virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
@@ -91,7 +89,6 @@ class CefRenderHandler : public virtual CefBase {
   ///
   // Called when the browser wants to move or resize the popup widget. |rect|
   // contains the new location and size.
-  // NOTE: Popup widgets are not yet supported.
   ///
   /*--cef()--*/
   virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
@@ -103,7 +100,6 @@ class CefRenderHandler : public virtual CefBase {
   // for the whole image. |dirtyRects| contains the set of rectangles that need
   // to be repainted. On Windows |buffer| will be |width|*|height|*4 bytes
   // in size and represents a BGRA image with an upper-left origin.
-  // NOTE: Popup widgets are not yet supported.
   ///
   /*--cef()--*/
   virtual void OnPaint(CefRefPtr<CefBrowser> browser,

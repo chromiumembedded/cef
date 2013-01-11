@@ -318,7 +318,7 @@ typedef struct _cef_browser_host_t {
   // function is only used when window rendering is disabled.
   ///
   void (CEF_CALLBACK *invalidate)(struct _cef_browser_host_t* self,
-      const cef_rect_t* dirtyRect);
+      const cef_rect_t* dirtyRect, enum cef_paint_element_type_t type);
 
   ///
   // Send a key event to the browser.
@@ -331,23 +331,25 @@ typedef struct _cef_browser_host_t {
   // relative to the upper-left corner of the view.
   ///
   void (CEF_CALLBACK *send_mouse_click_event)(struct _cef_browser_host_t* self,
-      int x, int y, enum cef_mouse_button_type_t type, int mouseUp,
-      int clickCount);
+      const struct _cef_mouse_event_t* event,
+      enum cef_mouse_button_type_t type, int mouseUp, int clickCount);
 
   ///
   // Send a mouse move event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view.
   ///
   void (CEF_CALLBACK *send_mouse_move_event)(struct _cef_browser_host_t* self,
-      int x, int y, int mouseLeave);
+      const struct _cef_mouse_event_t* event, int mouseLeave);
 
   ///
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
   // values represent the movement delta in the X and Y directions respectively.
+  // In order to scroll inside select popups with window rendering disabled
+  // cef_render_handler_t::GetScreenPoint should be implemented properly.
   ///
   void (CEF_CALLBACK *send_mouse_wheel_event)(struct _cef_browser_host_t* self,
-      int x, int y, int deltaX, int deltaY);
+      const struct _cef_mouse_event_t* event, int deltaX, int deltaY);
 
   ///
   // Send a focus event to the browser.

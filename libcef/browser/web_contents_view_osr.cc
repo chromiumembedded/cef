@@ -33,6 +33,13 @@ content::RenderWidgetHostView* CefWebContentsViewOSR::CreateViewForWidget(
   return view_;
 }
 
+content::RenderWidgetHostView* CefWebContentsViewOSR::CreateViewForPopupWidget(
+    content::RenderWidgetHost* render_widget_host) {
+  CefRenderWidgetHostViewOSR* popup_widget =
+      new CefRenderWidgetHostViewOSR(render_widget_host);
+  return popup_widget;
+}
+
 void CefWebContentsViewOSR::SetView(content::RenderWidgetHostView* view) {
   view_ = view;
 }
@@ -66,6 +73,11 @@ void CefWebContentsViewOSR::SizeContents(const gfx::Size& size) {
 }
 
 void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
+  if (view_) {
+    CefRenderWidgetHostViewOSR* osr_view =
+        static_cast<CefRenderWidgetHostViewOSR*>(view_);
+    osr_view->InstallTransparency();
+  }
 }
 
 void CefWebContentsViewOSR::Focus() {

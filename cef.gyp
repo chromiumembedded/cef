@@ -950,7 +950,6 @@
             '<@(includes_win)',
             'libcef/browser/backing_store_osr.cc',
             'libcef/browser/backing_store_osr.h',
-            'libcef/browser/backing_store_osr_win.cc',
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
             'libcef/browser/javascript_dialog_win.cc',

@@ -91,15 +91,15 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
 
   cef_event.modifiers = 0;
   if (event.modifiers & WebKit::WebKeyboardEvent::ShiftKey)
-    cef_event.modifiers |= KEY_SHIFT;
+    cef_event.modifiers |= EVENTFLAG_SHIFT_DOWN;
   if (event.modifiers & WebKit::WebKeyboardEvent::ControlKey)
-    cef_event.modifiers |= KEY_CTRL;
+    cef_event.modifiers |= EVENTFLAG_CONTROL_DOWN;
   if (event.modifiers & WebKit::WebKeyboardEvent::AltKey)
-    cef_event.modifiers |= KEY_ALT;
+    cef_event.modifiers |= EVENTFLAG_ALT_DOWN;
   if (event.modifiers & WebKit::WebKeyboardEvent::MetaKey)
-    cef_event.modifiers |= KEY_META;
+    cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
   if (event.modifiers & WebKit::WebKeyboardEvent::IsKeyPad)
-    cef_event.modifiers |= KEY_KEYPAD;
+    cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
 
   cef_event.windows_key_code = event.windowsKeyCode;
   cef_event.native_key_code = event.nativeKeyCode;
@@ -136,7 +136,6 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
           std::vector<CefString>::const_iterator it = file_paths.begin();
           for (; it != file_paths.end(); ++it)
             vec.push_back(FilePath(*it));
-
         }
         callback_.Run(vec);
         callback_.Reset();
@@ -226,16 +225,24 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
     return false;
   }
 
+  CefBrowserSettings new_settings = settings;
+
   // Verify that render handler is in place for a windowless browser.
-  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo) &&
-      !client->GetRenderHandler().get()) {
-    NOTREACHED() << "CefRenderHandler implementation is required";
-    return false;
+  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
+    if (!client->GetRenderHandler().get()) {
+      NOTREACHED() << "CefRenderHandler implementation is required";
+      return false;
+    }
+    if (!new_settings.accelerated_compositing_disabled) {
+      // Accelerated compositing is not supported when window rendering is
+      // disabled.
+      new_settings.accelerated_compositing_disabled = true;
+    }
   }
 
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
-      new CreateBrowserHelper(windowInfo, client, url, settings);
+      new CreateBrowserHelper(windowInfo, client, url, new_settings);
   CEF_POST_TASK(CEF_UIT, base::Bind(CreateBrowserWithHelper, helper));
 
   return true;
@@ -265,10 +272,19 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return NULL;
   }
 
-  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo) &&
-      !client->GetRenderHandler().get()) {
-    NOTREACHED() << "CefRenderHandler implementation is required";
-    return NULL;
+  CefBrowserSettings new_settings = settings;
+
+  // Verify that render handler is in place for a windowless browser.
+  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
+    if (!client->GetRenderHandler().get()) {
+      NOTREACHED() << "CefRenderHandler implementation is required";
+      return NULL;
+    }
+    if (!new_settings.accelerated_compositing_disabled) {
+      // Accelerated compositing is not supported when window rendering is
+      // disabled.
+      new_settings.accelerated_compositing_disabled = true;
+    }
   }
 
   _Context->browser_context()->set_use_osr_next_contents_view(
@@ -278,7 +294,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
       CefContentBrowserClient::Get()->CreateBrowserInfo();
   DCHECK(!info->is_popup());
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(windowInfo, settings, client, NULL, info,
+      CefBrowserHostImpl::Create(windowInfo, new_settings, client, NULL, info,
                                  NULL);
   if (!url.empty())
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url);
@@ -550,7 +566,7 @@ void CefBrowserHostImpl::WasResized() {
     NOTREACHED() << "Window rendering is not disabled";
     return;
   }
- 
+
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::WasResized, this));
     return;
@@ -564,7 +580,8 @@ void CefBrowserHostImpl::WasResized() {
     widget->WasResized();
 }
 
-void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect) {
+void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
+                                    PaintElementType type) {
   if (!IsWindowRenderingDisabled()) {
     NOTREACHED() << "Window rendering is not disabled";
     return;
@@ -572,7 +589,7 @@ void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect) {
 
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::Invalidate, this, dirtyRect));
+        base::Bind(&CefBrowserHostImpl::Invalidate, this, dirtyRect, type));
     return;
   }
 
@@ -588,7 +605,7 @@ void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect) {
   if (orview) {
     gfx::Rect rect(dirtyRect.x, dirtyRect.y,
                    dirtyRect.width, dirtyRect.height);
-    orview->Invalidate(rect);
+    orview->Invalidate(rect, type);
   }
 #else
   // TODO(port): Implement this method to work on other platforms as part of
@@ -604,74 +621,148 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     return;
   }
 
-  if (!web_contents())
-    return;
+  content::NativeWebKeyboardEvent web_event;
+  PlatformTranslateKeyEvent(web_event, event);
 
-  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-  if (!widget)
-    return;
-  gfx::NativeEvent native_event;
-  if (PlatformTranslateKeyEvent(native_event, event))
-    widget->ForwardKeyboardEvent(content::NativeWebKeyboardEvent(native_event));
+  if (!IsWindowRenderingDisabled()) {
+    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+    if (widget)
+      widget->ForwardKeyboardEvent(web_event);
+  } else {
+#if defined(OS_WIN)
+    if (!web_contents())
+      return;
+    content::RenderWidgetHostView* view =
+        web_contents()->GetRenderViewHost()->GetView();
+    CefRenderWidgetHostViewOSR* orview =
+        static_cast<CefRenderWidgetHostViewOSR*>(view);
+    if (orview)
+      orview->SendKeyEvent(web_event);
+#else
+    // TODO(port): Implement this method to work on other platforms as part of
+    // off-screen rendering support.
+    NOTREACHED();
+#endif
+  }
 }
 
-void CefBrowserHostImpl::SendMouseClickEvent(int x, int y,
+void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
     MouseButtonType type, bool mouseUp, int clickCount) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::SendMouseClickEvent, this, x, y, type,
+        base::Bind(&CefBrowserHostImpl::SendMouseClickEvent, this, event, type,
                    mouseUp, clickCount));
     return;
   }
 
-  if (!web_contents())
-    return;
+  WebKit::WebMouseEvent web_event;
+  PlatformTranslateClickEvent(web_event, event, type, mouseUp, clickCount);
 
-  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-  if (!widget)
-    return;
-  WebKit::WebMouseEvent event;
-  if (PlatformTranslateClickEvent(event, x, y, type, mouseUp, clickCount))
-    widget->ForwardMouseEvent(event);
+  SendMouseEvent(web_event);
 }
 
-void CefBrowserHostImpl::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
+void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
+                                            bool mouseLeave) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::SendMouseMoveEvent, this, x, y,
+        base::Bind(&CefBrowserHostImpl::SendMouseMoveEvent, this, event,
                    mouseLeave));
     return;
   }
 
-  if (!web_contents())
-    return;
+  WebKit::WebMouseEvent web_event;
+  PlatformTranslateMoveEvent(web_event, event, mouseLeave);
 
-  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-  if (!widget)
-    return;
-  WebKit::WebMouseEvent event;
-  if (PlatformTranslateMoveEvent(event, x, y, mouseLeave))
-    widget->ForwardMouseEvent(event);
+  SendMouseEvent(web_event);
 }
 
-void CefBrowserHostImpl::SendMouseWheelEvent(int x, int y,
+void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
                                              int deltaX, int deltaY) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::SendMouseWheelEvent, this, x, y,
+        base::Bind(&CefBrowserHostImpl::SendMouseWheelEvent, this, event,
                    deltaX, deltaY));
     return;
   }
 
-  if (!web_contents())
-    return;
+  WebKit::WebMouseWheelEvent web_event;
+  PlatformTranslateWheelEvent(web_event, event, deltaX, deltaY);
 
-  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-  if (!widget)
-    return;
-  WebKit::WebMouseWheelEvent event;
-  if (PlatformTranslateWheelEvent(event, x, y, deltaX, deltaY))
-    widget->ForwardWheelEvent(event);
+  if (!IsWindowRenderingDisabled()) {
+    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+    if (widget)
+      widget->ForwardWheelEvent(web_event);
+  } else {
+#if defined(OS_WIN)
+    if (!web_contents())
+      return;
+    content::RenderWidgetHostView* view =
+        web_contents()->GetRenderViewHost()->GetView();
+    CefRenderWidgetHostViewOSR* orview =
+        static_cast<CefRenderWidgetHostViewOSR*>(view);
+
+    if (orview)
+      orview->SendMouseWheelEvent(web_event);
+#else
+    // TODO(port): Implement this method to work on other platforms as part of
+    // off-screen rendering support.
+    NOTREACHED();
+#endif
+  }
+}
+
+int CefBrowserHostImpl::TranslateModifiers(uint32 cef_modifiers) {
+  int webkit_modifiers = 0;
+  // Set modifiers based on key state.
+  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
+    webkit_modifiers |= WebKit::WebInputEvent::ShiftKey;
+  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
+    webkit_modifiers |= WebKit::WebInputEvent::ControlKey;
+  if (cef_modifiers & EVENTFLAG_ALT_DOWN)
+    webkit_modifiers |= WebKit::WebInputEvent::AltKey;
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+    webkit_modifiers |= WebKit::WebInputEvent::MetaKey;
+  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+    webkit_modifiers |= WebKit::WebInputEvent::LeftButtonDown;
+  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+    webkit_modifiers |= WebKit::WebInputEvent::MiddleButtonDown;
+  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+    webkit_modifiers |= WebKit::WebInputEvent::RightButtonDown;
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+    webkit_modifiers |= WebKit::WebInputEvent::CapsLockOn;
+  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
+    webkit_modifiers |= WebKit::WebInputEvent::NumLockOn;
+  if (cef_modifiers & EVENTFLAG_IS_LEFT)
+    webkit_modifiers |= WebKit::WebInputEvent::IsLeft;
+  if (cef_modifiers & EVENTFLAG_IS_RIGHT)
+    webkit_modifiers |= WebKit::WebInputEvent::IsRight;
+  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
+    webkit_modifiers |= WebKit::WebInputEvent::IsKeyPad;
+  return webkit_modifiers;
+}
+
+void CefBrowserHostImpl::SendMouseEvent(const WebKit::WebMouseEvent& event) {
+  if (!IsWindowRenderingDisabled()) {
+    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+    if (widget)
+      widget->ForwardMouseEvent(event);
+  } else {
+#if defined(OS_WIN)
+    if (!web_contents())
+      return;
+    content::RenderWidgetHostView* view =
+        web_contents()->GetRenderViewHost()->GetView();
+    CefRenderWidgetHostViewOSR* orview =
+        static_cast<CefRenderWidgetHostViewOSR*>(view);
+
+    if (orview)
+      orview->SendMouseEvent(event);
+#else
+    // TODO(port): Implement this method to work on other platforms as part of
+    // off-screen rendering support.
+    NOTREACHED();
+#endif
+  }
 }
 
 void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
@@ -1440,10 +1531,16 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     }
   }
 
-  if (IsWindowRenderingDisabled(pending_window_info_) &&
-      !pending_client_->GetRenderHandler().get()) {
-    NOTREACHED() << "CefRenderHandler implementation is required";
-    return false;
+  if (IsWindowRenderingDisabled(pending_window_info_)) {
+      if (!pending_client_->GetRenderHandler().get()) {
+        NOTREACHED() << "CefRenderHandler implementation is required";
+        return false;
+      }
+      if (!pending_settings_.accelerated_compositing_disabled) {
+        // Accelerated compositing is not supported when window rendering is
+        // disabled.
+        pending_settings_.accelerated_compositing_disabled = true;
+      }
   }
 
   _Context->browser_context()->set_use_osr_next_contents_view(

@@ -76,6 +76,9 @@ typedef struct _cef_window_info_t {
   BOOL window_rendering_disabled;
 
   // Set to true to enable transparent painting.
+  // If window rendering is disabled and |transparent_painting| is set to true
+  // WebKit rendering will draw on a transparent background (RGBA=0x00000000).
+  // When this value is false the background will be white and opaque.
   BOOL transparent_painting;
 
   // Handle for the new browser window.

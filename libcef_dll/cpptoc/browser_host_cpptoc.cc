@@ -289,7 +289,7 @@ void CEF_CALLBACK browser_host_was_resized(struct _cef_browser_host_t* self) {
 }
 
 void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
-    const cef_rect_t* dirtyRect) {
+    const cef_rect_t* dirtyRect, enum cef_paint_element_type_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -305,7 +305,8 @@ void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
 
   // Execute
   CefBrowserHostCppToC::Get(self)->Invalidate(
-      dirtyRectVal);
+      dirtyRectVal,
+      type);
 }
 
 void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
@@ -331,50 +332,76 @@ void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK browser_host_send_mouse_click_event(
-    struct _cef_browser_host_t* self, int x, int y,
+    struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event,
     enum cef_mouse_button_type_t type, int mouseUp, int clickCount) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SendMouseClickEvent(
-      x,
-      y,
+      eventObj,
       type,
       mouseUp?true:false,
       clickCount);
 }
 
 void CEF_CALLBACK browser_host_send_mouse_move_event(
-    struct _cef_browser_host_t* self, int x, int y, int mouseLeave) {
+    struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event,
+    int mouseLeave) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SendMouseMoveEvent(
-      x,
-      y,
+      eventObj,
       mouseLeave?true:false);
 }
 
 void CEF_CALLBACK browser_host_send_mouse_wheel_event(
-    struct _cef_browser_host_t* self, int x, int y, int deltaX, int deltaY) {
+    struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event,
+    int deltaX, int deltaY) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SendMouseWheelEvent(
-      x,
-      y,
+      eventObj,
       deltaX,
       deltaY);
 }

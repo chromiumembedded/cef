@@ -16,6 +16,7 @@
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/client_switches.h"
 #include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
 #include "cefclient/performance_test.h"
@@ -311,11 +312,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       AppGetBrowserSettings(settings);
 
       if (AppIsOffScreenRenderingEnabled()) {
+        CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+        bool transparent =
+            cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+
         CefRefPtr<OSRWindow> osr_window =
-            OSRWindow::Create(&g_main_browser_provider, false);
+            OSRWindow::Create(&g_main_browser_provider, transparent);
         osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
         info.SetAsOffScreen(osr_window->hwnd());
-        info.SetTransparentPainting(FALSE);
+        info.SetTransparentPainting(transparent ? TRUE : FALSE);
         g_handler->SetOSRHandler(osr_window.get());
       } else {
         // Initialize window info to the defaults for a child window.
@@ -457,6 +462,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_GEOLOCATION:  // Test geolocation
         if (browser.get())
           RunGeolocationTest(browser);
+        return 0;
+      case ID_TESTS_TRANSPARENCY:  // Test transparency
+        if (browser.get())
+          RunTransparencyTest(browser);
         return 0;
       case ID_TESTS_ZOOM_IN:
         if (browser.get())

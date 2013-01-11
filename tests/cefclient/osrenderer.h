@@ -43,6 +43,11 @@ class ClientOSRenderer {
   int GetViewWidth() { return view_width_; }
   int GetViewHeight() { return view_height_; }
 
+  const CefRect& popup_rect() const { return popup_rect_; }
+  const CefRect& original_popup_rect() const { return original_popup_rect_; }
+
+  CefRect GetPopupRectInWebView(const CefRect& original_rect);
+
  private:
   bool transparent_;
   bool initialized_;
@@ -50,6 +55,7 @@ class ClientOSRenderer {
   int view_width_;
   int view_height_;
   CefRect popup_rect_;
+  CefRect original_popup_rect_;
   float spin_x_;
   float spin_y_;
 };

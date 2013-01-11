@@ -976,6 +976,27 @@ enum cef_mouse_button_type_t {
 };
 
 ///
+// Structure representing mouse event information.
+///
+typedef struct _cef_mouse_event_t {
+  ///
+  // X coordinate relative to the left side of the view.
+  ///
+  int x;
+
+  ///
+  // Y coordinate relative to the top side of the view.
+  ///
+  int y;
+
+  ///
+  // Bit flags describing any pressed modifier keys. See
+  // cef_event_flags_t for values.
+  ///
+  uint32 modifiers;
+} cef_mouse_event_t;
+
+///
 // Paint element types.
 ///
 enum cef_paint_element_type_t {
@@ -988,7 +1009,7 @@ enum cef_paint_element_type_t {
 ///
 enum cef_event_flags_t {
   EVENTFLAG_NONE                = 0,
-  EVENTFLAG_CAPS_LOCK_DOWN      = 1 << 0,
+  EVENTFLAG_CAPS_LOCK_ON        = 1 << 0,
   EVENTFLAG_SHIFT_DOWN          = 1 << 1,
   EVENTFLAG_CONTROL_DOWN        = 1 << 2,
   EVENTFLAG_ALT_DOWN            = 1 << 3,
@@ -997,8 +1018,10 @@ enum cef_event_flags_t {
   EVENTFLAG_RIGHT_MOUSE_BUTTON  = 1 << 6,
   // Mac OS-X command key.
   EVENTFLAG_COMMAND_DOWN        = 1 << 7,
-  // Windows extended key (see WM_KEYDOWN doc).
-  EVENTFLAG_EXTENDED            = 1 << 8,
+  EVENTFLAG_NUM_LOCK_ON         = 1 << 8,
+  EVENTFLAG_IS_KEY_PAD          = 1 << 9,
+  EVENTFLAG_IS_LEFT             = 1 << 10,
+  EVENTFLAG_IS_RIGHT            = 1 << 11,
 };
 
 ///
@@ -1120,17 +1143,6 @@ enum cef_key_event_type_t {
 };
 
 ///
-// Key event modifiers.
-///
-enum cef_key_event_modifiers_t {
-  KEY_SHIFT  = 1 << 0,
-  KEY_CTRL   = 1 << 1,
-  KEY_ALT    = 1 << 2,
-  KEY_META   = 1 << 3,
-  KEY_KEYPAD = 1 << 4,  // Only used on Mac OS-X
-};
-
-///
 // Structure representing keyboard event information.
 ///
 typedef struct _cef_key_event_t {
@@ -1141,9 +1153,9 @@ typedef struct _cef_key_event_t {
 
   ///
   // Bit flags describing any pressed modifier keys. See
-  // cef_key_event_modifiers_t for values.
+  // cef_event_flags_t for values.
   ///
-  int modifiers;
+  uint32 modifiers;
 
   ///
   // The Windows key code for the key event. This value is used by the DOM

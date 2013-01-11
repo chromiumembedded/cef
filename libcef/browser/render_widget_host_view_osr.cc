@@ -7,6 +7,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
 
+#include "base/message_loop.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
@@ -20,13 +21,18 @@
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     content::RenderWidgetHost* widget)
         : render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
-          about_to_validate_and_paint_(false) {
+          about_to_validate_and_paint_(false),
+          parent_host_view_(NULL),
+          popup_host_view_(NULL),
+          weak_factory_(this) {
   DCHECK(render_widget_host_);
   render_widget_host_->SetView(this);
 
   // CefBrowserHostImpl might not be created at this time for popups.
-  browser_impl_ = CefBrowserHostImpl::GetBrowserForHost(
-      content::RenderViewHost::From(render_widget_host_));
+  if (render_widget_host_->IsRenderView()) {
+    browser_impl_ = CefBrowserHostImpl::GetBrowserForHost(
+        content::RenderViewHost::From(render_widget_host_));
+  }
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
@@ -49,7 +55,7 @@ void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {
 }
 
 gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
-  return gfx::NativeView();
+  return browser_impl_.get() ? browser_impl_->GetWindowHandle() : NULL;
 }
 
 gfx::NativeViewId CefRenderWidgetHostViewOSR::GetNativeViewId() const {
@@ -81,12 +87,14 @@ void CefRenderWidgetHostViewOSR::Hide() {
   WasHidden();
 }
 
-
 bool CefRenderWidgetHostViewOSR::IsShowing() {
   return true;
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
+  if (IsPopupWidget())
+    return popup_position_;
+
   if (!browser_impl_.get())
     return gfx::Rect();
   CefRect rc;
@@ -99,10 +107,24 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
 void CefRenderWidgetHostViewOSR::InitAsPopup(
     RenderWidgetHostView* parent_host_view,
     const gfx::Rect& pos) {
+  parent_host_view_ = static_cast<CefRenderWidgetHostViewOSR*>(
+      parent_host_view);
+  browser_impl_ = parent_host_view_->get_browser_impl();
+  if (!browser_impl_.get())
+    return;
+
+  parent_host_view_->CancelWidget();
+
+  parent_host_view_->set_popup_host_view(this);
+  NotifyShowWidget();
+
+  popup_position_ = pos;
+  NotifySizeWidget();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsFullscreen(
-  RenderWidgetHostView* reference_host_view) {
+    RenderWidgetHostView* reference_host_view) {
+  NOTREACHED() << "Fullscreen widgets are not supported in OSR";
 }
 
 void CefRenderWidgetHostViewOSR::WasShown() {
@@ -172,6 +194,8 @@ void CefRenderWidgetHostViewOSR::RenderViewGone(
     base::TerminationStatus status,
     int error_code) {
   render_widget_host_ = NULL;
+  parent_host_view_ = NULL;
+  popup_host_view_ = NULL;
 }
 
 #if defined(OS_WIN) && !defined(USE_AURA)
@@ -185,11 +209,7 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())
     return gfx::Rect();
   CefRect rc;
-  // If GetRootScreenRect is not implemented use the view rect as the root
-  // screen rect.
   if (browser_impl_->GetClient()->GetRenderHandler()->GetRootScreenRect(
-          browser_impl_->GetBrowser(), rc) ||
-      browser_impl_->GetClient()->GetRenderHandler()->GetViewRect(
           browser_impl_->GetBrowser(), rc)) {
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
   }
@@ -197,6 +217,13 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
 }
 
 void CefRenderWidgetHostViewOSR::Destroy() {
+  if (IsPopupWidget()) {
+    if (parent_host_view_)
+      parent_host_view_->CancelWidget();
+  } else {
+    CancelWidget();
+  }
+
   delete this;
 }
 
@@ -214,13 +241,15 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(const string16& tooltip_text) {
 
 content::BackingStore* CefRenderWidgetHostViewOSR::AllocBackingStore(
     const gfx::Size& size) {
-  return new BackingStoreOSR(render_widget_host_, size);
+  return render_widget_host_ ?
+      new BackingStoreOSR(render_widget_host_, size) :
+      NULL;
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
-    const base::Callback<void(bool)>& callback,
+    const base::Callback<void(bool b)>& callback,
     skia::PlatformBitmap* output) {
 }
 
@@ -269,7 +298,20 @@ void CefRenderWidgetHostViewOSR::SetClickthroughRegion(SkRegion* region) {
 }
 #endif
 
-void CefRenderWidgetHostViewOSR::Invalidate(const gfx::Rect& rect) {
+void CefRenderWidgetHostViewOSR::SetBackground(const SkBitmap& background) {
+  if (!render_widget_host_)
+    return;
+  RenderWidgetHostViewBase::SetBackground(background);
+  render_widget_host_->SetBackground(background);
+}
+
+void CefRenderWidgetHostViewOSR::Invalidate(const gfx::Rect& rect,
+    CefBrowserHost::PaintElementType type) {
+  if (!IsPopupWidget() && type == PET_POPUP) {
+    if (popup_host_view_)
+      popup_host_view_->Invalidate(rect, type);
+    return;
+  }
   std::vector<gfx::Rect> dirtyRects;
   dirtyRects.push_back(rect);
   Paint(dirtyRects);
@@ -322,9 +364,72 @@ void CefRenderWidgetHostViewOSR::Paint(
       return;
 
     browser_impl_->GetClient()->GetRenderHandler()->OnPaint(
-        browser_impl_->GetBrowser(), PET_VIEW, rcList,
+        browser_impl_->GetBrowser(),
+        IsPopupWidget() ? PET_POPUP : PET_VIEW,
+        rcList,
         backing_store->getPixels(),
-        client_rect.width(), client_rect.height());
+        client_rect.width(),
+        client_rect.height());
+  }
+}
+
+bool CefRenderWidgetHostViewOSR::InstallTransparency() {
+  if (browser_impl_.get() && browser_impl_->IsTransparent()) {
+    SkBitmap bg;
+    bg.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);  // 1x1 alpha bitmap.
+    bg.allocPixels();
+    bg.eraseARGB(0x00, 0x00, 0x00, 0x00);
+    SetBackground(bg);
+    return true;
+  }
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::CancelWidget() {
+  if (IsPopupWidget()) {
+    if (render_widget_host_)
+      render_widget_host_->LostCapture();
+
+    if (browser_impl_.get()) {
+      NotifyHideWidget();
+      browser_impl_ = NULL;
+    }
+
+    if (parent_host_view_) {
+      parent_host_view_->set_popup_host_view(NULL);
+      parent_host_view_ = NULL;
+    }
+
+    if (!weak_factory_.HasWeakPtrs()) {
+      MessageLoop::current()->PostTask(FROM_HERE,
+          base::Bind(&CefRenderWidgetHostViewOSR::ShutdownHost,
+          weak_factory_.GetWeakPtr()));
+    }
+  } else if (popup_host_view_) {
+    popup_host_view_->CancelWidget();
+  }
+}
+
+void CefRenderWidgetHostViewOSR::NotifyShowWidget() {
+  if (browser_impl_.get()) {
+    browser_impl_->GetClient()->GetRenderHandler()->OnPopupShow(
+        browser_impl_->GetBrowser(), true);
+  }
+}
+
+void CefRenderWidgetHostViewOSR::NotifyHideWidget() {
+  if (browser_impl_.get()) {
+    browser_impl_->GetClient()->GetRenderHandler()->OnPopupShow(
+        browser_impl_->GetBrowser(), false);
+  }
+}
+
+void CefRenderWidgetHostViewOSR::NotifySizeWidget() {
+  if (browser_impl_.get()) {
+    CefRect widget_pos(popup_position_.x(), popup_position_.y(),
+                       popup_position_.width(), popup_position_.height());
+    browser_impl_->GetClient()->GetRenderHandler()->OnPopupSize(
+        browser_impl_->GetBrowser(), widget_pos);
   }
 }
 
@@ -336,4 +441,72 @@ CefRefPtr<CefBrowserHostImpl>
 void CefRenderWidgetHostViewOSR::set_browser_impl(
     CefRefPtr<CefBrowserHostImpl> browser) {
   browser_impl_ = browser;
+}
+
+void CefRenderWidgetHostViewOSR::set_popup_host_view(
+    CefRenderWidgetHostViewOSR* popup_view) {
+  popup_host_view_ = popup_view;
+}
+
+void CefRenderWidgetHostViewOSR::ShutdownHost() {
+  weak_factory_.InvalidateWeakPtrs();
+  if (render_widget_host_)
+    render_widget_host_->Shutdown();
+  // Do not touch any members at this point, |this| has been deleted.
+}
+
+void CefRenderWidgetHostViewOSR::set_parent_host_view(
+    CefRenderWidgetHostViewOSR* parent_view) {
+  parent_host_view_ = parent_view;
+}
+
+void CefRenderWidgetHostViewOSR::SendKeyEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  if (!IsPopupWidget() && popup_host_view_) {
+    popup_host_view_->SendKeyEvent(event);
+    return;
+  }
+  if (!render_widget_host_)
+    return;
+  render_widget_host_->ForwardKeyboardEvent(event);
+}
+
+void CefRenderWidgetHostViewOSR::SendMouseEvent(
+    const WebKit::WebMouseEvent& event) {
+  if (!IsPopupWidget() && popup_host_view_) {
+    if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
+      WebKit::WebMouseEvent popup_event(event);
+      popup_event.x -= popup_host_view_->popup_position_.x();
+      popup_event.y -= popup_host_view_->popup_position_.y();
+      popup_event.windowX = popup_event.x;
+      popup_event.windowY = popup_event.y;
+
+      popup_host_view_->SendMouseEvent(popup_event);
+      return;
+    }
+  }
+  if (!render_widget_host_)
+    return;
+  render_widget_host_->ForwardMouseEvent(event);
+}
+
+void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
+    const WebKit::WebMouseWheelEvent& event) {
+  if (!IsPopupWidget() && popup_host_view_) {
+    if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
+      WebKit::WebMouseWheelEvent popup_event(event);
+      popup_event.x -= popup_host_view_->popup_position_.x();
+      popup_event.y -= popup_host_view_->popup_position_.y();
+      popup_event.windowX = popup_event.x;
+      popup_event.windowY = popup_event.y;
+      popup_host_view_->SendMouseWheelEvent(popup_event);
+      return;
+    } else {
+      // scrolling outside the popup widget, will destroy widget
+      CancelWidget();
+    }
+  }
+  if (!render_widget_host_)
+    return;
+  render_widget_host_->ForwardWheelEvent(event);
 }

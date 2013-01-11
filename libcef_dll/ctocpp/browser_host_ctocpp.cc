@@ -238,7 +238,8 @@ void CefBrowserHostCToCpp::WasResized() {
   struct_->was_resized(struct_);
 }
 
-void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect) {
+void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect,
+    PaintElementType type) {
   if (CEF_MEMBER_MISSING(struct_, invalidate))
     return;
 
@@ -246,7 +247,8 @@ void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect) {
 
   // Execute
   struct_->invalidate(struct_,
-      &dirtyRect);
+      &dirtyRect,
+      type);
 }
 
 void CefBrowserHostCToCpp::SendKeyEvent(const CefKeyEvent& event) {
@@ -260,7 +262,7 @@ void CefBrowserHostCToCpp::SendKeyEvent(const CefKeyEvent& event) {
       &event);
 }
 
-void CefBrowserHostCToCpp::SendMouseClickEvent(int x, int y,
+void CefBrowserHostCToCpp::SendMouseClickEvent(const CefMouseEvent& event,
     MouseButtonType type, bool mouseUp, int clickCount) {
   if (CEF_MEMBER_MISSING(struct_, send_mouse_click_event))
     return;
@@ -269,14 +271,14 @@ void CefBrowserHostCToCpp::SendMouseClickEvent(int x, int y,
 
   // Execute
   struct_->send_mouse_click_event(struct_,
-      x,
-      y,
+      &event,
       type,
       mouseUp,
       clickCount);
 }
 
-void CefBrowserHostCToCpp::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
+void CefBrowserHostCToCpp::SendMouseMoveEvent(const CefMouseEvent& event,
+    bool mouseLeave) {
   if (CEF_MEMBER_MISSING(struct_, send_mouse_move_event))
     return;
 
@@ -284,13 +286,12 @@ void CefBrowserHostCToCpp::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
 
   // Execute
   struct_->send_mouse_move_event(struct_,
-      x,
-      y,
+      &event,
       mouseLeave);
 }
 
-void CefBrowserHostCToCpp::SendMouseWheelEvent(int x, int y, int deltaX,
-    int deltaY) {
+void CefBrowserHostCToCpp::SendMouseWheelEvent(const CefMouseEvent& event,
+    int deltaX, int deltaY) {
   if (CEF_MEMBER_MISSING(struct_, send_mouse_wheel_event))
     return;
 
@@ -298,8 +299,7 @@ void CefBrowserHostCToCpp::SendMouseWheelEvent(int x, int y, int deltaX,
 
   // Execute
   struct_->send_mouse_wheel_event(struct_,
-      x,
-      y,
+      &event,
       deltaX,
       deltaY);
 }
