@@ -1,0 +1,263 @@
+Index: Platform/chromium/public/WebWorkerScriptObserver.h
+===================================================================
+--- Platform/chromium/public/WebWorkerScriptObserver.h	(revision 0)
++++ Platform/chromium/public/WebWorkerScriptObserver.h	(revision 0)
+@@ -0,0 +1,50 @@
++/*
++ * Copyright (C) 2013 Google Inc. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
++ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef WebWorkerScriptObserver_h
++#define WebWorkerScriptObserver_h
++
++#include <v8.h>
++
++namespace WebKit {
++
++    class WebURL;
++    class WebWorkerRunLoop;
++
++    class WebWorkerScriptObserver {
++    public:
++        // Notifies that a new script context has been created for a worker.
++        // This will be called only once per worker context.
++        virtual void didCreateWorkerScriptContext(const WebWorkerRunLoop&, const WebURL&, v8::Handle<v8::Context>) { }
++
++        // WebKit is about to release its reference to a v8 context for a worker.
++        virtual void willReleaseWorkerScriptContext(const WebWorkerRunLoop&, const WebURL&, v8::Handle<v8::Context>) { }
++
++    protected:
++        virtual ~WebWorkerScriptObserver() { }
++    };
++
++}  // namespace WebKit
++
++#endif
+
+Property changes on: Platform\chromium\public\WebWorkerScriptObserver.h
+___________________________________________________________________
+Added: svn:eol-style
+   + LF
+
+Index: WebCore/bindings/v8/WorkerScriptController.cpp
+===================================================================
+--- WebCore/bindings/v8/WorkerScriptController.cpp	(revision 136040)
++++ WebCore/bindings/v8/WorkerScriptController.cpp	(working copy)
+@@ -50,11 +50,23 @@
+ 
+ #if PLATFORM(CHROMIUM)
+ #include <public/Platform.h>
++#include <public/WebURL.h>
+ #include <public/WebWorkerRunLoop.h>
++#include <public/WebWorkerScriptObserver.h>
+ #endif
+ 
+ namespace WebCore {
+ 
++namespace {
++
++static Vector<WebKit::WebWorkerScriptObserver*>& observerVector()
++{
++    AtomicallyInitializedStatic(Vector<WebKit::WebWorkerScriptObserver*>&, observers = *new Vector<WebKit::WebWorkerScriptObserver*>);
++    return observers;
++}
++
++}  // namespace
++
+ WorkerScriptController::WorkerScriptController(WorkerContext* workerContext)
+     : m_workerContext(workerContext)
+     , m_isolate(v8::Isolate::New())
+@@ -72,6 +84,8 @@
+ WorkerScriptController::~WorkerScriptController()
+ {
+     m_domDataStore.clear();
++    if (!m_context.isEmpty())
++        notifyWillReleaseWorkerScriptContext();
+ #if PLATFORM(CHROMIUM)
+     // The corresponding call to didStartWorkerRunLoop is in
+     // WorkerThread::workerThread().
+@@ -133,6 +147,8 @@
+     v8::Handle<v8::Object> globalObject = v8::Handle<v8::Object>::Cast(m_context->Global()->GetPrototype());
+     globalObject->SetPrototype(jsWorkerContext);
+ 
++    notifyDidCreateWorkerScriptContext();
++
+     return true;
+ }
+ 
+@@ -256,6 +272,39 @@
+     return workerContext->script();
+ }
+ 
++void WorkerScriptController::addObserver(WebKit::WebWorkerScriptObserver* observer)
++{
++    if (WebCore::WorkerThread::workerThreadCount() > 0)
++      return;
++
++    observerVector().append(observer);
++}
++
++void WorkerScriptController::removeObserver(WebKit::WebWorkerScriptObserver* observer)
++{
++    if (WebCore::WorkerThread::workerThreadCount() > 0)
++      return;
++
++    Vector<WebKit::WebWorkerScriptObserver*>& observers = observerVector();
++    size_t pos = observers.find(observer);
++    if (pos != notFound)
++        observers.remove(pos);
++}
++
++void WorkerScriptController::notifyDidCreateWorkerScriptContext()
++{
++    const Vector<WebKit::WebWorkerScriptObserver*>& observers = observerVector();
++    for (Vector<WebKit::WebWorkerScriptObserver*>::const_iterator i = observers.begin(); i != observers.end(); ++i)
++        (*i)->didCreateWorkerScriptContext(WebKit::WebWorkerRunLoop(&m_workerContext->thread()->runLoop()), m_workerContext->url(), m_context.get());
++}
++
++void WorkerScriptController::notifyWillReleaseWorkerScriptContext()
++{
++    const Vector<WebKit::WebWorkerScriptObserver*>& observers = observerVector();
++    for (Vector<WebKit::WebWorkerScriptObserver*>::const_iterator i = observers.begin(); i != observers.end(); ++i)
++        (*i)->willReleaseWorkerScriptContext(WebKit::WebWorkerRunLoop(&m_workerContext->thread()->runLoop()), m_workerContext->url(), m_context.get());
++}
++
+ } // namespace WebCore
+ 
+ #endif // ENABLE(WORKERS)
+Index: WebCore/bindings/v8/WorkerScriptController.h
+===================================================================
+--- WebCore/bindings/v8/WorkerScriptController.h	(revision 136040)
++++ WebCore/bindings/v8/WorkerScriptController.h	(working copy)
+@@ -40,6 +40,10 @@
+ #include <wtf/Threading.h>
+ #include <wtf/text/TextPosition.h>
+ 
++namespace WebKit {
++class WebWorkerScriptObserver;
++}
++
+ namespace WebCore {
+ 
+     class ScriptSourceCode;
+@@ -95,10 +99,17 @@
+         // Returns a local handle of the context.
+         v8::Local<v8::Context> context() { return v8::Local<v8::Context>::New(m_context.get()); }
+ 
++        // Add or remove an observer. Can only be called while no WebWorkers exist.
++        static void addObserver(WebKit::WebWorkerScriptObserver*);
++        static void removeObserver(WebKit::WebWorkerScriptObserver*);
++
+     private:
+         bool initializeContextIfNeeded();
+         void disposeContext();
+ 
++        void notifyDidCreateWorkerScriptContext();
++        void notifyWillReleaseWorkerScriptContext();
++
+         WorkerContext* m_workerContext;
+         v8::Isolate* m_isolate;
+         ScopedPersistent<v8::Context> m_context;
+Index: WebKit/chromium/public/WebWorkerInfo.h
+===================================================================
+--- WebKit/chromium/public/WebWorkerInfo.h	(revision 136040)
++++ WebKit/chromium/public/WebWorkerInfo.h	(working copy)
+@@ -35,9 +35,15 @@
+ 
+ namespace WebKit {
+ 
++class WebWorkerScriptObserver;
++
+ class WebWorkerInfo {
+ public:
+     WEBKIT_EXPORT static unsigned dedicatedWorkerCount();
++
++    // Add or remove an observer. Can only be called while no WebWorkers exist.
++    WEBKIT_EXPORT static void addScriptObserver(WebWorkerScriptObserver*);
++    WEBKIT_EXPORT static void removeScriptObserver(WebWorkerScriptObserver*);
+ };
+ 
+ }
+Index: WebKit/chromium/public/WebWorkerScriptObserver.h
+===================================================================
+--- WebKit/chromium/public/WebWorkerScriptObserver.h	(revision 0)
++++ WebKit/chromium/public/WebWorkerScriptObserver.h	(revision 0)
+@@ -0,0 +1,25 @@
++/*
++ * Copyright (C) 2013 Google Inc. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
++ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include "../../../Platform/chromium/public/WebWorkerScriptObserver.h"
+
+Property changes on: WebKit\chromium\public\WebWorkerScriptObserver.h
+___________________________________________________________________
+Added: svn:eol-style
+   + LF
+
+Index: WebKit/chromium/src/WebWorkerInfo.cpp
+===================================================================
+--- WebKit/chromium/src/WebWorkerInfo.cpp	(revision 136040)
++++ WebKit/chromium/src/WebWorkerInfo.cpp	(working copy)
+@@ -31,6 +31,7 @@
+ #include "config.h"
+ #include "WebWorkerInfo.h"
+ 
++#include "WorkerScriptController.h"
+ #include "WorkerThread.h"
+ 
+ namespace WebKit {
+@@ -40,4 +41,14 @@
+     return WebCore::WorkerThread::workerThreadCount();
+ }
+ 
++void WebWorkerInfo::addScriptObserver(WebWorkerScriptObserver* observer)
++{
++    WebCore::WorkerScriptController::addObserver(observer);
+ }
++
++void WebWorkerInfo::removeScriptObserver(WebWorkerScriptObserver* observer)
++{
++    WebCore::WorkerScriptController::removeObserver(observer);
++}
++
++}

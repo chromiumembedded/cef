@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/cef_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="cef_resources.pak" type="data_package" />
+  </outputs>
+  <translations />
+  <release seq="1">
+    <includes>
+      <include name="IDR_CEF_DEVTOOLS_DISCOVERY_PAGE" file="devtools_discovery_page.html" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_HTML" file="..\..\..\chrome\browser\resources\about_credits.html" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_JS" file="..\..\..\chrome\browser\resources\about_credits.js" type="BINDATA" />
+      <include name="IDR_CEF_CREDITS_SWIFTSHADER_JPG" file="..\..\..\chrome\browser\resources\swiftshader.jpg" type="BINDATA" />
+      <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
+      <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
+      <include name="IDR_CEF_TRACING_HTML" file="..\..\..\third_party\trace-viewer\src\about_tracing.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
+      <include name="IDR_CEF_TRACING_JS" file="..\..\..\third_party\trace-viewer\src\about_tracing.js" flattenhtml="true" type="BINDATA" />
+    </includes>
+  </release>
+</grit>

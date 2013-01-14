@@ -1,0 +1,31 @@
+Index: browser/web_contents/web_contents_impl.cc
+===================================================================
+--- browser/web_contents/web_contents_impl.cc	(revision 173683)
++++ browser/web_contents/web_contents_impl.cc	(working copy)
+@@ -1397,8 +1397,10 @@
+       new RenderWidgetHostImpl(this, process, route_id);
+   created_widgets_.insert(widget_host);
+ 
+-  RenderWidgetHostViewPort* widget_view =
+-      RenderWidgetHostViewPort::CreateViewForWidget(widget_host);
++  RenderWidgetHostViewPort* widget_view = RenderWidgetHostViewPort::FromRWHV(
++      view_->CreateViewForPopupWidget(widget_host));
++  if (!widget_view)
++    widget_view = RenderWidgetHostViewPort::CreateViewForWidget(widget_host);
+   if (!is_fullscreen) {
+     // Popups should not get activated.
+     widget_view->SetPopupType(popup_type);
+Index: public/browser/web_contents_view.h
+===================================================================
+--- public/browser/web_contents_view.h	(revision 173683)
++++ public/browser/web_contents_view.h	(working copy)
+@@ -38,6 +38,9 @@
+   virtual RenderWidgetHostView* CreateViewForWidget(
+       RenderWidgetHost* render_widget_host) = 0;
+ 
++  virtual RenderWidgetHostView* CreateViewForPopupWidget(
++      RenderWidgetHost* render_widget_host) { return NULL; }
++
+   // Returns the native widget that contains the contents of the tab.
+   virtual gfx::NativeView GetNativeView() const = 0;
+ 
