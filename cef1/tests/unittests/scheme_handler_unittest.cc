@@ -103,6 +103,11 @@ class TestSchemeHandler : public TestHandler {
       return true;
     }
 
+    if (!test_results_->redirect_url.empty() &&
+        newUrl == test_results_->redirect_url) {
+      EXPECT_TRUE(isRedirect);
+    }
+
     if (isRedirect) {
       test_results_->got_redirect.yes();
       EXPECT_EQ(newUrl, test_results_->redirect_url);

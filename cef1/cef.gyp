@@ -759,7 +759,7 @@
         '<(DEPTH)/content/browser/geolocation/device_data_provider.cc',
         '<(DEPTH)/content/browser/geolocation/empty_device_data_provider.cc',
         '<(DEPTH)/content/browser/geolocation/geolocation_provider.cc',
-        '<(DEPTH)/content/browser/geolocation/location_arbitrator.cc',
+        '<(DEPTH)/content/browser/geolocation/location_arbitrator_impl.cc',
         '<(DEPTH)/content/browser/geolocation/location_provider.cc',
         '<(DEPTH)/content/browser/geolocation/network_location_provider.cc',
         '<(DEPTH)/content/browser/geolocation/network_location_request.cc',

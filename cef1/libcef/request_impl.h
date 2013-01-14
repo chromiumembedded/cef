@@ -85,6 +85,7 @@ class CefPostDataImpl : public CefPostData {
   void Set(const net::UploadData& data);
   void Set(const net::UploadDataStream& data_stream);
   void Get(net::UploadData& data);
+  net::UploadDataStream* Get();
   void Set(const WebKit::WebHTTPBody& data);
   void Get(WebKit::WebHTTPBody& data);
 
@@ -114,6 +115,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void Set(const net::UploadElement& element);
   void Set(const net::UploadElementReader& element_reader);
   void Get(net::UploadElement& element);
+  net::UploadElementReader* Get();
   void Set(const WebKit::WebHTTPBody::Element& element);
   void Get(WebKit::WebHTTPBody::Element& element);
 

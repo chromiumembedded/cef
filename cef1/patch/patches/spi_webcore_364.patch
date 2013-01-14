@@ -1,8 +1,8 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 134630)
+--- page/FrameView.cpp	(revision 137939)
 +++ page/FrameView.cpp	(working copy)
-@@ -206,10 +206,12 @@
+@@ -209,10 +209,12 @@
      if (!page)
          return;
  
@@ -17,7 +17,7 @@ Index: page/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/mac/NSScrollerImpDetails.mm	(revision 134630)
+--- platform/mac/NSScrollerImpDetails.mm	(revision 137939)
 +++ platform/mac/NSScrollerImpDetails.mm	(working copy)
 @@ -34,6 +34,7 @@
  #if PLATFORM(CHROMIUM)

@@ -453,10 +453,11 @@ class RequestProxy : public net::URLRequest::Delegate,
 
     bool handled = false;
 
-    scoped_refptr<net::UploadData> upload_data;
+    scoped_ptr<net::UploadDataStream> upload_data_stream;
     if (params->request_body) {
-      upload_data = params->request_body->ResolveElementsAndCreateUploadData(
-          _Context->request_context()->blob_storage_controller());
+      upload_data_stream.reset(
+          params->request_body->ResolveElementsAndCreateUploadDataStream(
+              _Context->request_context()->blob_storage_controller()));
     }
 
     if (browser_.get()) {
@@ -482,10 +483,10 @@ class RequestProxy : public net::URLRequest::Delegate,
         requestimpl->SetHeaderMap(headerMap);
 
         // Transfer post data, if any
-        if (upload_data.get()) {
+        if (upload_data_stream) {
           CefRefPtr<CefPostData> postdata(new CefPostDataImpl());
           static_cast<CefPostDataImpl*>(postdata.get())->Set(
-              *upload_data.get());
+              *upload_data_stream.get());
           requestimpl->SetPostData(postdata);
         }
 
@@ -526,8 +527,10 @@ class RequestProxy : public net::URLRequest::Delegate,
           // Observe post data from request.
           CefRefPtr<CefPostData> postData = request->GetPostData();
           if (postData.get()) {
-            upload_data = new net::UploadData();
-            static_cast<CefPostDataImpl*>(postData.get())->Get(*upload_data);
+            upload_data_stream.reset(
+                static_cast<CefPostDataImpl*>(postData.get())->Get());
+          } else {
+            upload_data_stream.reset(NULL);
           }
         }
 
@@ -600,8 +603,8 @@ class RequestProxy : public net::URLRequest::Delegate,
       headers.AddHeadersFromString(params->headers);
       request_->SetExtraRequestHeaders(headers);
       request_->set_load_flags(params->load_flags);
-      if (upload_data)
-        request_->set_upload(upload_data);
+      if (upload_data_stream)
+        request_->set_upload(upload_data_stream.Pass());
       request_->SetUserData(kCefUserData,
           new ExtraRequestInfo(browser_.get(), params->request_type));
       BrowserAppCacheSystem::SetExtraRequestInfo(
@@ -1067,7 +1070,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge,
     if (proxy_) {
       proxy_->DropPeer();
       // Let the proxy die on the IO thread
-      CefThread::ReleaseSoon(CefThread::IO, FROM_HERE, proxy_.release());
+      proxy_->AddRef();
+      CefThread::ReleaseSoon(CefThread::IO, FROM_HERE, proxy_.get());
     }
   }
 
