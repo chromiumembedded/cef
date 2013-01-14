@@ -22,6 +22,51 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLError.h"
 
+namespace {
+
+// A subclass of net::UploadBytesElementReader that keeps the associated
+// UploadElement alive until the request completes.
+class BytesElementReader : public net::UploadBytesElementReader {
+ public:
+  explicit BytesElementReader(scoped_ptr<net::UploadElement> element)
+      : net::UploadBytesElementReader(element->bytes(),
+                                      element->bytes_length()),
+        element_(element.Pass()) {
+    DCHECK_EQ(net::UploadElement::TYPE_BYTES, element_->type());
+  }
+
+  virtual ~BytesElementReader() {}
+
+ private:
+  scoped_ptr<net::UploadElement> element_;
+
+  DISALLOW_COPY_AND_ASSIGN(BytesElementReader);
+};
+
+// A subclass of net::UploadFileElementReader that keeps the associated
+// UploadElement alive until the request completes.
+class FileElementReader : public net::UploadFileElementReader {
+ public:
+  explicit FileElementReader(scoped_ptr<net::UploadElement> element)
+      : net::UploadFileElementReader(
+            element->file_path(),
+            element->file_range_offset(),
+            element->file_range_length(),
+            element->expected_file_modification_time()),
+        element_(element.Pass()) {
+    DCHECK_EQ(net::UploadElement::TYPE_FILE, element_->type());
+  }
+
+  virtual ~FileElementReader() {}
+
+ private:
+  scoped_ptr<net::UploadElement> element_;
+
+  DISALLOW_COPY_AND_ASSIGN(FileElementReader);
+};
+
+}  // namespace
+
 
 #define CHECK_READONLY_RETURN(val) \
   if (read_only_) { \
@@ -194,11 +239,10 @@ void CefRequestImpl::Get(net::URLRequest* request) {
   request->SetExtraRequestHeaders(headers);
 
   if (postdata_.get()) {
-    net::UploadData* upload = new net::UploadData();
-    static_cast<CefPostDataImpl*>(postdata_.get())->Get(*upload);
-    request->set_upload(upload);
+    request->set_upload(
+        make_scoped_ptr(static_cast<CefPostDataImpl*>(postdata_.get())->Get()));
   } else if (request->get_upload()) {
-    request->set_upload(NULL);
+    request->set_upload(scoped_ptr<net::UploadDataStream>());
   }
 }
 
@@ -451,6 +495,19 @@ void CefPostDataImpl::Get(net::UploadData& data) {
   data.swap_elements(&data_elements);
 }
 
+net::UploadDataStream* CefPostDataImpl::Get() {
+  AutoLock lock_scope(this);
+
+  ScopedVector<net::UploadElementReader> element_readers;
+  ElementVector::const_iterator it = elements_.begin();
+  for (; it != elements_.end(); ++it) {
+    element_readers.push_back(
+        static_cast<CefPostDataElementImpl*>(it->get())->Get());
+  }
+
+  return new net::UploadDataStream(&element_readers, 0);
+}
+
 void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data) {
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
@@ -641,6 +698,25 @@ void CefPostDataElementImpl::Get(net::UploadElement& element) {
     element.SetToFilePath(path);
   } else {
     NOTREACHED();
+  }
+}
+
+net::UploadElementReader* CefPostDataElementImpl::Get() {
+  AutoLock lock_scope(this);
+
+  if (type_ == PDE_TYPE_BYTES) {
+    net::UploadElement* element = new net::UploadElement();
+    element->SetToBytes(static_cast<char*>(data_.bytes.bytes),
+                        data_.bytes.size);
+    return new BytesElementReader(make_scoped_ptr(element));
+  } else if (type_ == PDE_TYPE_FILE) {
+    net::UploadElement* element = new net::UploadElement();
+    FilePath path = FilePath(CefString(&data_.filename));
+    element->SetToFilePath(path);
+    return new FileElementReader(make_scoped_ptr(element));
+  } else {
+    NOTREACHED();
+    return NULL;
   }
 }
 

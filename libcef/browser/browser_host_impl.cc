@@ -323,11 +323,9 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   DCHECK(opener == NULL || browser_info->is_popup());
 
   if (web_contents == NULL) {
-    web_contents = content::WebContents::Create(
-        _Context->browser_context(),
-        NULL,
-        MSG_ROUTING_NONE,
-        NULL);
+    content::WebContents::CreateParams create_params(
+        _Context->browser_context());
+    web_contents = content::WebContents::Create(create_params);
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -1614,11 +1612,9 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     const content::MediaResponseCallback& callback) {
   CEF_CURRENTLY_ON_UIT();
 
+  // TODO(cef): Get the default devices for the request. See for example
+  // chrome/browser/media/media_stream_devices_controller.cc.
   content::MediaStreamDevices devices;
-  for (content::MediaStreamDeviceMap::const_iterator it =
-       request->devices.begin(); it != request->devices.end(); ++it) {
-    devices.push_back(*it->second.begin());
-  }
 
   // TODO(cef): Give the user an opportunity to approve the device list or run
   // the callback with an empty device list to cancel the request.

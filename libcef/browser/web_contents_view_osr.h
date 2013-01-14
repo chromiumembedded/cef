@@ -27,12 +27,12 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   virtual ~CefWebContentsViewOSR();
 
   // WebContentsView methods.
-  virtual void CreateView(const gfx::Size& initial_size) OVERRIDE;
+  virtual void CreateView(const gfx::Size& initial_size,
+                          gfx::NativeView context) OVERRIDE;
   virtual content::RenderWidgetHostView* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host) OVERRIDE;
   virtual content::RenderWidgetHostView* CreateViewForPopupWidget(
       content::RenderWidgetHost* render_widget_host);
-  virtual void SetView(content::RenderWidgetHostView* view) OVERRIDE;
   virtual gfx::NativeView GetNativeView() const OVERRIDE;
   virtual gfx::NativeView GetContentNativeView() const OVERRIDE;
   virtual gfx::NativeWindow GetTopLevelNativeWindow() const OVERRIDE;

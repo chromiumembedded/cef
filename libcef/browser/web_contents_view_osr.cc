@@ -21,7 +21,8 @@ CefWebContentsViewOSR::~CefWebContentsViewOSR() {
 
 // Overridden from WebContentsView:
 
-void CefWebContentsViewOSR::CreateView(const gfx::Size& initial_size) {
+void CefWebContentsViewOSR::CreateView(const gfx::Size& initial_size,
+                                       gfx::NativeView context) {
 }
 
 content::RenderWidgetHostView* CefWebContentsViewOSR::CreateViewForWidget(
@@ -38,10 +39,6 @@ content::RenderWidgetHostView* CefWebContentsViewOSR::CreateViewForPopupWidget(
   CefRenderWidgetHostViewOSR* popup_widget =
       new CefRenderWidgetHostViewOSR(render_widget_host);
   return popup_widget;
-}
-
-void CefWebContentsViewOSR::SetView(content::RenderWidgetHostView* view) {
-  view_ = view;
 }
 
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {

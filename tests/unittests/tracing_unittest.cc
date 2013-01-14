@@ -31,9 +31,6 @@ enum TracingTestType {
   CEF_TRACE_EVENT_COPY_END0,
   CEF_TRACE_EVENT_COPY_END1,
   CEF_TRACE_EVENT_COPY_END2,
-  CEF_TRACE_EVENT_IF_LONGER_THAN0,
-  CEF_TRACE_EVENT_IF_LONGER_THAN1,
-  CEF_TRACE_EVENT_IF_LONGER_THAN2,
   CEF_TRACE_COUNTER1,
   CEF_TRACE_COPY_COUNTER1,
   CEF_TRACE_COUNTER2,
@@ -209,19 +206,6 @@ class TracingTestHandler : public CefTraceClient {
                                   "CEF_TRACE_EVENT_COPY_END2", "arg1", 1,
                                   "arg2", 2);
         break;
-      case CEF_TRACE_EVENT_IF_LONGER_THAN0:
-        CEF_TRACE_EVENT_IF_LONGER_THAN0(0, kTraceTestCategory,
-                                        "CEF_TRACE_EVENT_IF_LONGER_THAN0");
-        break;
-      case CEF_TRACE_EVENT_IF_LONGER_THAN1:
-        CEF_TRACE_EVENT_IF_LONGER_THAN1(0, kTraceTestCategory,
-                                        "CEF_TRACE_EVENT_IF_LONGER_THAN1",
-                                        "arg1", 1);
-      case CEF_TRACE_EVENT_IF_LONGER_THAN2:
-        CEF_TRACE_EVENT_IF_LONGER_THAN2(0, kTraceTestCategory,
-                                        "CEF_TRACE_EVENT_IF_LONGER_THAN2",
-                                        "arg1", 1, "arg2", 2);
-        break;
       case CEF_TRACE_COUNTER1:
         CEF_TRACE_COUNTER1(kTraceTestCategory, "CEF_TRACE_COUNTER1", 5);
         break;
@@ -389,9 +373,6 @@ TRACING_TEST(TraceEventEnd2, CEF_TRACE_EVENT_END2);
 TRACING_TEST(TraceEventCopyEnd0, CEF_TRACE_EVENT_COPY_END0);
 TRACING_TEST(TraceEventCopyEnd1, CEF_TRACE_EVENT_COPY_END1);
 TRACING_TEST(TraceEventCopyEnd2, CEF_TRACE_EVENT_COPY_END1);
-TRACING_TEST(TraceEventIfLongerThan0, CEF_TRACE_EVENT_IF_LONGER_THAN0);
-TRACING_TEST(TraceEventIfLongerThan1, CEF_TRACE_EVENT_IF_LONGER_THAN1);
-TRACING_TEST(TraceEventIfLongerThan2, CEF_TRACE_EVENT_IF_LONGER_THAN2);
 TRACING_TEST(TraceCounter1, CEF_TRACE_COUNTER1);
 TRACING_TEST(TraceCopyCounter1, CEF_TRACE_COPY_COUNTER1);
 TRACING_TEST(TraceCounter2, CEF_TRACE_COUNTER2);

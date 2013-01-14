@@ -188,29 +188,6 @@ CEF_EXPORT void cef_trace_event_end(const char* category,
   }
 }
 
-CEF_EXPORT void cef_trace_event_if_longer_than(int64 threshold_us,
-                                               const char* category,
-                                               const char* name,
-                                               const char* arg1_name,
-                                               uint64 arg1_val,
-                                               const char* arg2_name,
-                                               uint64 arg2_val) {
-  DCHECK(category);
-  DCHECK(name);
-  if (!category || !name)
-    return;
-
-  if (arg1_name == NULL && arg2_name == NULL) {
-    TRACE_EVENT_IF_LONGER_THAN0(threshold_us, category, name);
-  } else if (arg2_name == NULL) {
-    TRACE_EVENT_IF_LONGER_THAN1(threshold_us, category, name,
-                                arg1_name, arg1_val);
-  } else {
-    TRACE_EVENT_IF_LONGER_THAN2(threshold_us, category, name, arg1_name,
-                                arg1_val, arg2_name, arg2_val);
-  }
-}
-
 CEF_EXPORT void cef_trace_counter(const char* category,
                                   const char* name,
                                   const char* value1_name,

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
 #pragma once
 
+#include "base/compiler_specific.h"
 #include "content/public/browser/resource_dispatcher_host_delegate.h"
 
 // Implements ResourceDispatcherHostDelegate.
