@@ -23,10 +23,11 @@ chrome_src = os.path.abspath(os.path.join(cef_dir, os.pardir))
 sys.path.insert(0, os.path.join(chrome_src, 'tools', 'gyp', 'pylib'))
 import gyp
 
-# Add paths so that pymod_do_main(grit_info ...) can import files.
+# Add paths so that pymod_do_main(...) can import files.
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
 sys.path.insert(1, os.path.join(chrome_src, 'chrome', 'tools', 'build'))
-
+sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
+    'Source', 'WebCore', 'WebCore.gyp', 'scripts'))
 
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70

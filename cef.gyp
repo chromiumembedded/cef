@@ -656,7 +656,7 @@
       'target_name': 'cef_pak',
       'type': 'none',
       'dependencies': [
-        '<(DEPTH)/content/browser/debugger/devtools_resources.gyp:devtools_resources',
+        '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
         '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
@@ -851,7 +851,6 @@
         'libcef/browser/scheme_impl.cc',
         'libcef/browser/scheme_registration.cc',
         'libcef/browser/scheme_registration.h',
-        'libcef/browser/sqlite_diagnostics_stub.cc',
         'libcef/browser/stream_impl.cc',
         'libcef/browser/stream_impl.h',
         'libcef/browser/trace_impl.cc',

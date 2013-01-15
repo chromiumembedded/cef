@@ -120,7 +120,7 @@ CefBinaryValueImpl::CefBinaryValueImpl(char* data,
                                        bool copy)
   : CefValueBase<CefBinaryValue, base::BinaryValue>(
         copy ? base::BinaryValue::CreateWithCopiedBuffer(data, data_size) :
-               base::BinaryValue::Create(data, data_size),
+               new base::BinaryValue(scoped_ptr<char[]>(data), data_size),
         NULL, kOwnerWillDelete, true, NULL) {
 }
 

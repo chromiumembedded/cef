@@ -7,6 +7,7 @@
 
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/task_runner_impl.h"
 
 #include "base/logging.h"
 #include "net/base/upload_data.h"
@@ -43,12 +44,20 @@ class BytesElementReader : public net::UploadBytesElementReader {
   DISALLOW_COPY_AND_ASSIGN(BytesElementReader);
 };
 
+base::TaskRunner* GetFileTaskRunner() {
+  scoped_refptr<base::SequencedTaskRunner> task_runner =
+      CefTaskRunnerImpl::GetTaskRunner(TID_FILE);
+  DCHECK(task_runner);
+  return task_runner;
+}
+
 // A subclass of net::UploadFileElementReader that keeps the associated
 // UploadElement alive until the request completes.
 class FileElementReader : public net::UploadFileElementReader {
  public:
   explicit FileElementReader(scoped_ptr<net::UploadElement> element)
       : net::UploadFileElementReader(
+            GetFileTaskRunner(),
             element->file_path(),
             element->file_range_offset(),
             element->file_range_length(),

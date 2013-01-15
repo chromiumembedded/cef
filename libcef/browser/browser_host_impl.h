@@ -291,7 +291,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    const gfx::Size& pref_size) OVERRIDE;
   virtual void RequestMediaAccessPermission(
       content::WebContents* web_contents,
-      const content::MediaStreamRequest* request,
+      const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) OVERRIDE;
 
   // content::WebContentsObserver methods.
@@ -321,7 +321,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            int error_code,
                            const string16& error_description,
                            content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void PluginCrashed(const FilePath& plugin_path) OVERRIDE;
+  virtual void PluginCrashed(const FilePath& plugin_path,
+                             base::ProcessId plugin_pid) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   // Override to provide a thread safe implementation.
   virtual bool Send(IPC::Message* message) OVERRIDE;

@@ -24,73 +24,99 @@
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 
-namespace {
+// CefDevToolsBindingHandler
 
-class CefDevToolsBindingHandler
-    : public content::DevToolsHttpHandler::RenderViewHostBinding {
- public:
-  CefDevToolsBindingHandler() {
-  }
+CefDevToolsBindingHandler::CefDevToolsBindingHandler() {
+}
 
-  virtual std::string GetIdentifier(content::RenderViewHost* rvh) OVERRIDE {
-    int process_id = rvh->GetProcess()->GetID();
-    int routing_id = rvh->GetRoutingID();
+std::string CefDevToolsBindingHandler::GetIdentifier(
+    content::DevToolsAgentHost* agent_host) {
+  GarbageCollect();
 
-    if (random_seed_.empty()) {
-      // Generate a random seed that is used to make identifier guessing more
-      // difficult.
-      random_seed_ = base::StringPrintf("%lf|%u",
-          base::Time::Now().ToDoubleT(), base::RandInt(0, INT_MAX));
-    }
+  const std::string& identifier =
+      GetIdentifier(agent_host->GetRenderViewHost());
+  agents_map_[identifier] = agent_host;
+  return identifier;
+}
 
-    // Create a key that combines RVH IDs and the random seed.
-    std::string key = base::StringPrintf("%d|%d|%s",
-        process_id,
-        routing_id,
-        random_seed_.c_str());
+content::DevToolsAgentHost* CefDevToolsBindingHandler::ForIdentifier(
+    const std::string& identifier) {
+  GarbageCollect();
+  
+  // Return the existing agent host, if any.
+  AgentsMap::const_iterator it = agents_map_.find(identifier);
+  if (it != agents_map_.end())
+    return it->second;
 
-    // Return an MD5 hash of the key.
-    return base::MD5String(key);
-  }
+  // Iterate through the existing RVH instances to find a match.
+  for (content::RenderProcessHost::iterator it(
+      content::RenderProcessHost::AllHostsIterator());
+      !it.IsAtEnd(); it.Advance()) {
+    content::RenderProcessHost* render_process_host = it.GetCurrentValue();
+    DCHECK(render_process_host);
 
-  virtual content::RenderViewHost* ForIdentifier(
-      const std::string& identifier) OVERRIDE {
-    // Iterate through the existing RVH instances to find a match.
-    for (content::RenderProcessHost::iterator it(
-        content::RenderProcessHost::AllHostsIterator());
-       !it.IsAtEnd(); it.Advance()) {
-      content::RenderProcessHost* render_process_host = it.GetCurrentValue();
-      DCHECK(render_process_host);
+    // Ignore processes that don't have a connection, such as crashed contents.
+    if (!render_process_host->HasConnection())
+      continue;
 
-      // Ignore processes that don't have a connection, such as crashed
-      // contents.
-      if (!render_process_host->HasConnection())
+    content::RenderProcessHost::RenderWidgetHostsIterator rwit(
+        render_process_host->GetRenderWidgetHostsIterator());
+    for (; !rwit.IsAtEnd(); rwit.Advance()) {
+      const content::RenderWidgetHost* widget = rwit.GetCurrentValue();
+      DCHECK(widget);
+      if (!widget || !widget->IsRenderView())
         continue;
 
-      content::RenderProcessHost::RenderWidgetHostsIterator rwit(
-          render_process_host->GetRenderWidgetHostsIterator());
-      for (; !rwit.IsAtEnd(); rwit.Advance()) {
-        const content::RenderWidgetHost* widget = rwit.GetCurrentValue();
-        DCHECK(widget);
-        if (!widget || !widget->IsRenderView())
-          continue;
-
-        content::RenderViewHost* host =
-            content::RenderViewHost::From(
-                const_cast<content::RenderWidgetHost*>(widget));
-        if (GetIdentifier(host) == identifier)
-          return host;
+      content::RenderViewHost* host =
+          content::RenderViewHost::From(
+              const_cast<content::RenderWidgetHost*>(widget));
+      if (GetIdentifier(host) == identifier) {
+        // May create a new agent host.
+        scoped_refptr<content::DevToolsAgentHost> agent_host(
+            content::DevToolsAgentHost::GetFor(host));
+        agents_map_[identifier] = agent_host;
+        return agent_host;
       }
     }
-
-    return NULL;
   }
 
- private:
-  std::string random_seed_;
-};
+  return NULL;
+}
 
-}  // namespace
+std::string CefDevToolsBindingHandler::GetIdentifier(
+    content::RenderViewHost* rvh) {
+  int process_id = rvh->GetProcess()->GetID();
+  int routing_id = rvh->GetRoutingID();
+
+  if (random_seed_.empty()) {
+    // Generate a random seed that is used to make identifier guessing more
+    // difficult.
+    random_seed_ = base::StringPrintf("%lf|%u",
+        base::Time::Now().ToDoubleT(), base::RandInt(0, INT_MAX));
+  }
+
+  // Create a key that combines RVH IDs and the random seed.
+  std::string key = base::StringPrintf("%d|%d|%s",
+      process_id,
+      routing_id,
+      random_seed_.c_str());
+
+  // Return an MD5 hash of the key.
+  return base::MD5String(key);
+}
+
+void CefDevToolsBindingHandler::GarbageCollect() {
+  AgentsMap::iterator it = agents_map_.begin();
+  while (it != agents_map_.end()) {
+    if (!it->second->GetRenderViewHost())
+      agents_map_.erase(it++);
+    else
+      ++it;
+  }
+}
+
+
+// CefDevToolsDelegate
 
 CefDevToolsDelegate::CefDevToolsDelegate(int port) {
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
@@ -99,7 +125,7 @@ CefDevToolsDelegate::CefDevToolsDelegate(int port) {
       this);
 
   binding_.reset(new CefDevToolsBindingHandler());
-  devtools_http_handler_->SetRenderViewHostBinding(binding_.get());
+  devtools_http_handler_->SetDevToolsAgentHostBinding(binding_.get());
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {

@@ -1608,7 +1608,7 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
 
 void CefBrowserHostImpl::RequestMediaAccessPermission(
     content::WebContents* web_contents,
-    const content::MediaStreamRequest* request,
+    const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
   CEF_CURRENTLY_ON_UIT();
 
@@ -1734,7 +1734,8 @@ void CefBrowserHostImpl::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
-void CefBrowserHostImpl::PluginCrashed(const FilePath& plugin_path) {
+void CefBrowserHostImpl::PluginCrashed(const FilePath& plugin_path,
+                                       base::ProcessId plugin_pid) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get())
