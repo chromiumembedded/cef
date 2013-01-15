@@ -457,7 +457,8 @@ class RequestProxy : public net::URLRequest::Delegate,
     if (params->request_body) {
       upload_data_stream.reset(
           params->request_body->ResolveElementsAndCreateUploadDataStream(
-              _Context->request_context()->blob_storage_controller()));
+              _Context->request_context()->blob_storage_controller(),
+              base::MessageLoopProxy::current()));
     }
 
     if (browser_.get()) {

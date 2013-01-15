@@ -193,7 +193,7 @@ void CefProcessUIThread::CleanUp() {
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
-  MessageLoop::current()->RunAllPending();
+  MessageLoop::current()->RunUntilIdle();
 
   // Tear down the shared StatsTable.
   base::StatsTable::set_current(NULL);

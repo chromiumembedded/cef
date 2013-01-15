@@ -17,5 +17,5 @@
 
 {
   'chromium_url': 'http://src.chromium.org/svn/trunk/src',
-  'chromium_revision': '173683',
+  'chromium_revision': '176706',
 }

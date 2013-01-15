@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "libcef/cef_thread.h"
 #include "libcef/http_header_utils.h"
 
 #include "base/logging.h"
@@ -51,6 +52,7 @@ class FileElementReader : public net::UploadFileElementReader {
  public:
   explicit FileElementReader(scoped_ptr<net::UploadElement> element)
       : net::UploadFileElementReader(
+            CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
             element->file_path(),
             element->file_range_offset(),
             element->file_range_length(),
