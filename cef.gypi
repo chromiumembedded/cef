@@ -19,15 +19,6 @@
       }],
     ]
   }, 'conditions': [
-    ['OS=="mac" and clang==1', {
-      'target_defaults': {
-        'xcode_settings': {
-          # Temporary workaround for an Xcode 4 build error. This can be
-          # removed with the next Chromium update. See crbug.com/156530.
-          'WARNING_CFLAGS': ['-Wno-unknown-warning-option'],
-        },
-      },
-    }],
     ['os_posix==1 and OS!="mac" and OS!="android"', {
       'target_defaults': {
         'cflags_cc': ['-Wno-deprecated-declarations'],
