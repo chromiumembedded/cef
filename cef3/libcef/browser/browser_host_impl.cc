@@ -2095,7 +2095,7 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
   if (client_.get()) {
     CefRefPtr<CefDialogHandler> handler = client_->GetDialogHandler();
     if (handler.get()) {
-      cef_file_dialog_mode_t mode;
+      cef_file_dialog_mode_t mode = FILE_DIALOG_OPEN;
       switch (params.mode) {
         case content::FileChooserParams::Open:
           mode = FILE_DIALOG_OPEN;
