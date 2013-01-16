@@ -312,7 +312,7 @@ if platform == 'windows':
     copy_file(os.path.join(cef_dir, 'Release/lib/libcef.lib'), dst_dir, options.quiet)
 
     # transfer symbols
-    copy_file(os.path.join(cef_dir, 'Release/libcef.pdb'), symbol_dir, options.quiet)
+    copy_file(os.path.join(cef_dir, 'Release/libcef.dll.pdb'), symbol_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
