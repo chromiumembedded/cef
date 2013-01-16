@@ -1824,8 +1824,24 @@ class V8RendererTest : public ClientApp::RenderDelegate {
           EXPECT_TRUE(task_runner->IsSame(task_runner_));
 
           // Execute the callback asynchronously.
-          task_runner->PostTask(
-              NewCefRunnableMethod(this, &Handler::ExecCallback));
+          // Can't use templates with nested classes on Linux.
+          class Task : public CefTask {
+           public:
+            explicit Task(Handler* handler)
+                : handler_(handler) {
+              handler_->AddRef();
+            }
+            ~Task() {
+              handler_->Release();
+            }
+            virtual void Execute() OVERRIDE {
+              handler_->ExecCallback();
+            }
+           private:
+            Handler* handler_;
+            IMPLEMENT_REFCOUNTING(Task);
+          };
+          task_runner->PostTask(new Task(this));
 
           retval = CefV8Value::CreateBool(true);
           return true;
