@@ -217,14 +217,11 @@ bool CefRequestHandlerCToCpp::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
   DCHECK(browser.get());
   if (!browser.get())
     return false;
-  // Verify param: mimeType; type: string_byref_const
-  DCHECK(!mimeType.empty());
-  if (mimeType.empty())
-    return false;
   // Verify param: fileName; type: string_byref_const
   DCHECK(!fileName.empty());
   if (fileName.empty())
     return false;
+  // Unverified params: mimeType
 
   // Translate param: handler; type: refptr_same_byref
   cef_download_handler_t* handlerStruct = NULL;
