@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -105,6 +106,34 @@ void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
   struct_->on_title_change(struct_,
       CefBrowserCppToC::Wrap(browser),
       title.GetStruct());
+}
+
+void CefDisplayHandlerCToCpp::OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
+    const std::vector<CefString>& icon_urls) {
+  if (CEF_MEMBER_MISSING(struct_, on_favicon_urlchange))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Translate param: icon_urls; type: string_vec_byref_const
+  cef_string_list_t icon_urlsList = cef_string_list_alloc();
+  DCHECK(icon_urlsList);
+  if (icon_urlsList)
+    transfer_string_list_contents(icon_urls, icon_urlsList);
+
+  // Execute
+  struct_->on_favicon_urlchange(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      icon_urlsList);
+
+  // Restore param:icon_urls; type: string_vec_byref_const
+  if (icon_urlsList)
+    cef_string_list_free(icon_urlsList);
 }
 
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,

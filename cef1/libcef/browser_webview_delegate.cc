@@ -41,6 +41,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebHistoryItem.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebIconURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
@@ -178,6 +179,15 @@ WebWidget* BrowserWebViewDelegate::createPopupMenu(WebPopupType popup_type) {
   // TODO(darin): Should we take into account |popup_type| (for activation
   //              purpose)?
   return browser_->UIT_CreatePopupWidget();
+}
+
+void BrowserWebViewDelegate::didStopLoading() {
+  WebView* view = browser_->UIT_GetWebView();
+  if (view) {
+    WebFrame* mainFrame = view->mainFrame();
+    if (mainFrame)
+      OnFaviconURLChange(mainFrame);
+  }
 }
 
 WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
@@ -955,6 +965,12 @@ void BrowserWebViewDelegate::didReceiveTitle(
   }
 }
 
+void BrowserWebViewDelegate::didChangeIcon(WebKit::WebFrame* frame,
+                                           WebKit::WebIconURL::Type iconType) {
+  if (iconType == WebKit::WebIconURL::TypeFavicon && frame->parent() == NULL)
+    OnFaviconURLChange(frame);
+}
+
 void BrowserWebViewDelegate::didFailLoad(
     WebFrame* frame, const WebURLError& error) {
   LocationChangeDone(frame);
@@ -1337,4 +1353,28 @@ bool BrowserWebViewDelegate::OnBeforeMenu(
   }
 
   return false;
+}
+
+void BrowserWebViewDelegate::OnFaviconURLChange(WebKit::WebFrame* frame) {
+  WebVector<WebKit::WebIconURL> web_icon_urls =
+      frame->iconURLs(WebKit::WebIconURL::TypeFavicon);
+  if (web_icon_urls.isEmpty())
+    return;
+
+  std::vector<CefString> icon_urls;
+  for (size_t i = 0; i < web_icon_urls.size(); ++i) {
+    if (!web_icon_urls[i].iconURL().isEmpty()) {
+      const std::string& urlStr = web_icon_urls[i].iconURL().spec();
+      icon_urls.push_back(urlStr);
+    }
+  }
+  if (icon_urls.empty())
+    return;
+
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client->GetDisplayHandler();
+    if (handler.get())
+      handler->OnFaviconURLChange(browser_, icon_urls);
+  }
 }
