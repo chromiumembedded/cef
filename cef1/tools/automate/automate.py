@@ -53,6 +53,25 @@ def get_svn_info(path):
       sys.stderr.write('Failed to read svn info: '+strerror+"\n")
       raise
   return {'url': url, 'revision': rev}
+
+def onerror(func, path, exc_info):
+  """
+  Error handler for ``shutil.rmtree``.
+
+  If the error is due to an access error (read only file)
+  it attempts to add write permission and then retries.
+
+  If the error is for another reason it re-raises the error.
+
+  Usage : ``shutil.rmtree(path, onerror=onerror)``
+  """
+  import stat
+  if not os.access(path, os.W_OK):
+    # Is the error an access error ?
+    os.chmod(path, stat.S_IWUSR)
+    func(path)
+  else:
+    raise
   
 # cannot be loaded as a module
 if __name__ != "__main__":
@@ -162,8 +181,17 @@ if not os.path.exists(download_dir):
   # create the download directory
   os.makedirs(download_dir)
 
-# set the expected script extension
+# Test the operating system.
+platform = '';
 if sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform.startswith('linux'):
+  platform = 'linux'
+
+# set the expected script extension
+if platform == 'windows':
   script_ext = '.bat'
 else:
   script_ext = '.sh'
@@ -298,6 +326,20 @@ if options.forceclean:
   if os.path.exists(chromium_src_dir):
     # revert all Chromium changes and delete all unversioned files
     run('gclient revert -n', chromium_dir, depot_tools_dir)
+
+    # remove the build output directories
+    output_dirs = []
+    if platform == 'windows':
+      output_dirs.append(os.path.join(chromium_src_dir, 'build\\Debug'))
+      output_dirs.append(os.path.join(chromium_src_dir, 'build\\Release'))
+    elif platform == 'macosx':
+      output_dirs.append(os.path.join(chromium_src_dir, 'xcodebuild'))
+    elif platform == 'linux':
+      output_dirs.append(os.path.join(chromium_src_dir, 'out'))
+
+    for output_dir in output_dirs:
+      if os.path.exists(output_dir):
+        shutil.rmtree(output_dir, onerror=onerror)
 
   # force update, build and distrib steps
   options.forceupdate = True
