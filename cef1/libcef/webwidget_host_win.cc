@@ -985,7 +985,7 @@ void WebWidgetHost::UpdateImeInputState() {
 
   if (text_input_type_ != type) {
     text_input_type_ = type;
-    if (type == WebKit::WebTextInputTypeText)
+    if (type != WebKit::WebTextInputTypeNone)
       ime_input_.EnableIME(view_);
     else
       ime_input_.DisableIME(view_);
@@ -993,7 +993,7 @@ void WebWidgetHost::UpdateImeInputState() {
 
   // Only update caret position if the input method is enabled and the caret
   // position has changed.
-  if (type == WebKit::WebTextInputTypeText && caret_bounds != caret_bounds_) {
+  if (type != WebKit::WebTextInputTypeNone && caret_bounds != caret_bounds_) {
     caret_bounds_ = caret_bounds;
     ime_input_.UpdateCaretRect(view_, caret_bounds);
   }
