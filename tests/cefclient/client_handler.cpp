@@ -636,7 +636,13 @@ bool ClientHandler::Save(const std::string& path, const std::string& data) {
   FILE* f = fopen(path.c_str(), "w");
   if (!f)
     return false;
-  fwrite(data.c_str(), data.size(), 1, f);
+  size_t total = 0;
+  do {
+    size_t write = fwrite(data.c_str() + total, 1, data.size() - total, f);
+    if (write == 0)
+      break;
+    total += write;
+  } while (total < data.size());
   fclose(f);
   return true;
 }
