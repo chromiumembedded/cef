@@ -254,10 +254,6 @@ int CEF_CALLBACK request_handler_get_download_handler(
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: mimeType; type: string_byref_const
-  DCHECK(mimeType);
-  if (!mimeType)
-    return 0;
   // Verify param: fileName; type: string_byref_const
   DCHECK(fileName);
   if (!fileName)
@@ -266,6 +262,7 @@ int CEF_CALLBACK request_handler_get_download_handler(
   DCHECK(handler);
   if (!handler)
     return 0;
+  // Unverified params: mimeType
 
   // Translate param: handler; type: refptr_same_byref
   CefRefPtr<CefDownloadHandler> handlerPtr;
