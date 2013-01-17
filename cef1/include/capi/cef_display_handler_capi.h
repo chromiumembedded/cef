@@ -82,6 +82,12 @@ typedef struct _cef_display_handler_t {
       struct _cef_browser_t* browser, const cef_string_t* title);
 
   ///
+  // Called when the Favicon URL for a page changes.
+  ///
+  void (CEF_CALLBACK *on_favicon_urlchange)(struct _cef_display_handler_t* self,
+      struct _cef_browser_t* browser, cef_string_list_t icon_urls);
+
+  ///
   // Called when the browser is about to display a tooltip. |text| contains the
   // text that will be displayed in the tooltip. To handle the display of the
   // tooltip yourself return true (1). Otherwise, you can optionally modify

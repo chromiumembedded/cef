@@ -18,6 +18,7 @@
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
 #else  // BUILDING_CEF_SHARED
 
+#include <vector>
 #include "include/cef_display_handler.h"
 #include "include/capi/cef_display_handler_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
@@ -42,6 +43,8 @@ class CefDisplayHandlerCToCpp
       CefRefPtr<CefFrame> frame, int width, int height) OVERRIDE;
   virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
       const CefString& title) OVERRIDE;
+  virtual void OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
+      const std::vector<CefString>& icon_urls) OVERRIDE;
   virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
       CefString& text) OVERRIDE;
   virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,

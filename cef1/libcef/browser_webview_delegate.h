@@ -75,6 +75,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual WebKit::WebExternalPopupMenu* createExternalPopupMenu(
       const WebKit::WebPopupMenuInfo& info,
       WebKit::WebExternalPopupMenuClient* client) OVERRIDE;
+  virtual void didStopLoading() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
       unsigned quota) OVERRIDE;
   virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D(
@@ -191,6 +192,8 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didReceiveTitle(
       WebKit::WebFrame*, const WebKit::WebString& title,
       WebKit::WebTextDirection direction) OVERRIDE;
+  virtual void didChangeIcon(
+      WebKit::WebFrame*, WebKit::WebIconURL::Type) OVERRIDE;
   virtual void didFailLoad(
       WebKit::WebFrame*, const WebKit::WebURLError&) OVERRIDE;
   virtual void didFinishLoad(WebKit::WebFrame*) OVERRIDE;
@@ -337,6 +340,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                     int mouse_y,
                     int& edit_flags,
                     int& type_flags);
+  void OnFaviconURLChange(WebKit::WebFrame* frame);
 
  private:
   // Causes navigation actions just printout the intended navigation instead
