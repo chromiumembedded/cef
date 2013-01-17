@@ -26,10 +26,6 @@ struct _cef_scheme_handler_t* CEF_CALLBACK scheme_handler_factory_create(
   DCHECK(self);
   if (!self)
     return NULL;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return NULL;
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
   if (!scheme_name)
@@ -38,6 +34,7 @@ struct _cef_scheme_handler_t* CEF_CALLBACK scheme_handler_factory_create(
   DCHECK(request);
   if (!request)
     return NULL;
+  // Unverified params: browser
 
   // Execute
   CefRefPtr<CefSchemeHandler> _retval = CefSchemeHandlerFactoryCppToC::Get(
