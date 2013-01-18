@@ -167,6 +167,7 @@
       'tests/cefclient/resource_util_linux.cpp',
     ],
     'cefclient_bundle_resources_linux': [
+      'tests/cefclient/res/dialogs.html',
       'tests/cefclient/res/domaccess.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',

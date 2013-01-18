@@ -79,6 +79,14 @@ gboolean PerformanceActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Debug > Dialogs... menu item.
+gboolean DialogsActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunDialogsTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for Debug > Request... menu item.
 gboolean RequestActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
@@ -291,6 +299,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(JSExecuteActivated));
   AddMenuEntry(debug_menu, "Performance Tests",
                G_CALLBACK(PerformanceActivated));
+  AddMenuEntry(debug_menu, "Dialogs",
+               G_CALLBACK(DialogsActivated));
   AddMenuEntry(debug_menu, "Request",
                G_CALLBACK(RequestActivated));
   AddMenuEntry(debug_menu, "Local Storage",
