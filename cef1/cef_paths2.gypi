@@ -97,6 +97,7 @@
       'tests/cefclient/performance_test.h',
       'tests/cefclient/performance_test_setup.h',
       'tests/cefclient/performance_test_tests.cpp',
+      'tests/cefclient/res/dialogs.html',
       'tests/cefclient/res/domaccess.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',

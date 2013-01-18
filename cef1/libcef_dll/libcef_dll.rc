@@ -52,6 +52,21 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROMPT DIALOGEX 0, 0, 241, 76
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "JavaScript Prompt"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,131,55,50,14
+    LTEXT           "",IDC_DIALOGTEXT,16,17,210,18
+    PUSHBUTTON      "Cancel",IDCANCEL,184,55,50,14
+    EDITTEXT        IDC_PROMPTEDIT,15,33,210,14,ES_AUTOHSCROLL
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //

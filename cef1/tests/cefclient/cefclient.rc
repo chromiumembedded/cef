@@ -28,17 +28,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
-IDS_LOGO BINARY "res\\logo.png"
-IDS_UIPLUGIN BINARY "res\\uiplugin.html"
-IDS_OSRPLUGIN BINARY "res\\osrplugin.html"
-IDS_LOGOBALL BINARY "res\\logoball.png"
-IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
-IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
+IDS_DIALOGS BINARY "res\\dialogs.html"
 IDS_DOMACCESS BINARY "res\\domaccess.html"
-IDS_MODALMAIN BINARY "res\\modalmain.html"
+IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
+IDS_LOGO BINARY "res\\logo.png"
+IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_MODALDIALOG BINARY "res\\modaldialog.html"
+IDS_MODALMAIN BINARY "res\\modalmain.html"
+IDS_OSRPLUGIN BINARY "res\\osrplugin.html"
 IDS_PERFORMANCE BINARY "res\\performance.html"
 IDS_TRANSPARENCY BINARY "res\\transparency.html"
+IDS_UIPLUGIN BINARY "res\\uiplugin.html"
+IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -78,6 +79,7 @@ BEGIN
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "JavaScript Invoke",           ID_TESTS_JAVASCRIPT_INVOKE
         MENUITEM "Performance Tests",           ID_TESTS_PERFORMANCE
+        MENUITEM "Dialogs",                     ID_TESTS_DIALOGS
         MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
         MENUITEM "Popup Window",                ID_TESTS_POPUP

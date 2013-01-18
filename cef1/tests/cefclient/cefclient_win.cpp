@@ -461,6 +461,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           performance_test::RunTest(browser);
         return 0;
+      case ID_TESTS_DIALOGS:  // Run dialogs tests
+        if (browser.get())
+          RunDialogsTest(browser);
+        return 0;
       case ID_TESTS_PLUGIN:  // Test the custom plugin
         if (browser.get())
           RunPluginTest(browser);

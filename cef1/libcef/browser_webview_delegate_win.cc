@@ -19,9 +19,11 @@
 #include "libcef/cef_context.h"
 #include "libcef/drag_data_impl.h"
 #include "libcef/web_drop_target_win.h"
+#include "libcef_dll/resource.h"
 
 #include "base/i18n/case_conversion.h"
 #include "base/message_loop.h"
+#include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
 #include "base/win/registry.h"
@@ -29,6 +31,7 @@
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
@@ -275,6 +278,73 @@ void AddMenuSeparator(HMENU menu) {
   mii.fType = MFT_SEPARATOR;
 
   InsertMenuItem(menu, -1, TRUE, &mii);
+}
+
+std::wstring GetDialogLabel(WebKit::WebFrame* webframe,
+                            const std::string& label) {
+  const GURL& url = webframe->document().url();
+  std::string urlStr;
+  if (!url.is_empty())
+    urlStr = url.host();
+  std::string labelStr = label;
+  if (!urlStr.empty())
+    labelStr += " - " + urlStr;
+  return UTF8ToWide(labelStr);
+}
+
+struct DialogConfig {
+  std::wstring label;
+  std::wstring message;
+  std::wstring default_value;
+  std::wstring result;
+};
+
+INT_PTR CALLBACK DialogProc(HWND dialog,
+                            UINT message,
+                            WPARAM wparam,
+                            LPARAM lparam) {
+  switch (message) {
+    case WM_INITDIALOG: {
+      SetWindowLongPtr(dialog, DWL_USER, static_cast<LONG_PTR>(lparam));
+      DialogConfig* config = reinterpret_cast<DialogConfig*>(lparam);
+      SetWindowText(dialog, config->label.c_str());
+      SetDlgItemText(dialog, IDC_DIALOGTEXT, config->message.c_str());
+      SetDlgItemText(dialog, IDC_PROMPTEDIT, config->default_value.c_str());
+      break;
+    }
+    case WM_CLOSE: {
+      DialogConfig* config = reinterpret_cast<DialogConfig*>(
+          GetWindowLongPtr(dialog, DWL_USER));
+      if (config)
+        EndDialog(dialog, IDCANCEL);
+      break;
+    }
+    case WM_COMMAND: {
+      DialogConfig* config = reinterpret_cast<DialogConfig*>(
+          GetWindowLongPtr(dialog, DWL_USER));
+      bool finish = false;
+      switch (LOWORD(wparam)) {
+        case IDOK: {
+          finish = true;
+          size_t length =
+              GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
+          if (length > 1) {
+            GetDlgItemText(dialog, IDC_PROMPTEDIT,
+                           WriteInto(&config->result, length), length);
+          }
+          break;
+        }
+        case IDCANCEL:
+          finish = true;
+          break;
+      }
+      if (finish)
+        EndDialog(dialog, LOWORD(wparam));
+      break;
+    }
+  }
+
+  return DefWindowProc(dialog, message, wparam, lparam);
 }
 
 }  // namespace
@@ -714,18 +784,16 @@ void BrowserWebViewDelegate::EndDragging() {
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(WebFrame* webframe,
                                                  const CefString& message) {
-  // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
-  std::wstring titleStr = browser_->UIT_GetTitle();
+  std::wstring titleStr = GetDialogLabel(webframe, "JavaScript Alert");
   MessageBox(browser_->UIT_GetMainWndHandle(), messageStr.c_str(),
       titleStr.c_str(), MB_OK | MB_ICONWARNING);
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
                                                    const CefString& message) {
-  // TODO(cef): Think about what we should be showing as the prompt caption
   std::wstring messageStr = message;
-  std::wstring titleStr = browser_->UIT_GetTitle();
+  std::wstring titleStr = GetDialogLabel(webframe, "JavaScript Confirm");
   int rv = MessageBox(browser_->UIT_GetMainWndHandle(), messageStr.c_str(),
       titleStr.c_str(), MB_YESNO | MB_ICONQUESTION);
   return (rv == IDYES);
@@ -733,10 +801,39 @@ bool BrowserWebViewDelegate::ShowJavaScriptConfirm(WebFrame* webframe,
 
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
                                                   const CefString& message,
-                                                 const CefString& default_value,
+                                                  const CefString& default_value,
                                                   CefString* result) {
-  // TODO(cef): Implement a default prompt dialog
-  return false;
+  FilePath file_path;
+  HMODULE hModule = NULL;
+
+  // Try to load the dialog from the DLL.
+  if (PathService::Get(base::FILE_MODULE, &file_path))
+    hModule = ::GetModuleHandle(file_path.value().c_str());
+  if (!hModule)
+    hModule = ::GetModuleHandle(NULL);
+  DCHECK(hModule);
+
+  DialogConfig config;
+  config.label = GetDialogLabel(webframe, "JavaScript Prompt");
+  config.message = message;
+  config.default_value = default_value;
+
+  HWND parent = GetAncestor(browser_->GetWindowHandle(), GA_ROOT);
+
+  // Show the modal dialog.
+  int rv = DialogBoxParam(hModule,
+                          MAKEINTRESOURCE(IDD_PROMPT),
+                          parent,
+                          DialogProc,
+                          reinterpret_cast<LPARAM>(&config));
+  if (rv == IDOK)
+    *result = config.result;
+
+  // Return focus to the parent window.
+  if (IsWindow(parent))
+    SetFocus(parent);
+
+  return (rv == IDOK);
 }
 
 namespace {
