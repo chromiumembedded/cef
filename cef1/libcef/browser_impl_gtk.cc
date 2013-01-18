@@ -189,7 +189,7 @@ int CefBrowserImpl::UIT_GetPagesCount(WebKit::WebFrame* frame) {
 // static
 void CefBrowserImpl::UIT_CloseView(gfx::NativeView view) {
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
-  gtk_widget_destroy(window);
+  gtk_signal_emit_by_name(GTK_OBJECT(window), "delete_event");
 }
 
 // static
