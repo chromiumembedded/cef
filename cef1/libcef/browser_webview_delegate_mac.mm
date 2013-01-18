@@ -13,11 +13,14 @@
 #include "base/file_util.h"
 #include "base/mac/mac_util.h"
 #include "base/sys_string_conversions.h"
+#include "base/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "skia/ext/skia_utils_mac.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
@@ -78,6 +81,17 @@ void AddMenuItem(CefRefPtr<CefBrowser> browser,
 void AddMenuSeparator(NSMenu* menu) {
   NSMenuItem* item = [NSMenuItem separatorItem]; 
   [menu addItem:item];
+}
+
+NSString* GetDialogLabel(WebKit::WebFrame* webframe, const std::string& label) {
+  const GURL& url = webframe->document().url();
+  std::string urlStr;
+  if (!url.is_empty())
+    urlStr = url.host();
+  string16 labelStr = ASCIIToUTF16(label);
+  if (!urlStr.empty())
+    labelStr += ASCIIToUTF16(" - " + urlStr);
+  return base::SysUTF16ToNSString(labelStr);
 }
 
 } // namespace
@@ -470,9 +484,11 @@ void BrowserWebViewDelegate::DidMovePlugin(
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const CefString& message) {
+  NSString* label = GetDialogLabel(webframe, "JavaScript Alert");
   std::string messageStr(message);
-  NSString *text = [NSString stringWithUTF8String:messageStr.c_str()];
-  NSAlert *alert = [NSAlert alertWithMessageText:@"JavaScript Alert"
+  NSString* text = [NSString stringWithUTF8String:messageStr.c_str()];
+
+  NSAlert* alert = [NSAlert alertWithMessageText:label
                                    defaultButton:@"OK"
                                  alternateButton:nil
                                      otherButton:nil
@@ -482,15 +498,52 @@ void BrowserWebViewDelegate::ShowJavaScriptAlert(
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(
     WebKit::WebFrame* webframe, const CefString& message) {
-  NOTIMPLEMENTED();
-  return false;
+  NSString* label = GetDialogLabel(webframe, "JavaScript Confirm");
+  std::string messageStr(message);
+  NSString* text = [NSString stringWithUTF8String:messageStr.c_str()];
+
+  NSAlert *alert = [NSAlert alertWithMessageText:label
+                                   defaultButton:@"OK"
+                                 alternateButton:@"Cancel"
+                                     otherButton:nil
+                       informativeTextWithFormat:text];
+
+  NSInteger r = [alert runModal];
+
+  return (r == NSAlertDefaultReturn);
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
     WebKit::WebFrame* webframe, const CefString& message,
     const CefString& default_value, CefString* result) {
-  NOTIMPLEMENTED();
-  return false;
+  NSString* label = GetDialogLabel(webframe, "JavaScript Prompt");
+
+  NSAlert *alert =
+      [NSAlert alertWithMessageText:label
+                      defaultButton:@"OK"
+                    alternateButton:@"Cancel"
+                        otherButton:nil
+          informativeTextWithFormat:@""];
+
+  NSTextField *input =
+      [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 22)];
+  [[input cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+  std::string default_valueStr(default_value);
+  [input setStringValue:
+      [NSString stringWithUTF8String:default_valueStr.c_str()]];
+  [alert setAccessoryView:input];
+  [input release];
+
+  std::string messageStr(message);
+  [alert setInformativeText:[NSString stringWithUTF8String:messageStr.c_str()]];
+
+  NSInteger r = [alert runModal];
+  if (r == NSAlertDefaultReturn) {
+    [input validateEditing];
+    *result = base::SysNSStringToUTF8([input stringValue]);
+  }
+
+  return (r == NSAlertDefaultReturn);
 }
 
 // Called to show the file chooser dialog.

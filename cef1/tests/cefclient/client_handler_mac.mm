@@ -80,6 +80,11 @@ bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
     resourceStream = GetBinaryResourceReader("performance.html");
     response->SetMimeType("text/html");
     response->SetStatus(200);
+  } else if (url == "http://tests/dialogs") {
+    // Show the dialogs HTML contents
+    resourceStream = GetBinaryResourceReader("dialogs.html");
+    response->SetMimeType("text/html");
+    response->SetStatus(200);
   }
 
   return false;
