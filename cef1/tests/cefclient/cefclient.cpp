@@ -660,3 +660,7 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
 void RunGeolocationTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://html5demos.com/geo");
 }
+
+void RunDialogsTest(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://tests/dialogs");
+}

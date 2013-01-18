@@ -94,6 +94,112 @@ void SelectionClipboardGetContents(GtkClipboard* clipboard,
   }
 }
 
+void ShowJSAlertDialog(GtkWidget* window,
+                       const gchar* title,
+                       const gchar* message) {
+  // Create the widgets.
+  GtkWidget* dialog = gtk_dialog_new_with_buttons(
+      title,
+      GTK_WINDOW(window),
+      GtkDialogFlags(GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL),
+      GTK_STOCK_OK,
+      GTK_RESPONSE_NONE,
+      NULL);
+  GtkWidget* content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget* label = gtk_label_new(message);
+
+  // Add the label and show everything we've added to the dialog.
+  gtk_container_add(GTK_CONTAINER(content_area), label);
+
+  gtk_widget_show_all(dialog);
+
+  gtk_dialog_run(GTK_DIALOG(dialog));
+
+  gtk_widget_destroy(dialog);
+}
+
+bool ShowJSConfirmDialog(GtkWidget* window,
+                         const gchar* title,
+                         const gchar* message) {
+  // Create the widgets.
+  GtkWidget* dialog = gtk_dialog_new_with_buttons(
+      title,
+      GTK_WINDOW(window),
+      GtkDialogFlags(GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL),
+      GTK_STOCK_NO,
+      GTK_RESPONSE_NO,
+      GTK_STOCK_YES,
+      GTK_RESPONSE_YES,
+      NULL);
+  GtkWidget* content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget* label = gtk_label_new(message);
+
+  // Add the label and show everything we've added to the dialog.
+  gtk_container_add(GTK_CONTAINER(content_area), label);
+  gtk_widget_show_all(dialog);
+
+  gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+  gtk_widget_destroy(dialog);
+
+  return (result == GTK_RESPONSE_YES);
+}
+
+bool ShowJSPromptDialog(GtkWidget* window,
+                        const gchar* title,
+                        const gchar* message,
+                        const gchar* default_val,
+                        std::string* return_val) {
+  // Create the widgets.
+  GtkWidget* dialog = gtk_dialog_new_with_buttons(
+      title,
+      GTK_WINDOW(window),
+      GtkDialogFlags(GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL),
+      GTK_STOCK_CANCEL,
+      GTK_RESPONSE_CANCEL,
+      GTK_STOCK_OK,
+      GTK_RESPONSE_OK,
+      NULL);
+  GtkWidget* content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget* label = gtk_label_new(message);
+  GtkWidget* entry = gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(entry), default_val);
+
+  // Add the label and entry and show everything we've added to the dialog.
+  gtk_container_add(GTK_CONTAINER(content_area), label);
+  gtk_container_add(GTK_CONTAINER(content_area), entry);
+  gtk_widget_show_all(dialog);
+
+  gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+  if (result == GTK_RESPONSE_OK)
+    *return_val = std::string(gtk_entry_get_text(GTK_ENTRY(entry)));
+
+  gtk_widget_destroy(dialog);
+
+  return (result == GTK_RESPONSE_OK);
+}
+
+bool ShowJSFileChooser(GtkWidget* window, FilePath* path) {
+  // Create the widgets.
+  GtkWidget* dialog = gtk_file_chooser_dialog_new(
+      "Open File",
+      GTK_WINDOW(window),
+      GTK_FILE_CHOOSER_ACTION_OPEN,
+      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+      NULL);
+
+  gtk_widget_show_all(dialog);
+
+  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  if (result == GTK_RESPONSE_ACCEPT)
+    *path = FilePath(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)));
+
+  gtk_widget_destroy(dialog);
+
+  return (result == GTK_RESPONSE_ACCEPT);
+}
+
 }  // namespace
 
 // WebViewClient ---------------------------------------------------------------
@@ -382,29 +488,67 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
 
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const CefString& message) {
-  NOTIMPLEMENTED();
+  std::string messageStr(message);
+  std::string urlStr(browser_->GetMainFrame()->GetURL());
+
+  gfx::NativeView view = browser_->UIT_GetMainWndHandle();
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
+  ShowJSAlertDialog(window,
+                    static_cast<const gchar*>(urlStr.c_str()),
+                    static_cast<const gchar*>(messageStr.c_str()));
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(
     WebKit::WebFrame* webframe, const CefString& message) {
-  NOTIMPLEMENTED();
-  return false;
+  std::string messageStr(message);
+  std::string urlStr(browser_->GetMainFrame()->GetURL());
+
+  gfx::NativeView view = browser_->UIT_GetMainWndHandle();
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
+  return ShowJSConfirmDialog(
+      window,
+      static_cast<const gchar*>(urlStr.c_str()),
+      static_cast<const gchar*>(messageStr.c_str()));
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
     WebKit::WebFrame* webframe, const CefString& message,
     const CefString& default_value, CefString* result) {
-  NOTIMPLEMENTED();
-  return false;
+  std::string messageStr(message);
+  std::string defaultStr(default_value);
+  std::string urlStr(browser_->GetMainFrame()->GetURL());
+
+  gfx::NativeView view = browser_->UIT_GetMainWndHandle();
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
+  std::string return_val;
+  bool resp = ShowJSPromptDialog(
+      window,
+      static_cast<const gchar*>(urlStr.c_str()),
+      static_cast<const gchar*>(messageStr.c_str()),
+      static_cast<const gchar*>(defaultStr.c_str()),
+      &return_val);
+  if (resp)
+    *result = return_val;
+
+  return resp;
 }
 
-// Called to show the file chooser dialog.
 bool BrowserWebViewDelegate::ShowFileChooser(
     std::vector<FilePath>& file_names,
     bool multi_select,
     const WebKit::WebString& title,
     const FilePath& default_file,
     const std::vector<std::string>& accept_mime_types) {
-  NOTIMPLEMENTED();
-  return false;
+  gfx::NativeView view = browser_->UIT_GetMainWndHandle();
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
+  FilePath file_name;
+  bool resp = ShowJSFileChooser(window, &file_name);
+  if (resp)
+     file_names.push_back(file_name);
+
+  return resp;
 }

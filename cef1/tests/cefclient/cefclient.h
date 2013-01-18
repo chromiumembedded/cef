@@ -52,6 +52,7 @@ void RunDragDropTest(CefRefPtr<CefBrowser> browser);
 void RunModalDialogTest(CefRefPtr<CefBrowser> browser);
 void RunPluginInfoTest(CefRefPtr<CefBrowser> browser);
 void RunGeolocationTest(CefRefPtr<CefBrowser> browser);
+void RunDialogsTest(CefRefPtr<CefBrowser> browser);
 
 #if defined(OS_WIN)
 void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
