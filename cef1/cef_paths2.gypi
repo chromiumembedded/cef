@@ -152,6 +152,7 @@
       'tests/cefclient/mac/English.lproj/InfoPlist.strings',
       'tests/cefclient/mac/English.lproj/MainMenu.xib',
       'tests/cefclient/mac/Info.plist',
+      'tests/cefclient/res/dialogs.html',
       'tests/cefclient/res/domaccess.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',

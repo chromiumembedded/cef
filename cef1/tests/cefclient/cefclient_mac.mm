@@ -200,6 +200,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testJSInvoke:(id)sender;
 - (IBAction)testPerformance:(id)sender;
+- (IBAction)testDialogs:(id)sender;
 - (IBAction)testRequest:(id)sender;
 - (IBAction)testLocalStorage:(id)sender;
 - (IBAction)testXMLHttpRequest:(id)sender;
@@ -258,6 +259,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Performance Tests"
                       action:@selector(testPerformance:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Dialogs"
+                      action:@selector(testDialogs:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Popup Window"
                       action:@selector(testPopupWindow:)
@@ -443,6 +447,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testPerformance:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     performance_test::RunTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testDialogs:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunDialogsTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testRequest:(id)sender {
