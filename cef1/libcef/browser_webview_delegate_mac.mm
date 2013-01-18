@@ -529,8 +529,10 @@ bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
                                       withObject:default_dir
                                       withObject:default_filename];
   } else {
-    [dialog setDirectoryURL:[NSURL URLWithString:default_dir]];
-    [dialog setNameFieldStringValue:default_filename];
+    if (default_dir)
+      [dialog setDirectoryURL:[NSURL URLWithString:default_dir]];
+    if (default_filename)
+      [dialog setNameFieldStringValue:default_filename];
     result = [dialog runModal];
   }
 
