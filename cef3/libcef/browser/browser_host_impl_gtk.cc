@@ -260,7 +260,7 @@ void CefBrowserHostImpl::PlatformCloseWindow() {
   if (window_info_.widget != NULL) {
     GtkWidget* window =
         gtk_widget_get_toplevel(GTK_WIDGET(window_info_.widget));
-    gtk_widget_destroy(window);
+    gtk_signal_emit_by_name(GTK_OBJECT(window), "delete_event");
   }
 }
 
