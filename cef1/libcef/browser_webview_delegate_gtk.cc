@@ -14,6 +14,7 @@
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
@@ -198,6 +199,18 @@ bool ShowJSFileChooser(GtkWidget* window, FilePath* path) {
   gtk_widget_destroy(dialog);
 
   return (result == GTK_RESPONSE_ACCEPT);
+}
+
+std::string GetDialogLabel(WebKit::WebFrame* webframe,
+                           const std::string& label) {
+  const GURL& url = webframe->document().url();
+  std::string urlStr;
+  if (!url.is_empty())
+    urlStr = url.host();
+  std::string labelStr = label;
+  if (!urlStr.empty())
+    labelStr += " - " + urlStr;
+  return labelStr;
 }
 
 }  // namespace
@@ -489,27 +502,27 @@ void BrowserWebViewDelegate::RegisterDragDrop() {
 void BrowserWebViewDelegate::ShowJavaScriptAlert(
     WebKit::WebFrame* webframe, const CefString& message) {
   std::string messageStr(message);
-  std::string urlStr(browser_->GetMainFrame()->GetURL());
+  std::string labelStr(GetDialogLabel(webframe, "JavaScript Alert"));
 
   gfx::NativeView view = browser_->UIT_GetMainWndHandle();
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
   ShowJSAlertDialog(window,
-                    static_cast<const gchar*>(urlStr.c_str()),
+                    static_cast<const gchar*>(labelStr.c_str()),
                     static_cast<const gchar*>(messageStr.c_str()));
 }
 
 bool BrowserWebViewDelegate::ShowJavaScriptConfirm(
     WebKit::WebFrame* webframe, const CefString& message) {
   std::string messageStr(message);
-  std::string urlStr(browser_->GetMainFrame()->GetURL());
+  std::string labelStr(GetDialogLabel(webframe, "JavaScript Confirm"));
 
   gfx::NativeView view = browser_->UIT_GetMainWndHandle();
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
   return ShowJSConfirmDialog(
       window,
-      static_cast<const gchar*>(urlStr.c_str()),
+      static_cast<const gchar*>(labelStr.c_str()),
       static_cast<const gchar*>(messageStr.c_str()));
 }
 
@@ -518,7 +531,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
     const CefString& default_value, CefString* result) {
   std::string messageStr(message);
   std::string defaultStr(default_value);
-  std::string urlStr(browser_->GetMainFrame()->GetURL());
+  std::string labelStr(GetDialogLabel(webframe, "JavaScript Prompt"));
 
   gfx::NativeView view = browser_->UIT_GetMainWndHandle();
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
@@ -526,7 +539,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
   std::string return_val;
   bool resp = ShowJSPromptDialog(
       window,
-      static_cast<const gchar*>(urlStr.c_str()),
+      static_cast<const gchar*>(labelStr.c_str()),
       static_cast<const gchar*>(messageStr.c_str()),
       static_cast<const gchar*>(defaultStr.c_str()),
       &return_val);
