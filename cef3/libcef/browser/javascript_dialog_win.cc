@@ -61,8 +61,10 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
           if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
             size_t length =
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
-            GetDlgItemText(dialog, IDC_PROMPTEDIT,
-                           WriteInto(&user_input, length), length);
+            if (length > 1) {
+              GetDlgItemText(dialog, IDC_PROMPTEDIT,
+                             WriteInto(&user_input, length), length);
+            }
           }
           break;
         case IDCANCEL:
