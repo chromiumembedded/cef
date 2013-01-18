@@ -494,10 +494,12 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
 }
 
 // Called to show the file chooser dialog.
-bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
-                                             const bool multi_select,
-                                             const WebKit::WebString& title,
-                                             const FilePath& default_file) {
+bool BrowserWebViewDelegate::ShowFileChooser(
+    std::vector<FilePath>& file_names,
+    bool multi_select,
+    const WebKit::WebString& title,
+    const FilePath& default_file,
+    const std::vector<std::string>& accept_mime_types) {
   NSOpenPanel* dialog = [NSOpenPanel openPanel];
   if (!title.isNull())
     [dialog setTitle:base::SysUTF16ToNSString(title)];

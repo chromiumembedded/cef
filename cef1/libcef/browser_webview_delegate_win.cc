@@ -20,8 +20,12 @@
 #include "libcef/drag_data_impl.h"
 #include "libcef/web_drop_target_win.h"
 
+#include "base/i18n/case_conversion.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/utf_string_conversions.h"
+#include "base/win/registry.h"
+#include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
@@ -31,6 +35,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/point.h"
@@ -60,6 +65,178 @@ using WebKit::WebWidget;
 namespace {
 
 static const wchar_t kPluginWindowClassName[] = L"WebPluginHost";
+
+// From ui/base/dialogs/select_file_dialog_win.cc.
+
+// Get the file type description from the registry. This will be "Text Document"
+// for .txt files, "JPEG Image" for .jpg files, etc. If the registry doesn't
+// have an entry for the file type, we return false, true if the description was
+// found. 'file_ext' must be in form ".txt".
+static bool GetRegistryDescriptionFromExtension(const std::wstring& file_ext,
+                                                std::wstring* reg_description) {
+  DCHECK(reg_description);
+  base::win::RegKey reg_ext(HKEY_CLASSES_ROOT, file_ext.c_str(), KEY_READ);
+  std::wstring reg_app;
+  if (reg_ext.ReadValue(NULL, &reg_app) == ERROR_SUCCESS && !reg_app.empty()) {
+    base::win::RegKey reg_link(HKEY_CLASSES_ROOT, reg_app.c_str(), KEY_READ);
+    if (reg_link.ReadValue(NULL, reg_description) == ERROR_SUCCESS)
+      return true;
+  }
+  return false;
+}
+
+// Set up a filter for a Save/Open dialog, which will consist of |file_ext| file
+// extensions (internally separated by semicolons), |ext_desc| as the text
+// descriptions of the |file_ext| types (optional), and (optionally) the default
+// 'All Files' view. The purpose of the filter is to show only files of a
+// particular type in a Windows Save/Open dialog box. The resulting filter is
+// returned. The filters created here are:
+//   1. only files that have 'file_ext' as their extension
+//   2. all files (only added if 'include_all_files' is true)
+// Example:
+//   file_ext: { "*.txt", "*.htm;*.html" }
+//   ext_desc: { "Text Document" }
+//   returned: "Text Document\0*.txt\0HTML Document\0*.htm;*.html\0"
+//             "All Files\0*.*\0\0" (in one big string)
+// If a description is not provided for a file extension, it will be retrieved
+// from the registry. If the file extension does not exist in the registry, it
+// will be omitted from the filter, as it is likely a bogus extension.
+std::wstring FormatFilterForExtensions(
+    const std::vector<std::wstring>& file_ext,
+    const std::vector<std::wstring>& ext_desc,
+    bool include_all_files) {
+  const std::wstring all_ext = L"*.*";
+  const std::wstring all_desc =
+      std::wstring(L"All Files") +
+      L" (" + all_ext + L")";
+
+  DCHECK(file_ext.size() >= ext_desc.size());
+
+  if (file_ext.empty())
+    include_all_files = true;
+
+  std::wstring result;
+
+  if (file_ext.size() > 1) {
+     std::wstring extensions = JoinString(file_ext, L';');
+     std::wstring all_supported_types = L"All Supported Types (" +
+         extensions + L")";
+
+     result.append(all_supported_types.c_str(), all_supported_types.size() + 1);
+     result.append(extensions.c_str(), extensions.size() + 1);
+  }
+
+  for (size_t i = 0; i < file_ext.size(); ++i) {
+    std::wstring ext = file_ext[i];
+    std::wstring desc;
+    if (i < ext_desc.size())
+      desc = ext_desc[i];
+
+    if (ext.empty()) {
+      // Force something reasonable to appear in the dialog box if there is no
+      // extension provided.
+      include_all_files = true;
+      continue;
+    }
+
+    if (desc.empty()) {
+      DCHECK(ext.find(L'.') != std::wstring::npos);
+      std::wstring first_extension = ext.substr(ext.find(L'.'));
+      size_t first_separator_index = first_extension.find(L';');
+      if (first_separator_index != std::wstring::npos)
+        first_extension = first_extension.substr(0, first_separator_index);
+
+      // Find the extension name without the preceeding '.' character.
+      std::wstring ext_name = first_extension;
+      size_t ext_index = ext_name.find_first_not_of(L'.');
+      if (ext_index != std::wstring::npos)
+        ext_name = ext_name.substr(ext_index);
+
+      if (!GetRegistryDescriptionFromExtension(first_extension, &desc)) {
+        // The extension doesn't exist in the registry. Create a description
+        // based on the unknown extension type (i.e. if the extension is .qqq,
+        // the we create a description "QQQ File (.qqq)").
+        include_all_files = true;
+        std::vector<string16> replacements;
+        replacements.push_back(base::i18n::ToUpper(WideToUTF16(ext_name)));
+        replacements.push_back(ext_name);
+        desc = ReplaceStringPlaceholders(
+            L"$1 File (.$2)",
+            replacements,
+            NULL);
+      }
+    }
+
+    if (!desc.empty())
+      desc += L" (" + ext + L")";
+    else
+      desc = ext;
+
+    result.append(desc.c_str(), desc.size() + 1);  // Append NULL too.
+    result.append(ext.c_str(), ext.size() + 1);
+  }
+
+  if (include_all_files) {
+    result.append(all_desc.c_str(), all_desc.size() + 1);
+    result.append(all_ext.c_str(), all_ext.size() + 1);
+  }
+
+  result.append(1, '\0');  // Double NULL required.
+  return result;
+}
+
+std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
+  // Check for wild card mime types and return an appropriate description.
+  static const struct {
+    const char* mime_type;
+    std::wstring full_string;
+  } kWildCardMimeTypes[] = {
+    { "audio", L"Audio Files" },
+    { "image", L"Image Files" },
+    { "text", L"Text Files" },
+    { "video", L"Video Files" },
+  };
+
+  for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
+    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
+      return std::wstring(kWildCardMimeTypes[i].full_string);
+  }
+
+  return std::wstring();
+}
+
+std::wstring GetFilterStringFromAcceptTypes(
+    const std::vector<std::string>& accept_types) {
+    std::vector<std::wstring> extensions;
+    std::vector<std::wstring> descriptions;
+
+  for (size_t i = 0; i < accept_types.size(); ++i) {
+    std::string ascii_type = accept_types[i];
+    if (ascii_type.length()) {
+      // Just treat as extension if contains '.' as the first character.
+      if (ascii_type[0] == '.') {
+        extensions.push_back(L"*" + ASCIIToWide(ascii_type));
+        descriptions.push_back(std::wstring());
+      } else {
+        // Otherwise convert mime type to one or more extensions.
+        std::vector<FilePath::StringType> ext;
+        std::wstring ext_str;
+        net::GetExtensionsForMimeType(ascii_type, &ext);
+        if (ext.size() > 0) {
+          for (size_t x = 0; x < ext.size(); ++x) {
+            if (x != 0)
+              ext_str += L";";
+            ext_str += L"*." + ext[x];
+          }
+          extensions.push_back(ext_str);
+          descriptions.push_back(GetDescriptionFromMimeType(ascii_type));
+        }
+      }
+    }
+  }
+
+  return FormatFilterForExtensions(extensions, descriptions, true);
+}
 
 void AddMenuItem(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefMenuHandler> handler,
@@ -648,23 +825,26 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
 
 }  // namespace
 
-bool BrowserWebViewDelegate::ShowFileChooser(std::vector<FilePath>& file_names,
-                                             const bool multi_select,
-                                             const WebKit::WebString& title,
-                                             const FilePath& default_file) {
+bool BrowserWebViewDelegate::ShowFileChooser(
+    std::vector<FilePath>& file_names,
+    bool multi_select,
+    const WebKit::WebString& title,
+    const FilePath& default_file,
+    const std::vector<std::string>& accept_mime_types) {
   bool result = false;
+  const std::wstring& filter =
+      GetFilterStringFromAcceptTypes(accept_mime_types);
 
   if (multi_select) {
-    result = RunOpenMultiFileDialog(L"", browser_->UIT_GetMainWndHandle(),
-        &file_names);
+    result = RunOpenMultiFileDialog(filter, browser_->UIT_GetMainWndHandle(),
+                                    &file_names);
   } else {
     FilePath file_name;
-    result = RunOpenFileDialog(L"", browser_->UIT_GetMainWndHandle(),
-        &file_name);
+    result = RunOpenFileDialog(filter, browser_->UIT_GetMainWndHandle(),
+                               &file_name);
     if (result)
       file_names.push_back(file_name);
   }
 
   return result;
 }
-

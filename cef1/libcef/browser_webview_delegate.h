@@ -316,9 +316,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // Called to show the file chooser dialog.
   bool ShowFileChooser(std::vector<FilePath>& file_names,
-                       const bool multi_select,
+                       bool multi_select,
                        const WebKit::WebString& title,
-                       const FilePath& default_file);
+                       const FilePath& default_file,
+                       const std::vector<std::string>& accept_mime_types);
 
   // Called to show status messages.
   void ShowStatus(const WebKit::WebString& text, cef_handler_statustype_t type);
