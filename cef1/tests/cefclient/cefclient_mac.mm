@@ -152,6 +152,10 @@ static NSAutoreleasePool* g_autopool = nil;
   }
 }
 
+- (void)windowDidResignKey:(NSNotification*)notification {
+  [(NSWindow*)[notification object] makeFirstResponder:nil];
+}
+
 // Called when the window is about to close. Perform the self-destruction
 // sequence by getting rid of the window. By returning YES, we allow the window
 // to be removed from the screen.
