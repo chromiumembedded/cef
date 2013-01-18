@@ -109,7 +109,7 @@ class CefGeolocationPermissionContext
     }
 
     // Disallow geolocation access by default.
-    callback.Run(false);
+    CEF_POST_TASK(CEF_UIT, base::Bind(callback, false));
   }
 
   virtual void CancelGeolocationPermissionRequest(
