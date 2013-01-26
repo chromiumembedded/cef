@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors.
+// Copyright (c) 2013 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -18,6 +18,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "cefclient/cefclient.h"
+#include "cefclient/client_handler.h"
 #include "cefclient/client_popup_handler.h"
 #include "cefclient/resource.h"
 #include "cefclient/resource_util.h"
@@ -165,14 +166,12 @@ class ClientOSRHandler : public CefClient,
                                     int loadFlags) OVERRIDE {
     REQUIRE_IO_THREAD();
 
-    std::string url = request->GetURL();
-    if (url == "http://tests/transparency") {
-      resourceStream = GetBinaryResourceReader(IDS_TRANSPARENCY);
-      response->SetMimeType("text/html");
-      response->SetStatus(200);
-    }
-
-    return false;
+    // Proxy the request to the main ClientHandler.
+    CefRefPtr<CefBrowser> main_browser = AppGetBrowser();
+    CefRefPtr<ClientHandler> handler =
+        static_cast<ClientHandler*>(main_browser->GetClient().get());
+    return handler->OnBeforeResourceLoad(browser, request, redirectUrl,
+        resourceStream, response, loadFlags);
   }
 
   // CefDisplayHandler methods

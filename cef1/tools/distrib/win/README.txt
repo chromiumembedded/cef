@@ -47,8 +47,6 @@ USAGE
 
 Visual Studio 2010: Open the cefclient2010.sln solution and build.
 Visual Studio 2008: Open the cefclient2008.sln solution and build.
-  * If using VS2008 Express Edition add atlthunk.lib to the cefclient
-    Configuration Properties > Linker > Input > Additional Dependencies
 Visual Studio 2005: Open the cefclient2005.sln solution and build.
 
 Please visit the CEF Website for additional usage information.
