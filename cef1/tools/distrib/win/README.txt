@@ -45,9 +45,18 @@ Release     Contains libcef.dll and other components required to run the release
 USAGE
 -----
 
-Visual Studio 2010: Open the cefclient2010.sln solution and build.
-Visual Studio 2008: Open the cefclient2008.sln solution and build.
-Visual Studio 2005: Open the cefclient2005.sln solution and build.
+Visual Studio 2012 and Visual Studio 2010:
+  Open the cefclient2010.sln solution in Visual Studio and build.
+
+Visual Studio 2008:
+  Open the cefclient2008.sln solution in Visual Studio and build.
+
+Visual Studio 2005:
+  1. Open the cefclient.vcproj and libcef_dll_wrapper.vcproj files in a text
+     editor. Change Version="9.00" to Version="8.00".
+  2. Open the cefclient2005.sln file in a text editor. Change "Version 9.00" to
+     "Version 8.00".
+  3. Open the cefclient2005.sln solution in Visual Studio and build.
 
 Please visit the CEF Website for additional usage information.
 
