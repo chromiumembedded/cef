@@ -199,6 +199,14 @@ CEF_EXPORT void cef_quit_message_loop() {
   CefQuitMessageLoop();
 }
 
+CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefSetOSModalLoop(
+      osModalLoop?true:false);
+}
+
 CEF_EXPORT int cef_get_geolocation(
     struct _cef_get_geolocation_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

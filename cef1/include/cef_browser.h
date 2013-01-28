@@ -339,13 +339,6 @@ class CefBrowser : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void SendCaptureLostEvent() =0;
-
-  ///
-  // Set to true before calling Windows APIs like TrackPopupMenu that enter a
-  // modal message loop.
-  ///
-  /*--cef()--*/
-  virtual void SetOSModalLoop(bool osModalLoop) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

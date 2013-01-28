@@ -583,17 +583,6 @@ void CefBrowserCToCpp::SendCaptureLostEvent() {
   struct_->send_capture_lost_event(struct_);
 }
 
-void CefBrowserCToCpp::SetOSModalLoop(bool osModalLoop) {
-  if (CEF_MEMBER_MISSING(struct_, set_osmodal_loop))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->set_osmodal_loop(struct_,
-      osModalLoop);
-}
-
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefBrowserCToCpp, CefBrowser,

@@ -80,7 +80,6 @@ class CefBrowserCToCpp
       int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual void SetOSModalLoop(bool osModalLoop) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

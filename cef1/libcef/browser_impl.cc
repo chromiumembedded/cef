@@ -361,11 +361,6 @@ void CefBrowserImpl::CloseDevTools() {
       base::Bind(&CefBrowserImpl::UIT_CloseDevTools, this));
 }
 
-#if !defined(OS_WIN)
-void CefBrowserImpl::SetOSModalLoop(bool osModalLoop) {
-}
-#endif
-
 WebKit::WebGeolocationClient* CefBrowserImpl::UIT_GetGeolocationClient() {
   if (!geolocation_client_)
     geolocation_client_ = new CefGeolocationClient(this);
