@@ -302,13 +302,6 @@ typedef struct _cef_browser_t {
   // Send a capture lost event to the browser.
   ///
   void (CEF_CALLBACK *send_capture_lost_event)(struct _cef_browser_t* self);
-
-  ///
-  // Set to true (1) before calling Windows APIs like TrackPopupMenu that enter
-  // a modal message loop.
-  ///
-  void (CEF_CALLBACK *set_osmodal_loop)(struct _cef_browser_t* self,
-      int osModalLoop);
 } cef_browser_t;
 
 
