@@ -610,16 +610,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       break;
 
     case WM_ENTERMENULOOP:
-      if (!wParam && g_handler.get() && g_handler->GetBrowserHwnd()) {
+      if (!wParam) {
         // Entering the menu loop for the application menu.
-        g_handler->GetBrowser()->SetOSModalLoop(true);
+        CefSetOSModalLoop(true);
       }
       break;
 
     case WM_EXITMENULOOP:
-      if (!wParam && g_handler.get() && g_handler->GetBrowserHwnd()) {
+      if (!wParam) {
         // Exiting the menu loop for the application menu.
-        g_handler->GetBrowser()->SetOSModalLoop(false);
+        CefSetOSModalLoop(false);
       }
       break;
 

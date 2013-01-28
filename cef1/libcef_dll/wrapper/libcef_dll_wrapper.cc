@@ -201,6 +201,14 @@ CEF_GLOBAL void CefQuitMessageLoop() {
   cef_quit_message_loop();
 }
 
+CEF_GLOBAL void CefSetOSModalLoop(bool osModalLoop) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_set_osmodal_loop(
+      osModalLoop);
+}
+
 CEF_GLOBAL bool CefGetGeolocation(
     CefRefPtr<CefGetGeolocationCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
