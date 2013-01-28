@@ -60,7 +60,7 @@ base::StringPiece GetRawDataResource(HMODULE module, int resource_id) {
       : base::StringPiece();
 }
 
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_WIN)
 
 }  // namespace
 
@@ -213,6 +213,23 @@ void CefQuitMessageLoop() {
   }
 
   _Context->process()->QuitMessageLoop();
+}
+
+void CefSetOSModalLoop(bool osModalLoop) {
+#if defined(OS_WIN)
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return;
+  }
+
+  if (CefThread::CurrentlyOn(CefThread::UI)) {
+    MessageLoop::current()->set_os_modal_loop(osModalLoop);
+  } else {
+    CefThread::PostTask(CefThread::UI, FROM_HERE,
+        base::Bind(CefSetOSModalLoop, osModalLoop));
+  }
+#endif  // defined(OS_WIN)
 }
 
 

@@ -717,19 +717,6 @@ void CEF_CALLBACK browser_send_capture_lost_event(struct _cef_browser_t* self) {
   CefBrowserCppToC::Get(self)->SendCaptureLostEvent();
 }
 
-void CEF_CALLBACK browser_set_osmodal_loop(struct _cef_browser_t* self,
-    int osModalLoop) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserCppToC::Get(self)->SetOSModalLoop(
-      osModalLoop?true:false);
-}
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -776,7 +763,6 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
   struct_.struct_.send_mouse_wheel_event = browser_send_mouse_wheel_event;
   struct_.struct_.send_focus_event = browser_send_focus_event;
   struct_.struct_.send_capture_lost_event = browser_send_capture_lost_event;
-  struct_.struct_.set_osmodal_loop = browser_set_osmodal_loop;
 }
 
 #ifndef NDEBUG

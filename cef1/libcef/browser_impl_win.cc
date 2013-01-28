@@ -148,15 +148,6 @@ bool CefBrowserImpl::IsWindowRenderingDisabled() {
   return (window_info_.m_bWindowRenderingDisabled ? true : false);
 }
 
-void CefBrowserImpl::SetOSModalLoop(bool osModalLoop) {
-  if (CefThread::CurrentlyOn(CefThread::UI)) {
-    MessageLoop::current()->set_os_modal_loop(osModalLoop);
-  } else {
-    CefThread::PostTask(CefThread::UI, FROM_HERE,
-        base::Bind(&CefBrowserImpl::SetOSModalLoop, this, osModalLoop));
-  }
-}
-
 gfx::NativeWindow CefBrowserImpl::UIT_GetMainWndHandle() {
   REQUIRE_UIT();
   return window_info_.m_bWindowRenderingDisabled ?
