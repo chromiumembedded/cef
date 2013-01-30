@@ -147,6 +147,17 @@ void WebDropTarget::OnDragLeave(GtkWidget* widget, GdkDragContext* context,
                                 guint time) {
   context_ = NULL;
   drop_data_.reset();
+
+  // Sometimes we get a drag-leave event before getting a drag-data-received
+  // event. In that case, we don't want to bother the renderer with a
+  // DragLeave event.
+  if (data_requests_ != 0)
+    return;
+
+  // When GTK sends us a drag-drop signal, it is shortly (and synchronously)
+  // preceded by a drag-leave. The renderer doesn't like getting the signals
+  // in this order so delay telling it about the drag-leave till we are sure
+  // we are not getting a drop as well.
   MessageLoop::current()->PostTask(FROM_HERE,
       base::Bind(&WebDropTarget::DragLeave, method_factory_.GetWeakPtr()));
 }
