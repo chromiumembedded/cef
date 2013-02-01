@@ -435,7 +435,10 @@ void BrowserWebViewDelegate::startDragging(
     }
   }
   drag_source_ = new WebDragSource(browser_);
-  drag_source_->StartDragging(drop_data, mask, image, image_offset);
+  DCHECK(browser_->last_mouse_down());
+  drag_source_->StartDragging(drop_data, mask, browser_->last_mouse_down(),
+                              image.getSkBitmap(),
+                              gfx::Vector2d(image_offset.x, image_offset.y));
 }
 
 void BrowserWebViewDelegate::runModal() {

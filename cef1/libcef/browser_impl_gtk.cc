@@ -24,6 +24,22 @@ void window_destroyed(GtkWidget* widget, CefBrowserImpl* browser) {
   browser->UIT_DestroyBrowser();
 }
 
+gboolean button_press_event(
+    GtkWidget* widget,
+    GdkEventButton* event,
+    CefBrowserImpl* browser) {
+  browser->set_last_mouse_down(event);
+  return FALSE;
+}
+
+gboolean focus_out_event(
+    GtkWidget* widget,
+    GdkEventFocus* focus,
+    CefBrowserImpl* browser) {
+  browser->set_last_mouse_down(NULL);
+  return FALSE;
+}
+
 }  // namespace
 
 void CefBrowserImpl::ParentWindowWillClose() {
@@ -98,8 +114,14 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   g_signal_connect(G_OBJECT(window_info_.m_Widget), "destroy",
                    G_CALLBACK(window_destroyed), this);
 
-  if (!settings_.drag_drop_disabled)
+  if (!settings_.drag_drop_disabled) {
+    g_signal_connect(G_OBJECT(window_info_.m_Widget), "button-press-event",
+                     G_CALLBACK(button_press_event), this);
+    g_signal_connect(G_OBJECT(window_info_.m_Widget), "focus-out-event",
+                     G_CALLBACK(focus_out_event), this);
+
     delegate_->RegisterDragDrop();
+  }
 
   Unlock();
 
@@ -201,4 +223,17 @@ bool CefBrowserImpl::UIT_IsViewVisible(gfx::NativeView view) {
     return gdk_window_is_visible(view->window)?true:false;
   else
     return false;
+}
+
+void CefBrowserImpl::set_last_mouse_down(GdkEventButton* event) {
+  GdkEventButton* temp = NULL;
+  if (event) {
+    temp = reinterpret_cast<GdkEventButton*>(
+        gdk_event_copy(reinterpret_cast<GdkEvent*>(event)));
+  }
+
+  if (last_mouse_down_)
+    gdk_event_free(reinterpret_cast<GdkEvent*>(last_mouse_down_));
+
+  last_mouse_down_ = temp;
 }

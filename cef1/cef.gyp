@@ -854,6 +854,8 @@
             'libcef/webwidget_host_gtk.cc',
             'libcef/web_drag_source_gtk.cc',
             'libcef/web_drag_source_gtk.h',
+            'libcef/web_drag_utils_gtk.cc',
+            'libcef/web_drag_utils_gtk.h',
             'libcef/web_drop_target_gtk.cc',
             'libcef/web_drop_target_gtk.h',
             # Include the files needed for drag&drop that are otherwise excluded
