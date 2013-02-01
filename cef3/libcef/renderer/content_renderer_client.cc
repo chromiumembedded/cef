@@ -30,7 +30,6 @@ MSVC_POP_WARNING();
 #include "base/path_service.h"
 #include "base/string_number_conversions.h"
 #include "content/common/child_thread.h"
-#include "content/public/browser/render_process_host.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_sync_channel.h"
@@ -209,8 +208,7 @@ struct CefContentRendererClient::SchemeInfo {
 
 CefContentRendererClient::CefContentRendererClient()
     : devtools_agent_count_(0),
-      uncaught_exception_stack_size_(0),
-      render_thread_shutdown_complete_(false) {
+      uncaught_exception_stack_size_(0) {
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
@@ -413,12 +411,6 @@ void CefContentRendererClient::RemoveWorkerTaskRunner(int worker_id) {
     worker_task_runner_map_.erase(it);
 }
 
-bool CefContentRendererClient::IsRenderThreadShutdownComplete() {
-  DCHECK(content::RenderProcessHost::run_renderer_in_process());
-  base::AutoLock lock_scope(render_thread_shutdown_lock_);
-  return render_thread_shutdown_complete_;
-}
-
 void CefContentRendererClient::RenderThreadStarted() {
   render_task_runner_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
@@ -426,12 +418,6 @@ void CefContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
-
-  if (content::RenderProcessHost::run_renderer_in_process()) {
-    // When running in single-process mode register as a destruction observer
-    // on the render thread's MessageLoop.
-    MessageLoop::current()->AddDestructionObserver(this);
-  }
 
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
@@ -605,10 +591,4 @@ void CefContentRendererClient::WillReleaseScriptContext(
   }
 
   CefV8ReleaseContext(context);
-}
-
-void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
-  DCHECK(content::RenderProcessHost::run_renderer_in_process());
-  base::AutoLock lock_scope(render_thread_shutdown_lock_);
-  render_thread_shutdown_complete_ = true;
 }
