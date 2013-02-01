@@ -13,16 +13,13 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/main_delegate.h"
-#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
-#include "base/threading/platform_thread.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
-#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/ui_base_switches.h"
 
@@ -344,14 +341,6 @@ void CefContext::FinishShutdownOnUIThread(
 }
 
 void CefContext::FinalizeShutdown() {
-  if (content::RenderProcessHost::run_renderer_in_process()) {
-    // When running in single-process mode wait for the render thread to stop
-    // before continuing shutdown. Spin instead of using base::WaitableEvent
-    // because calling Wait() is not allowed on the UI thread.
-    while (!CefContentRendererClient::Get()->IsRenderThreadShutdownComplete())
-      base::PlatformThread::YieldCurrentThread();
-  }
-
   // Shut down the browser runner or UI thread.
   main_delegate_->ShutdownBrowser();
 
