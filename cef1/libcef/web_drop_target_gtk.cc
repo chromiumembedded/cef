@@ -83,6 +83,7 @@ WebDropTarget::WebDropTarget(CefBrowserImpl* browser)
     : browser_(browser),
       data_requests_(0),
       context_(NULL),
+      sent_drag_enter_(false),
       method_factory_(this) {
   GtkWidget* widget = browser->UIT_GetWebViewHost()->view_handle();
   gtk_drag_dest_set(widget, (GtkDestDefaults)0, NULL, 0,
@@ -146,6 +147,10 @@ void WebDropTarget::OnDragLeave(GtkWidget* widget, GdkDragContext* context,
                                 guint time) {
   context_ = NULL;
   drop_data_.reset();
+
+  // Don't send the drag leave if we didn't send the drag enter.
+  if (!sent_drag_enter_)
+    return;
 
   // Sometimes we get a drag-leave event before getting a drag-data-received
   // event. In that case, we don't want to bother the renderer with a
@@ -256,6 +261,7 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
         if (handler->OnDragEnter(browser_, data,
                 (cef_drag_operations_mask_t)_mask(context))) {
           operation = WebDragOperationNone;
+          sent_drag_enter_ = false;
           gdk_drag_status(context,
               (GdkDragAction)DragDropTypes::DragOperationToGdkDragAction(
                   operation),
@@ -268,6 +274,7 @@ void WebDropTarget::OnDragDataReceived(GtkWidget* widget,
     gtk_widget_translate_coordinates(gtk_widget_get_toplevel(widget), widget,
         x, y, &widget_x, &widget_y);
     WebView* webview = getView();
+    sent_drag_enter_ = true;
     operation = webview->dragTargetDragEnter(drop_data_->ToDragData(),
                                    WebPoint(x, y),
                                    WebPoint(widget_x, widget_y),
