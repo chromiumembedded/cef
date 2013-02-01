@@ -45,6 +45,7 @@ class WebDropTarget : public base::RefCounted<WebDropTarget> {
   bool entered_;
   int data_requests_;
   GdkDragContext* context_;
+  bool sent_drag_enter_;
   base::WeakPtrFactory<WebDropTarget> method_factory_;
 };
 
