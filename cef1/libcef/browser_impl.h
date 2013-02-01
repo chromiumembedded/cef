@@ -351,6 +351,9 @@ class CefBrowserImpl : public CefBrowser {
   void set_internal_modal_message_loop_is_active(bool active) {
     internal_modal_message_loop_is_active_ = active;
   }
+#elif defined(OS_LINUX)
+  void set_last_mouse_down(GdkEventButton* event);
+  GdkEventButton* last_mouse_down() { return last_mouse_down_; }
 #endif
 
   void set_popup_rect(const gfx::Rect& rect) { popup_rect_ = rect; }
@@ -410,6 +413,10 @@ class CefBrowserImpl : public CefBrowser {
   // Used to re-enable the opener when a modal window gets closed.
   bool opener_was_disabled_by_modal_loop_;
   bool internal_modal_message_loop_is_active_;
+#endif
+
+#if defined(OS_LINUX)
+  GdkEventButton* last_mouse_down_;
 #endif
 
   // Map of frame id to reference.

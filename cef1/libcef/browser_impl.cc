@@ -170,12 +170,13 @@ CefBrowserImpl::CefBrowserImpl(const CefWindowInfo& windowInfo,
     has_document_(false),
     is_dropping_(false),
     is_in_onsetfocus_(false),
-    browser_id_(_Context->GetNextBrowserID())
 #if defined(OS_WIN)
-    , opener_was_disabled_by_modal_loop_(false),
-    internal_modal_message_loop_is_active_(false)
+    opener_was_disabled_by_modal_loop_(false),
+    internal_modal_message_loop_is_active_(false),
+#elif defined(OS_LINUX)
+    last_mouse_down_(NULL),
 #endif
-{  // NOLINT(whitespace/braces)
+    browser_id_(_Context->GetNextBrowserID()) {
   delegate_.reset(new BrowserWebViewDelegate(this));
   popup_delegate_.reset(new BrowserWebViewDelegate(this));
   nav_controller_.reset(new BrowserNavigationController(this));
@@ -795,6 +796,10 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
   UIT_ClearMainWndHandle();
 
   main_frame_ = NULL;
+
+#if defined(OS_LINUX)
+  set_last_mouse_down(NULL);
+#endif
 
   if (request_context_proxy_.get()) {
     // Delete the proxy on the IO thread.
