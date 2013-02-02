@@ -14,6 +14,7 @@ MSVC_POP_WARNING();
 
 #include "libcef/renderer/content_renderer_client.h"
 
+#include "libcef/browser/context.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/content_client.h"
@@ -30,6 +31,8 @@ MSVC_POP_WARNING();
 #include "base/path_service.h"
 #include "base/string_number_conversions.h"
 #include "content/common/child_thread.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_sync_channel.h"
@@ -208,7 +211,8 @@ struct CefContentRendererClient::SchemeInfo {
 
 CefContentRendererClient::CefContentRendererClient()
     : devtools_agent_count_(0),
-      uncaught_exception_stack_size_(0) {
+      uncaught_exception_stack_size_(0),
+      single_process_cleanup_complete_(false) {
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
@@ -411,6 +415,35 @@ void CefContentRendererClient::RemoveWorkerTaskRunner(int worker_id) {
     worker_task_runner_map_.erase(it);
 }
 
+void CefContentRendererClient::RunSingleProcessCleanup() {
+  DCHECK(content::RenderProcessHost::run_renderer_in_process());
+
+  // Make sure the render thread was actually started.
+  if (!render_task_runner_)
+    return;
+
+  if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
+    RunSingleProcessCleanupOnUIThread();
+  } else {
+    content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&CefContentRendererClient::RunSingleProcessCleanupOnUIThread,
+                   base::Unretained(this)));
+  }
+
+  // Wait for the render thread cleanup to complete. Spin instead of using
+  // base::WaitableEvent because calling Wait() is not allowed on the UI
+  // thread.
+  bool complete = false;
+  do {
+    {
+      base::AutoLock lock_scope(single_process_cleanup_lock_);
+      complete = single_process_cleanup_complete_;
+    }
+    if (!complete)
+      base::PlatformThread::YieldCurrentThread();
+  } while (!complete);
+}
+
 void CefContentRendererClient::RenderThreadStarted() {
   render_task_runner_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
@@ -418,6 +451,12 @@ void CefContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
+
+  if (content::RenderProcessHost::run_renderer_in_process()) {
+    // When running in single-process mode register as a destruction observer
+    // on the render thread's MessageLoop.
+    MessageLoop::current()->AddDestructionObserver(this);
+  }
 
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
@@ -591,4 +630,38 @@ void CefContentRendererClient::WillReleaseScriptContext(
   }
 
   CefV8ReleaseContext(context);
+}
+
+void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
+  base::AutoLock lock_scope(single_process_cleanup_lock_);
+  single_process_cleanup_complete_ = true;
+}
+
+void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+
+  // Clean up the single existing RenderProcessHost.
+  content::RenderProcessHost* host = NULL;
+  content::RenderProcessHost::iterator iterator(
+      content::RenderProcessHost::AllHostsIterator());
+  if (!iterator.IsAtEnd()) {
+    host = iterator.GetCurrentValue();
+    host->Cleanup();
+    iterator.Advance();
+    DCHECK(iterator.IsAtEnd());
+  }
+  DCHECK(host);
+
+  // Clear the run_renderer_in_process() flag to avoid a DCHECK in the
+  // RenderProcessHost destructor.
+  content::RenderProcessHost::SetRunRendererInProcess(false);
+
+  // Deletion of the RenderProcessHost object will stop the render thread and
+  // result in a call to WillDestroyCurrentMessageLoop.
+  // Cleanup() will cause deletion to be posted as a task on the UI thread but
+  // this task will only execute when running in multi-threaded message loop
+  // mode (because otherwise the UI message loop has already stopped). Therefore
+  // we need to explicitly delete the object when not running in this mode.
+  if (!_Context->settings().multi_threaded_message_loop)
+    delete host;
 }
