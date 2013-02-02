@@ -13,6 +13,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/main_delegate.h"
+#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -20,6 +21,7 @@
 #include "base/synchronization/waitable_event.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/ui_base_switches.h"
 
@@ -341,6 +343,11 @@ void CefContext::FinishShutdownOnUIThread(
 }
 
 void CefContext::FinalizeShutdown() {
+  if (content::RenderProcessHost::run_renderer_in_process()) {
+    // Blocks until RenderProcess cleanup is complete.
+    CefContentRendererClient::Get()->RunSingleProcessCleanup();
+  }
+
   // Shut down the browser runner or UI thread.
   main_delegate_->ShutdownBrowser();
 

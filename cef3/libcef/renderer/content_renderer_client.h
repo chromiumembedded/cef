@@ -16,6 +16,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/message_loop.h"
 #include "base/sequenced_task_runner.h"
 #include "content/public/renderer/content_renderer_client.h"
 
@@ -23,7 +24,8 @@ class CefRenderProcessObserver;
 class CefWebWorkerScriptObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 
-class CefContentRendererClient : public content::ContentRendererClient {
+class CefContentRendererClient : public content::ContentRendererClient,
+                                 public MessageLoop::DestructionObserver {
  public:
   CefContentRendererClient();
   virtual ~CefContentRendererClient();
@@ -72,6 +74,10 @@ class CefContentRendererClient : public content::ContentRendererClient {
   // Remove the task runner associated with the specified worker ID.
   void RemoveWorkerTaskRunner(int worker_id);
 
+  // Perform cleanup work that needs to occur before shutdown when running in
+  // single-process mode. Blocks until cleanup is complete.
+  void RunSingleProcessCleanup();
+
  private:
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
@@ -88,6 +94,12 @@ class CefContentRendererClient : public content::ContentRendererClient {
   virtual void WillReleaseScriptContext(WebKit::WebFrame* frame,
                                         v8::Handle<v8::Context> context,
                                         int world_id) OVERRIDE;
+
+  // MessageLoop::DestructionObserver implementation.
+  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+
+  // Perform cleanup work for single-process mode.
+  void RunSingleProcessCleanupOnUIThread();
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;
@@ -115,6 +127,11 @@ class CefContentRendererClient : public content::ContentRendererClient {
       WorkerTaskRunnerMap;
   WorkerTaskRunnerMap worker_task_runner_map_;
   base::Lock worker_task_runner_lock_;
+
+  // Used in single-process mode to test when cleanup is complete.
+  // Access must be protected by |single_process_cleanup_lock_|.
+  bool single_process_cleanup_complete_;
+  base::Lock single_process_cleanup_lock_;
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
