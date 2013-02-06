@@ -221,13 +221,6 @@ typedef struct _cef_settings_t {
   cef_string_t javascript_flags;
 
   ///
-  // Set to true (1) to use the system proxy resolver on Windows when
-  // "Automatically detect settings" is checked. This setting is disabled
-  // by default for performance reasons.
-  ///
-  bool auto_detect_proxy_settings_enabled;
-
-  ///
   // The fully qualified path for the resources directory. If this value is
   // empty the cef.pak and/or devtools_resources.pak files must be located in
   // the module directory on Windows/Linux or the app bundle Resources directory
@@ -1276,23 +1269,6 @@ typedef struct _cef_popup_features_t {
   bool dialog;
   cef_string_list_t additionalFeatures;
 } cef_popup_features_t;
-
-///
-// Proxy types.
-///
-enum cef_proxy_type_t {
-  CEF_PROXY_TYPE_DIRECT = 0,
-  CEF_PROXY_TYPE_NAMED,
-  CEF_PROXY_TYPE_PAC_STRING,
-};
-
-///
-// Proxy information.
-///
-typedef struct _cef_proxy_info_t {
-  enum cef_proxy_type_t proxyType;
-  cef_string_t proxyList;
-} cef_proxy_info_t;
 
 ///
 // DOM document types.

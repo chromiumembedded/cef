@@ -56,13 +56,6 @@ extern const char kDeveloperToolsDisabled[];
 extern const char kOffScreenRenderingEnabled[];
 extern const char kTransparentPaintingEnabled[];
 
-// Other attributes.
-extern const char kProxyType[];
-extern const char kProxyType_Direct[];
-extern const char kProxyType_Named[];
-extern const char kProxyType_Pac[];
-extern const char kProxyConfig[];
-
 }  // namespace cefclient
 
 #endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_

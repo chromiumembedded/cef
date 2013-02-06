@@ -57,14 +57,6 @@ typedef struct _cef_browser_process_handler_t {
   cef_base_t base;
 
   ///
-  // Return the handler for proxy events. If no handler is returned the default
-  // system handler will be used. This function is called on the browser process
-  // IO thread.
-  ///
-  struct _cef_proxy_handler_t* (CEF_CALLBACK *get_proxy_handler)(
-      struct _cef_browser_process_handler_t* self);
-
-  ///
   // Called on the browser process UI thread immediately after the CEF context
   // has been initialized.
   ///

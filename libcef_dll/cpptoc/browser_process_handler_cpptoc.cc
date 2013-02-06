@@ -11,28 +11,11 @@
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/proxy_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
-
-struct _cef_proxy_handler_t* CEF_CALLBACK browser_process_handler_get_proxy_handler(
-    struct _cef_browser_process_handler_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefProxyHandler> _retval = CefBrowserProcessHandlerCppToC::Get(
-      self)->GetProxyHandler();
-
-  // Return type: refptr_same
-  return CefProxyHandlerCppToC::Wrap(_retval);
-}
 
 void CEF_CALLBACK browser_process_handler_on_context_initialized(
     struct _cef_browser_process_handler_t* self) {
@@ -89,7 +72,6 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC(
     CefBrowserProcessHandler* cls)
     : CefCppToC<CefBrowserProcessHandlerCppToC, CefBrowserProcessHandler,
         cef_browser_process_handler_t>(cls) {
-  struct_.struct_.get_proxy_handler = browser_process_handler_get_proxy_handler;
   struct_.struct_.on_context_initialized =
       browser_process_handler_on_context_initialized;
   struct_.struct_.on_before_child_process_launch =

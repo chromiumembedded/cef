@@ -84,7 +84,6 @@
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -207,7 +206,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefLoadHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefMenuModelCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefProxyHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefQuotaCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefRenderHandlerCToCpp::DebugObjCt, 0);

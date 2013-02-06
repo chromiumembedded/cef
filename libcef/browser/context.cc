@@ -304,6 +304,11 @@ CefDevToolsDelegate* CefContext::devtools_delegate() const {
       devtools_delegate();
 }
 
+scoped_ptr<net::ProxyConfigService> CefContext::proxy_config_service() const {
+  return main_delegate_->browser_client()->browser_main_parts()->
+      proxy_config_service();
+}
+
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (shutting_down_)

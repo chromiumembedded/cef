@@ -1628,7 +1628,8 @@ class V8RendererTest : public ClientApp::RenderDelegate {
                          new Handler(&startup_test_success_));
   }
 
-  virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) {
+  virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
+                                CefRefPtr<CefBrowser> browser) {
     test_mode_ = g_current_test_mode;
     if (test_mode_ == V8TEST_NONE) {
       // Retrieve the test mode from the command line.
@@ -1719,7 +1720,8 @@ class V8RendererTest : public ClientApp::RenderDelegate {
           V8_PROPERTY_ATTRIBUTE_NONE));
     }
 
-    if (test_mode_ > V8TEST_NONE && url != kV8NavTestUrl) {
+    if (test_mode_ > V8TEST_NONE && url != kV8NavTestUrl &&
+        url.find("http://tests/") != std::string::npos) {
       // Run the test asynchronously.
       CefPostTask(TID_RENDERER,
                   NewCefRunnableMethod(this, &V8RendererTest::RunTest));
@@ -1734,7 +1736,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       return;
 
     if (test_mode_ == V8TEST_CONTEXT_INVALID &&
-        frame->GetURL().ToString() != kV8NavTestUrl) {
+        frame->GetURL().ToString() == kV8TestUrl) {
       test_context_ =
           browser_->GetMainFrame()->GetV8Context();
       test_object_ = CefV8Value::CreateArray(10);

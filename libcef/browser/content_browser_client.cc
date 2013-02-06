@@ -23,6 +23,7 @@
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/path_service.h"
+#include "chrome/common/chrome_switches.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"

@@ -49,7 +49,6 @@
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/proxy_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -199,7 +198,6 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefLoadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefMenuModelCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefProxyHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefQuotaCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefRenderHandlerCppToC::DebugObjCt, 0);

@@ -13,23 +13,9 @@
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
-
-CefRefPtr<CefProxyHandler> CefBrowserProcessHandlerCToCpp::GetProxyHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_proxy_handler))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_proxy_handler_t* _retval = struct_->get_proxy_handler(struct_);
-
-  // Return type: refptr_same
-  return CefProxyHandlerCToCpp::Wrap(_retval);
-}
 
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {
   if (CEF_MEMBER_MISSING(struct_, on_context_initialized))

@@ -6,9 +6,6 @@
 
 namespace switches {
 
-// Product version string.
-const char kProductVersion[]          = "product-version";
-
 // Log file path.
 const char kLogFile[]                 = "log-file";
 

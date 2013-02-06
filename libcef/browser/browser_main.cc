@@ -14,6 +14,7 @@
 #include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/string_number_conversions.h"
+#include "chrome/browser/net/proxy_service_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
@@ -54,11 +55,27 @@ int CefBrowserMainParts::PreCreateThreads() {
   // before the IO thread is started.
   content::GpuDataManager::GetInstance();
 
+  // Initialize user preferences.
+  user_prefs_ = new BrowserPrefStore();
+  user_prefs_->SetInitializationCompleted();
+
+  // Initialize proxy configuration tracker.
+  pref_proxy_config_tracker_.reset(
+      ProxyServiceFactory::CreatePrefProxyConfigTracker(
+          user_prefs_->CreateService()));
+
   return 0;
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
   browser_context_.reset(new CefBrowserContext());
+
+  // Initialize proxy configuration service.
+  ChromeProxyConfigService* chrome_proxy_config_service =
+      ProxyServiceFactory::CreateProxyConfigService(true);
+  proxy_config_service_.reset(chrome_proxy_config_service);
+  pref_proxy_config_tracker_->SetChromeProxyConfigService(
+      chrome_proxy_config_service);
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
@@ -76,9 +93,12 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 void CefBrowserMainParts::PostMainMessageLoopRun() {
   if (devtools_delegate_)
     devtools_delegate_->Stop();
+  pref_proxy_config_tracker_->DetachFromPrefService();
   browser_context_.reset();
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
+  pref_proxy_config_tracker_.reset(NULL);
+
   PlatformCleanup();
 }
