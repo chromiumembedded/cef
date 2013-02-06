@@ -16,6 +16,7 @@
 #include "libcef/browser/url_request_context_proxy.h"
 #include "libcef/browser/url_request_interceptor.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
@@ -23,6 +24,7 @@
 #include "base/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
+#include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/cert_verifier.h"
@@ -35,9 +37,6 @@
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
-#include "net/proxy/proxy_config_service.h"
-#include "net/proxy/proxy_config_service_fixed.h"
-#include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
@@ -52,76 +51,6 @@ using content::BrowserThread;
 #pragma comment(lib, "winhttp.lib")
 #endif
 
-namespace {
-
-#if defined(OS_WIN)
-
-// ProxyConfigService implementation that does nothing.
-class ProxyConfigServiceNull : public net::ProxyConfigService {
- public:
-  ProxyConfigServiceNull() {}
-  virtual void AddObserver(Observer* observer) OVERRIDE {}
-  virtual void RemoveObserver(Observer* observer) OVERRIDE {}
-  virtual ProxyConfigService::ConfigAvailability
-      GetLatestProxyConfig(net::ProxyConfig* config) OVERRIDE {
-    return ProxyConfigService::CONFIG_VALID;
-  }
-  virtual void OnLazyPoll() OVERRIDE {}
-
-  DISALLOW_COPY_AND_ASSIGN(ProxyConfigServiceNull);
-};
-
-#endif  // defined(OS_WIN)
-
-// ProxyResolver implementation that forewards resolution to a CefProxyHandler.
-class CefProxyResolver : public net::ProxyResolver {
- public:
-  explicit CefProxyResolver(CefRefPtr<CefProxyHandler> handler)
-    : ProxyResolver(false),
-      handler_(handler) {}
-  virtual ~CefProxyResolver() {}
-
-  virtual int GetProxyForURL(const GURL& url,
-                             net::ProxyInfo* results,
-                             const net::CompletionCallback& callback,
-                             RequestHandle* request,
-                             const net::BoundNetLog& net_log) OVERRIDE {
-    CefProxyInfo proxy_info;
-    handler_->GetProxyForUrl(url.spec(), proxy_info);
-    if (proxy_info.IsDirect())
-      results->UseDirect();
-    else if (proxy_info.IsNamedProxy())
-      results->UseNamedProxy(proxy_info.ProxyList());
-    else if (proxy_info.IsPacString())
-      results->UsePacString(proxy_info.ProxyList());
-
-    return net::OK;
-  }
-
-  virtual int SetPacScript(
-      const scoped_refptr<net::ProxyResolverScriptData>& pac_script,
-      const net::CompletionCallback& callback) OVERRIDE {
-    return net::OK;
-  }
-
-  virtual void CancelRequest(RequestHandle request) OVERRIDE {}
-  virtual net::LoadState GetLoadState(RequestHandle request) const OVERRIDE {
-    return net::LOAD_STATE_IDLE;
-  }
-  virtual net::LoadState GetLoadStateThreadSafe(RequestHandle request) const
-      OVERRIDE {
-    return net::LOAD_STATE_IDLE;
-  }
-  virtual void CancelSetPacScript() OVERRIDE {}
-
- protected:
-  CefRefPtr<CefProxyHandler> handler_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefProxyResolver);
-};
-
-}  // namespace
-
 CefURLRequestContextGetter::CefURLRequestContextGetter(
     bool ignore_certificate_errors,
     const FilePath& base_path,
@@ -133,13 +62,6 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
       file_loop_(file_loop) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
-
-#if !defined(OS_WIN)
-  // We must create the proxy config service on the UI loop on Linux because it
-  // must synchronously run on the glib message loop. This will be passed to
-  // the URLRequestContextStorage on the IO thread in GetURLRequestContext().
-  CreateProxyConfigService();
-#endif
 }
 
 CefURLRequestContextGetter::~CefURLRequestContextGetter() {
@@ -152,6 +74,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
   if (!url_request_context_.get()) {
     const FilePath& cache_path = _Context->cache_path();
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
     url_request_context_.reset(new net::URLRequestContext());
     storage_.reset(
@@ -171,64 +94,14 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
 
-    bool proxy_service_set = false;
-
-    CefRefPtr<CefApp> app = _Context->application();
-    if (app.get()) {
-      CefRefPtr<CefBrowserProcessHandler> handler =
-          app->GetBrowserProcessHandler();
-      if (handler.get()) {
-        CefRefPtr<CefProxyHandler> proxy_handler = handler->GetProxyHandler();
-        if (proxy_handler.get()) {
-          // The client will provide proxy resolution.
-          CreateProxyConfigService();
-          storage_->set_proxy_service(
-              new net::ProxyService(proxy_config_service_.release(),
-                                    new CefProxyResolver(proxy_handler), NULL));
-          proxy_service_set = true;
-        }
-      }
-    }
-
-    // TODO(jam): use v8 if possible, look at chrome code.
-#if defined(OS_WIN)
-    if (!proxy_service_set) {
-      const CefSettings& settings = _Context->settings();
-      if (!settings.auto_detect_proxy_settings_enabled) {
-        // Using the system proxy resolver on Windows when "Automatically detect
-        // settings" (auto-detection) is checked under LAN Settings can hurt
-        // resource loading performance because the call to
-        // WinHttpGetProxyForUrl in proxy_resolver_winhttp.cc will block the
-        // IO thread.  This is especially true for Windows 7 where auto-
-        // detection is checked by default. To avoid slow resource loading on
-        // Windows we only use the system proxy resolver if auto-detection is
-        // unchecked.
-        WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
-        if (WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
-          if (ie_config.fAutoDetect == TRUE) {
-            storage_->set_proxy_service(
-                net::ProxyService::CreateWithoutProxyResolver(
-                    new ProxyConfigServiceNull(), NULL));
-            proxy_service_set = true;
-          }
-
-          if (ie_config.lpszAutoConfigUrl)
-            GlobalFree(ie_config.lpszAutoConfigUrl);
-          if (ie_config.lpszProxy)
-            GlobalFree(ie_config.lpszProxy);
-          if (ie_config.lpszProxyBypass)
-            GlobalFree(ie_config.lpszProxyBypass);
-        }
-      }
-    }
-#endif  // defined(OS_WIN)
-
-    if (!proxy_service_set) {
-      CreateProxyConfigService();
-      storage_->set_proxy_service(
-          net::ProxyService::CreateUsingSystemProxyResolver(
-              proxy_config_service_.release(), 0, NULL));
-    }
+    scoped_ptr<net::ProxyService> system_proxy_service;
+    system_proxy_service.reset(
+        ProxyServiceFactory::CreateProxyService(
+            NULL,
+            url_request_context_.get(),
+            _Context->proxy_config_service().release(),
+            command_line));
+    storage_->set_proxy_service(system_proxy_service.release());
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
 

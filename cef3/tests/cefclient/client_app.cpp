@@ -174,8 +174,7 @@ class ClientAppExtensionHandler : public CefV8Handler {
 }  // namespace
 
 
-ClientApp::ClientApp()
-    : proxy_type_(CEF_PROXY_TYPE_DIRECT) {
+ClientApp::ClientApp() {
   CreateBrowserDelegates(browser_delegates_);
   CreateRenderDelegates(render_delegates_);
 
@@ -232,13 +231,6 @@ void ClientApp::OnRenderProcessThreadCreated(
   BrowserDelegateSet::iterator it = browser_delegates_.begin();
   for (; it != browser_delegates_.end(); ++it)
     (*it)->OnRenderProcessThreadCreated(this, extra_info);
-}
-
-void ClientApp::GetProxyForUrl(const CefString& url,
-                               CefProxyInfo& proxy_info) {
-  proxy_info.proxyType = proxy_type_;
-  if (!proxy_config_.empty())
-    CefString(&proxy_info.proxyList) = proxy_config_;
 }
 
 void ClientApp::OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) {

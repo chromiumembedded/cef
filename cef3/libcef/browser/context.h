@@ -17,6 +17,7 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
+#include "net/proxy/proxy_config_service.h"
 
 namespace base {
 class WaitableEvent;
@@ -66,6 +67,9 @@ class CefContext : public CefBase {
   CefBrowserContext* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 
+  // Passes ownership.
+  scoped_ptr<net::ProxyConfigService> proxy_config_service() const;
+  
   CefTraceSubscriber* GetTraceSubscriber();
 
  private:

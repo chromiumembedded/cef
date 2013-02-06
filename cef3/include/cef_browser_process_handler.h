@@ -40,7 +40,6 @@
 
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
-#include "include/cef_proxy_handler.h"
 #include "include/cef_values.h"
 
 ///
@@ -50,16 +49,6 @@
 /*--cef(source=client)--*/
 class CefBrowserProcessHandler : public virtual CefBase {
  public:
-  ///
-  // Return the handler for proxy events. If no handler is returned the default
-  // system handler will be used. This method is called on the browser process
-  // IO thread.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefProxyHandler> GetProxyHandler() {
-    return NULL;
-  }
-
   ///
   // Called on the browser process UI thread immediately after the CEF context
   // has been initialized.

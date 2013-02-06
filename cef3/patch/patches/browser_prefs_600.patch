@@ -1,0 +1,105 @@
+Index: pref_service.cc
+===================================================================
+--- pref_service.cc	(revision 178221)
++++ pref_service.cc	(working copy)
+@@ -21,21 +21,27 @@
+ #include "base/string_util.h"
+ #include "base/value_conversions.h"
+ #include "build/build_config.h"
++#if !defined(BUILDING_CEF_SHARED)
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/extensions/extension_pref_store.h"
+ #include "chrome/browser/policy/configuration_policy_pref_store.h"
++#endif
+ #include "chrome/browser/prefs/command_line_pref_store.h"
+ #include "chrome/browser/prefs/pref_model_associator.h"
+ #include "chrome/browser/prefs/pref_notifier_impl.h"
+ #include "chrome/browser/prefs/pref_service_observer.h"
+ #include "chrome/browser/prefs/pref_value_store.h"
++#if !defined(BUILDING_CEF_SHARED)
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+ #include "chrome/browser/ui/profile_error_dialog.h"
++#endif
+ #include "chrome/common/pref_names.h"
+ #include "content/public/browser/browser_thread.h"
++#if !defined(BUILDING_CEF_SHARED)
+ #include "grit/chromium_strings.h"
+ #include "grit/generated_resources.h"
++#endif
+ #include "ui/base/l10n/l10n_util.h"
+ 
+ using content::BrowserContext;
+@@ -86,7 +92,9 @@
+ // Forwards a notification after a PostMessage so that we can wait for the
+ // MessageLoop to run.
+ void NotifyReadError(int message_id) {
++#if !defined(BUILDING_CEF_SHARED)
+   ShowProfileErrorDialog(message_id);
++#endif
+ }
+ 
+ // Shows notifications which correspond to PersistentPrefStore's reading errors.
+@@ -98,11 +106,13 @@
+       // an example problem that this can cause.
+       // Do some diagnosis and try to avoid losing data.
+       int message_id = 0;
++#if !defined(BUILDING_CEF_SHARED)
+       if (error <= PersistentPrefStore::PREF_READ_ERROR_JSON_TYPE) {
+         message_id = IDS_PREFERENCES_CORRUPT_ERROR;
+       } else if (error != PersistentPrefStore::PREF_READ_ERROR_NO_FILE) {
+         message_id = IDS_PREFERENCES_UNREADABLE_ERROR;
+       }
++#endif
+ 
+       if (message_id) {
+         BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
+@@ -117,9 +127,15 @@
+ }  // namespace
+ 
+ PrefServiceBase* PrefServiceBase::FromBrowserContext(BrowserContext* context) {
++#if !defined(BUILDING_CEF_SHARED)
+   return static_cast<Profile*>(context)->GetPrefs();
++#else
++  NOTREACHED();
++  return NULL;
++#endif
+ }
+ 
++#if !defined(BUILDING_CEF_SHARED)
+ // static
+ PrefService* PrefService::CreatePrefService(
+     const FilePath& pref_filename,
+@@ -203,6 +219,7 @@
+       NULL,
+       false);
+ }
++#endif  // !defined(BUILDING_CEF_SHARED)
+ 
+ PrefService::PrefService(PrefNotifierImpl* pref_notifier,
+                          PrefValueStore* pref_value_store,
+@@ -217,8 +234,10 @@
+       pref_sync_associator_(pref_sync_associator),
+       pref_service_forked_(false) {
+   pref_notifier_->SetPrefService(this);
++#if !defined(BUILDING_CEF_SHARED)
+   if (pref_sync_associator_.get())
+     pref_sync_associator_->SetPrefService(this);
++#endif
+   InitFromStorage(async);
+ }
+ 
+@@ -278,9 +297,13 @@
+ 
+ // If there's no g_browser_process or no local state, return true (for testing).
+ bool IsLocalStatePrefService(PrefService* prefs) {
++#if !defined(BUILDING_CEF_SHARED)
+   return (!g_browser_process ||
+           !g_browser_process->local_state() ||
+           g_browser_process->local_state() == prefs);
++#else
++  return true;
++#endif
+ }
+ 
+ // If there's no g_browser_process, return true (for testing).

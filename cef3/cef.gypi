@@ -4,6 +4,7 @@
 
 {
   'variables': {
+    'configuration_policy': 0,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {
