@@ -233,10 +233,10 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
       NOTREACHED() << "CefRenderHandler implementation is required";
       return false;
     }
-    if (!new_settings.accelerated_compositing_disabled) {
+    if (new_settings.accelerated_compositing != STATE_DISABLED) {
       // Accelerated compositing is not supported when window rendering is
       // disabled.
-      new_settings.accelerated_compositing_disabled = true;
+      new_settings.accelerated_compositing = STATE_DISABLED;
     }
   }
 
@@ -280,10 +280,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
       NOTREACHED() << "CefRenderHandler implementation is required";
       return NULL;
     }
-    if (!new_settings.accelerated_compositing_disabled) {
+    if (new_settings.accelerated_compositing != STATE_DISABLED) {
       // Accelerated compositing is not supported when window rendering is
       // disabled.
-      new_settings.accelerated_compositing_disabled = true;
+      new_settings.accelerated_compositing = STATE_DISABLED;
     }
   }
 
@@ -1530,15 +1530,15 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
   }
 
   if (IsWindowRenderingDisabled(pending_window_info_)) {
-      if (!pending_client_->GetRenderHandler().get()) {
-        NOTREACHED() << "CefRenderHandler implementation is required";
-        return false;
-      }
-      if (!pending_settings_.accelerated_compositing_disabled) {
-        // Accelerated compositing is not supported when window rendering is
-        // disabled.
-        pending_settings_.accelerated_compositing_disabled = true;
-      }
+    if (!pending_client_->GetRenderHandler().get()) {
+      NOTREACHED() << "CefRenderHandler implementation is required";
+      return false;
+    }
+    if (pending_settings_.accelerated_compositing != STATE_DISABLED) {
+      // Accelerated compositing is not supported when window rendering is
+      // disabled.
+      pending_settings_.accelerated_compositing = STATE_DISABLED;
+    }
   }
 
   _Context->browser_context()->set_use_osr_next_contents_view(

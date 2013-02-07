@@ -225,7 +225,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings.release_dcheck_enabled)
-      command_line->AppendSwitch(switches::kReleaseDcheckEnabled);
+      command_line->AppendSwitch(switches::kEnableReleaseDcheck);
 
     if (settings.javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
@@ -233,7 +233,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings.pack_loading_disabled) {
-      command_line->AppendSwitch(switches::kPackLoadingDisabled);
+      command_line->AppendSwitch(switches::kDisablePackLoading);
     } else {
       if (settings.resources_dir_path.length > 0) {
         FilePath file_path = FilePath(CefString(&settings.resources_dir_path));
@@ -315,7 +315,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   logging::DcheckState dcheck_state =
       logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
-  if (command_line->HasSwitch(switches::kReleaseDcheckEnabled))
+  if (command_line->HasSwitch(switches::kEnableReleaseDcheck))
     dcheck_state = logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
 
   logging::InitLogging(log_file.value().c_str(), logging_dest,
@@ -333,7 +333,7 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kPackLoadingDisabled))
+  if (command_line.HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
 
   InitializeResourceBundle();

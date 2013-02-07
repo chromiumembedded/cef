@@ -350,7 +350,7 @@ int main(int argc, char* argv[]) {
   CefSettings settings;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings, app);
+  AppGetSettings(settings);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get());
@@ -419,9 +419,6 @@ int main(int argc, char* argv[]) {
   // Create the browser view.
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
-
-  // Populate the settings based on command line arguments.
-  AppGetBrowserSettings(browserSettings);
 
   window_info.SetAsChild(vbox);
 
