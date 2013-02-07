@@ -18,12 +18,26 @@ extern const char kLogSeverity_Warning[];
 extern const char kLogSeverity_Error[];
 extern const char kLogSeverity_ErrorReport[];
 extern const char kLogSeverity_Disable[];
-extern const char kReleaseDcheckEnabled[];
+extern const char kEnableReleaseDcheck[];
 extern const char kResourcesDirPath[];
 extern const char kLocalesDirPath[];
-extern const char kPackLoadingDisabled[];
+extern const char kDisablePackLoading[];
 extern const char kUncaughtExceptionStackSize[];
 extern const char kContextSafetyImplementation[];
+extern const char kDefaultEncoding[];
+extern const char kUserStyleSheetLocation[];
+extern const char kDisableJavascriptOpenWindows[];
+extern const char kDisableJavascriptCloseWindows[];
+extern const char kDisableJavascriptAccessClipboard[];
+extern const char kDisableJavascriptDomPaste[];
+extern const char kEnableCaretBrowsing[];
+extern const char kAllowUniversalAccessFromFileUrls[];
+extern const char kDisableImageLoading[];
+extern const char kImageShrinkStandaloneToFit[];
+extern const char kDisableTextAreaResize[];
+extern const char kDisableTabToLinks[];
+extern const char kDisableAuthorAndUserStyles[];
+extern const char kDisableDeveloperTools[];
 
 }  // namespace switches
 

@@ -6,15 +6,71 @@
 
 #include <string>
 
+#include "libcef/common/cef_switches.h"
+
+#include "base/command_line.h"
 #include "include/internal/cef_types_wrappers.h"
 #include "webkit/glue/webpreferences.h"
 
 using webkit_glue::WebPreferences;
 
+// Set default preferences based on CEF command-line flags. Chromium command-
+// line flags should not exist for these preferences.
+void SetDefaults(WebPreferences& web) {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+
+  if (command_line.HasSwitch(switches::kDefaultEncoding)) {
+    web.default_encoding =
+        command_line.GetSwitchValueASCII(switches::kDefaultEncoding);
+  }
+
+  if (command_line.HasSwitch(switches::kUserStyleSheetLocation)) {
+    web.user_style_sheet_location = GURL(
+        command_line.GetSwitchValueASCII(switches::kUserStyleSheetLocation));
+    if (!web.user_style_sheet_location.is_empty())
+      web.user_style_sheet_enabled = true;
+  }
+
+  web.javascript_can_open_windows_automatically =
+      !command_line.HasSwitch(switches::kDisableJavascriptOpenWindows);
+  web.allow_scripts_to_close_windows =
+      !command_line.HasSwitch(switches::kDisableJavascriptCloseWindows);
+  web.javascript_can_access_clipboard =
+      !command_line.HasSwitch(switches::kDisableJavascriptAccessClipboard);
+  web.dom_paste_enabled =
+      !command_line.HasSwitch(switches::kDisableJavascriptDomPaste);
+  web.caret_browsing_enabled =
+      command_line.HasSwitch(switches::kEnableCaretBrowsing);
+  web.allow_universal_access_from_file_urls =
+      command_line.HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
+  web.loads_images_automatically =
+      !command_line.HasSwitch(switches::kDisableImageLoading);
+  web.shrinks_standalone_images_to_fit =
+      command_line.HasSwitch(switches::kImageShrinkStandaloneToFit);
+  web.text_areas_are_resizable =
+      !command_line.HasSwitch(switches::kDisableTextAreaResize);
+  web.tabs_to_links =
+      !command_line.HasSwitch(switches::kDisableTabToLinks);
+  web.author_and_user_styles_enabled =
+      !command_line.HasSwitch(switches::kDisableAuthorAndUserStyles);
+  web.developer_extras_enabled =
+      !command_line.HasSwitch(switches::kDisableDeveloperTools);
+}
+
+// Helper macro for setting a WebPreferences variable based on the value of a
+// CefBrowserSettings variable.
+#define SET_STATE(cef_var, web_var) \
+    if (cef_var == STATE_ENABLED) \
+      web_var = true; \
+    else if (cef_var == STATE_DISABLED) \
+      web_var = false;
+
 // Use the preferences from WebContentsImpl::GetWebkitPrefs and the
 // WebPreferences constructor by default. Only override features that are
 // explicitly enabled or disabled.
 void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
+  SetDefaults(web);
+
   if (cef.standard_font_family.length > 0) {
     web.standard_font_family_map[WebPreferences::kCommonScript] =
         CefString(&cef.standard_font_family);
@@ -48,84 +104,49 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
     web.minimum_font_size = cef.minimum_font_size;
   if (cef.minimum_logical_font_size > 0)
     web.minimum_logical_font_size = cef.minimum_logical_font_size;
+
   if (cef.default_encoding.length > 0)
     web.default_encoding = CefString(&cef.default_encoding);
 
-  if (cef.javascript_disabled)
-    web.javascript_enabled = false;
-  if (cef.web_security_disabled)
-    web.web_security_enabled = false;
-  if (cef.javascript_open_windows_disallowed)
-    web.javascript_can_open_windows_automatically = false;
-  if (cef.image_load_disabled)
-    web.loads_images_automatically = false;
-  if (cef.plugins_disabled)
-    web.plugins_enabled = false;
-  if (cef.dom_paste_disabled)
-    web.dom_paste_enabled = false;
-  if (cef.developer_tools_disabled)
-    web.developer_extras_enabled = false;
-  if (cef.site_specific_quirks_disabled)
-    web.site_specific_quirks_enabled = false;
-  if (cef.shrink_standalone_images_to_fit)
-    web.shrinks_standalone_images_to_fit = true;
-  if (cef.encoding_detector_enabled)
-    web.uses_universal_detector = true;
-  if (cef.text_area_resize_disabled)
-    web.text_areas_are_resizable = false;
-  if (cef.java_disabled)
-     web.java_enabled = false;
-  if (cef.javascript_close_windows_disallowed)
-    web.allow_scripts_to_close_windows = false;
-  if (cef.page_cache_disabled)
-    web.uses_page_cache = false;
-  if (cef.remote_fonts_disabled)
-    web.remote_fonts_enabled = true;
-  if (cef.javascript_access_clipboard_disallowed)
-    web.javascript_can_access_clipboard = false;
-  if (cef.xss_auditor_enabled)
-    web.xss_auditor_enabled = true;
-  if (cef.local_storage_disabled)
-    web.local_storage_enabled = false;
-  if (cef.databases_disabled)
-    web.databases_enabled = false;
-  if (cef.application_cache_disabled)
-    web.application_cache_enabled = false;
-  if (cef.tab_to_links_disabled)
-    web.tabs_to_links = false;
-  if (cef.caret_browsing_enabled)
-    web.caret_browsing_enabled = true;
-  if (cef.hyperlink_auditing_disabled)
-    web.hyperlink_auditing_enabled = true;
-  if (cef.user_style_sheet_enabled &&
-      cef.user_style_sheet_location.length > 0) {
+  if (cef.user_style_sheet_location.length > 0) {
     web.user_style_sheet_enabled = true;
     web.user_style_sheet_location =
-        GURL(std::string(CefString(&cef.user_style_sheet_location)));
+        GURL(CefString(&cef.user_style_sheet_location).ToString());
   }
-  if (cef.author_and_user_styles_disabled)
-    web.author_and_user_styles_enabled = false;
-  if (cef.universal_access_from_file_urls_allowed)
-    web.allow_universal_access_from_file_urls = true;
-  if (cef.file_access_from_file_urls_allowed)
-    web.allow_file_access_from_file_urls = true;
+
+  SET_STATE(cef.remote_fonts, web.remote_fonts_enabled);
+  SET_STATE(cef.javascript, web.javascript_enabled);
+  SET_STATE(cef.javascript_open_windows,
+      web.javascript_can_open_windows_automatically);
+  SET_STATE(cef.javascript_close_windows, web.allow_scripts_to_close_windows);
+  SET_STATE(cef.javascript_access_clipboard,
+      web.javascript_can_access_clipboard);
+  SET_STATE(cef.javascript_dom_paste, web.dom_paste_enabled);
+  SET_STATE(cef.caret_browsing, web.caret_browsing_enabled);
+  SET_STATE(cef.java, web.java_enabled);
+  SET_STATE(cef.plugins, web.plugins_enabled);
+  SET_STATE(cef.universal_access_from_file_urls,
+      web.allow_universal_access_from_file_urls);
+  SET_STATE(cef.file_access_from_file_urls,
+      web.allow_file_access_from_file_urls);
+  SET_STATE(cef.web_security, web.web_security_enabled);
+  SET_STATE(cef.image_loading, web.loads_images_automatically);
+  SET_STATE(cef.image_shrink_standalone_to_fit,
+      web.shrinks_standalone_images_to_fit);
+  SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
+  SET_STATE(cef.page_cache, web.uses_page_cache);
+  SET_STATE(cef.tab_to_links, web.tabs_to_links);
+  SET_STATE(cef.author_and_user_styles, web.author_and_user_styles_enabled);
+  SET_STATE(cef.local_storage, web.local_storage_enabled);
+  SET_STATE(cef.databases, web.databases_enabled);
+  SET_STATE(cef.application_cache, web.application_cache_enabled);
 
   // Never explicitly enable GPU-related functions in this method because the
   // GPU blacklist is not being checked here.
-  if (cef.webgl_disabled) {
+  if (cef.webgl == STATE_DISABLED)
     web.experimental_webgl_enabled = false;
-    web.gl_multisampling_enabled = false;
-  }
-  if (cef.accelerated_compositing_disabled)
+  if (cef.accelerated_compositing == STATE_DISABLED)
     web.accelerated_compositing_enabled = false;
-  if (cef.accelerated_layers_disabled) {
-    web.accelerated_compositing_for_3d_transforms_enabled = false;
-    web.accelerated_compositing_for_animation_enabled = false;
-  }
-  if (cef.accelerated_video_disabled)
-    web.accelerated_compositing_for_video_enabled = false;
-  if (cef.accelerated_2d_canvas_disabled)
-    web.accelerated_2d_canvas_enabled = false;
-  if (cef.accelerated_plugins_disabled)
-    web.accelerated_compositing_for_plugins_enabled = false;
+
+  SET_STATE(cef.developer_tools, web.developer_extras_enabled);
 }

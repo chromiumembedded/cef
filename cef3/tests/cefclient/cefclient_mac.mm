@@ -369,9 +369,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   CefWindowInfo window_info;
   CefBrowserSettings settings;
 
-  // Populate the settings based on command line arguments.
-  AppGetBrowserSettings(settings);
-
   window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
   CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
                                 g_handler->GetStartupURL(), settings);
@@ -542,7 +539,7 @@ int main(int argc, char* argv[]) {
   CefSettings settings;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings, app);
+  AppGetSettings(settings);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get());

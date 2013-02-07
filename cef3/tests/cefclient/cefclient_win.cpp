@@ -86,7 +86,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   CefSettings settings;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings, app);
+  AppGetSettings(settings);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get());
@@ -307,9 +307,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       CefWindowInfo info;
       CefBrowserSettings settings;
-
-      // Populate the settings based on command line arguments.
-      AppGetBrowserSettings(settings);
 
       if (AppIsOffScreenRenderingEnabled()) {
         CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();

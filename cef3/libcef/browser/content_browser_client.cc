@@ -404,8 +404,8 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
-      switches::kReleaseDcheckEnabled,
-      switches::kPackLoadingDisabled,
+      switches::kEnableReleaseDcheck,
+      switches::kDisablePackLoading,
       switches::kResourcesDirPath,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,

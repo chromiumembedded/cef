@@ -18,19 +18,6 @@
 #include "cefclient/string_util.h"
 #include "cefclient/util.h"
 
-namespace {
-
-// Return the int representation of the specified string.
-int GetIntValue(const CefString& str) {
-  if (str.empty())
-    return 0;
-
-  std::string stdStr = str;
-  return atoi(stdStr.c_str());
-}
-
-}  // namespace
-
 CefRefPtr<ClientHandler> g_handler;
 CefRefPtr<CefCommandLine> g_command_line;
 
@@ -61,8 +48,7 @@ CefRefPtr<CefCommandLine> AppGetCommandLine() {
 }
 
 // Returns the application settings based on command line arguments.
-void AppGetSettings(CefSettings& settings, CefRefPtr<ClientApp> app) {
-  ASSERT(app.get());
+void AppGetSettings(CefSettings& settings) {
   ASSERT(g_command_line.get());
   if (!g_command_line.get())
     return;
@@ -84,89 +70,6 @@ bool AppIsOffScreenRenderingEnabled() {
     return false;
 
   return g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled);
-}
-
-// Returns the application browser settings based on command line arguments.
-void AppGetBrowserSettings(CefBrowserSettings& settings) {
-  ASSERT(g_command_line.get());
-  if (!g_command_line.get())
-    return;
-
-  settings.remote_fonts_disabled =
-      g_command_line->HasSwitch(cefclient::kRemoteFontsDisabled);
-
-  CefString(&settings.default_encoding) =
-      g_command_line->GetSwitchValue(cefclient::kDefaultEncoding);
-
-  settings.encoding_detector_enabled =
-      g_command_line->HasSwitch(cefclient::kEncodingDetectorEnabled);
-  settings.javascript_disabled =
-      g_command_line->HasSwitch(cefclient::kJavascriptDisabled);
-  settings.javascript_open_windows_disallowed =
-      g_command_line->HasSwitch(cefclient::kJavascriptOpenWindowsDisallowed);
-  settings.javascript_close_windows_disallowed =
-      g_command_line->HasSwitch(cefclient::kJavascriptCloseWindowsDisallowed);
-  settings.javascript_access_clipboard_disallowed =
-      g_command_line->HasSwitch(
-          cefclient::kJavascriptAccessClipboardDisallowed);
-  settings.dom_paste_disabled =
-      g_command_line->HasSwitch(cefclient::kDomPasteDisabled);
-  settings.caret_browsing_enabled =
-      g_command_line->HasSwitch(cefclient::kCaretBrowsingDisabled);
-  settings.java_disabled =
-      g_command_line->HasSwitch(cefclient::kJavaDisabled);
-  settings.plugins_disabled =
-      g_command_line->HasSwitch(cefclient::kPluginsDisabled);
-  settings.universal_access_from_file_urls_allowed =
-      g_command_line->HasSwitch(cefclient::kUniversalAccessFromFileUrlsAllowed);
-  settings.file_access_from_file_urls_allowed =
-      g_command_line->HasSwitch(cefclient::kFileAccessFromFileUrlsAllowed);
-  settings.web_security_disabled =
-      g_command_line->HasSwitch(cefclient::kWebSecurityDisabled);
-  settings.xss_auditor_enabled =
-      g_command_line->HasSwitch(cefclient::kXssAuditorEnabled);
-  settings.image_load_disabled =
-      g_command_line->HasSwitch(cefclient::kImageLoadingDisabled);
-  settings.shrink_standalone_images_to_fit =
-      g_command_line->HasSwitch(cefclient::kShrinkStandaloneImagesToFit);
-  settings.site_specific_quirks_disabled =
-      g_command_line->HasSwitch(cefclient::kSiteSpecificQuirksDisabled);
-  settings.text_area_resize_disabled =
-      g_command_line->HasSwitch(cefclient::kTextAreaResizeDisabled);
-  settings.page_cache_disabled =
-      g_command_line->HasSwitch(cefclient::kPageCacheDisabled);
-  settings.tab_to_links_disabled =
-      g_command_line->HasSwitch(cefclient::kTabToLinksDisabled);
-  settings.hyperlink_auditing_disabled =
-      g_command_line->HasSwitch(cefclient::kHyperlinkAuditingDisabled);
-  settings.user_style_sheet_enabled =
-      g_command_line->HasSwitch(cefclient::kUserStyleSheetEnabled);
-
-  CefString(&settings.user_style_sheet_location) =
-      g_command_line->GetSwitchValue(cefclient::kUserStyleSheetLocation);
-
-  settings.author_and_user_styles_disabled =
-      g_command_line->HasSwitch(cefclient::kAuthorAndUserStylesDisabled);
-  settings.local_storage_disabled =
-      g_command_line->HasSwitch(cefclient::kLocalStorageDisabled);
-  settings.databases_disabled =
-      g_command_line->HasSwitch(cefclient::kDatabasesDisabled);
-  settings.application_cache_disabled =
-      g_command_line->HasSwitch(cefclient::kApplicationCacheDisabled);
-  settings.webgl_disabled =
-      g_command_line->HasSwitch(cefclient::kWebglDisabled);
-  settings.accelerated_compositing_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedCompositingDisabled);
-  settings.accelerated_layers_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedLayersDisabled);
-  settings.accelerated_video_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedVideoDisabled);
-  settings.accelerated_2d_canvas_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceledated2dCanvasDisabled);
-  settings.accelerated_plugins_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedPluginsDisabled);
-  settings.developer_tools_disabled =
-      g_command_line->HasSwitch(cefclient::kDeveloperToolsDisabled);
 }
 
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
