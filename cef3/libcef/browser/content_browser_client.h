@@ -16,6 +16,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
+#include "googleurl/src/gurl.h"
 
 class CefBrowserInfo;
 class CefBrowserMainParts;
@@ -71,6 +72,12 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       CreateQuotaPermissionContext() OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual bool CanCreateWindow(const GURL& opener_url,
+                               const GURL& origin,
+                               WindowContainerType container_type,
+                               content::ResourceContext* context,
+                               int render_process_id,
+                               bool* no_javascript_access) OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
@@ -82,6 +89,16 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() OVERRIDE;
 #endif
+
+  // Store additional state from the ViewHostMsg_CreateWindow message that will
+  // be used when CanCreateWindow() is called.
+  struct LastCreateWindowParams {
+    int opener_id;
+    int64 opener_frame_id;
+    GURL target_url;
+    string16 target_frame_name;
+  };
+  void set_last_create_window_params(const LastCreateWindowParams& params);
 
  private:
   CefBrowserMainParts* browser_main_parts_;
@@ -97,6 +114,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
   BrowserInfoList browser_info_list_;
   int next_browser_id_;
+
+  // Only accessed on the IO thread.
+  LastCreateWindowParams last_create_window_params_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_

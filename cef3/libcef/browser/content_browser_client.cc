@@ -252,6 +252,8 @@ CefContentBrowserClient::CefContentBrowserClient()
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
+
+  last_create_window_params_.opener_id = MSG_ROUTING_NONE;
 }
 
 CefContentBrowserClient::~CefContentBrowserClient() {
@@ -455,6 +457,49 @@ content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
   return new CefAccessTokenStore;
 }
 
+bool CefContentBrowserClient::CanCreateWindow(
+    const GURL& opener_url,
+    const GURL& origin,
+    WindowContainerType container_type,
+    content::ResourceContext* context,
+    int render_process_id,
+    bool* no_javascript_access) {
+  CEF_REQUIRE_IOT();
+  *no_javascript_access = false;
+
+  DCHECK_NE(last_create_window_params_.opener_id, MSG_ROUTING_NONE);
+  if (last_create_window_params_.opener_id == MSG_ROUTING_NONE)
+    return false;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserByRoutingID(
+          render_process_id,
+          last_create_window_params_.opener_id);
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+
+  bool allow = true;
+
+  CefRefPtr<CefClient> client = browser->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
+    if (handler.get()) {
+      CefRefPtr<CefFrame> frame =
+          browser->GetFrame(last_create_window_params_.opener_frame_id);
+      allow = handler->CanCreatePopup(browser.get(),
+          frame,
+          last_create_window_params_.target_url.spec(),
+          last_create_window_params_.target_frame_name,
+          no_javascript_access);
+    }
+  }
+
+  last_create_window_params_.opener_id = MSG_ROUTING_NONE;
+
+  return allow;
+}
+
 void CefContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_.reset(
       new CefResourceDispatcherHostDelegate());
@@ -502,3 +547,9 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   return file_path;
 }
 #endif  // defined(OS_WIN)
+
+void CefContentBrowserClient::set_last_create_window_params(
+    const LastCreateWindowParams& params) {
+  CEF_REQUIRE_IOT();
+  last_create_window_params_ = params;
+}

@@ -16,6 +16,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/bind.h"
+#include "content/common/view_messages.h"
 #include "content/public/browser/render_process_host.h"
 
 CefBrowserMessageFilter::CefBrowserMessageFilter(
@@ -36,11 +37,17 @@ void CefBrowserMessageFilter::OnFilterRemoved() {
 
 bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
+  if (message.type() == ViewHostMsg_CreateWindow::ID) {
+    // Observe but don't handle this message.
+    handled = false;
+  }
+
   IPC_BEGIN_MESSAGE_MAP(CefBrowserMessageFilter, message)
     IPC_MESSAGE_HANDLER(CefProcessHostMsg_GetNewRenderThreadInfo,
                         OnGetNewRenderThreadInfo)
     IPC_MESSAGE_HANDLER(CefProcessHostMsg_GetNewBrowserInfo,
                         OnGetNewBrowserInfo)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnCreateWindow)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -75,4 +82,17 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
                                                              routing_id);
   params->browser_id = info->browser_id();
   params->is_popup = info->is_popup();
+}
+
+void CefBrowserMessageFilter::OnCreateWindow(
+    const ViewHostMsg_CreateWindow_Params& params,
+    int* route_id,
+    int* surface_id,
+    int64* cloned_session_storage_namespace_id) {
+  CefContentBrowserClient::LastCreateWindowParams lcwp;
+  lcwp.opener_id = params.opener_id;
+  lcwp.opener_frame_id = params.opener_frame_id;
+  lcwp.target_url = params.target_url;
+  lcwp.target_frame_name = params.frame_name;
+  CefContentBrowserClient::Get()->set_last_create_window_params(lcwp);
 }

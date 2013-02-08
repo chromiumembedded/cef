@@ -36,10 +36,14 @@ class CefLifeSpanHandlerCToCpp
   virtual ~CefLifeSpanHandlerCToCpp() {}
 
   // CefLifeSpanHandler methods
-  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
+  virtual bool CanCreatePopup(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, const CefString& target_url,
+      const CefString& target_frame_name,
+      bool* no_javascript_access) OVERRIDE;
+  virtual void OnBeforePopup(CefRefPtr<CefBrowser> browser,
       const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
-      const CefString& url, CefRefPtr<CefClient>& client,
-      CefBrowserSettings& settings) OVERRIDE;
+      const CefString& target_url, const CefString& target_frame_name,
+      CefRefPtr<CefClient>& client, CefBrowserSettings& settings) OVERRIDE;
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual bool RunModal(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
