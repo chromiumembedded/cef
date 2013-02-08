@@ -245,6 +245,7 @@
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
         'tests/unittests/dialog_unittest.cc',
+        'tests/unittests/display_unittest.cc',
         'tests/unittests/dom_unittest.cc',
         'tests/unittests/geolocation_unittest.cc',
         'tests/unittests/jsdialog_unittest.cc',

@@ -1854,22 +1854,34 @@ void CefBrowserHostImpl::OnResponseAck(int request_id) {
 void CefBrowserHostImpl::Observe(int type,
                                  const content::NotificationSource& source,
                                  const content::NotificationDetails& details) {
-  DCHECK(type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED ||
-         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE);
+  DCHECK(type == content::NOTIFICATION_LOAD_STOP ||
+         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE ||
+         type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED);
 
-  if (type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<content::NavigationEntry*, bool>* title =
-        content::Details<std::pair<content::NavigationEntry*, bool> >(
-            details).ptr();
+   if (type == content::NOTIFICATION_LOAD_STOP ||
+       type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
+    string16 title;
 
-    if (title->first) {
-      if (client_.get()) {
-        CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
-        if (handler.get()) {
-          CefString title_str = title->first->GetTitleForDisplay("");
-          handler->OnTitleChange(this, title_str);
-        }
-      }
+    if (type == content::NOTIFICATION_LOAD_STOP) {
+      content::NavigationController* controller =
+          content::Source<content::NavigationController>(source).ptr();
+      title = controller->GetWebContents()->GetTitle();
+    } else {
+      content::WebContents* web_contents =
+          content::Source<content::WebContents>(source).ptr();
+      title = web_contents->GetTitle();
+    }
+
+    // Don't notify if the title hasn't changed.
+    if (title == title_)
+      return;
+
+    title_ = title;
+
+    if (client_.get()) {
+      CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+      if (handler.get())
+        handler->OnTitleChange(this, title);
     }
   } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
     focus_on_editable_field_ = *content::Details<bool>(details).ptr();
@@ -1912,6 +1924,15 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
+
+  // When navigating through the history, the restored NavigationEntry's title
+  // will be used. If the entry ends up having the same title after we return
+  // to it, as will usually be the case, the
+  // NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED will then be suppressed, since the
+  // NavigationEntry's title hasn't changed.
+  registrar_->Add(this, content::NOTIFICATION_LOAD_STOP,
+                  content::Source<content::NavigationController>(
+                      &web_contents->GetController()));
 
   response_manager_.reset(new CefResponseManager);
 
