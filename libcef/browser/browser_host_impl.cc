@@ -1520,12 +1520,10 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
     // Give the handler an opportunity to modify window attributes, handler,
     // or cancel the window creation.
-    if (handler.get() &&
-        handler->OnBeforePopup(this, features, pending_window_info_,
-                               target_url.spec(), pending_client_,
-                               pending_settings_)) {
-      pending_client_ = NULL;
-      return false;
+    if (handler.get()) {
+      handler->OnBeforePopup(this, features, pending_window_info_,
+                             target_url.spec(), frame_name,
+                             pending_client_, pending_settings_);
     }
   }
 

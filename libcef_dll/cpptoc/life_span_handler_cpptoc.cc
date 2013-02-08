@@ -13,41 +13,86 @@
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK life_span_handler_on_before_popup(
-    struct _cef_life_span_handler_t* self, cef_browser_t* parentBrowser,
-    const struct _cef_popup_features_t* popupFeatures,
-    cef_window_info_t* windowInfo, const cef_string_t* url,
-    cef_client_t** client, struct _cef_browser_settings_t* settings) {
+int CEF_CALLBACK life_span_handler_can_create_popup(
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, const cef_string_t* target_url,
+    const cef_string_t* target_frame_name, int* no_javascript_access) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
-  // Verify param: parentBrowser; type: refptr_diff
-  DCHECK(parentBrowser);
-  if (!parentBrowser)
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
     return 0;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return 0;
+  // Verify param: no_javascript_access; type: bool_byaddr
+  DCHECK(no_javascript_access);
+  if (!no_javascript_access)
+    return 0;
+  // Unverified params: target_url, target_frame_name
+
+  // Translate param: no_javascript_access; type: bool_byaddr
+  bool no_javascript_accessBool = (
+      no_javascript_access && *no_javascript_access)?true:false;
+
+  // Execute
+  bool _retval = CefLifeSpanHandlerCppToC::Get(self)->CanCreatePopup(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefString(target_url),
+      CefString(target_frame_name),
+      &no_javascript_accessBool);
+
+  // Restore param: no_javascript_access; type: bool_byaddr
+  if (no_javascript_access)
+    *no_javascript_access = no_javascript_accessBool?true:false;
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK life_span_handler_on_before_popup(
+    struct _cef_life_span_handler_t* self, cef_browser_t* browser,
+    const struct _cef_popup_features_t* popupFeatures,
+    cef_window_info_t* windowInfo, const cef_string_t* target_url,
+    const cef_string_t* target_frame_name, cef_client_t** client,
+    struct _cef_browser_settings_t* settings) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
   // Verify param: popupFeatures; type: struct_byref_const
   DCHECK(popupFeatures);
   if (!popupFeatures)
-    return 0;
+    return;
   // Verify param: windowInfo; type: struct_byref
   DCHECK(windowInfo);
   if (!windowInfo)
-    return 0;
+    return;
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
   if (!client)
-    return 0;
+    return;
   // Verify param: settings; type: struct_byref
   DCHECK(settings);
   if (!settings)
-    return 0;
-  // Unverified params: url
+    return;
+  // Unverified params: target_url, target_frame_name
 
   // Translate param: popupFeatures; type: struct_byref_const
   CefPopupFeatures popupFeaturesObj;
@@ -68,11 +113,12 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     settingsObj.AttachTo(*settings);
 
   // Execute
-  bool _retval = CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopup(
-      CefBrowserCToCpp::Wrap(parentBrowser),
+  CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopup(
+      CefBrowserCToCpp::Wrap(browser),
       popupFeaturesObj,
       windowInfoObj,
-      CefString(url),
+      CefString(target_url),
+      CefString(target_frame_name),
       clientPtr,
       settingsObj);
 
@@ -92,9 +138,6 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   // Restore param: settings; type: struct_byref
   if (settings)
     settingsObj.DetachTo(*settings);
-
-  // Return type: bool
-  return _retval;
 }
 
 void CEF_CALLBACK life_span_handler_on_after_created(
@@ -177,6 +220,7 @@ void CEF_CALLBACK life_span_handler_on_before_close(
 CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls)
     : CefCppToC<CefLifeSpanHandlerCppToC, CefLifeSpanHandler,
         cef_life_span_handler_t>(cls) {
+  struct_.struct_.can_create_popup = life_span_handler_can_create_popup;
   struct_.struct_.on_before_popup = life_span_handler_on_before_popup;
   struct_.struct_.on_after_created = life_span_handler_on_after_created;
   struct_.struct_.run_modal = life_span_handler_run_modal;

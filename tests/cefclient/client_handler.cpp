@@ -232,6 +232,18 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+bool ClientHandler::CanCreatePopup(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   const CefString& target_url,
+                                   const CefString& target_frame_name,
+                                   bool* no_javascript_access) {
+  if (browser->GetHost()->IsWindowRenderingDisabled()) {
+    // Cancel popups in off-screen rendering mode.
+    return false;
+  }
+  return true;
+}
+
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
 
@@ -241,19 +253,6 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     m_Browser = browser;
     m_BrowserId = browser->GetIdentifier();
   }
-}
-
-bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
-    const CefPopupFeatures& popupFeatures,
-    CefWindowInfo& windowInfo,
-    const CefString& url,
-    CefRefPtr<CefClient>& client,
-    CefBrowserSettings& settings) {
-  if (parentBrowser->GetHost()->IsWindowRenderingDisabled()) {
-    // Cancel popups in off-screen rendering mode.
-    return true;
-  }
-  return false;
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {

@@ -159,16 +159,14 @@ class ClientHandler : public CefClient,
                              bool* is_keyboard_shortcut) OVERRIDE;
 
   // CefLifeSpanHandler methods
+  virtual bool CanCreatePopup(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              const CefString& target_url,
+                              const CefString& target_frame_name,
+                              bool* no_javascript_access) OVERRIDE;
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual bool OnBeforePopup(
-      CefRefPtr<CefBrowser> parentBrowser,
-      const CefPopupFeatures& popupFeatures,
-      CefWindowInfo& windowInfo,
-      const CefString& url,
-      CefRefPtr<CefClient>& client,
-      CefBrowserSettings& settings) OVERRIDE;
 
   // CefLoadHandler methods
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
