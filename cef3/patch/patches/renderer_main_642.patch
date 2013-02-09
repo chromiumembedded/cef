@@ -1,0 +1,13 @@
+Index: renderer_main.cc
+===================================================================
+--- renderer_main.cc	(revision 180609)
++++ renderer_main.cc	(working copy)
+@@ -174,7 +174,7 @@
+     if (!no_sandbox) {
+       run_loop = platform.EnableSandbox();
+     } else {
+-      LOG(ERROR) << "Running without renderer sandbox";
++      // LOG(ERROR) << "Running without renderer sandbox";
+ #ifndef NDEBUG
+       // For convenience, we print the stack trace for crashes. We can't get
+       // symbols when the sandbox is enabled, so only try when the sandbox is
