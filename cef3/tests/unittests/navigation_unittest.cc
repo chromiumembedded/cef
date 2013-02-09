@@ -1455,10 +1455,10 @@ class PopupNavTestHandler : public TestHandler {
 
   virtual void RunTest() OVERRIDE {
     // Add the resources that we will navigate to/from.
-    std::string page = "<html><script>window.open('" +
+    std::string page = "<html><script>function doPopup() { window.open('" +
                        std::string(kPopupNavPopupUrl) + "', '" +
                        std::string(kPopupNavPopupName) +
-                       "');</script></html>";
+                       "'); }</script>Page</html>";
     AddResource(kPopupNavPageUrl, page, "text/html");
     AddResource(kPopupNavPopupUrl, "<html>Popup</html>", "text/html");
 
@@ -1466,12 +1466,16 @@ class PopupNavTestHandler : public TestHandler {
     CreateBrowser(kPopupNavPageUrl);
   }
 
-  virtual bool CanCreatePopup(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              const CefString& target_url,
-                              const CefString& target_frame_name,
-                              bool* no_javascript_access) OVERRIDE {
-    got_can_create_popup_.yes();
+  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame,
+                             const CefString& target_url,
+                             const CefString& target_frame_name,
+                             const CefPopupFeatures& popupFeatures,
+                             CefWindowInfo& windowInfo,
+                             CefRefPtr<CefClient>& client,
+                             CefBrowserSettings& settings,
+                             bool* no_javascript_access) OVERRIDE {
+    got_on_before_popup_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
@@ -1480,58 +1484,47 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
     EXPECT_FALSE(*no_javascript_access);
 
-    return allow_;
-  }
-
-  virtual void OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                             const CefPopupFeatures& popupFeatures,
-                             CefWindowInfo& windowInfo,
-                             const CefString& target_url,
-                             const CefString& target_frame_name,
-                             CefRefPtr<CefClient>& client,
-                             CefBrowserSettings& settings) OVERRIDE {
-    got_on_before_popup_.yes();
-
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
-    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
-    EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());
-    EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
+    return !allow_;
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
     std::string url = frame->GetURL();
-    if (allow_) {
-      if (url == kPopupNavPopupUrl) {
+    if (url == kPopupNavPageUrl) {
+      frame->ExecuteJavaScript("doPopup()", kPopupNavPageUrl, 0);
+
+      if (!allow_) {
+        // Wait a bit to make sure the popup window isn't created.
+        CefPostDelayedTask(TID_UI,
+            NewCefRunnableMethod(this, &PopupNavTestHandler::DestroyTest), 200);
+      }
+    } else if (url == kPopupNavPopupUrl) {
+      if (allow_) {
         got_popup_load_end_.yes();
         browser->GetHost()->CloseBrowser();
         DestroyTest();
+      } else {
+        EXPECT_FALSE(true); // Not reached.
       }
     } else {
-      // Wait a bit to make sure the popup window isn't created.
-      CefPostDelayedTask(TID_UI,
-          NewCefRunnableMethod(this, &PopupNavTestHandler::DestroyTest), 200);
+      EXPECT_FALSE(true); // Not reached.
     }
   }
 
  private:
   virtual void DestroyTest() {
-    EXPECT_TRUE(got_can_create_popup_);
-    if (allow_) {
-      EXPECT_TRUE(got_on_before_popup_);
+    EXPECT_TRUE(got_on_before_popup_);
+    if (allow_)
       EXPECT_TRUE(got_popup_load_end_);
-    } else {
-      EXPECT_FALSE(got_on_before_popup_);
+    else
       EXPECT_FALSE(got_popup_load_end_);
-    }
 
     TestHandler::DestroyTest();
   }
 
   bool allow_;
 
-  TrackCallback got_can_create_popup_;
   TrackCallback got_on_before_popup_;
   TrackCallback got_popup_load_end_;
 };

@@ -253,7 +253,7 @@ CefContentBrowserClient::CefContentBrowserClient()
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
 
-  last_create_window_params_.opener_id = MSG_ROUTING_NONE;
+  last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
 }
 
 CefContentBrowserClient::~CefContentBrowserClient() {
@@ -354,8 +354,8 @@ scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfo(
       return browser_info;
   }
 
-  DLOG(WARNING) << "No browser info matching process id " <<
-                   render_process_id << " and view id " << render_view_id;
+  LOG(WARNING) << "No browser info matching process id " <<
+                  render_process_id << " and view id " << render_view_id;
 
   return scoped_refptr<CefBrowserInfo>();
 }
@@ -467,35 +467,92 @@ bool CefContentBrowserClient::CanCreateWindow(
   CEF_REQUIRE_IOT();
   *no_javascript_access = false;
 
-  DCHECK_NE(last_create_window_params_.opener_id, MSG_ROUTING_NONE);
-  if (last_create_window_params_.opener_id == MSG_ROUTING_NONE)
+  DCHECK_NE(last_create_window_params_.opener_process_id, MSG_ROUTING_NONE);
+  if (last_create_window_params_.opener_process_id == MSG_ROUTING_NONE)
     return false;
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserByRoutingID(
-          render_process_id,
-          last_create_window_params_.opener_id);
+          last_create_window_params_.opener_process_id,
+          last_create_window_params_.opener_view_id);
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
+    LOG(WARNING) << "CanCreateWindow called before browser was created";
     return false;
-
-  bool allow = true;
+  }
 
   CefRefPtr<CefClient> client = browser->GetClient();
+  bool allow = true;
+
+  scoped_ptr<CefBrowserHostImpl::PendingPopupInfo> pending_info;
+  pending_info.reset(new CefBrowserHostImpl::PendingPopupInfo);
+
+#if defined(OS_WIN)
+  pending_info->window_info.SetAsPopup(NULL, CefString());
+#endif
+
+  // Start with the current browser's settings.
+  pending_info->client = client;
+  pending_info->settings = browser->settings();
+
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
     if (handler.get()) {
       CefRefPtr<CefFrame> frame =
           browser->GetFrame(last_create_window_params_.opener_frame_id);
-      allow = handler->CanCreatePopup(browser.get(),
+
+      // TODO(cef): Figure out how to populate CefPopupFeatures.
+      // See: http://crbug.com/110510
+      CefPopupFeatures features;
+
+#if (defined(OS_WIN) || defined(OS_MACOSX))
+      // Default to the size from the popup features.
+      if (features.xSet)
+        pending_info->window_info.x = features.x;
+      if (features.ySet)
+        pending_info->window_info.y = features.y;
+      if (features.widthSet)
+        pending_info->window_info.width = features.width;
+      if (features.heightSet)
+        pending_info->window_info.height = features.height;
+#endif
+
+      allow = !handler->OnBeforePopup(browser.get(),
           frame,
           last_create_window_params_.target_url.spec(),
           last_create_window_params_.target_frame_name,
+          features,
+          pending_info->window_info,
+          pending_info->client,
+          pending_info->settings,
           no_javascript_access);
+      if (allow) {
+        if (CefBrowserHostImpl::IsWindowRenderingDisabled(
+                pending_info->window_info)) {
+          if (!pending_info->client->GetRenderHandler().get()) {
+            NOTREACHED() << "CefRenderHandler implementation is required";
+            allow = false;
+          }
+          if (pending_info->settings.accelerated_compositing != STATE_DISABLED) {
+            // Accelerated compositing is not supported when window rendering is
+            // disabled.
+            pending_info->settings.accelerated_compositing = STATE_DISABLED;
+          }
+        }
+      }
     }
   }
 
-  last_create_window_params_.opener_id = MSG_ROUTING_NONE;
+  if (allow) {
+    CefRefPtr<CefClient> pending_client = pending_info->client;
+    allow = browser->SetPendingPopupInfo(pending_info.Pass());
+    if (!allow) {
+      LOG(WARNING) << "Creation of popup window denied because one is already "
+                      "pending.";
+    }
+  }
+
+  last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
 
   return allow;
 }

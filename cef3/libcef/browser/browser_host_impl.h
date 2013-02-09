@@ -243,6 +243,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileChooser(const content::FileChooserParams& params,
                       const RunFileChooserCallback& callback);
 
+  // Used when creating a new popup window.
+  struct PendingPopupInfo {
+    CefWindowInfo window_info;
+    CefBrowserSettings settings;
+    CefRefPtr<CefClient> client;
+  };
+  // Returns false if a popup is already pending.
+  bool SetPendingPopupInfo(scoped_ptr<PendingPopupInfo> info);
+
  private:
   // content::WebContentsDelegate methods.
   virtual content::WebContents* OpenURLFromTab(
@@ -441,10 +450,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
 
-  // Used when creating a new popup window.
-  CefWindowInfo pending_window_info_;
-  CefBrowserSettings pending_settings_;
-  CefRefPtr<CefClient> pending_client_;
+  // Pending popup information. Access must be protected by
+  // |pending_popup_info_lock_|.
+  base::Lock pending_popup_info_lock_;
+  scoped_ptr<PendingPopupInfo> pending_popup_info_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;

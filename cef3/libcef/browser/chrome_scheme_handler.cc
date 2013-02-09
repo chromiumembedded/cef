@@ -210,7 +210,7 @@ class Delegate : public InternalHandlerDelegate {
     }
 
     if (!handled && domain != CHROME_VERSION) {
-      DLOG(INFO) << "Reguest for unknown chrome resource: " <<
+      LOG(INFO) << "Reguest for unknown chrome resource: " <<
           url.spec().c_str();
       action->redirect_url =
           GURL(std::string(kChromeURL) + kChromeVersionDomain);

@@ -1071,7 +1071,7 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
   CefMsg_LoadRequest_Params request;
   request.url = params.url;
   if (!request.url.is_valid()) {
-    DLOG(ERROR) << "Invalid URL passed to CefBrowserHostImpl::Navigate: " <<
+    LOG(ERROR) << "Invalid URL passed to CefBrowserHostImpl::Navigate: " <<
         params.url;
     return;
   }
@@ -1130,7 +1130,7 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
         }
 
         if (!gurl.is_valid()) {
-          DLOG(ERROR) <<
+          LOG(ERROR) <<
               "Invalid URL passed to CefBrowserHostImpl::LoadURL: " << url;
           return;
         }
@@ -1491,56 +1491,13 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     WindowContainerType window_container_type,
     const string16& frame_name,
     const GURL& target_url) {
-  // Start with the current browser window's client and settings.
-  pending_client_ = client_;
-  pending_settings_ = settings_;
+  CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
+      web_contents->GetRenderProcessHost()->GetID(), route_id);
 
-  // TODO(cef): Figure out how to populate these values.
-  // See: http://crbug.com/110510
-  CefPopupFeatures features;
-
-  pending_window_info_ = CefWindowInfo();
-#if defined(OS_WIN)
-  pending_window_info_.SetAsPopup(NULL, CefString());
-#endif
-
-#if (defined(OS_WIN) || defined(OS_MACOSX))
-  // Default to the size from the popup features.
-  if (features.xSet)
-    pending_window_info_.x = features.x;
-  if (features.ySet)
-    pending_window_info_.y = features.y;
-  if (features.widthSet)
-    pending_window_info_.width = features.width;
-  if (features.heightSet)
-    pending_window_info_.height = features.height;
-#endif
-
-  if (client_.get()) {
-    CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
-    // Give the handler an opportunity to modify window attributes, handler,
-    // or cancel the window creation.
-    if (handler.get()) {
-      handler->OnBeforePopup(this, features, pending_window_info_,
-                             target_url.spec(), frame_name,
-                             pending_client_, pending_settings_);
-    }
-  }
-
-  if (IsWindowRenderingDisabled(pending_window_info_)) {
-    if (!pending_client_->GetRenderHandler().get()) {
-      NOTREACHED() << "CefRenderHandler implementation is required";
-      return false;
-    }
-    if (pending_settings_.accelerated_compositing != STATE_DISABLED) {
-      // Accelerated compositing is not supported when window rendering is
-      // disabled.
-      pending_settings_.accelerated_compositing = STATE_DISABLED;
-    }
-  }
-
+  base::AutoLock lock_scope(pending_popup_info_lock_);
+  DCHECK(pending_popup_info_.get());
   _Context->browser_context()->set_use_osr_next_contents_view(
-      IsWindowRenderingDisabled(pending_window_info_));
+      IsWindowRenderingDisabled(pending_popup_info_->window_info));
 
   return true;
 }
@@ -1550,28 +1507,29 @@ void CefBrowserHostImpl::WebContentsCreated(
     int64 source_frame_id,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  CefWindowHandle opener = NULL;
-  scoped_refptr<CefBrowserInfo> info;
-  if (source_contents) {
-    opener = GetBrowserForContents(source_contents)->GetWindowHandle();
+  scoped_ptr<PendingPopupInfo> pending_popup_info;
+  {
+    base::AutoLock lock_scope(pending_popup_info_lock_);
+    pending_popup_info.reset(pending_popup_info_.release());
+  }
+  DCHECK(pending_popup_info.get());
 
-    // Popup windows may not have info yet.
-    info = CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
-        new_contents->GetRenderProcessHost()->GetID(),
-        new_contents->GetRoutingID());
+  CefWindowHandle opener = NULL;
+  scoped_refptr<CefBrowserInfo> info =
+      CefContentBrowserClient::Get()->GetBrowserInfo(
+          new_contents->GetRenderProcessHost()->GetID(),
+          new_contents->GetRoutingID());
+
+  if (source_contents) {
     DCHECK(info->is_popup());
+    opener = GetBrowserForContents(source_contents)->GetWindowHandle();
   } else {
-    info = CefContentBrowserClient::Get()->GetBrowserInfo(
-        new_contents->GetRenderProcessHost()->GetID(),
-        new_contents->GetRoutingID());
     DCHECK(!info->is_popup());
   }
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
-      pending_window_info_, pending_settings_, pending_client_, new_contents,
-      info, opener);
-
-  pending_client_ = NULL;
+      pending_popup_info->window_info, pending_popup_info->settings,
+      pending_popup_info->client, new_contents, info, opener);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -1597,6 +1555,15 @@ void CefBrowserHostImpl::RunFileChooser(
   RunFileChooserOnUIThread(params,
       base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback, this,
                  tab));
+}
+
+bool CefBrowserHostImpl::SetPendingPopupInfo(
+    scoped_ptr<PendingPopupInfo> info) {
+  base::AutoLock lock_scope(pending_popup_info_lock_);
+  if (pending_popup_info_.get())
+    return false;
+  pending_popup_info_.reset(info.release());
+  return true;
 }
 
 void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,

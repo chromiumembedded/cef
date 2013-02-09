@@ -232,16 +232,20 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool ClientHandler::CanCreatePopup(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   const CefString& target_url,
-                                   const CefString& target_frame_name,
-                                   bool* no_javascript_access) {
+bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  const CefString& target_url,
+                                  const CefString& target_frame_name,
+                                  const CefPopupFeatures& popupFeatures,
+                                  CefWindowInfo& windowInfo,
+                                  CefRefPtr<CefClient>& client,
+                                  CefBrowserSettings& settings,
+                                  bool* no_javascript_access) {
   if (browser->GetHost()->IsWindowRenderingDisabled()) {
     // Cancel popups in off-screen rendering mode.
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {

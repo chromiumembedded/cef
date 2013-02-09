@@ -18,10 +18,12 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefLifeSpanHandlerCToCpp::CanCreatePopup(CefRefPtr<CefBrowser> browser,
+bool CefLifeSpanHandlerCToCpp::OnBeforePopup(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& target_url,
-    const CefString& target_frame_name, bool* no_javascript_access) {
-  if (CEF_MEMBER_MISSING(struct_, can_create_popup))
+    const CefString& target_frame_name, const CefPopupFeatures& popupFeatures,
+    CefWindowInfo& windowInfo, CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings, bool* no_javascript_access) {
+  if (CEF_MEMBER_MISSING(struct_, on_before_popup))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -40,55 +42,25 @@ bool CefLifeSpanHandlerCToCpp::CanCreatePopup(CefRefPtr<CefBrowser> browser,
     return false;
   // Unverified params: target_url, target_frame_name
 
-  // Translate param: no_javascript_access; type: bool_byaddr
-  int no_javascript_accessInt = no_javascript_access?*no_javascript_access:0;
-
-  // Execute
-  int _retval = struct_->can_create_popup(struct_,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      target_url.GetStruct(),
-      target_frame_name.GetStruct(),
-      &no_javascript_accessInt);
-
-  // Restore param:no_javascript_access; type: bool_byaddr
-  if (no_javascript_access)
-    *no_javascript_access = no_javascript_accessInt?true:false;
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-void CefLifeSpanHandlerCToCpp::OnBeforePopup(CefRefPtr<CefBrowser> browser,
-    const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
-    const CefString& target_url, const CefString& target_frame_name,
-    CefRefPtr<CefClient>& client, CefBrowserSettings& settings) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_popup))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return;
-  // Unverified params: target_url, target_frame_name
-
   // Translate param: client; type: refptr_same_byref
   cef_client_t* clientStruct = NULL;
   if (client.get())
     clientStruct = CefClientCToCpp::Unwrap(client);
   cef_client_t* clientOrig = clientStruct;
+  // Translate param: no_javascript_access; type: bool_byaddr
+  int no_javascript_accessInt = no_javascript_access?*no_javascript_access:0;
 
   // Execute
-  struct_->on_before_popup(struct_,
+  int _retval = struct_->on_before_popup(struct_,
       CefBrowserCppToC::Wrap(browser),
-      &popupFeatures,
-      &windowInfo,
+      CefFrameCppToC::Wrap(frame),
       target_url.GetStruct(),
       target_frame_name.GetStruct(),
+      &popupFeatures,
+      &windowInfo,
       &clientStruct,
-      &settings);
+      &settings,
+      &no_javascript_accessInt);
 
   // Restore param:client; type: refptr_same_byref
   if (clientStruct) {
@@ -98,6 +70,12 @@ void CefLifeSpanHandlerCToCpp::OnBeforePopup(CefRefPtr<CefBrowser> browser,
   } else {
     client = NULL;
   }
+  // Restore param:no_javascript_access; type: bool_byaddr
+  if (no_javascript_access)
+    *no_javascript_access = no_javascript_accessInt?true:false;
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {

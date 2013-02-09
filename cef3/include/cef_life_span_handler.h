@@ -54,44 +54,27 @@ class CefLifeSpanHandler : public virtual CefBase {
   ///
   // Called on the IO thread before a new popup window is created. The |browser|
   // and |frame| parameters represent the source of the popup request. The
-  // |target_url| and |target_frame_name| values may be empty if none was
-  // specified with the request. Return true to allow creation of the popup
-  // window or false to cancel creation. If true is returned,
-  // |no_javascript_access| will indicate whether the window that is created
-  // should be scriptable/in the same process as the source browser. Do not
-  // perform blocking work in this callback as it will block the associated
-  // render process. To completely disable popup windows for a browser set
-  // CefBrowserSettings.javascript_open_windows to STATE_DISABLED.
-  ///
+  // |target_url| and |target_frame_name| values may be empty if none were
+  // specified with the request. The |popupFeatures| structure contains
+  // information about the requested popup window. To allow creation of the
+  // popup window optionally modify |windowInfo|, |client|, |settings| and
+  // |no_javascript_access| and return false. To cancel creation of the popup
+  // window return true. The |client| and |settings| values will default to the
+  // source browser's values. The |no_javascript_access| value indicates whether
+  // the new browser window should be scriptable and in the same process as the
+  // source browser.
   /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
-  virtual bool CanCreatePopup(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              const CefString& target_url,
-                              const CefString& target_frame_name,
-                              bool* no_javascript_access) {
-    return true;
-  }
-
-  ///
-  // Called before the CefBrowserHost object associated with a new popup window
-  // is created. This method will only be called in CanCreatePopup() returns
-  // true. The |browser| parameter represents the source of the popup request.
-  // The |popupFeatures| parameter will contain information about the style of
-  // popup window requested. The framework will create the new popup window
-  // based on the parameters in |windowInfo|. By default, a newly created popup
-  // window will have the same client and settings as the parent window. To
-  // change the client for the new window modify the object that |client| points
-  // to. To change the settings for the new window modify the |settings|
-  // structure.
-  ///
-  /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
-  virtual void OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                             const CefPopupFeatures& popupFeatures,
-                             CefWindowInfo& windowInfo,
+  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame,
                              const CefString& target_url,
                              const CefString& target_frame_name,
+                             const CefPopupFeatures& popupFeatures,
+                             CefWindowInfo& windowInfo,
                              CefRefPtr<CefClient>& client,
-                             CefBrowserSettings& settings) {}
+                             CefBrowserSettings& settings,
+                             bool* no_javascript_access) {
+    return false;
+  }
 
   ///
   // Called after a new window is created.
