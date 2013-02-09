@@ -85,7 +85,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       devtools_delegate_ = new CefDevToolsDelegate(port);
     } else {
-      DLOG(WARNING) << "Invalid http debugger port number " << port;
+      LOG(WARNING) << "Invalid http debugger port number " << port;
     }
   }
 }

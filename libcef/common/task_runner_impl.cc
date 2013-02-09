@@ -32,7 +32,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
   if (task_runner.get())
     return new CefTaskRunnerImpl(task_runner);
 
-  DLOG(WARNING) << "Invalid thread id " << threadId;
+  LOG(WARNING) << "Invalid thread id " << threadId;
   return NULL;
 }
 

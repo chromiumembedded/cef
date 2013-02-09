@@ -281,9 +281,9 @@ CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByRoutingID(
   if (info.get()) {
     CefRefPtr<CefBrowserHostImpl> browser = info->browser();
     if (!browser.get()) {
-      DLOG(WARNING) << "Found browser id " << info->browser_id() <<
-                       " but no browser object matching process id " <<
-                       render_process_id << " and view id " << render_view_id;
+      LOG(WARNING) << "Found browser id " << info->browser_id() <<
+                      " but no browser object matching process id " <<
+                      render_process_id << " and view id " << render_view_id;
     }
     return browser;
   }

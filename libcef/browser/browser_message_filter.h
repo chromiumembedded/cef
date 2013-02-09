@@ -37,9 +37,7 @@ class CefBrowserMessageFilter : public IPC::ChannelProxy::MessageFilter {
   void OnGetNewBrowserInfo(int routing_id,
                            CefProcessHostMsg_GetNewBrowserInfo_Params* params);
   void OnCreateWindow(const ViewHostMsg_CreateWindow_Params& params,
-                      int* route_id,
-                      int* surface_id,
-                      int64* cloned_session_storage_namespace_id);
+                      IPC::Message* reply_msg);
 
   content::RenderProcessHost* host_;
   IPC::Channel* channel_;

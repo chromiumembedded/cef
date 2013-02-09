@@ -109,7 +109,7 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
                                const base::Closure& task,
                                base::TimeDelta delay) OVERRIDE {
     if (delay != base::TimeDelta())
-      DLOG(WARNING) << "Delayed tasks are not supported on WebWorker threads";
+      LOG(WARNING) << "Delayed tasks are not supported on WebWorker threads";
     runner_->PostTask(worker_id_, task);
     return true;
   }

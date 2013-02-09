@@ -44,9 +44,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // these methods.
   // During popup window creation there is a race between the call to
   // CefBrowserMessageFilter::OnGetNewBrowserInfo on the IO thread and the call
-  // to CefBrowserHostImpl::WebContentsCreated on the UI thread. To resolve this
-  // race CefBrowserInfo may be created when requested for the first time and
-  // before the associated CefBrowserHostImpl is created.
+  // to CefBrowserHostImpl::ShouldCreateWebContents on the UI thread. To resolve
+  // this race CefBrowserInfo may be created when requested for the first time
+  // and before the associated CefBrowserHostImpl is created.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo();
   scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(int render_process_id,
                                                        int render_view_id);
@@ -93,7 +93,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // Store additional state from the ViewHostMsg_CreateWindow message that will
   // be used when CanCreateWindow() is called.
   struct LastCreateWindowParams {
-    int opener_id;
+    int opener_process_id;
+    int opener_view_id;
     int64 opener_frame_id;
     GURL target_url;
     string16 target_frame_name;
