@@ -215,6 +215,22 @@ void CefBrowserHostCToCpp::RunFileDialog(FileDialogMode mode,
     cef_string_list_free(accept_typesList);
 }
 
+void CefBrowserHostCToCpp::StartDownload(const CefString& url) {
+  if (CEF_MEMBER_MISSING(struct_, start_download))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return;
+
+  // Execute
+  struct_->start_download(struct_,
+      url.GetStruct());
+}
+
 bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
   if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
     return false;

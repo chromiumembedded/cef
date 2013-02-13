@@ -299,6 +299,12 @@ typedef struct _cef_browser_host_t {
       struct _cef_run_file_dialog_callback_t* callback);
 
   ///
+  // Download the file at |url| using cef_download_handler_t.
+  ///
+  void (CEF_CALLBACK *start_download)(struct _cef_browser_host_t* self,
+      const cef_string_t* url);
+
+  ///
   // Returns true (1) if window rendering is disabled.
   ///
   int (CEF_CALLBACK *is_window_rendering_disabled)(

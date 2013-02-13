@@ -262,6 +262,23 @@ void CEF_CALLBACK browser_host_run_file_dialog(struct _cef_browser_host_t* self,
       CefRunFileDialogCallbackCToCpp::Wrap(callback));
 }
 
+void CEF_CALLBACK browser_host_start_download(struct _cef_browser_host_t* self,
+    const cef_string_t* url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: url; type: string_byref_const
+  DCHECK(url);
+  if (!url)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->StartDownload(
+      CefString(url));
+}
+
 int CEF_CALLBACK browser_host_is_window_rendering_disabled(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -449,6 +466,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.get_zoom_level = browser_host_get_zoom_level;
   struct_.struct_.set_zoom_level = browser_host_set_zoom_level;
   struct_.struct_.run_file_dialog = browser_host_run_file_dialog;
+  struct_.struct_.start_download = browser_host_start_download;
   struct_.struct_.is_window_rendering_disabled =
       browser_host_is_window_rendering_disabled;
   struct_.struct_.was_resized = browser_host_was_resized;

@@ -29,6 +29,8 @@
 #include "base/bind_helpers.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
+#include "content/public/browser/download_manager.h"
+#include "content/public/browser/download_url_parameters.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -553,6 +555,35 @@ void CefBrowserHostImpl::RunFileDialog(
       new CefRunFileDialogCallbackWrapper(this, callback);
   RunFileChooser(params,
       base::Bind(&CefRunFileDialogCallbackWrapper::Callback, wrapper));
+}
+
+void CefBrowserHostImpl::StartDownload(const CefString& url) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::StartDownload, this, url));
+    return;
+  }
+
+  GURL gurl = GURL(url.ToString());
+  if (gurl.is_empty() || !gurl.is_valid())
+    return;
+
+  if (!web_contents())
+    return;
+
+  CefBrowserContext* context = _Context->browser_context();
+  if (!context)
+    return;
+
+  scoped_refptr<content::DownloadManager> manager =
+      content::BrowserContext::GetDownloadManager(context);
+  if (!manager)
+    return;
+
+  scoped_ptr<content::DownloadUrlParameters> params;
+  params.reset(
+      content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
+  manager->DownloadUrl(params.Pass());
 }
 
 bool CefBrowserHostImpl::IsWindowRenderingDisabled() {

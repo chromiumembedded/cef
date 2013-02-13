@@ -247,6 +247,7 @@
         'tests/unittests/dialog_unittest.cc',
         'tests/unittests/display_unittest.cc',
         'tests/unittests/dom_unittest.cc',
+        'tests/unittests/download_unittest.cc',
         'tests/unittests/geolocation_unittest.cc',
         'tests/unittests/jsdialog_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
