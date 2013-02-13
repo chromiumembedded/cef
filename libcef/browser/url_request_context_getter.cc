@@ -28,6 +28,7 @@
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_switches.h"
 #include "net/base/cert_verifier.h"
 #include "net/base/default_server_bound_cert_store.h"
 #include "net/base/host_resolver.h"
@@ -53,13 +54,9 @@ using content::BrowserThread;
 #endif
 
 CefURLRequestContextGetter::CefURLRequestContextGetter(
-    bool ignore_certificate_errors,
-    const FilePath& base_path,
     MessageLoop* io_loop,
     MessageLoop* file_loop)
-    : ignore_certificate_errors_(ignore_certificate_errors),
-      base_path_(base_path),
-      io_loop_(io_loop),
+    : io_loop_(io_loop),
       file_loop_(file_loop) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
@@ -155,7 +152,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     network_session_params.http_server_properties =
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
-        ignore_certificate_errors_;
+        (settings.ignore_certificate_errors ||
+         command_line.HasSwitch(switches::kIgnoreCertificateErrors));
 
     net::HttpCache* main_cache = new net::HttpCache(network_session_params,
                                                     main_backend);

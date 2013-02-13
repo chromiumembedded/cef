@@ -321,6 +321,7 @@ struct CefSettingsTraits {
     target->remote_debugging_port = src->remote_debugging_port;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
     target->context_safety_implementation = src->context_safety_implementation;
+    target->ignore_certificate_errors = src->ignore_certificate_errors;
   }
 };
 

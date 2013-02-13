@@ -326,6 +326,15 @@ typedef struct _cef_settings_t {
   // switch.
   ///
   int context_safety_implementation;
+
+  ///
+  // Set to true (1) to ignore errors related to invalid SSL certificates.
+  // Enabling this setting can lead to potential security vulnerabilities like
+  // "man in the middle" attacks. Applications that load content from the
+  // internet should not enable this setting. Also configurable using the
+  // "ignore-certificate-errors" command-line switch.
+  ///
+  bool ignore_certificate_errors;
 } cef_settings_t;
 
 ///
