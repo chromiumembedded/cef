@@ -51,6 +51,7 @@ class CefBrowserHostCToCpp
       const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
+  virtual void StartDownload(const CefString& url) OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void WasResized() OVERRIDE;
   virtual void Invalidate(const CefRect& dirtyRect,

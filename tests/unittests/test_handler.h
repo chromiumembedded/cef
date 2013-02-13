@@ -33,6 +33,7 @@ class TrackCallback {
 class TestHandler : public CefClient,
                     public CefDialogHandler,
                     public CefDisplayHandler,
+                    public CefDownloadHandler,
                     public CefGeolocationHandler,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
@@ -52,6 +53,9 @@ class TestHandler : public CefClient,
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
     return this;
   }
+  virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE {
+    return this;
+  }
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
     return this;
   }
@@ -67,6 +71,13 @@ class TestHandler : public CefClient,
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
     return this;
   }
+
+  // CefDownloadHandler methods
+  virtual void OnBeforeDownload(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      const CefString& suggested_name,
+      CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE {}
 
   // CefLifeSpanHandler methods
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;

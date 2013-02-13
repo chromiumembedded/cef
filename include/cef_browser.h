@@ -340,6 +340,12 @@ class CefBrowserHost : public virtual CefBase {
                              CefRefPtr<CefRunFileDialogCallback> callback) =0;
 
   ///
+  // Download the file at |url| using CefDownloadHandler.
+  ///
+  /*--cef()--*/
+  virtual void StartDownload(const CefString& url) =0;
+
+  ///
   // Returns true if window rendering is disabled.
   ///
   /*--cef()--*/
