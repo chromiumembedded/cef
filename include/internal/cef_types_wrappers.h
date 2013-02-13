@@ -298,6 +298,8 @@ struct CefSettingsTraits {
 
     cef_string_set(src->cache_path.str, src->cache_path.length,
         &target->cache_path, copy);
+    target->persist_session_cookies = src->persist_session_cookies;
+
     cef_string_set(src->user_agent.str, src->user_agent.length,
         &target->user_agent, copy);
     cef_string_set(src->product_version.str, src->product_version.length,

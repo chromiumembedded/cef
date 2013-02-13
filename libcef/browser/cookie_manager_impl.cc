@@ -77,6 +77,11 @@ bool GetCookieDomain(const GURL& url,
       result);
 }
 
+void RunCompletionOnIOThread(CefRefPtr<CefCompletionHandler> handler) {
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&CefCompletionHandler::OnComplete, handler.get()));
+}
+
 }  // namespace
 
 
@@ -87,11 +92,13 @@ CefCookieManagerImpl::CefCookieManagerImpl(bool is_global)
 CefCookieManagerImpl::~CefCookieManagerImpl() {
 }
 
-void CefCookieManagerImpl::Initialize(const CefString& path) {
+void CefCookieManagerImpl::Initialize(
+    const CefString& path,
+    bool persist_session_cookies) {
   if (is_global_)
     SetGlobal();
   else
-    SetStoragePath(path);
+    SetStoragePath(path, persist_session_cookies);
 }
 
 void CefCookieManagerImpl::SetSupportedSchemes(
@@ -245,7 +252,9 @@ bool CefCookieManagerImpl::DeleteCookies(const CefString& url,
   return true;
 }
 
-bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
+bool CefCookieManagerImpl::SetStoragePath(
+    const CefString& path,
+    bool persist_session_cookies) {
   if (CEF_CURRENTLY_ON_IOT()) {
     FilePath new_path;
     if (!path.empty())
@@ -256,7 +265,7 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       CefURLRequestContextGetter* getter =
           static_cast<CefURLRequestContextGetter*>(
               _Context->browser_context()->GetRequestContext());
-      getter->SetCookieStoragePath(new_path);
+      getter->SetCookieStoragePath(new_path, persist_session_cookies);
       cookie_monster_ = getter->GetURLRequestContext()->cookie_store()->
           GetCookieMonster();
       return true;
@@ -277,7 +286,9 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
           file_util::CreateDirectory(new_path)) {
         const FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
-            new SQLitePersistentCookieStore(cookie_path, false, NULL);
+            new SQLitePersistentCookieStore(cookie_path,
+                                            persist_session_cookies,
+                                            NULL);
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();
@@ -288,6 +299,8 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
     // cookie store, if any, will be automatically flushed and closed when no
     // longer referenced.
     cookie_monster_ = new net::CookieMonster(persistent_store.get(), NULL);
+    if (persistent_store.get() && persist_session_cookies)
+      cookie_monster_->SetPersistSessionCookies(true);
     storage_path_ = new_path;
 
     // Restore the previously supported schemes.
@@ -296,7 +309,32 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT,
         base::Bind(base::IgnoreResult(&CefCookieManagerImpl::SetStoragePath),
-                   this, path));
+                   this, path, persist_session_cookies));
+  }
+
+  return true;
+}
+
+bool CefCookieManagerImpl::FlushStore(CefRefPtr<CefCompletionHandler> handler) {
+  if (CEF_CURRENTLY_ON_IOT()) {
+    if (!cookie_monster_) {
+      if (handler.get())
+        RunCompletionOnIOThread(handler);
+      return true;
+    }
+
+    base::Closure callback;
+    if (handler.get())
+      callback = base::Bind(RunCompletionOnIOThread, handler);
+    else
+      callback = base::Bind(&base::DoNothing);
+
+    cookie_monster_->FlushStore(callback);
+  } else {
+    // Execute on the IO thread.
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(base::IgnoreResult(&CefCookieManagerImpl::FlushStore),
+                   this, handler));
   }
 
   return true;
@@ -378,13 +416,14 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager() {
   }
 
   CefRefPtr<CefCookieManagerImpl> manager(new CefCookieManagerImpl(true));
-  manager->Initialize(CefString());
+  manager->Initialize(CefString(), false);
   return manager.get();
 }
 
 // static
 CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
-    const CefString& path) {
+    const CefString& path,
+    bool persist_session_cookies) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -392,6 +431,6 @@ CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
   }
 
   CefRefPtr<CefCookieManagerImpl> manager(new CefCookieManagerImpl(false));
-  manager->Initialize(path);
+  manager->Initialize(path, persist_session_cookies);
   return manager.get();
 }

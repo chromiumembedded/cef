@@ -66,6 +66,22 @@ typedef struct _cef_callback_t {
 } cef_callback_t;
 
 
+///
+// Generic callback structure used for asynchronous completion.
+///
+typedef struct _cef_completion_handler_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Method that will be called once the task is complete.
+  ///
+  void (CEF_CALLBACK *on_complete)(struct _cef_completion_handler_t* self);
+} cef_completion_handler_t;
+
+
 #ifdef __cplusplus
 }
 #endif

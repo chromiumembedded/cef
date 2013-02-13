@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
+#include "libcef_dll/ctocpp/completion_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -28,14 +29,15 @@ CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager() {
 }
 
 CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_create_manager(
-    const cef_string_t* path) {
+    const cef_string_t* path, int persist_session_cookies) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: path
 
   // Execute
   CefRefPtr<CefCookieManager> _retval = CefCookieManager::CreateManager(
-      CefString(path));
+      CefString(path),
+      persist_session_cookies?true:false);
 
   // Return type: refptr_same
   return CefCookieManagerCppToC::Wrap(_retval);
@@ -163,7 +165,8 @@ int CEF_CALLBACK cookie_manager_delete_cookies(
 }
 
 int CEF_CALLBACK cookie_manager_set_storage_path(
-    struct _cef_cookie_manager_t* self, const cef_string_t* path) {
+    struct _cef_cookie_manager_t* self, const cef_string_t* path,
+    int persist_session_cookies) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -173,7 +176,25 @@ int CEF_CALLBACK cookie_manager_set_storage_path(
 
   // Execute
   bool _retval = CefCookieManagerCppToC::Get(self)->SetStoragePath(
-      CefString(path));
+      CefString(path),
+      persist_session_cookies?true:false);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
+    cef_completion_handler_t* handler) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Unverified params: handler
+
+  // Execute
+  bool _retval = CefCookieManagerCppToC::Get(self)->FlushStore(
+      CefCompletionHandlerCToCpp::Wrap(handler));
 
   // Return type: bool
   return _retval;
@@ -191,6 +212,7 @@ CefCookieManagerCppToC::CefCookieManagerCppToC(CefCookieManager* cls)
   struct_.struct_.set_cookie = cookie_manager_set_cookie;
   struct_.struct_.delete_cookies = cookie_manager_delete_cookies;
   struct_.struct_.set_storage_path = cookie_manager_set_storage_path;
+  struct_.struct_.flush_store = cookie_manager_flush_store;
 }
 
 #ifndef NDEBUG

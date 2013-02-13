@@ -70,6 +70,7 @@
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/completion_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
@@ -177,6 +178,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefBrowserHostCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserProcessHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefCompletionHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCookieManagerCppToC::DebugObjCt, 0);

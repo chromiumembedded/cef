@@ -85,7 +85,8 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
 
   net::HostResolver* host_resolver();
 
-  void SetCookieStoragePath(const FilePath& path);
+  void SetCookieStoragePath(const FilePath& path,
+                            bool persist_session_cookies);
   void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
   // Manage URLRequestContext proxy objects. It's important that proxy objects
