@@ -176,8 +176,6 @@ CefBrowserContext::CefBrowserContext()
     : use_osr_next_contents_view_(false) {
   // Initialize the request context getter.
   url_request_getter_ = new CefURLRequestContextGetter(
-      false,
-      GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE));
 }
