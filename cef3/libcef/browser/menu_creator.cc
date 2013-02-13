@@ -43,8 +43,10 @@ CefMenuCreator::~CefMenuCreator() {
 }
 
 bool CefMenuCreator::IsShowingContextMenu() {
-  content::RenderWidgetHostView* view =
-      browser_->GetWebContents()->GetRenderWidgetHostView();
+  content::WebContents* web_contents = browser_->GetWebContents();
+  if (!web_contents)
+    return false;
+  content::RenderWidgetHostView* view = web_contents->GetRenderWidgetHostView();
   return (view && view->IsShowingContextMenu());
 }
 
@@ -159,9 +161,12 @@ void CefMenuCreator::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
   if (source.get() != model_.get())
     return;
 
+  content::WebContents* web_contents = browser_->GetWebContents();
+  if (!web_contents)
+    return;
+
   // Notify the host before showing the context menu.
-  content::RenderWidgetHostView* view =
-      browser_->GetWebContents()->GetRenderWidgetHostView();
+  content::RenderWidgetHostView* view = web_contents->GetRenderWidgetHostView();
   if (view)
     view->SetShowingContextMenu(true);
 }
