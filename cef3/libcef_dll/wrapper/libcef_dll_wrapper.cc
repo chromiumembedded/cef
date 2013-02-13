@@ -35,6 +35,7 @@
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/completion_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
@@ -169,6 +170,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefBrowserHostCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserProcessHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefCompletionHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieManagerCToCpp::DebugObjCt, 0);

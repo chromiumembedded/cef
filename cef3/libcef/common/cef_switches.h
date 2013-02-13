@@ -38,6 +38,7 @@ extern const char kDisableTextAreaResize[];
 extern const char kDisableTabToLinks[];
 extern const char kDisableAuthorAndUserStyles[];
 extern const char kDisableDeveloperTools[];
+extern const char kPersistSessionCookies[];
 
 }  // namespace switches
 

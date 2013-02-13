@@ -44,7 +44,9 @@ class CefCookieManagerCToCpp
       const CefCookie& cookie) OVERRIDE;
   virtual bool DeleteCookies(const CefString& url,
       const CefString& cookie_name) OVERRIDE;
-  virtual bool SetStoragePath(const CefString& path) OVERRIDE;
+  virtual bool SetStoragePath(const CefString& path,
+      bool persist_session_cookies) OVERRIDE;
+  virtual bool FlushStore(CefRefPtr<CefCompletionHandler> handler) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

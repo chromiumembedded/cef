@@ -16,7 +16,8 @@ class CefCookieManagerImpl : public CefCookieManager {
   ~CefCookieManagerImpl();
 
   // Initialize the cookie manager.
-  void Initialize(const CefString& path);
+  void Initialize(const CefString& path,
+                  bool persist_session_cookies);
 
   // CefCookieManager methods.
   virtual void SetSupportedSchemes(const std::vector<CefString>& schemes)
@@ -28,7 +29,9 @@ class CefCookieManagerImpl : public CefCookieManager {
                          const CefCookie& cookie) OVERRIDE;
   virtual bool DeleteCookies(const CefString& url,
                              const CefString& cookie_name) OVERRIDE;
-  virtual bool SetStoragePath(const CefString& path) OVERRIDE;
+  virtual bool SetStoragePath(const CefString& path,
+                              bool persist_session_cookies) OVERRIDE;
+  virtual bool FlushStore(CefRefPtr<CefCompletionHandler> handler) OVERRIDE;
 
   net::CookieMonster* cookie_monster() { return cookie_monster_; }
 

@@ -198,6 +198,16 @@ typedef struct _cef_settings_t {
   cef_string_t cache_path;
 
   ///
+  // To persist session cookies (cookies without an expiry date or validity
+  // interval) by default when using the global cookie manager set this value to
+  // true. Session cookies are generally intended to be transient and most Web
+  // browsers do not persist them. A |cache_path| value must also be specified to
+  // enable this feature. Also configurable using the "persist-session-cookies"
+  // command-line switch.
+  ///
+  bool persist_session_cookies;
+
+  ///
   // Value that will be returned as the User-Agent HTTP header. If empty the
   // default User-Agent string will be used. Also configurable using the
   // "user-agent" command-line switch.

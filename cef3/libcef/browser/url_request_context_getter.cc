@@ -15,6 +15,7 @@
 #include "libcef/browser/url_network_delegate.h"
 #include "libcef/browser/url_request_context_proxy.h"
 #include "libcef/browser/url_request_interceptor.h"
+#include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -75,12 +76,16 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   if (!url_request_context_.get()) {
     const FilePath& cache_path = _Context->cache_path();
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    const CefSettings& settings = _Context->settings();
 
     url_request_context_.reset(new net::URLRequestContext());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
-    SetCookieStoragePath(cache_path);
+    bool persist_session_cookies =
+        (settings.persist_session_cookies ||
+         command_line.HasSwitch(switches::kPersistSessionCookies));
+    SetCookieStoragePath(cache_path, persist_session_cookies);
 
     storage_->set_network_delegate(new CefNetworkDelegate);
 
@@ -176,7 +181,9 @@ net::HostResolver* CefURLRequestContextGetter::host_resolver() {
   return url_request_context_->host_resolver();
 }
 
-void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
+void CefURLRequestContextGetter::SetCookieStoragePath(
+    const FilePath& path,
+    bool persist_session_cookies) {
   CEF_REQUIRE_IOT();
 
   if (url_request_context_->cookie_store() &&
@@ -195,7 +202,9 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
         file_util::CreateDirectory(path)) {
       const FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =
-          new SQLitePersistentCookieStore(cookie_path, false, NULL);
+          new SQLitePersistentCookieStore(cookie_path,
+                                          persist_session_cookies,
+                                          NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }
@@ -204,8 +213,11 @@ void CefURLRequestContextGetter::SetCookieStoragePath(const FilePath& path) {
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  storage_->set_cookie_store(
-      new net::CookieMonster(persistent_store.get(), NULL));
+  scoped_refptr<net::CookieMonster> cookie_monster =
+      new net::CookieMonster(persistent_store.get(), NULL);
+  storage_->set_cookie_store(cookie_monster);
+  if (persistent_store.get() && persist_session_cookies)
+      cookie_monster->SetPersistSessionCookies(true);
   cookie_store_path_ = path;
 
   // Restore the previously supported schemes.

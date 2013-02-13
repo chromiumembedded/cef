@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/completion_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -28,14 +29,15 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager() {
 }
 
 CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
-    const CefString& path) {
+    const CefString& path, bool persist_session_cookies) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: path
 
   // Execute
   cef_cookie_manager_t* _retval = cef_cookie_manager_create_manager(
-      path.GetStruct());
+      path.GetStruct(),
+      persist_session_cookies);
 
   // Return type: refptr_same
   return CefCookieManagerCToCpp::Wrap(_retval);
@@ -151,7 +153,8 @@ bool CefCookieManagerCToCpp::DeleteCookies(const CefString& url,
   return _retval?true:false;
 }
 
-bool CefCookieManagerCToCpp::SetStoragePath(const CefString& path) {
+bool CefCookieManagerCToCpp::SetStoragePath(const CefString& path,
+    bool persist_session_cookies) {
   if (CEF_MEMBER_MISSING(struct_, set_storage_path))
     return false;
 
@@ -161,7 +164,25 @@ bool CefCookieManagerCToCpp::SetStoragePath(const CefString& path) {
 
   // Execute
   int _retval = struct_->set_storage_path(struct_,
-      path.GetStruct());
+      path.GetStruct(),
+      persist_session_cookies);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefCookieManagerCToCpp::FlushStore(
+    CefRefPtr<CefCompletionHandler> handler) {
+  if (CEF_MEMBER_MISSING(struct_, flush_store))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: handler
+
+  // Execute
+  int _retval = struct_->flush_store(struct_,
+      CefCompletionHandlerCppToC::Wrap(handler));
 
   // Return type: bool
   return _retval?true:false;

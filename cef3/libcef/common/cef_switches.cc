@@ -83,4 +83,7 @@ const char kDisableAuthorAndUserStyles[]  = "disable-author-and-user-styles";
 // Disable developer tools (WebKit Inspector).
 const char kDisableDeveloperTools[]       = "disable-developer-tools";
 
+// Persist session cookies.
+const char kPersistSessionCookies[]       = "persist-session-cookies";
+
 }  // namespace switches
