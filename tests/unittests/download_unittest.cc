@@ -170,9 +170,9 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
         download_item->GetTotalBytes());
     EXPECT_EQ(0LL, download_item->GetReceivedBytes());
-    EXPECT_EQ(0L, download_item->GetFullPath().length());
+    EXPECT_EQ(0UL, download_item->GetFullPath().length());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
-    EXPECT_EQ(0L, download_item->GetSuggestedFileName().length());
+    EXPECT_EQ(0UL, download_item->GetSuggestedFileName().length());
     EXPECT_STREQ(kTestContentDisposition,
         download_item->GetContentDisposition().ToString().c_str());
     EXPECT_STREQ(kTestMimeType, download_item->GetMimeType().ToString().c_str());
