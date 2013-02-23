@@ -9,11 +9,6 @@ CefBrowserMessageLoop::CefBrowserMessageLoop() {
 }
 
 CefBrowserMessageLoop::~CefBrowserMessageLoop() {
-#if defined(OS_MACOSX)
-  // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
-  // the run_loop_ variable to avoid an assertion in the MessageLoop destructor.
-  run_loop_ = NULL;
-#endif
 }
 
 // static

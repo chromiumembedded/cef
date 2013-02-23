@@ -1041,10 +1041,6 @@
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
             # Include sources for context menu implementation.
-            '<(DEPTH)/chrome/browser/disposition_utils.cc',
-            '<(DEPTH)/chrome/browser/disposition_utils.h',
-            '<(DEPTH)/chrome/browser/event_disposition.cc',
-            '<(DEPTH)/chrome/browser/event_disposition.h',
             '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.mm',
             '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.h',
             '<(DEPTH)/chrome/browser/ui/cocoa/menu_controller.mm',

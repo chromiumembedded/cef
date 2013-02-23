@@ -199,8 +199,8 @@ class CefBrowserContext::CefResourceContext : public content::ResourceContext {
 };
 
 CefBrowserContext::CefBrowserContext()
-    : use_osr_next_contents_view_(false),
-      resource_context_(new CefResourceContext) {
+    : resource_context_(new CefResourceContext),
+      use_osr_next_contents_view_(false) {
 }
 
 CefBrowserContext::~CefBrowserContext() {
