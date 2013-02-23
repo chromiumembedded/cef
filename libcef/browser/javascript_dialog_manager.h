@@ -3,25 +3,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_CREATOR_H_
-#define CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_CREATOR_H_
+#ifndef CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_
+#define CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_
 #pragma once
 
 #include <string>
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "content/public/browser/javascript_dialogs.h"
+#include "content/public/browser/javascript_dialog_manager.h"
 
 class CefBrowserHostImpl;
 class CefJavaScriptDialog;
 
-class CefJavaScriptDialogCreator : public content::JavaScriptDialogCreator {
+class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
-  explicit CefJavaScriptDialogCreator(CefBrowserHostImpl* browser);
-  virtual ~CefJavaScriptDialogCreator();
+  explicit CefJavaScriptDialogManager(CefBrowserHostImpl* browser);
+  virtual ~CefJavaScriptDialogManager();
 
-  // JavaScriptDialogCreator methods.
+  // JavaScriptDialogManager methods.
   virtual void RunJavaScriptDialog(
       content::WebContents* web_contents,
       const GURL& origin_url,
@@ -47,7 +47,7 @@ class CefJavaScriptDialogCreator : public content::JavaScriptDialogCreator {
   CefBrowserHostImpl* browser() const { return browser_; }
 
  private:
-  // This pointer is guaranteed to outlive the CefJavaScriptDialogCreator.
+  // This pointer is guaranteed to outlive the CefJavaScriptDialogManager.
   CefBrowserHostImpl* browser_;
 
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
@@ -55,7 +55,7 @@ class CefJavaScriptDialogCreator : public content::JavaScriptDialogCreator {
   scoped_ptr<CefJavaScriptDialog> dialog_;
 #endif
 
-  DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialogCreator);
+  DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialogManager);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_CREATOR_H_
+#endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_

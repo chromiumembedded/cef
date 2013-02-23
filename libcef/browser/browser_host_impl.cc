@@ -39,7 +39,7 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/file_chooser_params.h"
-#include "ui/base/dialogs/selected_file_info.h"
+#include "ui/shell_dialogs/selected_file_info.h"
 
 #if defined(OS_WIN)
 #include "libcef/browser/render_widget_host_view_osr.h"
@@ -133,11 +133,11 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
   virtual void Continue(const std::vector<CefString>& file_paths) OVERRIDE {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
-        std::vector<FilePath> vec;
+        std::vector<base::FilePath> vec;
         if (!file_paths.empty()) {
           std::vector<CefString>::const_iterator it = file_paths.begin();
           for (; it != file_paths.end(); ++it)
-            vec.push_back(FilePath(*it));
+            vec.push_back(base::FilePath(*it));
         }
         callback_.Run(vec);
         callback_.Reset();
@@ -172,7 +172,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
   static void CancelNow(
       const CefBrowserHostImpl::RunFileChooserCallback& callback) {
     CEF_REQUIRE_UIT();
-    std::vector<FilePath> file_paths;
+    std::vector<base::FilePath> file_paths;
     callback.Run(file_paths);
   }
 
@@ -190,7 +190,7 @@ class CefRunFileDialogCallbackWrapper
         callback_(callback) {
   }
 
-  void Callback(const std::vector<FilePath>& file_paths) {
+  void Callback(const std::vector<base::FilePath>& file_paths) {
     std::vector<CefString> paths;
     if (file_paths.size() > 0) {
       for (size_t i = 0; i < file_paths.size(); ++i)
@@ -544,7 +544,7 @@ void CefBrowserHostImpl::RunFileDialog(
   }
   params.title = title;
   if (!default_file_name.empty())
-    params.default_file_name = FilePath(default_file_name);
+    params.default_file_name = base::FilePath(default_file_name);
   if (!accept_types.empty()) {
     std::vector<CefString>::const_iterator it = accept_types.begin();
     for (; it != accept_types.end(); ++it)
@@ -1079,7 +1079,7 @@ net::URLRequestContextGetter* CefBrowserHostImpl::GetRequestContext() {
     request_context_proxy_ =
         new CefURLRequestContextGetterProxy(this,
             static_cast<CefURLRequestContextGetter*>(
-                _Context->browser_context()->GetRequestContext()));
+                _Context->request_context().get()));
   }
   return request_context_proxy_.get();
 }
@@ -1569,11 +1569,11 @@ void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
   has_document_ = false;
 }
 
-content::JavaScriptDialogCreator*
-    CefBrowserHostImpl::GetJavaScriptDialogCreator() {
-  if (!dialog_creator_.get())
-    dialog_creator_.reset(new CefJavaScriptDialogCreator(this));
-  return dialog_creator_.get();
+content::JavaScriptDialogManager*
+    CefBrowserHostImpl::GetJavaScriptDialogManager() {
+  if (!dialog_manager_.get())
+    dialog_manager_.reset(new CefJavaScriptDialogManager(this));
+  return dialog_manager_.get();
 }
 
 void CefBrowserHostImpl::RunFileChooser(
@@ -1730,7 +1730,7 @@ void CefBrowserHostImpl::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
-void CefBrowserHostImpl::PluginCrashed(const FilePath& plugin_path,
+void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
                                        base::ProcessId plugin_pid) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
@@ -2092,13 +2092,13 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
 
   if (file_chooser_pending_) {
     // Dismiss the new dialog immediately.
-    callback.Run(std::vector<FilePath>());
+    callback.Run(std::vector<base::FilePath>());
     return;
   }
 
   if (params.mode == content::FileChooserParams::OpenFolder) {
     NOTIMPLEMENTED();
-    callback.Run(std::vector<FilePath>());
+    callback.Run(std::vector<base::FilePath>());
     return;
   }
 
@@ -2157,7 +2157,7 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
 
 void CefBrowserHostImpl::OnRunFileChooserCallback(
     const RunFileChooserCallback& callback,
-    const std::vector<FilePath>& file_paths) {
+    const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
   file_chooser_pending_ = false;
@@ -2168,7 +2168,7 @@ void CefBrowserHostImpl::OnRunFileChooserCallback(
 
 void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
     content::WebContents* tab,
-    const std::vector<FilePath>& file_paths) {
+    const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
   content::RenderViewHost* render_view_host = tab->GetRenderViewHost();
@@ -2183,8 +2183,10 @@ void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
 
   // Convert FilePath list to SelectedFileInfo list.
   std::vector<ui::SelectedFileInfo> selected_files;
-  for (size_t i = 0; i < file_paths.size(); ++i)
-    selected_files.push_back(ui::SelectedFileInfo(file_paths[i], FilePath()));
+  for (size_t i = 0; i < file_paths.size(); ++i) {
+    selected_files.push_back(
+        ui::SelectedFileInfo(file_paths[i], base::FilePath()));
+  }
 
   // Notify our RenderViewHost in all cases.
   render_view_host->FilesSelectedInChooser(selected_files,

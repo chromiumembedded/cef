@@ -7,7 +7,7 @@
 #define CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_H_
 #pragma once
 
-#include "content/public/browser/javascript_dialogs.h"
+#include "content/public/browser/javascript_dialog_manager.h"
 
 #if defined(TOOLKIT_GTK)
 #include "ui/base/gtk/gtk_signal.h"
@@ -21,17 +21,17 @@ class CefJavaScriptDialogHelper;
 #endif  // __OBJC__
 #endif  // defined(OS_MACOSX)
 
-class CefJavaScriptDialogCreator;
+class CefJavaScriptDialogManager;
 
 class CefJavaScriptDialog {
  public:
   CefJavaScriptDialog(
-      CefJavaScriptDialogCreator* creator,
+      CefJavaScriptDialogManager* creator,
       content::JavaScriptMessageType message_type,
       const string16& display_url,
       const string16& message_text,
       const string16& default_prompt_text,
-      const content::JavaScriptDialogCreator::DialogClosedCallback& callback);
+      const content::JavaScriptDialogManager::DialogClosedCallback& callback);
   ~CefJavaScriptDialog();
 
   // Called to cancel a dialog mid-flight.
@@ -41,8 +41,8 @@ class CefJavaScriptDialog {
   void Activate();
 
  private:
-  CefJavaScriptDialogCreator* creator_;
-  content::JavaScriptDialogCreator::DialogClosedCallback callback_;
+  CefJavaScriptDialogManager* creator_;
+  content::JavaScriptDialogManager::DialogClosedCallback callback_;
 
 #if defined(OS_MACOSX)
   CefJavaScriptDialogHelper* helper_;  // owned

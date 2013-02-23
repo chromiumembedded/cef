@@ -16,7 +16,7 @@
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "libcef/browser/frame_host_impl.h"
-#include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/menu_creator.h"
 #include "libcef/common/response_manager.h"
 
@@ -235,7 +235,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnSetFocus(cef_focus_source_t source);
 
   // The argument vector will be empty if the dialog was cancelled.
-  typedef base::Callback<void(const std::vector<FilePath>&)>
+  typedef base::Callback<void(const std::vector<base::FilePath>&)>
       RunFileChooserCallback;
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
@@ -292,7 +292,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                   content::WebContents* new_contents) OVERRIDE;
   virtual void DidNavigateMainFramePostCommit(
       content::WebContents* tab) OVERRIDE;
-  virtual content::JavaScriptDialogCreator* GetJavaScriptDialogCreator()
+  virtual content::JavaScriptDialogManager* GetJavaScriptDialogManager()
       OVERRIDE;
   virtual void RunFileChooser(
       content::WebContents* tab,
@@ -331,7 +331,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            int error_code,
                            const string16& error_description,
                            content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void PluginCrashed(const FilePath& plugin_path,
+  virtual void PluginCrashed(const base::FilePath& plugin_path,
                              base::ProcessId plugin_pid) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   // Override to provide a thread safe implementation.
@@ -438,12 +438,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used with RunFileChooser to clear the |file_chooser_pending_| flag.
   void OnRunFileChooserCallback(const RunFileChooserCallback& callback,
-                                const std::vector<FilePath>& file_paths);
+                                const std::vector<base::FilePath>& file_paths);
 
   // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
   void OnRunFileChooserDelegateCallback(
       content::WebContents* tab,
-      const std::vector<FilePath>& file_paths);
+      const std::vector<base::FilePath>& file_paths);
 
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
@@ -501,7 +501,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   scoped_ptr<CefResponseManager> response_manager_;
 
   // Used for creating and managing JavaScript dialogs.
-  scoped_ptr<CefJavaScriptDialogCreator> dialog_creator_;
+  scoped_ptr<CefJavaScriptDialogManager> dialog_manager_;
 
   // Used for creating and managing context menus.
   scoped_ptr<CefMenuCreator> menu_creator_;

@@ -75,7 +75,7 @@ void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
         std::string description = GetDescriptionFromMimeType(ascii_type);
         bool description_from_ext = description.empty();
 
-        std::vector<FilePath::StringType> ext;
+        std::vector<base::FilePath::StringType> ext;
         net::GetExtensionsForMimeType(ascii_type, &ext);
         for (size_t x = 0; x < ext.size(); ++x) {
           if (!filter)
@@ -113,7 +113,7 @@ void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
 
 bool RunFileDialog(const content::FileChooserParams& params,
                    CefWindowHandle widget,
-                   std::vector<FilePath>* files) {
+                   std::vector<base::FilePath>* files) {
   GtkFileChooserAction action;
   const gchar* accept_button;
   if (params.mode == content::FileChooserParams::Open ||
@@ -129,7 +129,7 @@ bool RunFileDialog(const content::FileChooserParams& params,
   }
 
   // Consider default file name if any.
-  FilePath default_file_name(params.default_file_name);
+  base::FilePath default_file_name(params.default_file_name);
 
   std::string base_name;
   if (!default_file_name.empty())
@@ -185,7 +185,7 @@ bool RunFileDialog(const content::FileChooserParams& params,
     if (params.mode == content::FileChooserParams::Open ||
         params.mode == content::FileChooserParams::Save) {
       char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-      files->push_back(FilePath(filename));
+      files->push_back(base::FilePath(filename));
       success = true;
     } else if (params.mode == content::FileChooserParams::OpenMultiple) {
       GSList* filenames =
@@ -193,7 +193,7 @@ bool RunFileDialog(const content::FileChooserParams& params,
       if (filenames) {
         for (GSList* iter = filenames; iter != NULL;
              iter = g_slist_next(iter)) {
-          FilePath path(static_cast<char*>(iter->data));
+          base::FilePath path(static_cast<char*>(iter->data));
           g_free(iter->data);
           files->push_back(path);
         }
@@ -318,7 +318,7 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 void CefBrowserHostImpl::PlatformRunFileChooser(
     const content::FileChooserParams& params,
     RunFileChooserCallback callback) {
-  std::vector<FilePath> files;
+  std::vector<base::FilePath> files;
 
   if (params.mode == content::FileChooserParams::Open ||
       params.mode == content::FileChooserParams::OpenMultiple ||

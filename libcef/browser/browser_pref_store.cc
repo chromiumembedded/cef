@@ -5,10 +5,10 @@
 #include "libcef/browser/browser_pref_store.h"
 
 #include "base/command_line.h"
+#include "base/prefs/pref_service_builder.h"
+#include "base/prefs/pref_registry_simple.h"
 #include "base/values.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
-#include "chrome/browser/prefs/pref_service_builder.h"
-#include "chrome/browser/prefs/pref_service_simple.h"
 #include "chrome/browser/prefs/proxy_config_dictionary.h"
 #include "chrome/common/pref_names.h"
 
@@ -21,13 +21,13 @@ PrefService* BrowserPrefStore::CreateService() {
       new CommandLinePrefStore(CommandLine::ForCurrentProcess()));
   builder.WithUserPrefs(this);
 
-  PrefServiceSimple* service = builder.CreateSimple();
+  scoped_refptr<PrefRegistrySimple> registry(new PrefRegistrySimple());
 
   // Default settings.
-  service->RegisterDictionaryPref(prefs::kProxy,
-                                  ProxyConfigDictionary::CreateDirect());
+  registry->RegisterDictionaryPref(prefs::kProxy,
+                                   ProxyConfigDictionary::CreateDirect());
 
-  return service;
+  return builder.Create(registry);
 }
 
 BrowserPrefStore::~BrowserPrefStore() {

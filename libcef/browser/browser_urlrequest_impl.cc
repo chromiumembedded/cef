@@ -113,8 +113,7 @@ class CefBrowserURLRequest::Context
 
     fetcher_.reset(net::URLFetcher::Create(url, request_type,
                                            fetcher_delegate_.get()));
-    fetcher_->SetRequestContext(
-        _Context->browser_context()->GetRequestContext());
+    fetcher_->SetRequestContext(_Context->request_context());
 
     CefRequest::HeaderMap headerMap;
     request_->GetHeaderMap(headerMap);

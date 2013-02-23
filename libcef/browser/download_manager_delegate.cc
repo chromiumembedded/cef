@@ -54,7 +54,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   CefBeforeDownloadCallbackImpl(
       const base::WeakPtr<DownloadManager>& manager,
       int32 download_id,
-      const FilePath& suggested_name,
+      const base::FilePath& suggested_name,
       const content::DownloadTargetCallback& callback)
       : manager_(manager),
         download_id_(download_id),
@@ -69,7 +69,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
         return;
 
       if (manager_) {
-        FilePath path = FilePath(download_path);
+        base::FilePath path = base::FilePath(download_path);
         CEF_POST_TASK(CEF_FILET,
             base::Bind(&CefBeforeDownloadCallbackImpl::GenerateFilename,
                        manager_, download_id_, suggested_name_, path,
@@ -89,14 +89,14 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   static void GenerateFilename(
       base::WeakPtr<DownloadManager> manager,
       int32 download_id,
-      const FilePath& suggested_name,
-      const FilePath& download_path,
+      const base::FilePath& suggested_name,
+      const base::FilePath& download_path,
       bool show_dialog,
       const content::DownloadTargetCallback& callback) {
-    FilePath suggested_path = download_path;
+    base::FilePath suggested_path = download_path;
     if (!suggested_path.empty()) {
       // Create the directory if necessary.
-      FilePath dir_path = suggested_path.DirName();
+      base::FilePath dir_path = suggested_path.DirName();
       if (!file_util::DirectoryExists(dir_path) &&
           !file_util::CreateDirectory(dir_path)) {
         NOTREACHED() << "failed to create the download directory";
@@ -123,7 +123,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   static void ChooseDownloadPath(
       base::WeakPtr<DownloadManager> manager,
       int32 download_id,
-      const FilePath& suggested_path,
+      const base::FilePath& suggested_path,
       bool show_dialog,
       const content::DownloadTargetCallback& callback) {
     if (!manager)
@@ -169,10 +169,10 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
   static void ChooseDownloadPathCallback(
       const content::DownloadTargetCallback& callback,
-      const std::vector<FilePath>& file_paths) {
+      const std::vector<base::FilePath>& file_paths) {
     DCHECK_LE(file_paths.size(), (size_t) 1);
 
-    FilePath path;
+    base::FilePath path;
     if (file_paths.size() > 0)
       path = file_paths.front();
 
@@ -185,7 +185,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
   base::WeakPtr<DownloadManager> manager_;
   int32 download_id_;
-  FilePath suggested_name_;
+  base::FilePath suggested_name_;
   content::DownloadTargetCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefBeforeDownloadCallbackImpl);
@@ -319,7 +319,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     handler = GetDownloadHandler(browser);
 
   if (handler.get()) {
-    FilePath suggested_name = net::GenerateFileName(
+    base::FilePath suggested_name = net::GenerateFileName(
         item->GetURL(),
         item->GetContentDisposition(),
         EmptyString(),

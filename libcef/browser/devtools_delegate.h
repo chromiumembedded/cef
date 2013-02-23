@@ -58,9 +58,10 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   // DevToolsHttpProtocolHandler::Delegate overrides.
   virtual std::string GetDiscoveryPageHTML() OVERRIDE;
   virtual bool BundlesFrontendResources() OVERRIDE;
-  virtual FilePath GetDebugFrontendDir() OVERRIDE;
+  virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
   virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
+  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
 
   // Returns the DevTools URL for the specified RenderViewHost.
   std::string GetDevToolsURL(content::RenderViewHost* rvh, bool http_scheme);

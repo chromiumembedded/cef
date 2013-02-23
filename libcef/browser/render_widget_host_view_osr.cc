@@ -12,6 +12,11 @@
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_client.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
+
+#if defined(OS_WIN)
+#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#endif
 
 #include "webkit/glue/webcursor.h"
 
@@ -205,6 +210,13 @@ void CefRenderWidgetHostViewOSR::WillWmDestroy() {
 }
 #endif
 
+void CefRenderWidgetHostViewOSR::GetScreenInfo(
+    WebKit::WebScreenInfo* results) {
+#if defined(OS_WIN)
+  *results = WebKit::WebScreenInfoFactory::screenInfo(GetNativeView());
+#endif
+}
+
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())
     return gfx::Rect();
@@ -249,8 +261,17 @@ content::BackingStore* CefRenderWidgetHostViewOSR::AllocBackingStore(
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
-    const base::Callback<void(bool b)>& callback,
-    skia::PlatformBitmap* output) {
+    const base::Callback<void(bool, const SkBitmap&)>& callback) {
+}
+
+void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceToVideoFrame(
+    const gfx::Rect& src_subrect,
+    const scoped_refptr<media::VideoFrame>& target,
+    const base::Callback<void(bool)>& callback) {
+}
+
+bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
+  return false;
 }
 
 void CefRenderWidgetHostViewOSR::OnAcceleratedCompositingStateChange() {

@@ -29,6 +29,7 @@
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/url_constants.h"
 #include "net/base/cert_verifier.h"
 #include "net/base/default_server_bound_cert_store.h"
 #include "net/base/host_resolver.h"
@@ -40,6 +41,7 @@
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
 #include "net/proxy/proxy_service.h"
+#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
@@ -55,9 +57,18 @@ using content::BrowserThread;
 
 CefURLRequestContextGetter::CefURLRequestContextGetter(
     MessageLoop* io_loop,
-    MessageLoop* file_loop)
+    MessageLoop* file_loop,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        blob_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        file_system_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        developer_protocol_handler)
     : io_loop_(io_loop),
-      file_loop_(file_loop) {
+      file_loop_(file_loop),
+      blob_protocol_handler_(blob_protocol_handler.Pass()),
+      file_system_protocol_handler_(file_system_protocol_handler.Pass()),
+      developer_protocol_handler_(developer_protocol_handler.Pass()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 }
@@ -71,7 +82,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
   if (!url_request_context_.get()) {
-    const FilePath& cache_path = _Context->cache_path();
+    const base::FilePath& cache_path = _Context->cache_path();
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
     const CefSettings& settings = _Context->settings();
 
@@ -162,7 +173,17 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_ftp_transaction_factory(
       new net::FtpNetworkLayer(url_request_context_->host_resolver()));
 
-    storage_->set_job_factory(new net::URLRequestJobFactoryImpl);
+    scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
+        new net::URLRequestJobFactoryImpl());
+    bool set_protocol = job_factory->SetProtocolHandler(
+        chrome::kBlobScheme, blob_protocol_handler_.release());
+    DCHECK(set_protocol);
+    set_protocol = job_factory->SetProtocolHandler(
+        chrome::kFileSystemScheme, file_system_protocol_handler_.release());
+    DCHECK(set_protocol);
+    storage_->set_job_factory(new net::ProtocolInterceptJobFactory(
+        job_factory.PassAs<net::URLRequestJobFactory>(),
+        developer_protocol_handler_.Pass()));
 
     request_interceptor_.reset(new CefRequestInterceptor);
   }
@@ -180,7 +201,7 @@ net::HostResolver* CefURLRequestContextGetter::host_resolver() {
 }
 
 void CefURLRequestContextGetter::SetCookieStoragePath(
-    const FilePath& path,
+    const base::FilePath& path,
     bool persist_session_cookies) {
   CEF_REQUIRE_IOT();
 
@@ -198,7 +219,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
     base::ThreadRestrictions::ScopedAllowIO allow_io;
     if (file_util::DirectoryExists(path) ||
         file_util::CreateDirectory(path)) {
-      const FilePath& cookie_path = path.AppendASCII("Cookies");
+      const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =
           new SQLitePersistentCookieStore(cookie_path,
                                           persist_session_cookies,

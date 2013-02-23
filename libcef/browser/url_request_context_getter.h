@@ -15,6 +15,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_context_getter.h"
+#include "net/url_request/url_request_job_factory.h"
 
 class CefRequestInterceptor;
 class CefURLRequestContextProxy;
@@ -73,7 +74,13 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetter(
       MessageLoop* io_loop,
-      MessageLoop* file_loop);
+      MessageLoop* file_loop,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          blob_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          file_system_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          developer_protocol_handler);
   virtual ~CefURLRequestContextGetter();
 
   // net::URLRequestContextGetter implementation.
@@ -83,7 +90,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
 
   net::HostResolver* host_resolver();
 
-  void SetCookieStoragePath(const FilePath& path,
+  void SetCookieStoragePath(const base::FilePath& path,
                             bool persist_session_cookies);
   void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
@@ -104,11 +111,17 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+      blob_protocol_handler_;
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+      file_system_protocol_handler_;
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+      developer_protocol_handler_;
 
   typedef std::set<CefURLRequestContextProxy*> RequestContextProxySet;
   RequestContextProxySet url_request_context_proxies_;
 
-  FilePath cookie_store_path_;
+  base::FilePath cookie_store_path_;
   std::vector<std::string> cookie_supported_schemes_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetter);

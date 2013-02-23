@@ -5,7 +5,7 @@
 
 #include "libcef/browser/javascript_dialog.h"
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/javascript_dialog_manager.h"
 
 #include <gtk/gtk.h>
 
@@ -30,12 +30,12 @@ string16 GetPromptText(GtkDialog* dialog) {
 }  // namespace
 
 CefJavaScriptDialog::CefJavaScriptDialog(
-    CefJavaScriptDialogCreator* creator,
+    CefJavaScriptDialogManager* creator,
     content::JavaScriptMessageType message_type,
     const string16& display_url,
     const string16& message_text,
     const string16& default_prompt_text,
-    const content::JavaScriptDialogCreator::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : creator_(creator),
       callback_(callback) {
   GtkButtonsType buttons = GTK_BUTTONS_NONE;

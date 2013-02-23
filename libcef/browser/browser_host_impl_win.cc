@@ -200,7 +200,7 @@ std::wstring GetFilterStringFromAcceptTypes(
         descriptions.push_back(std::wstring());
       } else {
         // Otherwise convert mime type to one or more extensions.
-        std::vector<FilePath::StringType> ext;
+        std::vector<base::FilePath::StringType> ext;
         std::wstring ext_str;
         net::GetExtensionsForMimeType(ascii_type, &ext);
         if (ext.size() > 0) {
@@ -223,7 +223,7 @@ std::wstring GetFilterStringFromAcceptTypes(
 
 bool RunOpenFileDialog(const content::FileChooserParams& params,
                        HWND owner,
-                       FilePath* path) {
+                       base::FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -233,7 +233,7 @@ bool RunOpenFileDialog(const content::FileChooserParams& params,
   ofn.hwndOwner = owner;
 
   // Consider default file name if any.
-  FilePath default_file_name(params.default_file_name);
+  base::FilePath default_file_name(params.default_file_name);
 
   wchar_t filename[MAX_PATH] = {0};
 
@@ -268,13 +268,13 @@ bool RunOpenFileDialog(const content::FileChooserParams& params,
 
   bool success = !!GetOpenFileName(&ofn);
   if (success)
-    *path = FilePath(filename);
+    *path = base::FilePath(filename);
   return success;
 }
 
 bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
                             HWND owner,
-                            std::vector<FilePath>* paths) {
+                            std::vector<base::FilePath>* paths) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -309,10 +309,10 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
   bool success = !!GetOpenFileName(&ofn);
 
   if (success) {
-    std::vector<FilePath> files;
+    std::vector<base::FilePath> files;
     const wchar_t* selection = ofn.lpstrFile;
     while (*selection) {  // Empty string indicates end of list.
-      files.push_back(FilePath(selection));
+      files.push_back(base::FilePath(selection));
       // Skip over filename and null-terminator.
       selection += files.back().value().length() + 1;
     }
@@ -324,8 +324,8 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
     } else {
       // Otherwise, the first string is the path, and the remainder are
       // filenames.
-      std::vector<FilePath>::iterator path = files.begin();
-      for (std::vector<FilePath>::iterator file = path + 1;
+      std::vector<base::FilePath>::iterator path = files.begin();
+      for (std::vector<base::FilePath>::iterator file = path + 1;
            file != files.end(); ++file) {
         paths->push_back(path->Append(*file));
       }
@@ -336,7 +336,7 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
 
 bool RunSaveFileDialog(const content::FileChooserParams& params,
                        HWND owner,
-                       FilePath* path) {
+                       base::FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -346,7 +346,7 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
   ofn.hwndOwner = owner;
 
   // Consider default file name if any.
-  FilePath default_file_name(params.default_file_name);
+  base::FilePath default_file_name(params.default_file_name);
 
   wchar_t filename[MAX_PATH] = {0};
 
@@ -381,7 +381,7 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
 
   bool success = !!GetSaveFileName(&ofn);
   if (success)
-    *path = FilePath(filename);
+    *path = base::FilePath(filename);
   return success;
 }
 
@@ -645,16 +645,16 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 void CefBrowserHostImpl::PlatformRunFileChooser(
     const content::FileChooserParams& params,
     RunFileChooserCallback callback) {
-  std::vector<FilePath> files;
+  std::vector<base::FilePath> files;
 
   if (params.mode == content::FileChooserParams::Open) {
-    FilePath file;
+    base::FilePath file;
     if (RunOpenFileDialog(params, PlatformGetWindowHandle(), &file))
       files.push_back(file);
   } else if (params.mode == content::FileChooserParams::OpenMultiple) {
     RunOpenMultiFileDialog(params, PlatformGetWindowHandle(), &files);
   } else if (params.mode == content::FileChooserParams::Save) {
-    FilePath file;
+    base::FilePath file;
     if (RunSaveFileDialog(params, PlatformGetWindowHandle(), &file))
       files.push_back(file);
   } else {

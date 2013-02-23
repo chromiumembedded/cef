@@ -20,20 +20,13 @@ class CefBrowserMessageLoop : public MessageLoopForUI {
   // Returns the MessageLoopForUI of the current thread.
   static CefBrowserMessageLoop* current();
 
-  virtual bool DoIdleWork();
-
   // Do a single interation of the UI message loop.
   void DoMessageLoopIteration();
 
   // Run the UI message loop.
   void RunMessageLoop();
 
-  bool is_iterating() { return is_iterating_; }
-
  private:
-  // True if the message loop is doing one iteration at a time.
-  bool is_iterating_;
-
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMessageLoop);
 };
 

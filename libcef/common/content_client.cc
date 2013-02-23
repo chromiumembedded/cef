@@ -108,20 +108,21 @@ std::string CefContentClient::GetCarbonInterposePath() const {
 }
 #endif
 
-FilePath CefContentClient::GetPathForResourcePack(
-    const FilePath& pack_path,
+base::FilePath CefContentClient::GetPathForResourcePack(
+    const base::FilePath& pack_path,
     ui::ScaleFactor scale_factor) {
   // Only allow the cef pack file to load.
   if (!pack_loading_disabled_ && allow_pack_file_load_)
     return pack_path;
-  return FilePath();
+  return base::FilePath();
 }
 
-FilePath CefContentClient::GetPathForLocalePack(const FilePath& pack_path,
-                                                const std::string& locale) {
+base::FilePath CefContentClient::GetPathForLocalePack(
+    const base::FilePath& pack_path,
+    const std::string& locale) {
   if (!pack_loading_disabled_)
     return pack_path;
-  return FilePath();
+  return base::FilePath();
 }
 
 gfx::Image CefContentClient::GetImageNamed(int resource_id) {

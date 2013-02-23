@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/javascript_dialog.h"
-#include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef_dll/resource.h"
 
@@ -86,12 +86,12 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
 }
 
 CefJavaScriptDialog::CefJavaScriptDialog(
-    CefJavaScriptDialogCreator* creator,
+    CefJavaScriptDialogManager* creator,
     content::JavaScriptMessageType message_type,
     const string16& display_url,
     const string16& message_text,
     const string16& default_prompt_text,
-    const content::JavaScriptDialogCreator::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : creator_(creator),
       callback_(callback),
       message_text_(message_text),
@@ -107,7 +107,7 @@ CefJavaScriptDialog::CefJavaScriptDialog(
   else  // JAVASCRIPT_MESSAGE_TYPE_PROMPT
     dialog_type = IDD_PROMPT;
 
-  FilePath file_path;
+  base::FilePath file_path;
   HMODULE hModule = NULL;
 
   // Try to load the dialog from the DLL.

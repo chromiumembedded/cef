@@ -77,7 +77,7 @@ CefString CefCommandLineImpl::GetProgram() {
 
 void CefCommandLineImpl::SetProgram(const CefString& program) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->SetProgram(FilePath(program));
+  mutable_value()->SetProgram(base::FilePath(program));
 }
 
 bool CefCommandLineImpl::HasSwitches() {

@@ -44,7 +44,7 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   scoped_refptr<net::CookieMonster> cookie_monster_;
   bool is_global_;
-  FilePath storage_path_;
+  base::FilePath storage_path_;
   std::vector<CefString> supported_schemes_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);

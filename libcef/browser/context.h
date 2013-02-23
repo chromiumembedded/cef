@@ -18,6 +18,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
 #include "net/proxy/proxy_config_service.h"
+#include "net/url_request/url_request_context_getter.h"
 
 namespace base {
 class WaitableEvent;
@@ -60,12 +61,19 @@ class CefContext : public CefBase {
 
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.
-  const FilePath& cache_path() const { return cache_path_; }
+  const base::FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
   CefRefPtr<CefApp> application() const;
   CefBrowserContext* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
+
+  scoped_refptr<net::URLRequestContextGetter> request_context() const {
+    return request_context_;
+  }
+  void set_request_context(scoped_refptr<net::URLRequestContextGetter> context) {
+    request_context_ = context;
+  }
 
   // Passes ownership.
   scoped_ptr<net::ProxyConfigService> proxy_config_service() const;
@@ -90,12 +98,14 @@ class CefContext : public CefBase {
   base::PlatformThreadId init_thread_id_;
 
   CefSettings settings_;
-  FilePath cache_path_;
+  base::FilePath cache_path_;
   base::ScopedTempDir cache_temp_dir_;
 
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;
   scoped_ptr<CefTraceSubscriber> trace_subscriber_;
+
+  scoped_refptr<net::URLRequestContextGetter> request_context_;
 
   IMPLEMENT_REFCOUNTING(CefContext);
   IMPLEMENT_LOCKING(CefContext);

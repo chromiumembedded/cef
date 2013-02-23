@@ -16,7 +16,7 @@ CefMenuCreatorRunnerWin::CefMenuCreatorRunnerWin() {
 bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
   // Create a menu based on the model.
   menu_.reset(new views::NativeMenuWin(manager->model(), NULL));
-  menu_->Rebuild();
+  menu_->Rebuild(NULL);
 
   // Make sure events can be pumped while the menu is up.
   MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());

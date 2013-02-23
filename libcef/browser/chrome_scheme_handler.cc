@@ -108,7 +108,7 @@ std::string GetCommandLine() {
 }
 
 std::string GetModulePath() {
-  FilePath path;
+  base::FilePath path;
   if (PathService::Get(base::FILE_MODULE, &path))
     return CefString(path.value());
   return std::string();
@@ -353,7 +353,8 @@ bool IsTraceFrameValid(CefRefPtr<CefFrameHostImpl> frame) {
   return true;
 }
 
-void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame, const FilePath& path) {
+void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame,
+                   const base::FilePath& path) {
   CEF_REQUIRE_FILET();
 
   if (!IsTraceFrameValid(frame))
@@ -416,7 +417,7 @@ void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame, const FilePath& path) {
 }
 
 void SaveTraceFile(CefRefPtr<CefFrameHostImpl> frame,
-                   const FilePath& path,
+                   const base::FilePath& path,
                    scoped_ptr<std::string> contents) {
   CEF_REQUIRE_FILET();
 
@@ -527,7 +528,7 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
         if (!file_paths.empty()) {
           CEF_POST_TASK(CEF_FILET,
               base::Bind(LoadTraceFile, frame_,
-                         FilePath(file_paths.front())));
+                         base::FilePath(file_paths.front())));
         } else {
           frame_->SendJavaScript(
               "tracingController.onLoadTraceFileCanceled();",
@@ -565,7 +566,7 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
         if (!file_paths.empty()) {
           CEF_POST_TASK(CEF_FILET,
               base::Bind(SaveTraceFile, frame_,
-                          FilePath(file_paths.front()),
+                          base::FilePath(file_paths.front()),
                           base::Passed(contents_.Pass())));
         } else {
           frame_->SendJavaScript(

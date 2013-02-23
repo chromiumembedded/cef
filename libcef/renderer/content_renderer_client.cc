@@ -38,12 +38,12 @@ MSVC_POP_WARNING();
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerRunLoop.h"
@@ -460,7 +460,7 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
-  FilePath media_path;
+  base::FilePath media_path;
   PathService::Get(base::DIR_MODULE, &media_path);
   if (!media_path.empty())
     media::InitializeMediaLibrary(media_path);

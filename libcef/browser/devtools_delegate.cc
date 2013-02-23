@@ -145,8 +145,8 @@ bool CefDevToolsDelegate::BundlesFrontendResources() {
   return true;
 }
 
-FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
-  return FilePath();
+base::FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
+  return base::FilePath();
 }
 
 std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
@@ -155,6 +155,11 @@ std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 
 content::RenderViewHost* CefDevToolsDelegate::CreateNewTarget() {
   return NULL;
+}
+
+content::DevToolsHttpHandlerDelegate::TargetType
+    CefDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
+  return kTargetTypeTab;
 }
 
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,

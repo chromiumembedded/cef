@@ -12,8 +12,8 @@
 #include "content/common/devtools_messages.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_util.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
 CefRenderMessageFilter::CefRenderMessageFilter()
     : channel_(NULL) {

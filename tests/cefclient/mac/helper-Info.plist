@@ -24,8 +24,6 @@
 	<string>10.5.0</string>
 	<key>LSUIElement</key>
 	<string>1</string>
-	<key>NSPrincipalClass</key>
-	<string>ClientApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

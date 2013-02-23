@@ -102,7 +102,8 @@ void CefAddWebPluginPath(const CefString& path) {
   }
 
   // No thread affinity.
-  content::PluginServiceImpl::GetInstance()->AddExtraPluginPath(FilePath(path));
+  content::PluginServiceImpl::GetInstance()->AddExtraPluginPath(
+      base::FilePath(path));
 }
 
 void CefAddWebPluginDirectory(const CefString& dir) {
@@ -118,7 +119,8 @@ void CefAddWebPluginDirectory(const CefString& dir) {
   }
 
   // No thread affinity.
-  content::PluginServiceImpl::GetInstance()->AddExtraPluginDir(FilePath(dir));
+  content::PluginServiceImpl::GetInstance()->AddExtraPluginDir(
+      base::FilePath(dir));
 }
 
 void CefRemoveWebPluginPath(const CefString& path) {
@@ -135,7 +137,7 @@ void CefRemoveWebPluginPath(const CefString& path) {
 
   // No thread affinity.
   content::PluginServiceImpl::GetInstance()->RemoveExtraPluginPath(
-      FilePath(path));
+      base::FilePath(path));
 }
 
 void CefUnregisterInternalWebPlugin(const CefString& path) {
@@ -152,7 +154,7 @@ void CefUnregisterInternalWebPlugin(const CefString& path) {
 
   // No thread affinity.
   content::PluginServiceImpl::GetInstance()->UnregisterInternalPlugin(
-      FilePath(path));
+      base::FilePath(path));
 }
 
 void CefForceWebPluginShutdown(const CefString& path) {
@@ -169,7 +171,7 @@ void CefForceWebPluginShutdown(const CefString& path) {
 
   if (CEF_CURRENTLY_ON_IOT()) {
     content::PluginServiceImpl::GetInstance()->ForcePluginShutdown(
-        FilePath(path));
+        base::FilePath(path));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefForceWebPluginShutdown, path));
@@ -190,7 +192,7 @@ void CefRegisterWebPluginCrash(const CefString& path) {
 
   if (CEF_CURRENTLY_ON_IOT()) {
     content::PluginServiceImpl::GetInstance()->RegisterPluginCrash(
-        FilePath(path));
+        base::FilePath(path));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefRegisterWebPluginCrash, path));
@@ -214,7 +216,7 @@ void CefIsWebPluginUnstable(
   if (CEF_CURRENTLY_ON_IOT()) {
     callback->IsUnstable(path,
         content::PluginServiceImpl::GetInstance()->IsPluginUnstable(
-            FilePath(path)));
+            base::FilePath(path)));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefIsWebPluginUnstable, path, callback));

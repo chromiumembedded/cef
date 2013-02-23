@@ -61,7 +61,7 @@ Added: svn:eol-style
 
 Index: WebCore/bindings/v8/WorkerScriptController.cpp
 ===================================================================
---- WebCore/bindings/v8/WorkerScriptController.cpp	(revision 136040)
+--- WebCore/bindings/v8/WorkerScriptController.cpp	(revision 142426)
 +++ WebCore/bindings/v8/WorkerScriptController.cpp	(working copy)
 @@ -50,11 +50,23 @@
  
@@ -105,7 +105,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
      return true;
  }
  
-@@ -256,6 +272,39 @@
+@@ -257,6 +273,39 @@
      return workerContext->script();
  }
  
@@ -147,7 +147,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
  #endif // ENABLE(WORKERS)
 Index: WebCore/bindings/v8/WorkerScriptController.h
 ===================================================================
---- WebCore/bindings/v8/WorkerScriptController.h	(revision 136040)
+--- WebCore/bindings/v8/WorkerScriptController.h	(revision 142426)
 +++ WebCore/bindings/v8/WorkerScriptController.h	(working copy)
 @@ -40,6 +40,10 @@
  #include <wtf/Threading.h>
@@ -180,7 +180,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.h
          ScopedPersistent<v8::Context> m_context;
 Index: WebKit/chromium/public/WebWorkerInfo.h
 ===================================================================
---- WebKit/chromium/public/WebWorkerInfo.h	(revision 136040)
+--- WebKit/chromium/public/WebWorkerInfo.h	(revision 142426)
 +++ WebKit/chromium/public/WebWorkerInfo.h	(working copy)
 @@ -35,9 +35,15 @@
  
@@ -236,7 +236,7 @@ Added: svn:eol-style
 
 Index: WebKit/chromium/src/WebWorkerInfo.cpp
 ===================================================================
---- WebKit/chromium/src/WebWorkerInfo.cpp	(revision 136040)
+--- WebKit/chromium/src/WebWorkerInfo.cpp	(revision 142426)
 +++ WebKit/chromium/src/WebWorkerInfo.cpp	(working copy)
 @@ -31,6 +31,7 @@
  #include "config.h"

@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/javascript_dialog.h"
-#include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/javascript_dialog_manager.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -20,12 +20,12 @@
   NSTextField* textField_;  // WEAK; owned by alert_
 
   // Copies of the fields in CefJavaScriptDialog because they're private.
-  CefJavaScriptDialogCreator* creator_;
-  content::JavaScriptDialogCreator::DialogClosedCallback callback_;
+  CefJavaScriptDialogManager* creator_;
+  content::JavaScriptDialogManager::DialogClosedCallback callback_;
 }
 
-- (id)initHelperWithCreator:(CefJavaScriptDialogCreator*)creator
-   andCallback:(content::JavaScriptDialogCreator::DialogClosedCallback)callback;
+- (id)initHelperWithCreator:(CefJavaScriptDialogManager*)creator
+   andCallback:(content::JavaScriptDialogManager::DialogClosedCallback)callback;
 - (NSAlert*)alert;
 - (NSTextField*)textField;
 - (void)alertDidEnd:(NSAlert*)alert
@@ -37,8 +37,8 @@
 
 @implementation CefJavaScriptDialogHelper
 
-- (id)initHelperWithCreator:(CefJavaScriptDialogCreator*)creator
-  andCallback:(content::JavaScriptDialogCreator::DialogClosedCallback)callback {
+- (id)initHelperWithCreator:(CefJavaScriptDialogManager*)creator
+  andCallback:(content::JavaScriptDialogManager::DialogClosedCallback)callback {
   if (self = [super init]) {
     creator_ = creator;
     callback_ = callback;
@@ -86,12 +86,12 @@
 @end
 
 CefJavaScriptDialog::CefJavaScriptDialog(
-    CefJavaScriptDialogCreator* creator,
+    CefJavaScriptDialogManager* creator,
     content::JavaScriptMessageType message_type,
     const string16& display_url,
     const string16& message_text,
     const string16& default_prompt_text,
-    const content::JavaScriptDialogCreator::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : creator_(creator),
       callback_(callback) {
   bool text_field =

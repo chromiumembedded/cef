@@ -49,8 +49,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
 
   virtual void LoadAccessTokens(
       const LoadAccessTokensCallbackType& callback) OVERRIDE {
-    callback.Run(access_token_set_,
-        _Context->browser_context()->GetRequestContext());
+    callback.Run(access_token_set_, _Context->request_context());
   }
 
   virtual void SaveAccessToken(
@@ -178,12 +177,12 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   CefPluginServiceFilter() {}
   virtual ~CefPluginServiceFilter() {}
 
-  virtual bool ShouldUsePlugin(int render_process_id,
-                               int render_view_id,
-                               const void* context,
-                               const GURL& url,
-                               const GURL& policy_url,
-                               webkit::WebPluginInfo* plugin) OVERRIDE {
+  virtual bool IsPluginAvailable(int render_process_id,
+                                 int render_view_id,
+                                 const void* context,
+                                 const GURL& url,
+                                 const GURL& policy_url,
+                                 webkit::WebPluginInfo* plugin) OVERRIDE {
     bool allowed = true;
 
     CefRefPtr<CefBrowserHostImpl> browser =
@@ -207,6 +206,11 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
 
     return allowed;
   }
+
+  virtual bool CanLoadPlugin(int render_process_id,
+                             const FilePath& path) OVERRIDE {
+    return true;
+  }
 };
 
 }  // namespace
@@ -217,16 +221,6 @@ class CefMediaObserver : public content::MediaObserver {
   CefMediaObserver() {}
   virtual ~CefMediaObserver() {}
 
-  virtual void OnDeleteAudioStream(void* host, int stream_id) OVERRIDE {}
-
-  virtual void OnSetAudioStreamPlaying(void* host, int stream_id,
-                                       bool playing) OVERRIDE {}
-  virtual void OnSetAudioStreamStatus(void* host, int stream_id,
-                                      const std::string& status) OVERRIDE {}
-  virtual void OnSetAudioStreamVolume(void* host, int stream_id,
-                                      double volume) OVERRIDE {}
-  virtual void OnMediaEvent(int render_process_id,
-                            const media::MediaLogEvent& event) OVERRIDE {}
   virtual void OnCaptureDevicesOpened(
       int render_process_id,
       int render_view_id,
@@ -392,6 +386,50 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
 void CefContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
+}
+
+net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
+    content::BrowserContext* content_browser_context,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        blob_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        file_system_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        developer_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_devtools_protocol_handler) {
+  CefBrowserContext* cef_browser_context =
+      CefBrowserContextForBrowserContext(content_browser_context);
+  return cef_browser_context->CreateRequestContext(
+      blob_protocol_handler.Pass(), file_system_protocol_handler.Pass(),
+      developer_protocol_handler.Pass(), chrome_protocol_handler.Pass(),
+      chrome_devtools_protocol_handler.Pass());
+}
+
+net::URLRequestContextGetter*
+CefContentBrowserClient::CreateRequestContextForStoragePartition(
+    content::BrowserContext* content_browser_context,
+    const base::FilePath& partition_path,
+    bool in_memory,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        blob_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        file_system_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        developer_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_devtools_protocol_handler) {
+  CefBrowserContext* cef_browser_context =
+      CefBrowserContextForBrowserContext(content_browser_context);
+  return cef_browser_context->CreateRequestContextForStoragePartition(
+      partition_path, in_memory, blob_protocol_handler.Pass(),
+      file_system_protocol_handler.Pass(),
+      developer_protocol_handler.Pass(), chrome_protocol_handler.Pass(),
+      chrome_devtools_protocol_handler.Pass());
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -593,7 +631,7 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
 
   if (file_path[0] == 0) {
     // Retrieve the module path (usually libcef.dll).
-    FilePath module;
+    base::FilePath module;
     PathService::Get(base::FILE_MODULE, &module);
     const std::wstring wstr = module.value();
     size_t count = std::min(static_cast<size_t>(MAX_PATH), wstr.size());
@@ -609,4 +647,11 @@ void CefContentBrowserClient::set_last_create_window_params(
     const LastCreateWindowParams& params) {
   CEF_REQUIRE_IOT();
   last_create_window_params_ = params;
+}
+
+CefBrowserContext*
+CefContentBrowserClient::CefBrowserContextForBrowserContext(
+    content::BrowserContext* content_browser_context) {
+  DCHECK_EQ(content_browser_context, browser_main_parts_->browser_context());
+  return browser_main_parts_->browser_context();
 }

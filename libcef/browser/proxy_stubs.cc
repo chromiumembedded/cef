@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/prefs/pref_service_syncable.h"
+#include "base/logging.h"
+#include "chrome/browser/prefs/pref_registry_syncable.h"
 
 // Required by PrefProxyConfigTrackerImpl::RegisterUserPrefs.
-void PrefServiceSyncable::RegisterDictionaryPref(const char* path,
-                                                 DictionaryValue* default_value,
-                                                 PrefSyncStatus sync_status) {
+void PrefRegistrySyncable::RegisterDictionaryPref(
+    const char* path,
+    base::DictionaryValue* default_value,
+    PrefSyncStatus sync_status) {
   NOTREACHED();
 }

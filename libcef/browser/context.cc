@@ -184,12 +184,12 @@ bool CefContext::Initialize(const CefMainArgs& args,
   init_thread_id_ = base::PlatformThread::CurrentId();
   settings_ = settings;
 
-  cache_path_ = FilePath(CefString(&settings.cache_path));
+  cache_path_ = base::FilePath(CefString(&settings.cache_path));
   if (!cache_path_.empty() &&
       !file_util::DirectoryExists(cache_path_) &&
       !file_util::CreateDirectory(cache_path_)) {
     NOTREACHED() << "The cache_path directory could not be created";
-    cache_path_ = FilePath();
+    cache_path_ = base::FilePath();
   }
   if (cache_path_.empty()) {
     // Create and use a temporary directory.

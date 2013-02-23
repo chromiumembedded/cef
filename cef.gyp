@@ -7,6 +7,7 @@
     'pkg-config': 'pkg-config',
     'chromium_code': 1,
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
+    'about_credits_file': '<(SHARED_INTERMEDIATE_DIR)/about_credits.html',
     'revision': '<!(python tools/revision.py)',
     # Need to be creative to match dylib version formatting requirements.
     'version_mac_dylib':
@@ -633,14 +634,46 @@
       ],
     },
     {
+      'target_name': 'about_credits',
+      'type': 'none',
+      'actions': [
+        {
+          'variables': {
+            'generator_path': '../tools/licenses.py',
+          },
+          'action_name': 'generate_about_credits',
+          'inputs': [
+            # TODO(phajdan.jr): make licenses.py print inputs too.
+            '<(generator_path)',
+          ],
+          'outputs': [
+            '<(about_credits_file)',
+          ],
+          'hard_dependency': 1,
+          'action': ['python',
+                     '<(generator_path)',
+                     'credits',
+                     '<(about_credits_file)',
+          ],
+          'message': 'Generating about:credits.',
+        },
+      ],
+    },
+    {
       # Create the pack file for CEF resources.
       'target_name': 'cef_resources',
       'type': 'none',
+      'dependencies': [
+        'about_credits',
+      ],
       'actions': [
         {
           'action_name': 'cef_resources',
           'variables': {
             'grit_grd_file': 'libcef/resources/cef_resources.grd',
+            'grit_additional_defines': [
+              '-E', 'about_credits_file=<(about_credits_file)',
+            ],
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
@@ -838,8 +871,8 @@
         'libcef/browser/internal_scheme_handler.cc',
         'libcef/browser/internal_scheme_handler.h',
         'libcef/browser/javascript_dialog.h',
-        'libcef/browser/javascript_dialog_creator.cc',
-        'libcef/browser/javascript_dialog_creator.h',
+        'libcef/browser/javascript_dialog_manager.cc',
+        'libcef/browser/javascript_dialog_manager.h',
         'libcef/browser/menu_creator.cc',
         'libcef/browser/menu_creator.h',
         'libcef/browser/menu_model_impl.cc',
@@ -851,8 +884,6 @@
         'libcef/browser/path_util_impl.cc',
         'libcef/browser/process_util_impl.cc',
         'libcef/browser/proxy_stubs.cc',
-        'libcef/browser/resource_context.cc',
-        'libcef/browser/resource_context.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
@@ -965,16 +996,6 @@
         '<(DEPTH)/chrome/browser/net/proxy_service_factory.h',
         '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.cc',
         '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.h',
-        '<(DEPTH)/chrome/browser/prefs/pref_notifier_impl.cc',
-        '<(DEPTH)/chrome/browser/prefs/pref_notifier_impl.h',
-        '<(DEPTH)/chrome/browser/prefs/pref_service.cc',
-        '<(DEPTH)/chrome/browser/prefs/pref_service.h',
-        '<(DEPTH)/chrome/browser/prefs/pref_service_builder.cc',
-        '<(DEPTH)/chrome/browser/prefs/pref_service_builder.h',
-        '<(DEPTH)/chrome/browser/prefs/pref_service_simple.cc',
-        '<(DEPTH)/chrome/browser/prefs/pref_service_simple.h',
-        '<(DEPTH)/chrome/browser/prefs/pref_value_store.cc',
-        '<(DEPTH)/chrome/browser/prefs/pref_value_store.h',
         '<(DEPTH)/chrome/browser/prefs/proxy_config_dictionary.cc',
         '<(DEPTH)/chrome/browser/prefs/proxy_config_dictionary.h',
         '<(DEPTH)/chrome/browser/prefs/proxy_prefs.cc',

@@ -109,9 +109,9 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 
     if (is_global_) {
       // Global changes are handled by the request context.
-      CefURLRequestContextGetter* getter =
+      scoped_refptr<CefURLRequestContextGetter> getter =
           static_cast<CefURLRequestContextGetter*>(
-              _Context->browser_context()->GetRequestContext());
+              _Context->request_context().get());
 
       std::vector<std::string> scheme_vec;
       std::vector<CefString>::const_iterator it = schemes.begin();
@@ -256,15 +256,15 @@ bool CefCookieManagerImpl::SetStoragePath(
     const CefString& path,
     bool persist_session_cookies) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    FilePath new_path;
+    base::FilePath new_path;
     if (!path.empty())
-      new_path = FilePath(path);
+      new_path = base::FilePath(path);
 
     if (is_global_) {
       // Global path changes are handled by the request context.
-      CefURLRequestContextGetter* getter =
+      scoped_refptr<CefURLRequestContextGetter> getter =
           static_cast<CefURLRequestContextGetter*>(
-              _Context->browser_context()->GetRequestContext());
+              _Context->request_context().get());
       getter->SetCookieStoragePath(new_path, persist_session_cookies);
       cookie_monster_ = getter->GetURLRequestContext()->cookie_store()->
           GetCookieMonster();
@@ -284,7 +284,7 @@ bool CefCookieManagerImpl::SetStoragePath(
       base::ThreadRestrictions::ScopedAllowIO allow_io;
       if (file_util::DirectoryExists(new_path) ||
           file_util::CreateDirectory(new_path)) {
-        const FilePath& cookie_path = new_path.AppendASCII("Cookies");
+        const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
             new SQLitePersistentCookieStore(cookie_path,
                                             persist_session_cookies,
@@ -343,8 +343,8 @@ bool CefCookieManagerImpl::FlushStore(CefRefPtr<CefCompletionHandler> handler) {
 void CefCookieManagerImpl::SetGlobal() {
   if (CEF_CURRENTLY_ON_IOT()) {
     if (_Context->browser_context()) {
-      cookie_monster_ = _Context->browser_context()->GetRequestContext()->
-          GetURLRequestContext()->cookie_store()->GetCookieMonster();
+      cookie_monster_ = _Context->request_context()->GetURLRequestContext()->
+          cookie_store()->GetCookieMonster();
       DCHECK(cookie_monster_);
     }
   } else {

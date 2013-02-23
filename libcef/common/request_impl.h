@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/cef_request.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPBody.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebHTTPBody.h"
 
 namespace net {
 class HttpRequestHeaders;

@@ -51,7 +51,7 @@ class CefNetworkDelegate : public net::NetworkDelegate {
                               const std::string& cookie_line,
                               net::CookieOptions* options) OVERRIDE;
   virtual bool OnCanAccessFile(const net::URLRequest& request,
-                               const FilePath& path) const OVERRIDE;
+                               const base::FilePath& path) const OVERRIDE;
   virtual bool OnCanThrottleRequest(
       const net::URLRequest& request) const OVERRIDE;
   virtual int OnBeforeSocketStreamConnect(

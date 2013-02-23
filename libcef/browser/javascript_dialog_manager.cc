@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/javascript_dialog_creator.h"
+#include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/javascript_dialog.h"
 #include "libcef/browser/thread_util.h"
@@ -18,7 +18,7 @@ namespace {
 class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
   CefJSDialogCallbackImpl(
-      const content::JavaScriptDialogCreator::DialogClosedCallback& callback)
+      const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       : callback_(callback) {
   }
   ~CefJSDialogCallbackImpl() {
@@ -53,12 +53,12 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
  private:
   static void CancelNow(
-      const content::JavaScriptDialogCreator::DialogClosedCallback& callback) {
+      const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
     CEF_REQUIRE_UIT();
     callback.Run(false, string16());
   }
 
-  content::JavaScriptDialogCreator::DialogClosedCallback callback_;
+  content::JavaScriptDialogManager::DialogClosedCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefJSDialogCallbackImpl);
 };
@@ -66,15 +66,15 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 }  // namespace
 
 
-CefJavaScriptDialogCreator::CefJavaScriptDialogCreator(
+CefJavaScriptDialogManager::CefJavaScriptDialogManager(
     CefBrowserHostImpl* browser)
     : browser_(browser) {
 }
 
-CefJavaScriptDialogCreator::~CefJavaScriptDialogCreator() {
+CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {
 }
 
-void CefJavaScriptDialogCreator::RunJavaScriptDialog(
+void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
     const GURL& origin_url,
     const std::string& accept_lang,
@@ -131,7 +131,7 @@ void CefJavaScriptDialogCreator::RunJavaScriptDialog(
 #endif
 }
 
-void CefJavaScriptDialogCreator::RunBeforeUnloadDialog(
+void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
     const string16& message_text,
     bool is_reload,
@@ -178,7 +178,7 @@ void CefJavaScriptDialogCreator::RunBeforeUnloadDialog(
 #endif
 }
 
-void CefJavaScriptDialogCreator::ResetJavaScriptState(
+void CefJavaScriptDialogManager::ResetJavaScriptState(
     content::WebContents* web_contents) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -197,7 +197,7 @@ void CefJavaScriptDialogCreator::ResetJavaScriptState(
 #endif
 }
 
-void CefJavaScriptDialogCreator::DialogClosed(CefJavaScriptDialog* dialog) {
+void CefJavaScriptDialogManager::DialogClosed(CefJavaScriptDialog* dialog) {
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   DCHECK_EQ(dialog, dialog_.get());
   dialog_.reset();

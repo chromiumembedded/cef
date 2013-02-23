@@ -11,6 +11,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_context.h"
+#include "net/url_request/url_request_job_factory.h"
 
 namespace content {
 class DownloadManagerDelegate;
@@ -18,7 +19,7 @@ class SpeechRecognitionPreferences;
 }
 
 class CefDownloadManagerDelegate;
-class CefResourceContext;
+class CefURLRequestContextGetter;
 
 class CefBrowserContext : public content::BrowserContext {
  public:
@@ -26,7 +27,7 @@ class CefBrowserContext : public content::BrowserContext {
   virtual ~CefBrowserContext();
 
   // BrowserContext methods.
-  virtual FilePath GetPath() OVERRIDE;
+  virtual base::FilePath GetPath() OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
   virtual content::DownloadManagerDelegate* GetDownloadManagerDelegate() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
@@ -37,17 +38,39 @@ class CefBrowserContext : public content::BrowserContext {
       int renderer_child_id) OVERRIDE;
   virtual net::URLRequestContextGetter*
       GetMediaRequestContextForStoragePartition(
-          const FilePath& partition_path,
+          const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
-  virtual net::URLRequestContextGetter* GetRequestContextForStoragePartition(
-      const FilePath& partition_path,
-      bool in_memory) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
   virtual content::SpeechRecognitionPreferences*
       GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
+
+  net::URLRequestContextGetter* CreateRequestContext(
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          blob_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          file_system_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          developer_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          chrome_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          chrome_devtools_protocol_handler);
+  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
+      const FilePath& partition_path,
+      bool in_memory,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          blob_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          file_system_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          developer_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          chrome_protocol_handler,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          chrome_devtools_protocol_handler);
 
   // To disable window rendering call this function with |override|=true
   // just before calling WebContents::Create. This will cause
@@ -57,10 +80,11 @@ class CefBrowserContext : public content::BrowserContext {
   bool use_osr_next_contents_view() const;
 
  private:
+  class CefResourceContext;
 
   scoped_ptr<CefResourceContext> resource_context_;
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
-  scoped_refptr<net::URLRequestContextGetter> url_request_getter_;
+  scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
       geolocation_permission_context_;
   scoped_refptr<content::SpeechRecognitionPreferences>

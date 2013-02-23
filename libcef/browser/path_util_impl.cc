@@ -34,7 +34,7 @@ bool CefGetPath(PathKey key, CefString& path) {
       return false;
   }
 
-  FilePath file_path;
+  base::FilePath file_path;
   if (PathService::Get(pref_key, &file_path)) {
     path = file_path.value();
     return true;

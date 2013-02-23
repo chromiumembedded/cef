@@ -40,13 +40,13 @@ namespace {
 
 #if defined(OS_MACOSX)
 
-FilePath GetFrameworksPath() {
+base::FilePath GetFrameworksPath() {
   // Start out with the path to the running executable.
-  FilePath execPath;
+  base::FilePath execPath;
   PathService::Get(base::FILE_EXE, &execPath);
 
   // Get the main bundle path.
-  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+  base::FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
 
   // Go into the Contents/Frameworks directory.
   return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
@@ -54,12 +54,12 @@ FilePath GetFrameworksPath() {
 }
 
 // The framework bundle path is used for loading resources, libraries, etc.
-FilePath GetFrameworkBundlePath() {
+base::FilePath GetFrameworkBundlePath() {
   return GetFrameworksPath().Append(
       FILE_PATH_LITERAL("Chromium Embedded Framework.framework"));
 }
 
-FilePath GetResourcesFilePath() {
+base::FilePath GetResourcesFilePath() {
   return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
 }
 
@@ -69,12 +69,12 @@ void OverrideFrameworkBundlePath() {
 
 void OverrideChildProcessPath() {
   // Retrieve the name of the running executable.
-  FilePath path;
+  base::FilePath path;
   PathService::Get(base::FILE_EXE, &path);
 
   std::string name = path.BaseName().value();
 
-  FilePath helper_path = GetFrameworksPath()
+  base::FilePath helper_path = GetFrameworksPath()
       .Append(FILE_PATH_LITERAL(name+" Helper.app"))
       .Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("MacOS"))
@@ -85,8 +85,8 @@ void OverrideChildProcessPath() {
 
 #else  // !defined(OS_MACOSX)
 
-FilePath GetResourcesFilePath() {
-  FilePath pak_dir;
+base::FilePath GetResourcesFilePath() {
+  base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
 }
@@ -167,8 +167,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitch(switches::kSingleProcess);
 
     if (settings.browser_subprocess_path.length > 0) {
-      FilePath file_path =
-          FilePath(CefString(&settings.browser_subprocess_path));
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings.browser_subprocess_path));
       if (!file_path.empty()) {
         command_line->AppendSwitchPath(switches::kBrowserSubprocessPath,
                                        file_path);
@@ -191,7 +191,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings.log_file.length > 0) {
-      FilePath file_path = FilePath(CefString(&settings.log_file));
+      base::FilePath file_path = FilePath(CefString(&settings.log_file));
       if (!file_path.empty())
         command_line->AppendSwitchPath(switches::kLogFile, file_path);
     }
@@ -236,7 +236,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitch(switches::kDisablePackLoading);
     } else {
       if (settings.resources_dir_path.length > 0) {
-        FilePath file_path = FilePath(CefString(&settings.resources_dir_path));
+        base::FilePath file_path =
+            base::FilePath(CefString(&settings.resources_dir_path));
         if (!file_path.empty()) {
           command_line->AppendSwitchPath(switches::kResourcesDirPath,
                                          file_path);
@@ -244,7 +245,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       }
 
       if (settings.locales_dir_path.length > 0) {
-        FilePath file_path = FilePath(CefString(&settings.locales_dir_path));
+        base::FilePath file_path =
+            base::FilePath(CefString(&settings.locales_dir_path));
         if (!file_path.empty())
           command_line->AppendSwitchPath(switches::kLocalesDirPath, file_path);
       }
@@ -281,7 +283,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   }
 
   // Initialize logging.
-  FilePath log_file = command_line->GetSwitchValuePath(switches::kLogFile);
+  base::FilePath log_file =
+      command_line->GetSwitchValuePath(switches::kLogFile);
   std::string log_severity_str =
       command_line->GetSwitchValueASCII(switches::kLogSeverity);
 
@@ -403,10 +406,10 @@ void CefMainDelegate::ShutdownBrowser() {
 
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  FilePath cef_pak_file, devtools_pak_file, locales_dir;
+  base::FilePath cef_pak_file, devtools_pak_file, locales_dir;
 
   if (!content_client_.pack_loading_disabled()) {
-    FilePath resources_dir;
+    base::FilePath resources_dir;
     if (command_line.HasSwitch(switches::kResourcesDirPath)) {
       resources_dir =
           command_line.GetSwitchValuePath(switches::kResourcesDirPath);

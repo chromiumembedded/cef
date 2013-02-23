@@ -208,7 +208,7 @@ bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
 }
 
 bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
-                                         const FilePath& path) const {
+                                         const base::FilePath& path) const {
   return true;
 }
 

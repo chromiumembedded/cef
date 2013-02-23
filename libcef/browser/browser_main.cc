@@ -8,6 +8,7 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_message_loop.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 
 #include "base/bind.h"
@@ -70,9 +71,12 @@ int CefBrowserMainParts::PreCreateThreads() {
 void CefBrowserMainParts::PreMainMessageLoopRun() {
   browser_context_.reset(new CefBrowserContext());
 
+  // Initialize the request context getter.
+  _Context->set_request_context(browser_context_->GetRequestContext());
+
   // Initialize proxy configuration service.
   ChromeProxyConfigService* chrome_proxy_config_service =
-      ProxyServiceFactory::CreateProxyConfigService(true);
+      ProxyServiceFactory::CreateProxyConfigService();
   proxy_config_service_.reset(chrome_proxy_config_service);
   pref_proxy_config_tracker_->SetChromeProxyConfigService(
       chrome_proxy_config_service);
@@ -94,6 +98,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   if (devtools_delegate_)
     devtools_delegate_->Stop();
   pref_proxy_config_tracker_->DetachFromPrefService();
+  _Context->set_request_context(NULL);
   browser_context_.reset();
 }
 

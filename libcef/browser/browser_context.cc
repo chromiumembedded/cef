@@ -9,7 +9,6 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
-#include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 
@@ -19,7 +18,9 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/geolocation_permission_context.h"
+#include "content/public/browser/resource_context.h"
 #include "content/public/browser/speech_recognition_preferences.h"
+#include "content/public/browser/storage_partition.h"
 
 using content::BrowserThread;
 
@@ -172,12 +173,34 @@ class CefSpeechRecognitionPreferences
 
 }  // namespace
 
+class CefBrowserContext::CefResourceContext : public content::ResourceContext {
+ public:
+  CefResourceContext() : getter_(NULL) {}
+  virtual ~CefResourceContext() {}
+
+  // ResourceContext implementation:
+  virtual net::HostResolver* GetHostResolver() OVERRIDE {
+    CHECK(getter_);
+    return getter_->host_resolver();
+  }
+  virtual net::URLRequestContext* GetRequestContext() OVERRIDE {
+    CHECK(getter_);
+    return getter_->GetURLRequestContext();
+  }
+
+  void set_url_request_context_getter(CefURLRequestContextGetter* getter) {
+    getter_ = getter;
+  }
+
+ private:
+  CefURLRequestContextGetter* getter_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
+};
+
 CefBrowserContext::CefBrowserContext()
-    : use_osr_next_contents_view_(false) {
-  // Initialize the request context getter.
-  url_request_getter_ = new CefURLRequestContextGetter(
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE));
+    : use_osr_next_contents_view_(false),
+      resource_context_(new CefResourceContext) {
 }
 
 CefBrowserContext::~CefBrowserContext() {
@@ -192,7 +215,7 @@ CefBrowserContext::~CefBrowserContext() {
   }
 }
 
-FilePath CefBrowserContext::GetPath() {
+base::FilePath CefBrowserContext::GetPath() {
   return _Context->cache_path();
 }
 
@@ -210,7 +233,8 @@ content::DownloadManagerDelegate*
 }
 
 net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
-  return url_request_getter_;
+  CEF_REQUIRE_UIT();
+  return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 
 net::URLRequestContextGetter*
@@ -236,23 +260,12 @@ net::URLRequestContextGetter*
 
 net::URLRequestContextGetter*
     CefBrowserContext::GetMediaRequestContextForStoragePartition(
-        const FilePath& partition_path,
+        const base::FilePath& partition_path,
         bool in_memory) {
   return GetRequestContext();
 }
 
-net::URLRequestContextGetter*
-    CefBrowserContext::GetRequestContextForStoragePartition(
-        const FilePath& partition_path,
-        bool in_memory) {
-  return NULL;
-}
-
 content::ResourceContext* CefBrowserContext::GetResourceContext() {
-  if (!resource_context_.get()) {
-    resource_context_.reset(new CefResourceContext(
-        static_cast<CefURLRequestContextGetter*>(GetRequestContext())));
-  }
   return resource_context_.get();
 }
 
@@ -273,6 +286,48 @@ content::SpeechRecognitionPreferences*
 }
 
 quota::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
+  return NULL;
+}
+
+net::URLRequestContextGetter* CefBrowserContext::CreateRequestContext(
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        blob_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        file_system_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        developer_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_protocol_handler,
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_devtools_protocol_handler) {
+  DCHECK(!url_request_getter_);
+  // CEF doesn't use URLDataManager for serving chrome internal protocols.
+  // |chrome_protocol_handler| and |chrome_devtools_protocol_handler| are
+  // ignored so as not to conflict with CEF's protocol implementation.
+  url_request_getter_ = new CefURLRequestContextGetter(
+      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
+      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
+      blob_protocol_handler.Pass(),
+      file_system_protocol_handler.Pass(),
+      developer_protocol_handler.Pass());
+  resource_context_->set_url_request_context_getter(url_request_getter_.get());
+  return url_request_getter_.get();
+}
+
+net::URLRequestContextGetter*
+    CefBrowserContext::CreateRequestContextForStoragePartition(
+        const base::FilePath& partition_path,
+        bool in_memory,
+        scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+            blob_protocol_handler,
+        scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+            file_system_protocol_handler,
+        scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+            developer_protocol_handler,
+        scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+            chrome_protocol_handler,
+        scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+            chrome_devtools_protocol_handler) {
   return NULL;
 }
 

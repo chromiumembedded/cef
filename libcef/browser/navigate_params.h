@@ -14,7 +14,7 @@
 #include "content/public/common/referrer.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
-#include "webkit/glue/window_open_disposition.h"
+#include "ui/base/window_open_disposition.h"
 
 // Parameters that tell CefBrowserHostImpl::Navigate() what to do.
 struct CefNavigateParams {

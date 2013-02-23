@@ -127,7 +127,7 @@ class CefUrlRequestManager {
   net::URLRequestJobFactory* GetJobFactory() {
     return const_cast<net::URLRequestJobFactory*>(
         static_cast<CefURLRequestContextGetter*>(
-            _Context->browser_context()->GetRequestContext())->
+            _Context->request_context().get())->
                 GetURLRequestContext()->job_factory());
   }
 

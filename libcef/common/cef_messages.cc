@@ -46,7 +46,7 @@ struct ParamTraits<net::UploadElement> {
       }
       default: {
         DCHECK(type == net::UploadElement::TYPE_FILE);
-        FilePath file_path;
+        base::FilePath file_path;
         uint64 offset, length;
         base::Time expected_modification_time;
         if (!ReadParam(m, iter, &file_path))

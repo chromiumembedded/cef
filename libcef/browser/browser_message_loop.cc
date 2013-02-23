@@ -3,9 +3,9 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/browser_message_loop.h"
+#include "base/run_loop.h"
 
-CefBrowserMessageLoop::CefBrowserMessageLoop()
-  : is_iterating_(true) {
+CefBrowserMessageLoop::CefBrowserMessageLoop() {
 }
 
 CefBrowserMessageLoop::~CefBrowserMessageLoop() {
@@ -23,20 +23,11 @@ CefBrowserMessageLoop* CefBrowserMessageLoop::current() {
   return static_cast<CefBrowserMessageLoop*>(loop);
 }
 
-bool CefBrowserMessageLoop::DoIdleWork() {
-  bool valueToRet = inherited::DoIdleWork();
-  if (is_iterating_)
-    pump_->Quit();
-  return valueToRet;
-}
-
-// Do a single interation of the UI message loop.
 void CefBrowserMessageLoop::DoMessageLoopIteration() {
-  Run();
+  base::RunLoop run_loop;
+  run_loop.RunUntilIdle();
 }
 
-// Run the UI message loop.
 void CefBrowserMessageLoop::RunMessageLoop() {
-  is_iterating_ = false;
-  DoMessageLoopIteration();
+  Run();
 }

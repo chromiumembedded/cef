@@ -47,11 +47,12 @@ class CefContentClient : public content::ContentClient,
 
  private:
   // ui::ResourceBundle::Delegate methods.
-  virtual FilePath GetPathForResourcePack(
-      const FilePath& pack_path,
+  virtual base::FilePath GetPathForResourcePack(
+      const base::FilePath& pack_path,
       ui::ScaleFactor scale_factor) OVERRIDE;
-  virtual FilePath GetPathForLocalePack(const FilePath& pack_path,
-                                        const std::string& locale) OVERRIDE;
+  virtual base::FilePath GetPathForLocalePack(
+      const base::FilePath& pack_path,
+      const std::string& locale) OVERRIDE;
   virtual gfx::Image GetImageNamed(int resource_id) OVERRIDE;
   virtual gfx::Image GetNativeImageNamed(
       int resource_id,
