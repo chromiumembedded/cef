@@ -13,12 +13,12 @@
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 #import "third_party/mozilla/NSPasteboard+Utils.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/window_open_disposition.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/window_open_disposition.h"
 
 using WebKit::WebDragOperation;
 using WebKit::WebDragOperationsMask;

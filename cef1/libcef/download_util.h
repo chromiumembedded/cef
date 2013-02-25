@@ -10,7 +10,10 @@
 #include <string>
 
 class GURL;
+
+namespace base {
 class FilePath;
+}
 
 namespace download_util {
 
@@ -20,7 +23,7 @@ void GenerateFileName(const GURL& url,
                       const std::string& referrer_charset,
                       const std::string& mime_type,
                       const std::string& suggested_name,
-                      FilePath* generated_name);
+                      base::FilePath* generated_name);
 
 }  // namespace download_util
 

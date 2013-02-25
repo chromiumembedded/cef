@@ -9,7 +9,7 @@
 #include "base/auto_reset.h"
 #include "base/path_service.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageArea.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageEventDispatcher.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebStorageNamespace.h"
@@ -201,8 +201,8 @@ BrowserDomStorageSystem::BrowserDomStorageSystem()
     : weak_factory_(this),
       area_being_processed_(NULL),
       next_connection_id_(1) {
-  FilePath local_storage_path;
-  FilePath cache_path(_Context->cache_path());
+  base::FilePath local_storage_path;
+  base::FilePath cache_path(_Context->cache_path());
   if (!cache_path.empty()) {
     local_storage_path = cache_path.Append(FILE_PATH_LITERAL("Local Storage"));
     if (!file_util::PathExists(local_storage_path) &&
@@ -214,7 +214,7 @@ BrowserDomStorageSystem::BrowserDomStorageSystem()
 
   base::SequencedWorkerPool* worker_pool = _Context->blocking_pool();
 
-  context_ = new DomStorageContext(local_storage_path, FilePath(), NULL,
+  context_ = new DomStorageContext(local_storage_path, base::FilePath(), NULL,
       new DomStorageWorkerPoolTaskRunner(
           worker_pool,
           worker_pool->GetNamedSequenceToken("dom_storage_primary"),

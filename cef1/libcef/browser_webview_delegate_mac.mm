@@ -16,13 +16,13 @@
 #include "base/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "skia/ext/skia_utils_mac.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebImage.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/layout.h"
@@ -440,7 +440,7 @@ void BrowserWebViewDelegate::runModal() {
 // WebPluginPageDelegate ------------------------------------------------------
 
 webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
-    const FilePath& path,
+    const base::FilePath& path,
     const std::string& mime_type) {
   WebWidgetHost *host = GetWidgetHost();
   if (!host)
@@ -548,10 +548,10 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
 
 // Called to show the file chooser dialog.
 bool BrowserWebViewDelegate::ShowFileChooser(
-    std::vector<FilePath>& file_names,
+    std::vector<base::FilePath>& file_names,
     bool multi_select,
     const WebKit::WebString& title,
-    const FilePath& default_file,
+    const base::FilePath& default_file,
     const std::vector<std::string>& accept_mime_types) {
   NSOpenPanel* dialog = [NSOpenPanel openPanel];
   if (!title.isNull())
@@ -598,8 +598,10 @@ bool BrowserWebViewDelegate::ShowFileChooser(
   int i, count = [urls count];
   for (i=0; i<count; i++) {
     NSURL* url = [urls objectAtIndex:i];
-    if ([url isFileURL])
-      file_names.push_back(FilePath(base::SysNSStringToUTF8([url path])));
+    if ([url isFileURL]) {
+      file_names.push_back(
+          base::FilePath(base::SysNSStringToUTF8([url path])));
+    }
   }
 
   return true;

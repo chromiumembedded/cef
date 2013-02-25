@@ -8,8 +8,8 @@
 #include "base/logging.h"
 #include "base/stringprintf.h"
 #include "net/http/http_response_headers.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLResponse.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURLResponse.h"
 
 CefResponseImpl::CefResponseImpl()
   : status_code_(0) {

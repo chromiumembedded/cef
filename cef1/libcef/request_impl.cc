@@ -18,7 +18,7 @@
 #include "net/base/upload_file_element_reader.h"
 #include "net/http/http_request_headers.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURLRequest.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURLRequest.h"
 
 using WebKit::WebHTTPBody;
 using WebKit::WebString;
@@ -558,7 +558,7 @@ void CefPostDataElementImpl::Get(net::UploadElement& element) {
   if (type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
-    FilePath path = FilePath(CefString(&data_.filename));
+    base::FilePath path = FilePath(CefString(&data_.filename));
     element.SetToFilePath(path);
   } else {
     NOTREACHED();
@@ -575,7 +575,7 @@ net::UploadElementReader* CefPostDataElementImpl::Get() {
     return new BytesElementReader(make_scoped_ptr(element));
   } else if (type_ == PDE_TYPE_FILE) {
     net::UploadElement* element = new net::UploadElement();
-    FilePath path = FilePath(CefString(&data_.filename));
+    base::FilePath path = base::FilePath(CefString(&data_.filename));
     element->SetToFilePath(path);
     return new FileElementReader(make_scoped_ptr(element));
   } else {

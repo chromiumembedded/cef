@@ -7,7 +7,7 @@
 #define CEF_LIBCEF_BROWSER_WEBCOOKIEJAR_IMPL_H_
 #pragma once
 
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebCookieJar.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebCookieJar.h"
 
 namespace net {
 class CookieStore;

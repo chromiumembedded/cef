@@ -89,9 +89,9 @@ bool IsReservedName(const string16& filename) {
 
 // Create an extension based on the file name and mime type.
 // From chrome/browser/download/download_util.cc
-void GenerateExtension(const FilePath& file_name,
+void GenerateExtension(const base::FilePath& file_name,
                        const std::string& mime_type,
-                       FilePath::StringType* generated_extension) {
+                       base::FilePath::StringType* generated_extension) {
   // We're worried about two things here:
   //
   // 1) Usability.  If the site fails to provide a file extension, we want to
@@ -102,12 +102,12 @@ void GenerateExtension(const FilePath& file_name,
   //    from integrating with the user's shell.
 
   // See if our file name already contains an extension.
-  FilePath::StringType extension = file_name.Extension();
+  base::FilePath::StringType extension = file_name.Extension();
   if (!extension.empty())
     extension.erase(extension.begin());  // Erase preceding '.'.
 
 #if defined(OS_WIN)
-  static const FilePath::CharType default_extension[] =
+  static const base::FilePath::CharType default_extension[] =
   FILE_PATH_LITERAL("download");
 
   // Rename shell-integrated extensions.
@@ -130,21 +130,22 @@ void GenerateExtension(const FilePath& file_name,
 // download.  |file_name| can either be just the file name or it can be a
 // full path to a file.
 // From chrome/browser/download/download_util.cc
-void GenerateSafeFileName(const std::string& mime_type, FilePath* file_name) {
+void GenerateSafeFileName(const std::string& mime_type,
+                          base::FilePath* file_name) {
   // Make sure we get the right file extension
-  FilePath::StringType extension;
+  base::FilePath::StringType extension;
   GenerateExtension(*file_name, mime_type, &extension);
   *file_name = file_name->ReplaceExtension(extension);
 
 #if defined(OS_WIN)
   // Prepend "_" to the file name if it's a reserved name
-  FilePath::StringType leaf_name = file_name->BaseName().value();
+  base::FilePath::StringType leaf_name = file_name->BaseName().value();
   DCHECK(!leaf_name.empty());
   if (IsReservedName(leaf_name)) {
-    leaf_name = FilePath::StringType(FILE_PATH_LITERAL("_")) + leaf_name;
+    leaf_name = base::FilePath::StringType(FILE_PATH_LITERAL("_")) + leaf_name;
     *file_name = file_name->DirName();
-    if (file_name->value() == FilePath::kCurrentDirectory) {
-      *file_name = FilePath(leaf_name);
+    if (file_name->value() == base::FilePath::kCurrentDirectory) {
+      *file_name = base::FilePath(leaf_name);
     } else {
       *file_name = file_name->Append(leaf_name);
     }
@@ -163,7 +164,7 @@ void GenerateFileName(const GURL& url,
                       const std::string& referrer_charset,
                       const std::string& mime_type,
                       const std::string& suggested_name,
-                      FilePath* generated_name) {
+                      base::FilePath* generated_name) {
   string16 new_name = net::GetSuggestedFilename(GURL(url),
                                                 content_disposition,
                                                 referrer_charset,
@@ -176,9 +177,10 @@ void GenerateFileName(const GURL& url,
   // However, I'm just shuffling wrong code around, at least not adding
   // to it.
 #if defined(OS_WIN)
-  *generated_name = FilePath(new_name);
+  *generated_name = base::FilePath(new_name);
 #else
-  *generated_name = FilePath(base::SysWideToNativeMB(UTF16ToWide(new_name)));
+  *generated_name =
+      base::FilePath(base::SysWideToNativeMB(UTF16ToWide(new_name)));
 #endif
 
   DCHECK(!generated_name->empty());

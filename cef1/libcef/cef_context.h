@@ -62,11 +62,11 @@ class CefContext : public CefBase {
   string16 GetLocalizedString(int message_id) const;
   base::StringPiece GetDataResource(int resource_id) const;
 
-  FilePath GetResourcesFilePath() const;
+  base::FilePath GetResourcesFilePath() const;
 
   // Retrieve the path at which cache data will be stored on disk.  If empty,
   // cache data will be stored in-memory.
-  const FilePath& cache_path() const { return cache_path_; }
+  const base::FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
   CefRefPtr<CefApp> application() const { return application_; }
@@ -122,7 +122,7 @@ class CefContext : public CefBase {
 
   CefSettings settings_;
   CefRefPtr<CefApp> application_;
-  FilePath cache_path_;
+  base::FilePath cache_path_;
   base::ScopedTempDir cache_temp_dir_;
 
   BrowserRequestContext* request_context_;

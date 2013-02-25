@@ -7,7 +7,7 @@
 #pragma once
 
 #include "base/memory/ref_counted.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebBlobRegistry.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebBlobRegistry.h"
 
 class GURL;
 

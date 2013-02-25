@@ -458,6 +458,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       upload_data_stream.reset(
           params->request_body->ResolveElementsAndCreateUploadDataStream(
               _Context->request_context()->blob_storage_controller(),
+              _Context->file_system()->file_system_context(),
               base::MessageLoopProxy::current()));
     }
 
@@ -613,7 +614,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
       download_to_file_ = params->download_to_file;
       if (download_to_file_) {
-        FilePath path;
+        base::FilePath path;
         if (file_util::CreateTemporaryFile(&path)) {
           downloaded_file_ = ShareableFileReference::GetOrCreate(
               path, ShareableFileReference::DELETE_ON_FINAL_RELEASE,

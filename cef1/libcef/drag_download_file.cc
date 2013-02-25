@@ -13,7 +13,7 @@
 #include "net/base/file_stream.h"
 
 DragDownloadFile::DragDownloadFile(
-    const FilePath& file_name_or_path,
+    const base::FilePath& file_name_or_path,
     scoped_ptr<net::FileStream> file_stream,
     const GURL& url,
     const GURL& referrer,

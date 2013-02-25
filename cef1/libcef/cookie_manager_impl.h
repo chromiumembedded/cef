@@ -33,7 +33,7 @@ class CefCookieManagerImpl : public CefCookieManager {
  private:
   scoped_refptr<net::CookieMonster> cookie_monster_;
   bool is_global_;
-  FilePath storage_path_;
+  base::FilePath storage_path_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);
 };

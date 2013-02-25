@@ -12,9 +12,9 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
-#include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_win.h"
+#include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/point.h"
 
 class BrowserWebViewDelegate;
@@ -37,7 +37,7 @@ class BrowserDragDelegate
   // Called on UI thread.
   void StartDragging(const WebDropData& drop_data,
                      WebKit::WebDragOperationsMask ops,
-                     const SkBitmap& image,
+                     const gfx::ImageSkia& image,
                      const gfx::Vector2d& image_offset);
   void CancelDrag();
 
@@ -60,7 +60,7 @@ class BrowserDragDelegate
                   WebKit::WebDragOperationsMask ops,
                   const GURL& page_url,
                   const std::string& page_encoding,
-                  const SkBitmap& image,
+                  const gfx::ImageSkia& image,
                   const gfx::Vector2d& image_offset);
 
   // Called on drag-and-drop thread.
@@ -68,7 +68,7 @@ class BrowserDragDelegate
                                WebKit::WebDragOperationsMask ops,
                                const GURL& page_url,
                                const std::string& page_encoding,
-                               const SkBitmap& image,
+                               const gfx::ImageSkia& image,
                                const gfx::Vector2d& image_offset);
   // Called on UI thread.
   void EndDragging();

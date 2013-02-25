@@ -7,8 +7,8 @@
 #include "libcef/dom_document_impl.h"
 
 #include "base/logging.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
 using WebKit::WebDOMEvent;
 using WebKit::WebString;

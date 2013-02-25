@@ -8,7 +8,7 @@
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
 using WebKit::WebDragOperationNone;

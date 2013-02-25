@@ -75,20 +75,20 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
 
  private:
-  virtual FilePath GetPathForResourcePack(
-      const FilePath& pack_path,
+  virtual base::FilePath GetPathForResourcePack(
+      const base::FilePath& pack_path,
       ui::ScaleFactor scale_factor) OVERRIDE {
     // Only allow the cef pack file to load.
     if (!context_->settings().pack_loading_disabled && allow_pack_file_load_)
       return pack_path;
-    return FilePath();
+    return base::FilePath();
   }
 
-  virtual FilePath GetPathForLocalePack(const FilePath& pack_path,
+  virtual base::FilePath GetPathForLocalePack(const FilePath& pack_path,
                                         const std::string& locale) OVERRIDE {
     if (!context_->settings().pack_loading_disabled)
       return pack_path;
-    return FilePath();
+    return base::FilePath();
   }
 
   virtual gfx::Image GetImageNamed(int resource_id) OVERRIDE {
@@ -253,7 +253,7 @@ bool CefContext::Initialize(const CefSettings& settings,
   settings_ = settings;
   application_ = application;
 
-  cache_path_ = FilePath(CefString(&settings.cache_path));
+  cache_path_ = base::FilePath(CefString(&settings.cache_path));
   if (!cache_path_.empty() &&
       !file_util::PathExists(cache_path_) &&
       !file_util::CreateDirectory(cache_path_)) {
@@ -372,14 +372,14 @@ CefRefPtr<CefBrowserImpl> CefContext::GetBrowserByID(int id) {
 
 void CefContext::InitializeResourceBundle() {
 #if !defined(OS_WIN)
-  FilePath chrome_pak_file;
+  base::FilePath chrome_pak_file;
 #endif
-  FilePath devtools_pak_file, locales_dir;
+  base::FilePath devtools_pak_file, locales_dir;
 
   if (!settings_.pack_loading_disabled) {
-    FilePath resources_dir_path;
+    base::FilePath resources_dir_path;
     if (settings_.resources_dir_path.length > 0)
-      resources_dir_path = FilePath(CefString(&settings_.resources_dir_path));
+      resources_dir_path = base::FilePath(CefString(&settings_.resources_dir_path));
     if (resources_dir_path.empty())
       resources_dir_path = GetResourcesFilePath();
 
@@ -393,7 +393,7 @@ void CefContext::InitializeResourceBundle() {
     }
 
     if (settings_.locales_dir_path.length > 0)
-      locales_dir = FilePath(CefString(&settings_.locales_dir_path));
+      locales_dir = base::FilePath(CefString(&settings_.locales_dir_path));
 
     if (!locales_dir.empty())
       PathService::Override(ui::DIR_LOCALES, locales_dir);
@@ -476,7 +476,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
 
 #if defined(OS_WIN)
   if (value.empty()) {
-    FilePath file_path;
+    base::FilePath file_path;
     HMODULE hModule = NULL;
 
     // Try to load the resource from the DLL.
@@ -493,7 +493,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
         // Use webkit's broken image icon (16x16)
         static std::string broken_image_data;
         if (broken_image_data.empty()) {
-          FilePath path = GetResourcesFilePath();
+          base::FilePath path = GetResourcesFilePath();
           // In order to match WebKit's colors for the missing image, we have to
           // use a PNG. The GIF doesn't have the color range needed to correctly
           // match the TIFF they use in Safari.
@@ -510,7 +510,7 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
         // Use webkit's text area resizer image.
         static std::string resize_corner_data;
         if (resize_corner_data.empty()) {
-          FilePath path = GetResourcesFilePath();
+          base::FilePath path = GetResourcesFilePath();
           path = path.AppendASCII("textAreaResizeCorner.png");
           bool success = file_util::ReadFileToString(path, &resize_corner_data);
           if (!success) {
@@ -536,20 +536,20 @@ base::StringPiece CefContext::GetDataResource(int resource_id) const {
   return value;
 }
 
-FilePath CefContext::GetResourcesFilePath() const {
+base::FilePath CefContext::GetResourcesFilePath() const {
 #if defined(OS_MACOSX)
   // Start out with the path to the running executable.
-  FilePath execPath;
+  base::FilePath execPath;
   PathService::Get(base::FILE_EXE, &execPath);
 
   // Get the main bundle path.
-  FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
+  base::FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
 
   // Go into the Contents/Resources directory.
   return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
                    .Append(FILE_PATH_LITERAL("Resources"));
 #else
-  FilePath pak_dir;
+  base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
 #endif

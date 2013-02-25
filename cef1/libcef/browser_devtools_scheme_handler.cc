@@ -48,7 +48,7 @@ class DevToolsSchemeHandler : public CefSchemeHandler {
     response_length = size_;
 
     std::string mime_type = "text/plain";
-    if (net::GetMimeTypeFromFile(FilePath(CefString(path_)), &mime_type))
+    if (net::GetMimeTypeFromFile(base::FilePath(CefString(path_)), &mime_type))
       response->SetMimeType(mime_type);
 
     response->SetStatus(200);

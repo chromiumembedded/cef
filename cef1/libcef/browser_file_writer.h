@@ -45,6 +45,7 @@ class BrowserFileWriter : public fileapi::WebFileWriterBase,
 
  private:
   class IOThreadProxy;
+  scoped_refptr<fileapi::FileSystemContext> file_system_context_;
   scoped_refptr<IOThreadProxy> io_thread_proxy_;
   static net::URLRequestContext* request_context_;
 };

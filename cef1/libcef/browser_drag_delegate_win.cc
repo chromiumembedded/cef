@@ -114,7 +114,7 @@ BrowserDragDelegate::~BrowserDragDelegate() {
 
 void BrowserDragDelegate::StartDragging(const WebDropData& drop_data,
                                         WebDragOperationsMask ops,
-                                        const SkBitmap& image,
+                                        const gfx::ImageSkia& image,
                                         const gfx::Vector2d& image_offset) {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
@@ -174,7 +174,7 @@ void BrowserDragDelegate::StartBackgroundDragging(
     WebDragOperationsMask ops,
     const GURL& page_url,
     const std::string& page_encoding,
-    const SkBitmap& image,
+    const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset) {
   drag_drop_thread_id_ = base::PlatformThread::CurrentId();
 
@@ -191,7 +191,7 @@ void BrowserDragDelegate::PrepareDragForDownload(
     const std::string& page_encoding) {
   // Parse the download metadata.
   string16 mime_type;
-  FilePath file_name;
+  base::FilePath file_name;
   GURL download_url;
   if (!drag_download_util::ParseDownloadMetadata(drop_data.download_metadata,
                                                  &mime_type,
@@ -202,7 +202,7 @@ void BrowserDragDelegate::PrepareDragForDownload(
   // Generate the download filename.
   std::string content_disposition =
       "attachment; filename=" + UTF16ToUTF8(file_name.value());
-  FilePath generated_file_name;
+  base::FilePath generated_file_name;
   download_util::GenerateFileName(download_url,
                                   content_disposition,
                                   std::string(),
@@ -220,7 +220,7 @@ void BrowserDragDelegate::PrepareDragForDownload(
                            page_url,
                            page_encoding,
                            view_);
-  ui::OSExchangeData::DownloadFileInfo file_download(FilePath(),
+  ui::OSExchangeData::DownloadFileInfo file_download(base::FilePath(),
                                                      download_file.get());
   data->SetDownloadFileInfo(file_download);
 
@@ -231,17 +231,17 @@ void BrowserDragDelegate::PrepareDragForDownload(
 void BrowserDragDelegate::PrepareDragForFileContents(
     const WebDropData& drop_data, ui::OSExchangeData* data) {
   static const int kMaxFilenameLength = 255;  // FAT and NTFS
-  FilePath file_name(drop_data.file_description_filename);
+  base::FilePath file_name(drop_data.file_description_filename);
   string16 extension = file_name.Extension();
   file_name = file_name.BaseName().RemoveExtension();
   // Images without ALT text will only have a file extension so we need to
   // synthesize one from the provided extension and URL.
   if (file_name.value().empty()) {
     // Retrieve the name from the URL.
-    file_name = FilePath(
+    file_name = base::FilePath(
         net::GetSuggestedFilename(drop_data.url, "", "", "", "", ""));
     if (file_name.value().size() + extension.size() > kMaxFilenameLength) {
-      file_name = FilePath(file_name.value().substr(
+      file_name = base::FilePath(file_name.value().substr(
           0, kMaxFilenameLength - extension.size()));
     }
   }
@@ -262,7 +262,7 @@ void BrowserDragDelegate::DoDragging(const WebDropData& drop_data,
                                      WebDragOperationsMask ops,
                                      const GURL& page_url,
                                      const std::string& page_encoding,
-                                     const SkBitmap& image,
+                                     const gfx::ImageSkia& image,
                                      const gfx::Vector2d& image_offset) {
   ui::OSExchangeData data;
 

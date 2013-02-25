@@ -100,8 +100,9 @@ bool BrowserNetworkDelegate::OnCanSetCookie(
   return rv == net::OK;
 }
 
-bool BrowserNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
-                                             const FilePath& path) const {
+bool BrowserNetworkDelegate::OnCanAccessFile(
+    const net::URLRequest& request,
+    const base::FilePath& path) const {
   return true;
 }
 

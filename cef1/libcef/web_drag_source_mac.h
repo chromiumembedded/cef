@@ -41,7 +41,7 @@ struct WebDropData;
   NSDragOperation dragOperationMask_;
 
   // The file name to be saved to for a drag-out download.
-  FilePath downloadFileName_;
+  base::FilePath downloadFileName_;
 
   // The URL to download from for a drag-out download.
   GURL downloadURL_;

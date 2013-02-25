@@ -15,14 +15,14 @@
 
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/clipboard/clipboard_util_win.h"
 #include "ui/base/dragdrop/os_exchange_data.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_win.h"
+#include "ui/base/window_open_disposition.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/window_open_disposition.h"
 
 using WebKit::WebDragOperation;
 using WebKit::WebDragOperationNone;

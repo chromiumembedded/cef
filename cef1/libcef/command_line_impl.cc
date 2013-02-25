@@ -45,7 +45,7 @@ class CefCommandLineImpl : public CefCommandLine {
 
   virtual void SetProgram(const CefString& program) OVERRIDE {
     AutoLock lock_scope(this);
-    command_line_.SetProgram(FilePath(program));
+    command_line_.SetProgram(base::FilePath(program));
   }
 
   virtual bool HasSwitches() OVERRIDE {

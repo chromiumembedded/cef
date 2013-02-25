@@ -33,7 +33,7 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   // created. Only UI thread is involved.
   // The file path and file stream should be provided as the first two
   // parameters.
-  DragDownloadFile(const FilePath& file_name_or_path,
+  DragDownloadFile(const base::FilePath& file_name_or_path,
                    scoped_ptr<net::FileStream> file_stream,
                    const GURL& url,
                    const GURL& referrer,
@@ -64,15 +64,15 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   // Initialized on drag-and-drop thread. Accessed on either thread after that
   // (Windows).
   // Accessed on UI thread (MacOSX).
-  FilePath file_path_;
-  FilePath file_name_;
+  base::FilePath file_path_;
+  base::FilePath file_name_;
   scoped_ptr<net::FileStream> file_stream_;
   GURL url_;
   GURL referrer_;
   std::string referrer_encoding_;
   BrowserWebViewDelegate* view_;
   MessageLoop* drag_message_loop_;
-  FilePath temp_dir_path_;
+  base::FilePath temp_dir_path_;
 
   // Accessed on drag-and-drop thread (Windows).
   // Accessed on UI thread (MacOSX).

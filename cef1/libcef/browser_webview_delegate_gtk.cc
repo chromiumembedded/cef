@@ -12,23 +12,23 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebImage.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenu.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
+#include "ui/base/window_open_disposition.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/gtk_util.h"
 #include "ui/gfx/point.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/window_open_disposition.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
@@ -180,7 +180,7 @@ bool ShowJSPromptDialog(GtkWidget* window,
   return (result == GTK_RESPONSE_OK);
 }
 
-bool ShowJSFileChooser(GtkWidget* window, FilePath* path) {
+bool ShowJSFileChooser(GtkWidget* window, base::FilePath* path) {
   // Create the widgets.
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       "Open File",
@@ -193,8 +193,10 @@ bool ShowJSFileChooser(GtkWidget* window, FilePath* path) {
   gtk_widget_show_all(dialog);
 
   int result = gtk_dialog_run(GTK_DIALOG(dialog));
-  if (result == GTK_RESPONSE_ACCEPT)
-    *path = FilePath(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)));
+  if (result == GTK_RESPONSE_ACCEPT) {
+    *path = base::FilePath(gtk_file_chooser_get_filename(
+        GTK_FILE_CHOOSER(dialog)));
+  }
 
   gtk_widget_destroy(dialog);
 
@@ -448,7 +450,7 @@ void BrowserWebViewDelegate::runModal() {
 // WebPluginPageDelegate ------------------------------------------------------
 
 webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
-    const FilePath& path,
+    const base::FilePath& path,
     const std::string& mime_type) {
   return webkit::npapi::WebPluginDelegateImpl::Create(path, mime_type);
 }
@@ -553,15 +555,15 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(
 }
 
 bool BrowserWebViewDelegate::ShowFileChooser(
-    std::vector<FilePath>& file_names,
+    std::vector<base::FilePath>& file_names,
     bool multi_select,
     const WebKit::WebString& title,
-    const FilePath& default_file,
+    const base::FilePath& default_file,
     const std::vector<std::string>& accept_mime_types) {
   gfx::NativeView view = browser_->UIT_GetMainWndHandle();
   GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-  FilePath file_name;
+  base::FilePath file_name;
   bool resp = ShowJSFileChooser(window, &file_name);
   if (resp)
      file_names.push_back(file_name);

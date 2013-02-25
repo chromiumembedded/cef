@@ -19,13 +19,13 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "net/url_request/url_request_context_getter.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationPermissionRequest.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationPermissionRequestManager.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationPosition.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebGeolocationError.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityOrigin.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 #include "webkit/user_agent/user_agent.h"
 
 using WebKit::WebGeolocationController;

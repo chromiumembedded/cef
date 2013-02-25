@@ -22,7 +22,7 @@ namespace drag_download_util {
 
 bool ParseDownloadMetadata(const string16& metadata,
                            string16* mime_type,
-                           FilePath* file_name,
+                           base::FilePath* file_name,
                            GURL* url) {
   const char16 separator = L':';
 
@@ -44,9 +44,9 @@ bool ParseDownloadMetadata(const string16& metadata,
     string16 file_name_str = metadata.substr(
         mime_type_end_pos + 1, file_name_end_pos - mime_type_end_pos  - 1);
 #if defined(OS_WIN)
-    *file_name = FilePath(file_name_str);
+    *file_name = base::FilePath(file_name_str);
 #else
-    *file_name = FilePath(UTF16ToUTF8(file_name_str));
+    *file_name = base::FilePath(UTF16ToUTF8(file_name_str));
 #endif
   }
   if (url)
@@ -55,13 +55,13 @@ bool ParseDownloadMetadata(const string16& metadata,
   return true;
 }
 
-FileStream* CreateFileStreamForDrop(FilePath* file_path) {
+FileStream* CreateFileStreamForDrop(base::FilePath* file_path) {
   DCHECK(file_path && !file_path->empty());
 
   scoped_ptr<FileStream> file_stream(new FileStream(NULL));
   const int kMaxSeq = 99;
   for (int seq = 0; seq <= kMaxSeq; seq++) {
-    FilePath new_file_path;
+    base::FilePath new_file_path;
     if (seq == 0) {
       new_file_path = *file_path;
     } else {
@@ -98,7 +98,8 @@ void PromiseFileFinalizer::Cleanup() {
     drag_file_downloader_ = NULL;
 }
 
-void PromiseFileFinalizer::OnDownloadCompleted(const FilePath& file_path) {
+void PromiseFileFinalizer::OnDownloadCompleted(
+    const base::FilePath& file_path) {
   CefThread::PostTask(
       CefThread::UI, FROM_HERE,
       base::Bind(&PromiseFileFinalizer::Cleanup, this));

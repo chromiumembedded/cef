@@ -11,7 +11,7 @@
 #include "include/internal/cef_types.h"
 
 #include "base/compiler_specific.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebGraphicsContext3D.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebGraphicsContext3D.h"
 #include "v8/include/v8.h"
 
 #if defined(OS_WIN)

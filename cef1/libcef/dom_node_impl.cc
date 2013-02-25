@@ -13,6 +13,7 @@
 #include "base/string_util.h"
 #include "base/threading/non_thread_safe.h"
 #include "base/utf_string_conversions.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEventListener.h"
@@ -22,7 +23,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputElement.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebNode.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSelectElement.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
 
 using WebKit::WebDocument;
 using WebKit::WebDOMEvent;

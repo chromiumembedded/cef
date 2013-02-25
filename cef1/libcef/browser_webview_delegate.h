@@ -23,13 +23,13 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebFileSystem.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileChooserParams.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrameClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPermissionClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebViewClient.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/plugins/npapi/webplugin_page_delegate.h"
@@ -56,7 +56,10 @@ class WebDropTarget;
 class CefBrowserImpl;
 class GURL;
 class WebWidgetHost;
+
+namespace base {
 class FilePath;
+}
 
 class BrowserWebViewDelegate : public WebKit::WebViewClient,
     public WebKit::WebFrameClient,
@@ -227,10 +230,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
 
   // webkit_glue::WebPluginPageDelegate
   virtual webkit::npapi::WebPluginDelegate* CreatePluginDelegate(
-      const FilePath& file_path,
+      const base::FilePath& file_path,
       const std::string& mime_type) OVERRIDE;
   virtual WebKit::WebPlugin* CreatePluginReplacement(
-      const FilePath& file_path) OVERRIDE;
+      const base::FilePath& file_path) OVERRIDE;
   virtual void CreatedPluginWindow(
       gfx::PluginWindowHandle handle) OVERRIDE;
   virtual void WillDestroyPluginWindow(
@@ -315,10 +318,10 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
                             CefString* result);
 
   // Called to show the file chooser dialog.
-  bool ShowFileChooser(std::vector<FilePath>& file_names,
+  bool ShowFileChooser(std::vector<base::FilePath>& file_names,
                        bool multi_select,
                        const WebKit::WebString& title,
-                       const FilePath& default_file,
+                       const base::FilePath& default_file,
                        const std::vector<std::string>& accept_mime_types);
 
   // Called to show status messages.

@@ -6,9 +6,9 @@
 #include "libcef/external_popup_menu_mac.h"
 #include "libcef/browser_impl.h"
 
+#include "third_party/WebKit/Source/Platform/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebExternalPopupMenuClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPopupMenuInfo.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
 ExternalPopupMenu::ExternalPopupMenu(

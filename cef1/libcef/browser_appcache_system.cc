@@ -35,7 +35,7 @@ class BrowserFrontendProxy
   void clear_appcache_system() { system_ = NULL; }
 
   virtual void OnCacheSelected(int host_id,
-      const appcache::AppCacheInfo& info) {
+      const appcache::AppCacheInfo& info) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread()) {
@@ -51,7 +51,7 @@ class BrowserFrontendProxy
   }
 
   virtual void OnStatusChanged(const std::vector<int>& host_ids,
-                               appcache::Status status) {
+                               appcache::Status status) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread())
@@ -66,7 +66,7 @@ class BrowserFrontendProxy
   }
 
   virtual void OnEventRaised(const std::vector<int>& host_ids,
-                             appcache::EventID event_id) {
+                             appcache::EventID event_id) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread())
@@ -82,7 +82,7 @@ class BrowserFrontendProxy
 
   virtual void OnProgressEventRaised(const std::vector<int>& host_ids,
                                      const GURL& url,
-                                     int num_total, int num_complete) {
+                                     int num_total, int num_complete) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread())
@@ -98,7 +98,7 @@ class BrowserFrontendProxy
   }
 
   virtual void OnErrorEventRaised(const std::vector<int>& host_ids,
-                                  const std::string& message) {
+                                  const std::string& message) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread())
@@ -115,7 +115,7 @@ class BrowserFrontendProxy
 
   virtual void OnLogMessage(int host_id,
                             appcache::LogLevel log_level,
-                            const std::string& message) {
+                            const std::string& message) OVERRIDE {
     if (!system_)
       return;
     if (system_->is_io_thread())
@@ -130,12 +130,13 @@ class BrowserFrontendProxy
       NOTREACHED();
   }
 
-  virtual void OnContentBlocked(int host_id, const GURL& manifest_url) {}
+  virtual void OnContentBlocked(int host_id,
+                                const GURL& manifest_url) OVERRIDE {}
 
  private:
   friend class base::RefCountedThreadSafe<BrowserFrontendProxy>;
 
-  ~BrowserFrontendProxy() {}
+  virtual ~BrowserFrontendProxy() {}
 
   BrowserAppCacheSystem* system_;
 };
@@ -161,7 +162,7 @@ class BrowserBackendProxy
                    base::Unretained(this));
   }
 
-  virtual void RegisterHost(int host_id) {
+  virtual void RegisterHost(int host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -173,7 +174,7 @@ class BrowserBackendProxy
     }
   }
 
-  virtual void UnregisterHost(int host_id) {
+  virtual void UnregisterHost(int host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -185,7 +186,7 @@ class BrowserBackendProxy
     }
   }
 
-  virtual void SetSpawningHostId(int host_id, int spawning_host_id) {
+  virtual void SetSpawningHostId(int host_id, int spawning_host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -201,7 +202,7 @@ class BrowserBackendProxy
   virtual void SelectCache(int host_id,
                            const GURL& document_url,
                            const int64 cache_document_was_loaded_from,
-                           const GURL& manifest_url) {
+                           const GURL& manifest_url) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -219,7 +220,7 @@ class BrowserBackendProxy
 
   virtual void GetResourceList(
       int host_id,
-      std::vector<appcache::AppCacheResourceInfo>* resource_infos) {
+      std::vector<appcache::AppCacheResourceInfo>* resource_infos) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -235,18 +236,20 @@ class BrowserBackendProxy
   virtual void SelectCacheForWorker(
                            int host_id,
                            int parent_process_id,
-                           int parent_host_id) {
+                           int parent_host_id) OVERRIDE {
     NOTIMPLEMENTED();  // Workers are not supported in test_shell.
   }
 
   virtual void SelectCacheForSharedWorker(
                            int host_id,
-                           int64 appcache_id) {
+                           int64 appcache_id) OVERRIDE {
     NOTIMPLEMENTED();  // Workers are not supported in test_shell.
   }
 
-  virtual void MarkAsForeignEntry(int host_id, const GURL& document_url,
-                                  int64 cache_document_was_loaded_from) {
+  virtual void MarkAsForeignEntry(
+      int host_id,
+      const GURL& document_url,
+      int64 cache_document_was_loaded_from) OVERRIDE {
     if (system_->is_ui_thread()) {
       system_->io_message_loop()->PostTask(
           FROM_HERE,
@@ -261,7 +264,7 @@ class BrowserBackendProxy
     }
   }
 
-  virtual appcache::Status GetStatus(int host_id) {
+  virtual appcache::Status GetStatus(int host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       status_result_ = appcache::UNCACHED;
       event_.Reset();
@@ -279,7 +282,7 @@ class BrowserBackendProxy
     return status_result_;
   }
 
-  virtual bool StartUpdate(int host_id) {
+  virtual bool StartUpdate(int host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       bool_result_ = false;
       event_.Reset();
@@ -297,7 +300,7 @@ class BrowserBackendProxy
     return bool_result_;
   }
 
-  virtual bool SwapCache(int host_id) {
+  virtual bool SwapCache(int host_id) OVERRIDE {
     if (system_->is_ui_thread()) {
       bool_result_ = false;
       event_.Reset();
@@ -337,7 +340,7 @@ class BrowserBackendProxy
  private:
   friend class base::RefCountedThreadSafe<BrowserBackendProxy>;
 
-  ~BrowserBackendProxy() {}
+  virtual ~BrowserBackendProxy() {}
 
   BrowserAppCacheSystem* system_;
   base::WaitableEvent event_;
@@ -387,7 +390,8 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
   }
 }
 
-void BrowserAppCacheSystem::InitOnUIThread(const FilePath& cache_directory) {
+void BrowserAppCacheSystem::InitOnUIThread(
+    const base::FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
   ui_message_loop_ = MessageLoop::current();
   cache_directory_ = cache_directory;

@@ -15,7 +15,7 @@
 
 #include "base/synchronization/waitable_event.h"
 #include "net/cookies/cookie_store.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebURL.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 
 using WebKit::WebString;
 using WebKit::WebURL;

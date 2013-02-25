@@ -76,7 +76,7 @@ void CefProcessUIThread::Init() {
     logging::SetMinLogLevel(settings.log_severity);
   }
 
-  FilePath log_file = FilePath(CefString(&settings.log_file));
+  base::FilePath log_file = FilePath(CefString(&settings.log_file));
   logging::DcheckState dcheck_state =
       logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
   if (settings.release_dcheck_enabled)
@@ -168,12 +168,12 @@ void CefProcessUIThread::Init() {
     cef_string_t str;
     memset(&str, 0, sizeof(str));
 
-    FilePath path;
+    base::FilePath path;
     int size = cef_string_list_size(settings.extra_plugin_paths);
     for (int i = 0; i < size; ++i) {
       if (!cef_string_list_value(settings.extra_plugin_paths, i, &str))
         continue;
-      path = FilePath(CefString(&str));
+      path = base::FilePath(CefString(&str));
       webkit::npapi::PluginList::Singleton()->AddExtraPluginPath(path);
     }
   }

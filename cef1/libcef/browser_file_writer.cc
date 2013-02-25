@@ -180,6 +180,7 @@ BrowserFileWriter::BrowserFileWriter(
     WebFileWriterClient* client,
     FileSystemContext* file_system_context)
   : WebFileWriterBase(path, client),
+    file_system_context_(file_system_context),
     io_thread_proxy_(new IOThreadProxy(AsWeakPtr(), file_system_context)) {
 }
 
@@ -187,13 +188,13 @@ BrowserFileWriter::~BrowserFileWriter() {
 }
 
 void BrowserFileWriter::DoTruncate(const GURL& path, int64 offset) {
-  FileSystemURL url(path);
+  FileSystemURL url(file_system_context_->CrackURL(path));
   io_thread_proxy_->Truncate(url, offset);
 }
 
 void BrowserFileWriter::DoWrite(
     const GURL& path, const GURL& blob_url, int64 offset) {
-  FileSystemURL url(path);
+  FileSystemURL url(file_system_context_->CrackURL(path));
   io_thread_proxy_->Write(url, blob_url, offset);
 }
 

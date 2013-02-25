@@ -21,9 +21,9 @@
 #include "net/base/file_stream.h"
 #include "net/base/net_util.h"
 #import "third_party/mozilla/NSPasteboard+Utils.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/gfx/mac/nsimage_cache.h"
 #include "webkit/glue/webdropdata.h"
@@ -44,19 +44,20 @@ NSString* const kNSURLTitlePboardType = @"public.url-name";
 // Converts a string16 into a FilePath. Use this method instead of
 // -[NSString fileSystemRepresentation] to prevent exceptions from being thrown.
 // See http://crbug.com/78782 for more info.
-FilePath FilePathFromFilename(const string16& filename) {
+base::FilePath FilePathFromFilename(const string16& filename) {
   NSString* str = SysUTF16ToNSString(filename);
   char buf[MAXPATHLEN];
   if (![str getFileSystemRepresentation:buf maxLength:sizeof(buf)])
-    return FilePath();
-  return FilePath(buf);
+    return base::FilePath();
+  return base::FilePath(buf);
 }
 
 // Returns a filename appropriate for the drop data
 // TODO(viettrungluu): Refactor to make it common across platforms,
 // and move it somewhere sensible.
-FilePath GetFileNameFromDragData(const WebDropData& drop_data) {
-  FilePath file_name(FilePathFromFilename(drop_data.file_description_filename));
+base::FilePath GetFileNameFromDragData(const WebDropData& drop_data) {
+  base::FilePath file_name(
+      FilePathFromFilename(drop_data.file_description_filename));
   std::string extension = file_name.Extension();
   file_name = file_name.BaseName().RemoveExtension();
 
@@ -109,7 +110,7 @@ void PromiseWriterHelper(const WebDropData& drop_data,
 
     if (image == nil) {
       // No drag image was provided so create one.
-      FilePath path = _Context->GetResourcesFilePath();
+      base::FilePath path = _Context->GetResourcesFilePath();
       path = path.AppendASCII("urlIcon.png");
       image = [[NSImage alloc]
                initWithContentsOfFile:SysUTF8ToNSString(path.value())];
@@ -303,10 +304,10 @@ void PromiseWriterHelper(const WebDropData& drop_data,
     return nil;
   }
 
-  FilePath fileName = downloadFileName_.empty() ?
+  base::FilePath fileName = downloadFileName_.empty() ?
       GetFileNameFromDragData(*dropData_) : downloadFileName_;
-  FilePath filePath(SysNSStringToUTF8(path));
-  filePath = filePath.Append(fileName);
+  base::FilePath filePath(SysNSStringToUTF8(path));
+  base::filePath = filePath.Append(fileName);
 
   // CreateFileStreamForDrop() will call file_util::PathExists(),
   // which is blocking.  Since this operation is already blocking the
@@ -377,7 +378,7 @@ void PromiseWriterHelper(const WebDropData& drop_data,
       fileExtension = GetFileNameFromDragData(*dropData_).Extension();
     } else {
       string16 mimeType;
-      FilePath fileName;
+      base::FilePath fileName;
       if (drag_download_util::ParseDownloadMetadata(
               dropData_->download_metadata,
               &mimeType,

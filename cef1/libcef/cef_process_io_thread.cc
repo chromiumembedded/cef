@@ -36,7 +36,7 @@ CefProcessIOThread::~CefProcessIOThread() {
 void CefProcessIOThread::Init() {
   CefThread::Init();
 
-  FilePath cache_path(_Context->cache_path());
+  base::FilePath cache_path(_Context->cache_path());
   request_context_.reset(new BrowserRequestContext(cache_path,
       net::HttpCache::NORMAL, false));
   _Context->set_request_context(request_context_.get());

@@ -8,6 +8,7 @@
 #include "libcef/cef_process_sub_thread.h"
 #include "libcef/cef_process_ui_thread.h"
 
+#include "base/run_loop.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 
@@ -16,17 +17,8 @@ class CefMessageLoopForUI : public MessageLoopForUI {
   typedef MessageLoopForUI inherited;
 
  public:
-  CefMessageLoopForUI()
-    : is_iterating_(true) {
+  CefMessageLoopForUI() {
   }
-#if defined(OS_MACOSX)
-  virtual ~CefMessageLoopForUI() {
-    // On Mac the MessageLoop::AutoRunState scope in Run() never exits so clear
-    // the run_loop_ variable to avoid an assertion in the MessageLoop
-    // destructor.
-    run_loop_ = NULL;
-  }
-#endif
 
   // Returns the MessageLoopForUI of the current thread.
   static CefMessageLoopForUI* current() {
@@ -35,30 +27,18 @@ class CefMessageLoopForUI : public MessageLoopForUI {
     return static_cast<CefMessageLoopForUI*>(loop);
   }
 
-  virtual bool DoIdleWork() {
-    bool valueToRet = inherited::DoIdleWork();
-    if (is_iterating_)
-      pump_->Quit();
-    return valueToRet;
-  }
-
   // Do a single interation of the UI message loop.
   void DoMessageLoopIteration() {
-    Run();
+    base::RunLoop run_loop;
+    run_loop.RunUntilIdle();
   }
 
   // Run the UI message loop.
   void RunMessageLoop() {
-    is_iterating_ = false;
-    DoMessageLoopIteration();
+    Run();
   }
 
-  bool is_iterating() { return is_iterating_; }
-
  private:
-  // True if the message loop is doing one iteration at a time.
-  bool is_iterating_;
-
   DISALLOW_COPY_AND_ASSIGN(CefMessageLoopForUI);
 };
 
@@ -90,7 +70,6 @@ CefProcess::~CefProcess() {
 
 void CefProcess::DoMessageLoopIteration() {
   DCHECK(CalledOnValidThread() && ui_message_loop_.get() != NULL);
-  DCHECK(ui_message_loop_->is_iterating());
   ui_message_loop_->DoMessageLoopIteration();
 }
 

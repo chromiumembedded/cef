@@ -8,10 +8,10 @@
 
 #include <vector>
 
-#include "base/file_util_proxy.h"
+#include "base/files/file_util_proxy.h"
 #include "base/id_map.h"
 #include "base/memory/weak_ptr.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebFileSystem.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebFileSystem.h"
 #include "webkit/fileapi/file_system_context.h"
 #include "webkit/fileapi/file_system_operation.h"
 #include "webkit/fileapi/file_system_types.h"
@@ -131,7 +131,7 @@ class BrowserFileSystem
   void DidGetMetadata(WebKit::WebFileSystemCallbacks* callbacks,
                       base::PlatformFileError result,
                       const base::PlatformFileInfo& info,
-                      const FilePath& platform_path);
+                      const base::FilePath& platform_path);
   void DidReadDirectory(
       WebKit::WebFileSystemCallbacks* callbacks,
       base::PlatformFileError result,
@@ -147,7 +147,7 @@ class BrowserFileSystem
       WebKit::WebFileSystemCallbacks* callbacks,
       base::PlatformFileError result,
       const base::PlatformFileInfo& info,
-      const FilePath& platform_path,
+      const base::FilePath& platform_path,
       const scoped_refptr<webkit_blob::ShareableFileReference>& file_ref);
 
   scoped_refptr<fileapi::FileSystemContext> file_system_context_;

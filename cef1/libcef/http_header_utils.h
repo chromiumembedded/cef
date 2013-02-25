@@ -9,8 +9,8 @@
 #include <string>
 
 #include "include/cef_request.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebHTTPHeaderVisitor.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebString.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebHTTPHeaderVisitor.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 
 namespace HttpHeaderUtils {
 

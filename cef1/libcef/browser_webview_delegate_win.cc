@@ -29,23 +29,23 @@
 #include "base/win/registry.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebImage.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCursorInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/base/window_open_disposition.h"
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/point.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/window_open_disposition.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 #include "webkit/plugins/npapi/webplugin.h"
 #include "webkit/plugins/npapi/webplugin_delegate_impl.h"
@@ -222,7 +222,7 @@ std::wstring GetFilterStringFromAcceptTypes(
         descriptions.push_back(std::wstring());
       } else {
         // Otherwise convert mime type to one or more extensions.
-        std::vector<FilePath::StringType> ext;
+        std::vector<base::FilePath::StringType> ext;
         std::wstring ext_str;
         net::GetExtensionsForMimeType(ascii_type, &ext);
         if (ext.size() > 0) {
@@ -499,7 +499,10 @@ void BrowserWebViewDelegate::startDragging(
   }
 
   drag_delegate_ = new BrowserDragDelegate(this);
-  drag_delegate_->StartDragging(drop_data, mask, image.getSkBitmap(),
+  gfx::ImageSkia image_skia =
+      gfx::ImageSkia(gfx::ImageSkiaRep(image.getSkBitmap(),
+                                       ui::SCALE_FACTOR_100P));
+  drag_delegate_->StartDragging(drop_data, mask, image_skia,
                                 gfx::Point(image_offset).OffsetFromOrigin());
 }
 
@@ -559,7 +562,7 @@ void BrowserWebViewDelegate::runModal() {
 // WebPluginPageDelegate ------------------------------------------------------
 
 webkit::npapi::WebPluginDelegate* BrowserWebViewDelegate::CreatePluginDelegate(
-      const FilePath& file_path,
+      const base::FilePath& file_path,
       const std::string& mime_type) {
   WebViewHost* host = browser_->UIT_GetWebViewHost();
   if (!host)
@@ -803,7 +806,7 @@ bool BrowserWebViewDelegate::ShowJavaScriptPrompt(WebFrame* webframe,
                                                   const CefString& message,
                                                   const CefString& default_value,
                                                   CefString* result) {
-  FilePath file_path;
+  base::FilePath file_path;
   HMODULE hModule = NULL;
 
   // Try to load the dialog from the DLL.
@@ -840,7 +843,8 @@ namespace {
 
 // from chrome/browser/views/shell_dialogs_win.cc
 
-bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path) {
+bool RunOpenFileDialog(const std::wstring& filter, HWND owner,
+                       base::FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -864,12 +868,12 @@ bool RunOpenFileDialog(const std::wstring& filter, HWND owner, FilePath* path) {
   }
   bool success = !!GetOpenFileName(&ofn);
   if (success)
-    *path = FilePath(filename);
+    *path = base::FilePath(filename);
   return success;
 }
 
 bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
-                            std::vector<FilePath>* paths) {
+                            std::vector<base::FilePath>* paths) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -895,10 +899,10 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
   bool success = !!GetOpenFileName(&ofn);
 
   if (success) {
-    std::vector<FilePath> files;
+    std::vector<base::FilePath> files;
     const wchar_t* selection = ofn.lpstrFile;
     while (*selection) {  // Empty string indicates end of list.
-      files.push_back(FilePath(selection));
+      files.push_back(base::FilePath(selection));
       // Skip over filename and null-terminator.
       selection += files.back().value().length() + 1;
     }
@@ -910,8 +914,8 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
     } else {
       // Otherwise, the first string is the path, and the remainder are
       // filenames.
-      std::vector<FilePath>::iterator path = files.begin();
-      for (std::vector<FilePath>::iterator file = path + 1;
+      std::vector<base::FilePath>::iterator path = files.begin();
+      for (std::vector<base::FilePath>::iterator file = path + 1;
            file != files.end(); ++file) {
         paths->push_back(path->Append(*file));
       }
@@ -923,10 +927,10 @@ bool RunOpenMultiFileDialog(const std::wstring& filter, HWND owner,
 }  // namespace
 
 bool BrowserWebViewDelegate::ShowFileChooser(
-    std::vector<FilePath>& file_names,
+    std::vector<base::FilePath>& file_names,
     bool multi_select,
     const WebKit::WebString& title,
-    const FilePath& default_file,
+    const base::FilePath& default_file,
     const std::vector<std::string>& accept_mime_types) {
   bool result = false;
   const std::wstring& filter =
@@ -936,7 +940,7 @@ bool BrowserWebViewDelegate::ShowFileChooser(
     result = RunOpenMultiFileDialog(filter, browser_->UIT_GetMainWndHandle(),
                                     &file_names);
   } else {
-    FilePath file_name;
+    base::FilePath file_name;
     result = RunOpenFileDialog(filter, browser_->UIT_GetMainWndHandle(),
                                &file_name);
     if (result)

@@ -14,7 +14,7 @@
 #include "net/socket_stream/socket_stream_job.h"
 #include "net/websockets/websocket_job.h"
 #include "net/url_request/url_request_context.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebSocketStreamHandle.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebSocketStreamHandle.h"
 #include "webkit/glue/websocketstreamhandle_bridge.h"
 #include "webkit/glue/websocketstreamhandle_delegate.h"
 
@@ -36,18 +36,18 @@ class WebSocketStreamHandleBridgeImpl
       webkit_glue::WebSocketStreamHandleDelegate* delegate);
 
   // WebSocketStreamHandleBridge methods.
-  virtual void Connect(const GURL& url);
-  virtual bool Send(const std::vector<char>& data);
-  virtual void Close();
+  virtual void Connect(const GURL& url) OVERRIDE;
+  virtual bool Send(const std::vector<char>& data) OVERRIDE;
+  virtual void Close() OVERRIDE;
 
   // net::SocketStream::Delegate methods.
   virtual void OnConnected(net::SocketStream* req,
-                           int max_pending_send_allowed);
+                           int max_pending_send_allowed) OVERRIDE;
   virtual void OnSentData(net::SocketStream* req,
-                          int amount_sent);
+                          int amount_sent) OVERRIDE;
   virtual void OnReceivedData(net::SocketStream* req,
-                              const char* data, int len);
-  virtual void OnClose(net::SocketStream* req);
+                              const char* data, int len) OVERRIDE;
+  virtual void OnClose(net::SocketStream* req) OVERRIDE;
 
  private:
   virtual ~WebSocketStreamHandleBridgeImpl();

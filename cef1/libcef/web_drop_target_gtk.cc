@@ -17,16 +17,16 @@
 #include "base/bind.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "ui/base/clipboard/custom_data_helper.h"
 #include "ui/base/dragdrop/os_exchange_data.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_gtk.h"
 #include "ui/base/dragdrop/gtk_dnd_util.h"
+#include "ui/base/window_open_disposition.h"
 #include "ui/base/gtk/gtk_screen_util.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/window_open_disposition.h"
 
 using WebKit::WebDragOperation;
 using WebKit::WebDragOperationNone;
@@ -193,7 +193,7 @@ void WebDropTarget::OnDragDataReceived(
           // file URLs are never set as the URL content for the drop.
           // TODO(estade): Can the filenames have a non-UTF8 encoding?
           GURL url(*uri_iter);
-          FilePath file_path;
+          base::FilePath file_path;
           if (url.SchemeIs("file") &&
               net::FileURLToFilePath(url, &file_path)) {
             drop_data_->filenames.push_back(

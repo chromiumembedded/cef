@@ -80,7 +80,7 @@ class BrowserDatabaseSystem : public webkit_database::DatabaseTracker::Observer,
   void VfsGetSpaceAvailable(const string16& origin_identifier,
                             int64* result, base::WaitableEvent* done_event);
 
-  FilePath GetFullFilePathForVfsFile(const string16& vfs_file_name);
+  base::FilePath GetFullFilePathForVfsFile(const string16& vfs_file_name);
 
   void ResetTracker();
   void ThreadCleanup(base::WaitableEvent* done_event);

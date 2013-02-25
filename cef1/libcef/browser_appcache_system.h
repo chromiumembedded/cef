@@ -39,7 +39,7 @@ class BrowserAppCacheSystem {
   virtual ~BrowserAppCacheSystem();
 
   // One-time main UI thread initialization.
-  static void InitializeOnUIThread(const FilePath& cache_directory) {
+  static void InitializeOnUIThread(const base::FilePath& cache_directory) {
     if (instance_)
       instance_->InitOnUIThread(cache_directory);
   }
@@ -86,7 +86,7 @@ class BrowserAppCacheSystem {
   friend class BrowserFrontendProxy;
 
   // Instance methods called by our static public methods
-  void InitOnUIThread(const FilePath& cache_directory);
+  void InitOnUIThread(const base::FilePath& cache_directory);
   void InitOnIOThread(net::URLRequestContext* request_context);
   void CleanupIOThread();
   WebKit::WebApplicationCacheHost* CreateCacheHostForWebKit(
@@ -110,7 +110,7 @@ class BrowserAppCacheSystem {
     return ui_message_loop_ ? true : false;
   }
 
-  FilePath cache_directory_;
+  base::FilePath cache_directory_;
   MessageLoop* io_message_loop_;
   MessageLoop* ui_message_loop_;
   scoped_refptr<BrowserBackendProxy> backend_proxy_;

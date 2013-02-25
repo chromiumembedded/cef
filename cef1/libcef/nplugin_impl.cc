@@ -18,7 +18,7 @@ void UIT_RegisterPlugin(CefPluginInfo* plugin_info) {
 
   webkit::WebPluginInfo info;
 
-  info.path = FilePath(CefString(&plugin_info->unique_name));
+  info.path = base::FilePath(CefString(&plugin_info->unique_name));
   info.name = CefString(&plugin_info->display_name);
   info.version = CefString(&plugin_info->version);
   info.desc = CefString(&plugin_info->description);

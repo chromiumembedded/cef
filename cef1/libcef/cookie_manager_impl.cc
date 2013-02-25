@@ -206,9 +206,9 @@ bool CefCookieManagerImpl::DeleteCookies(const CefString& url,
 
 bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
   if (CefThread::CurrentlyOn(CefThread::IO)) {
-    FilePath new_path;
+    base::FilePath new_path;
     if (!path.empty())
-      new_path = FilePath(path);
+      new_path = base::FilePath(path);
 
     if (is_global_) {
       // Global path changes are handled by the request context.
@@ -232,7 +232,7 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
         NOTREACHED() << "Failed to create cookie storage directory";
         new_path.clear();
       } else {
-        FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
+        base::FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
         persistent_store =
             new SQLitePersistentCookieStore(cookie_path, false, NULL);
       }

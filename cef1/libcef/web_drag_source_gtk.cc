@@ -22,20 +22,20 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_util.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebImage.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebDragData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebPoint.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebImage.h"
 #include "ui/base/clipboard/custom_data_helper.h"
 #include "ui/base/dragdrop/os_exchange_data.h"
 #include "ui/base/dragdrop/os_exchange_data_provider_gtk.h"
 #include "ui/base/dragdrop/gtk_dnd_util.h"
 #include "ui/base/gtk/gtk_screen_util.h"
+#include "ui/base/window_open_disposition.h"
 #include "ui/gfx/gtk_util.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/window_open_disposition.h"
 
 using WebKit::WebDragOperation;
 using WebKit::WebDragOperationsMask;
@@ -257,7 +257,7 @@ void WebDragSource::OnDragDataGet(GtkWidget* sender,
         GURL file_url(std::string(reinterpret_cast<char*>(file_url_value),
                                   file_url_len));
         g_free(file_url_value);
-        FilePath file_path;
+        base::FilePath file_path;
         if (net::FileURLToFilePath(file_url, &file_path)) {
           // Open the file as a stream.
           scoped_ptr<net::FileStream> file_stream(
@@ -333,7 +333,7 @@ void WebDragSource::OnDragBegin(GtkWidget* sender,
   if (!download_url_.is_empty()) {
     // Generate the file name based on both mime type and proposed file name.
     std::string default_name = "download";
-    FilePath generated_download_file_name =
+    base::FilePath generated_download_file_name =
         net::GenerateFileName(download_url_,
                               std::string(),
                               std::string(),

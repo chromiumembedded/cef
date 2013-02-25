@@ -66,7 +66,7 @@ GURL GetFileURLFromDropData(id<NSDraggingInfo> info) {
 }
 
 static BOOL IsSupportedFileURL(const GURL& url) {
-  FilePath full_path;
+  base::FilePath full_path;
   net::FileURLToFilePath(url, &full_path);
 
   std::string mime_type;

@@ -101,10 +101,6 @@ class CefProxyResolver : public net::ProxyResolver {
   virtual net::LoadState GetLoadState(RequestHandle request) const OVERRIDE {
     return net::LOAD_STATE_IDLE;
   }
-  virtual net::LoadState GetLoadStateThreadSafe(RequestHandle request) const
-      OVERRIDE {
-    return net::LOAD_STATE_IDLE;
-  }
   virtual void CancelSetPacScript() OVERRIDE {}
 
  protected:
@@ -154,11 +150,11 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 
 BrowserRequestContext::BrowserRequestContext()
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
-  Init(FilePath(), net::HttpCache::NORMAL, false);
+  Init(base::FilePath(), net::HttpCache::NORMAL, false);
 }
 
 BrowserRequestContext::BrowserRequestContext(
-    const FilePath& cache_path,
+    const base::FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy)
     : ALLOW_THIS_IN_INITIALIZER_LIST(storage_(this)) {
@@ -166,7 +162,7 @@ BrowserRequestContext::BrowserRequestContext(
 }
 
 void BrowserRequestContext::Init(
-    const FilePath& cache_path,
+    const base::FilePath& cache_path,
     net::HttpCache::Mode cache_mode,
     bool no_proxy) {
   SetCookieStoragePath(cache_path);
@@ -298,7 +294,7 @@ void BrowserRequestContext::Init(
 BrowserRequestContext::~BrowserRequestContext() {
 }
 
-void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
+void BrowserRequestContext::SetCookieStoragePath(const base::FilePath& path) {
   REQUIRE_IOT();
 
   if (cookie_store() && ((cookie_store_path_.empty() && path.empty()) ||
@@ -307,7 +303,7 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
     return;
   }
 
-  FilePath new_path = path;
+  base::FilePath new_path = path;
 
   scoped_refptr<SQLitePersistentCookieStore> persistent_store;
   if (!new_path.empty()) {
@@ -316,7 +312,8 @@ void BrowserRequestContext::SetCookieStoragePath(const FilePath& path) {
       NOTREACHED() << "Failed to create cookie storage directory";
       new_path.clear();
     } else {
-      FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
+      base::FilePath cookie_path =
+          new_path.Append(FILE_PATH_LITERAL("Cookies"));
       persistent_store =
           new SQLitePersistentCookieStore(cookie_path, false, NULL);
     }

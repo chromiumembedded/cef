@@ -15,7 +15,9 @@
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
 
+namespace base {
 class FilePath;
+}
 
 namespace webkit_blob {
 class BlobStorageController;
@@ -30,28 +32,28 @@ class BrowserRequestContext : public net::URLRequestContext {
 
   // Use an on-disk cache at the specified location.  Optionally, use the cache
   // in playback or record mode.
-  BrowserRequestContext(const FilePath& cache_path,
+  BrowserRequestContext(const base::FilePath& cache_path,
                         net::HttpCache::Mode cache_mode,
                         bool no_proxy);
 
   // Set the path used for cookie storage. If |path| is empty memory only
   // storage will be used. If the old cookie data is being stored on disk it
   // will be flushed and closed.
-  void SetCookieStoragePath(const FilePath& path);
+  void SetCookieStoragePath(const base::FilePath& path);
 
   webkit_blob::BlobStorageController* blob_storage_controller() const {
     return blob_storage_controller_.get();
   }
 
  private:
-  void Init(const FilePath& cache_path, net::HttpCache::Mode cache_mode,
+  void Init(const base::FilePath& cache_path, net::HttpCache::Mode cache_mode,
             bool no_proxy);
 
   net::URLRequestContextStorage storage_;
   scoped_ptr<webkit_blob::BlobStorageController> blob_storage_controller_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::URLRequest::Interceptor> url_request_interceptor_;
-  FilePath cookie_store_path_;
+  base::FilePath cookie_store_path_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_

@@ -56,8 +56,8 @@ BrowserWebKitInit::BrowserWebKitInit()
   prerendering_support_.reset(new BrowserPrerenderingSupport);
   WebKit::WebPrerenderingSupport::initialize(prerendering_support_.get());
 
-  FilePath appcache_path;
-  FilePath cache_path = _Context->cache_path();
+  base::FilePath appcache_path;
+  base::FilePath cache_path = _Context->cache_path();
   if (!cache_path.empty()) {
     appcache_path = cache_path.Append(FILE_PATH_LITERAL("AppCache"));
     if (!file_util::PathExists(appcache_path) &&
