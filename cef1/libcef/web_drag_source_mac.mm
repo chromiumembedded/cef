@@ -25,7 +25,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
-#include "ui/gfx/mac/nsimage_cache.h"
 #include "webkit/glue/webdropdata.h"
 
 using base::SysNSStringToUTF8;
@@ -307,7 +306,7 @@ void PromiseWriterHelper(const WebDropData& drop_data,
   base::FilePath fileName = downloadFileName_.empty() ?
       GetFileNameFromDragData(*dropData_) : downloadFileName_;
   base::FilePath filePath(SysNSStringToUTF8(path));
-  base::filePath = filePath.Append(fileName);
+  filePath = filePath.Append(fileName);
 
   // CreateFileStreamForDrop() will call file_util::PathExists(),
   // which is blocking.  Since this operation is already blocking the
