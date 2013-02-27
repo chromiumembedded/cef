@@ -9,7 +9,7 @@
 #include "include/cef_trace.h"
 
 #include "base/debug/trace_event.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/trace_subscriber.h"
 

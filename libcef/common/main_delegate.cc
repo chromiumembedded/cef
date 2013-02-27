@@ -10,7 +10,7 @@
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/command_line.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_number_conversions.h"
@@ -191,7 +191,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings.log_file.length > 0) {
-      base::FilePath file_path = FilePath(CefString(&settings.log_file));
+      base::FilePath file_path = base::FilePath(CefString(&settings.log_file));
       if (!file_path.empty())
         command_line->AppendSwitchPath(switches::kLogFile, file_path);
     }

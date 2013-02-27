@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "base/compiler_specific.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_context_getter.h"
@@ -26,6 +26,7 @@ class HostResolver;
 class ProxyConfigService;
 class URLRequestContextStorage;
 class URLRequestJobFactory;
+class URLRequestJobFactoryImpl;
 class URLSecurityManager;
 }
 
@@ -89,6 +90,9 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
       GetNetworkTaskRunner() const OVERRIDE;
 
   net::HostResolver* host_resolver();
+  net::URLRequestJobFactoryImpl* job_factory_impl() const {
+    return job_factory_impl_;
+  }
 
   void SetCookieStoragePath(const base::FilePath& path,
                             bool persist_session_cookies);
@@ -117,6 +121,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
       file_system_protocol_handler_;
   scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
       developer_protocol_handler_;
+  net::URLRequestJobFactoryImpl* job_factory_impl_;
 
   typedef std::set<CefURLRequestContextProxy*> RequestContextProxySet;
   RequestContextProxySet url_request_context_proxies_;

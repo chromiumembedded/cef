@@ -247,7 +247,7 @@ class DownloadTestHandler : public TestHandler {
 
  private:
   base::ScopedTempDir temp_dir_;
-  FilePath test_path_;
+  base::FilePath test_path_;
   int download_id_;
 
   TrackCallback got_download_request_;

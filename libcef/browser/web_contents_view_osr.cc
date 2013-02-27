@@ -77,6 +77,9 @@ void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
   }
 }
 
+void CefWebContentsViewOSR::RenderViewSwappedIn(content::RenderViewHost* host) {
+}
+
 void CefWebContentsViewOSR::Focus() {
 }
 
@@ -93,6 +96,11 @@ WebDropData* CefWebContentsViewOSR::GetDropData() const {
   return NULL;
 }
 
+gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
+  return view_ ? view_->GetViewBounds() : gfx::Rect();
+}
+
+#if defined(OS_MACOSX)
 bool CefWebContentsViewOSR::IsEventTracking() const {
   return false;
 }
@@ -100,9 +108,9 @@ bool CefWebContentsViewOSR::IsEventTracking() const {
 void CefWebContentsViewOSR::CloseTabAfterEventTracking() {
 }
 
-gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
-  return view_ ? view_->GetViewBounds() : gfx::Rect();
+void CefWebContentsViewOSR::SetAllowOverlappingViews(bool overlapping) {
 }
+#endif  // defined(OS_MACOSX)
 
 // RenderViewHostDelegateView methods.
 

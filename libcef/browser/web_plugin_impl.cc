@@ -7,7 +7,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "content/browser/plugin_service_impl.h"
 
 namespace {

@@ -75,6 +75,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void TextInputStateChanged(
       const ViewHostMsg_TextInputState_Params& params) OVERRIDE;
   virtual void ImeCancelComposition() OVERRIDE;
+  virtual void ImeCompositionRangeChanged(
+      const ui::Range& range,
+      const std::vector<gfx::Rect>& character_bounds) OVERRIDE;
   virtual void DidUpdateBackingStore(
       const gfx::Rect& scroll_rect,
       const gfx::Vector2d& scroll_delta,
@@ -86,8 +89,14 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #endif
   virtual void GetScreenInfo(WebKit::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
+  void OnAccessibilityNotifications(
+      const std::vector<AccessibilityHostMsg_NotificationParams>& params)
+      OVERRIDE;
   virtual void Destroy() OVERRIDE;
   virtual void SetTooltipText(const string16& tooltip_text) OVERRIDE;
+  virtual void SelectionBoundsChanged(
+      const ViewHostMsg_SelectionBounds_Params& params) OVERRIDE;
+  virtual void ScrollOffsetChanged() OVERRIDE;
   virtual content::BackingStore*
       AllocBackingStore(const gfx::Size& size) OVERRIDE;
   virtual void CopyFromCompositingSurface(
@@ -112,6 +121,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       const GpuHostMsg_AcceleratedSurfacePostSubBuffer_Params& params,
       int gpu_host_id) OVERRIDE;
   virtual void AcceleratedSurfaceSuspend() OVERRIDE;
+  virtual void AcceleratedSurfaceRelease() OVERRIDE;
   virtual bool HasAcceleratedSurface(const gfx::Size& desired_size) OVERRIDE;
   virtual bool LockMouse() OVERRIDE;
   virtual void UnlockMouse() OVERRIDE;

@@ -8,7 +8,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef_dll/resource.h"
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
@@ -24,7 +24,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
                                                  LPARAM lparam) {
   switch (message) {
     case WM_INITDIALOG: {
-      SetWindowLongPtr(dialog, DWL_USER, static_cast<LONG_PTR>(lparam));
+      SetWindowLongPtr(dialog, DWLP_USER, static_cast<LONG_PTR>(lparam));
       CefJavaScriptDialog* owner =
           reinterpret_cast<CefJavaScriptDialog*>(lparam);
       owner->dialog_win_ = dialog;
@@ -36,7 +36,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
     }
     case WM_CLOSE: {
       CefJavaScriptDialog* owner = reinterpret_cast<CefJavaScriptDialog*>(
-          GetWindowLongPtr(dialog, DWL_USER));
+          GetWindowLongPtr(dialog, DWLP_USER));
       if (owner) {
         owner->Cancel();
         owner->callback_.Run(false, string16());
@@ -50,7 +50,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
     }
     case WM_COMMAND: {
       CefJavaScriptDialog* owner = reinterpret_cast<CefJavaScriptDialog*>(
-          GetWindowLongPtr(dialog, DWL_USER));
+          GetWindowLongPtr(dialog, DWLP_USER));
       string16 user_input;
       bool finish = false;
       bool result;
@@ -158,7 +158,7 @@ void CefJavaScriptDialog::Cancel() {
   }
 
   if (dialog_win_ && IsWindow(dialog_win_)) {
-    SetWindowLongPtr(dialog_win_, DWL_USER, NULL);
+    SetWindowLongPtr(dialog_win_, DWLP_USER, NULL);
     DestroyWindow(dialog_win_);
     dialog_win_ = NULL;
   }

@@ -39,7 +39,7 @@
 #include "net/url_request/url_request_ftp_job.h"
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "net/url_request/url_request_job_factory_impl.h"
 
 using net::URLRequestStatus;
 
@@ -124,11 +124,9 @@ class CefUrlRequestManager {
   // Retrieve the singleton instance.
   static CefUrlRequestManager* GetInstance();
 
-  net::URLRequestJobFactory* GetJobFactory() {
-    return const_cast<net::URLRequestJobFactory*>(
-        static_cast<CefURLRequestContextGetter*>(
-            _Context->request_context().get())->
-                GetURLRequestContext()->job_factory());
+  net::URLRequestJobFactoryImpl* GetJobFactoryImpl() {
+    return static_cast<CefURLRequestContextGetter*>(
+        _Context->request_context().get())->job_factory_impl();
   }
 
   bool AddFactory(const std::string& scheme,
@@ -150,7 +148,7 @@ class CefUrlRequestManager {
 
     handler_map_[make_pair(scheme_lower, domain_lower)] = factory;
 
-    net::URLRequestJobFactory* job_factory = GetJobFactory();
+    net::URLRequestJobFactoryImpl* job_factory = GetJobFactoryImpl();
     job_factory->SetProtocolHandler(scheme_lower,
                                     new ProtocolHandler(scheme_lower));
 
@@ -178,7 +176,7 @@ class CefUrlRequestManager {
   void ClearFactories() {
     CEF_REQUIRE_IOT();
 
-    net::URLRequestJobFactory* job_factory = GetJobFactory();
+    net::URLRequestJobFactoryImpl* job_factory = GetJobFactoryImpl();
 
     // Unregister with the ProtocolFactory.
     std::set<std::string> schemes;

@@ -21,7 +21,7 @@
 #include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/browser/plugin_service_impl.h"
@@ -208,7 +208,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   }
 
   virtual bool CanLoadPlugin(int render_process_id,
-                             const FilePath& path) OVERRIDE {
+                             const base::FilePath& path) OVERRIDE {
     return true;
   }
 };
@@ -238,6 +238,11 @@ class CefMediaObserver : public content::MediaObserver {
       int render_view_id,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state) OVERRIDE {}
+  virtual void OnAudioStreamPlayingChanged(
+      int render_process_id,
+      int render_view_id,
+      int stream_id,
+      bool playing) OVERRIDE {}
 };
 
 CefContentBrowserClient::CefContentBrowserClient()
@@ -360,11 +365,11 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
   return browser_main_parts_;
 }
 
-content::WebContentsView*
+content::WebContentsViewPort*
 CefContentBrowserClient::OverrideCreateWebContentsView(
     content::WebContents* web_contents,
     content::RenderViewHostDelegateView** render_view_host_delegate_view) {
-  content::WebContentsView* view = NULL;
+  content::WebContentsViewPort* view = NULL;
   *render_view_host_delegate_view = NULL;
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.

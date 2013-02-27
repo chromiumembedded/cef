@@ -30,7 +30,7 @@ bool CefTraceSubscriber::BeginTracing(CefRefPtr<CefTraceClient> client,
   client_ = client;
 
   return content::TraceController::GetInstance()->BeginTracing(
-      this, categories);
+      this, categories, base::debug::TraceLog::GetInstance()->trace_options());
 }
 
 bool CefTraceSubscriber::EndTracingAsync() {

@@ -175,6 +175,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
+    job_factory_impl_ = job_factory.get();
     bool set_protocol = job_factory->SetProtocolHandler(
         chrome::kBlobScheme, blob_protocol_handler_.release());
     DCHECK(set_protocol);

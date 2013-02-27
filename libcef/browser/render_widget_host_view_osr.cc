@@ -182,6 +182,11 @@ void CefRenderWidgetHostViewOSR::TextInputStateChanged(
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 }
 
+void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
+    const ui::Range& range,
+    const std::vector<gfx::Rect>& character_bounds) {
+}
+
 void CefRenderWidgetHostViewOSR::DidUpdateBackingStore(
     const gfx::Rect& scroll_rect,
     const gfx::Vector2d& scroll_delta,
@@ -228,6 +233,10 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   return gfx::Rect();
 }
 
+void CefRenderWidgetHostViewOSR::OnAccessibilityNotifications(
+    const std::vector<AccessibilityHostMsg_NotificationParams>& params) {
+}
+
 void CefRenderWidgetHostViewOSR::Destroy() {
   if (IsPopupWidget()) {
     if (parent_host_view_)
@@ -249,6 +258,13 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(const string16& tooltip_text) {
   if (handler.get()) {
     handler->OnTooltip(browser_impl_->GetBrowser(), tooltip);
   }
+}
+
+void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
+    const ViewHostMsg_SelectionBounds_Params& params) {
+}
+
+void CefRenderWidgetHostViewOSR::ScrollOffsetChanged() {
 }
 
 content::BackingStore* CefRenderWidgetHostViewOSR::AllocBackingStore(
@@ -300,6 +316,9 @@ void CefRenderWidgetHostViewOSR::AcceleratedSurfacePostSubBuffer(
 }
 
 void CefRenderWidgetHostViewOSR::AcceleratedSurfaceSuspend() {
+}
+
+void CefRenderWidgetHostViewOSR::AcceleratedSurfaceRelease() {
 }
 
 bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(

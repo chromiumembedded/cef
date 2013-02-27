@@ -7,7 +7,7 @@
 #pragma once
 
 #include "base/compiler_specific.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_context.h"
@@ -59,7 +59,7 @@ class CefBrowserContext : public content::BrowserContext {
       scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
           chrome_devtools_protocol_handler);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
-      const FilePath& partition_path,
+      const base::FilePath& partition_path,
       bool in_memory,
       scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
           blob_protocol_handler,

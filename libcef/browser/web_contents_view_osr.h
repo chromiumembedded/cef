@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "content/port/browser/render_view_host_delegate_view.h"
-#include "content/public/browser/web_contents_view.h"
+#include "content/port/browser/web_contents_view_port.h"
 
 namespace content {
 class WebContents;
@@ -19,7 +19,7 @@ class WebContentsViewDelegate;
 class CefBrowserHostImpl;
 
 // An implementation of WebContentsView for off-screen rendering.
-class CefWebContentsViewOSR : public content::WebContentsView,
+class CefWebContentsViewOSR : public content::WebContentsViewPort,
                               public content::RenderViewHostDelegateView {
  public:
   CefWebContentsViewOSR(content::WebContents* web_contents,
@@ -42,14 +42,18 @@ class CefWebContentsViewOSR : public content::WebContentsView,
       int error_code) OVERRIDE;
   virtual void SizeContents(const gfx::Size& size) OVERRIDE;
   virtual void RenderViewCreated(content::RenderViewHost* host) OVERRIDE;
+  virtual void RenderViewSwappedIn(content::RenderViewHost* host) OVERRIDE;
   virtual void Focus() OVERRIDE;
   virtual void SetInitialFocus() OVERRIDE;
   virtual void StoreFocus() OVERRIDE;
   virtual void RestoreFocus() OVERRIDE;
   virtual WebDropData* GetDropData() const OVERRIDE;
+  virtual gfx::Rect GetViewBounds() const OVERRIDE;
+#if defined(OS_MACOSX)
   virtual bool IsEventTracking() const OVERRIDE;
   virtual void CloseTabAfterEventTracking() OVERRIDE;
-  virtual gfx::Rect GetViewBounds() const OVERRIDE;
+  virtual void SetAllowOverlappingViews(bool overlapping) OVERRIDE;
+#endif
 
   // RenderViewHostDelegateView methods.
   virtual void StartDragging(const WebDropData& drop_data,

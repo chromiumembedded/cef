@@ -62,7 +62,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
-  virtual content::WebContentsView* OverrideCreateWebContentsView(
+  virtual content::WebContentsViewPort* OverrideCreateWebContentsView(
       content::WebContents* web_contents,
       content::RenderViewHostDelegateView** rvhdv) OVERRIDE;
   virtual void RenderProcessHostCreated(
