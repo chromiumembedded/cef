@@ -18,7 +18,7 @@
 
 #include "base/at_exit.h"
 #include "base/atomic_sequence_num.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/threading/sequenced_worker_pool.h"

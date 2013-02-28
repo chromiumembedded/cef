@@ -12,7 +12,7 @@
 #include "libcef/download_util.h"
 #import "libcef/web_drag_source_mac.h"
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "base/threading/thread.h"

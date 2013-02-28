@@ -84,8 +84,9 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
     return base::FilePath();
   }
 
-  virtual base::FilePath GetPathForLocalePack(const FilePath& pack_path,
-                                        const std::string& locale) OVERRIDE {
+  virtual base::FilePath GetPathForLocalePack(
+      const base::FilePath& pack_path,
+      const std::string& locale) OVERRIDE {
     if (!context_->settings().pack_loading_disabled)
       return pack_path;
     return base::FilePath();

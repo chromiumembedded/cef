@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_APPCACHE_SYSTEM_H_
 #pragma once
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/message_loop.h"
 #include "base/threading/thread.h"
 #include "webkit/appcache/appcache_backend_impl.h"

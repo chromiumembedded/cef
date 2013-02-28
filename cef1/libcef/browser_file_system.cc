@@ -8,17 +8,17 @@
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
 #include "base/time.h"
 #include "base/utf_string_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebFileInfo.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebVector.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFileInfo.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemCallbacks.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileSystemEntry.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
@@ -26,6 +26,8 @@
 #include "webkit/base/file_path_string_conversions.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/fileapi/external_mount_points.h"
+#include "webkit/fileapi/file_permission_policy.h"
+#include "webkit/fileapi/file_system_mount_point_provider.h"
 #include "webkit/fileapi/file_system_task_runners.h"
 #include "webkit/fileapi/file_system_url.h"
 #include "webkit/fileapi/file_system_util.h"
@@ -137,8 +139,8 @@ void BrowserFileSystem::move(
     const WebURL& dest_path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL src_url(file_system_context()->CrackURL(src_path));
   FileSystemURL dest_url(file_system_context()->CrackURL(dest_path));
-  if (!HasFilePermission(src_url, FILE_PERMISSION_WRITE) ||
-      !HasFilePermission(dest_url, FILE_PERMISSION_CREATE)) {
+  if (!HasFilePermission(src_url, fileapi::kWriteFilePermissions) ||
+      !HasFilePermission(dest_url, fileapi::kCreateFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -151,8 +153,8 @@ void BrowserFileSystem::copy(
     WebFileSystemCallbacks* callbacks) {
   FileSystemURL src_url(file_system_context()->CrackURL(src_path));
   FileSystemURL dest_url(file_system_context()->CrackURL(dest_path));
-  if (!HasFilePermission(src_url, FILE_PERMISSION_READ) ||
-      !HasFilePermission(dest_url, FILE_PERMISSION_CREATE)) {
+  if (!HasFilePermission(src_url, fileapi::kReadFilePermissions) ||
+      !HasFilePermission(dest_url, fileapi::kCreateFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -163,7 +165,7 @@ void BrowserFileSystem::copy(
 void BrowserFileSystem::remove(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_WRITE)) {
+  if (!HasFilePermission(url, fileapi::kWriteFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -174,7 +176,7 @@ void BrowserFileSystem::remove(
 void BrowserFileSystem::removeRecursively(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_WRITE)) {
+  if (!HasFilePermission(url, fileapi::kWriteFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -185,7 +187,7 @@ void BrowserFileSystem::removeRecursively(
 void BrowserFileSystem::readMetadata(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_READ)) {
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -195,7 +197,7 @@ void BrowserFileSystem::readMetadata(
 void BrowserFileSystem::createFile(
     const WebURL& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_CREATE)) {
+  if (!HasFilePermission(url, fileapi::kCreateFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -205,7 +207,7 @@ void BrowserFileSystem::createFile(
 void BrowserFileSystem::createDirectory(
     const WebURL& path, bool exclusive, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_CREATE)) {
+  if (!HasFilePermission(url, fileapi::kCreateFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -216,7 +218,7 @@ void BrowserFileSystem::createDirectory(
 void BrowserFileSystem::fileExists(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_READ)) {
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -226,7 +228,7 @@ void BrowserFileSystem::fileExists(
 void BrowserFileSystem::directoryExists(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_READ)) {
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -236,7 +238,7 @@ void BrowserFileSystem::directoryExists(
 void BrowserFileSystem::readDirectory(
     const WebURL& path, WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_READ)) {
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
@@ -249,16 +251,29 @@ WebFileWriter* BrowserFileSystem::createFileWriter(
 }
 
 void BrowserFileSystem::createSnapshotFileAndReadMetadata(
-    const WebURL& blobURL,
     const WebURL& path,
     WebFileSystemCallbacks* callbacks) {
   FileSystemURL url(file_system_context()->CrackURL(path));
-  if (!HasFilePermission(url, FILE_PERMISSION_READ)) {
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
     return;
   }
   GetNewOperation(url)->CreateSnapshotFile(
-      url, SnapshotFileHandler(blobURL, callbacks));
+      url, SnapshotFileHandler(callbacks));
+}
+
+// DEPRECATED
+void BrowserFileSystem::createSnapshotFileAndReadMetadata(
+    const WebURL& blobURL,
+    const WebURL& path,
+    WebFileSystemCallbacks* callbacks) {
+  FileSystemURL url(file_system_context()->CrackURL(path));
+  if (!HasFilePermission(url, fileapi::kReadFilePermissions)) {
+    callbacks->didFail(WebKit::WebFileErrorSecurity);
+    return;
+  }
+  GetNewOperation(url)->CreateSnapshotFile(
+      url, SnapshotFileHandler_Deprecated(blobURL, callbacks));
 }
 
 // static
@@ -275,10 +290,16 @@ void BrowserFileSystem::CleanupOnIOThread() {
 }
 
 bool BrowserFileSystem::HasFilePermission(
-    const fileapi::FileSystemURL& url, FilePermission permission) {
-  // Disallow writing on dragged file system, otherwise return ok.
-  return (url.type() != fileapi::kFileSystemTypeDragged ||
-          permission == FILE_PERMISSION_READ);
+    const fileapi::FileSystemURL& url, int permissions) {
+  if (!url.is_valid())
+    return false;
+  fileapi::FileSystemMountPointProvider* mount_point_provider =
+      file_system_context_->GetMountPointProvider(url.type());
+  DCHECK(mount_point_provider);
+  // In test_shell we don't perform further detailed security checks if it's
+  // not specifically forbidden by ALWAYS_DENY.
+  return (mount_point_provider->GetPermissionPolicy(url, permissions)
+      != fileapi::FILE_PERMISSION_ALWAYS_DENY);
 }
 
 FileSystemOperation* BrowserFileSystem::GetNewOperation(
@@ -317,9 +338,17 @@ BrowserFileSystem::DeleteFileSystemHandler(WebFileSystemCallbacks* callbacks) {
 }
 
 FileSystemOperation::SnapshotFileCallback
-BrowserFileSystem::SnapshotFileHandler(const GURL& blob_url,
-                                      WebFileSystemCallbacks* callbacks) {
+BrowserFileSystem::SnapshotFileHandler(
+    WebFileSystemCallbacks* callbacks) {
   return base::Bind(&BrowserFileSystem::DidCreateSnapshotFile,
+                    AsWeakPtr(), base::Unretained(callbacks));
+}
+
+FileSystemOperation::SnapshotFileCallback
+BrowserFileSystem::SnapshotFileHandler_Deprecated(
+    const GURL& blob_url,
+    WebFileSystemCallbacks* callbacks) {
+  return base::Bind(&BrowserFileSystem::DidCreateSnapshotFile_Deprecated,
                     AsWeakPtr(), blob_url, base::Unretained(callbacks));
 }
 
@@ -394,6 +423,26 @@ void BrowserFileSystem::DidDeleteFileSystem(
 }
 
 void BrowserFileSystem::DidCreateSnapshotFile(
+    WebFileSystemCallbacks* callbacks,
+    base::PlatformFileError result,
+    const base::PlatformFileInfo& info,
+    const base::FilePath& platform_path,
+    const scoped_refptr<webkit_blob::ShareableFileReference>& file_ref) {
+  if (result == base::PLATFORM_FILE_OK) {
+    WebFileInfo web_file_info;
+    web_file_info.length = info.size;
+    web_file_info.modificationTime = info.last_modified.ToDoubleT();
+    web_file_info.type = info.is_directory ?
+        WebFileInfo::TypeDirectory : WebFileInfo::TypeFile;
+    web_file_info.platformPath =
+        webkit_base::FilePathToWebString(platform_path);
+    callbacks->didCreateSnapshotFile(web_file_info);
+  } else {
+    callbacks->didFail(fileapi::PlatformFileErrorToWebFileError(result));
+  }
+}
+
+void BrowserFileSystem::DidCreateSnapshotFile_Deprecated(
     const GURL& blob_url,
     WebFileSystemCallbacks* callbacks,
     base::PlatformFileError result,

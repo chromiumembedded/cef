@@ -38,7 +38,7 @@
 #include "net/url_request/url_request_ftp_job.h"
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "net/url_request/url_request_job_factory_impl.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 
@@ -623,9 +623,8 @@ class CefUrlRequestManager {
 
     handler_map_[make_pair(scheme_lower, domain_lower)] = factory;
 
-    net::URLRequestJobFactory* job_factory =
-        const_cast<net::URLRequestJobFactory*>(
-            _Context->request_context()->job_factory());
+    net::URLRequestJobFactoryImpl* job_factory =
+        _Context->request_context()->job_factory_impl();
 
     job_factory->SetProtocolHandler(scheme_lower,
                                     new ProtocolHandler(scheme_lower));
@@ -654,9 +653,8 @@ class CefUrlRequestManager {
   void ClearFactories() {
     REQUIRE_IOT();
 
-    net::URLRequestJobFactory* job_factory =
-        const_cast<net::URLRequestJobFactory*>(
-            _Context->request_context()->job_factory());
+    net::URLRequestJobFactoryImpl* job_factory =
+        _Context->request_context()->job_factory_impl();
 
     // Unregister with the ProtocolFactory.
     std::set<std::string> schemes;

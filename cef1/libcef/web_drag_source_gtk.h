@@ -7,7 +7,7 @@
 #define CEF_LIBCEF_WEB_DRAG_SOURCE_GTK_H_
 
 #include <gtk/gtk.h>
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop.h"

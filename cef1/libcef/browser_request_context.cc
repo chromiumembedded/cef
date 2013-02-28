@@ -15,7 +15,7 @@
 #include "libcef/cef_thread.h"
 
 #include "base/compiler_specific.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/file_util.h"
 #include "base/thread_task_runner_handle.h"
 #include "base/threading/worker_pool.h"
@@ -36,8 +36,8 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/Platform.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/platform/WebKitPlatformSupport.h"
 #include "webkit/blob/blob_storage_controller.h"
 #include "webkit/blob/blob_url_request_job_factory.h"
 #include "webkit/fileapi/file_system_context.h"
@@ -265,7 +265,9 @@ void BrowserRequestContext::Init(
   storage_.set_ftp_transaction_factory(
       new net::FtpNetworkLayer(host_resolver()));
 
-  net::URLRequestJobFactory* job_factory = new net::URLRequestJobFactoryImpl();
+  net::URLRequestJobFactoryImpl* job_factory =
+      new net::URLRequestJobFactoryImpl();
+  job_factory_impl_ = job_factory;
 
   BrowserFileSystem* file_system = _Context->file_system();
   // Create the context if it doesn't already exist.

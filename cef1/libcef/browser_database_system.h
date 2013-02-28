@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_DATABASE_SYSTEM_H_
 #pragma once
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/hash_tables.h"
 #include "base/memory/ref_counted.h"
 #include "base/platform_file.h"

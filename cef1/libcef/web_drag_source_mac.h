@@ -9,7 +9,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/memory/scoped_nsobject.h"
 #include "base/memory/scoped_ptr.h"
 #include "googleurl/src/gurl.h"

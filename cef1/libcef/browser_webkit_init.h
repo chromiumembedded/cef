@@ -25,6 +25,10 @@
 
 class BrowserPrerenderingSupport;
 
+namespace WebKit {
+class WebIDBFactory;
+}
+
 class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
  public:
   BrowserWebKitInit();
@@ -65,7 +69,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebString defaultLocale() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createLocalStorageNamespace(
       const WebKit::WebString& path, unsigned quota) OVERRIDE;
-  virtual WebKit::WebIDBFactory* idbFactory() OVERRIDE;
+  virtual WebKit::WebIDBFactory* idbFactory();
   virtual WebKit::WebGraphicsContext3D* createOffscreenGraphicsContext3D(
       const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) OVERRIDE;

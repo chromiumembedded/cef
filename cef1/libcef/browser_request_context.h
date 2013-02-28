@@ -19,6 +19,10 @@ namespace base {
 class FilePath;
 }
 
+namespace net {
+class URLRequestJobFactoryImpl;
+}
+
 namespace webkit_blob {
 class BlobStorageController;
 }
@@ -44,6 +48,9 @@ class BrowserRequestContext : public net::URLRequestContext {
   webkit_blob::BlobStorageController* blob_storage_controller() const {
     return blob_storage_controller_.get();
   }
+  net::URLRequestJobFactoryImpl* job_factory_impl() const {
+    return job_factory_impl_;
+  };
 
  private:
   void Init(const base::FilePath& cache_path, net::HttpCache::Mode cache_mode,
@@ -54,6 +61,7 @@ class BrowserRequestContext : public net::URLRequestContext {
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::URLRequest::Interceptor> url_request_interceptor_;
   base::FilePath cookie_store_path_;
+  net::URLRequestJobFactoryImpl* job_factory_impl_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_H_

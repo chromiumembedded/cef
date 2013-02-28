@@ -14,7 +14,7 @@
 #include "libcef/v8_impl.h"
 
 #include "base/bind.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "base/stringprintf.h"
 #include "base/synchronization/waitable_event.h"

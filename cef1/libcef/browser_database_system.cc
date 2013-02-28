@@ -289,7 +289,7 @@ void BrowserDatabaseSystem::VfsGetSpaceAvailable(
   done_event->Signal();
 }
 
-FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
+base::FilePath BrowserDatabaseSystem::GetFullFilePathForVfsFile(
     const string16& vfs_file_name) {
   DCHECK(db_thread_proxy_->BelongsToCurrentThread());
   if (vfs_file_name.empty())  // temp file, used for vacuuming

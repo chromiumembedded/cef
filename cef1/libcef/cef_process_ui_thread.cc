@@ -76,7 +76,7 @@ void CefProcessUIThread::Init() {
     logging::SetMinLogLevel(settings.log_severity);
   }
 
-  base::FilePath log_file = FilePath(CefString(&settings.log_file));
+  base::FilePath log_file = base::FilePath(CefString(&settings.log_file));
   logging::DcheckState dcheck_state =
       logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
   if (settings.release_dcheck_enabled)

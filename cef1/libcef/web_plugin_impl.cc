@@ -6,7 +6,7 @@
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/string_util.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 

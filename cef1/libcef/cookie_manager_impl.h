@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_COOKIE_IMPL_H_
 
 #include "include/cef_cookie.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "net/cookies/cookie_monster.h"
 
 // Implementation of the CefCookieManager interface.
