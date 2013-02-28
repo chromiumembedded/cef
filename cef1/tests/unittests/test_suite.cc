@@ -171,9 +171,9 @@ void CefTestSuite::Initialize() {
   // RegisterMockCrApp() on Mac.
 
   // Initialize logging.
-  FilePath exe;
+  base::FilePath exe;
   PathService::Get(base::FILE_EXE, &exe);
-  FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
+  base::FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
   logging::InitLogging(
                        log_filename.value().c_str(),
                        logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
