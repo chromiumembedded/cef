@@ -37,6 +37,8 @@ class CefGeolocationClient
   explicit CefGeolocationClient(CefBrowserImpl* browser);
   virtual ~CefGeolocationClient();
 
+  static void InitializeEnvironment();
+
  private:
   friend class CefGeolocationCallbackImpl;
 

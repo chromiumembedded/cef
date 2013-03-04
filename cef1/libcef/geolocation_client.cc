@@ -142,6 +142,18 @@ CefGeolocationClient::CefGeolocationClient(CefBrowserImpl* browser)
 
 CefGeolocationClient::~CefGeolocationClient() {}
 
+// static
+void CefGeolocationClient::InitializeEnvironment() {
+  // GeolocationArbitrator uses ContentClient to retrieve the AccessTokenStore.
+  // Simulate the necessary interfaces here.
+  if (!content::GetContentClient()) {
+    static CefContentClient content_client;
+    static CefContentBrowserClient browser_client;
+    content_client.set_browser_for_testing(&browser_client);
+    content::SetContentClient(&content_client);
+  }
+}
+
 void CefGeolocationClient::geolocationDestroyed() {
   DCHECK(CefThread::CurrentlyOn(CefThread::UI));
 
@@ -243,14 +255,7 @@ void CefGeolocationClient::cancelPermissionRequest(
 void CefGeolocationClient::OnStartUpdating(bool enable_high_accuracy) {
   DCHECK(CefThread::CurrentlyOn(CefThread::IO));
 
-  // GeolocationArbitrator uses ContentClient to retrieve the AccessTokenStore.
-  // Simulate the necessary interfaces here.
-  if (!content::GetContentClient()) {
-    static CefContentClient content_client;
-    static CefContentBrowserClient browser_client;
-    content_client.set_browser_for_testing(&browser_client);
-    content::SetContentClient(&content_client);
-  }
+  InitializeEnvironment();
 
   if (!location_provider_)
     location_provider_ = content::GeolocationProvider::GetInstance();
