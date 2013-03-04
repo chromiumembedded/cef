@@ -12,6 +12,7 @@
 #include "base/memory/scoped_nsobject.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebCompositionUnderline.h"
 #include <Vector>
+#import "libcef/browser_tooltip_mac.h"
 
 class CefBrowserImpl;
 @class WebDragSource;
@@ -21,7 +22,7 @@ struct WebDropData;
 // A view to wrap the WebCore view and help it live in a Cocoa world. The
 // (rough) equivalent of Apple's WebView.
 
-@interface BrowserWebView : NSView<NSTextInputClient> {
+@interface BrowserWebView : NSView<NSTextInputClient, BrowserTooltip> {
  @private
   CefBrowserImpl* browser_;  // weak
   NSTrackingArea* trackingArea_;
@@ -60,6 +61,12 @@ struct WebDropData;
   
   // Underline information of the |markedText_|.
   std::vector<WebKit::WebCompositionUnderline> underlines_;
+
+  // These are part of the magic tooltip code from WebKit's WebHTMLView:
+  id trackingRectOwner_;              // (not retained)
+  void* trackingRectUserData_;
+  NSTrackingRectTag lastToolTipTag_;
+  scoped_nsobject<NSString> toolTip_;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent;

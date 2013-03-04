@@ -4,6 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "libcef/browser_tooltip_mac.h"
 #include "base/compiler_specific.h"
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -16,6 +17,7 @@ MSVC_POP_WARNING();
 
 #include "base/bind.h"
 #import "base/logging.h"
+#import "base/sys_string_conversions.h"
 #import "skia/ext/platform_canvas.h"
 #import "third_party/WebKit/Source/Platform/chromium/public/WebSize.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
@@ -40,6 +42,9 @@ using WebKit::WebSize;
 using WebKit::WebWidgetClient;
 
 namespace {
+
+// Maximum number of characters we allow in a tooltip.
+const size_t kMaxTooltipLength = 1024;
 
 inline SkIRect convertToSkiaRect(const gfx::Rect& r) {
   return SkIRect::MakeLTRB(r.x(), r.y(), r.right(), r.bottom());
@@ -297,7 +302,28 @@ void WebWidgetHost::Paint(SkRegion& update_rgn) {
 }
 
 void WebWidgetHost::SetTooltipText(const CefString& tooltip_text) {
-  // TODO(port): Implement this method as part of tooltip support.
+  if (tooltip_text.empty() && !tooltip_text_.empty()) {
+    tooltip_text_.clear();
+    if ([view_ respondsToSelector:@selector(setToolTipAtMousePoint:)])
+      [(id<BrowserTooltip>)view_ setToolTipAtMousePoint:nil];
+  } else if (tooltip_text != tooltip_text_ && [[view_ window] isKeyWindow]) {
+    tooltip_text_ = tooltip_text;
+
+    if ([view_ respondsToSelector:@selector(setToolTipAtMousePoint:)]) {
+      // Clamp the tooltip length to kMaxTooltipLength. It's a DOS issue on
+      // Windows; we're just trying to be polite. Don't persist the trimmed
+      // string, as then the comparison above will always fail and we'll try to
+      // set it again every single time the mouse moves.
+      NSString* tooltip_nsstring;
+      if (tooltip_text_.length() > kMaxTooltipLength) {
+        tooltip_nsstring =
+            base::SysUTF8ToNSString(tooltip_text_.substr(0, kMaxTooltipLength));
+      } else {
+        tooltip_nsstring = base::SysUTF8ToNSString(tooltip_text_);
+      }
+      [(id<BrowserTooltip>)view_ setToolTipAtMousePoint:tooltip_nsstring];
+    }
+  }
 }
 
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
@@ -308,6 +334,8 @@ void WebWidgetHost::MouseEvent(NSEvent *event) {
   const WebMouseEvent& web_event = WebInputEventFactory::mouseEvent(
       event, view_);
   webwidget_->handleInputEvent(web_event);
+  if (web_event.type == WebInputEvent::MouseLeave)
+    SetTooltipText(CefString());
 }
 
 void WebWidgetHost::WheelEvent(NSEvent *event) {
@@ -342,7 +370,7 @@ void WebWidgetHost::SendKeyEvent(cef_key_type_t type,
       event.type = WebInputEvent::Char;
       break;
   }
-  event.timeStampSeconds = TickCount();	
+  event.timeStampSeconds = TickCount(); 
 
   if (modifiers & KEY_SHIFT)
     event.modifiers |= WebInputEvent::ShiftKey;
@@ -453,7 +481,7 @@ void WebWidgetHost::SendMouseClickEvent(int x, int y,
     event.type = WebInputEvent::MouseDown;
 
   event.clickCount = clickCount;
-  event.timeStampSeconds = TickCount();	
+  event.timeStampSeconds = TickCount();
   event.x = x;
   event.y = y;
   event.windowX = event.x;
