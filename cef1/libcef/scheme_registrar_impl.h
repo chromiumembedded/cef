@@ -38,7 +38,11 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
   base::PlatformThreadId supported_thread_id_;
 
   // Custom schemes that need to be registered with WebKit.
-  struct SchemeInfo;
+  struct SchemeInfo {
+    std::string scheme_name;
+    bool is_local;
+    bool is_display_isolated;
+  };
   typedef std::list<SchemeInfo> SchemeInfoList;
   SchemeInfoList scheme_info_list_;
 
