@@ -6,6 +6,7 @@
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 #include "libcef/cef_time_util.h"
+#include "libcef/geolocation_client.h"
 #include "base/logging.h"
 #include "content/browser/geolocation/geolocation_provider.h"
 #include "content/public/common/geoposition.h"
@@ -66,6 +67,7 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
   }
 
   if (CefThread::CurrentlyOn(CefThread::IO)) {
+    CefGeolocationClient::InitializeEnvironment();
     content::GeolocationProvider* provider =
         content::GeolocationProvider::GetInstance();
     if (provider) {
