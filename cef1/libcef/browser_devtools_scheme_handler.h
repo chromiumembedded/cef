@@ -11,6 +11,6 @@ extern const char kChromeDevToolsHost[];
 extern const char kChromeDevToolsURL[];
 
 // Register the DevTools scheme handler.
-void RegisterDevToolsSchemeHandler(bool firstTime);
+void RegisterDevToolsSchemeHandler();
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_SCHEME_HANDLER_H_

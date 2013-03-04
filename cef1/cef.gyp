@@ -728,6 +728,8 @@
         'libcef/response_impl.cc',
         'libcef/response_impl.h',
         'libcef/scheme_impl.cc',
+        'libcef/scheme_registrar_impl.cc',
+        'libcef/scheme_registrar_impl.h',
         'libcef/simple_clipboard_impl.cc',
         'libcef/simple_clipboard_impl.h',
         'libcef/sqlite_diagnostics_stub.cc',

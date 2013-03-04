@@ -808,8 +808,6 @@ class CookieTestSchemeHandler : public TestHandler {
     manager2_ = CefCookieManager::CreateManager(CefString());
 
     if (scheme_ != "http") {
-      CefRegisterCustomScheme(scheme_, true, false, false);
-
       std::vector<CefString> schemes;
       schemes.push_back("http");
       schemes.push_back("https");
@@ -951,4 +949,13 @@ TEST(CookieTest, GetCookieManagerCustom) {
   EXPECT_TRUE(handler->got_cookie1_);
   EXPECT_TRUE(handler->got_cookie2_);
   EXPECT_TRUE(handler->got_cookie3_);
+}
+
+
+// Entry point for registering custom schemes.
+// Called from run_all_unittests.cc.
+void RegisterCookieCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) {
+  // Used by the GetCookieManagerCustom test.
+  registrar->AddCustomScheme("ccustom", true, false, false);
 }
