@@ -277,6 +277,7 @@ class WebWidgetHost {
 #endif  // OS_WIN
 
 #if defined(OS_MACOSX)
+  std::string tooltip_text_;
   int mouse_modifiers_;
   WebKit::WebMouseEvent::Button mouse_button_down_;
 #endif

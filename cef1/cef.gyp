@@ -812,6 +812,7 @@
           'sources': [
             '<@(includes_mac)',
             'libcef/browser_impl_mac.mm',
+            'libcef/browser_tooltip_mac.h',
             'libcef/browser_webview_delegate_mac.mm',
             'libcef/browser_webview_mac.h',
             'libcef/browser_webview_mac.mm',
