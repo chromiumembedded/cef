@@ -282,7 +282,7 @@ bool CefContext::Initialize(const CefSettings& settings,
 
   // Perform DevTools scheme registration when CEF initialization is complete.
   CefThread::PostTask(CefThread::UI, FROM_HERE,
-                      base::Bind(&RegisterDevToolsSchemeHandler, true));
+                      base::Bind(&RegisterDevToolsSchemeHandler));
 
   return true;
 }

@@ -73,6 +73,7 @@
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -159,6 +160,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefSchemeHandlerCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefSchemeRegistrarCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefStreamWriterCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
@@ -283,26 +285,6 @@ CEF_GLOBAL bool CefClearCrossOriginWhitelist() {
 
   // Execute
   int _retval = cef_clear_cross_origin_whitelist();
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefRegisterCustomScheme(const CefString& scheme_name,
-    bool is_standard, bool is_local, bool is_display_isolated) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_register_custom_scheme(
-      scheme_name.GetStruct(),
-      is_standard,
-      is_local,
-      is_display_isolated);
 
   // Return type: bool
   return _retval?true:false;

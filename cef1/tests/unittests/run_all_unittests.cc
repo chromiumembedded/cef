@@ -40,6 +40,27 @@ class CefTestThread : public base::Thread {
   int retval_;
 };
 
+class ClientApp : public CefApp {
+ public:
+  ClientApp() {}
+
+  virtual void OnRegisterCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
+    // Bring in the scheme handler tests.
+    extern void RegisterSchemeHandlerCustomSchemes(
+        CefRefPtr<CefSchemeRegistrar> registrar);
+    RegisterSchemeHandlerCustomSchemes(registrar);
+
+    // Bring in the cookie tests.
+    extern void RegisterCookieCustomSchemes(
+        CefRefPtr<CefSchemeRegistrar> registrar);
+    RegisterCookieCustomSchemes(registrar);
+  }
+
+ protected:
+  IMPLEMENT_REFCOUNTING(ClientApp);
+};
+
 }  // namespace
 
 
@@ -57,7 +78,7 @@ int main(int argc, char** argv) {
 #endif
 
   // Initialize CEF.
-  CefInitialize(settings, NULL);
+  CefInitialize(settings, new ClientApp());
 
   // Create the test suite object.
   CefTestSuite test_suite(argc, argv);

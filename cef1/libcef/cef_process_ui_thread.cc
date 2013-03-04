@@ -8,9 +8,11 @@
 #include <string>
 
 #include "include/cef_version.h"
+#include "libcef/browser_devtools_scheme_handler.h"
 #include "libcef/browser_webkit_glue.h"
 #include "libcef/browser_webkit_init.h"
 #include "libcef/cef_context.h"
+#include "libcef/scheme_registrar_impl.h"
 #include "libcef/v8_impl.h"
 
 #include "base/bind.h"
@@ -86,6 +88,20 @@ void CefProcessUIThread::Init() {
       logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
       dcheck_state);
 
+  CefRefPtr<CefSchemeRegistrarImpl> schemeRegistrar(
+      new CefSchemeRegistrarImpl());
+
+  CefRefPtr<CefApp> app = _Context->application();
+  if (app.get())
+    app->OnRegisterCustomSchemes(schemeRegistrar.get());
+
+  // Add built-in schemes.
+  schemeRegistrar->AddCustomScheme(kChromeDevToolsScheme, true, false, true);
+
+  // No references to the registar should be kept.
+  schemeRegistrar->Detach();
+  DCHECK(schemeRegistrar->VerifyRefCount());
+
   // Load ICU data tables.
   bool ret = icu_util::Initialize();
   if (!ret) {
@@ -112,6 +128,9 @@ void CefProcessUIThread::Init() {
 
   // Initialize WebKit encodings
   webkit_glue::InitializeTextEncoding();
+
+  // Register custom schemes with WebKit.
+  schemeRegistrar->RegisterWithWebKit();
 
   // Config the network module so it has access to a limited set of resources.
   net::NetModule::SetResourceProvider(ResourceProvider);

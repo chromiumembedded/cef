@@ -17,6 +17,7 @@
 #include "cefclient/cefclient_switches.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/binding_test.h"
+#include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 #include "cefclient/util.h"
 
@@ -123,6 +124,11 @@ class ClientApp : public CefApp,
   ClientApp(cef_proxy_type_t proxy_type, const CefString& proxy_config)
     : proxy_type_(proxy_type),
       proxy_config_(proxy_config) {
+  }
+
+  virtual void OnRegisterCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
+    AddSchemeTestSchemes(registrar);
   }
 
   // CefApp methods

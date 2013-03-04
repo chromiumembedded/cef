@@ -39,6 +39,7 @@
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -157,6 +158,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefSchemeHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefSchemeHandlerFactoryCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefSchemeRegistrarCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefStreamReaderCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefStreamWriterCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCToCpp::DebugObjCt, 0);
@@ -281,26 +283,6 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist() {
 
   // Execute
   bool _retval = CefClearCrossOriginWhitelist();
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_register_custom_scheme(const cef_string_t* scheme_name,
-    int is_standard, int is_local, int is_display_isolated) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(scheme_name);
-  if (!scheme_name)
-    return 0;
-
-  // Execute
-  bool _retval = CefRegisterCustomScheme(
-      CefString(scheme_name),
-      is_standard?true:false,
-      is_local?true:false,
-      is_display_isolated?true:false);
 
   // Return type: bool
   return _retval;

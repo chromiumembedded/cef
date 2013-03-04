@@ -10,12 +10,30 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/proxy_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+void CefAppCToCpp::OnRegisterCustomSchemes(
+    CefRefPtr<CefSchemeRegistrar> registrar) {
+  if (CEF_MEMBER_MISSING(struct_, on_register_custom_schemes))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: registrar; type: refptr_diff
+  DCHECK(registrar.get());
+  if (!registrar.get())
+    return;
+
+  // Execute
+  struct_->on_register_custom_schemes(struct_,
+      CefSchemeRegistrarCppToC::Wrap(registrar));
+}
 
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   if (CEF_MEMBER_MISSING(struct_, get_resource_bundle_handler))

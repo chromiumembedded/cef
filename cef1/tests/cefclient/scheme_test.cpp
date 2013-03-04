@@ -157,8 +157,11 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
 };
 
+void AddSchemeTestSchemes(CefRefPtr<CefSchemeRegistrar> registrar) {
+  registrar->AddCustomScheme("client", true, false, false);
+}
+
 void InitSchemeTest() {
-  CefRegisterCustomScheme("client", true, false, false);
   CefRegisterSchemeHandlerFactory("client", "tests",
       new ClientSchemeHandlerFactory());
 }

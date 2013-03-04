@@ -125,9 +125,7 @@ class DevToolsSchemeHandlerFactory : public CefSchemeHandlerFactory {
 }  // namespace
 
 // Register the DevTools scheme handler.
-void RegisterDevToolsSchemeHandler(bool firstTime) {
-  if (firstTime)
-    CefRegisterCustomScheme(kChromeDevToolsScheme, true, false, true);
+void RegisterDevToolsSchemeHandler() {
   CefRegisterSchemeHandlerFactory(kChromeDevToolsScheme, kChromeDevToolsHost,
                                   new DevToolsSchemeHandlerFactory());
 }

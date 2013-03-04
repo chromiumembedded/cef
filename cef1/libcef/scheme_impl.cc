@@ -53,13 +53,6 @@ bool IsStandardScheme(const std::string& scheme) {
   return url_util::IsStandard(scheme.c_str(), scheme_comp);
 }
 
-void RegisterStandardScheme(const std::string& scheme) {
-  REQUIRE_UIT();
-  url_parse::Component scheme_comp(0, scheme.length());
-  if (!url_util::IsStandard(scheme.c_str(), scheme_comp))
-    url_util::AddStandardScheme(scheme.c_str());
-}
-
 // Copied from net/url_request/url_request_job_manager.cc.
 struct SchemeToFactory {
   const char* scheme;
@@ -96,13 +89,6 @@ net::URLRequestJob* GetBuiltinSchemeRequestJob(
   }
 
   return NULL;
-}
-
-std::string ToLower(const std::string& str) {
-  std::string str_lower = str;
-  std::transform(str_lower.begin(), str_lower.end(), str_lower.begin(),
-      towlower);
-  return str;
 }
 
 bool SetHeaderIfMissing(CefRequest::HeaderMap& headerMap,
@@ -614,8 +600,8 @@ class CefUrlRequestManager {
 
     REQUIRE_IOT();
 
-    std::string scheme_lower = ToLower(scheme);
-    std::string domain_lower = ToLower(domain);
+    std::string scheme_lower = StringToLowerASCII(scheme);
+    std::string domain_lower = StringToLowerASCII(domain);
 
     // Hostname is only supported for standard schemes.
     if (!IsStandardScheme(scheme_lower))
@@ -636,8 +622,8 @@ class CefUrlRequestManager {
                      const std::string& domain) {
     REQUIRE_IOT();
 
-    std::string scheme_lower = ToLower(scheme);
-    std::string domain_lower = ToLower(domain);
+    std::string scheme_lower = StringToLowerASCII(scheme);
+    std::string domain_lower = StringToLowerASCII(domain);
 
     // Hostname is only supported for standard schemes.
     if (!IsStandardScheme(scheme_lower))
@@ -668,50 +654,6 @@ class CefUrlRequestManager {
     }
 
     handler_map_.clear();
-  }
-
-  // Check if a scheme has already been registered.
-  bool HasRegisteredScheme(const std::string& scheme) {
-    std::string scheme_lower = ToLower(scheme);
-
-    // Don't register builtin schemes.
-    if (IsBuiltinScheme(scheme_lower))
-        return true;
-
-    scheme_set_lock_.Acquire();
-    bool registered = (scheme_set_.find(scheme_lower) != scheme_set_.end());
-    scheme_set_lock_.Release();
-    return registered;
-  }
-
-  // Register a scheme.
-  bool RegisterScheme(const std::string& scheme,
-                      bool is_standard,
-                      bool is_local,
-                      bool is_display_isolated) {
-    if (HasRegisteredScheme(scheme)) {
-      NOTREACHED() << "Scheme already registered: " << scheme;
-      return false;
-    }
-
-    std::string scheme_lower = ToLower(scheme);
-
-    scheme_set_lock_.Acquire();
-    scheme_set_.insert(scheme_lower);
-    scheme_set_lock_.Release();
-
-    if (is_standard)
-      RegisterStandardScheme(scheme_lower);
-    if (is_local) {
-      WebSecurityPolicy::registerURLSchemeAsLocal(
-          WebString::fromUTF8(scheme_lower));
-    }
-    if (is_display_isolated) {
-      WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(
-          WebString::fromUTF8(scheme_lower));
-    }
-
-    return true;
   }
 
  private:
@@ -797,34 +739,6 @@ CefUrlRequestManager* CefUrlRequestManager::GetInstance() {
 }  // namespace
 
 
-bool CefRegisterCustomScheme(const CefString& scheme_name,
-                             bool is_standard,
-                             bool is_local,
-                             bool is_display_isolated) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
-  if (CefThread::CurrentlyOn(CefThread::UI)) {
-    // Must be executed on the UI thread because it calls WebKit APIs.
-    return CefUrlRequestManager::GetInstance()->RegisterScheme(scheme_name,
-        is_standard, is_local, is_display_isolated);
-  } else {
-    // Verify that the scheme has not already been registered.
-    if (CefUrlRequestManager::GetInstance()->HasRegisteredScheme(scheme_name)) {
-      NOTREACHED() << "Scheme already registered: " << scheme_name;
-      return false;
-    }
-
-    CefThread::PostTask(CefThread::UI, FROM_HERE,
-        base::Bind(base::IgnoreResult(&CefRegisterCustomScheme), scheme_name,
-                   is_standard, is_local, is_display_isolated));
-    return true;
-  }
-}
-
 bool CefRegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
@@ -858,7 +772,7 @@ bool CefClearSchemeHandlerFactories() {
     CefUrlRequestManager::GetInstance()->ClearFactories();
 
     // Re-register the DevTools scheme handler.
-    RegisterDevToolsSchemeHandler(false);
+    RegisterDevToolsSchemeHandler();
   } else {
     CefThread::PostTask(CefThread::IO, FROM_HERE,
         base::Bind(base::IgnoreResult(&CefClearSchemeHandlerFactories)));

@@ -337,20 +337,6 @@ TestResults g_TestResults;
 // If |domain| is empty the scheme will be registered as non-standard.
 void RegisterTestScheme(const std::string& scheme, const std::string& domain) {
   g_TestResults.reset();
-  static std::set<std::string> schemes;
-
-  if (schemes.empty()) {
-    // Never register built-in schemes.
-    schemes.insert("http");
-  }
-
-  // Only register custom schemes one time.
-  if (schemes.find(scheme) == schemes.end()) {
-    EXPECT_TRUE(CefRegisterCustomScheme(scheme, domain.empty()?false:true,
-        false, false));
-    WaitForUIThread();
-    schemes.insert(scheme);
-  }
 
   EXPECT_TRUE(CefRegisterSchemeHandlerFactory(scheme, domain,
       new ClientSchemeHandlerFactory(&g_TestResults)));
@@ -972,4 +958,14 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
   EXPECT_TRUE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
+}
+
+// Entry point for registering custom schemes.
+// Called from run_all_unittests.cc.
+void RegisterSchemeHandlerCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) {
+  // Add a custom standard scheme.
+  registrar->AddCustomScheme("customstd", true, false, false);
+  // Ad a custom non-standard scheme.
+  registrar->AddCustomScheme("customnonstd", false, false, false);
 }

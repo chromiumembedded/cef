@@ -104,6 +104,15 @@ typedef struct _cef_app_t {
   cef_base_t base;
 
   ///
+  // Provides an opportunity to register custom schemes. Do not keep a reference
+  // to the |registrar| object. This function is called on the main thread for
+  // each process and the registered schemes should be the same across all
+  // processes.
+  ///
+  void (CEF_CALLBACK *on_register_custom_schemes)(struct _cef_app_t* self,
+      struct _cef_scheme_registrar_t* registrar);
+
+  ///
   // Return the handler for resource bundle events. If
   // CefSettings.pack_loading_disabled is true (1) a handler must be returned.
   // If no handler is returned resources will be loaded from pack files. This
