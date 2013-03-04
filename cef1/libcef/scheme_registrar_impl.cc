@@ -12,12 +12,6 @@
 #include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 
-struct CefSchemeRegistrarImpl::SchemeInfo {
-  std::string scheme_name;
-  bool is_local;
-  bool is_display_isolated;
-};
-
 CefSchemeRegistrarImpl::CefSchemeRegistrarImpl()
     : supported_thread_id_(base::PlatformThread::CurrentId()) {
 }
