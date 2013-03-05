@@ -493,8 +493,8 @@ LRESULT CALLBACK OSRWindow::WndProc(HWND hWnd, UINT message,
       int x = GET_X_LPARAM(lParam);
       int y = GET_Y_LPARAM(lParam);
       CefBrowserHost::MouseButtonType btnType =
-          (message == WM_LBUTTONDOWN ? MBT_LEFT : (
-           message == WM_RBUTTONDOWN ? MBT_RIGHT : MBT_MIDDLE));
+          (message == WM_LBUTTONUP ? MBT_LEFT : (
+           message == WM_RBUTTONUP ? MBT_RIGHT : MBT_MIDDLE));
       if (browser.get()) {
         CefMouseEvent mouse_event;
         mouse_event.x = x;
