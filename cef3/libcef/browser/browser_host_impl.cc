@@ -1936,6 +1936,9 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   placeholder_frame_ =
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
+
+  // Make sure RenderViewCreated is called at least one time.
+  RenderViewCreated(web_contents->GetRenderViewHost());
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
