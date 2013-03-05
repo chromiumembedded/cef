@@ -178,7 +178,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   CefPluginServiceFilter() {}
   virtual ~CefPluginServiceFilter() {}
 
-  virtual bool ShouldUsePlugin(int render_process_id,
+  virtual bool IsPluginEnabled(int render_process_id,
                                int render_view_id,
                                const void* context,
                                const GURL& url,
@@ -206,6 +206,11 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
     }
 
     return allowed;
+  }
+
+  virtual bool CanLoadPlugin(int render_process_id,
+                             const FilePath& path) OVERRIDE {
+    return true;
   }
 };
 
