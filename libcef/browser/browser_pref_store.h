@@ -9,16 +9,16 @@
 
 class PrefService;
 
-class BrowserPrefStore : public TestingPrefStore {
+class CefBrowserPrefStore : public TestingPrefStore {
  public:
-  BrowserPrefStore();
+  CefBrowserPrefStore();
 
   PrefService* CreateService();
 
  protected:
-  virtual ~BrowserPrefStore();
+  virtual ~CefBrowserPrefStore();
 
-  DISALLOW_COPY_AND_ASSIGN(BrowserPrefStore);
+  DISALLOW_COPY_AND_ASSIGN(CefBrowserPrefStore);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_PREF_STORE_H_

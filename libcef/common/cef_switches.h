@@ -39,6 +39,7 @@ extern const char kDisableTabToLinks[];
 extern const char kDisableAuthorAndUserStyles[];
 extern const char kDisableDeveloperTools[];
 extern const char kPersistSessionCookies[];
+extern const char kEnableMediaStream[];
 
 }  // namespace switches
 

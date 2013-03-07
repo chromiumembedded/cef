@@ -3,19 +3,21 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/browser_pref_store.h"
+#include "libcef/browser/media_capture_devices_dispatcher.h"
 
 #include "base/command_line.h"
 #include "base/prefs/pref_service_builder.h"
 #include "base/prefs/pref_registry_simple.h"
 #include "base/values.h"
+#include "chrome/browser/net/pref_proxy_config_tracker_impl.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/browser/prefs/proxy_config_dictionary.h"
 #include "chrome/common/pref_names.h"
 
-BrowserPrefStore::BrowserPrefStore() {
+CefBrowserPrefStore::CefBrowserPrefStore() {
 }
 
-PrefService* BrowserPrefStore::CreateService() {
+PrefService* CefBrowserPrefStore::CreateService() {
   PrefServiceBuilder builder;
   builder.WithCommandLinePrefs(
       new CommandLinePrefStore(CommandLine::ForCurrentProcess()));
@@ -24,11 +26,11 @@ PrefService* BrowserPrefStore::CreateService() {
   scoped_refptr<PrefRegistrySimple> registry(new PrefRegistrySimple());
 
   // Default settings.
-  registry->RegisterDictionaryPref(prefs::kProxy,
-                                   ProxyConfigDictionary::CreateDirect());
+  CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry);
+  PrefProxyConfigTrackerImpl::RegisterPrefs(registry);
 
   return builder.Create(registry);
 }
 
-BrowserPrefStore::~BrowserPrefStore() {
+CefBrowserPrefStore::~CefBrowserPrefStore() {
 }

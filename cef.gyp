@@ -874,6 +874,8 @@
         'libcef/browser/javascript_dialog.h',
         'libcef/browser/javascript_dialog_manager.cc',
         'libcef/browser/javascript_dialog_manager.h',
+        'libcef/browser/media_capture_devices_dispatcher.cc',
+        'libcef/browser/media_capture_devices_dispatcher.h',
         'libcef/browser/menu_creator.cc',
         'libcef/browser/menu_creator.h',
         'libcef/browser/menu_model_impl.cc',

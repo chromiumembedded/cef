@@ -33,6 +33,7 @@ class CefBrowserHostImpl;
 class CefDevToolsDelegate;
 class CefMainDelegate;
 class CefTraceSubscriber;
+class PrefService;
 
 class CefContext : public CefBase {
  public:
@@ -67,6 +68,7 @@ class CefContext : public CefBase {
   CefRefPtr<CefApp> application() const;
   CefBrowserContext* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
+  PrefService* pref_service() const;
 
   scoped_refptr<net::URLRequestContextGetter> request_context() const {
     return request_context_;

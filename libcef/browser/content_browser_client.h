@@ -21,7 +21,6 @@
 class CefBrowserContext;
 class CefBrowserInfo;
 class CefBrowserMainParts;
-class CefMediaObserver;
 class CefResourceDispatcherHostDelegate;
 
 namespace content {
@@ -134,7 +133,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   CefBrowserMainParts* browser_main_parts_;
 
-  scoped_ptr<CefMediaObserver> media_observer_;
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;

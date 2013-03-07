@@ -309,6 +309,10 @@ scoped_ptr<net::ProxyConfigService> CefContext::proxy_config_service() const {
       proxy_config_service();
 }
 
+PrefService* CefContext::pref_service() const {
+  return main_delegate_->browser_client()->browser_main_parts()->pref_service();
+}
+
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (shutting_down_)

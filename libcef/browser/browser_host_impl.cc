@@ -10,16 +10,19 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/main_delegate.h"
 #include "libcef/common/process_message_impl.h"
@@ -27,6 +30,7 @@
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
+#include "base/command_line.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/download_manager.h"
@@ -1608,12 +1612,44 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     const content::MediaResponseCallback& callback) {
   CEF_CURRENTLY_ON_UIT();
 
-  // TODO(cef): Get the default devices for the request. See for example
-  // chrome/browser/media/media_stream_devices_controller.cc.
   content::MediaStreamDevices devices;
 
-  // TODO(cef): Give the user an opportunity to approve the device list or run
-  // the callback with an empty device list to cancel the request.
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (!command_line.HasSwitch(switches::kEnableMediaStream)) {
+    // Cancel the request.
+    callback.Run(devices);
+    return;
+  }
+
+  // Based on chrome/browser/media/media_stream_devices_controller.cc
+  bool microphone_requested =
+      (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
+  bool webcam_requested = 
+      (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
+  if (microphone_requested || webcam_requested) {
+    switch (request.request_type) {
+      case content::MEDIA_OPEN_DEVICE:
+        // For open device request pick the desired device or fall back to the
+        // first available of the given type.
+        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            request.requested_device_id,
+            microphone_requested,
+            webcam_requested,
+            &devices);
+        break;
+      case content::MEDIA_DEVICE_ACCESS:
+      case content::MEDIA_GENERATE_STREAM:
+      case content::MEDIA_ENUMERATE_DEVICES:
+        // Get the default devices for the request.
+        CefMediaCaptureDevicesDispatcher::GetInstance()->
+            GetDefaultDevices(_Context->pref_service(),
+                              microphone_requested,
+                              webcam_requested,
+                              &devices);
+        break;
+    }
+  }
+
   callback.Run(devices);
 }
 

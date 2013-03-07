@@ -86,4 +86,7 @@ const char kDisableDeveloperTools[]       = "disable-developer-tools";
 // Persist session cookies.
 const char kPersistSessionCookies[]       = "persist-session-cookies";
 
+// Enable media (WebRTC audio/video) streaming.
+const char kEnableMediaStream[]           = "enable-media-stream";
+
 }  // namespace switches

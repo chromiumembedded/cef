@@ -60,8 +60,9 @@ int CefBrowserMainParts::PreCreateThreads() {
   content::GpuDataManager::GetInstance();
 
   // Initialize user preferences.
-  user_prefs_ = new BrowserPrefStore();
-  user_prefs_->SetInitializationCompleted();
+  pref_store_ = new CefBrowserPrefStore();
+  pref_store_->SetInitializationCompleted();
+  pref_service_.reset(pref_store_->CreateService());
 
   // Create a v8::Isolate for the current thread if it doesn't already exist.
   if (!v8::Isolate::GetCurrent()) {
@@ -75,7 +76,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(
       ProxyServiceFactory::CreatePrefProxyConfigTracker(
-          user_prefs_->CreateService()));
+          pref_service_.get()));
 
   return 0;
 }

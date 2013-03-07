@@ -14,6 +14,7 @@
 #include "libcef/browser/browser_settings.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
@@ -27,7 +28,6 @@
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"
-#include "content/public/browser/media_observer.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
@@ -215,35 +215,6 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
 
 }  // namespace
 
-
-class CefMediaObserver : public content::MediaObserver {
- public:
-  CefMediaObserver() {}
-  virtual ~CefMediaObserver() {}
-
-  virtual void OnCaptureDevicesOpened(
-      int render_process_id,
-      int render_view_id,
-      const content::MediaStreamDevices& devices) OVERRIDE {}
-  virtual void OnCaptureDevicesClosed(
-      int render_process_id,
-      int render_view_id,
-      const content::MediaStreamDevices& devices) OVERRIDE {}
-  virtual void OnAudioCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE {}
-  virtual void OnVideoCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE {}
-  virtual void OnMediaRequestStateChanged(
-      int render_process_id,
-      int render_view_id,
-      const content::MediaStreamDevice& device,
-      content::MediaRequestState state) OVERRIDE {}
-  virtual void OnAudioStreamPlayingChanged(
-      int render_process_id,
-      int render_view_id,
-      int stream_id,
-      bool playing) OVERRIDE {}
-};
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
@@ -490,10 +461,7 @@ content::QuotaPermissionContext*
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
-  // TODO(cef): Return NULL once it's supported. See crbug.com/116113.
-  if (!media_observer_.get())
-     media_observer_.reset(new CefMediaObserver());
-  return media_observer_.get();
+  return CefMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
