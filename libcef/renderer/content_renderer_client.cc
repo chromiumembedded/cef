@@ -272,11 +272,16 @@ void CefContentRendererClient::AddCustomScheme(
 }
 
 void CefContentRendererClient::WebKitInitialized() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+
   WebKit::WebRuntimeFeatures::enableMediaPlayer(
       media::IsMediaLibraryInitialized());
 
   // TODO(cef): Enable these once the implementation supports it.
   WebKit::WebRuntimeFeatures::enableNotifications(false);
+
+  WebKit::WebRuntimeFeatures::enableSpeechInput(
+      command_line.HasSwitch(switches::kEnableSpeechInput));
 
   worker_script_observer_.reset(new CefWebWorkerScriptObserver());
   WebKit::WebWorkerInfo::addScriptObserver(worker_script_observer_.get());
@@ -313,7 +318,6 @@ void CefContentRendererClient::WebKitInitialized() {
   }
 
   // The number of stack trace frames to capture for uncaught exceptions.
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kUncaughtExceptionStackSize)) {
     int uncaught_exception_stack_size = 0;
     base::StringToInt(

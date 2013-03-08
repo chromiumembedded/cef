@@ -89,4 +89,10 @@ const char kPersistSessionCookies[]       = "persist-session-cookies";
 // Enable media (WebRTC audio/video) streaming.
 const char kEnableMediaStream[]           = "enable-media-stream";
 
+// Enable speech input (x-webkit-speech).
+const char kEnableSpeechInput[]           = "enable-speech-input";
+
+// Enable the speech input profanity filter.
+const char kEnableProfanityFilter[]       = "enable-profanity-filter";
+
 }  // namespace switches

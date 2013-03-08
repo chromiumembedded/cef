@@ -894,6 +894,8 @@
         'libcef/browser/scheme_impl.cc',
         'libcef/browser/scheme_registration.cc',
         'libcef/browser/scheme_registration.h',
+        'libcef/browser/speech_recognition_manager_delegate.cc',
+        'libcef/browser/speech_recognition_manager_delegate.h',
         'libcef/browser/stream_impl.cc',
         'libcef/browser/stream_impl.h',
         'libcef/browser/trace_impl.cc',

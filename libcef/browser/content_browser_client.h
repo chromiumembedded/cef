@@ -97,6 +97,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual content::QuotaPermissionContext*
       CreateQuotaPermissionContext() OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
+  virtual content::SpeechRecognitionManagerDelegate*
+      GetSpeechRecognitionManagerDelegate() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual bool CanCreateWindow(const GURL& opener_url,
                                const GURL& origin,

@@ -40,6 +40,8 @@ extern const char kDisableAuthorAndUserStyles[];
 extern const char kDisableDeveloperTools[];
 extern const char kPersistSessionCookies[];
 extern const char kEnableMediaStream[];
+extern const char kEnableSpeechInput[];
+extern const char kEnableProfanityFilter[];
 
 }  // namespace switches
 

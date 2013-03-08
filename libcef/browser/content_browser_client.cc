@@ -16,6 +16,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
+#include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
@@ -435,6 +436,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
+      switches::kEnableSpeechInput,
       switches::kProductVersion,
       switches::kUncaughtExceptionStackSize,
     };
@@ -462,6 +464,17 @@ content::QuotaPermissionContext*
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
   return CefMediaCaptureDevicesDispatcher::GetInstance();
+}
+
+content::SpeechRecognitionManagerDelegate*
+    CefContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
+#if defined(ENABLE_INPUT_SPEECH)
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kEnableSpeechInput))
+    return new CefSpeechRecognitionManagerDelegate();
+#endif
+
+  return NULL;
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {

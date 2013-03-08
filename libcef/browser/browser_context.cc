@@ -11,8 +11,10 @@
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
+#include "libcef/common/cef_switches.h"
 
 #include "base/bind.h"
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/download_manager.h"
@@ -160,14 +162,19 @@ class CefSpeechRecognitionPreferences
     : public content::SpeechRecognitionPreferences {
  public:
   CefSpeechRecognitionPreferences() {
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    filter_profanities_ =
+        command_line.HasSwitch(switches::kEnableProfanityFilter);
   }
 
   // Overridden from SpeechRecognitionPreferences:
   virtual bool FilterProfanities() const OVERRIDE {
-    return false;
+    return filter_profanities_;
   }
 
  private:
+  bool filter_profanities_;
+
   DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionPreferences);
 };
 
