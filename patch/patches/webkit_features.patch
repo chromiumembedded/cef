@@ -11,3 +11,12 @@ Index: features.gypi
            'ENABLE_INPUT_TYPE_WEEK=1',
            'ENABLE_INPUT_MULTIPLE_FIELDS_UI=1',
            'ENABLE_LEGACY_NOTIFICATIONS=1',
+@@ -199,7 +199,7 @@
+           'ENABLE_NOTIFICATIONS=1',
+           'ENABLE_ORIENTATION_EVENTS=0',
+           'ENABLE_PAGE_POPUP=1',
+-          'ENABLE_PRINTING=1',
++          'ENABLE_PRINTING=0',
+           'ENABLE_SHARED_WORKERS=1',
+           'ENABLE_WEB_AUDIO=1',
+         ],
