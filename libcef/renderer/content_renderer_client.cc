@@ -282,6 +282,8 @@ void CefContentRendererClient::WebKitInitialized() {
 
   WebKit::WebRuntimeFeatures::enableSpeechInput(
       command_line.HasSwitch(switches::kEnableSpeechInput));
+  WebKit::WebRuntimeFeatures::enableMediaStream(
+      command_line.HasSwitch(switches::kEnableMediaStream));
 
   worker_script_observer_.reset(new CefWebWorkerScriptObserver());
   WebKit::WebWorkerInfo::addScriptObserver(worker_script_observer_.get());
