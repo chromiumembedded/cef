@@ -14,6 +14,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/internal_scheme_handler.h"
+#include "libcef/browser/scheme_impl.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/command_line.h"
@@ -24,15 +25,18 @@
 #include "base/stringprintf.h"
 #include "base/utf_string_conversions.h"
 #include "base/values.h"
+#include "content/browser/net/view_http_cache_job_factory.h"
+#include "content/browser/net/view_blob_internals_job_factory.h"
 #include "content/public/common/content_client.h"
+#include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
 #include "ipc/ipc_channel.h"
+#include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
 #include "webkit/user_agent/user_agent_util.h"
 
 namespace scheme {
 
-const char kChromeScheme[] = "chrome";
 const char kChromeURL[] = "chrome://";
 const char kChromeProcessMessage[] = "chrome.send";
 
@@ -595,11 +599,46 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
   }
 }
 
+// Wrapper for a ChromeProtocolHandler instance from
+// content/browser/webui/url_data_manager_backend.cc. 
+class ChromeProtocolHandlerWrapper :
+    public net::URLRequestJobFactory::ProtocolHandler {
+ public:
+  explicit ChromeProtocolHandlerWrapper(
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> chrome_protocol_handler)
+      : chrome_protocol_handler_(chrome_protocol_handler.Pass()) {
+  }
+
+  virtual net::URLRequestJob* MaybeCreateJob(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate) const OVERRIDE {
+    // Keep synchronized with the checks in ChromeProtocolHandler::MaybeCreateJob.
+    if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
+        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+         request->url().host() == chrome::kChromeUIAppCacheInternalsHost) ||
+        content::ViewBlobInternalsJobFactory::IsSupportedURL(request->url()) ||
+#if defined(USE_TCMALLOC)
+        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+         request->url().host() == chrome::kChromeUITcmallocHost) ||
+#endif
+        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+         request->url().host() == chrome::kChromeUIHistogramHost)) {
+      return chrome_protocol_handler_->MaybeCreateJob(request, network_delegate);
+    }
+
+    // Use the protocol handler registered with CEF.
+    return scheme::GetRequestJob(request, network_delegate);
+  }
+
+ private:
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> chrome_protocol_handler_;
+};
+
 }  // namespace
 
 void RegisterChromeHandler() {
   CefRegisterSchemeHandlerFactory(
-      kChromeScheme,
+      chrome::kChromeUIScheme,
       std::string(),
       CreateInternalHandlerFactory(
           make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));
@@ -648,6 +687,14 @@ void OnChromeProcessMessage(CefRefPtr<CefBrowser> browser,
     default:
       break;
   }
+}
+
+scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+WrapChromeProtocolHandler(
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_protocol_handler) {
+  return make_scoped_ptr(
+      new ChromeProtocolHandlerWrapper(chrome_protocol_handler.Pass()));
 }
 
 }  // namespace scheme

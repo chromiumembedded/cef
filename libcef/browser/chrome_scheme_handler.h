@@ -7,10 +7,14 @@
 #pragma once
 
 #include <string>
+
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
+
+#include "base/memory/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
+#include "net/url_request/url_request_job_factory.h"
 
 namespace base {
 class ListValue;
@@ -22,7 +26,6 @@ class BrowserContext;
 
 namespace scheme {
 
-extern const char kChromeScheme[];
 extern const char kChromeURL[];
 extern const char kChromeProcessMessage[];
 
@@ -40,6 +43,13 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
 // Used to execute messages from render process bindings.
 void OnChromeProcessMessage(CefRefPtr<CefBrowser> browser,
                             const base::ListValue& arguments);
+
+// Create a new ProtocolHandler that will filter the URLs passed to the default
+// "chrome" protocol handler and forward the rest to CEF's handler.
+scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+WrapChromeProtocolHandler(
+    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        chrome_protocol_handler);
 
 }  // namespace scheme
 

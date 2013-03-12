@@ -14,6 +14,7 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "content/public/browser/content_browser_client.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "net/url_request/url_request_job_factory.h"
 
@@ -76,12 +77,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   CefURLRequestContextGetter(
       MessageLoop* io_loop,
       MessageLoop* file_loop,
-      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-          blob_protocol_handler,
-      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-          file_system_protocol_handler,
-      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-          developer_protocol_handler);
+      content::ProtocolHandlerMap* protocol_handlers);
   virtual ~CefURLRequestContextGetter();
 
   // net::URLRequestContextGetter implementation.
@@ -115,12 +111,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-      blob_protocol_handler_;
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-      file_system_protocol_handler_;
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-      developer_protocol_handler_;
+  content::ProtocolHandlerMap protocol_handlers_;
   net::URLRequestJobFactoryImpl* job_factory_impl_;
 
   typedef std::set<CefURLRequestContextProxy*> RequestContextProxySet;

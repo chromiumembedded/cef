@@ -3,16 +3,18 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/devtools_scheme_handler.h"
+
 #include <string>
+
 #include "libcef/browser/internal_scheme_handler.h"
+
 #include "base/string_util.h"
+#include "content/public/common/url_constants.h"
 #include "grit/devtools_resources_map.h"
 
 namespace scheme {
 
-const char kChromeDevToolsScheme[] = "chrome-devtools";
 const char kChromeDevToolsHost[] = "devtools";
-const char kChromeDevToolsURL[] = "chrome-devtools://devtools/";
 
 namespace {
 
@@ -43,7 +45,7 @@ class Delegate : public InternalHandlerDelegate {
 
 void RegisterChromeDevToolsHandler() {
   CefRegisterSchemeHandlerFactory(
-      kChromeDevToolsScheme,
+      chrome::kChromeDevToolsScheme,
       kChromeDevToolsHost,
       CreateInternalHandlerFactory(
           make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));

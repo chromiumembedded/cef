@@ -19,6 +19,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
 #include "net/base/tcp_listen_socket.h"
 #include "ui/base/layout.h"
@@ -175,7 +176,8 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
   std::string page_id = binding_->GetIdentifier(rvh);
   std::string host = http_scheme ?
       base::StringPrintf("http://localhost:%d/devtools/", port) :
-      scheme::kChromeDevToolsURL;
+      base::StringPrintf("%s://%s/devtools/", chrome::kChromeDevToolsScheme,
+                         scheme::kChromeDevToolsHost);
 
   return base::StringPrintf(
       "%sdevtools.html?ws=localhost:%d/devtools/page/%s",

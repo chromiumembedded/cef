@@ -1,8 +1,8 @@
 Index: features.gypi
 ===================================================================
---- features.gypi	(revision 143980)
+--- features.gypi	(revision 145278)
 +++ features.gypi	(working copy)
-@@ -190,7 +190,7 @@
+@@ -193,7 +193,7 @@
            'ENABLE_CALENDAR_PICKER=1',
            'ENABLE_DATALIST_ELEMENT=1',
            'ENABLE_INPUT_SPEECH=1',
@@ -11,7 +11,7 @@ Index: features.gypi
            'ENABLE_INPUT_TYPE_WEEK=1',
            'ENABLE_INPUT_MULTIPLE_FIELDS_UI=1',
            'ENABLE_LEGACY_NOTIFICATIONS=1',
-@@ -199,7 +199,7 @@
+@@ -202,7 +202,7 @@
            'ENABLE_NOTIFICATIONS=1',
            'ENABLE_ORIENTATION_EVENTS=0',
            'ENABLE_PAGE_POPUP=1',

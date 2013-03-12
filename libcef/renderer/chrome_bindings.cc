@@ -4,9 +4,12 @@
 
 #include "libcef/renderer/chrome_bindings.h"
 #include "libcef/renderer/browser_impl.h"
+
 #include <string>
+
 #include "base/logging.h"
 #include "base/values.h"
+#include "content/public/common/url_constants.h"
 
 namespace scheme {
 
@@ -93,7 +96,7 @@ void OnContextCreated(CefRefPtr<CefBrowserImpl> browser,
                       CefRefPtr<CefFrameImpl> frame,
                       CefRefPtr<CefV8Context> context) {
   GURL url = GURL(frame->GetURL().ToString());
-  if (url.scheme() != kChromeScheme)
+  if (url.scheme() != chrome::kChromeUIScheme)
     return;
 
   CefRefPtr<CefV8Value> global = context->GetGlobal();

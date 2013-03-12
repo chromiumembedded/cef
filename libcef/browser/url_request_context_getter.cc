@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "libcef/browser/context.h"
+#include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_network_delegate.h"
 #include "libcef/browser/url_request_context_proxy.h"
@@ -21,7 +22,6 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
-#include "base/string_split.h"
 #include "base/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
@@ -41,7 +41,6 @@
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
 #include "net/proxy/proxy_service.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
@@ -58,19 +57,13 @@ using content::BrowserThread;
 CefURLRequestContextGetter::CefURLRequestContextGetter(
     MessageLoop* io_loop,
     MessageLoop* file_loop,
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-        blob_protocol_handler,
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-        file_system_protocol_handler,
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-        developer_protocol_handler)
+    content::ProtocolHandlerMap* protocol_handlers)
     : io_loop_(io_loop),
-      file_loop_(file_loop),
-      blob_protocol_handler_(blob_protocol_handler.Pass()),
-      file_system_protocol_handler_(file_system_protocol_handler.Pass()),
-      developer_protocol_handler_(developer_protocol_handler.Pass()) {
+      file_loop_(file_loop) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
+
+  std::swap(protocol_handlers_, *protocol_handlers);
 }
 
 CefURLRequestContextGetter::~CefURLRequestContextGetter() {
@@ -176,15 +169,12 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     job_factory_impl_ = job_factory.get();
-    bool set_protocol = job_factory->SetProtocolHandler(
-        chrome::kBlobScheme, blob_protocol_handler_.release());
-    DCHECK(set_protocol);
-    set_protocol = job_factory->SetProtocolHandler(
-        chrome::kFileSystemScheme, file_system_protocol_handler_.release());
-    DCHECK(set_protocol);
-    storage_->set_job_factory(new net::ProtocolInterceptJobFactory(
-        job_factory.PassAs<net::URLRequestJobFactory>(),
-        developer_protocol_handler_.Pass()));
+
+    scheme::InstallInternalProtectedHandlers(job_factory.get(),
+                                             &protocol_handlers_);
+    protocol_handlers_.clear();
+
+    storage_->set_job_factory(job_factory.release());
 
     request_interceptor_.reset(new CefRequestInterceptor);
   }
@@ -222,9 +212,12 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
         file_util::CreateDirectory(path)) {
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =
-          new SQLitePersistentCookieStore(cookie_path,
-                                          persist_session_cookies,
-                                          NULL);
+          new SQLitePersistentCookieStore(
+              cookie_path,
+              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
+              persist_session_cookies,
+              NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }

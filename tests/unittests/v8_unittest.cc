@@ -31,6 +31,7 @@ const char kV8WorkerParentTestUrl[] = "http://tests/V8Test.WorkerParent";
 const char kV8WorkerTestUrl[] = "http://tests/V8Test.Worker.js";
 const char kV8TestMsg[] = "V8Test.Test";
 const char kV8TestCmdArg[] = "v8-test";
+const char kV8RunTestMsg[] = "V8Test.RunTest";
 const char kV8DevToolsURLMsg[] = "V8Test.DevToolsURL";
 const char kV8DevToolsLoadHookMsg[] = "V8Test.DevToolsLoadHook";
 
@@ -1585,7 +1586,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     test_context_ =
         browser_->GetMainFrame()->GetV8Context();
     browser_->GetMainFrame()->ExecuteJavaScript(
-        "window.setTimeout(test, 0)", "about:blank", 0);
+        "window.setTimeout(test, 0)", browser_->GetMainFrame()->GetURL(), 0);
   }
 
   void RunOnUncaughtExceptionDevToolsTest() {
@@ -1595,7 +1596,8 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     // Show DevTools.
     EXPECT_FALSE(devtools_url_.empty());
     browser_->GetMainFrame()->ExecuteJavaScript(
-        "window.open('" + devtools_url_ + "');", "about:blank", 0);
+        "window.open('" + devtools_url_ + "');",
+        browser_->GetMainFrame()->GetURL(), 0);
   }
 
   // Test execution of a native function when the extension is loaded.
@@ -1718,13 +1720,6 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       EXPECT_TRUE(object->SetValue("v8_binding_test",
           CefV8Value::CreateInt(12),
           V8_PROPERTY_ATTRIBUTE_NONE));
-    }
-
-    if (test_mode_ > V8TEST_NONE && url != kV8NavTestUrl &&
-        url.find("http://tests/") != std::string::npos) {
-      // Run the test asynchronously.
-      CefPostTask(TID_RENDERER,
-                  NewCefRunnableMethod(this, &V8RendererTest::RunTest));
     }
   }
 
@@ -2013,6 +2008,11 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         return false;
       }
       return true;
+    } else if (message->GetName() == kV8RunTestMsg) {
+      // Run the test asynchronously.
+      CefPostTask(TID_RENDERER,
+                  NewCefRunnableMethod(this, &V8RendererTest::RunTest));
+      return true;
     }
     return false;
   }
@@ -2086,7 +2086,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
 
   void DevToolsClosed() {
     browser_->GetMainFrame()->ExecuteJavaScript(
-      "window.setTimeout(test, 0);", "about:blank", 0);
+      "window.setTimeout(test, 0);", browser_->GetMainFrame()->GetURL(), 0);
   }
 
  protected:
@@ -2219,6 +2219,15 @@ class V8TestHandler : public TestHandler {
             CefProcessMessage::Create(kV8DevToolsURLMsg);
         EXPECT_TRUE(return_msg->GetArgumentList()->SetString(0,
             browser->GetHost()->GetDevToolsURL(true)));
+        EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
+      }
+    } else {
+      const std::string& url = frame->GetURL();
+      if (url != kV8NavTestUrl &&
+          url.find("http://tests/") != std::string::npos) {
+        // Run the test.
+        CefRefPtr<CefProcessMessage> return_msg =
+              CefProcessMessage::Create(kV8RunTestMsg);
         EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
       }
     }

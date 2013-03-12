@@ -16,7 +16,9 @@
 #include "base/message_loop.h"
 #include "base/string_number_conversions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
+#include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
+#include "content/public/browser/web_ui_controller_factory.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/net_module.h"
@@ -49,6 +51,13 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
     message_loop_.reset(new CefBrowserMessageLoop());
     message_loop_->set_thread_name("CrBrowserMain");
   }
+}
+
+void CefBrowserMainParts::PostMainMessageLoopStart() {
+  // Don't use the default WebUI controller factory because is conflicts with
+  // CEF's internal handling of "chrome://tracing".
+  content::WebUIControllerFactory::UnregisterFactoryForTesting(
+      content::ContentWebUIControllerFactory::GetInstance());
 }
 
 int CefBrowserMainParts::PreCreateThreads() {

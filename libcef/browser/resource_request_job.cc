@@ -376,10 +376,10 @@ void CefResourceRequestJob::AddCookieHeaderAndStart() {
 void CefResourceRequestJob::DoLoadCookies() {
   net::CookieOptions options;
   options.set_include_httponly();
-  request_->context()->cookie_store()->GetCookiesWithInfoAsync(
+  request_->context()->cookie_store()->GetCookiesWithOptionsAsync(
       request_->url(), options,
       base::Bind(&CefResourceRequestJob::OnCookiesLoaded,
-                  weak_factory_.GetWeakPtr()));
+                 weak_factory_.GetWeakPtr()));
 }
 
 void CefResourceRequestJob::CheckCookiePolicyAndLoad(
@@ -403,9 +403,7 @@ void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     DoStartTransaction();
 }
 
-void CefResourceRequestJob::OnCookiesLoaded(
-    const std::string& cookie_line,
-    const std::vector<net::CookieStore::CookieInfo>& cookie_infos) {
+void CefResourceRequestJob::OnCookiesLoaded(const std::string& cookie_line) {
   if (!cookie_line.empty()) {
     CefRequest::HeaderMap headerMap;
     cef_request_->GetHeaderMap(headerMap);

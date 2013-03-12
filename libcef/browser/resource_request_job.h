@@ -47,9 +47,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   void AddCookieHeaderAndStart();
   void DoLoadCookies();
   void CheckCookiePolicyAndLoad(const net::CookieList& cookie_list);
-  void OnCookiesLoaded(
-      const std::string& cookie_line,
-      const std::vector<net::CookieStore::CookieInfo>& cookie_infos);
+  void OnCookiesLoaded(const std::string& cookie_line);
   void DoStartTransaction();
   void StartTransaction();
 

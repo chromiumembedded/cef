@@ -25,6 +25,8 @@
 #include "net/cookies/parsed_cookie.h"
 #include "net/url_request/url_request_context.h"
 
+using content::BrowserThread;
+
 namespace {
 
 // Callback class for visiting cookies.
@@ -286,9 +288,12 @@ bool CefCookieManagerImpl::SetStoragePath(
           file_util::CreateDirectory(new_path)) {
         const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
-            new SQLitePersistentCookieStore(cookie_path,
-                                            persist_session_cookies,
-                                            NULL);
+            new SQLitePersistentCookieStore(
+                cookie_path,
+                BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+                BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
+                persist_session_cookies,
+                NULL);
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();

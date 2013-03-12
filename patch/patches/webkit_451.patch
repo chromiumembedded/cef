@@ -61,9 +61,9 @@ Added: svn:eol-style
 
 Index: WebCore/bindings/v8/WorkerScriptController.cpp
 ===================================================================
---- WebCore/bindings/v8/WorkerScriptController.cpp	(revision 142426)
+--- WebCore/bindings/v8/WorkerScriptController.cpp	(revision 145278)
 +++ WebCore/bindings/v8/WorkerScriptController.cpp	(working copy)
-@@ -50,11 +50,23 @@
+@@ -51,11 +51,23 @@
  
  #if PLATFORM(CHROMIUM)
  #include <public/Platform.h>
@@ -87,7 +87,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
  WorkerScriptController::WorkerScriptController(WorkerContext* workerContext)
      : m_workerContext(workerContext)
      , m_isolate(v8::Isolate::New())
-@@ -72,6 +84,8 @@
+@@ -73,6 +85,8 @@
  WorkerScriptController::~WorkerScriptController()
  {
      m_domDataStore.clear();
@@ -96,7 +96,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
  #if PLATFORM(CHROMIUM)
      // The corresponding call to didStartWorkerRunLoop is in
      // WorkerThread::workerThread().
-@@ -133,6 +147,8 @@
+@@ -134,6 +148,8 @@
      v8::Handle<v8::Object> globalObject = v8::Handle<v8::Object>::Cast(m_context->Global()->GetPrototype());
      globalObject->SetPrototype(jsWorkerContext);
  
@@ -105,7 +105,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
      return true;
  }
  
-@@ -257,6 +273,39 @@
+@@ -258,6 +274,39 @@
      return workerContext->script();
  }
  
@@ -147,7 +147,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.cpp
  #endif // ENABLE(WORKERS)
 Index: WebCore/bindings/v8/WorkerScriptController.h
 ===================================================================
---- WebCore/bindings/v8/WorkerScriptController.h	(revision 142426)
+--- WebCore/bindings/v8/WorkerScriptController.h	(revision 145278)
 +++ WebCore/bindings/v8/WorkerScriptController.h	(working copy)
 @@ -40,6 +40,10 @@
  #include <wtf/Threading.h>
@@ -180,7 +180,7 @@ Index: WebCore/bindings/v8/WorkerScriptController.h
          ScopedPersistent<v8::Context> m_context;
 Index: WebKit/chromium/public/WebWorkerInfo.h
 ===================================================================
---- WebKit/chromium/public/WebWorkerInfo.h	(revision 142426)
+--- WebKit/chromium/public/WebWorkerInfo.h	(revision 145278)
 +++ WebKit/chromium/public/WebWorkerInfo.h	(working copy)
 @@ -35,9 +35,15 @@
  
@@ -236,7 +236,7 @@ Added: svn:eol-style
 
 Index: WebKit/chromium/src/WebWorkerInfo.cpp
 ===================================================================
---- WebKit/chromium/src/WebWorkerInfo.cpp	(revision 142426)
+--- WebKit/chromium/src/WebWorkerInfo.cpp	(revision 145278)
 +++ WebKit/chromium/src/WebWorkerInfo.cpp	(working copy)
 @@ -31,6 +31,7 @@
  #include "config.h"

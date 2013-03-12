@@ -46,14 +46,6 @@ class CefCookieStoreProxy : public net::CookieStore {
     cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
   }
 
-  void GetCookiesWithInfoAsync(
-      const GURL& url,
-      const net::CookieOptions& options,
-      const GetCookieInfoCallback& callback) OVERRIDE {
-    scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-    cookie_store->GetCookiesWithInfoAsync(url, options, callback);
-  }
-
   virtual void DeleteCookieAsync(const GURL& url,
                                  const std::string& cookie_name,
                                  const base::Closure& callback) OVERRIDE {

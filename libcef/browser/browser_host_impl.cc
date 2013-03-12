@@ -1069,7 +1069,7 @@ gfx::NativeView CefBrowserHostImpl::GetContentView() const {
   CEF_REQUIRE_UIT();
   if (!web_contents_.get())
     return NULL;
-  return web_contents_->GetNativeView();
+  return web_contents_->GetView()->GetNativeView();
 }
 
 content::WebContents* CefBrowserHostImpl::GetWebContents() const {
@@ -1351,7 +1351,7 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     }
 
     if (web_contents_.get())
-      web_contents_->Focus();
+      web_contents_->GetView()->Focus();
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::OnSetFocus, this, source));

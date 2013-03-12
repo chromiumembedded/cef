@@ -53,7 +53,7 @@ void CefContentClient::AddAdditionalSchemes(
     DCHECK(schemeRegistrar->VerifyRefCount());
   }
 
-  scheme::AddStandardSchemes(standard_schemes);
+  scheme::AddInternalStandardSchemes(standard_schemes);
 }
 
 std::string CefContentClient::GetUserAgent() const {

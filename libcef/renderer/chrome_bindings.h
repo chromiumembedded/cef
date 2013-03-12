@@ -12,7 +12,6 @@
 
 namespace scheme {
 
-extern const char kChromeScheme[];
 extern const char kChromeProcessMessage[];
 
 void OnContextCreated(CefRefPtr<CefBrowserImpl> browser,

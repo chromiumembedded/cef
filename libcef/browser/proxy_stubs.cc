@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/browser/prefs/pref_registry_syncable.h"
+#include "components/user_prefs/pref_registry_syncable.h"
 
 // Required by PrefProxyConfigTrackerImpl::RegisterUserPrefs.
 void PrefRegistrySyncable::RegisterDictionaryPref(

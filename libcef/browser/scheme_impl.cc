@@ -124,11 +124,6 @@ class CefUrlRequestManager {
   // Retrieve the singleton instance.
   static CefUrlRequestManager* GetInstance();
 
-  net::URLRequestJobFactoryImpl* GetJobFactoryImpl() {
-    return static_cast<CefURLRequestContextGetter*>(
-        _Context->request_context().get())->job_factory_impl();
-  }
-
   bool AddFactory(const std::string& scheme,
                   const std::string& domain,
                   CefRefPtr<CefSchemeHandlerFactory> factory) {
@@ -146,11 +141,9 @@ class CefUrlRequestManager {
     if (!IsStandardScheme(scheme_lower))
       domain_lower.clear();
 
-    handler_map_[make_pair(scheme_lower, domain_lower)] = factory;
+    SetProtocolHandlerIfNecessary(scheme_lower, true);
 
-    net::URLRequestJobFactoryImpl* job_factory = GetJobFactoryImpl();
-    job_factory->SetProtocolHandler(scheme_lower,
-                                    new ProtocolHandler(scheme_lower));
+    handler_map_[make_pair(scheme_lower, domain_lower)] = factory;
 
     return true;
   }
@@ -168,8 +161,11 @@ class CefUrlRequestManager {
 
     HandlerMap::iterator iter =
         handler_map_.find(make_pair(scheme_lower, domain_lower));
-    if (iter != handler_map_.end())
+    if (iter != handler_map_.end()) {
       handler_map_.erase(iter);
+
+      SetProtocolHandlerIfNecessary(scheme_lower, false);
+    }
   }
 
   // Clear all the existing URL handlers and unregister the ProtocolFactory.
@@ -178,21 +174,68 @@ class CefUrlRequestManager {
 
     net::URLRequestJobFactoryImpl* job_factory = GetJobFactoryImpl();
 
-    // Unregister with the ProtocolFactory.
+    // Create a unique set of scheme names.
     std::set<std::string> schemes;
     for (HandlerMap::const_iterator i = handler_map_.begin();
         i != handler_map_.end(); ++i) {
       schemes.insert(i->first.first);
     }
+
     for (std::set<std::string>::const_iterator scheme = schemes.begin();
         scheme != schemes.end(); ++scheme) {
-      job_factory->SetProtocolHandler(*scheme, NULL);
+      const std::string& scheme_name = *scheme;
+      if (!scheme::IsInternalProtectedScheme(scheme_name)) {
+        bool set_protocol = job_factory->SetProtocolHandler(scheme_name, NULL);
+        DCHECK(set_protocol);
+      }
     }
 
     handler_map_.clear();
   }
 
+  // Helper for chaining ProtocolHandler implementations.
+  net::URLRequestJob* GetRequestJob(net::URLRequest* request,
+                                    net::NetworkDelegate* network_delegate) {
+    CEF_REQUIRE_IOT();
+    return GetRequestJob(request, network_delegate, request->url().scheme());
+  }
+
  private:
+  net::URLRequestJobFactoryImpl* GetJobFactoryImpl() {
+    return static_cast<CefURLRequestContextGetter*>(
+        _Context->request_context().get())->job_factory_impl();
+  }
+
+  // Add or remove the protocol handler if necessary. |scheme| will already be
+  // in lower case.
+  void SetProtocolHandlerIfNecessary(const std::string& scheme, bool add) {
+    // Don't modify a protocol handler for internal protected schemes or if the
+    // protocol handler is still needed by other registered factories.
+    if (scheme::IsInternalProtectedScheme(scheme) || HasFactory(scheme))
+      return;
+
+    net::URLRequestJobFactoryImpl* job_factory = GetJobFactoryImpl();
+    bool set_protocol = job_factory->SetProtocolHandler(
+        scheme,
+        (add ? new ProtocolHandler(scheme) : NULL));
+    DCHECK(set_protocol);
+  }
+
+  // Returns true if any factory currently exists for |scheme|. |scheme| will
+  // already be in lower case.
+  bool HasFactory(const std::string& scheme) {
+    if (handler_map_.empty())
+      return false;
+
+    for (HandlerMap::const_iterator i = handler_map_.begin();
+        i != handler_map_.end(); ++i) {
+      if (scheme == i->first.first)
+        return true;
+    }
+
+    return false;
+  }
+
   // Retrieve the matching handler factory, if any. |scheme| will already be in
   // lower case.
   CefRefPtr<CefSchemeHandlerFactory> GetHandlerFactory(
@@ -313,3 +356,13 @@ bool CefClearSchemeHandlerFactories() {
 
   return true;
 }
+
+namespace scheme {
+
+net::URLRequestJob* GetRequestJob(net::URLRequest* request,
+                                  net::NetworkDelegate* network_delegate) {
+  return CefUrlRequestManager::GetInstance()->GetRequestJob(
+      request, network_delegate);
+}
+
+}  // namespace scheme

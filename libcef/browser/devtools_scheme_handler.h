@@ -8,9 +8,7 @@
 
 namespace scheme {
 
-extern const char kChromeDevToolsScheme[];
 extern const char kChromeDevToolsHost[];
-extern const char kChromeDevToolsURL[];
 
 // Register the chrome-devtools scheme handler.
 void RegisterChromeDevToolsHandler();

@@ -892,6 +892,7 @@
         'libcef/browser/resource_request_job.cc',
         'libcef/browser/resource_request_job.h',
         'libcef/browser/scheme_impl.cc',
+        'libcef/browser/scheme_impl.h',
         'libcef/browser/scheme_registration.cc',
         'libcef/browser/scheme_registration.h',
         'libcef/browser/speech_recognition_manager_delegate.cc',
