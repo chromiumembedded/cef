@@ -29,7 +29,7 @@ bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
                      useWithPopUpButtonCell:NO];
 
   NSView* parent_view =
-      manager->browser()->GetWebContents()->GetContentNativeView();
+      manager->browser()->GetWebContents()->GetView()->GetContentNativeView();
 
   // Synthesize an event for the click, as there is no certainty that
   // [NSApp currentEvent] will return a valid event.

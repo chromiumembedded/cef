@@ -693,8 +693,9 @@ scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
 WrapChromeProtocolHandler(
     scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
         chrome_protocol_handler) {
-  return make_scoped_ptr(
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
       new ChromeProtocolHandlerWrapper(chrome_protocol_handler.Pass()));
+  return ret.Pass();
 }
 
 }  // namespace scheme

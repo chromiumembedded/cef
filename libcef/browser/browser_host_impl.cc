@@ -42,6 +42,7 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/resource_request_info.h"
+#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
