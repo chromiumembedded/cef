@@ -80,9 +80,6 @@ class WebWidgetHost {
 
   void ScrollRect(int dx, int dy, const gfx::Rect& clip_rect);
 
-  // Called for accelerated content like WebGL.
-  void ScheduleComposite();
-
   // Called for requestAnimationFrame animations.
   void ScheduleAnimation();
 

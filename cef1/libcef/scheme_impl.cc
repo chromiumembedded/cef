@@ -197,7 +197,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
   void DoLoadCookies() {
     net::CookieOptions options;
     options.set_include_httponly();
-    request_->context()->cookie_store()->GetCookiesWithInfoAsync(
+    request_->context()->cookie_store()->GetCookiesWithOptionsAsync(
         request_->url(), options,
         base::Bind(&CefUrlRequestJob::OnCookiesLoaded,
                    weak_factory_.GetWeakPtr()));
@@ -212,8 +212,7 @@ class CefUrlRequestJob : public net::URLRequestJob {
   }
 
   void OnCookiesLoaded(
-      const std::string& cookie_line,
-      const std::vector<net::CookieStore::CookieInfo>& cookie_infos) {
+      const std::string& cookie_line) {
     if (!cookie_line.empty()) {
       CefRequest::HeaderMap headerMap;
       cef_request_->GetHeaderMap(headerMap);

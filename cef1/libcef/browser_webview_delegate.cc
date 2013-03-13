@@ -195,17 +195,6 @@ WebStorageNamespace* BrowserWebViewDelegate::createSessionStorageNamespace(
   return BrowserDomStorageSystem::instance().CreateSessionStorageNamespace();
 }
 
-WebKit::WebGraphicsContext3D* BrowserWebViewDelegate::createGraphicsContext3D(
-    const WebKit::WebGraphicsContext3D::Attributes& attributes) {
-  WebKit::WebView* web_view = browser_->UIT_GetWebView();
-  if (!web_view)
-    return NULL;
-
-  const CefSettings& settings = _Context->settings();
-  return webkit_glue::CreateGraphicsContext3D(settings.graphics_implementation,
-      attributes, web_view, true);
-}
-
 void BrowserWebViewDelegate::didAddMessageToConsole(
     const WebConsoleMessage& message, const WebString& source_name,
     unsigned source_line) {
@@ -548,11 +537,6 @@ void BrowserWebViewDelegate::didScrollRect(int dx, int dy,
                                         const WebRect& clip_rect) {
   if (WebWidgetHost* host = GetWidgetHost())
     host->ScrollRect(dx, dy, clip_rect);
-}
-
-void BrowserWebViewDelegate::scheduleComposite() {
-  if (WebWidgetHost* host = GetWidgetHost())
-    host->ScheduleComposite();
 }
 
 void BrowserWebViewDelegate::scheduleAnimation() {

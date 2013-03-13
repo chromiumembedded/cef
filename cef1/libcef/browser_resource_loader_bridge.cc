@@ -1109,6 +1109,9 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge,
     proxy_->SetDefersLoading(value);
   }
 
+  virtual void DidChangePriority(net::RequestPriority new_priority) OVERRIDE {
+  }
+
   virtual void SyncLoad(SyncLoadResponse* response) OVERRIDE {
     DCHECK(CalledOnValidThread());
     DCHECK(!proxy_);

@@ -141,7 +141,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
       cef.universal_access_from_file_urls_allowed;
   web.allow_file_access_from_file_urls = cef.file_access_from_file_urls_allowed;
   web.experimental_webgl_enabled = !cef.webgl_disabled;
-  web.show_composited_layer_borders = false;
   web.accelerated_compositing_enabled = cef.accelerated_compositing_enabled;
   web.accelerated_compositing_for_3d_transforms_enabled =
       !cef.accelerated_layers_disabled;
@@ -150,7 +149,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   web.accelerated_compositing_for_video_enabled =
       !cef.accelerated_video_disabled;
   web.accelerated_2d_canvas_enabled = !cef.accelerated_2d_canvas_disabled;
-  web.accelerated_painting_enabled = !cef.accelerated_painting_disabled;
   web.accelerated_filters_enabled = !cef.accelerated_filters_disabled;
   web.accelerated_compositing_for_plugins_enabled =
       !cef.accelerated_plugins_disabled;

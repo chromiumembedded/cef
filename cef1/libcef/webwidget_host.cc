@@ -37,10 +37,6 @@ void WebWidgetHost::InvalidateRect(const gfx::Rect& rect) {
     ScheduleTimer();
 }
 
-void WebWidgetHost::ScheduleComposite() {
-  ScheduleTimer();
-}
-
 void WebWidgetHost::ScheduleAnimation() {
   ScheduleTimer();
 }

@@ -385,8 +385,6 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
       g_command_line->HasSwitch(cefclient::kAcceleratedVideoDisabled);
   settings.accelerated_2d_canvas_disabled =
       g_command_line->HasSwitch(cefclient::kAcceledated2dCanvasDisabled);
-  settings.accelerated_painting_disabled =
-      g_command_line->HasSwitch(cefclient::kAcceleratedPaintingDisabled);
   settings.accelerated_filters_disabled =
       g_command_line->HasSwitch(cefclient::kAcceleratedFiltersDisabled);
   settings.accelerated_plugins_disabled =

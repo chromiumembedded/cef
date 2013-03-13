@@ -81,8 +81,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didStopLoading() OVERRIDE;
   virtual WebKit::WebStorageNamespace* createSessionStorageNamespace(
       unsigned quota) OVERRIDE;
-  virtual WebKit::WebGraphicsContext3D* createGraphicsContext3D(
-      const WebKit::WebGraphicsContext3D::Attributes& attributes) OVERRIDE;
   virtual void didAddMessageToConsole(
       const WebKit::WebConsoleMessage& message,
       const WebKit::WebString& source_name, unsigned source_line) OVERRIDE;
@@ -143,7 +141,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual void didInvalidateRect(const WebKit::WebRect& rect) OVERRIDE;
   virtual void didScrollRect(int dx, int dy,
                              const WebKit::WebRect& clip_rect) OVERRIDE;
-  virtual void scheduleComposite() OVERRIDE;
   virtual void scheduleAnimation() OVERRIDE;
   virtual void didFocus() OVERRIDE;
   virtual void didBlur() OVERRIDE;

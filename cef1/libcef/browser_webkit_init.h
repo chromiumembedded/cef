@@ -42,7 +42,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebCookieJar* cookieJar() OVERRIDE;
   virtual WebKit::WebFileSystem* fileSystem() OVERRIDE;
   virtual bool sandboxEnabled() OVERRIDE;
-  virtual WebKit::WebKitPlatformSupport::FileHandle databaseOpenFile(
+  virtual WebKit::Platform::FileHandle databaseOpenFile(
       const WebKit::WebString& vfs_file_name, int desired_flags) OVERRIDE;
   virtual int databaseDeleteFile(const WebKit::WebString& vfs_file_name,
                                  bool sync_dir) OVERRIDE;

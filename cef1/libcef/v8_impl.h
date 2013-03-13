@@ -64,12 +64,14 @@ class CefV8HandleBase :
     return (!context_state_.get() || context_state_->IsValid());
   }
 
+  v8::Isolate* isolate() const { return isolate_; }
+
  protected:
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
   explicit CefV8HandleBase(v8::Handle<v8::Context> context);
 
- protected:
+  v8::Isolate* isolate_;
   scoped_refptr<CefV8ContextState> context_state_;
 };
 
@@ -83,10 +85,10 @@ class CefV8Handle : public CefV8HandleBase {
 
   CefV8Handle(v8::Handle<v8::Context> context, handleType v)
       : CefV8HandleBase(context),
-        handle_(persistentType::New(v)) {
+        handle_(persistentType::New(isolate(), v)) {
   }
   virtual ~CefV8Handle() {
-    handle_.Dispose();
+    handle_.Dispose(isolate());
     handle_.Clear();
   }
 
@@ -214,16 +216,16 @@ class CefV8ValueImpl : public CefV8Value {
 
     Handle(v8::Handle<v8::Context> context, handleType v, CefTrackNode* tracker)
         : CefV8HandleBase(context),
-          handle_(persistentType::New(v)),
+          handle_(persistentType::New(isolate(), v)),
           tracker_(tracker),
-          tracker_should_persist_(false) {
+          should_persist_(false) {
     }
     virtual ~Handle();
 
     handleType GetHandle(bool should_persist) {
       DCHECK(IsValid());
-      if (should_persist && tracker_ && !tracker_should_persist_)
-        tracker_should_persist_ = true;
+      if (should_persist && !should_persist_)
+        should_persist_ = true;
       return handle_;
     }
 
@@ -234,9 +236,8 @@ class CefV8ValueImpl : public CefV8Value {
     // internal data or function handler objects that are reference counted.
     CefTrackNode* tracker_;
 
-    // True if the |tracker_| object needs to persist due to an Object or
-    // Function type being passed into V8.
-    bool tracker_should_persist_;
+    // True if the handle needs to persist due to it being passed into V8.
+    bool should_persist_;
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };

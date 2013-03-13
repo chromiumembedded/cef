@@ -114,8 +114,7 @@ bool BrowserWebKitInit::sandboxEnabled() {
   return false;
 }
 
-WebKit::WebKitPlatformSupport::FileHandle
-BrowserWebKitInit::databaseOpenFile(
+WebKit::Platform::FileHandle BrowserWebKitInit::databaseOpenFile(
     const WebKit::WebString& vfs_file_name, int desired_flags) {
   return BrowserDatabaseSystem::GetInstance()->OpenFile(
       vfs_file_name, desired_flags);

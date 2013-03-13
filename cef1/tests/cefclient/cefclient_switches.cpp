@@ -82,7 +82,6 @@ const char kAcceleratedCompositingEnabled[] = "accelerated-compositing-enabled";
 const char kAcceleratedLayersDisabled[] = "accelerated-layers-disabled";
 const char kAcceleratedVideoDisabled[] = "accelerated-video-disabled";
 const char kAcceledated2dCanvasDisabled[] = "accelerated-2d-canvas-disabled";
-const char kAcceleratedPaintingDisabled[] = "accelerated-painting-disabled";
 const char kAcceleratedFiltersDisabled[] = "accelerated-filters-disabled";
 const char kAcceleratedPluginsDisabled[] = "accelerated-plugins-disabled";
 const char kDeveloperToolsDisabled[] = "developer-tools-disabled";

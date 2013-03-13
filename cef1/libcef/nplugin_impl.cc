@@ -7,7 +7,7 @@
 #include "libcef/cef_thread.h"
 
 #include "base/bind.h"
-#include "base/string_split.h"
+#include "base/strings/string_split.h"
 #include "base/utf_string_conversions.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 

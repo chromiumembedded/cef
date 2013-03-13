@@ -34,14 +34,6 @@ void CefCookieStoreProxy::GetCookiesWithOptionsAsync(
   cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
 }
 
-void CefCookieStoreProxy::GetCookiesWithInfoAsync(
-    const GURL& url,
-    const net::CookieOptions& options,
-    const GetCookieInfoCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  cookie_store->GetCookiesWithInfoAsync(url, options, callback);
-}
-
 void CefCookieStoreProxy::DeleteCookieAsync(
     const GURL& url,
     const std::string& cookie_name,

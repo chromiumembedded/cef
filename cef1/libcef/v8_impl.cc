@@ -85,7 +85,9 @@ class CefV8TrackManager {
     } else {
       if (context_state_key_.IsEmpty()) {
         context_state_key_ =
-            v8::Persistent<v8::String>::New(v8::String::New(kCefContextState));
+            v8::Persistent<v8::String>::New(
+                v8::Isolate::GetCurrent(),
+                v8::String::New(kCefContextState));
       }
 
       v8::Handle<v8::Object> object = context->Global();
@@ -300,11 +302,13 @@ class CefV8MakeWeakParam {
 };
 
 // Callback for weak persistent reference destruction.
-void TrackDestructor(v8::Persistent<v8::Value> object, void* parameter) {
+void TrackDestructor(v8::Isolate* isolate,
+                     v8::Persistent<v8::Value> object,
+                     void* parameter) {
   if (parameter)
     delete static_cast<CefV8MakeWeakParam*>(parameter);
 
-  object.Dispose();
+  object.Dispose(isolate);
   object.Clear();
 }
 
@@ -602,6 +606,8 @@ bool CefRegisterExtension(const CefString& extension_name,
 // CefV8HandleBase
 
 CefV8HandleBase::CefV8HandleBase(v8::Handle<v8::Context> context) {
+  isolate_ =
+      context.IsEmpty() ? v8::Isolate::GetCurrent() : context->GetIsolate();
   context_state_ = g_v8_tracker.Pointer()->GetContextState(context);
 }
 
@@ -825,17 +831,17 @@ WebKit::WebFrame* CefV8ContextImpl::GetWebFrame() {
 // CefV8ValueImpl::Handle
 
 CefV8ValueImpl::Handle::~Handle() {
-  // Persist the |tracker_| object (call MakeWeak) if:
-  // A. The value represents an Object or Function, and
-  // B. The handle has been passed into a V8 function or used as a return value
+  // Persist the handle (call MakeWeak) if:
+  // A. The handle has been passed into a V8 function or used as a return value
   //    from a V8 callback, and
-  // C. The associated context, if any, is still valid.
-  if (tracker_ && tracker_should_persist_
-      && (!context_state_.get() || context_state_->IsValid())) {
-    handle_.MakeWeak(new CefV8MakeWeakParam(context_state_, tracker_),
-                     TrackDestructor);
+  // B. The associated context, if any, is still valid.
+  if (should_persist_ && (!context_state_.get() || context_state_->IsValid())) {
+    handle_.MakeWeak(
+        isolate(),
+        (tracker_ ? new CefV8MakeWeakParam(context_state_, tracker_) : NULL),
+        TrackDestructor);
   } else {
-    handle_.Dispose();
+    handle_.Dispose(isolate());
     handle_.Clear();
 
     if (tracker_)

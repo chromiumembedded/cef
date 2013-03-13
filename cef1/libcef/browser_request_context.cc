@@ -317,7 +317,12 @@ void BrowserRequestContext::SetCookieStoragePath(const base::FilePath& path) {
       base::FilePath cookie_path =
           new_path.Append(FILE_PATH_LITERAL("Cookies"));
       persistent_store =
-          new SQLitePersistentCookieStore(cookie_path, false, NULL);
+          new SQLitePersistentCookieStore(
+              cookie_path,
+              CefThread::GetMessageLoopProxyForThread(CefThread::IO),
+              CefThread::GetMessageLoopProxyForThread(CefThread::FILE),
+              false,
+              NULL);
     }
   }
 

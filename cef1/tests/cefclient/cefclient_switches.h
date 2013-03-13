@@ -79,7 +79,6 @@ extern const char kAcceleratedCompositingEnabled[];
 extern const char kAcceleratedLayersDisabled[];
 extern const char kAcceleratedVideoDisabled[];
 extern const char kAcceledated2dCanvasDisabled[];
-extern const char kAcceleratedPaintingDisabled[];
 extern const char kAcceleratedFiltersDisabled[];
 extern const char kAcceleratedPluginsDisabled[];
 extern const char kDeveloperToolsDisabled[];
