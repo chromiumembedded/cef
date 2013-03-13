@@ -10,7 +10,7 @@
 #include "base/threading/thread.h"
 
 static void OnRegisterCustomSchemes(
-    CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
+    CefRefPtr<CefSchemeRegistrar> registrar) {
   // Bring in the scheme handler tests.
   extern void RegisterSchemeHandlerCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar);

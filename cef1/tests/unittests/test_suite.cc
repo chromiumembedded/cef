@@ -13,7 +13,7 @@
 
 #if defined(OS_MACOSX)
 #include "base/debug/stack_trace.h"
-#include "base/file_path.h"
+#include "base/files/file_path.h"
 #include "base/i18n/icu_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
