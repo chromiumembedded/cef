@@ -9,6 +9,19 @@
 #include "base/command_line.h"
 #include "base/threading/thread.h"
 
+static void OnRegisterCustomSchemes(
+    CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
+  // Bring in the scheme handler tests.
+  extern void RegisterSchemeHandlerCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar);
+  RegisterSchemeHandlerCustomSchemes(registrar);
+
+  // Bring in the cookie tests.
+  extern void RegisterCookieCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar);
+  RegisterCookieCustomSchemes(registrar);
+}
+
 namespace {
 
 // Thread used to run the test suite.
@@ -46,15 +59,7 @@ class ClientApp : public CefApp {
 
   virtual void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
-    // Bring in the scheme handler tests.
-    extern void RegisterSchemeHandlerCustomSchemes(
-        CefRefPtr<CefSchemeRegistrar> registrar);
-    RegisterSchemeHandlerCustomSchemes(registrar);
-
-    // Bring in the cookie tests.
-    extern void RegisterCookieCustomSchemes(
-        CefRefPtr<CefSchemeRegistrar> registrar);
-    RegisterCookieCustomSchemes(registrar);
+    ::OnRegisterCustomSchemes(registrar);
   }
 
  protected:
