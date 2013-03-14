@@ -1,0 +1,13 @@
+Index: webplugin_delegate_impl_mac.mm
+===================================================================
+--- webplugin_delegate_impl_mac.mm	(revision 187217)
++++ webplugin_delegate_impl_mac.mm	(working copy)
+@@ -164,7 +164,7 @@
+       composited_(false),
+       renderer_(nil),
+       containing_window_has_focus_(false),
+-      initial_window_focus_(false),
++      initial_window_focus_(true),
+       container_is_visible_(false),
+       have_called_set_window_(false),
+       ime_enabled_(false),
