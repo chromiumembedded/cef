@@ -100,8 +100,8 @@ Optional components:
   Note: Without this component HTML5 audio and video will not function.
 
 * Angle and Direct3D support
-    d3dcompiler_43.dll
-    d3dx9_43.dll
+    d3dcompiler_43.dll (required for Windows XP)
+    d3dcompiler_46.dll (required for Windows Vista and newer)
     libEGL.dll
     libGLESv2.dll
   Note: Without these components HTML5 accelerated content like 2D canvas, 3D
