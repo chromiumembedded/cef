@@ -398,3 +398,9 @@ TRACING_TEST(TraceEventAsyncEnd0, CEF_TRACE_EVENT_ASYNC_END0);
 TRACING_TEST(TraceEventAsyncEnd1, CEF_TRACE_EVENT_ASYNC_END1);
 TRACING_TEST(TraceEventAsyncEnd2, CEF_TRACE_EVENT_ASYNC_END2);
 TRACING_TEST(TraceEventCopyAsyncEnd0, CEF_TRACE_EVENT_COPY_ASYNC_END0);
+
+
+TEST(TracingTest, NowFromSystemTraceTime) {
+  int64 val = CefNowFromSystemTraceTime();
+  EXPECT_NE(val, 0);
+}

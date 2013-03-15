@@ -121,4 +121,12 @@ bool CefGetTraceBufferPercentFullAsync();
 /*--cef()--*/
 bool CefEndTracingAsync();
 
+///
+// Returns the current system trace time or, if none is defined, the current
+// high-res time. Can be used by clients to synchronize with the time
+// information in trace events.
+///
+/*--cef()--*/
+int64 CefNowFromSystemTraceTime();
+
 #endif  // CEF_INCLUDE_CEF_TRACE_H_

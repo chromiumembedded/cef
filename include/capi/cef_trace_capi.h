@@ -91,6 +91,13 @@ CEF_EXPORT int cef_get_trace_buffer_percent_full_async();
 CEF_EXPORT int cef_end_tracing_async();
 
 ///
+// Returns the current system trace time or, if none is defined, the current
+// high-res time. Can be used by clients to synchronize with the time
+// information in trace events.
+///
+CEF_EXPORT int64 cef_now_from_system_trace_time();
+
+///
 // Implement this structure to receive trace notifications. The functions of
 // this structure will be called on the browser process UI thread.
 ///

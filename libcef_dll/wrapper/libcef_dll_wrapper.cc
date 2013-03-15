@@ -475,6 +475,16 @@ CEF_GLOBAL bool CefEndTracingAsync() {
   return _retval?true:false;
 }
 
+CEF_GLOBAL int64 CefNowFromSystemTraceTime() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int64 _retval = cef_now_from_system_trace_time();
+
+  // Return type: simple
+  return _retval;
+}
+
 CEF_GLOBAL bool CefParseURL(const CefString& url, CefURLParts& parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

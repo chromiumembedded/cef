@@ -492,6 +492,16 @@ CEF_EXPORT int cef_end_tracing_async() {
   return _retval;
 }
 
+CEF_EXPORT int64 cef_now_from_system_trace_time() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int64 _retval = CefNowFromSystemTraceTime();
+
+  // Return type: simple
+  return _retval;
+}
+
 CEF_EXPORT int cef_parse_url(const cef_string_t* url,
     struct _cef_urlparts_t* parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

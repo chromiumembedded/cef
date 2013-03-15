@@ -9,6 +9,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/debug/trace_event.h"
+#include "base/time.h"
 
 bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
                      const CefString& categories) {
@@ -65,6 +66,9 @@ bool CefEndTracingAsync() {
   return subscriber->EndTracingAsync();
 }
 
+int64 CefNowFromSystemTraceTime() {
+  return base::TimeTicks::NowFromSystemTraceTime().ToInternalValue();
+}
 
 // The below functions can be called from any process.
 
