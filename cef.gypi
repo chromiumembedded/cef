@@ -4,7 +4,6 @@
 
 {
   'variables': {
-    'enable_printing': 0,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {
