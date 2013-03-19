@@ -109,7 +109,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // CefBrowserHost methods.
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual void CloseBrowser() OVERRIDE;
+  virtual void CloseBrowser(bool force_close) OVERRIDE;
   virtual void ParentWindowWillClose() OVERRIDE;
   virtual void SetFocus(bool enable) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
@@ -165,9 +165,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
-  // Call LifeSpanHandler before destroying. Returns true if destruction
-  // is allowed at this time.
-  bool AllowDestroyBrowser();
+  // Called when the OS window hosting the browser is destroyed.
+  void WindowDestroyed();
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
@@ -253,6 +252,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns false if a popup is already pending.
   bool SetPendingPopupInfo(scoped_ptr<PendingPopupInfo> info);
 
+  enum DestructionState {
+    DESTRUCTION_STATE_NONE = 0,
+    DESTRUCTION_STATE_PENDING,
+    DESTRUCTION_STATE_ACCEPTED,
+    DESTRUCTION_STATE_COMPLETED
+  };
+  DestructionState destruction_state() const { return destruction_state_; }
+
  private:
   // content::WebContentsDelegate methods.
   virtual content::WebContents* OpenURLFromTab(
@@ -268,6 +275,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    const string16& message,
                                    int32 line_no,
                                    const string16& source_id) OVERRIDE;
+  virtual void BeforeUnloadFired(content::WebContents* source,
+                                 bool proceed,
+                                 bool* proceed_to_fire_unload) OVERRIDE;
   virtual bool TakeFocus(content::WebContents* source,
                          bool reverse) OVERRIDE;
   virtual void WebContentsFocused(content::WebContents* contents) OVERRIDE;
@@ -482,6 +492,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   int64 focused_frame_id_;
   // Used when no other frame exists. Provides limited functionality.
   CefRefPtr<CefFrameHostImpl> placeholder_frame_;
+
+  // Represents the current browser destruction state. Only accessed on the UI
+  // thread.
+  DestructionState destruction_state_;
+
+  // True if the OS window hosting the browser has been destroyed. Only accessed
+  // on the UI thread.
+  bool window_destroyed_;
 
   // True if currently in the OnSetFocus callback. Only accessed on the UI
   // thread.

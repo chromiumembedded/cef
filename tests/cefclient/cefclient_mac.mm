@@ -155,16 +155,30 @@ static NSAutoreleasePool* g_autopool = nil;
 // Called when the window is about to close. Perform the self-destruction
 // sequence by getting rid of the window. By returning YES, we allow the window
 // to be removed from the screen.
-- (BOOL)windowShouldClose:(id)window {  
+- (BOOL)windowShouldClose:(id)window {
+  if (g_handler.get() && !g_handler->IsClosing()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get()) {
+      // Notify the browser window that we would like to close it. This
+      // will result in a call to ClientHandler::DoClose() if the
+      // JavaScript 'onbeforeunload' event handler allows it.
+      browser->GetHost()->CloseBrowser(false);
+
+      // Cancel the close.
+      return NO;
+    }
+  }
+
   // Try to make the window go away.
   [window autorelease];
-  
+
   // Clean ourselves up after clearing the stack of anything that might have the
   // window on it.
   [self performSelectorOnMainThread:@selector(cleanup:)
                          withObject:window
                       waitUntilDone:NO];
-  
+
+  // Allow the close.
   return YES;
 }
 
@@ -500,11 +514,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 }
 
 // Sent by the default notification center immediately before the application
-// terminates.
+// terminates. Quitting CEF is handled in ClientHandler::OnBeforeClose().
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-  // Shut down CEF.
+  // Release the handler.
   g_handler = NULL;
-  CefShutdown();
 
   [self release];
 
@@ -555,7 +568,9 @@ int main(int argc, char* argv[]) {
   // Run the application message loop.
   CefRunMessageLoop();
 
-  // Don't put anything below this line because it won't be executed.
+  // Shut down CEF.
+  CefShutdown();
+
   return 0;
 }
 
@@ -564,4 +579,8 @@ int main(int argc, char* argv[]) {
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+void AppQuitMessageLoop() {
+  CefQuitMessageLoop();
 }

@@ -34,10 +34,6 @@
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
-// Both the CefContext constuctor and the CefContext::RemoveBrowser method need
-// to initialize or reset to the same value.
-const int kNextBrowserIdReset = 1;
-
 // Global CefContext pointer
 CefRefPtr<CefContext> _Context;
 

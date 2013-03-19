@@ -36,6 +36,9 @@ void AppGetSettings(CefSettings& settings);
 // argument.
 bool AppIsOffScreenRenderingEnabled();
 
+// Quit the application message loop.
+void AppQuitMessageLoop();
+
 // Implementations for various tests.
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser);
 void RunGetTextTest(CefRefPtr<CefBrowser> browser);

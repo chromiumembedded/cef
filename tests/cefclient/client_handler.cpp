@@ -35,9 +35,12 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM3,
 };
 
+int ClientHandler::m_BrowserCount = 0;
+
 ClientHandler::ClientHandler()
   : m_MainHwnd(NULL),
     m_BrowserId(0),
+    m_bIsClosing(false),
     m_EditHwnd(NULL),
     m_BackHwnd(NULL),
     m_ForwardHwnd(NULL),
@@ -257,24 +260,26 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     m_Browser = browser;
     m_BrowserId = browser->GetIdentifier();
   }
+
+  m_BrowserCount++;
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
 
+  // Closing the main window requires special handling. See the DoClose()
+  // documentation in the CEF header for a detailed destription of this
+  // process.
   if (m_BrowserId == browser->GetIdentifier()) {
-    // Since the main window contains the browser window, we need to close
-    // the parent window instead of the browser window.
-    CloseMainWindow();
+    // Notify the browser that the parent window is about to close.
+    browser->GetHost()->ParentWindowWillClose();
 
-    // Return true here so that we can skip closing the browser window
-    // in this pass. (It will be destroyed due to the call to close
-    // the parent above.)
-    return true;
+    // Set a flag to indicate that the window close should be allowed.
+    m_bIsClosing = true;
   }
 
-  // A popup browser window is not contained in another window, so we can let
-  // these windows close by themselves.
+  // Allow the close. For windowed browsers this will result in the OS close
+  // event being sent.
   return false;
 }
 
@@ -295,6 +300,11 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
         m_OpenDevToolsURLs.find(browser->GetMainFrame()->GetURL());
     if (it != m_OpenDevToolsURLs.end())
       m_OpenDevToolsURLs.erase(it);
+  }
+
+  if (--m_BrowserCount == 0) {
+    // All browser windows have closed. Quit the application message loop.
+    AppQuitMessageLoop();
   }
 }
 

@@ -25,6 +25,7 @@
 #define ID_WARN_CONSOLEMESSAGE          32000
 #define ID_WARN_DOWNLOADCOMPLETE        32001
 #define ID_WARN_DOWNLOADERROR           32002
+#define ID_QUIT                         32500
 #define ID_TESTS_GETSOURCE              32760
 #define ID_TESTS_GETTEXT                32761
 #define ID_TESTS_POPUP                  32762

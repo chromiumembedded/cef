@@ -65,10 +65,6 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   // TODO(port): Change button status.
 }
 
-void ClientHandler::CloseMainWindow() {
-  // TODO(port): Close window
-}
-
 std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
   return std::string();
 }

@@ -97,6 +97,9 @@ class TestHandler : public CefClient,
   // returns.
   void ExecuteTest();
 
+  // Returns true if a browser currently exists.
+  static bool HasBrowser() { return browser_count_ > 0; }
+
  protected:
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
@@ -128,6 +131,9 @@ class TestHandler : public CefClient,
   IMPLEMENT_REFCOUNTING(TestHandler);
   // Include the default locking implementation.
   IMPLEMENT_LOCKING(TestHandler);
+
+  // Used to track the number of currently existing browser windows.
+  static int browser_count_;
 };
 
 

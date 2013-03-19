@@ -42,8 +42,9 @@
 
 - (void) dealloc {
   if (browser_) {
-    browser_->DestroyBrowser();
-    browser_->Release();
+    // Force the browser to be destroyed and release the reference added in
+    // PlatformCreateWindow().
+    browser_->WindowDestroyed();
   }
 
   [super dealloc];
@@ -67,6 +68,51 @@
 }
 
 @end
+
+// Receives notifications from the browser window. Will delete itself when done.
+@interface CefWindowDelegate : NSObject <NSWindowDelegate> {
+ @private
+  CefBrowserHostImpl* browser_;  // weak
+}
+
+@property (nonatomic, assign) CefBrowserHostImpl* browser;
+
+@end
+
+@implementation CefWindowDelegate
+
+@synthesize browser = browser_;
+
+- (BOOL)windowShouldClose:(id)window {
+  // Protect against multiple requests to close while the close is pending.
+  if (browser_ && browser_->destruction_state() <=
+      CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
+    if (browser_->destruction_state() ==
+        CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
+      // Request that the browser close.
+      browser_->CloseBrowser(false);
+    }
+
+    // Cancel the close.
+    return NO;
+  }
+
+  // Clean ourselves up after clearing the stack of anything that might have the
+  // window on it.
+  [self performSelectorOnMainThread:@selector(cleanup:)
+                         withObject:window
+                      waitUntilDone:NO];
+
+  // Allow the close.
+  return YES;
+}
+
+- (void)cleanup:(id)window {
+  [self release];
+}
+
+@end
+
 
 namespace {
 
@@ -231,6 +277,10 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
     contentRect.size.width = window_rect.size.width;
     contentRect.size.height = window_rect.size.height;
 
+    // Create the delegate for control and browser window events.
+    CefWindowDelegate* delegate = [[CefWindowDelegate alloc] init];
+    delegate.browser = this;
+
     newWnd = [[UnderlayOpenGLHostingWindow alloc]
               initWithContentRect:window_rect
               styleMask:(NSTitledWindowMask |
@@ -240,6 +290,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
                          NSUnifiedTitleAndToolbarWindowMask )
               backing:NSBackingStoreBuffered
               defer:NO];
+    [newWnd setDelegate:delegate];
     parentView = [newWnd contentView];
     window_info_.parent_view = parentView;
   }

@@ -456,30 +456,24 @@ LPCTSTR CefBrowserHostImpl::GetWndClass() {
 
 // static
 LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
-                                         WPARAM wParam, LPARAM lParam) {
+                                             WPARAM wParam, LPARAM lParam) {
   CefBrowserHostImpl* browser =
       static_cast<CefBrowserHostImpl*>(ui::GetWindowUserData(hwnd));
 
   switch (message) {
   case WM_CLOSE:
-    if (browser) {
-      bool handled(false);
-
-      if (browser->client_.get()) {
-        CefRefPtr<CefLifeSpanHandler> handler =
-            browser->client_->GetLifeSpanHandler();
-        if (handler.get()) {
-          // Give the client a chance to handle this one.
-          handled = handler->DoClose(browser);
-        }
+    // Protect against multiple requests to close while the close is pending.
+    if (browser && browser->destruction_state() <= DESTRUCTION_STATE_PENDING) {
+      if (browser->destruction_state() == DESTRUCTION_STATE_NONE) {
+        // Request that the browser close.
+        browser->CloseBrowser(false);
       }
 
-      if (handled)
-        return 0;
-
-      // We are our own parent in this case.
-      browser->ParentWindowWillClose();
+      // Cancel the close.
+      return 0;
     }
+
+    // Allow the close.
     break;
 
   case WM_DESTROY:
@@ -487,11 +481,9 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
       // Clear the user data pointer.
       ui::SetWindowUserData(hwnd, NULL);
 
-      // Destroy the browser.
-      browser->DestroyBrowser();
-
-      // Release the reference added in PlatformCreateWindow().
-      browser->Release();
+      // Force the browser to be destroyed and release the reference added in
+      // PlatformCreateWindow().
+      browser->WindowDestroyed();
     }
     return 0;
 
@@ -574,8 +566,10 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 }
 
 void CefBrowserHostImpl::PlatformCloseWindow() {
-  if (window_info_.window != NULL)
-    PostMessage(window_info_.window, WM_CLOSE, 0, 0);
+  if (window_info_.window != NULL) {
+    HWND frameWnd = GetAncestor(window_info_.window, GA_ROOT);
+    PostMessage(frameWnd, WM_CLOSE, 0, 0);
+  }
 }
 
 void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {

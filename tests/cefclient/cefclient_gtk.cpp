@@ -24,12 +24,31 @@ char szWorkingDir[512];  // The current working directory
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
 
-void destroy(void) {
-  CefQuitMessageLoop();
+void destroy(GtkWidget* widget, gpointer data) {
+  // Quitting CEF is handled in ClientHandler::OnBeforeClose().
+}
+
+gboolean delete_event(GtkWidget* widget, GdkEvent* event,
+                      GtkWindow* window) {
+  if (g_handler.get() && !g_handler->IsClosing()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get()) {
+      // Notify the browser window that we would like to close it. This
+      // will result in a call to ClientHandler::DoClose() if the
+      // JavaScript 'onbeforeunload' event handler allows it.
+      browser->GetHost()->CloseBrowser(false);
+
+      // Allow the close.
+      return TRUE;
+    }
+  }
+
+  // Cancel the close.
+  return FALSE;
 }
 
 void TerminationSignalHandler(int signatl) {
-  destroy();
+  AppQuitMessageLoop();
 }
 
 // Callback for Debug > Get Source... menu item.
@@ -405,9 +424,9 @@ int main(int argc, char* argv[]) {
   gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
 
   g_signal_connect(G_OBJECT(window), "destroy",
-                   G_CALLBACK(gtk_widget_destroyed), &window);
-  g_signal_connect(G_OBJECT(window), "destroy",
                    G_CALLBACK(destroy), NULL);
+  g_signal_connect(G_OBJECT(window), "delete_event",
+                   G_CALLBACK(delete_event), window);
 
   // Create the handler.
   g_handler = new ClientHandler();
@@ -444,4 +463,8 @@ int main(int argc, char* argv[]) {
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+void AppQuitMessageLoop() {
+  CefQuitMessageLoop();
 }

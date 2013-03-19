@@ -251,6 +251,7 @@
         'tests/unittests/download_unittest.cc',
         'tests/unittests/geolocation_unittest.cc',
         'tests/unittests/jsdialog_unittest.cc',
+        'tests/unittests/life_span_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_unittest.cc',

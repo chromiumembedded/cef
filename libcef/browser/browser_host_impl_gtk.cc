@@ -22,13 +22,36 @@
 namespace {
 
 void DestroyBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
-  browser->DestroyBrowser();
-  browser->Release();
+  // Force the browser to be destroyed and release the reference added in
+  // PlatformCreateWindow().
+  browser->WindowDestroyed();
 }
 
-void window_destroyed(GtkWidget* widget, CefBrowserHostImpl* browser) {
+void browser_destroy(GtkWidget* widget, CefBrowserHostImpl* browser) {
   // Destroy the browser host after window destruction is complete.
   CEF_POST_TASK(CEF_UIT, base::Bind(DestroyBrowser, browser));
+}
+
+void window_destroy(GtkWidget* widget, gpointer data) {
+}
+
+gboolean window_delete_event(GtkWidget* widget, GdkEvent* event,
+                             CefBrowserHostImpl* browser) {
+  // Protect against multiple requests to close while the close is pending.
+  if (browser && browser->destruction_state() <=
+      CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
+    if (browser->destruction_state() ==
+        CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
+      // Request that the browser close.
+      browser->CloseBrowser(false);
+    }
+
+    // Cancel the close.
+    return TRUE;
+  }
+
+  // Allow the close.
+  return FALSE;
 }
 
 std::string GetDescriptionFromMimeType(const std::string& mime_type) {
@@ -225,6 +248,11 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_widget_show_all(GTK_WIDGET(window));
 
+    g_signal_connect(G_OBJECT(window), "destroy",
+                     G_CALLBACK(window_destroy), NULL);
+    g_signal_connect(G_OBJECT(window), "delete_event",
+                     G_CALLBACK(window_delete_event), this);
+
     window_info_.parent_widget = parentView;
   }
 
@@ -237,7 +265,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
                     window_info_.widget);
 
   g_signal_connect(G_OBJECT(window_info_.widget), "destroy",
-                   G_CALLBACK(window_destroyed), this);
+                   G_CALLBACK(browser_destroy), this);
 
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
@@ -260,7 +288,14 @@ void CefBrowserHostImpl::PlatformCloseWindow() {
   if (window_info_.widget != NULL) {
     GtkWidget* window =
         gtk_widget_get_toplevel(GTK_WIDGET(window_info_.widget));
-    gtk_signal_emit_by_name(GTK_OBJECT(window), "delete_event");
+
+    // Send the "delete_event" signal.
+    GdkEvent event;
+    memset(&event, 0, sizeof(GdkEvent));
+    event.any.type = GDK_DELETE;
+    event.any.send_event = TRUE;
+    event.any.window = window->window;
+    gtk_main_do_event(&event);
   }
 }
 

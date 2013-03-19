@@ -81,14 +81,15 @@ void CefBrowserHostCToCpp::ParentWindowWillClose() {
   struct_->parent_window_will_close(struct_);
 }
 
-void CefBrowserHostCToCpp::CloseBrowser() {
+void CefBrowserHostCToCpp::CloseBrowser(bool force_close) {
   if (CEF_MEMBER_MISSING(struct_, close_browser))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->close_browser(struct_);
+  struct_->close_browser(struct_,
+      force_close);
 }
 
 void CefBrowserHostCToCpp::SetFocus(bool enable) {

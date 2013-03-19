@@ -236,6 +236,11 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   int GetBrowserId() { return m_BrowserId; }
 
+  // Returns true if the main browser window is currently closing. Used in
+  // combination with DoClose() and the OS close notification to properly handle
+  // 'onbeforeunload' JavaScript events during window close.
+  bool IsClosing() { return m_bIsClosing; }
+
   std::string GetLogFile();
 
   void SetLastDownloadFile(const std::string& fileName);
@@ -249,7 +254,6 @@ class ClientHandler : public CefClient,
     NOTIFY_DOWNLOAD_ERROR,
   };
   void SendNotification(NotificationType type);
-  void CloseMainWindow();
 
   void ShowDevTools(CefRefPtr<CefBrowser> browser);
 
@@ -297,6 +301,9 @@ class ClientHandler : public CefClient,
   // The child browser id
   int m_BrowserId;
 
+  // True if the main browser window is currently closing.
+  bool m_bIsClosing;
+
   // The edit window handle
   CefWindowHandle m_EditHwnd;
 
@@ -329,6 +336,10 @@ class ClientHandler : public CefClient,
 
   // The startup URL.
   std::string m_StartupURL;
+
+  // Number of currently existing browser windows. The application will exit
+  // when the number of windows reaches 0.
+  static int m_BrowserCount;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

@@ -83,7 +83,7 @@ class TitleTestHandler : public TestHandler {
   }
 
  private:
-  virtual void DestroyTest() {
+  virtual void DestroyTest() OVERRIDE {
     for (int i = 0; i < 5; ++i)
       EXPECT_TRUE(got_title_[i]) << "step " << i;
 

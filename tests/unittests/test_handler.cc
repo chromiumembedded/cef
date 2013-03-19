@@ -19,6 +19,8 @@ void NotifyEvent(base::WaitableEvent* event) {
 
 // TestHandler
 
+int TestHandler::browser_count_ = 0;
+
 TestHandler::TestHandler()
   : browser_id_(0),
     completion_event_(true, false) {
@@ -28,6 +30,8 @@ TestHandler::~TestHandler() {
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  browser_count_++;
+
   AutoLock lock_scope(this);
   if (!browser->IsPopup()) {
     // Keep the main child window, but not popup windows
@@ -37,15 +41,19 @@ void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 }
 
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
-  AutoLock lock_scope(this);
-  if (browser_id_ == browser->GetIdentifier()) {
-    // Free the browser pointer so that the browser can be destroyed
-    browser_ = NULL;
-    browser_id_ = 0;
+  {
+    AutoLock lock_scope(this);
+    if (browser_id_ == browser->GetIdentifier()) {
+      // Free the browser pointer so that the browser can be destroyed
+      browser_ = NULL;
+      browser_id_ = 0;
 
-    // Signal that the test is now complete.
-    completion_event_.Signal();
+      // Signal that the test is now complete.
+      completion_event_.Signal();
+    }
   }
+
+  browser_count_--;
 }
 
 CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
@@ -91,7 +99,7 @@ void TestHandler::ExecuteTest() {
 void TestHandler::DestroyTest() {
   AutoLock lock_scope(this);
   if (browser_id_ != 0)
-    browser_->GetHost()->CloseBrowser();
+    browser_->GetHost()->CloseBrowser(false);
 }
 
 void TestHandler::CreateBrowser(const CefString& url) {

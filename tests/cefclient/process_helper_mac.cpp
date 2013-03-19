@@ -15,6 +15,8 @@ std::string AppGetWorkingDirectory() {
 CefWindowHandle AppGetMainHwnd() {
   return NULL;
 }
+void AppQuitMessageLoop() {
+}
 
 // Process entry point.
 int main(int argc, char* argv[]) {

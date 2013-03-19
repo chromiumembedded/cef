@@ -1018,7 +1018,7 @@ class OrderNavTestHandler : public TestHandler {
           "window.open('" + std::string(KONav2) + "');", CefString(), 0);
     } else {
       // Close the popup window.
-      browser_popup_->GetHost()->CloseBrowser();
+      browser_popup_->GetHost()->CloseBrowser(false);
     }
   }
 
@@ -1502,7 +1502,7 @@ class PopupNavTestHandler : public TestHandler {
     } else if (url == kPopupNavPopupUrl) {
       if (allow_) {
         got_popup_load_end_.yes();
-        browser->GetHost()->CloseBrowser();
+        browser->GetHost()->CloseBrowser(false);
         DestroyTest();
       } else {
         EXPECT_FALSE(true); // Not reached.
@@ -1513,7 +1513,7 @@ class PopupNavTestHandler : public TestHandler {
   }
 
  private:
-  virtual void DestroyTest() {
+  virtual void DestroyTest() OVERRIDE {
     EXPECT_TRUE(got_on_before_popup_);
     if (allow_)
       EXPECT_TRUE(got_popup_load_end_);

@@ -119,7 +119,8 @@ void CEF_CALLBACK browser_host_parent_window_will_close(
   CefBrowserHostCppToC::Get(self)->ParentWindowWillClose();
 }
 
-void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self) {
+void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
+    int force_close) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,7 +128,8 @@ void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self) {
     return;
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->CloseBrowser();
+  CefBrowserHostCppToC::Get(self)->CloseBrowser(
+      force_close?true:false);
 }
 
 void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,

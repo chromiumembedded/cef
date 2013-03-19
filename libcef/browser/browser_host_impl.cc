@@ -459,19 +459,35 @@ CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
   return this;
 }
 
-void CefBrowserHostImpl::CloseBrowser() {
+void CefBrowserHostImpl::CloseBrowser(bool force_close) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (IsWindowRenderingDisabled()) {
-      if (AllowDestroyBrowser()) {
-        ParentWindowWillClose();
-        DestroyBrowser();
+    // Exit early if a close attempt is already pending and this method is
+    // called again from somewhere other than WindowDestroyed().
+    if (destruction_state_ >= DESTRUCTION_STATE_PENDING &&
+        (IsWindowRenderingDisabled() || !window_destroyed_)) {
+      if (force_close && destruction_state_ == DESTRUCTION_STATE_PENDING) {
+        // Upgrade the destruction state.
+        destruction_state_ = DESTRUCTION_STATE_ACCEPTED;
       }
+      return;
+    }
+
+    if (destruction_state_ < DESTRUCTION_STATE_ACCEPTED) {
+      destruction_state_ = (force_close ? DESTRUCTION_STATE_ACCEPTED :
+                                          DESTRUCTION_STATE_PENDING);
+    }
+
+    content::WebContents* contents = web_contents();
+    if (contents && contents->NeedToFireBeforeUnload()) {
+      // Will result in a call to BeforeUnloadFired() and, if the close isn't
+      // canceled, CloseContents().
+      contents->GetRenderViewHost()->FirePageBeforeUnload(false);
     } else {
-      PlatformCloseWindow();
+      CloseContents(contents);
     }
   } else {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::CloseBrowser, this));
+        base::Bind(&CefBrowserHostImpl::CloseBrowser, this, force_close));
   }
 }
 
@@ -1024,21 +1040,17 @@ bool CefBrowserHostImpl::SendProcessMessage(
 // CefBrowserHostImpl public methods.
 // -----------------------------------------------------------------------------
 
-bool CefBrowserHostImpl::AllowDestroyBrowser() {
-  if (client_.get()) {
-    CefRefPtr<CefLifeSpanHandler> handler =
-        client_->GetLifeSpanHandler();
-    if (handler.get()) {
-      // Give the client a chance to handle this one.
-      return !handler->DoClose(this);
-    }
-  }
-
-  return true;
+void CefBrowserHostImpl::WindowDestroyed() {
+  CEF_REQUIRE_UIT();
+  DCHECK(!window_destroyed_);
+  window_destroyed_ = true;
+  CloseBrowser(true);
 }
 
 void CefBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
+
+  destruction_state_ = DESTRUCTION_STATE_COMPLETED;
 
   if (client_.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client_->GetLifeSpanHandler();
@@ -1412,7 +1424,41 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
 }
 
 void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
-  PlatformCloseWindow();
+  if (destruction_state_ == DESTRUCTION_STATE_COMPLETED)
+    return;
+
+  bool close_browser = true;
+
+  // If this method is called in response to something other than
+  // WindowDestroyed() ask the user if the browser should close.
+  if (IsWindowRenderingDisabled() || !window_destroyed_) {
+    CefRefPtr<CefLifeSpanHandler> handler =
+        client_->GetLifeSpanHandler();
+    if (handler.get()) {
+      close_browser = !handler->DoClose(this);
+    }
+  }
+
+  if (close_browser) {
+    if (destruction_state_ != DESTRUCTION_STATE_ACCEPTED)
+      destruction_state_ = DESTRUCTION_STATE_ACCEPTED;
+
+    if (!IsWindowRenderingDisabled() && !window_destroyed_) {
+      // A window exists so try to close it using the platform method. Will
+      // result in a call to WindowDestroyed() if/when the window is destroyed
+      // via the platform window destruction mechanism.
+      PlatformCloseWindow();
+    } else {
+      // No window exists. Destroy the browser immediately.
+      DestroyBrowser();
+      if (!IsWindowRenderingDisabled()) {
+        // Release the reference added in PlatformCreateWindow().
+        Release();
+      }
+    }
+  } else if (destruction_state_ != DESTRUCTION_STATE_NONE) {
+    destruction_state_ = DESTRUCTION_STATE_NONE;
+  }
 }
 
 void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
@@ -1437,6 +1483,17 @@ bool CefBrowserHostImpl::AddMessageToConsole(content::WebContents* source,
   }
 
   return false;
+}
+
+void CefBrowserHostImpl::BeforeUnloadFired(content::WebContents* source,
+                                           bool proceed,
+                                           bool* proceed_to_fire_unload) {
+  if (destruction_state_ == DESTRUCTION_STATE_ACCEPTED || proceed) {
+    *proceed_to_fire_unload = true;
+  } else if (!proceed) {
+    *proceed_to_fire_unload = false;
+    destruction_state_ = DESTRUCTION_STATE_NONE;
+  }
 }
 
 bool CefBrowserHostImpl::TakeFocus(content::WebContents* source,
@@ -1948,6 +2005,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       queue_messages_(true),
       main_frame_id_(CefFrameHostImpl::kInvalidFrameId),
       focused_frame_id_(CefFrameHostImpl::kInvalidFrameId),
+      destruction_state_(DESTRUCTION_STATE_NONE),
+      window_destroyed_(false),
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
       file_chooser_pending_(false) {

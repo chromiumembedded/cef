@@ -5,6 +5,7 @@
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "tests/cefclient/client_app.h"
+#include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -26,6 +27,10 @@ class CefTestThread : public base::Thread {
   void RunTests() {
     // Run the test suite.
     retval_ = test_suite_->Run();
+
+    // Wait for all browsers to exit.
+    while (TestHandler::HasBrowser())
+      base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
 
     // Quit the CEF message loop.
     CefPostTask(TID_UI, NewCefRunnableFunction(CefQuitMessageLoop));

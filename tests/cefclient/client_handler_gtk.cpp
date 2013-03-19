@@ -54,10 +54,6 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
     gtk_widget_set_sensitive(GTK_WIDGET(m_ForwardHwnd), false);
 }
 
-void ClientHandler::CloseMainWindow() {
-  // TODO(port): Close main window.
-}
-
 std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
   return std::string();
 }

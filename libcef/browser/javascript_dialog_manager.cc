@@ -136,6 +136,14 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     const string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
+  if (browser_->destruction_state() >=
+      CefBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
+    // Currently destroying the browser. Accept the unload without showing
+    // the prompt.
+    callback.Run(true, string16());
+    return;
+  }
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();

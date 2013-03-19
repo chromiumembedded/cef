@@ -219,15 +219,24 @@ typedef struct _cef_browser_host_t {
   ///
   // Call this function before destroying a contained browser window. This
   // function performs any internal cleanup that may be needed before the
-  // browser window is destroyed.
+  // browser window is destroyed. See cef_life_span_handler_t::do_close()
+  // documentation for additional usage information.
   ///
   void (CEF_CALLBACK *parent_window_will_close)(
       struct _cef_browser_host_t* self);
 
   ///
-  // Closes this browser window.
+  // Request that the browser close. The JavaScript 'onbeforeunload' event will
+  // be fired. If |force_close| is false (0) the event handler, if any, will be
+  // allowed to prompt the user and the user can optionally cancel the close. If
+  // |force_close| is true (1) the prompt will not be displayed and the close
+  // will proceed. Results in a call to cef_life_span_handler_t::do_close() if
+  // the event handler allows the close or if |force_close| is true (1). See
+  // cef_life_span_handler_t::do_close() documentation for additional usage
+  // information.
   ///
-  void (CEF_CALLBACK *close_browser)(struct _cef_browser_host_t* self);
+  void (CEF_CALLBACK *close_browser)(struct _cef_browser_host_t* self,
+      int force_close);
 
   ///
   // Set focus for the browser window. If |enable| is true (1) focus will be set

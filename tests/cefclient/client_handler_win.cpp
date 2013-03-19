@@ -67,10 +67,6 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   EnableWindow(m_ForwardHwnd, canGoForward);
 }
 
-void ClientHandler::CloseMainWindow() {
-  ::PostMessage(m_MainHwnd, WM_CLOSE, 0, 0);
-}
-
 std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
   TCHAR szFolderPath[MAX_PATH];
   std::string path;

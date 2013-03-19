@@ -42,6 +42,12 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
+// Used for processing messages on the main application thread while running
+// in multi-threaded message loop mode.
+HWND hMessageWnd = NULL;
+HWND CreateMessageWindow(HINSTANCE hInstance);
+LRESULT CALLBACK MessageWndProc(HWND, UINT, WPARAM, LPARAM);
+
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
 
@@ -115,6 +121,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     // recieves a WM_QUIT message.
     CefRunMessageLoop();
   } else {
+    // Create a hidden window for message processing.
+    hMessageWnd = CreateMessageWindow(hInstance);
+    ASSERT(hMessageWnd);
+
     MSG msg;
 
     // Run the application message loop.
@@ -124,6 +134,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
         DispatchMessage(&msg);
       }
     }
+
+    DestroyWindow(hMessageWnd);
+    hMessageWnd = NULL;
 
     result = static_cast<int>(msg.wParam);
   }
@@ -541,17 +554,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       break;
 
     case WM_CLOSE:
-      if (g_handler.get()) {
+      if (g_handler.get() && !g_handler->IsClosing()) {
         CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
         if (browser.get()) {
-          // Let the browser window know we are about to destroy it.
-          browser->GetHost()->ParentWindowWillClose();
+          // Notify the browser window that we would like to close it. This
+          // will result in a call to ClientHandler::DoClose() if the
+          // JavaScript 'onbeforeunload' event handler allows it.
+          browser->GetHost()->CloseBrowser(false);
+
+          // Cancel the close.
+          return 0;
         }
       }
+
+      // Allow the close.
       break;
 
     case WM_DESTROY:
-      PostQuitMessage(0);
+      // Quitting CEF is handled in ClientHandler::OnBeforeClose().
       return 0;
     }
 
@@ -576,9 +596,50 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
   return (INT_PTR)FALSE;
 }
 
+HWND CreateMessageWindow(HINSTANCE hInstance) {
+  static const wchar_t kWndClass[] = L"ClientMessageWindow";
+
+  WNDCLASSEX wc = {0};
+  wc.cbSize = sizeof(wc);
+  wc.lpfnWndProc = MessageWndProc;
+  wc.hInstance = hInstance;
+  wc.lpszClassName = kWndClass;
+  RegisterClassEx(&wc);
+
+  return CreateWindow(kWndClass, 0, 0, 0, 0, 0, 0, HWND_MESSAGE, 0,
+                      hInstance, 0);
+}
+
+LRESULT CALLBACK MessageWndProc(HWND hWnd, UINT message, WPARAM wParam,
+                                LPARAM lParam) {
+  switch (message) {
+    case WM_COMMAND: {
+      int wmId = LOWORD(wParam);
+      switch (wmId) {
+        case ID_QUIT:
+          PostQuitMessage(0);
+          return 0;
+      }
+    }
+  }
+  return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
 
 // Global functions
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+void AppQuitMessageLoop() {
+  CefRefPtr<CefCommandLine> command_line = AppGetCommandLine();
+  if (command_line->HasSwitch(cefclient::kMultiThreadedMessageLoop)) {
+    // Running in multi-threaded message loop mode. Need to execute
+    // PostQuitMessage on the main application thread.
+    ASSERT(hMessageWnd);
+    PostMessage(hMessageWnd, WM_COMMAND, ID_QUIT, 0);
+  } else {
+    CefQuitMessageLoop();
+  }
 }
