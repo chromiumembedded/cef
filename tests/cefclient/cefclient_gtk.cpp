@@ -38,12 +38,12 @@ gboolean delete_event(GtkWidget* widget, GdkEvent* event,
       // JavaScript 'onbeforeunload' event handler allows it.
       browser->GetHost()->CloseBrowser(false);
 
-      // Allow the close.
+      // Cancel the close.
       return TRUE;
     }
   }
 
-  // Cancel the close.
+  // Allow the close.
   return FALSE;
 }
 
