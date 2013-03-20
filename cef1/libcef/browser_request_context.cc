@@ -45,6 +45,7 @@
 #include "webkit/user_agent/user_agent.h"
 
 #if defined(OS_WIN)
+#include "net/proxy/proxy_config_service_win.h"
 #pragma comment(lib, "winhttp.lib")
 #endif
 
@@ -181,6 +182,10 @@ void BrowserRequestContext::Init(
   if (app.get()) {
     CefRefPtr<CefProxyHandler> handler = app->GetProxyHandler();
     if (handler) {
+#if defined(OS_WIN)
+      // Force auto-detect so the client resolver will be called.
+      net::ProxyConfigServiceWin::set_force_auto_detect(true);
+#endif
       // The client will provide proxy resolution.
       storage_.set_proxy_service(
           new net::ProxyService(CreateProxyConfigService(),

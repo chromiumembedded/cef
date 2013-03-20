@@ -1,0 +1,44 @@
+Index: proxy_config_service_win.cc
+===================================================================
+--- proxy_config_service_win.cc	(revision 187217)
++++ proxy_config_service_win.cc	(working copy)
+@@ -36,6 +36,8 @@
+ 
+ }  // namespace
+ 
++bool ProxyConfigServiceWin::force_auto_detect_ = false;
++
+ // RegKey and ObjectWatcher pair.
+ class ProxyConfigServiceWin::KeyEntry {
+  public:
+@@ -170,7 +172,7 @@
+ void ProxyConfigServiceWin::SetFromIEConfig(
+     ProxyConfig* config,
+     const WINHTTP_CURRENT_USER_IE_PROXY_CONFIG& ie_config) {
+-  if (ie_config.fAutoDetect)
++  if (ie_config.fAutoDetect || force_auto_detect_)
+     config->set_auto_detect(true);
+   if (ie_config.lpszProxy) {
+     // lpszProxy may be a single proxy, or a proxy per scheme. The format
+Index: proxy_config_service_win.h
+===================================================================
+--- proxy_config_service_win.h	(revision 187217)
++++ proxy_config_service_win.h	(working copy)
+@@ -49,6 +49,8 @@
+   // Overrides a function from PollingProxyConfigService.
+   virtual void AddObserver(Observer* observer) OVERRIDE;
+ 
++  static void set_force_auto_detect(bool val) { force_auto_detect_ = val; }
++
+  private:
+   FRIEND_TEST_ALL_PREFIXES(ProxyConfigServiceWinTest, SetFromIEConfig);
+   class KeyEntry;
+@@ -73,6 +75,8 @@
+       const WINHTTP_CURRENT_USER_IE_PROXY_CONFIG& ie_config);
+ 
+   KeyEntryList keys_to_watch_;
++
++  static bool force_auto_detect_;
+ };
+ 
+ }  // namespace net
