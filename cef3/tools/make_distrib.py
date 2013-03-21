@@ -117,6 +117,7 @@ def fix_msvs_projects():
   for file in files:
     data = read_file(file)
     data = data.replace('../../..\\build\\', '')
+    data = data.replace('..\\..\\..\\build\\', '')
     write_file(file, data)
 
 def run(command_line, working_dir):
