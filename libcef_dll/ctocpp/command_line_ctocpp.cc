@@ -18,9 +18,9 @@
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
-  int build_revision = cef_build_revision();
-  if (build_revision != CEF_REVISION) {
-    // The libcef build revision does not match the CEF API revision.
+  const char* api_hash = cef_api_hash(0);
+  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
+    // The libcef API hash does not match the current header API hash.
     DCHECK(false);
     return NULL;
   }
@@ -35,9 +35,9 @@ CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
 }
 
 CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
-  int build_revision = cef_build_revision();
-  if (build_revision != CEF_REVISION) {
-    // The libcef build revision does not match the CEF API revision.
+  const char* api_hash = cef_api_hash(0);
+  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
+    // The libcef API hash does not match the current header API hash.
     DCHECK(false);
     return NULL;
   }

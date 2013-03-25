@@ -270,7 +270,7 @@ def format_translation_includes(body):
     """
     result = ''
     
-    if body.find('cef_build_revision()') > 0:
+    if body.find('cef_api_hash(') > 0:
         result += '#include "include/cef_version.h"\n'
     
     # identify what CppToC classes are being used

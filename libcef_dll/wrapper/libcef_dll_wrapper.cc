@@ -112,9 +112,9 @@
 
 CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
     CefRefPtr<CefApp> application) {
-  int build_revision = cef_build_revision();
-  if (build_revision != CEF_REVISION) {
-    // The libcef build revision does not match the CEF API revision.
+  const char* api_hash = cef_api_hash(0);
+  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
+    // The libcef API hash does not match the current header API hash.
     DCHECK(false);
     return 0;
   }
@@ -134,9 +134,9 @@ CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
 
 CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
     const CefSettings& settings, CefRefPtr<CefApp> application) {
-  int build_revision = cef_build_revision();
-  if (build_revision != CEF_REVISION) {
-    // The libcef build revision does not match the CEF API revision.
+  const char* api_hash = cef_api_hash(0);
+  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
+    // The libcef API hash does not match the current header API hash.
     DCHECK(false);
     return false;
   }

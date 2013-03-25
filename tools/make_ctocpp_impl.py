@@ -60,11 +60,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         if len(retval_default) > 0:
             retval_default = ' '+retval_default;
     
-    # add revision check
-    if func.has_attrib('revision_check'):
-        result += '\n  int build_revision = cef_build_revision();'\
-                  '\n  if (build_revision != CEF_REVISION) {'\
-                  '\n    // The libcef build revision does not match the CEF API revision.'\
+    # add API hash check
+    if func.has_attrib('api_hash_check'):
+        result += '\n  const char* api_hash = cef_api_hash(0);'\
+                  '\n  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {'\
+                  '\n    // The libcef API hash does not match the current header API hash.'\
                   '\n    DCHECK(false);'\
                   '\n    return'+retval_default+';'\
                   '\n  }\n'

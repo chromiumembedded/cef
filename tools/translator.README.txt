@@ -86,7 +86,7 @@ Supported method/function attributes:
    count_func=[param:func] (Required for non-const non-string std::vector
                            types) Specify the C++ function that returns the
                            count of elements for a vector parameter.
-   revision_check          (Optional) If set a revision check will be added
+   api_hash_check          (Optional) If set an API hash check will be added
                            to the CToCpp version of the method/function.
    
 Supported class attributes:

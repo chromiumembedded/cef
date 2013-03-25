@@ -58,7 +58,7 @@ class CefApp;
 // secondary process it will block until the process should exit and then return
 // the process exit code. The |application| parameter may be empty.
 ///
-/*--cef(revision_check,optional_param=application)--*/
+/*--cef(api_hash_check,optional_param=application)--*/
 int CefExecuteProcess(const CefMainArgs& args, CefRefPtr<CefApp> application);
 
 ///
@@ -66,7 +66,7 @@ int CefExecuteProcess(const CefMainArgs& args, CefRefPtr<CefApp> application);
 // the CEF browser process. The |application| parameter may be empty. A return
 // value of true indicates that it succeeded and false indicates that it failed.
 ///
-/*--cef(revision_check,optional_param=application)--*/
+/*--cef(api_hash_check,optional_param=application)--*/
 bool CefInitialize(const CefMainArgs& args, const CefSettings& settings,
                    CefRefPtr<CefApp> application);
 

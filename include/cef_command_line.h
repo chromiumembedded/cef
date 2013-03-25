@@ -61,14 +61,14 @@ class CefCommandLine : public virtual CefBase {
   ///
   // Create a new CefCommandLine instance.
   ///
-  /*--cef(revision_check)--*/
+  /*--cef(api_hash_check)--*/
   static CefRefPtr<CefCommandLine> CreateCommandLine();
 
   ///
   // Returns the singleton global CefCommandLine object. The returned object
   // will be read-only.
   ///
-  /*--cef(revision_check)--*/
+  /*--cef(api_hash_check)--*/
   static CefRefPtr<CefCommandLine> GetGlobalCommandLine();
 
   ///
