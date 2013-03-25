@@ -272,6 +272,7 @@
         'tests/unittests/urlrequest_unittest.cc',
         'tests/unittests/v8_unittest.cc',
         'tests/unittests/values_unittest.cc',
+        'tests/unittests/version_unittest.cc',
         'tests/unittests/xml_reader_unittest.cc',
         'tests/unittests/zip_reader_unittest.cc',
       ],
