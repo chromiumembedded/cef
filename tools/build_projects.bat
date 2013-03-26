@@ -21,9 +21,12 @@ set PROJECT_EXT=.vcproj
 ) else (
 call "%VS100COMNTOOLS%vsvars32.bat"
 set PROJECT_EXT=.vcxproj
+set CEF_MSBUILD_PATH=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 )
 
-if exist "%DevEnvDir%\devenv.com" (
+if exist "%CEF_MSBUILD_PATH%" (
+"%CEF_MSBUILD_PATH%" /v:m /p:Configuration=%1;Platform=Win32 /t:"%PROJECT_NAME%" ..\cef.sln
+) else if exist "%DevEnvDir%\devenv.com" (
 echo Building %1 target for %PROJECT_NAME% project...
 "%DevEnvDir%\devenv.com" /build %1 ..\cef.sln /project %PROJECT_NAME%%PROJECT_EXT%
 ) else if exist "%VCINSTALLDIR%\vcpackages\vcbuild.exe" (
