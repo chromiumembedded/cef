@@ -40,6 +40,10 @@ class cef_api_hash:
                 ]
             };
 
+        self.included_files = [
+            "cef_trace_event.h"
+            ];
+
         self.excluded_files = [
             "cef_version.h",
             "internal/cef_tuple.h",
@@ -102,7 +106,7 @@ class cef_api_hash:
         content = re.sub("//.*\n", "", content)
 
         # function declarations
-        for m in re.finditer("\n\s*?CEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;", content, flags = re.DOTALL):
+        for m in re.finditer("\nCEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;", content, flags = re.DOTALL):
             object = {
                 "name": m.group(1),
                 "text": m.group(0).strip()
@@ -110,7 +114,7 @@ class cef_api_hash:
             objects.append(object)
 
         # structs
-        for m in re.finditer("\n\s*?typedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;", content, flags = re.DOTALL):
+        for m in re.finditer("\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;", content, flags = re.DOTALL):
             object = {
                 "name": m.group(2),
                 "text": m.group(0).strip()
@@ -118,7 +122,7 @@ class cef_api_hash:
             objects.append(object)
 
         # enums
-        for m in re.finditer("\n\s*?enum\s+?(\w+)\s+?\{.*?\}\s*?;", content, flags = re.DOTALL):
+        for m in re.finditer("\nenum\s+?(\w+)\s+?\{.*?\}\s*?;", content, flags = re.DOTALL):
             object = {
                 "name": m.group(1),
                 "text": m.group(0).strip()
@@ -126,7 +130,7 @@ class cef_api_hash:
             objects.append(object)
 
         # typedefs
-        for m in re.finditer("\n\s*?typedef\s+?.*?\s+(\w+);", content, flags = 0):
+        for m in re.finditer("\ntypedef\s+?.*?\s+(\w+);", content, flags = 0):
             object = {
                 "name": m.group(1),
                 "text": m.group(0).strip()
@@ -163,7 +167,7 @@ class cef_api_hash:
 
     def __get_filenames(self):
         """ Returns file names to be processed, relative to headerdir """
-        headers = get_files(os.path.join(self.__headerdir, "*.h"))
+        headers = [os.path.join(self.__headerdir, filename) for filename in self.included_files];
         headers = itertools.chain(headers, get_files(os.path.join(self.__headerdir, "capi", "*.h")))
         headers = itertools.chain(headers, get_files(os.path.join(self.__headerdir, "internal", "*.h")))
 
@@ -234,9 +238,9 @@ if __name__ == "__main__":
     for k in sorted(revisions.keys()):
         print format("\"" + k + "\"", ">12s") + ": \"" + revisions[k] + "\""
     print "}"
-    print
-    print 'Completed in: ' + str(c_completed_in)
-    print
+    # print
+    # print 'Completed in: ' + str(c_completed_in)
+    # print
 
-    print "Press any key to continue...";
-    sys.stdin.readline();
+    # print "Press any key to continue...";
+    # sys.stdin.readline();
