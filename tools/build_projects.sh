@@ -10,7 +10,7 @@ else
   fi
   if [ `uname` = "Linux" ]; then
     pushd ../../
-    make BUILDTYPE=$1 -j 16
+    make -j16 $PROJECT_NAME BUILDTYPE=$1
     popd
   else
     xcodebuild -project ../cef.xcodeproj -configuration $1 -target "$PROJECT_NAME"
