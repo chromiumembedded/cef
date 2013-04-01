@@ -23,6 +23,7 @@
 #include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
+#include "cefclient/window_test.h"
 
 
 // Custom menu command Ids.
@@ -665,8 +666,12 @@ void ClientHandler::CreateProcessMessageDelegates(
       ProcessMessageDelegateSet& delegates) {
   // Create the binding test delegates.
   binding_test::CreateProcessMessageDelegates(delegates);
+
   // Create the dialog test delegates.
   dialog_test::CreateProcessMessageDelegates(delegates);
+
+  // Create the window test delegates.
+  window_test::CreateProcessMessageDelegates(delegates);
 }
 
 // static
@@ -676,6 +681,9 @@ void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
 
   // Create the performance test delegates.
   performance_test::CreateRequestDelegates(delegates);
+
+  // Create the window test delegates.
+  window_test::CreateRequestDelegates(delegates);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

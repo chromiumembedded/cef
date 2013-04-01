@@ -18,6 +18,7 @@
 #include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
+#include "cefclient/window_test.h"
 
 char szWorkingDir[512];  // The current working directory
 
@@ -119,6 +120,14 @@ gboolean PerformanceActivated(GtkWidget* widget) {
 gboolean DialogsActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     dialog_test::RunTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Debug > Window... menu item.
+gboolean WindowActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    window_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -307,6 +316,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(PerformanceActivated));
   AddMenuEntry(debug_menu, "Dialogs",
                G_CALLBACK(DialogsActivated));
+  AddMenuEntry(debug_menu, "Window",
+               G_CALLBACK(WindowActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "DOM Access",

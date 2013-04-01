@@ -23,6 +23,7 @@
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
+#include "cefclient/window_test.h"
 
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
@@ -432,6 +433,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_DIALOGS:  // Test JavaScript dialogs
         if (browser.get())
           dialog_test::RunTest(browser);
+        return 0;
+      case ID_TESTS_WINDOW:  // Test window sizing/position/etc.
+        if (browser.get())
+          window_test::RunTest(browser);
         return 0;
       case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())
