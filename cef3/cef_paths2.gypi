@@ -115,6 +115,8 @@
       'tests/cefclient/string_util.cpp',
       'tests/cefclient/string_util.h',
       'tests/cefclient/util.h',
+      'tests/cefclient/window_test.cpp',
+      'tests/cefclient/window_test.h',
     ],
     'cefclient_sources_win': [
       'tests/cefclient/cefclient.rc',
@@ -130,11 +132,13 @@
       'tests/cefclient/res/small.ico',
       'tests/cefclient/res/transparency.html',
       'tests/cefclient/resource_util_win.cpp',
+      'tests/cefclient/window_test_win.cpp',
     ],
     'cefclient_sources_mac': [
       'tests/cefclient/cefclient_mac.mm',
       'tests/cefclient/client_handler_mac.mm',
       'tests/cefclient/resource_util_mac.mm',
+      'tests/cefclient/window_test_mac.mm',
     ],
     'cefclient_sources_mac_helper': [
       'tests/cefclient/binding_test.cpp',
@@ -165,6 +169,9 @@
       'tests/cefclient/string_util.cpp',
       'tests/cefclient/string_util.h',
       'tests/cefclient/util.h',
+      'tests/cefclient/window_test.cpp',
+      'tests/cefclient/window_test.h',
+      'tests/cefclient/window_test_mac.mm',
     ],
     'cefclient_bundle_resources_mac': [
       'tests/cefclient/mac/cefclient.icns',
@@ -177,12 +184,14 @@
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',
       'tests/cefclient/res/performance.html',
+      'tests/cefclient/res/window.html',
       'tests/cefclient/res/xmlhttprequest.html',
     ],
     'cefclient_sources_linux': [
       'tests/cefclient/cefclient_gtk.cpp',
       'tests/cefclient/client_handler_gtk.cpp',
       'tests/cefclient/resource_util_linux.cpp',
+      'tests/cefclient/window_test_gtk.cpp',
     ],
     'cefclient_bundle_resources_linux': [
       'tests/cefclient/res/binding.html',
@@ -191,6 +200,7 @@
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',
       'tests/cefclient/res/performance.html',
+      'tests/cefclient/res/window.html',
       'tests/cefclient/res/xmlhttprequest.html',
     ],
   },

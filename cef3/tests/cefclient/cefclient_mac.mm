@@ -19,6 +19,7 @@
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
+#include "cefclient/window_test.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -198,6 +199,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testBinding:(id)sender;
 - (IBAction)testPerformance:(id)sender;
 - (IBAction)testDialogs:(id)sender;
+- (IBAction)testWindow:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
@@ -252,6 +254,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Dialogs"
                       action:@selector(testDialogs:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Window"
+                      action:@selector(testWindow:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
@@ -426,6 +431,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testDialogs:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     dialog_test::RunTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testWindow:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    window_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPluginInfo:(id)sender {
