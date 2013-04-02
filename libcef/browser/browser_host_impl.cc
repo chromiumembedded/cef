@@ -1598,6 +1598,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
 void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* source_contents,
     int64 source_frame_id,
+    const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
   scoped_ptr<PendingPopupInfo> pending_popup_info;

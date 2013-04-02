@@ -43,6 +43,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   virtual void SizeContents(const gfx::Size& size) OVERRIDE;
   virtual void RenderViewCreated(content::RenderViewHost* host) OVERRIDE;
   virtual void RenderViewSwappedIn(content::RenderViewHost* host) OVERRIDE;
+  virtual void SetOverscrollControllerEnabled(bool enabled) OVERRIDE;
   virtual void Focus() OVERRIDE;
   virtual void SetInitialFocus() OVERRIDE;
   virtual void StoreFocus() OVERRIDE;

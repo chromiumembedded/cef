@@ -1,0 +1,13 @@
+Index: WebNode.cpp
+===================================================================
+--- WebNode.cpp	(revision 146842)
++++ WebNode.cpp	(working copy)
+@@ -181,7 +181,7 @@
+ void WebNode::addEventListener(const WebString& eventType, WebDOMEventListener* listener, bool useCapture)
+ {
+     // Please do not add more eventTypes to this list without an API review.
+-    RELEASE_ASSERT(eventType == "mousedown");
++    //RELEASE_ASSERT(eventType == "mousedown");
+ 
+     EventListenerWrapper* listenerWrapper = listener->createEventListenerWrapper(eventType, useCapture, m_private.get());
+     // The listenerWrapper is only referenced by the actual Node.  Once it goes

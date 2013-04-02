@@ -97,6 +97,7 @@ class CefDownloadHandler : public virtual CefBase {
 
   ///
   // Called when a download's status or progress information has been updated.
+  // This may be called multiple times before and after OnBeforeDownload().
   // Execute |callback| either asynchronously or in this method to cancel the
   // download if desired. Do not keep a reference to |download_item| outside of
   // this method.

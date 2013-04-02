@@ -74,7 +74,7 @@ content::DevToolsAgentHost* CefDevToolsBindingHandler::ForIdentifier(
       if (GetIdentifier(host) == identifier) {
         // May create a new agent host.
         scoped_refptr<content::DevToolsAgentHost> agent_host(
-            content::DevToolsAgentHost::GetFor(host));
+            content::DevToolsAgentHost::GetOrCreateFor(host));
         agents_map_[identifier] = agent_host;
         return agent_host;
       }
@@ -161,6 +161,10 @@ content::RenderViewHost* CefDevToolsDelegate::CreateNewTarget() {
 content::DevToolsHttpHandlerDelegate::TargetType
     CefDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
   return kTargetTypeTab;
+}
+
+std::string CefDevToolsDelegate::GetViewDescription(content::RenderViewHost*) {
+  return std::string();
 }
 
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,

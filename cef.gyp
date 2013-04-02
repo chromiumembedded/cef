@@ -487,10 +487,10 @@
           },
           'sources': [
             '<@(includes_win)',
-            # TODO(cef): Remove webkit_unscaled_resources.rc once custom cursor
+            # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
             # resources can be loaded via ResourceBundle. See crbug.com/147663.
             '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_unscaled_resources.rc',
+            '$(OutDir)/obj/global_intermediate/ui/ui_resources/ui_unscaled_resources.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {

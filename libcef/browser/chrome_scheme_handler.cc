@@ -448,7 +448,7 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
   if (action == "tracingControllerInitialized") {
     // Send the client info to the tracingController.
   } else if (action == "beginTracing") {
-    if (!arguments || arguments->GetSize() != 2) {
+    if (!arguments || arguments->GetSize() != 3) {
       NOTREACHED() << "Invalid arguments to " << action.c_str();
       return;
     }

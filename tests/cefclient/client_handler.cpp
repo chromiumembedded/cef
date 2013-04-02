@@ -60,7 +60,11 @@ ClientHandler::ClientHandler()
   if (m_StartupURL.empty())
     m_StartupURL = "http://www.google.com/";
 
-  m_bExternalDevTools = command_line->HasSwitch(cefclient::kExternalDevTools);
+  // Also use external dev tools if off-screen rendering is enabled since we
+  // disallow popup windows.
+  m_bExternalDevTools =
+      command_line->HasSwitch(cefclient::kExternalDevTools) ||
+      AppIsOffScreenRenderingEnabled();
 }
 
 ClientHandler::~ClientHandler() {

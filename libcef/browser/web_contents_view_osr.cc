@@ -80,6 +80,9 @@ void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
 void CefWebContentsViewOSR::RenderViewSwappedIn(content::RenderViewHost* host) {
 }
 
+void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {
+}
+
 void CefWebContentsViewOSR::Focus() {
 }
 

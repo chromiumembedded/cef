@@ -182,12 +182,6 @@ void CefResourceRequestJob::Start() {
       }
 
       if (SetHeaderIfMissing(headerMap,
-                             net::HttpRequestHeaders::kAcceptCharset,
-                             ua_settings->GetAcceptCharset())) {
-        changed = true;
-      }
-
-      if (SetHeaderIfMissing(headerMap,
                              net::HttpRequestHeaders::kUserAgent,
                              ua_settings->GetUserAgent(request_->url()))) {
         changed = true;

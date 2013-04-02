@@ -106,6 +106,7 @@ typedef struct _cef_download_handler_t {
 
   ///
   // Called when a download's status or progress information has been updated.
+  // This may be called multiple times before and after on_before_download().
   // Execute |callback| either asynchronously or in this function to cancel the
   // download if desired. Do not keep a reference to |download_item| outside of
   // this function.

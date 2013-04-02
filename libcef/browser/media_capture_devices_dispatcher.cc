@@ -135,7 +135,8 @@ void CefMediaCaptureDevicesDispatcher::GetRequestedDevice(
 void CefMediaCaptureDevicesDispatcher::OnCaptureDevicesOpened(
     int render_process_id,
     int render_view_id,
-    const content::MediaStreamDevices& devices) {
+    const content::MediaStreamDevices& devices,
+    const base::Closure& close_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 }
 

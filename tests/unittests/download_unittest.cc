@@ -149,7 +149,6 @@ class DownloadTestHandler : public TestHandler {
       CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_FALSE(got_on_before_download_);
-    EXPECT_FALSE(got_on_download_updated_);
 
     got_on_before_download_.yes();
 
@@ -185,7 +184,6 @@ class DownloadTestHandler : public TestHandler {
       CefRefPtr<CefDownloadItem> download_item,
       CefRefPtr<CefDownloadItemCallback> callback) OVERRIDE {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
-    EXPECT_TRUE(got_on_before_download_);
 
     got_on_download_updated_.yes();
 
@@ -193,14 +191,14 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_TRUE(download_item.get());
     EXPECT_TRUE(callback.get());
 
-    EXPECT_EQ(download_id_, download_item->GetId());
-    
+    if (got_on_before_download_)
+      EXPECT_EQ(download_id_, download_item->GetId());
+
+    EXPECT_LE(0LL, download_item->GetCurrentSpeed());
+    EXPECT_LE(0, download_item->GetPercentComplete());
+
     EXPECT_TRUE(download_item->IsValid());
     EXPECT_FALSE(download_item->IsCanceled());
-    EXPECT_LT(0LL, download_item->GetCurrentSpeed());
-    EXPECT_LT(0, download_item->GetPercentComplete());
-    EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
-        download_item->GetTotalBytes());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
     EXPECT_STREQ(kTestContentDisposition,
         download_item->GetContentDisposition().ToString().c_str());
@@ -219,11 +217,13 @@ class DownloadTestHandler : public TestHandler {
       EXPECT_EQ(100, download_item->GetPercentComplete());
       EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
           download_item->GetReceivedBytes());
+      EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
+          download_item->GetTotalBytes());
 
       DestroyTest();
     } else {
       EXPECT_TRUE(download_item->IsInProgress());
-      EXPECT_LT(0LL, download_item->GetReceivedBytes());
+      EXPECT_LE(0LL, download_item->GetReceivedBytes());
     }
   }
 
