@@ -49,7 +49,7 @@ DWORD GetPreferredDropEffect(DWORD effect) {
 }  // namespace
 
 WebDropTarget::WebDropTarget(CefBrowserImpl* browser)
-    : ui::DropTarget(browser->UIT_GetWebViewWndHandle()),
+    : ui::DropTargetWin(browser->UIT_GetWebViewWndHandle()),
       browser_(browser),
       current_wvh_(NULL),
       drag_cursor_(WebDragOperationNone),

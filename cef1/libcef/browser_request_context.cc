@@ -23,10 +23,7 @@
 #include "chrome/browser/net/sqlite_persistent_cookie_store.h"
 #include "net/base/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
-#include "net/base/default_server_bound_cert_store.h"
-#include "net/base/host_resolver.h"
-#include "net/base/server_bound_cert_service.h"
-#include "net/base/ssl_config_service_defaults.h"
+#include "net/dns/host_resolver.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_server_properties_impl.h"
@@ -34,6 +31,9 @@
 #include "net/proxy/proxy_config_service_fixed.h"
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_service.h"
+#include "net/ssl/default_server_bound_cert_store.h"
+#include "net/ssl/server_bound_cert_service.h"
+#include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/Platform.h"
@@ -132,9 +132,6 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
   // hard-code A-L and A-C for test shells
   virtual std::string GetAcceptLanguage() const OVERRIDE {
     return "en-us,en";
-  }
-  virtual std::string GetAcceptCharset() const OVERRIDE {
-    return "iso-8859-1,*,utf-8";
   }
 
   virtual std::string GetUserAgent(const GURL& url) const OVERRIDE {

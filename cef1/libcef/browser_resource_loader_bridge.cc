@@ -595,7 +595,7 @@ class RequestProxy : public net::URLRequest::Delegate,
           browser_->request_context_proxy() : _Context->request_context();
 
       request_.reset(new net::URLRequest(params->url, this, context));
-      request_->set_priority(params->priority);
+      request_->SetPriority(params->priority);
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
       request_->set_referrer(params->referrer.spec());

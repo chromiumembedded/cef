@@ -24,6 +24,7 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebFileSystem.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebFileSystemType.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebRect.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebContextMenuData.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFileChooserParams.h"
@@ -99,8 +100,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   virtual bool shouldDeleteRange(const WebKit::WebRange& range) OVERRIDE;
   virtual bool shouldApplyStyle(
       const WebKit::WebString& style, const WebKit::WebRange& range) OVERRIDE;
-  virtual bool isSmartInsertDeleteEnabled() OVERRIDE;
-  virtual bool isSelectTrailingWhitespaceEnabled() OVERRIDE;
   virtual bool handleCurrentKeyboardEvent() OVERRIDE;
   virtual bool runFileChooser(
       const WebKit::WebFileChooserParams& params,
@@ -211,7 +210,7 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       OVERRIDE;
   virtual void openFileSystem(
       WebKit::WebFrame* frame,
-      WebKit::WebFileSystem::Type type,
+      WebKit::WebFileSystemType type,
       long long size,  // NOLINT(runtime/int)
       bool create,
       WebKit::WebFileSystemCallbacks* callbacks) OVERRIDE;
@@ -244,9 +243,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   explicit BrowserWebViewDelegate(CefBrowserImpl* browser);
   virtual ~BrowserWebViewDelegate();
   void Reset();
-
-  void SetSmartInsertDeleteEnabled(bool enabled);
-  void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   // Additional accessors
 #if defined(OS_WIN) || defined(OS_LINUX)
@@ -387,12 +383,6 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
   // The external popup menu for the currently showing select popup.
   scoped_ptr<ExternalPopupMenu> external_popup_menu_;
 #endif
-
-  // true if we want to enable smart insert/delete.
-  bool smart_insert_delete_enabled_;
-
-  // true if we want to enable selection of trailing whitespaces
-  bool select_trailing_whitespace_enabled_;
 
   // true if we should block any redirects
   bool block_redirects_;

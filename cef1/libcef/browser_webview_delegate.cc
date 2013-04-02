@@ -267,14 +267,6 @@ bool BrowserWebViewDelegate::shouldApplyStyle(const WebString& style,
   return browser_->UIT_AllowEditing();
 }
 
-bool BrowserWebViewDelegate::isSmartInsertDeleteEnabled() {
-  return smart_insert_delete_enabled_;
-}
-
-bool BrowserWebViewDelegate::isSelectTrailingWhitespaceEnabled() {
-  return select_trailing_whitespace_enabled_;
-}
-
 bool BrowserWebViewDelegate::handleCurrentKeyboardEvent() {
   WebWidgetHost* host = GetWidgetHost();
   if (host && OnKeyboardEvent(host->GetLastKeyEvent(), true))
@@ -1014,7 +1006,8 @@ void BrowserWebViewDelegate::reportFindInPageSelection(
 }
 
 void BrowserWebViewDelegate::openFileSystem(
-    WebFrame* frame, WebFileSystem::Type type,
+    WebFrame* frame,
+    WebKit::WebFileSystemType type,
     long long size,  // NOLINT(runtime/int)
     bool create,
     WebFileSystemCallbacks* callbacks) {
@@ -1035,12 +1028,6 @@ BrowserWebViewDelegate::BrowserWebViewDelegate(CefBrowserImpl* browser)
 #if defined(OS_WIN)
       destroy_on_drag_end_(false),
 #endif
-      smart_insert_delete_enabled_(true),
-#if defined(OS_WIN)
-      select_trailing_whitespace_enabled_(true),
-#else
-      select_trailing_whitespace_enabled_(false),
-#endif
       block_redirects_(false),
       cookie_jar_(browser) {
 }
@@ -1055,22 +1042,8 @@ void BrowserWebViewDelegate::Reset() {
   new (this)BrowserWebViewDelegate(browser);  // NOLINT(whitespace/parens)
 }
 
-void BrowserWebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
-  smart_insert_delete_enabled_ = enabled;
-  // In upstream WebKit, smart insert/delete is mutually exclusive with select
-  // trailing whitespace, however, we allow both because Chromium on Windows
-  // allows both.
-}
-
-void BrowserWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
-  select_trailing_whitespace_enabled_ = enabled;
-  // In upstream WebKit, smart insert/delete is mutually exclusive with select
-  // trailing whitespace, however, we allow both because Chromium on Windows
-  // allows both.
-}
-
 void BrowserWebViewDelegate::SetCustomPolicyDelegate(bool is_custom,
-                                                  bool is_permissive) {
+                                                     bool is_permissive) {
   policy_delegate_enabled_ = is_custom;
   policy_delegate_is_permissive_ = is_permissive;
 }

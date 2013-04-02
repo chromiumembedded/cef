@@ -32,7 +32,7 @@ static void GetCursorPositions(gfx::NativeWindow wnd, gfx::Point* client,
 // WebDragSource, public:
 
 WebDragSource::WebDragSource(gfx::NativeWindow source_wnd, WebView* view)
-    : ui::DragSource(),
+    : ui::DragSourceWin(),
       source_wnd_(source_wnd),
       view_(view),
       effect_(DROPEFFECT_NONE) {

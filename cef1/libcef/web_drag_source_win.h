@@ -8,7 +8,7 @@
 #pragma once
 
 #include "base/basictypes.h"
-#include "ui/base/dragdrop/drag_source.h"
+#include "ui/base/dragdrop/drag_source_win.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/point.h"
 
@@ -20,7 +20,7 @@ class WebView;
 // by an active drag-drop operation as the user mouses over other drop targets
 // on their system. This object tells Windows whether or not the drag should
 // continue, and supplies the appropriate cursors.
-class WebDragSource : public ui::DragSource {
+class WebDragSource : public ui::DragSourceWin {
  public:
   // Create a new DragSource for a given HWND and WebView.
   WebDragSource(gfx::NativeWindow source_wnd, WebKit::WebView* view);

@@ -9,7 +9,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
-#include "ui/base/dragdrop/drop_target.h"
+#include "ui/base/dragdrop/drop_target_win.h"
 
 class CefBrowserImpl;
 class WebViewHost;
@@ -17,7 +17,7 @@ class WebViewHost;
 // A helper object that provides drop capabilities to a WebView. The
 // DropTarget handles drags that enter the region of the WebView by
 // passing on the events to the renderer.
-class WebDropTarget : public ui::DropTarget {
+class WebDropTarget : public ui::DropTargetWin {
  public:
   // Create a new WebDropTarget associating it with the given HWND and
   // WebView.

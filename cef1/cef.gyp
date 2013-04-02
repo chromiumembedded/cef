@@ -486,6 +486,7 @@
           ],
           'sources': [
             '<@(includes_win)',
+            '$(OutDir)/obj/global_intermediate/ui/ui_resources/ui_unscaled_resources.rc',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_chromium_resources.rc',
             '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
             'libcef_dll/libcef_dll.rc',

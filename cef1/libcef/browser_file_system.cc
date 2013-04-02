@@ -105,7 +105,8 @@ BrowserFileSystem::~BrowserFileSystem() {
 }
 
 void BrowserFileSystem::OpenFileSystem(
-    WebFrame* frame, WebFileSystem::Type type,
+    WebFrame* frame,
+    WebKit::WebFileSystemType type,
     long long, bool create,  // NOLINT(runtime/int)
     WebFileSystemCallbacks* callbacks) {
   if (!frame || !file_system_context_.get()) {
@@ -121,7 +122,8 @@ void BrowserFileSystem::OpenFileSystem(
 }
 
 void BrowserFileSystem::DeleteFileSystem(
-    WebFrame* frame, WebFileSystem::Type type,
+    WebFrame* frame,
+    WebKit::WebFileSystemType type,
     WebFileSystemCallbacks* callbacks) {
   if (!frame || !file_system_context_.get()) {
     callbacks->didFail(WebKit::WebFileErrorSecurity);
