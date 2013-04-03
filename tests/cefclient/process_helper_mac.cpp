@@ -17,6 +17,9 @@ CefWindowHandle AppGetMainHwnd() {
 }
 void AppQuitMessageLoop() {
 }
+bool AppIsOffScreenRenderingEnabled() {
+  return false;
+}
 
 // Process entry point.
 int main(int argc, char* argv[]) {
