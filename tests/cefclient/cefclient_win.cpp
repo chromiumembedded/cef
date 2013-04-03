@@ -358,7 +358,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
         return 0;
       case IDM_EXIT:
-        DestroyWindow(hWnd);
+        if (g_handler.get())
+          g_handler->CloseAllBrowsers(false);
         return 0;
       case ID_WARN_CONSOLEMESSAGE:
         if (g_handler.get()) {

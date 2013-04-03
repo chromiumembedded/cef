@@ -311,6 +311,9 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     // We need to keep the main child window, but not popup windows
     m_Browser = browser;
     m_BrowserId = browser->GetIdentifier();
+  } else if (browser->IsPopup()) {
+    // Add to the list of popup browsers.
+    m_PopupBrowsers.push_back(browser);
   }
 
   m_BrowserCount++;
@@ -352,6 +355,15 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
         m_OpenDevToolsURLs.find(browser->GetMainFrame()->GetURL());
     if (it != m_OpenDevToolsURLs.end())
       m_OpenDevToolsURLs.erase(it);
+
+    // Remove from the browser popup list.
+    BrowserList::iterator bit = m_PopupBrowsers.begin();
+    for (; bit != m_PopupBrowsers.end(); ++bit) {
+      if ((*bit)->IsSame(browser)) {
+        m_PopupBrowsers.erase(bit);
+        break;
+      }
+    }
   }
 
   if (--m_BrowserCount == 0) {
@@ -558,6 +570,28 @@ void ClientHandler::SetButtonHwnds(CefWindowHandle backHwnd,
   m_ForwardHwnd = forwardHwnd;
   m_ReloadHwnd = reloadHwnd;
   m_StopHwnd = stopHwnd;
+}
+
+void ClientHandler::CloseAllBrowsers(bool force_close) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &ClientHandler::CloseAllBrowsers,
+                             force_close));
+    return;
+  }
+
+  if (!m_PopupBrowsers.empty()) {
+    // Request that any popup browsers close.
+    BrowserList::const_iterator it = m_PopupBrowsers.begin();
+    for (; it != m_PopupBrowsers.end(); ++it)
+      (*it)->GetHost()->CloseBrowser(force_close);
+  }
+
+  if (m_Browser.get()) {
+    // Request that the main browser close.
+    m_Browser->GetHost()->CloseBrowser(force_close);
+  }
 }
 
 std::string ClientHandler::GetLogFile() {

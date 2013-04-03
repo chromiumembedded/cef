@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_H_
 #pragma once
 
+#include <list>
 #include <map>
 #include <set>
 #include <string>
@@ -236,6 +237,9 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   int GetBrowserId() { return m_BrowserId; }
 
+  // Request that all existing browser windows close.
+  void CloseAllBrowsers(bool force_close);
+
   // Returns true if the main browser window is currently closing. Used in
   // combination with DoClose() and the OS close notification to properly handle
   // 'onbeforeunload' JavaScript events during window close.
@@ -294,6 +298,10 @@ class ClientHandler : public CefClient,
 
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
+
+  // List of any popup browser windows. Only accessed on the CEF UI thread.
+  typedef std::list<CefRefPtr<CefBrowser> > BrowserList;
+  BrowserList m_PopupBrowsers;
 
   // The main frame window handle
   CefWindowHandle m_MainHwnd;

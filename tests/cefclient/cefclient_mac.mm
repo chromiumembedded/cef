@@ -36,9 +36,6 @@ char szWorkingDir[512];   // The current working directory
 const int kWindowWidth = 800;
 const int kWindowHeight = 600;
 
-// Memory AutoRelease pool.
-static NSAutoreleasePool* g_autopool = nil;
-
 // Provide the CefAppProtocol implementation required by CEF.
 @interface ClientApplication : NSApplication<CefAppProtocol> {
 @private
@@ -469,16 +466,22 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunOtherTests(g_handler->GetBrowser());
 }
 
-// Sent by the default notification center immediately before the application
-// terminates. Quitting CEF is handled in ClientHandler::OnBeforeClose().
+// Called when the application’s Quit menu item is selected.
+- (NSApplicationTerminateReply)applicationShouldTerminate:
+      (NSApplication *)sender {
+  // Request that all browser windows close.
+  if (g_handler.get())
+    g_handler->CloseAllBrowsers(false);
+
+  // Cancel the termination. The application will exit after all windows have
+  // closed.
+  return NSTerminateCancel;
+}
+
+// Sent immediately before the application terminates. This signal should not
+// be called because we cancel the termination.
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-  // Release the handler.
-  g_handler = NULL;
-
-  [self release];
-
-  // Release the AutoRelease pool.
-  [g_autopool release];
+  ASSERT(false);  // Not reached.
 }
 
 @end
@@ -497,7 +500,7 @@ int main(int argc, char* argv[]) {
   getcwd(szWorkingDir, sizeof(szWorkingDir));
 
   // Initialize the AutoRelease pool.
-  g_autopool = [[NSAutoreleasePool alloc] init];
+  NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
 
   // Initialize the ClientApplication instance.
   [ClientApplication sharedApplication];
@@ -526,6 +529,15 @@ int main(int argc, char* argv[]) {
 
   // Shut down CEF.
   CefShutdown();
+
+  // Release the handler.
+  g_handler = NULL;
+
+  // Release the delegate.
+  [delegate release];
+
+  // Release the AutoRelease pool.
+  [autopool release];
 
   return 0;
 }
