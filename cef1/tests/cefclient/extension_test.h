@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -6,14 +6,16 @@
 #define CEF_TESTS_CEFCLIENT_EXTENSION_TEST_H_
 #pragma once
 
-#include "include/cef_base.h"
+#include "include/cef_browser.h"
 
-class CefBrowser;
+namespace extension_test {
 
 // Register the V8 extension handler.
-void InitExtensionTest();
+void InitTest();
 
 // Run the test.
-void RunExtensionTest(CefRefPtr<CefBrowser> browser);
+void RunTest(CefRefPtr<CefBrowser> browser);
+
+}  // namespace extension_test
 
 #endif  // CEF_TESTS_CEFCLIENT_EXTENSION_TEST_H_

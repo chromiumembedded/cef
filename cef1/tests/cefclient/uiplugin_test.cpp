@@ -1,4 +1,4 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -10,6 +10,9 @@
 #include "cefclient/uiplugin.h"
 #include "cefclient/cefclient.h"
 
+namespace uiplugin_test {
+
+namespace {
 
 // Implementation of the V8 handler class for the "window.uiapp" functions.
 class ClientV8UIHandler : public CefV8Handler {
@@ -58,7 +61,9 @@ class ClientV8UIHandler : public CefV8Handler {
   IMPLEMENT_REFCOUNTING(ClientV8UIHandler);
 };
 
-void InitUIPluginTest() {
+}  // namespace
+
+void InitTest() {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
   CefString(&plugin_info.display_name).FromASCII("Client UI Plugin");
@@ -98,6 +103,8 @@ void InitUIPluginTest() {
   CefRegisterExtension("uiplugin/test", code, new ClientV8UIHandler());
 }
 
-void RunUIPluginTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/uiapp");
+void RunTest(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://tests/uiplugin");
 }
+
+}  // namespace uiplugin_test

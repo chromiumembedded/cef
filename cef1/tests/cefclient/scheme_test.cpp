@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -14,10 +14,9 @@
 #include "cefclient/string_util.h"
 #include "cefclient/util.h"
 
-#if defined(OS_WIN)
-#include "cefclient/resource.h"
-#endif
+namespace scheme_test {
 
+namespace {
 
 // Implementation of the schema handler for client:// requests.
 class ClientSchemeHandler : public CefSchemeHandler {
@@ -60,24 +59,11 @@ class ClientSchemeHandler : public CefSchemeHandler {
       mime_type_ = "text/html";
     } else if (strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
-#if defined(OS_WIN)
-      DWORD dwSize;
-      LPBYTE pBytes;
-      if (LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
-        data_ = std::string(reinterpret_cast<const char*>(pBytes), dwSize);
-        handled = true;
-        // Set the resulting mime type
-        mime_type_ = "image/jpg";
-      }
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
       if (LoadBinaryResource("logo.png", data_)) {
         handled = true;
         // Set the resulting mime type
         mime_type_ = "image/png";
       }
-#else
-#error "Unsupported platform"
-#endif
     }
 
     if (handled) {
@@ -157,15 +143,19 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
 };
 
-void AddSchemeTestSchemes(CefRefPtr<CefSchemeRegistrar> registrar) {
+}  // namespace
+
+void AddSchemes(CefRefPtr<CefSchemeRegistrar> registrar) {
   registrar->AddCustomScheme("client", true, false, false);
 }
 
-void InitSchemeTest() {
+void InitTest() {
   CefRegisterSchemeHandlerFactory("client", "tests",
       new ClientSchemeHandlerFactory());
 }
 
-void RunSchemeTest(CefRefPtr<CefBrowser> browser) {
+void RunTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("client://tests/handler.html");
 }
+
+}  // namespace scheme_test

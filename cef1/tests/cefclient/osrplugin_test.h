@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -6,14 +6,16 @@
 #define CEF_TESTS_CEFCLIENT_OSRPLUGIN_TEST_H_
 #pragma once
 
-#include "include/cef_base.h"
+#include "include/cef_browser.h"
 
-class CefBrowser;
+namespace osrplugin_test {
 
 // Register the internal client plugin and V8 extension.
-void InitOSRPluginTest();
+void InitTest();
 
 // Run the test.
-void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent);
+void RunTest(CefRefPtr<CefBrowser> browser, bool transparent);
+
+}  // namespace osrplugin_test
 
 #endif  // CEF_TESTS_CEFCLIENT_OSRPLUGIN_TEST_H_

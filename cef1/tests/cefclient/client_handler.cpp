@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -9,12 +9,65 @@
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/cef_frame.h"
+#include "include/cef_url.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/cefclient_switches.h"
 #include "cefclient/download_handler.h"
 #include "cefclient/performance_test.h"
+#include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
+
+#if defined(OS_WIN)
+#include "cefclient/plugin_test.h"
+#endif
+
+namespace {
+
+const char kTestOrigin[] = "http://tests/";
+
+// Retrieve the file name and mime type based on the specified url.
+bool ParseTestUrl(const std::string& url,
+                  std::string* file_name,
+                  std::string* mime_type) {
+  // Retrieve the path component.
+  CefURLParts parts;
+  CefParseURL(url, parts);
+  std::string file = CefString(&parts.path);
+  if (file.size() < 2)
+    return false;
+
+  // Remove the leading slash.
+  file = file.substr(1);
+
+  // Verify that the file name is valid.
+  for(size_t i = 0; i < file.size(); ++i) {
+    const char c = file[i];
+    if (!isalpha(c) && !isdigit(c) && c != '_' && c != '.')
+      return false;
+  }
+
+  // Determine the mime type based on the file extension, if any.
+  size_t pos = file.rfind(".");
+  if (pos != std::string::npos) {
+    std::string ext = file.substr(pos + 1);
+    if (ext == "html")
+      *mime_type = "text/html";
+    else if (ext == "png")
+      *mime_type = "image/png";
+    else
+      return false;
+  } else {
+    // Default to an html extension if none is specified.
+    *mime_type = "text/html";
+    file += ".html";
+  }
+
+  *file_name = file;
+  return true;
+}
+
+}  // namespace
 
 ClientHandler::ClientHandler()
   : m_MainHwnd(NULL),
@@ -25,6 +78,8 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFormElementHasFocus(false) {
+  CreateRequestDelegates(request_delegates_);
+
   CefRefPtr<CefCommandLine> commandLine = AppGetCommandLine();
   if (commandLine.get()) {
     if (commandLine->HasSwitch(cefclient::kUrl))
@@ -130,6 +185,53 @@ bool ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   }
 
   return false;
+}
+
+bool ClientHandler::OnBeforeResourceLoad(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefRequest> request,
+    CefString& redirectUrl,
+    CefRefPtr<CefStreamReader>& resourceStream,
+    CefRefPtr<CefResponse> response,
+    int loadFlags) {
+  std::string url = request->GetURL();
+  if (url.find(kTestOrigin) == 0) {
+    // Handle URLs in the test origin.
+    std::string file_name, mime_type;
+    if (ParseTestUrl(url, &file_name, &mime_type)) {
+      if (file_name == "request.html") {
+        // Show the request contents.
+        std::string dump;
+        DumpRequestContents(request, dump);
+        resourceStream = CefStreamReader::CreateForData(
+            static_cast<void*>(const_cast<char*>(dump.c_str())),
+            dump.size());
+        response->SetMimeType("text/plain");
+        response->SetStatus(200);
+      } else {
+        // Load the resource from file.
+        resourceStream =
+            GetBinaryResourceReader(file_name.c_str());
+        if (resourceStream.get()) {
+          response->SetMimeType(mime_type);
+          response->SetStatus(200);
+        }
+      }
+    }
+  }
+
+  bool handled = false;
+
+  // Execute delegate callbacks.
+  RequestDelegateSet::iterator it = request_delegates_.begin();
+  for (; it != request_delegates_.end(); ++it) {
+    handled = (*it)->OnBeforeResourceLoad(this, browser, request, redirectUrl,
+                                          resourceStream, response, loadFlags);
+    if (handled || !redirectUrl.empty() || resourceStream.get())
+      break;
+  }
+
+  return handled;
 }
 
 bool ClientHandler::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
@@ -380,4 +482,13 @@ CefRefPtr<CefDOMVisitor> ClientHandler::GetDOMVisitor(const std::string& path) {
   if (it != m_DOMVisitors.end())
     return it->second;
   return NULL;
+}
+
+
+// static
+void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
+#if defined(OS_WIN)
+  // Create the plugin test delegates.
+  plugin_test::CreateRequestDelegates(delegates);
+#endif
 }

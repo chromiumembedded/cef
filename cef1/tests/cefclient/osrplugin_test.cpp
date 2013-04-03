@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -11,7 +11,11 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/plugin_test.h"
 
-void InitOSRPluginTest() {
+namespace osrplugin_test {
+
+const char kTestUrl[] = "http://tests/osrplugin";
+
+void InitTest() {
   // Structure providing information about the client plugin.
   CefPluginInfo plugin_info;
   CefString(&plugin_info.display_name).FromASCII("Client OSR Plugin");
@@ -28,7 +32,7 @@ void InitOSRPluginTest() {
   CefRegisterPlugin(plugin_info);
 }
 
-void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent) {
+void RunTest(CefRefPtr<CefBrowser> browser, bool transparent) {
   class Listener : public CefDOMEventListener {
    public:
     Listener() {}
@@ -124,8 +128,10 @@ void RunOSRPluginTest(CefRefPtr<CefBrowser> browser, bool transparent) {
   // The DOM visitor will be called after the path is loaded.
   CefRefPtr<CefClient> client = browser->GetClient();
   static_cast<ClientHandler*>(client.get())->AddDOMVisitor(
-      "http://tests/osrapp", new Visitor());
+      kTestUrl, new Visitor());
 
   SetOffScreenTransparent(transparent);
-  browser->GetMainFrame()->LoadURL("http://tests/osrapp");
+  browser->GetMainFrame()->LoadURL(kTestUrl);
 }
+
+}  // namespace osrplugin_test

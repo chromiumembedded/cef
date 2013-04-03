@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -31,101 +31,6 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
     client = new ClientPopupHandler(m_Browser);
   }
 #endif  // TEST_REDIRECT_POPUP_URLS
-
-  return false;
-}
-
-bool ClientHandler::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                     CefRefPtr<CefRequest> request,
-                                     CefString& redirectUrl,
-                                     CefRefPtr<CefStreamReader>& resourceStream,
-                                     CefRefPtr<CefResponse> response,
-                                     int loadFlags) {
-  REQUIRE_IO_THREAD();
-
-  std::string url = request->GetURL();
-  if (url == "http://tests/request") {
-    // Show the request contents
-    std::string dump;
-    DumpRequestContents(request, dump);
-    resourceStream = CefStreamReader::CreateForData(
-        static_cast<void*>(const_cast<char*>(dump.c_str())),
-        dump.size());
-    response->SetMimeType("text/plain");
-    response->SetStatus(200);
-  } else if (strstr(url.c_str(), "/ps_logo2.png") != NULL) {
-    // Any time we find "ps_logo2.png" in the URL substitute in our own image
-    resourceStream = GetBinaryResourceReader(IDS_LOGO);
-    response->SetMimeType("image/png");
-    response->SetStatus(200);
-  } else if (url == "http://tests/uiapp") {
-    // Show the uiapp contents
-    resourceStream = GetBinaryResourceReader(IDS_UIPLUGIN);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/osrapp") {
-    // Show the osrapp contents
-    resourceStream = GetBinaryResourceReader(IDS_OSRPLUGIN);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/localstorage") {
-    // Show the localstorage contents
-    resourceStream = GetBinaryResourceReader(IDS_LOCALSTORAGE);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/xmlhttprequest") {
-    // Show the xmlhttprequest HTML contents
-    resourceStream = GetBinaryResourceReader(IDS_XMLHTTPREQUEST);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/domaccess") {
-    // Show the domaccess HTML contents
-    resourceStream = GetBinaryResourceReader(IDS_DOMACCESS);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (strstr(url.c_str(), "/logoball.png") != NULL) {
-    // Load the "logoball.png" image resource.
-    resourceStream = GetBinaryResourceReader(IDS_LOGOBALL);
-    response->SetMimeType("image/png");
-    response->SetStatus(200);
-  } else if (url == "http://tests/modalmain") {
-    resourceStream = GetBinaryResourceReader(IDS_MODALMAIN);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/modaldialog") {
-    resourceStream = GetBinaryResourceReader(IDS_MODALDIALOG);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/transparency") {
-    resourceStream = GetBinaryResourceReader(IDS_TRANSPARENCY);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/plugin") {
-    std::string html =
-        "<html><body>\n"
-        "Client Plugin loaded by Mime Type:<br>\n"
-        "<embed type=\"application/x-client-plugin\" width=600 height=40>\n"
-        "<br><br>Client Plugin loaded by File Extension:<br>\n"
-        "<embed src=\"test.xcp\" width=600 height=40>\n"
-        // Add some extra space below the plugin to allow scrolling.
-        "<div style=\"height:1000px;\">&nbsp;</div>\n"
-        "</body></html>";
-
-    resourceStream = CefStreamReader::CreateForData(
-        static_cast<void*>(const_cast<char*>(html.c_str())),
-        html.size());
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == performance_test::kTestUrl) {
-    resourceStream = GetBinaryResourceReader(IDS_PERFORMANCE);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  } else if (url == "http://tests/dialogs") {
-    // Show the dialogs HTML contents
-    resourceStream = GetBinaryResourceReader(IDS_DIALOGS);
-    response->SetMimeType("text/html");
-    response->SetStatus(200);
-  }
 
   return false;
 }

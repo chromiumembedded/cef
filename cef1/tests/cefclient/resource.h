@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -26,39 +26,31 @@
 #define ID_WARN_DOWNLOADERROR           32002
 #define ID_FIND                         32101
 #define ID_PRINT                        32102
-#define ID_TESTS_GETSOURCE              32769
-#define ID_TESTS_GETTEXT                32770
-#define ID_TESTS_JAVASCRIPT_BINDING     32771
-#define ID_TESTS_JAVASCRIPT_EXTENSION   32772
-#define ID_TESTS_JAVASCRIPT_EXECUTE     32773
-#define ID_TESTS_PLUGIN                 32774
-#define ID_TESTS_POPUP                  32775
-#define ID_TESTS_REQUEST                32776
-#define ID_TESTS_SCHEME_HANDLER         32777
-#define ID_TESTS_UIAPP                  32778
-#define ID_TESTS_LOCALSTORAGE           32779
-#define ID_TESTS_ACCELERATED2DCANVAS    32780
-#define ID_TESTS_ACCELERATEDLAYERS      32781
-#define ID_TESTS_WEBGL                  32782
-#define ID_TESTS_XMLHTTPREQUEST         32784
-#define ID_TESTS_ZOOM_IN                32785
-#define ID_TESTS_ZOOM_OUT               32786
-#define ID_TESTS_ZOOM_RESET             32787
-#define ID_TESTS_DEVTOOLS_SHOW          32788
-#define ID_TESTS_DEVTOOLS_CLOSE         32789
-#define ID_TESTS_WEBURLREQUEST          32790
-#define ID_TESTS_DOMACCESS              32791
-#define ID_TESTS_DRAGDROP               32792
-#define ID_TESTS_OSRAPP                 32793
-#define ID_TESTS_MODALDIALOG            32794
-#define ID_TESTS_PERFORMANCE            32795
-#define ID_TESTS_TRANSPARENT_POPUP      32796
-#define ID_TESTS_TRANSPARENT_OSRAPP     32797
-#define ID_TESTS_JAVASCRIPT_INVOKE      32798
-#define ID_TESTS_GETIMAGE               32799
-#define ID_TESTS_PLUGIN_INFO            32800
-#define ID_TESTS_GEOLOCATION            32801
-#define ID_TESTS_DIALOGS                32803
+#define ID_TESTS_DEVTOOLS_SHOW          32700
+#define ID_TESTS_DEVTOOLS_CLOSE         32701
+#define ID_TESTS_DOMACCESS              32702
+#define ID_TESTS_GETIMAGE               32703
+#define ID_TESTS_GETSOURCE              32704
+#define ID_TESTS_GETTEXT                32705
+#define ID_TESTS_JAVASCRIPT_BINDING     32706
+#define ID_TESTS_JAVASCRIPT_EXTENSION   32707
+#define ID_TESTS_JAVASCRIPT_EXECUTE     32708
+#define ID_TESTS_JAVASCRIPT_INVOKE      32709
+#define ID_TESTS_OSRAPP                 32710
+#define ID_TESTS_OTHER_TESTS            32811
+#define ID_TESTS_PERFORMANCE            32712
+#define ID_TESTS_PLUGIN                 32713
+#define ID_TESTS_PLUGIN_INFO            32814
+#define ID_TESTS_POPUP                  32715
+#define ID_TESTS_REQUEST                32716
+#define ID_TESTS_SCHEME_HANDLER         32717
+#define ID_TESTS_UIAPP                  32718
+#define ID_TESTS_TRANSPARENT_POPUP      32719
+#define ID_TESTS_TRANSPARENT_OSRAPP     32720
+#define ID_TESTS_WEBURLREQUEST          32721
+#define ID_TESTS_ZOOM_IN                32722
+#define ID_TESTS_ZOOM_OUT               32723
+#define ID_TESTS_ZOOM_RESET             32724
 #define IDC_STATIC                      -1
 #define IDS_DIALOGS                     1000
 #define IDS_DOMACCESS                   1001
@@ -68,10 +60,11 @@
 #define IDS_MODALDIALOG                 1005
 #define IDS_MODALMAIN                   1006
 #define IDS_OSRPLUGIN                   1007
-#define IDS_PERFORMANCE                 1008
-#define IDS_TRANSPARENCY                1009
-#define IDS_UIPLUGIN                    1010
-#define IDS_XMLHTTPREQUEST              1011
+#define IDS_OTHER_TESTS                 1008
+#define IDS_PERFORMANCE                 1009
+#define IDS_TRANSPARENCY                1010
+#define IDS_UIPLUGIN                    1011
+#define IDS_XMLHTTPREQUEST              1012
 
 // Avoid files associated with MacOS
 #define _X86_

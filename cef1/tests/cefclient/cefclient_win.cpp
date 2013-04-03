@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -77,19 +77,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   CefInitialize(settings, app);
 
   // Register the internal client plugin.
-  InitPluginTest();
+  plugin_test::InitTest();
 
   // Register the internal UI client plugin.
-  InitUIPluginTest();
+  uiplugin_test::InitTest();
 
   // Register the internal OSR client plugin.
-  InitOSRPluginTest();
+  osrplugin_test::InitTest();
 
   // Register the V8 extension handler.
-  InitExtensionTest();
+  extension_test::InitTest();
 
   // Register the scheme handler.
-  InitSchemeTest();
+  scheme_test::InitTest();
 
   HACCEL hAccelTable;
 
@@ -441,38 +441,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunGetTextTest(browser);
         return 0;
-      case ID_TESTS_JAVASCRIPT_BINDING:  // Test the V8 binding handler
-        if (browser.get())
-          RunBindingTest(browser);
-        return 0;
-      case ID_TESTS_JAVASCRIPT_EXTENSION:  // Test the V8 extension handler
-        if (browser.get())
-          RunExtensionTest(browser);
-        return 0;
-      case ID_TESTS_JAVASCRIPT_EXECUTE:  // Test execution of javascript
-        if (browser.get())
-          RunJavaScriptExecuteTest(browser);
-        return 0;
-      case ID_TESTS_JAVASCRIPT_INVOKE:
-        if (browser.get())
-          RunJavaScriptInvokeTest(browser);
-        return 0;
-      case ID_TESTS_PERFORMANCE:  // Run performance tests
-        if (browser.get())
-          performance_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_DIALOGS:  // Run dialogs tests
-        if (browser.get())
-          RunDialogsTest(browser);
-        return 0;
-      case ID_TESTS_PLUGIN:  // Test the custom plugin
-        if (browser.get())
-          RunPluginTest(browser);
-        return 0;
-      case ID_TESTS_PLUGIN_INFO:  // Test plugin info
-        if (browser.get())
-          RunPluginInfoTest(browser);
-        return 0;
       case ID_TESTS_POPUP:  // Test a popup window
         if (browser.get())
           RunPopupTest(browser);
@@ -487,55 +455,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         return 0;
       case ID_TESTS_SCHEME_HANDLER:  // Test the scheme handler
         if (browser.get())
-          RunSchemeTest(browser);
+          scheme_test::RunTest(browser);
         return 0;
-      case ID_TESTS_UIAPP:  // Test the UI app
+      case ID_TESTS_JAVASCRIPT_BINDING:  // Test the V8 binding handler
         if (browser.get())
-          RunUIPluginTest(browser);
+          RunBindingTest(browser);
         return 0;
-      case ID_TESTS_OSRAPP:  // Test the OSR app
+      case ID_TESTS_JAVASCRIPT_EXTENSION:  // Test the V8 extension handler
         if (browser.get())
-          RunOSRPluginTest(browser, false);
+          extension_test::RunTest(browser);
         return 0;
-      case ID_TESTS_TRANSPARENT_OSRAPP:  // Test the OSR app with transparency
+      case ID_TESTS_JAVASCRIPT_EXECUTE:  // Test execution of javascript
         if (browser.get())
-          RunOSRPluginTest(browser, true);
+          RunJavaScriptExecuteTest(browser);
         return 0;
-      case ID_TESTS_DOMACCESS:  // Test DOM access
+      case ID_TESTS_JAVASCRIPT_INVOKE:
         if (browser.get())
-          RunDOMAccessTest(browser);
+          RunJavaScriptInvokeTest(browser);
         return 0;
-      case ID_TESTS_LOCALSTORAGE:  // Test localStorage
+      case ID_TESTS_PERFORMANCE:  // Run performance tests
         if (browser.get())
-          RunLocalStorageTest(browser);
+          performance_test::RunTest(browser);
         return 0;
-      case ID_TESTS_ACCELERATED2DCANVAS:  // Test accelerated 2d canvas
+      case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())
-          RunAccelerated2DCanvasTest(browser);
-        return 0;
-      case ID_TESTS_ACCELERATEDLAYERS:  // Test accelerated layers
-        if (browser.get())
-          RunAcceleratedLayersTest(browser);
-        return 0;
-      case ID_TESTS_WEBGL:  // Test WebGL
-        if (browser.get())
-          RunWebGLTest(browser);
-        return 0;
-      case ID_TESTS_DRAGDROP:  // Test drag & drop
-        if (browser.get())
-          RunDragDropTest(browser);
-        return 0;
-      case ID_TESTS_GEOLOCATION:  // Test geolocation
-        if (browser.get())
-          RunGeolocationTest(browser);
-        return 0;
-      case ID_TESTS_XMLHTTPREQUEST:  // Test XMLHttpRequest
-        if (browser.get())
-          RunXMLHTTPRequestTest(browser);
+          RunPluginInfoTest(browser);
         return 0;
       case ID_TESTS_WEBURLREQUEST:
         if (browser.get())
           RunWebURLRequestTest(browser);
+        return 0;
+      case ID_TESTS_DOMACCESS:  // Test DOM access
+        if (browser.get())
+          RunDOMAccessTest(browser);
         return 0;
       case ID_TESTS_ZOOM_IN:
         if (browser.get())
@@ -557,13 +509,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           browser->CloseDevTools();
         return 0;
-      case ID_TESTS_MODALDIALOG:
+      case ID_TESTS_PLUGIN:  // Test the custom plugin
         if (browser.get())
-          RunModalDialogTest(browser);
+          plugin_test::RunTest(browser);
+        return 0;
+      case ID_TESTS_UIAPP:  // Test the UI app
+        if (browser.get())
+          uiplugin_test::RunTest(browser);
+        return 0;
+      case ID_TESTS_OSRAPP:  // Test the OSR app
+        if (browser.get())
+          osrplugin_test::RunTest(browser, false);
+        return 0;
+      case ID_TESTS_TRANSPARENT_OSRAPP:  // Test the OSR app with transparency
+        if (browser.get())
+          osrplugin_test::RunTest(browser, true);
         return 0;
       case ID_TESTS_GETIMAGE:
         if (browser.get())
           RunGetImageTest(browser);
+        return 0;
+      case ID_TESTS_OTHER_TESTS:
+        if (browser.get())
+          RunOtherTests(browser);
         return 0;
       }
       break;

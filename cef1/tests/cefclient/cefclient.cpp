@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -128,7 +128,7 @@ class ClientApp : public CefApp,
 
   virtual void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
-    AddSchemeTestSchemes(registrar);
+    scheme_test::AddSchemes(registrar);
   }
 
   // CefApp methods
@@ -472,29 +472,6 @@ void RunPopupTest(CefRefPtr<CefBrowser> browser) {
       "window.open('http://www.google.com');", "about:blank", 0);
 }
 
-void RunLocalStorageTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/localstorage");
-}
-
-void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://mudcu.be/labs/JS1k/BreathingGalaxies.html");
-}
-
-void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://webkit.org/blog-files/3d-transforms/poster-circle.html");
-}
-
-void RunWebGLTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://webglsamples.googlecode.com/hg/field/field.html");
-}
-
-void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
-}
-
 void RunWebURLRequestTest(CefRefPtr<CefBrowser> browser) {
   class RequestClient : public CefWebURLRequestClient {
    public:
@@ -643,14 +620,6 @@ void RunDOMAccessTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/domaccess");
 }
 
-void RunDragDropTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://html5demos.com/drag");
-}
-
-void RunModalDialogTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/modalmain");
-}
-
 void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
   if (CefCurrentlyOn(TID_UI)) {
     UIT_RunPluginInfoTest(browser);
@@ -661,10 +630,6 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
   }
 }
 
-void RunGeolocationTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://html5demos.com/geo");
-}
-
-void RunDialogsTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/dialogs");
+void RunOtherTests(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://tests/other_tests");
 }

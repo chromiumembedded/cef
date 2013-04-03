@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -9,6 +9,10 @@
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
 #include "cefclient/resource_util.h"
+
+namespace extension_test {
+
+namespace {
 
 // Implementation of the V8 handler class for the "cef.test" extension.
 class ClientV8ExtensionHandler : public CefV8Handler {
@@ -64,8 +68,9 @@ class ClientV8ExtensionHandler : public CefV8Handler {
   IMPLEMENT_REFCOUNTING(ClientV8ExtensionHandler);
 };
 
+}  // namespace
 
-void InitExtensionTest() {
+void InitTest() {
   // Register a V8 extension with the below JavaScript code that calls native
   // methods implemented in ClientV8ExtensionHandler.
   std::string code = "var cef;"
@@ -90,7 +95,7 @@ void InitExtensionTest() {
   CefRegisterExtension("v8/test", code, new ClientV8ExtensionHandler());
 }
 
-void RunExtensionTest(CefRefPtr<CefBrowser> browser) {
+void RunTest(CefRefPtr<CefBrowser> browser) {
   std::string html =
     "<html><body>ClientV8ExtensionHandler says:<br><pre>"
     "<script language=\"JavaScript\">"
@@ -107,3 +112,5 @@ void RunExtensionTest(CefRefPtr<CefBrowser> browser) {
     "</pre></body></html>";
   browser->GetMainFrame()->LoadString(html, "about:blank");
 }
+
+}  // namespace extension_test

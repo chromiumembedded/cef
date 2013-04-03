@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors.
+// Copyright (c) 2013 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -195,32 +195,25 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (void)createApp:(id)object;
 - (IBAction)testGetSource:(id)sender;
 - (IBAction)testGetText:(id)sender;
+- (IBAction)testPopupWindow:(id)sender;
+- (IBAction)testRequest:(id)sender;
+- (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testJSBinding:(id)sender;
 - (IBAction)testJSExtension:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testJSInvoke:(id)sender;
 - (IBAction)testPerformance:(id)sender;
-- (IBAction)testDialogs:(id)sender;
-- (IBAction)testRequest:(id)sender;
-- (IBAction)testLocalStorage:(id)sender;
-- (IBAction)testXMLHttpRequest:(id)sender;
+- (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testWebURLRequest:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
-- (IBAction)testSchemeHandler:(id)sender;
-- (IBAction)testPopupWindow:(id)sender;
-- (IBAction)testAccelerated2DCanvas:(id)sender;
-- (IBAction)testAcceleratedLayers:(id)sender;
-- (IBAction)testWebGL:(id)sender;
-- (IBAction)testDragDrop:(id)sender;
-- (IBAction)testGeolocation:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
 - (IBAction)testDevToolsShow:(id)sender;
 - (IBAction)testDevToolsClose:(id)sender;
-- (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testOffscreenRendering:(id)sender;
 - (IBAction)testTransparentOffscreenRendering:(id)sender;
+- (IBAction)testOtherTests:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -245,6 +238,15 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Get Text"
                       action:@selector(testGetText:)
                keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Popup Window"
+                      action:@selector(testPopupWindow:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Request"
+                      action:@selector(testRequest:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Scheme Handler"
+                      action:@selector(testSchemeHandler:)
+               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Binding Handler"
                       action:@selector(testJSBinding:)
                keyEquivalent:@""];
@@ -260,44 +262,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Performance Tests"
                       action:@selector(testPerformance:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Dialogs"
-                      action:@selector(testDialogs:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Popup Window"
-                      action:@selector(testPopupWindow:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Request"
-                      action:@selector(testRequest:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Scheme Handler"
-                      action:@selector(testSchemeHandler:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Local Storage"
-                      action:@selector(testLocalStorage:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"XMLHttpRequest"
-                      action:@selector(testXMLHttpRequest:)
+  [testMenu addItemWithTitle:@"Plugin Info"
+                      action:@selector(testPluginInfo:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"WebURLRequest"
                       action:@selector(testWebURLRequest:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"DOM Access"
                       action:@selector(testDOMAccess:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Accelerated 2D Canvas"
-                      action:@selector(testAccelerated2DCanvas:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Accelerated Layers"
-                      action:@selector(testAcceleratedLayers:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"WebGL"
-                      action:@selector(testWebGL:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Drag & Drop"
-                      action:@selector(testDragDrop:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Geolocation"
-                      action:@selector(testGeolocation:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom In"
                       action:@selector(testZoomIn:)
@@ -308,20 +280,20 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Zoom Reset"
                       action:@selector(testZoomReset:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Show DevTools"
+  [testMenu addItemWithTitle:@"Show Developer Tools"
                       action:@selector(testDevToolsShow:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Close DevTools"
+  [testMenu addItemWithTitle:@"Close Developer Tools"
                       action:@selector(testDevToolsClose:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Plugin Info"
-                      action:@selector(testPluginInfo:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Offscreen Rendering"
                       action:@selector(testOffscreenRendering:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Transparent Offscreen Rendering"
                       action:@selector(testTransparentOffscreenRendering:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Other Tests"
+                      action:@selector(testOtherTests:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -424,6 +396,21 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunGetTextTest(g_handler->GetBrowser());
 }
 
+- (IBAction)testPopupWindow:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunPopupTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testRequest:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunRequestTest(g_handler->GetBrowser());
+}
+
+- (IBAction)testSchemeHandler:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    scheme_test::RunTest(g_handler->GetBrowser());
+}
+
 - (IBAction)testJSBinding:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunBindingTest(g_handler->GetBrowser());
@@ -431,7 +418,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
 - (IBAction)testJSExtension:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunExtensionTest(g_handler->GetBrowser());
+    extension_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testJSExecute:(id)sender {
@@ -449,24 +436,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     performance_test::RunTest(g_handler->GetBrowser());
 }
 
-- (IBAction)testDialogs:(id)sender {
+- (IBAction)testPluginInfo:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunDialogsTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testRequest:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunRequestTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testLocalStorage:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunLocalStorageTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testXMLHttpRequest:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunXMLHTTPRequestTest(g_handler->GetBrowser());
+    RunPluginInfoTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testWebURLRequest:(id)sender {
@@ -477,41 +449,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testDOMAccess:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunDOMAccessTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testSchemeHandler:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunSchemeTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testPopupWindow:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunPopupTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testAccelerated2DCanvas:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunAccelerated2DCanvasTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testAcceleratedLayers:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunAcceleratedLayersTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testWebGL:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunWebGLTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testDragDrop:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunDragDropTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testGeolocation:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunGeolocationTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testZoomIn:(id)sender {
@@ -549,17 +486,17 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   }
 }
 
-- (IBAction)testPluginInfo:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunPluginInfoTest(g_handler->GetBrowser());
-}
-
 - (IBAction)testOffscreenRendering:(id)sender {
   osrtest::RunTest(false);
 }
 
 - (IBAction)testTransparentOffscreenRendering:(id)sender {
   osrtest::RunTest(true);
+}
+
+- (IBAction)testOtherTests:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserHwnd())
+    RunOtherTests(g_handler->GetBrowser());
 }
 
 // Sent by the default notification center immediately before the application
@@ -600,9 +537,11 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(settings, app);
 
-  // Initialize tests.
-  InitExtensionTest();
-  InitSchemeTest();
+  // Register the V8 extension handler.
+  extension_test::InitTest();
+
+  // Register the scheme handler.
+  scheme_test::InitTest();
 
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];

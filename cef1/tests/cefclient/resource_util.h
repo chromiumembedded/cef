@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -6,26 +6,18 @@
 #define CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_
 #pragma once
 
-#include "include/cef_base.h"
+#include <string>
+#include "include/cef_stream.h"
 
-class CefStreamReader;
-
-#if defined(OS_WIN)
-
-#include "cefclient/resource.h"
-
-// Load a resource of type BINARY
-bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);
-
-#elif defined(OS_MACOSX) || defined(OS_POSIX)
-
-#include <string>  // NOLINT(build/include_order)
-
-// Load the resource with the specified name.
-bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
-
+#if defined(OS_POSIX)
+// Returns the directory containing resource files.
+bool GetResourceDir(std::string& dir);
 #endif
+
+// Retrieve a resource as a string.
+bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
+
+// Retrieve a resource as a steam reader.
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 
 #endif  // CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_

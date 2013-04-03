@@ -36,6 +36,7 @@ IDS_LOGOBALL BINARY "res\\logoball.png"
 IDS_MODALDIALOG BINARY "res\\modaldialog.html"
 IDS_MODALMAIN BINARY "res\\modalmain.html"
 IDS_OSRPLUGIN BINARY "res\\osrplugin.html"
+IDS_OTHER_TESTS BINARY "res\\other_tests.html"
 IDS_PERFORMANCE BINARY "res\\performance.html"
 IDS_TRANSPARENCY BINARY "res\\transparency.html"
 IDS_UIPLUGIN BINARY "res\\uiplugin.html"
@@ -74,37 +75,29 @@ BEGIN
     BEGIN
         MENUITEM "Get Source",                  ID_TESTS_GETSOURCE
         MENUITEM "Get Text",                    ID_TESTS_GETTEXT
+        MENUITEM "Popup Window",                ID_TESTS_POPUP
+        MENUITEM "Transparent Popup Window",    ID_TESTS_TRANSPARENT_POPUP
+        MENUITEM "Request",                     ID_TESTS_REQUEST
+        MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
         MENUITEM "JavaScript Binding Handler",  ID_TESTS_JAVASCRIPT_BINDING
         MENUITEM "JavaScript Extension Handler",ID_TESTS_JAVASCRIPT_EXTENSION
         MENUITEM "JavaScript Execute",          ID_TESTS_JAVASCRIPT_EXECUTE
         MENUITEM "JavaScript Invoke",           ID_TESTS_JAVASCRIPT_INVOKE
         MENUITEM "Performance Tests",           ID_TESTS_PERFORMANCE
-        MENUITEM "Dialogs",                     ID_TESTS_DIALOGS
-        MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
-        MENUITEM "Popup Window",                ID_TESTS_POPUP
-        MENUITEM "Transparent Popup Window",    ID_TESTS_TRANSPARENT_POPUP
-        MENUITEM "Request",                     ID_TESTS_REQUEST
-        MENUITEM "Scheme Handler",              ID_TESTS_SCHEME_HANDLER
+        MENUITEM "WebURLRequest",               ID_TESTS_WEBURLREQUEST
+        MENUITEM "DOM Access",                  ID_TESTS_DOMACCESS
+        MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
+        MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
+        MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET
+        MENUITEM "Show Developer Tools",        ID_TESTS_DEVTOOLS_SHOW
+        MENUITEM "Close Developer Tools",       ID_TESTS_DEVTOOLS_CLOSE
+        MENUITEM "Plugin",                      ID_TESTS_PLUGIN
         MENUITEM "UI App Example",              ID_TESTS_UIAPP
         MENUITEM "Off-Screen Rendering Example",ID_TESTS_OSRAPP
         MENUITEM "Transparent Off-Screen Rendering Example",ID_TESTS_TRANSPARENT_OSRAPP
-        MENUITEM "Local Storage",               ID_TESTS_LOCALSTORAGE
-        MENUITEM "XMLHttpRequest",              ID_TESTS_XMLHTTPREQUEST
-        MENUITEM "WebURLRequest",               ID_TESTS_WEBURLREQUEST
-        MENUITEM "DOM Access",                  ID_TESTS_DOMACCESS
-        MENUITEM "Accelerated 2D Canvas",       ID_TESTS_ACCELERATED2DCANVAS
-        MENUITEM "Accelerated Layers",          ID_TESTS_ACCELERATEDLAYERS
-        MENUITEM "WebGL",                       ID_TESTS_WEBGL
-        MENUITEM "Drag && Drop",                ID_TESTS_DRAGDROP
-        MENUITEM "Geolocation",                 ID_TESTS_GEOLOCATION
-        MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
-        MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
-        MENUITEM "Reset Zoom",                  ID_TESTS_ZOOM_RESET
-        MENUITEM "Show Developer Tools",        ID_TESTS_DEVTOOLS_SHOW
-        MENUITEM "Close Developer Tools",       ID_TESTS_DEVTOOLS_CLOSE
-        MENUITEM "Modal Dialog",                ID_TESTS_MODALDIALOG
         MENUITEM "Get Image",                   ID_TESTS_GETIMAGE
+        MENUITEM "Other Tests",                 ID_TESTS_OTHER_TESTS
    END
 END
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -9,12 +9,16 @@
 #include "include/cef_browser.h"
 #include "include/cef_scheme.h"
 
-void AddSchemeTestSchemes(CefRefPtr<CefSchemeRegistrar> registrar);
+namespace scheme_test {
+
+void AddSchemes(CefRefPtr<CefSchemeRegistrar> registrar);
 
 // Register the scheme handler.
-void InitSchemeTest();
+void InitTest();
 
 // Run the test.
-void RunSchemeTest(CefRefPtr<CefBrowser> browser);
+void RunTest(CefRefPtr<CefBrowser> browser);
+
+}  // namespace scheme_test
 
 #endif  // CEF_TESTS_CEFCLIENT_SCHEME_TEST_H_
