@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors.
+// Copyright (c) 2013 The Chromium Embedded Framework Authors.
 // Portions copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -206,9 +206,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (void)createApp:(id)object;
 - (IBAction)testGetSource:(id)sender;
 - (IBAction)testGetText:(id)sender;
+- (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testRequest:(id)sender;
-- (IBAction)testLocalStorage:(id)sender;
-- (IBAction)testXMLHttpRequest:(id)sender;
 - (IBAction)testSchemeHandler:(id)sender;
 - (IBAction)testBinding:(id)sender;
 - (IBAction)testPerformance:(id)sender;
@@ -216,17 +215,12 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testWindow:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
-- (IBAction)testPopupWindow:(id)sender;
-- (IBAction)testAccelerated2DCanvas:(id)sender;
-- (IBAction)testAcceleratedLayers:(id)sender;
-- (IBAction)testWebGL:(id)sender;
-- (IBAction)testHTML5Video:(id)sender;
-- (IBAction)testDragDrop:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
 - (IBAction)testBeginTracing:(id)sender;
 - (IBAction)testEndTracing:(id)sender;
+- (IBAction)testOtherTests:(id)sender;
 @end
 
 @implementation ClientAppDelegate
@@ -278,27 +272,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"DOM Access"
                       action:@selector(testDOMAccess:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Local Storage"
-                      action:@selector(testLocalStorage:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"XMLHttpRequest"
-                      action:@selector(testXMLHttpRequest:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Accelerated 2D Canvas"
-                      action:@selector(testAccelerated2DCanvas:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Accelerated Layers"
-                      action:@selector(testAcceleratedLayers:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"WebGL"
-                      action:@selector(testWebGL:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"HTML5 Video"
-                      action:@selector(testHTML5Video:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Drag & Drop"
-                      action:@selector(testDragDrop:)
-               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom In"
                       action:@selector(testZoomIn:)
                keyEquivalent:@""];
@@ -313,6 +286,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"End Tracing"
                       action:@selector(testEndTracing:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Other Tests"
+                      action:@selector(testOtherTests:)
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
@@ -412,19 +388,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunGetTextTest(g_handler->GetBrowser());
 }
 
+- (IBAction)testPopupWindow:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunPopupTest(g_handler->GetBrowser());
+}
+
 - (IBAction)testRequest:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunRequestTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testLocalStorage:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunLocalStorageTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testXMLHttpRequest:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunXMLHTTPRequestTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testSchemeHandler:(id)sender {
@@ -462,36 +433,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     dom_test::RunTest(g_handler->GetBrowser());
 }
 
-- (IBAction)testPopupWindow:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPopupTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testAccelerated2DCanvas:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunAccelerated2DCanvasTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testAcceleratedLayers:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunAcceleratedLayersTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testWebGL:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunWebGLTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testHTML5Video:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunHTML5VideoTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testDragDrop:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunDragDropTest(g_handler->GetBrowser());
-}
-
 - (IBAction)testZoomIn:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -521,6 +462,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testEndTracing:(id)sender {
   if (g_handler.get())
     g_handler->EndTracing();
+}
+
+- (IBAction)testOtherTests:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunOtherTests(g_handler->GetBrowser());
 }
 
 // Sent by the default notification center immediately before the application

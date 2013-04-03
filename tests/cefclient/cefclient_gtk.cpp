@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -52,7 +52,7 @@ void TerminationSignalHandler(int signatl) {
   AppQuitMessageLoop();
 }
 
-// Callback for Debug > Get Source... menu item.
+// Callback for Tests > Get Source... menu item.
 gboolean GetSourceActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunGetSourceTest(g_handler->GetBrowser());
@@ -60,7 +60,7 @@ gboolean GetSourceActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Get Text... menu item.
+// Callback for Tests > Get Text... menu item.
 gboolean GetTextActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunGetTextTest(g_handler->GetBrowser());
@@ -68,87 +68,7 @@ gboolean GetTextActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Request... menu item.
-gboolean RequestActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunRequestTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Local Storage... menu item.
-gboolean LocalStorageActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunLocalStorageTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > XMLHttpRequest... menu item.
-gboolean XMLHttpRequestActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunXMLHTTPRequestTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Scheme Handler... menu item.
-gboolean SchemeHandlerActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    scheme_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > JavaScript Binding... menu item.
-gboolean BindingActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    binding_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Performance... menu item.
-gboolean PerformanceActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    performance_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Dialogs... menu item.
-gboolean DialogsActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dialog_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Window... menu item.
-gboolean WindowActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    window_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Plugin Info... menu item.
-gboolean PluginInfoActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPluginInfoTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > DOM Access... menu item.
-gboolean DOMAccessActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dom_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Debug > Popup Window... menu item.
+// Callback for Tests > Popup Window... menu item.
 gboolean PopupWindowActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPopupTest(g_handler->GetBrowser());
@@ -156,48 +76,71 @@ gboolean PopupWindowActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Accelerated 2D Canvas... menu item.
-gboolean Accelerated2DCanvasActivated(GtkWidget* widget) {
+// Callback for Tests > Request... menu item.
+gboolean RequestActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunAccelerated2DCanvasTest(g_handler->GetBrowser());
+    RunRequestTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Accelerated Layers... menu item.
-gboolean AcceleratedLayersActivated(GtkWidget* widget) {
+// Callback for Tests > Scheme Handler... menu item.
+gboolean SchemeHandlerActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunAcceleratedLayersTest(g_handler->GetBrowser());
+    scheme_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > WebGL... menu item.
-gboolean WebGLActivated(GtkWidget* widget) {
+// Callback for Tests > JavaScript Binding... menu item.
+gboolean BindingActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunWebGLTest(g_handler->GetBrowser());
+    binding_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > HTML5 Video... menu item.
-gboolean HTML5VideoActivated(GtkWidget* widget) {
+// Callback for Tests > Performance... menu item.
+gboolean PerformanceActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunHTML5VideoTest(g_handler->GetBrowser());
+    performance_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > HTML5 Drag & Drop... menu item.
-gboolean HTML5DragDropActivated(GtkWidget* widget) {
+// Callback for Tests > Dialogs... menu item.
+gboolean DialogsActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunDragDropTest(g_handler->GetBrowser());
+    dialog_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Tests > Window... menu item.
+gboolean WindowActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    window_test::RunTest(g_handler->GetBrowser());
 
-// Callback for Debug > Zoom In... menu item.
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Tests > Plugin Info... menu item.
+gboolean PluginInfoActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunPluginInfoTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Tests > DOM Access... menu item.
+gboolean DOMAccessActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    dom_test::RunTest(g_handler->GetBrowser());
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Tests > Zoom In... menu item.
 gboolean ZoomInActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -207,7 +150,7 @@ gboolean ZoomInActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Zoom Out... menu item.
+// Callback for Tests > Zoom Out... menu item.
 gboolean ZoomOutActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -217,7 +160,7 @@ gboolean ZoomOutActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Zoom Reset... menu item.
+// Callback for Tests > Zoom Reset... menu item.
 gboolean ZoomResetActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
@@ -227,7 +170,7 @@ gboolean ZoomResetActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > Begin Tracing menu item.
+// Callback for Tests > Begin Tracing menu item.
 gboolean BeginTracingActivated(GtkWidget* widget) {
   if (g_handler.get())
     g_handler->BeginTracing();
@@ -235,10 +178,18 @@ gboolean BeginTracingActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Debug > End Tracing menu item.
+// Callback for Tests > End Tracing menu item.
 gboolean EndTracingActivated(GtkWidget* widget) {
   if (g_handler.get())
     g_handler->EndTracing();
+
+  return FALSE;  // Don't stop this message.
+}
+
+// Callback for Tests > Other Tests... menu item.
+gboolean OtherTestsActivated(GtkWidget* widget) {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    RunOtherTests(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -302,12 +253,10 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(GetSourceActivated));
   AddMenuEntry(debug_menu, "Get Text",
                G_CALLBACK(GetTextActivated));
+  AddMenuEntry(debug_menu, "Popup Window",
+               G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Request",
                G_CALLBACK(RequestActivated));
-  AddMenuEntry(debug_menu, "Local Storage",
-               G_CALLBACK(LocalStorageActivated));
-  AddMenuEntry(debug_menu, "XMLHttpRequest",
-               G_CALLBACK(XMLHttpRequestActivated));
   AddMenuEntry(debug_menu, "Scheme Handler",
                G_CALLBACK(SchemeHandlerActivated));
   AddMenuEntry(debug_menu, "JavaScript Binding",
@@ -322,18 +271,6 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "DOM Access",
                G_CALLBACK(DOMAccessActivated));
-  AddMenuEntry(debug_menu, "Popup Window",
-               G_CALLBACK(PopupWindowActivated));
-  AddMenuEntry(debug_menu, "Accelerated 2D Canvas",
-               G_CALLBACK(Accelerated2DCanvasActivated));
-  AddMenuEntry(debug_menu, "Accelerated Layers",
-               G_CALLBACK(AcceleratedLayersActivated));
-  AddMenuEntry(debug_menu, "WebGL",
-               G_CALLBACK(WebGLActivated));
-  AddMenuEntry(debug_menu, "HTML5 Video",
-               G_CALLBACK(HTML5VideoActivated));
-  AddMenuEntry(debug_menu, "HTML5 Drag & Drop",
-               G_CALLBACK(HTML5DragDropActivated));
   AddMenuEntry(debug_menu, "Zoom In",
                G_CALLBACK(ZoomInActivated));
   AddMenuEntry(debug_menu, "Zoom Out",
@@ -344,6 +281,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(BeginTracingActivated));
   AddMenuEntry(debug_menu, "End Tracing",
                G_CALLBACK(EndTracingActivated));
+  AddMenuEntry(debug_menu, "Other Tests",
+               G_CALLBACK(OtherTestsActivated));
   return menu_bar;
 }
 

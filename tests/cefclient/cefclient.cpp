@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -174,42 +174,6 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
   CefVisitWebPluginInfo(new Visitor(browser));
 }
 
-void RunLocalStorageTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/localstorage");
-}
-
-void RunAccelerated2DCanvasTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://mudcu.be/labs/JS1k/BreathingGalaxies.html");
-}
-
-void RunAcceleratedLayersTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://webkit.org/blog-files/3d-transforms/poster-circle.html");
-}
-
-void RunWebGLTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://webglsamples.googlecode.com/hg/field/field.html");
-}
-
-void RunHTML5VideoTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(
-      "http://www.youtube.com/watch?v=siOHh0uzcuY&html5=True");
-}
-
-void RunXMLHTTPRequestTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/xmlhttprequest");
-}
-
-void RunDragDropTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://html5demos.com/drag");
-}
-
-void RunGeolocationTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://html5demos.com/geo");
-}
-
-void RunTransparencyTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/transparency");
+void RunOtherTests(CefRefPtr<CefBrowser> browser) {
+  browser->GetMainFrame()->LoadURL("http://tests/other_tests");
 }

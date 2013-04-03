@@ -1,4 +1,4 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -13,6 +13,7 @@
 #include "include/cef_process_util.h"
 #include "include/cef_runnable.h"
 #include "include/cef_trace.h"
+#include "include/cef_url.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
@@ -25,6 +26,7 @@
 #include "cefclient/string_util.h"
 #include "cefclient/window_test.h"
 
+namespace {
 
 // Custom menu command Ids.
 enum client_menu_ids {
@@ -35,6 +37,51 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM2,
   CLIENT_ID_TESTMENU_RADIOITEM3,
 };
+
+const char kTestOrigin[] = "http://tests/";
+
+// Retrieve the file name and mime type based on the specified url.
+bool ParseTestUrl(const std::string& url,
+                  std::string* file_name,
+                  std::string* mime_type) {
+  // Retrieve the path component.
+  CefURLParts parts;
+  CefParseURL(url, parts);
+  std::string file = CefString(&parts.path);
+  if (file.size() < 2)
+    return false;
+
+  // Remove the leading slash.
+  file = file.substr(1);
+
+  // Verify that the file name is valid.
+  for(size_t i = 0; i < file.size(); ++i) {
+    const char c = file[i];
+    if (!isalpha(c) && !isdigit(c) && c != '_' && c != '.')
+      return false;
+  }
+
+  // Determine the mime type based on the file extension, if any.
+  size_t pos = file.rfind(".");
+  if (pos != std::string::npos) {
+    std::string ext = file.substr(pos + 1);
+    if (ext == "html")
+      *mime_type = "text/html";
+    else if (ext == "png")
+      *mime_type = "image/png";
+    else
+      return false;
+  } else {
+    // Default to an html extension if none is specified.
+    *mime_type = "text/html";
+    file += ".html";
+  }
+
+  *file_name = file;
+  return true;
+}
+
+}  // namespace
 
 int ClientHandler::m_BrowserCount = 0;
 
@@ -382,46 +429,28 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) {
   std::string url = request->GetURL();
-  if (url == "http://tests/request") {
-    // Show the request contents
-    std::string dump;
-    DumpRequestContents(request, dump);
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(dump.c_str())),
-            dump.size());
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/plain", stream);
-  } else if (url == "http://tests/dialogs") {
-    // Show the dialogs contents
-    CefRefPtr<CefStreamReader> stream =
-        GetBinaryResourceReader("dialogs.html");
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  } else if (url == dom_test::kTestUrl) {
-    // Show the domaccess contents
-    CefRefPtr<CefStreamReader> stream =
-       GetBinaryResourceReader("domaccess.html");
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  } else if (url == "http://tests/localstorage") {
-    // Show the localstorage contents
-    CefRefPtr<CefStreamReader> stream =
-        GetBinaryResourceReader("localstorage.html");
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  } else if (url == "http://tests/transparency") {
-    // Show the transparency contents
-    CefRefPtr<CefStreamReader> stream =
-       GetBinaryResourceReader("transparency.html");
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
-  } else if (url == "http://tests/xmlhttprequest") {
-    // Show the xmlhttprequest contents
-    CefRefPtr<CefStreamReader> stream =
-       GetBinaryResourceReader("xmlhttprequest.html");
-    ASSERT(stream.get());
-    return new CefStreamResourceHandler("text/html", stream);
+  if (url.find(kTestOrigin) == 0) {
+    // Handle URLs in the test origin.
+    std::string file_name, mime_type;
+    if (ParseTestUrl(url, &file_name, &mime_type)) {
+      if (file_name == "request.html") {
+        // Show the request contents.
+        std::string dump;
+        DumpRequestContents(request, dump);
+        CefRefPtr<CefStreamReader> stream =
+            CefStreamReader::CreateForData(
+                static_cast<void*>(const_cast<char*>(dump.c_str())),
+                dump.size());
+        ASSERT(stream.get());
+        return new CefStreamResourceHandler("text/plain", stream);
+      } else {
+        // Load the resource from file.
+        CefRefPtr<CefStreamReader> stream =
+            GetBinaryResourceReader(file_name.c_str());
+        if (stream.get())
+          return new CefStreamResourceHandler(mime_type, stream);
+      }
+    }
   }
 
   CefRefPtr<CefResourceHandler> handler;

@@ -65,24 +65,11 @@ class ClientSchemeHandler : public CefResourceHandler {
       mime_type_ = "text/html";
     } else if (strstr(url.c_str(), "client.png") != NULL) {
       // Load the response image
-#if defined(OS_WIN)
-      DWORD dwSize;
-      LPBYTE pBytes;
-      if (LoadBinaryResource(IDS_LOGO, dwSize, pBytes)) {
-        data_ = std::string(reinterpret_cast<const char*>(pBytes), dwSize);
-        handled = true;
-        // Set the resulting mime type
-        mime_type_ = "image/jpg";
-      }
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
       if (LoadBinaryResource("logo.png", data_)) {
         handled = true;
         // Set the resulting mime type
         mime_type_ = "image/png";
       }
-#else
-#error "Unsupported platform"
-#endif
     }
 
     if (handled) {

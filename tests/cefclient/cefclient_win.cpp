@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -446,42 +446,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           dom_test::RunTest(browser);
         return 0;
-      case ID_TESTS_LOCALSTORAGE:  // Test localStorage
-        if (browser.get())
-          RunLocalStorageTest(browser);
-        return 0;
-      case ID_TESTS_ACCELERATED2DCANVAS:  // Test accelerated 2d canvas
-        if (browser.get())
-          RunAccelerated2DCanvasTest(browser);
-        return 0;
-      case ID_TESTS_ACCELERATEDLAYERS:  // Test accelerated layers
-        if (browser.get())
-          RunAcceleratedLayersTest(browser);
-        return 0;
-      case ID_TESTS_WEBGL:  // Test WebGL
-        if (browser.get())
-          RunWebGLTest(browser);
-        return 0;
-      case ID_TESTS_HTML5VIDEO:  // Test HTML5 video
-        if (browser.get())
-          RunHTML5VideoTest(browser);
-        return 0;
-      case ID_TESTS_XMLHTTPREQUEST:  // Test XMLHttpRequest
-        if (browser.get())
-          RunXMLHTTPRequestTest(browser);
-        return 0;
-      case ID_TESTS_DRAGDROP:  // Test drag & drop
-        if (browser.get())
-          RunDragDropTest(browser);
-        return 0;
-      case ID_TESTS_GEOLOCATION:  // Test geolocation
-        if (browser.get())
-          RunGeolocationTest(browser);
-        return 0;
-      case ID_TESTS_TRANSPARENCY:  // Test transparency
-        if (browser.get())
-          RunTransparencyTest(browser);
-        return 0;
       case ID_TESTS_ZOOM_IN:
         if (browser.get())
           ModifyZoom(browser, 0.5);
@@ -494,11 +458,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           browser->GetHost()->SetZoomLevel(0.0);
         return 0;
-      case ID_TESTS_BEGIN_TRACING:
+      case ID_TESTS_TRACING_BEGIN:
         g_handler->BeginTracing();
         return 0;
-      case ID_TESTS_END_TRACING:
+      case ID_TESTS_TRACING_END:
         g_handler->EndTracing();
+        return 0;
+      case ID_TESTS_OTHER_TESTS:
+        if (browser.get())
+          RunOtherTests(browser);
         return 0;
       }
       break;

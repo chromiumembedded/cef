@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -26,31 +26,23 @@
 #define ID_WARN_DOWNLOADCOMPLETE        32001
 #define ID_WARN_DOWNLOADERROR           32002
 #define ID_QUIT                         32500
-#define ID_TESTS_GETSOURCE              32760
-#define ID_TESTS_GETTEXT                32761
-#define ID_TESTS_POPUP                  32762
-#define ID_TESTS_REQUEST                32763
-#define ID_TESTS_SCHEME_HANDLER         32764
-#define ID_TESTS_LOCALSTORAGE           32765
-#define ID_TESTS_ACCELERATED2DCANVAS    32766
-#define ID_TESTS_ACCELERATEDLAYERS      32767
-#define ID_TESTS_WEBGL                  32768
-#define ID_TESTS_HTML5VIDEO             32769
-#define ID_TESTS_XMLHTTPREQUEST         32770
-#define ID_TESTS_DRAGDROP               32771
-#define ID_TESTS_GEOLOCATION            32772
-#define ID_TESTS_BINDING                32773
-#define ID_TESTS_DIALOGS                32774
-#define ID_TESTS_PLUGIN_INFO            32775
-#define ID_TESTS_DOM_ACCESS             32776
-#define ID_TESTS_ZOOM_IN                32777
-#define ID_TESTS_ZOOM_OUT               32778
-#define ID_TESTS_ZOOM_RESET             32779
-#define ID_TESTS_BEGIN_TRACING          32780
-#define ID_TESTS_END_TRACING            32781
-#define ID_TESTS_PERFORMANCE            32782
-#define ID_TESTS_TRANSPARENCY           32783
-#define ID_TESTS_WINDOW                 32784
+#define ID_TESTS_BINDING                32700
+#define ID_TESTS_DIALOGS                32701
+#define ID_TESTS_DOM_ACCESS             32702
+#define ID_TESTS_GETSOURCE              32703
+#define ID_TESTS_GETTEXT                32704
+#define ID_TESTS_OTHER_TESTS            32705
+#define ID_TESTS_PERFORMANCE            32706
+#define ID_TESTS_PLUGIN_INFO            32707
+#define ID_TESTS_POPUP                  32708
+#define ID_TESTS_REQUEST                32709
+#define ID_TESTS_SCHEME_HANDLER         32710
+#define ID_TESTS_TRACING_BEGIN          32711
+#define ID_TESTS_TRACING_END            32712
+#define ID_TESTS_WINDOW                 32713
+#define ID_TESTS_ZOOM_IN                32714
+#define ID_TESTS_ZOOM_OUT               32715
+#define ID_TESTS_ZOOM_RESET             32716
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
@@ -58,10 +50,11 @@
 #define IDS_LOCALSTORAGE                1003
 #define IDS_LOGO                        1004
 #define IDS_LOGOBALL                    1005
-#define IDS_PERFORMANCE                 1006
-#define IDS_TRANSPARENCY                1007
-#define IDS_WINDOW                      1008
-#define IDS_XMLHTTPREQUEST              1009
+#define IDS_OTHER_TESTS                 1006
+#define IDS_PERFORMANCE                 1007
+#define IDS_TRANSPARENCY                1008
+#define IDS_WINDOW                      1009
+#define IDS_XMLHTTPREQUEST              1010
 
 // Avoid files associated with MacOS
 #define _X86_

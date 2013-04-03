@@ -1,16 +1,17 @@
-// Copyright (c) 2008-2009 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
 #include "cefclient/resource_util.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_byte_read_handler.h"
+#include "cefclient/resource.h"
 #include "cefclient/util.h"
 
-#if defined(OS_WIN)
+namespace {
 
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes) {
-  extern HINSTANCE hInst;
+  HINSTANCE hInst = GetModuleHandle(NULL);
   HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(binaryId),
                             MAKEINTRESOURCE(256));
   if (hRes) {
@@ -26,20 +27,7 @@ bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes) {
   return false;
 }
 
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId) {
-  DWORD dwSize;
-  LPBYTE pBytes;
-
-  if (LoadBinaryResource(binaryId, dwSize, pBytes)) {
-    return CefStreamReader::CreateForHandler(
-        new CefByteReadHandler(pBytes, dwSize, NULL));
-  }
-
-  ASSERT(FALSE);  // The resource should be found.
-  return NULL;
-}
-
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
+int GetResourceId(const char* resource_name) {
   // Map of resource labels to BINARY id values.
   static struct _resource_map {
     char* name;
@@ -49,6 +37,9 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
     {"dialogs.html", IDS_DIALOGS},
     {"domaccess.html", IDS_DOMACCESS},
     {"localstorage.html", IDS_LOCALSTORAGE},
+    {"logo.png", IDS_LOGO},
+    {"logoball.png", IDS_LOGOBALL},
+    {"other_tests.html", IDS_OTHER_TESTS},
     {"performance.html", IDS_PERFORMANCE},
     {"transparency.html", IDS_TRANSPARENCY},
     {"window.html", IDS_WINDOW},
@@ -57,11 +48,44 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
 
   for (int i = 0; i < sizeof(resource_map)/sizeof(_resource_map); ++i) {
     if (!strcmp(resource_map[i].name, resource_name))
-      return GetBinaryResourceReader(resource_map[i].id);
+      return resource_map[i].id;
+  }
+  
+  return 0;
+}
+
+}  // namespace
+
+bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
+  int resource_id = GetResourceId(resource_name);
+  if (resource_id == 0)
+    return false;
+
+  DWORD dwSize;
+  LPBYTE pBytes;
+
+  if (LoadBinaryResource(resource_id, dwSize, pBytes)) {
+    resource_data = std::string(reinterpret_cast<char*>(pBytes), dwSize);
+    return true;
+  }
+
+  ASSERT(FALSE);  // The resource should be found.
+  return false;
+}
+
+CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
+  int resource_id = GetResourceId(resource_name);
+  if (resource_id == 0)
+    return NULL;
+
+  DWORD dwSize;
+  LPBYTE pBytes;
+
+  if (LoadBinaryResource(resource_id, dwSize, pBytes)) {
+    return CefStreamReader::CreateForHandler(
+        new CefByteReadHandler(pBytes, dwSize, NULL));
   }
 
   ASSERT(FALSE);  // The resource should be found.
   return NULL;
 }
-
-#endif  // OS_WIN
