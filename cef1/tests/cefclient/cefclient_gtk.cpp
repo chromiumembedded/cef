@@ -11,10 +11,8 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
@@ -63,30 +61,6 @@ gboolean RequestActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Tests > Scheme Handler... menu item.
-gboolean SchemeHandlerActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    scheme_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > JS Binding... menu item.
-gboolean JSBindingActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunBindingTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > JavaScript Extension... menu item.
-gboolean JSExtensionActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    extension_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
 // Callback for Tests > JavaScript Execute... menu item.
 gboolean JSExecuteActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
@@ -99,14 +73,6 @@ gboolean JSExecuteActivated(GtkWidget* widget) {
 gboolean JSInvokeActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptInvokeTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Performance Tests... menu item.
-gboolean PerformanceActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    performance_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -254,18 +220,10 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Request",
                G_CALLBACK(RequestActivated));
-  AddMenuEntry(debug_menu, "Scheme Handler",
-               G_CALLBACK(SchemeHandlerActivated));
-  AddMenuEntry(debug_menu, "JavaScript Binding Handler",
-               G_CALLBACK(JSBindingActivated));
-  AddMenuEntry(debug_menu, "JavaScript Extension Handler",
-               G_CALLBACK(JSExtensionActivated));
   AddMenuEntry(debug_menu, "JavaScript Execute",
                G_CALLBACK(JSExecuteActivated));
   AddMenuEntry(debug_menu, "JavaScript Invoke",
                G_CALLBACK(JSInvokeActivated));
-  AddMenuEntry(debug_menu, "Performance Tests",
-               G_CALLBACK(PerformanceActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
   AddMenuEntry(debug_menu, "WebURLRequest",

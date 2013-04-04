@@ -6,15 +6,10 @@
 #define CEF_TESTS_CEFCLIENT_EXTENSION_TEST_H_
 #pragma once
 
-#include "include/cef_browser.h"
-
 namespace extension_test {
 
 // Register the V8 extension handler.
 void InitTest();
-
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
 
 }  // namespace extension_test
 

@@ -10,6 +10,9 @@
 #include "include/cef_frame.h"
 #include "include/cef_v8.h"
 
+namespace binding_test {
+
+namespace {
 
 // Implementation of the V8 handler class for the "window.cef_test.Dump"
 // function.
@@ -129,10 +132,11 @@ class ClientV8FunctionHandler : public CefV8Handler {
   IMPLEMENT_REFCOUNTING(ClientV8FunctionHandler);
 };
 
+}  // namespace
 
-void InitBindingTest(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     CefRefPtr<CefV8Value> object) {
+void InitTest(CefRefPtr<CefBrowser> browser,
+              CefRefPtr<CefFrame> frame,
+              CefRefPtr<CefV8Value> object) {
   // Create the new V8 object.
   CefRefPtr<CefV8Value> testObjPtr = CefV8Value::CreateObject(NULL);
   // Add the new V8 object to the global window object with the name
@@ -152,28 +156,4 @@ void InitBindingTest(CefRefPtr<CefBrowser> browser,
       V8_PROPERTY_ATTRIBUTE_NONE);
 }
 
-void RunBindingTest(CefRefPtr<CefBrowser> browser) {
-  std::string html =
-    "<html><body>ClientV8FunctionHandler says:<br><pre>"
-    "<script language=\"JavaScript\">"
-    "document.writeln(window.cef_test.Dump(false, 1, 7.6654,'bar',"
-    "  [false,true],[5, 7.654, 1, 'foo', [true, 'bar'], 8]));"
-    "document.writeln(window.cef_test.Dump(cef));"
-    "document.writeln("
-    "  window.cef_test.Call(cef.test.test_object, 'GetMessage'));"
-    "function my_object() {"
-    "  var obj = {};"
-    "  (function() {"
-    "    obj.GetMessage = function(a) {"
-    "      return 'Calling a function with value '+a+' on a user object "
-    "succeeded.';"
-    "    };"
-    "  })();"
-    "  return obj;"
-    "};"
-    "document.writeln("
-    "  window.cef_test.Call(my_object, 'GetMessage', 'foobar'));"
-    "</script>"
-    "</pre></body></html>";
-  browser->GetMainFrame()->LoadString(html, "about:blank");
-}
+}  // namespace binding_test

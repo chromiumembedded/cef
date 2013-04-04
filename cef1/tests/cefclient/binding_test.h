@@ -6,18 +6,17 @@
 #define CEF_TESTS_CEFCLIENT_BINDING_TEST_H_
 #pragma once
 
-#include "include/cef_base.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_v8.h"
 
-class CefBrowser;
-class CefFrame;
-class CefV8Value;
+namespace binding_test {
 
 // Add the V8 bindings.
-void InitBindingTest(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     CefRefPtr<CefV8Value> object);
+void InitTest(CefRefPtr<CefBrowser> browser,
+              CefRefPtr<CefFrame> frame,
+              CefRefPtr<CefV8Value> object);
 
-// Run the test.
-void RunBindingTest(CefRefPtr<CefBrowser> browser);
+}  // namespace binding_test
 
 #endif  // CEF_TESTS_CEFCLIENT_BINDING_TEST_H_

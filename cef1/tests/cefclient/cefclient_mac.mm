@@ -11,11 +11,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
 #include "cefclient/osrtest_mac.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -197,12 +195,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testGetText:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testRequest:(id)sender;
-- (IBAction)testSchemeHandler:(id)sender;
-- (IBAction)testJSBinding:(id)sender;
-- (IBAction)testJSExtension:(id)sender;
 - (IBAction)testJSExecute:(id)sender;
 - (IBAction)testJSInvoke:(id)sender;
-- (IBAction)testPerformance:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
 - (IBAction)testWebURLRequest:(id)sender;
 - (IBAction)testDOMAccess:(id)sender;
@@ -244,23 +238,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Request"
                       action:@selector(testRequest:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Scheme Handler"
-                      action:@selector(testSchemeHandler:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"JavaScript Binding Handler"
-                      action:@selector(testJSBinding:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"JavaScript Extension Handler"
-                      action:@selector(testJSExtension:)
-               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Execute"
                       action:@selector(testJSExecute:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"JavaScript Invoke"
                       action:@selector(testJSInvoke:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Performance Tests"
-                      action:@selector(testPerformance:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
@@ -406,21 +388,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunRequestTest(g_handler->GetBrowser());
 }
 
-- (IBAction)testSchemeHandler:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    scheme_test::RunTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testJSBinding:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    RunBindingTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testJSExtension:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    extension_test::RunTest(g_handler->GetBrowser());
-}
-
 - (IBAction)testJSExecute:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptExecuteTest(g_handler->GetBrowser());
@@ -429,11 +396,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testJSInvoke:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserHwnd())
     RunJavaScriptInvokeTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testPerformance:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserHwnd())
-    performance_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testPluginInfo:(id)sender {

@@ -33,8 +33,10 @@ int GetResourceId(const char* resource_name) {
     char* name;
     int id;
   } resource_map[] = {
+    {"binding.html", IDS_BINDING},
     {"dialogs.html", IDS_DIALOGS},
     {"domaccess.html", IDS_DOMACCESS},
+    {"extension.html", IDS_EXTENSION},
     {"localstorage.html", IDS_LOCALSTORAGE},
     {"logo.png", IDS_LOGO},
     {"logoball.png", IDS_LOGOBALL},
@@ -43,6 +45,7 @@ int GetResourceId(const char* resource_name) {
     {"osrplugin.html", IDS_OSRPLUGIN},
     {"other_tests.html", IDS_OTHER_TESTS},
     {"performance.html", IDS_PERFORMANCE},
+    {"plugin.html", IDS_PLUGIN},
     {"transparency.html", IDS_TRANSPARENCY},
     {"uiplugin.html", IDS_UIPLUGIN},
     {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},

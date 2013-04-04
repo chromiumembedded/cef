@@ -13,11 +13,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/extension_test.h"
 #include "cefclient/osrplugin_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/plugin_test.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
@@ -453,18 +451,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunRequestTest(browser);
         return 0;
-      case ID_TESTS_SCHEME_HANDLER:  // Test the scheme handler
-        if (browser.get())
-          scheme_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_JAVASCRIPT_BINDING:  // Test the V8 binding handler
-        if (browser.get())
-          RunBindingTest(browser);
-        return 0;
-      case ID_TESTS_JAVASCRIPT_EXTENSION:  // Test the V8 extension handler
-        if (browser.get())
-          extension_test::RunTest(browser);
-        return 0;
       case ID_TESTS_JAVASCRIPT_EXECUTE:  // Test execution of javascript
         if (browser.get())
           RunJavaScriptExecuteTest(browser);
@@ -472,10 +458,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_JAVASCRIPT_INVOKE:
         if (browser.get())
           RunJavaScriptInvokeTest(browser);
-        return 0;
-      case ID_TESTS_PERFORMANCE:  // Run performance tests
-        if (browser.get())
-          performance_test::RunTest(browser);
         return 0;
       case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())
@@ -508,14 +490,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_DEVTOOLS_CLOSE:
         if (browser.get())
           browser->CloseDevTools();
-        return 0;
-      case ID_TESTS_PLUGIN:  // Test the custom plugin
-        if (browser.get())
-          plugin_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_UIAPP:  // Test the UI app
-        if (browser.get())
-          uiplugin_test::RunTest(browser);
         return 0;
       case ID_TESTS_OSRAPP:  // Test the OSR app
         if (browser.get())

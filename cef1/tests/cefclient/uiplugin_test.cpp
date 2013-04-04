@@ -103,8 +103,4 @@ void InitTest() {
   CefRegisterExtension("uiplugin/test", code, new ClientV8UIHandler());
 }
 
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/uiplugin");
-}
-
 }  // namespace uiplugin_test

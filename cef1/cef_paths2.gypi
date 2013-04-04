@@ -79,8 +79,10 @@
       '<@(autogen_client_side)',
     ],
     'cefclient_bundle_resources_common': [
+      'tests/cefclient/res/binding.html',
       'tests/cefclient/res/dialogs.html',
       'tests/cefclient/res/domaccess.html',
+      'tests/cefclient/res/extension.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',
       'tests/cefclient/res/other_tests.html',
@@ -135,6 +137,7 @@
       'tests/cefclient/res/modaldialog.html',
       'tests/cefclient/res/modalmain.html',
       'tests/cefclient/res/osrplugin.html',
+      'tests/cefclient/res/plugin.html',
       'tests/cefclient/res/small.ico',
       'tests/cefclient/res/uiplugin.html',
       'tests/cefclient/resource_util_win.cpp',

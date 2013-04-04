@@ -6,15 +6,10 @@
 #define CEF_TESTS_CEFCLIENT_UIPLUGIN_TEST_H_
 #pragma once
 
-#include "include/cef_browser.h"
-
 namespace uiplugin_test {
 
 // Register the internal client plugin and V8 extension.
 void InitTest();
-
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
 
 }  // namespace uiplugin_test
 

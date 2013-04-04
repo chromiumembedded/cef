@@ -78,8 +78,6 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFormElementHasFocus(false) {
-  CreateRequestDelegates(request_delegates_);
-
   CefRefPtr<CefCommandLine> commandLine = AppGetCommandLine();
   if (commandLine.get()) {
     if (commandLine->HasSwitch(cefclient::kUrl))
@@ -220,18 +218,7 @@ bool ClientHandler::OnBeforeResourceLoad(
     }
   }
 
-  bool handled = false;
-
-  // Execute delegate callbacks.
-  RequestDelegateSet::iterator it = request_delegates_.begin();
-  for (; it != request_delegates_.end(); ++it) {
-    handled = (*it)->OnBeforeResourceLoad(this, browser, request, redirectUrl,
-                                          resourceStream, response, loadFlags);
-    if (handled || !redirectUrl.empty() || resourceStream.get())
-      break;
-  }
-
-  return handled;
+  return false;
 }
 
 bool ClientHandler::GetDownloadHandler(CefRefPtr<CefBrowser> browser,
@@ -368,7 +355,7 @@ void ClientHandler::OnContextCreated(CefRefPtr<CefBrowser> browser,
   CefRefPtr<CefV8Value> object = context->GetGlobal();
 
   // Add the V8 bindings.
-  InitBindingTest(browser, frame, object);
+  binding_test::InitTest(browser, frame, object);
 
   std::string url = frame->GetURL();
   if (url == performance_test::kTestUrl)
@@ -482,13 +469,4 @@ CefRefPtr<CefDOMVisitor> ClientHandler::GetDOMVisitor(const std::string& path) {
   if (it != m_DOMVisitors.end())
     return it->second;
   return NULL;
-}
-
-
-// static
-void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
-#if defined(OS_WIN)
-  // Create the plugin test delegates.
-  plugin_test::CreateRequestDelegates(delegates);
-#endif
 }

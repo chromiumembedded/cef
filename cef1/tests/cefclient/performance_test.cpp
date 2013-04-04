@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
@@ -9,7 +9,6 @@
 #include <string>
 
 #include "cefclient/performance_test_setup.h"
-#include "cefclient/resource_util.h"
 
 namespace performance_test {
 
@@ -94,11 +93,6 @@ void InitTest(CefRefPtr<CefBrowser> browser,
   object->SetValue(kRunPerfTest,
       CefV8Value::CreateFunction(kRunPerfTest, handler),
           V8_PROPERTY_ATTRIBUTE_READONLY);
-}
-
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  // Load the test URL.
-  browser->GetMainFrame()->LoadURL(kTestUrl);
 }
 
 }  // namespace performance_test

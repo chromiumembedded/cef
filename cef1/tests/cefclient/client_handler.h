@@ -34,25 +34,6 @@ class ClientHandler : public CefClient,
                       public CefGeolocationHandler,
                       public DownloadListener {
  public:
-  // Interface for request handler delegates. Do not perform work in the
-  // RequestDelegate constructor.
-  class RequestDelegate : public virtual CefBase {
-   public:
-    // Called to handle a resource load.
-    virtual bool OnBeforeResourceLoad(
-        CefRefPtr<ClientHandler> handler,
-        CefRefPtr<CefBrowser> browser,
-        CefRefPtr<CefRequest> request,
-        CefString& redirectUrl,
-        CefRefPtr<CefStreamReader>& resourceStream,
-        CefRefPtr<CefResponse> response,
-        int loadFlags) {
-      return false;
-    }
-  };
-
-  typedef std::set<CefRefPtr<RequestDelegate> > RequestDelegateSet;
-
   ClientHandler();
   virtual ~ClientHandler();
 
@@ -235,9 +216,6 @@ class ClientHandler : public CefClient,
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
 
-  // Create all of RequestDelegateSet objects.
-  static void CreateRequestDelegates(RequestDelegateSet& delegates);
-
   // The child browser window
   CefRefPtr<CefBrowser> m_Browser;
 
@@ -271,9 +249,6 @@ class ClientHandler : public CefClient,
 
   // The URL to be loaded at application startup.
   std::string m_StartupURL;
-
-  // Registered delegates.
-  RequestDelegateSet request_delegates_;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);

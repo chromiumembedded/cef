@@ -6,19 +6,10 @@
 #define CEF_TESTS_CEFCLIENT_PLUGIN_TEST_H_
 #pragma once
 
-#include "include/cef_browser.h"
-#include "cefclient/client_handler.h"
-
 namespace plugin_test {
 
 // Register the internal client plugin.
 void InitTest();
-
-// Delegate creation. Called from ClientHandler.
-void CreateRequestDelegates(ClientHandler::RequestDelegateSet& delegates);
-
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
 
 }  // namespace plugin_test
 

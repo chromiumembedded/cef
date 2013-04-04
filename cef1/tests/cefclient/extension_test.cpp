@@ -8,7 +8,6 @@
 #include "include/cef_frame.h"
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
-#include "cefclient/resource_util.h"
 
 namespace extension_test {
 
@@ -93,24 +92,6 @@ void InitTest() {
     "  };"
     "})();";
   CefRegisterExtension("v8/test", code, new ClientV8ExtensionHandler());
-}
-
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  std::string html =
-    "<html><body>ClientV8ExtensionHandler says:<br><pre>"
-    "<script language=\"JavaScript\">"
-    "cef.test.test_param ="
-    "  'Assign and retrieve a value succeeded the first time.';"
-    "document.writeln(cef.test.test_param);"
-    "cef.test.test_param ="
-    "  'Assign and retrieve a value succeeded the second time.';"
-    "document.writeln(cef.test.test_param);"
-    "var obj = cef.test.test_object();"
-    "document.writeln(obj.param);"
-    "document.writeln(obj.GetMessage());"
-    "</script>"
-    "</pre></body></html>";
-  browser->GetMainFrame()->LoadString(html, "about:blank");
 }
 
 }  // namespace extension_test
