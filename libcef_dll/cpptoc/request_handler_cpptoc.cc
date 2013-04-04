@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -295,6 +296,34 @@ int CEF_CALLBACK request_handler_on_before_plugin_load(
   return _retval;
 }
 
+int CEF_CALLBACK request_handler_on_certificate_error(
+    struct _cef_request_handler_t* self, enum cef_errorcode_t cert_error,
+    const cef_string_t* request_url,
+    cef_allow_certificate_error_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: request_url; type: string_byref_const
+  DCHECK(request_url);
+  if (!request_url)
+    return 0;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestHandlerCppToC::Get(self)->OnCertificateError(
+      cert_error,
+      CefString(request_url),
+      CefAllowCertificateErrorCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -310,6 +339,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.get_cookie_manager = request_handler_get_cookie_manager;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.on_before_plugin_load = request_handler_on_before_plugin_load;
+  struct_.struct_.on_certificate_error = request_handler_on_certificate_error;
 }
 
 #ifndef NDEBUG

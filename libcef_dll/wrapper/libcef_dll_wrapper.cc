@@ -67,6 +67,7 @@
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
@@ -163,6 +164,7 @@ CEF_GLOBAL void CefShutdown() {
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
+  DCHECK_EQ(CefAllowCertificateErrorCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefAuthCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBeforeDownloadCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBinaryValueCToCpp::DebugObjCt, 0);

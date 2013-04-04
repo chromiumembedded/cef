@@ -106,6 +106,8 @@
       'include/capi/cef_zip_reader_capi.h',
     ],
     'autogen_library_side': [
+      'libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.h',
       'libcef_dll/ctocpp/app_ctocpp.cc',
       'libcef_dll/ctocpp/app_ctocpp.h',
       'libcef_dll/cpptoc/auth_callback_cpptoc.cc',
@@ -258,6 +260,8 @@
       'libcef_dll/cpptoc/zip_reader_cpptoc.h',
     ],
     'autogen_client_side': [
+      'libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.h',
       'libcef_dll/cpptoc/app_cpptoc.cc',
       'libcef_dll/cpptoc/app_cpptoc.h',
       'libcef_dll/ctocpp/auth_callback_ctocpp.cc',

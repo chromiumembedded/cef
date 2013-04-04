@@ -32,6 +32,7 @@
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
+#include "libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -171,6 +172,7 @@ CEF_EXPORT void cef_shutdown() {
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
+  DCHECK_EQ(CefAllowCertificateErrorCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefAuthCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBeforeDownloadCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBinaryValueCppToC::DebugObjCt, 0);

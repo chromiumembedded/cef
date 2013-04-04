@@ -91,6 +91,22 @@ class CefQuotaCallback : public virtual CefBase {
 
 
 ///
+// Callback interface used for asynchronous continuation of url requests when
+// invalid SSL certificates are encountered.
+///
+/*--cef(source=library)--*/
+class CefAllowCertificateErrorCallback : public virtual CefBase {
+ public:
+  ///
+  // Continue the url request. If |allow| is true the request will be
+  // continued. Otherwise, the request will be canceled.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(bool allow) =0;
+};
+
+
+///
 // Implement this interface to handle events related to browser requests. The
 // methods of this class will be called on the thread indicated.
 ///
@@ -158,7 +174,7 @@ class CefRequestHandler : public virtual CefBase {
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota
   // size in bytes. Return true and call CefQuotaCallback::Continue() either in
-  // this function or at a later time to grant or deny the request. Return false
+  // this method or at a later time to grant or deny the request. Return false
   // to cancel the request.
   ///
   /*--cef(optional_param=realm)--*/
@@ -201,6 +217,23 @@ class CefRequestHandler : public virtual CefBase {
                                   const CefString& url,
                                   const CefString& policy_url,
                                   CefRefPtr<CefWebPluginInfo> info) {
+    return false;
+  }
+
+  ///
+  // Called on the UI thread to handle requests for URLs with an invalid
+  // SSL certificate. Return true and call CefAllowCertificateErrorCallback::
+  // Continue() either in this method or at a later time to continue or cancel
+  // the request. Return false to cancel the request immediately. If |callback|
+  // is empty the error cannot be recovered from and the request will be
+  // canceled automatically. If CefSettings.ignore_certificate_errors is set
+  // all invalid certificates will be accepted without calling this method.
+  ///
+  /*--cef()--*/
+  virtual bool OnCertificateError(
+      cef_errorcode_t cert_error,
+      const CefString& request_url,
+      CefRefPtr<CefAllowCertificateErrorCallback> callback) {
     return false;
   }
 };

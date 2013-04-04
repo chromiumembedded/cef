@@ -56,6 +56,9 @@ class CefRequestHandlerCToCpp
   virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
       const CefString& url, const CefString& policy_url,
       CefRefPtr<CefWebPluginInfo> info) OVERRIDE;
+  virtual bool OnCertificateError(cef_errorcode_t cert_error,
+      const CefString& request_url,
+      CefRefPtr<CefAllowCertificateErrorCallback> callback) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

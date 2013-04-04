@@ -91,6 +91,25 @@ typedef struct _cef_quota_callback_t {
 
 
 ///
+// Callback structure used for asynchronous continuation of url requests when
+// invalid SSL certificates are encountered.
+///
+typedef struct _cef_allow_certificate_error_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Continue the url request. If |allow| is true (1) the request will be
+  // continued. Otherwise, the request will be canceled.
+  ///
+  void (CEF_CALLBACK *cont)(
+      struct _cef_allow_certificate_error_callback_t* self, int allow);
+} cef_allow_certificate_error_callback_t;
+
+
+///
 // Implement this structure to handle events related to browser requests. The
 // functions of this structure will be called on the thread indicated.
 ///
@@ -180,6 +199,20 @@ typedef struct _cef_request_handler_t {
   int (CEF_CALLBACK *on_before_plugin_load)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, const cef_string_t* url,
       const cef_string_t* policy_url, struct _cef_web_plugin_info_t* info);
+
+  ///
+  // Called on the UI thread to handle requests for URLs with an invalid SSL
+  // certificate. Return true (1) and call
+  // cef_allow_certificate_error_callback_t:: cont() either in this function or
+  // at a later time to continue or cancel the request. Return false (0) to
+  // cancel the request immediately. If |callback| is NULL the error cannot be
+  // recovered from and the request will be canceled automatically. If
+  // CefSettings.ignore_certificate_errors is set all invalid certificates will
+  // be accepted without calling this function.
+  ///
+  int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
+      enum cef_errorcode_t cert_error, const cef_string_t* request_url,
+      struct _cef_allow_certificate_error_callback_t* callback);
 } cef_request_handler_t;
 
 

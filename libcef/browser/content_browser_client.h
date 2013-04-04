@@ -81,6 +81,17 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
   virtual content::SpeechRecognitionManagerDelegate*
       GetSpeechRecognitionManagerDelegate() OVERRIDE;
+  virtual void AllowCertificateError(
+      int render_process_id,
+      int render_view_id,
+      int cert_error,
+      const net::SSLInfo& ssl_info,
+      const GURL& request_url,
+      ResourceType::Type resource_type,
+      bool overridable,
+      bool strict_enforcement,
+      const base::Callback<void(bool)>& callback,
+      bool* cancel_request) OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual bool CanCreateWindow(const GURL& opener_url,
                                const GURL& origin,

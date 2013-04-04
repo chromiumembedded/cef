@@ -122,6 +122,36 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
 };
 
+class CefAllowCertificateErrorCallbackImpl
+    : public CefAllowCertificateErrorCallback {
+ public:
+  explicit CefAllowCertificateErrorCallbackImpl(
+      const base::Callback<void(bool)>& callback) : callback_(callback) {
+  }
+
+  virtual void Continue(bool allow) OVERRIDE {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      if (!callback_.is_null()) {
+        callback_.Run(allow);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefAllowCertificateErrorCallbackImpl::Continue,
+              this, allow));
+    }
+  }
+
+  void Disconnect() {
+    callback_.Reset();
+  }
+
+ private:
+  base::Callback<void(bool)> callback_;
+
+  IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
+};
+
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
  public:
   CefQuotaPermissionContext() {
@@ -452,6 +482,50 @@ content::SpeechRecognitionManagerDelegate*
 #endif
 
   return NULL;
+}
+
+void CefContentBrowserClient::AllowCertificateError(
+    int render_process_id,
+    int render_view_id,
+    int cert_error,
+    const net::SSLInfo& ssl_info,
+    const GURL& request_url,
+    ResourceType::Type resource_type,
+    bool overridable,
+    bool strict_enforcement,
+    const base::Callback<void(bool)>& callback,
+    bool* cancel_request) {
+  CEF_REQUIRE_UIT();
+
+  if (resource_type != ResourceType::MAIN_FRAME) {
+    // A sub-resource has a certificate error. The user doesn't really
+    // have a context for making the right decision, so block the request
+    // hard.
+    *cancel_request = true;
+    return;
+  }
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
+                                                render_view_id);
+  if (!browser.get())
+    return;
+  CefRefPtr<CefClient> client = browser->GetClient();
+  if (!client.get())
+    return;
+  CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+  if (!handler.get())
+    return;
+
+  CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl;
+  if (overridable && !strict_enforcement)
+    callbackImpl = new CefAllowCertificateErrorCallbackImpl(callback);
+
+  *cancel_request = !handler->OnCertificateError(
+      static_cast<cef_errorcode_t>(cert_error), request_url.spec(),
+      callbackImpl.get());
+  if (*cancel_request && callbackImpl.get())
+    callbackImpl->Disconnect();
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {

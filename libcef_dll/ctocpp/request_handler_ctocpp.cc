@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -269,6 +270,33 @@ bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
       url.GetStruct(),
       policy_url.GetStruct(),
       CefWebPluginInfoCppToC::Wrap(info));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefRequestHandlerCToCpp::OnCertificateError(cef_errorcode_t cert_error,
+    const CefString& request_url,
+    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
+  if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request_url; type: string_byref_const
+  DCHECK(!request_url.empty());
+  if (request_url.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_certificate_error(struct_,
+      cert_error,
+      request_url.GetStruct(),
+      CefAllowCertificateErrorCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
