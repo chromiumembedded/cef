@@ -1010,6 +1010,9 @@
         '<(DEPTH)/chrome/browser/prefs/proxy_prefs.h',
         '<(DEPTH)/chrome/common/pref_names.cc',
         '<(DEPTH)/chrome/common/pref_names.h',
+        # Include sources for the loadtimes V8 extension.
+        '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.h',
+        '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.cc',
       ],
       'conditions': [
         ['OS=="win"', {

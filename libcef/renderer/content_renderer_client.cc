@@ -30,6 +30,7 @@ MSVC_POP_WARNING();
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/string_number_conversions.h"
+#include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "content/common/child_thread.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -457,6 +458,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
+  thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
