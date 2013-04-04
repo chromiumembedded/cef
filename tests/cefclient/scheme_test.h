@@ -21,9 +21,6 @@ void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
 // Create the scheme handler.
 void InitTest();
 
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
-
 }  // namespace scheme_test
 
 #endif  // CEF_TESTS_CEFCLIENT_SCHEME_TEST_H_

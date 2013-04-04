@@ -11,15 +11,10 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
-#include "cefclient/dialog_test.h"
-#include "cefclient/dom_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
-#include "cefclient/window_test.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -205,13 +200,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testGetText:(id)sender;
 - (IBAction)testPopupWindow:(id)sender;
 - (IBAction)testRequest:(id)sender;
-- (IBAction)testSchemeHandler:(id)sender;
-- (IBAction)testBinding:(id)sender;
-- (IBAction)testPerformance:(id)sender;
-- (IBAction)testDialogs:(id)sender;
-- (IBAction)testWindow:(id)sender;
 - (IBAction)testPluginInfo:(id)sender;
-- (IBAction)testDOMAccess:(id)sender;
 - (IBAction)testZoomIn:(id)sender;
 - (IBAction)testZoomOut:(id)sender;
 - (IBAction)testZoomReset:(id)sender;
@@ -248,26 +237,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testMenu addItemWithTitle:@"Request"
                       action:@selector(testRequest:)
                keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Scheme Handler"
-                      action:@selector(testSchemeHandler:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"JavaScript Binding"
-                      action:@selector(testBinding:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Performance Tests"
-                      action:@selector(testPerformance:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Dialogs"
-                      action:@selector(testDialogs:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Window"
-                      action:@selector(testWindow:)
-               keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Plugin Info"
                       action:@selector(testPluginInfo:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"DOM Access"
-                      action:@selector(testDOMAccess:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Zoom In"
                       action:@selector(testZoomIn:)
@@ -395,39 +366,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunRequestTest(g_handler->GetBrowser());
 }
 
-- (IBAction)testSchemeHandler:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    scheme_test::RunTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testBinding:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    binding_test::RunTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testPerformance:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    performance_test::RunTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testDialogs:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dialog_test::RunTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testWindow:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    window_test::RunTest(g_handler->GetBrowser());
-}
-
 - (IBAction)testPluginInfo:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPluginInfoTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testDOMAccess:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dom_test::RunTest(g_handler->GetBrowser());
 }
 
 - (IBAction)testZoomIn:(id)sender {

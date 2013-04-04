@@ -162,8 +162,4 @@ void InitTest() {
       new ClientSchemeHandlerFactory());
 }
 
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("client://tests/handler.html");
-}
-
 }  // namespace scheme_test

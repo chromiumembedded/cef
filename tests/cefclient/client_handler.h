@@ -51,27 +51,11 @@ class ClientHandler : public CefClient,
   typedef std::set<CefRefPtr<ProcessMessageDelegate> >
       ProcessMessageDelegateSet;
 
-  // Interface for request handler delegates. Do not perform work in the
-  // RequestDelegate constructor.
-  class RequestDelegate : public virtual CefBase {
-   public:
-    // Called to retrieve a resource handler.
-    virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
-        CefRefPtr<ClientHandler> handler,
-        CefRefPtr<CefBrowser> browser,
-        CefRefPtr<CefFrame> frame,
-        CefRefPtr<CefRequest> request) {
-      return NULL;
-    }
-  };
-
   // Interface implemented to handle off-screen rendering.
   class RenderHandler : public CefRenderHandler {
    public:
     virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) =0;
   };
-
-  typedef std::set<CefRefPtr<RequestDelegate> > RequestDelegateSet;
 
   ClientHandler();
   virtual ~ClientHandler();
@@ -280,9 +264,6 @@ class ClientHandler : public CefClient,
   static void CreateProcessMessageDelegates(
       ProcessMessageDelegateSet& delegates);
 
-  // Create all of RequestDelegateSet objects.
-  static void CreateRequestDelegates(RequestDelegateSet& delegates);
-
   // Test context menu creation.
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
   bool ExecuteTestMenu(int command_id);
@@ -334,7 +315,6 @@ class ClientHandler : public CefClient,
 
   // Registered delegates.
   ProcessMessageDelegateSet process_message_delegates_;
-  RequestDelegateSet request_delegates_;
 
   // If true DevTools will be opened in an external browser window.
   bool m_bExternalDevTools;

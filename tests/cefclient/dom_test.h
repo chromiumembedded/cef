@@ -17,9 +17,6 @@ extern const char kTestUrl[];
 // Create the render delegate.
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
 
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
-
 // Continue the test after the page has loaded.
 void OnLoadEnd(CefRefPtr<CefBrowser> browser);
 

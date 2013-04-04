@@ -21,7 +21,6 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/dialog_test.h"
 #include "cefclient/dom_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 #include "cefclient/window_test.h"
@@ -96,7 +95,6 @@ ClientHandler::ClientHandler()
     m_ReloadHwnd(NULL),
     m_bFocusOnEditableField(false) {
   CreateProcessMessageDelegates(process_message_delegates_);
-  CreateRequestDelegates(request_delegates_);
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -465,14 +463,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     }
   }
 
-  CefRefPtr<CefResourceHandler> handler;
-
-  // Execute delegate callbacks.
-  RequestDelegateSet::iterator it = request_delegates_.begin();
-  for (; it != request_delegates_.end() && !handler.get(); ++it)
-    handler = (*it)->GetResourceHandler(this, browser, frame, request);
-
-  return handler;
+  return NULL;
 }
 
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
@@ -739,18 +730,6 @@ void ClientHandler::CreateProcessMessageDelegates(
 
   // Create the window test delegates.
   window_test::CreateProcessMessageDelegates(delegates);
-}
-
-// static
-void ClientHandler::CreateRequestDelegates(RequestDelegateSet& delegates) {
-  // Create the binding test delegates.
-  binding_test::CreateRequestDelegates(delegates);
-
-  // Create the performance test delegates.
-  performance_test::CreateRequestDelegates(delegates);
-
-  // Create the window test delegates.
-  window_test::CreateRequestDelegates(delegates);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

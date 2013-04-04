@@ -13,17 +13,12 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
-#include "cefclient/dialog_test.h"
-#include "cefclient/dom_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
-#include "cefclient/window_test.h"
 
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
@@ -419,33 +414,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (browser.get())
           RunRequestTest(browser);
         return 0;
-      case ID_TESTS_SCHEME_HANDLER:  // Test the scheme handler
-        if (browser.get())
-          scheme_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_BINDING:  // Test JavaScript binding
-        if (browser.get())
-          binding_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_PERFORMANCE:  // Run performance tests
-        if (browser.get())
-          performance_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_DIALOGS:  // Test JavaScript dialogs
-        if (browser.get())
-          dialog_test::RunTest(browser);
-        return 0;
-      case ID_TESTS_WINDOW:  // Test window sizing/position/etc.
-        if (browser.get())
-          window_test::RunTest(browser);
-        return 0;
       case ID_TESTS_PLUGIN_INFO:  // Test plugin info
         if (browser.get())
           RunPluginInfoTest(browser);
-        return 0;
-      case ID_TESTS_DOM_ACCESS:  // Test DOM access
-        if (browser.get())
-          dom_test::RunTest(browser);
         return 0;
       case ID_TESTS_ZOOM_IN:
         if (browser.get())

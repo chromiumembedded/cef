@@ -11,14 +11,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/client_handler.h"
-#include "cefclient/dialog_test.h"
-#include "cefclient/dom_test.h"
-#include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
-#include "cefclient/window_test.h"
 
 char szWorkingDir[512];  // The current working directory
 
@@ -84,58 +79,10 @@ gboolean RequestActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Tests > Scheme Handler... menu item.
-gboolean SchemeHandlerActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    scheme_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > JavaScript Binding... menu item.
-gboolean BindingActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    binding_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Performance... menu item.
-gboolean PerformanceActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    performance_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Dialogs... menu item.
-gboolean DialogsActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dialog_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Window... menu item.
-gboolean WindowActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    window_test::RunTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
 // Callback for Tests > Plugin Info... menu item.
 gboolean PluginInfoActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunPluginInfoTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > DOM Access... menu item.
-gboolean DOMAccessActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    dom_test::RunTest(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -257,20 +204,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(PopupWindowActivated));
   AddMenuEntry(debug_menu, "Request",
                G_CALLBACK(RequestActivated));
-  AddMenuEntry(debug_menu, "Scheme Handler",
-               G_CALLBACK(SchemeHandlerActivated));
-  AddMenuEntry(debug_menu, "JavaScript Binding",
-               G_CALLBACK(BindingActivated));
-  AddMenuEntry(debug_menu, "Performance Tests",
-               G_CALLBACK(PerformanceActivated));
-  AddMenuEntry(debug_menu, "Dialogs",
-               G_CALLBACK(DialogsActivated));
-  AddMenuEntry(debug_menu, "Window",
-               G_CALLBACK(WindowActivated));
   AddMenuEntry(debug_menu, "Plugin Info",
                G_CALLBACK(PluginInfoActivated));
-  AddMenuEntry(debug_menu, "DOM Access",
-               G_CALLBACK(DOMAccessActivated));
   AddMenuEntry(debug_menu, "Zoom In",
                G_CALLBACK(ZoomInActivated));
   AddMenuEntry(debug_menu, "Zoom Out",

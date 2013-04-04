@@ -8,13 +8,11 @@
 #include <string>
 
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "cefclient/resource_util.h"
 
 namespace window_test {
 
 namespace {
 
-const char* kTestUrl = "http://tests/window";
 const char* kMessagePositionName = "WindowTest.Position";
 const char* kMessageMinimizeName = "WindowTest.Minimize";
 const char* kMessageMaximizeName = "WindowTest.Maximize";
@@ -60,47 +58,11 @@ class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
   IMPLEMENT_REFCOUNTING(ProcessMessageDelegate);
 };
 
-// Handle resource loading in the browser process.
-class RequestDelegate: public ClientHandler::RequestDelegate {
- public:
-  RequestDelegate() {
-  }
-
-  // From ClientHandler::RequestDelegate.
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<ClientHandler> handler,
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
-    std::string url = request->GetURL();
-    if (url == kTestUrl) {
-      // Show the contents
-      CefRefPtr<CefStreamReader> stream =
-          GetBinaryResourceReader("window.html");
-      ASSERT(stream.get());
-      return new CefStreamResourceHandler("text/html", stream);
-    }
-
-    return NULL;
-  }
-
-  IMPLEMENT_REFCOUNTING(RequestDelegate);
-};
-
 }  // namespace
 
 void CreateProcessMessageDelegates(
     ClientHandler::ProcessMessageDelegateSet& delegates) {
   delegates.insert(new ProcessMessageDelegate);
-}
-
-void CreateRequestDelegates(ClientHandler::RequestDelegateSet& delegates) {
-  delegates.insert(new RequestDelegate);
-}
-
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  // Load the test URL.
-  browser->GetMainFrame()->LoadURL(kTestUrl);
 }
 
 void ModifyBounds(const CefRect& display, CefRect& window) {

@@ -99,8 +99,4 @@ void CreateProcessMessageDelegates(
   delegates.insert(new ProcessMessageDelegate);
 }
 
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL(kTestUrl);
-}
-
 }  // namespace dialog_test

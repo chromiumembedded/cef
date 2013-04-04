@@ -125,11 +125,6 @@ void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
   delegates.insert(new DOMRenderDelegate);
 }
 
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  // Load the test URL.
-  browser->GetMainFrame()->LoadURL(kTestUrl);
-}
-
 void OnLoadEnd(CefRefPtr<CefBrowser> browser) {
   // Send a message to the render process to continue the test setup.
   browser->SendProcessMessage(PID_RENDERER,

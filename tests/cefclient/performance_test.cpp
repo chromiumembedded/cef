@@ -9,7 +9,6 @@
 
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/performance_test_setup.h"
-#include "cefclient/resource_util.h"
 
 namespace performance_test {
 
@@ -22,36 +21,8 @@ const size_t kDefaultIterations = 10000;
 
 namespace {
 
-const char kTestUrl[] = "http://tests/performance";
 const char kGetPerfTests[] = "GetPerfTests";
 const char kRunPerfTest[] = "RunPerfTest";
-
-// Handle resource loading in the browser process.
-class RequestDelegate: public ClientHandler::RequestDelegate {
- public:
-  RequestDelegate() {
-  }
-
-  // From ClientHandler::RequestDelegate.
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<ClientHandler> handler,
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
-    std::string url = request->GetURL();
-    if (url == kTestUrl) {
-      // Show the test contents
-      CefRefPtr<CefStreamReader> stream =
-          GetBinaryResourceReader("performance.html");
-      ASSERT(stream.get());
-      return new CefStreamResourceHandler("text/html", stream);
-    }
-
-    return NULL;
-  }
-
-  IMPLEMENT_REFCOUNTING(RequestDelegate);
-};
 
 class V8Handler : public CefV8Handler {
  public:
@@ -135,17 +106,8 @@ class RenderDelegate : public ClientApp::RenderDelegate {
 
 }  // namespace
 
-void CreateRequestDelegates(ClientHandler::RequestDelegateSet& delegates) {
-  delegates.insert(new RequestDelegate);
-}
-
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
   delegates.insert(new RenderDelegate);
-}
-
-void RunTest(CefRefPtr<CefBrowser> browser) {
-  // Load the test URL.
-  browser->GetMainFrame()->LoadURL(kTestUrl);
 }
 
 }  // namespace performance_test

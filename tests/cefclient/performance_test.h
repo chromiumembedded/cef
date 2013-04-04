@@ -7,18 +7,11 @@
 #pragma once
 
 #include "cefclient/client_app.h"
-#include "cefclient/client_handler.h"
 
 namespace performance_test {
 
-// Request delegate creation. Called from ClientHandler.
-void CreateRequestDelegates(ClientHandler::RequestDelegateSet& delegates);
-
 // Render delegate creation. Called from client_app_delegates.cpp.
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
-
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
 
 }  // namespace performance_test
 

@@ -14,9 +14,6 @@ namespace dialog_test {
 void CreateProcessMessageDelegates(
     ClientHandler::ProcessMessageDelegateSet& delegates);
 
-// Run the test.
-void RunTest(CefRefPtr<CefBrowser> browser);
-
 }  // namespace dialog_test
 
 #endif  // CEF_TESTS_CEFCLIENT_DIALOG_TEST_H_
