@@ -1,0 +1,22 @@
+<html>
+<body>
+ClientV8FunctionHandler says:<br><pre>
+<script>
+document.writeln(window.cef_test.Dump(false, 1, 7.6654,'bar',
+    [false,true],[5, 7.654, 1, 'foo', [true, 'bar'], 8]));
+document.writeln(window.cef_test.Dump(cef));
+document.writeln(window.cef_test.Call(cef.test.test_object, 'GetMessage'));
+function my_object() {
+  var obj = {};
+  (function() {
+    obj.GetMessage = function(a) {
+      return 'Calling a function with value '+a+' on a user object succeeded.';
+    };
+  })();
+  return obj;
+};
+document.writeln(window.cef_test.Call(my_object, 'GetMessage', 'foobar'));
+</script>
+</pre>
+</body>
+</html>
