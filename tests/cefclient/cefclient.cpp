@@ -62,6 +62,10 @@ void AppGetSettings(CefSettings& settings) {
 
   CefString(&settings.cache_path) =
       g_command_line->GetSwitchValue(cefclient::kCachePath);
+
+  // Specify a port to enable DevTools if one isn't already specified.
+  if (!g_command_line->HasSwitch("remote-debugging-port"))
+    settings.remote_debugging_port = 8088;
 }
 
 bool AppIsOffScreenRenderingEnabled() {
