@@ -99,7 +99,7 @@ bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
 // Get the maximum trace buffer percent full state across all processes.
 //
 // CefTraceClient::OnTraceBufferPercentFullReply will be called asynchronously
-// after the value is determibed. When any child process reaches 100% full
+// after the value is determined. When any child process reaches 100% full
 // tracing will end automatically and CefTraceClient::OnEndTracingComplete
 // will be called. This function fails and returns false if trace is ending or
 // disabled, no CefTraceClient was passed to CefBeginTracing, or if a previous

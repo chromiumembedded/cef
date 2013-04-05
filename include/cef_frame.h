@@ -139,7 +139,9 @@ class CefFrame : public virtual CefBase {
   virtual void LoadURL(const CefString& url) =0;
 
   ///
-  // Load the contents of |string_val| with the optional dummy target |url|.
+  // Load the contents of |string_val| with the specified dummy |url|. |url|
+  // should have a standard scheme (for example, http scheme) or behaviors like
+  // link clicks and web security restrictions may not behave as expected.
   ///
   /*--cef()--*/
   virtual void LoadString(const CefString& string_val,

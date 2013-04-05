@@ -131,7 +131,9 @@ typedef struct _cef_frame_t {
       const cef_string_t* url);
 
   ///
-  // Load the contents of |string_val| with the optional dummy target |url|.
+  // Load the contents of |string_val| with the specified dummy |url|. |url|
+  // should have a standard scheme (for example, http scheme) or behaviors like
+  // link clicks and web security restrictions may not behave as expected.
   ///
   void (CEF_CALLBACK *load_string)(struct _cef_frame_t* self,
       const cef_string_t* string_val, const cef_string_t* url);

@@ -140,11 +140,12 @@ typedef struct _cef_scheme_handler_factory_t {
   cef_base_t base;
 
   ///
-  // Return a new resource handler instance to handle the request. |browser| and
-  // |frame| will be the browser window and frame respectively that originated
-  // the request or NULL if the request did not originate from a browser window
-  // (for example, if the request came from cef_urlrequest_t). The |request|
-  // object passed to this function will not contain cookie data.
+  // Return a new resource handler instance to handle the request or an NULL
+  // reference to allow default handling of the request. |browser| and |frame|
+  // will be the browser window and frame respectively that originated the
+  // request or NULL if the request did not originate from a browser window (for
+  // example, if the request came from cef_urlrequest_t). The |request| object
+  // passed to this function will not contain cookie data.
   ///
   struct _cef_resource_handler_t* (CEF_CALLBACK *create)(
       struct _cef_scheme_handler_factory_t* self,

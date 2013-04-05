@@ -69,7 +69,7 @@ CEF_EXPORT int cef_begin_tracing(struct _cef_trace_client_t* client,
 // Get the maximum trace buffer percent full state across all processes.
 //
 // cef_trace_client_t::OnTraceBufferPercentFullReply will be called
-// asynchronously after the value is determibed. When any child process reaches
+// asynchronously after the value is determined. When any child process reaches
 // 100% full tracing will end automatically and
 // cef_trace_client_t::OnEndTracingComplete will be called. This function fails
 // and returns false (0) if trace is ending or disabled, no cef_trace_client_t
