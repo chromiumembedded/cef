@@ -281,6 +281,34 @@ void CEF_CALLBACK browser_host_start_download(struct _cef_browser_host_t* self,
       CefString(url));
 }
 
+void CEF_CALLBACK browser_host_set_mouse_cursor_change_disabled(
+    struct _cef_browser_host_t* self, int disabled) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetMouseCursorChangeDisabled(
+      disabled?true:false);
+}
+
+int CEF_CALLBACK browser_host_is_mouse_cursor_change_disabled(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsMouseCursorChangeDisabled();
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK browser_host_is_window_rendering_disabled(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -469,6 +497,10 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.set_zoom_level = browser_host_set_zoom_level;
   struct_.struct_.run_file_dialog = browser_host_run_file_dialog;
   struct_.struct_.start_download = browser_host_start_download;
+  struct_.struct_.set_mouse_cursor_change_disabled =
+      browser_host_set_mouse_cursor_change_disabled;
+  struct_.struct_.is_mouse_cursor_change_disabled =
+      browser_host_is_mouse_cursor_change_disabled;
   struct_.struct_.is_window_rendering_disabled =
       browser_host_is_window_rendering_disabled;
   struct_.struct_.was_resized = browser_host_was_resized;

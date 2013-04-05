@@ -16,6 +16,7 @@ extern const char kUrl[];
 extern const char kExternalDevTools[];
 extern const char kOffScreenRenderingEnabled[];
 extern const char kTransparentPaintingEnabled[];
+extern const char kMouseCursorChangeDisabled[];
 
 }  // namespace cefclient
 

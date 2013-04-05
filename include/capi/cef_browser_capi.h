@@ -314,6 +314,18 @@ typedef struct _cef_browser_host_t {
       const cef_string_t* url);
 
   ///
+  // Set whether mouse cursor change is disabled.
+  ///
+  void (CEF_CALLBACK *set_mouse_cursor_change_disabled)(
+      struct _cef_browser_host_t* self, int disabled);
+
+  ///
+  // Returns true (1) if mouse cursor change is disabled.
+  ///
+  int (CEF_CALLBACK *is_mouse_cursor_change_disabled)(
+      struct _cef_browser_host_t* self);
+
+  ///
   // Returns true (1) if window rendering is disabled.
   ///
   int (CEF_CALLBACK *is_window_rendering_disabled)(

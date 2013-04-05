@@ -354,6 +354,18 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StartDownload(const CefString& url) =0;
 
   ///
+  // Set whether mouse cursor change is disabled.
+  ///
+  /*--cef()--*/
+  virtual void SetMouseCursorChangeDisabled(bool disabled) =0;
+
+  ///
+  // Returns true if mouse cursor change is disabled.
+  ///
+  /*--cef()--*/
+  virtual bool IsMouseCursorChangeDisabled() =0;
+
+  ///
   // Returns true if window rendering is disabled.
   ///
   /*--cef()--*/

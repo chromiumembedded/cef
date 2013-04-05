@@ -325,6 +325,9 @@ class ClientHandler : public CefClient,
   // The startup URL.
   std::string m_StartupURL;
 
+  // True if mouse cursor change is disabled.
+  bool m_bMouseCursorChangeDisabled;
+
   // Number of currently existing browser windows. The application will exit
   // when the number of windows reaches 0.
   static int m_BrowserCount;

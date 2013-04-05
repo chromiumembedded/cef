@@ -125,6 +125,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const std::vector<CefString>& accept_types,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual void StartDownload(const CefString& url) OVERRIDE;
+  virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
+  virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void WasResized() OVERRIDE;
   virtual void Invalidate(const CefRect& dirtyRect,
@@ -509,6 +511,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // True if the focus is currently on an editable field on the page. Only
   // accessed on the UI thread.
   bool focus_on_editable_field_;
+
+  // True if mouse cursor change is disabled.
+  bool mouse_cursor_change_disabled_;
 
   // Used for managing notification subscriptions.
   scoped_ptr<content::NotificationRegistrar> registrar_;

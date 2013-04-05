@@ -232,6 +232,30 @@ void CefBrowserHostCToCpp::StartDownload(const CefString& url) {
       url.GetStruct());
 }
 
+void CefBrowserHostCToCpp::SetMouseCursorChangeDisabled(bool disabled) {
+  if (CEF_MEMBER_MISSING(struct_, set_mouse_cursor_change_disabled))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->set_mouse_cursor_change_disabled(struct_,
+      disabled);
+}
+
+bool CefBrowserHostCToCpp::IsMouseCursorChangeDisabled() {
+  if (CEF_MEMBER_MISSING(struct_, is_mouse_cursor_change_disabled))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_mouse_cursor_change_disabled(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
   if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
     return false;

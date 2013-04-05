@@ -33,6 +33,7 @@
 #include "base/command_line.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
+#include "content/common/view_messages.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_url_parameters.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -605,6 +606,16 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   params.reset(
       content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
   manager->DownloadUrl(params.Pass());
+}
+
+void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
+  base::AutoLock lock_scope(state_lock_);
+  mouse_cursor_change_disabled_ = disabled;
+}
+
+bool CefBrowserHostImpl::IsMouseCursorChangeDisabled() {
+  base::AutoLock lock_scope(state_lock_);
+  return mouse_cursor_change_disabled_;
 }
 
 bool CefBrowserHostImpl::IsWindowRenderingDisabled() {
@@ -1835,6 +1846,11 @@ void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
 }
 
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
+  // Handle the cursor message here if mouse cursor change is disabled instead
+  // of propegating the message to the normal handler.
+  if (message.type() == ViewHostMsg_SetCursor::ID)
+    return IsMouseCursorChangeDisabled();
+
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefBrowserHostImpl, message)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameIdentified, OnFrameIdentified)
@@ -2010,6 +2026,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       window_destroyed_(false),
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
+      mouse_cursor_change_disabled_(false),
       file_chooser_pending_(false) {
   DCHECK(!browser_info_->browser().get());
   browser_info_->set_browser(this);

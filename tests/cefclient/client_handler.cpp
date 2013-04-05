@@ -110,6 +110,9 @@ ClientHandler::ClientHandler()
   m_bExternalDevTools =
       command_line->HasSwitch(cefclient::kExternalDevTools) ||
       AppIsOffScreenRenderingEnabled();
+
+  m_bMouseCursorChangeDisabled =
+      command_line->HasSwitch(cefclient::kMouseCursorChangeDisabled);
 }
 
 ClientHandler::~ClientHandler() {
@@ -303,6 +306,10 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
+
+  // Disable mouse cursor change if requested via the command-line flag.
+  if (m_bMouseCursorChangeDisabled)
+    browser->GetHost()->SetMouseCursorChangeDisabled(true);
 
   AutoLock lock_scope(this);
   if (!m_Browser.get())   {
