@@ -340,6 +340,13 @@ typedef struct _cef_browser_host_t {
   void (CEF_CALLBACK *was_resized)(struct _cef_browser_host_t* self);
 
   ///
+  // Notify the browser that it has been hidden or shown. Layouting and
+  // cef_render_handler_t::OnPaint notification will stop when the browser is
+  // hidden. This function is only used when window rendering is disabled.
+  ///
+  void (CEF_CALLBACK *was_hidden)(struct _cef_browser_host_t* self, int hidden);
+
+  ///
   // Invalidate the |dirtyRect| region of the view. The browser will call
   // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
   // function is only used when window rendering is disabled.

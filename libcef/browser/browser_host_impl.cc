@@ -641,6 +641,32 @@ void CefBrowserHostImpl::WasResized() {
     widget->WasResized();
 }
 
+void CefBrowserHostImpl::WasHidden(bool hidden) {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::WasHidden, this, hidden));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHostImpl* widget =
+      content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost());
+  if (!widget)
+    return;
+
+  if (hidden) 
+    widget->WasHidden();
+  else
+    widget->WasShown();
+}
+
 void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
                                     PaintElementType type) {
   if (!IsWindowRenderingDisabled()) {
@@ -848,6 +874,7 @@ void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
     widget->Blur();
   }
 }
+
 void CefBrowserHostImpl::SendCaptureLostEvent() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,

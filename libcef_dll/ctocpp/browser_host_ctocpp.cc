@@ -279,6 +279,17 @@ void CefBrowserHostCToCpp::WasResized() {
   struct_->was_resized(struct_);
 }
 
+void CefBrowserHostCToCpp::WasHidden(bool hidden) {
+  if (CEF_MEMBER_MISSING(struct_, was_hidden))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->was_hidden(struct_,
+      hidden);
+}
+
 void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect,
     PaintElementType type) {
   if (CEF_MEMBER_MISSING(struct_, invalidate))

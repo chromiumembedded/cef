@@ -381,6 +381,14 @@ class CefBrowserHost : public virtual CefBase {
   virtual void WasResized() =0;
 
   ///
+  // Notify the browser that it has been hidden or shown. Layouting and
+  // CefRenderHandler::OnPaint notification will stop when the browser is
+  // hidden. This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void WasHidden(bool hidden) =0;
+
+  ///
   // Invalidate the |dirtyRect| region of the view. The browser will call
   // CefRenderHandler::OnPaint asynchronously with the updated regions. This
   // method is only used when window rendering is disabled.

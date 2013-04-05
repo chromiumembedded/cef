@@ -56,6 +56,7 @@ class CefBrowserHostCToCpp
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void WasResized() OVERRIDE;
+  virtual void WasHidden(bool hidden) OVERRIDE;
   virtual void Invalidate(const CefRect& dirtyRect,
       PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
