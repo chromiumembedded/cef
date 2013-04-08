@@ -120,6 +120,24 @@ def fix_msvs_projects():
     data = data.replace('..\\..\\..\\build\\', '')
     write_file(file, data)
 
+def fix_make_projects():
+  """ Fix the output directory path in Makefile all .mk files. """
+  find = os.path.relpath(output_dir, src_dir)
+  files = [os.path.join(output_dir, 'Makefile')]
+  for file in get_files(os.path.join(output_dir, '*.mk')):
+    files.append(file)
+  for file in files:
+    data = read_file(file)
+    data = data.replace(find, '.')
+    if os.path.basename(file) == 'Makefile':
+      # remove the quiet_cmd_regen_makefile section
+      pos = str.find(data, 'quiet_cmd_regen_makefile')
+      if pos >= 0:
+        epos = str.find(data, '#', pos)
+        if epos >= 0:
+          data = data[0:pos] + data[epos:]
+    write_file(file, data)
+
 def run(command_line, working_dir):
   """ Run a command. """
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
@@ -242,6 +260,8 @@ transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
 
 # transfer common cefclient files
 transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
+                    'tests/cefclient/', cefclient_dir, options.quiet)
+transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_common'], \
                     'tests/cefclient/', cefclient_dir, options.quiet)
 
 # transfer common libcef_dll_wrapper files
@@ -421,11 +441,7 @@ elif platform == 'linux':
   if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Debug')
     make_dir(dst_dir, options.quiet)
-    copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
-    copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
+    copy_file(os.path.join(build_dir, 'lib.target/libcef.so'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Debug build files.\n")
 
@@ -434,13 +450,17 @@ elif platform == 'linux':
   if not options.allowpartial or path_exists(build_dir):
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
-    copy_dir(os.path.join(build_dir, 'lib.target'), os.path.join(dst_dir, 'lib.target'), options.quiet)
-    copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'lib.target/libcef.so'), dst_dir, options.quiet)
+  else:
+    sys.stderr.write("No Release build files.\n")
+
+  if not build_dir is None:
+    # transfer resource files
+    dst_dir = os.path.join(output_dir, 'Resources')
+    make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
-  else:
-    sys.stderr.write("No Release build files.\n")
 
   # transfer include files
   transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
@@ -449,10 +469,33 @@ elif platform == 'linux':
   # transfer cefclient files
   transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_linux'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer additional files, if any
+  copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
                 output_dir, options.quiet)
+
+  # Back up the existing Makefile
+  makefile = os.path.join(src_dir, 'Makefile')
+  makefile_tmp = makefile + '.cef_bak'
+  copy_file(makefile, makefile_tmp, options.quiet)
+
+  # Generate make project files
+  sys.stdout.write('Generating make project files...')
+  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+  RunAction(cef_dir, gyper);
+
+  # Copy the resulting Makefile to the destination directory
+  copy_file(makefile, output_dir, options.quiet)
+
+  # Restore the original Makefile
+  remove_file(makefile, options.quiet)
+  move_file(makefile_tmp, makefile, options.quiet)
+
+  # Post-process the make files
+  fix_make_projects()
 
 # Create an archive of the output directory
 zip_file = os.path.split(output_dir)[1] + '.zip'
