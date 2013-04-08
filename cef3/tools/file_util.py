@@ -73,6 +73,17 @@ def copy_files(src_glob, dst_folder, quiet = True):
         else:
             copy_file(fname, dst, quiet)
 
+def remove_file(name, quiet = True):
+    """ Remove the specified file. """
+    try:
+        if path_exists(name):
+            os.remove(name)
+            if not quiet:
+                sys.stdout.write('Removing '+name+' file.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to remove file '+name+': '+strerror)
+        raise
+
 def copy_dir(src, dst, quiet = True):
     """ Copy a directory tree. """
     try:
