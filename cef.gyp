@@ -422,34 +422,6 @@
       'type': 'shared_library',
       'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
       'dependencies': [
-        '<(DEPTH)/content/content.gyp:content_app',
-        '<(DEPTH)/content/content.gyp:content_browser',
-        '<(DEPTH)/content/content.gyp:content_common',
-        '<(DEPTH)/content/content.gyp:content_gpu',
-        '<(DEPTH)/content/content.gyp:content_plugin',
-        '<(DEPTH)/content/content.gyp:content_ppapi_plugin',
-        '<(DEPTH)/content/content.gyp:content_renderer',
-        '<(DEPTH)/content/content.gyp:content_utility',
-        '<(DEPTH)/content/content.gyp:content_worker',
-        '<(DEPTH)/content/content_resources.gyp:content_resources',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/base/base.gyp:base_prefs',
-        '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(DEPTH)/ipc/ipc.gyp:ipc',
-        '<(DEPTH)/media/media.gyp:media',
-        '<(DEPTH)/net/net.gyp:net',
-        '<(DEPTH)/net/net.gyp:net_with_v8',
-        '<(DEPTH)/skia/skia.gyp:skia',
-        '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
-        '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
-        '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
-        '<(DEPTH)/ui/gl/gl.gyp:gl',
-        '<(DEPTH)/ui/ui.gyp:ui',
-        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_storage',
         'libcef_static',
       ],
       'defines': [
@@ -457,12 +429,6 @@
       ],
       'include_dirs': [
         '.',
-      ],
-      # Avoid "RC1102: internal error : too many arguments to RCPP" error by
-      # explicitly specifying a short list of resource include directories.
-      'resource_include_dirs' :  [
-        '.',
-        '..',
       ],
       'sources': [
         '<@(includes_common)',
@@ -487,6 +453,11 @@
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
         }],
+        ['toolkit_uses_gtk == 1', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+        }],
         ['OS=="win"', {
           'configurations': {
             'Debug_Base': {
@@ -501,8 +472,8 @@
             '<@(includes_win)',
             # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
             # resources can be loaded via ResourceBundle. See crbug.com/147663.
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
-            '$(OutDir)/obj/global_intermediate/ui/ui_resources/ui_unscaled_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {
