@@ -98,11 +98,6 @@
             '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
           ],
         }],
-        ['toolkit_uses_gtk == 1', {
-          'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-          ],
-        }],
         [ 'OS=="mac"', {
           'product_name': 'cefclient',
           'dependencies': [
@@ -211,6 +206,9 @@
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
@@ -412,6 +410,11 @@
             'tests/unittests/run_all_unittests_mac.mm',
           ],
         }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+        }],
       ],
     },
     {
@@ -450,11 +453,6 @@
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
         }],
-        ['toolkit_uses_gtk == 1', {
-          'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-          ],
-        }],
         ['OS=="win"', {
           'configurations': {
             'Debug_Base': {
@@ -488,20 +486,8 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies':[
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+            '<(DEPTH)/build/linux/system.gyp:gtk',
           ],
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(<(pkg-config) --cflags gtk+-2.0 gthread-2.0)',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(<(pkg-config) --libs-only-L --libs-only-other gtk+-2.0 gthread-2.0)',
-            ],
-            'libraries': [
-              '<!@(<(pkg-config) --libs-only-l gtk+-2.0 gthread-2.0)',
-            ],
-          },
       	}],
       ],
     },
@@ -523,6 +509,13 @@
         '<@(includes_capi)',
         '<@(includes_wrapper)',
         '<@(libcef_dll_wrapper_sources_common)',
+      ],
+      'conditions': [
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+        }],
       ],
     },
     {
