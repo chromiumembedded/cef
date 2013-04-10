@@ -120,7 +120,13 @@ parser.add_option('--no-release-build',
                   help="don't perform the CEF release build")
 parser.add_option('--no-distrib',
                   action='store_true', dest='nodistrib', default=False,
-                  help="don't create the CEF binary distribution")
+                  help="don't create any CEF binary distribution")
+parser.add_option('--minimal-distrib',
+                  action='store_true', dest='minimaldistrib', default=False,
+                  help='create a minimal CEF binary distribution')
+parser.add_option('--minimal-distrib-only',
+                  action='store_true', dest='minimaldistribonly', default=False,
+                  help='create a minimal CEF binary distribution only')
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help="build using ninja")
@@ -131,6 +137,11 @@ parser.add_option('--dry-run',
 
 # the downloaddir option is required
 if options.downloaddir is None:
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.noreleasebuild and (options.minimaldistrib or options.minimaldistribonly):
+  print 'Invalid combination of options'
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -412,10 +423,23 @@ if any_changed or options.forcebuild:
       # make CEF Release build
       run(path+' Release', cef_tools_dir, depot_tools_dir)
 
-if any_changed or options.forcedistrib:
-  if not options.nodistrib:
-    # make CEF binary distribution
-    path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
-    if options.ninjabuild:
-      path = path + ' --ninja-build'
+if (any_changed or options.forcedistrib) and not options.nodistrib:
+  # make a CEF binary distribution
+  make_minimal = options.minimaldistrib or options.minimaldistribonly
+  path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+  if options.ninjabuild:
+    path = path + ' --ninja-build'
+  if options.nodebugbuild or options.noreleasebuild or make_minimal:
+    path = path + ' --allow-partial'
+
+  if not options.minimaldistribonly:
+    # create the full distribution
+    run(path, cef_tools_dir, depot_tools_dir)
+
+  if make_minimal:
+    # create the minimial distribution
+    path = path + ' --minimal'
+    if not options.minimaldistribonly:
+      # don't create the symbol archive twice
+      path = path + ' --no-symbols'
     run(path, cef_tools_dir, depot_tools_dir)
