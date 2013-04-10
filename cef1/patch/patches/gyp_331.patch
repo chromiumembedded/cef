@@ -1,0 +1,22 @@
+Index: gyp/generator/ninja.py
+===================================================================
+--- gyp/generator/ninja.py	(revision 1602)
++++ gyp/generator/ninja.py	(working copy)
+@@ -662,7 +662,16 @@
+       for path in copy['files']:
+         # Normalize the path so trailing slashes don't confuse us.
+         path = os.path.normpath(path)
+-        basename = os.path.split(path)[1]
++        (parent_path, basename) = os.path.split(path)
++
++        # Xcode uses .lproj directories for localized resources. Add a special
++        # case to maintain the localization directory component if present.
++        if parent_path != '':
++          parent_basename = os.path.basename(parent_path)
++          (parent_root, parent_ext) = os.path.splitext(parent_basename)
++          if parent_ext == '.lproj':
++            basename = os.path.join(parent_basename, basename)
++
+         src = self.GypPathToNinja(path, env)
+         dst = self.GypPathToNinja(os.path.join(copy['destination'], basename),
+                                   env)

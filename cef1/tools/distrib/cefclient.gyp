@@ -5,11 +5,18 @@
 {
   'variables': {
     'chromium_code': 1,
+    'linux_use_gold_binary': 0,
+    'linux_use_gold_flags': 0,
     'conditions': [
       [ 'OS=="mac"', {
         # Don't use clang with CEF binary releases due to Chromium tree structure dependency.
         'clang': 0,
-      }]
+      }],
+      ['sysroot!=""', {
+        'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
+      }, {
+        'pkg-config': 'pkg-config'
+      }],
     ]
   },
   'includes': [
@@ -112,7 +119,29 @@
                 '<@(cefclient_bundle_resources_linux)',
               ],
             },
+            {
+              'destination': '<(PRODUCT_DIR)/',
+              'files': [
+                'Resources/chrome.pak',
+                'Resources/devtools_resources.pak',
+                'Resources/locales/',
+                '$(BUILDTYPE)/libcef.so',
+              ],
+            },
           ],
+          'dependencies': [
+            'gtk',
+          ],
+          'link_settings': {
+            'ldflags': [
+              # Look for libcef.so in the current directory. Path can also be
+              # specified using the LD_LIBRARY_PATH environment variable.
+              '-Wl,-rpath,.',
+            ],
+            'libraries': [
+              "$(BUILDTYPE)/libcef.so",
+            ],
+          },
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
@@ -140,6 +169,41 @@
         # Target build path.
         'SYMROOT': 'xcodebuild',
       },
+      'conditions': [
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies': [
+            'gtk',
+          ],
+        }],
+      ],
     },
-  ]
+  ],
+  'conditions': [
+    [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+      'targets': [
+        {
+          'target_name': 'gtk',
+          'type': 'none',
+          'variables': {
+            # gtk requires gmodule, but it does not list it as a dependency
+            # in some misconfigured systems.
+            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0',
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(<(pkg-config) --cflags <(gtk_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(<(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
+            ],
+            'libraries': [
+              '<!@(<(pkg-config) --libs-only-l <(gtk_packages))',
+            ],
+          },
+        },
+      ],
+    }],  # OS=="linux" or OS=="freebsd" or OS=="openbsd"
+  ],
 }

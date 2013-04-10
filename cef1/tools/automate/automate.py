@@ -23,9 +23,10 @@ def run(command_line, working_dir, depot_tools_dir=None):
   
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
                    working_dir+'"...'+"\n")
-  args = shlex.split(command_line.replace('\\', '\\\\'))
-  return subprocess.check_call(args, cwd=working_dir, env=env,
-                               shell=(sys.platform == 'win32'))
+  if not options.dryrun:
+    args = shlex.split(command_line.replace('\\', '\\\\'))
+    return subprocess.check_call(args, cwd=working_dir, env=env,
+                                 shell=(sys.platform == 'win32'))
 
 def check_url(url):
   """ Check the URL and raise an exception if invalid. """
@@ -91,6 +92,8 @@ parser.add_option('--revision', dest='revision', type="int",
                   help='CEF source revision')
 parser.add_option('--url', dest='url',
                   help='CEF source URL')
+parser.add_option('--depot-tools', dest='depottools', metavar='DIR',
+                  help='download directory for depot_tools', default='')
 parser.add_option('--force-config',
                   action='store_true', dest='forceconfig', default=False,
                   help='force Chromium configuration')
@@ -117,11 +120,28 @@ parser.add_option('--no-release-build',
                   help="don't perform the CEF release build")
 parser.add_option('--no-distrib',
                   action='store_true', dest='nodistrib', default=False,
-                  help="don't create the CEF binary distribution")
+                  help="don't create any CEF binary distribution")
+parser.add_option('--minimal-distrib',
+                  action='store_true', dest='minimaldistrib', default=False,
+                  help='create a minimal CEF binary distribution')
+parser.add_option('--minimal-distrib-only',
+                  action='store_true', dest='minimaldistribonly', default=False,
+                  help='create a minimal CEF binary distribution only')
+parser.add_option('--ninja-build',
+                  action='store_true', dest='ninjabuild', default=False,
+                  help="build using ninja")
+parser.add_option('--dry-run',
+                  action='store_true', dest='dryrun', default=False,
+                  help="output commands without executing them")
 (options, args) = parser.parse_args()
 
 # the downloaddir option is required
 if options.downloaddir is None:
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.noreleasebuild and (options.minimaldistrib or options.minimaldistribonly):
+  print 'Invalid combination of options'
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -176,7 +196,7 @@ except Exception, e:
                    compat_url+"\n")
   raise
 
-download_dir = options.downloaddir
+download_dir = os.path.abspath(options.downloaddir)
 if not os.path.exists(download_dir):
   # create the download directory
   os.makedirs(download_dir)
@@ -197,7 +217,10 @@ else:
   script_ext = '.sh'
 
 # check if the "depot_tools" directory exists
-depot_tools_dir = os.path.join(download_dir, 'depot_tools')
+if options.depottools != '':
+  depot_tools_dir = os.path.abspath(options.depottools)
+else:
+  depot_tools_dir = os.path.join(download_dir, 'depot_tools')
 if not os.path.exists(depot_tools_dir):
   # checkout depot_tools
   run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
@@ -291,55 +314,60 @@ if release_url_changed or chromium_url_changed or options.forceconfig:
   # run gclient config to create the .gclient file
   run('gclient config '+url, chromium_dir, depot_tools_dir)
 
-  path = os.path.join(chromium_dir, '.gclient')
-  if not os.path.exists(path):
-    sys.stderr.write(".gclient file was not created\n")
-    raise Exception('.gclient file was not created')
+  if not options.dryrun:
+    path = os.path.join(chromium_dir, '.gclient')
+    if not os.path.exists(path):
+      sys.stderr.write(".gclient file was not created\n")
+      raise Exception('.gclient file was not created')
 
-  # read the resulting .gclient file
-  fp = open(path, 'r')
-  data = fp.read()
-  fp.close()
+    # read the resulting .gclient file
+    fp = open(path, 'r')
+    data = fp.read()
+    fp.close()
 
-  custom_deps = \
-      "\n      "+'"src/third_party/WebKit/LayoutTests": None,'+\
-      "\n      "+'"src/chrome_frame/tools/test/reference_build/chrome": None,'+\
-      "\n      "+'"src/chrome/tools/test/reference_build/chrome_mac": None,'+\
-      "\n      "+'"src/chrome/tools/test/reference_build/chrome_win": None,'+\
-      "\n      "+'"src/chrome/tools/test/reference_build/chrome_linux": None,'
+    custom_deps = \
+        "\n      "+'"src/third_party/WebKit/LayoutTests": None,'+\
+        "\n      "+'"src/chrome_frame/tools/test/reference_build/chrome": None,'+\
+        "\n      "+'"src/chrome/tools/test/reference_build/chrome_mac": None,'+\
+        "\n      "+'"src/chrome/tools/test/reference_build/chrome_win": None,'+\
+        "\n      "+'"src/chrome/tools/test/reference_build/chrome_linux": None,'
 
-  if not release_url is None:
-    # TODO: Read the DEPS file and exclude all non-src directories.
-    custom_deps += \
-      "\n      "+'"chromeos": None,'+\
-      "\n      "+'"depot_tools": None,'
+    if not release_url is None:
+      # TODO: Read the DEPS file and exclude all non-src directories.
+      custom_deps += \
+        "\n      "+'"chromeos": None,'+\
+        "\n      "+'"depot_tools": None,'
 
-  # populate "custom_deps" section
-  data = data.replace('"custom_deps" : {', '"custom_deps" : {'+custom_deps)
+    # populate "custom_deps" section
+    data = data.replace('"custom_deps" : {', '"custom_deps" : {'+custom_deps)
 
-  # write the new .gclient file
-  fp = open(path, 'w')
-  fp.write(data)
-  fp.close()
+    # write the new .gclient file
+    fp = open(path, 'w')
+    fp.write(data)
+    fp.close()
 
 if options.forceclean:
   if os.path.exists(chromium_src_dir):
     # revert all Chromium changes and delete all unversioned files
     run('gclient revert -n', chromium_dir, depot_tools_dir)
 
-    # remove the build output directories
-    output_dirs = []
-    if platform == 'windows':
-      output_dirs.append(os.path.join(chromium_src_dir, 'build\\Debug'))
-      output_dirs.append(os.path.join(chromium_src_dir, 'build\\Release'))
-    elif platform == 'macosx':
-      output_dirs.append(os.path.join(chromium_src_dir, 'xcodebuild'))
-    elif platform == 'linux':
-      output_dirs.append(os.path.join(chromium_src_dir, 'out'))
+    if not options.dryrun:
+      # remove the build output directories
+      output_dirs = []
+      if platform == 'windows':
+        output_dirs.append(os.path.join(cef_src_dir, 'build\\Debug'))
+        output_dirs.append(os.path.join(cef_src_dir, 'build\\Release'))
+      elif platform == 'macosx':
+        output_dirs.append(os.path.join(chromium_src_dir, 'xcodebuild'))
+      elif platform == 'linux':
+        output_dirs.append(os.path.join(chromium_src_dir, 'out'))
 
-    for output_dir in output_dirs:
-      if os.path.exists(output_dir):
-        shutil.rmtree(output_dir, onerror=onerror)
+      if options.ninjabuild:
+        output_dirs.append(os.path.join(chromium_src_dir, 'out'))
+
+      for output_dir in output_dirs:
+        if os.path.exists(output_dir):
+          shutil.rmtree(output_dir, onerror=onerror)
 
   # force update, build and distrib steps
   options.forceupdate = True
@@ -356,7 +384,7 @@ elif release_url_changed or options.forceupdate:
   run('gclient sync --jobs 8 --force', chromium_dir, depot_tools_dir)
 
 if not os.path.exists(cef_src_dir) or cef_url_changed:
-  if cef_url_changed and os.path.exists(cef_src_dir):
+  if not options.dryrun and cef_url_changed and os.path.exists(cef_src_dir):
     # delete the cef directory (it will be re-downloaded)
     shutil.rmtree(cef_src_dir)
 
@@ -368,22 +396,50 @@ elif cef_rev_changed or options.forceupdate:
 
 if any_changed or options.forceupdate:
   # create CEF projects
+  if options.ninjabuild:
+    os.environ['GYP_GENERATORS'] = 'ninja'
   path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
   run(path, cef_src_dir, depot_tools_dir)
 
 if any_changed or options.forcebuild:
-  path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
+  if options.ninjabuild:
+    command = 'ninja -C '
+    target = ' cefclient'
+    if not options.nodebugbuild:
+      # make CEF Debug build
+      run(command + os.path.join('out', 'Debug') + target, chromium_src_dir, depot_tools_dir)
 
-  if not options.nodebugbuild:
-    # make CEF Debug build
-    run(path+' Debug', cef_tools_dir, depot_tools_dir)
+    if not options.noreleasebuild:
+      # make CEF Release build
+      run(command + os.path.join('out', 'Release') + target, chromium_src_dir, depot_tools_dir)
+  else:
+    path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
 
-  if not options.noreleasebuild:
-    # make CEF Release build
-    run(path+' Release', cef_tools_dir, depot_tools_dir)
+    if not options.nodebugbuild:
+      # make CEF Debug build
+      run(path+' Debug', cef_tools_dir, depot_tools_dir)
 
-if any_changed or options.forcedistrib:
-  if not options.nodistrib:
-    # make CEF binary distribution
-    path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+    if not options.noreleasebuild:
+      # make CEF Release build
+      run(path+' Release', cef_tools_dir, depot_tools_dir)
+
+if (any_changed or options.forcedistrib) and not options.nodistrib:
+  # make a CEF binary distribution
+  make_minimal = options.minimaldistrib or options.minimaldistribonly
+  path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+  if options.ninjabuild:
+    path = path + ' --ninja-build'
+  if options.nodebugbuild or options.noreleasebuild or make_minimal:
+    path = path + ' --allow-partial'
+
+  if not options.minimaldistribonly:
+    # create the full distribution
+    run(path, cef_tools_dir, depot_tools_dir)
+
+  if make_minimal:
+    # create the minimial distribution
+    path = path + ' --minimal'
+    if not options.minimaldistribonly:
+      # don't create the symbol archive twice
+      path = path + ' --no-symbols'
     run(path, cef_tools_dir, depot_tools_dir)
