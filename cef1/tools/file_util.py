@@ -73,6 +73,17 @@ def copy_files(src_glob, dst_folder, quiet = True):
         else:
             copy_file(fname, dst, quiet)
 
+def remove_file(name, quiet = True):
+    """ Remove the specified file. """
+    try:
+        if path_exists(name):
+            os.remove(name)
+            if not quiet:
+                sys.stdout.write('Removing '+name+' file.\n')
+    except IOError, (errno, strerror):
+        sys.stderr.write('Failed to remove file '+name+': '+strerror)
+        raise
+
 def copy_dir(src, dst, quiet = True):
     """ Copy a directory tree. """
     try:
@@ -109,3 +120,11 @@ def make_dir(name, quiet = True):
 def get_files(search_glob):
     """ Returns all files matching the search glob. """
     return iglob(search_glob)
+
+def read_version_file(file, args):
+    """ Read and parse a version file (key=value pairs, one per line). """
+    lines = read_file(file).split("\n")
+    for line in lines:
+        parts = line.split('=', 1)
+        if len(parts) == 2:
+            args[parts[0]] = parts[1]

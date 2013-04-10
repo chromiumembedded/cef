@@ -132,6 +132,7 @@
           'product_name': 'cefclient',
           'variables': {
             'repack_path': '../tools/grit/grit/format/repack.py',
+            'PRODUCT_NAME': 'cefclient',
           },
           'actions': [
             {
@@ -186,11 +187,15 @@
                 '<(PRODUCT_DIR)/libcef.dylib',
               ],
             },
+          ],
+          'postbuilds': [
             {
-              # Add the WebCore resources to the bundle.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/',
-              'files': [
-                '../third_party/WebKit/Source/WebCore/Resources/',
+              'postbuild_name': 'Copy WebCore Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/'
               ],
             },
           ],
@@ -206,6 +211,9 @@
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies':[
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
@@ -324,6 +332,7 @@
         'tests/unittests/mac/English.lproj/InfoPlist.strings',
         'tests/unittests/mac/English.lproj/MainMenu.xib',
         'tests/unittests/mac/Info.plist',
+        '<(grit_out_dir)/devtools_resources.pak',
       ],
       'mac_bundle_resources!': [
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
@@ -342,6 +351,7 @@
           'product_name': 'cef_unittests',
           'variables': {
             'repack_path': '../tools/grit/grit/format/repack.py',
+            'PRODUCT_NAME': 'cef_unittests',
           },
           'run_as': {
             'action': ['${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/${PRODUCT_NAME}'],
@@ -395,9 +405,20 @@
           'copies': [
             {
               # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/cef_unittests.app/Contents/MacOS/',
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/MacOS/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
+              ],
+            },
+          ],
+          'postbuilds': [
+            {
+              'postbuild_name': 'Copy WebCore Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/'
               ],
             },
           ],
@@ -410,6 +431,11 @@
             'tests/unittests/run_all_unittests_mac.mm',
           ],
         }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies':[
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+      	}],
       ],
     },
     {
@@ -417,35 +443,6 @@
       'type': 'shared_library',
       'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
       'dependencies': [
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/base/base.gyp:base_i18n',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(DEPTH)/net/net.gyp:net',
-        '<(DEPTH)/net/net.gyp:net_resources',
-        '<(DEPTH)/printing/printing.gyp:printing',
-        '<(DEPTH)/sdch/sdch.gyp:sdch',
-        '<(DEPTH)/skia/skia.gyp:skia',
-        '<(DEPTH)/third_party/bzip2/bzip2.gyp:bzip2',
-        '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
-        '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
-        '<(DEPTH)/third_party/leveldatabase/leveldatabase.gyp:leveldatabase',
-        '<(DEPTH)/third_party/libjpeg_turbo/libjpeg.gyp:libjpeg',
-        '<(DEPTH)/third_party/libpng/libpng.gyp:libpng',
-        '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
-        '<(DEPTH)/third_party/libxslt/libxslt.gyp:libxslt',
-        '<(DEPTH)/third_party/modp_b64/modp_b64.gyp:modp_b64',
-        '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
-        '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
-        '<(DEPTH)/third_party/zlib/zlib.gyp:zlib',
-        '<(DEPTH)/ui/ui.gyp:ui_resources',
-        '<(DEPTH)/ui/ui.gyp:ui',
-        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:user_agent',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_storage',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
         'libcef_static',
       ],
       'defines': [
@@ -453,12 +450,6 @@
       ],
       'include_dirs': [
         '.',
-      ],
-      # Avoid "RC1102: internal error : too many arguments to RCPP" error by
-      # explicitly specifying a short list of resource include directories.
-      'resource_include_dirs' :  [
-        '.',
-        '..',
       ],
       'sources': [
         '<@(includes_common)',
@@ -477,18 +468,17 @@
         'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
       },
       'conditions': [
-        ['OS=="win"', {
+        ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-            '<(DEPTH)/breakpad/breakpad.gyp:breakpad_handler',
-            '<(DEPTH)/third_party/angle/src/build_angle.gyp:libEGL',
-            '<(DEPTH)/third_party/angle/src/build_angle.gyp:libGLESv2',
           ],
+        }],
+        ['OS=="win"', {
           'sources': [
             '<@(includes_win)',
-            '$(OutDir)/obj/global_intermediate/ui/ui_resources/ui_unscaled_resources.rc',
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_chromium_resources.rc',
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {
@@ -505,22 +495,10 @@
           },
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-         'dependencies':[
+          'dependencies':[
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+            '<(DEPTH)/build/linux/system.gyp:gtk',
           ],
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(<(pkg-config) --cflags gtk+-2.0 gthread-2.0)',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(<(pkg-config) --libs-only-L --libs-only-other gtk+-2.0 gthread-2.0)',
-            ],
-            'libraries': [
-              '<!@(<(pkg-config) --libs-only-l gtk+-2.0 gthread-2.0)',
-            ],
-          },
       	}],
       ],
     },
@@ -543,6 +521,13 @@
         '<@(includes_capi)',
         '<@(includes_wrapper)',
         '<@(libcef_dll_wrapper_sources_common)',
+      ],
+      'conditions': [
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies':[
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+      	}],
       ],
     },
     {
