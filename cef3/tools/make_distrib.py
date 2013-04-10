@@ -169,6 +169,9 @@ parser.add_option('--no-symbols',
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help='build was created using ninja')
+parser.add_option('--minimal',
+                  action='store_true', dest='minimal', default=False,
+                  help='include only release build binary files')
 parser.add_option('-q', '--quiet',
                   action='store_true', dest='quiet', default=False,
                   help='do not output detailed status information')
@@ -215,15 +218,17 @@ elif sys.platform.startswith('linux'):
   platform = 'linux'
 
 # output directory
-output_dir = os.path.abspath(os.path.join(options.outputdir, \
-                                          'cef_binary_'+cef_ver+'_'+platform))
+output_dir_name = 'cef_binary_'+cef_ver+'_'+platform
+if options.minimal:
+  output_dir_name = output_dir_name + '_minimal'
+output_dir = os.path.abspath(os.path.join(options.outputdir, output_dir_name))
 remove_dir(output_dir, options.quiet)
 make_dir(output_dir, options.quiet)
 
 if not options.nosymbols:
   # symbol directory
-  symbol_dir = os.path.abspath(os.path.join(options.outputdir, \
-                                            'cef_binary_'+cef_ver+'_'+platform+'_symbols'))
+  symbol_dir_name = output_dir_name + '_symbols'
+  symbol_dir = os.path.abspath(os.path.join(options.outputdir, symbol_dir_name))
   remove_dir(symbol_dir, options.quiet)
   make_dir(symbol_dir, options.quiet)
 
@@ -238,67 +243,69 @@ cef_paths = cef_paths['variables']
 cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
 cef_paths2 = cef_paths2['variables']
 
-# create the include directory
-include_dir = os.path.join(output_dir, 'include')
-make_dir(include_dir, options.quiet)
+if not options.minimal:
+  # create the include directory
+  include_dir = os.path.join(output_dir, 'include')
+  make_dir(include_dir, options.quiet)
 
-# create the cefclient directory
-cefclient_dir = os.path.join(output_dir, 'cefclient')
-make_dir(cefclient_dir, options.quiet)
+  # create the cefclient directory
+  cefclient_dir = os.path.join(output_dir, 'cefclient')
+  make_dir(cefclient_dir, options.quiet)
 
-# create the libcef_dll_wrapper directory
-wrapper_dir = os.path.join(output_dir, 'libcef_dll')
-make_dir(wrapper_dir, options.quiet)
+  # create the libcef_dll_wrapper directory
+  wrapper_dir = os.path.join(output_dir, 'libcef_dll')
+  make_dir(wrapper_dir, options.quiet)
 
-# transfer common include files
-transfer_gypi_files(cef_dir, cef_paths2['includes_common'], \
-                    'include/', include_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths2['includes_capi'], \
-                    'include/', include_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper'], \
-                    'include/', include_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths['autogen_cpp_includes'], \
-                    'include/', include_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
-                    'include/', include_dir, options.quiet)
+  # transfer common include files
+  transfer_gypi_files(cef_dir, cef_paths2['includes_common'], \
+                      'include/', include_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['includes_capi'], \
+                      'include/', include_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper'], \
+                      'include/', include_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths['autogen_cpp_includes'], \
+                      'include/', include_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
+                      'include/', include_dir, options.quiet)
 
-# transfer common cefclient files
-transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
-                    'tests/cefclient/', cefclient_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_common'], \
-                    'tests/cefclient/', cefclient_dir, options.quiet)
+  # transfer common cefclient files
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_common'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
 
-# transfer common libcef_dll_wrapper files
-transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
-                    'libcef_dll/', wrapper_dir, options.quiet)
-transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
-                    'libcef_dll/', wrapper_dir, options.quiet)
+  # transfer common libcef_dll_wrapper files
+  transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
+                      'libcef_dll/', wrapper_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
+                      'libcef_dll/', wrapper_dir, options.quiet)
 
-# transfer gyp files
-copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
-paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
-data = read_file(paths_gypi)
-data = data.replace('tests/cefclient/', 'cefclient/')
-write_file(os.path.join(output_dir, 'cef_paths2.gypi'), data)
-copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
-          os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
+  # transfer gyp files
+  copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
+  paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
+  data = read_file(paths_gypi)
+  data = data.replace('tests/cefclient/', 'cefclient/')
+  write_file(os.path.join(output_dir, 'cef_paths2.gypi'), data)
+  copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
+            os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
 
-# transfer additional files
-transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.cfg'), \
-               output_dir, options.quiet)
+  # transfer additional files
+  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.cfg'), \
+                 output_dir, options.quiet)
 
 if platform == 'windows':
   # create the README.TXT file
   create_readme(os.path.join(script_dir, 'distrib/win/README.txt'), output_dir, cef_url, \
                 cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
 
-  # transfer include files
-  transfer_gypi_files(cef_dir, cef_paths2['includes_win'], \
-                      'include/', include_dir, options.quiet)
+  if not options.minimal:
+    # transfer include files
+    transfer_gypi_files(cef_dir, cef_paths2['includes_win'], \
+                        'include/', include_dir, options.quiet)
 
-  # transfer cefclient files
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
+    # transfer cefclient files
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
 
   if options.ninjabuild:
     out_dir = os.path.join(src_dir, 'out')
@@ -307,26 +314,27 @@ if platform == 'windows':
     out_dir = os.path.join(src_dir, 'build')
     libcef_dll_file = 'lib/libcef.lib'
 
-  # transfer build/Debug files
-  build_dir = os.path.join(out_dir, 'Debug');
-  if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.exe')):
-    dst_dir = os.path.join(output_dir, 'Debug')
-    make_dir(dst_dir, options.quiet)
-    copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
-    copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
-             options.quiet)
-  
-    # transfer lib/Debug files
-    dst_dir = os.path.join(output_dir, 'lib/Debug')
-    make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
-              options.quiet)
-  else:
-    sys.stderr.write("No Debug build files.\n")
+  if not options.minimal:
+    # transfer build/Debug files
+    build_dir = os.path.join(out_dir, 'Debug');
+    if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.exe')):
+      dst_dir = os.path.join(output_dir, 'Debug')
+      make_dir(dst_dir, options.quiet)
+      copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+      copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
+      copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
+               options.quiet)
+
+      # transfer lib/Debug files
+      dst_dir = os.path.join(output_dir, 'lib/Debug')
+      make_dir(dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
+                options.quiet)
+    else:
+      sys.stderr.write("No Debug build files.\n")
 
   # transfer build/Release files
   build_dir = os.path.join(out_dir, 'Release');
@@ -335,7 +343,8 @@ if platform == 'windows':
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
     copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
+    if not options.minimal:
+      copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), \
@@ -353,43 +362,45 @@ if platform == 'windows':
   else:
     sys.stderr.write("No Release build files.\n")
 
-  # generate doc files
-  os.popen('make_cppdocs.bat '+cef_rev)
+  if not options.minimal:
+    # generate doc files
+    os.popen('make_cppdocs.bat '+cef_rev)
 
-  # transfer docs files
-  dst_dir = os.path.join(output_dir, 'docs')
-  src_dir = os.path.join(cef_dir, 'docs')
-  if path_exists(src_dir):
-    copy_dir(src_dir, dst_dir, options.quiet)
+    # transfer docs files
+    dst_dir = os.path.join(output_dir, 'docs')
+    src_dir = os.path.join(cef_dir, 'docs')
+    if path_exists(src_dir):
+      copy_dir(src_dir, dst_dir, options.quiet)
 
-  # transfer additional files, if any
-  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
-                 output_dir, options.quiet)
+    # transfer additional files, if any
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
+                   output_dir, options.quiet)
 
-  # generate the project files
-  generate_msvs_projects('2005');
-  generate_msvs_projects('2008');
-  generate_msvs_projects('2010');
-  fix_msvs_projects();
+    # generate the project files
+    generate_msvs_projects('2005');
+    generate_msvs_projects('2008');
+    generate_msvs_projects('2010');
+    fix_msvs_projects();
 
 elif platform == 'macosx':
   # create the README.TXT file
   create_readme(os.path.join(script_dir, 'distrib/mac/README.txt'), output_dir, cef_url, \
                 cef_rev, cef_ver, chromium_url, chromium_rev, chromium_ver, date)
-  
-  # transfer include files
-  transfer_gypi_files(cef_dir, cef_paths2['includes_mac'], \
-                      'include/', include_dir, options.quiet)
 
-  # transfer cefclient files
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac_helper'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
+  if not options.minimal:
+    # transfer include files
+    transfer_gypi_files(cef_dir, cef_paths2['includes_mac'], \
+                        'include/', include_dir, options.quiet)
 
-  # transfer cefclient/mac files
-  copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac/'), os.path.join(output_dir, 'cefclient/mac/'), \
-           options.quiet)
+    # transfer cefclient files
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac_helper'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+
+    # transfer cefclient/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac/'), os.path.join(output_dir, 'cefclient/mac/'), \
+             options.quiet)
 
   if options.ninjabuild:
     out_dir = os.path.join(src_dir, 'out')
@@ -398,15 +409,16 @@ elif platform == 'macosx':
 
   valid_build_dir = None
 
-  # transfer xcodebuild/Debug files
-  build_dir = os.path.join(out_dir, 'Debug')
-  if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.app')):
-    valid_build_dir = build_dir
-    dst_dir = os.path.join(output_dir, 'Debug')
-    make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
+  if not options.minimal:
+    # transfer xcodebuild/Debug files
+    build_dir = os.path.join(out_dir, 'Debug')
+    if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.app')):
+      valid_build_dir = build_dir
+      dst_dir = os.path.join(output_dir, 'Debug')
+      make_dir(dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
 
   # transfer xcodebuild/Release files
   build_dir = os.path.join(out_dir, 'Release')
@@ -432,24 +444,25 @@ elif platform == 'macosx':
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/*.*'), \
                dst_dir, options.quiet)
-  
-  # transfer additional files, if any
-  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
-                output_dir, options.quiet)
 
-  # Generate Xcode project files
-  sys.stdout.write('Generating Xcode project files...')
-  os.environ['GYP_GENERATORS'] = 'xcode'
-  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
-  RunAction(cef_dir, gyper);
+  if not options.minimal:
+    # transfer additional files, if any
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
+                  output_dir, options.quiet)
 
-  # Post-process the Xcode project to fix file paths
-  src_file = os.path.join(output_dir, 'cefclient.xcodeproj/project.pbxproj')
-  data = read_file(src_file)
-  data = data.replace('../../../build/mac/', 'tools/')
-  data = data.replace('../../../build', 'build')
-  data = data.replace('../../../xcodebuild', 'xcodebuild')
-  write_file(src_file, data)
+    # Generate Xcode project files
+    sys.stdout.write('Generating Xcode project files...')
+    os.environ['GYP_GENERATORS'] = 'xcode'
+    gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+    RunAction(cef_dir, gyper);
+
+    # Post-process the Xcode project to fix file paths
+    src_file = os.path.join(output_dir, 'cefclient.xcodeproj/project.pbxproj')
+    data = read_file(src_file)
+    data = data.replace('../../../build/mac/', 'tools/')
+    data = data.replace('../../../build', 'build')
+    data = data.replace('../../../xcodebuild', 'xcodebuild')
+    write_file(src_file, data)
 
 elif platform == 'linux':
   # create the README.TXT file
@@ -464,15 +477,16 @@ elif platform == 'linux':
 
   valid_build_dir = None
 
-  # transfer out/Debug files
-  build_dir = os.path.join(out_dir, 'Debug');
-  if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient')):
-    valid_build_dir = build_dir
-    dst_dir = os.path.join(output_dir, 'Debug')
-    make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
-  else:
-    sys.stderr.write("No Debug build files.\n")
+  if not options.minimal:
+    # transfer out/Debug files
+    build_dir = os.path.join(out_dir, 'Debug');
+    if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient')):
+      valid_build_dir = build_dir
+      dst_dir = os.path.join(output_dir, 'Debug')
+      make_dir(dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
+    else:
+      sys.stderr.write("No Debug build files.\n")
 
   # transfer out/Release files
   build_dir = os.path.join(out_dir, 'Release');
@@ -493,54 +507,55 @@ elif platform == 'linux':
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
-  # transfer include files
-  transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
-                      'include/', include_dir, options.quiet)
+  if not options.minimal:
+    # transfer include files
+    transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
+                        'include/', include_dir, options.quiet)
 
-  # transfer cefclient files
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_linux'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
+    # transfer cefclient files
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_linux'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
 
-  # transfer additional files, if any
-  copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
-  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
-                output_dir, options.quiet)
+    # transfer additional files, if any
+    copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
+                  output_dir, options.quiet)
 
-  makefile = os.path.join(src_dir, 'Makefile')
-  makefile_tmp = ''
-  if path_exists(makefile):
-    # Back up the existing Makefile
-    makefile_tmp = makefile + '.cef_bak'
-    copy_file(makefile, makefile_tmp, options.quiet)
+    makefile = os.path.join(src_dir, 'Makefile')
+    makefile_tmp = ''
+    if path_exists(makefile):
+      # Back up the existing Makefile
+      makefile_tmp = makefile + '.cef_bak'
+      copy_file(makefile, makefile_tmp, options.quiet)
 
-  # Generate make project files
-  sys.stdout.write('Generating make project files...')
-  os.environ['GYP_GENERATORS'] = 'make'
-  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
-  RunAction(cef_dir, gyper);
+    # Generate make project files
+    sys.stdout.write('Generating make project files...')
+    os.environ['GYP_GENERATORS'] = 'make'
+    gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+    RunAction(cef_dir, gyper);
 
-  # Copy the resulting Makefile to the destination directory
-  copy_file(makefile, output_dir, options.quiet)
+    # Copy the resulting Makefile to the destination directory
+    copy_file(makefile, output_dir, options.quiet)
 
-  remove_file(makefile, options.quiet)
-  if makefile_tmp != '':
-    # Restore the original Makefile
-    move_file(makefile_tmp, makefile, options.quiet)
+    remove_file(makefile, options.quiet)
+    if makefile_tmp != '':
+      # Restore the original Makefile
+      move_file(makefile_tmp, makefile, options.quiet)
 
-  # Post-process the make files
-  fix_make_projects()
+    # Post-process the make files
+    fix_make_projects()
 
 # Create an archive of the output directory
-zip_file = os.path.split(output_dir)[1] + '.zip'
+zip_file = output_dir_name + '.zip'
 if not options.quiet:
   sys.stdout.write('Creating '+zip_file+"...\n")
 create_archive(output_dir, os.path.join(output_dir, os.pardir, zip_file))
 
 if not options.nosymbols:
   # Create an archive of the symbol directory
-  zip_file = os.path.split(symbol_dir)[1] + '.zip'
+  zip_file = symbol_dir_name + '.zip'
   if not options.quiet:
     sys.stdout.write('Creating '+zip_file+"...\n")
   create_archive(symbol_dir, os.path.join(symbol_dir, os.pardir, zip_file))
