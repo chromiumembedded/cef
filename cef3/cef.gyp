@@ -110,27 +110,23 @@
             'cefclient_helper_app',
             'interpose_dependency_shim',
           ],
+          'variables': {
+            'PRODUCT_NAME': 'cefclient',
+          },
           'copies': [
             {
               # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
               ],
             },
             {
-              # Add localized resources to the bundle.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/',
-              'files': [
-                '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))',
-              ],
-            },
-            {
               # Add the helper app.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks',
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks',
               'files': [
-                '<(PRODUCT_DIR)/cefclient Helper.app',
+                '<(PRODUCT_DIR)/<(PRODUCT_NAME) Helper.app',
                 '<(PRODUCT_DIR)/libplugin_carbon_interpose.dylib',
               ],
             },
@@ -147,12 +143,30 @@
               ],
             },
             {
+              'postbuild_name': 'Copy WebCore Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+              ],
+            },
+            {
+              'postbuild_name': 'Copy locale Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/locales/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+              ],
+            },
+            {
               'postbuild_name': 'Copy cef.pak File',
               'action': [
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
               ],
             },
             {
@@ -161,16 +175,7 @@
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
-                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy WebCore Resources',
-              'action': [
-                'cp',
-                '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
-                '${BUILT_PRODUCTS_DIR}/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
               ],
             },
             {
@@ -308,30 +313,26 @@
           'dependencies': [
             'cef_unittests_helper_app',
           ],
+          'variables': {
+            'PRODUCT_NAME': 'cef_unittests',
+          },
           'run_as': {
             'action': ['${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/${PRODUCT_NAME}'],
           },
           'copies': [
             {
               # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
               'files': [
                 '<(PRODUCT_DIR)/libcef.dylib',
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
               ],
             },
             {
-              # Add localized resources to the bundle.
-              'destination': '<(PRODUCT_DIR)/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/',
-              'files': [
-                '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))',
-              ],
-            },
-            {
               # Add the helper app.
-              'destination': '<(PRODUCT_DIR)/cef_unittests.app/Contents/Frameworks',
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks',
               'files': [
-                '<(PRODUCT_DIR)/cef_unittests Helper.app',
+                '<(PRODUCT_DIR)/<(PRODUCT_NAME) Helper.app',
               ],
             },
           ],
@@ -347,12 +348,30 @@
               ],
             },
             {
+              'postbuild_name': 'Copy WebCore Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+              ],
+            },
+            {
+              'postbuild_name': 'Copy locale Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/locales/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+              ],
+            },
+            {
               'postbuild_name': 'Copy cef.pak File',
               'action': [
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
               ],
             },
             {
@@ -361,16 +380,7 @@
                 'cp',
                 '-f',
                 '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
-                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy WebCore Resources',
-              'action': [
-                'cp',
-                '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
-                '${BUILT_PRODUCTS_DIR}/cef_unittests.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
               ],
             },
             {
@@ -412,34 +422,6 @@
       'type': 'shared_library',
       'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
       'dependencies': [
-        '<(DEPTH)/content/content.gyp:content_app',
-        '<(DEPTH)/content/content.gyp:content_browser',
-        '<(DEPTH)/content/content.gyp:content_common',
-        '<(DEPTH)/content/content.gyp:content_gpu',
-        '<(DEPTH)/content/content.gyp:content_plugin',
-        '<(DEPTH)/content/content.gyp:content_ppapi_plugin',
-        '<(DEPTH)/content/content.gyp:content_renderer',
-        '<(DEPTH)/content/content.gyp:content_utility',
-        '<(DEPTH)/content/content.gyp:content_worker',
-        '<(DEPTH)/content/content_resources.gyp:content_resources',
-        '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/base/base.gyp:base_prefs',
-        '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
-        '<(DEPTH)/ipc/ipc.gyp:ipc',
-        '<(DEPTH)/media/media.gyp:media',
-        '<(DEPTH)/net/net.gyp:net',
-        '<(DEPTH)/net/net.gyp:net_with_v8',
-        '<(DEPTH)/skia/skia.gyp:skia',
-        '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
-        '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
-        '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
-        '<(DEPTH)/ui/gl/gl.gyp:gl',
-        '<(DEPTH)/ui/ui.gyp:ui',
-        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_storage',
         'libcef_static',
       ],
       'defines': [
@@ -448,19 +430,15 @@
       'include_dirs': [
         '.',
       ],
-      # Avoid "RC1102: internal error : too many arguments to RCPP" error by
-      # explicitly specifying a short list of resource include directories.
-      'resource_include_dirs' :  [
-        '.',
-        '..',
-      ],
       'sources': [
         '<@(includes_common)',
         '<@(includes_capi)',
         '<@(libcef_sources_common)',
       ],
       'xcode_settings': {
+        # Default path that will be changed by install_name_tool in dependent targets.
         'INSTALL_PATH': '@executable_path',
+        'DYLIB_INSTALL_NAME_BASE': '@executable_path',
         # The libcef_static target contains ObjC categories. Passing the -ObjC flag
         # is necessary to properly load them and avoid a "selector not recognized"
         # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
@@ -473,6 +451,11 @@
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+          ],
+        }],
+        ['toolkit_uses_gtk == 1', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:gtk',
           ],
         }],
         ['OS=="win"', {
@@ -489,8 +472,8 @@
             '<@(includes_win)',
             # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
             # resources can be loaded via ResourceBundle. See crbug.com/147663.
-            '$(OutDir)/obj/global_intermediate/webkit/webkit_resources.rc',
-            '$(OutDir)/obj/global_intermediate/ui/ui_resources/ui_unscaled_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
             'libcef_dll/libcef_dll.rc',
           ],
           'link_settings': {
@@ -572,6 +555,14 @@
       'variables': {
         'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/locales',
+          'files': [
+            '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))'
+          ],
+        },
+      ],
       'conditions': [
         ['OS=="win"', {
           'actions': [
@@ -620,16 +611,6 @@
                 '-s', '<(SHARED_INTERMEDIATE_DIR)',
                 '-x', '<(INTERMEDIATE_DIR)',
                 '<@(locales)',
-              ],
-            },
-          ],
-        }],
-        ['OS != "mac"', {
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)/locales',
-              'files': [
-                '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))'
               ],
             },
           ],
