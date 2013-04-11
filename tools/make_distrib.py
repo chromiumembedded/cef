@@ -614,10 +614,14 @@ elif platform == 'linux':
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
 
     if mode == 'client':
+      lib_dst_dir = os.path.join(dst_dir, lib_dir_name)
+      make_dir(lib_dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), lib_dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
+    else:
+      copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
@@ -626,6 +630,7 @@ elif platform == 'linux':
     build_dir = valid_build_dir
     if mode == 'client':
       dst_dir = os.path.join(output_dir, 'Release')
+      copy_dir(os.path.join(build_dir, 'files'), os.path.join(dst_dir, 'files'), options.quiet)
     else:
       dst_dir = os.path.join(output_dir, 'Resources')
     make_dir(dst_dir, options.quiet)
