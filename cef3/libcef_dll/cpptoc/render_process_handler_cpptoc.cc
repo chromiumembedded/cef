@@ -218,90 +218,6 @@ void CEF_CALLBACK render_process_handler_on_uncaught_exception(
       CefV8StackTraceCToCpp::Wrap(stackTrace));
 }
 
-void CEF_CALLBACK render_process_handler_on_worker_context_created(
-    struct _cef_render_process_handler_t* self, int worker_id,
-    const cef_string_t* url, struct _cef_v8context_t* context) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
-  // Verify param: context; type: refptr_diff
-  DCHECK(context);
-  if (!context)
-    return;
-
-  // Execute
-  CefRenderProcessHandlerCppToC::Get(self)->OnWorkerContextCreated(
-      worker_id,
-      CefString(url),
-      CefV8ContextCToCpp::Wrap(context));
-}
-
-void CEF_CALLBACK render_process_handler_on_worker_context_released(
-    struct _cef_render_process_handler_t* self, int worker_id,
-    const cef_string_t* url, struct _cef_v8context_t* context) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
-  // Verify param: context; type: refptr_diff
-  DCHECK(context);
-  if (!context)
-    return;
-
-  // Execute
-  CefRenderProcessHandlerCppToC::Get(self)->OnWorkerContextReleased(
-      worker_id,
-      CefString(url),
-      CefV8ContextCToCpp::Wrap(context));
-}
-
-void CEF_CALLBACK render_process_handler_on_worker_uncaught_exception(
-    struct _cef_render_process_handler_t* self, int worker_id,
-    const cef_string_t* url, struct _cef_v8context_t* context,
-    struct _cef_v8exception_t* exception,
-    struct _cef_v8stack_trace_t* stackTrace) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
-  // Verify param: context; type: refptr_diff
-  DCHECK(context);
-  if (!context)
-    return;
-  // Verify param: exception; type: refptr_diff
-  DCHECK(exception);
-  if (!exception)
-    return;
-  // Verify param: stackTrace; type: refptr_diff
-  DCHECK(stackTrace);
-  if (!stackTrace)
-    return;
-
-  // Execute
-  CefRenderProcessHandlerCppToC::Get(self)->OnWorkerUncaughtException(
-      worker_id,
-      CefString(url),
-      CefV8ContextCToCpp::Wrap(context),
-      CefV8ExceptionCToCpp::Wrap(exception),
-      CefV8StackTraceCToCpp::Wrap(stackTrace));
-}
-
 void CEF_CALLBACK render_process_handler_on_focused_node_changed(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, cef_domnode_t* node) {
@@ -374,12 +290,6 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_context_released;
   struct_.struct_.on_uncaught_exception =
       render_process_handler_on_uncaught_exception;
-  struct_.struct_.on_worker_context_created =
-      render_process_handler_on_worker_context_created;
-  struct_.struct_.on_worker_context_released =
-      render_process_handler_on_worker_context_released;
-  struct_.struct_.on_worker_uncaught_exception =
-      render_process_handler_on_worker_uncaught_exception;
   struct_.struct_.on_focused_node_changed =
       render_process_handler_on_focused_node_changed;
   struct_.struct_.on_process_message_received =

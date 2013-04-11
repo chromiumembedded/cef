@@ -335,35 +335,6 @@ void ClientApp::OnUncaughtException(CefRefPtr<CefBrowser> browser,
   }
 }
 
-void ClientApp::OnWorkerContextCreated(int worker_id,
-                                       const CefString& url,
-                                       CefRefPtr<CefV8Context> context) {
-  RenderDelegateSet::iterator it = render_delegates_.begin();
-  for (; it != render_delegates_.end(); ++it)
-    (*it)->OnWorkerContextCreated(this, worker_id, url, context);
-}
-
-void ClientApp::OnWorkerContextReleased(int worker_id,
-                                        const CefString& url,
-                                        CefRefPtr<CefV8Context> context) {
-  RenderDelegateSet::iterator it = render_delegates_.begin();
-  for (; it != render_delegates_.end(); ++it)
-    (*it)->OnWorkerContextReleased(this, worker_id, url, context);
-}
-
-void ClientApp::OnWorkerUncaughtException(
-    int worker_id,
-    const CefString& url,
-    CefRefPtr<CefV8Context> context,
-    CefRefPtr<CefV8Exception> exception,
-    CefRefPtr<CefV8StackTrace> stackTrace) {
-  RenderDelegateSet::iterator it = render_delegates_.begin();
-  for (; it != render_delegates_.end(); ++it) {
-    (*it)->OnWorkerUncaughtException(this, worker_id, url, context, exception,
-                                     stackTrace);
-  }
-}
-
 void ClientApp::OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
                                      CefRefPtr<CefDOMNode> node) {

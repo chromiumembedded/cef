@@ -131,43 +131,6 @@ class CefRenderProcessHandler : public virtual CefBase {
                                    CefRefPtr<CefV8StackTrace> stackTrace) {}
 
   ///
-  // Called on the WebWorker thread immediately after the V8 context for a new
-  // WebWorker has been created. To retrieve the JavaScript 'self' object use
-  // the CefV8Context::GetGlobal() method. V8 handles can only be accessed from
-  // the thread on which they are created. A task runner for posting tasks on
-  // the associated thread can be retrieved via the
-  // CefV8Context::GetTaskRunner() method.
-  ///
-  /*--cef()--*/
-  virtual void OnWorkerContextCreated(int worker_id,
-                                      const CefString& url,
-                                      CefRefPtr<CefV8Context> context) {}
-
-  ///
-  // Called on the WebWorker thread immediately before the V8 context for a
-  // WebWorker is released. No references to the context should be kept after
-  // this method is called. Any tasks posted or pending on the WebWorker
-  // thread after this method is called may not be executed.
-  ///
-  /*--cef()--*/
-  virtual void OnWorkerContextReleased(int worker_id,
-                                       const CefString& url,
-                                       CefRefPtr<CefV8Context> context) {}
-
-  ///
-  // Called on the WebWorker thread for global uncaught exceptions in a
-  // WebWorker. Execution of this callback is disabled by default. To enable set
-  // CefSettings.uncaught_exception_stack_size > 0.
-  ///
-  /*--cef()--*/
-  virtual void OnWorkerUncaughtException(
-      int worker_id,
-      const CefString& url,
-      CefRefPtr<CefV8Context> context,
-      CefRefPtr<CefV8Exception> exception,
-      CefRefPtr<CefV8StackTrace> stackTrace) {}
-
-  ///
   // Called when a new node in the the browser gets focus. The |node| value may
   // be empty if no specific node has gained focus. The node object passed to
   // this method represents a snapshot of the DOM at the time this method is

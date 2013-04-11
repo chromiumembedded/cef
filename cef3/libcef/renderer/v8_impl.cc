@@ -706,11 +706,6 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
   if (CEF_CURRENTLY_ON_RT()) {
     handler->OnUncaughtException(context->GetBrowser(), context->GetFrame(),
         context, exception, stackTrace);
-  } else {
-    CefV8IsolateManager* manager = GetIsolateManager();
-    DCHECK_GT(manager->worker_id(), 0);
-    handler->OnWorkerUncaughtException(manager->worker_id(),
-        manager->worker_url().spec(), context, exception, stackTrace);
   }
 }
 

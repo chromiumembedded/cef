@@ -21,7 +21,6 @@
 #include "content/public/renderer/content_renderer_client.h"
 
 class CefRenderProcessObserver;
-class CefWebWorkerScriptObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 
 class CefContentRendererClient : public content::ContentRendererClient,
@@ -103,7 +102,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;
-  scoped_ptr<CefWebWorkerScriptObserver> worker_script_observer_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
