@@ -74,9 +74,6 @@ enum V8TestMode {
   V8TEST_ON_UNCAUGHT_EXCEPTION,
   V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
   V8TEST_EXTENSION,
-  V8TEST_WORKER_BINDING,
-  V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION,
-  V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
 };
 
 // Set to the current test being run in the browser process. Will always be
@@ -220,15 +217,10 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         RunStackTraceTest();
         break;
       case V8TEST_ON_UNCAUGHT_EXCEPTION:
-      case V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION:
         RunOnUncaughtExceptionTest();
         break;
       case V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS:
-      case V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS:
         RunOnUncaughtExceptionDevToolsTest();
-        break;
-      case V8TEST_WORKER_BINDING:
-        // The test is triggered in OnWorkerContextCreated().
         break;
       default:
         // Was a startup test.
@@ -1652,8 +1644,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     if (test_mode_ == V8TEST_NONE)
       return;
 
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS ||
-        test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser_.get() == NULL) {
         app_ = app;
         browser_ = browser;
@@ -1769,204 +1760,12 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     }
   }
 
-  virtual void OnWorkerContextCreated(
-      CefRefPtr<ClientApp> app,
-      int worker_id,
-      const CefString& url,
-      CefRefPtr<CefV8Context> context) OVERRIDE {
-    if (test_mode_ == V8TEST_NONE)
-      return;
-
-    EXPECT_STREQ(kV8WorkerTestUrl, url.ToString().c_str());
-
-    EXPECT_TRUE(context.get());
-    EXPECT_TRUE(context->IsValid());
-    test_context_worker_ = context;
-      
-    CefRefPtr<CefTaskRunner> task_runner = context->GetTaskRunner();
-    EXPECT_TRUE(task_runner.get());
-    EXPECT_TRUE(task_runner->BelongsToCurrentThread());
-    test_task_runner_worker_ = task_runner;
-
-    EXPECT_FALSE(context->GetBrowser().get());
-    EXPECT_FALSE(context->GetFrame().get());
-
-    if (test_mode_ == V8TEST_WORKER_BINDING) {
-      static const char test_func[] = "run_async";
-
-      class Handler : public CefV8Handler {
-       public:
-        Handler() {}
-        virtual bool Execute(const CefString& name,
-                             CefRefPtr<CefV8Value> object,
-                             const CefV8ValueList& arguments,
-                             CefRefPtr<CefV8Value>& retval,
-                             CefString& exception) OVERRIDE {
-          EXPECT_STREQ(test_func, name.ToString().c_str());
-          EXPECT_EQ((size_t)1, arguments.size());
-
-          callback_ = arguments[0];
-          EXPECT_TRUE(callback_->IsFunction());
-          
-          EXPECT_TRUE(context_->IsValid());
-
-          CefRefPtr<CefV8Context> current_context =
-              CefV8Context::GetCurrentContext();
-          EXPECT_TRUE(current_context->IsSame(context_));
-          
-          CefRefPtr<CefTaskRunner> task_runner =
-              current_context->GetTaskRunner();
-          EXPECT_TRUE(task_runner.get());
-          EXPECT_TRUE(task_runner->BelongsToCurrentThread());
-          EXPECT_TRUE(task_runner->IsSame(task_runner_));
-
-          // Execute the callback asynchronously.
-          // Can't use templates with nested classes on Linux.
-          class Task : public CefTask {
-           public:
-            explicit Task(Handler* handler)
-                : handler_(handler) {
-              handler_->AddRef();
-            }
-            ~Task() {
-              handler_->Release();
-            }
-            virtual void Execute() OVERRIDE {
-              handler_->ExecCallback();
-            }
-           private:
-            Handler* handler_;
-            IMPLEMENT_REFCOUNTING(Task);
-          };
-          task_runner->PostTask(new Task(this));
-
-          retval = CefV8Value::CreateBool(true);
-          return true;
-        }
-
-        void ExecCallback() {
-          EXPECT_TRUE(callback_->IsValid());
-          EXPECT_TRUE(context_->IsValid());
-
-          CefRefPtr<CefTaskRunner> task_runner = context_->GetTaskRunner();
-          EXPECT_TRUE(task_runner.get());
-          EXPECT_TRUE(task_runner->BelongsToCurrentThread());
-          EXPECT_TRUE(task_runner->IsSame(task_runner_));
-
-          CefRefPtr<CefV8Value> retval =
-              callback_->ExecuteFunctionWithContext(context_, NULL,
-                                                    CefV8ValueList());
-          EXPECT_TRUE(retval.get());
-          EXPECT_TRUE(retval->IsValid());
-          EXPECT_TRUE(retval->IsBool());
-          EXPECT_EQ(true, retval->GetBoolValue());
-
-          callback_ = NULL;
-          context_ = NULL;
-          task_runner_ = NULL;
-        }
-
-        CefRefPtr<CefV8Value> callback_;
-        CefRefPtr<CefV8Context> context_;
-        CefRefPtr<CefTaskRunner> task_runner_;
-
-        IMPLEMENT_REFCOUNTING(Handler);
-      };
-
-      Handler* handler = new Handler();
-      CefRefPtr<CefV8Handler> handlerPtr(handler);
-
-      handler->context_ = context;
-      handler->task_runner_ = task_runner;
-
-      CefRefPtr<CefV8Value> global = context->GetGlobal();
-      EXPECT_TRUE(global.get());
-
-      global->SetValue(test_func,
-          CefV8Value::CreateFunction(test_func, handlerPtr),
-          V8_PROPERTY_ATTRIBUTE_NONE);
-    }
-  }
-
-  virtual void OnWorkerContextReleased(
-      CefRefPtr<ClientApp> app,
-      int worker_id,
-      const CefString& url,
-      CefRefPtr<CefV8Context> context) OVERRIDE {
-    if (test_mode_ == V8TEST_NONE)
-      return;
-
-    EXPECT_STREQ(kV8WorkerTestUrl, url.ToString().c_str());
-
-    EXPECT_TRUE(context.get());
-    EXPECT_TRUE(context->IsValid());
-
-    CefRefPtr<CefTaskRunner> task_runner = context->GetTaskRunner();
-    EXPECT_TRUE(task_runner.get());
-    EXPECT_TRUE(task_runner->BelongsToCurrentThread());
-    EXPECT_TRUE(task_runner->IsSame(test_task_runner_worker_));
-
-    EXPECT_TRUE(context->IsSame(test_context_worker_));
-
-    test_context_worker_ = NULL;
-    test_task_runner_worker_ = NULL;
-
-    if (test_mode_ == V8TEST_WORKER_BINDING) {
-      // Destroy the test on the renderer thread.
-      CefPostTask(TID_RENDERER,
-          NewCefRunnableMethod(this, &V8RendererTest::DestroyTest));
-    }
-  }
-
-  void OnWorkerUncaughtException(
-      CefRefPtr<ClientApp> app,
-      int worker_id,
-      const CefString& url,
-      CefRefPtr<CefV8Context> context,
-      CefRefPtr<CefV8Exception> exception,
-      CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE {
-    if (test_mode_ == V8TEST_NONE)
-      return;
-
-    EXPECT_TRUE(context.get());
-    EXPECT_TRUE(context->IsValid());
-
-    CefRefPtr<CefTaskRunner> task_runner = context->GetTaskRunner();
-    EXPECT_TRUE(task_runner.get());
-    EXPECT_TRUE(task_runner->BelongsToCurrentThread());
-    EXPECT_TRUE(task_runner->IsSame(test_task_runner_worker_));
-
-    EXPECT_TRUE(context->IsSame(test_context_worker_));
-
-    if (test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION ||
-        test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
-      EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
-        exception->GetMessage().ToString().c_str());
-      std::ostringstream stackFormatted;
-      for (int i = 0; i < stackTrace->GetFrameCount(); ++i) {
-        stackFormatted << "at "
-            << stackTrace->GetFrame(i)->GetFunctionName().ToString()
-            << "() in " << stackTrace->GetFrame(i)->GetScriptName().ToString()
-            << " on line " << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
-      }
-      const char* stackFormattedShouldBe =
-          "at test2() in http://tests/V8Test.Worker.js on line 2\n"
-          "at test() in http://tests/V8Test.Worker.js on line 1\n";
-      EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
-
-      // Destroy the test on the renderer thread.
-      CefPostTask(TID_RENDERER,
-          NewCefRunnableMethod(this, &V8RendererTest::DestroyTest));
-    }
-  }
-
   virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
                                   CefRefPtr<CefBrowser> browser) OVERRIDE {
     if (test_mode_ == V8TEST_NONE)
       return;
 
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS ||
-        test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser->IsPopup()) {
         // After window destruction there is still a call to
         // ScriptController::setCaptureCallStackForUncaughtExceptions(0),
@@ -1985,8 +1784,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     if (test_mode_ == V8TEST_NONE)
       return false;
 
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS ||
-        test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(PID_BROWSER, source_process);
       EXPECT_TRUE(message.get());
@@ -2132,9 +1930,6 @@ class V8RendererTest : public ClientApp::RenderDelegate {
   CefRefPtr<CefV8Context> test_context_;
   CefRefPtr<CefV8Value> test_object_;
 
-  CefRefPtr<CefV8Context> test_context_worker_;
-  CefRefPtr<CefTaskRunner> test_task_runner_worker_;
-
   // Used by startup tests to indicate success.
   TrackCallback startup_test_success_;
 
@@ -2171,28 +1966,6 @@ class V8TestHandler : public TestHandler {
           "</body></html>\n",
           "text/html");
       CreateBrowser(kV8OnUncaughtExceptionTestUrl);
-    } else if (test_mode_ == V8TEST_WORKER_BINDING) {
-      AddResource(kV8WorkerParentTestUrl, "<html><body>"
-          "<script>var worker = new Worker('V8Test.Worker.js');</script>"
-          "</body></html>", "text/html");
-      AddResource(kV8WorkerTestUrl,
-          "function cb() { self.close(); return true; }\n"
-          "self.run_async(cb);",
-          "application/javascript");
-      CreateBrowser(kV8WorkerParentTestUrl);
-    } else if (test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION ||
-               test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
-      AddResource(kV8WorkerParentTestUrl, "<html><body>"
-          "<script>var worker = new Worker('V8Test.Worker.js');\n"
-          "function test() { worker.postMessage('test'); }\n"
-          "</script>"
-          "</body></html>", "text/html");
-      AddResource(kV8WorkerTestUrl,
-          "function test(){ test2(); }\n"
-          "function test2(){ asd(); }\n"
-          "self.onmessage = function(event) { self.setTimeout(test, 0); }",
-          "application/javascript");
-      CreateBrowser(kV8WorkerParentTestUrl);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
       AddResource(test_url_, "<html><body>"
@@ -2204,8 +1977,7 @@ class V8TestHandler : public TestHandler {
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
-    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS ||
-        test_mode_ == V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
+    if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (browser->IsPopup()) {
         EXPECT_STREQ(
             GetBrowser()->GetHost()->GetDevToolsURL(true).ToString().c_str(),
@@ -2329,7 +2101,3 @@ V8_TEST(StackTrace, V8TEST_STACK_TRACE);
 V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION);
 V8_TEST(OnUncaughtExceptionDevTools, V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS);
 V8_TEST(Extension, V8TEST_EXTENSION);
-V8_TEST(WorkerBinding, V8TEST_WORKER_BINDING);
-V8_TEST(WorkerOnUncaughtException, V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION);
-V8_TEST(WorkerOnUncaughtExceptionDevTools,
-        V8TEST_WORKER_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS);

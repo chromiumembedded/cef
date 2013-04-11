@@ -48,7 +48,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerInfo.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebWorkerScriptObserver.h"
 #include "v8/include/v8.h"
 #include "webkit/glue/worker_task_runner.h"
 
@@ -131,79 +130,6 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
 
 }  // namespace
 
-
-class CefWebWorkerScriptObserver : public WebKit::WebWorkerScriptObserver {
- public:
-  CefWebWorkerScriptObserver() {
-  }
-
-  virtual void didCreateWorkerScriptContext(
-      const WebKit::WebWorkerRunLoop& run_loop,
-      const WebKit::WebURL& url,
-      v8::Handle<v8::Context> context) OVERRIDE {
-    // Create global objects associated with the WebWorker Isolate.
-    CefV8IsolateCreated();
-
-    int stack_size =
-        CefContentRendererClient::Get()->uncaught_exception_stack_size();
-    if (stack_size > 0)
-      CefV8SetUncaughtExceptionStackSize(stack_size);
-
-    webkit_glue::WorkerTaskRunner* worker_runner =
-        webkit_glue::WorkerTaskRunner::Instance();
-    int worker_id = worker_runner->CurrentWorkerId();
-    DCHECK_GT(worker_id, 0);
-    GURL gurl = GURL(url);
-
-    CefV8SetWorkerAttributes(worker_id, gurl);
-
-    // Notify the render process handler.
-    CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-    if (application.get()) {
-      CefRefPtr<CefRenderProcessHandler> handler =
-          application->GetRenderProcessHandler();
-      if (handler.get()) {
-        v8::HandleScope handle_scope;
-        v8::Context::Scope scope(context);
-
-        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
-        handler->OnWorkerContextCreated(worker_id, gurl.spec(), contextPtr);
-      }
-    }
-  }
-
-  virtual void willReleaseWorkerScriptContext(
-      const WebKit::WebWorkerRunLoop& run_loop,
-      const WebKit::WebURL& url,
-      v8::Handle<v8::Context> context) OVERRIDE {
-    v8::HandleScope handle_scope;
-    v8::Context::Scope scope(context);
-
-    // Notify the render process handler.
-    CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-    if (application.get()) {
-      CefRefPtr<CefRenderProcessHandler> handler =
-          application->GetRenderProcessHandler();
-      if (handler.get()) {
-        webkit_glue::WorkerTaskRunner* worker_runner =
-            webkit_glue::WorkerTaskRunner::Instance();
-        int worker_id = worker_runner->CurrentWorkerId();
-        DCHECK_GT(worker_id, 0);
-
-        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
-        GURL gurl = GURL(url);
-        handler->OnWorkerContextReleased(worker_id, gurl.spec(), contextPtr);
-      }
-    }
-
-    CefV8ReleaseContext(context);
-
-    // Destroy global objects associated with the WebWorker Isolate.
-    CefV8IsolateDestroyed();
-  }
-};
-
-
 struct CefContentRendererClient::SchemeInfo {
   std::string scheme_name;
   bool is_local;
@@ -285,9 +211,6 @@ void CefContentRendererClient::WebKitInitialized() {
       command_line.HasSwitch(switches::kEnableSpeechInput));
   WebKit::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
-
-  worker_script_observer_.reset(new CefWebWorkerScriptObserver());
-  WebKit::WebWorkerInfo::addScriptObserver(worker_script_observer_.get());
 
   if (!scheme_info_list_.empty()) {
     // Register the custom schemes.
