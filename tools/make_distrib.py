@@ -42,7 +42,7 @@ def get_readme_component(name):
   # platform directory
   if platform == 'windows':
     platform_cmp = 'win'
-  elif platmform == 'macosx':
+  elif platform == 'macosx':
     platform_cmp = 'mac'
   elif platform == 'linux':
     platform_cmp = 'linux'
@@ -79,7 +79,7 @@ def create_readme():
 
   if platform == 'windows':
     platform_str = 'Windows'
-  elif platmform == 'macosx':
+  elif platform == 'macosx':
     platform_str = 'Mac OS-X'
   elif platform == 'linux':
     platform_str = 'Linux'
