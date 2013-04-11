@@ -59,6 +59,34 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'actions': [
+            {
+              'action_name': 'copy_resources',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_resources.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                'Resources\*',
+                '$(OutDir)',
+              ],
+            },
+            {
+              'action_name': 'copy_libraries',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_resources.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                '$(ConfigurationName)\*.dll',
+                '$(OutDir)',
+              ],
+            },
+          ],
           'msvs_settings': {
             'VCLinkerTool': {
               # Set /SUBSYSTEM:WINDOWS.
@@ -73,7 +101,7 @@
               '-lrpcrt4.lib',
               '-lopengl32.lib',
               '-lglu32.lib',
-              '-llib/$(ConfigurationName)/libcef.lib'
+              '-l$(ConfigurationName)/libcef.lib'
             ],
           },
           'sources': [
