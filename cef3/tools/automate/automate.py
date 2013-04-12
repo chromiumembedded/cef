@@ -127,6 +127,18 @@ parser.add_option('--minimal-distrib',
 parser.add_option('--minimal-distrib-only',
                   action='store_true', dest='minimaldistribonly', default=False,
                   help='create a minimal CEF binary distribution only')
+parser.add_option('--client-distrib',
+                  action='store_true', dest='clientdistrib', default=False,
+                  help='create a client CEF binary distribution')
+parser.add_option('--client-distrib-only',
+                  action='store_true', dest='clientdistribonly', default=False,
+                  help='create a client CEF binary distribution only')
+parser.add_option('--no-distrib-docs',
+                  action='store_true', dest='nodistribdocs', default=False,
+                  help="don't create CEF documentation")
+parser.add_option('--no-distrib-archive',
+                  action='store_true', dest='nodistribarchive', default=False,
+                  help="don't create archives for output directories")
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help="build using ninja")
@@ -140,7 +152,9 @@ if options.downloaddir is None:
   parser.print_help(sys.stderr)
   sys.exit()
 
-if options.noreleasebuild and (options.minimaldistrib or options.minimaldistribonly):
+if (options.noreleasebuild and (options.minimaldistrib or options.minimaldistribonly or \
+                                options.clientdistrib or options.clientdistribonly)) or \
+   (options.minimaldistribonly and options.clientdistribonly):
   print 'Invalid combination of options'
   parser.print_help(sys.stderr)
   sys.exit()
@@ -424,22 +438,43 @@ if any_changed or options.forcebuild:
       run(path+' Release', cef_tools_dir, depot_tools_dir)
 
 if (any_changed or options.forcedistrib) and not options.nodistrib:
-  # make a CEF binary distribution
-  make_minimal = options.minimaldistrib or options.minimaldistribonly
-  path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
-  if options.ninjabuild:
-    path = path + ' --ninja-build'
-  if options.nodebugbuild or options.noreleasebuild or make_minimal:
-    path = path + ' --allow-partial'
+  # determine the requested distribution types
+  distrib_types = []
+  if options.minimaldistribonly:
+    distrib_types.append('minimal')
+  elif options.clientdistribonly:
+    distrib_types.append('client')
+  else:
+    distrib_types.append('standard')
+    if options.minimaldistrib:
+      distrib_types.append('minimal')
+    if options.clientdistrib:
+      distrib_types.append('client')
 
-  if not options.minimaldistribonly:
-    # create the full distribution
-    run(path, cef_tools_dir, depot_tools_dir)
+  first_type = True
 
-  if make_minimal:
-    # create the minimial distribution
-    path = path + ' --minimal'
-    if not options.minimaldistribonly:
-      # don't create the symbol archive twice
-      path = path + ' --no-symbols'
+  # create the requested distribution types
+  for type in distrib_types:
+    path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+    if options.nodebugbuild or options.noreleasebuild or type != 'standard':
+      path = path + ' --allow-partial'
+    if options.ninjabuild:
+      path = path + ' --ninja-build'
+
+    if type == 'minimal':
+      path = path + ' --minimal'
+    elif type == 'client':
+      path = path + ' --client'
+
+    if first_type:
+      if options.nodistribdocs:
+        path = path + ' --no-docs'
+      if options.nodistribarchive:
+        path = path + ' --no-archive'
+      first_type = False
+    else:
+      # don't create the symbol archives or documentation more than once
+      path = path + ' --no-symbols --no-docs'
+
+    # create the distribution
     run(path, cef_tools_dir, depot_tools_dir)
