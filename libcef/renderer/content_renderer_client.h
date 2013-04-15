@@ -24,7 +24,7 @@ class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 
 class CefContentRendererClient : public content::ContentRendererClient,
-                                 public MessageLoop::DestructionObserver {
+                                 public base::MessageLoop::DestructionObserver {
  public:
   CefContentRendererClient();
   virtual ~CefContentRendererClient();

@@ -528,12 +528,6 @@ typedef struct _cef_browser_settings_t {
   // "disable-accelerated-compositing" command-line switch.
   ///
   cef_state_t accelerated_compositing;
-
-  ///
-  // Controls whether developer tools (WebKit inspector) can be used. Also
-  // configurable using the "disable-developer-tools" command-line switch.
-  ///
-  cef_state_t developer_tools;
 } cef_browser_settings_t;
 
 ///
@@ -1347,9 +1341,7 @@ enum cef_dom_event_category_t {
   DOM_EVENT_CATEGORY_POPSTATE = 0x2000,
   DOM_EVENT_CATEGORY_PROGRESS = 0x4000,
   DOM_EVENT_CATEGORY_XMLHTTPREQUEST_PROGRESS = 0x8000,
-  DOM_EVENT_CATEGORY_WEBKIT_ANIMATION = 0x10000,
-  DOM_EVENT_CATEGORY_WEBKIT_TRANSITION = 0x20000,
-  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x40000,
+  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x10000,
 };
 
 ///

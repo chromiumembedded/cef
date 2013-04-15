@@ -148,7 +148,7 @@ CefContentRendererClient::~CefContentRendererClient() {
 // static
 CefContentRendererClient* CefContentRendererClient::Get() {
   return static_cast<CefContentRendererClient*>(
-      content::GetContentClient()->renderer());
+      CefContentClient::Get()->renderer());
 }
 
 CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForView(
@@ -386,7 +386,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
     // on the render thread's MessageLoop.
-    MessageLoop::current()->AddDestructionObserver(this);
+    base::MessageLoop::current()->AddDestructionObserver(this);
   }
 
   // Note that under Linux, the media library will normally already have

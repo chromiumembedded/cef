@@ -49,7 +49,7 @@ bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
 
   {
     // Make sure events can be pumped while the menu is up.
-    MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+    MessageLoop::ScopedNestableTaskAllower allow(base::MessageLoop::current());
 
     // One of the events that could be pumped is |window.close()|.
     // User-initiated event-tracking loops protect against this by

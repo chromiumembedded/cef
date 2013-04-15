@@ -771,6 +771,7 @@
         # CEF grit resource includes
         '<(grit_out_dir)',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
+        '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
       'dependencies': [
         '<(DEPTH)/content/content.gyp:content_app',
@@ -963,11 +964,6 @@
         'libcef/renderer/webkit_glue.h',
         '<(DEPTH)/chrome/common/chrome_switches.cc',
         '<(DEPTH)/chrome/common/chrome_switches.h',
-        # Include sources for persistent cookie storage.
-        '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.cc',
-        '<(DEPTH)/chrome/browser/net/clear_on_exit_policy.h',
-        '<(DEPTH)/chrome/browser/net/sqlite_persistent_cookie_store.cc',
-        '<(DEPTH)/chrome/browser/net/sqlite_persistent_cookie_store.h',
         # Include sources for proxy support.
         '<(DEPTH)/base/prefs/testing_pref_store.cc',
         '<(DEPTH)/base/prefs/testing_pref_store.h',

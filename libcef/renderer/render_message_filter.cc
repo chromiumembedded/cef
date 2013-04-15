@@ -54,7 +54,7 @@ void CefRenderMessageFilter::OnDevToolsAgentDetach() {
   // CefContentRendererClient::DevToolsAgentDetached() needs to be called after
   // the IPC message has been handled by DevToolsAgent. A workaround for this is
   // to first post to the IO thread and then post to the renderer thread.
-  MessageLoop::current()->PostTask(FROM_HERE,
+  base::MessageLoop::current()->PostTask(FROM_HERE,
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_IOT, this));
 }
 

@@ -18,9 +18,9 @@
 #include "net/url_request/url_request_context_getter.h"
 #include "net/url_request/url_request_job_factory.h"
 
-class CefRequestInterceptor;
-class CefURLRequestContextProxy;
+namespace base {
 class MessageLoop;
+}
 
 namespace net {
 class HostResolver;
@@ -30,6 +30,9 @@ class URLRequestJobFactory;
 class URLRequestJobFactoryImpl;
 class URLSecurityManager;
 }
+
+class CefRequestInterceptor;
+class CefURLRequestContextProxy;
 
 /*
 // Classes used in network request processing:
@@ -75,8 +78,8 @@ class URLSecurityManager;
 class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetter(
-      MessageLoop* io_loop,
-      MessageLoop* file_loop,
+      base::MessageLoop* io_loop,
+      base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers);
   virtual ~CefURLRequestContextGetter();
 
@@ -103,8 +106,8 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  private:
   void CreateProxyConfigService();
 
-  MessageLoop* io_loop_;
-  MessageLoop* file_loop_;
+  base::MessageLoop* io_loop_;
+  base::MessageLoop* file_loop_;
 
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_ptr<CefRequestInterceptor> request_interceptor_;

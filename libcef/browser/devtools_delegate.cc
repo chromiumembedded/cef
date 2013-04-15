@@ -4,6 +4,7 @@
 
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/devtools_scheme_handler.h"
+#include "libcef/common/content_client.h"
 
 #include <algorithm>
 #include <string>
@@ -17,11 +18,10 @@
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
-#include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
-#include "net/base/tcp_listen_socket.h"
+#include "net/socket/tcp_listen_socket.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -138,7 +138,7 @@ void CefDevToolsDelegate::Stop() {
 }
 
 std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
-  return content::GetContentClient()->GetDataResource(
+  return CefContentClient::Get()->GetDataResource(
       IDR_CEF_DEVTOOLS_DISCOVERY_PAGE, ui::SCALE_FACTOR_NONE).as_string();
 }
 

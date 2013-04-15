@@ -4,6 +4,7 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_urlrequest_impl.h"
+#include "libcef/common/content_client.h"
 #include "libcef/renderer/render_urlrequest_impl.h"
 
 #include "base/logging.h"
@@ -19,19 +20,19 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     return NULL;
   }
 
-  if (!MessageLoop::current()) {
+  if (!base::MessageLoop::current()) {
     NOTREACHED() << "called on invalid thread";
     return NULL;
   }
 
-  if (content::GetContentClient()->browser()) {
+  if (CefContentClient::Get()->browser()) {
     // In the browser process.
     CefRefPtr<CefBrowserURLRequest> impl =
         new CefBrowserURLRequest(request, client);
     if (impl->Start())
       return impl.get();
     return NULL;
-  } else if (content::GetContentClient()->renderer()) {
+  } else if (CefContentClient::Get()->renderer()) {
     // In the render process.
     CefRefPtr<CefRenderURLRequest> impl =
         new CefRenderURLRequest(request, client);

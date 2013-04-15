@@ -362,7 +362,7 @@ int CefMainDelegate::RunProcess(
       scoped_ptr<base::Thread> thread;
       thread.reset(new CefUIThread(main_function_params));
       base::Thread::Options options;
-      options.message_loop_type = MessageLoop::TYPE_UI;
+      options.message_loop_type = base::MessageLoop::TYPE_UI;
       if (!thread->StartWithOptions(options)) {
         NOTREACHED() << "failed to start UI thread";
         return 1;

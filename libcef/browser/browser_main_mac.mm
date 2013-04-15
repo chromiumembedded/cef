@@ -4,8 +4,6 @@
 
 #include "libcef/browser/browser_main.h"
 
-#include "base/string_piece.h"
-
 void CefBrowserMainParts::PlatformInitialize() {
 }
 

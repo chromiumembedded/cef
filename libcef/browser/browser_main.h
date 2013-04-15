@@ -11,12 +11,13 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/prefs/pref_service.h"
-#include "base/string_piece.h"
+#include "base/strings/string_piece.h"
 #include "chrome/browser/net/pref_proxy_config_tracker.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "net/proxy/proxy_config_service.h"
 
 namespace base {
+class MessageLoop;
 class Thread;
 }
 
@@ -30,7 +31,6 @@ class Isolate;
 
 class CefBrowserContext;
 class CefDevToolsDelegate;
-class MessageLoop;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
  public:
@@ -57,7 +57,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   scoped_ptr<CefBrowserContext> browser_context_;
   CefDevToolsDelegate* devtools_delegate_;
-  scoped_ptr<MessageLoop> message_loop_;
+  scoped_ptr<base::MessageLoop> message_loop_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_refptr<CefBrowserPrefStore> pref_store_;

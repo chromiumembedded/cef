@@ -9,9 +9,6 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
 
-#include "base/string_piece.h"
-#include "base/win/resource_util.h"
-
 void CefBrowserMainParts::PlatformInitialize() {
   HRESULT res;
 

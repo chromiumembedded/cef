@@ -24,14 +24,21 @@ class CefTraceSubscriber : public content::TraceSubscriber {
   bool GetTraceBufferPercentFullAsync();
   bool EndTracingAsync();
 
+  typedef base::Callback<void(const std::set<std::string>&)>
+      KnownCategoriesCallback;
+  void GetKnownCategoriesAsync(const KnownCategoriesCallback& callback);
+
  private:
   // content::TraceSubscriber methods:
   virtual void OnTraceDataCollected(
       const scoped_refptr<base::RefCountedString>& trace_fragment) OVERRIDE;
   virtual void OnTraceBufferPercentFullReply(float percent_full) OVERRIDE;
   virtual void OnEndTracingComplete() OVERRIDE;
+  virtual void OnKnownCategoriesCollected(
+      const std::set<std::string>& known_categories) OVERRIDE;
 
   bool collecting_trace_data_;
+  KnownCategoriesCallback known_categories_callback_;
   CefRefPtr<CefTraceClient> client_;
 };
 

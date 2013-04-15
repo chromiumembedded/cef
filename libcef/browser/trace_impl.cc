@@ -107,21 +107,23 @@ CEF_EXPORT void cef_trace_event_instant(const char* category,
 
   if (copy) {
     if (arg1_name == NULL && arg2_name == NULL) {
-      TRACE_EVENT_COPY_INSTANT0(category, name);
+      TRACE_EVENT_COPY_INSTANT0(category, name, TRACE_EVENT_SCOPE_THREAD);
     } else if (arg2_name == NULL) {
-      TRACE_EVENT_COPY_INSTANT1(category, name, arg1_name, arg1_val);
+      TRACE_EVENT_COPY_INSTANT1(category, name, TRACE_EVENT_SCOPE_THREAD,
+                                arg1_name, arg1_val);
     } else {
-      TRACE_EVENT_COPY_INSTANT2(category, name, arg1_name, arg1_val,
-                                arg2_name, arg2_val);
+      TRACE_EVENT_COPY_INSTANT2(category, name, TRACE_EVENT_SCOPE_THREAD,
+                                arg1_name, arg1_val, arg2_name, arg2_val);
     }
   } else {
     if (arg1_name == NULL && arg2_name == NULL) {
-      TRACE_EVENT_INSTANT0(category, name);
+      TRACE_EVENT_INSTANT0(category, name, TRACE_EVENT_SCOPE_THREAD);
     } else if (arg2_name == NULL) {
-      TRACE_EVENT_INSTANT1(category, name, arg1_name, arg1_val);
+      TRACE_EVENT_INSTANT1(category, name, TRACE_EVENT_SCOPE_THREAD,
+                           arg1_name, arg1_val);
     } else {
-      TRACE_EVENT_INSTANT2(category, name, arg1_name, arg1_val,
-                           arg2_name, arg2_val);
+      TRACE_EVENT_INSTANT2(category, name, TRACE_EVENT_SCOPE_THREAD,
+                           arg1_name, arg1_val, arg2_name, arg2_val);
     }
   }
 }

@@ -5,8 +5,8 @@
 
 #include "libcef/browser/internal_scheme_handler.h"
 #include <string>
+#include "libcef/common/content_client.h"
 #include "base/string_util.h"
-#include "content/public/common/content_client.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace scheme {
@@ -133,7 +133,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
         action.mime_type = GetMimeType(url.path());
 
       if (action.resource_id >= 0) {
-        base::StringPiece piece = content::GetContentClient()->GetDataResource(
+        base::StringPiece piece = CefContentClient::Get()->GetDataResource(
             action.resource_id, ui::SCALE_FACTOR_NONE);
         if (!piece.empty()) {
           action.stream =

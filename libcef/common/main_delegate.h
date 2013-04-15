@@ -27,7 +27,6 @@ class CefContentBrowserClient;
 class CefContentRendererClient;
 class CefContentPluginClient;
 class CefContentUtilityClient;
-class MessageLoop;
 
 class CefMainDelegate : public content::ContentMainDelegate {
  public:

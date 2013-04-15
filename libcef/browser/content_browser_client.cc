@@ -21,6 +21,7 @@
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
+#include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -263,7 +264,7 @@ CefContentBrowserClient::~CefContentBrowserClient() {
 // static
 CefContentBrowserClient* CefContentBrowserClient::Get() {
   return static_cast<CefContentBrowserClient*>(
-      content::GetContentClient()->browser());
+      CefContentClient::Get()->browser());
 }
 
 scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo() {

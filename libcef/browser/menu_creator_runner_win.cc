@@ -19,7 +19,7 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
   menu_->Rebuild(NULL);
 
   // Make sure events can be pumped while the menu is up.
-  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  MessageLoop::ScopedNestableTaskAllower allow(base::MessageLoop::current());
 
   gfx::Point screen_point;
 

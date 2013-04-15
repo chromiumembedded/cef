@@ -16,6 +16,8 @@
 #include "libcef/browser/internal_scheme_handler.h"
 #include "libcef/browser/scheme_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/trace_subscriber.h"
+#include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -27,7 +29,6 @@
 #include "base/values.h"
 #include "content/browser/net/view_http_cache_job_factory.h"
 #include "content/browser/net/view_blob_internals_job_factory.h"
-#include "content/public/common/content_client.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
 #include "ipc/ipc_channel.h"
@@ -236,7 +237,7 @@ class Delegate : public InternalHandlerDelegate {
   }
 
   bool OnLicense(Action* action) {
-    base::StringPiece piece = content::GetContentClient()->GetDataResource(
+    base::StringPiece piece = CefContentClient::Get()->GetDataResource(
           IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
     if (piece.empty()) {
       NOTREACHED() << "Failed to load license txt resource.";
@@ -265,7 +266,7 @@ class Delegate : public InternalHandlerDelegate {
   }
 
   bool OnVersion(Action* action) {
-    base::StringPiece piece = content::GetContentClient()->GetDataResource(
+    base::StringPiece piece = CefContentClient::Get()->GetDataResource(
           IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
     if (piece.empty()) {
       NOTREACHED() << "Failed to load version html resource.";
@@ -439,6 +440,28 @@ void SaveTraceFile(CefRefPtr<CefFrameHostImpl> frame,
   }
 }
 
+void OnKnownCategoriesCollected(
+    CefRefPtr<CefFrameHostImpl> frame,
+    const std::set<std::string>& known_categories) {
+  CEF_REQUIRE_UIT();
+
+  if (!IsTraceFrameValid(frame))
+    return;
+
+  std::string categories;
+  for (std::set<std::string>::iterator iter = known_categories.begin();
+       iter != known_categories.end();
+       ++iter) {
+    if (categories.length() > 0)
+      categories += ",";
+    categories += "\"" + *iter + "\"";
+  }
+
+  frame->SendJavaScript(
+        "tracingController.onKnownCategoriesCollected([" + categories + "]);",
+        std::string(), 0);
+}
+
 void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
                                    const std::string& action,
                                    const base::ListValue* arguments) {
@@ -594,6 +617,9 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
     browser->GetHost()->RunFileDialog(FILE_DIALOG_SAVE, CefString(),
         CefString(), std::vector<CefString>(),
         new Callback(frame, contents.Pass()));
+  } else if (action == "getKnownCategories") {
+    _Context->GetTraceSubscriber()->GetKnownCategoriesAsync(
+        base::Bind(OnKnownCategoriesCollected, frame));
   } else {
     NOTREACHED() << "Unknown trace action: " << action.c_str();
   }
@@ -615,14 +641,14 @@ class ChromeProtocolHandlerWrapper :
     // Keep synchronized with the checks in ChromeProtocolHandler::MaybeCreateJob.
     if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
         (request->url().SchemeIs(chrome::kChromeUIScheme) &&
-         request->url().host() == chrome::kChromeUIAppCacheInternalsHost) ||
+         request->url().host() == content::kChromeUIAppCacheInternalsHost) ||
         content::ViewBlobInternalsJobFactory::IsSupportedURL(request->url()) ||
 #if defined(USE_TCMALLOC)
         (request->url().SchemeIs(chrome::kChromeUIScheme) &&
-         request->url().host() == chrome::kChromeUITcmallocHost) ||
+         request->url().host() == content::kChromeUITcmallocHost) ||
 #endif
         (request->url().SchemeIs(chrome::kChromeUIScheme) &&
-         request->url().host() == chrome::kChromeUIHistogramHost)) {
+         request->url().host() == content::kChromeUIHistogramHost)) {
       return chrome_protocol_handler_->MaybeCreateJob(request, network_delegate);
     }
 

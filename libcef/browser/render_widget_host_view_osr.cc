@@ -6,12 +6,12 @@
 #include "libcef/browser/backing_store_osr.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
+#include "libcef/common/content_client.h"
 
 #include "base/message_loop.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
-#include "content/public/common/content_client.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
 
 #if defined(OS_WIN)
@@ -158,7 +158,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
     return;
 #if defined(OS_WIN)
   HMODULE hModule = ::GetModuleHandle(
-      content::GetContentClient()->browser()->GetResourceDllName());
+      CefContentClient::Get()->browser()->GetResourceDllName());
   if (!hModule)
     hModule = ::GetModuleHandle(NULL);
   WebCursor web_cursor = cursor;
@@ -441,7 +441,7 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
     }
 
     if (!weak_factory_.HasWeakPtrs()) {
-      MessageLoop::current()->PostTask(FROM_HERE,
+      base::MessageLoop::current()->PostTask(FROM_HERE,
           base::Bind(&CefRenderWidgetHostViewOSR::ShutdownHost,
           weak_factory_.GetWeakPtr()));
     }

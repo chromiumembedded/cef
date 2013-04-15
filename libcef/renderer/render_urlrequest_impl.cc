@@ -80,7 +80,7 @@ class CefRenderURLRequest::Context
     : url_request_(url_request),
       request_(request),
       client_(client),
-      message_loop_proxy_(MessageLoop::current()->message_loop_proxy()),
+      message_loop_proxy_(base::MessageLoop::current()->message_loop_proxy()),
       status_(UR_IO_PENDING),
       error_code_(ERR_NONE),
       upload_data_size_(0),

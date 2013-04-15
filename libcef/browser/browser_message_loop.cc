@@ -13,8 +13,8 @@ CefBrowserMessageLoop::~CefBrowserMessageLoop() {
 
 // static
 CefBrowserMessageLoop* CefBrowserMessageLoop::current() {
-  MessageLoop* loop = MessageLoop::current();
-  DCHECK_EQ(MessageLoop::TYPE_UI, loop->type());
+  base::MessageLoop* loop = base::MessageLoop::current();
+  DCHECK_EQ(base::MessageLoop::TYPE_UI, loop->type());
   return static_cast<CefBrowserMessageLoop*>(loop);
 }
 

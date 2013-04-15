@@ -19,7 +19,7 @@
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
-#include "chrome/browser/net/sqlite_persistent_cookie_store.h"
+#include "content/browser/net/sqlite_persistent_cookie_store.h"
 #include "googleurl/src/gurl.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
@@ -279,7 +279,7 @@ bool CefCookieManagerImpl::SetStoragePath(
       return true;
     }
 
-    scoped_refptr<SQLitePersistentCookieStore> persistent_store;
+    scoped_refptr<content::SQLitePersistentCookieStore> persistent_store;
     if (!new_path.empty()) {
       // TODO(cef): Move directory creation to the blocking pool instead of
       // allowing file IO on this thread.
@@ -288,7 +288,7 @@ bool CefCookieManagerImpl::SetStoragePath(
           file_util::CreateDirectory(new_path)) {
         const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
-            new SQLitePersistentCookieStore(
+            new content::SQLitePersistentCookieStore(
                 cookie_path,
                 BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
                 BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),

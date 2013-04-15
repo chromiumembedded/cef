@@ -5,12 +5,12 @@
 #include "libcef/browser/menu_creator.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context_menu_params_impl.h"
+#include "libcef/common/content_client.h"
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
-#include "content/public/common/content_client.h"
 #include "grit/cef_strings.h"
 
 #if defined(OS_WIN)
@@ -24,7 +24,7 @@
 namespace {
 
 CefString GetLabel(int message_id) {
-  string16 label = content::GetContentClient()->GetLocalizedString(message_id);
+  string16 label = CefContentClient::Get()->GetLocalizedString(message_id);
   DCHECK(!label.empty());
   return label;
 }

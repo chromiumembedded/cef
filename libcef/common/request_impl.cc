@@ -198,8 +198,9 @@ void CefRequestImpl::Set(net::URLRequest* request) {
 
   net::HttpRequestHeaders headers = request->extra_request_headers();
 
-  // Ensure that we do not send username and password fields in the referrer.
-  GURL referrer(request->GetSanitizedReferrer());
+  // URLRequest::SetReferrer ensures that we do not send username and password
+  // fields in the referrer.
+  GURL referrer(request->referrer());
 
   // Strip Referer from request_info_.extra_headers to prevent, e.g., plugins
   // from overriding headers that are controlled using other means. Otherwise a
@@ -238,9 +239,9 @@ void CefRequestImpl::Get(net::URLRequest* request) {
   HeaderMap headerMap = headermap_;
   HeaderMap::iterator it = headerMap.find(referrerStr);
   if (it == headerMap.end()) {
-    request->set_referrer("");
+    request->SetReferrer("");
   } else {
-    request->set_referrer(it->second);
+    request->SetReferrer(it->second);
     headerMap.erase(it);
   }
   net::HttpRequestHeaders headers;

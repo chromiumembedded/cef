@@ -53,8 +53,6 @@ void SetDefaults(WebPreferences& web) {
       !command_line.HasSwitch(switches::kDisableTabToLinks);
   web.author_and_user_styles_enabled =
       !command_line.HasSwitch(switches::kDisableAuthorAndUserStyles);
-  web.developer_extras_enabled =
-      !command_line.HasSwitch(switches::kDisableDeveloperTools);
 }
 
 // Helper macro for setting a WebPreferences variable based on the value of a
@@ -147,6 +145,4 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
     web.experimental_webgl_enabled = false;
   if (cef.accelerated_compositing == STATE_DISABLED)
     web.accelerated_compositing_enabled = false;
-
-  SET_STATE(cef.developer_tools, web.developer_extras_enabled);
 }

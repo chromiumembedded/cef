@@ -42,6 +42,16 @@ bool CefTraceSubscriber::EndTracingAsync() {
   return content::TraceController::GetInstance()->EndTracingAsync(this);
 }
 
+void CefTraceSubscriber::GetKnownCategoriesAsync(
+    const KnownCategoriesCallback& callback) {
+  CEF_REQUIRE_UIT();
+  DCHECK(!callback.is_null());
+  DCHECK(known_categories_callback_.is_null());
+
+  known_categories_callback_ = callback;
+  content::TraceController::GetInstance()->GetKnownCategoriesAsync(this);
+}
+
 bool CefTraceSubscriber::GetTraceBufferPercentFullAsync() {
   CEF_REQUIRE_UIT();
 
@@ -75,4 +85,12 @@ void CefTraceSubscriber::OnEndTracingComplete() {
   collecting_trace_data_ = false;
   if (client_.get())
     client_->OnEndTracingComplete();
+}
+
+void CefTraceSubscriber::OnKnownCategoriesCollected(
+    const std::set<std::string>& known_categories) {
+  CEF_REQUIRE_UIT();
+  DCHECK(!known_categories_callback_.is_null());
+  known_categories_callback_.Run(known_categories);
+  known_categories_callback_.Reset();
 }

@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/common/content_client.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
@@ -84,12 +85,12 @@ scoped_refptr<base::SequencedTaskRunner>
     break;
   };
 
-  if (id >= 0 && content::GetContentClient()->browser() &&
+  if (id >= 0 && CefContentClient::Get()->browser() &&
       BrowserThread::IsMessageLoopValid(static_cast<BrowserThread::ID>(id))) {
     // Don't use BrowserThread::GetMessageLoopProxyForThread because it returns
     // a new MessageLoopProxy object for each call and makes pointer equality
     // testing impossible.
-    MessageLoop* message_loop =
+    base::MessageLoop* message_loop =
         BrowserThread::UnsafeGetMessageLoopForThread(
             static_cast<BrowserThread::ID>(id));
     if (message_loop)

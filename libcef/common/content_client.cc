@@ -10,7 +10,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "base/string_piece.h"
+#include "base/strings/string_piece.h"
 #include "base/stringprintf.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/common/content_switches.h"
@@ -18,6 +18,8 @@
 #include "webkit/user_agent/user_agent_util.h"
 
 namespace {
+
+CefContentClient* g_content_client = NULL;
 
 const char kInterposeLibraryPath[] =
     "@executable_path/../../../libplugin_carbon_interpose.dylib";
@@ -29,14 +31,17 @@ CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
       allow_pack_file_load_(false) {
+  DCHECK(!g_content_client);
+  g_content_client = this;
 }
 
 CefContentClient::~CefContentClient() {
+  g_content_client = NULL;
 }
 
 // static
 CefContentClient* CefContentClient::Get() {
-  return static_cast<CefContentClient*>(content::GetContentClient());
+  return g_content_client;
 }
 
 void CefContentClient::AddAdditionalSchemes(

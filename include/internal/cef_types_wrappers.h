@@ -402,7 +402,6 @@ struct CefBrowserSettingsTraits {
     target->application_cache = src->application_cache;
     target->webgl = src->webgl;
     target->accelerated_compositing = src->accelerated_compositing;
-    target->developer_tools = src->developer_tools;
   }
 };
 
