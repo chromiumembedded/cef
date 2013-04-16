@@ -82,6 +82,7 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
                                                              routing_id);
   params->browser_id = info->browser_id();
   params->is_popup = info->is_popup();
+  params->is_window_rendering_disabled = info->is_window_rendering_disabled();
 }
 
 void CefBrowserMessageFilter::OnCreateWindow(

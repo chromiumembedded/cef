@@ -78,6 +78,18 @@ typedef struct _cef_render_handler_t {
       int* screenY);
 
   ///
+  // Called to allow the client to fill in the CefScreenInfo object with
+  // appropriate values. Return true (1) if the |screen_info| structure has been
+  // modified.
+  //
+  // If the screen info rectangle is left NULL the rectangle from GetViewRect
+  // will be used. If the rectangle is still NULL or invalid popups may not be
+  // drawn correctly.
+  ///
+  int (CEF_CALLBACK *get_screen_info)(struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_screen_info_t* screen_info);
+
+  ///
   // Called when the browser wants to show or hide the popup widget. The popup
   // should be shown if |show| is true (1) and hidden if |show| is false (0).
   ///

@@ -47,7 +47,7 @@
 #include "content/public/common/file_chooser_params.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/web_contents_view_osr.h"
 #endif
@@ -300,6 +300,9 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 
   scoped_refptr<CefBrowserInfo> info =
       CefContentBrowserClient::Get()->CreateBrowserInfo();
+
+  info->set_window_rendering_disabled(
+      CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
   DCHECK(!info->is_popup());
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::Create(windowInfo, new_settings, client, NULL, info,
@@ -346,7 +349,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   if (browser->IsWindowRenderingDisabled()) {
     CefRenderWidgetHostViewOSR* view =
         static_cast<CefRenderWidgetHostViewOSR*>(
@@ -354,7 +357,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     if (view)
       view->set_browser_impl(browser);
   }
-#endif  // OS_WIN
+#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
@@ -667,6 +670,38 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
     widget->WasShown();
 }
 
+void CefBrowserHostImpl::NotifyScreenInfoChanged() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::NotifyScreenInfoChanged, this));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderWidgetHostView* view =
+      web_contents()->GetRenderViewHost()->GetView();
+  if (!view)
+    return;
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
+  CefRenderWidgetHostViewOSR* orview =
+      static_cast<CefRenderWidgetHostViewOSR*>(view);
+
+  orview->OnScreenInfoChanged();
+#else
+  // TODO(port): Implement this method to work on other platforms as part of
+  // off-screen rendering support.
+  NOTREACHED();
+#endif
+}
+
 void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
                                     PaintElementType type) {
   if (!IsWindowRenderingDisabled()) {
@@ -683,7 +718,7 @@ void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
   if (!web_contents())
     return;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   content::RenderWidgetHostView* view =
       web_contents()->GetRenderViewHost()->GetView();
   CefRenderWidgetHostViewOSR* orview =
@@ -716,7 +751,7 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     if (widget)
       widget->ForwardKeyboardEvent(web_event);
   } else {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =
@@ -780,7 +815,7 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
     if (widget)
       widget->ForwardWheelEvent(web_event);
   } else {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =
@@ -834,7 +869,7 @@ void CefBrowserHostImpl::SendMouseEvent(const WebKit::WebMouseEvent& event) {
     if (widget)
       widget->ForwardMouseEvent(event);
   } else {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =

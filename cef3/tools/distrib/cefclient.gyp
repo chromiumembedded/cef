@@ -170,6 +170,7 @@
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
               '$(CONFIGURATION)/libcef.dylib',
             ],
           },

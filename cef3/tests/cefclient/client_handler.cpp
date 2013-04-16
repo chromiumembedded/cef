@@ -3,10 +3,13 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/client_handler.h"
-#include <algorithm>
 #include <stdio.h>
+#include <algorithm>
+#include <set>
 #include <sstream>
 #include <string>
+#include <vector>
+
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_path_util.h"
@@ -515,6 +518,13 @@ bool ClientHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   if (!m_OSRHandler.get())
     return false;
   return m_OSRHandler->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
+}
+
+bool ClientHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                                  CefScreenInfo& screen_info) {
+  if (!m_OSRHandler.get())
+    return false;
+  return m_OSRHandler->GetScreenInfo(browser, screen_info);
 }
 
 void ClientHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,

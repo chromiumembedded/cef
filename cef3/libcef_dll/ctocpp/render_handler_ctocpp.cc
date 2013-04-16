@@ -82,6 +82,27 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
+bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
+    CefScreenInfo& screen_info) {
+  if (CEF_MEMBER_MISSING(struct_, get_screen_info))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->get_screen_info(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      &screen_info);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
     bool show) {
   if (CEF_MEMBER_MISSING(struct_, on_popup_show))

@@ -174,6 +174,60 @@ inline bool operator!=(const CefRect& a, const CefRect& b) {
   return !(a == b);
 }
 
+struct CefScreenInfoTraits {
+  typedef cef_screen_info_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+    target->device_scale_factor = src->device_scale_factor;
+    target->depth = src->depth;
+    target->depth_per_component = src->depth_per_component;
+    target->is_monochrome = src->is_monochrome;
+    target->rect = src->rect;
+    target->available_rect = src->available_rect;
+  }
+};
+
+///
+// Class representing the virtual screen information for use when window rendering
+// is disabled.
+///
+class CefScreenInfo : public CefStructBase<CefScreenInfoTraits> {
+ public:
+  typedef CefStructBase<CefScreenInfoTraits> parent;
+
+  CefScreenInfo() : parent() {}
+  CefScreenInfo(const cef_screen_info_t& r) : parent(r) {}  // NOLINT(runtime/explicit)
+  CefScreenInfo(const CefScreenInfo& r) : parent(r) {}  // NOLINT(runtime/explicit)
+  CefScreenInfo(float device_scale_factor,
+                int depth,
+                int depth_per_component,
+                bool is_monochrome,
+                const CefRect& rect,
+                const CefRect& available_rect) : parent() {
+    Set(device_scale_factor, depth, depth_per_component,
+        is_monochrome, rect, available_rect);
+  }
+
+  void Set(float device_scale_factor,
+           int depth,
+           int depth_per_component,
+           bool is_monochrome,
+           const CefRect& rect,
+           const CefRect& available_rect) {
+    this->device_scale_factor = device_scale_factor;
+    this->depth = depth;
+    this->depth_per_component = depth_per_component;
+    this->is_monochrome = is_monochrome;
+    this->rect = rect;
+    this->available_rect = available_rect;
+  }
+};
+
 struct CefKeyEventTraits {
   typedef cef_key_event_t struct_type;
 

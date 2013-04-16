@@ -143,11 +143,7 @@ void ClientOSRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser,
                                    bool show) {
   if (!show) {
     // Clear the popup rectangle.
-    CefRect popup_rect =  popup_rect_;
-    popup_rect_.Set(0, 0, 0, 0);
-    original_popup_rect_.Set(0, 0, 0, 0);
-    // Invalidate the previous popup rectangle so that it will be repainted.
-    browser->GetHost()->Invalidate(popup_rect, PET_VIEW);
+    ClearPopupRects();
   }
 }
 
@@ -177,6 +173,11 @@ CefRect ClientOSRenderer::GetPopupRectInWebView(const CefRect& original_rect) {
   if (rc.y < 0)
     rc.y = 0;
   return rc;
+}
+
+void ClientOSRenderer::ClearPopupRects() {
+  popup_rect_.Set(0, 0, 0, 0);
+  original_popup_rect_.Set(0, 0, 0, 0);
 }
 
 void ClientOSRenderer::OnPaint(CefRefPtr<CefBrowser> browser,

@@ -37,7 +37,7 @@
 #include "googleurl/src/gurl.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
 #include "libcef/browser/web_contents_view_osr.h"
 #endif
 
@@ -375,7 +375,7 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
   *render_view_host_delegate_view = NULL;
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   CefBrowserContext* browserContext =
       static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
 
@@ -385,7 +385,7 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
     *render_view_host_delegate_view = view_or;
     view = view_or;
   }
-#endif  // OS_WIN
+#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
   return view;
 }

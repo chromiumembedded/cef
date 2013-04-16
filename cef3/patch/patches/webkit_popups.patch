@@ -1,0 +1,76 @@
+Index: src/WebViewImpl.cpp
+===================================================================
+--- src/WebViewImpl.cpp	(revision 147958)
++++ src/WebViewImpl.cpp	(working copy)
+@@ -407,6 +407,7 @@
+     , m_fakeDoubleTapPageScaleFactor(0)
+     , m_fakeDoubleTapUseAnchor(false)
+     , m_contextMenuAllowed(false)
++    , m_shouldUseExternalPopupMenus(shouldUseExternalPopupMenus)
+     , m_doingDragAndDrop(false)
+     , m_ignoreInputEvents(false)
+     , m_suppressNextKeypressEvent(false)
+@@ -3823,9 +3824,14 @@
+ {
+ }
+ 
++void WebViewImpl::setUseExternalPopupMenusThisInstance(bool useExternalPopupMenus)
++{
++    m_shouldUseExternalPopupMenus = useExternalPopupMenus;
++}
++
+ bool WebViewImpl::useExternalPopupMenus()
+ {
+-    return shouldUseExternalPopupMenus;
++    return m_shouldUseExternalPopupMenus;
+ }
+ 
+ void WebViewImpl::setEmulatedTextZoomFactor(float textZoomFactor)
+Index: src/WebViewImpl.h
+===================================================================
+--- src/WebViewImpl.h	(revision 147958)
++++ src/WebViewImpl.h	(working copy)
+@@ -422,7 +422,8 @@
+ 
+     // Returns true if popup menus should be rendered by the browser, false if
+     // they should be rendered by WebKit (which is the default).
+-    static bool useExternalPopupMenus();
++    void setUseExternalPopupMenusThisInstance(bool);
++    bool useExternalPopupMenus();
+ 
+     bool contextMenuAllowed() const
+     {
+@@ -768,6 +769,8 @@
+ 
+     bool m_contextMenuAllowed;
+ 
++    bool m_shouldUseExternalPopupMenus;
++
+     bool m_doingDragAndDrop;
+ 
+     bool m_ignoreInputEvents;
+Index: src/ChromeClientImpl.cpp
+===================================================================
+--- src/ChromeClientImpl.cpp	(revision 147958)
++++ src/ChromeClientImpl.cpp	(working copy)
+@@ -1008,7 +1008,7 @@
+ 
+ PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(PopupMenuClient* client) const
+ {
+-    if (WebViewImpl::useExternalPopupMenus())
++    if (m_webView->useExternalPopupMenus())
+         return adoptRef(new ExternalPopupMenu(client, m_webView->client()));
+ 
+     return adoptRef(new PopupMenuChromium(client));
+Index: public/WebView.h
+===================================================================
+--- public/WebView.h	(revision 147958)
++++ public/WebView.h	(working copy)
+@@ -419,6 +419,7 @@
+ 
+     // Sets whether select popup menus should be rendered by the browser.
+     WEBKIT_EXPORT static void setUseExternalPopupMenus(bool);
++    virtual void setUseExternalPopupMenusThisInstance(bool) = 0;
+ 
+ 
+     // Visited link state --------------------------------------------------

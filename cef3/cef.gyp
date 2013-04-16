@@ -86,7 +86,7 @@
               '-lshlwapi.lib',
               '-lrpcrt4.lib',
               '-lopengl32.lib',
-              '-lglu32.lib', 
+              '-lglu32.lib',
             ],
           },
           'sources': [
@@ -199,6 +199,7 @@
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
             ],
           },
           'sources': [
@@ -237,6 +238,7 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
+        '<(DEPTH)/ui/ui.gyp:ui',
         'cef_pak',
         'libcef',
         'libcef_dll_wrapper',
@@ -258,6 +260,7 @@
         'tests/unittests/navigation_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_unittest.cc',
+        'tests/cefclient/resource_util.h',
         'tests/unittests/run_all_unittests.cc',
         'tests/unittests/scheme_handler_unittest.cc',
         'tests/unittests/stream_unittest.cc',
@@ -280,6 +283,7 @@
         'tests/unittests/zip_reader_unittest.cc',
       ],
       'mac_bundle_resources': [
+        'tests/cefclient/res/osr_test.html',
         'tests/unittests/mac/unittests.icns',
         'tests/unittests/mac/English.lproj/InfoPlist.strings',
         'tests/unittests/mac/English.lproj/MainMenu.xib',
@@ -299,10 +303,16 @@
       },
       'include_dirs': [
         '.',
+        # Necessary to allow resouce_util_* implementation files in cefclient to
+        # include 'cefclient/*' files, without the tests/ fragment
+        './tests'
       ],
       'conditions': [
         [ 'OS=="win"', {
           'sources': [
+            'tests/cefclient/cefclient.rc',
+            'tests/cefclient/res/osr_test.html',
+            'tests/cefclient/resource_util_win.cpp',
             'tests/unittests/os_rendering_unittest.cc',
           ],
         }],
@@ -410,6 +420,11 @@
             ],
           },
           'sources': [
+            'tests/cefclient/resource_util_mac.mm',
+            'tests/cefclient/resource_util_posix.cpp',
+            'tests/unittests/os_rendering_unittest.cc',
+            'tests/unittests/os_rendering_unittest_mac.h',
+            'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
           ],
         }],
@@ -999,8 +1014,8 @@
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
-            'libcef/browser/render_widget_host_view_osr.h',
             'libcef/browser/render_widget_host_view_osr.cc',
+            'libcef/browser/render_widget_host_view_osr.h',
             'libcef/browser/web_contents_view_osr.cc',
             'libcef/browser/web_contents_view_osr.h',
             # Include sources for context menu implementation.
@@ -1020,11 +1035,17 @@
             '<@(includes_mac)',
             'libcef/browser/application_mac.h',
             'libcef/browser/application_mac.mm',
+            'libcef/browser/backing_store_osr.cc',
+            'libcef/browser/backing_store_osr.h',
             'libcef/browser/browser_host_impl_mac.mm',
             'libcef/browser/browser_main_mac.mm',
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
+            'libcef/browser/render_widget_host_view_osr.cc',
+            'libcef/browser/render_widget_host_view_osr.h',
+            'libcef/browser/web_contents_view_osr.cc',
+            'libcef/browser/web_contents_view_osr.h',
             # Include sources for context menu implementation.
             '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.mm',
             '<(DEPTH)/chrome/browser/ui/cocoa/event_utils.h',

@@ -83,6 +83,14 @@ typedef struct _cef_window_info_t {
   // NSView pointer for the parent view.
   cef_window_handle_t parent_view;
 
+  // If window rendering is disabled no browser window will be created. Set
+  // |parent_view| to the window that will act as the parent for popup menus,
+  // dialog boxes, etc.
+  bool window_rendering_disabled;
+
+  // Set to true to enable transparent painting.
+  bool transparent_painting;
+
   // NSView pointer for the new browser view.
   cef_window_handle_t view;
 } cef_window_info_t;

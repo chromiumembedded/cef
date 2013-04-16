@@ -431,6 +431,15 @@ void CefContentRendererClient::RenderViewCreated(
                                               &params));
   DCHECK_GT(params.browser_id, 0);
 
+#if defined(OS_MACOSX)
+  // FIXME: It would be better if this API would be a callback from the
+  // WebKit layer, or if it would be exposed as an WebView instance method; the
+  // current implementation uses a static variable, and WebKit needs to be
+  // patched in order to make it work for each WebView instance
+  render_view->GetWebView()->setUseExternalPopupMenusThisInstance(
+      !params.is_window_rendering_disabled);
+#endif
+
   CefRefPtr<CefBrowserImpl> browser =
       new CefBrowserImpl(render_view, params.browser_id, params.is_popup);
   browsers_.insert(std::make_pair(render_view, browser));

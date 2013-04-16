@@ -150,6 +150,7 @@ IPC_SYNC_MESSAGE_CONTROL0_1(
 IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewBrowserInfo_Params)
   IPC_STRUCT_MEMBER(int, browser_id)
   IPC_STRUCT_MEMBER(bool, is_popup)
+  IPC_STRUCT_MEMBER(bool, is_window_rendering_disabled)
 IPC_STRUCT_END()
 
 // Retrieve information about a newly created browser window.
