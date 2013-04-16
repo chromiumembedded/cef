@@ -1107,6 +1107,7 @@ void CefBrowserHostImpl::DestroyBrowser() {
   response_manager_.reset(NULL);
   content::WebContentsObserver::Observe(NULL);
   web_contents_.reset(NULL);
+  menu_creator_.reset(NULL);
 
   DetachAllFrames();
 
