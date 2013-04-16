@@ -19,17 +19,40 @@
 #endif
 
 #include "webkit/glue/webcursor.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
+
+namespace {
+
+const float kDefaultScaleFactor = 1.0;
+
+static WebKit::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
+  WebKit::WebScreenInfo webScreenInfo;
+  webScreenInfo.deviceScaleFactor = src.device_scale_factor;
+  webScreenInfo.depth = src.depth;
+  webScreenInfo.depthPerComponent = src.depth_per_component;
+  webScreenInfo.isMonochrome = src.is_monochrome;
+  webScreenInfo.rect = WebKit::WebRect(src.rect.x, src.rect.y,
+                                       src.rect.width, src.rect.height);
+  webScreenInfo.availableRect = WebKit::WebRect(src.available_rect.x,
+                                                src.available_rect.y,
+                                                src.available_rect.width,
+                                                src.available_rect.height);
+
+  return webScreenInfo;
+}
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // CefRenderWidgetHostViewOSR, public:
 
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     content::RenderWidgetHost* widget)
-        : render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
-          about_to_validate_and_paint_(false),
+        : weak_factory_(this),
+          render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
           parent_host_view_(NULL),
           popup_host_view_(NULL),
-          weak_factory_(this) {
+          about_to_validate_and_paint_(false) {
   DCHECK(render_widget_host_);
   render_widget_host_->SetView(this);
 
@@ -60,7 +83,7 @@ void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {
 }
 
 gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
-  return browser_impl_.get() ? browser_impl_->GetWindowHandle() : NULL;
+  return NULL;
 }
 
 gfx::NativeViewId CefRenderWidgetHostViewOSR::GetNativeViewId() const {
@@ -165,6 +188,12 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
   HCURSOR hCursor = web_cursor.GetCursor((HINSTANCE)hModule);
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
       browser_impl_->GetBrowser(), hCursor);
+#elif defined(OS_MACOSX)
+  // cursor is const, and GetNativeCursor is not
+  WebCursor web_cursor = cursor;
+  NSCursor* native_cursor = web_cursor.GetNativeCursor();
+  browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
+      browser_impl_->GetBrowser(), native_cursor);
 #else
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.
@@ -215,11 +244,37 @@ void CefRenderWidgetHostViewOSR::WillWmDestroy() {
 }
 #endif
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(
-    WebKit::WebScreenInfo* results) {
-#if defined(OS_WIN)
-  *results = WebKit::WebScreenInfoFactory::screenInfo(GetNativeView());
-#endif
+void CefRenderWidgetHostViewOSR::GetScreenInfo(WebKit::WebScreenInfo* results) {
+  if (!browser_impl_.get())
+    return;
+
+  CefScreenInfo screen_info(
+      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  if (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
+      screen_info.rect.width == 0 ||
+      screen_info.rect.height == 0 ||
+      screen_info.available_rect.width == 0 ||
+      screen_info.available_rect.height == 0) {
+    // If a screen rectangle was not provided, try using the view rectangle
+    // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
+    CefRect screenRect;
+    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
+      NOTREACHED();
+      screenRect = CefRect();
+    }
+
+    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
+      screen_info.rect = screenRect;
+
+    if (screen_info.available_rect.width == 0 &&
+        screen_info.available_rect.height == 0)
+      screen_info.available_rect = screenRect;
+  }
+
+  *results = webScreenInfoFrom(screen_info);
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
@@ -270,7 +325,7 @@ void CefRenderWidgetHostViewOSR::ScrollOffsetChanged() {
 content::BackingStore* CefRenderWidgetHostViewOSR::AllocBackingStore(
     const gfx::Size& size) {
   return render_widget_host_ ?
-      new BackingStoreOSR(render_widget_host_, size) :
+      new BackingStoreOSR(render_widget_host_, size, GetDeviceScaleFactor()) :
       NULL;
 }
 
@@ -550,3 +605,79 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     return;
   render_widget_host_->ForwardWheelEvent(event);
 }
+
+void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
+  if (!render_widget_host_)
+    return;
+
+  BackingStoreOSR* backing_store =
+      BackingStoreOSR::From(render_widget_host_->GetBackingStore(true));
+  if (backing_store)
+    backing_store->ScaleFactorChanged(GetDeviceScaleFactor());
+
+  // What could be taken from UpdateScreenInfo(window_) - updates the renderer
+  // cached rectangles
+  //render_widget_host_->SendScreenRects();
+
+  render_widget_host_->NotifyScreenInfoChanged();
+  // We might want to change the cursor scale factor here as well - see the
+  // cache for the current_cursor_, as passed by UpdateCursor from the renderer
+  // in the rwhv_aura (current_cursor_.SetScaleFactor)
+}
+
+float CefRenderWidgetHostViewOSR::GetDeviceScaleFactor() {
+  if (!browser_impl_.get())
+    return kDefaultScaleFactor;
+
+  CefScreenInfo screen_info(
+      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+  if (!browser_impl_->GetClient()->GetRenderHandler()->GetScreenInfo(
+          browser_impl_->GetBrowser(), screen_info)) {
+    // Use the default
+    return kDefaultScaleFactor;
+  }
+
+  return screen_info.device_scale_factor;
+}
+
+#if defined(OS_MACOSX)
+void CefRenderWidgetHostViewOSR::AboutToWaitForBackingStoreMsg() {
+}
+
+bool CefRenderWidgetHostViewOSR::PostProcessEventForPluginIme(
+    const content::NativeWebKeyboardEvent& event) {
+  return false;
+}
+#endif
+
+#if defined(OS_MACOSX)
+void CefRenderWidgetHostViewOSR::SetActive(bool active) {
+}
+
+void CefRenderWidgetHostViewOSR::SetTakesFocusOnlyOnMouseDown(bool flag) {
+}
+
+void CefRenderWidgetHostViewOSR::SetWindowVisibility(bool visible) {
+}
+
+void CefRenderWidgetHostViewOSR::WindowFrameChanged() {
+}
+
+void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {
+}
+
+
+bool CefRenderWidgetHostViewOSR::SupportsSpeech() const {
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::SpeakSelection() {
+}
+
+bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::StopSpeaking() {
+}
+#endif  // defined(OS_MACOSX)

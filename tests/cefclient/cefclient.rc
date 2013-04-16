@@ -33,6 +33,7 @@ IDS_DIALOGS BINARY "res\\dialogs.html"
 IDS_DOMACCESS BINARY "res\\domaccess.html"
 IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
 IDS_LOGO BINARY "res\\logo.png"
+IDS_OSRTEST BINARY "res\\osr_test.html"
 IDS_OTHER_TESTS BINARY "res\\other_tests.html"
 IDS_PERFORMANCE BINARY "res\\performance.html"
 IDS_TRANSPARENCY BINARY "res\\transparency.html"
@@ -54,7 +55,7 @@ IDI_SMALL               ICON                    "res\small.ico"
 // Menu
 //
 
-IDC_CEFCLIENT MENU 
+IDC_CEFCLIENT MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -86,7 +87,7 @@ END
 // Accelerator
 //
 
-IDC_CEFCLIENT ACCELERATORS 
+IDC_CEFCLIENT ACCELERATORS
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -116,12 +117,12 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -129,7 +130,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -143,7 +144,7 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "cefclient"
     IDC_CEFCLIENT           "CEFCLIENT"

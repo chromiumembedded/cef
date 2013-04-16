@@ -348,6 +348,18 @@ void CEF_CALLBACK browser_host_was_hidden(struct _cef_browser_host_t* self,
       hidden?true:false);
 }
 
+void CEF_CALLBACK browser_host_notify_screen_info_changed(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->NotifyScreenInfoChanged();
+}
+
 void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
     const cef_rect_t* dirtyRect, enum cef_paint_element_type_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -518,6 +530,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
       browser_host_is_window_rendering_disabled;
   struct_.struct_.was_resized = browser_host_was_resized;
   struct_.struct_.was_hidden = browser_host_was_hidden;
+  struct_.struct_.notify_screen_info_changed =
+      browser_host_notify_screen_info_changed;
   struct_.struct_.invalidate = browser_host_invalidate;
   struct_.struct_.send_key_event = browser_host_send_key_event;
   struct_.struct_.send_mouse_click_event = browser_host_send_mouse_click_event;

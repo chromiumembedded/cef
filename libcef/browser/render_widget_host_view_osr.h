@@ -57,6 +57,19 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void Hide() OVERRIDE;
   virtual bool IsShowing() OVERRIDE;
   virtual gfx::Rect GetViewBounds() const OVERRIDE;
+#if defined(OS_MACOSX)
+  virtual void SetActive(bool active) OVERRIDE;
+  virtual void SetTakesFocusOnlyOnMouseDown(bool flag) OVERRIDE;
+  virtual void SetWindowVisibility(bool visible) OVERRIDE;
+  virtual void WindowFrameChanged() OVERRIDE;
+
+  virtual void ShowDefinitionForSelection() OVERRIDE;
+
+  virtual bool SupportsSpeech() const OVERRIDE;
+  virtual void SpeakSelection() OVERRIDE;
+  virtual bool IsSpeaking() const OVERRIDE;
+  virtual void StopSpeaking() OVERRIDE;
+#endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewPort methods.
   virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
@@ -130,6 +143,13 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void SetClickthroughRegion(SkRegion* region) OVERRIDE;
 #endif
 
+#if defined(OS_MACOSX)
+  virtual void AboutToWaitForBackingStoreMsg() OVERRIDE;
+
+  virtual bool PostProcessEventForPluginIme(
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
+#endif
+
   // RenderWidgetHostViewBase methods.
   virtual void SetBackground(const SkBitmap& background) OVERRIDE;
 
@@ -141,6 +161,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
                   CefBrowserHost::PaintElementType type);
   void Paint(const std::vector<gfx::Rect>& copy_rects);
   bool InstallTransparency();
+
+  void OnScreenInfoChanged();
+  float GetDeviceScaleFactor();
 
   void CancelWidget();
   void NotifyShowWidget();

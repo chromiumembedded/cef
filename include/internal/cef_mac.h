@@ -120,6 +120,8 @@ struct CefWindowInfoTraits {
     target->width = src->width;
     target->height = src->height;
     target->hidden = src->hidden;
+    target->transparent_painting = src->transparent_painting;
+    target->window_rendering_disabled = src->window_rendering_disabled;
   }
 };
 
@@ -140,6 +142,15 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     this->width = width;
     this->height = height;
     hidden = false;
+  }
+
+  void SetTransparentPainting(bool transparentPainting) {
+    transparent_painting = transparentPainting;
+  }
+
+  void SetAsOffScreen(NSView* view) {
+    window_rendering_disabled = true;
+    parent_view = view;
   }
 };
 

@@ -11,13 +11,24 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/cefclient_osr_widget_mac.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/client_switches.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
+
+class MainBrowserProvider : public OSRBrowserProvider {
+  virtual CefRefPtr<CefBrowser> GetBrowser() {
+    if (g_handler.get())
+      return g_handler->GetBrowser();
+
+    return NULL;
+  }
+} g_main_browser_provider;
 
 char szWorkingDir[512];   // The current working directory
 
@@ -93,15 +104,15 @@ const int kWindowHeight = 600;
 - (IBAction)takeURLStringValueFrom:(NSTextField *)sender {
   if (!g_handler.get() || !g_handler->GetBrowserId())
     return;
-  
+
   NSString *url = [sender stringValue];
-  
+
   // if it doesn't already have a prefix, add http. If we can't parse it,
   // just don't bother rather than making things worse.
   NSURL* tempUrl = [NSURL URLWithString:url];
   if (tempUrl && ![tempUrl scheme])
     url = [@"http://" stringByAppendingString:url];
-  
+
   std::string urlStr = [url UTF8String];
   g_handler->GetBrowser()->GetMainFrame()->LoadURL(urlStr);
 }
@@ -176,7 +187,7 @@ const int kWindowHeight = 600;
 }
 
 // Deletes itself.
-- (void)cleanup:(id)window {  
+- (void)cleanup:(id)window {
   [self release];
 }
 
@@ -215,10 +226,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (void)createApp:(id)object {
   [NSApplication sharedApplication];
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
-  
+
   // Set the delegate for application events.
   [NSApp setDelegate:self];
-  
+
   // Add the Tests menu.
   NSMenu* menubar = [NSApp mainMenu];
   NSMenuItem *testItem = [[[NSMenuItem alloc] initWithTitle:@"Tests"
@@ -260,10 +271,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
-  
+
   // Create the delegate for control and browser window events.
   ClientWindowDelegate* delegate = [[ClientWindowDelegate alloc] init];
-  
+
   // Create the main application window.
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
   NSRect window_rect = { {0, screen_rect.size.height - kWindowHeight},
@@ -332,7 +343,22 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   CefWindowInfo window_info;
   CefBrowserSettings settings;
 
-  window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
+  if (AppIsOffScreenRenderingEnabled()) {
+    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+    bool transparent =
+        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+
+    CefRefPtr<OSRWindow> osr_window =
+        OSRWindow::Create(&g_main_browser_provider, transparent, contentView,
+            CefRect(0, 0, kWindowWidth, kWindowHeight));
+    window_info.SetAsOffScreen(osr_window->GetWindowHandle());
+    window_info.SetTransparentPainting(transparent);
+    g_handler->SetOSRHandler(osr_window->GetRenderHandler().get());
+  } else {
+    // Initialize window info to the defaults for a child window.
+    window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
+  }
+
   CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
                                 g_handler->GetStartupURL(), settings);
 
@@ -407,7 +433,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunOtherTests(g_handler->GetBrowser());
 }
 
-// Called when the application’s Quit menu item is selected.
+// Called when the application's Quit menu item is selected.
 - (NSApplicationTerminateReply)applicationShouldTerminate:
       (NSApplication *)sender {
   // Request that all browser windows close.
@@ -445,7 +471,7 @@ int main(int argc, char* argv[]) {
 
   // Initialize the ClientApplication instance.
   [ClientApplication sharedApplication];
-  
+
   // Parse command line arguments.
   AppInitCommandLine(argc, argv);
 

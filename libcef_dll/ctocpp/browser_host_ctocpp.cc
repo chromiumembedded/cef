@@ -290,6 +290,16 @@ void CefBrowserHostCToCpp::WasHidden(bool hidden) {
       hidden);
 }
 
+void CefBrowserHostCToCpp::NotifyScreenInfoChanged() {
+  if (CEF_MEMBER_MISSING(struct_, notify_screen_info_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->notify_screen_info_changed(struct_);
+}
+
 void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect,
     PaintElementType type) {
   if (CEF_MEMBER_MISSING(struct_, invalidate))

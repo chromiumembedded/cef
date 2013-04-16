@@ -347,6 +347,17 @@ typedef struct _cef_browser_host_t {
   void (CEF_CALLBACK *was_hidden)(struct _cef_browser_host_t* self, int hidden);
 
   ///
+  // Send a notification to the browser that the screen info has changed. The
+  // browser will then call cef_render_handler_t::GetScreenInfo to update the
+  // screen information with the new values. This simulates moving the webview
+  // window from one display to another, or changing the properties of the
+  // current display. This function is only used when window rendering is
+  // disabled.
+  ///
+  void (CEF_CALLBACK *notify_screen_info_changed)(
+      struct _cef_browser_host_t* self);
+
+  ///
   // Invalidate the |dirtyRect| region of the view. The browser will call
   // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
   // function is only used when window rendering is disabled.

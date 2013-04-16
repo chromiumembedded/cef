@@ -19,10 +19,12 @@
 #include "content/public/common/file_chooser_params.h"
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
+#include "ui/base/keycodes/keyboard_codes_posix.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/rect.h"
-
 
 // Wrapper NSView for the native view. Necessary to destroy the browser when
 // the view is deleted.
@@ -142,7 +144,7 @@ void RunOpenFileDialog(const content::FileChooserParams& params,
                        NSView* view,
                        std::vector<base::FilePath>* files) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-  
+
   string16 title;
   if (!params.title.empty()) {
     title = params.title;
@@ -201,7 +203,7 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
                        NSView* view,
                        base::FilePath* file) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
-  
+
   string16 title;
   if (!params.title.empty())
     title = params.title;
@@ -338,7 +340,9 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return window_info_.view;
+  return IsWindowRenderingDisabled() ?
+      window_info_.parent_view :
+      window_info_.view;
 }
 
 void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
@@ -372,49 +376,214 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 
 // static
 bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  return false;
+  return info.window_rendering_disabled ? true : false;
+}
+
+static NSTimeInterval currentEventTimestamp() {
+  NSEvent* currentEvent = [NSApp currentEvent];
+  if (currentEvent)
+    return [currentEvent timestamp];
+  else {
+    // FIXME(API): In case there is no current event, the timestamp could be
+    // obtained by getting the time since the application started. This involves
+    // taking some more static functions from Chromium code.
+    // Another option is to have the timestamp as a field in CefEvent structures
+    // and let the client provide it.
+    return 0;
+  }
 }
 
 bool CefBrowserHostImpl::IsTransparent() {
-  return false;
+  return window_info_.transparent_painting != 0;
+}
+
+static NSUInteger NativeModifiers(int cef_modifiers) {
+  NSUInteger native_modifiers = 0;
+  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
+    native_modifiers |= NSShiftKeyMask;
+  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
+    native_modifiers |= NSControlKeyMask;
+  if (cef_modifiers & EVENTFLAG_ALT_DOWN)
+    native_modifiers |= NSAlternateKeyMask;
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+    native_modifiers |= NSCommandKeyMask;
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+    native_modifiers |= NSAlphaShiftKeyMask;
+  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
+    native_modifiers |= NSNumericPadKeyMask;
+
+  return native_modifiers;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
     content::NativeWebKeyboardEvent& native_event,
-    const CefKeyEvent& event) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+    const CefKeyEvent& key_event) {
+  // Use a synthetic NSEvent in order to obtain the windowsKeyCode member from
+  // the NativeWebKeyboardEvent constructor. This is the only member which can
+  // not be easily translated (without hardcoding keyCodes)
+  // Determining whether a modifier key is left or right seems to be done
+  // through the key code as well.
+
+  NSEventType event_type;
+  if (key_event.character == 0 && key_event.unmodified_character == 0) {
+    // Check if both character and unmodified_characther are empty to determine
+    // if this was a NSFlagsChanged event.
+    // A dead key will have an empty character, but a non-empty unmodified
+    // character
+    event_type = NSFlagsChanged;
+  } else {
+    switch (key_event.type) {
+      case KEYEVENT_RAWKEYDOWN:
+      case KEYEVENT_KEYDOWN:
+      case KEYEVENT_CHAR:
+        event_type = NSKeyDown;
+        break;
+      case KEYEVENT_KEYUP:
+        event_type = NSKeyUp;
+        break;
+    }
+  }
+
+  NSString* charactersIgnoringModifiers = [[[NSString alloc]
+        initWithCharacters:&key_event.unmodified_character length:1]
+        autorelease];
+  NSString* characters = [[[NSString alloc]
+        initWithCharacters:&key_event.character length:1] autorelease];
+
+  NSEvent* synthetic_event =
+                 [NSEvent keyEventWithType:event_type
+                                  location:NSMakePoint(0, 0)
+                             modifierFlags:NativeModifiers(key_event.modifiers)
+                                 timestamp:currentEventTimestamp()
+                              windowNumber:0
+                                   context:nil
+                                characters:characters
+               charactersIgnoringModifiers:charactersIgnoringModifiers
+                                 isARepeat:NO
+                                   keyCode:key_event.native_key_code];
+
+  native_event = content::NativeWebKeyboardEvent(synthetic_event);
+  if (key_event.type == KEYEVENT_CHAR)
+    native_event.type = WebKit::WebInputEvent::Char;
+
+  native_event.isSystemKey = key_event.is_system_key;
 }
 
 void CefBrowserHostImpl::PlatformTranslateClickEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     MouseButtonType type,
     bool mouseUp, int clickCount) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  switch (type) {
+  case MBT_LEFT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonLeft;
+    break;
+  case MBT_MIDDLE:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    break;
+  case MBT_RIGHT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonRight;
+    break;
+  default:
+    NOTREACHED();
+  }
+
+  result.clickCount = clickCount;
 }
 
 void CefBrowserHostImpl::PlatformTranslateMoveEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     bool mouseLeave) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  if (!mouseLeave) {
+    result.type = WebKit::WebInputEvent::MouseMove;
+    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonLeft;
+    else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonRight;
+    else
+      result.button = WebKit::WebMouseEvent::ButtonNone;
+  } else {
+    result.type = WebKit::WebInputEvent::MouseLeave;
+    result.button = WebKit::WebMouseEvent::ButtonNone;
+  }
+
+  result.clickCount = 0;
 }
 
 void CefBrowserHostImpl::PlatformTranslateWheelEvent(
-    WebKit::WebMouseWheelEvent& ev,
+    WebKit::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
     int deltaX, int deltaY) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  result = WebKit::WebMouseWheelEvent();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  result.type = WebKit::WebInputEvent::MouseWheel;
+
+  static const double scrollbarPixelsPerCocoaTick = 40.0;
+  result.deltaX = deltaX;
+  result.deltaY = deltaY;
+  result.wheelTicksX = result.deltaX / scrollbarPixelsPerCocoaTick;
+  result.wheelTicksY = result.deltaY / scrollbarPixelsPerCocoaTick;
+  result.hasPreciseScrollingDeltas = true;
+
+  // Unless the phase and momentumPhase are passed in as parameters to this
+  // function, there is no way to know them
+  result.phase = WebKit::WebMouseWheelEvent::PhaseNone;
+  result.momentumPhase = WebKit::WebMouseWheelEvent::PhaseNone;
+
+  if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonLeft;
+  else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+  else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonRight;
+  else
+    result.button = WebKit::WebMouseEvent::ButtonNone;
 }
 
 void CefBrowserHostImpl::PlatformTranslateMouseEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  // position
+  result.x = mouse_event.x;
+  result.y = mouse_event.y;
+  result.windowX = result.x;
+  result.windowY = result.y;
+  result.globalX = result.x;
+  result.globalY = result.y;
+
+  if (IsWindowRenderingDisabled()) {
+    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
+        result.x, result.y,
+        result.globalX, result.globalY);
+  } else {
+    NSView* view = window_info_.parent_view;
+    if (view) {
+      NSRect bounds = [view bounds];
+      NSPoint view_pt = {result.x, bounds.size.height - result.y};
+      NSPoint window_pt = [view convertPoint:view_pt toView:nil];
+      NSPoint screen_pt = [[view window] convertBaseToScreen:window_pt];
+      result.globalX = screen_pt.x;
+      result.globalY = screen_pt.y;
+    }
+  }
+
+  // modifiers
+  result.modifiers |= TranslateModifiers(mouse_event.modifiers);
+
+  // timestamp - Mac OSX specific
+  result.timeStampSeconds = currentEventTimestamp();
 }

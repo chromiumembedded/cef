@@ -19,6 +19,7 @@ class BackingStoreOSR : public content::BackingStore {
   }
 
   // BackingStore implementation.
+  virtual size_t MemorySize() OVERRIDE;
   virtual void PaintToBackingStore(
       content::RenderProcessHost* process,
       TransportDIB::Id bitmap,
@@ -33,17 +34,22 @@ class BackingStoreOSR : public content::BackingStore {
                                   const gfx::Rect& clip_rect,
                                   const gfx::Size& view_size) OVERRIDE;
 
+  void ScaleFactorChanged(float scale_factor);
+
   const void* getPixels() const;
 
  private:
   // Can be instantiated only within CefRenderWidgetHostViewOSR.
   friend class CefRenderWidgetHostViewOSR;
+
   explicit BackingStoreOSR(content::RenderWidgetHost* widget,
-      const gfx::Size& size);
+      const gfx::Size& size, float scale_factor);
   virtual ~BackingStoreOSR() {}
 
-  SkDevice device_;
-  SkCanvas canvas_;
+  scoped_ptr<SkDevice> device_;
+  scoped_ptr<SkCanvas> canvas_;
+
+  float device_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(BackingStoreOSR);
 };

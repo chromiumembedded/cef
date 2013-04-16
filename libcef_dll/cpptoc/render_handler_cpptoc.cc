@@ -127,6 +127,41 @@ int CEF_CALLBACK render_handler_get_screen_point(
   return _retval;
 }
 
+int CEF_CALLBACK render_handler_get_screen_info(
+    struct _cef_render_handler_t* self, cef_browser_t* browser,
+    struct _cef_screen_info_t* screen_info) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: screen_info; type: struct_byref
+  DCHECK(screen_info);
+  if (!screen_info)
+    return 0;
+
+  // Translate param: screen_info; type: struct_byref
+  CefScreenInfo screen_infoObj;
+  if (screen_info)
+    screen_infoObj.AttachTo(*screen_info);
+
+  // Execute
+  bool _retval = CefRenderHandlerCppToC::Get(self)->GetScreenInfo(
+      CefBrowserCToCpp::Wrap(browser),
+      screen_infoObj);
+
+  // Restore param: screen_info; type: struct_byref
+  if (screen_info)
+    screen_infoObj.DetachTo(*screen_info);
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK render_handler_on_popup_show(
     struct _cef_render_handler_t* self, cef_browser_t* browser, int show) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -239,6 +274,7 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC(CefRenderHandler* cls)
   struct_.struct_.get_root_screen_rect = render_handler_get_root_screen_rect;
   struct_.struct_.get_view_rect = render_handler_get_view_rect;
   struct_.struct_.get_screen_point = render_handler_get_screen_point;
+  struct_.struct_.get_screen_info = render_handler_get_screen_info;
   struct_.struct_.on_popup_show = render_handler_on_popup_show;
   struct_.struct_.on_popup_size = render_handler_on_popup_size;
   struct_.struct_.on_paint = render_handler_on_paint;

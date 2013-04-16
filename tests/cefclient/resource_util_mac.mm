@@ -29,7 +29,7 @@ bool AmIBundled() {
     ASSERT(false);
     return false;
   }
-  
+
   return (info.nodeFlags & kFSNodeIsDirectoryMask);
 }
 
@@ -41,7 +41,7 @@ bool GetResourceDir(std::string& dir) {
     // Retrieve the executable directory.
     uint32_t pathSize = 0;
     _NSGetExecutablePath(NULL, &pathSize);
-    if (pathSize > 0) {      
+    if (pathSize > 0) {
       dir.resize(pathSize);
       _NSGetExecutablePath(const_cast<char*>(dir.c_str()), &pathSize);
     }

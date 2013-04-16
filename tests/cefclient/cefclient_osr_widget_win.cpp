@@ -99,6 +99,11 @@ bool OSRWindow::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
 void OSRWindow::OnPopupShow(CefRefPtr<CefBrowser> browser,
                             bool show) {
+  if (!show) {
+    CefRect dirty_rect = renderer_.popup_rect();
+    renderer_.ClearPopupRects();
+    browser->GetHost()->Invalidate(dirty_rect, PET_VIEW);
+  }
   renderer_.OnPopupShow(browser, show);
 }
 

@@ -47,6 +47,7 @@ class ClientOSRenderer {
   const CefRect& original_popup_rect() const { return original_popup_rect_; }
 
   CefRect GetPopupRectInWebView(const CefRect& original_rect);
+  void ClearPopupRects();
 
  private:
   bool transparent_;

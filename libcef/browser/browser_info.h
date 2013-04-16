@@ -22,6 +22,11 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   int browser_id() const { return browser_id_; };
   bool is_popup() const { return is_popup_; }
+  bool is_window_rendering_disabled() const { 
+      return is_window_rendering_disabled_;
+  }
+
+  void set_window_rendering_disabled(bool disabled);
   
   void set_render_ids(int render_process_id, int render_view_id);
 
@@ -36,6 +41,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
  private:
   int browser_id_;
   bool is_popup_;
+  bool is_window_rendering_disabled_;
 
   base::Lock lock_;
 

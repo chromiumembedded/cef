@@ -35,7 +35,9 @@ bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
   // [NSApp currentEvent] will return a valid event.
   NSEvent* currentEvent = [NSApp currentEvent];
   NSWindow* window = [parent_view window];
+
   NSPoint position = [window mouseLocationOutsideOfEventStream];
+
   NSTimeInterval eventTime = [currentEvent timestamp];
   NSEvent* clickEvent = [NSEvent mouseEventWithType:NSRightMouseDown
                                            location:position
@@ -59,9 +61,33 @@ bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
     base::mac::ScopedSendingEvent sendingEventScoper;
 
     // Show the menu. Blocks until the menu is dismissed.
-    [NSMenu popUpContextMenu:[menu_controller_ menu]
-                   withEvent:clickEvent
-                     forView:parent_view];
+    if (manager->browser()->IsWindowRenderingDisabled()) {
+      // Showing the menu in OSR is pretty much self contained, only using
+      // the initialized menu_controller_ in this function, and the scoped
+      // variables in this block.
+      int screenX = 0, screenY = 0;
+      CefRefPtr<CefRenderHandler> handler =
+          manager->browser()->GetClient()->GetRenderHandler();
+      if (!handler->GetScreenPoint(manager->browser(),
+                                   manager->params().x, manager->params().y,
+                                   screenX, screenY)) {
+        return false;
+      }
+
+      // Don't show the menu unless there is a parent native window to tie it to
+      if (!manager->browser()->GetWindowHandle())
+        return false;
+
+      NSPoint screen_position =
+          NSPointFromCGPoint(gfx::Point(screenX, screenY).ToCGPoint());
+      [[menu_controller_ menu] popUpMenuPositioningItem:nil
+                                             atLocation:screen_position
+                                                 inView:nil];
+    } else {
+      [NSMenu popUpContextMenu:[menu_controller_ menu]
+                     withEvent:clickEvent
+                       forView:parent_view];
+    }
   }
 
   return true;
