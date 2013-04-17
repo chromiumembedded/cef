@@ -58,68 +58,15 @@ class CefResourceRequestJobCallback : public CefCallback {
         dest_size_(0) {}
 
   virtual void Continue() OVERRIDE {
-    if (CEF_CURRENTLY_ON_IOT()) {
-      // Currently on IO thread.
-      // Return early if the callback has already been detached.
-      if (!job_)
-        return;
-
-      if (type_ == HEADERS_AVAILABLE) {
-        // Callback for headers available.
-        if (!job_->has_response_started()) {
-          // Send header information.
-          job_->SendHeaders();
-        }
-
-        // This type of callback only ever needs to be called once.
-        Detach();
-      } else if (type_ == BYTES_AVAILABLE) {
-        // Callback for bytes available.
-        if (job_->has_response_started() &&
-            job_->GetStatus().is_io_pending()) {
-          // Read the bytes. They should be available but, if not, wait again.
-          int bytes_read = 0;
-          if (job_->ReadRawData(dest_, dest_size_, &bytes_read)) {
-            if (bytes_read > 0) {
-              // Clear the IO_PENDING status.
-              job_->SetStatus(URLRequestStatus());
-
-              // Notify about the available bytes.
-              job_->NotifyReadComplete(bytes_read);
-
-              dest_ = NULL;
-              dest_size_ = 0;
-            } else {
-              // All done.
-              job_->NotifyDone(URLRequestStatus());
-              Detach();
-            }
-          } else if (!job_->GetStatus().is_io_pending()) {
-            // Failed due to an error.
-            NOTREACHED() <<
-                "ReadRawData returned false without setting IO as pending";
-            job_->NotifyDone(URLRequestStatus());
-            Detach();
-          }
-        }
-      }
-    } else {
-      // Execute this method on the IO thread.
-      CEF_POST_TASK(CEF_IOT,
-          base::Bind(&CefResourceRequestJobCallback::Continue, this));
-    }
+    // Continue asynchronously.
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(&CefResourceRequestJobCallback::ContinueOnIOThread, this));
   }
 
   virtual void Cancel() OVERRIDE {
-    if (CEF_CURRENTLY_ON_IOT()) {
-      // Currently on IO thread.
-      if (job_)
-        job_->Kill();
-    } else {
-      // Execute this method on the IO thread.
-      CEF_POST_TASK(CEF_IOT,
-          base::Bind(&CefResourceRequestJobCallback::Cancel, this));
-    }
+    // Cancel asynchronously.
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(&CefResourceRequestJobCallback::CancelOnIOThread, this));
   }
 
   void Detach() {
@@ -134,6 +81,61 @@ class CefResourceRequestJobCallback : public CefCallback {
   }
 
  private:
+  void ContinueOnIOThread() {
+    CEF_REQUIRE_IOT();
+
+    // Return early if the callback has already been detached.
+    if (!job_)
+      return;
+
+    if (type_ == HEADERS_AVAILABLE) {
+      // Callback for headers available.
+      if (!job_->has_response_started()) {
+        // Send header information.
+        job_->SendHeaders();
+      }
+
+      // This type of callback only ever needs to be called once.
+      Detach();
+    } else if (type_ == BYTES_AVAILABLE) {
+      // Callback for bytes available.
+      if (job_->has_response_started() &&
+          job_->GetStatus().is_io_pending()) {
+        // Read the bytes. They should be available but, if not, wait again.
+        int bytes_read = 0;
+        if (job_->ReadRawData(dest_, dest_size_, &bytes_read)) {
+          if (bytes_read > 0) {
+            // Clear the IO_PENDING status.
+            job_->SetStatus(URLRequestStatus());
+
+            // Notify about the available bytes.
+            job_->NotifyReadComplete(bytes_read);
+
+            dest_ = NULL;
+            dest_size_ = 0;
+          } else {
+            // All done.
+            job_->NotifyDone(URLRequestStatus());
+            Detach();
+          }
+        } else if (!job_->GetStatus().is_io_pending()) {
+          // Failed due to an error.
+          NOTREACHED() <<
+              "ReadRawData returned false without setting IO as pending";
+          job_->NotifyDone(URLRequestStatus());
+          Detach();
+        }
+      }
+    }
+  }
+
+  void CancelOnIOThread() {
+    CEF_REQUIRE_IOT();
+
+    if (job_)
+      job_->Kill();
+  }
+
   CefResourceRequestJob* job_;
   Type type_;
 
