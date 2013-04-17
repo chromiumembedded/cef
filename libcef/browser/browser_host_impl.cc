@@ -1505,7 +1505,7 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
 
   // If this method is called in response to something other than
   // WindowDestroyed() ask the user if the browser should close.
-  if (IsWindowRenderingDisabled() || !window_destroyed_) {
+  if (client_.get() && (IsWindowRenderingDisabled() || !window_destroyed_)) {
     CefRefPtr<CefLifeSpanHandler> handler =
         client_->GetLifeSpanHandler();
     if (handler.get()) {
