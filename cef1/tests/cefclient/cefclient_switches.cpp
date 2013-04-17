@@ -84,7 +84,6 @@ const char kAcceleratedVideoDisabled[] = "accelerated-video-disabled";
 const char kAcceledated2dCanvasDisabled[] = "accelerated-2d-canvas-disabled";
 const char kAcceleratedFiltersDisabled[] = "accelerated-filters-disabled";
 const char kAcceleratedPluginsDisabled[] = "accelerated-plugins-disabled";
-const char kDeveloperToolsDisabled[] = "developer-tools-disabled";
 const char kFullscreenEnabled[] = "fullscreen-enabled";
 
 // Other attributes.

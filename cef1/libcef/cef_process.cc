@@ -13,8 +13,8 @@
 #include "base/threading/thread.h"
 
 // Class used to process events on the current message loop.
-class CefMessageLoopForUI : public MessageLoopForUI {
-  typedef MessageLoopForUI inherited;
+class CefMessageLoopForUI : public base::MessageLoopForUI {
+  typedef base::MessageLoopForUI inherited;
 
  public:
   CefMessageLoopForUI() {
@@ -22,8 +22,8 @@ class CefMessageLoopForUI : public MessageLoopForUI {
 
   // Returns the MessageLoopForUI of the current thread.
   static CefMessageLoopForUI* current() {
-    MessageLoop* loop = MessageLoop::current();
-    DCHECK_EQ(MessageLoop::TYPE_UI, loop->type());
+    base::MessageLoop* loop = base::MessageLoop::current();
+    DCHECK_EQ(base::MessageLoop::TYPE_UI, loop->type());
     return static_cast<CefMessageLoopForUI*>(loop);
   }
 
@@ -92,7 +92,7 @@ void CefProcess::CreateUIThread() {
     // Create the message loop on a new thread.
     thread.reset(new CefProcessUIThread());
     base::Thread::Options options;
-    options.message_loop_type = MessageLoop::TYPE_UI;
+    options.message_loop_type = base::MessageLoop::TYPE_UI;
     if (!thread->StartWithOptions(options))
       return;
   } else {
@@ -114,7 +114,7 @@ void CefProcess::CreateIOThread() {
 
   scoped_ptr<CefProcessIOThread> thread(new CefProcessIOThread());
   base::Thread::Options options;
-  options.message_loop_type = MessageLoop::TYPE_IO;
+  options.message_loop_type = base::MessageLoop::TYPE_IO;
   if (!thread->StartWithOptions(options))
     return;
   io_thread_.swap(thread);
@@ -126,7 +126,7 @@ void CefProcess::CreateFileThread() {
 
   scoped_ptr<base::Thread> thread(new CefProcessSubThread(CefThread::FILE));
   base::Thread::Options options;
-  options.message_loop_type = MessageLoop::TYPE_IO;
+  options.message_loop_type = base::MessageLoop::TYPE_IO;
   if (!thread->StartWithOptions(options))
     return;
   file_thread_.swap(thread);

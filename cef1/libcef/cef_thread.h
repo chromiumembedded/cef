@@ -17,6 +17,7 @@
 
 namespace base {
 class MessageLoopProxy;
+class SequencedWorkerPool;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,10 @@ class CefThread : public base::Thread {
 
   // Special constructor for the main (UI) thread and unittests. We use a dummy
   // thread here since the main thread already exists.
-  CefThread(ID identifier, MessageLoop* message_loop);
+  CefThread(ID identifier, base::MessageLoop* message_loop);
+
+  static void CreateThreadPool();
+  static void ShutdownThreadPool();
 
   virtual ~CefThread();
 
@@ -106,6 +110,11 @@ class CefThread : public base::Thread {
     return GetMessageLoopProxyForThread(identifier)->ReleaseSoon(
         from_here, object);
   }
+
+  // Returns the thread pool used for blocking file I/O. Use this object to
+  // perform random blocking operations such as file writes or querying the
+  // Windows registry.
+  static base::SequencedWorkerPool* GetBlockingPool();
 
   // Callable on any thread.  Returns whether the given ID corresponds to a well
   // known thread.
@@ -176,16 +185,6 @@ class CefThread : public base::Thread {
   // The identifier of this thread.  Only one thread can exist with a given
   // identifier at a given time.
   ID identifier_;
-
-  // This lock protects |cef_threads_|.  Do not read or modify that array
-  // without holding this lock.  Do not block while holding this lock.
-  static base::Lock lock_;
-
-  // An array of the CefThread objects.  This array is protected by |lock_|.
-  // The threads are not owned by this array.  Typically, the threads are owned
-  // on the UI thread by the g_browser_process object.  CefThreads remove
-  // themselves from this array upon destruction.
-  static CefThread* cef_threads_[ID_COUNT];
 
 #if defined(OS_MACOSX)
   scoped_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool_;

@@ -405,7 +405,6 @@ struct CefBrowserSettingsTraits {
         src->accelerated_2d_canvas_disabled;
     target->accelerated_filters_disabled = src->accelerated_filters_disabled;
     target->accelerated_plugins_disabled = src->accelerated_plugins_disabled;
-    target->developer_tools_disabled = src->developer_tools_disabled;
     target->fullscreen_enabled = src->fullscreen_enabled;
   }
 };

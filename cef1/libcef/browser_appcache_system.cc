@@ -393,7 +393,7 @@ BrowserAppCacheSystem::~BrowserAppCacheSystem() {
 void BrowserAppCacheSystem::InitOnUIThread(
     const base::FilePath& cache_directory) {
   DCHECK(!ui_message_loop_);
-  ui_message_loop_ = MessageLoop::current();
+  ui_message_loop_ = base::MessageLoop::current();
   cache_directory_ = cache_directory;
 }
 
@@ -403,7 +403,7 @@ void BrowserAppCacheSystem::InitOnIOThread(
     return;
 
   DCHECK(!io_message_loop_);
-  io_message_loop_ = MessageLoop::current();
+  io_message_loop_ = base::MessageLoop::current();
 
   if (!db_thread_.IsRunning())
     db_thread_.Start();

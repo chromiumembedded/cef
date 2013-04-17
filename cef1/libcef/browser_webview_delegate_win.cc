@@ -551,7 +551,7 @@ void BrowserWebViewDelegate::runModal() {
     browser_->set_internal_modal_message_loop_is_active(true);
 
     // Start a new message loop here and return when this window closes.
-    MessageLoop* message_loop = MessageLoop::current();
+    base::MessageLoop* message_loop = base::MessageLoop::current();
     bool old_state = message_loop->NestableTasksAllowed();
     message_loop->SetNestableTasksAllowed(true);
     message_loop->Run();
@@ -677,7 +677,8 @@ void BrowserWebViewDelegate::showContextMenu(
   std::list<std::wstring> label_list;
 
   // Make sure events can be pumped while the menu is up.
-  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  base::MessageLoop::ScopedNestableTaskAllower allow(
+      base::MessageLoop::current());
 
   // Give the client a chance to handle the menu.
   if (OnBeforeMenu(data, mouse_pt.x, mouse_pt.y, edit_flags, type_flags))
@@ -737,14 +738,14 @@ void BrowserWebViewDelegate::showContextMenu(
   if (!menu)
     return;
 
-  MessageLoop::current()->set_os_modal_loop(true);
+  base::MessageLoop::current()->set_os_modal_loop(true);
 
   // Show the context menu
   int selected_id = TrackPopupMenu(menu,
       TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE,
       screenX, screenY, 0, browser_->UIT_GetMainWndHandle(), NULL);
 
-  MessageLoop::current()->set_os_modal_loop(false);
+  base::MessageLoop::current()->set_os_modal_loop(false);
 
   if (selected_id != 0) {
     // An action was chosen

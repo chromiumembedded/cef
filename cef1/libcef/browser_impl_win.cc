@@ -196,8 +196,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
     paint_delegate_.reset(new PaintDelegate(this));
   }
 
-  if (!settings_.developer_tools_disabled)
-    dev_tools_agent_.reset(new BrowserDevToolsAgent());
+  dev_tools_agent_.reset(new BrowserDevToolsAgent());
 
   // Add a reference that will be released in UIT_DestroyBrowser().
   AddRef();
@@ -217,8 +216,7 @@ bool CefBrowserImpl::UIT_CreateBrowser(const CefString& url) {
   if (window_info_.m_bTransparentPainting)
     webviewhost_->webview()->setIsTransparent(true);
 
-  if (!settings_.developer_tools_disabled)
-    dev_tools_agent_->SetWebView(webviewhost_->webview());
+  dev_tools_agent_->SetWebView(webviewhost_->webview());
 
   webviewhost_->SetFrameRate(settings_.animation_frame_rate);
 
@@ -533,8 +531,8 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
   page_count = frame->printBegin(printParams);
 
   if (page_count) {
-    bool old_state = MessageLoop::current()->NestableTasksAllowed();
-    MessageLoop::current()->SetNestableTasksAllowed(false);
+    base::MessageLoop::ScopedNestableTaskAllower allow(
+        base::MessageLoop::current());
 
     if (print_context_.NewDocument(title_) == printing::PrintingContext::OK) {
       if (settings.ranges.size() > 0) {
@@ -549,8 +547,6 @@ void CefBrowserImpl::UIT_PrintPages(WebKit::WebFrame* frame) {
       }
       print_context_.DocumentDone();
     }
-
-    MessageLoop::current()->SetNestableTasksAllowed(old_state);
   }
 
   frame->printEnd();

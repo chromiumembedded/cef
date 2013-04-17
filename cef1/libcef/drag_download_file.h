@@ -71,7 +71,7 @@ class DragDownloadFile : public ui::DownloadFileProvider {
   GURL referrer_;
   std::string referrer_encoding_;
   BrowserWebViewDelegate* view_;
-  MessageLoop* drag_message_loop_;
+  base::MessageLoop* drag_message_loop_;
   base::FilePath temp_dir_path_;
 
   // Accessed on drag-and-drop thread (Windows).

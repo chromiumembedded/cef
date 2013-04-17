@@ -1,8 +1,8 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 146842)
+--- page/FrameView.cpp	(revision 148366)
 +++ page/FrameView.cpp	(working copy)
-@@ -209,10 +209,12 @@
+@@ -198,10 +198,12 @@
      if (!page)
          return;
  
@@ -17,17 +17,17 @@ Index: page/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/mac/NSScrollerImpDetails.mm	(revision 146842)
+--- platform/mac/NSScrollerImpDetails.mm	(revision 148366)
 +++ platform/mac/NSScrollerImpDetails.mm	(working copy)
-@@ -34,6 +34,7 @@
- #if PLATFORM(CHROMIUM)
+@@ -33,6 +33,7 @@
+ 
  bool isScrollbarOverlayAPIAvailable()
  {
 +#if 0
      static bool apiAvailable;
      static bool shouldInitialize = true;
      if (shouldInitialize) {
-@@ -44,6 +45,9 @@
+@@ -43,6 +44,9 @@
                         && [scrollerImpPairClass instancesRespondToSelector:@selector(scrollerStyle)];
      }
      return apiAvailable;
@@ -35,5 +35,5 @@ Index: platform/mac/NSScrollerImpDetails.mm
 +    return false;
 +#endif
  }
- #endif
  
+ NSScrollerStyle recommendedScrollerStyle() {

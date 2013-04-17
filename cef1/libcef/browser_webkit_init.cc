@@ -39,7 +39,6 @@ BrowserWebKitInit::BrowserWebKitInit()
 
   WebKit::initialize(this);
   WebKit::setLayoutTestMode(false);
-  WebKit::WebRuntimeFeatures::enableSockets(true);
   WebKit::WebRuntimeFeatures::enableApplicationCache(true);
   WebKit::WebRuntimeFeatures::enableDatabase(true);
   WebKit::WebRuntimeFeatures::enableIndexedDatabase(true);

@@ -24,7 +24,7 @@ DragDownloadFile::DragDownloadFile(
       referrer_(referrer),
       referrer_encoding_(referrer_encoding),
       view_(view),
-      drag_message_loop_(MessageLoop::current()),
+      drag_message_loop_(base::MessageLoop::current()),
       is_started_(false),
       is_successful_(false) {
 #if defined(OS_WIN)
@@ -109,7 +109,7 @@ void DragDownloadFile::InitiateDownload() {
 void DragDownloadFile::DownloadCompleted(bool is_successful) {
 #if defined(OS_WIN)
   // If not in drag-and-drop thread, defer the running to it.
-  if (drag_message_loop_ != MessageLoop::current()) {
+  if (drag_message_loop_ != base::MessageLoop::current()) {
     drag_message_loop_->PostTask(
         FROM_HERE,
         base::Bind(&DragDownloadFile::DownloadCompleted, this, is_successful));
@@ -126,7 +126,7 @@ void DragDownloadFile::DownloadCompleted(bool is_successful) {
 void DragDownloadFile::AssertCurrentlyOnDragThread() {
   // Only do the check on Windows where two threads are involved.
 #if defined(OS_WIN)
-  DCHECK(drag_message_loop_ == MessageLoop::current());
+  DCHECK(drag_message_loop_ == base::MessageLoop::current());
 #endif
 }
 

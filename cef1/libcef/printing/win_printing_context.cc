@@ -264,7 +264,7 @@ PrintingContext::Result PrintingContext::NewDocument(
       return OnError();
   }
 
-  DCHECK_EQ(MessageLoop::current()->NestableTasksAllowed(), false);
+  DCHECK_EQ(base::MessageLoop::current()->NestableTasksAllowed(), false);
   // Begin a print job by calling the StartDoc function.
   // NOTE: StartDoc() starts a message loop. That causes a lot of problems with
   // IPC. Make sure recursive task processing is disabled.

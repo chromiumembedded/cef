@@ -20,8 +20,8 @@
 #include "base/thread_task_runner_handle.h"
 #include "base/threading/worker_pool.h"
 #include "build/build_config.h"
-#include "chrome/browser/net/sqlite_persistent_cookie_store.h"
-#include "net/base/cert_verifier.h"
+#include "content/browser/net/sqlite_persistent_cookie_store.h"
+#include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
 #include "net/ftp/ftp_network_layer.h"
@@ -304,7 +304,7 @@ void BrowserRequestContext::SetCookieStoragePath(const base::FilePath& path) {
 
   base::FilePath new_path = path;
 
-  scoped_refptr<SQLitePersistentCookieStore> persistent_store;
+  scoped_refptr<content::SQLitePersistentCookieStore> persistent_store;
   if (!new_path.empty()) {
     if (!file_util::PathExists(new_path) &&
         !file_util::CreateDirectory(new_path)) {
@@ -314,7 +314,7 @@ void BrowserRequestContext::SetCookieStoragePath(const base::FilePath& path) {
       base::FilePath cookie_path =
           new_path.Append(FILE_PATH_LITERAL("Cookies"));
       persistent_store =
-          new SQLitePersistentCookieStore(
+          new content::SQLitePersistentCookieStore(
               cookie_path,
               CefThread::GetMessageLoopProxyForThread(CefThread::IO),
               CefThread::GetMessageLoopProxyForThread(CefThread::FILE),

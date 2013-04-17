@@ -11,7 +11,6 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Frame.h"  // NOLINT(build/include)
 #include "ScriptController.h"  // NOLINT(build/include)
-#include "ScriptControllerBase.h"  // NOLINT(build/include)
 #include "V8Binding.h"  // NOLINT(build/include)
 #include "V8RecursionScope.h"  // NOLINT(build/include)
 MSVC_POP_WARNING();

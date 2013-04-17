@@ -12,7 +12,7 @@ CefProcessSubThread::CefProcessSubThread(CefThread::ID identifier)
       : CefThread(identifier) {}
 
 CefProcessSubThread::CefProcessSubThread(CefThread::ID identifier,
-                                         MessageLoop* message_loop)
+                                         base::MessageLoop* message_loop)
       : CefThread(identifier, message_loop) {}
 
 CefProcessSubThread::~CefProcessSubThread() {
@@ -25,7 +25,7 @@ void CefProcessSubThread::CleanUp() {
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
-  MessageLoop::current()->RunUntilIdle();
+  base::MessageLoop::current()->RunUntilIdle();
 
   CefThread::Cleanup();
 }

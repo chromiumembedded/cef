@@ -287,7 +287,7 @@ void WebDropTarget::OnDragLeave(GtkWidget* sender, GdkDragContext* context,
   // preceded by a drag-leave. The renderer doesn't like getting the signals
   // in this order so delay telling it about the drag-leave till we are sure
   // we are not getting a drop as well.
-  MessageLoop::current()->PostTask(FROM_HERE,
+  base::MessageLoop::current()->PostTask(FROM_HERE,
       base::Bind(&WebDropTarget::DragLeave, method_factory_.GetWeakPtr()));
 }
 

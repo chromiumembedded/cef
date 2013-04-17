@@ -29,7 +29,7 @@ class WebView;
 }
 
 class WebDragSource : public base::RefCounted<WebDragSource>,
-                      public MessageLoopForUI::Observer {
+                      public base::MessageLoopForUI::Observer {
  public:
   explicit WebDragSource(CefBrowserImpl* browser);
   virtual ~WebDragSource();

@@ -28,7 +28,7 @@ class NetworkDelegate;
 class CefProcessIOThread : public CefThread {
  public:
   CefProcessIOThread();
-  explicit CefProcessIOThread(MessageLoop* message_loop);
+  explicit CefProcessIOThread(base::MessageLoop* message_loop);
   virtual ~CefProcessIOThread();
 
   BrowserRequestContext* request_context() { return request_context_.get(); }

@@ -12,7 +12,7 @@
 
 #include "base/file_util.h"
 #include "base/mac/mac_util.h"
-#include "base/sys_string_conversions.h"
+#include "base/strings/sys_string_conversions.h"
 #include "base/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "skia/ext/skia_utils_mac.h"
@@ -182,7 +182,8 @@ void BrowserWebViewDelegate::showContextMenu(
   NSMenu* menu = nil;
 
   // Make sure events can be pumped while the menu is up.
-  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  base::MessageLoop::ScopedNestableTaskAllower allow
+      base::MessageLoop::current());
 
   // Give the client a chance to handle the menu.
   if (OnBeforeMenu(data, mouse_pt.x, mouse_pt.y, edit_flags, type_flags))
@@ -409,7 +410,8 @@ void BrowserWebViewDelegate::startDragging(
   
   // The drag invokes a nested event loop, arrange to continue
   // processing events.
-  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  base::MessageLoop::ScopedNestableTaskAllower allow(
+      base::MessageLoop::current());
   
   NSImage* ns_image = nil;
   if (!image.isNull()) {

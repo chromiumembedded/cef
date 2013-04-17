@@ -24,7 +24,8 @@ namespace {
 class WebKitClientMessageLoopImpl
     : public WebKit::WebDevToolsAgentClient::WebKitClientMessageLoop {
  public:
-  WebKitClientMessageLoopImpl() : message_loop_(MessageLoop::current()) { }
+  WebKitClientMessageLoopImpl()
+      : message_loop_(base::MessageLoop::current()) { }
   virtual ~WebKitClientMessageLoopImpl() {
     message_loop_ = NULL;
   }
@@ -38,7 +39,7 @@ class WebKitClientMessageLoopImpl
     message_loop_->QuitNow();
   }
  private:
-  MessageLoop* message_loop_;
+  base::MessageLoop* message_loop_;
 };
 
 }  //  namespace
@@ -79,7 +80,7 @@ WebKit::WebDevToolsAgentClient::WebKitClientMessageLoop*
 }
 
 void BrowserDevToolsAgent::AsyncCall(const BrowserDevToolsCallArgs &args) {
-  MessageLoop::current()->PostTask(
+  base::MessageLoop::current()->PostTask(
       FROM_HERE,
       base::Bind(&BrowserDevToolsAgent::Call, weak_factory_.GetWeakPtr(),
                  args));

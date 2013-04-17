@@ -11,7 +11,7 @@
 #import "libcef/web_drag_utils_mac.h"
 
 #include "base/logging.h"
-#include "base/sys_string_conversions.h"
+#include "base/strings/sys_string_conversions.h"
 #import "third_party/mozilla/NSPasteboard+Utils.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebDragData.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPoint.h"

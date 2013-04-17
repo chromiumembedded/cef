@@ -33,7 +33,7 @@ class CefProcessUIThread
       public CefThread {
  public:
   CefProcessUIThread();
-  explicit CefProcessUIThread(MessageLoop* message_loop);
+  explicit CefProcessUIThread(base::MessageLoop* message_loop);
   virtual ~CefProcessUIThread();
 
   virtual void Init();

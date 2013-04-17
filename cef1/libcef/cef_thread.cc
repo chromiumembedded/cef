@@ -6,8 +6,10 @@
 #include "libcef/cef_thread.h"
 
 #include "base/compiler_specific.h"
+#include "base/lazy_instance.h"
 #include "base/message_loop.h"
 #include "base/message_loop_proxy.h"
+#include "base/threading/sequenced_worker_pool.h"
 
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
@@ -15,12 +17,35 @@
 
 using base::MessageLoopProxy;
 
+namespace {
+
 // Friendly names for the well-known threads.
 static const char* cef_thread_names[CefThread::ID_COUNT] = {
   "Cef_UIThread",  // UI
   "Cef_FileThread",  // FILE
   "Cef_IOThread",  // IO
 };
+
+struct CefThreadGlobals {
+  CefThreadGlobals() {
+    memset(threads, 0, CefThread::ID_COUNT * sizeof(threads[0]));
+  }
+
+  // This lock protects |threads|. Do not read or modify that array
+  // without holding this lock. Do not block while holding this lock.
+  base::Lock lock;
+
+  // This array is protected by |lock|. The threads are not owned by this
+  // array. Typically, the threads are owned on the UI thread by
+  // BrowserMainLoop. BrowserThreadImpl objects remove themselves from this
+  // array upon destruction.
+  CefThread* threads[CefThread::ID_COUNT];
+
+  scoped_refptr<base::SequencedWorkerPool> blocking_pool;
+};
+
+base::LazyInstance<CefThreadGlobals>::Leaky
+    g_globals = LAZY_INSTANCE_INITIALIZER;
 
 // An implementation of MessageLoopProxy to be used in conjunction
 // with CefThread.
@@ -54,10 +79,7 @@ class CefThreadMessageLoopProxy : public MessageLoopProxy {
   DISALLOW_COPY_AND_ASSIGN(CefThreadMessageLoopProxy);
 };
 
-
-base::Lock CefThread::lock_;
-
-CefThread* CefThread::cef_threads_[ID_COUNT];
+}  // namespace
 
 CefThread::CefThread(CefThread::ID identifier)
     : Thread(cef_thread_names[identifier]),
@@ -71,6 +93,25 @@ CefThread::CefThread(ID identifier, MessageLoop* message_loop)
   message_loop->set_thread_name(cef_thread_names[identifier]);
   set_message_loop(message_loop);
   Initialize();
+}
+
+// static
+void CefThread::CreateThreadPool() {
+  CefThreadGlobals& globals = g_globals.Get();
+  DCHECK(!globals.blocking_pool.get());
+  globals.blocking_pool = new base::SequencedWorkerPool(3, "BrowserBlocking");
+}
+
+// static
+void CefThread::ShutdownThreadPool() {
+  // The goal is to make it impossible for chrome to 'infinite loop' during
+  // shutdown, but to reasonably expect that all BLOCKING_SHUTDOWN tasks queued
+  // during shutdown get run. There's nothing particularly scientific about the
+  // number chosen.
+  const int kMaxNewShutdownBlockingTasks = 1000;
+  CefThreadGlobals& globals = g_globals.Get();
+  globals.blocking_pool->Shutdown(kMaxNewShutdownBlockingTasks);
+  globals.blocking_pool = NULL;
 }
 
 void CefThread::Init() {
@@ -97,10 +138,11 @@ void CefThread::Cleanup() {
 }
 
 void CefThread::Initialize() {
-  base::AutoLock lock(lock_);
+  CefThreadGlobals& globals = g_globals.Get();
+  base::AutoLock lock(globals.lock);
   DCHECK(identifier_ >= 0 && identifier_ < ID_COUNT);
-  DCHECK(cef_threads_[identifier_] == NULL);
-  cef_threads_[identifier_] = this;
+  DCHECK(globals.threads[identifier_] == NULL);
+  globals.threads[identifier_] = this;
 }
 
 CefThread::~CefThread() {
@@ -109,30 +151,41 @@ CefThread::~CefThread() {
   // correct CefThread succeeds.
   Stop();
 
-  base::AutoLock lock(lock_);
-  cef_threads_[identifier_] = NULL;
+  CefThreadGlobals& globals = g_globals.Get();
+  base::AutoLock lock(globals.lock);
+  globals.threads[identifier_] = NULL;
 #ifndef NDEBUG
   // Double check that the threads are ordererd correctly in the enumeration.
   for (int i = identifier_ + 1; i < ID_COUNT; ++i) {
-    DCHECK(!cef_threads_[i]) <<
+    DCHECK(!globals.threads[i]) <<
         "Threads must be listed in the reverse order that they die";
   }
 #endif
 }
 
 // static
+base::SequencedWorkerPool* CefThread::GetBlockingPool() {
+  CefThreadGlobals& globals = g_globals.Get();
+  DCHECK(globals.blocking_pool.get());
+  return globals.blocking_pool;
+}
+
+// static
 bool CefThread::IsWellKnownThread(ID identifier) {
-  base::AutoLock lock(lock_);
+  CefThreadGlobals& globals = g_globals.Get();
+  base::AutoLock lock(globals.lock);
   return (identifier >= 0 && identifier < ID_COUNT &&
-          cef_threads_[identifier]);
+          globals.threads[identifier]);
 }
 
 // static
 bool CefThread::CurrentlyOn(ID identifier) {
-  base::AutoLock lock(lock_);
+  CefThreadGlobals& globals = g_globals.Get();
+  base::AutoLock lock(globals.lock);
   DCHECK(identifier >= 0 && identifier < ID_COUNT);
-  return cef_threads_[identifier] &&
-         cef_threads_[identifier]->message_loop() == MessageLoop::current();
+  return globals.threads[identifier] &&
+         globals.threads[identifier]->message_loop() ==
+            base::MessageLoop::current();
 }
 
 // static
@@ -169,11 +222,12 @@ bool CefThread::PostNonNestableDelayedTask(
 
 // static
 bool CefThread::GetCurrentThreadIdentifier(ID* identifier) {
-  MessageLoop* cur_message_loop = MessageLoop::current();
+  CefThreadGlobals& globals = g_globals.Get();
+  base::MessageLoop* cur_message_loop = base::MessageLoop::current();
   for (int i = 0; i < ID_COUNT; ++i) {
-    if (cef_threads_[i] &&
-        cef_threads_[i]->message_loop() == cur_message_loop) {
-      *identifier = cef_threads_[i]->identifier_;
+    if (globals.threads[i] &&
+        globals.threads[i]->message_loop() == cur_message_loop) {
+      *identifier = globals.threads[i]->identifier_;
       return true;
     }
   }
@@ -208,11 +262,13 @@ bool CefThread::PostTaskHelper(
       GetCurrentThreadIdentifier(&current_thread) &&
       current_thread >= identifier;
 
-  if (!guaranteed_to_outlive_target_thread)
-    lock_.Acquire();
+  CefThreadGlobals& globals = g_globals.Get();
 
-  MessageLoop* message_loop = cef_threads_[identifier] ?
-      cef_threads_[identifier]->message_loop() : NULL;
+  if (!guaranteed_to_outlive_target_thread)
+    globals.lock.Acquire();
+
+  base::MessageLoop* message_loop = globals.threads[identifier] ?
+      globals.threads[identifier]->message_loop() : NULL;
   if (message_loop) {
     if (nestable) {
       message_loop->PostDelayedTask(from_here, task, delay);
@@ -222,7 +278,7 @@ bool CefThread::PostTaskHelper(
   }
 
   if (!guaranteed_to_outlive_target_thread)
-    lock_.Release();
+    globals.lock.Release();
 
   return !!message_loop;
 }

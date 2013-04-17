@@ -7,7 +7,6 @@
 
 #include "third_party/WebKit/Source/WebCore/config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "ApplicationCacheStorage.h"  // NOLINT(build/include)
 #include "CrossOriginPreflightResultCache.h"  // NOLINT(build/include)
 #include "DocumentLoader.h"  // NOLINT(build/include)
 #include "MemoryCache.h"  // NOLINT(build/include)
@@ -149,12 +148,7 @@ WebKit::WebGraphicsContext3D* CreateGraphicsContext3D(
 #endif
 
   if (use_command_buffer) {
-    scoped_ptr<webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl>
-        context(
-            new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl());
-    if (!context->Initialize(attributes, NULL))
-      return NULL;
-    return context.release();
+    return new webkit::gpu::WebGraphicsContext3DInProcessCommandBufferImpl(attributes);
   } else {
     return webkit::gpu::WebGraphicsContext3DInProcessImpl::CreateForWebView(
         attributes, renderDirectlyToWebView);

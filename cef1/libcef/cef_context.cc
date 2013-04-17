@@ -36,11 +36,11 @@ namespace {
 
 // Used in multi-threaded message loop mode to observe shutdown of the UI
 // thread.
-class DestructionObserver : public MessageLoop::DestructionObserver {
+class DestructionObserver : public base::MessageLoop::DestructionObserver {
  public:
   explicit DestructionObserver(base::WaitableEvent *event) : event_(event) {}
   virtual void WillDestroyCurrentMessageLoop() {
-    MessageLoop::current()->RemoveDestructionObserver(this);
+    base::MessageLoop::current()->RemoveDestructionObserver(this);
     event_->Signal();
     delete this;
   }
@@ -225,7 +225,7 @@ void CefSetOSModalLoop(bool osModalLoop) {
   }
 
   if (CefThread::CurrentlyOn(CefThread::UI)) {
-    MessageLoop::current()->set_os_modal_loop(osModalLoop);
+    base::MessageLoop::current()->set_os_modal_loop(osModalLoop);
   } else {
     CefThread::PostTask(CefThread::UI, FROM_HERE,
         base::Bind(CefSetOSModalLoop, osModalLoop));
@@ -589,7 +589,7 @@ void CefContext::UIT_FinishShutdown(
   if (uithread_shutdown_event) {
     // The destruction observer will signal the UI thread shutdown event when
     // the UI thread has been destroyed.
-    MessageLoop::current()->AddDestructionObserver(
+    base::MessageLoop::current()->AddDestructionObserver(
         new DestructionObserver(uithread_shutdown_event));
 
     // Signal the browser shutdown event now.

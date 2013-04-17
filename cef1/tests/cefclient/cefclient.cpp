@@ -389,8 +389,6 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
       g_command_line->HasSwitch(cefclient::kAcceleratedFiltersDisabled);
   settings.accelerated_plugins_disabled =
       g_command_line->HasSwitch(cefclient::kAcceleratedPluginsDisabled);
-  settings.developer_tools_disabled =
-      g_command_line->HasSwitch(cefclient::kDeveloperToolsDisabled);
   settings.fullscreen_enabled =
       g_command_line->HasSwitch(cefclient::kFullscreenEnabled);
 }

@@ -273,7 +273,8 @@ void BrowserWebViewDelegate::showContextMenu(WebKit::WebFrame* frame,
   int type_flags = 0;
 
   // Make sure events can be pumped while the menu is up.
-  MessageLoop::ScopedNestableTaskAllower allow(MessageLoop::current());
+  base::MessageLoop::ScopedNestableTaskAllower allow(
+      base::MessageLoop::current());
 
   // Give the client a chance to handle the menu.
   if (OnBeforeMenu(data, mouse_pt.x, mouse_pt.y, edit_flags, type_flags))

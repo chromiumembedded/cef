@@ -17,7 +17,7 @@ MSVC_POP_WARNING();
 
 #include "base/bind.h"
 #import "base/logging.h"
-#import "base/sys_string_conversions.h"
+#import "base/strings/sys_string_conversions.h"
 #import "skia/ext/platform_canvas.h"
 #import "third_party/WebKit/Source/Platform/chromium/public/WebSize.h"
 #import "third_party/WebKit/Source/WebKit/chromium/public/mac/WebInputEventFactory.h"

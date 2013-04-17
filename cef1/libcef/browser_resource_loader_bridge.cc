@@ -214,13 +214,13 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void DropPeer() {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
     peer_ = NULL;
   }
 
   void Start(ResourceLoaderBridge::Peer* peer, RequestParams* params) {
     peer_ = peer;
-    owner_loop_ = MessageLoop::current();
+    owner_loop_ = base::MessageLoop::current();
 
     InitializeParams(params);
 
@@ -230,7 +230,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void Cancel() {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     if (download_handler_.get()) {
       // WebKit will try to cancel the download but we won't allow it.
@@ -243,7 +243,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void SetDefersLoading(bool defer) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     CefThread::PostTask(CefThread::IO, FROM_HERE, base::Bind(
         &RequestProxy::AsyncSetDefersLoading, this, defer));
@@ -268,7 +268,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyReceivedRedirect(const GURL& new_url,
                               const ResourceResponseInfo& info) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     bool has_new_first_party_for_cookies = false;
     GURL new_first_party_for_cookies;
@@ -285,7 +285,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   void NotifyReceivedResponse(const ResourceResponseInfo& info,
                               const GURL& url, bool allow_download) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     if (browser_.get() && info.headers.get()) {
       CefRefPtr<CefClient> client = browser_->GetClient();
@@ -337,7 +337,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyReceivedData(int bytes_read) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     if (!peer_)
       return;
@@ -382,7 +382,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyDownloadedData(int bytes_read) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     if (!peer_)
       return;
@@ -397,7 +397,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   void NotifyCompletedRequest(int error_code,
                               const std::string& security_info,
                               const base::TimeTicks& complete_time) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     // Drain the content filter of all remaining data
     if (content_filter_.get()) {
@@ -438,7 +438,7 @@ class RequestProxy : public net::URLRequest::Delegate,
   }
 
   void NotifyUploadProgress(uint64 position, uint64 size) {
-    DCHECK(MessageLoop::current() == owner_loop_);
+    DCHECK(base::MessageLoop::current() == owner_loop_);
 
     if (peer_)
       peer_->OnUploadProgress(position, size);
@@ -598,7 +598,7 @@ class RequestProxy : public net::URLRequest::Delegate,
       request_->SetPriority(params->priority);
       request_->set_method(params->method);
       request_->set_first_party_for_cookies(params->first_party_for_cookies);
-      request_->set_referrer(params->referrer.spec());
+      request_->SetReferrer(params->referrer.spec());
       webkit_glue::ConfigureURLRequestForReferrerPolicy(
           request_.get(), params->referrer_policy);
       net::HttpRequestHeaders headers;
@@ -947,7 +947,7 @@ class RequestProxy : public net::URLRequest::Delegate,
 
   CefRefPtr<CefBrowserImpl> browser_;
 
-  MessageLoop* owner_loop_;
+  base::MessageLoop* owner_loop_;
 
   // This is our peer in WebKit (implemented as ResourceHandleInternal). We do
   // not manage its lifetime, and we may only access it from the owner's

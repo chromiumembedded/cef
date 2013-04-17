@@ -53,7 +53,7 @@ base::StringPiece ResourceProvider(int resource_id) {
 CefProcessUIThread::CefProcessUIThread()
       : CefThread(CefThread::UI), statstable_(NULL), webkit_init_(NULL) {}
 
-CefProcessUIThread::CefProcessUIThread(MessageLoop* message_loop)
+CefProcessUIThread::CefProcessUIThread(base::MessageLoop* message_loop)
       : CefThread(CefThread::UI, message_loop), statstable_(NULL),
         webkit_init_(NULL) {}
 
@@ -66,6 +66,9 @@ CefProcessUIThread::~CefProcessUIThread() {
 void CefProcessUIThread::Init() {
   // Initialize the global CommandLine object.
   CommandLine::Init(0, NULL);
+
+  // Create the blocking I/O pool before other threads.
+  CefThread::CreateThreadPool();
 
   const CefSettings& settings = _Context->settings();
 
@@ -212,7 +215,7 @@ void CefProcessUIThread::CleanUp() {
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
-  MessageLoop::current()->RunUntilIdle();
+  base::MessageLoop::current()->RunUntilIdle();
 
   // Tear down the shared StatsTable.
   base::StatsTable::set_current(NULL);
@@ -235,6 +238,14 @@ void CefProcessUIThread::CleanUp() {
   PlatformCleanUp();
 
   _Context->CleanupResourceBundle();
+
+  // Close the blocking I/O pool after the other threads. Other threads such
+  // as the I/O thread may need to schedule work like closing files or flushing
+  // data during shutdown, so the blocking pool needs to be available. There
+  // may also be slow operations pending that will blcok shutdown, so closing
+  // it here (which will block until required operations are complete) gives
+  // more head start for those operations to finish.
+  CefThread::ShutdownThreadPool();
 }
 
 void CefProcessUIThread::OnConnectionTypeChanged(

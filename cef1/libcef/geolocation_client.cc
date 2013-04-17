@@ -8,6 +8,9 @@
 #include "libcef/cef_context.h"
 #include "libcef/cef_thread.h"
 
+// Allow access to content internals.
+#define CONTENT_IMPLEMENTATION 1
+
 #include "base/bind.h"
 #include "base/logging.h"
 #include "content/browser/geolocation/geolocation_observer.h"
@@ -149,8 +152,8 @@ void CefGeolocationClient::InitializeEnvironment() {
   if (!content::GetContentClient()) {
     static CefContentClient content_client;
     static CefContentBrowserClient browser_client;
-    content_client.set_browser_for_testing(&browser_client);
     content::SetContentClient(&content_client);
+    content::SetBrowserClientForTesting(&browser_client);
   }
 }
 

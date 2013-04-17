@@ -23,7 +23,8 @@
 class CefProcessSubThread : public CefThread {
  public:
   explicit CefProcessSubThread(CefThread::ID identifier);
-  CefProcessSubThread(CefThread::ID identifier, MessageLoop* message_loop);
+  CefProcessSubThread(CefThread::ID identifier,
+                      base::MessageLoop* message_loop);
   virtual ~CefProcessSubThread();
 
  protected:

@@ -12,7 +12,7 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "chrome/browser/net/sqlite_persistent_cookie_store.h"
+#include "content/browser/net/sqlite_persistent_cookie_store.h"
 
 namespace {
 
@@ -225,7 +225,7 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       return true;
     }
 
-    scoped_refptr<SQLitePersistentCookieStore> persistent_store;
+    scoped_refptr<content::SQLitePersistentCookieStore> persistent_store;
     if (!new_path.empty()) {
       if (!file_util::PathExists(new_path) &&
           !file_util::CreateDirectory(new_path)) {
@@ -234,7 +234,7 @@ bool CefCookieManagerImpl::SetStoragePath(const CefString& path) {
       } else {
         base::FilePath cookie_path = new_path.Append(FILE_PATH_LITERAL("Cookies"));
         persistent_store =
-            new SQLitePersistentCookieStore(
+            new content::SQLitePersistentCookieStore(
                 cookie_path,
                 CefThread::GetMessageLoopProxyForThread(CefThread::IO),
                 CefThread::GetMessageLoopProxyForThread(CefThread::FILE),

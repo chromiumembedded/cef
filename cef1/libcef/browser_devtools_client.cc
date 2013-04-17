@@ -68,7 +68,7 @@ void BrowserDevToolsClient::undockWindow() {
 }
 
 void BrowserDevToolsClient::AsyncCall(const BrowserDevToolsCallArgs &args) {
-  MessageLoop::current()->PostTask(
+  base::MessageLoop::current()->PostTask(
       FROM_HERE,
       base::Bind(&BrowserDevToolsClient::Call, weak_factory_.GetWeakPtr(),
                  args));

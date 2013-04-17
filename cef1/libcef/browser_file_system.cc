@@ -55,7 +55,7 @@ using fileapi::FileSystemTaskRunners;
 using fileapi::FileSystemURL;
 
 namespace {
-MessageLoop* g_io_thread;
+base::MessageLoop* g_io_thread;
 webkit_blob::BlobStorageController* g_blob_storage_controller;
 
 void RegisterBlob(const GURL& blob_url, const base::FilePath& file_path) {
@@ -281,7 +281,7 @@ void BrowserFileSystem::createSnapshotFileAndReadMetadata(
 // static
 void BrowserFileSystem::InitializeOnIOThread(
     webkit_blob::BlobStorageController* blob_storage_controller) {
-  g_io_thread = MessageLoop::current();
+  g_io_thread = base::MessageLoop::current();
   g_blob_storage_controller = blob_storage_controller;
 }
 

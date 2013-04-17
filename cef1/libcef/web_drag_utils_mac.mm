@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "base/sys_string_conversions.h"
+#include "base/strings/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"

@@ -482,11 +482,6 @@ typedef struct _cef_browser_settings_t {
   bool accelerated_plugins_disabled;
 
   ///
-  // Set to true (1) to disable developer tools (WebKit inspector).
-  ///
-  bool developer_tools_disabled;
-
-  ///
   // Set to true (1) to enable fullscreen mode.
   ///
   bool fullscreen_enabled;
@@ -1085,9 +1080,7 @@ enum cef_dom_event_category_t {
   DOM_EVENT_CATEGORY_POPSTATE = 0x2000,
   DOM_EVENT_CATEGORY_PROGRESS = 0x4000,
   DOM_EVENT_CATEGORY_XMLHTTPREQUEST_PROGRESS = 0x8000,
-  DOM_EVENT_CATEGORY_WEBKIT_ANIMATION = 0x10000,
-  DOM_EVENT_CATEGORY_WEBKIT_TRANSITION = 0x20000,
-  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x40000,
+  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x10000,
 };
 
 ///

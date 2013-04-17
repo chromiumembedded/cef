@@ -24,7 +24,7 @@
 CefProcessIOThread::CefProcessIOThread()
       : CefThread(CefThread::IO), request_context_(NULL) {}
 
-CefProcessIOThread::CefProcessIOThread(MessageLoop* message_loop)
+CefProcessIOThread::CefProcessIOThread(base::MessageLoop* message_loop)
       : CefThread(CefThread::IO, message_loop), request_context_(NULL) {}
 
 CefProcessIOThread::~CefProcessIOThread() {
@@ -57,7 +57,7 @@ void CefProcessIOThread::CleanUp() {
   // Flush any remaining messages.  This ensures that any accumulated
   // Task objects get destroyed before we exit, which avoids noise in
   // purify leak-test results.
-  MessageLoop::current()->RunUntilIdle();
+  base::MessageLoop::current()->RunUntilIdle();
 
   // In reverse order of initialization.
   BrowserWebBlobRegistryImpl::Cleanup();

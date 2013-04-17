@@ -65,4 +65,20 @@ bool BrowserThread::CurrentlyOn(ID identifier) {
   return CefThread::CurrentlyOn(static_cast<CefThread::ID>(cef_id));
 }
 
+// static
+scoped_refptr<base::MessageLoopProxy>
+    BrowserThread::GetMessageLoopProxyForThread(ID identifier) {
+  int cef_id = GetCefId(identifier);
+  if (cef_id < 0)
+    return NULL;
+
+  return CefThread::GetMessageLoopProxyForThread(
+      static_cast<CefThread::ID>(cef_id));
+}
+
+// static
+base::SequencedWorkerPool* BrowserThread::GetBlockingPool() {
+  return CefThread::GetBlockingPool();
+}
+
 }  // namespace content

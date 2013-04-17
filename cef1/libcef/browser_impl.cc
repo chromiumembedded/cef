@@ -748,7 +748,7 @@ void CefBrowserImpl::UIT_DestroyBrowser() {
   if (is_modal_) {
     // Exit our own internal modal message loop now.
     if (internal_modal_message_loop_is_active_) {
-      MessageLoop* message_loop = MessageLoop::current();
+      base::MessageLoop* message_loop = base::MessageLoop::current();
       message_loop->QuitNow();
     }
   }
