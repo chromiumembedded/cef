@@ -29,7 +29,8 @@ void AddInternalStandardSchemes(std::vector<std::string>* standard_schemes) {
     // Running in single-process mode. Register the schemes with WebKit.
     for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
       CefContentRendererClient::Get()->AddCustomScheme(
-          schemes[i].name, schemes[i].is_local, schemes[i].is_display_isolated);
+          schemes[i].name, true, schemes[i].is_local,
+          schemes[i].is_display_isolated);
     }
   }
 }

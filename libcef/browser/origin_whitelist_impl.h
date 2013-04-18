@@ -5,11 +5,14 @@
 #ifndef CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 #define CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 
+#include <list>
 #include <vector>
 
 namespace content {
 class RenderProcessHost;
 }
+
+class GURL;
 
 struct Cef_CrossOriginWhiteListEntry_Params;
 
@@ -17,5 +20,9 @@ struct Cef_CrossOriginWhiteListEntry_Params;
 // method is thread safe.
 void GetCrossOriginWhitelistEntries(
     std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries);
+
+// Returns true if |source| can access |target| based on the cross-origin white
+// list settings.
+bool HasCrossOriginWhitelistEntry(const GURL& source, const GURL& target);
 
 #endif  // CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_

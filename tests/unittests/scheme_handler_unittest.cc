@@ -51,6 +51,7 @@ class TestResults {
   std::string sub_html;
   int sub_status_code;
   std::string sub_allow_origin;
+  std::string sub_redirect_url;
   std::string exit_url;
 
   // Delay for returning scheme handler results.
@@ -62,6 +63,7 @@ class TestResults {
       got_output,
       got_redirect,
       got_error,
+      got_sub_redirect,
       got_sub_request,
       got_sub_read,
       got_sub_success;
@@ -102,7 +104,12 @@ class TestSchemeHandler : public TestHandler {
       return true;
     }
 
-    if (newUrl == test_results_->redirect_url) {
+    if (!test_results_->sub_redirect_url.empty() &&
+        newUrl == test_results_->sub_redirect_url) {
+      test_results_->got_sub_redirect.yes();
+      // Redirect to the sub URL.
+      request->SetURL(test_results_->sub_url);
+    } else if (newUrl == test_results_->redirect_url) {
       test_results_->got_redirect.yes();
 
       // No read should have occurred for the redirect.
@@ -334,27 +341,67 @@ void ClearTestSchemes() {
   WaitForIOThread();
 }
 
-void SetUpXHR(const std::string& url, const std::string& sub_url,
-              const std::string& sub_allow_origin = std::string()) {
-  g_TestResults.sub_url = sub_url;
+struct XHRTestSettings {
+  XHRTestSettings() 
+      : synchronous(true) {}
+
+  std::string url;
+  std::string sub_url;
+  std::string sub_allow_origin;
+  std::string sub_redirect_url;
+  bool synchronous;
+};
+
+void SetUpXHR(const XHRTestSettings& settings) {
+  g_TestResults.sub_url = settings.sub_url;
   g_TestResults.sub_html = "SUCCESS";
   g_TestResults.sub_status_code = 200;
-  g_TestResults.sub_allow_origin = sub_allow_origin;
+  g_TestResults.sub_allow_origin = settings.sub_allow_origin;
+  g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
-  g_TestResults.url = url;
+  std::string request_url;
+  if (!settings.sub_redirect_url.empty())
+    request_url = settings.sub_redirect_url;
+  else
+    request_url = settings.sub_url;
+
+  g_TestResults.url = settings.url;
   std::stringstream ss;
   ss << "<html><head>"
         "<script language=\"JavaScript\">"
-        "function execXMLHttpRequest() {"
-        "  var result = 'FAILURE';"
-        "  try {"
-        "    xhr = new XMLHttpRequest();"
-        "    xhr.open(\"GET\", \"" << sub_url.c_str() << "\", false);"
-        "    xhr.send();"
-        "    result = xhr.responseText;"
-        "  } catch(e) {}"
-        "  document.location = \"http://tests/exit?result=\"+result;"
+        "function onResult(val) {"
+        "  document.location = \"http://tests/exit?result=\"+val;"
         "}"
+        "function execXMLHttpRequest() {";
+  if (settings.synchronous) {
+    ss << "var result = 'FAILURE';"
+          "try {"
+          "  xhr = new XMLHttpRequest();"
+          "  xhr.open(\"GET\", \"" << request_url.c_str() << "\", false);"
+          "  xhr.send();"
+          "  result = xhr.responseText;"
+          "} catch(e) {}"
+          "onResult(result)";
+  } else {
+    ss << "xhr = new XMLHttpRequest();"
+          "xhr.open(\"GET\", \"" << request_url.c_str() << "\", true);"
+          "xhr.onload = function(e) {"
+          "  if (xhr.readyState === 4) {"
+          "    if (xhr.status === 200) {"
+          "      onResult(xhr.responseText);"
+          "    } else {"
+          "      console.log('XMLHttpRequest failed with status ' + xhr.status);"
+          "      onResult('FAILURE');"
+          "    }"
+          "  }"
+          "};"
+          "xhr.onerror = function(e) {"
+          "  console.log('XMLHttpRequest failed with error ' + e);"
+          "  onResult('FAILURE');"
+          "};"
+          "xhr.send()";
+  }
+  ss << "}"
         "</script>"
         "</head><body onload=\"execXMLHttpRequest();\">"
         "Running execXMLHttpRequest..."
@@ -672,10 +719,36 @@ TEST(SchemeHandlerTest, CustomNonStandardRedirect) {
 }
 
 // Test that a custom standard scheme can generate same origin XHR requests.
-TEST(SchemeHandlerTest, CustomStandardXHRSameOrigin) {
+TEST(SchemeHandlerTest, CustomStandardXHRSameOriginSync) {
   RegisterTestScheme("customstd", "test");
-  SetUpXHR("customstd://test/run.html",
-           "customstd://test/xhr.html");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test/run.html";
+  settings.sub_url = "customstd://test/xhr.html";
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can generate same origin XHR requests.
+TEST(SchemeHandlerTest, CustomStandardXHRSameOriginAsync) {
+  RegisterTestScheme("customstd", "test");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test/run.html";
+  settings.sub_url = "customstd://test/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -691,10 +764,13 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOrigin) {
 }
 
 // Test that a custom nonstandard scheme can generate same origin XHR requests.
-TEST(SchemeHandlerTest, CustomNonStandardXHRSameOrigin) {
+TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
   RegisterTestScheme("customnonstd", std::string());
-  SetUpXHR("customnonstd:some%20value",
-           "customnonstd:xhr%20value");
+
+  XHRTestSettings settings;
+  settings.url = "customnonstd:some%20value";
+  settings.sub_url = "customnonstd:xhr%20value";
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -708,6 +784,30 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOrigin) {
 
   ClearTestSchemes();
 }
+
+// Test that a custom nonstandard scheme can generate same origin XHR requests.
+TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
+  RegisterTestScheme("customnonstd", std::string());
+  
+  XHRTestSettings settings;
+  settings.url = "customnonstd:some%20value";
+  settings.sub_url = "customnonstd:xhr%20value";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
 // Test that a custom standard scheme can generate same origin XSS requests.
 TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   RegisterTestScheme("customstd", "test");
@@ -747,12 +847,15 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
-// by default.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOrigin) {
+// by default. Behavior should be the same as with HTTP.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  SetUpXHR("customstd://test1/run.html",
-           "customstd://test2/xhr.html");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -760,8 +863,33 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOrigin) {
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
-  EXPECT_FALSE(g_TestResults.got_sub_request);
-  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme cannot generate cross-domain XHR requests
+// by default. Behavior should be the same as with HTTP.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -790,11 +918,39 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
 
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
 // default.
-TEST(SchemeHandlerTest, HttpXHRDifferentOrigin) {
+TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
-  SetUpXHR("http://test1/run.html",
-           "http://test2/xhr.html");
+
+  XHRTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/xhr.html";
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that an HTTP scheme cannot generate cross-domain XHR requests by
+// default.
+TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("http", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -814,8 +970,8 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOrigin) {
 TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
-  SetUpXHR("http://test1/run.html",
-           "http://test2/xhr.html");
+  SetUpXSS("http://test1/run.html",
+           "http://test2/xss.html");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -830,14 +986,18 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   ClearTestSchemes();
 }
 
-// Test that a custom standard scheme cannot generate cross-domain XHR requests
-// even when setting the Access-Control-Allow-Origin header.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeader) {
+// Test that a custom standard scheme can generate cross-domain XHR requests
+// when setting the Access-Control-Allow-Origin header. Should behave the same
+// as HTTP.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderSync) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  SetUpXHR("customstd://test1/run.html",
-           "customstd://test2/xhr.html",
-           "customstd://test1");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_allow_origin = "customstd://test1";
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -845,20 +1005,50 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeader) {
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
-  EXPECT_FALSE(g_TestResults.got_sub_request);
-  EXPECT_FALSE(g_TestResults.got_sub_read);
-  EXPECT_FALSE(g_TestResults.got_sub_success);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can generate cross-domain XHR requests
+// when setting the Access-Control-Allow-Origin header. Should behave the same
+// as HTTP.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_allow_origin = "customstd://test1";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
 // when using the cross-origin whitelist.
-TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist) {
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync1) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  SetUpXHR("customstd://test1/run.html",
-           "customstd://test2/xhr.html");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
       "test2", false));
@@ -880,14 +1070,197 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelist) {
   ClearTestSchemes();
 }
 
+// Same as above but origin whitelist matches any domain.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync2) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      CefString(), true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches sub-domains.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync3) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "a.test2.foo");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://a.test2.foo/xhr.html";
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2.foo", true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can generate cross-domain XHR requests
+// when using the cross-origin whitelist.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2", false));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches any domain.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      CefString(), true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches sub-domains.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "a.test2.foo");
+  
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://a.test2.foo/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2.foo", true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
-TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeader) {
+TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
-  SetUpXHR("http://test1/run.html",
-           "http://test2/xhr.html",
-           "http://test1");
+
+  XHRTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/xhr.html";
+  settings.sub_allow_origin = "http://test1";
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that an HTTP scheme can generate cross-domain XHR requests when setting
+// the Access-Control-Allow-Origin header.
+TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("http", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/xhr.html";
+  settings.sub_allow_origin = "http://test1";
+  settings.synchronous = false;
+  SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -945,6 +1318,202 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
 
   ClearTestSchemes();
 }
+
+// Test that a custom standard scheme cannot generate cross-domain XHR requests
+// that perform redirects.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme cannot generate cross-domain XHR requests
+// that perform redirects.
+TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme cannot generate cross-domain XHR requests
+// that perform redirects when using the cross-origin whitelist. This is due to
+// an explicit check in SyncResourceHandler::OnRequestRedirected() and does not
+// represent ideal behavior.
+TEST(SchemeHandlerTest,
+     CustomStandardXHRDifferentOriginRedirectWithWhitelistSync) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2", false));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can generate cross-domain XHR requests
+// that perform redirects when using the cross-origin whitelist. This is
+// because we add an "Access-Control-Allow-Origin" header internally in
+// CefResourceDispatcherHostDelegate::OnRequestRedirected() for the redirect
+// request.
+TEST(SchemeHandlerTest,
+     CustomStandardXHRDifferentOriginRedirectWithWhitelistAsync1) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2", false));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches any domain.
+TEST(SchemeHandlerTest,
+     CustomStandardXHRDifferentOriginRedirectWithWhitelistAsync2) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "test2");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://test2/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      CefString(), true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches sub-domains.
+TEST(SchemeHandlerTest,
+     CustomStandardXHRDifferentOriginRedirectWithWhitelistAsync3) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customstd", "a.test2.foo");
+
+  XHRTestSettings settings;
+  settings.url = "customstd://test1/run.html";
+  settings.sub_url = "customstd://a.test2.foo/xhr.html";
+  settings.sub_redirect_url = "customstd://test1/xhr.html";
+  settings.synchronous = false;
+  SetUpXHR(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
+      "test2.foo", true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
 
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
