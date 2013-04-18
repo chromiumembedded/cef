@@ -64,10 +64,11 @@
 // |source_origin| URL (like http://www.example.com) will be allowed access to
 // all resources hosted on the specified |target_protocol| and |target_domain|.
 // If |target_domain| is non-empty and |allow_target_subdomains| if false only
-// exact domain matches will be allowed. If |target_domain| is non-empty and
-// |allow_target_subdomains| is true sub-domain matches will be allowed. If
-// |target_domain| is empty and |allow_target_subdomains| if true all domains
-// and IP addresses will be allowed.
+// exact domain matches will be allowed. If |target_domain| contains a top-
+// level domain component (like "example.com") and |allow_target_subdomains| is
+// true sub-domain matches will be allowed. If |target_domain| is empty and
+// |allow_target_subdomains| if true all domains and IP addresses will be
+// allowed.
 //
 // This method cannot be used to bypass the restrictions on local or display
 // isolated schemes. See the comments on CefRegisterCustomScheme for more

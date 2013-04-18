@@ -20,6 +20,11 @@ class CefResourceDispatcherHostDelegate
   virtual bool HandleExternalProtocol(const GURL& url,
                                       int child_id,
                                       int route_id) OVERRIDE;
+  virtual void OnRequestRedirected(
+      const GURL& redirect_url,
+      net::URLRequest* request,
+      content::ResourceContext* resource_context,
+      content::ResourceResponse* response) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefResourceDispatcherHostDelegate);

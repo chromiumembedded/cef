@@ -43,6 +43,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // Add a custom scheme registration.
   void AddCustomScheme(const std::string& scheme_name,
+                       bool is_standard,
                        bool is_local,
                        bool is_display_isolated);
 

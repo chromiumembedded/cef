@@ -28,7 +28,9 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
 
   if (CefContentRendererClient::Get()) {
     // Register the custom scheme with WebKit.
-    CefContentRendererClient::Get()->AddCustomScheme(scheme_name, is_local,
+    CefContentRendererClient::Get()->AddCustomScheme(scheme_name,
+                                                     is_standard,
+                                                     is_local,
                                                      is_display_isolated);
   }
 

@@ -157,6 +157,33 @@ CefOriginWhitelistManager* CefOriginWhitelistManager::GetInstance() {
   return g_manager.Pointer();
 }
 
+bool IsMatch(const GURL& source_origin,
+             const GURL& target_origin,
+             const Cef_CrossOriginWhiteListEntry_Params& param) {
+  if (source_origin.GetOrigin() != GURL(param.source_origin)) {
+    // Source origin does not match.
+    return false;
+  }
+
+  if (target_origin.scheme() != param.target_protocol) {
+    // Target scheme does not match.
+    return false;
+  }
+
+  if (param.allow_target_subdomains) {
+    if (param.target_domain.empty()) {
+      // Any domain will match.
+      return true;
+    } else {
+      // Match sub-domains.
+      return target_origin.DomainIs(param.target_domain.c_str());
+    }
+  } else {
+    // Match full domain.
+    return (target_origin.host() == param.target_domain);
+  }
+}
+
 }  // namespace
 
 bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
@@ -240,4 +267,22 @@ void GetCrossOriginWhitelistEntries(
     std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries) {
   CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
       entries);
+}
+
+bool HasCrossOriginWhitelistEntry(const GURL& source, const GURL& target) {
+  std::vector<Cef_CrossOriginWhiteListEntry_Params> params;
+  CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
+      &params);
+
+  if (params.empty())
+    return false;
+
+  std::vector<Cef_CrossOriginWhiteListEntry_Params>::const_iterator it =
+      params.begin();
+  for (; it != params.end(); ++it) {
+    if (IsMatch(source, target, *it))
+      return true;
+  }
+
+  return false;
 }
