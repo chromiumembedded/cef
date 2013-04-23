@@ -319,15 +319,15 @@
           },
           'direct_dependent_settings': {
             'cflags': [
-              '<!@(<(pkg-config) --cflags <(gtk_packages))',
+              '$(shell <(pkg-config) --cflags <(gtk_packages))',
             ],
           },
           'link_settings': {
             'ldflags': [
-              '<!@(<(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
+              '$(shell <(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
             ],
             'libraries': [
-              '<!@(<(pkg-config) --libs-only-l <(gtk_packages))',
+              '$(shell <(pkg-config) --libs-only-l <(gtk_packages))',
             ],
           },
         },
