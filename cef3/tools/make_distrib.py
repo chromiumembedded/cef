@@ -233,7 +233,7 @@ def create_make_projects():
     # Restore the original Makefile
     move_file(makefile_tmp, makefile, options.quiet)
 
-  # Fix the output directory path in Makefile all .mk files.
+  # Fix the output directory path in Makefile and all .mk files.
   find = os.path.relpath(output_dir, src_dir)
   files = [os.path.join(output_dir, 'Makefile')]
   for file in get_files(os.path.join(output_dir, '*.mk')):
@@ -241,6 +241,7 @@ def create_make_projects():
   for file in files:
     data = read_file(file)
     data = data.replace(find, '.')
+    data = data.replace('/./', '/')
     if os.path.basename(file) == 'Makefile':
       # remove the quiet_cmd_regen_makefile section
       pos = str.find(data, 'quiet_cmd_regen_makefile')
