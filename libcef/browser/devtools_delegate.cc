@@ -167,6 +167,13 @@ std::string CefDevToolsDelegate::GetViewDescription(content::RenderViewHost*) {
   return std::string();
 }
 
+scoped_refptr<net::StreamListenSocket>
+    CefDevToolsDelegate::CreateSocketForTethering(
+        net::StreamListenSocket::Delegate* delegate,
+        std::string* name) {
+  return NULL;
+}
+
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
                                                 bool http_scheme) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();

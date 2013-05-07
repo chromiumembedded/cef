@@ -8,11 +8,8 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
-namespace webkit_glue {
 struct WebPreferences;
-}
 
-void BrowserToWebSettings(const CefBrowserSettings& cef,
-                          webkit_glue::WebPreferences& web);
+void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web);
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_SETTINGS_H_

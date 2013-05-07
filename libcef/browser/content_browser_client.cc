@@ -643,7 +643,7 @@ void CefContentBrowserClient::ResourceDispatcherHostCreated() {
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     const GURL& url,
-    webkit_glue::WebPreferences* prefs) {
+    WebPreferences* prefs) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForHost(rvh);
   DCHECK(browser.get());

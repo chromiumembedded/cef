@@ -49,7 +49,7 @@ void CefTraceSubscriber::GetKnownCategoriesAsync(
   DCHECK(known_categories_callback_.is_null());
 
   known_categories_callback_ = callback;
-  content::TraceController::GetInstance()->GetKnownCategoriesAsync(this);
+  content::TraceController::GetInstance()->GetKnownCategoryGroupsAsync(this);
 }
 
 bool CefTraceSubscriber::GetTraceBufferPercentFullAsync() {

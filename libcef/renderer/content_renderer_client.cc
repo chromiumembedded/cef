@@ -5,10 +5,10 @@
 
 #include "base/compiler_specific.h"
 
-#include "third_party/WebKit/Source/WebCore/config.h"
+#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "V8RecursionScope.h"  // NOLINT(build/include)
-#include "V8Utilities.h"  // NOLINT(build/include)
+#include "bindings/v8/V8RecursionScope.h"
+#include "bindings/v8/V8Utilities.h"
 MSVC_POP_WARNING();
 #undef LOG
 

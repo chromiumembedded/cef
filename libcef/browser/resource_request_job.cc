@@ -153,7 +153,7 @@ CefResourceRequestJob::CefResourceRequestJob(
       handler_(handler),
       remaining_bytes_(0),
       response_cookies_save_index_(0),
-      ALLOW_THIS_IN_INITIALIZER_LIST(weak_factory_(this)) {
+      weak_factory_(this) {
 }
 
 CefResourceRequestJob::~CefResourceRequestJob() {

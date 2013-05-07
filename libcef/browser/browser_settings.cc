@@ -12,8 +12,6 @@
 #include "include/internal/cef_types_wrappers.h"
 #include "webkit/glue/webpreferences.h"
 
-using webkit_glue::WebPreferences;
-
 // Set default preferences based on CEF command-line flags. Chromium command-
 // line flags should not exist for these preferences.
 void SetDefaults(WebPreferences& web) {
@@ -70,27 +68,27 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   SetDefaults(web);
 
   if (cef.standard_font_family.length > 0) {
-    web.standard_font_family_map[WebPreferences::kCommonScript] =
+    web.standard_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.standard_font_family);
   }
   if (cef.fixed_font_family.length > 0) {
-    web.fixed_font_family_map[WebPreferences::kCommonScript] =
+    web.fixed_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.fixed_font_family);
   }
   if (cef.serif_font_family.length > 0) {
-    web.serif_font_family_map[WebPreferences::kCommonScript] =
+    web.serif_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.serif_font_family);
   }
   if (cef.sans_serif_font_family.length > 0) {
-    web.sans_serif_font_family_map[WebPreferences::kCommonScript] =
+    web.sans_serif_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.sans_serif_font_family);
   }
   if (cef.cursive_font_family.length > 0) {
-    web.cursive_font_family_map[WebPreferences::kCommonScript] =
+    web.cursive_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.cursive_font_family);
   }
   if (cef.fantasy_font_family.length > 0) {
-    web.fantasy_font_family_map[WebPreferences::kCommonScript] =
+    web.fantasy_font_family_map[webkit_glue::kCommonScript] =
         CefString(&cef.fantasy_font_family);
   }
 
@@ -132,7 +130,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   SET_STATE(cef.image_shrink_standalone_to_fit,
       web.shrinks_standalone_images_to_fit);
   SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
-  SET_STATE(cef.page_cache, web.uses_page_cache);
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
   SET_STATE(cef.author_and_user_styles, web.author_and_user_styles_enabled);
   SET_STATE(cef.local_storage, web.local_storage_enabled);

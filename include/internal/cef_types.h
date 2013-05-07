@@ -479,12 +479,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t text_area_resize;
 
   ///
-  // Controls whether the fastback (back/forward) page cache will be used. Also
-  // configurable using the "enable-fastback" command-line switch.
-  ///
-  cef_state_t page_cache;
-
-  ///
   // Controls whether the tab key can advance focus to links. Also configurable
   // using the "disable-tab-to-links" command-line switch.
   ///

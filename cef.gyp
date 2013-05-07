@@ -142,7 +142,7 @@
               'action': [
                 'cp',
                 '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/core/Resources/',
                 '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
               ],
             },
@@ -360,7 +360,7 @@
               'action': [
                 'cp',
                 '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/WebCore/Resources/',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/core/Resources/',
                 '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
               ],
             },
@@ -809,7 +809,7 @@
         '<(DEPTH)/net/net.gyp:net_with_v8',
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
-        '<(DEPTH)/third_party/WebKit/Source/WebCore/WebCore.gyp/WebCore.gyp:webcore',
+        '<(DEPTH)/third_party/WebKit/Source/core/core.gyp/core.gyp:webcore',
         '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
         '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/gl/gl.gyp:gl',

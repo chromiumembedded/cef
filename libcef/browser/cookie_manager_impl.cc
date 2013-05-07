@@ -222,6 +222,7 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
 
   cookie_monster_->SetCookieWithDetailsAsync(gurl, name, value, domain, path,
       expiration_time, cookie.secure, cookie.httponly,
+      net::COOKIE_PRIORITY_DEFAULT,
       net::CookieStore::SetCookiesCallback());
   return true;
 }

@@ -73,15 +73,6 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
                           content::MediaStreamDevices* devices);
 
   // Overridden from content::MediaObserver:
-  virtual void OnCaptureDevicesOpened(
-      int render_process_id,
-      int render_view_id,
-      const content::MediaStreamDevices& devices,
-      const base::Closure& close_callback) OVERRIDE;
-  virtual void OnCaptureDevicesClosed(
-      int render_process_id,
-      int render_view_id,
-      const content::MediaStreamDevices& devices) OVERRIDE;
   virtual void OnAudioCaptureDevicesChanged(
       const content::MediaStreamDevices& devices) OVERRIDE;
   virtual void OnVideoCaptureDevicesChanged(

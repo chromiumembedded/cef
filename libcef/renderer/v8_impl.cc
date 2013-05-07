@@ -8,14 +8,14 @@
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 
-#include "third_party/WebKit/Source/WebCore/config.h"
+#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "Frame.h"  // NOLINT(build/include)
-#include "ScriptController.h"  // NOLINT(build/include)
-#include "V8Binding.h"  // NOLINT(build/include)
-#include "V8RecursionScope.h"  // NOLINT(build/include)
-#include "WorkerContext.h"  // NOLINT(build/include)
-#include "WorkerScriptController.h"  // NOLINT(build/include)
+#include "core/page/Frame.h"
+#include "core/workers//WorkerContext.h"
+#include "bindings/v8/ScriptController.h"
+#include "bindings/v8/V8Binding.h"
+#include "bindings/v8/V8RecursionScope.h"
+#include "bindings/v8/WorkerScriptController.h"
 MSVC_POP_WARNING();
 #undef LOG
 

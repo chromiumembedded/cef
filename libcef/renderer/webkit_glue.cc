@@ -7,10 +7,10 @@
 
 #include "base/compiler_specific.h"
 
-#include "third_party/WebKit/Source/WebCore/config.h"
+#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "Page.h"
-#include "ScriptController.h"
+#include "bindings/v8/ScriptController.h"
+#include "core/page/Page.h"
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
 #include "third_party/WebKit/Source/WebKit/chromium/src/WebViewImpl.h"
 MSVC_POP_WARNING();

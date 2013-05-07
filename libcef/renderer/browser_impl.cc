@@ -550,7 +550,7 @@ void CefBrowserImpl::DidCreateDataSource(WebKit::WebFrame* frame,
     content::DocumentState* document_state =
         content::DocumentState::FromDataSource(ds);
     document_state->set_navigation_state(
-        content::NavigationState::CreateBrowserInitiated(-1, -1,
+        content::NavigationState::CreateBrowserInitiated(-1, -1, false,
             content::PAGE_TRANSITION_LINK));
   }
 

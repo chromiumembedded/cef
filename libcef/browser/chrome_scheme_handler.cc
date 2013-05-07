@@ -416,7 +416,7 @@ void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame,
   }
 
   frame->SendJavaScript(
-      "tracingController.onLoadTraceFileComplete(JSON.parse(window.traceData));"
+      "tracingController.onLoadTraceFileComplete(window.traceData);"
       "delete window.traceData;",
       std::string(), 0);
 }
@@ -485,15 +485,19 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
 
       virtual void OnTraceDataCollected(const char* fragment,
                                         size_t fragment_size) OVERRIDE {
-        const std::string& prefix = "tracingController.onTraceDataCollected([";
-        const std::string& suffix = "]);";
+        std::string javascript("window.traceData += '");
 
-        std::string str;
-        str.reserve(prefix.size() + fragment_size + suffix.size() + 1);
-        str.append(prefix);
-        str.append(fragment, fragment_size);
-        str.append(suffix);
-        Execute(str);
+        std::string escaped_data;
+        ReplaceChars(std::string(fragment, fragment_size),
+                     "\\", "\\\\", &escaped_data);
+        javascript += escaped_data;
+
+        // Intentionally append a , to the traceData. This technically causes all
+        // traceData that we pass back to JS to end with a comma, but that is
+        // actually something the JS side strips away anyway.
+        javascript += ",';";
+
+        Execute(javascript);
       }
 
       virtual void OnTraceBufferPercentFullReply(float percent_full) OVERRIDE {
@@ -504,7 +508,8 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
 
       virtual void OnEndTracingComplete() OVERRIDE {
         ended_ = true;
-        Execute("tracingController.onEndTracingComplete();");
+        Execute("tracingController.onEndTracingComplete(window.traceData);"
+                "delete window.traceData;");
       }
 
      private:
@@ -531,10 +536,18 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
     // continue handling it.
     CefBeginTracing(client, categories);
   } else if (action == "endTracingAsync") {
+    // This is really us beginning to end tracing, rather than tracing being
+    // truly over. When this function yields, we expect to get some number of
+    // OnTraceDataCollected callbacks, which will append data to
+    // window.traceData. To set up for this, set window.traceData to the empty
+    // string.
+    frame->SendJavaScript("window.traceData = '';", std::string(), 0);
+
     if (!CefEndTracingAsync()) {
       // We weren't really tracing to begin with.
       frame->SendJavaScript(
-          "tracingController.onEndTracingComplete();",
+          "tracingController.onEndTracingComplete(window.traceData);"
+          "delete window.traceData;",
           std::string(), 0);
     }
   } else if (action == "beginRequestBufferPercentFull") {

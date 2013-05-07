@@ -1750,7 +1750,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (!command_line.HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
-    callback.Run(devices);
+    callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
     return;
   }
 
@@ -1783,7 +1783,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     }
   }
 
-  callback.Run(devices);
+  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
 }
 
 
