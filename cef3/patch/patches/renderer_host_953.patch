@@ -1,0 +1,13 @@
+Index: render_widget_host_view_mac.mm
+===================================================================
+--- render_widget_host_view_mac.mm	(revision 197225)
++++ render_widget_host_view_mac.mm	(working copy)
+@@ -1424,7 +1424,7 @@
+     // Forget IOSurface since we are drawing a software frame now.
+     if (compositing_iosurface_.get() &&
+         compositing_iosurface_->HasIOSurface()) {
+-      compositing_iosurface_->UnrefIOSurface();
++      compositing_iosurface_->ClearDrawable();
+     }
+   }
+ }
