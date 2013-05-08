@@ -93,15 +93,18 @@ int CefBrowserMainParts::PreCreateThreads() {
 void CefBrowserMainParts::PreMainMessageLoopRun() {
   browser_context_.reset(new CefBrowserContext());
 
-  // Initialize the request context getter.
-  _Context->set_request_context(browser_context_->GetRequestContext());
-
-  // Initialize proxy configuration service.
+  // Initialize the proxy configuration service. This needs to occur before
+  // CefURLRequestContextGetter::GetURLRequestContext() is called for the
+  // first time.
   ChromeProxyConfigService* chrome_proxy_config_service =
       ProxyServiceFactory::CreateProxyConfigService();
   proxy_config_service_.reset(chrome_proxy_config_service);
   pref_proxy_config_tracker_->SetChromeProxyConfigService(
       chrome_proxy_config_service);
+
+  // Initialize the request context getter. This indirectly triggers a call
+  // to CefURLRequestContextGetter::GetURLRequestContext() on the IO thread.
+  _Context->set_request_context(browser_context_->GetRequestContext());
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
