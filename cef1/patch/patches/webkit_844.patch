@@ -1,0 +1,27 @@
+Index: DocumentLoader.cpp
+===================================================================
+--- DocumentLoader.cpp	(revision 149374)
++++ DocumentLoader.cpp	(working copy)
+@@ -510,6 +510,8 @@
+     setRequest(newRequest);
+ 
+     if (!redirectResponse.isNull()) {
++        frameLoader()->client()->dispatchDidReceiveServerRedirectForProvisionalLoad();
++
+         // We checked application cache for initial URL, now we need to check it for redirected one.
+         ASSERT(!m_substituteData.isValid());
+         m_applicationCacheHost->maybeLoadMainResourceForRedirect(newRequest, m_substituteData);
+Index: ResourceLoader.cpp
+===================================================================
+--- ResourceLoader.cpp	(revision 149374)
++++ ResourceLoader.cpp	(working copy)
+@@ -265,9 +265,6 @@
+ #endif
+     }
+     m_request = request;
+-
+-    if (!redirectResponse.isNull() && !m_documentLoader->isCommitted())
+-        frameLoader()->client()->dispatchDidReceiveServerRedirectForProvisionalLoad();
+ }
+ 
+ void ResourceLoader::didSendData(unsigned long long, unsigned long long)
