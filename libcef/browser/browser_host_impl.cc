@@ -2129,7 +2129,9 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   response_manager_.reset(new CefResponseManager);
 
   placeholder_frame_ =
-      new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true);
+      new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true,
+                           CefString(), CefString(),
+                           CefFrameHostImpl::kInvalidFrameId);
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
@@ -2150,30 +2152,30 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
   if (!frame_name.empty())
     name = frame_name;
 
-  base::AutoLock lock_scope(state_lock_);
-
-  if (is_main_frame)
-    main_frame_id_ = frame_id;
-
   CefRefPtr<CefFrameHostImpl> frame;
+  bool frame_created = false;
 
-  // Check if a frame object already exists.
-  FrameMap::const_iterator it = frames_.find(frame_id);
-  if (it != frames_.end())
-    frame = it->second.get();
+  {
+    base::AutoLock lock_scope(state_lock_);
 
-  if (!frame.get()) {
-    // Create a new frame object.
-    frame = new CefFrameHostImpl(this, frame_id, is_main_frame);
-    frames_.insert(std::make_pair(frame_id, frame));
+    if (is_main_frame)
+      main_frame_id_ = frame_id;
+
+    // Check if a frame object already exists.
+    FrameMap::const_iterator it = frames_.find(frame_id);
+    if (it != frames_.end())
+      frame = it->second.get();
+
+    if (!frame.get()) {
+      frame = new CefFrameHostImpl(this, frame_id, is_main_frame, url, name,
+                                   parent_frame_id);
+      frame_created = true;
+      frames_.insert(std::make_pair(frame_id, frame));
+    }
   }
 
-  if (!url.empty())
-    frame->SetURL(url);
-  if (!name.empty())
-    frame->SetName(name);
-  if (parent_frame_id != CefFrameHostImpl::kUnspecifiedFrameId)
-    frame->SetParentId(parent_frame_id);
+  if (!frame_created)
+    frame->SetAttributes(url, name, parent_frame_id);
 
   return frame.get();
 }
@@ -2194,42 +2196,54 @@ void CefBrowserHostImpl::DetachFrame(int64 frame_id) {
 }
 
 void CefBrowserHostImpl::DetachAllFrames() {
-  base::AutoLock lock_scope(state_lock_);
+  FrameMap frames;
 
-  FrameMap::const_iterator it = frames_.begin();
-  for (; it != frames_.end(); ++it)
+  {
+    base::AutoLock lock_scope(state_lock_);
+
+    frames = frames_;
+    frames_.clear();
+
+    if (main_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
+      main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+    if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
+      focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+  }
+
+  FrameMap::const_iterator it = frames.begin();
+  for (; it != frames.end(); ++it)
     it->second->Detach();
-
-  frames_.clear();
-
-  if (main_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
-    main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
-  if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
-    focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
 }
 
 void CefBrowserHostImpl::SetFocusedFrame(int64 frame_id) {
-  base::AutoLock lock_scope(state_lock_);
+  CefRefPtr<CefFrameHostImpl> unfocused_frame;
+  CefRefPtr<CefFrameHostImpl> focused_frame;
+  
+  {
+    base::AutoLock lock_scope(state_lock_);
 
-  if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
-    // Unfocus the previously focused frame.
-    FrameMap::const_iterator it = frames_.find(frame_id);
-    if (it != frames_.end())
-      it->second->SetFocused(false);
-  }
-
-  if (frame_id != CefFrameHostImpl::kInvalidFrameId) {
-    // Focus the newly focused frame.
-    FrameMap::iterator it = frames_.find(frame_id);
-    if (it != frames_.end()) {
-      it->second->SetFocused(true);
-      focused_frame_id_ = frame_id;
-      return;
+    if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
+      // Unfocus the previously focused frame.
+      FrameMap::const_iterator it = frames_.find(frame_id);
+      if (it != frames_.end())
+        unfocused_frame = it->second;
     }
+
+    if (frame_id != CefFrameHostImpl::kInvalidFrameId) {
+      // Focus the newly focused frame.
+      FrameMap::iterator it = frames_.find(frame_id);
+      if (it != frames_.end())
+        focused_frame = it->second;
+    }
+
+    focused_frame_id_ =
+        focused_frame ? frame_id : CefFrameHostImpl::kInvalidFrameId;
   }
 
-  // No valid frame found.
-  focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+  if (unfocused_frame)
+    unfocused_frame->SetFocused(false);
+  if (focused_frame)
+    focused_frame->SetFocused(true);
 }
 
 void CefBrowserHostImpl::OnAddressChange(CefRefPtr<CefFrame> frame,
