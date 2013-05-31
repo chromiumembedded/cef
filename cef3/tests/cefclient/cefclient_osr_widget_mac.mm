@@ -271,6 +271,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   if (self) {
     renderer_ = new ClientOSRenderer(transparency);
     rotating_ = false;
+    endWheelMonitor_ = nil;
 
     tracking_area_ =
         [[NSTrackingArea alloc] initWithRect:frame
@@ -467,7 +468,38 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [self keyDown:event];
 }
 
+- (void) shortCircuitScrollWheelEvent:(NSEvent*)event {
+  if ([event phase] != NSEventPhaseEnded &&
+      [event phase] != NSEventPhaseCancelled)
+    return;
+
+  [self sendScrollWheelEvet:event];
+
+  if (endWheelMonitor_) {
+    [NSEvent removeMonitor:endWheelMonitor_];
+    endWheelMonitor_ = nil;
+  }
+}
+
 - (void)scrollWheel:(NSEvent *)event {
+  // Use an NSEvent monitor to listen for the wheel-end end. This ensures that
+  // the event is received even when the mouse cursor is no longer over the
+  // view when the scrolling ends. Also it avoids sending duplicate scroll
+  // events to the renderer.
+  if ([event respondsToSelector:@selector(phase)] &&
+      [event phase] == NSEventPhaseBegan && !endWheelMonitor_) {
+    endWheelMonitor_ =
+        [NSEvent addLocalMonitorForEventsMatchingMask:NSScrollWheelMask
+            handler:^(NSEvent* blockEvent) {
+              [self shortCircuitScrollWheelEvent:blockEvent];
+              return blockEvent;
+            }];
+  }
+
+  [self sendScrollWheelEvet:event];
+}
+
+- (void)sendScrollWheelEvet:(NSEvent *)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (!browser)
     return;

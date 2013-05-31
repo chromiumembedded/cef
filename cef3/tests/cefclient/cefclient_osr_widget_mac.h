@@ -29,6 +29,9 @@ class OSRBrowserProvider {
   bool rotating_;
 
   bool was_last_mouse_down_on_view_;
+
+  // Event monitor for scroll wheel end event.
+  id endWheelMonitor_;
 }
 
 - (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency;
