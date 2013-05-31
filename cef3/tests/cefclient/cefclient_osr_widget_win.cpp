@@ -162,7 +162,7 @@ void OSRWindow::Invalidate() {
   render_task_pending_ = true;
 
   // Render at 30fps.
-  static const int kRenderDelay = 1 / 30;
+  static const int kRenderDelay = 1000 / 30;
   CefPostDelayedTask(TID_UI, NewCefRunnableMethod(this, &OSRWindow::Render),
                      kRenderDelay);
 }
