@@ -121,16 +121,16 @@ class TracingTestHandler : public CefTraceClient {
     WaitForUIThread();
 
     switch (type_) {
-      case CEF_TRACE_EVENT0:
+      case CEF_TRACE_EVENT0: {
         CEF_TRACE_EVENT0(kTraceTestCategory, "CEF_TRACE_EVENT0");
-        break;
-      case CEF_TRACE_EVENT1:
+        } break;
+      case CEF_TRACE_EVENT1: {
         CEF_TRACE_EVENT1(kTraceTestCategory, "CEF_TRACE_EVENT1", "arg1", 1);
-        break;
-      case CEF_TRACE_EVENT2:
+        } break;
+      case CEF_TRACE_EVENT2: {
         CEF_TRACE_EVENT2(kTraceTestCategory, "CEF_TRACE_EVENT2", "arg1", 1,
                          "arg2", 2);
-        break;
+        } break;
       case CEF_TRACE_EVENT_INSTANT0:
         CEF_TRACE_EVENT_INSTANT0(kTraceTestCategory,
                                  "CEF_TRACE_EVENT_INSTANT0");
