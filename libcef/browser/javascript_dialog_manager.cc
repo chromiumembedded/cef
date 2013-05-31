@@ -209,5 +209,11 @@ void CefJavaScriptDialogManager::DialogClosed(CefJavaScriptDialog* dialog) {
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   DCHECK_EQ(dialog, dialog_.get());
   dialog_.reset();
+  CefRefPtr<CefClient> client = browser_->GetClient();
+  if (client.get()) {
+    CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();
+    if (handler.get())
+      handler->OnDialogClosed(browser_);
+  }
 #endif
 }

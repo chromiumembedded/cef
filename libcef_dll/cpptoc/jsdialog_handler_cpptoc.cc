@@ -116,6 +116,23 @@ void CEF_CALLBACK jsdialog_handler_on_reset_dialog_state(
       CefBrowserCToCpp::Wrap(browser));
 }
 
+void CEF_CALLBACK jsdialog_handler_on_dialog_closed(
+    struct _cef_jsdialog_handler_t* self, cef_browser_t* browser) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefJSDialogHandlerCppToC::Get(self)->OnDialogClosed(
+      CefBrowserCToCpp::Wrap(browser));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -127,6 +144,7 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC(CefJSDialogHandler* cls)
       jsdialog_handler_on_before_unload_dialog;
   struct_.struct_.on_reset_dialog_state =
       jsdialog_handler_on_reset_dialog_state;
+  struct_.struct_.on_dialog_closed = jsdialog_handler_on_dialog_closed;
 }
 
 #ifndef NDEBUG
