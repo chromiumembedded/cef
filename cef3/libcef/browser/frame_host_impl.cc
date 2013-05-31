@@ -49,12 +49,18 @@ class ViewTextHandler : public CefResponseManager::Handler {
 
 CefFrameHostImpl::CefFrameHostImpl(CefBrowserHostImpl* browser,
                                    int64 frame_id,
-                                   bool is_main_frame)
+                                   bool is_main_frame,
+                                   const CefString& url,
+                                   const CefString& name,
+                                   int64 parent_frame_id)
     : frame_id_(frame_id),
       is_main_frame_(is_main_frame),
       browser_(browser),
       is_focused_(false),
-      parent_frame_id_(kInvalidFrameId) {
+      url_(url),
+      name_(name),
+      parent_frame_id_(parent_frame_id == kUnspecifiedFrameId ?
+                       kInvalidFrameId : parent_frame_id) {
 }
 
 CefFrameHostImpl::~CefFrameHostImpl() {
@@ -66,88 +72,86 @@ bool CefFrameHostImpl::IsValid() {
 }
 
 void CefFrameHostImpl::Undo() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Undo", NULL);
+  SendCommand("Undo", NULL);
 }
 
 void CefFrameHostImpl::Redo() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Redo", NULL);
+  SendCommand("Redo", NULL);
 }
 
 void CefFrameHostImpl::Cut() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Cut", NULL);
+  SendCommand("Cut", NULL);
 }
 
 void CefFrameHostImpl::Copy() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Copy", NULL);
+  SendCommand("Copy", NULL);
 }
 
 void CefFrameHostImpl::Paste() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Paste", NULL);
+  SendCommand("Paste", NULL);
 }
 
 void CefFrameHostImpl::Delete() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "Delete", NULL);
+  SendCommand("Delete", NULL);
 }
 
 void CefFrameHostImpl::SelectAll() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "SelectAll", NULL);
+  SendCommand("SelectAll", NULL);
 }
 
 void CefFrameHostImpl::ViewSource() {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId)
-    browser_->SendCommand(frame_id_, "GetSource", new ViewTextHandler(this));
+  SendCommand("GetSource", new ViewTextHandler(this));
 }
 
 void CefFrameHostImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId) {
-    browser_->SendCommand(frame_id_, "GetSource",
-                          new StringVisitHandler(visitor));
-  }
+  SendCommand("GetSource", new StringVisitHandler(visitor));
 }
 
 void CefFrameHostImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_ && frame_id_ != kInvalidFrameId) {
-    browser_->SendCommand(frame_id_, "GetText",
-                          new StringVisitHandler(visitor));
-  }
+  SendCommand("GetText", new StringVisitHandler(visitor));
 }
 
 void CefFrameHostImpl::LoadRequest(CefRefPtr<CefRequest> request) {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_)
-    browser_->LoadRequest((is_main_frame_ ? kMainFrameId : frame_id_), request);
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
+  }
+
+  if (browser)
+    browser->LoadRequest(frame_id, request);
 }
 
 void CefFrameHostImpl::LoadURL(const CefString& url) {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_)
-    browser_->LoadURL((is_main_frame_ ? kMainFrameId : frame_id_), url);
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
+  }
+
+  if (browser)
+    browser->LoadURL(frame_id, url);
 }
 
 void CefFrameHostImpl::LoadString(const CefString& string,
                                   const CefString& url) {
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_) {
-    browser_->LoadString((is_main_frame_ ? kMainFrameId : frame_id_), string,
-                         url);
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
+
+  if (browser)
+    browser->LoadString(frame_id, string, url);
 }
 
 void CefFrameHostImpl::ExecuteJavaScript(const CefString& jsCode,
@@ -175,13 +179,19 @@ int64 CefFrameHostImpl::GetIdentifier() {
 }
 
 CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
-  base::AutoLock lock_scope(state_lock_);
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 parent_frame_id;
 
-  if (is_main_frame_ || parent_frame_id_ == kInvalidFrameId)
-    return NULL;
+  {
+    base::AutoLock lock_scope(state_lock_);
+    if (is_main_frame_ || parent_frame_id_ == kInvalidFrameId)
+      return NULL;
+    browser = browser_;
+    parent_frame_id = parent_frame_id_;
+  }
 
-  if (browser_)
-    return browser_->GetFrame(parent_frame_id_);
+  if (browser)
+    return browser->GetFrame(parent_frame_id);
 
   return NULL;
 }
@@ -201,19 +211,16 @@ void CefFrameHostImpl::SetFocused(bool focused) {
   is_focused_ = focused;
 }
 
-void CefFrameHostImpl::SetURL(const CefString& url) {
+void CefFrameHostImpl::SetAttributes(const CefString& url,
+                                     const CefString& name,
+                                     int64 parent_frame_id) {
   base::AutoLock lock_scope(state_lock_);
-  url_ = url;
-}
-
-void CefFrameHostImpl::SetName(const CefString& name) {
-  base::AutoLock lock_scope(state_lock_);
-  name_ = name;
-}
-
-void CefFrameHostImpl::SetParentId(int64 frame_id) {
-  base::AutoLock lock_scope(state_lock_);
-  parent_frame_id_ = frame_id;
+  if (!url.empty() && url != url_)
+    url_ = url;
+  if (!name.empty() && name != name_)
+    name_ = name;
+  if (parent_frame_id != kUnspecifiedFrameId)
+    parent_frame_id_ = parent_frame_id;
 }
 
 CefRefPtr<CefV8Context> CefFrameHostImpl::GetV8Context() {
@@ -234,14 +241,37 @@ void CefFrameHostImpl::SendJavaScript(
   if (startLine < 0)
     startLine = 0;
 
-  base::AutoLock lock_scope(state_lock_);
-  if (browser_) {
-    browser_->SendCode((is_main_frame_ ? kMainFrameId : frame_id_), true,
-                       jsCode, scriptUrl, startLine, NULL);
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
+
+  if (browser)
+    browser->SendCode(frame_id, true, jsCode, scriptUrl, startLine, NULL);
 }
 
 void CefFrameHostImpl::Detach() {
   base::AutoLock lock_scope(state_lock_);
   browser_ = NULL;
+}
+
+void CefFrameHostImpl::SendCommand(
+    const std::string& command,
+    CefRefPtr<CefResponseManager::Handler> responseHandler) {
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    // Commands can only be sent to known frame ids.
+    frame_id = frame_id_;
+  }
+
+  if (browser && frame_id != kInvalidFrameId)
+    browser->SendCommand(frame_id, command, responseHandler);
 }

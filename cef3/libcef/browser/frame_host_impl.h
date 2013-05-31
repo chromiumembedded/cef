@@ -8,6 +8,7 @@
 
 #include <string>
 #include "include/cef_frame.h"
+#include "libcef/common/response_manager.h"
 #include "base/synchronization/lock.h"
 
 class CefBrowserHostImpl;
@@ -19,7 +20,10 @@ class CefFrameHostImpl : public CefFrame {
  public:
   CefFrameHostImpl(CefBrowserHostImpl* browser,
                int64 frame_id,
-               bool is_main_frame);
+               bool is_main_frame,
+               const CefString& url,
+               const CefString& name,
+               int64 parent_frame_id);
   virtual ~CefFrameHostImpl();
 
   // CefFrame methods
@@ -52,9 +56,9 @@ class CefFrameHostImpl : public CefFrame {
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
 
   void SetFocused(bool focused);
-  void SetURL(const CefString& url);
-  void SetName(const CefString& name);
-  void SetParentId(int64 frame_id);
+  void SetAttributes(const CefString& url,
+                     const CefString& name,
+                     int64 parent_frame_id);
 
   // Avoids unnecessary string type conversions.
   void SendJavaScript(const std::string& jsCode,
@@ -71,6 +75,9 @@ class CefFrameHostImpl : public CefFrame {
   static const int64 kInvalidFrameId = -4;
 
  protected:
+  void SendCommand(const std::string& command,
+                   CefRefPtr<CefResponseManager::Handler> responseHandler);
+
   int64 frame_id_;
   bool is_main_frame_;
 
