@@ -108,6 +108,22 @@ void CefJSDialogHandlerCToCpp::OnResetDialogState(
       CefBrowserCppToC::Wrap(browser));
 }
 
+void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
+  if (CEF_MEMBER_MISSING(struct_, on_dialog_closed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->on_dialog_closed(struct_,
+      CefBrowserCppToC::Wrap(browser));
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefJSDialogHandlerCToCpp, CefJSDialogHandler,

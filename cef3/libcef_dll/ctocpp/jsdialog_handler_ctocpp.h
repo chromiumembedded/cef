@@ -44,6 +44,7 @@ class CefJSDialogHandlerCToCpp
       const CefString& message_text, bool is_reload,
       CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
   virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual void OnDialogClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED
