@@ -72,27 +72,6 @@ int64 CefNowFromSystemTraceTime() {
 
 // The below functions can be called from any process.
 
-CEF_EXPORT void cef_trace_event(const char* category,
-                                const char* name,
-                                const char* arg1_name,
-                                uint64 arg1_val,
-                                const char* arg2_name,
-                                uint64 arg2_val) {
-  DCHECK(category);
-  DCHECK(name);
-  if (!category || !name)
-    return;
-
-  if (arg1_name == NULL && arg2_name == NULL) {
-    TRACE_EVENT0(category, name);
-  } else if (arg2_name == NULL) {
-    TRACE_EVENT1(category, name, arg1_name, arg1_val);
-  } else {
-    TRACE_EVENT2(category, name, arg1_name, arg1_val,
-                 arg2_name, arg2_val);
-  }
-}
-
 CEF_EXPORT void cef_trace_event_instant(const char* category,
                                         const char* name,
                                         const char* arg1_name,
