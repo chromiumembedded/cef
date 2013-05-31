@@ -52,7 +52,11 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
           render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
           parent_host_view_(NULL),
           popup_host_view_(NULL),
-          about_to_validate_and_paint_(false) {
+          about_to_validate_and_paint_(false)
+#if defined(OS_MACOSX)
+          , text_input_context_osr_mac_(NULL)
+#endif
+           {
   DCHECK(render_widget_host_);
   render_widget_host_->SetView(this);
 
@@ -204,6 +208,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
 void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
+#if !defined(OS_MACOSX)
 void CefRenderWidgetHostViewOSR::TextInputStateChanged(
     const ViewHostMsg_TextInputState_Params& params) {
 }
@@ -215,6 +220,7 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const ui::Range& range,
     const std::vector<gfx::Rect>& character_bounds) {
 }
+#endif  // !defined(OS_MACOSX)
 
 void CefRenderWidgetHostViewOSR::DidUpdateBackingStore(
     const gfx::Rect& scroll_rect,

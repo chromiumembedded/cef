@@ -143,6 +143,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    int deltaX, int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
+  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
+  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent)
+      OVERRIDE;
+  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent)
+      OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;

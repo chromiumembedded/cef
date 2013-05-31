@@ -1042,8 +1042,11 @@
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
+            'libcef/browser/render_widget_host_view_osr_mac.mm',
             'libcef/browser/render_widget_host_view_osr.cc',
             'libcef/browser/render_widget_host_view_osr.h',
+            'libcef/browser/text_input_client_osr_mac.mm',
+            'libcef/browser/text_input_client_osr_mac.h',
             'libcef/browser/web_contents_view_osr.cc',
             'libcef/browser/web_contents_view_osr.h',
             # Include sources for context menu implementation.

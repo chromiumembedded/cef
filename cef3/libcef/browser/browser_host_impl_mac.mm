@@ -8,6 +8,10 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
 
+#include "libcef/browser/render_widget_host_view_osr.h"
+#include "libcef/browser/text_input_client_osr_mac.h"
+#include "libcef/browser/thread_util.h"
+
 #include "base/file_util.h"
 #include "base/mac/mac_util.h"
 #include "base/string_util.h"
@@ -251,6 +255,59 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
 }
 
 }  // namespace
+
+CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return NULL;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "Called on invalid thread";
+    return NULL;
+  }
+
+  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
+      GetWebContents()->GetRenderWidgetHostView());
+
+  return rwhv->GetNSTextInputContext();
+}
+
+void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
+    CefEventHandle keyEvent) {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "Called on invalid thread";
+    return;
+  }
+
+  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
+      GetWebContents()->GetRenderWidgetHostView());
+
+  rwhv->HandleKeyEventBeforeTextInputClient(keyEvent);
+}
+
+void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
+    CefEventHandle keyEvent) {
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "Called on invalid thread";
+    return;
+  }
+
+  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
+      GetWebContents()->GetRenderWidgetHostView());
+
+  rwhv->HandleKeyEventAfterTextInputClient(keyEvent);
+}
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
   NOTIMPLEMENTED();

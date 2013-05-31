@@ -46,6 +46,7 @@ extern "C" {
 #define cef_cursor_handle_t HCURSOR
 #define cef_event_handle_t MSG*
 #define cef_window_handle_t HWND
+#define cef_text_input_context_t void*
 
 ///
 // Structure representing CefExecuteProcess arguments.
