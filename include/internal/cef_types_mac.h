@@ -43,18 +43,22 @@
 @class NSCursor;
 @class NSEvent;
 @class NSView;
+@class NSTextInputContext;
 #else
 class NSCursor;
 class NSEvent;
 struct NSView;
+class NSTextInputContext;
 #endif
 #define cef_cursor_handle_t NSCursor*
 #define cef_event_handle_t NSEvent*
 #define cef_window_handle_t NSView*
+#define cef_text_input_context_t NSTextInputContext*
 #else
 #define cef_cursor_handle_t void*
 #define cef_event_handle_t void*
 #define cef_window_handle_t void*
+#define cef_text_input_context_t void*
 #endif
 
 #ifdef __cplusplus

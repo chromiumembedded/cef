@@ -1453,6 +1453,22 @@ void CefBrowserHostImpl::RunFileChooser(
                  callback));
 }
 
+#if !defined(OS_MACOSX)
+CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
+  NOTREACHED();
+  return NULL;
+}
+
+void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
+    CefEventHandle keyEvent) {
+  NOTREACHED();
+}
+
+void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
+    CefEventHandle keyEvent) {
+  NOTREACHED();
+}
+#endif // !defined(OS_MACOSX)
 
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------

@@ -387,6 +387,43 @@ void CefBrowserHostCToCpp::SendCaptureLostEvent() {
   struct_->send_capture_lost_event(struct_);
 }
 
+CefTextInputContext CefBrowserHostCToCpp::GetNSTextInputContext() {
+  if (CEF_MEMBER_MISSING(struct_, get_nstext_input_context))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_text_input_context_t _retval = struct_->get_nstext_input_context(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefBrowserHostCToCpp::HandleKeyEventBeforeTextInputClient(
+    CefEventHandle keyEvent) {
+  if (CEF_MEMBER_MISSING(struct_, handle_key_event_before_text_input_client))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->handle_key_event_before_text_input_client(struct_,
+      keyEvent);
+}
+
+void CefBrowserHostCToCpp::HandleKeyEventAfterTextInputClient(
+    CefEventHandle keyEvent) {
+  if (CEF_MEMBER_MISSING(struct_, handle_key_event_after_text_input_client))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->handle_key_event_after_text_input_client(struct_,
+      keyEvent);
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,

@@ -42,6 +42,37 @@ class CefWebContentsViewOSR;
 ///////////////////////////////////////////////////////////////////////////////
 
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
+#if defined(OS_MACOSX)
+ public:
+  NSTextInputContext* GetNSTextInputContext();
+  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent);
+  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent);
+
+  bool GetCachedFirstRectForCharacterRange(ui::Range range, gfx::Rect* rect,
+                                           ui::Range* actual_range) const;
+
+ private:
+  // Returns composition character boundary rectangle. The |range| is
+  // composition based range. Also stores |actual_range| which is corresponding
+  // to actually used range for returned rectangle.
+  gfx::Rect GetFirstRectForCompositionRange(const ui::Range& range,
+                                            ui::Range* actual_range) const;
+
+  // Converts from given whole character range to composition oriented range. If
+  // the conversion failed, return ui::Range::InvalidRange.
+  ui::Range ConvertCharacterRangeToCompositionRange(
+      const ui::Range& request_range) const;
+
+  // Returns true if there is line break in |range| and stores line breaking
+  // point to |line_breaking_point|. The |line_break_point| is valid only if
+  // this function returns true.
+  static bool GetLineBreakIndex(const std::vector<gfx::Rect>& bounds,
+                                const ui::Range& range,
+                                size_t* line_break_point);
+
+  void DestroyNSTextInputOSR();
+#endif  // defined(OS_MACOSX)
+
  public:
   // RenderWidgetHostView methods.
   virtual void InitAsChild(gfx::NativeView parent_view) OVERRIDE;
@@ -170,6 +201,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   void NotifyHideWidget();
   void NotifySizeWidget();
 
+  content::RenderWidgetHostImpl* get_render_widget_host_impl() const
+      { return render_widget_host_; }
   CefRefPtr<CefBrowserHostImpl> get_browser_impl() const;
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser);
   void set_popup_host_view(CefRenderWidgetHostViewOSR* popup_view);
@@ -204,6 +237,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   std::vector<gfx::Rect> pending_update_rects_;
 
   gfx::Rect popup_position_;
+
+#if defined(OS_MACOSX)
+  NSTextInputContext* text_input_context_osr_mac_;
+#endif  // defined(OS_MACOSX)
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderWidgetHostViewOSR);
 };

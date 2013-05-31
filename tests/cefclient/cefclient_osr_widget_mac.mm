@@ -308,7 +308,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 - (CefRefPtr<CefBrowser>)getBrowser {
-  return browser_provider_->GetBrowser();
+  if (browser_provider_)
+    return browser_provider_->GetBrowser();
+  return NULL;
 }
 
 - (void)setFrame:(NSRect)frameRect {
@@ -434,41 +436,16 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   if (!browser)
     return;
 
-  CefKeyEvent keyEvent;
-  [self getKeyEvent:keyEvent forEvent:event];
+  if ([event type] != NSFlagsChanged) {
+    browser->GetHost()->HandleKeyEventBeforeTextInputClient(event);
 
-  keyEvent.type = KEYEVENT_KEYDOWN;
-  browser->GetHost()->SendKeyEvent(keyEvent);
+    // The return value of this method seems to always be set to YES,
+    // thus we ignore it and ask the host view whether IME is active
+    // or not.
+    [[self inputContext] handleEvent:event];
 
-  if ([event modifierFlags] & (NSNumericPadKeyMask | NSFunctionKeyMask)) {
-    // Don't send a Char event for non-char keys like arrows, function keys and
-    // clear.
-    switch (keyEvent.native_key_code) {
-      case 81: // =
-      case 75: // /
-      case 67: // *
-      case 78: // -
-      case 69: // +
-      case 76: // Enter
-      case 65: // .
-      case 82: // 0
-      case 83: // 1
-      case 84: // 2
-      case 85: // 3
-      case 86: // 4
-      case 87: // 5
-      case 88: // 6
-      case 89: // 7
-      case 91: // 8
-      case 92: // 9
-        break;
-      default:
-        return;
-    }
+    browser->GetHost()->HandleKeyEventAfterTextInputClient(event);
   }
-
-  keyEvent.type = KEYEVENT_CHAR;
-  browser->GetHost()->SendKeyEvent(keyEvent);
 }
 
 - (void)keyUp:(NSEvent *)event {
@@ -609,6 +586,13 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   keyEvent.native_key_code = [event keyCode];
 
   keyEvent.modifiers = [self getModifiersForEvent:event];
+}
+
+- (NSTextInputContext*)inputContext {
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (browser)
+    return browser->GetHost()->GetNSTextInputContext();
+  return NULL;
 }
 
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event {

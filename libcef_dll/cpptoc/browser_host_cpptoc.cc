@@ -503,6 +503,48 @@ void CEF_CALLBACK browser_host_send_capture_lost_event(
   CefBrowserHostCppToC::Get(self)->SendCaptureLostEvent();
 }
 
+cef_text_input_context_t CEF_CALLBACK browser_host_get_nstext_input_context(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  cef_text_input_context_t _retval = CefBrowserHostCppToC::Get(
+      self)->GetNSTextInputContext();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK browser_host_handle_key_event_before_text_input_client(
+    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->HandleKeyEventBeforeTextInputClient(
+      keyEvent);
+}
+
+void CEF_CALLBACK browser_host_handle_key_event_after_text_input_client(
+    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->HandleKeyEventAfterTextInputClient(
+      keyEvent);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -540,6 +582,12 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.send_focus_event = browser_host_send_focus_event;
   struct_.struct_.send_capture_lost_event =
       browser_host_send_capture_lost_event;
+  struct_.struct_.get_nstext_input_context =
+      browser_host_get_nstext_input_context;
+  struct_.struct_.handle_key_event_before_text_input_client =
+      browser_host_handle_key_event_before_text_input_client;
+  struct_.struct_.handle_key_event_after_text_input_client =
+      browser_host_handle_key_event_after_text_input_client;
 }
 
 #ifndef NDEBUG
