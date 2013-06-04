@@ -89,7 +89,7 @@
             '<@(cefclient_sources_win)',
           ],
         }],
-        ['OS == "win" or (toolkit_uses_gtk == 1 and selinux == 0)', {
+        ['OS == "win"', {
           'dependencies': [
             '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
           ],
