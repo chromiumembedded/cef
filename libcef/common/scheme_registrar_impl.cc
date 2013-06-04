@@ -6,8 +6,7 @@
 
 #include <string>
 
-#include "libcef/browser/content_browser_client.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/common/content_client.h"
 
 #include "base/bind.h"
 #include "base/logging.h"
@@ -29,15 +28,9 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
   if (is_standard)
     standard_schemes_.push_back(scheme);
 
-  if (CefContentRendererClient::Get()) {
-    CefContentRendererClient::Get()->AddCustomScheme(scheme,
-                                                     is_standard,
-                                                     is_local,
-                                                     is_display_isolated);
-  }
-
-  if (CefContentBrowserClient::Get())
-    CefContentBrowserClient::Get()->AddCustomScheme(scheme);
+  CefContentClient::SchemeInfo scheme_info = {
+      scheme, is_standard, is_local, is_display_isolated};
+  CefContentClient::Get()->AddCustomScheme(scheme_info);
 
   return true;
 }

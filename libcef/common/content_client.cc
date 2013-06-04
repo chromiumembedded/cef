@@ -8,7 +8,6 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/common/scheme_registrar_impl.h"
 #include "libcef/common/scheme_registration.h"
-#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -28,11 +27,11 @@ const char kInterposeLibraryPath[] =
 
 }  // namespace
 
-
 CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
-      allow_pack_file_load_(false) {
+      allow_pack_file_load_(false),
+      scheme_info_list_locked_(false) {
   DCHECK(!g_content_client);
   g_content_client = this;
 }
@@ -49,6 +48,8 @@ CefContentClient* CefContentClient::Get() {
 void CefContentClient::AddAdditionalSchemes(
     std::vector<std::string>* standard_schemes,
     std::vector<std::string>* savable_schemes) {
+  DCHECK(!scheme_info_list_locked_);
+
   if (application_.get()) {
     CefRefPtr<CefSchemeRegistrarImpl> schemeRegistrar(
         new CefSchemeRegistrarImpl());
@@ -60,12 +61,9 @@ void CefContentClient::AddAdditionalSchemes(
     DCHECK(schemeRegistrar->VerifyRefCount());
   }
 
-  scheme::AddInternalStandardSchemes(standard_schemes);
+  scheme::AddInternalSchemes(standard_schemes);
 
-  if (CefContentBrowserClient::Get())
-    CefContentBrowserClient::Get()->LockCustomSchemes();
-  if (CefContentRendererClient::Get())
-    CefContentRendererClient::Get()->LockCustomSchemes();
+  scheme_info_list_locked_ = true;
 }
 
 std::string CefContentClient::GetUserAgent() const {
@@ -119,6 +117,35 @@ std::string CefContentClient::GetCarbonInterposePath() const {
   return std::string(kInterposeLibraryPath);
 }
 #endif
+
+void CefContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
+  DCHECK(!scheme_info_list_locked_);
+  scheme_info_list_.push_back(scheme_info);
+
+  if (CefContentBrowserClient::Get()) {
+    CefContentBrowserClient::Get()->RegisterCustomScheme(
+        scheme_info.scheme_name);
+  }
+}
+
+const CefContentClient::SchemeInfoList* CefContentClient::GetCustomSchemes() {
+  DCHECK(scheme_info_list_locked_);
+  return &scheme_info_list_;
+}
+
+bool CefContentClient::HasCustomScheme(const std::string& scheme_name) {
+  DCHECK(scheme_info_list_locked_);
+  if (scheme_info_list_.empty())
+    return false;
+
+  SchemeInfoList::const_iterator it = scheme_info_list_.begin();
+  for (; it != scheme_info_list_.end(); ++it) {
+    if (it->scheme_name == scheme_name)
+      return true;
+  }
+
+  return false;
+}
 
 base::FilePath CefContentClient::GetPathForResourcePack(
     const base::FilePath& pack_path,

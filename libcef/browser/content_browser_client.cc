@@ -252,8 +252,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
-      next_browser_id_(0),
-      scheme_set_locked_(false) {
+      next_browser_id_(0) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
@@ -428,8 +427,7 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (scheme::IsInternalHandledScheme(scheme))
     return true;
 
-  DCHECK(scheme_set_locked_);
-  return scheme_set_.find(scheme) != scheme_set_.end();
+  return CefContentClient::Get()->HasCustomScheme(scheme);
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -700,10 +698,7 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
 }
 #endif  // defined(OS_WIN)
 
-void CefContentBrowserClient::AddCustomScheme(const std::string& scheme) {
-  DCHECK(!scheme_set_locked_);
-  scheme_set_.insert(scheme);
-
+void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
   // Register as a Web-safe scheme so that requests for the scheme from a
   // render process will be allowed in resource_dispatcher_host_impl.cc
   // ShouldServiceRequest.
@@ -711,11 +706,6 @@ void CefContentBrowserClient::AddCustomScheme(const std::string& scheme) {
       content::ChildProcessSecurityPolicy::GetInstance();
   if (!policy->IsWebSafeScheme(scheme))
     policy->RegisterWebSafeScheme(scheme);
-}
-
-void CefContentBrowserClient::LockCustomSchemes() {
-  DCHECK(!scheme_set_locked_);
-  scheme_set_locked_ = true;
 }
 
 void CefContentBrowserClient::set_last_create_window_params(

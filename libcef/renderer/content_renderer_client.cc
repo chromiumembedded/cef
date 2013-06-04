@@ -130,16 +130,8 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
 
 }  // namespace
 
-struct CefContentRendererClient::SchemeInfo {
-  std::string scheme_name;
-  bool is_standard;
-  bool is_local;
-  bool is_display_isolated;
-};
-
 CefContentRendererClient::CefContentRendererClient()
-    : scheme_info_list_locked_(false),
-      devtools_agent_count_(0),
+    : devtools_agent_count_(0),
       uncaught_exception_stack_size_(0),
       single_process_cleanup_complete_(false) {
 }
@@ -192,21 +184,6 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
   NOTREACHED();
 }
 
-void CefContentRendererClient::AddCustomScheme(
-    const std::string& scheme_name,
-    bool is_standard,
-    bool is_local,
-    bool is_display_isolated) {
-  DCHECK(!scheme_info_list_locked_);
-  SchemeInfo info = {scheme_name, is_standard, is_local, is_display_isolated};
-  scheme_info_list_.push_back(info);
-}
-
-void CefContentRendererClient::LockCustomSchemes() {
-  DCHECK(!scheme_info_list_locked_);
-  scheme_info_list_locked_ = true;
-}
-
 void CefContentRendererClient::WebKitInitialized() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
@@ -221,12 +198,13 @@ void CefContentRendererClient::WebKitInitialized() {
   WebKit::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
 
-  DCHECK(scheme_info_list_locked_);
-  if (!scheme_info_list_.empty()) {
+  const CefContentClient::SchemeInfoList* schemes =
+      CefContentClient::Get()->GetCustomSchemes();
+  if (!schemes->empty()) {
     // Register the custom schemes.
-    SchemeInfoList::const_iterator it = scheme_info_list_.begin();
-    for (; it != scheme_info_list_.end(); ++it) {
-      const SchemeInfo& info = *it;
+    CefContentClient::SchemeInfoList::const_iterator it = schemes->begin();
+    for (; it != schemes->end(); ++it) {
+      const CefContentClient::SchemeInfo& info = *it;
       const WebKit::WebString& scheme =
           WebKit::WebString::fromUTF8(info.scheme_name);
       if (info.is_standard) {

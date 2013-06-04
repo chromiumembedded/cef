@@ -113,9 +113,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   const wchar_t* GetResourceDllName() OVERRIDE;
 #endif
 
-  // Add a custom scheme registration.
-  void AddCustomScheme(const std::string& scheme);
-  void LockCustomSchemes();
+  // Perform browser process registration for the custom scheme.
+  void RegisterCustomScheme(const std::string& scheme);
 
   // Store additional state from the ViewHostMsg_CreateWindow message that will
   // be used when CanCreateWindow() is called.
@@ -144,10 +143,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
   BrowserInfoList browser_info_list_;
   int next_browser_id_;
-
-  typedef std::set<std::string> SchemeSet;
-  SchemeSet scheme_set_;
-  bool scheme_set_locked_;
 
   // Only accessed on the IO thread.
   LastCreateWindowParams last_create_window_params_;

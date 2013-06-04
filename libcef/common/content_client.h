@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_
 #pragma once
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -39,6 +40,19 @@ class CefContentClient : public content::ContentClient,
   virtual std::string GetCarbonInterposePath() const OVERRIDE;
 #endif
 
+  struct SchemeInfo {
+    std::string scheme_name;
+    bool is_standard;
+    bool is_local;
+    bool is_display_isolated;
+  };
+  typedef std::list<SchemeInfo> SchemeInfoList;
+
+  // Custom scheme registration.
+  void AddCustomScheme(const SchemeInfo& scheme_info);
+  const SchemeInfoList* GetCustomSchemes();
+  bool HasCustomScheme(const std::string& scheme_name);
+
   CefRefPtr<CefApp> application() const { return application_; }
 
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
@@ -70,6 +84,10 @@ class CefContentClient : public content::ContentClient,
   CefRefPtr<CefApp> application_;
   bool pack_loading_disabled_;
   bool allow_pack_file_load_;
+
+  // Custom schemes handled by the client.
+  SchemeInfoList scheme_info_list_;
+  bool scheme_info_list_locked_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_

@@ -3,34 +3,23 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/scheme_registration.h"
-#include "libcef/browser/content_browser_client.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/common/content_client.h"
 
 #include "content/public/common/url_constants.h"
 
 namespace scheme {
 
-void AddInternalStandardSchemes(std::vector<std::string>* standard_schemes) {
-  static struct {
-    const char* name;
-    bool is_local;
-    bool is_display_isolated;
-  } schemes[] = {
-    { chrome::kChromeUIScheme,        true,  true  },
-    { chrome::kChromeDevToolsScheme,  true,  false }
+void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
+  static CefContentClient::SchemeInfo schemes[] = {
+    { chrome::kChromeUIScheme,        true,  true,  true  },
+    { chrome::kChromeDevToolsScheme,  true,  true,  false }
   };
 
+  CefContentClient* client = CefContentClient::Get();
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
-    standard_schemes->push_back(schemes[i].name);
-
-    if (CefContentBrowserClient::Get())
-      CefContentBrowserClient::Get()->AddCustomScheme(schemes[i].name);
-
-    if (CefContentRendererClient::Get()) {
-      CefContentRendererClient::Get()->AddCustomScheme(
-          schemes[i].name, true, schemes[i].is_local,
-          schemes[i].is_display_isolated);
-    }
+    if (schemes[0].is_standard)
+      standard_schemes->push_back(schemes[i].scheme_name);
+    client->AddCustomScheme(schemes[i]);
   }
 }
 

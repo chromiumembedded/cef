@@ -41,13 +41,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
 
-  // Add a custom scheme registration.
-  void AddCustomScheme(const std::string& scheme_name,
-                       bool is_standard,
-                       bool is_local,
-                       bool is_display_isolated);
-  void LockCustomSchemes();
-
   // Render thread task runner.
   base::SequencedTaskRunner* render_task_runner() const {
     return render_task_runner_.get();
@@ -108,12 +101,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
   BrowserMap browsers_;
-
-  // Custom schemes that need to be registered with WebKit.
-  struct SchemeInfo;
-  typedef std::list<SchemeInfo> SchemeInfoList;
-  SchemeInfoList scheme_info_list_;
-  bool scheme_info_list_locked_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
