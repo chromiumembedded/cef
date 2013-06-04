@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 
 #include <string>
+#include "base/string16.h"
 #include "v8/include/v8.h"
 
 namespace WebKit {
@@ -21,6 +22,9 @@ void GoBackOrForward(WebKit::WebView* view, int distance);
 
 // Retrieve the V8 context associated with the frame.
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
+
+// Returns the text of the document element.
+base::string16 DumpDocumentText(WebKit::WebFrame* frame);
 
 }  // webkit_glue
 

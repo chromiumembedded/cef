@@ -22,6 +22,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/scheme_registration.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -30,6 +31,7 @@
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"
+#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
@@ -250,7 +252,8 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
-      next_browser_id_(0) {
+      next_browser_id_(0),
+      scheme_set_locked_(false) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
@@ -416,6 +419,19 @@ CefContentBrowserClient::CreateRequestContextForStoragePartition(
       partition_path, in_memory, protocol_handlers);
 }
 
+bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
+  if (!url.is_valid())
+    return false;
+  const std::string& scheme = url.scheme();
+  DCHECK_EQ(scheme, StringToLowerASCII(scheme));
+
+  if (scheme::IsInternalHandledScheme(scheme))
+    return true;
+
+  DCHECK(scheme_set_locked_);
+  return scheme_set_.find(scheme) != scheme_set_.end();
+}
+
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line, int child_process_id) {
   const CommandLine& browser_cmd = *CommandLine::ForCurrentProcess();
@@ -495,14 +511,14 @@ void CefContentBrowserClient::AllowCertificateError(
     bool overridable,
     bool strict_enforcement,
     const base::Callback<void(bool)>& callback,
-    bool* cancel_request) {
+    content::CertificateRequestResultType* result) {
   CEF_REQUIRE_UIT();
 
   if (resource_type != ResourceType::MAIN_FRAME) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
-    *cancel_request = true;
+    *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL;
     return;
   }
 
@@ -522,11 +538,14 @@ void CefContentBrowserClient::AllowCertificateError(
   if (overridable && !strict_enforcement)
     callbackImpl = new CefAllowCertificateErrorCallbackImpl(callback);
 
-  *cancel_request = !handler->OnCertificateError(
+  bool proceed = handler->OnCertificateError(
       static_cast<cef_errorcode_t>(cert_error), request_url.spec(),
       callbackImpl.get());
-  if (*cancel_request && callbackImpl.get())
+  if (!proceed && callbackImpl.get())
     callbackImpl->Disconnect();
+
+  *result = proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
+                      content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL;
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
@@ -680,6 +699,24 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   return file_path;
 }
 #endif  // defined(OS_WIN)
+
+void CefContentBrowserClient::AddCustomScheme(const std::string& scheme) {
+  DCHECK(!scheme_set_locked_);
+  scheme_set_.insert(scheme);
+
+  // Register as a Web-safe scheme so that requests for the scheme from a
+  // render process will be allowed in resource_dispatcher_host_impl.cc
+  // ShouldServiceRequest.
+  content::ChildProcessSecurityPolicy* policy =
+      content::ChildProcessSecurityPolicy::GetInstance();
+  if (!policy->IsWebSafeScheme(scheme))
+    policy->RegisterWebSafeScheme(scheme);
+}
+
+void CefContentBrowserClient::LockCustomSchemes() {
+  DCHECK(!scheme_set_locked_);
+  scheme_set_locked_ = true;
+}
 
 void CefContentBrowserClient::set_last_create_window_params(
     const LastCreateWindowParams& params) {

@@ -17,7 +17,7 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
-#include "libcef/browser/scheme_registration.h"
+#include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
@@ -600,7 +600,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!context)
     return;
 
-  scoped_refptr<content::DownloadManager> manager =
+  content::DownloadManager* manager =
       content::BrowserContext::GetDownloadManager(context);
   if (!manager)
     return;

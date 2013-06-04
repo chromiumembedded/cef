@@ -58,11 +58,6 @@
         'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
       },
       'conditions': [
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-          ],
-        }],
         ['OS=="win"', {
           'configurations': {
             'Debug_Base': {
@@ -883,10 +878,10 @@
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
         'libcef/browser/resource_request_job.h',
+        'libcef/browser/scheme_handler.cc',
+        'libcef/browser/scheme_handler.h',
         'libcef/browser/scheme_impl.cc',
         'libcef/browser/scheme_impl.h',
-        'libcef/browser/scheme_registration.cc',
-        'libcef/browser/scheme_registration.h',
         'libcef/browser/speech_recognition_manager_delegate.cc',
         'libcef/browser/speech_recognition_manager_delegate.h',
         'libcef/browser/stream_impl.cc',
@@ -935,6 +930,8 @@
         'libcef/common/response_manager.h',
         'libcef/common/scheme_registrar_impl.cc',
         'libcef/common/scheme_registrar_impl.h',
+        'libcef/common/scheme_registration.cc',
+        'libcef/common/scheme_registration.h',
         'libcef/common/string_list_impl.cc',
         'libcef/common/string_map_impl.cc',
         'libcef/common/string_multimap_impl.cc',

@@ -1,8 +1,8 @@
 Index: gyp/generator/ninja.py
 ===================================================================
---- gyp/generator/ninja.py	(revision 1602)
+--- gyp/generator/ninja.py	(revision 1640)
 +++ gyp/generator/ninja.py	(working copy)
-@@ -662,7 +662,16 @@
+@@ -664,7 +664,16 @@
        for path in copy['files']:
          # Normalize the path so trailing slashes don't confuse us.
          path = os.path.normpath(path)

@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "libcef/browser/context.h"
-#include "libcef/browser/scheme_registration.h"
+#include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_network_delegate.h"
 #include "libcef/browser/url_request_context_proxy.h"
@@ -33,7 +33,6 @@
 #include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
-#include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
@@ -133,6 +132,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     net::HttpCache::DefaultBackend* main_backend =
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
+            net::CACHE_BACKEND_DEFAULT,
             cache_path,
             0,
             BrowserThread::GetMessageLoopProxyForThread(
@@ -162,9 +162,6 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     net::HttpCache* main_cache = new net::HttpCache(network_session_params,
                                                     main_backend);
     storage_->set_http_transaction_factory(main_cache);
-
-    storage_->set_ftp_transaction_factory(
-      new net::FtpNetworkLayer(url_request_context_->host_resolver()));
 
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());

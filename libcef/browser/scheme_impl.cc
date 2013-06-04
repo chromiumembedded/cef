@@ -11,11 +11,12 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/resource_request_job.h"
-#include "libcef/browser/scheme_registration.h"
+#include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
+#include "libcef/common/scheme_registration.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
@@ -30,13 +31,8 @@
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
-#include "net/url_request/url_request_about_job.h"
 #include "net/url_request/url_request_context.h"
-#include "net/url_request/url_request_data_job.h"
-#include "net/url_request/url_request_error_job.h"
-#include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_filter.h"
-#include "net/url_request/url_request_ftp_job.h"
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_factory_impl.h"
@@ -58,10 +54,6 @@ struct SchemeToFactory {
 static const SchemeToFactory kBuiltinFactories[] = {
   { "http", net::URLRequestHttpJob::Factory },
   { "https", net::URLRequestHttpJob::Factory },
-  { "file", net::URLRequestFileJob::Factory },
-  { "ftp", net::URLRequestFtpJob::Factory },
-  { "about", net::URLRequestAboutJob::Factory },
-  { "data", net::URLRequestDataJob::Factory },
 };
 
 bool IsBuiltinScheme(const std::string& scheme) {
@@ -301,8 +293,7 @@ class CefUrlRequestManager {
     return job;
   }
 
-  // Map (scheme, domain) to factories. This map will only be accessed on the IO
-  // thread.
+  // Map (scheme, domain) to factories. Will only be accessed on the IO thread.
   typedef std::map<std::pair<std::string, std::string>,
       CefRefPtr<CefSchemeHandlerFactory> > HandlerMap;
   HandlerMap handler_map_;

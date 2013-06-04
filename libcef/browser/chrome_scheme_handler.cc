@@ -34,7 +34,7 @@
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
-#include "webkit/user_agent/user_agent_util.h"
+#include "webkit/common/user_agent/user_agent_util.h"
 
 namespace scheme {
 

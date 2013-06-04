@@ -5,8 +5,10 @@
 #include "libcef/common/content_client.h"
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
-#include "libcef/browser/scheme_registration.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/common/scheme_registrar_impl.h"
+#include "libcef/common/scheme_registration.h"
+#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -15,7 +17,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/user_agent/user_agent_util.h"
+#include "webkit/common/user_agent/user_agent_util.h"
 
 namespace {
 
@@ -59,6 +61,11 @@ void CefContentClient::AddAdditionalSchemes(
   }
 
   scheme::AddInternalStandardSchemes(standard_schemes);
+
+  if (CefContentBrowserClient::Get())
+    CefContentBrowserClient::Get()->LockCustomSchemes();
+  if (CefContentRendererClient::Get())
+    CefContentRendererClient::Get()->LockCustomSchemes();
 }
 
 std::string CefContentClient::GetUserAgent() const {

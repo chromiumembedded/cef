@@ -420,6 +420,7 @@ class RequestClient : public CefURLRequestClient {
     status_ = request->GetRequestStatus();
     error_code_ = request->GetRequestError();
     response_ = request->GetResponse();
+    EXPECT_TRUE(response_);
     EXPECT_TRUE(response_->IsReadOnly());
 
     delegate_->OnRequestComplete(this);

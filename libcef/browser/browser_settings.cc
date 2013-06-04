@@ -10,7 +10,7 @@
 
 #include "base/command_line.h"
 #include "include/internal/cef_types_wrappers.h"
-#include "webkit/glue/webpreferences.h"
+#include "webkit/common/webpreferences.h"
 
 // Set default preferences based on CEF command-line flags. Chromium command-
 // line flags should not exist for these preferences.

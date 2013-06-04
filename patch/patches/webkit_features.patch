@@ -1,10 +1,10 @@
 Index: features.gypi
 ===================================================================
---- features.gypi	(revision 149653)
+--- features.gypi	(revision 151551)
 +++ features.gypi	(working copy)
-@@ -90,7 +90,7 @@
+@@ -78,7 +78,7 @@
+         'feature_defines': [
            'ENABLE_CALENDAR_PICKER=1',
-           'ENABLE_DATALIST_ELEMENT=1',
            'ENABLE_INPUT_SPEECH=1',
 -          'ENABLE_INPUT_TYPE_COLOR=1',
 +          'ENABLE_INPUT_TYPE_COLOR=0',

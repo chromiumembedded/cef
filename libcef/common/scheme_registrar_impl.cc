@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
@@ -23,16 +24,20 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
   if (!VerifyContext())
     return false;
 
+  const std::string& scheme = scheme_name;
+
   if (is_standard)
-    standard_schemes_.push_back(scheme_name);
+    standard_schemes_.push_back(scheme);
 
   if (CefContentRendererClient::Get()) {
-    // Register the custom scheme with WebKit.
-    CefContentRendererClient::Get()->AddCustomScheme(scheme_name,
+    CefContentRendererClient::Get()->AddCustomScheme(scheme,
                                                      is_standard,
                                                      is_local,
                                                      is_display_isolated);
   }
+
+  if (CefContentBrowserClient::Get())
+    CefContentBrowserClient::Get()->AddCustomScheme(scheme);
 
   return true;
 }

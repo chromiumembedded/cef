@@ -111,8 +111,6 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
       return DOM_NODE_TYPE_TEXT;
     case WebNode::CDataSectionNode:
       return DOM_NODE_TYPE_CDATA_SECTION;
-    case WebNode::EntityReferenceNode:
-      return DOM_NODE_TYPE_ENTITY_REFERENCE;
     case WebNode::EntityNode:
       return DOM_NODE_TYPE_ENTITY;
     case WebNode::ProcessingInstructionsNode:

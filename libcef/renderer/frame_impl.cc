@@ -20,7 +20,6 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
-#include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebString;
 

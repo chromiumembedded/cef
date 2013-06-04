@@ -10,6 +10,8 @@
         'cef_directory' : '<!(echo %CEF_DIRECTORY%)',
         # Use SKIA text rendering for transparency support.
         'enable_skia_text': 1,
+        # Disable tcmalloc's debugallocation to avoid crashing during startup.
+        'disable_debugallocation': 1,
       }, { # OS!="win"
         'cef_directory' : '<!(echo $CEF_DIRECTORY)',
       }],

@@ -18,7 +18,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #endif
 
-#include "webkit/glue/webcursor.h"
+#include "webkit/common/cursors/webcursor.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
 
 namespace {

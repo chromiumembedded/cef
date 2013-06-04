@@ -8,6 +8,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 
@@ -74,6 +75,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+  virtual bool IsHandledURL(const GURL& url) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
   virtual content::QuotaPermissionContext*
@@ -91,7 +93,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool overridable,
       bool strict_enforcement,
       const base::Callback<void(bool)>& callback,
-      bool* cancel_request) OVERRIDE;
+      content::CertificateRequestResultType* result) OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual bool CanCreateWindow(const GURL& opener_url,
                                const GURL& origin,
@@ -110,6 +112,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() OVERRIDE;
 #endif
+
+  // Add a custom scheme registration.
+  void AddCustomScheme(const std::string& scheme);
+  void LockCustomSchemes();
 
   // Store additional state from the ViewHostMsg_CreateWindow message that will
   // be used when CanCreateWindow() is called.
@@ -138,6 +144,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
   BrowserInfoList browser_info_list_;
   int next_browser_id_;
+
+  typedef std::set<std::string> SchemeSet;
+  SchemeSet scheme_set_;
+  bool scheme_set_locked_;
 
   // Only accessed on the IO thread.
   LastCreateWindowParams last_create_window_params_;

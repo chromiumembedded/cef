@@ -145,7 +145,6 @@ void CefURLRequestContextProxy::Initialize(CefBrowserHostImpl* browser) {
   set_ssl_config_service(context->ssl_config_service());
   set_http_auth_handler_factory(context->http_auth_handler_factory());
   set_http_transaction_factory(context->http_transaction_factory());
-  set_ftp_transaction_factory(context->ftp_transaction_factory());
   set_network_delegate(context->network_delegate());
   set_http_server_properties(context->http_server_properties());
   set_transport_security_state(context->transport_security_state());

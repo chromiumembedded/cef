@@ -16,7 +16,6 @@
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURLLoaderClient.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURLRequest.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURLResponse.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
 
 using WebKit::WebString;
 using WebKit::WebURL;
@@ -105,7 +104,7 @@ class CefRenderURLRequest::Context
     if (!url.is_valid())
       return false;
 
-    loader_.reset(WebKit::webKitPlatformSupport()->createURLLoader());
+    loader_.reset(WebKit::Platform::current()->createURLLoader());
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;

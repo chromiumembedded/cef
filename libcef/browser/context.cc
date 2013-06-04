@@ -9,7 +9,7 @@
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/scheme_registration.h"
+#include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/main_delegate.h"

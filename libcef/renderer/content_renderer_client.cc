@@ -138,7 +138,8 @@ struct CefContentRendererClient::SchemeInfo {
 };
 
 CefContentRendererClient::CefContentRendererClient()
-    : devtools_agent_count_(0),
+    : scheme_info_list_locked_(false),
+      devtools_agent_count_(0),
       uncaught_exception_stack_size_(0),
       single_process_cleanup_complete_(false) {
 }
@@ -196,8 +197,14 @@ void CefContentRendererClient::AddCustomScheme(
     bool is_standard,
     bool is_local,
     bool is_display_isolated) {
+  DCHECK(!scheme_info_list_locked_);
   SchemeInfo info = {scheme_name, is_standard, is_local, is_display_isolated};
   scheme_info_list_.push_back(info);
+}
+
+void CefContentRendererClient::LockCustomSchemes() {
+  DCHECK(!scheme_info_list_locked_);
+  scheme_info_list_locked_ = true;
 }
 
 void CefContentRendererClient::WebKitInitialized() {
@@ -214,6 +221,7 @@ void CefContentRendererClient::WebKitInitialized() {
   WebKit::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
 
+  DCHECK(scheme_info_list_locked_);
   if (!scheme_info_list_.empty()) {
     // Register the custom schemes.
     SchemeInfoList::const_iterator it = scheme_info_list_.begin();

@@ -10,8 +10,8 @@
 #include "base/message_loop.h"
 
 // Class used to process events on the current message loop.
-class CefBrowserMessageLoop : public MessageLoopForUI {
-  typedef MessageLoopForUI inherited;
+class CefBrowserMessageLoop : public base::MessageLoopForUI {
+  typedef base::MessageLoopForUI inherited;
 
  public:
   CefBrowserMessageLoop();

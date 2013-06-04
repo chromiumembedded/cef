@@ -1,13 +1,10 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_SCHEME_REGISTRATION_H_
-#define CEF_LIBCEF_BROWSER_SCHEME_REGISTRATION_H_
+#ifndef CEF_LIBCEF_BROWSER_SCHEME_HANDLER_H_
+#define CEF_LIBCEF_BROWSER_SCHEME_HANDLER_H_
 #pragma once
-
-#include <string>
-#include <vector>
 
 #include "include/cef_frame.h"
 
@@ -19,16 +16,6 @@ class URLRequestJobFactoryImpl;
 }
 
 namespace scheme {
-
-// Add internal standard schemes.
-void AddInternalStandardSchemes(std::vector<std::string>* standard_schemes);
-
-// Returns true if the specified |scheme| is handled internally and should not
-// be explicitly registered or unregistered with the URLRequestJobFactory. A
-// registered handler for one of these schemes (like "chrome") may still be
-// triggered via chaining from an existing ProtocolHandler. |scheme| should
-// always be a lower-case string.
-bool IsInternalProtectedScheme(const std::string& scheme);
 
 // Install the internal scheme handlers provided by Chromium that cannot be
 // overridden.
@@ -44,4 +31,4 @@ void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
 
 }  // namespace scheme
 
-#endif  // CEF_LIBCEF_BROWSER_SCHEME_REGISTRATION_H_
+#endif  // CEF_LIBCEF_BROWSER_SCHEME_HANDLER_H_

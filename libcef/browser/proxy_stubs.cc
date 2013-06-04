@@ -5,6 +5,8 @@
 #include "base/logging.h"
 #include "components/user_prefs/pref_registry_syncable.h"
 
+namespace user_prefs {
+
 // Required by PrefProxyConfigTrackerImpl::RegisterUserPrefs.
 void PrefRegistrySyncable::RegisterDictionaryPref(
     const char* path,
@@ -12,3 +14,5 @@ void PrefRegistrySyncable::RegisterDictionaryPref(
     PrefSyncStatus sync_status) {
   NOTREACHED();
 }
+
+}  // namespace user_prefs

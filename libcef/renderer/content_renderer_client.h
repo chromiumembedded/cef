@@ -46,6 +46,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
                        bool is_standard,
                        bool is_local,
                        bool is_display_isolated);
+  void LockCustomSchemes();
 
   // Render thread task runner.
   base::SequencedTaskRunner* render_task_runner() const {
@@ -112,6 +113,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   struct SchemeInfo;
   typedef std::list<SchemeInfo> SchemeInfoList;
   SchemeInfoList scheme_info_list_;
+  bool scheme_info_list_locked_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;

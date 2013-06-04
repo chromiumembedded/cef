@@ -1365,8 +1365,8 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
-  EXPECT_FALSE(g_TestResults.got_sub_request);
-  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
