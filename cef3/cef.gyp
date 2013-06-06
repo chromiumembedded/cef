@@ -920,6 +920,8 @@
         'libcef/common/command_line_impl.h',
         'libcef/common/content_client.cc',
         'libcef/common/content_client.h',
+        'libcef/common/drag_data_impl.cc',
+        'libcef/common/drag_data_impl.h',
         'libcef/common/http_header_utils.cc',
         'libcef/common/http_header_utils.h',
         'libcef/common/main_delegate.cc',

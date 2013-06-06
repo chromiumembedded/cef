@@ -299,6 +299,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
+  virtual bool CanDragEnter(
+      content::WebContents* source,
+      const WebDropData& data,
+      WebKit::WebDragOperationsMask operations_allowed) OVERRIDE;
   virtual bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,

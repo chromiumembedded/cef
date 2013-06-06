@@ -1,0 +1,319 @@
+Index: browser/web_contents/web_drag_dest_gtk.cc
+===================================================================
+--- browser/web_contents/web_drag_dest_gtk.cc	(revision 202711)
++++ browser/web_contents/web_drag_dest_gtk.cc	(working copy)
+@@ -13,6 +13,7 @@
+ #include "content/browser/renderer_host/render_view_host_impl.h"
+ #include "content/browser/web_contents/drag_utils_gtk.h"
+ #include "content/browser/web_contents/web_contents_impl.h"
++#include "content/public/browser/web_contents_delegate.h"
+ #include "content/public/browser/web_drag_dest_delegate.h"
+ #include "content/public/common/url_constants.h"
+ #include "net/base/net_util.h"
+@@ -53,6 +54,7 @@
+       context_(NULL),
+       data_requests_(0),
+       delegate_(NULL),
++      canceled_(false),
+       method_factory_(this) {
+   gtk_drag_dest_set(widget, static_cast<GtkDestDefaults>(0),
+                     NULL, 0,
+@@ -143,6 +145,9 @@
+                         time);
+     }
+   } else if (data_requests_ == 0) {
++    if (canceled_)
++      return FALSE;
++
+     GetRenderViewHost()->DragTargetDragOver(
+         ui::ClientPoint(widget_),
+         ui::ScreenPoint(widget_),
+@@ -236,6 +241,20 @@
+     }
+   }
+ 
++  if (data_requests_ == 0) {
++    // Give the delegate an opportunity to cancel the drag.
++    canceled_ = !web_contents_->GetDelegate()->CanDragEnter(
++        web_contents_,
++        *drop_data_,
++        GdkDragActionToWebDragOp(context->actions));
++    if (canceled_) {
++      drag_over_time_ = time;
++      UpdateDragStatus(WebDragOperationNone);
++      drop_data_.reset();
++      return;
++    }
++  }
++
+   // For CHROME_BOOKMARK_ITEM, we have to handle the case where the drag source
+   // doesn't have any data available for us. In this case we try to synthesize a
+   // URL bookmark.
+@@ -274,6 +293,9 @@
+   // as an enter.
+   context_ = NULL;
+ 
++  if (canceled_)
++    return;
++
+   // Sometimes we get a drag-leave event before getting a drag-data-received
+   // event. In that case, we don't want to bother the renderer with a
+   // DragLeave event.
+Index: browser/web_contents/web_drag_dest_gtk.h
+===================================================================
+--- browser/web_contents/web_drag_dest_gtk.h	(revision 202711)
++++ browser/web_contents/web_drag_dest_gtk.h	(working copy)
+@@ -101,6 +101,9 @@
+   // A delegate that can receive drag information about drag events.
+   WebDragDestDelegate* delegate_;
+ 
++  // True if the drag has been canceled.
++  bool canceled_;
++
+   base::WeakPtrFactory<WebDragDestGtk> method_factory_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(WebDragDestGtk);
+Index: browser/web_contents/web_drag_dest_mac.h
+===================================================================
+--- browser/web_contents/web_drag_dest_mac.h	(revision 202711)
++++ browser/web_contents/web_drag_dest_mac.h	(working copy)
+@@ -40,6 +40,9 @@
+ 
+   // The data for the current drag, or NULL if none is in progress.
+   scoped_ptr<WebDropData> dropData_;
++
++  // True if the drag has been canceled.
++  bool canceled_;
+ }
+ 
+ // |contents| is the WebContentsImpl representing this tab, used to communicate
+Index: browser/web_contents/web_drag_dest_mac.mm
+===================================================================
+--- browser/web_contents/web_drag_dest_mac.mm	(revision 202711)
++++ browser/web_contents/web_drag_dest_mac.mm	(working copy)
+@@ -9,6 +9,7 @@
+ #include "base/sys_string_conversions.h"
+ #include "content/browser/renderer_host/render_view_host_impl.h"
+ #include "content/browser/web_contents/web_contents_impl.h"
++#include "content/public/browser/web_contents_delegate.h"
+ #include "content/public/browser/web_drag_dest_delegate.h"
+ #import "third_party/mozilla/NSPasteboard+Utils.h"
+ #include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+@@ -44,6 +45,7 @@
+ - (id)initWithWebContentsImpl:(WebContentsImpl*)contents {
+   if ((self = [super init])) {
+     webContents_ = contents;
++    canceled_ = false;
+   }
+   return self;
+ }
+@@ -103,6 +105,22 @@
+   // we need to send a new enter message in draggingUpdated:.
+   currentRVH_ = webContents_->GetRenderViewHost();
+ 
++  // Fill out a WebDropData from pasteboard.
++  scoped_ptr<WebDropData> dropData;
++  dropData.reset(new WebDropData());
++  [self populateWebDropData:dropData.get()
++             fromPasteboard:[info draggingPasteboard]];
++
++  NSDragOperation mask = [info draggingSourceOperationMask];
++
++  // Give the delegate an opportunity to cancel the drag.
++  canceled_ = !webContents_->GetDelegate()->CanDragEnter(
++      webContents_,
++      *dropData,
++      static_cast<WebDragOperationsMask>(mask));
++  if (canceled_)
++    return NSDragOperationNone;
++
+   if ([self onlyAllowsNavigation]) {
+     if ([[info draggingPasteboard] containsURLData])
+       return NSDragOperationCopy;
+@@ -114,17 +132,13 @@
+     delegate_->OnDragEnter();
+   }
+ 
+-  // Fill out a WebDropData from pasteboard.
+-  dropData_.reset(new WebDropData());
+-  [self populateWebDropData:dropData_.get()
+-             fromPasteboard:[info draggingPasteboard]];
++  dropData_.swap(dropData);
+ 
+   // Create the appropriate mouse locations for WebCore. The draggingLocation
+   // is in window coordinates. Both need to be flipped.
+   NSPoint windowPoint = [info draggingLocation];
+   NSPoint viewPoint = [self flipWindowPointToView:windowPoint view:view];
+   NSPoint screenPoint = [self flipWindowPointToScreen:windowPoint view:view];
+-  NSDragOperation mask = [info draggingSourceOperationMask];
+   webContents_->GetRenderViewHost()->DragTargetDragEnter(
+       *dropData_,
+       gfx::Point(viewPoint.x, viewPoint.y),
+@@ -143,6 +157,9 @@
+   if (currentRVH_ != webContents_->GetRenderViewHost())
+     return;
+ 
++  if (canceled_)
++    return;
++
+   if ([self onlyAllowsNavigation])
+     return;
+ 
+@@ -159,6 +176,9 @@
+   if (currentRVH_ != webContents_->GetRenderViewHost())
+     [self draggingEntered:info view:view];
+ 
++  if (canceled_)
++    return NSDragOperationNone;
++
+   if ([self onlyAllowsNavigation]) {
+     if ([[info draggingPasteboard] containsURLData])
+       return NSDragOperationCopy;
+Index: browser/web_contents/web_drag_dest_win.cc
+===================================================================
+--- browser/web_contents/web_drag_dest_win.cc	(revision 202711)
++++ browser/web_contents/web_drag_dest_win.cc	(working copy)
+@@ -11,6 +11,7 @@
+ #include "content/browser/renderer_host/render_view_host_impl.h"
+ #include "content/browser/web_contents/web_drag_utils_win.h"
+ #include "content/public/browser/web_contents.h"
++#include "content/public/browser/web_contents_delegate.h"
+ #include "content/public/browser/web_drag_dest_delegate.h"
+ #include "googleurl/src/gurl.h"
+ #include "net/base/net_util.h"
+@@ -108,7 +109,8 @@
+       current_rvh_(NULL),
+       drag_cursor_(WebDragOperationNone),
+       interstitial_drop_target_(new InterstitialDropTarget(web_contents)),
+-      delegate_(NULL) {
++      delegate_(NULL),
++      canceled_(false) {
+ }
+ 
+ WebDragDest::~WebDragDest() {
+@@ -120,6 +122,24 @@
+                                DWORD effects) {
+   current_rvh_ = web_contents_->GetRenderViewHost();
+ 
++  // TODO(tc): PopulateWebDropData can be slow depending on what is in the
++  // IDataObject.  Maybe we can do this in a background thread.
++  scoped_ptr<WebDropData> drop_data;
++  drop_data.reset(new WebDropData());
++  WebDropData::PopulateWebDropData(data_object, drop_data.get());
++
++  if (drop_data->url.is_empty())
++    ui::OSExchangeDataProviderWin::GetPlainTextURL(data_object,
++                                                   &drop_data->url);
++
++  // Give the delegate an opportunity to cancel the drag.
++  canceled_ = !web_contents_->GetDelegate()->CanDragEnter(
++      web_contents_,
++      *drop_data,
++      WinDragOpMaskToWebDragOpMask(effects));
++  if (canceled_)
++    return DROPEFFECT_NONE;
++
+   if (delegate_)
+     delegate_->DragInitialize(web_contents_);
+ 
+@@ -129,15 +149,7 @@
+   if (web_contents_->ShowingInterstitialPage())
+     return interstitial_drop_target_->OnDragEnter(data_object, effects);
+ 
+-  // TODO(tc): PopulateWebDropData can be slow depending on what is in the
+-  // IDataObject.  Maybe we can do this in a background thread.
+-  drop_data_.reset(new WebDropData());
+-  WebDropData::PopulateWebDropData(data_object, drop_data_.get());
+-
+-  if (drop_data_->url.is_empty())
+-    ui::OSExchangeDataProviderWin::GetPlainTextURL(data_object,
+-                                                   &drop_data_->url);
+-
++  drop_data_.swap(drop_data);
+   drag_cursor_ = WebDragOperationNone;
+ 
+   POINT client_pt = cursor_position;
+@@ -164,6 +176,9 @@
+   if (current_rvh_ != web_contents_->GetRenderViewHost())
+     OnDragEnter(data_object, key_state, cursor_position, effects);
+ 
++  if (canceled_)
++    return DROPEFFECT_NONE;
++
+   if (web_contents_->ShowingInterstitialPage())
+     return interstitial_drop_target_->OnDragOver(data_object, effects);
+ 
+@@ -186,6 +201,9 @@
+   if (current_rvh_ != web_contents_->GetRenderViewHost())
+     return;
+ 
++  if (canceled_)
++    return;
++
+   if (web_contents_->ShowingInterstitialPage()) {
+     interstitial_drop_target_->OnDragLeave(data_object);
+   } else {
+Index: browser/web_contents/web_drag_dest_win.h
+===================================================================
+--- browser/web_contents/web_drag_dest_win.h	(revision 202711)
++++ browser/web_contents/web_drag_dest_win.h	(working copy)
+@@ -78,6 +78,9 @@
+   // The data for the current drag, or NULL if |context_| is NULL.
+   scoped_ptr<WebDropData> drop_data_;
+ 
++  // True if the drag has been canceled.
++  bool canceled_;
++
+   DISALLOW_COPY_AND_ASSIGN(WebDragDest);
+ };
+ 
+Index: public/browser/web_contents_delegate.cc
+===================================================================
+--- public/browser/web_contents_delegate.cc	(revision 202711)
++++ public/browser/web_contents_delegate.cc	(working copy)
+@@ -110,6 +110,13 @@
+   return false;
+ }
+ 
++bool WebContentsDelegate::CanDragEnter(
++    WebContents* source,
++    const WebDropData& data,
++    WebKit::WebDragOperationsMask operations_allowed) {
++  return true;
++}
++
+ bool WebContentsDelegate::OnGoToEntryOffset(int offset) {
+   return true;
+ }
+Index: public/browser/web_contents_delegate.h
+===================================================================
+--- public/browser/web_contents_delegate.h	(revision 202711)
++++ public/browser/web_contents_delegate.h	(working copy)
+@@ -17,11 +17,13 @@
+ #include "content/public/common/page_transition_types.h"
+ #include "content/public/common/window_container_type.h"
+ #include "third_party/skia/include/core/SkColor.h"
++#include "third_party/WebKit/Source/WebKit/chromium/public/WebDragOperation.h"
+ #include "ui/base/window_open_disposition.h"
+ #include "ui/gfx/native_widget_types.h"
+ #include "ui/gfx/rect_f.h"
+ 
+ class GURL;
++struct WebDropData;
+ 
+ namespace base {
+ class FilePath;
+@@ -264,6 +266,13 @@
+   virtual void HandleGestureBegin() {}
+   virtual void HandleGestureEnd() {}
+ 
++  // Called when an external drag event enters the web contents window. Return
++  // true to allow dragging and dropping on the web contents window or false to
++  // cancel the operation.
++  virtual bool CanDragEnter(WebContents* source,
++                            const WebDropData& data,
++                            WebKit::WebDragOperationsMask operations_allowed);
++
+   // Render view drag n drop ended.
+   virtual void DragEnded() {}
+ 

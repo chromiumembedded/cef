@@ -262,6 +262,18 @@ void ClientHandler::OnDownloadUpdated(
   }
 }
 
+bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefDragData> dragData,
+                                DragOperationsMask mask) {
+  REQUIRE_UI_THREAD();
+
+  // Forbid dragging of link URLs.
+  if (dragData->IsLink())
+    return true;
+
+  return false;
+}
+
 void ClientHandler::OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,

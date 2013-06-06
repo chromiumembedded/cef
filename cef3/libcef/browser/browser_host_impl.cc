@@ -23,6 +23,7 @@
 #include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/drag_data_impl.h"
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/main_delegate.h"
 #include "libcef/common/process_message_impl.h"
@@ -1666,6 +1667,21 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
   }
 
   PlatformHandleKeyboardEvent(event);
+}
+
+bool CefBrowserHostImpl::CanDragEnter(
+    content::WebContents* source,
+    const WebDropData& data,
+    WebKit::WebDragOperationsMask mask) {
+  CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
+  if (handler.get()) {
+    CefRefPtr<CefDragData> drag_data(new CefDragDataImpl(data));
+    if (handler->OnDragEnter(this, drag_data,
+            static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool CefBrowserHostImpl::ShouldCreateWebContents(
