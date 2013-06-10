@@ -221,7 +221,7 @@ TEST(ZipReaderTest, ReadArchive) {
   // Create the Zip archive object.
   CefRefPtr<CefZipArchive> archive(new CefZipArchive());
 
-  ASSERT_EQ(archive->Load(stream, false), (size_t)5);
+  ASSERT_EQ(archive->Load(stream, CefString(), false), (size_t)5);
 
   ASSERT_TRUE(archive->HasFile("test_archive/file 1.txt"));
   ASSERT_TRUE(archive->HasFile("test_archive/folder 1/file 1a.txt"));

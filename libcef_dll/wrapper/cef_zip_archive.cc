@@ -53,6 +53,7 @@ CefZipArchive::~CefZipArchive() {
 }
 
 size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
+                           const CefString& password,
                            bool overwriteExisting) {
   AutoLock lock_scope(this);
 
@@ -76,7 +77,7 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
       continue;
     }
 
-    if (!reader->OpenFile(CefString()))
+    if (!reader->OpenFile(password))
       break;
 
     name = reader->GetFileName();
