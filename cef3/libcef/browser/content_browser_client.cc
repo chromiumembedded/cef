@@ -435,7 +435,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
                                    arraysize(kSwitchNames));
   }
 
-  std::string process_type =
+  const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
   if (process_type == switches::kRendererProcess) {
     // Propagate the following switches to the renderer command line (along with
@@ -450,6 +450,17 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
   }
+
+#if defined(OS_LINUX)
+  if (process_type == switches::kZygoteProcess &&
+      command_line->HasSwitch(switches::kBrowserSubprocessPath)) {
+    // Force use of the sub-process executable path for the zygote process.
+    const base::FilePath& subprocess_path =
+        command_line->GetSwitchValuePath(switches::kBrowserSubprocessPath);
+    if (!subprocess_path.empty())
+      command_line->SetProgram(subprocess_path);
+  }
+#endif  // defined(OS_LINUX)
 
   CefRefPtr<CefApp> app = _Context->application();
   if (app.get()) {
