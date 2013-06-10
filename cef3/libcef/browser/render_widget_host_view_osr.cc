@@ -563,10 +563,6 @@ void CefRenderWidgetHostViewOSR::set_parent_host_view(
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
     const content::NativeWebKeyboardEvent& event) {
-  if (!IsPopupWidget() && popup_host_view_) {
-    popup_host_view_->SendKeyEvent(event);
-    return;
-  }
   if (!render_widget_host_)
     return;
   render_widget_host_->ForwardKeyboardEvent(event);
