@@ -45,7 +45,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   virtual void PostDestroyThreads() OVERRIDE;
 
   CefBrowserContext* browser_context() const { return browser_context_.get(); }
-  CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_; }
+  CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_.get(); }
   PrefService* pref_service() const { return pref_service_.get(); }
   scoped_ptr<net::ProxyConfigService> proxy_config_service() {
     return proxy_config_service_.Pass();
@@ -56,7 +56,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PlatformCleanup();
 
   scoped_ptr<CefBrowserContext> browser_context_;
-  CefDevToolsDelegate* devtools_delegate_;
+  scoped_ptr<CefDevToolsDelegate> devtools_delegate_;
   scoped_ptr<base::MessageLoop> message_loop_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;

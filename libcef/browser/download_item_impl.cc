@@ -24,17 +24,17 @@ bool CefDownloadItemImpl::IsValid() {
 
 bool CefDownloadItemImpl::IsInProgress() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().IsInProgress();
+  return const_value().GetState() == content::DownloadItem::IN_PROGRESS;
 }
 
 bool CefDownloadItemImpl::IsComplete() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().IsComplete();
+  return const_value().GetState() == content::DownloadItem::COMPLETE;
 }
 
 bool CefDownloadItemImpl::IsCanceled() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().IsCancelled();
+  return const_value().GetState() == content::DownloadItem::CANCELLED;
 }
 
 int64 CefDownloadItemImpl::GetCurrentSpeed() {

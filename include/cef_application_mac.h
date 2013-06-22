@@ -37,11 +37,11 @@
 
 #ifdef BUILDING_CEF_SHARED
 
-// Use the existing CrAppProtocol definition.
-#import "base/message_pump_mac.h"
-
 // Use the existing CrAppControlProtocol definition.
 #import "base/mac/scoped_sending_event.h"
+
+// Use the existing CrAppProtocol definition.
+#import "base/message_loop/message_pump_mac.h"
 
 // Use the existing UnderlayableSurface definition.
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
@@ -54,7 +54,7 @@
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 
-// Copy of definition from base/message_pump_mac.h.
+// Copy of definition from base/message_loop/message_pump_mac.h.
 @protocol CrAppProtocol
 // Must return true if -[NSApplication sendEvent:] is currently on the stack.
 - (BOOL)isHandlingSendEvent;

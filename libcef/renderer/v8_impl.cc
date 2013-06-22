@@ -30,12 +30,12 @@ MSVC_POP_WARNING();
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
-#include "base/string_number_conversions.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/threading/thread_local.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptController.h"
+#include "third_party/WebKit/public/web/WebKit.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebScriptController.h"
 
 namespace {
 
@@ -401,13 +401,13 @@ class CefV8MakeWeakParam {
 
 // Callback for weak persistent reference destruction.
 void TrackDestructor(v8::Isolate* isolate,
-                     v8::Persistent<v8::Value> object,
-                     void* parameter) {
+                     v8::Persistent<v8::Value>* object,
+                     CefV8MakeWeakParam* parameter) {
   if (parameter)
-    delete static_cast<CefV8MakeWeakParam*>(parameter);
+    delete parameter;
 
-  object.Dispose(isolate);
-  object.Clear();
+  object->Dispose(isolate);
+  object->Clear();
 }
 
 

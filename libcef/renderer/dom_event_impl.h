@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/cef_dom.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebDOMEvent.h"
+#include "third_party/WebKit/public/web/WebDOMEvent.h"
 
 class CefDOMDocumentImpl;
 

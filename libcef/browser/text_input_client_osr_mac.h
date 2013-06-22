@@ -12,10 +12,10 @@
 #include "libcef/browser/render_widget_host_view_osr.h"
 
 #include "base/memory/scoped_nsobject.h"
-#include "base/string16.h"
+#include "base/strings/string16.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/edit_command.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebCompositionUnderline.h"
+#include "third_party/WebKit/public/web/WebCompositionUnderline.h"
 
 // Implementation for the NSTextInputClient protocol used for enabling IME on
 // mac when window rendering is disabled.

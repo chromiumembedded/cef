@@ -15,7 +15,7 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/message_loop.h"
-#include "base/string_number_conversions.h"
+#include "base/strings/string_number_conversions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
@@ -38,7 +38,6 @@ base::StringPiece ResourceProvider(int resource_id) {
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
-      devtools_delegate_(NULL),
       proxy_v8_isolate_(NULL) {
 }
 
@@ -112,7 +111,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
         command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
-      devtools_delegate_ = new CefDevToolsDelegate(port);
+      devtools_delegate_.reset(new CefDevToolsDelegate(port));
     } else {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }

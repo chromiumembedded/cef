@@ -12,14 +12,8 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
-
-#if defined(OS_WIN)
-#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebScreenInfoFactory.h"
-#endif
-
+#include "third_party/WebKit/public/web/WebScreenInfo.h"
 #include "webkit/common/cursors/webcursor.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebScreenInfo.h"
 
 namespace {
 
@@ -209,8 +203,9 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
+    ui::TextInputType type,
+    bool can_compose_inline) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -225,7 +220,8 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 void CefRenderWidgetHostViewOSR::DidUpdateBackingStore(
     const gfx::Rect& scroll_rect,
     const gfx::Vector2d& scroll_delta,
-    const std::vector<gfx::Rect>& copy_rects) {
+    const std::vector<gfx::Rect>& copy_rects,
+    const ui::LatencyInfo& latency_info) {
   if (!scroll_rect.IsEmpty()) {
     std::vector<gfx::Rect> dirty_rects(copy_rects);
     dirty_rects.push_back(scroll_rect);

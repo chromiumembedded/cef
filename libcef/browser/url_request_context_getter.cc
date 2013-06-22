@@ -22,7 +22,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "chrome/browser/net/proxy_service_factory.h"
@@ -36,6 +36,7 @@
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
+#include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
@@ -97,6 +98,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
+    storage_->set_transport_security_state(new net::TransportSecurityState);
 
     scoped_ptr<net::ProxyService> system_proxy_service;
     system_proxy_service.reset(
@@ -143,6 +145,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->host_resolver();
     network_session_params.cert_verifier =
         url_request_context_->cert_verifier();
+    network_session_params.transport_security_state =
+        url_request_context_->transport_security_state();
     network_session_params.server_bound_cert_service =
         url_request_context_->server_bound_cert_service();
     network_session_params.proxy_service =

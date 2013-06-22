@@ -113,6 +113,10 @@ void CefWebContentsViewOSR::CloseTabAfterEventTracking() {
 
 void CefWebContentsViewOSR::SetAllowOverlappingViews(bool overlapping) {
 }
+
+bool CefWebContentsViewOSR::GetAllowOverlappingViews() const {
+  return false;
+}
 #endif  // defined(OS_MACOSX)
 
 // RenderViewHostDelegateView methods.

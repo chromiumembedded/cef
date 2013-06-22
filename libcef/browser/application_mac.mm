@@ -5,8 +5,8 @@
 
 #include "libcef/browser/application_mac.h"
 
-#include "base/message_pump_mac.h"
 #include "base/mac/scoped_sending_event.h"
+#include "base/message_loop/message_pump_mac.h"
 
 @interface CefCrApplication : NSApplication<CrAppProtocol,
                                             CrAppControlProtocol> {

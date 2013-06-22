@@ -15,8 +15,8 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/string_util.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_params.h"
@@ -130,7 +130,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       return;
 
     DownloadItem* item = manager->GetDownload(download_id);
-    if (!item || !item->IsInProgress())
+    if (!item || item->GetState() != content::DownloadItem::IN_PROGRESS)
       return;
 
     bool handled = false;
@@ -215,7 +215,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
-      if (item && item->IsInProgress())
+      if (item && item->GetState() == content::DownloadItem::IN_PROGRESS)
         item->Cancel(true);
     }
 

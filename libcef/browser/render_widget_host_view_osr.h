@@ -116,8 +116,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void Blur() OVERRIDE;
   virtual void UpdateCursor(const WebCursor& cursor) OVERRIDE;
   virtual void SetIsLoading(bool is_loading) OVERRIDE;
-  virtual void TextInputStateChanged(
-      const ViewHostMsg_TextInputState_Params& params) OVERRIDE;
+  virtual void TextInputTypeChanged(ui::TextInputType type,
+                                    bool can_compose_inline) OVERRIDE;
   virtual void ImeCancelComposition() OVERRIDE;
   virtual void ImeCompositionRangeChanged(
       const ui::Range& range,
@@ -125,7 +125,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void DidUpdateBackingStore(
       const gfx::Rect& scroll_rect,
       const gfx::Vector2d& scroll_delta,
-      const std::vector<gfx::Rect>& copy_rects) OVERRIDE;
+      const std::vector<gfx::Rect>& copy_rects,
+      const ui::LatencyInfo& latency_info) OVERRIDE;
   virtual void RenderViewGone(base::TerminationStatus status,
       int error_code) OVERRIDE;
 #if defined(OS_WIN) && !defined(USE_AURA)

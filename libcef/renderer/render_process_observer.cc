@@ -7,9 +7,9 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/renderer/content_renderer_client.h"
 
-#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 
 CefRenderProcessObserver::CefRenderProcessObserver() {
 }

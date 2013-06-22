@@ -8,8 +8,8 @@
 #include "base/message_loop.h"
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
-#import "chrome/browser/ui/cocoa/menu_controller.h"
 #include "content/public/browser/web_contents_view.h"
+#import "ui/base/cocoa/menu_controller.h"
 
 CefMenuCreatorRunnerMac::CefMenuCreatorRunnerMac()
     : menu_controller_(nil) {

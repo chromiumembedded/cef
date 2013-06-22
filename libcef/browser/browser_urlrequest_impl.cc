@@ -15,7 +15,7 @@
 
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "content/public/common/url_fetcher.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_request_headers.h"

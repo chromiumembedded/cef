@@ -54,6 +54,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   virtual bool IsEventTracking() const OVERRIDE;
   virtual void CloseTabAfterEventTracking() OVERRIDE;
   virtual void SetAllowOverlappingViews(bool overlapping) OVERRIDE;
+  virtual bool GetAllowOverlappingViews() const OVERRIDE;
 #endif
 
   // RenderViewHostDelegateView methods.

@@ -6,7 +6,7 @@
 #include "libcef/browser/internal_scheme_handler.h"
 #include <string>
 #include "libcef/common/content_client.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace scheme {

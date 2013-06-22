@@ -14,7 +14,7 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Include after base/bind.h to avoid name collisions with cef_tuple.h.

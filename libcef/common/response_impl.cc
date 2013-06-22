@@ -7,12 +7,12 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebHTTPHeaderVisitor.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebURLResponse.h"
+#include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURLResponse.h"
 
 
 #define CHECK_READONLY_RETURN_VOID() \

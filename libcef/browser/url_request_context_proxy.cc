@@ -11,7 +11,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
-#include "base/message_loop_proxy.h"
+#include "base/message_loop/message_loop_proxy.h"
 #include "net/cookies/cookie_store.h"
 #include "net/url_request/url_request_context_getter.h"
 
@@ -138,6 +138,7 @@ void CefURLRequestContextProxy::Initialize(CefBrowserHostImpl* browser) {
   set_net_log(context->net_log());
   set_host_resolver(context->host_resolver());
   set_cert_verifier(context->cert_verifier());
+  set_transport_security_state(context->transport_security_state());
   set_server_bound_cert_service(context->server_bound_cert_service());
   set_fraudulent_certificate_reporter(
       context->fraudulent_certificate_reporter());

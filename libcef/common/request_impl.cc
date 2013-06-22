@@ -17,11 +17,11 @@
 #include "net/base/upload_file_element_reader.h"
 #include "net/http/http_request_headers.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebHTTPHeaderVisitor.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebURLError.h"
-#include "third_party/WebKit/Source/Platform/chromium/public/WebURLRequest.h"
+#include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/platform/WebURLError.h"
+#include "third_party/WebKit/public/platform/WebURLRequest.h"
 
 namespace {
 

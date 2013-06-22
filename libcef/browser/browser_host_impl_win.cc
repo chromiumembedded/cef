@@ -14,8 +14,8 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/i18n/case_conversion.h"
-#include "base/string_util.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "base/win/windows_version.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -24,8 +24,8 @@
 #include "grit/cef_strings.h"
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/win/WebInputEventFactory.h"
+#include "third_party/WebKit/public/web/WebInputEvent.h"
+#include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/hwnd_util.h"
 

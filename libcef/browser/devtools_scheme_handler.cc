@@ -8,7 +8,7 @@
 
 #include "libcef/browser/internal_scheme_handler.h"
 
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "content/public/common/url_constants.h"
 #include "grit/devtools_resources_map.h"
 

@@ -6,8 +6,8 @@
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/compiler_specific.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebElement.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebElement.h"
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);

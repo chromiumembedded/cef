@@ -7,7 +7,7 @@
 #define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 
 #include <string>
-#include "base/string16.h"
+#include "base/strings/string16.h"
 #include "v8/include/v8.h"
 
 namespace WebKit {
