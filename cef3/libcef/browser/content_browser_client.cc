@@ -453,10 +453,10 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
 
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess &&
-      command_line->HasSwitch(switches::kBrowserSubprocessPath)) {
+      browser_cmd.HasSwitch(switches::kBrowserSubprocessPath)) {
     // Force use of the sub-process executable path for the zygote process.
     const base::FilePath& subprocess_path =
-        command_line->GetSwitchValuePath(switches::kBrowserSubprocessPath);
+        browser_cmd.GetSwitchValuePath(switches::kBrowserSubprocessPath);
     if (!subprocess_path.empty())
       command_line->SetProgram(subprocess_path);
   }
