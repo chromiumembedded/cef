@@ -5,13 +5,16 @@
 
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/net_resource_provider.h"
 #include "libcef/renderer/content_renderer_client.h"
 
+#include "net/base/net_module.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
 
 CefRenderProcessObserver::CefRenderProcessObserver() {
+  net::NetModule::SetResourceProvider(NetResourceProvider);
 }
 
 CefRenderProcessObserver::~CefRenderProcessObserver() {

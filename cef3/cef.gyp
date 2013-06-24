@@ -926,6 +926,8 @@
         'libcef/common/http_header_utils.h',
         'libcef/common/main_delegate.cc',
         'libcef/common/main_delegate.h',
+        'libcef/common/net_resource_provider.cc',
+        'libcef/common/net_resource_provider.h',
         'libcef/common/process_message_impl.cc',
         'libcef/common/process_message_impl.h',
         'libcef/common/request_impl.cc',
