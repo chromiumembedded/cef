@@ -23,6 +23,7 @@ class MessageLoop;
 }
 
 namespace net {
+class FtpTransactionFactory;
 class HostResolver;
 class ProxyConfigService;
 class URLRequestContextStorage;
@@ -114,6 +115,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
+  scoped_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
   net::URLRequestJobFactoryImpl* job_factory_impl_;
 

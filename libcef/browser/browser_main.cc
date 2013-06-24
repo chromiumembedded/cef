@@ -10,7 +10,7 @@
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/net_resource_provider.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -25,15 +25,6 @@
 #include "net/proxy/proxy_resolver_v8.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
-
-namespace {
-
-base::StringPiece ResourceProvider(int resource_id) {
-  return CefContentClient::Get()->GetDataResource(resource_id,
-                                                  ui::SCALE_FACTOR_NONE);
-}
-
-}  // namespace
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -61,7 +52,7 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
 
 int CefBrowserMainParts::PreCreateThreads() {
   PlatformInitialize();
-  net::NetModule::SetResourceProvider(&ResourceProvider);
+  net::NetModule::SetResourceProvider(&NetResourceProvider);
 
   // Initialize the GpuDataManager before IO access restrictions are applied and
   // before the IO thread is started.

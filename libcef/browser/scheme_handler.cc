@@ -13,17 +13,24 @@
 #include "content/public/common/url_constants.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
+#include "net/url_request/ftp_protocol_handler.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 
 namespace scheme {
 
 void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    net::FtpTransactionFactory* ftp_transaction_factory) {
   protocol_handlers->insert(
       std::make_pair(chrome::kDataScheme, new net::DataProtocolHandler));
   protocol_handlers->insert(
       std::make_pair(chrome::kFileScheme, new net::FileProtocolHandler));
+#if !defined(DISABLE_FTP_SUPPORT)
+  protocol_handlers->insert(
+      std::make_pair(chrome::kFtpScheme,
+                     new net::FtpProtocolHandler(ftp_transaction_factory)));
+#endif
 
   for (content::ProtocolHandlerMap::iterator it =
            protocol_handlers->begin();

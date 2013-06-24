@@ -12,6 +12,7 @@
 #include "googleurl/src/gurl.h"
 
 namespace net {
+class FtpTransactionFactory;
 class URLRequestJobFactoryImpl;
 }
 
@@ -21,7 +22,8 @@ namespace scheme {
 // overridden.
 void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
-    content::ProtocolHandlerMap* protocol_handlers);
+    content::ProtocolHandlerMap* protocol_handlers,
+    net::FtpTransactionFactory* ftp_transaction_factory);
 
 // Register the internal scheme handlers that can be overridden.
 void RegisterInternalHandlers();

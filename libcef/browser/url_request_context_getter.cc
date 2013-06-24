@@ -33,6 +33,7 @@
 #include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
+#include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
@@ -167,12 +168,18 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
                                                     main_backend);
     storage_->set_http_transaction_factory(main_cache);
 
+#if !defined(DISABLE_FTP_SUPPORT)
+    ftp_transaction_factory_.reset(
+        new net::FtpNetworkLayer(network_session_params.host_resolver));
+#endif
+
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     job_factory_impl_ = job_factory.get();
 
     scheme::InstallInternalProtectedHandlers(job_factory.get(),
-                                             &protocol_handlers_);
+                                             &protocol_handlers_,
+                                             ftp_transaction_factory_.get());
     protocol_handlers_.clear();
 
     storage_->set_job_factory(job_factory.release());
