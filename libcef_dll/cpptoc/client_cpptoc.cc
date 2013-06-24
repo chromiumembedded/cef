@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
@@ -91,6 +92,22 @@ struct _cef_download_handler_t* CEF_CALLBACK client_get_download_handler(
 
   // Return type: refptr_same
   return CefDownloadHandlerCppToC::Wrap(_retval);
+}
+
+struct _cef_drag_handler_t* CEF_CALLBACK client_get_drag_handler(
+    struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefDragHandler> _retval = CefClientCppToC::Get(
+      self)->GetDragHandler();
+
+  // Return type: refptr_same
+  return CefDragHandlerCppToC::Wrap(_retval);
 }
 
 struct _cef_focus_handler_t* CEF_CALLBACK client_get_focus_handler(
@@ -257,6 +274,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_dialog_handler = client_get_dialog_handler;
   struct_.struct_.get_display_handler = client_get_display_handler;
   struct_.struct_.get_download_handler = client_get_download_handler;
+  struct_.struct_.get_drag_handler = client_get_drag_handler;
   struct_.struct_.get_focus_handler = client_get_focus_handler;
   struct_.struct_.get_geolocation_handler = client_get_geolocation_handler;
   struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;

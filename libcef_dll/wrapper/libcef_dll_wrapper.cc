@@ -43,6 +43,7 @@
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h"
@@ -83,6 +84,7 @@
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
@@ -188,6 +190,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefDownloadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDownloadItemCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDownloadItemCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDragDataCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefDragHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFileDialogCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefFocusHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
