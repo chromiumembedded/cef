@@ -109,6 +109,95 @@ need to be translated for each locale.-->
   <translations>
     <!-- TODO figure out a reliable way to generate XMB/XTB files. For more information see:
     https://groups.google.com/a/chromium.org/group/chromium-dev/browse_thread/thread/ce501a6ee4958c61 -->
+    <!-- The translation console uses 'iw' for Hebrew, but we use 'he'. -->
+    <file path="../../../chrome/app/resources/generated_resources_am.xtb" lang="am" />
+    <file path="../../../chrome/app/resources/generated_resources_ar.xtb" lang="ar" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ast.xtb" lang="ast" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_bg.xtb" lang="bg" />
+    <file path="../../../chrome/app/resources/generated_resources_bn.xtb" lang="bn" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_bs.xtb" lang="bs" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_ca.xtb" lang="ca" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ca-valencia.xtb" lang="ca@valencia" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_cs.xtb" lang="cs" />
+    <file path="../../../chrome/app/resources/generated_resources_da.xtb" lang="da" />
+    <file path="../../../chrome/app/resources/generated_resources_de.xtb" lang="de" />
+    <file path="../../../chrome/app/resources/generated_resources_el.xtb" lang="el" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_en-AU.xtb" lang="en-AU" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_en-GB.xtb" lang="en-GB" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_eo.xtb" lang="eo" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_es.xtb" lang="es" />
+    <file path="../../../chrome/app/resources/generated_resources_es-419.xtb" lang="es-419" />
+    <file path="../../../chrome/app/resources/generated_resources_et.xtb" lang="et" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_eu.xtb" lang="eu" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_fa.xtb" lang="fa" />
+    <file path="../../../chrome/app/resources/generated_resources_fi.xtb" lang="fi" />
+    <file path="../../../chrome/app/resources/generated_resources_fil.xtb" lang="fil" />
+    <file path="../../../chrome/app/resources/generated_resources_fr.xtb" lang="fr" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_gl.xtb" lang="gl" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_gu.xtb" lang="gu" />
+    <file path="../../../chrome/app/resources/generated_resources_hi.xtb" lang="hi" />
+    <file path="../../../chrome/app/resources/generated_resources_hr.xtb" lang="hr" />
+    <file path="../../../chrome/app/resources/generated_resources_hu.xtb" lang="hu" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_hy.xtb" lang="hy" />
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ia.xtb" lang="ia" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_id.xtb" lang="id" />
+    <file path="../../../chrome/app/resources/generated_resources_it.xtb" lang="it" />
+    <!-- The translation console uses 'iw' for Hebrew, but we use 'he'. -->
+    <file path="../../../chrome/app/resources/generated_resources_iw.xtb" lang="he" />
+    <file path="../../../chrome/app/resources/generated_resources_ja.xtb" lang="ja" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ka.xtb" lang="ka" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_kn.xtb" lang="kn" />
+    <file path="../../../chrome/app/resources/generated_resources_ko.xtb" lang="ko" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ku.xtb" lang="ku" />
+      <file path="../../../third_partylaunchpad_translations/generated_resources_kw.xtb" lang="kw" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_lt.xtb" lang="lt" />
+    <file path="../../../chrome/app/resources/generated_resources_lv.xtb" lang="lv" />
+    <file path="../../../chrome/app/resources/generated_resources_ml.xtb" lang="ml" />
+    <file path="../../../chrome/app/resources/generated_resources_mr.xtb" lang="mr" />
+    <file path="../../../chrome/app/resources/generated_resources_ms.xtb" lang="ms" />
+    <file path="../../../chrome/app/resources/generated_resources_nl.xtb" lang="nl" />
+    <file path="../../../chrome/app/resources/generated_resources_no.xtb" lang="no" />
+    <file path="../../../chrome/app/resources/generated_resources_pl.xtb" lang="pl" />
+    <file path="../../../chrome/app/resources/generated_resources_pt-BR.xtb" lang="pt-BR" />
+    <file path="../../../chrome/app/resources/generated_resources_pt-PT.xtb" lang="pt-PT" />
+    <file path="../../../chrome/app/resources/generated_resources_ro.xtb" lang="ro" />
+    <file path="../../../chrome/app/resources/generated_resources_ru.xtb" lang="ru" />
+    <file path="../../../chrome/app/resources/generated_resources_sk.xtb" lang="sk" />
+    <file path="../../../chrome/app/resources/generated_resources_sl.xtb" lang="sl" />
+    <file path="../../../chrome/app/resources/generated_resources_sr.xtb" lang="sr" />
+    <file path="../../../chrome/app/resources/generated_resources_sv.xtb" lang="sv" />
+    <file path="../../../chrome/app/resources/generated_resources_sw.xtb" lang="sw" />
+    <file path="../../../chrome/app/resources/generated_resources_ta.xtb" lang="ta" />
+    <file path="../../../chrome/app/resources/generated_resources_te.xtb" lang="te" />
+    <file path="../../../chrome/app/resources/generated_resources_th.xtb" lang="th" />
+    <file path="../../../chrome/app/resources/generated_resources_tr.xtb" lang="tr" />
+    <if expr="pp_ifdef('use_third_party_translations')">
+      <file path="../../../third_partylaunchpad_translations/generated_resources_ug.xtb" lang="ug" />
+    </if>
+    <file path="../../../chrome/app/resources/generated_resources_uk.xtb" lang="uk" />
+    <file path="../../../chrome/app/resources/generated_resources_vi.xtb" lang="vi" />
+    <file path="../../../chrome/app/resources/generated_resources_zh-CN.xtb" lang="zh-CN" />
+    <file path="../../../chrome/app/resources/generated_resources_zh-TW.xtb" lang="zh-TW" />
   </translations>
   <release seq="1" allow_pseudo="false">
     <messages fallback_to_english="true">
@@ -124,7 +213,7 @@ need to be translated for each locale.-->
         &amp;Forward
       </message>
       <message name="IDS_MENU_RELOAD" desc="The text label of the Reload menu item">
-        &amp;Reload
+        Re&amp;load
       </message>
       <message name="IDS_MENU_RELOAD_NOCACHE" desc="The text label of the Reload no cache menu item">
         Reload no cache
@@ -144,7 +233,7 @@ need to be translated for each locale.-->
       <message name="IDS_MENU_COPY" desc="The text label of the Copy menu item">
         &amp;Copy
       </message>
-      <message name="IDS_MENU_PASTE" desc="The text label of the Paste menu item">
+      <message name="IDS_MENU_PASTE" desc="The text label of the Paste menu item" meaning="'Paste' menu command in sentence case">
         &amp;Paste
       </message>
       <message name="IDS_MENU_DELETE" desc="The text label of the Delete menu item (which deletes selected text without copying to clipboard)">
@@ -160,7 +249,7 @@ need to be translated for each locale.-->
         &amp;Print...
       </message>
       <message name="IDS_MENU_VIEW_SOURCE" desc="The text label for the View Source... menu item.">
-        View Source...
+        View s&amp;ource
       </message>
       <message name="IDS_APP_AUDIO_FILES" desc="The text label for the Audio Files filter in file open/save dialogs.">
         Audio Files
