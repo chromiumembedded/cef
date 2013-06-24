@@ -34,15 +34,19 @@ MSVC_POP_WARNING();
 #include "content/common/child_thread.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/content_constants.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
+#include "content/renderer/render_view_impl.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebString.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebURL.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebWorkerRunLoop.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebDocument.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebPluginParams.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebPrerendererClient.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebRuntimeFeatures.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebSecurityPolicy.h"
@@ -446,7 +450,8 @@ void CefContentRendererClient::RenderViewCreated(
 #endif
 
   CefRefPtr<CefBrowserImpl> browser =
-      new CefBrowserImpl(render_view, params.browser_id, params.is_popup);
+      new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
+                         params.is_window_rendering_disabled);
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
@@ -459,6 +464,85 @@ void CefContentRendererClient::RenderViewCreated(
     if (handler.get())
       handler->OnBrowserCreated(browser.get());
   }
+}
+
+bool CefContentRendererClient::OverrideCreatePlugin(
+    content::RenderView* render_view,
+    WebKit::WebFrame* frame,
+    const WebKit::WebPluginParams& params,
+    WebKit::WebPlugin** plugin) {
+  CefRefPtr<CefBrowserImpl> browser =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+  if (!browser || !browser->is_window_rendering_disabled())
+    return false;
+
+#if defined(ENABLE_PLUGINS)
+  if (UTF16ToASCII(params.mimeType) == content::kBrowserPluginMimeType)
+    return false;
+
+  content::RenderViewImpl* render_view_impl =
+      static_cast<content::RenderViewImpl*>(render_view);
+
+  webkit::WebPluginInfo info;
+  std::string mime_type;
+  bool found = render_view_impl->GetPluginInfo(params.url,
+                                               frame->top()->document().url(),
+                                               params.mimeType.utf8(),
+                                               &info,
+                                               &mime_type);
+  if (!found)
+    return false;
+
+  bool flash = LowerCaseEqualsASCII(mime_type,
+                                    "application/x-shockwave-flash");
+  bool silverlight = StartsWithASCII(mime_type,
+                                     "application/x-silverlight", false);
+
+  if (flash) {
+    // "wmode" values of "opaque" or "transparent" are allowed.
+    size_t size = params.attributeNames.size();
+    for (size_t i = 0; i < size; ++i) {
+      std::string name = params.attributeNames[i].utf8();
+      if (name == "wmode") {
+        std::string value = params.attributeValues[i].utf8();
+        if (value == "opaque" || value == "transparent")
+          flash = false;
+        break;
+      }
+    }
+  }
+
+  if (flash || silverlight) {
+    // Force Flash and Silverlight plugins to use windowless mode.
+    WebKit::WebPluginParams params_to_use = params;
+    params_to_use.mimeType = WebKit::WebString::fromUTF8(mime_type);
+  
+    size_t size = params.attributeNames.size();
+    WebKit::WebVector<WebKit::WebString> new_names(size+1),
+                                         new_values(size+1);
+
+    for (size_t i = 0; i < size; ++i) {
+      new_names[i] = params.attributeNames[i];
+      new_values[i] = params.attributeValues[i];
+    }
+
+    if (flash) {
+      new_names[size] = "wmode";
+      new_values[size] = "opaque";
+    } else if (silverlight) {
+      new_names[size] = "windowless";
+      new_values[size] = "true";
+    }
+
+    params_to_use.attributeNames.swap(new_names);
+    params_to_use.attributeValues.swap(new_values);
+
+    *plugin = render_view_impl->CreatePlugin(frame, info, params_to_use);
+    return true;
+  }
+#endif  // defined(ENABLE_PLUGINS)
+
+  return false;
 }
 
 bool CefContentRendererClient::HandleNavigation(

@@ -82,6 +82,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
+  virtual bool OverrideCreatePlugin(
+      content::RenderView* render_view,
+      WebKit::WebFrame* frame,
+      const WebKit::WebPluginParams& params,
+      WebKit::WebPlugin** plugin) OVERRIDE;
   virtual bool HandleNavigation(WebKit::WebFrame* frame,
                                 const WebKit::WebURLRequest& request,
                                 WebKit::WebNavigationType type,
