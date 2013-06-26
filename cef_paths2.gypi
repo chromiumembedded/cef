@@ -88,6 +88,7 @@
       'tests/cefclient/res/logo.png',
       'tests/cefclient/res/other_tests.html',
       'tests/cefclient/res/performance.html',
+      'tests/cefclient/res/performance2.html',
       'tests/cefclient/res/transparency.html',
       'tests/cefclient/res/window.html',
       'tests/cefclient/res/xmlhttprequest.html',

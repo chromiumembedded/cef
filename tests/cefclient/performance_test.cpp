@@ -23,6 +23,7 @@ namespace {
 
 const char kGetPerfTests[] = "GetPerfTests";
 const char kRunPerfTest[] = "RunPerfTest";
+const char kPerfTestReturnValue[] = "PerfTestReturnValue";
 
 class V8Handler : public CefV8Handler {
  public:
@@ -68,6 +69,52 @@ class V8Handler : public CefV8Handler {
         val->SetValue(1, CefV8Value::CreateUInt(kPerfTests[i].iterations));
         retval->SetValue(i, val);
       }
+    } else if (name == kPerfTestReturnValue) {
+      if (arguments.size() == 0) {
+        retval = CefV8Value::CreateInt(1);
+      } else if (arguments.size() == 1 && arguments[0]->IsInt()) {
+        int32 type = arguments[0]->GetIntValue();
+        CefTime date;
+        switch (type) {
+          case 0:
+            retval = CefV8Value::CreateUndefined();
+            break;
+          case 1:
+            retval = CefV8Value::CreateNull();
+            break;
+          case 2:
+            retval = CefV8Value::CreateBool(true);
+            break;
+          case 3:
+            retval = CefV8Value::CreateInt(1);
+            break;
+          case 4:
+            retval = CefV8Value::CreateUInt(1);
+            break;
+          case 5:
+            retval = CefV8Value::CreateDouble(1.234);
+            break;
+          case 6:
+            date.Now();
+            retval = CefV8Value::CreateDate(date);
+            break;
+          case 7:
+            retval = CefV8Value::CreateString("Hello, world!");
+            break;
+          case 8:
+            retval = CefV8Value::CreateObject(NULL);
+            break;
+          case 9:
+            retval = CefV8Value::CreateArray(8);
+            break;
+          case 10:
+            // retval = CefV8Value::CreateFunction(...);
+            exception = "Not implemented";
+            break;
+          default:
+            exception = "Not supported";
+        }
+      }
     }
 
     return true;
@@ -97,6 +144,9 @@ class RenderDelegate : public ClientApp::RenderDelegate {
             V8_PROPERTY_ATTRIBUTE_READONLY);
     object->SetValue(kRunPerfTest,
         CefV8Value::CreateFunction(kRunPerfTest, handler),
+            V8_PROPERTY_ATTRIBUTE_READONLY);
+    object->SetValue(kPerfTestReturnValue,
+        CefV8Value::CreateFunction(kPerfTestReturnValue, handler),
             V8_PROPERTY_ATTRIBUTE_READONLY);
   }
 
