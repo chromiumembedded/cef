@@ -128,15 +128,19 @@ class CefV8Handle : public CefV8HandleBase {
 
   CefV8Handle(v8::Handle<v8::Context> context, handleType v)
       : CefV8HandleBase(context),
-        handle_(persistentType::New(isolate(), v)) {
+        handle_(isolate(), v) {
   }
   virtual ~CefV8Handle() {
     handle_.Dispose(isolate());
     handle_.Clear();
   }
 
-  handleType GetHandle() {
+  handleType GetNewV8Handle() {
     DCHECK(IsValid());
+    return handleType::New(isolate(), handle_);
+  }
+
+  persistentType& GetPersistentV8Handle() {
     return handle_;
   }
 
@@ -170,10 +174,8 @@ class CefV8ContextImpl : public CefV8Context {
                     CefRefPtr<CefV8Value>& retval,
                     CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 
-  v8::Local<v8::Context> GetContext();
+  v8::Handle<v8::Context> GetV8Context();
   WebKit::WebFrame* GetWebFrame();
-
-  v8::Handle<v8::Context> GetHandle() { return handle_->GetHandle(); }
 
  protected:
   typedef CefV8Handle<v8::Context> Handle;
@@ -190,8 +192,26 @@ class CefV8ContextImpl : public CefV8Context {
 
 class CefV8ValueImpl : public CefV8Value {
  public:
-  CefV8ValueImpl(v8::Handle<v8::Value> value, CefTrackNode* tracker = NULL);
+  CefV8ValueImpl();
+  explicit CefV8ValueImpl(v8::Handle<v8::Value> value);
   virtual ~CefV8ValueImpl();
+
+  // Used for initializing the CefV8ValueImpl. Should be called a single time
+  // after the CefV8ValueImpl is created.
+  void InitFromV8Value(v8::Handle<v8::Value> value);
+  void InitUndefined();
+  void InitNull();
+  void InitBool(bool value);
+  void InitInt(int32 value);
+  void InitUInt(uint32 value);
+  void InitDouble(double value);
+  void InitDate(const CefTime& value);
+  void InitString(CefString& value);
+  void InitObject(v8::Handle<v8::Value> value, CefTrackNode* tracker);
+
+  // Creates a new V8 value for the underlying value or returns the existing
+  // object handle.
+  v8::Handle<v8::Value> GetV8Value(bool should_persist);
 
   virtual bool IsValid() OVERRIDE;
   virtual bool IsUndefined() OVERRIDE;
@@ -245,10 +265,6 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 
-  v8::Handle<v8::Value> GetHandle(bool should_persist) {
-    return handle_->GetHandle(should_persist);
-  }
-
  protected:
   // Test for and record any exception.
   bool HasCaught(v8::TryCatch& try_catch);
@@ -260,16 +276,20 @@ class CefV8ValueImpl : public CefV8Value {
 
     Handle(v8::Handle<v8::Context> context, handleType v, CefTrackNode* tracker)
         : CefV8HandleBase(context),
-          handle_(persistentType::New(isolate(), v)),
+          handle_(isolate(), v),
           tracker_(tracker),
           should_persist_(false) {
     }
     virtual ~Handle();
 
-    handleType GetHandle(bool should_persist) {
+    handleType GetNewV8Handle(bool should_persist) {
       DCHECK(IsValid());
       if (should_persist && !should_persist_)
         should_persist_ = true;
+      return handleType::New(isolate(), handle_);
+    }
+
+    persistentType& GetPersistentV8Handle() {
       return handle_;
     }
 
@@ -285,6 +305,30 @@ class CefV8ValueImpl : public CefV8Value {
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };
+ 
+  enum {
+    TYPE_INVALID = 0,
+    TYPE_UNDEFINED,
+    TYPE_NULL,
+    TYPE_BOOL,
+    TYPE_INT,
+    TYPE_UINT,
+    TYPE_DOUBLE,
+    TYPE_DATE,
+    TYPE_STRING,
+    TYPE_OBJECT,
+  } type_;
+
+  union {
+    bool bool_value_;
+    int32 int_value_;
+    uint32 uint_value_;
+    double double_value_;
+    cef_time_t date_value_;
+    cef_string_t string_value_;
+  };
+
+  // Used with Object, Function and Array types.
   scoped_refptr<Handle> handle_;
 
   CefRefPtr<CefV8Exception> last_exception_;
@@ -303,11 +347,8 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
   virtual int GetFrameCount() OVERRIDE;
   virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
 
-  v8::Handle<v8::StackTrace> GetHandle() { return handle_->GetHandle(); }
-
  protected:
-  typedef CefV8Handle<v8::StackTrace> Handle;
-  scoped_refptr<Handle> handle_;
+  std::vector<CefRefPtr<CefV8StackFrame> > frames_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackTraceImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8StackTraceImpl);
@@ -327,11 +368,14 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   virtual bool IsEval() OVERRIDE;
   virtual bool IsConstructor() OVERRIDE;
 
-  v8::Handle<v8::StackFrame> GetHandle() { return handle_->GetHandle(); }
-
  protected:
-  typedef CefV8Handle<v8::StackFrame> Handle;
-  scoped_refptr<Handle> handle_;
+  CefString script_name_;
+  CefString script_name_or_source_url_;
+  CefString function_name_;
+  int line_number_;
+  int column_;
+  bool is_eval_;
+  bool is_constructor_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackFrameImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8StackFrameImpl);

@@ -20,12 +20,6 @@
         'clang_use_chrome_plugins': 0,
       }],
     ]
-  }, 'target_defaults': {
-    'defines': [
-      # Temporary work-around for v8::Persistent changes.
-      # See https://code.google.com/p/chromiumembedded/issues/detail?id=1001
-      'V8_USE_UNSAFE_HANDLES=1',
-    ],
   }, 'conditions': [
     ['os_posix==1 and OS!="mac" and OS!="android"', {
       'target_defaults': {

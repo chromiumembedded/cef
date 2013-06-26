@@ -364,7 +364,6 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     CefRefPtr<CefV8Value> value = CefV8Value::CreateDate(date);
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsDate());
-    EXPECT_TRUE(value->IsObject());
     EXPECT_EQ(date.GetTimeT(), value->GetDateValue().GetTimeT());
 
     // Exit the V8 context.
@@ -377,6 +376,7 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     EXPECT_FALSE(value->IsFunction());
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
+    EXPECT_FALSE(value->IsObject());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsString());
 
@@ -1995,7 +1995,7 @@ class V8TestHandler : public TestHandler {
       }
     } else {
       const std::string& url = frame->GetURL();
-      if (url != kV8NavTestUrl &&
+      if (url != kV8NavTestUrl && url != kV8ContextParentTestUrl &&
           url.find("http://tests/") != std::string::npos) {
         // Run the test.
         CefRefPtr<CefProcessMessage> return_msg =
