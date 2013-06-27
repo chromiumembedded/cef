@@ -93,14 +93,16 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void SetTakesFocusOnlyOnMouseDown(bool flag) OVERRIDE;
   virtual void SetWindowVisibility(bool visible) OVERRIDE;
   virtual void WindowFrameChanged() OVERRIDE;
-
   virtual void ShowDefinitionForSelection() OVERRIDE;
-
   virtual bool SupportsSpeech() const OVERRIDE;
   virtual void SpeakSelection() OVERRIDE;
   virtual bool IsSpeaking() const OVERRIDE;
   virtual void StopSpeaking() OVERRIDE;
 #endif  // defined(OS_MACOSX)
+#if defined(TOOLKIT_GTK)
+  virtual GdkEventButton* GetLastMouseDown() OVERRIDE;
+  virtual gfx::NativeView BuildInputMethodsGtkMenu() OVERRIDE;
+#endif  // defined(TOOLKIT_GTK)
 
   // RenderWidgetHostViewPort methods.
   virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,

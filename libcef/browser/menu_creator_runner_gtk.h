@@ -14,6 +14,7 @@
 class CefMenuCreatorRunnerGtk: public CefMenuCreator::Runner {
  public:
   CefMenuCreatorRunnerGtk();
+  virtual ~CefMenuCreatorRunnerGtk();
 
   // CefMemoryManager::Runner methods.
   virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;

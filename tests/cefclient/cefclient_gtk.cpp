@@ -2,7 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+// This value is defined in build/common.gypi and must be undefined here
+// in order for gtkglext to compile.
+#undef GTK_DISABLE_SINGLE_INCLUDES
+
 #include <gtk/gtk.h>
+#include <gtk/gtkgl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
@@ -11,7 +16,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_handler.h"
+#include "cefclient/client_switches.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
@@ -19,6 +26,15 @@ char szWorkingDir[512];  // The current working directory
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
+
+class MainBrowserProvider : public OSRBrowserProvider {
+  virtual CefRefPtr<CefBrowser> GetBrowser() {
+    if (g_handler.get())
+      return g_handler->GetBrowser();
+
+    return NULL;
+  }
+} g_main_browser_provider;
 
 void destroy(GtkWidget* widget, gpointer data) {
   // Quitting CEF is handled in ClientHandler::OnBeforeClose().
@@ -248,6 +264,9 @@ int main(int argc, char* argv[]) {
 
   gtk_init(&argc, &argv);
 
+  // Perform gtkglext initialization required by the OSR example.
+  gtk_gl_init(&argc, &argv);
+
   // Parse command line arguments.
   AppInitCommandLine(argc, argv);
 
@@ -324,7 +343,19 @@ int main(int argc, char* argv[]) {
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
 
-  window_info.SetAsChild(vbox);
+  if (AppIsOffScreenRenderingEnabled()) {
+    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+    bool transparent =
+        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+
+    CefRefPtr<OSRWindow> osr_window =
+        OSRWindow::Create(&g_main_browser_provider, transparent, vbox);
+    window_info.SetAsOffScreen(osr_window->GetWindowHandle());
+    window_info.SetTransparentPainting(transparent);
+    g_handler->SetOSRHandler(osr_window.get());
+  } else {
+    window_info.SetAsChild(vbox);
+  }
 
   CefBrowserHost::CreateBrowserSync(
       window_info, g_handler.get(),

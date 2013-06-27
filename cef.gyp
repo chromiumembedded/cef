@@ -204,7 +204,7 @@
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:gtk',
+            'gtk',
           ],
           'sources': [
             '<@(includes_linux)',
@@ -243,6 +243,7 @@
         'tests/cefclient/client_app.h',
         'tests/cefclient/client_switches.cpp',
         'tests/cefclient/client_switches.h',
+        'tests/cefclient/res/osr_test.html',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
         'tests/unittests/dialog_unittest.cc',
@@ -253,6 +254,7 @@
         'tests/unittests/jsdialog_unittest.cc',
         'tests/unittests/life_span_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
+        'tests/unittests/os_rendering_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_unittest.cc',
         'tests/cefclient/resource_util.h',
@@ -306,9 +308,7 @@
         [ 'OS=="win"', {
           'sources': [
             'tests/cefclient/cefclient.rc',
-            'tests/cefclient/res/osr_test.html',
             'tests/cefclient/resource_util_win.cpp',
-            'tests/unittests/os_rendering_unittest.cc',
           ],
         }],
         [ 'OS=="mac"', {
@@ -417,7 +417,6 @@
           'sources': [
             'tests/cefclient/resource_util_mac.mm',
             'tests/cefclient/resource_util_posix.cpp',
-            'tests/unittests/os_rendering_unittest.cc',
             'tests/unittests/os_rendering_unittest_mac.h',
             'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
@@ -426,6 +425,18 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:gtk',
+          ],
+          'sources': [
+            'tests/cefclient/resource_util_linux.cpp',
+            'tests/cefclient/resource_util_posix.cpp',
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/files',
+              'files': [
+                'tests/cefclient/res/osr_test.html',
+              ],
+            },
           ],
         }],
       ],
@@ -818,6 +829,8 @@
       ],
       'sources': [
         '<@(includes_common)',
+        'libcef/browser/backing_store_osr.cc',
+        'libcef/browser/backing_store_osr.h',
         'libcef/browser/browser_context.cc',
         'libcef/browser/browser_context.h',
         'libcef/browser/browser_host_impl.cc',
@@ -875,6 +888,8 @@
         'libcef/browser/path_util_impl.cc',
         'libcef/browser/process_util_impl.cc',
         'libcef/browser/proxy_stubs.cc',
+        'libcef/browser/render_widget_host_view_osr.cc',
+        'libcef/browser/render_widget_host_view_osr.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
@@ -901,6 +916,8 @@
         'libcef/browser/url_request_context_proxy.h',
         'libcef/browser/url_request_interceptor.cc',
         'libcef/browser/url_request_interceptor.h',
+        'libcef/browser/web_contents_view_osr.cc',
+        'libcef/browser/web_contents_view_osr.h',
         'libcef/browser/web_plugin_impl.cc',
         'libcef/browser/web_plugin_impl.h',
         'libcef/browser/xml_reader_impl.cc',
@@ -1005,17 +1022,11 @@
         ['OS=="win"', {
           'sources': [
             '<@(includes_win)',
-            'libcef/browser/backing_store_osr.cc',
-            'libcef/browser/backing_store_osr.h',
             'libcef/browser/browser_host_impl_win.cc',
             'libcef/browser/browser_main_win.cc',
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
-            'libcef/browser/render_widget_host_view_osr.cc',
-            'libcef/browser/render_widget_host_view_osr.h',
-            'libcef/browser/web_contents_view_osr.cc',
-            'libcef/browser/web_contents_view_osr.h',
             # Include sources for context menu implementation.
             '<(DEPTH)/ui/views/controls/menu/menu_2.cc',
             '<(DEPTH)/ui/views/controls/menu/menu_2.h',
@@ -1326,5 +1337,32 @@
         },  # target cef_unittests_helper_app
       ],
     }],  # OS=="mac"
+    [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+      'targets': [
+        {
+          'target_name': 'gtk',
+          'type': 'none',
+          'variables': {
+            # gtk requires gmodule, but it does not list it as a dependency
+            # in some misconfigured systems.
+            # gtkglext is required by the cefclient OSR example.
+            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0',
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <(gtk_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <(gtk_packages))',
+            ],
+          },
+        },
+      ],
+    }],  # OS=="linux" or OS=="freebsd" or OS=="openbsd"
   ],
 }

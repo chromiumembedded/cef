@@ -22,25 +22,53 @@ class CefMenuDelegate : public MenuGtk::Delegate {
 CefMenuCreatorRunnerGtk::CefMenuCreatorRunnerGtk() {
 }
 
+CefMenuCreatorRunnerGtk::~CefMenuCreatorRunnerGtk() {
+  if (menu_.get())
+    menu_->Cancel();
+}
+
 bool CefMenuCreatorRunnerGtk::RunContextMenu(CefMenuCreator* manager) {
+  gfx::Point screen_point;
+  GdkEventButton* event = NULL;
+
+  if (manager->browser()->IsWindowRenderingDisabled()) {
+    CefRefPtr<CefClient> client = manager->browser()->GetClient();
+    if (!client.get())
+      return false;
+
+    CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+    if (!handler.get())
+      return false;
+
+    int screenX = 0, screenY = 0;
+    if (!handler->GetScreenPoint(manager->browser(),
+                                 manager->params().x, manager->params().y,
+                                 screenX, screenY)) {
+      return false;
+    }
+
+    screen_point = gfx::Point(screenX, screenY);
+  } else {
+    gfx::Rect bounds;
+    manager->browser()->GetWebContents()->GetView()->GetContainerBounds(&bounds);
+    screen_point = bounds.origin();
+    screen_point.Offset(manager->params().x, manager->params().y);
+
+    content::RenderWidgetHostView* view =
+        manager->browser()->GetWebContents()->GetRenderWidgetHostView();
+    event = view->GetLastMouseDown();
+  }
+
   if (!menu_delegate_.get())
     menu_delegate_.reset(new CefMenuDelegate);
 
   // Create a menu based on the model.
   menu_.reset(new MenuGtk(menu_delegate_.get(), manager->model()));
 
-  gfx::Rect bounds;
-  manager->browser()->GetWebContents()->GetView()->GetContainerBounds(&bounds);
-  gfx::Point point = bounds.origin();
-  point.Offset(manager->params().x, manager->params().y);
-
-  content::RenderWidgetHostView* view =
-      manager->browser()->GetWebContents()->GetRenderWidgetHostView();
-  GdkEventButton* event = view->GetLastMouseDown();
   uint32_t triggering_event_time = event ? event->time : GDK_CURRENT_TIME;
  
   // Show the menu. Execution will continue asynchronously.
-  menu_->PopupAsContext(point, triggering_event_time);
+  menu_->PopupAsContext(screen_point, triggering_event_time);
 
   return true;
 }

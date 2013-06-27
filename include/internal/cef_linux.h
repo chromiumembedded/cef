@@ -109,8 +109,10 @@ struct CefWindowInfoTraits {
 
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
-    target->widget = src->widget;
     target->parent_widget = src->parent_widget;
+    target->window_rendering_disabled = src->window_rendering_disabled;
+    target->transparent_painting = src->transparent_painting;
+    target->widget = src->widget;
   }
 };
 
@@ -124,6 +126,15 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
 
   void SetAsChild(CefWindowHandle ParentWidget) {
+    parent_widget = ParentWidget;
+  }
+
+  void SetTransparentPainting(bool transparentPainting) {
+    transparent_painting = transparentPainting;
+  }
+
+  void SetAsOffScreen(CefWindowHandle ParentWidget) {
+    window_rendering_disabled = true;
     parent_widget = ParentWidget;
   }
 };
