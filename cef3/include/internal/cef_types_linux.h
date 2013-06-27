@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 // Handle types.
-#define cef_cursor_handle_t void*
+#define cef_cursor_handle_t GdkCursor*
 #define cef_event_handle_t GdkEvent*
 #define cef_window_handle_t GtkWidget*
 #define cef_text_input_context_t void*
@@ -62,6 +62,14 @@ typedef struct _cef_main_args_t {
 typedef struct _cef_window_info_t {
   // Pointer for the parent GtkBox widget.
   cef_window_handle_t parent_widget;
+
+  // If window rendering is disabled no browser window will be created. Set
+  // |parent_widget| to the window that will act as the parent for popup menus,
+  // dialog boxes, etc.
+  bool window_rendering_disabled;
+
+  // Set to true to enable transparent painting.
+  bool transparent_painting;
 
   // Pointer for the new browser widget.
   cef_window_handle_t widget;

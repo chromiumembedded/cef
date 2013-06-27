@@ -16,6 +16,8 @@
 
 #if defined(OS_MACOSX)
 #include "tests/unittests/os_rendering_unittest_mac.h"
+#elif defined(OS_LINUX)
+#include <X11/keysym.h>
 #elif defined(OS_WIN)
 // Required for resource_util_win, which uses this as an extern
 HINSTANCE hInst = ::GetModuleHandle(NULL);
@@ -35,7 +37,7 @@ const int kOsrWidth = 600;
 const int kOsrHeight = 400;
 
 // precomputed bounding client rects for html elements (h1 and li).
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 const CefRect kExpectedRectLI[] = {
   CefRect(8, 8, 567, 74),    // LI00
   CefRect(27, 103, 548, 20),  // LI01
@@ -69,26 +71,34 @@ const CefRect kExpectedRectLI[] = {
 
 // bounding client rects for edit box and navigate button
 #if defined(OS_WIN)
-const CefRect kEditBoxRect(412, 245, 153, 22);
+const CefRect kEditBoxRect(412, 245, 60, 22);
 const CefRect kNavigateButtonRect(360, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
 const CefRect kExpandedSelectRect(467, 42, 81, 322);
+const int kDefaultVerticalScrollbarWidth = 17;
 const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const int kHorizontalScrollbarWidth = GetSystemMetrics(SM_CXHSCROLL);
 #elif defined(OS_MACOSX)
-const CefRect kEditBoxRect(429, 228, 129, 25);
+const CefRect kEditBoxRect(429, 228, 60, 25);
 const CefRect kNavigateButtonRect(375, 251, 138, 28);
 const CefRect kSelectRect(461, 21, 87, 26);
 const CefRect kExpandedSelectRect(467, 42, 80, 262);
+#elif defined(OS_LINUX)
+const CefRect kEditBoxRect(434, 246, 60, 20);
+const CefRect kNavigateButtonRect(380, 271, 140, 22);
+const CefRect kSelectRect(467, 22, 75, 20);
+const CefRect kExpandedSelectRect(467, 42, 79, 322);
+const int kDefaultVerticalScrollbarWidth = 14;
+const int kVerticalScrollbarWidth = 14;
+const int kHorizontalScrollbarWidth = 14;
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
 
 // adjusted expected rect regarding system vertical scrollbar width
 CefRect ExpectedRect(int index) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // this is the scrollbar width for all the kExpectedRectLI
-  const int kDefaultVerticalScrollbarWidth = 17;
   if (kDefaultVerticalScrollbarWidth == kVerticalScrollbarWidth)
     return kExpectedRectLI[index];
 
@@ -106,12 +116,21 @@ CefRect ExpectedRect(int index) {
 // word to be written into edit box
 const char kKeyTestWord[] = "done";
 
+#if defined(OS_MACOSX)
 const ui::KeyboardCode kKeyTestCodes[] = {
   ui::VKEY_D,
   ui::VKEY_O,
   ui::VKEY_N,
   ui::VKEY_E
 };
+#elif defined(OS_LINUX)
+const unsigned int kKeyTestCodes[] = {
+  XK_d,
+  XK_o,
+  XK_n,
+  XK_e
+};
+#endif
 
 // width for the icon that appear on the screen when pressing
 // middle mouse button
@@ -210,10 +229,13 @@ class OSRTestHandler : public TestHandler,
       return;
 
     switch(test_type_) {
-      case OSR_TEST_KEY_EVENTS:
-        EXPECT_EQ(frame->GetURL(), std::string(kTestUrl) + "?k=" + kKeyTestWord);
+      case OSR_TEST_KEY_EVENTS: {
+        const std::string& expected_url =
+            std::string(kTestUrl) + "?k=" + kKeyTestWord;
+        EXPECT_STREQ(expected_url.c_str(),
+                     frame->GetURL().ToString().c_str());
         DestroySucceededTestSoon();
-        break;
+        } break;
       default:
         // Intentionally left blank
         break;
@@ -544,6 +566,8 @@ class OSRTestHandler : public TestHandler,
             event.windows_key_code = VkCode;
 #elif defined(OS_MACOSX)
             osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
+#elif defined(OS_LINUX)
+            event.native_key_code = kKeyTestCodes[i];
 #else
             NOTREACHED();
 #endif
@@ -553,6 +577,8 @@ class OSRTestHandler : public TestHandler,
             event.windows_key_code = kKeyTestWord[i];
 #elif defined(OS_MACOSX)
             osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
+#elif defined(OS_LINUX)
+            event.native_key_code = kKeyTestCodes[i];
 #endif
             event.type = KEYEVENT_CHAR;
             browser->GetHost()->SendKeyEvent(event);
@@ -562,6 +588,8 @@ class OSRTestHandler : public TestHandler,
             event.native_key_code |= 0xC0000000;
 #elif defined(OS_MACOSX)
             osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
+#elif defined(OS_LINUX)
+            event.native_key_code = kKeyTestCodes[i];
 #endif
             event.type = KEYEVENT_KEYUP;
             browser->GetHost()->SendKeyEvent(event);
@@ -623,6 +651,11 @@ class OSRTestHandler : public TestHandler,
           EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
               kOsrWidth, kOsrHeight));
           DestroySucceededTestSoon();
+#elif defined(OS_LINUX)
+          EXPECT_EQ(dirtyRects.size(), 1U);
+          EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
+              kOsrWidth, kOsrHeight));
+          DestroySucceededTestSoon();
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
@@ -672,10 +705,12 @@ class OSRTestHandler : public TestHandler,
           BYTE VkCode = LOBYTE(VK_ESCAPE);
           UINT scanCode = MapVirtualKey(VkCode, MAPVK_VK_TO_VSC);
           event.native_key_code = (scanCode << 16) |  // key scan code
-            1;  // key repeat count
+                                                  1;  // key repeat count
           event.windows_key_code = VkCode;
 #elif defined(OS_MACOSX)
           osr_unittests::GetKeyEvent(event, ui::VKEY_ESCAPE, 0);
+#elif defined(OS_LINUX)
+          event.native_key_code = XK_Escape;
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
@@ -729,7 +764,7 @@ class OSRTestHandler : public TestHandler,
                                 1,
                                 kExpandedSelectRect.width - 3,
                                 kExpandedSelectRect.height - 2));
-#elif defined(OS_MACOSX)
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
               EXPECT_EQ(dirtyRects[0],
                         CefRect(1,
                                 0,
@@ -758,8 +793,8 @@ class OSRTestHandler : public TestHandler,
 
   virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
                          CefString& text) OVERRIDE {
-    if (test_type_ ==  OSR_TEST_TOOLTIP && started()) {
-      EXPECT_EQ(text, "EXPECTED_TOOLTIP");
+    if (test_type_ == OSR_TEST_TOOLTIP && started()) {
+      EXPECT_STREQ("EXPECTED_TOOLTIP", text.ToString().c_str());
       DestroySucceededTestSoon();
     }
     return false;
@@ -794,6 +829,8 @@ class OSRTestHandler : public TestHandler,
       windowInfo.SetAsOffScreen(osr_unittests::GetFakeView());
     else
       windowInfo.SetAsOffScreen(NULL);
+#elif defined(OS_LINUX)
+    windowInfo.SetAsOffScreen(NULL);
 #else
 #error "Unsupported platform"
 #endif

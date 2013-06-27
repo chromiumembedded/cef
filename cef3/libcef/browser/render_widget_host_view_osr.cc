@@ -192,10 +192,10 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
   HCURSOR hCursor = web_cursor.GetCursor((HINSTANCE)hModule);
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
       browser_impl_->GetBrowser(), hCursor);
-#elif defined(OS_MACOSX)
+#elif defined(OS_MACOSX) || defined(TOOLKIT_GTK)
   // cursor is const, and GetNativeCursor is not
   WebCursor web_cursor = cursor;
-  NSCursor* native_cursor = web_cursor.GetNativeCursor();
+  CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
       browser_impl_->GetBrowser(), native_cursor);
 #else
@@ -683,3 +683,14 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 void CefRenderWidgetHostViewOSR::StopSpeaking() {
 }
 #endif  // defined(OS_MACOSX)
+
+#if defined(TOOLKIT_GTK)
+GdkEventButton* CefRenderWidgetHostViewOSR::GetLastMouseDown() {
+  return NULL;
+}
+
+gfx::NativeView CefRenderWidgetHostViewOSR::BuildInputMethodsGtkMenu() {
+  return NULL;
+}
+#endif  // defined(TOOLKIT_GTK)
+

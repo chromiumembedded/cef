@@ -18,6 +18,7 @@
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/web_contents_view_osr.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -36,10 +37,6 @@
 #include "content/public/common/content_switches.h"
 #include "googleurl/src/gurl.h"
 #include "ui/base/ui_base_switches.h"
-
-#if defined(OS_WIN) || defined(OS_MACOSX)
-#include "libcef/browser/web_contents_view_osr.h"
-#endif
 
 namespace {
 
@@ -373,9 +370,7 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
     content::RenderViewHostDelegateView** render_view_host_delegate_view) {
   content::WebContentsViewPort* view = NULL;
   *render_view_host_delegate_view = NULL;
-  // TODO(port): Implement this method to work on other platforms as part of
-  // off-screen rendering support.
-#if defined(OS_WIN) || defined(OS_MACOSX)
+
   CefBrowserContext* browserContext =
       static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
 
@@ -385,7 +380,6 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
     *render_view_host_delegate_view = view_or;
     view = view_or;
   }
-#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
   return view;
 }

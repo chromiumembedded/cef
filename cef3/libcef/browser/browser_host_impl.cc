@@ -17,10 +17,12 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
+#include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/scheme_registration.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
+#include "libcef/browser/web_contents_view_osr.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
@@ -47,11 +49,6 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "ui/shell_dialogs/selected_file_info.h"
-
-#if defined(OS_WIN) || defined(OS_MACOSX)
-#include "libcef/browser/render_widget_host_view_osr.h"
-#include "libcef/browser/web_contents_view_osr.h"
-#endif
 
 namespace {
 
@@ -348,9 +345,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     return NULL;
   }
 
-  // TODO(port): Implement this method to work on other platforms as part of
-  // off-screen rendering support.
-#if defined(OS_WIN) || defined(OS_MACOSX)
   if (browser->IsWindowRenderingDisabled()) {
     CefRenderWidgetHostViewOSR* view =
         static_cast<CefRenderWidgetHostViewOSR*>(
@@ -358,7 +352,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     if (view)
       view->set_browser_impl(browser);
   }
-#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
@@ -691,16 +684,10 @@ void CefBrowserHostImpl::NotifyScreenInfoChanged() {
   if (!view)
     return;
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
   CefRenderWidgetHostViewOSR* orview =
       static_cast<CefRenderWidgetHostViewOSR*>(view);
 
   orview->OnScreenInfoChanged();
-#else
-  // TODO(port): Implement this method to work on other platforms as part of
-  // off-screen rendering support.
-  NOTREACHED();
-#endif
 }
 
 void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
@@ -719,7 +706,6 @@ void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
   if (!web_contents())
     return;
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
   content::RenderWidgetHostView* view =
       web_contents()->GetRenderViewHost()->GetView();
   CefRenderWidgetHostViewOSR* orview =
@@ -730,11 +716,6 @@ void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
                    dirtyRect.width, dirtyRect.height);
     orview->Invalidate(rect, type);
   }
-#else
-  // TODO(port): Implement this method to work on other platforms as part of
-  // off-screen rendering support.
-  NOTREACHED();
-#endif
 }
 
 void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
@@ -752,7 +733,6 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     if (widget)
       widget->ForwardKeyboardEvent(web_event);
   } else {
-#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =
@@ -761,11 +741,6 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
         static_cast<CefRenderWidgetHostViewOSR*>(view);
     if (orview)
       orview->SendKeyEvent(web_event);
-#else
-    // TODO(port): Implement this method to work on other platforms as part of
-    // off-screen rendering support.
-    NOTREACHED();
-#endif
   }
 }
 
@@ -816,7 +791,6 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
     if (widget)
       widget->ForwardWheelEvent(web_event);
   } else {
-#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =
@@ -826,11 +800,6 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
 
     if (orview)
       orview->SendMouseWheelEvent(web_event);
-#else
-    // TODO(port): Implement this method to work on other platforms as part of
-    // off-screen rendering support.
-    NOTREACHED();
-#endif
   }
 }
 
@@ -870,7 +839,6 @@ void CefBrowserHostImpl::SendMouseEvent(const WebKit::WebMouseEvent& event) {
     if (widget)
       widget->ForwardMouseEvent(event);
   } else {
-#if defined(OS_WIN) || defined(OS_MACOSX)
     if (!web_contents())
       return;
     content::RenderWidgetHostView* view =
@@ -880,11 +848,6 @@ void CefBrowserHostImpl::SendMouseEvent(const WebKit::WebMouseEvent& event) {
 
     if (orview)
       orview->SendMouseEvent(event);
-#else
-    // TODO(port): Implement this method to work on other platforms as part of
-    // off-screen rendering support.
-    NOTREACHED();
-#endif
   }
 }
 

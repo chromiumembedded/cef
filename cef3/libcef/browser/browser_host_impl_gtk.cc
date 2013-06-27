@@ -6,17 +6,21 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include <gtk/gtk.h>
+#include <sys/sysinfo.h>
 
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
 #include "base/utf_string_conversions.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/renderer_preferences.h"
 #include "grit/cef_strings.h"
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/gtk/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
 
 namespace {
@@ -231,6 +235,14 @@ bool RunFileDialog(const content::FileChooserParams& params,
   return success;
 }
 
+// Returns the number of seconds since system boot.
+long GetSystemUptime() {
+  struct sysinfo info;
+  if (sysinfo(&info) == 0)
+    return info.uptime;
+  return 0;
+}
+
 }  // namespace
 
 bool CefBrowserHostImpl::PlatformCreateWindow() {
@@ -308,7 +320,9 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return window_info_.widget;
+  return IsWindowRenderingDisabled() ?
+      window_info_.parent_widget :
+      window_info_.widget;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -371,49 +385,190 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 
 // static
 bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  return false;
+  return info.window_rendering_disabled ? true : false;
 }
 
 bool CefBrowserHostImpl::IsTransparent() {
-  return false;
+  return window_info_.transparent_painting != 0;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
-    content::NativeWebKeyboardEvent& native_event,
-    const CefKeyEvent& event) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+    content::NativeWebKeyboardEvent& result,
+    const CefKeyEvent& key_event) {
+  // Use a synthetic GdkEventKey in order to obtain the windowsKeyCode member
+  // from the NativeWebKeyboardEvent constructor. This is the only member
+  // which cannot be easily translated (without hardcoding keyCodes).
+
+  guint state = 0;
+  if (key_event.modifiers & EVENTFLAG_SHIFT_DOWN)
+    state |= GDK_SHIFT_MASK;
+  if (key_event.modifiers & EVENTFLAG_CAPS_LOCK_ON)
+    state |= GDK_LOCK_MASK;
+  if (key_event.modifiers & EVENTFLAG_CONTROL_DOWN)
+    state |= GDK_CONTROL_MASK;
+  if (key_event.modifiers & EVENTFLAG_ALT_DOWN)
+    state |= GDK_MOD1_MASK;
+  if (key_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+    state |= GDK_BUTTON1_MASK;
+  if (key_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+    state |= GDK_BUTTON2_MASK;
+  if (key_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+    state |= GDK_BUTTON3_MASK;
+
+  GdkKeymap* keymap = gdk_keymap_get_for_display(gdk_display_get_default());
+
+  GdkKeymapKey *keys = NULL;
+  gint n_keys = 0;
+  if (gdk_keymap_get_entries_for_keyval(keymap, key_event.native_key_code,
+                                        &keys, &n_keys)) {
+    GdkEventKey event;
+    event.type = GDK_KEY_PRESS;
+    event.window = NULL;
+    event.send_event = 0;
+    event.time = 0;
+    event.state = state;
+    event.keyval = key_event.native_key_code;
+    event.length = 0;
+    event.string = NULL;
+    event.hardware_keycode = keys[0].keycode;
+    event.group = keys[0].group;
+    event.is_modifier = 0;
+    g_free(keys);
+    result = content::NativeWebKeyboardEvent(
+        reinterpret_cast<GdkEvent*>(&event));
+  }
+
+  result.timeStampSeconds = GetSystemUptime();
+
+  switch (key_event.type) {
+  case KEYEVENT_RAWKEYDOWN:
+  case KEYEVENT_KEYDOWN:
+    result.type = WebKit::WebInputEvent::RawKeyDown;
+    break;
+  case KEYEVENT_KEYUP:
+    result.type = WebKit::WebInputEvent::KeyUp;
+    break;
+  case KEYEVENT_CHAR:
+    result.type = WebKit::WebInputEvent::Char;
+    break;
+  default:
+    NOTREACHED();
+  }
 }
 
 void CefBrowserHostImpl::PlatformTranslateClickEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     MouseButtonType type,
     bool mouseUp, int clickCount) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  switch (type) {
+  case MBT_LEFT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonLeft;
+    break;
+  case MBT_MIDDLE:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    break;
+  case MBT_RIGHT:
+    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
+                            WebKit::WebInputEvent::MouseDown;
+    result.button = WebKit::WebMouseEvent::ButtonRight;
+    break;
+  default:
+    NOTREACHED();
+  }
+
+  result.clickCount = clickCount;
 }
 
 void CefBrowserHostImpl::PlatformTranslateMoveEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     bool mouseLeave) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  if (!mouseLeave) {
+    result.type = WebKit::WebInputEvent::MouseMove;
+    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonLeft;
+    else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+      result.button = WebKit::WebMouseEvent::ButtonRight;
+    else
+      result.button = WebKit::WebMouseEvent::ButtonNone;
+  } else {
+    result.type = WebKit::WebInputEvent::MouseLeave;
+    result.button = WebKit::WebMouseEvent::ButtonNone;
+  }
+
+  result.clickCount = 0;
 }
 
 void CefBrowserHostImpl::PlatformTranslateWheelEvent(
-    WebKit::WebMouseWheelEvent& ev,
+    WebKit::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
     int deltaX, int deltaY) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  result = WebKit::WebMouseWheelEvent();
+  PlatformTranslateMouseEvent(result, mouse_event);
+
+  result.type = WebKit::WebInputEvent::MouseWheel;
+
+  static const double scrollbarPixelsPerGtkTick = 40.0;
+  result.deltaX = deltaX;
+  result.deltaY = deltaY;
+  result.wheelTicksX = result.deltaX / scrollbarPixelsPerGtkTick;
+  result.wheelTicksY = result.deltaY / scrollbarPixelsPerGtkTick;
+  result.hasPreciseScrollingDeltas = true;
+
+  // Unless the phase and momentumPhase are passed in as parameters to this
+  // function, there is no way to know them
+  result.phase = WebKit::WebMouseWheelEvent::PhaseNone;
+  result.momentumPhase = WebKit::WebMouseWheelEvent::PhaseNone;
+
+  if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonLeft;
+  else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+  else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+    result.button = WebKit::WebMouseEvent::ButtonRight;
+  else
+    result.button = WebKit::WebMouseEvent::ButtonNone;
 }
 
 void CefBrowserHostImpl::PlatformTranslateMouseEvent(
-    WebKit::WebMouseEvent& ev,
+    WebKit::WebMouseEvent& result,
     const CefMouseEvent& mouse_event) {
-  // TODO(port): Implement this method as part of off-screen rendering support.
-  NOTIMPLEMENTED();
+  // position
+  result.x = mouse_event.x;
+  result.y = mouse_event.y;
+  result.windowX = result.x;
+  result.windowY = result.y;
+  result.globalX = result.x;
+  result.globalY = result.y;
+
+  // global position
+  if (IsWindowRenderingDisabled()) {
+    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
+        result.x, result.y,
+        result.globalX, result.globalY);
+  } else {
+    GtkWidget* window = gtk_widget_get_toplevel(GetWindowHandle());
+    GdkWindow* gdk_window = gtk_widget_get_window(window);
+    gint xorigin, yorigin;
+    gdk_window_get_root_origin(gdk_window, &xorigin, &yorigin);
+    result.globalX = xorigin + result.x;
+    result.globalY = yorigin + result.y;
+  }
+
+  // modifiers
+  result.modifiers |= TranslateModifiers(mouse_event.modifiers);
+
+  // timestamp
+  result.timeStampSeconds = GetSystemUptime();
 }
