@@ -10,6 +10,7 @@
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib-object.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkgl.h>
 #include <GL/gl.h>
@@ -258,7 +259,8 @@ CefRefPtr<OSRWindow> OSRWindow::From(
 
 void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   // Disconnect all signal handlers that reference |this|.
-  g_signal_handlers_disconnect_by_data(glarea_, this);
+  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0,
+      NULL, NULL, this);
 
   DisableGL();
 }
