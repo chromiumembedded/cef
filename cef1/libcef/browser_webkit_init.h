@@ -23,6 +23,7 @@
 #include "webkit/glue/webfileutilities_impl.h"
 #include "webkit/glue/webkitplatformsupport_impl.h"
 
+class BrowserHyphenator;
 class BrowserPrerenderingSupport;
 
 namespace WebKit {
@@ -41,6 +42,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   virtual WebKit::WebBlobRegistry* blobRegistry() OVERRIDE;
   virtual WebKit::WebCookieJar* cookieJar() OVERRIDE;
   virtual WebKit::WebFileSystem* fileSystem() OVERRIDE;
+  virtual WebKit::WebHyphenator* hyphenator() OVERRIDE;
   virtual bool sandboxEnabled() OVERRIDE;
   virtual WebKit::Platform::FileHandle databaseOpenFile(
       const WebKit::WebString& vfs_file_name, int desired_flags) OVERRIDE;
@@ -105,6 +107,7 @@ class BrowserWebKitInit : public webkit_glue::WebKitPlatformSupportImpl {
   BrowserWebCookieJarImpl cookie_jar_;
   scoped_refptr<BrowserWebBlobRegistryImpl> blob_registry_;
   scoped_ptr<BrowserPrerenderingSupport> prerendering_support_;
+  scoped_ptr<BrowserHyphenator> hyphenator_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_WEBKIT_INIT_H_

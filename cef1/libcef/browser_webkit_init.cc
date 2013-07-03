@@ -12,6 +12,7 @@
 #include "base/metrics/stats_counters.h"
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
+#include "third_party/WebKit/Source/Platform/chromium/public/WebHyphenator.h"
 #include "third_party/WebKit/Source/Platform/chromium/public/WebPrerenderingSupport.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebDatabase.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebKit.h"
@@ -20,6 +21,12 @@
 #include "v8/include/v8.h"
 #include "webkit/plugins/npapi/plugin_list.h"
 
+
+// Stub implementation of WebKit::WebHyphenator.
+class BrowserHyphenator : public WebKit::WebHyphenator {
+ public:
+  virtual ~BrowserHyphenator() {}
+};
 
 // Stub implementation of WebKit::WebPrerenderingSupport.
 class BrowserPrerenderingSupport : public WebKit::WebPrerenderingSupport {
@@ -108,6 +115,12 @@ WebKit::WebFileSystem* BrowserWebKitInit::fileSystem() {
   // Create the context if it doesn't already exist.
   file_system->CreateContext();
   return file_system;
+}
+
+WebKit::WebHyphenator* BrowserWebKitInit::hyphenator() {
+  if (!hyphenator_.get())
+    hyphenator_.reset(new BrowserHyphenator);
+  return hyphenator_.get();
 }
 
 bool BrowserWebKitInit::sandboxEnabled() {
