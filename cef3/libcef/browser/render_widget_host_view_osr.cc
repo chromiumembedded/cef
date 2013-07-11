@@ -181,6 +181,7 @@ void CefRenderWidgetHostViewOSR::Blur() {
 }
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
   if (!browser_impl_.get())
     return;
 #if defined(OS_WIN)
@@ -408,6 +409,7 @@ void CefRenderWidgetHostViewOSR::SetBackground(const SkBitmap& background) {
 
 void CefRenderWidgetHostViewOSR::Invalidate(const gfx::Rect& rect,
     CefBrowserHost::PaintElementType type) {
+  TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::Invalidate", "type", type); 
   if (!IsPopupWidget() && type == PET_POPUP) {
     if (popup_host_view_)
       popup_host_view_->Invalidate(rect, type);
@@ -420,6 +422,7 @@ void CefRenderWidgetHostViewOSR::Invalidate(const gfx::Rect& rect,
 
 void CefRenderWidgetHostViewOSR::Paint(
     const std::vector<gfx::Rect>& copy_rects) {
+  TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::Paint", "rects", copy_rects.size()); 
   if (about_to_validate_and_paint_ ||
       !browser_impl_.get() ||
       !render_widget_host_) {
@@ -563,6 +566,7 @@ void CefRenderWidgetHostViewOSR::set_parent_host_view(
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
     const content::NativeWebKeyboardEvent& event) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
   if (!render_widget_host_)
     return;
   render_widget_host_->ForwardKeyboardEvent(event);
@@ -570,6 +574,7 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
 
 void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const WebKit::WebMouseEvent& event) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget() && popup_host_view_) {
     if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
       WebKit::WebMouseEvent popup_event(event);
@@ -589,6 +594,7 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
 
 void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     const WebKit::WebMouseWheelEvent& event) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
   if (!IsPopupWidget() && popup_host_view_) {
     if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
       WebKit::WebMouseWheelEvent popup_event(event);
@@ -609,6 +615,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnScreenInfoChanged");
   if (!render_widget_host_)
     return;
 
