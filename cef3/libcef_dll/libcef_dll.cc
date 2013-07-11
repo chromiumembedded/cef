@@ -41,7 +41,6 @@
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
-#include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
@@ -185,7 +184,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefCompletionHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefCookieManagerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDOMDocumentCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDOMEventCppToC::DebugObjCt, 0);
