@@ -77,7 +77,6 @@
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
-#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
 #include "libcef_dll/ctocpp/domevent_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -177,7 +176,6 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefCompletionHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefCookieManagerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefDOMDocumentCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDOMEventCToCpp::DebugObjCt, 0);
