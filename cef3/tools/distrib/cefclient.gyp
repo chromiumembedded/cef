@@ -17,6 +17,9 @@
       }, {
         'pkg-config': 'pkg-config'
       }],
+      [ 'OS=="win"', {
+        'multi_threaded_dll%': 0,
+      }],
     ]
   },
   'includes': [
@@ -108,6 +111,26 @@
             '<@(includes_win)',
             '<@(cefclient_sources_win)',
           ],
+        }],
+        [ 'OS=="win" and multi_threaded_dll', {
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'RuntimeLibrary': 3,
+                  'WarnAsError': 'false',
+                },
+              },
+            },
+            'Release': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'RuntimeLibrary': 2,
+                  'WarnAsError': 'false',
+                },
+              },
+            }
+          }
         }],
         [ 'OS=="mac"', {
           'product_name': 'cefclient',
@@ -242,6 +265,26 @@
           'dependencies': [
             'gtk',
           ],
+        }],
+        [ 'OS=="win" and multi_threaded_dll', {
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'RuntimeLibrary': 3,
+                  'WarnAsError': 'false',
+                },
+              },
+            },
+            'Release': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'RuntimeLibrary': 2,
+                  'WarnAsError': 'false',
+                },
+              },
+            }
+          }
         }],
       ],
     },
