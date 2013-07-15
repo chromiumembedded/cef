@@ -388,11 +388,12 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
   DCHECK(request);
   CEF_REQUIRE_IOT();
   int render_process_id = -1;
-  int render_view_id = -1;
+  int render_view_id = MSG_ROUTING_NONE;
 
-  if (!content::ResourceRequestInfo::GetRenderViewForRequest(request,
-                                                             &render_process_id,
-                                                             &render_view_id)) {
+  if (!content::ResourceRequestInfo::GetRenderViewForRequest(
+          request, &render_process_id, &render_view_id) ||
+      render_process_id == -1 ||
+      render_view_id == MSG_ROUTING_NONE) {
     return NULL;
   }
 
@@ -402,6 +403,9 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
 // static
 CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByRoutingID(
     int render_process_id, int render_view_id) {
+  if (render_process_id == -1 || render_view_id == MSG_ROUTING_NONE)
+    return NULL;
+
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
     content::RenderViewHost* render_view_host =
@@ -445,7 +449,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByChildID(
     return NULL;
   } else {
     // Use the thread-safe approach.
-    return _Context->GetBrowserByRoutingID(render_process_id, 0);
+    return _Context->GetBrowserByRoutingID(render_process_id, -1);
   }
 }
 
@@ -1793,11 +1797,8 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  // When navigating cross-origin the new (pending) RenderViewHost will be
-  // created before the old (current) RenderViewHost is destroyed. It may be
-  // necessary in the future to track both current and pending render IDs.
-  browser_info_->set_render_ids(render_view_host->GetProcess()->GetID(),
-                                render_view_host->GetRoutingID());
+  browser_info_->add_render_id(render_view_host->GetProcess()->GetID(),
+                               render_view_host->GetRoutingID());
 
   // Update the DevTools URLs, if any.
   CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
@@ -1820,6 +1821,9 @@ void CefBrowserHostImpl::RenderViewCreated(
 
 void CefBrowserHostImpl::RenderViewDeleted(
     content::RenderViewHost* render_view_host) {
+  browser_info_->remove_render_id(render_view_host->GetProcess()->GetID(),
+                                  render_view_host->GetRoutingID());
+
   if (registrar_->IsRegistered(
       this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
       content::Source<content::RenderViewHost>(render_view_host))) {

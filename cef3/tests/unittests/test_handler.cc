@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_handler.h"
+#include "base/logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_runnable.h"
 #include "include/cef_stream.h"
@@ -17,16 +18,80 @@ void NotifyEvent(base::WaitableEvent* event) {
 }  // namespace
 
 
+// TestHandler::CompletionState
+
+TestHandler::CompletionState::CompletionState(int total)
+    : total_(total),
+      count_(0),
+      event_(true, false) {
+}
+
+void TestHandler::CompletionState::TestComplete() {
+  if (++count_ == total_) {
+    // Signal that the test is now complete.
+    event_.Signal();
+    count_ = 0;
+  }
+}
+
+void TestHandler::CompletionState::WaitForTests() {
+  // Wait for the test to complete
+  event_.Wait();
+
+  // Reset the event so the same test can be executed again.
+  event_.Reset();
+}
+
+
+// TestHandler::Collection
+
+TestHandler::Collection::Collection(CompletionState* completion_state)
+    : completion_state_(completion_state) {
+  DCHECK(completion_state_);
+}
+
+void TestHandler::Collection::AddTestHandler(TestHandler* test_handler) {
+  DCHECK_EQ(test_handler->completion_state_, completion_state_);
+  handler_list_.push_back(test_handler);
+}
+
+void TestHandler::Collection::ExecuteTests() {
+  DCHECK_GT(handler_list_.size(), 0UL);
+
+  TestHandlerList::const_iterator it;
+
+  it = handler_list_.begin();
+  for (; it != handler_list_.end(); ++it)
+    (*it)->SetupTest();
+
+  completion_state_->WaitForTests();
+
+  it = handler_list_.begin();
+  for (; it != handler_list_.end(); ++it)
+    (*it)->RunTest();
+
+  completion_state_->WaitForTests();
+}
+
+
 // TestHandler
 
 int TestHandler::browser_count_ = 0;
 
-TestHandler::TestHandler()
-  : browser_id_(0),
-    completion_event_(true, false) {
+TestHandler::TestHandler(CompletionState* completion_state)
+  : browser_id_(0) {
+  if (completion_state) {
+    completion_state_ = completion_state;
+    completion_state_owned_ = false;
+  } else {
+    completion_state_ = new CompletionState(1);
+    completion_state_owned_ = true;
+  }
 }
 
 TestHandler::~TestHandler() {
+  if (completion_state_owned_)
+    delete completion_state_;
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -49,7 +114,7 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
       browser_id_ = 0;
 
       // Signal that the test is now complete.
-      completion_event_.Signal();
+      completion_state_->TestComplete();
     }
   }
 
@@ -86,14 +151,18 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
 }
 
 void TestHandler::ExecuteTest() {
+  DCHECK_EQ(completion_state_->total(), 1);
+
   // Run the test
   RunTest();
 
   // Wait for the test to complete
-  completion_event_.Wait();
+  completion_state_->WaitForTests();
+}
 
-  // Reset the event so the same test can be executed again.
-  completion_event_.Reset();
+void TestHandler::SetupComplete() {
+  // Signal that the test setup is complete.
+  completion_state_->TestComplete();
 }
 
 void TestHandler::DestroyTest() {

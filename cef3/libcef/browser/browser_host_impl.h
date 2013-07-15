@@ -100,7 +100,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the browser associated with the specified routing IDs.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserByRoutingID(
       int render_process_id, int render_view_id);
-  // Returns the browser associated with the specified child process ID.
+  // Returns the first browser associated with the specified child process ID.
+  // There may be multiple browsers using the same render process so this method
+  // should be used with caution.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserByChildID(
       int render_process_id);
 

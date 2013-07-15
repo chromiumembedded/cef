@@ -287,7 +287,7 @@ scoped_refptr<CefBrowserInfo>
   // Must be a popup if it hasn't already been created.
   scoped_refptr<CefBrowserInfo> browser_info =
       new CefBrowserInfo(++next_browser_id_, true);
-  browser_info->set_render_ids(render_process_id, render_view_id);
+  browser_info->add_render_id(render_process_id, render_view_id);
   browser_info_list_.push_back(browser_info);
   return browser_info;
 }

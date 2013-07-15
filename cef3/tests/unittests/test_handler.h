@@ -6,6 +6,7 @@
 #define CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
 #pragma once
 
+#include <list>
 #include <map>
 #include <string>
 #include <utility>
@@ -28,6 +29,7 @@ class TrackCallback {
   bool gotit_;
 };
 
+
 // Base implementation of CefClient for unit tests. Add new interfaces as needed
 // by test cases.
 class TestHandler : public CefClient,
@@ -40,10 +42,68 @@ class TestHandler : public CefClient,
                     public CefLoadHandler,
                     public CefRequestHandler {
  public:
-  TestHandler();
+  // Tracks the completion state of related test runs.
+  class CompletionState {
+   public:
+    // |total| is the number of times that TestComplete() must be called before
+    // WaitForTests() will return.
+    explicit CompletionState(int total);
+
+    // Call this method to indicate that a test has completed.
+    void TestComplete();
+
+    // This method blocks until TestComplete() has been called the required
+    // number of times.
+    void WaitForTests();
+
+    int total() const { return total_; }
+    int count() const { return count_; }
+
+   private:
+    int total_;
+    int count_;
+
+    // Handle used to notify when the test is complete
+    base::WaitableEvent event_;
+  };
+
+  // Represents a collection of related tests that need to be run
+  // simultaniously.
+  class Collection {
+   public:
+    // The |completion_state| object must outlive this class.
+    explicit Collection(CompletionState* completion_state);
+
+    // The |test_handler| object must outlive this class and it must share the
+    // same CompletionState object passed to the constructor.
+    void AddTestHandler(TestHandler* test_handler);
+
+    // Manages the test run.
+    // 1. Calls TestHandler::SetupTest() for all of the test objects.
+    // 2. Waits for all TestHandler objects to report that initial setup is
+    //    complete by calling TestHandler::SetupComplete().
+    // 3. Calls TestHandler::RunTest() for all of the test objects.
+    // 4. Waits for all TestHandler objects to report that the test is
+    //    complete by calling TestHandler::DestroyTest().
+    void ExecuteTests();
+
+   private:
+    CompletionState* completion_state_;
+
+    typedef std::list<TestHandler*> TestHandlerList;
+    TestHandlerList handler_list_;
+  };
+
+  // The |completion_state| object if specified must outlive this class.
+  explicit TestHandler(CompletionState* completion_state = NULL);
   virtual ~TestHandler();
 
-  // Implement this method to run the test
+  // Implement this method to set up the test. Only used in combination with a
+  // Collection. Call SetupComplete() once the setup is complete.
+  virtual void SetupTest() {}
+
+  // Implement this method to run the test. Call DestroyTest() once the test is
+  // complete.
   virtual void RunTest() =0;
 
   // CefClient methods. Add new methods as needed by test cases.
@@ -92,15 +152,20 @@ class TestHandler : public CefClient,
   CefRefPtr<CefBrowser> GetBrowser() { return browser_; }
   int GetBrowserId() { return browser_id_; }
 
-  // Called by the test function to execute the test.  This method blocks until
+  // Called by the test function to execute the test. This method blocks until
   // the test is complete. Do not reference the object after this method
-  // returns.
+  // returns. Do not use this method if the CompletionState object is shared by
+  // multiple handlers or when using a Collection object.
   void ExecuteTest();
 
   // Returns true if a browser currently exists.
   static bool HasBrowser() { return browser_count_ > 0; }
 
  protected:
+  // Indicate that test setup is complete. Only used in combination with a
+  // Collection.
+  virtual void SetupComplete();
+
   // Destroy the browser window. Once the window is destroyed test completion
   // will be signaled.
   virtual void DestroyTest();
@@ -119,8 +184,9 @@ class TestHandler : public CefClient,
   // The browser window identifier
   int browser_id_;
 
-  // Handle used to notify when the test is complete
-  base::WaitableEvent completion_event_;
+  // Used to notify when the test is complete
+  CompletionState* completion_state_;
+  bool completion_state_owned_;
 
   // Map of resources that can be automatically loaded
   typedef std::map<std::string, std::pair<std::string, std::string> >
