@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_INFO_H_
 #pragma once
 
+#include <set>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "base/memory/ref_counted.h"
 
@@ -28,10 +30,11 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   void set_window_rendering_disabled(bool disabled);
   
-  void set_render_ids(int render_process_id, int render_view_id);
+  void add_render_id(int render_process_id, int render_view_id);
+  void remove_render_id(int render_process_id, int render_view_id);
 
   // Returns true if this browser matches the specified ID values. If
-  // |render_view_id| is 0 any browser with the specified |render_process_id|
+  // |render_view_id| is -1 any browser with the specified |render_process_id|
   // will match.
   bool is_render_id_match(int render_process_id, int render_view_id);
 
@@ -46,8 +49,18 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   base::Lock lock_;
 
   // The below members must be protected by |lock_|.
-  int render_process_id_;
-  int render_view_id_;
+
+  // Set of mapped (process_id, view_id) pairs. Keeping this set is necessary
+  // for the following reasons:
+  // 1. When navigating cross-origin the new (pending) RenderViewHost will be
+  //    created before the old (current) RenderViewHost is destroyed.
+  // 2. When canceling and asynchronously continuing navigation of the same URL
+  //    a new RenderViewHost may be created for the first (canceled) navigation
+  //    and then destroyed as a result of the second (allowed) navigation.
+  // 3. Out-of-process iframes have their own render IDs which must also be
+  //    associated with the host browser.
+  typedef std::set<std::pair<int, int> > RenderIdSet;
+  RenderIdSet render_id_set_;
 
   // May be NULL if the browser has not yet been created or if the browser has
   // been destroyed.
