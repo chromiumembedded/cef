@@ -44,6 +44,7 @@ enum V8TestMode {
   V8TEST_DOUBLE_CREATE,
   V8TEST_DATE_CREATE,
   V8TEST_STRING_CREATE,
+  V8TEST_EMPTY_STRING_CREATE,
   V8TEST_ARRAY_CREATE,
   V8TEST_ARRAY_VALUE,
   V8TEST_OBJECT_CREATE,
@@ -65,6 +66,7 @@ enum V8TestMode {
   V8TEST_FUNCTION_HANDLER_FAIL,
   V8TEST_FUNCTION_HANDLER_NO_OBJECT,
   V8TEST_FUNCTION_HANDLER_WITH_CONTEXT,
+  V8TEST_FUNCTION_HANDLER_EMPTY_STRING,
   V8TEST_CONTEXT_EVAL,
   V8TEST_CONTEXT_EVAL_EXCEPTION,
   V8TEST_CONTEXT_ENTERED,
@@ -134,6 +136,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
       case V8TEST_STRING_CREATE:
         RunStringCreateTest();
         break;
+      case V8TEST_EMPTY_STRING_CREATE:
+        RunEmptyStringCreateTest();
+        break;
       case V8TEST_ARRAY_CREATE:
         RunArrayCreateTest();
         break;
@@ -196,6 +201,9 @@ class V8RendererTest : public ClientApp::RenderDelegate {
         break;
       case V8TEST_FUNCTION_HANDLER_WITH_CONTEXT:
         RunFunctionHandlerWithContextTest();
+        break;
+      case V8TEST_FUNCTION_HANDLER_EMPTY_STRING:
+        RunFunctionHandlerEmptyStringTest();
         break;
       case V8TEST_CONTEXT_EVAL:
         RunContextEvalTest();
@@ -388,6 +396,26 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsString());
     EXPECT_STREQ("My string", value->GetStringValue().ToString().c_str());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsUInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+
+    DestroyTest();
+  }
+
+  void RunEmptyStringCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateString(CefString());
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsString());
+    EXPECT_STREQ("", value->GetStringValue().ToString().c_str());
 
     EXPECT_FALSE(value->IsUndefined());
     EXPECT_FALSE(value->IsArray());
@@ -1421,6 +1449,66 @@ class V8RendererTest : public ClientApp::RenderDelegate {
     DestroyTest();
   }
 
+  void RunFunctionHandlerEmptyStringTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      virtual bool Execute(const CefString& name,
+                         CefRefPtr<CefV8Value> object,
+                         const CefV8ValueList& arguments,
+                         CefRefPtr<CefV8Value>& retval,
+                         CefString& exception) OVERRIDE {
+        EXPECT_TRUE(object.get());
+        CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+        EXPECT_TRUE(context.get());
+        CefRefPtr<CefV8Value> global = context->GetGlobal();
+        EXPECT_TRUE(global.get());
+        EXPECT_TRUE(global->IsSame(object));
+
+        EXPECT_EQ((size_t)1, arguments.size());
+        EXPECT_TRUE(arguments[0]->IsString());
+        EXPECT_STREQ("", arguments[0]->GetStringValue().ToString().c_str());
+
+        retval = CefV8Value::CreateString(CefString());
+
+        got_execute_.yes();
+        return true;
+      }
+
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* handler = new Handler;
+    CefRefPtr<CefV8Handler> handlerPtr(handler);
+
+    CefRefPtr<CefV8Value> func =
+        CefV8Value::CreateFunction("myfunc", handler);
+    EXPECT_TRUE(func.get());
+
+    CefV8ValueList args;
+    args.push_back(CefV8Value::CreateString(CefString()));
+
+    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(NULL, args);
+    EXPECT_TRUE(handler->got_execute_);
+    EXPECT_TRUE(retval.get());
+    EXPECT_FALSE(func->HasException());
+    
+    EXPECT_TRUE(retval->IsString());
+    EXPECT_STREQ("", retval->GetStringValue().ToString().c_str());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
   void RunContextEvalTest() {
     CefRefPtr<CefV8Context> context = GetContext();
 
@@ -2071,6 +2159,7 @@ V8_TEST(UIntCreate, V8TEST_UINT_CREATE);
 V8_TEST(DoubleCreate, V8TEST_DOUBLE_CREATE);
 V8_TEST(DateCreate, V8TEST_DATE_CREATE);
 V8_TEST(StringCreate, V8TEST_STRING_CREATE);
+V8_TEST(EmptyStringCreate, V8TEST_EMPTY_STRING_CREATE);
 V8_TEST(ArrayCreate, V8TEST_ARRAY_CREATE);
 V8_TEST(ArrayValue, V8TEST_ARRAY_VALUE);
 V8_TEST(ObjectCreate, V8TEST_OBJECT_CREATE);
@@ -2092,6 +2181,7 @@ V8_TEST(FunctionHandlerException, V8TEST_FUNCTION_HANDLER_EXCEPTION);
 V8_TEST(FunctionHandlerFail, V8TEST_FUNCTION_HANDLER_FAIL);
 V8_TEST(FunctionHandlerNoObject, V8TEST_FUNCTION_HANDLER_NO_OBJECT);
 V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT);
+V8_TEST(FunctionHandlerEmptyString, V8TEST_FUNCTION_HANDLER_EMPTY_STRING);
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);

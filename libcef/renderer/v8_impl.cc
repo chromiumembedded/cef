@@ -1276,9 +1276,12 @@ void CefV8ValueImpl::InitString(CefString& value) {
   const cef_string_t* str = value.GetStruct();
   if (str) {
     string_value_ = *str;
-    value.GetWritableStruct()->str = NULL;
+    cef_string_t* writable_struct = value.GetWritableStruct();
+    writable_struct->str = NULL;
+    writable_struct->length = 0;
   } else {
     string_value_.str = NULL;
+    string_value_.length = 0;
   }
 }
 
