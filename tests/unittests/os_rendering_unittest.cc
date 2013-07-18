@@ -196,8 +196,13 @@ class OSRTestHandler : public TestHandler,
  public:
   explicit OSRTestHandler(OSRTestType test)
       : test_type_(test),
-        started_(false),
-        succeeded_(false) {
+        event_count_(0),
+        event_total_(1),
+        started_(false) {
+    if (test == OSR_TEST_SCROLLING) {
+      // Wait for both the paint event and the scroll offset event.
+      event_total_ = 2;
+    }
   }
 
   virtual ~OSRTestHandler() {}
@@ -638,7 +643,6 @@ class OSRTestHandler : public TestHandler,
               CefRect(0, kOsrHeight - kHorizontalScrollbarWidth,
                          kOsrWidth - kVerticalScrollbarWidth,
                          kHorizontalScrollbarWidth));
-          DestroySucceededTestSoon();
 #elif defined(OS_MACOSX)
           // On Mac, when scrollbars are Always on, there is a single update of
           // the whole view
@@ -650,15 +654,14 @@ class OSRTestHandler : public TestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
               kOsrWidth, kOsrHeight));
-          DestroySucceededTestSoon();
 #elif defined(OS_LINUX)
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
               kOsrWidth, kOsrHeight));
-          DestroySucceededTestSoon();
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
+          DestroySucceededTestSoon();
         }
         break;
       }
@@ -791,6 +794,12 @@ class OSRTestHandler : public TestHandler,
       }
   }
 
+  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE {
+    if (test_type_ == OSR_TEST_SCROLLING && started()) {
+      DestroySucceededTestSoon();
+    }
+  }
+
   virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
                          CefString& text) OVERRIDE {
     if (test_type_ == OSR_TEST_TOOLTIP && started()) {
@@ -863,9 +872,12 @@ class OSRTestHandler : public TestHandler,
   }
 
   void DestroySucceededTestSoon() {
-    succeeded_ = true;
-    CefPostTask(TID_UI, NewCefRunnableMethod(this,
-        &OSRTestHandler::DestroyTest));
+    if (succeeded())
+      return;
+    if (++event_count_ == event_total_) {
+      CefPostTask(TID_UI, NewCefRunnableMethod(this,
+          &OSRTestHandler::DestroyTest));
+    }
   }
 
   void ExpandDropDown() {
@@ -883,7 +895,7 @@ class OSRTestHandler : public TestHandler,
 
   // true if the exit point was reached, even the result is not
   // the expected one
-  bool succeeded() { return succeeded_; }
+  bool succeeded() { return (event_count_ == event_total_); }
 
   // will mark test as started and will return true only the first time
   // it is called
@@ -896,8 +908,9 @@ class OSRTestHandler : public TestHandler,
 
  private:
   OSRTestType test_type_;
+  int event_count_;
+  int event_total_;
   bool started_;
-  bool succeeded_;
   IMPLEMENT_REFCOUNTING(OSRTestHandler);
 };
 
