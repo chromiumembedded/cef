@@ -83,16 +83,20 @@ void CefTestSuite::Initialize() {
   // The below code is copied from base/test/test_suite.cc to avoid calling
   // RegisterMockCrApp() on Mac.
 
-  // Initialize logging.
   base::FilePath exe;
   PathService::Get(base::FILE_EXE, &exe);
-  base::FilePath log_filename = exe.ReplaceExtension(FILE_PATH_LITERAL("log"));
-  logging::InitLogging(
-                       log_filename.value().c_str(),
-                       logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
-                       logging::LOCK_LOG_FILE,
-                       logging::DELETE_OLD_LOG_FILE,
-                       logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS);
+  
+  // Initialize logging.
+  logging::LoggingSettings log_settings;
+  log_settings.log_file =
+      exe.ReplaceExtension(FILE_PATH_LITERAL("log")).value().c_str();
+  log_settings.logging_dest = logging::LOG_TO_ALL;
+  log_settings.lock_log = logging::LOCK_LOG_FILE;
+  log_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
+  log_settings.dcheck_state =
+      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  logging::InitLogging(log_settings);
+
   // We want process and thread IDs because we may have multiple processes.
   // Note: temporarily enabled timestamps in an effort to catch bug 6361.
   logging::SetLogItems(true, true, true, true);

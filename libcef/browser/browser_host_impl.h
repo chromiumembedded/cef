@@ -331,6 +331,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::MediaResponseCallback& callback) OVERRIDE;
 
   // content::WebContentsObserver methods.
+  using content::WebContentsObserver::BeforeUnloadFired;
   virtual void RenderViewCreated(
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void RenderViewDeleted(
