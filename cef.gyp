@@ -789,7 +789,8 @@
       ],
       'include_dirs': [
         '.',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/public',
+        '<(DEPTH)/third_party/WebKit/public/platform',
+        '<(DEPTH)/third_party/WebKit/public/web',
         # CEF grit resource includes
         '<(grit_out_dir)',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
@@ -809,7 +810,6 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/base/base.gyp:base_prefs',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
-        '<(DEPTH)/build/temp_gyp/googleurl.gyp:googleurl',
         '<(DEPTH)/ipc/ipc.gyp:ipc',
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',

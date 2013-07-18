@@ -60,17 +60,13 @@ content::DevToolsAgentHost* CefDevToolsBindingHandler::ForIdentifier(
     if (!render_process_host->HasConnection())
       continue;
 
-    content::RenderProcessHost::RenderWidgetHostsIterator rwit(
-        render_process_host->GetRenderWidgetHostsIterator());
-    for (; !rwit.IsAtEnd(); rwit.Advance()) {
-      const content::RenderWidgetHost* widget = rwit.GetCurrentValue();
-      DCHECK(widget);
-      if (!widget || !widget->IsRenderView())
+    content::RenderWidgetHost::List widgets =
+        content::RenderWidgetHost::GetRenderWidgetHosts();
+    for (size_t i = 0; i < widgets.size(); ++i) {
+      if (!widgets[i]->IsRenderView())
         continue;
 
-      content::RenderViewHost* host =
-          content::RenderViewHost::From(
-              const_cast<content::RenderWidgetHost*>(widget));
+      content::RenderViewHost* host = content::RenderViewHost::From(widgets[i]);
       if (GetIdentifier(host) == identifier) {
         // May create a new agent host.
         scoped_refptr<content::DevToolsAgentHost> agent_host(

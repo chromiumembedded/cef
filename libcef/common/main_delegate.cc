@@ -283,12 +283,16 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   }
 
   // Initialize logging.
-  base::FilePath log_file =
-      command_line->GetSwitchValuePath(switches::kLogFile);
-  std::string log_severity_str =
-      command_line->GetSwitchValueASCII(switches::kLogSeverity);
+  logging::LoggingSettings log_settings;
+  log_settings.log_file =
+      command_line->GetSwitchValuePath(switches::kLogFile).value().c_str();
+  log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
+  log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
 
   logging::LogSeverity log_severity = logging::LOG_INFO;
+
+  std::string log_severity_str =
+      command_line->GetSwitchValueASCII(switches::kLogSeverity);
   if (!log_severity_str.empty()) {
     if (LowerCaseEqualsASCII(log_severity_str,
                              switches::kLogSeverity_Verbose)) {
@@ -308,22 +312,22 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
   }
 
-  logging::LoggingDestination logging_dest;
   if (log_severity == LOGSEVERITY_DISABLE) {
-    logging_dest = logging::LOG_NONE;
+    log_settings.logging_dest = logging::LOG_NONE;
   } else {
-    logging_dest = logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+    log_settings.logging_dest = logging::LOG_TO_ALL;
     logging::SetMinLogLevel(log_severity);
   }
 
-  logging::DcheckState dcheck_state =
-      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
-  if (command_line->HasSwitch(switches::kEnableReleaseDcheck))
-    dcheck_state = logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  if (command_line->HasSwitch(switches::kEnableReleaseDcheck)) {
+    log_settings.dcheck_state =
+        logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  } else {
+    log_settings.dcheck_state =
+        logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
+  }
 
-  logging::InitLogging(log_file.value().c_str(), logging_dest,
-      logging::DONT_LOCK_LOG_FILE, logging::APPEND_TO_OLD_LOG_FILE,
-      dcheck_state);
+  logging::InitLogging(log_settings);
 
   content::SetContentClient(&content_client_);
 

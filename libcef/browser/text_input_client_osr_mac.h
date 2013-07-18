@@ -11,7 +11,7 @@
 
 #include "libcef/browser/render_widget_host_view_osr.h"
 
-#include "base/memory/scoped_nsobject.h"
+#include "base/mac/scoped_nsobject.h"
 #include "base/strings/string16.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/edit_command.h"
@@ -36,7 +36,7 @@
 
  @private
   // Represents the input-method attributes supported by this object.
-  scoped_nsobject<NSArray> validAttributesForMarkedText_;
+  base::scoped_nsobject<NSArray> validAttributesForMarkedText_;
 
   // Indicates if we are currently handling a key down event.
   BOOL handlingKeyDown_;

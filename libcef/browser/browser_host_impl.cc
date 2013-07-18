@@ -424,25 +424,12 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByChildID(
       int render_process_id) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
-    content::RenderProcessHost* render_process_host =
-        content::RenderProcessHost::FromID(render_process_id);
-    if (!render_process_host)
-      return NULL;
-
-    content::RenderProcessHost::RenderWidgetHostsIterator iter(
-        render_process_host->GetRenderWidgetHostsIterator());
-    if (!iter.IsAtEnd()) {
-      const content::RenderWidgetHost* widget = iter.GetCurrentValue();
-
-      // This implementation is based on an assumption that each process hosts a
-      // single renderer. Revisit this implementation if the assumption proves
-      // false.
-      iter.Advance();
-      DCHECK(iter.IsAtEnd());
-
-      if (widget && widget->IsRenderView()) {
-        return GetBrowserForHost(content::RenderViewHost::From(
-            const_cast<content::RenderWidgetHost*>(widget)));
+    content::RenderWidgetHost::List widgets =
+        content::RenderWidgetHost::GetRenderWidgetHosts();
+    for (size_t i = 0; i < widgets.size(); ++i) {
+      if (widgets[i]->GetProcess()->GetID() == render_process_id &&
+          widgets[i]->IsRenderView()) {
+        return GetBrowserForHost(content::RenderViewHost::From(widgets[i]));
       }
     }
 
