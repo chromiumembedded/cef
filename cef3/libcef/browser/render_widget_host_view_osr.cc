@@ -327,6 +327,10 @@ void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
 }
 
 void CefRenderWidgetHostViewOSR::ScrollOffsetChanged() {
+  if (!browser_impl_.get())
+    return;
+  browser_impl_->GetClient()->GetRenderHandler()->
+      OnScrollOffsetChanged(browser_impl_.get());
 }
 
 content::BackingStore* CefRenderWidgetHostViewOSR::AllocBackingStore(

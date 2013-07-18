@@ -50,6 +50,7 @@ class CefRenderHandlerCToCpp
       int height) OVERRIDE;
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
       CefCursorHandle cursor) OVERRIDE;
+  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

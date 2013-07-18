@@ -202,6 +202,23 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
       cursor);
 }
 
+void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
+    CefRefPtr<CefBrowser> browser) {
+  if (CEF_MEMBER_MISSING(struct_, on_scroll_offset_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->on_scroll_offset_changed(struct_,
+      CefBrowserCppToC::Wrap(browser));
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
