@@ -217,6 +217,7 @@
                 'Resources/devtools_resources.pak',
                 'Resources/locales/',
                 '$(BUILDTYPE)/libcef.so',
+                '$(BUILDTYPE)/libffmpegsumo.so',
               ],
             },
           ],

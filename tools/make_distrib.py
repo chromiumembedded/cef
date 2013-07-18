@@ -606,6 +606,7 @@ elif platform == 'linux':
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
     else:
       sys.stderr.write("No Debug build files.\n")
 
@@ -623,6 +624,7 @@ elif platform == 'linux':
       copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
     else:
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
