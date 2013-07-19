@@ -1,0 +1,15 @@
+Index: power_monitor_win.cc
+===================================================================
+--- power_monitor_win.cc	(revision 211613)
++++ power_monitor_win.cc	(working copy)
+@@ -30,8 +30,8 @@
+   if (MessageLoop::current()->type() != MessageLoop::TYPE_UI) {
+     // Creating this window in (e.g.) a renderer inhibits shutdown on Windows.
+     // See http://crbug.com/230122. TODO(vandebo): http://crbug.com/236031
+-    DLOG(ERROR)
+-        << "Cannot create windows on non-UI thread, power monitor disabled!";
++    // DLOG(ERROR)
++    //     << "Cannot create windows on non-UI thread, power monitor disabled!";
+     return;
+   }
+   WNDCLASSEX window_class;

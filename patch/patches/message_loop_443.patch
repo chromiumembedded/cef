@@ -1,0 +1,13 @@
+Index: message_loop.cc
+===================================================================
+--- message_loop.cc	(revision 194165)
++++ message_loop.cc	(working copy)
+@@ -191,7 +191,7 @@
+ MessageLoop::~MessageLoop() {
+   DCHECK_EQ(this, current());
+ 
+-  DCHECK(!run_loop_);
++  //DCHECK(!run_loop_);
+ 
+   // Clean up any unprocessed tasks, but take care: deleting a task could
+   // result in the addition of more tasks (e.g., via DeleteSoon).  We set a

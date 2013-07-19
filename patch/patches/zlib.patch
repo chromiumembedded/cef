@@ -1,0 +1,13 @@
+Index: contrib/minizip/unzip.c
+===================================================================
+--- contrib/minizip/unzip.c	(revision 176706)
++++ contrib/minizip/unzip.c	(working copy)
+@@ -69,7 +69,7 @@
+ #include <string.h>
+ 
+ #ifndef NOUNCRYPT
+-        #define NOUNCRYPT
++//        #define NOUNCRYPT
+ #endif
+ 
+ #include "third_party/zlib/zlib.h"
