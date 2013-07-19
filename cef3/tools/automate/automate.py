@@ -3,13 +3,16 @@
 # can be found in the LICENSE file.
 
 from optparse import OptionParser
+import httplib
 import os
 import re
 import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib
+import zipfile
 
 # default URL values
 cef_url = 'http://chromiumembedded.googlecode.com/svn/trunk/cef3'
@@ -55,6 +58,52 @@ def get_svn_info(path):
       raise
   return {'url': url, 'revision': rev}
 
+def download_and_extract(src, target, contents_prefix):
+  """ Extracts the contents of src, which may be a URL or local file, to the
+      target directory. """
+  sys.stdout.write('Extracting %s to %s.\n' % (src, target))
+  temporary = False
+
+  if src[:4] == 'http':
+    # Attempt to download a URL.
+    opener = urllib.FancyURLopener({})
+    response = opener.open(src)
+
+    temporary = True
+    handle, archive_path = tempfile.mkstemp(suffix = '.zip')
+    os.write(handle, response.read())
+    os.close(handle)
+  elif os.path.exists(src):
+    # Use a local file.
+    archive_path = src
+  else:
+    raise Exception('Path type is unsupported or does not exist: ' + src)
+
+  if not zipfile.is_zipfile(archive_path):
+    raise Exception('Not a valid zip archive: ' + src)
+
+  def remove_prefix(zip, prefix):
+    offset = len(prefix)
+    for zipinfo in zip.infolist():
+      name = zipinfo.filename
+      if len(name) > offset and name[:offset] == prefix:
+        zipinfo.filename = name[offset:]
+        yield zipinfo
+
+  # Attempt to extract the archive file.
+  try:
+    os.makedirs(target)
+    zf = zipfile.ZipFile(archive_path, 'r')
+    zf.extractall(target, remove_prefix(zf, contents_prefix))
+  except:
+    shutil.rmtree(target, onerror=onerror)
+    raise
+  zf.close()
+
+  # Delete the archive file if temporary.
+  if temporary and os.path.exists(archive_path):
+    os.remove(archive_path)
+
 def onerror(func, path, exc_info):
   """
   Error handler for ``shutil.rmtree``.
@@ -94,6 +143,9 @@ parser.add_option('--url', dest='url',
                   help='CEF source URL')
 parser.add_option('--depot-tools', dest='depottools', metavar='DIR',
                   help='download directory for depot_tools', default='')
+parser.add_option('--depot-tools-archive', dest='depottoolsarchive',
+                  help='zip archive file that contains a single top-level '+\
+                       'depot_tools directory', default='')
 parser.add_option('--force-config',
                   action='store_true', dest='forceconfig', default=False,
                   help='force Chromium configuration')
@@ -239,8 +291,13 @@ if options.depottools != '':
 else:
   depot_tools_dir = os.path.join(download_dir, 'depot_tools')
 if not os.path.exists(depot_tools_dir):
-  # checkout depot_tools
-  run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
+  if options.depottoolsarchive != '':
+    # extract depot_tools from an archive file
+    download_and_extract(options.depottoolsarchive, depot_tools_dir,
+        'depot_tools/')
+  else:
+    # checkout depot_tools
+    run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
 
 # check if the "chromium" directory exists
 chromium_dir = os.path.join(download_dir, 'chromium')
