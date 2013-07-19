@@ -142,6 +142,9 @@ parser.add_option('--no-distrib-archive',
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help="build using ninja")
+parser.add_option('--clean-artifacts',
+                  action='store_true', dest='cleanartifacts', default=False,
+                  help='clean the artifacts output directory')
 parser.add_option('--dry-run',
                   action='store_true', dest='dryrun', default=False,
                   help="output commands without executing them")
@@ -438,6 +441,12 @@ if any_changed or options.forcebuild:
       run(path+' Release', cef_tools_dir, depot_tools_dir)
 
 if (any_changed or options.forcedistrib) and not options.nodistrib:
+  if not options.forceclean and options.cleanartifacts:
+    # clean the artifacts output directory
+    artifacts_path = os.path.join(cef_src_dir, 'binary_distrib')
+    if os.path.exists(artifacts_path):
+      shutil.rmtree(artifacts_path, onerror=onerror)
+
   # determine the requested distribution types
   distrib_types = []
   if options.minimaldistribonly:
