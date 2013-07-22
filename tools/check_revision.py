@@ -27,6 +27,10 @@ parser.add_option('-q', '--quiet',
 # The CEF root directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
+if not os.path.exists(os.path.join(cef_dir, '.svn')):
+  sys.stdout.write("Not an SVN checkout.\n")
+  sys.exit(0)
+
 # Retrieve the CEF SVN info.
 cef_info = get_svn_info(cef_dir)
 if not options.quiet:
