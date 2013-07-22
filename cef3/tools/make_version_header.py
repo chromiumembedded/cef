@@ -60,10 +60,12 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
 
     year = get_year()
 
-    try:
-        revision = svn.get_revision()
-    except:
-        revision = git.get_svn_revision()
+    if os.path.exists(os.path.join('.', '.svn')):
+      revision = svn.get_revision()
+    elif os.path.exists(os.path.join('.', '.git')):
+      revision = git.get_svn_revision()
+    else:
+      raise Exception('Not a valid checkout')
 
     # calculate api hashes
     api_hash_calculator = cef_api_hash(cpp_header_dir, verbose = False)
