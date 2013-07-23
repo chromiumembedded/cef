@@ -468,7 +468,10 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [self keyDown:event];
 }
 
-- (void) shortCircuitScrollWheelEvent:(NSEvent*)event {
+- (void)shortCircuitScrollWheelEvent:(NSEvent*)event {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+  // Phase is only supported in OS-X 10.7 and newer.
   if ([event phase] != NSEventPhaseEnded &&
       [event phase] != NSEventPhaseCancelled)
     return;
@@ -479,9 +482,13 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [NSEvent removeMonitor:endWheelMonitor_];
     endWheelMonitor_ = nil;
   }
+#endif
 }
 
 - (void)scrollWheel:(NSEvent *)event {
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+  // Phase is only supported in OS-X 10.7 and newer.
   // Use an NSEvent monitor to listen for the wheel-end end. This ensures that
   // the event is received even when the mouse cursor is no longer over the
   // view when the scrolling ends. Also it avoids sending duplicate scroll
@@ -497,6 +504,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 
   [self sendScrollWheelEvet:event];
+#endif
 }
 
 - (void)sendScrollWheelEvet:(NSEvent *)event {
