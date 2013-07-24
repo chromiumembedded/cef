@@ -19,6 +19,7 @@
 
 #include "base/strings/string16.h"
 #include "base/strings/string_util.h"
+#include "base/strings/sys_string_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/document_state.h"
 #include "content/public/renderer/navigation_state.h"

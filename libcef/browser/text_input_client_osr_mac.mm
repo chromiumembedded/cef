@@ -100,7 +100,7 @@ extern "C" {
     ui::Range replacement_range(replacementRange);
 
     renderWidgetHostView_->get_render_widget_host_impl()->ImeConfirmComposition(
-        base::SysNSStringToUTF16(im_text), replacement_range);
+        base::SysNSStringToUTF16(im_text), replacement_range, false);
   }
 
   // Inserting text will delete all marked text automatically.
@@ -185,7 +185,7 @@ extern "C" {
   // called in keyEvent: method.
   if (!handlingKeyDown_) {
     renderWidgetHostView_->get_render_widget_host_impl()->
-        ImeConfirmComposition();
+        ImeConfirmComposition(string16(), ui::Range::InvalidRange(), false);
   } else {
     unmarkTextCalled_ = YES;
   }
@@ -305,7 +305,7 @@ extern "C" {
   // text.
 
   if (!hasMarkedText_ && !oldHasMarkedText_ &&
-      !textToBeInserted_.length() <= 1) {
+      textToBeInserted_.length() <= 1) {
     content::NativeWebKeyboardEvent event(keyEvent);
     if (textToBeInserted_.length() == 1) {
       event.type = WebKit::WebInputEvent::Type::Char;
@@ -319,7 +319,7 @@ extern "C" {
   if (textToBeInserted_.length() >
     ((hasMarkedText_ || oldHasMarkedText_) ? 0u : 1u)) {
     renderWidgetHostView_->get_render_widget_host_impl()->ImeConfirmComposition(
-       textToBeInserted_);
+       textToBeInserted_, ui::Range::InvalidRange(), false);
     textToBeInserted_ = YES;
   }
 
@@ -336,7 +336,7 @@ extern "C" {
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     if (unmarkTextCalled_) {
       renderWidgetHostView_->get_render_widget_host_impl()->
-          ImeConfirmComposition();
+          ImeConfirmComposition(string16(), ui::Range::InvalidRange(), false);
     } else {
       renderWidgetHostView_->get_render_widget_host_impl()->
           ImeCancelComposition();

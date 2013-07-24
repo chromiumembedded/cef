@@ -1002,7 +1002,6 @@ CefV8ValueImpl::Handle::~Handle() {
   // B. The associated context, if any, is still valid.
   if (should_persist_ && (!context_state_.get() || context_state_->IsValid())) {
     handle_.MakeWeak(
-        isolate(),
         (tracker_ ? new CefV8MakeWeakParam(context_state_, tracker_) : NULL),
         TrackDestructor);
   } else {

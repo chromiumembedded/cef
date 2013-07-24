@@ -10,6 +10,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "bindings/v8/V8RecursionScope.h"
 #include "bindings/v8/V8Utilities.h"
 MSVC_POP_WARNING();
+#undef ceil
 #undef LOG
 
 #include "libcef/renderer/content_renderer_client.h"

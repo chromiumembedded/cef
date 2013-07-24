@@ -158,17 +158,14 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_TRUE(callback.get());
 
     download_id_ = download_item->GetId();
-    EXPECT_LT(0, download_id_);
+    EXPECT_LT(0U, download_id_);
     
     EXPECT_TRUE(download_item->IsValid());
     EXPECT_TRUE(download_item->IsInProgress());
     EXPECT_FALSE(download_item->IsComplete());
     EXPECT_FALSE(download_item->IsCanceled());
-    EXPECT_EQ(0LL, download_item->GetCurrentSpeed());
-    EXPECT_EQ(0, download_item->GetPercentComplete());
     EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
         download_item->GetTotalBytes());
-    EXPECT_EQ(0LL, download_item->GetReceivedBytes());
     EXPECT_EQ(0UL, download_item->GetFullPath().length());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
     EXPECT_EQ(0UL, download_item->GetSuggestedFileName().length());
@@ -248,7 +245,7 @@ class DownloadTestHandler : public TestHandler {
  private:
   base::ScopedTempDir temp_dir_;
   base::FilePath test_path_;
-  int download_id_;
+  uint32 download_id_;
 
   TrackCallback got_download_request_;
   TrackCallback got_on_before_download_;
