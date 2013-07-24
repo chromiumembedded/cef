@@ -11,7 +11,7 @@
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/page/Frame.h"
-#include "core/workers//WorkerContext.h"
+#include "core/workers/WorkerGlobalScope.h"
 #include "bindings/v8/ScriptController.h"
 #include "bindings/v8/V8Binding.h"
 #include "bindings/v8/V8RecursionScope.h"
@@ -32,10 +32,10 @@ MSVC_POP_WARNING();
 #include "base/lazy_instance.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/threading/thread_local.h"
-#include "googleurl/src/gurl.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScriptController.h"
+#include "url/gurl.h"
 
 namespace {
 
@@ -472,40 +472,45 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out) {
 }
 
 // V8 function callback.
-v8::Handle<v8::Value> FunctionCallbackImpl(const v8::Arguments& args) {
+void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   WebCore::V8RecursionScope recursion_scope(
       WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
   CefV8Handler* handler =
-      static_cast<CefV8Handler*>(v8::External::Cast(*args.Data())->Value());
+      static_cast<CefV8Handler*>(v8::External::Cast(*info.Data())->Value());
 
   CefV8ValueList params;
-  for (int i = 0; i < args.Length(); i++)
-    params.push_back(new CefV8ValueImpl(args[i]));
+  for (int i = 0; i < info.Length(); i++)
+    params.push_back(new CefV8ValueImpl(info[i]));
 
   CefString func_name;
-  GetCefString(v8::Handle<v8::String>::Cast(args.Callee()->GetName()),
+  GetCefString(v8::Handle<v8::String>::Cast(info.Callee()->GetName()),
                func_name);
-  CefRefPtr<CefV8Value> object = new CefV8ValueImpl(args.This());
+  CefRefPtr<CefV8Value> object = new CefV8ValueImpl(info.This());
   CefRefPtr<CefV8Value> retval;
   CefString exception;
 
   if (handler->Execute(func_name, object, params, retval, exception)) {
     if (!exception.empty()) {
-      return v8::ThrowException(v8::Exception::Error(GetV8String(exception)));
+      info.GetReturnValue().Set(
+          v8::ThrowException(v8::Exception::Error(GetV8String(exception))));
+      return;
     } else {
       CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
-      if (rv && rv->IsValid())
-        return rv->GetV8Value(true);
+      if (rv && rv->IsValid()) {
+        info.GetReturnValue().Set(rv->GetV8Value(true));
+        return;
+      }
     }
   }
 
-  return v8::Undefined();
+  info.GetReturnValue().SetUndefined();
 }
 
 // V8 Accessor callbacks
-v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
-                                                 const v8::AccessorInfo& info) {
+void AccessorGetterCallbackImpl(
+    v8::Local<v8::String> property,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
   WebCore::V8RecursionScope recursion_scope(
       WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
@@ -524,22 +529,26 @@ v8::Handle<v8::Value> AccessorGetterCallbackImpl(v8::Local<v8::String> property,
     GetCefString(property, name);
     if (accessorPtr->Get(name, object, retval, exception)) {
       if (!exception.empty()) {
-          return v8::ThrowException(
-              v8::Exception::Error(GetV8String(exception)));
+          info.GetReturnValue().Set(
+              v8::ThrowException(v8::Exception::Error(GetV8String(exception))));
+          return;
       } else {
           CefV8ValueImpl* rv = static_cast<CefV8ValueImpl*>(retval.get());
-          if (rv && rv->IsValid())
-            return rv->GetV8Value(true);
+          if (rv && rv->IsValid()) {
+            info.GetReturnValue().Set(rv->GetV8Value(true));
+            return;
+          }
       }
     }
   }
 
-  return v8::Undefined();
+  return info.GetReturnValue().SetUndefined();
 }
 
-void AccessorSetterCallbackImpl(v8::Local<v8::String> property,
-                                v8::Local<v8::Value> value,
-                                const v8::AccessorInfo& info) {
+void AccessorSetterCallbackImpl(
+    v8::Local<v8::String> property,
+    v8::Local<v8::Value> value,
+    const v8::PropertyCallbackInfo<void>& info) {
   WebCore::V8RecursionScope recursion_scope(
       WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
 
@@ -586,7 +595,7 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
     DCHECK(controller);
     if (controller) {
       func_rv = WebCore::ScriptController::callFunctionWithInstrumentation(
-          controller->workerContext()->scriptExecutionContext(),
+          controller->workerGlobalScope()->scriptExecutionContext(),
           function, receiver, argc, args);
     }
   }
@@ -1673,9 +1682,10 @@ bool CefV8ValueImpl::SetValue(const CefString& key, AccessControl settings,
   if (!accessorPtr.get())
     return false;
 
-  v8::AccessorGetter getter = AccessorGetterCallbackImpl;
-  v8::AccessorSetter setter = (attribute & V8_PROPERTY_ATTRIBUTE_READONLY) ?
-      NULL : AccessorSetterCallbackImpl;
+  v8::AccessorGetterCallback getter = AccessorGetterCallbackImpl;
+  v8::AccessorSetterCallback setter =
+      (attribute & V8_PROPERTY_ATTRIBUTE_READONLY) ?
+          NULL : AccessorSetterCallbackImpl;
 
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);

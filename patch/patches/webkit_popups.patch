@@ -1,8 +1,8 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 152953)
+--- public/web/WebView.h	(revision 154753)
 +++ public/web/WebView.h	(working copy)
-@@ -421,6 +421,7 @@
+@@ -423,6 +423,7 @@
  
      // Sets whether select popup menus should be rendered by the browser.
      WEBKIT_EXPORT static void setUseExternalPopupMenus(bool);
@@ -10,11 +10,11 @@ Index: public/web/WebView.h
  
  
      // Visited link state --------------------------------------------------
-Index: Source/WebKit/chromium/src/ChromeClientImpl.cpp
+Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/WebKit/chromium/src/ChromeClientImpl.cpp	(revision 152953)
-+++ Source/WebKit/chromium/src/ChromeClientImpl.cpp	(working copy)
-@@ -895,7 +895,7 @@
+--- Source/web/ChromeClientImpl.cpp	(revision 154753)
++++ Source/web/ChromeClientImpl.cpp	(working copy)
+@@ -872,7 +872,7 @@
  
  PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(Frame& frame, PopupMenuClient* client) const
  {
@@ -23,11 +23,11 @@ Index: Source/WebKit/chromium/src/ChromeClientImpl.cpp
          return adoptRef(new ExternalPopupMenu(frame, client, m_webView->client()));
  
      return adoptRef(new PopupMenuChromium(frame, client));
-Index: Source/WebKit/chromium/src/WebViewImpl.cpp
+Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/WebKit/chromium/src/WebViewImpl.cpp	(revision 152953)
-+++ Source/WebKit/chromium/src/WebViewImpl.cpp	(working copy)
-@@ -393,6 +393,7 @@
+--- Source/web/WebViewImpl.cpp	(revision 154753)
++++ Source/web/WebViewImpl.cpp	(working copy)
+@@ -388,6 +388,7 @@
      , m_fakeDoubleTapPageScaleFactor(0)
      , m_fakeDoubleTapUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/WebKit/chromium/src/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_suppressNextKeypressEvent(false)
-@@ -3676,9 +3677,14 @@
+@@ -3702,9 +3703,14 @@
      updateLayerTreeViewport();
  }
  
@@ -51,11 +51,11 @@ Index: Source/WebKit/chromium/src/WebViewImpl.cpp
  }
  
  void WebViewImpl::setEmulatedTextZoomFactor(float textZoomFactor)
-Index: Source/WebKit/chromium/src/WebViewImpl.h
+Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/WebKit/chromium/src/WebViewImpl.h	(revision 152953)
-+++ Source/WebKit/chromium/src/WebViewImpl.h	(working copy)
-@@ -415,7 +415,8 @@
+--- Source/web/WebViewImpl.h	(revision 154753)
++++ Source/web/WebViewImpl.h	(working copy)
+@@ -420,7 +420,8 @@
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -65,7 +65,7 @@ Index: Source/WebKit/chromium/src/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -733,6 +734,8 @@
+@@ -721,6 +722,8 @@
  
      bool m_contextMenuAllowed;
  

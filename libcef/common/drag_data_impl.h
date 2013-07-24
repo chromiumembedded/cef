@@ -9,12 +9,12 @@
 #include <vector>
 
 #include "include/cef_drag_data.h"
-#include "webkit/common/webdropdata.h"
+#include "content/public/common/drop_data.h"
 
 // Implementation of CefDragData.
 class CefDragDataImpl : public CefDragData {
  public:
-  explicit CefDragDataImpl(const WebDropData& data);
+  explicit CefDragDataImpl(const content::DropData& data);
 
   virtual bool IsLink();
   virtual bool IsFragment();
@@ -29,7 +29,7 @@ class CefDragDataImpl : public CefDragData {
   virtual bool GetFileNames(std::vector<CefString>& names);
 
  protected:
-  WebDropData data_;
+  content::DropData data_;
 
   IMPLEMENT_REFCOUNTING(CefDragDataImpl);
 };

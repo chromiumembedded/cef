@@ -20,10 +20,10 @@
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/browser/net/sqlite_persistent_cookie_store.h"
-#include "googleurl/src/gurl.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
 #include "net/url_request/url_request_context.h"
+#include "url/gurl.h"
 
 using content::BrowserThread;
 
@@ -285,7 +285,7 @@ bool CefCookieManagerImpl::SetStoragePath(
       // TODO(cef): Move directory creation to the blocking pool instead of
       // allowing file IO on this thread.
       base::ThreadRestrictions::ScopedAllowIO allow_io;
-      if (file_util::DirectoryExists(new_path) ||
+      if (base::DirectoryExists(new_path) ||
           file_util::CreateDirectory(new_path)) {
         const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =

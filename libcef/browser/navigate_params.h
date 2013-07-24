@@ -12,9 +12,9 @@
 #include "content/public/browser/global_request_id.h"
 #include "content/public/common/page_transition_types.h"
 #include "content/public/common/referrer.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
 #include "ui/base/window_open_disposition.h"
+#include "url/gurl.h"
 
 // Parameters that tell CefBrowserHostImpl::Navigate() what to do.
 struct CefNavigateParams {

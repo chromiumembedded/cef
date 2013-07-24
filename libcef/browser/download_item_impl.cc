@@ -7,7 +7,7 @@
 #include "libcef/common/time_util.h"
 
 #include "content/public/browser/download_item.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 
 CefDownloadItemImpl::CefDownloadItemImpl(content::DownloadItem* value)
@@ -76,7 +76,7 @@ CefString CefDownloadItemImpl::GetFullPath() {
   return const_value().GetFullPath().value();
 }
 
-int32 CefDownloadItemImpl::GetId() {
+uint32 CefDownloadItemImpl::GetId() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetId();
 }

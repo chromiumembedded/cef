@@ -469,7 +469,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   content::RenderViewImpl* render_view_impl =
       static_cast<content::RenderViewImpl*>(render_view);
 
-  webkit::WebPluginInfo info;
+  content::WebPluginInfo info;
   std::string mime_type;
   bool found = render_view_impl->GetPluginInfo(params.url,
                                                frame->top()->document().url(),

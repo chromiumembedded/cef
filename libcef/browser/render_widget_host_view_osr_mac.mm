@@ -76,7 +76,8 @@ void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 
 void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
     ui::TextInputType type,
-    bool can_compose_inline) {
+    bool can_compose_inline,
+    ui::TextInputMode mode) {
   [NSApp updateWindows];
 }
 

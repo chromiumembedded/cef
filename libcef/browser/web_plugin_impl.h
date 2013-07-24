@@ -7,11 +7,11 @@
 #pragma once
 
 #include "include/cef_web_plugin.h"
-#include "webkit/plugins/webplugininfo.h"
+#include "content/public/common/webplugininfo.h"
 
 class CefWebPluginInfoImpl : public CefWebPluginInfo {
  public:
-  explicit CefWebPluginInfoImpl(const webkit::WebPluginInfo& plugin_info);
+  explicit CefWebPluginInfoImpl(const content::WebPluginInfo& plugin_info);
 
   virtual CefString GetName() OVERRIDE;
   virtual CefString GetPath() OVERRIDE;
@@ -19,7 +19,7 @@ class CefWebPluginInfoImpl : public CefWebPluginInfo {
   virtual CefString GetDescription() OVERRIDE;
 
  private:
-  webkit::WebPluginInfo plugin_info_;
+  content::WebPluginInfo plugin_info_;
 
   IMPLEMENT_REFCOUNTING(CefWebPluginInfoImpl);
 };

@@ -7,7 +7,7 @@
 #pragma once
 
 #include "base/basictypes.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 
 // Class used to process events on the current message loop.
 class CefBrowserMessageLoop : public base::MessageLoopForUI {

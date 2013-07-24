@@ -1631,7 +1631,7 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
 
 bool CefBrowserHostImpl::CanDragEnter(
     content::WebContents* source,
-    const WebDropData& data,
+    const content::DropData& data,
     WebKit::WebDragOperationsMask mask) {
   CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
   if (handler.get()) {
@@ -1649,7 +1649,10 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     int route_id,
     WindowContainerType window_container_type,
     const string16& frame_name,
-    const GURL& target_url) {
+    const GURL& target_url,
+    WindowOpenDisposition disposition,
+    const WebKit::WebWindowFeatures& features,
+    bool user_gesture) {
   CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
       web_contents->GetRenderProcessHost()->GetID(), route_id);
 
@@ -1714,7 +1717,7 @@ void CefBrowserHostImpl::RunFileChooser(
 
   RunFileChooserOnUIThread(params,
       base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback, this,
-                 tab));
+                 tab, params.mode));
 }
 
 bool CefBrowserHostImpl::SetPendingPopupInfo(
@@ -1757,7 +1760,8 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
         // For open device request pick the desired device or fall back to the
         // first available of the given type.
         CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            request.requested_device_id,
+            (microphone_requested ? request.requested_audio_device_id :
+                                    request.requested_video_device_id),
             microphone_requested,
             webcam_requested,
             &devices);
@@ -1828,7 +1832,7 @@ void CefBrowserHostImpl::RenderViewReady() {
   }
 }
 
-void CefBrowserHostImpl::RenderViewGone(base::TerminationStatus status) {
+void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
   queue_messages_ = true;
 
   cef_termination_status_t ts = TS_ABNORMAL_TERMINATION;
@@ -2354,18 +2358,13 @@ void CefBrowserHostImpl::OnRunFileChooserCallback(
 
 void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
     content::WebContents* tab,
+    content::FileChooserParams::Mode mode,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
   content::RenderViewHost* render_view_host = tab->GetRenderViewHost();
   if (!render_view_host)
     return;
-
-  const int kReadFilePermissions =
-      base::PLATFORM_FILE_OPEN |
-      base::PLATFORM_FILE_READ |
-      base::PLATFORM_FILE_EXCLUSIVE_READ |
-      base::PLATFORM_FILE_ASYNC;
 
   // Convert FilePath list to SelectedFileInfo list.
   std::vector<ui::SelectedFileInfo> selected_files;
@@ -2375,6 +2374,5 @@ void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
   }
 
   // Notify our RenderViewHost in all cases.
-  render_view_host->FilesSelectedInChooser(selected_files,
-                                           kReadFilePermissions);
+  render_view_host->FilesSelectedInChooser(selected_files, mode);
 }

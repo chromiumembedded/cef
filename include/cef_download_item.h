@@ -118,7 +118,7 @@ class CefDownloadItem : public virtual CefBase {
   // Returns the unique identifier for this download.
   ///
   /*--cef()--*/
-  virtual int32 GetId() =0;
+  virtual uint32 GetId() =0;
 
   ///
   // Returns the URL.

@@ -4,7 +4,7 @@
 
 #include <sstream>
 #include "include/cef_url.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 bool CefParseURL(const CefString& url,
                  CefURLParts& parts) {

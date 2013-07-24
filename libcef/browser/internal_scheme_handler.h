@@ -9,7 +9,7 @@
 #include <string>
 #include "include/cef_scheme.h"
 #include "base/memory/scoped_ptr.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 namespace scheme {
 

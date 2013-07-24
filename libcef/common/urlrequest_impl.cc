@@ -8,7 +8,7 @@
 #include "libcef/renderer/render_urlrequest_impl.h"
 
 #include "base/logging.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "content/public/common/content_client.h"
 
 // static

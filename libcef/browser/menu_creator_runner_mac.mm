@@ -5,7 +5,7 @@
 #include "libcef/browser/menu_creator_runner_mac.h"
 #include "libcef/browser/browser_host_impl.h"
 
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
 #include "content/public/browser/web_contents_view.h"

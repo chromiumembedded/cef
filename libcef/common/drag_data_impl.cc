@@ -5,7 +5,7 @@
 #include "libcef/common/drag_data_impl.h"
 #include "base/files/file_path.h"
 
-CefDragDataImpl::CefDragDataImpl(const WebDropData& data)
+CefDragDataImpl::CefDragDataImpl(const content::DropData& data)
   : data_(data) {
 }
 
@@ -54,7 +54,7 @@ bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
   if (data_.filenames.empty())
     return false;
 
-  std::vector<WebDropData::FileInfo>::const_iterator it =
+  std::vector<content::DropData::FileInfo>::const_iterator it =
       data_.filenames.begin();
   for (; it != data_.filenames.end(); ++it)
     names.push_back(it->path);

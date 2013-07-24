@@ -34,7 +34,6 @@
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "webkit/base/file_path_string_conversions.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebFrame;
@@ -47,6 +46,15 @@ namespace {
 
 const int64 kInvalidBrowserId = -1;
 const int64 kInvalidFrameId = -1;
+
+WebKit::WebString FilePathStringToWebString(
+    const base::FilePath::StringType& str) {
+#if defined(OS_POSIX)
+  return WideToUTF16Hack(base::SysNativeMBToWide(str));
+#elif defined(OS_WIN)
+  return WideToUTF16Hack(str);
+#endif
+}
 
 }  // namespace
 
@@ -78,25 +86,25 @@ CefRefPtr<CefBrowserHost> CefBrowserImpl::GetHost() {
 bool CefBrowserImpl::CanGoBack() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  return webkit_glue::CanGoBackOrForward(render_view()->GetWebView(), -1);
+  return webkit_glue::CanGoBack(render_view()->GetWebView());
 }
 
 void CefBrowserImpl::GoBack() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  webkit_glue::GoBackOrForward(render_view()->GetWebView(), -1);
+  webkit_glue::GoBack(render_view()->GetWebView());
 }
 
 bool CefBrowserImpl::CanGoForward() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  return webkit_glue::CanGoBackOrForward(render_view()->GetWebView(), 1);
+  return webkit_glue::CanGoForward(render_view()->GetWebView());
 }
 
 void CefBrowserImpl::GoForward() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  webkit_glue::GoBackOrForward(render_view()->GetWebView(), 1);
+  webkit_glue::GoForward(render_view()->GetWebView());
 }
 
 bool CefBrowserImpl::IsLoading() {
@@ -334,7 +342,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
         data.assign(element.bytes(), element.bytes_length());
         body.appendData(data);
       } else if (element.type() == net::UploadElement::TYPE_FILE) {
-        body.appendFile(webkit_base::FilePathToWebString(element.file_path()));
+        body.appendFile(FilePathStringToWebString(element.file_path().value()));
       } else {
         NOTREACHED();
       }

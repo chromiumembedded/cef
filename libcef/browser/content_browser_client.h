@@ -17,7 +17,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 class CefBrowserContext;
 class CefBrowserInfo;

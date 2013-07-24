@@ -7,7 +7,7 @@
 #include "libcef/common/response_impl.h"
 
 #include "base/logging.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "third_party/WebKit/public/platform/Platform.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"

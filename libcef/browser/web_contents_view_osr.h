@@ -48,7 +48,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   virtual void SetInitialFocus() OVERRIDE;
   virtual void StoreFocus() OVERRIDE;
   virtual void RestoreFocus() OVERRIDE;
-  virtual WebDropData* GetDropData() const OVERRIDE;
+  virtual content::DropData* GetDropData() const OVERRIDE;
   virtual gfx::Rect GetViewBounds() const OVERRIDE;
 #if defined(OS_MACOSX)
   virtual bool IsEventTracking() const OVERRIDE;
@@ -58,16 +58,18 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
 #endif
 
   // RenderViewHostDelegateView methods.
-  virtual void StartDragging(const WebDropData& drop_data,
+  virtual void StartDragging(
+      const content::DropData& drop_data,
       WebKit::WebDragOperationsMask allowed_ops,
       const gfx::ImageSkia& image,
       const gfx::Vector2d& image_offset,
       const content::DragEventSourceInfo& event_info) OVERRIDE;
-  virtual void ShowPopupMenu(const gfx::Rect& bounds,
+  virtual void ShowPopupMenu(
+      const gfx::Rect& bounds,
       int item_height,
       double item_font_size,
       int selected_item,
-      const std::vector<WebMenuItem>& items,
+      const std::vector<content::MenuItem>& items,
       bool right_aligned,
       bool allow_multiple_selection) OVERRIDE;
 

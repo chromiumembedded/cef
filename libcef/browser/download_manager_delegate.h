@@ -36,6 +36,7 @@ class CefDownloadManagerDelegate
   virtual bool DetermineDownloadTarget(
       content::DownloadItem* item,
       const content::DownloadTargetCallback& callback) OVERRIDE;
+  virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
 
   content::DownloadManager* manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;

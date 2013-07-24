@@ -14,31 +14,43 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "bindings/v8/ScriptController.h"
 #include "core/history/BackForwardController.h"
 #include "core/page/Page.h"
-#include "third_party/WebKit/Source/WebKit/chromium/src/WebFrameImpl.h"
-#include "third_party/WebKit/Source/WebKit/chromium/src/WebViewImpl.h"
+#include "third_party/WebKit/Source/web/WebFrameImpl.h"
+#include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
 #undef LOG
 
 namespace webkit_glue {
 
-bool CanGoBackOrForward(WebKit::WebView* view, int distance) {
+bool CanGoBack(WebKit::WebView* view) {
   if (!view)
     return false;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  if (distance == 0)
-    return true;
-  if (distance > 0 && distance <= impl->page()->backForward()->forwardCount())
-    return true;
-  if (distance < 0 && -distance <= impl->page()->backForward()->backCount())
-    return true;
-  return false;
+  return (impl->page()->backForward()->backCount() > 0);
 }
 
-void GoBackOrForward(WebKit::WebView* view, int distance) {
+bool CanGoForward(WebKit::WebView* view) {
+  if (!view)
+    return false;
+  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  return (impl->page()->backForward()->forwardCount() > 0);
+}
+
+void GoBack(WebKit::WebView* view) {
   if (!view)
     return;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  impl->page()->goBackOrForward(distance);
+  WebCore::BackForwardController* controller = impl->page()->backForward();
+  if (controller->backCount() > 0)
+    controller->goBack();
+}
+
+void GoForward(WebKit::WebView* view) {
+  if (!view)
+    return;
+  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  WebCore::BackForwardController* controller = impl->page()->backForward();
+  if (controller->forwardCount() > 0)
+    controller->goForward();
 }
 
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {

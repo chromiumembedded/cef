@@ -445,14 +445,14 @@ void CefMainDelegate::InitializeResourceBundle() {
 
     content_client_.set_allow_pack_file_load(true);
 
-    if (file_util::PathExists(cef_pak_file)) {
+    if (base::PathExists(cef_pak_file)) {
       ResourceBundle::GetSharedInstance().AddDataPackFromPath(
           cef_pak_file, ui::SCALE_FACTOR_NONE);
     } else {
       NOTREACHED() << "Could not load cef.pak";
     }
 
-    if (file_util::PathExists(devtools_pak_file)) {
+    if (base::PathExists(devtools_pak_file)) {
       ResourceBundle::GetSharedInstance().AddDataPackFromPath(
           devtools_pak_file, ui::SCALE_FACTOR_NONE);
     }

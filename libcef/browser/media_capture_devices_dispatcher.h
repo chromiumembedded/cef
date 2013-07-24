@@ -35,6 +35,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
     virtual void OnRequestUpdate(
         int render_process_id,
         int render_view_id,
+        int page_request_id,
         const content::MediaStreamDevice& device,
         const content::MediaRequestState state) {}
 
@@ -80,13 +81,18 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   virtual void OnMediaRequestStateChanged(
       int render_process_id,
       int render_view_id,
+      int page_request_id,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state) OVERRIDE;
   virtual void OnAudioStreamPlayingChanged(
       int render_process_id,
       int render_view_id,
       int stream_id,
-      bool playing) OVERRIDE;
+      bool is_playing,
+      float power_dbfs,
+      bool clipped) OVERRIDE;
+  virtual void OnCreatingAudioStream(int render_process_id,
+                                     int render_view_id) OVERRIDE;
 
  private:
   friend struct DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;
@@ -100,6 +106,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   void UpdateMediaRequestStateOnUIThread(
       int render_process_id,
       int render_view_id,
+      int page_request_id,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state);
 

@@ -7,7 +7,10 @@
 #include <set>
 #include <string>
 
+#include "libcef/common/cef_switches.h"
+
 #include "base/bind.h"
+#include "base/command_line.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
@@ -122,6 +125,9 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
 
 CefSpeechRecognitionManagerDelegate
 ::CefSpeechRecognitionManagerDelegate() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  filter_profanities_ =
+      command_line.HasSwitch(switches::kEnableProfanityFilter);
 }
 
 CefSpeechRecognitionManagerDelegate
@@ -214,4 +220,9 @@ void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
 content::SpeechRecognitionEventListener*
 CefSpeechRecognitionManagerDelegate::GetEventListener() {
   return this;
+}
+
+bool CefSpeechRecognitionManagerDelegate::FilterProfanities(
+    int render_process_id) {
+  return filter_profanities_;
 }

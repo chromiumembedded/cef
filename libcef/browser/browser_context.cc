@@ -11,17 +11,14 @@
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_context_getter.h"
-#include "libcef/common/cef_switches.h"
 
 #include "base/bind.h"
-#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/geolocation_permission_context.h"
 #include "content/public/browser/resource_context.h"
-#include "content/public/browser/speech_recognition_preferences.h"
 #include "content/public/browser/storage_partition.h"
 
 using content::BrowserThread;
@@ -158,26 +155,6 @@ class CefGeolocationPermissionContext
   DISALLOW_COPY_AND_ASSIGN(CefGeolocationPermissionContext);
 };
 
-class CefSpeechRecognitionPreferences
-    : public content::SpeechRecognitionPreferences {
- public:
-  CefSpeechRecognitionPreferences() {
-    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-    filter_profanities_ =
-        command_line.HasSwitch(switches::kEnableProfanityFilter);
-  }
-
-  // Overridden from SpeechRecognitionPreferences:
-  virtual bool FilterProfanities() const OVERRIDE {
-    return filter_profanities_;
-  }
-
- private:
-  bool filter_profanities_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionPreferences);
-};
-
 }  // namespace
 
 class CefBrowserContext::CefResourceContext : public content::ResourceContext {
@@ -222,7 +199,7 @@ CefBrowserContext::~CefBrowserContext() {
   }
 }
 
-base::FilePath CefBrowserContext::GetPath() {
+base::FilePath CefBrowserContext::GetPath() const {
   return _Context->cache_path();
 }
 
@@ -272,6 +249,15 @@ net::URLRequestContextGetter*
   return GetRequestContext();
 }
 
+void CefBrowserContext::RequestMIDISysExPermission(
+    int render_process_id,
+    int render_view_id,
+    const GURL& requesting_frame,
+    const MIDISysExPermissionCallback& callback) {
+  // TODO(CEF): Implement Web MIDI API permission handling.
+  callback.Run(false);
+}
+
 content::ResourceContext* CefBrowserContext::GetResourceContext() {
   return resource_context_.get();
 }
@@ -283,13 +269,6 @@ content::GeolocationPermissionContext*
         new CefGeolocationPermissionContext();
   }
   return geolocation_permission_context_;
-}
-
-content::SpeechRecognitionPreferences*
-    CefBrowserContext::GetSpeechRecognitionPreferences() {
-  if (!speech_recognition_preferences_.get())
-    speech_recognition_preferences_ = new CefSpeechRecognitionPreferences();
-  return speech_recognition_preferences_.get();
 }
 
 quota::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {

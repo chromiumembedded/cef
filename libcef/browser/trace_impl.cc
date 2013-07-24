@@ -9,7 +9,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/debug/trace_event.h"
-#include "base/time.h"
+#include "base/time/time.h"
 
 bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
                      const CefString& categories) {

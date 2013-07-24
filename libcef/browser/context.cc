@@ -182,7 +182,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   cache_path_ = base::FilePath(CefString(&settings.cache_path));
   if (!cache_path_.empty() &&
-      !file_util::DirectoryExists(cache_path_) &&
+      !base::DirectoryExists(cache_path_) &&
       !file_util::CreateDirectory(cache_path_)) {
     NOTREACHED() << "The cache_path directory could not be created";
     cache_path_ = base::FilePath();

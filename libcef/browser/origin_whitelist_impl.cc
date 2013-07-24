@@ -16,7 +16,7 @@
 #include "base/lazy_instance.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/render_process_host.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 namespace {
 

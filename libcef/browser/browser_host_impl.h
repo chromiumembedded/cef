@@ -28,6 +28,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "content/public/common/file_chooser_params.h"
 #include "net/url_request/url_request_context_getter.h"
 
 namespace content {
@@ -303,14 +304,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
   virtual bool CanDragEnter(
       content::WebContents* source,
-      const WebDropData& data,
+      const content::DropData& data,
       WebKit::WebDragOperationsMask operations_allowed) OVERRIDE;
   virtual bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
       WindowContainerType window_container_type,
       const string16& frame_name,
-      const GURL& target_url) OVERRIDE;
+      const GURL& target_url,
+      WindowOpenDisposition disposition,
+      const WebKit::WebWindowFeatures& features,
+      bool user_gesture) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const string16& frame_name,
@@ -337,7 +341,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void RenderViewDeleted(
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void RenderViewReady() OVERRIDE;
-  virtual void RenderViewGone(base::TerminationStatus status) OVERRIDE;
+  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
       int64 frame_id,
       bool is_main_frame,
@@ -471,6 +475,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
   void OnRunFileChooserDelegateCallback(
       content::WebContents* tab,
+      content::FileChooserParams::Mode mode,
       const std::vector<base::FilePath>& file_paths);
 
   CefWindowInfo window_info_;

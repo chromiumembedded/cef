@@ -45,6 +45,7 @@ class CefSpeechRecognitionManagerDelegate
       int session_id,
       base::Callback<void(bool ask_user, bool is_allowed)> callback) OVERRIDE;
   virtual content::SpeechRecognitionEventListener* GetEventListener() OVERRIDE;
+  virtual bool FilterProfanities(int render_process_id) OVERRIDE;
 
  private:
   class WebContentsWatcher;
@@ -54,6 +55,7 @@ class CefSpeechRecognitionManagerDelegate
   void WebContentsClosedCallback(int render_process_id, int render_view_id);
 
   scoped_refptr<WebContentsWatcher> web_contents_watcher_;
+  bool filter_profanities_;
 
   DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionManagerDelegate);
 };

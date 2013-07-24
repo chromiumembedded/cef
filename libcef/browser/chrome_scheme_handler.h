@@ -13,8 +13,8 @@
 #include "include/cef_process_message.h"
 
 #include "base/memory/scoped_ptr.h"
-#include "googleurl/src/gurl.h"
 #include "net/url_request/url_request_job_factory.h"
+#include "url/gurl.h"
 
 namespace base {
 class ListValue;

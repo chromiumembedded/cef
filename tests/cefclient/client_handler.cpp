@@ -268,7 +268,7 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
   REQUIRE_UI_THREAD();
 
   // Forbid dragging of link URLs.
-  if (dragData->IsLink())
+  if (mask & DRAG_OPERATION_LINK)
     return true;
 
   return false;

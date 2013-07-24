@@ -6,7 +6,7 @@
 // IPC messages for CEF.
 // Multiply-included message file, hence no include guard.
 
-#include "base/shared_memory.h"
+#include "base/memory/shared_memory.h"
 #include "base/values.h"
 #include "content/public/common/common_param_traits.h"
 #include "content/public/common/referrer.h"

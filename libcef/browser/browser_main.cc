@@ -14,7 +14,7 @@
 
 #include "base/bind.h"
 #include "base/command_line.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
@@ -74,7 +74,7 @@ int CefBrowserMainParts::PreCreateThreads() {
 
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(
-      ProxyServiceFactory::CreatePrefProxyConfigTracker(
+      ProxyServiceFactory::CreatePrefProxyConfigTrackerOfLocalState(
           pref_service_.get()));
 
   return 0;
@@ -86,11 +86,9 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   // Initialize the proxy configuration service. This needs to occur before
   // CefURLRequestContextGetter::GetURLRequestContext() is called for the
   // first time.
-  ChromeProxyConfigService* chrome_proxy_config_service =
-      ProxyServiceFactory::CreateProxyConfigService();
-  proxy_config_service_.reset(chrome_proxy_config_service);
-  pref_proxy_config_tracker_->SetChromeProxyConfigService(
-      chrome_proxy_config_service);
+  proxy_config_service_.reset(
+      ProxyServiceFactory::CreateProxyConfigService(
+          pref_proxy_config_tracker_.get()));
 
   // Initialize the request context getter. This indirectly triggers a call
   // to CefURLRequestContextGetter::GetURLRequestContext() on the IO thread.

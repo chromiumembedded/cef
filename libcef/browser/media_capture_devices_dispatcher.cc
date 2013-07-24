@@ -155,6 +155,7 @@ void CefMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
 void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
     int render_view_id,
+    int page_request_id,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
@@ -162,13 +163,23 @@ void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
           &CefMediaCaptureDevicesDispatcher::UpdateMediaRequestStateOnUIThread,
-          base::Unretained(this), render_process_id, render_view_id, device,
-          state));
+          base::Unretained(this), render_process_id, render_view_id,
+          page_request_id, device, state));
 
 }
 
 void CefMediaCaptureDevicesDispatcher::OnAudioStreamPlayingChanged(
-    int render_process_id, int render_view_id, int stream_id, bool playing) {
+    int render_process_id,
+    int render_view_id,
+    int stream_id,
+    bool is_playing,
+    float power_dbfs,
+    bool clipped) {
+}
+
+void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
+    int render_process_id,
+    int render_view_id) {
 }
 
 void CefMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
@@ -192,11 +203,13 @@ void CefMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
 void CefMediaCaptureDevicesDispatcher::UpdateMediaRequestStateOnUIThread(
     int render_process_id,
     int render_view_id,
+    int page_request_id,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnRequestUpdate(render_process_id,
                                     render_view_id,
+                                    page_request_id,
                                     device,
                                     state));
 }

@@ -17,8 +17,10 @@ class WebView;
 
 namespace webkit_glue {
 
-bool CanGoBackOrForward(WebKit::WebView* view, int distance);
-void GoBackOrForward(WebKit::WebView* view, int distance);
+bool CanGoBack(WebKit::WebView* view);
+bool CanGoForward(WebKit::WebView* view);
+void GoBack(WebKit::WebView* view);
+void GoForward(WebKit::WebView* view);
 
 // Retrieve the V8 context associated with the frame.
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);

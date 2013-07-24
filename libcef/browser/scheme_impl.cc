@@ -21,10 +21,9 @@
 #include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "base/synchronization/lock.h"
-#include "googleurl/src/url_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
@@ -36,6 +35,7 @@
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "url/url_util.h"
 
 using net::URLRequestStatus;
 

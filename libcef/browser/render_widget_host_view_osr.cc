@@ -8,7 +8,7 @@
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/common/content_client.h"
 
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
@@ -165,7 +165,7 @@ void CefRenderWidgetHostViewOSR::WasHidden() {
 
 void CefRenderWidgetHostViewOSR::MovePluginWindows(
     const gfx::Vector2d& scroll_offset,
-    const std::vector<webkit::npapi::WebPluginGeometry>& moves) {
+    const std::vector<content::WebPluginGeometry>& moves) {
 }
 
 void CefRenderWidgetHostViewOSR::Focus() {
@@ -206,7 +206,8 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 #if !defined(OS_MACOSX)
 void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
     ui::TextInputType type,
-    bool can_compose_inline) {
+    bool can_compose_inline,
+    ui::TextInputMode mode) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -232,7 +233,7 @@ void CefRenderWidgetHostViewOSR::DidUpdateBackingStore(
   }
 }
 
-void CefRenderWidgetHostViewOSR::RenderViewGone(
+void CefRenderWidgetHostViewOSR::RenderProcessGone(
     base::TerminationStatus status,
     int error_code) {
   render_widget_host_ = NULL;

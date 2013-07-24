@@ -14,13 +14,13 @@ namespace {
 
 void PluginsCallbackImpl(
     CefRefPtr<CefWebPluginInfoVisitor> visitor,
-    const std::vector<webkit::WebPluginInfo>& all_plugins) {
+    const std::vector<content::WebPluginInfo>& all_plugins) {
   CEF_REQUIRE_UIT();
 
   int count = 0;
   int total = static_cast<int>(all_plugins.size());
 
-  std::vector<webkit::WebPluginInfo>::const_iterator it = all_plugins.begin();
+  std::vector<content::WebPluginInfo>::const_iterator it = all_plugins.begin();
   for (; it != all_plugins.end(); ++it, ++count) {
     CefRefPtr<CefWebPluginInfoImpl> info(new CefWebPluginInfoImpl(*it));
     if (!visitor->Visit(info.get(), count, total))
@@ -34,7 +34,7 @@ void PluginsCallbackImpl(
 // CefWebPluginInfoImpl
 
 CefWebPluginInfoImpl::CefWebPluginInfoImpl(
-    const webkit::WebPluginInfo& plugin_info)
+    const content::WebPluginInfo& plugin_info)
     : plugin_info_(plugin_info) {
 }
 

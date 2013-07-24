@@ -130,7 +130,9 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
             std::string(),
             false,
             false));
-    storage_->set_http_server_properties(new net::HttpServerPropertiesImpl);
+    storage_->set_http_server_properties(
+        make_scoped_ptr<net::HttpServerProperties>(
+            new net::HttpServerPropertiesImpl));
 
     net::HttpCache::DefaultBackend* main_backend =
         new net::HttpCache::DefaultBackend(
@@ -216,7 +218,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
     base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (file_util::DirectoryExists(path) ||
+    if (base::DirectoryExists(path) ||
         file_util::CreateDirectory(path)) {
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =

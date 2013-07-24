@@ -28,7 +28,7 @@ class CefBrowserContext : public content::BrowserContext {
   virtual ~CefBrowserContext();
 
   // BrowserContext methods.
-  virtual base::FilePath GetPath() OVERRIDE;
+  virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
   virtual content::DownloadManagerDelegate* GetDownloadManagerDelegate() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
@@ -41,11 +41,14 @@ class CefBrowserContext : public content::BrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
+  virtual void RequestMIDISysExPermission(
+      int render_process_id,
+      int render_view_id,
+      const GURL& requesting_frame,
+      const MIDISysExPermissionCallback& callback) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
-  virtual content::SpeechRecognitionPreferences*
-      GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
   net::URLRequestContextGetter* CreateRequestContext(
@@ -70,8 +73,6 @@ class CefBrowserContext : public content::BrowserContext {
   scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
       geolocation_permission_context_;
-  scoped_refptr<content::SpeechRecognitionPreferences>
-      speech_recognition_preferences_;
 
   bool use_osr_next_contents_view_;
 

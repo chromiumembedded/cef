@@ -564,7 +564,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
         'cef_strings',
       ],
       'variables': {
@@ -693,10 +693,11 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
+        '<(DEPTH)/content/browser/tracing/tracing_resources.gyp:tracing_resources',
         '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         'cef_locales',
         'cef_resources',
       ],
@@ -709,6 +710,7 @@
           'action_name': 'repack_cef_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing/tracing_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
@@ -731,6 +733,7 @@
           'action_name': 'make_pack_resources_header',
           'variables': {
             'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing/grit/tracing_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
@@ -793,6 +796,7 @@
         '<(DEPTH)/third_party/WebKit/public/web',
         # CEF grit resource includes
         '<(grit_out_dir)',
+        '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
@@ -1002,6 +1006,7 @@
         # Include sources for proxy support.
         '<(DEPTH)/base/prefs/testing_pref_store.cc',
         '<(DEPTH)/base/prefs/testing_pref_store.h',
+        '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker.cc',
         '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker.h',
         '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker_impl.cc',
         '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker_impl.h',

@@ -8,12 +8,12 @@
 #include "libcef/common/cef_messages.h"
 
 #include "base/bind.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "content/common/devtools_messages.h"
-#include "googleurl/src/gurl.h"
-#include "googleurl/src/url_util.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
+#include "url/gurl.h"
+#include "url/url_util.h"
 
 CefRenderMessageFilter::CefRenderMessageFilter()
     : channel_(NULL) {

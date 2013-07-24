@@ -95,7 +95,7 @@ void CefWebContentsViewOSR::StoreFocus() {
 void CefWebContentsViewOSR::RestoreFocus() {
 }
 
-WebDropData* CefWebContentsViewOSR::GetDropData() const {
+content::DropData* CefWebContentsViewOSR::GetDropData() const {
   return NULL;
 }
 
@@ -121,7 +121,8 @@ bool CefWebContentsViewOSR::GetAllowOverlappingViews() const {
 
 // RenderViewHostDelegateView methods.
 
-void CefWebContentsViewOSR::StartDragging(const WebDropData& drop_data,
+void CefWebContentsViewOSR::StartDragging(
+    const content::DropData& drop_data,
     WebKit::WebDragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
@@ -130,11 +131,12 @@ void CefWebContentsViewOSR::StartDragging(const WebDropData& drop_data,
   web_contents_->SystemDragEnded();
 }
 
-void CefWebContentsViewOSR::ShowPopupMenu(const gfx::Rect& bounds,
+void CefWebContentsViewOSR::ShowPopupMenu(
+    const gfx::Rect& bounds,
     int item_height,
     double item_font_size,
     int selected_item,
-    const std::vector<WebMenuItem>& items,
+    const std::vector<content::MenuItem>& items,
     bool right_aligned,
     bool allow_multiple_selection) {
 }

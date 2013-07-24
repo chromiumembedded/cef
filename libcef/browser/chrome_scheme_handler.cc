@@ -31,6 +31,7 @@
 #include "content/browser/net/view_blob_internals_job_factory.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
+#include "grit/tracing_resources.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
@@ -257,10 +258,10 @@ class Delegate : public InternalHandlerDelegate {
 
   bool OnTracing(const std::string& path, Action* action) {
     if (path == "tracing.js") {
-      action->resource_id = IDR_CEF_TRACING_JS;
+      action->resource_id = IDR_TRACING_JS;
     } else {
       action->mime_type = "text/html";
-      action->resource_id = IDR_CEF_TRACING_HTML;
+      action->resource_id = IDR_TRACING_HTML;
     }
     return true;
   }

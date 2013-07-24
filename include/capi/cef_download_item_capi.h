@@ -116,7 +116,7 @@ typedef struct _cef_download_item_t {
   ///
   // Returns the unique identifier for this download.
   ///
-  int32 (CEF_CALLBACK *get_id)(struct _cef_download_item_t* self);
+  uint32 (CEF_CALLBACK *get_id)(struct _cef_download_item_t* self);
 
   ///
   // Returns the URL.

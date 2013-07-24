@@ -38,8 +38,8 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
-#include "googleurl/src/gurl.h"
 #include "ui/base/ui_base_switches.h"
+#include "url/gurl.h"
 
 namespace {
 
@@ -213,7 +213,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
                                  const void* context,
                                  const GURL& url,
                                  const GURL& policy_url,
-                                 webkit::WebPluginInfo* plugin) OVERRIDE {
+                                 content::WebPluginInfo* plugin) OVERRIDE {
     bool allowed = true;
 
     CefRefPtr<CefBrowserHostImpl> browser =

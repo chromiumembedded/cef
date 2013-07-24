@@ -9,7 +9,7 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "ui/base/accelerators/accelerator.h"
 
 namespace {

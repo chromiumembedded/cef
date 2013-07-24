@@ -177,7 +177,7 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_full_path(
   return _retval.DetachToUserFree();
 }
 
-int32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
+uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -185,7 +185,7 @@ int32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
     return 0;
 
   // Execute
-  int32 _retval = CefDownloadItemCppToC::Get(self)->GetId();
+  uint32 _retval = CefDownloadItemCppToC::Get(self)->GetId();
 
   // Return type: simple
   return _retval;
