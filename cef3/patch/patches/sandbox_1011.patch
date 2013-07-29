@@ -1,0 +1,23 @@
+Index: sandbox_win.cc
+===================================================================
+--- sandbox_win.cc	(revision 202711)
++++ sandbox_win.cc	(working copy)
+@@ -589,8 +589,17 @@
+   cmd_line->AppendArg(base::StringPrintf("/prefetch:%d", base::Hash(type_str)));
+ 
+   if (!in_sandbox) {
++    base::LaunchOptions options = base::LaunchOptions();
+     base::ProcessHandle process = 0;
+-    base::LaunchProcess(*cmd_line, base::LaunchOptions(), &process);
++
++    static HANDLE hJobObject = NULL;
++    if (!hJobObject) {
++      hJobObject = CreateJobObject(NULL, NULL);
++      base::SetJobObjectAsKillOnJobClose(hJobObject);
++    }
++    options.job_handle = hJobObject;
++
++    base::LaunchProcess(*cmd_line, options, &process);
+     g_broker_services->AddTargetPeer(process);
+     return process;
+   }
