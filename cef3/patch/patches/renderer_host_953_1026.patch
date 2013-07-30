@@ -1,0 +1,98 @@
+Index: render_widget_host_view_mac.mm
+===================================================================
+--- render_widget_host_view_mac.mm	(revision 202711)
++++ render_widget_host_view_mac.mm	(working copy)
+@@ -4,6 +4,7 @@
+ 
+ #include "content/browser/renderer_host/render_widget_host_view_mac.h"
+ 
++#import <objc/runtime.h>
+ #include <QuartzCore/QuartzCore.h>
+ 
+ #include "base/bind.h"
+@@ -125,6 +126,29 @@
+   return modifiers;
+ }
+ 
++// This method will return YES for OS X versions 10.7.3 and later, and NO
++// otherwise.
++// Used to prevent a crash when building with the 10.7 SDK and accessing the
++// notification below. See: http://crbug.com/260595.
++static BOOL SupportsBackingPropertiesChangedNotification() {
++  // windowDidChangeBackingProperties: method has been added to the
++  // NSWindowDelegate protocol in 10.7.3, at the same time as the
++  // NSWindowDidChangeBackingPropertiesNotification notification was added.
++  // If the protocol contains this method description, the notification should
++  // be supported as well.
++  Protocol* windowDelegateProtocol = NSProtocolFromString(@"NSWindowDelegate");
++  struct objc_method_description methodDescription =
++      protocol_getMethodDescription(
++          windowDelegateProtocol,
++          @selector(windowDidChangeBackingProperties:),
++          NO,
++          YES);
++
++  // If the protocol does not contain the method, the returned method
++  // description is {NULL, NULL}
++  return methodDescription.name != NULL || methodDescription.types != NULL;
++}
++
+ static float ScaleFactor(NSView* view) {
+   return ui::GetScaleFactorScale(ui::GetScaleFactorForNativeView(view));
+ }
+@@ -1424,7 +1448,7 @@
+     // Forget IOSurface since we are drawing a software frame now.
+     if (compositing_iosurface_.get() &&
+         compositing_iosurface_->HasIOSurface()) {
+-      compositing_iosurface_->UnrefIOSurface();
++      compositing_iosurface_->ClearDrawable();
+     }
+   }
+ }
+@@ -2097,13 +2121,21 @@
+ 
+   NSNotificationCenter* notificationCenter =
+       [NSNotificationCenter defaultCenter];
++
++  // Backing property notifications crash on 10.6 when building with the 10.7
++  // SDK, see http://crbug.com/260595.
++  static BOOL supportsBackingPropertiesNotification =
++      SupportsBackingPropertiesChangedNotification();
++
+   if (oldWindow) {
++    if (supportsBackingPropertiesNotification) {
++      [notificationCenter
++          removeObserver:self
++                    name:NSWindowDidChangeBackingPropertiesNotification
++                  object:oldWindow];
++    }
+     [notificationCenter
+         removeObserver:self
+-                  name:NSWindowDidChangeBackingPropertiesNotification
+-                object:oldWindow];
+-    [notificationCenter
+-        removeObserver:self
+                   name:NSWindowDidMoveNotification
+                 object:oldWindow];
+     [notificationCenter
+@@ -2112,13 +2144,15 @@
+                 object:oldWindow];
+   }
+   if (newWindow) {
++    if (supportsBackingPropertiesNotification) {
++      [notificationCenter
++          addObserver:self
++             selector:@selector(windowDidChangeBackingProperties:)
++                 name:NSWindowDidChangeBackingPropertiesNotification
++               object:newWindow];
++    }
+     [notificationCenter
+         addObserver:self
+-           selector:@selector(windowDidChangeBackingProperties:)
+-               name:NSWindowDidChangeBackingPropertiesNotification
+-             object:newWindow];
+-    [notificationCenter
+-        addObserver:self
+            selector:@selector(windowChangedGlobalFrame:)
+                name:NSWindowDidMoveNotification
+              object:newWindow];
