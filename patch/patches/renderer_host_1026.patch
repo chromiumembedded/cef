@@ -1,6 +1,6 @@
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 211613)
+--- render_widget_host_view_mac.mm	(revision 214871)
 +++ render_widget_host_view_mac.mm	(working copy)
 @@ -4,6 +4,7 @@
  
@@ -40,7 +40,7 @@ Index: render_widget_host_view_mac.mm
  static float ScaleFactor(NSView* view) {
    return ui::GetScaleFactorScale(ui::GetScaleFactorForNativeView(view));
  }
-@@ -2380,13 +2404,21 @@
+@@ -2395,13 +2419,21 @@
  
    NSNotificationCenter* notificationCenter =
        [NSNotificationCenter defaultCenter];
@@ -66,7 +66,7 @@ Index: render_widget_host_view_mac.mm
                    name:NSWindowDidMoveNotification
                  object:oldWindow];
      [notificationCenter
-@@ -2395,13 +2427,15 @@
+@@ -2410,13 +2442,15 @@
                  object:oldWindow];
    }
    if (newWindow) {
