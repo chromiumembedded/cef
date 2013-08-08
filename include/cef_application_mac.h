@@ -49,6 +49,9 @@
 // Use the existing empty protocol definitions.
 #import "base/mac/cocoa_protocols.h"
 
+// Use the existing empty protocol definitions.
+#import "base/mac/sdk_forward_declarations.h"
+
 #else  // BUILDING_CEF_SHARED
 
 #import <AppKit/AppKit.h>
@@ -71,6 +74,43 @@
 // surface is visible through the window.
 @interface UnderlayOpenGLHostingWindow : NSWindow
 @end
+
+// Copy of definitions from base/mac/sdk_forward_declarations.h.
+// Forward declarations for APIs that are part of the 10.7 SDK. This will allow
+// using them when building with the 10.6 SDK.
+
+#if !defined(MAC_OS_X_VERSION_10_7) || \
+    MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
+
+enum {
+  NSEventPhaseNone        = 0, // event not associated with a phase.
+  NSEventPhaseBegan       = 0x1 << 0,
+  NSEventPhaseStationary  = 0x1 << 1,
+  NSEventPhaseChanged     = 0x1 << 2,
+  NSEventPhaseEnded       = 0x1 << 3,
+  NSEventPhaseCancelled   = 0x1 << 4,
+};
+typedef NSUInteger NSEventPhase;
+
+@interface NSEvent (LionSDK)
++ (BOOL)isSwipeTrackingFromScrollEventsEnabled;
+
+- (NSEventPhase)phase;
+- (CGFloat)scrollingDeltaX;
+- (CGFloat)scrollingDeltaY;
+- (BOOL)isDirectionInvertedFromDevice;
+@end
+
+@interface NSScreen (LionSDK)
+- (CGFloat)backingScaleFactor;
+- (NSRect)convertRectToBacking:(NSRect)aRect;
+@end
+
+@interface NSWindow (LionSDK)
+- (CGFloat)backingScaleFactor;
+@end
+
+#endif  // MAC_OS_X_VERSION_10_7
 
 // The Mac OS X 10.6 SDK introduced new protocols used for delegates.  These
 // protocol defintions were not present in earlier releases of the Mac OS X
@@ -107,6 +147,29 @@ DEFINE_EMPTY_PROTOCOL(NSWindowDelegate)
 #endif
 
 #endif  // BUILDING_CEF_SHARED
+
+// Forward declarations for APIs that are part of the 10.7 SDK. This will allow
+// using them when building with the 10.6 SDK.
+
+#if !defined(MAC_OS_X_VERSION_10_7) || \
+    MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
+
+@interface NSView (NSOpenGLSurfaceResolutionLionAPI)
+- (void)setWantsBestResolutionOpenGLSurface:(BOOL)flag;
+@end
+
+@interface NSView (LionAPI)
+- (NSSize)convertSizeToBacking:(NSSize)aSize;
+- (NSRect)convertRectToBacking:(NSRect)aRect;
+- (NSRect)convertRectFromBacking:(NSRect)aRect;
+@end
+
+static NSString* const NSWindowDidChangeBackingPropertiesNotification =
+    @"NSWindowDidChangeBackingPropertiesNotification";
+static NSString* const NSBackingPropertyOldScaleFactorKey =
+    @"NSBackingPropertyOldScaleFactorKey";
+
+#endif  // MAC_OS_X_VERSION_10_7
 
 // All CEF client applications must subclass NSApplication and implement this
 // protocol.

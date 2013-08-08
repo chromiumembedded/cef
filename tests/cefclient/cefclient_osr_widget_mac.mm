@@ -3,16 +3,41 @@
 // that can be found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
+#import <objc/runtime.h>
 #include <OpenGL/gl.h>
 
 #include "cefclient/cefclient_osr_widget_mac.h"
 
+#include "include/cef_application_mac.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/osrenderer.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/util.h"
+
+// This method will return YES for OS X versions 10.7.3 and later, and NO
+// otherwise.
+// Used to prevent a crash when building with the 10.7 SDK and accessing the
+// notification below. See: http://crbug.com/260595.
+static BOOL SupportsBackingPropertiesChangedNotification() {
+  // windowDidChangeBackingProperties: method has been added to the
+  // NSWindowDelegate protocol in 10.7.3, at the same time as the
+  // NSWindowDidChangeBackingPropertiesNotification notification was added.
+  // If the protocol contains this method description, the notification should
+  // be supported as well.
+  Protocol* windowDelegateProtocol = NSProtocolFromString(@"NSWindowDelegate");
+  struct objc_method_description methodDescription =
+      protocol_getMethodDescription(
+          windowDelegateProtocol,
+          @selector(windowDidChangeBackingProperties:),
+          NO,
+          YES);
+
+  // If the protocol does not contain the method, the returned method
+  // description is {NULL, NULL}
+  return methodDescription.name != NULL || methodDescription.types != NULL;
+}
 
 @interface ClientOpenGLView ()
 - (float)getDeviceScaleFactor;
@@ -58,29 +83,29 @@ ClientOSRHandler::ClientOSRHandler(ClientOpenGLView* view,
   [view_ retain];
   view_->browser_provider_ = browser_provider;
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-  // Do not override the delegate; the mac client already does that
-  if ([view_ respondsToSelector:@selector(backingScaleFactor:)]) {
+  // Backing property notifications crash on 10.6 when building with the 10.7
+  // SDK, see http://crbug.com/260595.
+  static BOOL supportsBackingPropertiesNotification =
+      SupportsBackingPropertiesChangedNotification();
+  if (supportsBackingPropertiesNotification) {
     [[NSNotificationCenter defaultCenter]
       addObserver:view_
          selector:@selector(windowDidChangeBackingProperties:)
              name:NSWindowDidChangeBackingPropertiesNotification
            object:[view_ window]];
   }
-#endif
 }
 
 ClientOSRHandler:: ~ClientOSRHandler() {
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-  if ([view_ respondsToSelector:@selector(backingScaleFactor:)]) {
+  static BOOL supportsBackingPropertiesNotification =
+      SupportsBackingPropertiesChangedNotification();
+
+  if (supportsBackingPropertiesNotification) {
     [[NSNotificationCenter defaultCenter]
         removeObserver:view_
                   name:NSWindowDidChangeBackingPropertiesNotification
                 object:[view_ window]];
   }
-#endif
 }
 
 void ClientOSRHandler::Disconnect() {
@@ -283,13 +308,10 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [self addTrackingArea:tracking_area_];
   }
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)]) {
     // enable HiDPI buffer
     [self setWantsBestResolutionOpenGLSurface:YES];
   }
-#endif
 
   return self;
 }
@@ -469,8 +491,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 - (void)shortCircuitScrollWheelEvent:(NSEvent*)event {
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   // Phase is only supported in OS-X 10.7 and newer.
   if ([event phase] != NSEventPhaseEnded &&
       [event phase] != NSEventPhaseCancelled)
@@ -482,12 +502,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [NSEvent removeMonitor:endWheelMonitor_];
     endWheelMonitor_ = nil;
   }
-#endif
 }
 
 - (void)scrollWheel:(NSEvent *)event {
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   // Phase is only supported in OS-X 10.7 and newer.
   // Use an NSEvent monitor to listen for the wheel-end end. This ensures that
   // the event is received even when the mouse cursor is no longer over the
@@ -504,7 +521,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 
   [self sendScrollWheelEvet:event];
-#endif
 }
 
 - (void)sendScrollWheelEvet:(NSEvent *)event {
@@ -758,8 +774,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification {
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   // This delegate method is only called on 10.7 and later, so don't worry about
   // other backing changes calling it on 10.6 or earlier
   CGFloat newBackingScaleFactor = [self getDeviceScaleFactor];
@@ -772,7 +786,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
     browser->GetHost()->NotifyScreenInfoChanged();
   }
-#endif
 }
 
 - (void)drawRect: (NSRect) dirtyRect {
@@ -798,12 +811,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   if (!window)
     return deviceScaleFactor;
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   if ([window respondsToSelector:@selector(backingScaleFactor)])
     deviceScaleFactor = [window backingScaleFactor];
   else
-#endif
     deviceScaleFactor = [window userSpaceScaleFactor];
 
   return deviceScaleFactor;
@@ -849,8 +859,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   *scaled_rects = rects;
   *scaled_size = size;
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   if ([self getDeviceScaleFactor] != 1 &&
       [self respondsToSelector:@selector(convertSizeToBacking:)] &&
       [self respondsToSelector:@selector(convertRectToBacking:)]) {
@@ -862,15 +870,12 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     *scaled_rects = scaled_dirty_rects;
     *scaled_size = [self convertSizeToBacking:size];
   }
-#endif
 }
 
 - (CefRect) convertRectToBackingInternal: (const CefRect&) rect {
   if ([self getDeviceScaleFactor] == 1)
     return rect;
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   if ([self respondsToSelector:@selector(convertRectToBacking:)]) {
     NSRect old_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
     NSRect scaled_rect = [self convertRectToBacking:old_rect];
@@ -879,14 +884,11 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
                    (int)scaled_rect.size.width,
                    (int)scaled_rect.size.height);
   }
-#endif
 
   return rect;
 }
 
 - (CefRect) convertRectFromBackingInternal: (const CefRect&) rect {
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
   if ([self respondsToSelector:@selector(convertRectFromBacking:)]) {
     NSRect old_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
     NSRect scaled_rect = [self convertRectFromBacking:old_rect];
@@ -895,7 +897,6 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
                    (int)scaled_rect.size.width,
                    (int)scaled_rect.size.height);
   }
-#endif
 
   return rect;
 }
