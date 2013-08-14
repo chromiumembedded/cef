@@ -182,10 +182,10 @@ void TestListEqual(CefRefPtr<CefListValue> val1,
   EXPECT_TRUE(val1.get());
   EXPECT_TRUE(val2.get());
 
-  size_t size = val1->GetSize();
-  EXPECT_EQ(size, val2->GetSize());
+  int size = static_cast<int>(val1->GetSize());
+  EXPECT_EQ(size, static_cast<int>(val2->GetSize()));
 
-  for (size_t i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i) {
     CefValueType type = val1->GetType(i);
     EXPECT_EQ(type, val2->GetType(i));
     switch (type) {

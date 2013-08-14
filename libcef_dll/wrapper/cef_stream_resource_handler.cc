@@ -54,7 +54,7 @@ bool CefStreamResourceHandler::ReadResponse(void* data_out,
                                             int bytes_to_read,
                                             int& bytes_read,
                                             CefRefPtr<CefCallback> callback) {
-  bytes_read = stream_->Read(data_out, 1, bytes_to_read);
+  bytes_read = static_cast<int>(stream_->Read(data_out, 1, bytes_to_read));
   return (bytes_read > 0);
 }
 
