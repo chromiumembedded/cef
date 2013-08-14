@@ -331,11 +331,15 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 }
 
 void CefMainDelegate::PreSandboxStartup() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+
 #if defined(OS_MACOSX)
-  OverrideChildProcessPath();
+  if (!command_line.HasSwitch(switches::kProcessType)) {
+    // Only override the child process path when executing the main process.
+    OverrideChildProcessPath();
+  }
 #endif
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
 
