@@ -27,7 +27,7 @@ static void VerifyStreamReadBehavior(CefRefPtr<CefStreamReader> stream,
   int res, read, offset = 0;
   do {
     read = std::min(static_cast<int>(sizeof(buff)), contentSize-offset);
-    res = stream->Read(buff, 1, read);
+    res = static_cast<int>(stream->Read(buff, 1, read));
     ASSERT_EQ(read, res);
     ASSERT_TRUE(!memcmp(contentStr+offset, buff, res));
     offset += res;
@@ -47,7 +47,7 @@ static void VerifyStreamWriteBehavior(CefRefPtr<CefStreamWriter> stream,
   int res, write, offset = 0;
   do {
     write = std::min(10, contentSize-offset);
-    res = stream->Write(contentStr+offset, 1, write);
+    res = static_cast<int>(stream->Write(contentStr+offset, 1, write));
     ASSERT_EQ(write, res);
     offset += res;
     ASSERT_EQ(offset, stream->Tell());

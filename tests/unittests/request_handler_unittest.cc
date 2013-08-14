@@ -275,7 +275,7 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate {
     NetNotifyTestType test_type = NNTT_NONE;
 
     // Extract the test type.
-    int pos = url.find("t=");
+    size_t pos = url.find("t=");
     int intval = 0;
     if (pos > 0 && base::StringToInt(url.substr(pos + 2, 1), &intval))
       test_type = static_cast<NetNotifyTestType>(intval);

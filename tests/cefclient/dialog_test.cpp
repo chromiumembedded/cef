@@ -31,7 +31,7 @@ class RunFileDialogCallback : public CefRunFileDialogCallback {
         CefProcessMessage::Create(message_name_);
     CefRefPtr<CefListValue> args = message->GetArgumentList();
     CefRefPtr<CefListValue> val = CefListValue::Create();
-    for (size_t i = 0; i < file_paths.size(); ++i)
+    for (int i = 0; i < static_cast<int>(file_paths.size()); ++i)
       val->SetString(i, file_paths[i]);
     args->SetList(0, val);
 

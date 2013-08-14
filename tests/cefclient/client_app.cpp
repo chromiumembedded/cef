@@ -62,7 +62,7 @@ void SetListValue(CefRefPtr<CefV8Value> list, int index,
   switch (type) {
     case VTYPE_LIST: {
       CefRefPtr<CefListValue> list = value->GetList(index);
-      new_value = CefV8Value::CreateArray(list->GetSize());
+      new_value = CefV8Value::CreateArray(static_cast<int>(list->GetSize()));
       SetList(list, new_value);
       } break;
     case VTYPE_BOOL:
@@ -92,7 +92,7 @@ void SetListValue(CefRefPtr<CefV8Value> list, int index,
 void SetList(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target) {
   ASSERT(target->IsArray());
 
-  int arg_length = source->GetSize();
+  int arg_length = static_cast<int>(source->GetSize());
   if (arg_length == 0)
     return;
 
@@ -382,7 +382,8 @@ bool ClientApp::OnProcessMessageReceived(
 
       // Second argument is the list of message arguments.
       CefRefPtr<CefListValue> list = message->GetArgumentList();
-      CefRefPtr<CefV8Value> args = CefV8Value::CreateArray(list->GetSize());
+      CefRefPtr<CefV8Value> args =
+          CefV8Value::CreateArray(static_cast<int>(list->GetSize()));
       SetList(list, args);
       arguments.push_back(args);
 

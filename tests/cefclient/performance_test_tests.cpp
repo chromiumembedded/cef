@@ -323,6 +323,6 @@ const PerfTestEntry kPerfTests[] = {
   PERF_TEST_ENTRY(V8ContextEval),
 };
 
-const size_t kPerfTestsCount = (sizeof(kPerfTests) / sizeof(kPerfTests[0]));
+const int kPerfTestsCount = (sizeof(kPerfTests) / sizeof(kPerfTests[0]));
 
 }  // namespace performance_test

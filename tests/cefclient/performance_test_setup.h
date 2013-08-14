@@ -11,7 +11,7 @@
 namespace performance_test {
 
 // Default number of iterations.
-extern const size_t kDefaultIterations;
+extern const int kDefaultIterations;
 
 // Test name.
 #define PERF_TEST_NAME(name) PerfTest##name
@@ -24,7 +24,7 @@ extern const size_t kDefaultIterations;
 // Test function declaration.
 #define PERF_TEST_RESULT int64
 #define PERF_TEST_PARAM_ITERATIONS iterations
-#define PERF_TEST_PARAMS size_t PERF_TEST_PARAM_ITERATIONS
+#define PERF_TEST_PARAMS int PERF_TEST_PARAM_ITERATIONS
 #define PERF_TEST_FUNC(name) \
     PERF_TEST_RESULT PERF_TEST_NAME(name)(PERF_TEST_PARAMS)
 
@@ -66,7 +66,7 @@ class CefTimer {
     { \
       CefTimer _timer; \
       _timer.Start(); \
-      for (size_t _i = 0; _i < PERF_TEST_PARAM_ITERATIONS; ++_i) {
+      for (int _i = 0; _i < PERF_TEST_PARAM_ITERATIONS; ++_i) {
 
 #define PERF_ITERATIONS_END_EX(result) \
       } \
@@ -87,12 +87,12 @@ class CefTimer {
 struct PerfTestEntry {
   const char* name;
   PerfTest* test;
-  size_t iterations;
+  int iterations;
 };
 
 // Array of perf tests.
 extern const PerfTestEntry kPerfTests[];
-extern const size_t kPerfTestsCount;
+extern const int kPerfTestsCount;
 
 }  // namespace performance_test
 

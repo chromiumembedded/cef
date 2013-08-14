@@ -132,7 +132,7 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
 
     // Ignore the query component, if any.
     std::string urlStr = url;
-    int idx = urlStr.find('?');
+    size_t idx = urlStr.find('?');
     if (idx > 0)
        urlStr = urlStr.substr(0, idx);
 
@@ -186,7 +186,7 @@ void TestHandler::AddResource(const std::string& url,
                               const std::string& mimeType) {
   // Ignore the query component, if any.
   std::string urlStr = url;
-  int idx = urlStr.find('?');
+  size_t idx = urlStr.find('?');
   if (idx > 0)
      urlStr = urlStr.substr(0, idx);
 
