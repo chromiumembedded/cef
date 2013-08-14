@@ -14,9 +14,9 @@ namespace performance_test {
 
 // Use more interations for a Release build.
 #ifdef NDEBUG
-const size_t kDefaultIterations = 100000;
+const int kDefaultIterations = 100000;
 #else
-const size_t kDefaultIterations = 10000;
+const int kDefaultIterations = 10000;
 #endif
 
 namespace {
@@ -40,7 +40,7 @@ class V8Handler : public CefV8Handler {
         bool found = false;
 
         std::string test = arguments[0]->GetStringValue();
-        for (size_t i = 0; i < kPerfTestsCount; ++i) {
+        for (int i = 0; i < kPerfTestsCount; ++i) {
           if (test == kPerfTests[i].name) {
             // Execute the test.
             int64 delta = kPerfTests[i].test(kPerfTests[i].iterations);
@@ -62,7 +62,7 @@ class V8Handler : public CefV8Handler {
     } else if (name == kGetPerfTests) {
       // Retrieve the list of perf tests.
       retval = CefV8Value::CreateArray(kPerfTestsCount);
-      for (size_t i = 0; i < kPerfTestsCount; ++i) {
+      for (int i = 0; i < kPerfTestsCount; ++i) {
         CefRefPtr<CefV8Value> val = CefV8Value::CreateArray(2);
         val->SetValue(0, CefV8Value::CreateString(kPerfTests[i].name));
         val->SetValue(1, CefV8Value::CreateUInt(kPerfTests[i].iterations));
