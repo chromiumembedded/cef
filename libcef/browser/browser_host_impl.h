@@ -312,9 +312,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       WindowContainerType window_container_type,
       const string16& frame_name,
       const GURL& target_url,
-      WindowOpenDisposition disposition,
-      const WebKit::WebWindowFeatures& features,
-      bool user_gesture) OVERRIDE;
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const string16& frame_name,

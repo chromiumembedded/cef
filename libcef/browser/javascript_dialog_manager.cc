@@ -186,7 +186,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 #endif
 }
 
-void CefJavaScriptDialogManager::ResetJavaScriptState(
+void CefJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     content::WebContents* web_contents) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -203,6 +203,10 @@ void CefJavaScriptDialogManager::ResetJavaScriptState(
     dialog_.reset();
   }
 #endif
+}
+
+void CefJavaScriptDialogManager::WebContentsDestroyed(
+    content::WebContents* web_contents) {
 }
 
 void CefJavaScriptDialogManager::DialogClosed(CefJavaScriptDialog* dialog) {

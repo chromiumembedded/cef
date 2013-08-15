@@ -96,10 +96,18 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::CertificateRequestResultType* result) OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual bool CanCreateWindow(const GURL& opener_url,
-                               const GURL& origin,
+                               const GURL& source_origin,
                                WindowContainerType container_type,
+                               const GURL& target_url,
+                               const content::Referrer& referrer,
+                               WindowOpenDisposition disposition,
+                               const WebKit::WebWindowFeatures& features,
+                               bool user_gesture,
+                               bool opener_suppressed,
                                content::ResourceContext* context,
                                int render_process_id,
+                               bool is_guest,
+                               int opener_id,
                                bool* no_javascript_access) OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,

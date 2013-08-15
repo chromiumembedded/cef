@@ -129,6 +129,7 @@
       '<@(cefclient_bundle_resources_common)',
     ],
     'cefclient_sources_win': [
+      'tests/cefclient/cefclient.exe.manifest',
       'tests/cefclient/cefclient.rc',
       'tests/cefclient/cefclient_osr_widget_win.h',
       'tests/cefclient/cefclient_osr_widget_win.cpp',

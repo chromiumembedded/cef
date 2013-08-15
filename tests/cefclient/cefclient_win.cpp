@@ -56,12 +56,6 @@ class MainBrowserProvider : public OSRBrowserProvider {
   }
 } g_main_browser_provider;
 
-#if defined(OS_WIN)
-// Add Common Controls to the application manifest because it's required to
-// support the default tooltip implementation.
-#pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")  // NOLINT(whitespace/line_length)
-#endif
-
 // Program entry point function.
 int APIENTRY wWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,

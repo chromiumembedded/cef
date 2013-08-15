@@ -38,6 +38,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
+#include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
 
@@ -243,6 +244,37 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
     return true;
   }
 };
+
+void TranslatePopupFeatures(const WebKit::WebWindowFeatures& webKitFeatures,
+                            CefPopupFeatures& features) {
+  features.x = static_cast<int>(webKitFeatures.x);
+  features.xSet = webKitFeatures.xSet;
+  features.y = static_cast<int>(webKitFeatures.y);
+  features.ySet = webKitFeatures.ySet;
+  features.width = static_cast<int>(webKitFeatures.width);
+  features.widthSet = webKitFeatures.widthSet;
+  features.height = static_cast<int>(webKitFeatures.height);
+  features.heightSet =  webKitFeatures.heightSet;
+
+  features.menuBarVisible =  webKitFeatures.menuBarVisible;
+  features.statusBarVisible =  webKitFeatures.statusBarVisible;
+  features.toolBarVisible =  webKitFeatures.toolBarVisible;
+  features.locationBarVisible =  webKitFeatures.locationBarVisible;
+  features.scrollbarsVisible =  webKitFeatures.scrollbarsVisible;
+  features.resizable =  webKitFeatures.resizable;
+
+  features.fullscreen =  webKitFeatures.fullscreen;
+  features.dialog =  webKitFeatures.dialog;
+  features.additionalFeatures = NULL;
+  if (webKitFeatures.additionalFeatures.size() > 0)
+     features.additionalFeatures = cef_string_list_alloc();
+
+  CefString str;
+  for (unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
+    str = string16(webKitFeatures.additionalFeatures[i]);
+    cef_string_list_append(features.additionalFeatures, str.GetStruct());
+  }
+}
 
 }  // namespace
 
@@ -557,10 +589,18 @@ content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
 
 bool CefContentBrowserClient::CanCreateWindow(
     const GURL& opener_url,
-    const GURL& origin,
+    const GURL& source_origin,
     WindowContainerType container_type,
+    const GURL& target_url,
+    const content::Referrer& referrer,
+    WindowOpenDisposition disposition,
+    const WebKit::WebWindowFeatures& features,
+    bool user_gesture,
+    bool opener_suppressed,
     content::ResourceContext* context,
     int render_process_id,
+    bool is_guest,
+    int opener_id,
     bool* no_javascript_access) {
   CEF_REQUIRE_IOT();
   *no_javascript_access = false;
@@ -599,27 +639,26 @@ bool CefContentBrowserClient::CanCreateWindow(
       CefRefPtr<CefFrame> frame =
           browser->GetFrame(last_create_window_params_.opener_frame_id);
 
-      // TODO(cef): Figure out how to populate CefPopupFeatures.
-      // See: http://crbug.com/110510
-      CefPopupFeatures features;
+      CefPopupFeatures cef_features;
+      TranslatePopupFeatures(features, cef_features);
 
 #if (defined(OS_WIN) || defined(OS_MACOSX))
       // Default to the size from the popup features.
-      if (features.xSet)
-        pending_info->window_info.x = features.x;
-      if (features.ySet)
-        pending_info->window_info.y = features.y;
-      if (features.widthSet)
-        pending_info->window_info.width = features.width;
-      if (features.heightSet)
-        pending_info->window_info.height = features.height;
+      if (cef_features.xSet)
+        pending_info->window_info.x = cef_features.x;
+      if (cef_features.ySet)
+        pending_info->window_info.y = cef_features.y;
+      if (cef_features.widthSet)
+        pending_info->window_info.width = cef_features.width;
+      if (cef_features.heightSet)
+        pending_info->window_info.height = cef_features.height;
 #endif
 
       allow = !handler->OnBeforePopup(browser.get(),
           frame,
           last_create_window_params_.target_url.spec(),
           last_create_window_params_.target_frame_name,
-          features,
+          cef_features,
           pending_info->window_info,
           pending_info->client,
           pending_info->settings,

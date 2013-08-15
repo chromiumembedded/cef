@@ -171,6 +171,12 @@ class CefBrowserContext::CefResourceContext : public content::ResourceContext {
     CHECK(getter_);
     return getter_->GetURLRequestContext();
   }
+  virtual bool AllowMicAccess(const GURL& origin) OVERRIDE {
+    return true;
+  }
+  virtual bool AllowCameraAccess(const GURL& origin) OVERRIDE {
+    return true;
+  }
 
   void set_url_request_context_getter(CefURLRequestContextGetter* getter) {
     getter_ = getter;

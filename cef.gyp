@@ -74,6 +74,11 @@
               'SubSystem': '2',
               'EntryPointSymbol' : 'wWinMainCRTStartup',
             },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': [
+                'tests/cefclient/cefclient.exe.manifest',
+              ],
+            },
           },
           'link_settings': {
             'libraries': [
@@ -311,6 +316,13 @@
             'tests/cefclient/cefclient.rc',
             'tests/cefclient/resource_util_win.cpp',
           ],
+          'msvs_settings': {
+            'VCManifestTool': {
+              'AdditionalManifestFiles': [
+                'tests/cefclient/cefclient.exe.manifest',
+              ],
+            },
+          },
         }],
         [ 'OS=="mac"', {
           'product_name': 'cef_unittests',
@@ -505,6 +517,11 @@
             'VCLinkerTool': {
               # Generate a PDB symbol file for both Debug and Release builds.
               'GenerateDebugInformation': 'true',
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': [
+                'libcef_dll/libcef.dll.manifest',
+              ],
             },
           },
         }],
@@ -714,7 +731,7 @@
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
               '<(grit_out_dir)/cef_resources.pak',
             ],
@@ -738,7 +755,7 @@
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/devtools_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_chromium_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/blink_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_resources.h',
               '<(grit_out_dir)/grit/cef_resources.h',
             ],
@@ -801,7 +818,7 @@
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
       'dependencies': [
-        '<(DEPTH)/content/content.gyp:content_app',
+        '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
         '<(DEPTH)/content/content.gyp:content_common',
         '<(DEPTH)/content/content.gyp:content_gpu',

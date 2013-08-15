@@ -1646,13 +1646,12 @@ bool CefBrowserHostImpl::CanDragEnter(
 
 bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
-    int route_id,
-    WindowContainerType window_container_type,
-    const string16& frame_name,
-    const GURL& target_url,
-    WindowOpenDisposition disposition,
-    const WebKit::WebWindowFeatures& features,
-    bool user_gesture) {
+      int route_id,
+      WindowContainerType window_container_type,
+      const string16& frame_name,
+      const GURL& target_url,
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace) {
   CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
       web_contents->GetRenderProcessHost()->GetID(), route_id);
 
@@ -2286,7 +2285,7 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
     return;
   }
 
-  if (params.mode == content::FileChooserParams::OpenFolder) {
+  if (params.mode == content::FileChooserParams::UploadFolder) {
     NOTIMPLEMENTED();
     callback.Run(std::vector<base::FilePath>());
     return;

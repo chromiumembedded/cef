@@ -62,6 +62,9 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'variables': {
+            'win_exe_compatibility_manifest': 'cefclient/compatibility.manifest',
+          },
           'actions': [
             {
               'action_name': 'copy_resources',
@@ -95,6 +98,11 @@
               # Set /SUBSYSTEM:WINDOWS.
               'SubSystem': '2',
               'EntryPointSymbol' : 'wWinMainCRTStartup',
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': [
+                'cefclient/cefclient.exe.manifest',
+              ],
             },
           },
           'link_settings': {

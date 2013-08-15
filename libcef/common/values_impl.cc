@@ -452,20 +452,19 @@ bool CefDictionaryValueImpl::SetList(const CefString& key,
 }
 
 bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
-  base::Value* out_value = NULL;
+  scoped_ptr<base::Value> out_value;
   if (!mutable_value()->RemoveWithoutPathExpansion(key, &out_value))
     return false;
 
   // Remove the value.
-  controller()->Remove(out_value, true);
+  controller()->Remove(out_value.get(), true);
 
   // Only list and dictionary types may have dependencies.
   if (out_value->IsType(base::Value::TYPE_LIST) ||
       out_value->IsType(base::Value::TYPE_DICTIONARY)) {
-    controller()->RemoveDependencies(out_value);
+    controller()->RemoveDependencies(out_value.get());
   }
 
-  delete out_value;
   return true;
 }
 
@@ -811,20 +810,19 @@ bool CefListValueImpl::SetList(int index, CefRefPtr<CefListValue> value) {
 }
 
 bool CefListValueImpl::RemoveInternal(int index) {
-  base::Value* out_value = NULL;
+  scoped_ptr<base::Value> out_value;
   if (!mutable_value()->Remove(index, &out_value))
     return false;
 
   // Remove the value.
-  controller()->Remove(out_value, true);
+  controller()->Remove(out_value.get(), true);
 
   // Only list and dictionary types may have dependencies.
   if (out_value->IsType(base::Value::TYPE_LIST) ||
       out_value->IsType(base::Value::TYPE_DICTIONARY)) {
-    controller()->RemoveDependencies(out_value);
+    controller()->RemoveDependencies(out_value.get());
   }
 
-  delete out_value;
   return true;
 }
 
