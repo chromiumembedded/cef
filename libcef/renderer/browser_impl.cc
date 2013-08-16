@@ -470,12 +470,13 @@ void CefBrowserImpl::DidStartProvisionalLoad(WebKit::WebFrame* frame) {
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
   int64 frame_id = frame->identifier();
 
-  {
+  if (!frames_.empty()) {
     // Remove the frame from the map.
     FrameMap::iterator it = frames_.find(frame_id);
-    DCHECK(it != frames_.end());
-    it->second->Detach();
-    frames_.erase(it);
+    if (it != frames_.end()) {
+      it->second->Detach();
+      frames_.erase(it);
+    }
   }
 
   if (!frame_objects_.empty()) {
