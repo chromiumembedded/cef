@@ -572,69 +572,24 @@
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
         'cef_strings',
       ],
-      'variables': {
-        'repack_locales_cmd': ['python', 'tools/repack_locales.py'],
-      },
-      'copies': [
+      'actions': [
         {
-          'destination': '<(PRODUCT_DIR)/locales',
-          'files': [
-            '<!@pymod_do_main(repack_locales -o -g <(grit_out_dir) -s <(SHARED_INTERMEDIATE_DIR) -x <(INTERMEDIATE_DIR) <(locales))'
+          'action_name': 'repack_locales',
+          'inputs': [
+            'tools/repack_locales.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/cef_repack_locales.stamp',
+          ],
+          'action': [
+            'python',
+            'tools/repack_locales.py',
+            '-g', '<(grit_out_dir)',
+            '-s', '<(SHARED_INTERMEDIATE_DIR)',
+            '-x', '<(PRODUCT_DIR)/locales',
+            '<@(locales)',
           ],
         },
-      ],
-      'conditions': [
-        ['OS=="win"', {
-          'actions': [
-            {
-              'action_name': 'repack_locales',
-              'inputs': [
-                'tools/repack_locales.py',
-                # NOTE: Ideally the common command args would be shared
-                # amongst inputs/outputs/action, but the args include shell
-                # variables which need to be passed intact, and command
-                # expansion wants to expand the shell variables. Adding the
-                # explicit quoting here was the only way it seemed to work.
-                '>!@(<(repack_locales_cmd) -i -g \"<(grit_out_dir)\" -s \"<(SHARED_INTERMEDIATE_DIR)\" -x \"<(INTERMEDIATE_DIR)\" <(locales))',
-              ],
-              'outputs': [
-                '>!@(<(repack_locales_cmd) -o -g \"<(grit_out_dir)\" -s \"<(SHARED_INTERMEDIATE_DIR)\" -x \"<(INTERMEDIATE_DIR)\" <(locales))',
-              ],
-              'action': [
-                '<@(repack_locales_cmd)',
-                '-g', '<(grit_out_dir)',
-                '-s', '<(SHARED_INTERMEDIATE_DIR)',
-                '-x', '<(INTERMEDIATE_DIR)',
-                '<@(locales)',
-              ],
-            },
-          ],
-        }, { # OS!="win"
-          'actions': [
-            {
-              'action_name': 'repack_locales',
-              'inputs': [
-                'tools/repack_locales.py',
-                # NOTE: Ideally the common command args would be shared
-                # amongst inputs/outputs/action, but the args include shell
-                # variables which need to be passed intact, and command
-                # expansion wants to expand the shell variables. Adding the
-                # explicit quoting here was the only way it seemed to work.
-                '>!@(<(repack_locales_cmd) -i -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
-              ],
-              'outputs': [
-                '>!@(<(repack_locales_cmd) -o -g \'<(grit_out_dir)\' -s \'<(SHARED_INTERMEDIATE_DIR)\' -x \'<(INTERMEDIATE_DIR)\' <(locales))',
-              ],
-              'action': [
-                '<@(repack_locales_cmd)',
-                '-g', '<(grit_out_dir)',
-                '-s', '<(SHARED_INTERMEDIATE_DIR)',
-                '-x', '<(INTERMEDIATE_DIR)',
-                '<@(locales)',
-              ],
-            },
-          ],
-        }],
       ],
     },
     {
@@ -651,7 +606,7 @@
             '<(generator_path)',
           ],
           'outputs': [
-            '<(about_credits_file)',
+            '<(PRODUCT_DIR)/cef_generate_about_credits.stamp',
           ],
           'hard_dependency': 1,
           'action': ['python',
