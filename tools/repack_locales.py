@@ -29,9 +29,9 @@ class Usage(Exception):
     self.msg = msg
 
 
-def calc_output(locale):
+def calc_output(locale, create_dir):
   """Determine the file that will be generated for the given locale."""
-  #e.g. '<(INTERMEDIATE_DIR)/repack/da.pak',
+  #e.g. '<(INTERMEDIATE_DIR)/da.pak',
   # For Fake Bidi, generate it at a fixed path so that tests can safely
   # reference it.
   if locale == 'fake-bidi':
@@ -42,9 +42,12 @@ def calc_output(locale):
     # simply as 'en' (http://crbug.com/19165, http://crbug.com/25578).
     if locale == 'en-US':
       locale = 'en'
-    return '%s/repack/%s.lproj/locale.pak' % (INT_DIR, locale.replace('-', '_'))
+    dir = '%s/%s.lproj' % (INT_DIR, locale.replace('-', '_'))
+    if create_dir and not os.path.exists(dir):
+      os.makedirs(dir)
+    return dir + '/locale.pak'
   else:
-    return os.path.join(INT_DIR, 'repack', locale + '.pak')
+    return os.path.join(INT_DIR, locale + '.pak')
 
 
 def calc_inputs(locale):
@@ -88,7 +91,7 @@ def list_outputs(locales):
   """
   outputs = []
   for locale in locales:
-    outputs.append(calc_output(locale))
+    outputs.append(calc_output(locale, False))
   # Quote each element so filename spaces don't mess up gyp's attempt to parse
   # it into a list.
   return " ".join(['"%s"' % x for x in outputs])
@@ -113,7 +116,7 @@ def repack_locales(locales):
   for locale in locales:
     inputs = []
     inputs += calc_inputs(locale)
-    output = calc_output(locale)
+    output = calc_output(locale, True)
     data_pack.DataPack.RePack(output, inputs)
 
 
@@ -175,6 +178,9 @@ Usage:  %s [-h] [-i | -o] -g <DIR> -x <DIR> -s <DIR> <locale> [...]
 
   if print_outputs:
     return list_outputs(locales)
+
+  if not os.path.exists(INT_DIR):
+    os.makedirs(INT_DIR)
 
   return repack_locales(locales)
 
