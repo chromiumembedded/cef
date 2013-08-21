@@ -606,7 +606,7 @@
             '<(generator_path)',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/cef_generate_about_credits.stamp',
+            '<(about_credits_file)',
           ],
           'hard_dependency': 1,
           'action': ['python',
