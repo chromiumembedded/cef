@@ -498,6 +498,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       }
       break;
 
+    case WM_ENTERMENULOOP:
+      if (!wParam) {
+        // Entering the menu loop for the application menu.
+        CefSetOSModalLoop(true);
+      }
+      break;
+
+    case WM_EXITMENULOOP:
+      if (!wParam) {
+        // Exiting the menu loop for the application menu.
+        CefSetOSModalLoop(false);
+      }
+      break;
+
     case WM_CLOSE:
       if (g_handler.get() && !g_handler->IsClosing()) {
         CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
