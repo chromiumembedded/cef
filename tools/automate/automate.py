@@ -48,10 +48,11 @@ def get_svn_info(path):
   rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      (stream_in, stream_out, stream_err) = os.popen3(svn_exe+' info --xml '+path)
-      err = stream_err.read()
+      p = subprocess.Popen([svn_exe, 'info', '--xml', path], \
+          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = p.communicate()
       if err == '':
-        tree = ET.ElementTree(ET.fromstring(stream_out.read()))
+        tree = ET.ElementTree(ET.fromstring(out))
         entry = tree.getroot().find('entry')
         url = entry.find('url').text
         rev = entry.attrib['revision']
