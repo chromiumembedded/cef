@@ -50,7 +50,7 @@ def get_svn_info(path):
     try:
       if sys.platform == 'win32':
         # Force use of the SVN version bundled with depot_tools.
-        svn = 'svn.bat'
+        svn = os.path.join(depot_tools_dir, 'svn.bat')
       else:
         svn = 'svn'
       (stream_in, stream_out, stream_err) = os.popen3(svn+' info --xml '+path)
@@ -261,9 +261,6 @@ if not os.path.exists(depot_tools_dir):
   else:
     # checkout depot_tools
     run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
-
-# Add depot_tools to the system path
-sys.path.insert(1, depot_tools_dir)
 
 if not options.url is None:
   # set the CEF URL
