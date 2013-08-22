@@ -48,12 +48,7 @@ def get_svn_info(path):
   rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      if sys.platform == 'win32':
-        # Force use of the SVN version bundled with depot_tools.
-        svn = os.path.join(depot_tools_dir, 'svn.bat')
-      else:
-        svn = 'svn'
-      (stream_in, stream_out, stream_err) = os.popen3(svn+' info --xml '+path)
+      (stream_in, stream_out, stream_err) = os.popen3(svn_exe+' info --xml '+path)
       err = stream_err.read()
       if err == '':
         tree = ET.ElementTree(ET.fromstring(stream_out.read()))
@@ -261,6 +256,12 @@ if not os.path.exists(depot_tools_dir):
   else:
     # checkout depot_tools
     run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
+
+if sys.platform == 'win32':
+  # Force use of the SVN version bundled with depot_tools.
+  svn_exe = os.path.join(depot_tools_dir, 'svn.bat')
+else:
+  svn_exe = 'svn'
 
 if not options.url is None:
   # set the CEF URL
@@ -474,10 +475,10 @@ if not os.path.exists(cef_src_dir) or cef_url_changed:
     shutil.rmtree(cef_src_dir)
 
   # download the CEF source code
-  run('svn checkout '+cef_url+' -r '+cef_rev+' '+cef_src_dir, download_dir)
+  run(svn_exe+' checkout '+cef_url+' -r '+cef_rev+' '+cef_src_dir, download_dir)
 elif cef_rev_changed or options.forceupdate:
   # update the CEF source code
-  run('svn update -r '+cef_rev+' '+cef_src_dir, download_dir)
+  run(svn_exe+' update -r '+cef_rev+' '+cef_src_dir, download_dir)
 
 if any_changed or options.forceupdate:
   # create CEF projects
