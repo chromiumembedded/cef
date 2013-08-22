@@ -160,6 +160,21 @@ void CefQuitMessageLoop() {
   CefBrowserMessageLoop::current()->Quit();
 }
 
+void CefSetOSModalLoop(bool osModalLoop) {
+#if defined(OS_WIN)
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    NOTREACHED() << "context not valid";
+    return;
+  }
+
+  if (CEF_CURRENTLY_ON_UIT())
+    MessageLoop::current()->set_os_modal_loop(osModalLoop);
+  else
+    CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
+#endif  // defined(OS_WIN)
+}
+
 
 // CefContext
 
