@@ -23,13 +23,24 @@ def get_svn_info(path):
   rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      stream = os.popen('svn info --xml '+path)
-      tree = ET.ElementTree(ET.fromstring(stream.read()))
-      entry = tree.getroot().find('entry')
-      url = entry.find('url').text
-      rev = entry.attrib['revision']
+      if sys.platform == 'win32':
+        # Force use of the SVN version bundled with depot_tools.
+        svn = 'svn.bat'
+      else:
+        svn = 'svn'
+      (stream_in, stream_out, stream_err) = os.popen3(svn+' info --xml '+path)
+      err = stream_err.read()
+      if err == '':
+        tree = ET.ElementTree(ET.fromstring(stream_out.read()))
+        entry = tree.getroot().find('entry')
+        url = entry.find('url').text
+        rev = entry.attrib['revision']
+      else:
+        raise Exception("Failed to execute svn info:\n"+err+"\n")
     except IOError, (errno, strerror):
       sys.stderr.write('Failed to read svn info: '+strerror+"\n")
+      raise
+    except:
       raise
   return {'url': url, 'revision': rev}
 
