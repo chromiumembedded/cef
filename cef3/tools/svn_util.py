@@ -5,6 +5,7 @@
 import os
 import sys
 import urllib
+import xml.etree.ElementTree as ET
 
 def check_url(url):
   """ Check the URL and raise an exception if invalid. """
@@ -22,12 +23,11 @@ def get_svn_info(path):
   rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      stream = os.popen('svn info '+path)
-      for line in stream:
-        if line[0:4] == "URL:":
-          url = check_url(line[5:-1])
-        elif line[0:9] == "Revision:":
-          rev = str(int(line[10:-1]))
+      stream = os.popen('svn info --xml '+path)
+      tree = ET.ElementTree(ET.fromstring(stream.read()))
+      entry = tree.getroot().find('entry')
+      url = entry.find('url').text
+      rev = entry.attrib['revision']
     except IOError, (errno, strerror):
       sys.stderr.write('Failed to read svn info: '+strerror+"\n")
       raise
