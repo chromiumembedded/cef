@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import urllib
+import xml.etree.ElementTree as ET
 import zipfile
 
 # default URL values
@@ -40,19 +41,18 @@ def check_url(url):
       return url
   sys.stderr.write('Invalid URL: '+url+"\n")
   raise Exception('Invalid URL: '+url)
-                               
+
 def get_svn_info(path):
   """ Retrieves the URL and revision from svn info. """
   url = 'None'
   rev = 'None'
   if path[0:4] == 'http' or os.path.exists(path):
     try:
-      stream = os.popen('svn info '+path)
-      for line in stream:
-        if line[0:4] == "URL:":
-          url = check_url(line[5:-1])
-        elif line[0:9] == "Revision:":
-          rev = str(int(line[10:-1]))
+      stream = os.popen('svn info --xml '+path)
+      tree = ET.ElementTree(ET.fromstring(stream.read()))
+      entry = tree.getroot().find('entry')
+      url = entry.find('url').text
+      rev = entry.attrib['revision']
     except IOError, (errno, strerror):
       sys.stderr.write('Failed to read svn info: '+strerror+"\n")
       raise
