@@ -75,7 +75,8 @@ if not path_exists(options.cppheaderdir):
 if not options.quiet:
     sys.stdout.write('Parsing C++ headers from '+options.cppheaderdir+'...\n')
 header = obj_header()
-header.add_directory(options.cppheaderdir)
+excluded_files = ['cef_application_mac.h', 'cef_version.h']
+header.add_directory(options.cppheaderdir, excluded_files)
 
 writect = 0
 

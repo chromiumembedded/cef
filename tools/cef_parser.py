@@ -464,11 +464,13 @@ class obj_header:
         self.funcs = []
         self.classes = []
     
-    def add_directory(self, directory):
+    def add_directory(self, directory, excluded_files = []):
         """ Add all header files from the specified directory. """
         files = get_files(os.path.join(directory, '*.h'))
         for file in files:
-            self.add_file(file)
+            if len(excluded_files) == 0 or \
+                not os.path.split(file)[1] in excluded_files:
+                self.add_file(file)
 
     def add_file(self, filepath):
         """ Add a header file. """
