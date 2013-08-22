@@ -228,6 +228,43 @@ if (options.noreleasebuild and (options.minimaldistrib or options.minimaldistrib
 # script directory
 script_dir = os.path.dirname(__file__)
 
+download_dir = os.path.abspath(options.downloaddir)
+if not os.path.exists(download_dir):
+  # create the download directory
+  os.makedirs(download_dir)
+
+# Test the operating system.
+platform = '';
+if sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform.startswith('linux'):
+  platform = 'linux'
+
+# set the expected script extension
+if platform == 'windows':
+  script_ext = '.bat'
+else:
+  script_ext = '.sh'
+
+# check if the "depot_tools" directory exists
+if options.depottools != '':
+  depot_tools_dir = os.path.abspath(options.depottools)
+else:
+  depot_tools_dir = os.path.join(download_dir, 'depot_tools')
+if not os.path.exists(depot_tools_dir):
+  if options.depottoolsarchive != '':
+    # extract depot_tools from an archive file
+    download_and_extract(options.depottoolsarchive, depot_tools_dir,
+        'depot_tools/')
+  else:
+    # checkout depot_tools
+    run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
+
+# Add depot_tools to the system path
+sys.path.insert(1, depot_tools_dir)
+
 if not options.url is None:
   # set the CEF URL
   cef_url = check_url(options.url)
@@ -275,43 +312,6 @@ except Exception, e:
   sys.stderr.write('Failed to read URL and revision information from '+ \
                    compat_url+"\n")
   raise
-
-download_dir = os.path.abspath(options.downloaddir)
-if not os.path.exists(download_dir):
-  # create the download directory
-  os.makedirs(download_dir)
-
-# Test the operating system.
-platform = '';
-if sys.platform == 'win32':
-  platform = 'windows'
-elif sys.platform == 'darwin':
-  platform = 'macosx'
-elif sys.platform.startswith('linux'):
-  platform = 'linux'
-
-# set the expected script extension
-if platform == 'windows':
-  script_ext = '.bat'
-else:
-  script_ext = '.sh'
-
-# check if the "depot_tools" directory exists
-if options.depottools != '':
-  depot_tools_dir = os.path.abspath(options.depottools)
-else:
-  depot_tools_dir = os.path.join(download_dir, 'depot_tools')
-if not os.path.exists(depot_tools_dir):
-  if options.depottoolsarchive != '':
-    # extract depot_tools from an archive file
-    download_and_extract(options.depottoolsarchive, depot_tools_dir,
-        'depot_tools/')
-  else:
-    # checkout depot_tools
-    run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
-
-# Add depot_tools to the system path
-sys.path.insert(1, depot_tools_dir)
 
 # check if the "chromium" directory exists
 chromium_dir = os.path.join(download_dir, 'chromium')
