@@ -4,6 +4,7 @@
 
 import os
 import sys
+import subprocess
 import urllib
 import xml.etree.ElementTree as ET
 
@@ -28,10 +29,11 @@ def get_svn_info(path):
         svn = 'svn.bat'
       else:
         svn = 'svn'
-      (stream_in, stream_out, stream_err) = os.popen3(svn+' info --xml '+path)
-      err = stream_err.read()
+      p = subprocess.Popen([svn, 'info', '--xml', path], \
+          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = p.communicate()
       if err == '':
-        tree = ET.ElementTree(ET.fromstring(stream_out.read()))
+        tree = ET.ElementTree(ET.fromstring(out))
         entry = tree.getroot().find('entry')
         url = entry.find('url').text
         rev = entry.attrib['revision']
