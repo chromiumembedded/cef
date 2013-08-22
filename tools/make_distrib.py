@@ -176,8 +176,9 @@ def generate_msvs_projects(version):
 
 def create_msvs_projects():
   """ Create MSVS project files. """
-  generate_msvs_projects('2005');
-  generate_msvs_projects('2008');
+  if not options.x64build:
+    generate_msvs_projects('2005');
+    generate_msvs_projects('2008');
   generate_msvs_projects('2010');
 
   # Fix the output directory path in all .vcproj and .vcxproj files.
@@ -193,6 +194,9 @@ def create_msvs_projects():
     data = data.replace('..\\..\\..\\build\\', 'out\\')
     # fix xcopy arguments
     data = data.replace('xcopy \\', 'xcopy /')
+    if options.x64build:
+      # fix machine type
+      data = data.replace('MachineX86', 'MachineX64')
     write_file(file, data)
 
 def create_xcode_projects():
@@ -287,6 +291,9 @@ parser.add_option('--no-archive',
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help='build was created using ninja')
+parser.add_option('--x64-build',
+                  action='store_true', dest='x64build', default=False,
+                  help='build was created for 64-bit systems')
 parser.add_option('--minimal',
                   action='store_true', dest='minimal', default=False,
                   help='include only release build binary files')
@@ -298,6 +305,15 @@ parser.add_option('-q', '--quiet',
                   help='do not output detailed status information')
 (options, args) = parser.parse_args()
 
+# Test the operating system.
+platform = '';
+if sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform.startswith('linux'):
+  platform = 'linux'
+
 # the outputdir option is required
 if options.outputdir is None:
   parser.print_help(sys.stderr)
@@ -306,6 +322,10 @@ if options.outputdir is None:
 if options.minimal and options.client:
   print 'Invalid combination of options'
   parser.print_help(sys.stderr)
+  sys.exit()
+
+if platform == 'windows' and options.x64build and not options.ninjabuild:
+  print 'x64 build on Windows requires ninja'
   sys.exit()
 
 # script directory
@@ -333,15 +353,6 @@ read_version_file(os.path.join(cef_dir, '../chrome/VERSION'), args)
 
 cef_ver = args['CEF_MAJOR']+'.'+args['BUILD']+'.'+cef_rev
 chromium_ver = args['MAJOR']+'.'+args['MINOR']+'.'+args['BUILD']+'.'+args['PATCH']
-
-# Test the operating system.
-platform = '';
-if sys.platform == 'win32':
-  platform = 'windows'
-elif sys.platform == 'darwin':
-  platform = 'macosx'
-elif sys.platform.startswith('linux'):
-  platform = 'linux'
 
 # list of output directories to be archived
 archive_dirs = []
@@ -435,9 +446,13 @@ if platform == 'windows':
 
   valid_build_dir = None
 
+  build_dir_suffix = ''
+  if options.x64build:
+    build_dir_suffix = '_x64'
+
   if mode == 'standard':
     # transfer Debug files
-    build_dir = os.path.join(out_dir, 'Debug');
+    build_dir = os.path.join(out_dir, 'Debug' + build_dir_suffix);
     if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.exe')):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -456,7 +471,7 @@ if platform == 'windows':
       sys.stderr.write("No Debug build files.\n")
 
   # transfer Release files
-  build_dir = os.path.join(out_dir, 'Release');
+  build_dir = os.path.join(out_dir, 'Release' + build_dir_suffix);
   if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.exe')):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
