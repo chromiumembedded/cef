@@ -201,6 +201,9 @@ parser.add_option('--no-distrib-archive',
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help="build using ninja")
+parser.add_option('--x64-build',
+                  action='store_true', dest='x64build', default=False,
+                  help='build for 64-bit systems (Windows and Mac OS X only)')
 parser.add_option('--clean-artifacts',
                   action='store_true', dest='cleanartifacts', default=False,
                   help='clean the artifacts output directory')
@@ -208,6 +211,15 @@ parser.add_option('--dry-run',
                   action='store_true', dest='dryrun', default=False,
                   help="output commands without executing them")
 (options, args) = parser.parse_args()
+
+# Test the operating system.
+platform = '';
+if sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform.startswith('linux'):
+  platform = 'linux'
 
 # the downloaddir option is required
 if options.downloaddir is None:
@@ -221,6 +233,14 @@ if (options.noreleasebuild and (options.minimaldistrib or options.minimaldistrib
   parser.print_help(sys.stderr)
   sys.exit()
 
+if options.x64build and platform != 'windows' and platform != 'macosx':
+  print 'The x64 build option is only used on Windows and Mac OS X.'
+  sys.exit()
+
+if options.x64build and platform == 'windows' and not options.ninjabuild:
+  print 'The x64 build option on Windows requires ninja.'
+  sys.exit()
+
 # script directory
 script_dir = os.path.dirname(__file__)
 
@@ -228,15 +248,6 @@ download_dir = os.path.abspath(options.downloaddir)
 if not os.path.exists(download_dir):
   # create the download directory
   os.makedirs(download_dir)
-
-# Test the operating system.
-platform = '';
-if sys.platform == 'win32':
-  platform = 'windows'
-elif sys.platform == 'darwin':
-  platform = 'macosx'
-elif sys.platform.startswith('linux'):
-  platform = 'linux'
 
 # set the expected script extension
 if platform == 'windows':
@@ -485,6 +496,11 @@ if any_changed or options.forceupdate:
   # create CEF projects
   if options.ninjabuild:
     os.environ['GYP_GENERATORS'] = 'ninja'
+  if options.x64build:
+    if 'GYP_DEFINES' in os.environ.keys():
+      os.environ['GYP_DEFINES'] = os.environ['GYP_DEFINES'] + ' ' + 'target_arch=x64'
+    else:
+      os.environ['GYP_DEFINES'] = 'target_arch=x64'
   path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
   run(path, cef_src_dir, depot_tools_dir)
 
@@ -492,13 +508,19 @@ if any_changed or options.forcebuild:
   if options.ninjabuild:
     command = 'ninja -C '
     target = ' cefclient'
+    build_dir_suffix = ''
+    if platform == 'windows':
+      build_dir_suffix = '_x64'
+
     if not options.nodebugbuild:
       # make CEF Debug build
-      run(command + os.path.join('out', 'Debug') + target, chromium_src_dir, depot_tools_dir)
+      run(command + os.path.join('out', 'Debug' + build_dir_suffix) + target, \
+          chromium_src_dir, depot_tools_dir)
 
     if not options.noreleasebuild:
       # make CEF Release build
-      run(command + os.path.join('out', 'Release') + target, chromium_src_dir, depot_tools_dir)
+      run(command + os.path.join('out', 'Release' + build_dir_suffix) + target, \
+          chromium_src_dir, depot_tools_dir)
   else:
     path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
 
@@ -539,6 +561,8 @@ if (any_changed or options.forcedistrib) and not options.nodistrib:
       path = path + ' --allow-partial'
     if options.ninjabuild:
       path = path + ' --ninja-build'
+    if options.x64build:
+      path = path + ' --x64-build'
 
     if type == 'minimal':
       path = path + ' --minimal'
