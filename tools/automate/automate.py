@@ -509,7 +509,7 @@ if any_changed or options.forcebuild:
     command = 'ninja -C '
     target = ' cefclient'
     build_dir_suffix = ''
-    if platform == 'windows':
+    if platform == 'windows' and options.x64build:
       build_dir_suffix = '_x64'
 
     if not options.nodebugbuild:
