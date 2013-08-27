@@ -436,6 +436,9 @@ class RequestClient : public CefURLRequestClient {
   virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
                                   uint64 current,
                                   uint64 total) OVERRIDE {
+    response_ = request->GetResponse();
+    EXPECT_TRUE(response_);
+    EXPECT_TRUE(response_->IsReadOnly());
     download_progress_ct_++;
     download_total_ = total;
   }
@@ -443,6 +446,9 @@ class RequestClient : public CefURLRequestClient {
   virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
                               const void* data,
                               size_t data_length) OVERRIDE {
+    response_ = request->GetResponse();
+    EXPECT_TRUE(response_);
+    EXPECT_TRUE(response_->IsReadOnly());
     download_data_ct_++;
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }

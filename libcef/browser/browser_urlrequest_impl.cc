@@ -264,15 +264,8 @@ class CefBrowserURLRequest::Context
 
       error_code_ = static_cast<CefURLRequest::ErrorCode>(status.error());
 
-      response_ = new CefResponseImpl();
-      CefResponseImpl* responseImpl =
-          static_cast<CefResponseImpl*>(response_.get());
-
-      net::HttpResponseHeaders* headers = fetcher_->GetResponseHeaders();
-      if (headers)
-        responseImpl->SetResponseHeaders(*headers);
-
-      responseImpl->SetReadOnly(true);
+      if(!response_.get())
+        OnResponse();
     }
 
     DCHECK(url_request_.get());
@@ -289,6 +282,9 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
+    if(!response_.get())
+      OnResponse();
+
     NotifyUploadProgressIfNecessary();
 
     client_->OnDownloadProgress(url_request_.get(), current, total);
@@ -297,6 +293,10 @@ class CefBrowserURLRequest::Context
   void OnDownloadData(scoped_ptr<std::string> download_data) {
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
+
+    if(!response_.get())
+      OnResponse();
+
     client_->OnDownloadData(url_request_.get(), download_data->c_str(),
         download_data->length());
   }
@@ -324,6 +324,20 @@ class CefBrowserURLRequest::Context
       client_->OnUploadProgress(url_request_.get(), upload_data_size_,
                                 upload_data_size_);
       got_upload_progress_complete_ = true;
+    }
+  }
+
+  void OnResponse() {
+    if (fetcher_.get()) {  
+      response_ = new CefResponseImpl();
+      CefResponseImpl* responseImpl =
+          static_cast<CefResponseImpl*>(response_.get());
+
+      net::HttpResponseHeaders* headers = fetcher_->GetResponseHeaders();
+      if (headers)
+        responseImpl->SetResponseHeaders(*headers);
+
+      responseImpl->SetReadOnly(true);
     }
   }
 
