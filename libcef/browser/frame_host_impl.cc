@@ -135,8 +135,10 @@ void CefFrameHostImpl::LoadURL(const CefString& url) {
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser)
-    browser->LoadURL(frame_id, url);
+  if (browser) {
+    browser->LoadURL(frame_id, url, content::Referrer(),
+                     content::PAGE_TRANSITION_TYPED, std::string());
+  }
 }
 
 void CefFrameHostImpl::LoadString(const CefString& string,
