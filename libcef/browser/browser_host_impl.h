@@ -202,7 +202,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void LoadRequest(int64 frame_id, CefRefPtr<CefRequest> request);
 
   // Load the specified URL.
-  void LoadURL(int64 frame_id, const std::string& url);
+  void LoadURL(int64 frame_id,
+               const std::string& url,
+               const content::Referrer& referrer,
+               content::PageTransition transition,
+               const std::string& extra_headers);
 
   // Load the specified string.
   void LoadString(int64 frame_id, const std::string& string,
