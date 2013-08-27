@@ -6,8 +6,10 @@
 
 #include <string>
 
+#include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/url_request_user_data.h"
 #include "libcef/common/request_impl.h"
 
 #include "net/base/net_errors.h"
@@ -189,6 +191,27 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
         } else {
           callbackPtr->Disconnect();
         }
+      }
+    }
+  }
+
+  CefURLRequestUserData* user_data =
+      (CefURLRequestUserData*)request->GetUserData(
+          CefURLRequestUserData::kUserDataKey);
+  if (user_data) {
+    CefRefPtr<CefURLRequestClient> client = user_data->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefAuthCallbackImpl> callbackPtr(
+          new CefAuthCallbackImpl(callback, credentials));
+      if (client->GetAuthCredentials(auth_info.is_proxy,
+                                     auth_info.challenger.host(),
+                                     auth_info.challenger.port(),
+                                     auth_info.realm,
+                                     auth_info.scheme,
+                                     callbackPtr.get())) {
+        return AUTH_REQUIRED_RESPONSE_IO_PENDING;
+      } else {
+        callbackPtr->Disconnect();
       }
     }
   }

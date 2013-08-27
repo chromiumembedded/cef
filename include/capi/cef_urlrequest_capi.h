@@ -111,7 +111,7 @@ CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(
 ///
 // Structure that should be implemented by the cef_urlrequest_t client. The
 // functions of this structure will be called on the same thread that created
-// the request.
+// the request unless otherwise documented.
 ///
 typedef struct _cef_urlrequest_client_t {
   ///
@@ -154,6 +154,20 @@ typedef struct _cef_urlrequest_client_t {
   void (CEF_CALLBACK *on_download_data)(struct _cef_urlrequest_client_t* self,
       struct _cef_urlrequest_t* request, const void* data,
       size_t data_length);
+
+  ///
+  // Called on the IO thread when the browser needs credentials from the user.
+  // |isProxy| indicates whether the host is a proxy server. |host| contains the
+  // hostname and |port| contains the port number. Return true (1) to continue
+  // the request and call cef_auth_callback_t::cont() when the authentication
+  // information is available. Return false (0) to cancel the request. This
+  // function will only be called for requests initiated from the browser
+  // process.
+  ///
+  int (CEF_CALLBACK *get_auth_credentials)(
+      struct _cef_urlrequest_client_t* self, int isProxy,
+      const cef_string_t* host, int port, const cef_string_t* realm,
+      const cef_string_t* scheme, struct _cef_auth_callback_t* callback);
 } cef_urlrequest_client_t;
 
 

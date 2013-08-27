@@ -9,6 +9,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/url_request_user_data.h"
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
@@ -49,6 +50,11 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
   CefBrowserURLRequest::Context* context_;
   int request_flags_;
 };
+
+base::SupportsUserData::Data* CreateURLRequestUserData(
+    CefRefPtr<CefURLRequestClient> client) {
+  return new CefURLRequestUserData(client);
+}
 
 }  // namespace
 
@@ -207,6 +213,10 @@ class CefBrowserURLRequest::Context
 
     fetcher_->SetExtraRequestHeaders(
         HttpHeaderUtils::GenerateHeaders(headerMap));
+
+    fetcher_->SetURLRequestUserData(
+        CefURLRequestUserData::kUserDataKey,
+        base::Bind(&CreateURLRequestUserData, client_));
 
     fetcher_->Start();
 

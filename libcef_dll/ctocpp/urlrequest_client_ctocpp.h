@@ -41,6 +41,9 @@ class CefURLRequestClientCToCpp
       uint64 current, uint64 total) OVERRIDE;
   virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
       const void* data, size_t data_length) OVERRIDE;
+  virtual bool GetAuthCredentials(bool isProxy, const CefString& host, int port,
+      const CefString& realm, const CefString& scheme,
+      CefRefPtr<CefAuthCallback> callback) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED
