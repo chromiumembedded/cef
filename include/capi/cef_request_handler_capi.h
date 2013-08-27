@@ -46,29 +46,6 @@ extern "C" {
 
 
 ///
-// Callback structure used for asynchronous continuation of authentication
-// requests.
-///
-typedef struct _cef_auth_callback_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Continue the authentication request.
-  ///
-  void (CEF_CALLBACK *cont)(struct _cef_auth_callback_t* self,
-      const cef_string_t* username, const cef_string_t* password);
-
-  ///
-  // Cancel the authentication request.
-  ///
-  void (CEF_CALLBACK *cancel)(struct _cef_auth_callback_t* self);
-} cef_auth_callback_t;
-
-
-///
 // Callback structure used for asynchronous continuation of quota requests.
 ///
 typedef struct _cef_quota_callback_t {

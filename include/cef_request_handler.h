@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CEF_REQUEST_HANDLER_H_
 #pragma once
 
+#include "include/cef_auth_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_cookie.h"
@@ -46,28 +47,6 @@
 #include "include/cef_response.h"
 #include "include/cef_request.h"
 #include "include/cef_web_plugin.h"
-
-///
-// Callback interface used for asynchronous continuation of authentication
-// requests.
-///
-/*--cef(source=library)--*/
-class CefAuthCallback : public virtual CefBase {
- public:
-  ///
-  // Continue the authentication request.
-  ///
-  /*--cef(capi_name=cont)--*/
-  virtual void Continue(const CefString& username,
-                        const CefString& password) =0;
-
-  ///
-  // Cancel the authentication request.
-  ///
-  /*--cef()--*/
-  virtual void Cancel() =0;
-};
-
 
 ///
 // Callback interface used for asynchronous continuation of quota requests.

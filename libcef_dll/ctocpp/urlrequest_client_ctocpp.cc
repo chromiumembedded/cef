@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 
@@ -92,6 +93,41 @@ void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
       CefURLRequestCppToC::Wrap(request),
       data,
       data_length);
+}
+
+bool CefURLRequestClientCToCpp::GetAuthCredentials(bool isProxy,
+    const CefString& host, int port, const CefString& realm,
+    const CefString& scheme, CefRefPtr<CefAuthCallback> callback) {
+  if (CEF_MEMBER_MISSING(struct_, get_auth_credentials))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: host; type: string_byref_const
+  DCHECK(!host.empty());
+  if (host.empty())
+    return false;
+  // Verify param: scheme; type: string_byref_const
+  DCHECK(!scheme.empty());
+  if (scheme.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+  // Unverified params: realm
+
+  // Execute
+  int _retval = struct_->get_auth_credentials(struct_,
+      isProxy,
+      host.GetStruct(),
+      port,
+      realm.GetStruct(),
+      scheme.GetStruct(),
+      CefAuthCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 

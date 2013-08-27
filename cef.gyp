@@ -893,6 +893,8 @@
         'libcef/browser/url_request_context_proxy.h',
         'libcef/browser/url_request_interceptor.cc',
         'libcef/browser/url_request_interceptor.h',
+        'libcef/browser/url_request_user_data.cc',
+        'libcef/browser/url_request_user_data.h',
         'libcef/browser/web_contents_view_osr.cc',
         'libcef/browser/web_contents_view_osr.h',
         'libcef/browser/web_plugin_impl.cc',

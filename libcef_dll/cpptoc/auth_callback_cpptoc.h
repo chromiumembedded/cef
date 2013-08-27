@@ -18,8 +18,8 @@
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
 #else  // BUILDING_CEF_SHARED
 
-#include "include/cef_request_handler.h"
-#include "include/capi/cef_request_handler_capi.h"
+#include "include/cef_auth_callback.h"
+#include "include/capi/cef_auth_callback_capi.h"
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.

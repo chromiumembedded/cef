@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CEF_URLREQUEST_H_
 #pragma once
 
+#include "include/cef_auth_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_request.h"
 #include "include/cef_response.h"
@@ -111,7 +112,7 @@ class CefURLRequest : public virtual CefBase {
 ///
 // Interface that should be implemented by the CefURLRequest client. The
 // methods of this class will be called on the same thread that created the
-// request.
+// request unless otherwise documented.
 ///
 /*--cef(source=client)--*/
 class CefURLRequestClient : public virtual CefBase {
@@ -154,6 +155,22 @@ class CefURLRequestClient : public virtual CefBase {
   virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
                               const void* data,
                               size_t data_length) =0;
+
+  ///
+  // Called on the IO thread when the browser needs credentials from the user.
+  // |isProxy| indicates whether the host is a proxy server. |host| contains the
+  // hostname and |port| contains the port number. Return true to continue the
+  // request and call CefAuthCallback::Continue() when the authentication
+  // information is available. Return false to cancel the request. This method
+  // will only be called for requests initiated from the browser process.
+  ///
+  /*--cef(optional_param=realm)--*/
+  virtual bool GetAuthCredentials(bool isProxy,
+                                  const CefString& host,
+                                  int port,
+                                  const CefString& realm,
+                                  const CefString& scheme,
+                                  CefRefPtr<CefAuthCallback> callback) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_URLREQUEST_H_

@@ -13,6 +13,7 @@
   'variables': {
     'autogen_cpp_includes': [
       'include/cef_app.h',
+      'include/cef_auth_callback.h',
       'include/cef_browser.h',
       'include/cef_browser_process_handler.h',
       'include/cef_callback.h',
@@ -62,6 +63,7 @@
     ],
     'autogen_capi_includes': [
       'include/capi/cef_app_capi.h',
+      'include/capi/cef_auth_callback_capi.h',
       'include/capi/cef_browser_capi.h',
       'include/capi/cef_browser_process_handler_capi.h',
       'include/capi/cef_callback_capi.h',

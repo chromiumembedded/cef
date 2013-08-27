@@ -447,6 +447,15 @@ class RequestClient : public CefURLRequestClient {
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }
 
+   virtual bool GetAuthCredentials(bool isProxy,
+                                  const CefString& host,
+                                  int port,
+                                  const CefString& realm,
+                                  const CefString& scheme,
+                                  CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+     return false;
+   }
+
  private:
   explicit RequestClient(Delegate* delegate)
     : delegate_(delegate),
