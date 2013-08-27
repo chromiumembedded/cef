@@ -305,8 +305,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::Create(windowInfo, new_settings, client, NULL, info,
                                  NULL);
-  if (!url.empty())
-    browser->LoadURL(CefFrameHostImpl::kMainFrameId, url);
+  if (!url.empty()) {
+    browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
+                     content::PAGE_TRANSITION_TYPED, std::string());
+  }
   return browser.get();
 }
 
@@ -1206,7 +1208,12 @@ void CefBrowserHostImpl::LoadRequest(int64 frame_id,
   Navigate(params);
 }
 
-void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
+void CefBrowserHostImpl::LoadURL(
+    int64 frame_id,
+    const std::string& url,
+    const content::Referrer& referrer,
+    content::PageTransition transition,
+    const std::string& extra_headers) {
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Go through the navigation controller.
     if (CEF_CURRENTLY_ON_UIT()) {
@@ -1230,18 +1237,21 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
 
         web_contents_->GetController().LoadURL(
             gurl,
-            content::Referrer(),
-            content::PAGE_TRANSITION_TYPED,
-            std::string());
+            referrer,
+            transition,
+            extra_headers);
         OnSetFocus(FOCUS_SOURCE_NAVIGATION);
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefBrowserHostImpl::LoadURL, this, frame_id, url));
+          base::Bind(&CefBrowserHostImpl::LoadURL, this, frame_id, url,
+                     referrer, transition, extra_headers));
     }
   } else {
-    CefNavigateParams params(GURL(url), content::PAGE_TRANSITION_TYPED);
+    CefNavigateParams params(GURL(url), transition);
     params.frame_id = frame_id;
+    params.referrer = referrer;
+    params.headers = extra_headers;
     Navigate(params);
   }
 }
@@ -1450,17 +1460,10 @@ void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
 content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
     content::WebContents* source,
     const content::OpenURLParams& params) {
-  // Start the new navigation.
-  CefNavigateParams nav_params(params.url, params.transition);
-  nav_params.referrer = params.referrer;
-  nav_params.frame_id = params.source_frame_id;
-  nav_params.disposition = params.disposition;
-  nav_params.user_gesture = true;
-  nav_params.override_encoding = params.override_encoding;
-  nav_params.is_renderer_initiated = params.is_renderer_initiated;
-  nav_params.transferred_global_request_id =
-      params.transferred_global_request_id;
-  Navigate(nav_params);
+  // Start a navigation that will result in the creation of a new render
+  // process.
+  LoadURL(CefFrameHostImpl::kMainFrameId, params.url.spec(), params.referrer,
+          params.transition, params.extra_headers);
 
   return source;
 }
@@ -1663,9 +1666,10 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     WindowContainerType window_container_type,
     const string16& frame_name,
     const GURL& target_url) {
-  CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
-      web_contents->GetRenderProcessHost()->GetID(), route_id);
-
+  // In cases where the navigation will occur in a new render process the
+  // |route_id| value will be MSG_ROUTING_NONE here (because the existing
+  // renderer will not be able to communicate with the new renderer) and
+  // OpenURLFromTab will be called after WebContentsCreated.
   base::AutoLock lock_scope(pending_popup_info_lock_);
   DCHECK(pending_popup_info_.get());
   _Context->browser_context()->set_use_osr_next_contents_view(
@@ -1689,7 +1693,7 @@ void CefBrowserHostImpl::WebContentsCreated(
 
   CefWindowHandle opener = NULL;
   scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->GetBrowserInfo(
+      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
           new_contents->GetRenderProcessHost()->GetID(),
           new_contents->GetRoutingID());
 
