@@ -284,8 +284,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   // Initialize logging.
   logging::LoggingSettings log_settings;
-  log_settings.log_file =
-      command_line->GetSwitchValuePath(switches::kLogFile).value().c_str();
+  const base::FilePath& log_file =
+      command_line->GetSwitchValuePath(switches::kLogFile);
+  log_settings.log_file = log_file.value().c_str();
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
   log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
 
