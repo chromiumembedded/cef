@@ -189,8 +189,7 @@ class CefBrowserContext::CefResourceContext : public content::ResourceContext {
 };
 
 CefBrowserContext::CefBrowserContext()
-    : resource_context_(new CefResourceContext),
-      use_osr_next_contents_view_(false) {
+    : resource_context_(new CefResourceContext) {
 }
 
 CefBrowserContext::~CefBrowserContext() {
@@ -298,12 +297,4 @@ net::URLRequestContextGetter*
         bool in_memory,
         content::ProtocolHandlerMap* protocol_handlers) {
   return NULL;
-}
-
-bool CefBrowserContext::use_osr_next_contents_view() const {
-  return use_osr_next_contents_view_;
-}
-
-void CefBrowserContext::set_use_osr_next_contents_view(bool override) {
-  use_osr_next_contents_view_ = override;
 }

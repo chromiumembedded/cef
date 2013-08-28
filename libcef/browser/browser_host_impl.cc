@@ -293,7 +293,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     }
   }
 
-  _Context->browser_context()->set_use_osr_next_contents_view(
+  CefContentBrowserClient::Get()->set_use_osr_next_contents_view(
       CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
 
   scoped_refptr<CefBrowserInfo> info =
@@ -1661,7 +1661,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
   // OpenURLFromTab will be called after WebContentsCreated.
   base::AutoLock lock_scope(pending_popup_info_lock_);
   DCHECK(pending_popup_info_.get());
-  _Context->browser_context()->set_use_osr_next_contents_view(
+  CefContentBrowserClient::Get()->set_use_osr_next_contents_view(
       IsWindowRenderingDisabled(pending_popup_info_->window_info));
 
   return true;

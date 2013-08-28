@@ -58,13 +58,6 @@ class CefBrowserContext : public content::BrowserContext {
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers);
 
-  // To disable window rendering call this function with |override|=true
-  // just before calling WebContents::Create. This will cause
-  // CefContentBrowserClient::OverrideCreateWebContentsView to create
-  // a windowless WebContentsView object.
-  void set_use_osr_next_contents_view(bool override);
-  bool use_osr_next_contents_view() const;
-
  private:
   class CefResourceContext;
 
@@ -73,8 +66,6 @@ class CefBrowserContext : public content::BrowserContext {
   scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
       geolocation_permission_context_;
-
-  bool use_osr_next_contents_view_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

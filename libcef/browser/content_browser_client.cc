@@ -281,7 +281,8 @@ void TranslatePopupFeatures(const WebKit::WebWindowFeatures& webKitFeatures,
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
-      next_browser_id_(0) {
+      next_browser_id_(0),
+      use_osr_next_contents_view_(false) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
@@ -406,10 +407,7 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
   content::WebContentsViewPort* view = NULL;
   *render_view_host_delegate_view = NULL;
 
-  CefBrowserContext* browserContext =
-      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
-
-  if (browserContext && browserContext->use_osr_next_contents_view()) {
+  if (use_osr_next_contents_view()) {
     CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR(web_contents,
         GetWebContentsViewDelegate(web_contents));
     *render_view_host_delegate_view = view_or;

@@ -135,6 +135,16 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   };
   void set_last_create_window_params(const LastCreateWindowParams& params);
 
+  // To disable window rendering call this function with |override|=true
+  // just before calling WebContents::Create. This will cause
+  // OverrideCreateWebContentsView to create a windowless WebContentsView.
+  void set_use_osr_next_contents_view(bool value) {
+    use_osr_next_contents_view_ = value;
+  }
+  bool use_osr_next_contents_view() const {
+    return use_osr_next_contents_view_;
+  }
+
  private:
   CefBrowserContext* CefBrowserContextForBrowserContext(
       content::BrowserContext* content_browser_context);
@@ -154,6 +164,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   // Only accessed on the IO thread.
   LastCreateWindowParams last_create_window_params_;
+
+  bool use_osr_next_contents_view_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
