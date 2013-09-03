@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
+#include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -21,7 +22,8 @@
 
 CEF_EXPORT int cef_browser_host_create_browser(
     const cef_window_info_t* windowInfo, struct _cef_client_t* client,
-    const cef_string_t* url, const struct _cef_browser_settings_t* settings) {
+    const cef_string_t* url, const struct _cef_browser_settings_t* settings,
+    struct _cef_request_context_t* request_context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: windowInfo; type: struct_byref_const
@@ -32,7 +34,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
   DCHECK(settings);
   if (!settings)
     return 0;
-  // Unverified params: client, url
+  // Unverified params: client, url, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -48,7 +50,8 @@ CEF_EXPORT int cef_browser_host_create_browser(
       windowInfoObj,
       CefClientCToCpp::Wrap(client),
       CefString(url),
-      settingsObj);
+      settingsObj,
+      CefRequestContextCppToC::Unwrap(request_context));
 
   // Return type: bool
   return _retval;
@@ -56,7 +59,8 @@ CEF_EXPORT int cef_browser_host_create_browser(
 
 CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     const cef_window_info_t* windowInfo, struct _cef_client_t* client,
-    const cef_string_t* url, const struct _cef_browser_settings_t* settings) {
+    const cef_string_t* url, const struct _cef_browser_settings_t* settings,
+    struct _cef_request_context_t* request_context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: windowInfo; type: struct_byref_const
@@ -67,7 +71,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   DCHECK(settings);
   if (!settings)
     return NULL;
-  // Unverified params: client, url
+  // Unverified params: client, url, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -83,7 +87,8 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
       windowInfoObj,
       CefClientCToCpp::Wrap(client),
       CefString(url),
-      settingsObj);
+      settingsObj,
+      CefRequestContextCppToC::Unwrap(request_context));
 
   // Return type: refptr_same
   return CefBrowserCppToC::Wrap(_retval);
@@ -190,6 +195,22 @@ struct _cef_client_t* CEF_CALLBACK browser_host_get_client(
 
   // Return type: refptr_diff
   return CefClientCToCpp::Unwrap(_retval);
+}
+
+struct _cef_request_context_t* CEF_CALLBACK browser_host_get_request_context(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefRequestContext> _retval = CefBrowserHostCppToC::Get(
+      self)->GetRequestContext();
+
+  // Return type: refptr_same
+  return CefRequestContextCppToC::Wrap(_retval);
 }
 
 cef_string_userfree_t CEF_CALLBACK browser_host_get_dev_tools_url(
@@ -559,6 +580,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.get_opener_window_handle =
       browser_host_get_opener_window_handle;
   struct_.struct_.get_client = browser_host_get_client;
+  struct_.struct_.get_request_context = browser_host_get_request_context;
   struct_.struct_.get_dev_tools_url = browser_host_get_dev_tools_url;
   struct_.struct_.get_zoom_level = browser_host_get_zoom_level;
   struct_.struct_.set_zoom_level = browser_host_set_zoom_level;

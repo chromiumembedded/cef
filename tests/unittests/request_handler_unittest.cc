@@ -26,6 +26,40 @@ const char kNetNotifyMsg[] = "RequestHandlerTest.NetNotify";
 // Browser side.
 class NetNotifyTestHandler : public TestHandler {
  public:
+  class RequestContextHandler : public CefRequestContextHandler {
+   public:
+    explicit RequestContextHandler(NetNotifyTestHandler* handler)
+        : handler_(handler) {}
+
+    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+      EXPECT_TRUE(handler_);
+      EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+      if (url_.find(handler_->url1_) == 0)
+        handler_->got_get_cookie_manager1_.yes();
+      else if (url_.find(handler_->url2_) == 0)
+        handler_->got_get_cookie_manager2_.yes();
+      else
+        EXPECT_TRUE(false);  // Not reached
+
+      return handler_->cookie_manager_;
+    }
+
+    void SetURL(const std::string& url) {
+      url_ = url;
+    }
+
+    void Detach() {
+      handler_ = NULL;
+    }
+
+   private:
+    std::string url_;
+    NetNotifyTestHandler* handler_;
+
+    IMPLEMENT_REFCOUNTING(RequestContextHandler);
+  };
+
   NetNotifyTestHandler(CompletionState* completion_state,
                        NetNotifyTestType test_type,
                        bool same_origin)
@@ -52,12 +86,17 @@ class NetNotifyTestHandler : public TestHandler {
         "<body>Nav2</body>"
         "</html>", "text/html");
 
+    context_handler_ = new RequestContextHandler(this);
+    context_handler_->SetURL(url1_);
+
     // Create browser that loads the 1st URL.
-    CreateBrowser(url1_);
+    CreateBrowser(url1_,
+        CefRequestContext::CreateContext(context_handler_.get()));
   }
 
   virtual void RunTest() OVERRIDE {
     // Navigate to the 2nd URL.
+    context_handler_->SetURL(url2_);
     GetBrowser()->GetMainFrame()->LoadURL(url2_);
   }
 
@@ -92,22 +131,6 @@ class NetNotifyTestHandler : public TestHandler {
       EXPECT_TRUE(false);  // Not reached
 
     return TestHandler::GetResourceHandler(browser,  frame, request);
-  }
-
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& main_url) OVERRIDE {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-
-    const std::string& url = main_url;
-    if (url.find(url1_) == 0)
-      got_get_cookie_manager1_.yes();
-    else if (url.find(url2_) == 0)
-      got_get_cookie_manager2_.yes();
-    else
-      EXPECT_TRUE(false);  // Not reached
-
-    return cookie_manager_;
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -227,8 +250,10 @@ class NetNotifyTestHandler : public TestHandler {
       EXPECT_FALSE(got_process_message2_) << " browser " << browser_id;
     }
 
+    context_handler_->Detach();
+    context_handler_ = NULL;
     cookie_manager_ = NULL;
-
+    
     TestHandler::DestroyTest();
   }
 
@@ -236,6 +261,8 @@ class NetNotifyTestHandler : public TestHandler {
   bool same_origin_;
   std::string url1_;
   std::string url2_;
+
+  CefRefPtr<RequestContextHandler> context_handler_;
 
   CefRefPtr<CefCookieManager> cookie_manager_;
 

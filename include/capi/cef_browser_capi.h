@@ -265,6 +265,12 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
+  // Returns the request context for this browser.
+  ///
+  struct _cef_request_context_t* (CEF_CALLBACK *get_request_context)(
+      struct _cef_browser_host_t* self);
+
+  ///
   // Returns the DevTools URL for this browser. If |http_scheme| is true (1) the
   // returned URL will use the http scheme instead of the chrome-devtools
   // scheme. Remote debugging can be enabled by specifying the "remote-
@@ -433,21 +439,24 @@ typedef struct _cef_browser_host_t {
 ///
 // Create a new browser window using the window parameters specified by
 // |windowInfo|. All values will be copied internally and the actual window will
-// be created on the UI thread. This function can be called on any browser
-// process thread and will not block.
+// be created on the UI thread. If |request_context| is NULL the global request
+// context will be used. This function can be called on any browser process
+// thread and will not block.
 ///
 CEF_EXPORT int cef_browser_host_create_browser(
     const cef_window_info_t* windowInfo, struct _cef_client_t* client,
-    const cef_string_t* url, const struct _cef_browser_settings_t* settings);
+    const cef_string_t* url, const struct _cef_browser_settings_t* settings,
+    struct _cef_request_context_t* request_context);
 
 ///
 // Create a new browser window using the window parameters specified by
-// |windowInfo|. This function can only be called on the browser process UI
-// thread.
+// |windowInfo|. If |request_context| is NULL the global request context will be
+// used. This function can only be called on the browser process UI thread.
 ///
 CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     const cef_window_info_t* windowInfo, struct _cef_client_t* client,
-    const cef_string_t* url, const struct _cef_browser_settings_t* settings);
+    const cef_string_t* url, const struct _cef_browser_settings_t* settings,
+    struct _cef_request_context_t* request_context);
 
 
 #ifdef __cplusplus

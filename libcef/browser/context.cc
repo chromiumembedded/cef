@@ -21,6 +21,8 @@
 #include "base/synchronization/waitable_event.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
+#include "content/public/browser/notification_service.h"
+#include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/ui_base_switches.h"
@@ -284,46 +286,6 @@ bool CefContext::OnInitThread() {
   return (base::PlatformThread::CurrentId() == init_thread_id_);
 }
 
-CefRefPtr<CefBrowserHostImpl> CefContext::GetBrowserByRoutingID(
-    int render_process_id, int render_view_id) {
-  scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->GetBrowserInfo(render_process_id,
-                                                     render_view_id);
-  if (info.get()) {
-    CefRefPtr<CefBrowserHostImpl> browser = info->browser();
-    if (!browser.get()) {
-      LOG(WARNING) << "Found browser id " << info->browser_id() <<
-                      " but no browser object matching process id " <<
-                      render_process_id << " and view id " << render_view_id;
-    }
-    return browser;
-  }
-  return NULL;
-}
-
-CefRefPtr<CefApp> CefContext::application() const {
-  return main_delegate_->content_client()->application();
-}
-
-CefBrowserContext* CefContext::browser_context() const {
-  return main_delegate_->browser_client()->browser_main_parts()->
-      browser_context();
-}
-
-CefDevToolsDelegate* CefContext::devtools_delegate() const {
-  return main_delegate_->browser_client()->browser_main_parts()->
-      devtools_delegate();
-}
-
-scoped_ptr<net::ProxyConfigService> CefContext::proxy_config_service() const {
-  return main_delegate_->browser_client()->browser_main_parts()->
-      proxy_config_service();
-}
-
-PrefService* CefContext::pref_service() const {
-  return main_delegate_->browser_client()->browser_main_parts()->pref_service();
-}
-
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (shutting_down_)
@@ -339,8 +301,15 @@ void CefContext::OnContextInitialized() {
   // Register internal scheme handlers.
   scheme::RegisterInternalHandlers();
 
+  // Register for notifications.
+  registrar_.reset(new content::NotificationRegistrar());
+  registrar_->Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
+                  content::NotificationService::AllBrowserContextsAndSources());
+  registrar_->Add(this, content::NOTIFICATION_RENDERER_PROCESS_CLOSED,
+                  content::NotificationService::AllBrowserContextsAndSources());
+
   // Notify the handler.
-  CefRefPtr<CefApp> app = application();
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> handler =
         app->GetBrowserProcessHandler();
@@ -354,6 +323,8 @@ void CefContext::FinishShutdownOnUIThread(
   CEF_REQUIRE_UIT();
 
   CefContentBrowserClient::Get()->DestroyAllBrowsers();
+
+  registrar_.reset();
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
@@ -376,4 +347,17 @@ void CefContext::FinalizeShutdown() {
 
   main_runner_.reset(NULL);
   main_delegate_.reset(NULL);
+}
+
+void CefContext::Observe(
+    int type,
+    const content::NotificationSource& source,
+    const content::NotificationDetails& details) {
+  DCHECK(type == content::NOTIFICATION_RENDERER_PROCESS_TERMINATED ||
+         type == content::NOTIFICATION_RENDERER_PROCESS_CLOSED);
+  content::RenderProcessHost* rph =
+      content::Source<content::RenderProcessHost>(source).ptr();
+  DCHECK(rph);
+  CefContentBrowserClient::Get()->RemoveBrowserContextReference(
+      static_cast<CefBrowserContext*>(rph->GetBrowserContext()));
 }

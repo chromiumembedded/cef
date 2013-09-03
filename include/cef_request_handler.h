@@ -41,7 +41,6 @@
 #include "include/cef_auth_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
-#include "include/cef_cookie.h"
 #include "include/cef_frame.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
@@ -163,17 +162,6 @@ class CefRequestHandler : public virtual CefBase {
                               CefRefPtr<CefQuotaCallback> callback) {
     return false;
   }
-
-  ///
-  // Called on the IO thread to retrieve the cookie manager. |main_url| is the
-  // URL of the top-level frame. Cookies managers can be unique per browser or
-  // shared across multiple browsers. The global cookie manager will be used if
-  // this method returns NULL.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& main_url) { return NULL; }
 
   ///
   // Called on the UI thread to handle requests for URLs with an unknown

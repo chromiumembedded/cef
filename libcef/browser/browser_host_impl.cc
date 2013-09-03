@@ -18,10 +18,9 @@
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/url_request_context_getter.h"
-#include "libcef/browser/url_request_context_getter_proxy.h"
 #include "libcef/browser/web_contents_view_osr.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
@@ -57,21 +56,24 @@ class CreateBrowserHelper {
   CreateBrowserHelper(const CefWindowInfo& windowInfo,
                       CefRefPtr<CefClient> client,
                       const CefString& url,
-                      const CefBrowserSettings& settings)
+                      const CefBrowserSettings& settings,
+                      CefRefPtr<CefRequestContext> request_context)
                       : window_info_(windowInfo),
                         client_(client),
                         url_(url),
-                        settings_(settings) {}
+                        settings_(settings),
+                        request_context_(request_context) {}
 
   CefWindowInfo window_info_;
   CefRefPtr<CefClient> client_;
   CefString url_;
   CefBrowserSettings settings_;
+  CefRefPtr<CefRequestContext> request_context_;
 };
 
 void CreateBrowserWithHelper(CreateBrowserHelper* helper) {
   CefBrowserHost::CreateBrowserSync(helper->window_info_, helper->client_,
-      helper->url_, helper->settings_);
+      helper->url_, helper->settings_, helper->request_context_);
   delete helper;
 }
 
@@ -215,10 +217,12 @@ class CefRunFileDialogCallbackWrapper
 // -----------------------------------------------------------------------------
 
 // static
-bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
-                                   CefRefPtr<CefClient> client,
-                                   const CefString& url,
-                                   const CefBrowserSettings& settings) {
+bool CefBrowserHost::CreateBrowser(
+    const CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient> client,
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -248,7 +252,8 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
 
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
-      new CreateBrowserHelper(windowInfo, client, url, new_settings);
+      new CreateBrowserHelper(windowInfo, client, url, new_settings,
+                              request_context);
   CEF_POST_TASK(CEF_UIT, base::Bind(CreateBrowserWithHelper, helper));
 
   return true;
@@ -259,7 +264,8 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
     const CefString& url,
-    const CefBrowserSettings& settings) {
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -304,7 +310,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   DCHECK(!info->is_popup());
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::Create(windowInfo, new_settings, client, NULL, info,
-                                 NULL);
+                                 NULL, request_context);
   if (!url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
                      content::PAGE_TRANSITION_TYPED, std::string());
@@ -326,16 +332,27 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     CefRefPtr<CefClient> client,
     content::WebContents* web_contents,
     scoped_refptr<CefBrowserInfo> browser_info,
-    CefWindowHandle opener) {
+    CefWindowHandle opener,
+    CefRefPtr<CefRequestContext> request_context) {
   CEF_REQUIRE_UIT();
   DCHECK(browser_info.get());
 
   // If |opener| is non-NULL it must be a popup window.
   DCHECK(opener == NULL || browser_info->is_popup());
 
-  if (web_contents == NULL) {
+  if (!web_contents) {
+    CefBrowserContext* browser_context = NULL;
+    if (request_context.get()) {
+      CefRequestContextImpl* request_context_impl =
+          static_cast<CefRequestContextImpl*>(request_context.get());
+      browser_context = request_context_impl->GetOrCreateBrowserContext();
+    } else {
+      browser_context = CefContentBrowserClient::Get()->browser_context();
+    }
+    DCHECK(browser_context);
+
     content::WebContents::CreateParams create_params(
-        _Context->browser_context());
+        browser_context);
     web_contents = content::WebContents::Create(create_params);
   }
 
@@ -345,14 +362,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   if (!browser->IsWindowRenderingDisabled() &&
       !browser->PlatformCreateWindow()) {
     return NULL;
-  }
-
-  if (browser->IsWindowRenderingDisabled()) {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(
-            web_contents->GetRenderViewHost()->GetView());
-    if (view)
-      view->set_browser_impl(browser);
   }
 
   if (client.get()) {
@@ -417,28 +426,19 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByRoutingID(
     return GetBrowserForHost(render_view_host);
   } else {
     // Use the thread-safe approach.
-    return _Context->GetBrowserByRoutingID(render_process_id, render_view_id);
-  }
-}
-
-// static
-CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByChildID(
-      int render_process_id) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    // Use the non-thread-safe but potentially faster approach.
-    content::RenderWidgetHost::List widgets =
-        content::RenderWidgetHost::GetRenderWidgetHosts();
-    for (size_t i = 0; i < widgets.size(); ++i) {
-      if (widgets[i]->GetProcess()->GetID() == render_process_id &&
-          widgets[i]->IsRenderView()) {
-        return GetBrowserForHost(content::RenderViewHost::From(widgets[i]));
+    scoped_refptr<CefBrowserInfo> info =
+        CefContentBrowserClient::Get()->GetBrowserInfo(render_process_id,
+                                                       render_view_id);
+    if (info.get()) {
+      CefRefPtr<CefBrowserHostImpl> browser = info->browser();
+      if (!browser.get()) {
+        LOG(WARNING) << "Found browser id " << info->browser_id() <<
+                        " but no browser object matching process id " <<
+                        render_process_id << " and view id " << render_view_id;
       }
+      return browser;
     }
-
     return NULL;
-  } else {
-    // Use the thread-safe approach.
-    return _Context->GetBrowserByRoutingID(render_process_id, -1);
   }
 }
 
@@ -502,6 +502,10 @@ CefWindowHandle CefBrowserHostImpl::GetOpenerWindowHandle() {
 
 CefRefPtr<CefClient> CefBrowserHostImpl::GetClient() {
   return client_;
+}
+
+CefRefPtr<CefRequestContext> CefBrowserHostImpl::GetRequestContext() {
+  return request_context_;
 }
 
 CefString CefBrowserHostImpl::GetDevToolsURL(bool http_scheme) {
@@ -583,7 +587,8 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!web_contents())
     return;
 
-  CefBrowserContext* context = _Context->browser_context();
+  CefBrowserContext* context =
+      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
   if (!context)
     return;
 
@@ -1103,8 +1108,6 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   DetachAllFrames();
 
-  request_context_proxy_ = NULL;
-
   CefContentBrowserClient::Get()->RemoveBrowserInfo(browser_info_);
   browser_info_->set_browser(NULL);
 }
@@ -1119,17 +1122,6 @@ gfx::NativeView CefBrowserHostImpl::GetContentView() const {
 content::WebContents* CefBrowserHostImpl::GetWebContents() const {
   CEF_REQUIRE_UIT();
   return web_contents_.get();
-}
-
-net::URLRequestContextGetter* CefBrowserHostImpl::GetRequestContext() {
-  CEF_REQUIRE_UIT();
-  if (!request_context_proxy_) {
-    request_context_proxy_ =
-        new CefURLRequestContextGetterProxy(this,
-            static_cast<CefURLRequestContextGetter*>(
-                _Context->request_context().get()));
-  }
-  return request_context_proxy_.get();
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
@@ -1695,7 +1687,7 @@ void CefBrowserHostImpl::WebContentsCreated(
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
       pending_popup_info->window_info, pending_popup_info->settings,
-      pending_popup_info->client, new_contents, info, opener);
+      pending_popup_info->client, new_contents, info, opener, NULL);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -1774,7 +1766,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
       case content::MEDIA_ENUMERATE_DEVICES:
         // Get the default devices for the request.
         CefMediaCaptureDevicesDispatcher::GetInstance()->
-            GetDefaultDevices(_Context->pref_service(),
+            GetDefaultDevices(CefContentBrowserClient::Get()->pref_service(),
                               microphone_requested,
                               webcam_requested,
                               &devices);
@@ -1795,7 +1787,8 @@ void CefBrowserHostImpl::RenderViewCreated(
                                render_view_host->GetRoutingID());
 
   // Update the DevTools URLs, if any.
-  CefDevToolsDelegate* devtools_delegate = _Context->devtools_delegate();
+  CefDevToolsDelegate* devtools_delegate =
+      CefContentBrowserClient::Get()->devtools_delegate();
   if (devtools_delegate) {
     base::AutoLock lock_scope(state_lock_);
     devtools_url_http_ =
@@ -2096,6 +2089,10 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
 
+  CefBrowserContext* browser_context =
+      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
+  request_context_ = new CefRequestContextImpl(browser_context);
+
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                   content::Source<content::WebContents>(web_contents));
@@ -2118,6 +2115,14 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
+
+  if (IsWindowRenderingDisabled()) {
+    CefRenderWidgetHostViewOSR* view =
+        static_cast<CefRenderWidgetHostViewOSR*>(
+            web_contents->GetRenderViewHost()->GetView());
+    if (view)
+      view->set_browser_impl(this);
+  }
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(

@@ -171,14 +171,17 @@ void TestHandler::DestroyTest() {
     browser_->GetHost()->CloseBrowser(false);
 }
 
-void TestHandler::CreateBrowser(const CefString& url) {
+void TestHandler::CreateBrowser(
+    const CefString& url,
+    CefRefPtr<CefRequestContext> request_context) {
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
 #if defined(OS_WIN)
   windowInfo.SetAsPopup(NULL, "CefUnitTest");
   windowInfo.style |= WS_VISIBLE;
 #endif
-  CefBrowserHost::CreateBrowser(windowInfo, this, url, settings);
+  CefBrowserHost::CreateBrowser(windowInfo, this, url, settings,
+                                request_context);
 }
 
 void TestHandler::AddResource(const std::string& url,

@@ -17,8 +17,8 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
-#include "net/proxy/proxy_config_service.h"
-#include "net/url_request/url_request_context_getter.h"
+#include "content/public/browser/notification_observer.h"
+#include "content/public/browser/notification_registrar.h"
 
 namespace base {
 class WaitableEvent;
@@ -28,14 +28,12 @@ namespace content {
 class ContentMainRunner;
 }
 
-class CefBrowserContext;
 class CefBrowserHostImpl;
-class CefDevToolsDelegate;
 class CefMainDelegate;
 class CefTraceSubscriber;
-class PrefService;
 
-class CefContext : public CefBase {
+class CefContext : public CefBase,
+                   public content::NotificationObserver {
  public:
   typedef std::list<CefRefPtr<CefBrowserHostImpl> > BrowserList;
 
@@ -57,29 +55,11 @@ class CefContext : public CefBase {
   // Returns true if the context is shutting down.
   bool shutting_down() { return shutting_down_; }
 
-  CefRefPtr<CefBrowserHostImpl> GetBrowserByRoutingID(int render_process_id,
-                                                      int render_view_id);
-
-  // Retrieve the path at which cache data will be stored on disk.  If empty,
-  // cache data will be stored in-memory.
+  // Retrieve the path at which cache data will be stored on disk.
   const base::FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
-  CefRefPtr<CefApp> application() const;
-  CefBrowserContext* browser_context() const;
-  CefDevToolsDelegate* devtools_delegate() const;
-  PrefService* pref_service() const;
 
-  scoped_refptr<net::URLRequestContextGetter> request_context() const {
-    return request_context_;
-  }
-  void set_request_context(scoped_refptr<net::URLRequestContextGetter> context) {
-    request_context_ = context;
-  }
-
-  // Passes ownership.
-  scoped_ptr<net::ProxyConfigService> proxy_config_service() const;
-  
   CefTraceSubscriber* GetTraceSubscriber();
 
  private:
@@ -91,6 +71,11 @@ class CefContext : public CefBase {
 
   // Destroys the main runner and related objects.
   void FinalizeShutdown();
+
+  // NotificationObserver implementation.
+  virtual void Observe(int type,
+                       const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
 
   // Track context state.
   bool initialized_;
@@ -107,7 +92,8 @@ class CefContext : public CefBase {
   scoped_ptr<content::ContentMainRunner> main_runner_;
   scoped_ptr<CefTraceSubscriber> trace_subscriber_;
 
-  scoped_refptr<net::URLRequestContextGetter> request_context_;
+  // Only accessed on the UI Thread.
+  scoped_ptr<content::NotificationRegistrar> registrar_;
 
   IMPLEMENT_REFCOUNTING(CefContext);
   IMPLEMENT_LOCKING(CefContext);

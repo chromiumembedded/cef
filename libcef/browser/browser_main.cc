@@ -6,9 +6,9 @@
 
 #include <string>
 
-#include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_message_loop.h"
-#include "libcef/browser/context.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/common/net_resource_provider.h"
 
@@ -81,7 +81,8 @@ int CefBrowserMainParts::PreCreateThreads() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
-  browser_context_.reset(new CefBrowserContext());
+  // Create the global browser context.
+  global_browser_context_.reset(new CefBrowserContextImpl());
 
   // Initialize the proxy configuration service. This needs to occur before
   // CefURLRequestContextGetter::GetURLRequestContext() is called for the
@@ -92,7 +93,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 
   // Initialize the request context getter. This indirectly triggers a call
   // to CefURLRequestContextGetter::GetURLRequestContext() on the IO thread.
-  _Context->set_request_context(browser_context_->GetRequestContext());
+  global_request_context_ = global_browser_context_->GetRequestContext();
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
@@ -111,8 +112,13 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   if (devtools_delegate_)
     devtools_delegate_->Stop();
   pref_proxy_config_tracker_->DetachFromPrefService();
-  _Context->set_request_context(NULL);
-  browser_context_.reset();
+
+  // Only the global browser context should still exist.
+  DCHECK(browser_contexts_.empty());
+  browser_contexts_.clear();
+
+  global_request_context_ = NULL;
+  global_browser_context_.reset();
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
@@ -124,4 +130,20 @@ void CefBrowserMainParts::PostDestroyThreads() {
   }
 
   PlatformCleanup();
+}
+
+void CefBrowserMainParts::AddBrowserContext(CefBrowserContext* context) {
+  browser_contexts_.push_back(context);
+}
+
+void CefBrowserMainParts::RemoveBrowserContext(CefBrowserContext* context) {
+  ScopedVector<CefBrowserContext>::iterator it = browser_contexts_.begin();
+  for (; it != browser_contexts_.end(); ++it) {
+    if (*it == context) {
+      browser_contexts_.erase(it);
+      return;
+    }
+  }
+
+  NOTREACHED();
 }

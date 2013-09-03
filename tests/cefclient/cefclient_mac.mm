@@ -360,7 +360,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   }
 
   CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
-                                g_handler->GetStartupURL(), settings);
+                                g_handler->GetStartupURL(), settings, NULL);
 
   // Show the window.
   [mainWnd makeKeyAndOrderFront: nil];

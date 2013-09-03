@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_PROXY_H_
 #pragma once
 
+#include "include/cef_request_context_handler.h"
+
 #include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_context.h"
 
@@ -21,7 +23,7 @@ class CefURLRequestContextProxy : public net::URLRequestContext {
   explicit CefURLRequestContextProxy(net::URLRequestContextGetter* parent);
   virtual ~CefURLRequestContextProxy();
 
-  void Initialize(CefBrowserHostImpl* browser);
+  void Initialize(CefRefPtr<CefRequestContextHandler> handler);
 
   // We may try to delete this proxy multiple times if URLRequests are still
   // pending. Keep track of the number of tries so that they don't become

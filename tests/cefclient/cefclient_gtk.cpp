@@ -359,7 +359,7 @@ int main(int argc, char* argv[]) {
 
   CefBrowserHost::CreateBrowserSync(
       window_info, g_handler.get(),
-      g_handler->GetStartupURL(), browserSettings);
+      g_handler->GetStartupURL(), browserSettings, NULL);
 
   gtk_container_add(GTK_CONTAINER(window), vbox);
   gtk_widget_show_all(GTK_WIDGET(window));

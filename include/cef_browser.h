@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
+#include "include/cef_request_context.h"
 #include <vector>
 
 class CefBrowserHost;
@@ -224,26 +225,32 @@ class CefBrowserHost : public virtual CefBase {
   ///
   // Create a new browser window using the window parameters specified by
   // |windowInfo|. All values will be copied internally and the actual window
-  // will be created on the UI thread. This method can be called on any browser
-  // process thread and will not block.
+  // will be created on the UI thread. If |request_context| is empty the
+  // global request context will be used. This method can be called on any
+  // browser process thread and will not block.
   ///
-  /*--cef(optional_param=client,optional_param=url)--*/
+  /*--cef(optional_param=client,optional_param=url,
+          optional_param=request_context)--*/
   static bool CreateBrowser(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
                             const CefString& url,
-                            const CefBrowserSettings& settings);
+                            const CefBrowserSettings& settings,
+                            CefRefPtr<CefRequestContext> request_context);
 
   ///
   // Create a new browser window using the window parameters specified by
-  // |windowInfo|. This method can only be called on the browser process UI
+  // |windowInfo|. If |request_context| is empty the global request context
+  // will be used. This method can only be called on the browser process UI
   // thread.
   ///
-  /*--cef(optional_param=client,optional_param=url)--*/
+  /*--cef(optional_param=client,optional_param=url,
+          optional_param=request_context)--*/
   static CefRefPtr<CefBrowser> CreateBrowserSync(
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
       const CefString& url,
-      const CefBrowserSettings& settings);
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefRequestContext> request_context);
 
   ///
   // Returns the hosted browser object.
@@ -299,6 +306,12 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefClient> GetClient() =0;
+
+  ///
+  // Returns the request context for this browser.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefRequestContext> GetRequestContext() =0;
 
   ///
   // Returns the DevTools URL for this browser. If |http_scheme| is true the

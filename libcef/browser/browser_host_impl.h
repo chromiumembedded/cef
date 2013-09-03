@@ -29,7 +29,6 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/file_chooser_params.h"
-#include "net/url_request/url_request_context_getter.h"
 
 namespace content {
 struct NativeWebKeyboardEvent;
@@ -87,7 +86,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
-      CefWindowHandle opener);
+      CefWindowHandle opener,
+      CefRefPtr<CefRequestContext> request_context);
 
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForHost(
@@ -101,11 +101,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the browser associated with the specified routing IDs.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserByRoutingID(
       int render_process_id, int render_view_id);
-  // Returns the first browser associated with the specified child process ID.
-  // There may be multiple browsers using the same render process so this method
-  // should be used with caution.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserByChildID(
-      int render_process_id);
 
   // Returns true if window rendering is disabled in CefWindowInfo.
   static bool IsWindowRenderingDisabled(const CefWindowInfo& info);
@@ -118,6 +113,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
+  virtual CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
   virtual CefString GetDevToolsURL(bool http_scheme) OVERRIDE;
   virtual double GetZoomLevel() OVERRIDE;
   virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
@@ -189,9 +185,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Returns a pointer to the WebContents.
   content::WebContents* GetWebContents() const;
-
-  // Returns the browser-specific request context.
-  net::URLRequestContextGetter* GetRequestContext();
 
   // Returns the frame associated with the specified URLRequest.
   CefRefPtr<CefFrame> GetFrameForRequest(net::URLRequest* request);
@@ -487,6 +480,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   scoped_ptr<content::WebContents> web_contents_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
+  CefRefPtr<CefRequestContext> request_context_;
 
   // Pending popup information. Access must be protected by
   // |pending_popup_info_lock_|.
@@ -540,9 +534,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for managing notification subscriptions.
   scoped_ptr<content::NotificationRegistrar> registrar_;
-
-  // Used for proxying cookie requests.
-  scoped_refptr<net::URLRequestContextGetter> request_context_proxy_;
 
   // Manages response registrations.
   scoped_ptr<CefResponseManager> response_manager_;

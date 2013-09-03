@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
+#include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -21,17 +22,19 @@
 
 bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client, const CefString& url,
-    const CefBrowserSettings& settings) {
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: client, url
+  // Unverified params: client, url, request_context
 
   // Execute
   int _retval = cef_browser_host_create_browser(
       &windowInfo,
       CefClientCppToC::Wrap(client),
       url.GetStruct(),
-      &settings);
+      &settings,
+      CefRequestContextCToCpp::Unwrap(request_context));
 
   // Return type: bool
   return _retval?true:false;
@@ -39,17 +42,19 @@ bool CefBrowserHost::CreateBrowser(const CefWindowInfo& windowInfo,
 
 CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     const CefWindowInfo& windowInfo, CefRefPtr<CefClient> client,
-    const CefString& url, const CefBrowserSettings& settings) {
+    const CefString& url, const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: client, url
+  // Unverified params: client, url, request_context
 
   // Execute
   cef_browser_t* _retval = cef_browser_host_create_browser_sync(
       &windowInfo,
       CefClientCppToC::Wrap(client),
       url.GetStruct(),
-      &settings);
+      &settings,
+      CefRequestContextCToCpp::Unwrap(request_context));
 
   // Return type: refptr_same
   return CefBrowserCToCpp::Wrap(_retval);
@@ -140,6 +145,19 @@ CefRefPtr<CefClient> CefBrowserHostCToCpp::GetClient() {
 
   // Return type: refptr_diff
   return CefClientCppToC::Unwrap(_retval);
+}
+
+CefRefPtr<CefRequestContext> CefBrowserHostCToCpp::GetRequestContext() {
+  if (CEF_MEMBER_MISSING(struct_, get_request_context))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_request_context_t* _retval = struct_->get_request_context(struct_);
+
+  // Return type: refptr_same
+  return CefRequestContextCToCpp::Wrap(_retval);
 }
 
 CefString CefBrowserHostCToCpp::GetDevToolsURL(bool http_scheme) {

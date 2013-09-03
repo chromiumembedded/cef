@@ -149,16 +149,6 @@ typedef struct _cef_request_handler_t {
       int64 new_size, struct _cef_quota_callback_t* callback);
 
   ///
-  // Called on the IO thread to retrieve the cookie manager. |main_url| is the
-  // URL of the top-level frame. Cookies managers can be unique per browser or
-  // shared across multiple browsers. The global cookie manager will be used if
-  // this function returns NULL.
-  ///
-  struct _cef_cookie_manager_t* (CEF_CALLBACK *get_cookie_manager)(
-      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
-      const cef_string_t* main_url);
-
-  ///
   // Called on the UI thread to handle requests for URLs with an unknown
   // protocol component. Set |allow_os_execution| to true (1) to attempt
   // execution via the registered OS protocol handler, if any. SECURITY WARNING:

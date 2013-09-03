@@ -659,6 +659,41 @@ const char* kCookieJSUrl2 = "http://tests/cookie2.html";
 
 class CookieTestJSHandler : public TestHandler {
  public:
+  class RequestContextHandler : public CefRequestContextHandler {
+   public:
+    explicit RequestContextHandler(CookieTestJSHandler* handler)
+        : handler_(handler) {}
+
+    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+      EXPECT_TRUE(handler_);
+      EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+      if (url_ == kCookieJSUrl1) {
+        // Return the first cookie manager.
+        handler_->got_cookie_manager1_.yes();
+        return handler_->manager1_;
+      } else {
+        // Return the second cookie manager.
+        handler_->got_cookie_manager2_.yes();
+        return handler_->manager2_;
+      }
+    }
+
+    void SetURL(const std::string& url) {
+      url_ = url;
+    }
+
+    void Detach() {
+      handler_ = NULL;
+    }
+
+   private:
+    std::string url_;
+    CookieTestJSHandler* handler_;
+
+    IMPLEMENT_REFCOUNTING(RequestContextHandler);
+  };
+
   CookieTestJSHandler() {}
 
   virtual void RunTest() OVERRIDE {
@@ -682,8 +717,12 @@ class CookieTestJSHandler : public TestHandler {
         "</head><body>COOKIE TEST2</body></html>";
     AddResource(kCookieJSUrl2, page, "text/html");
 
+    context_handler_ = new RequestContextHandler(this);
+    context_handler_->SetURL(kCookieJSUrl1);
+
     // Create the browser
-    CreateBrowser(kCookieJSUrl1);
+    CreateBrowser(kCookieJSUrl1,
+        CefRequestContext::CreateContext(context_handler_.get()));
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -695,6 +734,7 @@ class CookieTestJSHandler : public TestHandler {
       VerifyCookie(manager1_, url, "name1", "value1", got_cookie1_);
 
       // Go to the next URL
+      context_handler_->SetURL(kCookieJSUrl2);
       frame->LoadURL(kCookieJSUrl2);
     } else {
       got_load_end2_.yes();
@@ -704,18 +744,11 @@ class CookieTestJSHandler : public TestHandler {
     }
   }
 
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& main_url) OVERRIDE {
-    if (main_url == kCookieJSUrl1) {
-      // Return the first cookie manager.
-      got_cookie_manager1_.yes();
-      return manager1_;
-    } else {
-      // Return the second cookie manager.
-      got_cookie_manager2_.yes();
-      return manager2_;
-    }
+  virtual void DestroyTest() OVERRIDE {
+    context_handler_->Detach();
+    context_handler_ = NULL;
+
+    TestHandler::DestroyTest();
   }
 
   // Verify that the cookie was set successfully.
@@ -735,6 +768,8 @@ class CookieTestJSHandler : public TestHandler {
       callback.yes();
     }
   }
+
+  CefRefPtr<RequestContextHandler> context_handler_;
 
   CefRefPtr<CefCookieManager> manager1_;
   CefRefPtr<CefCookieManager> manager2_;
@@ -880,6 +915,41 @@ class CookieTestSchemeHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(SchemeHandlerFactory);
   };
 
+  class RequestContextHandler : public CefRequestContextHandler {
+   public:
+    explicit RequestContextHandler(CookieTestSchemeHandler* handler)
+        : handler_(handler) {}
+
+    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+      EXPECT_TRUE(handler_);
+      EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+      if (url_ == handler_->url1_) {
+        // Return the first cookie manager.
+        handler_->got_cookie_manager1_.yes();
+        return handler_->manager1_;
+      } else {
+        // Return the second cookie manager.
+        handler_->got_cookie_manager2_.yes();
+        return handler_->manager2_;
+      }
+    }
+
+    void SetURL(const std::string& url) {
+      url_ = url;
+    }
+
+    void Detach() {
+      handler_ = NULL;
+    }
+
+   private:
+    std::string url_;
+    CookieTestSchemeHandler* handler_;
+
+    IMPLEMENT_REFCOUNTING(RequestContextHandler);
+  };
+
   CookieTestSchemeHandler(const std::string& scheme) : scheme_(scheme) {
     url1_ = scheme + "://cookie-tests/cookie1.html";
     url2_ = scheme + "://cookie-tests/cookie2.html";
@@ -905,8 +975,12 @@ class CookieTestSchemeHandler : public TestHandler {
     CefRegisterSchemeHandlerFactory(scheme_, "cookie-tests",
         new SchemeHandlerFactory(this));
 
+    context_handler_ = new RequestContextHandler(this);
+    context_handler_->SetURL(url1_);
+
     // Create the browser
-    CreateBrowser(url1_);
+    CreateBrowser(url1_,
+        CefRequestContext::CreateContext(context_handler_.get()));
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -918,12 +992,14 @@ class CookieTestSchemeHandler : public TestHandler {
       VerifyCookie(manager1_, url, "name1", "value1", got_cookie1_);
 
       // Go to the next URL
+      context_handler_->SetURL(url2_);
       frame->LoadURL(url2_);
     } else if (url == url2_) {
       got_load_end2_.yes();
       VerifyCookie(manager2_, url, "name2", "value2", got_cookie2_);
 
       // Go to the next URL
+      context_handler_->SetURL(url3_);
       frame->LoadURL(url3_);
     } else {
       got_load_end3_.yes();
@@ -936,19 +1012,12 @@ class CookieTestSchemeHandler : public TestHandler {
     }
   }
 
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& main_url) OVERRIDE {
-    if (main_url == url1_) {
-      // Return the first cookie manager.
-      got_cookie_manager1_.yes();
-      return manager1_;
-    } else {
-      // Return the second cookie manager.
-      got_cookie_manager2_.yes();
-      return manager2_;
-    }
-  }
+   virtual void DestroyTest() OVERRIDE {
+     context_handler_->Detach();
+     context_handler_ = NULL;
+
+     TestHandler::DestroyTest();
+   }
 
   // Verify that the cookie was set successfully.
   void VerifyCookie(CefRefPtr<CefCookieManager> manager,
@@ -972,6 +1041,8 @@ class CookieTestSchemeHandler : public TestHandler {
   std::string url1_;
   std::string url2_;
   std::string url3_;
+
+  CefRefPtr<RequestContextHandler> context_handler_;
 
   CefRefPtr<CefCookieManager> manager1_;
   CefRefPtr<CefCookieManager> manager2_;

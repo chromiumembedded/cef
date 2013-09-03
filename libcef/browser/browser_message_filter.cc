@@ -12,6 +12,7 @@
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/content_client.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/compiler_specific.h"
@@ -61,7 +62,7 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
     CefProcessHostMsg_GetNewRenderThreadInfo_Params* params) {
   GetCrossOriginWhitelistEntries(&params->cross_origin_whitelist_entries);
 
-  CefRefPtr<CefApp> app = _Context->application();
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> handler =
         app->GetBrowserProcessHandler();

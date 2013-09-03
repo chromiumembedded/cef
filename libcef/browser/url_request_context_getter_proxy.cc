@@ -8,12 +8,11 @@
 #include "libcef/browser/url_request_context_proxy.h"
 
 CefURLRequestContextGetterProxy::CefURLRequestContextGetterProxy(
-    CefBrowserHostImpl* browser,
+    CefRefPtr<CefRequestContextHandler> handler,
     CefURLRequestContextGetter* parent)
-    : browser_(browser),
+    : handler_(handler),
       parent_(parent),
       context_proxy_(NULL) {
-  DCHECK(browser);
   DCHECK(parent);
 }
 
@@ -28,7 +27,7 @@ net::URLRequestContext*
   CEF_REQUIRE_IOT();
   if (!context_proxy_) {
     context_proxy_ = parent_->CreateURLRequestContextProxy();
-    context_proxy_->Initialize(browser_);
+    context_proxy_->Initialize(handler_);
   }
   return context_proxy_;
 }
@@ -36,4 +35,8 @@ net::URLRequestContext*
 scoped_refptr<base::SingleThreadTaskRunner>
     CefURLRequestContextGetterProxy::GetNetworkTaskRunner() const {
   return parent_->GetNetworkTaskRunner();
+}
+
+net::HostResolver* CefURLRequestContextGetterProxy::GetHostResolver() const {
+  return parent_->host_resolver();
 }

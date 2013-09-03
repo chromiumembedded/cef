@@ -329,7 +329,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       // Creat the new child browser window
       CefBrowserHost::CreateBrowser(info, g_handler.get(),
-          g_handler->GetStartupURL(), settings);
+          g_handler->GetStartupURL(), settings, NULL);
 
       return 0;
     }

@@ -170,7 +170,8 @@ class TestHandler : public CefClient,
   // will be signaled.
   virtual void DestroyTest();
 
-  void CreateBrowser(const CefString& url);
+  void CreateBrowser(const CefString& url,
+                     CefRefPtr<CefRequestContext> request_context = NULL);
 
   void AddResource(const std::string& url,
                    const std::string& content,

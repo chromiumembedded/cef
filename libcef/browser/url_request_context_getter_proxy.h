@@ -6,16 +6,21 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_GETTER_PROXY_H_
 #pragma once
 
+#include "include/cef_request_context_handler.h"
+
 #include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_context_getter.h"
 
-class CefBrowserHostImpl;
 class CefURLRequestContextGetter;
 class CefURLRequestContextProxy;
 
+namespace net {
+class HostResolver;
+}
+
 class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
  public:
-  CefURLRequestContextGetterProxy(CefBrowserHostImpl* browser,
+  CefURLRequestContextGetterProxy(CefRefPtr<CefRequestContextHandler> handler,
                                   CefURLRequestContextGetter* parent);
   virtual ~CefURLRequestContextGetterProxy();
 
@@ -24,8 +29,12 @@ class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
   virtual scoped_refptr<base::SingleThreadTaskRunner>
       GetNetworkTaskRunner() const OVERRIDE;
 
+  net::HostResolver* GetHostResolver() const;
+
+  CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
+
  private:
-  CefBrowserHostImpl* browser_;
+  CefRefPtr<CefRequestContextHandler> handler_;
   scoped_refptr<CefURLRequestContextGetter> parent_;
 
   // The |context_proxy_| object is owned by |parent_|.

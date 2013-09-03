@@ -19,10 +19,10 @@ namespace {
 
 class CefCookieStoreProxy : public net::CookieStore {
  public:
-  explicit CefCookieStoreProxy(CefBrowserHostImpl* browser,
-                               net::URLRequestContext* parent)
+  CefCookieStoreProxy(net::URLRequestContext* parent,
+                      CefRefPtr<CefRequestContextHandler> handler)
       : parent_(parent),
-        browser_(browser) {
+        handler_(handler) {
   }
   virtual ~CefCookieStoreProxy() {
     CEF_REQUIRE_IOT();
@@ -79,20 +79,14 @@ class CefCookieStoreProxy : public net::CookieStore {
 
     scoped_refptr<net::CookieStore> cookie_store;
 
-    CefRefPtr<CefClient> client = browser_->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        // Get the manager from the handler.
-        CefRefPtr<CefCookieManager> manager =
-            handler->GetCookieManager(browser_.get(),
-                                      browser_->GetLoadingURL().spec());
-        if (manager.get()) {
-          cookie_store =
-            reinterpret_cast<CefCookieManagerImpl*>(
-                manager.get())->cookie_monster();
-          DCHECK(cookie_store);
-        }
+    if (handler_.get()) {
+      // Get the manager from the handler.
+      CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
+      if (manager.get()) {
+        cookie_store =
+          reinterpret_cast<CefCookieManagerImpl*>(
+              manager.get())->cookie_monster();
+        DCHECK(cookie_store);
       }
     }
 
@@ -107,7 +101,7 @@ class CefCookieStoreProxy : public net::CookieStore {
 
   // This pointer is guaranteed by the CefRequestContextProxy object.
   net::URLRequestContext* parent_;
-  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefRefPtr<CefRequestContextHandler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CefCookieStoreProxy);
 };
@@ -125,13 +119,14 @@ CefURLRequestContextProxy::~CefURLRequestContextProxy() {
   CEF_REQUIRE_IOT();
 }
 
-void CefURLRequestContextProxy::Initialize(CefBrowserHostImpl* browser) {
+void CefURLRequestContextProxy::Initialize(
+    CefRefPtr<CefRequestContextHandler> handler) {
   CEF_REQUIRE_IOT();
 
   net::URLRequestContext* context = parent_->GetURLRequestContext();
 
   // Cookie store that proxies to the browser implementation.
-  cookie_store_proxy_ = new CefCookieStoreProxy(browser, context);
+  cookie_store_proxy_ = new CefCookieStoreProxy(context, handler);
   set_cookie_store(cookie_store_proxy_);
 
   // All other values refer to the parent request context.

@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
@@ -107,7 +108,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
             NULL,
             url_request_context_.get(),
             url_request_context_->network_delegate(),
-            _Context->proxy_config_service().release(),
+            CefContentBrowserClient::Get()->proxy_config_service().release(),
             command_line));
     storage_->set_proxy_service(system_proxy_service.release());
 

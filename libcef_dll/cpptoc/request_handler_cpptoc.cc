@@ -15,7 +15,6 @@
 #include "libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
-#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -203,33 +202,6 @@ int CEF_CALLBACK request_handler_on_quota_request(
   return _retval;
 }
 
-cef_cookie_manager_t* CEF_CALLBACK request_handler_get_cookie_manager(
-    struct _cef_request_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* main_url) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return NULL;
-  // Verify param: main_url; type: string_byref_const
-  DCHECK(main_url);
-  if (!main_url)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefCookieManager> _retval = CefRequestHandlerCppToC::Get(
-      self)->GetCookieManager(
-      CefBrowserCToCpp::Wrap(browser),
-      CefString(main_url));
-
-  // Return type: refptr_diff
-  return CefCookieManagerCToCpp::Unwrap(_retval);
-}
-
 void CEF_CALLBACK request_handler_on_protocol_execution(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, int* allow_os_execution) {
@@ -336,7 +308,6 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_resource_redirect = request_handler_on_resource_redirect;
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;
   struct_.struct_.on_quota_request = request_handler_on_quota_request;
-  struct_.struct_.get_cookie_manager = request_handler_get_cookie_manager;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
   struct_.struct_.on_before_plugin_load = request_handler_on_before_plugin_load;
   struct_.struct_.on_certificate_error = request_handler_on_certificate_error;

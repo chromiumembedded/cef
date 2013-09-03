@@ -49,8 +49,6 @@ class CefRequestHandlerCToCpp
   virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
       const CefString& origin_url, int64 new_size,
       CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
-  virtual CefRefPtr<CefCookieManager> GetCookieManager(
-      CefRefPtr<CefBrowser> browser, const CefString& main_url) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
       const CefString& url, bool& allow_os_execution) OVERRIDE;
   virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,

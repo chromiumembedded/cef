@@ -9,6 +9,7 @@
 #include "include/cef_scheme.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/resource_request_job.h"
 #include "libcef/browser/scheme_handler.h"
@@ -195,7 +196,8 @@ class CefUrlRequestManager {
  private:
   net::URLRequestJobFactoryImpl* GetJobFactoryImpl() {
     return static_cast<CefURLRequestContextGetter*>(
-        _Context->request_context().get())->job_factory_impl();
+        CefContentBrowserClient::Get()->request_context().get())->
+            job_factory_impl();
   }
 
   // Add or remove the protocol handler if necessary. |scheme| will already be

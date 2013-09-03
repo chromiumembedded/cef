@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_context_impl.h"
 
 #include <map>
 
@@ -157,7 +157,7 @@ class CefGeolocationPermissionContext
 
 }  // namespace
 
-class CefBrowserContext::CefResourceContext : public content::ResourceContext {
+class CefBrowserContextImpl::CefResourceContext : public content::ResourceContext {
  public:
   CefResourceContext() : getter_(NULL) {}
   virtual ~CefResourceContext() {}
@@ -188,11 +188,11 @@ class CefBrowserContext::CefResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
 };
 
-CefBrowserContext::CefBrowserContext()
+CefBrowserContextImpl::CefBrowserContextImpl()
     : resource_context_(new CefResourceContext) {
 }
 
-CefBrowserContext::~CefBrowserContext() {
+CefBrowserContextImpl::~CefBrowserContextImpl() {
   // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
   if (download_manager_delegate_.get())
@@ -204,16 +204,16 @@ CefBrowserContext::~CefBrowserContext() {
   }
 }
 
-base::FilePath CefBrowserContext::GetPath() const {
+base::FilePath CefBrowserContextImpl::GetPath() const {
   return _Context->cache_path();
 }
 
-bool CefBrowserContext::IsOffTheRecord() const {
+bool CefBrowserContextImpl::IsOffTheRecord() const {
   return false;
 }
 
 content::DownloadManagerDelegate*
-    CefBrowserContext::GetDownloadManagerDelegate() {
+    CefBrowserContextImpl::GetDownloadManagerDelegate() {
   DCHECK(!download_manager_delegate_.get());
 
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
@@ -221,40 +221,36 @@ content::DownloadManagerDelegate*
   return download_manager_delegate_.get();
 }
 
-net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
+net::URLRequestContextGetter* CefBrowserContextImpl::GetRequestContext() {
   CEF_REQUIRE_UIT();
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::GetRequestContextForRenderProcess(
+    CefBrowserContextImpl::GetRequestContextForRenderProcess(
         int renderer_child_id) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserByChildID(renderer_child_id);
-  if (browser.get())
-    return browser->GetRequestContext();
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::GetMediaRequestContext() {
+    CefBrowserContextImpl::GetMediaRequestContext() {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::GetMediaRequestContextForRenderProcess(
+    CefBrowserContextImpl::GetMediaRequestContextForRenderProcess(
         int renderer_child_id)  {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::GetMediaRequestContextForStoragePartition(
+    CefBrowserContextImpl::GetMediaRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory) {
   return GetRequestContext();
 }
 
-void CefBrowserContext::RequestMIDISysExPermission(
+void CefBrowserContextImpl::RequestMIDISysExPermission(
     int render_process_id,
     int render_view_id,
     const GURL& requesting_frame,
@@ -263,12 +259,12 @@ void CefBrowserContext::RequestMIDISysExPermission(
   callback.Run(false);
 }
 
-content::ResourceContext* CefBrowserContext::GetResourceContext() {
+content::ResourceContext* CefBrowserContextImpl::GetResourceContext() {
   return resource_context_.get();
 }
 
 content::GeolocationPermissionContext*
-    CefBrowserContext::GetGeolocationPermissionContext() {
+    CefBrowserContextImpl::GetGeolocationPermissionContext() {
   if (!geolocation_permission_context_) {
     geolocation_permission_context_ =
         new CefGeolocationPermissionContext();
@@ -276,11 +272,11 @@ content::GeolocationPermissionContext*
   return geolocation_permission_context_;
 }
 
-quota::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
+quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-net::URLRequestContextGetter* CefBrowserContext::CreateRequestContext(
+net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers) {
   DCHECK(!url_request_getter_);
   url_request_getter_ = new CefURLRequestContextGetter(
@@ -292,7 +288,7 @@ net::URLRequestContextGetter* CefBrowserContext::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::CreateRequestContextForStoragePartition(
+    CefBrowserContextImpl::CreateRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory,
         content::ProtocolHandlerMap* protocol_handlers) {

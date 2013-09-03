@@ -845,7 +845,7 @@ class OSRTestHandler : public TestHandler,
 #endif
     if (test_type_ ==  OSR_TEST_TRANSPARENCY)
       windowInfo.SetTransparentPainting(TRUE);
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings);
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
   }
 
   bool IsFullRepaint(const CefRect& rc, int width = kOsrWidth,

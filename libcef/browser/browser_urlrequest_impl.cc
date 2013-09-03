@@ -7,7 +7,7 @@
 #include <string>
 
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/context.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_user_data.h"
 #include "libcef/common/http_header_utils.h"
@@ -119,7 +119,8 @@ class CefBrowserURLRequest::Context
 
     fetcher_.reset(net::URLFetcher::Create(url, request_type,
                                            fetcher_delegate_.get()));
-    fetcher_->SetRequestContext(_Context->request_context());
+    fetcher_->SetRequestContext(
+        CefContentBrowserClient::Get()->request_context());
 
     CefRequest::HeaderMap headerMap;
     request_->GetHeaderMap(headerMap);
