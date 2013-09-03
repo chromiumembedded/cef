@@ -151,7 +151,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   if (process_type.empty()) {
     // In the browser process. Populate the global command-line object.
-    const CefSettings& settings = _Context->settings();
+    const CefSettings& settings = CefContext::Get()->settings();
 
     if (settings.command_line_args_disabled) {
       // Remove any existing command-line arguments.
@@ -355,7 +355,7 @@ int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
   if (process_type.empty()) {
-    const CefSettings& settings = _Context->settings();
+    const CefSettings& settings = CefContext::Get()->settings();
     if (!settings.multi_threaded_message_loop) {
       // Use our own browser process runner.
       browser_runner_.reset(content::BrowserMainRunner::Create());

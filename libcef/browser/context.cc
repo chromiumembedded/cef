@@ -36,9 +36,24 @@
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
-// Global CefContext pointer
-CefRefPtr<CefContext> _Context;
+namespace {
 
+CefContext* g_context = NULL;
+
+// Force shutdown when the process terminates if a context currently exists and
+// CefShutdown() has not been explicitly called.
+class CefForceShutdown {
+ public:
+   ~CefForceShutdown() {
+     if (g_context) {
+       g_context->Shutdown();
+       delete g_context;
+       g_context = NULL;
+     }
+   }
+} g_force_shutdown;
+
+}  // namespace
 
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application) {
@@ -79,7 +94,7 @@ bool CefInitialize(const CefMainArgs& args,
                    const CefSettings& settings,
                    CefRefPtr<CefApp> application) {
   // Return true if the global context already exists.
-  if (_Context.get())
+  if (g_context)
     return true;
 
   if (settings.size != sizeof(cef_settings_t)) {
@@ -88,10 +103,10 @@ bool CefInitialize(const CefMainArgs& args,
   }
 
   // Create the new global context object.
-  _Context = new CefContext();
+  g_context = new CefContext();
 
   // Initialize the global context.
-  return _Context->Initialize(args, settings, application);
+  return g_context->Initialize(args, settings, application);
 }
 
 void CefShutdown() {
@@ -102,16 +117,17 @@ void CefShutdown() {
   }
 
   // Must always be called on the same thread as Initialize.
-  if (!_Context->OnInitThread()) {
+  if (!g_context->OnInitThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
 
   // Shut down the global context. This will block until shutdown is complete.
-  _Context->Shutdown();
+  g_context->Shutdown();
 
   // Delete the global context object.
-  _Context = NULL;
+  delete g_context;
+  g_context = NULL;
 }
 
 void CefDoMessageLoopWork() {
@@ -122,7 +138,7 @@ void CefDoMessageLoopWork() {
   }
 
   // Must always be called on the same thread as Initialize.
-  if (!_Context->OnInitThread()) {
+  if (!g_context->OnInitThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -138,7 +154,7 @@ void CefRunMessageLoop() {
   }
 
   // Must always be called on the same thread as Initialize.
-  if (!_Context->OnInitThread()) {
+  if (!g_context->OnInitThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -154,7 +170,7 @@ void CefQuitMessageLoop() {
   }
 
   // Must always be called on the same thread as Initialize.
-  if (!_Context->OnInitThread()) {
+  if (!g_context->OnInitThread()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -187,8 +203,11 @@ CefContext::CefContext()
 }
 
 CefContext::~CefContext() {
-  if (!shutting_down_)
-    Shutdown();
+}
+
+// static
+CefContext* CefContext::Get() {
+  return g_context;
 }
 
 bool CefContext::Initialize(const CefMainArgs& args,
@@ -249,7 +268,8 @@ bool CefContext::Initialize(const CefMainArgs& args,
   initialized_ = true;
 
   // Continue initialization on the UI thread.
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefContext::OnContextInitialized, this));
+  CEF_POST_TASK(CEF_UIT,
+      base::Bind(&CefContext::OnContextInitialized, base::Unretained(this)));
 
   return true;
 }
@@ -267,7 +287,8 @@ void CefContext::Shutdown() {
 
     // Finish shutdown on the UI thread.
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefContext::FinishShutdownOnUIThread, this,
+        base::Bind(&CefContext::FinishShutdownOnUIThread,
+                   base::Unretained(this),
                    &uithread_shutdown_event));
 
     /// Block until UI thread shutdown is complete.

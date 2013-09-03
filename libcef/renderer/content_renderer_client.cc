@@ -678,6 +678,6 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   // this task will only execute when running in multi-threaded message loop
   // mode (because otherwise the UI message loop has already stopped). Therefore
   // we need to explicitly delete the object when not running in this mode.
-  if (!_Context->settings().multi_threaded_message_loop)
+  if (!CefContext::Get()->settings().multi_threaded_message_loop)
     delete host;
 }

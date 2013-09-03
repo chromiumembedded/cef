@@ -77,9 +77,9 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
   if (!url_request_context_.get()) {
-    const base::FilePath& cache_path = _Context->cache_path();
+    const base::FilePath& cache_path = CefContext::Get()->cache_path();
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-    const CefSettings& settings = _Context->settings();
+    const CefSettings& settings = CefContext::Get()->settings();
 
     url_request_context_.reset(new net::URLRequestContext());
     storage_.reset(
@@ -290,7 +290,7 @@ void CefURLRequestContextGetter::ReleaseURLRequestContextProxy(
 
   // Don't do anything if we're currently shutting down. The proxy objects will
   // be deleted when this object is destroyed.
-  if (_Context->shutting_down())
+  if (CefContext::Get()->shutting_down())
     return;
 
   if (proxy->url_requests()->size() == 0) {

@@ -23,7 +23,7 @@ bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
     return false;
   }
 
-  CefTraceSubscriber* subscriber = _Context->GetTraceSubscriber();
+  CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
   if (!subscriber)
     return false;
 
@@ -41,7 +41,7 @@ bool CefGetTraceBufferPercentFullAsync() {
     return false;
   }
 
-  CefTraceSubscriber* subscriber = _Context->GetTraceSubscriber();
+  CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
   if (!subscriber)
     return false;
 
@@ -59,7 +59,7 @@ bool CefEndTracingAsync() {
     return false;
   }
 
-  CefTraceSubscriber* subscriber = _Context->GetTraceSubscriber();
+  CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
   if (!subscriber)
     return false;
 

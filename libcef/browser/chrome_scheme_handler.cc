@@ -297,7 +297,7 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("USERAGENT", content::GetUserAgent(GURL()));
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
-    parser.Add("CACHEPATH", CefString(_Context->cache_path().value()));
+    parser.Add("CACHEPATH", CefString(CefContext::Get()->cache_path().value()));
 
     std::string tmpl = piece.as_string();
     parser.Parse(&tmpl);
@@ -632,7 +632,7 @@ void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
         CefString(), std::vector<CefString>(),
         new Callback(frame, contents.Pass()));
   } else if (action == "getKnownCategories") {
-    _Context->GetTraceSubscriber()->GetKnownCategoriesAsync(
+    CefContext::Get()->GetTraceSubscriber()->GetKnownCategoriesAsync(
         base::Bind(OnKnownCategoriesCollected, frame));
   } else {
     NOTREACHED() << "Unknown trace action: " << action.c_str();

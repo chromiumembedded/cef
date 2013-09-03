@@ -11,7 +11,6 @@
 #include <string>
 
 #include "include/cef_app.h"
-#include "include/cef_base.h"
 
 #include "base/files/file_path.h"
 #include "base/files/scoped_temp_dir.h"
@@ -32,13 +31,15 @@ class CefBrowserHostImpl;
 class CefMainDelegate;
 class CefTraceSubscriber;
 
-class CefContext : public CefBase,
-                   public content::NotificationObserver {
+class CefContext : public content::NotificationObserver {
  public:
   typedef std::list<CefRefPtr<CefBrowserHostImpl> > BrowserList;
 
   CefContext();
   ~CefContext();
+
+  // Returns the singleton CefContext instance.
+  static CefContext* Get();
 
   // These methods will be called on the main application thread.
   bool Initialize(const CefMainArgs& args,
@@ -94,16 +95,11 @@ class CefContext : public CefBase,
 
   // Only accessed on the UI Thread.
   scoped_ptr<content::NotificationRegistrar> registrar_;
-
-  IMPLEMENT_REFCOUNTING(CefContext);
-  IMPLEMENT_LOCKING(CefContext);
 };
-
-// Global context object pointer.
-extern CefRefPtr<CefContext> _Context;
 
 // Helper macro that returns true if the global context is in a valid state.
 #define CONTEXT_STATE_VALID() \
-    (_Context.get() && _Context->initialized() && !_Context->shutting_down())
+    (CefContext::Get() && CefContext::Get()->initialized() && \
+     !CefContext::Get()->shutting_down())
 
 #endif  // CEF_LIBCEF_BROWSER_CONTEXT_H_

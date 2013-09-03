@@ -205,7 +205,7 @@ CefBrowserContextImpl::~CefBrowserContextImpl() {
 }
 
 base::FilePath CefBrowserContextImpl::GetPath() const {
-  return _Context->cache_path();
+  return CefContext::Get()->cache_path();
 }
 
 bool CefBrowserContextImpl::IsOffTheRecord() const {
