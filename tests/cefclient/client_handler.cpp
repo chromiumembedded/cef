@@ -438,7 +438,8 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
   // Display a load error message.
   std::stringstream ss;
-  ss << "<html><body><h2>Failed to load URL " << std::string(failedUrl) <<
+  ss << "<html><body bgcolor=\"white\">"
+        "<h2>Failed to load URL " << std::string(failedUrl) <<
         " with error " << std::string(errorText) << " (" << errorCode <<
         ").</h2></body></html>";
   frame->LoadString(ss.str(), failedUrl);
@@ -469,12 +470,14 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
         // Show the request contents.
         std::string dump;
         DumpRequestContents(request, dump);
+        std::string str = "<html><body bgcolor=\"white\"><pre>" + dump +
+                          "</pre></body></html>";
         CefRefPtr<CefStreamReader> stream =
             CefStreamReader::CreateForData(
-                static_cast<void*>(const_cast<char*>(dump.c_str())),
-                dump.size());
+                static_cast<void*>(const_cast<char*>(str.c_str())),
+                str.size());
         ASSERT(stream.get());
-        return new CefStreamResourceHandler("text/plain", stream);
+        return new CefStreamResourceHandler("text/html", stream);
       } else {
         // Load the resource from file.
         CefRefPtr<CefStreamReader> stream =

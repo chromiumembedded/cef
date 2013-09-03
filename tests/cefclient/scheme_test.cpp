@@ -41,7 +41,8 @@ class ClientSchemeHandler : public CefResourceHandler {
     std::string url = request->GetURL();
     if (strstr(url.c_str(), "handler.html") != NULL) {
       // Build the response html
-      data_ = "<html><head><title>Client Scheme Handler</title></head><body>"
+      data_ = "<html><head><title>Client Scheme Handler</title></head>"
+              "<body bgcolor=\"white\">"
               "This contents of this page page are served by the "
               "ClientSchemeHandler class handling the client:// protocol."
               "<br/>You should see an image:"
