@@ -34,7 +34,7 @@ TEST(RequestContextTest, CreateContext) {
     IMPLEMENT_REFCOUNTING(Handler);
   };
 
-  CefRefPtr<Handler> handler = new Handler();
+  CefRefPtr<CefRequestContextHandler> handler = new Handler();
 
   CefRefPtr<CefRequestContext> context1 =
       CefRequestContext::CreateContext(handler.get());
