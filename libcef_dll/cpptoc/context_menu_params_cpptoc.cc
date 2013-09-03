@@ -107,7 +107,7 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_source_url(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK context_menu_params_is_image_blocked(
+int CEF_CALLBACK context_menu_params_has_image_contents(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -116,7 +116,7 @@ int CEF_CALLBACK context_menu_params_is_image_blocked(
     return 0;
 
   // Execute
-  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsImageBlocked();
+  bool _retval = CefContextMenuParamsCppToC::Get(self)->HasImageContents();
 
   // Return type: bool
   return _retval;
@@ -274,7 +274,7 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
   struct_.struct_.get_unfiltered_link_url =
       context_menu_params_get_unfiltered_link_url;
   struct_.struct_.get_source_url = context_menu_params_get_source_url;
-  struct_.struct_.is_image_blocked = context_menu_params_is_image_blocked;
+  struct_.struct_.has_image_contents = context_menu_params_has_image_contents;
   struct_.struct_.get_page_url = context_menu_params_get_page_url;
   struct_.struct_.get_frame_url = context_menu_params_get_frame_url;
   struct_.struct_.get_frame_charset = context_menu_params_get_frame_charset;

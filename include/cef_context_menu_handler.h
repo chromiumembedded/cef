@@ -148,10 +148,11 @@ class CefContextMenuParams : public virtual CefBase {
   virtual CefString GetSourceUrl() =0;
 
   ///
-  // Returns true if the context menu was invoked on a blocked image.
+  // Returns true if the context menu was invoked on an image which has
+  // non-empty contents.
   ///
   /*--cef()--*/
-  virtual bool IsImageBlocked() =0;
+  virtual bool HasImageContents() =0;
 
   ///
   // Returns the URL of the top level page that the context menu was invoked on.

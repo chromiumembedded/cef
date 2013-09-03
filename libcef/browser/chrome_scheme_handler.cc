@@ -367,7 +367,7 @@ void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame,
     return;
 
   std::string file_contents;
-  if (!file_util::ReadFileToString(path, &file_contents)) {
+  if (!base::ReadFileToString(path, &file_contents)) {
     frame->SendJavaScript(
       "tracingController.onLoadTraceFileCanceled();", std::string(), 0);
     return;

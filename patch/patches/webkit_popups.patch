@@ -1,8 +1,8 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 156144)
+--- public/web/WebView.h	(revision 157102)
 +++ public/web/WebView.h	(working copy)
-@@ -439,6 +439,7 @@
+@@ -444,6 +444,7 @@
  
      // Sets whether select popup menus should be rendered by the browser.
      WEBKIT_EXPORT static void setUseExternalPopupMenus(bool);
@@ -12,9 +12,9 @@ Index: public/web/WebView.h
      // Visited link state --------------------------------------------------
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 156144)
+--- Source/web/ChromeClientImpl.cpp	(revision 157102)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
-@@ -880,7 +880,7 @@
+@@ -887,7 +887,7 @@
  
  PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(Frame& frame, PopupMenuClient* client) const
  {
@@ -25,9 +25,9 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 156144)
+--- Source/web/WebViewImpl.cpp	(revision 157102)
 +++ Source/web/WebViewImpl.cpp	(working copy)
-@@ -393,6 +393,7 @@
+@@ -394,6 +394,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_suppressNextKeypressEvent(false)
-@@ -3636,9 +3637,14 @@
+@@ -3671,9 +3672,14 @@
      updateLayerTreeViewport();
  }
  
@@ -50,10 +50,10 @@ Index: Source/web/WebViewImpl.cpp
 +    return m_shouldUseExternalPopupMenus;
  }
  
- void WebViewImpl::setEmulatedTextZoomFactor(float textZoomFactor)
+ void WebViewImpl::startDragging(Frame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 156144)
+--- Source/web/WebViewImpl.h	(revision 157102)
 +++ Source/web/WebViewImpl.h	(working copy)
 @@ -422,7 +422,8 @@
  
@@ -65,7 +65,7 @@ Index: Source/web/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -723,6 +724,8 @@
+@@ -720,6 +721,8 @@
  
      bool m_contextMenuAllowed;
  

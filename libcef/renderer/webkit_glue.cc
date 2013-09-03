@@ -25,32 +25,32 @@ bool CanGoBack(WebKit::WebView* view) {
   if (!view)
     return false;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  return (impl->page()->backForward()->backCount() > 0);
+  return (impl->page()->backForward().backCount() > 0);
 }
 
 bool CanGoForward(WebKit::WebView* view) {
   if (!view)
     return false;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  return (impl->page()->backForward()->forwardCount() > 0);
+  return (impl->page()->backForward().forwardCount() > 0);
 }
 
 void GoBack(WebKit::WebView* view) {
   if (!view)
     return;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  WebCore::BackForwardController* controller = impl->page()->backForward();
-  if (controller->backCount() > 0)
-    controller->goBack();
+  WebCore::BackForwardController& controller = impl->page()->backForward();
+  if (controller.backCount() > 0)
+    controller.goBack();
 }
 
 void GoForward(WebKit::WebView* view) {
   if (!view)
     return;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  WebCore::BackForwardController* controller = impl->page()->backForward();
-  if (controller->forwardCount() > 0)
-    controller->goForward();
+  WebCore::BackForwardController& controller = impl->page()->backForward();
+  if (controller.forwardCount() > 0)
+    controller.goForward();
 }
 
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {

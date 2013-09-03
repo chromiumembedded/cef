@@ -145,9 +145,11 @@ typedef struct _cef_context_menu_params_t {
       struct _cef_context_menu_params_t* self);
 
   ///
-  // Returns true (1) if the context menu was invoked on a blocked image.
+  // Returns true (1) if the context menu was invoked on an image which has non-
+  // NULL contents.
   ///
-  int (CEF_CALLBACK *is_image_blocked)(struct _cef_context_menu_params_t* self);
+  int (CEF_CALLBACK *has_image_contents)(
+      struct _cef_context_menu_params_t* self);
 
   ///
   // Returns the URL of the top level page that the context menu was invoked on.

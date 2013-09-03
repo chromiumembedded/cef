@@ -99,14 +99,14 @@ CefString CefContextMenuParamsCToCpp::GetSourceUrl() {
   return _retvalStr;
 }
 
-bool CefContextMenuParamsCToCpp::IsImageBlocked() {
-  if (CEF_MEMBER_MISSING(struct_, is_image_blocked))
+bool CefContextMenuParamsCToCpp::HasImageContents() {
+  if (CEF_MEMBER_MISSING(struct_, has_image_contents))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_image_blocked(struct_);
+  int _retval = struct_->has_image_contents(struct_);
 
   // Return type: bool
   return _retval?true:false;

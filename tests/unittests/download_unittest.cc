@@ -234,7 +234,7 @@ class DownloadTestHandler : public TestHandler {
 
     // Verify the file contents.
     std::string contents;
-    EXPECT_TRUE(file_util::ReadFileToString(test_path_, &contents));
+    EXPECT_TRUE(base::ReadFileToString(test_path_, &contents));
     EXPECT_STREQ(kTestContent, contents.c_str());
 
     EXPECT_TRUE(temp_dir_.Delete());

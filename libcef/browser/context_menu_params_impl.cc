@@ -59,9 +59,9 @@ CefString CefContextMenuParamsImpl::GetSourceUrl() {
   return const_value().src_url.spec();
 }
 
-bool CefContextMenuParamsImpl::IsImageBlocked() {
-  CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().is_image_blocked;
+bool CefContextMenuParamsImpl::HasImageContents() {
+  CEF_VALUE_VERIFY_RETURN(false, true);
+  return const_value().has_image_contents;
 }
 
 CefString CefContextMenuParamsImpl::GetPageUrl() {

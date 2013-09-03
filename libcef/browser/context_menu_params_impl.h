@@ -24,7 +24,7 @@ class CefContextMenuParamsImpl
   virtual CefString GetLinkUrl() OVERRIDE;
   virtual CefString GetUnfilteredLinkUrl() OVERRIDE;
   virtual CefString GetSourceUrl() OVERRIDE;
-  virtual bool IsImageBlocked() OVERRIDE;
+  virtual bool HasImageContents() OVERRIDE;
   virtual CefString GetPageUrl() OVERRIDE;
   virtual CefString GetFrameUrl() OVERRIDE;
   virtual CefString GetFrameCharset() OVERRIDE;

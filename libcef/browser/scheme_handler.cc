@@ -10,6 +10,7 @@
 #include "libcef/browser/devtools_scheme_handler.h"
 #include "libcef/common/scheme_registration.h"
 
+#include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
@@ -25,7 +26,10 @@ void InstallInternalProtectedHandlers(
   protocol_handlers->insert(
       std::make_pair(chrome::kDataScheme, new net::DataProtocolHandler));
   protocol_handlers->insert(
-      std::make_pair(chrome::kFileScheme, new net::FileProtocolHandler));
+      std::make_pair(chrome::kFileScheme, new net::FileProtocolHandler(
+          content::BrowserThread::GetBlockingPool()->
+              GetTaskRunnerWithShutdownBehavior(
+                  base::SequencedWorkerPool::SKIP_ON_SHUTDOWN))));
 #if !defined(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(
       std::make_pair(chrome::kFtpScheme,

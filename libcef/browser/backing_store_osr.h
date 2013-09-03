@@ -46,7 +46,7 @@ class BackingStoreOSR : public content::BackingStore {
       const gfx::Size& size, float scale_factor);
   virtual ~BackingStoreOSR() {}
 
-  scoped_ptr<SkDevice> device_;
+  scoped_ptr<SkBaseDevice> device_;
   scoped_ptr<SkCanvas> canvas_;
 
   float device_scale_factor_;
