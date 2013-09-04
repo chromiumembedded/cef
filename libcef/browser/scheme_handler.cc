@@ -10,6 +10,7 @@
 #include "libcef/browser/devtools_scheme_handler.h"
 #include "libcef/common/scheme_registration.h"
 
+#include "base/threading/sequenced_worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
 #include "net/url_request/data_protocol_handler.h"
