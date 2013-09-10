@@ -10,6 +10,7 @@
 #include "libcef/common/task_runner_impl.h"
 
 #include "base/logging.h"
+#include "content/public/browser/resource_request_info.h"
 #include "net/base/upload_data.h"
 #include "net/base/upload_data_stream.h"
 #include "net/base/upload_element_reader.h"
@@ -22,6 +23,7 @@
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
+#include "webkit/common/resource_type.h"
 
 namespace {
 
@@ -103,6 +105,8 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 
 CefRequestImpl::CefRequestImpl()
     : method_("GET"),
+      resource_type_(RT_SUB_RESOURCE),
+      transition_type_(TT_EXPLICIT),
       flags_(UR_FLAG_NONE),
       read_only_(false) {
 }
@@ -188,6 +192,16 @@ void CefRequestImpl::SetFirstPartyForCookies(const CefString& url) {
   first_party_for_cookies_ = url;
 }
 
+CefRequestImpl::ResourceType CefRequestImpl::GetResourceType() {
+  AutoLock lock_scope(this);
+  return resource_type_;
+}
+
+CefRequestImpl::TransitionType CefRequestImpl::GetTransitionType() {
+  AutoLock lock_scope(this);
+  return transition_type_;
+}
+
 void CefRequestImpl::Set(net::URLRequest* request) {
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
@@ -222,6 +236,18 @@ void CefRequestImpl::Set(net::URLRequest* request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
   } else if (postdata_.get()) {
     postdata_ = NULL;
+  }
+
+  const content::ResourceRequestInfo* info =
+      content::ResourceRequestInfo::ForRequest(request);
+  if (info) {
+    resource_type_ =
+        static_cast<cef_resource_type_t>(info->GetResourceType());
+    transition_type_ =
+        static_cast<cef_transition_type_t>(info->GetPageTransition());
+  } else {
+    resource_type_ = RT_SUB_RESOURCE;
+    transition_type_ = TT_EXPLICIT;
   }
 }
 
@@ -291,6 +317,9 @@ void CefRequestImpl::Set(const WebKit::WebURLRequest& request) {
     flags_ |= UR_FLAG_REPORT_RAW_HEADERS;
 
   first_party_for_cookies_ = request.firstPartyForCookies().spec().utf16();
+
+  resource_type_ = static_cast<cef_resource_type_t>(
+      ::ResourceType::FromTargetType(request.targetType()));
 }
 
 void CefRequestImpl::Get(WebKit::WebURLRequest& request) {

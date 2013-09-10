@@ -104,6 +104,9 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate {
     std::string url = request->GetURL();
     EXPECT_STREQ(item.target, url.c_str());
 
+    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
     if (item.action == NA_LOAD)
       EXPECT_EQ(NAVIGATION_OTHER, navigation_type);
     else if (item.action == NA_BACK || item.action == NA_FORWARD)
@@ -215,6 +218,12 @@ class HistoryNavTestHandler : public TestHandler {
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request) OVERRIDE {
     const NavListItem& item = kHNavList[nav_];
+
+    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+    if (item.action == NA_LOAD)
+      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, request->GetTransitionType());
 
     got_before_resource_load_[nav_].yes();
 
@@ -389,6 +398,9 @@ class FrameNameIdentNavTestHandler : public TestHandler {
 
     std::string url = request->GetURL();
     if (url == kFNav1) {
+      EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
       frame1_ident_ = frame->GetIdentifier();
       if (name == "") {
         frame1_name_ = name;
@@ -397,6 +409,9 @@ class FrameNameIdentNavTestHandler : public TestHandler {
       if (!parent.get())
         got_frame1_ident_parent_before_.yes();
     } else if (url == kFNav2) {
+      EXPECT_EQ(RT_SUB_FRAME, request->GetResourceType());
+      EXPECT_EQ(TT_LINK, request->GetTransitionType());
+
       frame2_ident_ = frame->GetIdentifier();
       if (name == "nav2") {
         frame2_name_ = name;
@@ -405,6 +420,9 @@ class FrameNameIdentNavTestHandler : public TestHandler {
       if (parent.get() && frame1_ident_ == parent->GetIdentifier())
         got_frame2_ident_parent_before_.yes();
     } else if (url == kFNav3) {
+      EXPECT_EQ(RT_SUB_FRAME, request->GetResourceType());
+      EXPECT_EQ(TT_LINK, request->GetTransitionType());
+
       frame3_ident_ = frame->GetIdentifier();
       if (name == "<!--framePath //nav2/<!--frame0-->-->") {
         frame3_name_ = name;
@@ -647,6 +665,9 @@ class RedirectTestHandler : public TestHandler {
                                     CefRefPtr<CefRequest> request) OVERRIDE {
     // Should be called for all but the second URL.
     std::string url = request->GetURL();
+
+    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
 
     if (url == kRNav1) {
       got_nav1_before_resource_load_.yes();
@@ -921,6 +942,9 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
+    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
     if (browser->IsPopup()) {
       EXPECT_TRUE(got_browser_created_popup_);
       EXPECT_FALSE(got_before_navigation_popup_);
@@ -1038,10 +1062,14 @@ class OrderNavTestHandler : public TestHandler {
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request) OVERRIDE {
+    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+
     if (browser->IsPopup()) {
+      EXPECT_EQ(TT_LINK, request->GetTransitionType());
       EXPECT_GT(browser->GetIdentifier(), 0);
       EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
     } else {
+      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
       EXPECT_GT(browser->GetIdentifier(), 0);
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
     }
@@ -1246,6 +1274,9 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate {
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
+    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
     Status* status = GetStatus(browser);
     EXPECT_TRUE(status);
 
@@ -1373,6 +1404,9 @@ class CrossOriginNavTestHandler : public TestHandler {
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request) OVERRIDE {
+    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
     

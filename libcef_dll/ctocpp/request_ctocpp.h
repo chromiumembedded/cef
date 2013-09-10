@@ -47,6 +47,8 @@ class CefRequestCToCpp
   virtual void SetFlags(int flags) OVERRIDE;
   virtual CefString GetFirstPartyForCookies() OVERRIDE;
   virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
+  virtual ResourceType GetResourceType() OVERRIDE;
+  virtual TransitionType GetTransitionType() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
