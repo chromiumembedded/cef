@@ -19,18 +19,24 @@ import zipfile
 cef_url = 'http://chromiumembedded.googlecode.com/svn/trunk/cef3'
 depot_tools_url = 'http://src.chromium.org/svn/trunk/tools/depot_tools'
 
-def run(command_line, working_dir, depot_tools_dir=None):
+def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
   # add depot_tools to the path
   env = os.environ
   if not depot_tools_dir is None:
     env['PATH'] = depot_tools_dir+os.pathsep+env['PATH']
-  
+
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
                    working_dir+'"...'+"\n")
   if not options.dryrun:
     args = shlex.split(command_line.replace('\\', '\\\\'))
-    return subprocess.check_call(args, cwd=working_dir, env=env,
+
+    if not output_file:
+      return subprocess.check_call(args, cwd=working_dir, env=env,
                                  shell=(sys.platform == 'win32'))
+    with open(output_file, "w") as f:
+      return subprocess.check_call(args, cwd=working_dir, env=env,
+                                 shell=(sys.platform == 'win32'),
+                                 stderr=subprocess.STDOUT, stdout=f)
 
 def check_url(url):
   """ Check the URL and raise an exception if invalid. """
@@ -129,7 +135,7 @@ def onerror(func, path, exc_info):
     func(path)
   else:
     raise
-  
+
 # cannot be loaded as a module
 if __name__ != "__main__":
   sys.stderr.write('This file cannot be loaded as a module!')
@@ -165,9 +171,16 @@ parser.add_option('--force-clean',
 parser.add_option('--force-update',
                   action='store_true', dest='forceupdate', default=False,
                   help='force Chromium and CEF update')
+parser.add_option('--no-update',
+                  action='store_true', dest='noupdate', default=False,
+                  help='do not update Chromium and CEF.' +\
+                       'Cannot be used along with --force[update|config|clean]')
 parser.add_option('--force-build',
                   action='store_true', dest='forcebuild', default=False,
                   help='force CEF debug and release builds')
+parser.add_option('--build-tests',
+                  action='store_true', dest='buildtests', default=False,
+                  help='build cef_unittests target besides cefclient')
 parser.add_option('--force-distrib',
                   action='store_true', dest='forcedistrib', default=False,
                   help='force creation of CEF binary distribution')
@@ -201,6 +214,12 @@ parser.add_option('--no-distrib-archive',
 parser.add_option('--ninja-build',
                   action='store_true', dest='ninjabuild', default=False,
                   help="build using ninja")
+parser.add_option('--verbose',
+                  action='store_true', dest='verbose', default=False,
+                  help='show all command lines while building')
+parser.add_option('--build-log-file',
+                  action='store_true', dest='buildlogfile', default=False,
+                  help='write build logs to files')
 parser.add_option('--x64-build',
                   action='store_true', dest='x64build', default=False,
                   help='build for 64-bit systems (Windows and Mac OS X only)')
@@ -231,6 +250,11 @@ if (options.noreleasebuild and (options.minimaldistrib or options.minimaldistrib
    (options.minimaldistribonly and options.clientdistribonly):
   print 'Invalid combination of options'
   parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.noupdate and (options.forceclean or options.forceupdate or options.forceconfig):
+  print "Invalid combination of options."
+  print "--no-update cannot be used along with --force-[update|config|clean]\n"
   sys.exit()
 
 if options.x64build and platform != 'windows' and platform != 'macosx':
@@ -268,6 +292,13 @@ if not os.path.exists(depot_tools_dir):
   else:
     # checkout depot_tools
     run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
+
+if not options.noupdate and options.depottools == '':
+  # Update depot_tools. It will download required scripts (svn, python, ...)
+  if sys.platform == 'win32':
+    run('update_depot_tools.bat', depot_tools_dir);
+  else:
+    run('update_depot_tools', depot_tools_dir);
 
 if sys.platform == 'win32':
   # Force use of the SVN version bundled with depot_tools.
@@ -344,17 +375,21 @@ if release_url is None:
   current_chromium_url = info['url']
   current_chromium_rev = info['revision']
 
+changed_to_message = '  -> CHANGED TO: '
+if options.noupdate:
+  changed_to_message = '  -> AVAILABLE: '
+
 # test if the CEF URL changed
 cef_url_changed = current_cef_url != cef_url
 sys.stdout.write('CEF URL: '+current_cef_url+"\n")
 if cef_url_changed:
-  sys.stdout.write('  -> CHANGED TO: '+cef_url+"\n")
+  sys.stdout.write(changed_to_message+cef_url+"\n")
 
 # test if the CEF revision changed
 cef_rev_changed = current_cef_rev != cef_rev
 sys.stdout.write('CEF Revision: '+current_cef_rev+"\n")
 if cef_rev_changed:
-  sys.stdout.write('  -> CHANGED TO: '+cef_rev+"\n")
+  sys.stdout.write(changed_to_message+cef_rev+"\n")
 
 release_url_changed = False
 chromium_url_changed = False
@@ -365,13 +400,13 @@ if release_url is None:
   chromium_url_changed = current_chromium_url != chromium_url
   sys.stdout.write('Chromium URL: '+current_chromium_url+"\n")
   if chromium_url_changed:
-    sys.stdout.write('  -> CHANGED TO: '+chromium_url+"\n")
+    sys.stdout.write(changed_to_message+chromium_url+"\n")
 
   # test if the Chromium revision changed
   chromium_rev_changed = current_chromium_rev != chromium_rev
   sys.stdout.write('Chromium Revision: '+current_chromium_rev+"\n")
   if chromium_rev_changed:
-    sys.stdout.write('  -> CHANGED TO: '+chromium_rev+"\n")
+    sys.stdout.write(changed_to_message+chromium_rev+"\n")
 else:
   # test if the release URL changed
   current_release_url = 'None'
@@ -395,14 +430,23 @@ else:
   release_url_changed = current_release_url != release_url
   sys.stdout.write('Release URL: '+current_release_url+"\n")
   if release_url_changed:
-    sys.stdout.write('  -> CHANGED TO: '+release_url+"\n")
+    sys.stdout.write(changed_to_message+release_url+"\n")
 
 # true if anything changed
 any_changed = release_url_changed or chromium_url_changed or \
               chromium_rev_changed or cef_url_changed or cef_rev_changed
 if not any_changed:
   sys.stdout.write("No changes.\n")
-              
+elif options.noupdate:
+  sys.stdout.write("You have updates. Remove --no-update flag to update source code\n")
+  release_url_changed = False
+  chromium_url_changed = False
+  chromium_rev_changed = False
+  cef_url_changed = False
+  cef_rev_changed = False
+  any_changed = False
+
+
 if release_url_changed or chromium_url_changed or options.forceconfig:
   if release_url is None:
     url = chromium_url
@@ -507,7 +551,11 @@ if any_changed or options.forceupdate:
 if any_changed or options.forcebuild:
   if options.ninjabuild:
     command = 'ninja -C '
+    if options.verbose:
+      command = 'ninja -v -C'
     target = ' cefclient'
+    if options.buildtests:
+      target = ' cefclient cef_unittests'
     build_dir_suffix = ''
     if platform == 'windows' and options.x64build:
       build_dir_suffix = '_x64'
@@ -515,22 +563,26 @@ if any_changed or options.forcebuild:
     if not options.nodebugbuild:
       # make CEF Debug build
       run(command + os.path.join('out', 'Debug' + build_dir_suffix) + target, \
-          chromium_src_dir, depot_tools_dir)
+          chromium_src_dir, depot_tools_dir,
+          os.path.join(chromium_src_dir, 'ninja-build-debug.log'))
 
     if not options.noreleasebuild:
       # make CEF Release build
       run(command + os.path.join('out', 'Release' + build_dir_suffix) + target, \
-          chromium_src_dir, depot_tools_dir)
+          chromium_src_dir, depot_tools_dir,
+          os.path.join(chromium_src_dir, 'ninja-build-release.log'))
   else:
     path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
 
     if not options.nodebugbuild:
       # make CEF Debug build
-      run(path+' Debug', cef_tools_dir, depot_tools_dir)
+      run(path+' Debug', cef_tools_dir, depot_tools_dir,
+        os.path.join(chromium_src_dir, 'build-debug.log'))
 
     if not options.noreleasebuild:
       # make CEF Release build
-      run(path+' Release', cef_tools_dir, depot_tools_dir)
+      run(path+' Release', cef_tools_dir, depot_tools_dir,
+        os.path.join(chromium_src_dir, 'build-release.log'))
 
 if (any_changed or options.forcedistrib) and not options.nodistrib:
   if not options.forceclean and options.cleanartifacts:
