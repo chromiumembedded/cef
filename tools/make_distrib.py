@@ -28,6 +28,11 @@ def create_archive(input_dir, zip_file):
   addDir(input_dir)
   zf.close()
 
+def create_7z_archive(input_dir, zip_file):
+  """ Creates a 7z archive of the specified input directory. """
+  command = os.environ['CEF_COMMAND_7ZIP']
+  run('"' + command + '" a -y ' + zip_file + ' ' + input_dir, os.path.split(zip_file)[0])
+
 def create_output_dir(name, parent_dir):
   """ Creates an output directory and adds the path to the archive list. """
   output_dir = os.path.abspath(os.path.join(parent_dir, name))
@@ -112,7 +117,7 @@ def create_readme():
 def eval_file(src):
   """ Loads and evaluates the contents of the specified file. """
   return eval(read_file(src), {'__builtins__': None}, None)
-    
+
 def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
   """ Transfer files from one location to another. """
   for path in gypi_paths:
@@ -137,24 +142,24 @@ def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
   """ Transfer files based on the specified configuration. """
   if not path_exists(transfer_cfg):
     return
-  
+
   configs = eval_file(transfer_cfg)
   for cfg in configs:
     dst = os.path.join(output_dir, cfg['target'])
-    
+
     # perform a copy if source is specified
     if not cfg['source'] is None:
       src = os.path.join(cef_dir, cfg['source'])
       dst_path = os.path.dirname(dst)
       make_dir(dst_path, quiet)
       copy_file(src, dst, quiet)
-      
+
       # place a readme file in the destination directory
       readme = os.path.join(dst_path, 'README-TRANSFER.txt')
       if not path_exists(readme):
         copy_file(os.path.join(script_dir, 'distrib/README-TRANSFER.txt'), readme)
       open(readme, 'ab').write(cfg['source']+"\n")
-    
+
     # perform any required post-processing
     if 'post-process' in cfg:
       post = cfg['post-process']
@@ -357,9 +362,28 @@ chromium_ver = args['MAJOR']+'.'+args['MINOR']+'.'+args['BUILD']+'.'+args['PATCH
 # list of output directories to be archived
 archive_dirs = []
 
+platform_arch = '32'
+if options.x64build:
+  platform_arch = '64'
+
+if platform == 'linux':
+  platform_arch = ''
+  lib_dir_name = 'lib.target'
+  if options.ninjabuild:
+    lib_dir_name = 'lib'
+  release_libcef_path = os.path.join(src_dir, 'out', 'Release', lib_dir_name, 'libcef.so');
+  debug_libcef_path = os.path.join(src_dir, 'out', 'Debug', lib_dir_name, 'libcef.so');
+  file_desc = ''
+  output = subprocess.check_output('file ' + release_libcef_path + ' ' + debug_libcef_path + '; exit 0',
+                                  env=os.environ, stderr=subprocess.STDOUT, shell=True)
+  if output.find('32-bit') != -1:
+    platform_arch = '32'
+  if output.find('64-bit') != -1:
+    platform_arch = '64'
+
 # output directory
 output_dir_base = 'cef_binary_' + cef_ver
-output_dir_name = output_dir_base + '_' + platform
+output_dir_name = output_dir_base + '_' + platform + platform_arch
 
 if options.minimal:
   mode = 'minimal'
@@ -676,8 +700,14 @@ elif platform == 'linux':
 
 if not options.noarchive:
   # create an archive for each output directory
+  archive_extenstion = '.zip'
+  if os.getenv('CEF_COMMAND_7ZIP', '') != '':
+    archive_extenstion = '.7z'
   for dir in archive_dirs:
-    zip_file = os.path.split(dir)[1] + '.zip'
+    zip_file = os.path.split(dir)[1] + archive_extenstion
     if not options.quiet:
       sys.stdout.write('Creating '+zip_file+"...\n")
-    create_archive(dir, os.path.join(dir, os.pardir, zip_file))
+    if archive_extenstion == '.zip':
+      create_archive(dir, os.path.join(dir, os.pardir, zip_file))
+    else:
+      create_7z_archive(dir, os.path.join(dir, os.pardir, zip_file))
