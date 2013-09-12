@@ -1469,7 +1469,8 @@ content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
 }
 
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
-  int current_index = web_contents_->GetController().GetCurrentEntryIndex();
+  int current_index =
+      web_contents_->GetController().GetLastCommittedEntryIndex();
   int max_index = web_contents_->GetController().GetEntryCount() - 1;
 
   bool is_loading, can_go_back, can_go_forward;
@@ -1885,7 +1886,7 @@ void CefBrowserHostImpl::DidFailProvisionalLoad(
     content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
-      validated_url);
+      GURL());
   OnLoadError(frame, validated_url, error_code, error_description);
 }
 
