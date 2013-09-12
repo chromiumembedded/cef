@@ -54,12 +54,16 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
       const CefString& url, bool& allow_os_execution) OVERRIDE;
-  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
-      const CefString& url, const CefString& policy_url,
-      CefRefPtr<CefWebPluginInfo> info) OVERRIDE;
   virtual bool OnCertificateError(cef_errorcode_t cert_error,
       const CefString& request_url,
       CefRefPtr<CefAllowCertificateErrorCallback> callback) OVERRIDE;
+  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
+      const CefString& url, const CefString& policy_url,
+      CefRefPtr<CefWebPluginInfo> info) OVERRIDE;
+  virtual void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+      const CefString& plugin_path) OVERRIDE;
+  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+      TerminationStatus status) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

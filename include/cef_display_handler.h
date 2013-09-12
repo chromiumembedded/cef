@@ -50,18 +50,6 @@
 class CefDisplayHandler : public virtual CefBase {
  public:
   ///
-  // Called when the loading state has changed. This callback will be executed
-  // twice -- once when loading is initiated either programmatically or by user
-  // action, and once when loading is terminated due to completion, cancellation
-  // of failure.
-  ///
-  /*--cef()--*/
-  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                                    bool isLoading,
-                                    bool canGoBack,
-                                    bool canGoForward) {}
-
-  ///
   // Called when a frame's address has changed.
   ///
   /*--cef()--*/

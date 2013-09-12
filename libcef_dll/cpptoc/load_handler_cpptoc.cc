@@ -17,6 +17,27 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+void CEF_CALLBACK load_handler_on_loading_state_change(
+    struct _cef_load_handler_t* self, cef_browser_t* browser, int isLoading,
+    int canGoBack, int canGoForward) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefLoadHandlerCppToC::Get(self)->OnLoadingStateChange(
+      CefBrowserCToCpp::Wrap(browser),
+      isLoading?true:false,
+      canGoBack?true:false,
+      canGoForward?true:false);
+}
+
 void CEF_CALLBACK load_handler_on_load_start(struct _cef_load_handler_t* self,
     cef_browser_t* browser, cef_frame_t* frame) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -93,59 +114,16 @@ void CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
       CefString(failedUrl));
 }
 
-void CEF_CALLBACK load_handler_on_render_process_terminated(
-    struct _cef_load_handler_t* self, cef_browser_t* browser,
-    enum cef_termination_status_t status) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return;
-
-  // Execute
-  CefLoadHandlerCppToC::Get(self)->OnRenderProcessTerminated(
-      CefBrowserCToCpp::Wrap(browser),
-      status);
-}
-
-void CEF_CALLBACK load_handler_on_plugin_crashed(
-    struct _cef_load_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* plugin_path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return;
-  // Verify param: plugin_path; type: string_byref_const
-  DCHECK(plugin_path);
-  if (!plugin_path)
-    return;
-
-  // Execute
-  CefLoadHandlerCppToC::Get(self)->OnPluginCrashed(
-      CefBrowserCToCpp::Wrap(browser),
-      CefString(plugin_path));
-}
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
 CefLoadHandlerCppToC::CefLoadHandlerCppToC(CefLoadHandler* cls)
     : CefCppToC<CefLoadHandlerCppToC, CefLoadHandler, cef_load_handler_t>(cls) {
+  struct_.struct_.on_loading_state_change =
+      load_handler_on_loading_state_change;
   struct_.struct_.on_load_start = load_handler_on_load_start;
   struct_.struct_.on_load_end = load_handler_on_load_end;
   struct_.struct_.on_load_error = load_handler_on_load_error;
-  struct_.struct_.on_render_process_terminated =
-      load_handler_on_render_process_terminated;
-  struct_.struct_.on_plugin_crashed = load_handler_on_plugin_crashed;
 }
 
 #ifndef NDEBUG

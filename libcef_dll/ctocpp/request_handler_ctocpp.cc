@@ -252,6 +252,33 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   allow_os_execution = allow_os_executionInt?true:false;
 }
 
+bool CefRequestHandlerCToCpp::OnCertificateError(cef_errorcode_t cert_error,
+    const CefString& request_url,
+    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
+  if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request_url; type: string_byref_const
+  DCHECK(!request_url.empty());
+  if (request_url.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_certificate_error(struct_,
+      cert_error,
+      request_url.GetStruct(),
+      CefAllowCertificateErrorCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
     const CefString& url, const CefString& policy_url,
     CefRefPtr<CefWebPluginInfo> info) {
@@ -281,31 +308,44 @@ bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-bool CefRequestHandlerCToCpp::OnCertificateError(cef_errorcode_t cert_error,
-    const CefString& request_url,
-    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
-    return false;
+void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+    const CefString& plugin_path) {
+  if (CEF_MEMBER_MISSING(struct_, on_plugin_crashed))
+    return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: request_url; type: string_byref_const
-  DCHECK(!request_url.empty());
-  if (request_url.empty())
-    return false;
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback.get());
-  if (!callback.get())
-    return false;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: plugin_path; type: string_byref_const
+  DCHECK(!plugin_path.empty());
+  if (plugin_path.empty())
+    return;
 
   // Execute
-  int _retval = struct_->on_certificate_error(struct_,
-      cert_error,
-      request_url.GetStruct(),
-      CefAllowCertificateErrorCallbackCppToC::Wrap(callback));
+  struct_->on_plugin_crashed(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      plugin_path.GetStruct());
+}
 
-  // Return type: bool
-  return _retval?true:false;
+void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
+    CefRefPtr<CefBrowser> browser, TerminationStatus status) {
+  if (CEF_MEMBER_MISSING(struct_, on_render_process_terminated))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->on_render_process_terminated(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      status);
 }
 
 

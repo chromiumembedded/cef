@@ -17,27 +17,6 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK display_handler_on_loading_state_change(
-    struct _cef_display_handler_t* self, cef_browser_t* browser, int isLoading,
-    int canGoBack, int canGoForward) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return;
-
-  // Execute
-  CefDisplayHandlerCppToC::Get(self)->OnLoadingStateChange(
-      CefBrowserCToCpp::Wrap(browser),
-      isLoading?true:false,
-      canGoBack?true:false,
-      canGoForward?true:false);
-}
-
 void CEF_CALLBACK display_handler_on_address_change(
     struct _cef_display_handler_t* self, cef_browser_t* browser,
     struct _cef_frame_t* frame, const cef_string_t* url) {
@@ -162,8 +141,6 @@ int CEF_CALLBACK display_handler_on_console_message(
 CefDisplayHandlerCppToC::CefDisplayHandlerCppToC(CefDisplayHandler* cls)
     : CefCppToC<CefDisplayHandlerCppToC, CefDisplayHandler,
         cef_display_handler_t>(cls) {
-  struct_.struct_.on_loading_state_change =
-      display_handler_on_loading_state_change;
   struct_.struct_.on_address_change = display_handler_on_address_change;
   struct_.struct_.on_title_change = display_handler_on_title_change;
   struct_.struct_.on_tooltip = display_handler_on_tooltip;

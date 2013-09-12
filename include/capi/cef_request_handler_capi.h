@@ -100,8 +100,8 @@ typedef struct _cef_request_handler_t {
   // Called on the UI thread before browser navigation. Return true (1) to
   // cancel the navigation or false (0) to allow the navigation to proceed. The
   // |request| object cannot be modified in this callback.
-  // cef_display_handler_t::OnLoadingStateChange will be called twice in all
-  // cases. If the navigation is allowed cef_load_handler_t::OnLoadStart and
+  // cef_load_handler_t::OnLoadingStateChange will be called twice in all cases.
+  // If the navigation is allowed cef_load_handler_t::OnLoadStart and
   // cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled
   // cef_load_handler_t::OnLoadError will be called with an |errorCode| value of
   // ERR_ABORTED.
@@ -174,14 +174,6 @@ typedef struct _cef_request_handler_t {
       const cef_string_t* url, int* allow_os_execution);
 
   ///
-  // Called on the browser process IO thread before a plugin is loaded. Return
-  // true (1) to block loading of the plugin.
-  ///
-  int (CEF_CALLBACK *on_before_plugin_load)(struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser, const cef_string_t* url,
-      const cef_string_t* policy_url, struct _cef_web_plugin_info_t* info);
-
-  ///
   // Called on the UI thread to handle requests for URLs with an invalid SSL
   // certificate. Return true (1) and call
   // cef_allow_certificate_error_callback_t:: cont() either in this function or
@@ -194,6 +186,29 @@ typedef struct _cef_request_handler_t {
   int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
       enum cef_errorcode_t cert_error, const cef_string_t* request_url,
       struct _cef_allow_certificate_error_callback_t* callback);
+
+  ///
+  // Called on the browser process IO thread before a plugin is loaded. Return
+  // true (1) to block loading of the plugin.
+  ///
+  int (CEF_CALLBACK *on_before_plugin_load)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* url,
+      const cef_string_t* policy_url, struct _cef_web_plugin_info_t* info);
+
+  ///
+  // Called on the browser process UI thread when a plugin has crashed.
+  // |plugin_path| is the path of the plugin that crashed.
+  ///
+  void (CEF_CALLBACK *on_plugin_crashed)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, const cef_string_t* plugin_path);
+
+  ///
+  // Called on the browser process UI thread when the render process terminates
+  // unexpectedly. |status| indicates how the process terminated.
+  ///
+  void (CEF_CALLBACK *on_render_process_terminated)(
+      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
+      enum cef_termination_status_t status);
 } cef_request_handler_t;
 
 

@@ -270,6 +270,34 @@ void CEF_CALLBACK request_handler_on_protocol_execution(
     *allow_os_execution = allow_os_executionBool?true:false;
 }
 
+int CEF_CALLBACK request_handler_on_certificate_error(
+    struct _cef_request_handler_t* self, enum cef_errorcode_t cert_error,
+    const cef_string_t* request_url,
+    cef_allow_certificate_error_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: request_url; type: string_byref_const
+  DCHECK(request_url);
+  if (!request_url)
+    return 0;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestHandlerCppToC::Get(self)->OnCertificateError(
+      cert_error,
+      CefString(request_url),
+      CefAllowCertificateErrorCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK request_handler_on_before_plugin_load(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* url, const cef_string_t* policy_url,
@@ -300,32 +328,46 @@ int CEF_CALLBACK request_handler_on_before_plugin_load(
   return _retval;
 }
 
-int CEF_CALLBACK request_handler_on_certificate_error(
-    struct _cef_request_handler_t* self, enum cef_errorcode_t cert_error,
-    const cef_string_t* request_url,
-    cef_allow_certificate_error_callback_t* callback) {
+void CEF_CALLBACK request_handler_on_plugin_crashed(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    const cef_string_t* plugin_path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
-  // Verify param: request_url; type: string_byref_const
-  DCHECK(request_url);
-  if (!request_url)
-    return 0;
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback);
-  if (!callback)
-    return 0;
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: plugin_path; type: string_byref_const
+  DCHECK(plugin_path);
+  if (!plugin_path)
+    return;
 
   // Execute
-  bool _retval = CefRequestHandlerCppToC::Get(self)->OnCertificateError(
-      cert_error,
-      CefString(request_url),
-      CefAllowCertificateErrorCallbackCToCpp::Wrap(callback));
+  CefRequestHandlerCppToC::Get(self)->OnPluginCrashed(
+      CefBrowserCToCpp::Wrap(browser),
+      CefString(plugin_path));
+}
 
-  // Return type: bool
-  return _retval;
+void CEF_CALLBACK request_handler_on_render_process_terminated(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    enum cef_termination_status_t status) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefRequestHandlerCppToC::Get(self)->OnRenderProcessTerminated(
+      CefBrowserCToCpp::Wrap(browser),
+      status);
 }
 
 
@@ -342,8 +384,11 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.get_auth_credentials = request_handler_get_auth_credentials;
   struct_.struct_.on_quota_request = request_handler_on_quota_request;
   struct_.struct_.on_protocol_execution = request_handler_on_protocol_execution;
-  struct_.struct_.on_before_plugin_load = request_handler_on_before_plugin_load;
   struct_.struct_.on_certificate_error = request_handler_on_certificate_error;
+  struct_.struct_.on_before_plugin_load = request_handler_on_before_plugin_load;
+  struct_.struct_.on_plugin_crashed = request_handler_on_plugin_crashed;
+  struct_.struct_.on_render_process_terminated =
+      request_handler_on_render_process_terminated;
 }
 
 #ifndef NDEBUG

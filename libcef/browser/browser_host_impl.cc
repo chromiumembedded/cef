@@ -1462,7 +1462,7 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
   }
 
   if (client_.get()) {
-    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {
       handler->OnLoadingStateChange(this, is_loading, can_go_back,
                                     can_go_forward);
@@ -1841,7 +1841,7 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
     return;
 
   if (client_.get()) {
-    CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
+    CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
     if (handler.get())
       handler->OnRenderProcessTerminated(this, ts);
   }
@@ -1895,7 +1895,7 @@ void CefBrowserHostImpl::DidFailLoad(
 void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
                                        base::ProcessId plugin_pid) {
   if (client_.get()) {
-    CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
+    CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
     if (handler.get())
       handler->OnPluginCrashed(this, plugin_path.value());
   }

@@ -109,10 +109,6 @@ class ClientHandler : public CefClient,
                                     EventFlags event_flags) OVERRIDE;
 
   // CefDisplayHandler methods
-  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                                    bool isLoading,
-                                    bool canGoBack,
-                                    bool canGoForward) OVERRIDE;
   virtual void OnAddressChange(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefFrame> frame,
                                const CefString& url) OVERRIDE;
@@ -167,18 +163,15 @@ class ClientHandler : public CefClient,
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefLoadHandler methods
-  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame) OVERRIDE;
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE;
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE;
   virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            ErrorCode errorCode,
                            const CefString& errorText,
                            const CefString& failedUrl) OVERRIDE;
-  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                         TerminationStatus status) OVERRIDE;
 
   // CefRequestHandler methods
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -192,6 +185,8 @@ class ClientHandler : public CefClient,
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                    const CefString& url,
                                    bool& allow_os_execution) OVERRIDE;
+  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                         TerminationStatus status) OVERRIDE;
 
   // CefRenderHandler methods
   virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,

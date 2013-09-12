@@ -17,27 +17,6 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefDisplayHandlerCToCpp::OnLoadingStateChange(
-    CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack,
-    bool canGoForward) {
-  if (CEF_MEMBER_MISSING(struct_, on_loading_state_change))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return;
-
-  // Execute
-  struct_->on_loading_state_change(struct_,
-      CefBrowserCppToC::Wrap(browser),
-      isLoading,
-      canGoBack,
-      canGoForward);
-}
-
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& url) {
   if (CEF_MEMBER_MISSING(struct_, on_address_change))

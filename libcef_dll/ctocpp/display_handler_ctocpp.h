@@ -34,8 +34,6 @@ class CefDisplayHandlerCToCpp
   virtual ~CefDisplayHandlerCToCpp() {}
 
   // CefDisplayHandler methods
-  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-      bool isLoading, bool canGoBack, bool canGoForward) OVERRIDE;
   virtual void OnAddressChange(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const CefString& url) OVERRIDE;
   virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
