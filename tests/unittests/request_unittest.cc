@@ -207,41 +207,44 @@ const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
 static struct TypeExpected {
   const char* file;
   bool browser_side;  // True if this expectation applies to the browser side.
+  bool navigation; // True if this expectation represents a navigation.
   cef_transition_type_t transition_type;
   cef_resource_type_t resource_type;
   int expected_count;
 } g_type_expected[] = {
   // Initial main frame load due to browser creation.
-  {"main.html", true,  TT_EXPLICIT, RT_MAIN_FRAME,   1},
-  {"main.html", false, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
+  {"main.html", true,  true, TT_EXPLICIT, RT_MAIN_FRAME,   1},
+  {"main.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
 
   // Sub frame load.
-  {"sub.html", true,  TT_LINK,     RT_SUB_FRAME,    1},
-  {"sub.html", false, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
+  {"sub.html", true,  true, TT_LINK,     RT_SUB_FRAME,    1},
+  {"sub.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
 
   // Stylesheet load.
-  {"style.css", true, TT_LINK, RT_STYLESHEET, 1},
+  {"style.css", true, false, TT_LINK, RT_STYLESHEET, 1},
 
   // Script load.
-  {"script.js", true, TT_LINK, RT_SCRIPT, 1},
+  {"script.js", true, false, TT_LINK, RT_SCRIPT, 1},
 
   // Image load.
-  {"image.png", true, TT_LINK, RT_IMAGE, 1},
+  {"image.png", true, false, TT_LINK, RT_IMAGE, 1},
 
   // Font load.
-  {"font.ttf", true, TT_LINK, RT_FONT_RESOURCE, 1},
+  {"font.ttf", true, false, TT_LINK, RT_FONT_RESOURCE, 1},
 
   // XHR load.
-  {"xhr.html", true, TT_LINK, RT_XHR, 1},
+  {"xhr.html", true, false, TT_LINK, RT_XHR, 1},
 };
 
 class TypeExpectations {
  public:
-  TypeExpectations(bool browser_side)
-      : browser_side_(browser_side) {
+  TypeExpectations(bool browser_side, bool navigation)
+      : browser_side_(browser_side),
+        navigation_(navigation) {
     // Build the map of relevant requests.
     for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
-      if (g_type_expected[i].browser_side != browser_side_)
+      if (g_type_expected[i].browser_side != browser_side_ ||
+          (navigation_ && g_type_expected[i].navigation != navigation_))
         continue;
 
       request_count_.insert(std::make_pair(i, 0));
@@ -263,6 +266,7 @@ class TypeExpectations {
     EXPECT_GE(index, 0)
         << "File: " << file.c_str()
         << "; Browser Side: " << browser_side_
+        << "; Navigation: " << navigation_
         << "; Transition Type: " << transition_type
         << "; Resource Type: " << resource_type;
 
@@ -274,6 +278,7 @@ class TypeExpectations {
     EXPECT_LE(actual_count, expected_count)
         << "File: " << file.c_str()
         << "; Browser Side: " << browser_side_
+        << "; Navigation: " << navigation_
         << "; Transition Type: " << transition_type
         << "; Resource Type: " << resource_type;
 
@@ -283,7 +288,8 @@ class TypeExpectations {
   // Test if all expectations have been met.
   bool IsDone(bool assert) {
     for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
-      if (g_type_expected[i].browser_side != browser_side_)
+      if (g_type_expected[i].browser_side != browser_side_ ||
+          (navigation_ && g_type_expected[i].navigation != navigation_))
         continue;
 
       RequestCount::const_iterator it = request_count_.find(i);
@@ -293,6 +299,7 @@ class TypeExpectations {
           EXPECT_EQ(g_type_expected[i].expected_count, it->second)
               << "File: " << g_type_expected[i].file
               << "; Browser Side: " << browser_side_
+              << "; Navigation: " << navigation_
               << "; Transition Type: " << g_type_expected[i].transition_type
               << "; Resource Type: " << g_type_expected[i].resource_type;
         }
@@ -310,6 +317,7 @@ class TypeExpectations {
     for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
       if (g_type_expected[i].file == file &&
           g_type_expected[i].browser_side == browser_side_ &&
+          (!navigation_ || g_type_expected[i].navigation == navigation_) &&
           g_type_expected[i].transition_type == transition_type &&
           g_type_expected[i].resource_type == resource_type) {
         return i;
@@ -319,6 +327,7 @@ class TypeExpectations {
   }
 
   bool browser_side_;
+  bool navigation_;
 
   // Map of TypeExpected index to actual request count.
   typedef std::map<int, int> RequestCount;
@@ -329,7 +338,7 @@ class TypeExpectations {
 class TypeRendererTest : public ClientApp::RenderDelegate {
  public:
   TypeRendererTest() :
-      expectations_(false) {}
+      expectations_(false, true) {}
 
   virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
                                   CefRefPtr<CefBrowser> browser,
@@ -366,11 +375,12 @@ class TypeRendererTest : public ClientApp::RenderDelegate {
 class TypeTestHandler : public TestHandler {
  public:
   TypeTestHandler() :
-      before_expectations_(true),
-      get_expectations_(true),
+      browse_expectations_(true, true),
+      load_expectations_(true, false),
+      get_expectations_(true, false),
       completed_browser_side_(false),
       completed_render_side_(false),
-      timed_out_(false) {}
+      destroyed_(false) {}
 
   virtual void RunTest() OVERRIDE {
     AddResource(std::string(kTypeTestOrigin) + "main.html",
@@ -416,14 +426,23 @@ class TypeTestHandler : public TestHandler {
 
     // Time out the test after a reasonable period of time.
     CefPostDelayedTask(TID_UI,
-          NewCefRunnableMethod(this, &TypeTestHandler::DestroyTestInTimeout),
+          NewCefRunnableMethod(this, &TypeTestHandler::DestroyTest),
           2000);
+  }
+
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_redirect) OVERRIDE {
+    browse_expectations_.GotRequest(request);
+
+    return false;
   }
 
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefRequest> request) OVERRIDE {
-    before_expectations_.GotRequest(request);
+    load_expectations_.GotRequest(request);
     
     return false;
   }
@@ -465,35 +484,35 @@ class TypeTestHandler : public TestHandler {
 
  private:
   void DestroyTestIfComplete() {
-    if (timed_out_)
+    if (destroyed_)
       return;
+
     if (completed_browser_side_ && completed_render_side_)
       DestroyTest();
   }
 
-  void DestroyTestInTimeout() {
-    if (completed_browser_side_ && completed_render_side_)
-      return;
-    timed_out_ = true;
-    DestroyTest();
-  }
-
   virtual void DestroyTest() OVERRIDE {
+    if (destroyed_)
+      return;
+    destroyed_ = true;
+
     // Verify test expectations.
     EXPECT_TRUE(completed_browser_side_);
     EXPECT_TRUE(completed_render_side_);
-    EXPECT_TRUE(before_expectations_.IsDone(true));
+    EXPECT_TRUE(browse_expectations_.IsDone(true));
+    EXPECT_TRUE(load_expectations_.IsDone(true));
     EXPECT_TRUE(get_expectations_.IsDone(true));
 
     TestHandler::DestroyTest();
   }
 
-  TypeExpectations before_expectations_;
+  TypeExpectations browse_expectations_;
+  TypeExpectations load_expectations_;
   TypeExpectations get_expectations_;
 
   bool completed_browser_side_;
   bool completed_render_side_;
-  bool timed_out_;
+  bool destroyed_;
 };
 
 }  // namespace

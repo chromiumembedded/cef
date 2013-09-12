@@ -56,7 +56,10 @@ typedef struct _cef_display_handler_t {
   cef_base_t base;
 
   ///
-  // Called when the loading state has changed.
+  // Called when the loading state has changed. This callback will be executed
+  // twice -- once when loading is initiated either programmatically or by user
+  // action, and once when loading is terminated due to completion, cancellation
+  // of failure.
   ///
   void (CEF_CALLBACK *on_loading_state_change)(
       struct _cef_display_handler_t* self, struct _cef_browser_t* browser,

@@ -58,7 +58,8 @@ class CefLoadHandler : public virtual CefBase {
   // main frame. Multiple frames may be loading at the same time. Sub-frames may
   // start or continue loading after the main frame load has ended. This method
   // may not be called for a particular frame if the load request for that frame
-  // fails.
+  // fails. For notification of overall browser load status use
+  // CefDisplayHandler:: OnLoadingStateChange instead.
   ///
   /*--cef()--*/
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -78,10 +79,10 @@ class CefLoadHandler : public virtual CefBase {
                          int httpStatusCode) {}
 
   ///
-  // Called when the browser fails to load a resource. |errorCode| is the error
-  // code number, |errorText| is the error text and and |failedUrl| is the URL
-  // that failed to load. See net\base\net_error_list.h for complete
-  // descriptions of the error codes.
+  // Called when the resource load for a navigation fails or is canceled.
+  // |errorCode| is the error code number, |errorText| is the error text and
+  // |failedUrl| is the URL that failed to load. See net\base\net_error_list.h
+  // for complete descriptions of the error codes.
   ///
   /*--cef(optional_param=errorText)--*/
   virtual void OnLoadError(CefRefPtr<CefBrowser> browser,

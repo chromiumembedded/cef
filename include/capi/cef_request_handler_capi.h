@@ -97,6 +97,20 @@ typedef struct _cef_request_handler_t {
   cef_base_t base;
 
   ///
+  // Called on the UI thread before browser navigation. Return true (1) to
+  // cancel the navigation or false (0) to allow the navigation to proceed. The
+  // |request| object cannot be modified in this callback.
+  // cef_display_handler_t::OnLoadingStateChange will be called twice in all
+  // cases. If the navigation is allowed cef_load_handler_t::OnLoadStart and
+  // cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled
+  // cef_load_handler_t::OnLoadError will be called with an |errorCode| value of
+  // ERR_ABORTED.
+  ///
+  int (CEF_CALLBACK *on_before_browse)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_request_t* request, int is_redirect);
+
+  ///
   // Called on the IO thread before a resource request is loaded. The |request|
   // object may be modified. To cancel the request return true (1) otherwise
   // return false (0).
