@@ -69,7 +69,8 @@ class HistoryNavBrowserTest : public ClientApp::BrowserDelegate {
 };
 
 // Renderer side.
-class HistoryNavRendererTest : public ClientApp::RenderDelegate {
+class HistoryNavRendererTest : public ClientApp::RenderDelegate,
+                               public CefLoadHandler {
  public:
   HistoryNavRendererTest()
       : run_test_(false),
@@ -88,6 +89,81 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate {
     }
 
     run_test_ = true;
+  }
+
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
+    CefRefPtr<ClientApp> app) OVERRIDE {
+    if (!run_test_)
+      return NULL;
+
+    return this;
+  }
+
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE {
+    const NavListItem& item = kHNavList[nav_];
+
+    const std::string& url = browser->GetMainFrame()->GetURL();
+    if (isLoading) {
+      got_loading_state_start_.yes();
+
+      EXPECT_STRNE(item.target, url.c_str());
+
+      if (nav_ > 0) {
+        const NavListItem& last_item = kHNavList[nav_ - 1];
+        EXPECT_EQ(last_item.can_go_back, browser->CanGoBack());
+        EXPECT_EQ(last_item.can_go_back, canGoBack);
+        EXPECT_EQ(last_item.can_go_forward, browser->CanGoForward());
+        EXPECT_EQ(last_item.can_go_forward, canGoForward);
+      } else {
+        EXPECT_FALSE(browser->CanGoBack());
+        EXPECT_FALSE(canGoBack);
+        EXPECT_FALSE(browser->CanGoForward());
+        EXPECT_FALSE(canGoForward);
+      }
+    } else {
+      got_loading_state_end_.yes();
+
+      EXPECT_STREQ(item.target, url.c_str());
+
+      EXPECT_EQ(item.can_go_back, browser->CanGoBack());
+      EXPECT_EQ(item.can_go_back, canGoBack);
+      EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
+      EXPECT_EQ(item.can_go_forward, canGoForward);
+
+      SendTestResultsIfDone(browser);
+    }
+  }
+
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE {
+    const NavListItem& item = kHNavList[nav_];
+
+    got_load_start_.yes();
+
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(item.target, url.c_str());
+
+    EXPECT_EQ(item.can_go_back, browser->CanGoBack());
+    EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE {
+    const NavListItem& item = kHNavList[nav_];
+
+    got_load_end_.yes();
+
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(item.target, url.c_str());
+
+    EXPECT_EQ(item.can_go_back, browser->CanGoBack());
+    EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
+
+    SendTestResultsIfDone(browser);
   }
 
   virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
@@ -121,15 +197,22 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate {
       EXPECT_FALSE(browser->CanGoForward());
     }
 
-    SendTestResults(browser);
-    nav_++;
-
     return false;
   }
 
  protected:
+  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
+    if (got_load_end_ && got_loading_state_end_)
+      SendTestResults(browser);
+  }
+
   // Send the test results.
   void SendTestResults(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(got_loading_state_start_);
+    EXPECT_TRUE(got_loading_state_end_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_load_end_);
+
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -141,10 +224,23 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate {
     EXPECT_TRUE(args->SetInt(0, nav_));
     EXPECT_TRUE(args->SetBool(1, result));
     EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+
+    // Reset the test results for the next navigation.
+    got_loading_state_start_.reset();
+    got_loading_state_end_.reset();
+    got_load_start_.reset();
+    got_load_end_.reset();
+
+    nav_++;
   }
 
   bool run_test_;
   int nav_;
+
+  TrackCallback got_loading_state_start_;
+  TrackCallback got_loading_state_end_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
 
   IMPLEMENT_REFCOUNTING(HistoryNavRendererTest);
 };
@@ -859,13 +955,99 @@ class OrderNavBrowserTest : public ClientApp::BrowserDelegate {
   IMPLEMENT_REFCOUNTING(OrderNavBrowserTest);
 };
 
+class OrderNavLoadState {
+ public:
+  OrderNavLoadState(bool is_popup, bool browser_side)
+      : is_popup_(is_popup),
+        browser_side_(browser_side) {}
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) {
+    if (isLoading) {
+      EXPECT_TRUE(Verify(false, false, false, false));
+
+      got_loading_state_start_.yes();
+    } else {
+      EXPECT_TRUE(Verify(true, false, true, false));
+
+      got_loading_state_end_.yes();
+    }
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame) {
+    EXPECT_TRUE(Verify(true, false, false, false));
+
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) {
+    EXPECT_TRUE(Verify(true, true, true, false));
+
+    got_load_end_.yes();
+  }
+
+  bool IsStarted() {
+    return got_loading_state_start_ ||
+           got_loading_state_end_ ||
+           got_load_start_ ||
+           got_load_end_;
+  }
+
+  bool IsDone() {
+    return got_loading_state_start_ &&
+           got_loading_state_end_ &&
+           got_load_start_ &&
+           got_load_end_;
+  }
+
+ private:
+  bool Verify(bool got_loading_state_start,
+              bool got_loading_state_end,
+              bool got_load_start,
+              bool got_load_end) {
+    EXPECT_EQ(got_loading_state_start, got_loading_state_start_)
+      << "Popup: " << is_popup_
+      << "; Browser Side: " << browser_side_;
+    EXPECT_EQ(got_loading_state_end, got_loading_state_end_)
+      << "Popup: " << is_popup_
+      << "; Browser Side: " << browser_side_;
+    EXPECT_EQ(got_load_start, got_load_start_)
+      << "Popup: " << is_popup_
+      << "; Browser Side: " << browser_side_;
+    EXPECT_EQ(got_load_end, got_load_end_)
+      << "Popup: " << is_popup_
+      << "; Browser Side: " << browser_side_;
+
+    return got_loading_state_start == got_loading_state_start_ &&
+           got_loading_state_end == got_loading_state_end_ &&
+           got_load_start == got_load_start_ &&
+           got_load_end == got_load_end_;
+  }
+
+  bool is_popup_;
+  bool browser_side_;
+
+  TrackCallback got_loading_state_start_;
+  TrackCallback got_loading_state_end_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+};
+
 // Renderer side.
-class OrderNavRendererTest : public ClientApp::RenderDelegate {
+class OrderNavRendererTest : public ClientApp::RenderDelegate,
+                             public CefLoadHandler {
  public:
   OrderNavRendererTest()
       : run_test_(false),
         browser_id_main_(0),
-        browser_id_popup_(0) {}
+        browser_id_popup_(0),
+        state_main_(false, false), 
+        state_popup_(true, false) {}
 
   virtual void OnRenderThreadCreated(
       CefRefPtr<ClientApp> app,
@@ -910,16 +1092,16 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
 
     if (browser->IsPopup()) {
       EXPECT_FALSE(got_browser_created_popup_);
-      EXPECT_FALSE(got_before_navigation_popup_);
       EXPECT_FALSE(got_browser_destroyed_popup_);
+      EXPECT_FALSE(state_popup_.IsStarted());
 
       got_browser_created_popup_.yes();
       browser_id_popup_ = browser->GetIdentifier();
       EXPECT_GT(browser->GetIdentifier(), 0);
     } else {
       EXPECT_FALSE(got_browser_created_main_);
-      EXPECT_FALSE(got_before_navigation_main_);
       EXPECT_FALSE(got_browser_destroyed_main_);
+      EXPECT_FALSE(state_main_.IsStarted());
 
       got_browser_created_main_.yes();
       browser_id_main_ = browser->GetIdentifier();
@@ -939,8 +1121,8 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
 
     if (browser->IsPopup()) {
       EXPECT_TRUE(got_browser_created_popup_);
-      EXPECT_TRUE(got_before_navigation_popup_);
       EXPECT_FALSE(got_browser_destroyed_popup_);
+      EXPECT_TRUE(state_popup_.IsDone());
 
       got_browser_destroyed_popup_.yes();
       EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
@@ -950,8 +1132,8 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
       SendTestResults(browser_main_, kOrderNavClosedMsg);
     } else {
       EXPECT_TRUE(got_browser_created_main_);
-      EXPECT_TRUE(got_before_navigation_main_);
       EXPECT_FALSE(got_browser_destroyed_main_);
+      EXPECT_TRUE(state_main_.IsDone());
 
       got_browser_destroyed_main_.yes();
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
@@ -961,52 +1143,90 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
     }
   }
 
-  virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
-                                  CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  cef_navigation_type_t navigation_type,
-                                  bool is_redirect) OVERRIDE {
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
+    CefRefPtr<ClientApp> app) OVERRIDE {
     if (!run_test_)
-      return false;
+      return NULL;
 
+    return this;
+  }
+
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE {
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
-    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    if (browser->IsPopup()) {
+      EXPECT_TRUE(got_browser_created_popup_);
+      EXPECT_FALSE(got_browser_destroyed_popup_);
+
+      state_popup_.OnLoadingStateChange(browser, isLoading, canGoBack,
+                                        canGoForward);
+    } else {
+      EXPECT_TRUE(got_browser_created_main_);
+      EXPECT_FALSE(got_browser_destroyed_main_);
+
+      state_main_.OnLoadingStateChange(browser, isLoading, canGoBack,
+                                       canGoForward);
+    }
+
+    if (!isLoading)
+      SendTestResultsIfDone(browser);
+  }
+
+  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame) OVERRIDE {
+    EXPECT_TRUE(got_render_thread_created_);
+    EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
       EXPECT_TRUE(got_browser_created_popup_);
-      EXPECT_FALSE(got_before_navigation_popup_);
       EXPECT_FALSE(got_browser_destroyed_popup_);
 
-      got_before_navigation_popup_.yes();
-      EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
-      EXPECT_GT(browser->GetIdentifier(), 0);
+      state_popup_.OnLoadStart(browser, frame);
     } else {
       EXPECT_TRUE(got_browser_created_main_);
-      EXPECT_FALSE(got_before_navigation_main_);
       EXPECT_FALSE(got_browser_destroyed_main_);
 
-      got_before_navigation_main_.yes();
-      EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
-      EXPECT_GT(browser->GetIdentifier(), 0);
+      state_main_.OnLoadStart(browser, frame);
+    }
+  }
+
+  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         int httpStatusCode) OVERRIDE {
+    EXPECT_TRUE(got_render_thread_created_);
+    EXPECT_TRUE(got_webkit_initialized_);
+
+    if (browser->IsPopup()) {
+      EXPECT_TRUE(got_browser_created_popup_);
+      EXPECT_FALSE(got_browser_destroyed_popup_);
+
+      state_popup_.OnLoadEnd(browser, frame, httpStatusCode);
+    } else {
+      EXPECT_TRUE(got_browser_created_main_);
+      EXPECT_FALSE(got_browser_destroyed_main_);
+
+      state_main_.OnLoadEnd(browser, frame, httpStatusCode);
     }
 
-    std::string url = request->GetURL();
-    if (url == KONav1)
-      EXPECT_FALSE(browser->IsPopup());
-    else if (url == KONav2)
-      EXPECT_TRUE(browser->IsPopup());
-    else
-      EXPECT_TRUE(false);  // not reached
-
-    SendTestResults(browser, kOrderNavMsg);
-    return false;
+    SendTestResultsIfDone(browser);
   }
 
  protected:
+  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
+    bool done = false;
+    if (browser->IsPopup())
+      done = state_popup_.IsDone();
+    else
+      done = state_main_.IsDone();
+
+    if (done)
+      SendTestResults(browser, kOrderNavMsg);
+  }
+
   // Send the test results.
   void SendTestResults(CefRefPtr<CefBrowser> browser, const char* msg_name) {
     // Check if the test has failed.
@@ -1034,10 +1254,11 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate {
   TrackCallback got_webkit_initialized_;
   TrackCallback got_browser_created_main_;
   TrackCallback got_browser_destroyed_main_;
-  TrackCallback got_before_navigation_main_;
   TrackCallback got_browser_created_popup_;
   TrackCallback got_browser_destroyed_popup_;
-  TrackCallback got_before_navigation_popup_;
+
+  OrderNavLoadState state_main_;
+  OrderNavLoadState state_popup_;
 
   IMPLEMENT_REFCOUNTING(OrderNavRendererTest);
 };
@@ -1048,8 +1269,9 @@ class OrderNavTestHandler : public TestHandler {
   OrderNavTestHandler()
       : browser_id_main_(0),
         browser_id_popup_(0),
-        got_message_(false),
-        got_load_end_(false) {}
+        state_main_(false, true),
+        state_popup_(true, true),
+        got_message_(false) {}
 
   virtual void RunTest() OVERRIDE {
     // Add the resources that we will navigate to/from.
@@ -1061,11 +1283,18 @@ class OrderNavTestHandler : public TestHandler {
   }
 
   void ContinueIfReady(CefRefPtr<CefBrowser> browser) {
-    if (!got_message_ || !got_load_end_)
+    if (!got_message_)
+      return;
+
+    bool done = false;
+    if (browser->IsPopup())
+      done = state_popup_.IsDone();
+    else
+      done = state_main_.IsDone();
+    if (!done)
       return;
 
     got_message_ = false;
-    got_load_end_ = false;
 
     if (!browser->IsPopup()) {
       // Create the popup window.
@@ -1137,14 +1366,28 @@ class OrderNavTestHandler : public TestHandler {
     return false;
   }
 
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE {
+    if (browser->IsPopup()) {
+      state_popup_.OnLoadingStateChange(browser, isLoading, canGoBack,
+                                        canGoForward);
+    } else {
+      state_main_.OnLoadingStateChange(browser, isLoading, canGoBack,
+                                       canGoForward);
+    }
+
+    if (!isLoading)
+      ContinueIfReady(browser);
+  }
+
   virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame) OVERRIDE {
     if (browser->IsPopup()) {
-      EXPECT_GT(browser->GetIdentifier(), 0);
-      EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
+      state_popup_.OnLoadStart(browser, frame);
     } else {
-      EXPECT_GT(browser->GetIdentifier(), 0);
-      EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
+      state_main_.OnLoadStart(browser, frame);
     }
   }
 
@@ -1152,14 +1395,11 @@ class OrderNavTestHandler : public TestHandler {
                          CefRefPtr<CefFrame> frame,
                          int httpStatusCode) OVERRIDE {
     if (browser->IsPopup()) {
-      EXPECT_GT(browser->GetIdentifier(), 0);
-      EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
+      state_popup_.OnLoadEnd(browser, frame, httpStatusCode);
     } else {
-      EXPECT_GT(browser->GetIdentifier(), 0);
-      EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
+      state_main_.OnLoadEnd(browser, frame, httpStatusCode);
     }
 
-    got_load_end_ = true;
     ContinueIfReady(browser);
   }
 
@@ -1221,8 +1461,10 @@ class OrderNavTestHandler : public TestHandler {
   TrackCallback got_before_browse_main_;
   TrackCallback got_before_browse_popup_;
 
+  OrderNavLoadState state_main_;
+  OrderNavLoadState state_popup_;
+
   bool got_message_;
-  bool got_load_end_;
 };
 
 }  // namespace
@@ -1265,7 +1507,8 @@ class CrossOriginNavBrowserTest : public ClientApp::BrowserDelegate {
 };
 
 // Renderer side.
-class CrossOriginNavRendererTest : public ClientApp::RenderDelegate {
+class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
+                                   public CefLoadHandler {
  public:
   CrossOriginNavRendererTest()
       : run_test_(false) {}
@@ -1326,40 +1569,41 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate {
     EXPECT_TRUE(status);
 
     EXPECT_TRUE(status->got_browser_created);
-    EXPECT_TRUE(status->got_before_navigation);
+    EXPECT_TRUE(status->got_loading_state_end);
 
     EXPECT_EQ(status->browser_id, browser->GetIdentifier());
 
     EXPECT_TRUE(RemoveStatus(browser));
   }
 
-  virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
-                                  CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  cef_navigation_type_t navigation_type,
-                                  bool is_redirect) OVERRIDE {
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
+    CefRefPtr<ClientApp> app) OVERRIDE {
     if (!run_test_)
-      return false;
+      return NULL;
 
-    EXPECT_TRUE(got_render_thread_created_);
-    EXPECT_TRUE(got_webkit_initialized_);
+    return this;
+  }
 
-    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE {
+    if (!isLoading) {
+      EXPECT_TRUE(got_render_thread_created_);
+      EXPECT_TRUE(got_webkit_initialized_);
 
-    Status* status = GetStatus(browser);
-    EXPECT_TRUE(status);
+      Status* status = GetStatus(browser);
+      EXPECT_TRUE(status);
 
-    EXPECT_TRUE(status->got_browser_created);
-    EXPECT_FALSE(status->got_before_navigation);
+      EXPECT_TRUE(status->got_browser_created);
+      EXPECT_FALSE(status->got_loading_state_end);
 
-    status->got_before_navigation.yes();
+      status->got_loading_state_end.yes();
 
-    EXPECT_EQ(status->browser_id, browser->GetIdentifier());
+      EXPECT_EQ(status->browser_id, browser->GetIdentifier());
 
-    SendTestResults(browser);
-    return false;
+      SendTestResults(browser);
+    }
   }
 
  protected:
@@ -1389,7 +1633,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate {
     CefRefPtr<CefBrowser> browser;
     int browser_id;
     TrackCallback got_browser_created;
-    TrackCallback got_before_navigation;
+    TrackCallback got_loading_state_end;
   };
   typedef std::list<Status> StatusList;
   StatusList status_list_;

@@ -47,7 +47,8 @@ extern "C" {
 
 ///
 // Implement this structure to handle events related to browser load status. The
-// functions of this structure will be called on the UI thread.
+// functions of this structure will be called on the browser process UI thread
+// or render process main thread (TID_RENDERER).
 ///
 typedef struct _cef_load_handler_t {
   ///

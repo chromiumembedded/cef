@@ -51,6 +51,10 @@ class ClientApp : public CefApp,
     virtual void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
                                     CefRefPtr<CefBrowser> browser) {}
 
+    virtual CefRefPtr<CefLoadHandler> GetLoadHandler(CefRefPtr<ClientApp> app) {
+      return NULL;
+    }
+
     virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
                                     CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
@@ -151,6 +155,7 @@ class ClientApp : public CefApp,
   virtual void OnWebKitInitialized() OVERRIDE;
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
   virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
                                   CefRefPtr<CefRequest> request,

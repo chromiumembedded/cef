@@ -24,9 +24,11 @@
 #include "content/public/renderer/document_state.h"
 #include "content/public/renderer/navigation_state.h"
 #include "content/public/renderer/render_view.h"
+#include "content/renderer/render_view_impl.h"
 #include "net/http/http_util.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 #include "third_party/WebKit/public/web/WebDataSource.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
@@ -443,6 +445,12 @@ void CefBrowserImpl::AddFrameObject(int64 frame_id,
   manager->Add(tracked_object);
 }
 
+bool CefBrowserImpl::is_swapped_out() const {
+  content::RenderViewImpl* render_view_impl =
+      static_cast<content::RenderViewImpl*>(render_view());
+  return (!render_view_impl || render_view_impl->is_swapped_out());
+}
+
 
 // RenderViewObserver methods.
 // -----------------------------------------------------------------------------
@@ -462,6 +470,21 @@ void CefBrowserImpl::OnDestruct() {
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
 
+void CefBrowserImpl::DidStartLoading() {
+  OnLoadingStateChange(true);
+}
+
+void CefBrowserImpl::DidStopLoading() {
+  OnLoadingStateChange(false);
+}
+
+void CefBrowserImpl::DidFailLoad(
+    WebKit::WebFrame* frame,
+    const WebKit::WebURLError& error) {
+  OnLoadError(frame, error);
+  OnLoadEnd(frame);
+}
+
 void CefBrowserImpl::DidFinishLoad(WebKit::WebFrame* frame) {
   WebKit::WebDataSource* ds = frame->dataSource();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
@@ -469,11 +492,23 @@ void CefBrowserImpl::DidFinishLoad(WebKit::WebFrame* frame) {
                                     ds->request().url(),
                                     !frame->parent(),
                                     ds->response().httpStatusCode()));
+  OnLoadEnd(frame);
 }
 
 void CefBrowserImpl::DidStartProvisionalLoad(WebKit::WebFrame* frame) {
   // Send the frame creation notification if necessary.
   GetWebFrameImpl(frame);
+}
+
+void CefBrowserImpl::DidFailProvisionalLoad(
+    WebKit::WebFrame* frame,
+    const WebKit::WebURLError& error) {
+  OnLoadError(frame, error);
+}
+
+void CefBrowserImpl::DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+                                              bool is_new_navigation) {
+  OnLoadStart(frame);
 }
 
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
@@ -712,4 +747,93 @@ void CefBrowserImpl::OnResponse(const Cef_Response_Params& params) {
 
 void CefBrowserImpl::OnResponseAck(int request_id) {
   response_manager_->RunAckHandler(request_id);
+}
+
+void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
+  content::RenderViewImpl* render_view_impl =
+      static_cast<content::RenderViewImpl*>(render_view());
+  if (is_swapped_out())
+    return;
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        WebView* web_view = render_view()->GetWebView();
+        const bool canGoBack = webkit_glue::CanGoBack(web_view);
+        const bool canGoForward = webkit_glue::CanGoForward(web_view);
+
+        load_handler->OnLoadingStateChange(this, isLoading, canGoBack,
+                                           canGoForward);
+      }
+    }
+  }
+}
+
+void CefBrowserImpl::OnLoadStart(WebKit::WebFrame* frame) {
+  content::RenderViewImpl* render_view_impl =
+      static_cast<content::RenderViewImpl*>(render_view());
+  if (is_swapped_out())
+    return;
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
+        load_handler->OnLoadStart(this, cef_frame.get());
+      }
+    }
+  }
+}
+
+void CefBrowserImpl::OnLoadEnd(WebKit::WebFrame* frame) {
+  content::RenderViewImpl* render_view_impl =
+      static_cast<content::RenderViewImpl*>(render_view());
+  if (is_swapped_out())
+    return;
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
+        int httpStatusCode = frame->dataSource()->response().httpStatusCode();
+        load_handler->OnLoadEnd(this, cef_frame.get(), httpStatusCode);
+      }
+    }
+  }
+}
+
+void CefBrowserImpl::OnLoadError(WebKit::WebFrame* frame,
+                                 const WebKit::WebURLError& error) {
+  if (is_swapped_out())
+    return;
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
+        const cef_errorcode_t errorCode =
+            static_cast<cef_errorcode_t>(error.reason);
+        const std::string& errorText = error.localizedDescription.utf8();
+        const GURL& failedUrl = error.unreachableURL;
+        load_handler->OnLoadError(this, cef_frame.get(), errorCode, errorText,
+                                  failedUrl.spec());
+      }
+    }
+  }
 }

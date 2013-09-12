@@ -19,6 +19,7 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
+#include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
 
 
@@ -83,6 +84,19 @@ void CefRenderProcessHandlerCToCpp::OnBrowserDestroyed(
   // Execute
   struct_->on_browser_destroyed(struct_,
       CefBrowserCppToC::Wrap(browser));
+}
+
+CefRefPtr<CefLoadHandler> CefRenderProcessHandlerCToCpp::GetLoadHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_load_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_load_handler_t* _retval = struct_->get_load_handler(struct_);
+
+  // Return type: refptr_same
+  return CefLoadHandlerCToCpp::Wrap(_retval);
 }
 
 bool CefRenderProcessHandlerCToCpp::OnBeforeNavigation(

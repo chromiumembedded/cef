@@ -103,15 +103,26 @@ class CefBrowserImpl : public CefBrowser,
   bool is_window_rendering_disabled() const {
     return is_window_rendering_disabled_;
   }
-  content::RenderView* render_view() {
+  content::RenderView* render_view() const {
     return content::RenderViewObserver::render_view();
   }
+
+  bool is_swapped_out() const;
 
  private:
   // RenderViewObserver methods.
   virtual void OnDestruct() OVERRIDE;
+  virtual void DidStartLoading() OVERRIDE;
+  virtual void DidStopLoading() OVERRIDE;
+  virtual void DidFailLoad(WebKit::WebFrame* frame,
+                           const WebKit::WebURLError& error) OVERRIDE;
   virtual void DidFinishLoad(WebKit::WebFrame* frame) OVERRIDE;
   virtual void DidStartProvisionalLoad(WebKit::WebFrame* frame) OVERRIDE;
+  virtual void DidFailProvisionalLoad(
+      WebKit::WebFrame* frame,
+      const WebKit::WebURLError& error) OVERRIDE;
+  virtual void DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+                                        bool is_new_navigation) OVERRIDE;
   virtual void FrameDetached(WebKit::WebFrame* frame) OVERRIDE;
   virtual void FocusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;
   virtual void DidCreateDataSource(WebKit::WebFrame* frame,
@@ -122,6 +133,11 @@ class CefBrowserImpl : public CefBrowser,
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
+
+  void OnLoadingStateChange(bool isLoading);
+  void OnLoadStart(WebKit::WebFrame* frame);
+  void OnLoadEnd(WebKit::WebFrame* frame);
+  void OnLoadError(WebKit::WebFrame* frame, const WebKit::WebURLError& error);
 
   // ID of the browser that this RenderView is associated with. During loading
   // of cross-origin requests multiple RenderViews may be associated with the

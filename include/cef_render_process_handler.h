@@ -42,6 +42,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_dom.h"
 #include "include/cef_frame.h"
+#include "include/cef_load_handler.h"
 #include "include/cef_process_message.h"
 #include "include/cef_v8.h"
 #include "include/cef_values.h"
@@ -84,6 +85,14 @@ class CefRenderProcessHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {}
+
+  ///
+  // Return the handler for browser load status events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() {
+    return NULL;
+  }
 
   ///
   // Called before browser navigation. Return true to cancel the navigation or

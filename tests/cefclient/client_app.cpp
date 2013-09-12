@@ -279,6 +279,16 @@ void ClientApp::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {
     (*it)->OnBrowserDestroyed(this, browser);
 }
 
+CefRefPtr<CefLoadHandler> ClientApp::GetLoadHandler() {
+  CefRefPtr<CefLoadHandler> load_handler;
+
+  RenderDelegateSet::iterator it = render_delegates_.begin();
+  for (; it != render_delegates_.end() && !load_handler.get(); ++it)
+    load_handler = (*it)->GetLoadHandler(this);
+
+  return load_handler;
+}
+
 bool ClientApp::OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
                                    CefRefPtr<CefRequest> request,

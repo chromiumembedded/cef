@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -86,6 +87,22 @@ void CEF_CALLBACK render_process_handler_on_browser_destroyed(
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnBrowserDestroyed(
       CefBrowserCToCpp::Wrap(browser));
+}
+
+cef_load_handler_t* CEF_CALLBACK render_process_handler_get_load_handler(
+    struct _cef_render_process_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefLoadHandler> _retval = CefRenderProcessHandlerCppToC::Get(
+      self)->GetLoadHandler();
+
+  // Return type: refptr_same
+  return CefLoadHandlerCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK render_process_handler_on_before_navigation(
@@ -282,6 +299,7 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
       render_process_handler_on_browser_created;
   struct_.struct_.on_browser_destroyed =
       render_process_handler_on_browser_destroyed;
+  struct_.struct_.get_load_handler = render_process_handler_get_load_handler;
   struct_.struct_.on_before_navigation =
       render_process_handler_on_before_navigation;
   struct_.struct_.on_context_created =

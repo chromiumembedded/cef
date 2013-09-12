@@ -89,6 +89,12 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_browser_t* browser);
 
   ///
+  // Return the handler for browser load status events.
+  ///
+  struct _cef_load_handler_t* (CEF_CALLBACK *get_load_handler)(
+      struct _cef_render_process_handler_t* self);
+
+  ///
   // Called before browser navigation. Return true (1) to cancel the navigation
   // or false (0) to allow the navigation to proceed. The |request| object
   // cannot be modified in this callback.

@@ -44,7 +44,8 @@
 
 ///
 // Implement this interface to handle events related to browser load status. The
-// methods of this class will be called on the UI thread.
+// methods of this class will be called on the browser process UI thread or
+// render process main thread (TID_RENDERER).
 ///
 /*--cef(source=client)--*/
 class CefLoadHandler : public virtual CefBase {
