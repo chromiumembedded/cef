@@ -750,8 +750,6 @@ void CefBrowserImpl::OnResponseAck(int request_id) {
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
-  content::RenderViewImpl* render_view_impl =
-      static_cast<content::RenderViewImpl*>(render_view());
   if (is_swapped_out())
     return;
 
@@ -774,8 +772,6 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
 }
 
 void CefBrowserImpl::OnLoadStart(WebKit::WebFrame* frame) {
-  content::RenderViewImpl* render_view_impl =
-      static_cast<content::RenderViewImpl*>(render_view());
   if (is_swapped_out())
     return;
 
@@ -794,8 +790,6 @@ void CefBrowserImpl::OnLoadStart(WebKit::WebFrame* frame) {
 }
 
 void CefBrowserImpl::OnLoadEnd(WebKit::WebFrame* frame) {
-  content::RenderViewImpl* render_view_impl =
-      static_cast<content::RenderViewImpl*>(render_view());
   if (is_swapped_out())
     return;
 
