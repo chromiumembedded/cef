@@ -13,6 +13,10 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
   // Bring in the Navigation tests.
   extern void CreateNavigationBrowserTests(BrowserDelegateSet& delegates);
   CreateNavigationBrowserTests(delegates);
+
+  // Bring in the RequestHandler tests.
+  extern void CreateRequestHandlerBrowserTests(BrowserDelegateSet& delegates);
+  CreateRequestHandlerBrowserTests(delegates);
 }
 
 // static
@@ -37,10 +41,6 @@ void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   // Bring in the Navigation tests.
   extern void CreateNavigationRendererTests(RenderDelegateSet& delegates);
   CreateNavigationRendererTests(delegates);
-
-  // Bring in the Request tests.
-  extern void CreateRequestRendererTests(RenderDelegateSet& delegates);
-  CreateRequestRendererTests(delegates);
 
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerRendererTests(RenderDelegateSet& delegates);
