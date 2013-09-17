@@ -69,6 +69,11 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
 CefURLRequestContextGetter::~CefURLRequestContextGetter() {
   CEF_REQUIRE_IOT();
   STLDeleteElements(&url_request_context_proxies_);
+
+  // Delete the ProxyService object here so that any pending requests will be
+  // canceled before the associated URLRequestContext is destroyed in this
+  // object's destructor.
+  storage_->set_proxy_service(NULL);
 }
 
 net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
