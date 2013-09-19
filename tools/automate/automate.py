@@ -296,9 +296,9 @@ if not os.path.exists(depot_tools_dir):
 if not options.noupdate and options.depottools == '':
   # Update depot_tools. It will download required scripts (svn, python, ...)
   if sys.platform == 'win32':
-    run('update_depot_tools.bat', depot_tools_dir);
+    run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
   else:
-    run('update_depot_tools', depot_tools_dir);
+    run('update_depot_tools', depot_tools_dir, depot_tools_dir);
 
 if sys.platform == 'win32':
   # Force use of the SVN version bundled with depot_tools.
@@ -564,25 +564,25 @@ if any_changed or options.forcebuild:
       # make CEF Debug build
       run(command + os.path.join('out', 'Debug' + build_dir_suffix) + target, \
           chromium_src_dir, depot_tools_dir,
-          os.path.join(chromium_src_dir, 'ninja-build-debug.log'))
+          os.path.join(chromium_src_dir, 'ninja-build-debug.log') if options.buildlogfile else None)
 
     if not options.noreleasebuild:
       # make CEF Release build
       run(command + os.path.join('out', 'Release' + build_dir_suffix) + target, \
           chromium_src_dir, depot_tools_dir,
-          os.path.join(chromium_src_dir, 'ninja-build-release.log'))
+          os.path.join(chromium_src_dir, 'ninja-build-release.log') if options.buildlogfile else None)
   else:
     path = os.path.join(cef_tools_dir, 'build_projects'+script_ext)
 
     if not options.nodebugbuild:
       # make CEF Debug build
       run(path+' Debug', cef_tools_dir, depot_tools_dir,
-        os.path.join(chromium_src_dir, 'build-debug.log'))
+        os.path.join(chromium_src_dir, 'build-debug.log') if options.buildlogfile else None)
 
     if not options.noreleasebuild:
       # make CEF Release build
       run(path+' Release', cef_tools_dir, depot_tools_dir,
-        os.path.join(chromium_src_dir, 'build-release.log'))
+        os.path.join(chromium_src_dir, 'build-release.log') if options.buildlogfile else None)
 
 if (any_changed or options.forcedistrib) and not options.nodistrib:
   if not options.forceclean and options.cleanartifacts:
