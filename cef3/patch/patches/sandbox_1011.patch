@@ -2,7 +2,7 @@ Index: sandbox_win.cc
 ===================================================================
 --- sandbox_win.cc	(revision 202711)
 +++ sandbox_win.cc	(working copy)
-@@ -589,8 +589,17 @@
+@@ -589,8 +589,23 @@
    cmd_line->AppendArg(base::StringPrintf("/prefetch:%d", base::Hash(type_str)));
  
    if (!in_sandbox) {
@@ -11,7 +11,13 @@ Index: sandbox_win.cc
 -    base::LaunchProcess(*cmd_line, base::LaunchOptions(), &process);
 +
 +    static HANDLE hJobObject = NULL;
-+    if (!hJobObject) {
++    JOBOBJECT_BASIC_LIMIT_INFORMATION jblinfo = {0};
++    // Create an object for child processes only if the current job allows this,
++    // otherwise CreateProcess with CREATE_BREAKAWAY_FROM_JOB will fail with 'access denied'.
++    bool createObject = !hJobObject &&
++        (!::QueryInformationJobObject(NULL, JobObjectBasicLimitInformation, &jblinfo, sizeof(jblinfo), NULL) ||
++        (jblinfo.LimitFlags & JOB_OBJECT_LIMIT_BREAKAWAY_OK));
++    if (createObject) {
 +      hJobObject = CreateJobObject(NULL, NULL);
 +      base::SetJobObjectAsKillOnJobClose(hJobObject);
 +    }
