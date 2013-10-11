@@ -1,0 +1,90 @@
+Index: base/system_monitor/system_monitor_win.cc
+===================================================================
+--- base/system_monitor/system_monitor_win.cc	(revision 202711)
++++ base/system_monitor/system_monitor_win.cc	(working copy)
+@@ -27,6 +27,14 @@
+ 
+ SystemMonitor::PowerMessageWindow::PowerMessageWindow()
+     : instance_(NULL), message_hwnd_(NULL) {
++  if (MessageLoop::current()->type() != MessageLoop::TYPE_UI) {
++    // Creating this window in (e.g.) a renderer inhibits shutdown on Windows.
++    // See http://crbug.com/230122. TODO(vandebo): http://crbug.com/236031
++    DLOG(ERROR)
++        << "Cannot create windows on non-UI thread, power monitor disabled!";
++    return;
++  }
++
+   WNDCLASSEX window_class;
+   base::win::InitializeWindowClass(
+       kWindowClassName,
+Index: content/renderer/renderer_main_platform_delegate_win.cc
+===================================================================
+--- content/renderer/renderer_main_platform_delegate_win.cc	(revision 202711)
++++ content/renderer/renderer_main_platform_delegate_win.cc	(working copy)
+@@ -47,6 +47,14 @@
+   base::win::SetAbortBehaviorForCrashReporting();
+ }
+ 
++#if !defined(NDEBUG)
++LRESULT CALLBACK WindowsHookCBT(int code, WPARAM w_param, LPARAM l_param) {
++  CHECK_NE(code, HCBT_CREATEWND)
++      << "Should not be creating windows in the renderer!";
++  return CallNextHookEx(NULL, code, w_param, l_param);
++}
++#endif  // !NDEBUG
++
+ }  // namespace
+ 
+ RendererMainPlatformDelegate::RendererMainPlatformDelegate(
+@@ -59,6 +67,15 @@
+ }
+ 
+ void RendererMainPlatformDelegate::PlatformInitialize() {
++#if !defined(NDEBUG)
++  // Install a check that we're not creating windows in the renderer. See
++  // http://crbug.com/230122 for background. TODO(scottmg): Ideally this would
++  // check all threads in the renderer, but it currently only checks the main
++  // thread.
++  PCHECK(
++      SetWindowsHookEx(WH_CBT, WindowsHookCBT, NULL, ::GetCurrentThreadId()));
++#endif  // !NDEBUG
++
+   InitExitInterceptions();
+ 
+   // Be mindful of what resources you acquire here. They can be used by
+Index: ui/base/win/singleton_hwnd.cc
+===================================================================
+--- ui/base/win/singleton_hwnd.cc	(revision 202711)
++++ ui/base/win/singleton_hwnd.cc	(working copy)
+@@ -5,6 +5,7 @@
+ #include "ui/base/win/singleton_hwnd.h"
+ 
+ #include "base/memory/singleton.h"
++#include "base/message_loop.h"
+ 
+ namespace ui {
+ 
+@@ -14,12 +15,22 @@
+ }
+ 
+ void SingletonHwnd::AddObserver(Observer* observer) {
+-  if (!hwnd())
++  if (!hwnd()) {
++    if (!MessageLoop::current() ||
++        MessageLoop::current()->type() != MessageLoop::TYPE_UI) {
++      // Creating this window in (e.g.) a renderer inhibits shutdown on
++      // Windows. See http://crbug.com/230122 and http://crbug.com/236039.
++      DLOG(ERROR) << "Cannot create windows on non-UI thread!";
++      return;
++    }
+     WindowImpl::Init(NULL, gfx::Rect());
++  }
+   observer_list_.AddObserver(observer);
+ }
+ 
+ void SingletonHwnd::RemoveObserver(Observer* observer) {
++  if (!hwnd())
++    return;
+   observer_list_.RemoveObserver(observer);
+ }
+ 
