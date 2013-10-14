@@ -142,6 +142,21 @@ typedef struct _cef_request_t {
   ///
   void (CEF_CALLBACK *set_first_party_for_cookies)(struct _cef_request_t* self,
       const cef_string_t* url);
+
+  ///
+  // Get the resource type for this request. Accurate resource type information
+  // may only be available in the browser process.
+  ///
+  enum cef_resource_type_t (CEF_CALLBACK *get_resource_type)(
+      struct _cef_request_t* self);
+
+  ///
+  // Get the transition type for this request. Only available in the browser
+  // process and only applies to requests that represent a main frame or sub-
+  // frame navigation.
+  ///
+  enum cef_transition_type_t (CEF_CALLBACK *get_transition_type)(
+      struct _cef_request_t* self);
 } cef_request_t;
 
 

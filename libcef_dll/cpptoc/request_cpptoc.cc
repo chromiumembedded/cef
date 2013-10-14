@@ -278,6 +278,37 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
       CefString(url));
 }
 
+enum cef_resource_type_t CEF_CALLBACK request_get_resource_type(
+    struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return RT_SUB_RESOURCE;
+
+  // Execute
+  cef_resource_type_t _retval = CefRequestCppToC::Get(self)->GetResourceType();
+
+  // Return type: simple
+  return _retval;
+}
+
+enum cef_transition_type_t CEF_CALLBACK request_get_transition_type(
+    struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return TT_EXPLICIT;
+
+  // Execute
+  cef_transition_type_t _retval = CefRequestCppToC::Get(
+      self)->GetTransitionType();
+
+  // Return type: simple
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -299,6 +330,8 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
       request_get_first_party_for_cookies;
   struct_.struct_.set_first_party_for_cookies =
       request_set_first_party_for_cookies;
+  struct_.struct_.get_resource_type = request_get_resource_type;
+  struct_.struct_.get_transition_type = request_get_transition_type;
 }
 
 #ifndef NDEBUG

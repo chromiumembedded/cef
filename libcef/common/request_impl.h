@@ -45,6 +45,8 @@ class CefRequestImpl : public CefRequest {
   virtual void SetFlags(int flags) OVERRIDE;
   virtual CefString GetFirstPartyForCookies() OVERRIDE;
   virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
+  virtual ResourceType GetResourceType() OVERRIDE;
+  virtual TransitionType GetTransitionType() OVERRIDE;
 
   // Populate this object from the URLRequest object.
   void Set(net::URLRequest* request);
@@ -72,6 +74,8 @@ class CefRequestImpl : public CefRequest {
   CefString method_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
+  ResourceType resource_type_;
+  TransitionType transition_type_;
 
   // The below members are used by CefURLRequest.
   int flags_;

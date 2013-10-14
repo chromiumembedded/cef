@@ -34,6 +34,9 @@ class CefRequestHandlerCToCpp
   virtual ~CefRequestHandlerCToCpp() {}
 
   // CefRequestHandler methods
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      bool is_redirect) OVERRIDE;
   virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request) OVERRIDE;
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(

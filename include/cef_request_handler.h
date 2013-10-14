@@ -93,6 +93,24 @@ class CefAllowCertificateErrorCallback : public virtual CefBase {
 class CefRequestHandler : public virtual CefBase {
  public:
   ///
+  // Called on the UI thread before browser navigation. Return true to cancel
+  // the navigation or false to allow the navigation to proceed. The |request|
+  // object cannot be modified in this callback.
+  // CefDisplayHandler::OnLoadingStateChange will be called twice in all cases.
+  // If the navigation is allowed CefLoadHandler::OnLoadStart and
+  // CefLoadHandler::OnLoadEnd will be called. If the navigation is canceled
+  // CefLoadHandler::OnLoadError will be called with an |errorCode| value of
+  // ERR_ABORTED.
+  ///
+  /*--cef()--*/
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_redirect) {
+    return false;
+  }
+
+  ///
   // Called on the IO thread before a resource request is loaded. The |request|
   // object may be modified. To cancel the request return true otherwise return
   // false.
