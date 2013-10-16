@@ -1,0 +1,13 @@
+Index: underlay_opengl_hosting_window.h
+===================================================================
+--- underlay_opengl_hosting_window.h	(revision 214871)
++++ underlay_opengl_hosting_window.h	(working copy)
+@@ -12,7 +12,7 @@
+ // Common base class for windows that host a OpenGL surface that renders under
+ // the window. Contains methods relating to hole punching so that the OpenGL
+ // surface is visible through the window.
+-UI_EXPORT
++__attribute__((visibility("default")))
+ @interface UnderlayOpenGLHostingWindow : NSWindow
+ @end
+ 

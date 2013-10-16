@@ -1,0 +1,13 @@
+Index: singleton_hwnd.cc
+===================================================================
+--- singleton_hwnd.cc	(revision 227628)
++++ singleton_hwnd.cc	(working copy)
+@@ -20,7 +20,7 @@
+         base::MessageLoop::current()->type() != base::MessageLoop::TYPE_UI) {
+       // Creating this window in (e.g.) a renderer inhibits shutdown on
+       // Windows. See http://crbug.com/230122 and http://crbug.com/236039.
+-      DLOG(ERROR) << "Cannot create windows on non-UI thread!";
++      // DLOG(ERROR) << "Cannot create windows on non-UI thread!";
+       return;
+     }
+     WindowImpl::Init(NULL, Rect());
