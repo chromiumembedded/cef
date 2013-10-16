@@ -3,12 +3,14 @@
 # can be found in the LICENSE file
 
 from subprocess import Popen, PIPE
+import sys
 
 def get_svn_revision(path=".", branch="master"):
     svn_rev = "None"
     cmd = ("git log --grep=^git-svn-id: -n 1 %s" % branch).split()
     try:
-        process = Popen(cmd, cwd=path, stdout = PIPE, stderr = PIPE)
+        process = Popen(cmd, cwd=path, stdout = PIPE, stderr = PIPE,
+                        shell=(sys.platform == 'win32'))
         for line in process.stdout:
             if line.find("git-svn-id") > 0:
                 svn_rev = line.split("@")[1].split()[0]
