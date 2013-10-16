@@ -20,33 +20,6 @@ namespace content {
 class RenderViewHost;
 }
 
-class CefDevToolsBindingHandler
-    : public content::DevToolsHttpHandler::DevToolsAgentHostBinding {
- public:
-  CefDevToolsBindingHandler();
-
-  // DevToolsAgentHostBinding overrides.
-  virtual std::string GetIdentifier(
-      content::DevToolsAgentHost* agent_host) OVERRIDE;
-  virtual content::DevToolsAgentHost* ForIdentifier(
-      const std::string& identifier) OVERRIDE;
-
-  std::string GetIdentifier(content::RenderViewHost* rvh);
-
- private:
-  void GarbageCollect();
-
-  std::string random_seed_;
-
-  // Map of identifier to DevToolsAgentHost. Keeps the DevToolsAgentHost objects
-  // alive until the associated RVH is disconnected.
-  typedef std::map<std::string, scoped_refptr<content::DevToolsAgentHost> >
-      AgentsMap;
-  AgentsMap agents_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsBindingHandler);
-};
-
 class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
   explicit CefDevToolsDelegate(int port);
@@ -60,9 +33,10 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
-  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
-  virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
+  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget() OVERRIDE;
+  virtual scoped_ptr<content::DevToolsTarget> CreateTargetForId(
+      const std::string& id) OVERRIDE;
+  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;
@@ -72,7 +46,6 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
  private:
   content::DevToolsHttpHandler* devtools_http_handler_;
-  scoped_ptr<CefDevToolsBindingHandler> binding_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsDelegate);
 };

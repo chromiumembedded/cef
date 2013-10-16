@@ -544,7 +544,7 @@ net::UploadDataStream* CefPostDataImpl::Get() {
         static_cast<CefPostDataElementImpl*>(it->get())->Get());
   }
 
-  return new net::UploadDataStream(&element_readers, 0);
+  return new net::UploadDataStream(element_readers.Pass(), 0);
 }
 
 void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data) {

@@ -14,7 +14,7 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "core/page/Frame.h"
+#include "core/frame/Frame.h"
 #include "core/workers/WorkerGlobalScope.h"
 #include "bindings/v8/ScriptController.h"
 #include "bindings/v8/V8Binding.h"
@@ -478,7 +478,7 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out) {
 // V8 function callback.
 void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
+      WebCore::toExecutionContext(v8::Context::GetCurrent()));
 
   CefV8Handler* handler =
       static_cast<CefV8Handler*>(v8::External::Cast(*info.Data())->Value());
@@ -516,7 +516,7 @@ void AccessorGetterCallbackImpl(
     v8::Local<v8::String> property,
     const v8::PropertyCallbackInfo<v8::Value>& info) {
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
+      WebCore::toExecutionContext(v8::Context::GetCurrent()));
 
   v8::Handle<v8::Object> obj = info.This();
 
@@ -554,7 +554,7 @@ void AccessorSetterCallbackImpl(
     v8::Local<v8::Value> value,
     const v8::PropertyCallbackInfo<void>& info) {
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::toScriptExecutionContext(v8::Context::GetCurrent()));
+      WebCore::toExecutionContext(v8::Context::GetCurrent()));
 
   v8::Handle<v8::Object> obj = info.This();
 
@@ -599,8 +599,8 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
         WebCore::WorkerScriptController::controllerForContext();
     DCHECK(controller);
     if (controller) {
-      func_rv = WebCore::ScriptController::callFunctionWithInstrumentation(
-          controller->workerGlobalScope()->scriptExecutionContext(),
+      func_rv = WebCore::ScriptController::callFunction(
+          controller->workerGlobalScope()->executionContext(),
           function, receiver, argc, args, isolate);
     }
   }

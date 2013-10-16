@@ -800,9 +800,9 @@
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
+        '<(DEPTH)/webkit/glue/webkit_glue.gyp:glue',
         '<(DEPTH)/webkit/storage_browser.gyp:webkit_storage_browser',
         '<(DEPTH)/webkit/storage_common.gyp:webkit_storage_common',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:glue',
         # Necessary to generate the grit include files.
         'cef_pak',
       ],

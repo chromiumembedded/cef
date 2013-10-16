@@ -1,0 +1,43 @@
+Index: browser/devtools/devtools_http_handler_impl.cc
+===================================================================
+--- browser/devtools/devtools_http_handler_impl.cc	(revision 228917)
++++ browser/devtools/devtools_http_handler_impl.cc	(working copy)
+@@ -542,9 +542,17 @@
+ 
+ DevToolsTarget* DevToolsHttpHandlerImpl::GetTarget(const std::string& id) {
+   TargetMap::const_iterator it = target_map_.find(id);
+-  if (it == target_map_.end())
+-    return NULL;
+-  return it->second;
++  if (it != target_map_.end())
++    return it->second;
++
++  scoped_ptr<DevToolsTarget> target(delegate_->CreateTargetForId(id));
++  if (target) {
++    DCHECK_EQ(id, target->GetId());
++    target_map_[id] = target.release();
++    return target_map_[id];
++  }
++
++  return NULL;
+ }
+ 
+ void DevToolsHttpHandlerImpl::OnThumbnailRequestUI(
+Index: public/browser/devtools_http_handler_delegate.h
+===================================================================
+--- public/browser/devtools_http_handler_delegate.h	(revision 228917)
++++ public/browser/devtools_http_handler_delegate.h	(working copy)
+@@ -39,6 +39,13 @@
+   // Creates new inspectable target.
+   virtual scoped_ptr<DevToolsTarget> CreateNewTarget() = 0;
+ 
++  // Creates an inspectable target for the specified |id|. Called in cases where
++  // the target has not been enumerated (for example, direct URL access where
++  // the discovery JSON was not loaded first). This method was added for
++  // Chromium Embedded Framework.
++  virtual scoped_ptr<DevToolsTarget> CreateTargetForId(
++      const std::string& id) = 0;
++
+   typedef std::vector<DevToolsTarget*> TargetList;
+   typedef base::Callback<void(const TargetList&)> TargetCallback;
+ 

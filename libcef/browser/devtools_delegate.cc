@@ -14,105 +14,96 @@
 #include "base/rand_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/utf_string_conversions.h"
+#include "content/public/browser/devtools_agent_host.h"
 #include "base/time/time.h"
 #include "content/public/browser/devtools_http_handler.h"
-#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/devtools_target.h"
+#include "content/public/browser/favicon_status.h"
+#include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_iterator.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_delegate.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
+#include "net/base/escape.h"
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 
-// CefDevToolsBindingHandler
+namespace {
 
-CefDevToolsBindingHandler::CefDevToolsBindingHandler() {
-}
+const char kTargetTypePage[] = "page";
 
-std::string CefDevToolsBindingHandler::GetIdentifier(
-    content::DevToolsAgentHost* agent_host) {
-  GarbageCollect();
+class Target : public content::DevToolsTarget {
+ public:
+  explicit Target(content::WebContents* web_contents);
 
-  const std::string& identifier =
-      GetIdentifier(agent_host->GetRenderViewHost());
-  agents_map_[identifier] = agent_host;
-  return identifier;
-}
-
-content::DevToolsAgentHost* CefDevToolsBindingHandler::ForIdentifier(
-    const std::string& identifier) {
-  GarbageCollect();
-  
-  // Return the existing agent host, if any.
-  AgentsMap::const_iterator it = agents_map_.find(identifier);
-  if (it != agents_map_.end())
-    return it->second;
-
-  // Iterate through the existing RVH instances to find a match.
-  for (content::RenderProcessHost::iterator it(
-      content::RenderProcessHost::AllHostsIterator());
-      !it.IsAtEnd(); it.Advance()) {
-    content::RenderProcessHost* render_process_host = it.GetCurrentValue();
-    DCHECK(render_process_host);
-
-    // Ignore processes that don't have a connection, such as crashed contents.
-    if (!render_process_host->HasConnection())
-      continue;
-
-    scoped_ptr<content::RenderWidgetHostIterator> widgets(
-        content::RenderWidgetHost::GetRenderWidgetHosts());
-    while (content::RenderWidgetHost* widget = widgets->GetNextHost()) {
-      if (!widget->IsRenderView())
-        continue;
-
-      content::RenderViewHost* host = content::RenderViewHost::From(widget);
-      if (GetIdentifier(host) == identifier) {
-        // May create a new agent host.
-        scoped_refptr<content::DevToolsAgentHost> agent_host(
-            content::DevToolsAgentHost::GetOrCreateFor(host));
-        agents_map_[identifier] = agent_host;
-        return agent_host;
-      }
-    }
+  virtual std::string GetId() const OVERRIDE { return id_; }
+  virtual std::string GetType() const OVERRIDE { return kTargetTypePage; }
+  virtual std::string GetTitle() const OVERRIDE { return title_; }
+  virtual std::string GetDescription() const OVERRIDE { return std::string(); }
+  virtual GURL GetUrl() const OVERRIDE { return url_; }
+  virtual GURL GetFaviconUrl() const OVERRIDE { return favicon_url_; }
+  virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
+    return last_activity_time_;
   }
-
-  return NULL;
-}
-
-std::string CefDevToolsBindingHandler::GetIdentifier(
-    content::RenderViewHost* rvh) {
-  int process_id = rvh->GetProcess()->GetID();
-  int routing_id = rvh->GetRoutingID();
-
-  if (random_seed_.empty()) {
-    // Generate a random seed that is used to make identifier guessing more
-    // difficult.
-    random_seed_ = base::StringPrintf("%lf|%u",
-        base::Time::Now().ToDoubleT(), base::RandInt(0, INT_MAX));
+  virtual bool IsAttached() const OVERRIDE {
+    return agent_host_->IsAttached();
   }
-
-  // Create a key that combines RVH IDs and the random seed.
-  std::string key = base::StringPrintf("%d|%d|%s",
-      process_id,
-      routing_id,
-      random_seed_.c_str());
-
-  // Return an MD5 hash of the key.
-  return base::MD5String(key);
-}
-
-void CefDevToolsBindingHandler::GarbageCollect() {
-  AgentsMap::iterator it = agents_map_.begin();
-  while (it != agents_map_.end()) {
-    if (!it->second->GetRenderViewHost())
-      agents_map_.erase(it++);
-    else
-      ++it;
+  virtual scoped_refptr<content::DevToolsAgentHost> GetAgentHost() const
+      OVERRIDE {
+    return agent_host_;
   }
+  virtual bool Activate() const OVERRIDE;
+  virtual bool Close() const OVERRIDE;
+
+ private:
+  scoped_refptr<content::DevToolsAgentHost> agent_host_;
+  std::string id_;
+  std::string title_;
+  GURL url_;
+  GURL favicon_url_;
+  base::TimeTicks last_activity_time_;
+};
+
+Target::Target(content::WebContents* web_contents) {
+  agent_host_ =
+      content::DevToolsAgentHost::GetOrCreateFor(
+          web_contents->GetRenderViewHost());
+  id_ = agent_host_->GetId();
+  title_ = UTF16ToUTF8(net::EscapeForHTML(web_contents->GetTitle()));
+  url_ = web_contents->GetURL();
+  content::NavigationController& controller = web_contents->GetController();
+  content::NavigationEntry* entry = controller.GetActiveEntry();
+  if (entry != NULL && entry->GetURL().is_valid())
+    favicon_url_ = entry->GetFavicon().url;
+  last_activity_time_ = web_contents->GetLastSelectedTime();
 }
 
+bool Target::Activate() const {
+  content::RenderViewHost* rvh = agent_host_->GetRenderViewHost();
+  if (!rvh)
+    return false;
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderViewHost(rvh);
+  if (!web_contents)
+    return false;
+  web_contents->GetDelegate()->ActivateContents(web_contents);
+  return true;
+}
+
+bool Target::Close() const {
+  content::RenderViewHost* rvh = agent_host_->GetRenderViewHost();
+  if (!rvh)
+    return false;
+  rvh->ClosePage();
+  return true;
+}
+
+}  // namespace
 
 // CefDevToolsDelegate
 
@@ -121,9 +112,6 @@ CefDevToolsDelegate::CefDevToolsDelegate(int port) {
       new net::TCPListenSocketFactory("127.0.0.1", port),
       "",
       this);
-
-  binding_.reset(new CefDevToolsBindingHandler());
-  devtools_http_handler_->SetDevToolsAgentHostBinding(binding_.get());
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {
@@ -151,17 +139,43 @@ std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
 }
 
-content::RenderViewHost* CefDevToolsDelegate::CreateNewTarget() {
-  return NULL;
+scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateNewTarget() {
+   return scoped_ptr<content::DevToolsTarget>();
 }
 
-content::DevToolsHttpHandlerDelegate::TargetType
-    CefDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
-  return kTargetTypeTab;
+scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateTargetForId(
+    const std::string& id) {
+  scoped_ptr<content::DevToolsTarget> target;
+
+  std::vector<content::RenderViewHost*> rvh_list =
+      content::DevToolsAgentHost::GetValidRenderViewHosts();
+  for (std::vector<content::RenderViewHost*>::iterator it = rvh_list.begin();
+       it != rvh_list.end(); ++it) {
+    scoped_refptr<content::DevToolsAgentHost> agent_host(
+        content::DevToolsAgentHost::GetOrCreateFor(*it));
+    if (agent_host->GetId() == id) {
+      content::WebContents* web_contents =
+          content::WebContents::FromRenderViewHost(*it);
+      target.reset(new Target(web_contents));
+      break;
+    }
+  }
+
+  return target.Pass();
 }
 
-std::string CefDevToolsDelegate::GetViewDescription(content::RenderViewHost*) {
-  return std::string();
+void CefDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
+  TargetList targets;
+  std::vector<content::RenderViewHost*> rvh_list =
+      content::DevToolsAgentHost::GetValidRenderViewHosts();
+  for (std::vector<content::RenderViewHost*>::iterator it = rvh_list.begin();
+       it != rvh_list.end(); ++it) {
+    content::WebContents* web_contents =
+        content::WebContents::FromRenderViewHost(*it);
+    if (web_contents)
+      targets.push_back(new Target(web_contents));
+  }
+  callback.Run(targets);
 }
 
 scoped_ptr<net::StreamListenSocket>
@@ -181,8 +195,11 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
   if (!base::StringToInt(port_str, &port))
     return std::string();
 
-  std::string page_id = binding_->GetIdentifier(rvh);
-  std::string host = http_scheme ?
+  scoped_refptr<content::DevToolsAgentHost> agent_host(
+      content::DevToolsAgentHost::GetOrCreateFor(rvh));
+
+  const std::string& page_id = agent_host->GetId();
+  const std::string& host = http_scheme ?
       base::StringPrintf("http://localhost:%d/devtools/", port) :
       base::StringPrintf("%s://%s/devtools/", chrome::kChromeDevToolsScheme,
                          scheme::kChromeDevToolsHost);

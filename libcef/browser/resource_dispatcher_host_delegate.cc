@@ -65,7 +65,6 @@ void CefResourceDispatcherHostDelegate::RequestBeginning(
     ResourceType::Type resource_type,
     int child_id,
     int route_id,
-    bool is_continuation_of_transferred_request,
     ScopedVector<content::ResourceThrottle>* throttles) {
   if (resource_type == ResourceType::MAIN_FRAME ||
       resource_type == ResourceType::SUB_FRAME) {

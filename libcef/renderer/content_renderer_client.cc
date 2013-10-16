@@ -7,6 +7,7 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "bindings/v8/V8Binding.h"
 #include "bindings/v8/V8RecursionScope.h"
 #include "bindings/v8/V8Utilities.h"
 MSVC_POP_WARNING();
@@ -546,7 +547,7 @@ void CefContentRendererClient::DidCreateScriptContext(
   v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
   v8::Context::Scope scope(context);
   WebCore::V8RecursionScope recursion_scope(
-      WebCore::getScriptExecutionContext());
+      WebCore::toExecutionContext(context));
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
@@ -579,7 +580,7 @@ void CefContentRendererClient::WillReleaseScriptContext(
         v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
         v8::Context::Scope scope(context);
         WebCore::V8RecursionScope recursion_scope(
-            WebCore::getScriptExecutionContext());
+            WebCore::toExecutionContext(context));
 
         CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
 
