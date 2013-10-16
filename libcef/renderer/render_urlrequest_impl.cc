@@ -46,7 +46,8 @@ class CefWebURLLoaderClient : public WebKit::WebURLLoaderClient {
       WebURLLoader* loader,
       const WebURLResponse& response) OVERRIDE;
   virtual void didDownloadData(WebURLLoader* loader,
-                               int dataLength) OVERRIDE;
+                               int dataLength,
+                               int encodedDataLength) OVERRIDE;
   virtual void didReceiveData(WebURLLoader* loader,
                               const char* data,
                               int dataLength,
@@ -278,7 +279,8 @@ void CefWebURLLoaderClient::didReceiveResponse(
 }
 
 void CefWebURLLoaderClient::didDownloadData(WebURLLoader* loader,
-                                            int dataLength) {
+                                            int dataLength,
+                                            int encodedDataLength) {
 }
 
 void CefWebURLLoaderClient::didReceiveData(WebURLLoader* loader,

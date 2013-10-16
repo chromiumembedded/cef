@@ -27,7 +27,7 @@
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "ui/base/win/hwnd_util.h"
+#include "ui/gfx/win/hwnd_util.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -458,7 +458,7 @@ LPCTSTR CefBrowserHostImpl::GetWndClass() {
 LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
                                              WPARAM wParam, LPARAM lParam) {
   CefBrowserHostImpl* browser =
-      static_cast<CefBrowserHostImpl*>(ui::GetWindowUserData(hwnd));
+      static_cast<CefBrowserHostImpl*>(gfx::GetWindowUserData(hwnd));
 
   switch (message) {
   case WM_CLOSE:
@@ -479,7 +479,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   case WM_DESTROY:
     if (browser) {
       // Clear the user data pointer.
-      ui::SetWindowUserData(hwnd, NULL);
+      gfx::SetWindowUserData(hwnd, NULL);
 
       // Force the browser to be destroyed and release the reference added in
       // PlatformCreateWindow().
@@ -542,7 +542,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 
   // Set window user data to this object for future reference from the window
   // procedure.
-  ui::SetWindowUserData(window_info_.window, this);
+  gfx::SetWindowUserData(window_info_.window, this);
 
   // Add a reference that will be released in the WM_DESTROY handler.
   AddRef();

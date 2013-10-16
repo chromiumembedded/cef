@@ -18,6 +18,7 @@
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host_iterator.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
@@ -60,13 +61,13 @@ content::DevToolsAgentHost* CefDevToolsBindingHandler::ForIdentifier(
     if (!render_process_host->HasConnection())
       continue;
 
-    content::RenderWidgetHost::List widgets =
-        content::RenderWidgetHost::GetRenderWidgetHosts();
-    for (size_t i = 0; i < widgets.size(); ++i) {
-      if (!widgets[i]->IsRenderView())
+    scoped_ptr<content::RenderWidgetHostIterator> widgets(
+        content::RenderWidgetHost::GetRenderWidgetHosts());
+    while (content::RenderWidgetHost* widget = widgets->GetNextHost()) {
+      if (!widget->IsRenderView())
         continue;
 
-      content::RenderViewHost* host = content::RenderViewHost::From(widgets[i]);
+      content::RenderViewHost* host = content::RenderViewHost::From(widget);
       if (GetIdentifier(host) == identifier) {
         // May create a new agent host.
         scoped_refptr<content::DevToolsAgentHost> agent_host(
@@ -163,11 +164,11 @@ std::string CefDevToolsDelegate::GetViewDescription(content::RenderViewHost*) {
   return std::string();
 }
 
-scoped_refptr<net::StreamListenSocket>
+scoped_ptr<net::StreamListenSocket>
     CefDevToolsDelegate::CreateSocketForTethering(
         net::StreamListenSocket::Delegate* delegate,
         std::string* name) {
-  return NULL;
+  return scoped_ptr<net::StreamListenSocket>();
 }
 
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,

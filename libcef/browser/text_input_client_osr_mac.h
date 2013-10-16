@@ -28,7 +28,7 @@
   NSRange markedRange_;
 
   // The current composition character range and its bounds.
-  ui::Range composition_range_;
+  gfx::Range composition_range_;
   std::vector<gfx::Rect> composition_bounds_;
 
   // The current caret bounds.

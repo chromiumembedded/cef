@@ -11,8 +11,8 @@
 #include "tests/unittests/test_handler.h"
 
 #include "base/logging.h"
-#include "ui/base/keycodes/keyboard_codes.h"
-#include "ui/base/keycodes/keyboard_code_conversion.h"
+#include "ui/events/keycodes/keyboard_codes.h"
+#include "ui/events/keycodes/keyboard_code_conversion.h"
 
 #if defined(OS_MACOSX)
 #include "tests/unittests/os_rendering_unittest_mac.h"

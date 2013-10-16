@@ -1,25 +1,23 @@
 Index: page/FrameView.cpp
 ===================================================================
---- page/FrameView.cpp	(revision 157102)
+--- page/FrameView.cpp	(revision 158192)
 +++ page/FrameView.cpp	(working copy)
-@@ -187,10 +187,12 @@
-     if (!page)
+@@ -189,8 +189,10 @@
+     if (!isMainFrame())
          return;
  
 +#if 0
-     if (m_frame == page->mainFrame()) {
-         ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
-         ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
-     }
+     ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+     ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
 +#endif
  }
  
  PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/mac/NSScrollerImpDetails.mm	(revision 157102)
+--- platform/mac/NSScrollerImpDetails.mm	(revision 158192)
 +++ platform/mac/NSScrollerImpDetails.mm	(working copy)
-@@ -33,6 +33,7 @@
+@@ -34,6 +34,7 @@
  
  bool isScrollbarOverlayAPIAvailable()
  {
@@ -27,7 +25,7 @@ Index: platform/mac/NSScrollerImpDetails.mm
      static bool apiAvailable;
      static bool shouldInitialize = true;
      if (shouldInitialize) {
-@@ -43,6 +44,9 @@
+@@ -44,6 +45,9 @@
                         && [scrollerImpPairClass instancesRespondToSelector:@selector(scrollerStyle)];
      }
      return apiAvailable;

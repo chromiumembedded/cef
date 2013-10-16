@@ -206,15 +206,15 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 #if !defined(OS_MACOSX)
 void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
     ui::TextInputType type,
-    bool can_compose_inline,
-    ui::TextInputMode mode) {
+    ui::TextInputMode mode,
+    bool can_compose_inline) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
-    const ui::Range& range,
+    const gfx::Range& range,
     const std::vector<gfx::Rect>& character_bounds) {
 }
 #endif  // !defined(OS_MACOSX)
@@ -292,8 +292,8 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   return gfx::Rect();
 }
 
-void CefRenderWidgetHostViewOSR::OnAccessibilityNotifications(
-    const std::vector<AccessibilityHostMsg_NotificationParams>& params) {
+void CefRenderWidgetHostViewOSR::OnAccessibilityEvents(
+    const std::vector<AccessibilityHostMsg_EventParams>& params) {
 }
 
 void CefRenderWidgetHostViewOSR::Destroy() {

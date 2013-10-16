@@ -48,26 +48,26 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent);
   void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent);
 
-  bool GetCachedFirstRectForCharacterRange(ui::Range range, gfx::Rect* rect,
-                                           ui::Range* actual_range) const;
+  bool GetCachedFirstRectForCharacterRange(gfx::Range range, gfx::Rect* rect,
+                                           gfx::Range* actual_range) const;
 
  private:
   // Returns composition character boundary rectangle. The |range| is
   // composition based range. Also stores |actual_range| which is corresponding
   // to actually used range for returned rectangle.
-  gfx::Rect GetFirstRectForCompositionRange(const ui::Range& range,
-                                            ui::Range* actual_range) const;
+  gfx::Rect GetFirstRectForCompositionRange(const gfx::Range& range,
+                                            gfx::Range* actual_range) const;
 
   // Converts from given whole character range to composition oriented range. If
-  // the conversion failed, return ui::Range::InvalidRange.
-  ui::Range ConvertCharacterRangeToCompositionRange(
-      const ui::Range& request_range) const;
+  // the conversion failed, return gfx::Range::InvalidRange.
+  gfx::Range ConvertCharacterRangeToCompositionRange(
+      const gfx::Range& request_range) const;
 
   // Returns true if there is line break in |range| and stores line breaking
   // point to |line_breaking_point|. The |line_break_point| is valid only if
   // this function returns true.
   static bool GetLineBreakIndex(const std::vector<gfx::Rect>& bounds,
-                                const ui::Range& range,
+                                const gfx::Range& range,
                                 size_t* line_break_point);
 
   void DestroyNSTextInputOSR();
@@ -119,11 +119,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void UpdateCursor(const WebCursor& cursor) OVERRIDE;
   virtual void SetIsLoading(bool is_loading) OVERRIDE;
   virtual void TextInputTypeChanged(ui::TextInputType type,
-                                    bool can_compose_inline,
-                                    ui::TextInputMode mode) OVERRIDE;
+                                    ui::TextInputMode mode,
+                                    bool can_compose_inline) OVERRIDE;
   virtual void ImeCancelComposition() OVERRIDE;
   virtual void ImeCompositionRangeChanged(
-      const ui::Range& range,
+      const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) OVERRIDE;
   virtual void DidUpdateBackingStore(
       const gfx::Rect& scroll_rect,
@@ -137,8 +137,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #endif
   virtual void GetScreenInfo(WebKit::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
-  void OnAccessibilityNotifications(
-      const std::vector<AccessibilityHostMsg_NotificationParams>& params)
+  virtual void OnAccessibilityEvents(
+      const std::vector<AccessibilityHostMsg_EventParams>& params)
       OVERRIDE;
   virtual void Destroy() OVERRIDE;
   virtual void SetTooltipText(const string16& tooltip_text) OVERRIDE;

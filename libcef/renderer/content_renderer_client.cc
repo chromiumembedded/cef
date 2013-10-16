@@ -26,6 +26,7 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
+#include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
 #include "base/path_service.h"
@@ -542,7 +543,7 @@ void CefContentRendererClient::DidCreateScriptContext(
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::HandleScope handle_scope;
+  v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
   v8::Context::Scope scope(context);
   WebCore::V8RecursionScope recursion_scope(
       WebCore::getScriptExecutionContext());
@@ -575,7 +576,7 @@ void CefContentRendererClient::WillReleaseScriptContext(
       if (browserPtr.get()) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-        v8::HandleScope handle_scope;
+        v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
         v8::Context::Scope scope(context);
         WebCore::V8RecursionScope recursion_scope(
             WebCore::getScriptExecutionContext());

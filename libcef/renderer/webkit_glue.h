@@ -22,6 +22,9 @@ bool CanGoForward(WebKit::WebView* view);
 void GoBack(WebKit::WebView* view);
 void GoForward(WebKit::WebView* view);
 
+// Retrieve the V8 isolate associated with the frame.
+v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame);
+
 // Retrieve the V8 context associated with the frame.
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 

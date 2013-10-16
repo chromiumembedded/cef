@@ -4,6 +4,8 @@
 
 {
   'variables': {
+    'use_ash': 0,
+    'use_aura': 0,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {

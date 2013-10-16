@@ -3,6 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// MSVC++ requires this to be set before any other includes to get M_PI.
+// Otherwise there will be compile errors in wtf/MathExtras.h.
+#define _USE_MATH_DEFINES
+
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/compiler_specific.h"
@@ -11,6 +15,7 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "bindings/v8/V8Binding.h"
 #include "bindings/v8/ScriptController.h"
 #include "core/history/BackForwardController.h"
 #include "core/page/Page.h"
@@ -51,6 +56,11 @@ void GoForward(WebKit::WebView* view) {
   WebCore::BackForwardController& controller = impl->page()->backForward();
   if (controller.forwardCount() > 0)
     controller.goForward();
+}
+
+v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame) {
+  WebKit::WebFrameImpl* impl = static_cast<WebKit::WebFrameImpl*>(frame);
+  return WebCore::toIsolate(impl->frame());
 }
 
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {

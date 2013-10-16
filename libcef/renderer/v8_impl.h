@@ -131,7 +131,7 @@ class CefV8Handle : public CefV8HandleBase {
         handle_(isolate(), v) {
   }
   virtual ~CefV8Handle() {
-    handle_.Dispose(isolate());
+    handle_.Reset();
     handle_.Clear();
   }
 
