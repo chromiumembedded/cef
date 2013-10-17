@@ -27,7 +27,7 @@ import gyp
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
 sys.path.insert(1, os.path.join(chrome_src, 'chrome', 'tools', 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
-    'Source', 'core', 'scripts'))
+    'Source', 'build', 'scripts'))
 
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
