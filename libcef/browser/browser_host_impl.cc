@@ -644,7 +644,7 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
 
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::WasHidden, this, hidden));
+        base::Bind(&CefBrowserHost::WasHidden, this, hidden));
     return;
   }
 

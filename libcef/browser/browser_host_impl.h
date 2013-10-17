@@ -332,6 +332,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
+  using content::WebContentsObserver::WasHidden;
   virtual void RenderViewCreated(
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void RenderViewDeleted(

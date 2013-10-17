@@ -142,7 +142,7 @@
               'action': [
                 'cp',
                 '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/core/Resources/',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/public/resources/',
                 '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
               ],
             },
@@ -369,7 +369,7 @@
               'action': [
                 'cp',
                 '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/Source/core/Resources/',
+                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/public/resources/',
                 '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
               ],
             },
