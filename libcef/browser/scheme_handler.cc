@@ -25,16 +25,21 @@ void InstallInternalProtectedHandlers(
     content::ProtocolHandlerMap* protocol_handlers,
     net::FtpTransactionFactory* ftp_transaction_factory) {
   protocol_handlers->insert(
-      std::make_pair(chrome::kDataScheme, new net::DataProtocolHandler));
+      std::make_pair(chrome::kDataScheme,
+          linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+              new net::DataProtocolHandler)));
   protocol_handlers->insert(
-      std::make_pair(chrome::kFileScheme, new net::FileProtocolHandler(
-          content::BrowserThread::GetBlockingPool()->
-              GetTaskRunnerWithShutdownBehavior(
-                  base::SequencedWorkerPool::SKIP_ON_SHUTDOWN))));
+      std::make_pair(chrome::kFileScheme,
+          linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+              new net::FileProtocolHandler(
+                  content::BrowserThread::GetBlockingPool()->
+                      GetTaskRunnerWithShutdownBehavior(
+                          base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
 #if !defined(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(
       std::make_pair(chrome::kFtpScheme,
-                     new net::FtpProtocolHandler(ftp_transaction_factory)));
+         linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+            new net::FtpProtocolHandler(ftp_transaction_factory))));
 #endif
 
   for (content::ProtocolHandlerMap::iterator it =
