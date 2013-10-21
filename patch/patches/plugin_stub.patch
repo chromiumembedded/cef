@@ -1,0 +1,13 @@
+Index: webplugin_delegate_stub.cc
+===================================================================
+--- webplugin_delegate_stub.cc	(revision 227628)
++++ webplugin_delegate_stub.cc	(working copy)
+@@ -435,7 +435,7 @@
+                       params.first_party_for_cookies,
+                       params.method,
+                       data,
+-                      params.post_data.size(),
++                      static_cast<unsigned int>(params.post_data.size()),
+                       params.referrer,
+                       params.notify_redirect,
+                       params.is_plugin_src_load,
