@@ -242,7 +242,9 @@ class TypeExpectations {
       : browser_side_(browser_side),
         navigation_(navigation) {
     // Build the map of relevant requests.
-    for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
+    for (int i = 0;
+         i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
+         ++i) {
       if (g_type_expected[i].browser_side != browser_side_ ||
           (navigation_ && g_type_expected[i].navigation != navigation_))
         continue;
@@ -287,7 +289,9 @@ class TypeExpectations {
 
   // Test if all expectations have been met.
   bool IsDone(bool assert) {
-    for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
+    for (int i = 0;
+         i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
+         ++i) {
       if (g_type_expected[i].browser_side != browser_side_ ||
           (navigation_ && g_type_expected[i].navigation != navigation_))
         continue;
@@ -314,7 +318,9 @@ class TypeExpectations {
   int GetExpectedIndex(const std::string& file,
                        cef_transition_type_t transition_type,
                        cef_resource_type_t resource_type) {
-    for (size_t i = 0; i < sizeof(g_type_expected) / sizeof(TypeExpected); ++i) {
+    for (int i = 0;
+         i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
+         ++i) {
       if (g_type_expected[i].file == file &&
           g_type_expected[i].browser_side == browser_side_ &&
           (!navigation_ || g_type_expected[i].navigation == navigation_) &&
