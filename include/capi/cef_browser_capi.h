@@ -325,6 +325,23 @@ typedef struct _cef_browser_host_t {
   void (CEF_CALLBACK *print)(struct _cef_browser_host_t* self);
 
   ///
+  // Search for |searchText|. |identifier| can be used to have multiple searches
+  // running simultaniously. |forward| indicates whether to search forward or
+  // backward within the page. |matchCase| indicates whether the search should
+  // be case-sensitive. |findNext| indicates whether this is the first request
+  // or a follow-up.
+  ///
+  void (CEF_CALLBACK *find)(struct _cef_browser_host_t* self, int identifier,
+      const cef_string_t* searchText, int forward, int matchCase,
+      int findNext);
+
+  ///
+  // Cancel all searches that are currently going on.
+  ///
+  void (CEF_CALLBACK *stop_finding)(struct _cef_browser_host_t* self,
+      int clearSelection);
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   void (CEF_CALLBACK *set_mouse_cursor_change_disabled)(

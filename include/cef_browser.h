@@ -373,6 +373,23 @@ class CefBrowserHost : public virtual CefBase {
   virtual void Print() =0;
 
   ///
+  // Search for |searchText|. |identifier| can be used to have multiple searches
+  // running simultaniously. |forward| indicates whether to search forward or
+  // backward within the page. |matchCase| indicates whether the search should
+  // be case-sensitive. |findNext| indicates whether this is the first request
+  // or a follow-up.
+  ///
+  /*--cef()--*/
+  virtual void Find(int identifier, const CefString& searchText,
+                    bool forward, bool matchCase, bool findNext) =0;
+
+  ///
+  // Cancel all searches that are currently going on.
+  ///
+  /*--cef()--*/
+  virtual void StopFinding(bool clearSelection) =0;
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   /*--cef()--*/
