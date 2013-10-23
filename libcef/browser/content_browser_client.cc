@@ -15,6 +15,7 @@
 #include "libcef/browser/browser_settings.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
@@ -454,6 +455,8 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
 void CefContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
+  host->GetChannel()->AddFilter(new PrintingMessageFilter(host->GetID()));
+
   AddBrowserContextReference(
       static_cast<CefBrowserContext*>(host->GetBrowserContext()));
 }

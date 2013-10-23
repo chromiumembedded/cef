@@ -367,6 +367,12 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StartDownload(const CefString& url) =0;
 
   ///
+  // Print the current browser contents.
+  ///
+  /*--cef()--*/
+  virtual void Print() =0;
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   /*--cef()--*/
@@ -485,7 +491,6 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) =0;
-
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

@@ -32,6 +32,7 @@ MSVC_POP_WARNING();
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
+#include "chrome/renderer/printing/print_web_view_helper.h"
 #include "content/child/child_thread.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -442,6 +443,7 @@ void CefContentRendererClient::RenderViewCreated(
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
+  new printing::PrintWebViewHelper(render_view);
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

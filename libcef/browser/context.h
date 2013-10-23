@@ -27,6 +27,10 @@ namespace content {
 class ContentMainRunner;
 }
 
+namespace printing {
+class PrintJobManager;
+}
+
 class CefBrowserHostImpl;
 class CefMainDelegate;
 class CefTraceSubscriber;
@@ -60,6 +64,10 @@ class CefContext : public content::NotificationObserver {
   const base::FilePath& cache_path() const { return cache_path_; }
 
   const CefSettings& settings() const { return settings_; }
+
+  printing::PrintJobManager* print_job_manager() const {
+    return print_job_manager_.get();
+  }
 
   CefTraceSubscriber* GetTraceSubscriber();
 
@@ -95,6 +103,7 @@ class CefContext : public content::NotificationObserver {
 
   // Only accessed on the UI Thread.
   scoped_ptr<content::NotificationRegistrar> registrar_;
+  scoped_ptr<printing::PrintJobManager> print_job_manager_;
 };
 
 // Helper macro that returns true if the global context is in a valid state.

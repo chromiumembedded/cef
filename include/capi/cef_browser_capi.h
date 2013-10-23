@@ -320,6 +320,11 @@ typedef struct _cef_browser_host_t {
       const cef_string_t* url);
 
   ///
+  // Print the current browser contents.
+  ///
+  void (CEF_CALLBACK *print)(struct _cef_browser_host_t* self);
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   void (CEF_CALLBACK *set_mouse_cursor_change_disabled)(

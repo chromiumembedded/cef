@@ -439,6 +439,7 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:gtk',
+            '<(DEPTH)/build/linux/system.gyp:gtkprint',
           ],
           'sources': [
             'tests/cefclient/resource_util_linux.cpp',
@@ -530,8 +531,9 @@
           'dependencies':[
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
             '<(DEPTH)/build/linux/system.gyp:gtk',
+            '<(DEPTH)/build/linux/system.gyp:gtkprint',
           ],
-      	}],
+        }],
       ],
     },
     {
@@ -557,6 +559,7 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:gtk',
+            '<(DEPTH)/build/linux/system.gyp:gtkprint',
           ],
         }],
       ],
@@ -768,6 +771,7 @@
         '<(DEPTH)/third_party/WebKit/public/platform',
         '<(DEPTH)/third_party/WebKit/public/web',
         # CEF grit resource includes
+        '<(DEPTH)/cef/libcef/resources/grit_stub',
         '<(grit_out_dir)',
         '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
@@ -831,6 +835,8 @@
         'libcef/browser/browser_settings.h',
         'libcef/browser/browser_urlrequest_impl.cc',
         'libcef/browser/browser_urlrequest_impl.h',
+        'libcef/browser/chrome_browser_process_stub.cc',
+        'libcef/browser/chrome_browser_process_stub.h',
         'libcef/browser/chrome_scheme_handler.cc',
         'libcef/browser/chrome_scheme_handler.h',
         'libcef/browser/content_browser_client.cc',
@@ -868,6 +874,12 @@
         'libcef/browser/origin_whitelist_impl.cc',
         'libcef/browser/origin_whitelist_impl.h',
         'libcef/browser/path_util_impl.cc',
+        'libcef/browser/printing/printing_message_filter.cc',
+        'libcef/browser/printing/printing_message_filter.h',
+        'libcef/browser/printing/print_view_manager.cc',
+        'libcef/browser/printing/print_view_manager.h',
+        'libcef/browser/printing/print_view_manager_base.cc',
+        'libcef/browser/printing/print_view_manager_base.h',
         'libcef/browser/process_util_impl.cc',
         'libcef/browser/proxy_stubs.cc',
         'libcef/browser/render_widget_host_view_osr.cc',
@@ -1004,6 +1016,28 @@
         # Include sources for the loadtimes V8 extension.
         '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.h',
         '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.cc',
+        # Include sources for printing.
+        '<(DEPTH)/chrome/browser/printing/print_job.cc',
+        '<(DEPTH)/chrome/browser/printing/print_job.h',
+        '<(DEPTH)/chrome/browser/printing/print_job_manager.cc',
+        '<(DEPTH)/chrome/browser/printing/print_job_manager.h',
+        '<(DEPTH)/chrome/browser/printing/print_job_worker.cc',
+        '<(DEPTH)/chrome/browser/printing/print_job_worker.h',
+        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
+        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
+        '<(DEPTH)/chrome/browser/printing/printer_query.cc',
+        '<(DEPTH)/chrome/browser/printing/printer_query.h',
+        '<(DEPTH)/chrome/common/prerender_messages.h',
+        '<(DEPTH)/chrome/common/print_messages.cc',
+        '<(DEPTH)/chrome/common/print_messages.h',
+        '<(DEPTH)/chrome/renderer/prerender/prerender_helper.cc',
+        '<(DEPTH)/chrome/renderer/prerender/prerender_helper.h',
+        '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.cc',
+        '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.h',
+        # Include header for stub creation (BrowserProcess) so print_job_worker can
+        # determine the current locale.
+        '<(DEPTH)/chrome/browser/browser_process.cc',
+        '<(DEPTH)/chrome/browser/browser_process.h',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1024,6 +1058,8 @@
             '<(DEPTH)/ui/views/controls/menu/menu_listener.h',
             '<(DEPTH)/ui/views/controls/menu/native_menu_win.cc',
             '<(DEPTH)/ui/views/controls/menu/native_menu_win.h',
+            # Include sources for printing.
+            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_win.cc',
           ],
         }],
         [ 'OS=="mac"', {
@@ -1045,9 +1081,14 @@
             'libcef/browser/text_input_client_osr_mac.h',
             'libcef/browser/web_contents_view_osr.cc',
             'libcef/browser/web_contents_view_osr.h',
+            # Include sources for printing.
+            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies':[
+            '<(DEPTH)/build/linux/system.gyp:gtkprint',
+          ],
           'sources': [
             '<@(includes_linux)',
             'libcef/browser/browser_host_impl_gtk.cc',
@@ -1065,6 +1106,10 @@
             '<(DEPTH)/chrome/browser/ui/gtk/menu_gtk.h',
             '<(DEPTH)/chrome/browser/ui/views/event_utils.cc',
             '<(DEPTH)/chrome/browser/ui/views/event_utils.h',
+            #Include sources for printing.
+            '<(DEPTH)/chrome/browser/printing/print_dialog_gtk.cc',
+            '<(DEPTH)/chrome/browser/printing/print_dialog_gtk.h',
+            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_linux.cc',
           ],
         }],
       ],
@@ -1334,7 +1379,7 @@
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
             # gtkglext is required by the cefclient OSR example.
-            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0',
+            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0 gtk+-unix-print-2.0',
           },
           'direct_dependent_settings': {
             'cflags': [

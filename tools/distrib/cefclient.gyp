@@ -368,7 +368,7 @@
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
             # gtkglext is required by the cefclient OSR example.
-            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0',
+            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0 gtk+-unix-print-2.0',
           },
           'direct_dependent_settings': {
             'cflags': [

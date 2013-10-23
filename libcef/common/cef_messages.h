@@ -218,3 +218,6 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
 }  // namespace IPC
 
 #endif  // CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
+
+#include "chrome/common/prerender_messages.h"
+#include "chrome/common/print_messages.h"
