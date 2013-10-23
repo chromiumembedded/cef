@@ -17,6 +17,7 @@
       <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
       <include name="IDR_CEF_TRACING_HTML" file="..\..\..\third_party\trace-viewer\src\about_tracing.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
       <include name="IDR_CEF_TRACING_JS" file="..\..\..\third_party\trace-viewer\src\about_tracing.js" flattenhtml="true" type="BINDATA" />
+      <include name="IDR_PRINT_PREVIEW_PAGE" file="print_preview_page_stub.html" type="BINDATA" />
     </includes>
   </release>
 </grit>

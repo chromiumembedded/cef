@@ -8,6 +8,7 @@
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
+#include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
@@ -19,6 +20,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
+#include "chrome/browser/printing/print_job_manager.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/browser/render_process_host.h"
@@ -84,6 +86,8 @@ bool CefInitialize(const CefMainArgs& args,
     NOTREACHED() << "invalid CefSettings structure size";
     return false;
   }
+
+  g_browser_process = new ChromeBrowserProcessStub();
 
   // Create the new global context object.
   _Context = new CefContext();
@@ -246,8 +250,13 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   initialized_ = true;
 
-  // Continue initialization on the UI thread.
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefContext::OnContextInitialized, this));
+  if (CEF_CURRENTLY_ON_UIT()) {
+    OnContextInitialized();
+  } else {
+    // Continue initialization on the UI thread.
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefContext::OnContextInitialized, this));
+  }
 
   return true;
 }
@@ -339,6 +348,9 @@ void CefContext::OnContextInitialized() {
   // Register internal scheme handlers.
   scheme::RegisterInternalHandlers();
 
+  // Must be created after the NotificationService.
+  print_job_manager_.reset(new printing::PrintJobManager());
+
   // Notify the handler.
   CefRefPtr<CefApp> app = application();
   if (app.get()) {
@@ -352,6 +364,12 @@ void CefContext::OnContextInitialized() {
 void CefContext::FinishShutdownOnUIThread(
     base::WaitableEvent* uithread_shutdown_event) {
   CEF_REQUIRE_UIT();
+
+  // Wait for the pending print jobs to finish. Don't do this later, since
+  // this might cause a nested message loop to run, and we don't want pending
+  // tasks to run once teardown has started.
+  print_job_manager_->OnQuit();
+  print_job_manager_.reset(NULL);
 
   CefContentBrowserClient::Get()->DestroyAllBrowsers();
 

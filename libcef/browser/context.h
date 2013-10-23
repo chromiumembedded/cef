@@ -28,6 +28,10 @@ namespace content {
 class ContentMainRunner;
 }
 
+namespace printing {
+class PrintJobManager;
+}
+
 class CefBrowserContext;
 class CefBrowserHostImpl;
 class CefDevToolsDelegate;
@@ -69,6 +73,9 @@ class CefContext : public CefBase {
   CefBrowserContext* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
   PrefService* pref_service() const;
+  printing::PrintJobManager* print_job_manager() const {
+    return print_job_manager_.get();
+  }
 
   scoped_refptr<net::URLRequestContextGetter> request_context() const {
     return request_context_;
@@ -106,6 +113,7 @@ class CefContext : public CefBase {
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;
   scoped_ptr<CefTraceSubscriber> trace_subscriber_;
+  scoped_ptr<printing::PrintJobManager> print_job_manager_;
 
   scoped_refptr<net::URLRequestContextGetter> request_context_;
 

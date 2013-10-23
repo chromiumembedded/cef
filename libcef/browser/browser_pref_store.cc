@@ -29,6 +29,8 @@ PrefService* CefBrowserPrefStore::CreateService() {
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry);
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry);
 
+  registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
+
   return builder.Create(registry);
 }
 
