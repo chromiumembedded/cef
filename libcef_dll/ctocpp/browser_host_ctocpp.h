@@ -54,6 +54,9 @@ class CefBrowserHostCToCpp
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual void StartDownload(const CefString& url) OVERRIDE;
   virtual void Print() OVERRIDE;
+  virtual void Find(int identifier, const CefString& searchText, bool forward,
+      bool matchCase, bool findNext) OVERRIDE;
+  virtual void StopFinding(bool clearSelection) OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;

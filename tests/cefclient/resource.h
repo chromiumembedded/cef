@@ -26,6 +26,7 @@
 #define ID_WARN_DOWNLOADCOMPLETE        32001
 #define ID_WARN_DOWNLOADERROR           32002
 #define ID_QUIT                         32500
+#define ID_FIND                         32501
 #define ID_TESTS_GETSOURCE              32700
 #define ID_TESTS_GETTEXT                32701
 #define ID_TESTS_OTHER_TESTS            32702

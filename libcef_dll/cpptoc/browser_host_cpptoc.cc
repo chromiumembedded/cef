@@ -313,6 +313,41 @@ void CEF_CALLBACK browser_host_print(struct _cef_browser_host_t* self) {
   CefBrowserHostCppToC::Get(self)->Print();
 }
 
+void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
+    int identifier, const cef_string_t* searchText, int forward, int matchCase,
+    int findNext) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: searchText; type: string_byref_const
+  DCHECK(searchText);
+  if (!searchText)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->Find(
+      identifier,
+      CefString(searchText),
+      forward?true:false,
+      matchCase?true:false,
+      findNext?true:false);
+}
+
+void CEF_CALLBACK browser_host_stop_finding(struct _cef_browser_host_t* self,
+    int clearSelection) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->StopFinding(
+      clearSelection?true:false);
+}
+
 void CEF_CALLBACK browser_host_set_mouse_cursor_change_disabled(
     struct _cef_browser_host_t* self, int disabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -598,6 +633,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.run_file_dialog = browser_host_run_file_dialog;
   struct_.struct_.start_download = browser_host_start_download;
   struct_.struct_.print = browser_host_print;
+  struct_.struct_.find = browser_host_find;
+  struct_.struct_.stop_finding = browser_host_stop_finding;
   struct_.struct_.set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;
   struct_.struct_.is_mouse_cursor_change_disabled =

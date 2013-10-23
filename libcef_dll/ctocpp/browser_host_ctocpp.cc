@@ -260,6 +260,38 @@ void CefBrowserHostCToCpp::Print() {
   struct_->print(struct_);
 }
 
+void CefBrowserHostCToCpp::Find(int identifier, const CefString& searchText,
+    bool forward, bool matchCase, bool findNext) {
+  if (CEF_MEMBER_MISSING(struct_, find))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: searchText; type: string_byref_const
+  DCHECK(!searchText.empty());
+  if (searchText.empty())
+    return;
+
+  // Execute
+  struct_->find(struct_,
+      identifier,
+      searchText.GetStruct(),
+      forward,
+      matchCase,
+      findNext);
+}
+
+void CefBrowserHostCToCpp::StopFinding(bool clearSelection) {
+  if (CEF_MEMBER_MISSING(struct_, stop_finding))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->stop_finding(struct_,
+      clearSelection);
+}
+
 void CefBrowserHostCToCpp::SetMouseCursorChangeDisabled(bool disabled) {
   if (CEF_MEMBER_MISSING(struct_, set_mouse_cursor_change_disabled))
     return;

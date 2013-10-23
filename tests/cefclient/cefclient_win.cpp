@@ -31,6 +31,8 @@ TCHAR szTitle[MAX_LOADSTRING];  // The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];  // the main window class name
 TCHAR szOSRWindowClass[MAX_LOADSTRING];  // the OSR window class name
 char szWorkingDir[MAX_PATH];  // The current working directory
+UINT uFindMsg;  // Message identifier for find events.
+HWND hFindDlg = NULL;  // Handle for the find dialog.
 
 // Forward declarations of functions included in this code module:
 ATOM MyRegisterClass(HINSTANCE hInstance);
@@ -104,6 +106,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
+  // Register the find event message.
+  uFindMsg = RegisterWindowMessage(FINDMSGSTRING);
+
   int result = 0;
 
   if (!settings.multi_threaded_message_loop) {
@@ -119,6 +124,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
     // Run the application message loop.
     while (GetMessage(&msg, NULL, 0, 0)) {
+      // Allow processing of find dialog messages.
+      if (hFindDlg && IsDialogMessage(hFindDlg, &msg))
+        continue;
+
       if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -251,6 +260,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
     return (LRESULT)CallWindowProc(editWndOldProc, hWnd, message, wParam,
                                    lParam);
+  } else if (message == uFindMsg) {
+    // Find event.
+    LPFINDREPLACE lpfr = (LPFINDREPLACE)lParam;
+
+    if (lpfr->Flags & FR_DIALOGTERM) {
+      // The find dialog box has been dismissed so invalidate the handle and
+      // reset the search results.
+      hFindDlg = NULL;
+      if (g_handler.get()) {
+        g_handler->GetBrowser()->GetHost()->StopFinding(true);
+        szLastFindWhat[0] = 0;
+        findNext = false;
+      }
+      return 0;
+    }
+
+    if ((lpfr->Flags & FR_FINDNEXT) && g_handler.get())  {
+      // Search for the requested string.
+      bool matchCase = (lpfr->Flags & FR_MATCHCASE?true:false);
+      if (matchCase != lastMatchCase ||
+          (matchCase && wcsncmp(szFindWhat, szLastFindWhat,
+              sizeof(szLastFindWhat)/sizeof(WCHAR)) != 0) ||
+          (!matchCase && _wcsnicmp(szFindWhat, szLastFindWhat,
+              sizeof(szLastFindWhat)/sizeof(WCHAR)) != 0)) {
+        // The search string has changed, so reset the search results.
+        if (szLastFindWhat[0] != 0) {
+          g_handler->GetBrowser()->GetHost()->StopFinding(true);
+          findNext = false;
+        }
+        lastMatchCase = matchCase;
+        wcscpy_s(szLastFindWhat, sizeof(szLastFindWhat)/sizeof(WCHAR),
+            szFindWhat);
+      }
+
+      g_handler->GetBrowser()->GetHost()->Find(0, lpfr->lpstrFindWhat,
+          (lpfr->Flags & FR_DOWN)?true:false, matchCase, findNext);
+      if (!findNext)
+        findNext = true;
+    }
+
+    return 0;
   } else {
     // Callback for the main window
     switch (message) {
@@ -374,6 +424,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
           MessageBox(hWnd, ss.str().c_str(), L"File Download",
               MB_OK | MB_ICONINFORMATION);
+        }
+        return 0;
+      case ID_FIND:
+        if (!hFindDlg) {
+          // Create the find dialog.
+          ZeroMemory(&fr, sizeof(fr));
+          fr.lStructSize = sizeof(fr);
+          fr.hwndOwner = hWnd;
+          fr.lpstrFindWhat = szFindWhat;
+          fr.wFindWhatLen = sizeof(szFindWhat);
+          fr.Flags = FR_HIDEWHOLEWORD | FR_DOWN;
+
+          hFindDlg = FindText(&fr);
+        } else {
+          // Give focus to the existing find dialog.
+          ::SetFocus(hFindDlg);
         }
         return 0;
       case IDC_NAV_BACK:   // Back button

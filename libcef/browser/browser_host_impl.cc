@@ -48,6 +48,7 @@
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
+#include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
 namespace {
@@ -613,6 +614,39 @@ void CefBrowserHostImpl::Print() {
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::Print, this));
+  }
+}
+
+void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
+                              bool forward, bool matchCase, bool findNext) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!web_contents_)
+      return;
+
+    WebKit::WebFindOptions options;
+    options.forward = forward;
+    options.matchCase = matchCase;
+    options.findNext = findNext;
+    web_contents()->GetRenderViewHost()->Find(identifier, searchText, options);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::Find, this, identifier, searchText,
+                   forward, matchCase, findNext));
+  }
+}
+
+void CefBrowserHostImpl::StopFinding(bool clearSelection) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!web_contents_)
+      return;
+
+    content::StopFindAction action = clearSelection ?
+        content::STOP_FIND_ACTION_CLEAR_SELECTION :
+        content::STOP_FIND_ACTION_KEEP_SELECTION;
+    web_contents()->GetRenderViewHost()->StopFinding(action);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::StopFinding, this, clearSelection));
   }
 }
 
