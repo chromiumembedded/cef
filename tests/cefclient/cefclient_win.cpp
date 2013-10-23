@@ -430,6 +430,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case ID_TESTS_TRACING_END:
         g_handler->EndTracing();
         return 0;
+      case ID_TESTS_PRINT:
+        if(browser.get())
+          browser->GetHost()->Print();
+        return 0;
       case ID_TESTS_OTHER_TESTS:
         if (browser.get())
           RunOtherTests(browser);

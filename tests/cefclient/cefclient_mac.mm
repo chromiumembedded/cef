@@ -217,6 +217,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testZoomReset:(id)sender;
 - (IBAction)testBeginTracing:(id)sender;
 - (IBAction)testEndTracing:(id)sender;
+- (IBAction)testPrint:(id)sender;
 - (IBAction)testOtherTests:(id)sender;
 @end
 
@@ -265,6 +266,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"End Tracing"
                       action:@selector(testEndTracing:)
+               keyEquivalent:@""];
+  [testMenu addItemWithTitle:@"Print"
+                      action:@selector(testPrint:)
                keyEquivalent:@""];
   [testMenu addItemWithTitle:@"Other Tests"
                       action:@selector(testOtherTests:)
@@ -426,6 +430,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 - (IBAction)testEndTracing:(id)sender {
   if (g_handler.get())
     g_handler->EndTracing();
+}
+
+- (IBAction)testPrint:(id)sender {
+  if (g_handler.get() && g_handler->GetBrowserId())
+    g_handler->GetBrowser()->GetHost()->Print();
 }
 
 - (IBAction)testOtherTests:(id)sender {

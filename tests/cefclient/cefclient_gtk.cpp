@@ -149,6 +149,14 @@ gboolean EndTracingActivated(GtkWidget* widget) {
   return FALSE;  // Don't stop this message.
 }
 
+// Callback for Tests > Print menu item.
+gboolean PrintActivated(GtkWidget* widget) {
+  if (g_handler.get())
+    g_handler->GetBrowser()->GetHost()->Print();
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for Tests > Other Tests... menu item.
 gboolean OtherTestsActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -232,6 +240,8 @@ GtkWidget* CreateMenuBar() {
                G_CALLBACK(BeginTracingActivated));
   AddMenuEntry(debug_menu, "End Tracing",
                G_CALLBACK(EndTracingActivated));
+  AddMenuEntry(debug_menu, "Print",
+               G_CALLBACK(PrintActivated));
   AddMenuEntry(debug_menu, "Other Tests",
                G_CALLBACK(OtherTestsActivated));
   return menu_bar;

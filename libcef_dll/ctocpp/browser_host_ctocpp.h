@@ -53,6 +53,7 @@ class CefBrowserHostCToCpp
       const std::vector<CefString>& accept_types,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual void StartDownload(const CefString& url) OVERRIDE;
+  virtual void Print() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;

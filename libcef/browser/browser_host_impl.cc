@@ -17,6 +17,7 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
+#include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/scheme_handler.h"
@@ -601,6 +602,18 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   params.reset(
       content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
   manager->DownloadUrl(params.Pass());
+}
+
+void CefBrowserHostImpl::Print() {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!web_contents_)
+      return;
+    printing::PrintViewManager::FromWebContents(
+        web_contents_.get())->PrintNow();
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::Print, this));
+  }
 }
 
 void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
@@ -2113,6 +2126,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       new CefFrameHostImpl(this, CefFrameHostImpl::kInvalidFrameId, true,
                            CefString(), CefString(),
                            CefFrameHostImpl::kInvalidFrameId);
+
+  printing::PrintViewManager::CreateForWebContents(web_contents_.get());
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());

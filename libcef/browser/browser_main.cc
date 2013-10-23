@@ -26,6 +26,10 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
 
+#if defined(OS_LINUX)
+#include "chrome/browser/printing/print_dialog_gtk.h"
+#endif
+
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
@@ -48,6 +52,11 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
   // CEF's internal handling of "chrome://tracing".
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
       content::ContentWebUIControllerFactory::GetInstance());
+
+#if defined(OS_LINUX)
+  printing::PrintingContextGtk::SetCreatePrintDialogFunction(
+      &PrintDialogGtk::CreatePrintDialog);
+#endif
 }
 
 int CefBrowserMainParts::PreCreateThreads() {

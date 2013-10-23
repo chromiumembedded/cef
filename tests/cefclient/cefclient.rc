@@ -78,6 +78,7 @@ BEGIN
         MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET
         MENUITEM "Begin Tracing",               ID_TESTS_TRACING_BEGIN
         MENUITEM "End Tracing",                 ID_TESTS_TRACING_END
+        MENUITEM "Print",                       ID_TESTS_PRINT
         MENUITEM "Other Tests",                 ID_TESTS_OTHER_TESTS
    END
 END
