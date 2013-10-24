@@ -347,7 +347,10 @@ CefURLFetcherDelegate::~CefURLFetcherDelegate() {
 
 void CefURLFetcherDelegate::OnURLFetchComplete(
     const net::URLFetcher* source) {
-  context_->OnComplete();
+  // Complete asynchronously so as not to delete the URLFetcher while it's still
+  // in the call stack.
+  MessageLoop::current()->PostTask(FROM_HERE,
+      base::Bind(&CefBrowserURLRequest::Context::OnComplete, context_));
 }
 
 void CefURLFetcherDelegate::OnURLFetchDownloadProgress(
