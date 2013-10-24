@@ -213,10 +213,12 @@ void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 }
 
+#if defined(OS_WIN) || defined(USE_AURA)
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
     const std::vector<gfx::Rect>& character_bounds) {
 }
+#endif
 #endif  // !defined(OS_MACOSX)
 
 void CefRenderWidgetHostViewOSR::DidUpdateBackingStore(

@@ -6,6 +6,8 @@
   'variables': {
     'use_ash': 0,
     'use_aura': 0,
+    # Don't use the chrome style plugin with CEF.
+    'clang_use_chrome_plugins': 0,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {
@@ -16,10 +18,6 @@
         'disable_debugallocation': 1,
       }, { # OS!="win"
         'cef_directory' : '<!(echo $CEF_DIRECTORY)',
-      }],
-      [ 'OS=="mac"', {
-        # Don't use the chrome style plugin with CEF.
-        'clang_use_chrome_plugins': 0,
       }],
     ]
   }, 'conditions': [
