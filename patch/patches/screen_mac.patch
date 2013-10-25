@@ -1,0 +1,13 @@
+Index: screen_mac.mm
+===================================================================
+--- screen_mac.mm	(revision 217443)
++++ screen_mac.mm	(working copy)
+@@ -129,6 +129,8 @@
+     if (!window)
+       return GetPrimaryDisplay();
+     NSScreen* match_screen = [window screen];
++    if (!match_screen)
++      return GetPrimaryDisplay();
+     return GetDisplayForScreen(match_screen, false /* may not be primary */);
+   }
+ 
