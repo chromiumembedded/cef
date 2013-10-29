@@ -45,10 +45,14 @@ enum TracingTestType {
   CEF_TRACE_EVENT_COPY_ASYNC_BEGIN0,
   CEF_TRACE_EVENT_COPY_ASYNC_BEGIN1,
   CEF_TRACE_EVENT_COPY_ASYNC_BEGIN2,
-  CEF_TRACE_EVENT_ASYNC_STEP0,
-  CEF_TRACE_EVENT_ASYNC_STEP1,
-  CEF_TRACE_EVENT_COPY_ASYNC_STEP0,
-  CEF_TRACE_EVENT_COPY_ASYNC_STEP1,
+  CEF_TRACE_EVENT_ASYNC_STEP_INTO0,
+  CEF_TRACE_EVENT_ASYNC_STEP_INTO1,
+  CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO0,
+  CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO1,
+  CEF_TRACE_EVENT_ASYNC_STEP_PAST0,
+  CEF_TRACE_EVENT_ASYNC_STEP_PAST1,
+  CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST0,
+  CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST1,
   CEF_TRACE_EVENT_ASYNC_END0,
   CEF_TRACE_EVENT_ASYNC_END1,
   CEF_TRACE_EVENT_ASYNC_END2,
@@ -267,25 +271,43 @@ class TracingTestHandler : public CefTraceClient {
                                           "CEF_TRACE_EVENT_COPY_ASYNC_BEGIN2",
                                           100, "arg1", 1, "arg2", 2);
         break;
-      case CEF_TRACE_EVENT_ASYNC_STEP0:
-        CEF_TRACE_EVENT_ASYNC_STEP0(kTraceTestCategory,
-                                    "CEF_TRACE_EVENT_ASYNC_STEP0", 100,
-                                    1000);
+      case CEF_TRACE_EVENT_ASYNC_STEP_INTO0:
+        CEF_TRACE_EVENT_ASYNC_STEP_INTO0(
+            kTraceTestCategory, "CEF_TRACE_EVENT_ASYNC_STEP_INTO0", 100, 1000);
         break;
-      case CEF_TRACE_EVENT_ASYNC_STEP1:
-        CEF_TRACE_EVENT_ASYNC_STEP1(kTraceTestCategory,
-                                    "CEF_TRACE_EVENT_ASYNC_STEP1", 100,
-                                    1000, "arg1", 1);
+      case CEF_TRACE_EVENT_ASYNC_STEP_INTO1:
+        CEF_TRACE_EVENT_ASYNC_STEP_INTO1(
+            kTraceTestCategory, "CEF_TRACE_EVENT_ASYNC_STEP_INTO1", 100, 1000,
+            "arg1", 1);
         break;
-      case CEF_TRACE_EVENT_COPY_ASYNC_STEP0:
-        CEF_TRACE_EVENT_COPY_ASYNC_STEP0(kTraceTestCategory,
-                                         "CEF_TRACE_EVENT_COPY_ASYNC_STEP0",
-                                         100, 1000);
+      case CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO0:
+        CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO0(
+            kTraceTestCategory, "CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO0", 100,
+            1000);
         break;
-      case CEF_TRACE_EVENT_COPY_ASYNC_STEP1:
-        CEF_TRACE_EVENT_COPY_ASYNC_STEP1(kTraceTestCategory,
-                                         "CEF_TRACE_EVENT_COPY_ASYNC_STEP1",
-                                         100, 1000, "arg1", 1);
+      case CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO1:
+        CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO1(
+            kTraceTestCategory, "CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO1", 100,
+            1000, "arg1", 1);
+        break;
+      case CEF_TRACE_EVENT_ASYNC_STEP_PAST0:
+        CEF_TRACE_EVENT_ASYNC_STEP_PAST0(
+            kTraceTestCategory, "CEF_TRACE_EVENT_ASYNC_STEP_PAST0", 100, 1000);
+        break;
+      case CEF_TRACE_EVENT_ASYNC_STEP_PAST1:
+        CEF_TRACE_EVENT_ASYNC_STEP_PAST1(
+            kTraceTestCategory, "CEF_TRACE_EVENT_ASYNC_STEP_PAST1", 100, 1000,
+            "arg1", 1);
+        break;
+      case CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST0:
+        CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST0(
+            kTraceTestCategory, "CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST0", 100,
+            1000);
+        break;
+      case CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST1:
+        CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST1(
+            kTraceTestCategory, "CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST1", 100,
+            1000, "arg1", 1);
         break;
       case CEF_TRACE_EVENT_ASYNC_END0:
         CEF_TRACE_EVENT_ASYNC_END0(kTraceTestCategory,
@@ -381,19 +403,31 @@ TRACING_TEST(TraceCounterId1, CEF_TRACE_COUNTER_ID1);
 TRACING_TEST(TraceCopyCounterId1, CEF_TRACE_COPY_COUNTER_ID1);
 TRACING_TEST(TraceCounterId2, CEF_TRACE_COUNTER_ID2);
 TRACING_TEST(TraceCopyCounterId2, CEF_TRACE_COPY_COUNTER_ID1);
-TRACING_TEST(TraceTraceEventAsyncBegin0, CEF_TRACE_EVENT_ASYNC_BEGIN0);
-TRACING_TEST(TraceTraceEventAsyncBegin1, CEF_TRACE_EVENT_ASYNC_BEGIN1);
-TRACING_TEST(TraceTraceEventAsyncBegin2, CEF_TRACE_EVENT_ASYNC_BEGIN2);
-TRACING_TEST(TraceTraceEventCopyAsyncBegin0,
+TRACING_TEST(TraceEventAsyncBegin0, CEF_TRACE_EVENT_ASYNC_BEGIN0);
+TRACING_TEST(TraceEventAsyncBegin1, CEF_TRACE_EVENT_ASYNC_BEGIN1);
+TRACING_TEST(TraceEventAsyncBegin2, CEF_TRACE_EVENT_ASYNC_BEGIN2);
+TRACING_TEST(TraceEventCopyAsyncBegin0,
              CEF_TRACE_EVENT_COPY_ASYNC_BEGIN0);
-TRACING_TEST(TraceTraceEventCopyAsyncBegin1,
+TRACING_TEST(TraceEventCopyAsyncBegin1,
              CEF_TRACE_EVENT_COPY_ASYNC_BEGIN1);
-TRACING_TEST(TraceTraceEventCopyAsyncBegin2,
+TRACING_TEST(TraceEventCopyAsyncBegin2,
              CEF_TRACE_EVENT_COPY_ASYNC_BEGIN2);
-TRACING_TEST(TraceTraceEventAsyncStep0, CEF_TRACE_EVENT_ASYNC_STEP0);
-TRACING_TEST(TraceTraceEventAsyncStep1, CEF_TRACE_EVENT_ASYNC_STEP1);
-TRACING_TEST(TraceEventCopyAsyncStep0, CEF_TRACE_EVENT_COPY_ASYNC_STEP0);
-TRACING_TEST(TraceEventCopyAsyncStep1, CEF_TRACE_EVENT_COPY_ASYNC_STEP1);
+TRACING_TEST(TraceEventAsyncStepInto0,
+             CEF_TRACE_EVENT_ASYNC_STEP_INTO0);
+TRACING_TEST(TraceEventAsyncStepInto1,
+             CEF_TRACE_EVENT_ASYNC_STEP_INTO1);
+TRACING_TEST(TraceEventCopyAsyncStepInto0,
+             CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO0);
+TRACING_TEST(TraceEventCopyAsyncStepInto1,
+             CEF_TRACE_EVENT_COPY_ASYNC_STEP_INTO1);
+TRACING_TEST(TraceEventAsyncStepPast0,
+             CEF_TRACE_EVENT_ASYNC_STEP_PAST0);
+TRACING_TEST(TraceEventAsyncStepPast1,
+             CEF_TRACE_EVENT_ASYNC_STEP_PAST1);
+TRACING_TEST(TraceEventCopyAsyncStepPast0,
+             CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST0);
+TRACING_TEST(TraceEventCopyAsyncStepPast1,
+             CEF_TRACE_EVENT_COPY_ASYNC_STEP_PAST1);
 TRACING_TEST(TraceEventAsyncEnd0, CEF_TRACE_EVENT_ASYNC_END0);
 TRACING_TEST(TraceEventAsyncEnd1, CEF_TRACE_EVENT_ASYNC_END1);
 TRACING_TEST(TraceEventAsyncEnd2, CEF_TRACE_EVENT_ASYNC_END2);

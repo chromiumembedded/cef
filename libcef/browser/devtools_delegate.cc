@@ -139,7 +139,8 @@ std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
 }
 
-scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateNewTarget() {
+scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateNewTarget(
+    const GURL& url) {
    return scoped_ptr<content::DevToolsTarget>();
 }
 

@@ -591,8 +591,8 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
     RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(context);
     DCHECK(frame);
     if (frame &&
-        frame->script()->canExecuteScripts(WebCore::AboutToExecuteScript)) {
-      func_rv = frame->script()->callFunction(function, receiver, argc, args);
+        frame->script().canExecuteScripts(WebCore::AboutToExecuteScript)) {
+      func_rv = frame->script().callFunction(function, receiver, argc, args);
     }
   } else {
     WebCore::WorkerScriptController* controller =
@@ -600,7 +600,7 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
     DCHECK(controller);
     if (controller) {
       func_rv = WebCore::ScriptController::callFunction(
-          controller->workerGlobalScope()->executionContext(),
+          controller->workerGlobalScope().executionContext(),
           function, receiver, argc, args, isolate);
     }
   }

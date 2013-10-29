@@ -11,9 +11,8 @@ Required components:
 * CEF core library
     libcef.dylib
 
-* Cursor resources
-    Resources/*.png
-    Resources/*.tiff
+* Plugin support library
+    libplugin_carbon_interpose.dylib
 
 Optional components:
 

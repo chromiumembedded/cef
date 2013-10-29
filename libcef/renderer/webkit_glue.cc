@@ -7,20 +7,31 @@
 // Otherwise there will be compile errors in wtf/MathExtras.h.
 #define _USE_MATH_DEFINES
 
+// Defines required to access Blink internals (unwrap WebNode).
+#undef BLINK_IMPLEMENTATION
+#define BLINK_IMPLEMENTATION 1
+#undef INSIDE_BLINK
+#define INSIDE_BLINK 1
+
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/compiler_specific.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebElement.h"
+#include "v8/include/v8.h"
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebElement.h"
+#include "third_party/WebKit/public/web/WebNode.h"
+#include "third_party/WebKit/public/web/WebViewClient.h"
+
 #include "bindings/v8/V8Binding.h"
 #include "bindings/v8/ScriptController.h"
-#include "core/history/BackForwardController.h"
-#include "core/page/Page.h"
+#include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/web/WebFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
+#include "third_party/WebKit/Source/wtf/PassRefPtr.h"
 MSVC_POP_WARNING();
 #undef LOG
 
@@ -30,32 +41,30 @@ bool CanGoBack(WebKit::WebView* view) {
   if (!view)
     return false;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  return (impl->page()->backForward().backCount() > 0);
+  return (impl->client()->historyBackListCount() > 0);
 }
 
 bool CanGoForward(WebKit::WebView* view) {
   if (!view)
     return false;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  return (impl->page()->backForward().forwardCount() > 0);
+  return (impl->client()->historyForwardListCount() > 0);
 }
 
 void GoBack(WebKit::WebView* view) {
   if (!view)
     return;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  WebCore::BackForwardController& controller = impl->page()->backForward();
-  if (controller.backCount() > 0)
-    controller.goBack();
+  if (impl->client()->historyBackListCount() > 0)
+    impl->client()->navigateBackForwardSoon(-1);
 }
 
 void GoForward(WebKit::WebView* view) {
   if (!view)
     return;
   WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
-  WebCore::BackForwardController& controller = impl->page()->backForward();
-  if (controller.forwardCount() > 0)
-    controller.goForward();
+ if (impl->client()->historyForwardListCount() > 0)
+    impl->client()->navigateBackForwardSoon(1);
 }
 
 v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame) {
@@ -68,14 +77,20 @@ v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {
   return WebCore::ScriptController::mainWorldContext(impl->frame());
 }
 
-base::string16 DumpDocumentText(WebKit::WebFrame* frame) {
+std::string DumpDocumentText(WebKit::WebFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
   WebKit::WebElement document_element = frame->document().documentElement();
   if (document_element.isNull())
-    return base::string16();
+    return std::string();
 
-  return document_element.innerText();
+  return document_element.innerText().utf8();
+}
+
+bool SetNodeValue(WebKit::WebNode& node, const WebKit::WebString& value) {
+  WebCore::Node* web_node = node.unwrap<WebCore::Node>();
+  web_node->setNodeValue(value);
+  return true;
 }
 
 }  // webkit_glue

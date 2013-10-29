@@ -18,11 +18,14 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "content/public/common/url_fetcher.h"
+#include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_fetcher_delegate.h"
+#include "net/url_request/url_fetcher_response_writer.h"
 #include "net/url_request/url_request_status.h"
 
 
@@ -38,10 +41,6 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
   virtual void OnURLFetchComplete(const net::URLFetcher* source) OVERRIDE;
   virtual void OnURLFetchDownloadProgress(const net::URLFetcher* source,
                                           int64 current, int64 total) OVERRIDE;
-  virtual void OnURLFetchDownloadData(const net::URLFetcher* source,
-                                      scoped_ptr<std::string> download_data)
-                                      OVERRIDE;
-  virtual bool ShouldSendDownloadData() OVERRIDE;
   virtual void OnURLFetchUploadProgress(const net::URLFetcher* source,
                                         int64 current, int64 total) OVERRIDE;
 
@@ -49,6 +48,70 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
   // The context_ pointer will outlive this object.
   CefBrowserURLRequest::Context* context_;
   int request_flags_;
+};
+
+class NET_EXPORT CefURLFetcherResponseWriter :
+    public net::URLFetcherResponseWriter {
+ public:
+  CefURLFetcherResponseWriter(
+      CefRefPtr<CefBrowserURLRequest> url_request,
+      scoped_refptr<base::MessageLoopProxy> message_loop_proxy)
+      : url_request_(url_request),
+        message_loop_proxy_(message_loop_proxy) {
+  }
+  virtual ~CefURLFetcherResponseWriter() {
+  }
+
+  // net::URLFetcherResponseWriter methods.
+  virtual int Initialize(const net::CompletionCallback& callback) OVERRIDE {
+    return net::OK;
+  }
+
+  virtual int Write(net::IOBuffer* buffer,
+                    int num_bytes,
+                    const net::CompletionCallback& callback) OVERRIDE {
+    if (url_request_) {
+      message_loop_proxy_->PostTask(FROM_HERE,
+          base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
+                     url_request_, buffer, num_bytes, callback,
+                     base::MessageLoop::current()->message_loop_proxy()));
+      return net::ERR_IO_PENDING;
+    }
+    return num_bytes;
+  }
+
+  virtual int Finish(const net::CompletionCallback& callback) OVERRIDE {
+    if (url_request_)
+      url_request_ = NULL;
+    return net::OK;
+  }
+
+ private:
+  static void WriteOnClientThread(
+      CefRefPtr<CefBrowserURLRequest> url_request,
+      net::IOBuffer* buffer,
+      int num_bytes,
+      const net::CompletionCallback& callback,
+      scoped_refptr<base::MessageLoopProxy> source_message_loop_proxy) {
+    CefRefPtr<CefURLRequestClient> client = url_request->GetClient();
+    if (client)
+      client->OnDownloadData(url_request.get(), buffer->data(), num_bytes);
+
+    source_message_loop_proxy->PostTask(FROM_HERE,
+        base::Bind(&CefURLFetcherResponseWriter::ContinueOnSourceThread,
+                   num_bytes, callback));
+  }
+
+  static void ContinueOnSourceThread(
+      int num_bytes,
+      const net::CompletionCallback& callback) {
+    callback.Run(num_bytes);
+  }
+
+  CefRefPtr<CefBrowserURLRequest> url_request_;
+  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefURLFetcherResponseWriter);
 };
 
 base::SupportsUserData::Data* CreateURLRequestUserData(
@@ -219,6 +282,15 @@ class CefBrowserURLRequest::Context
         CefURLRequestUserData::kUserDataKey,
         base::Bind(&CreateURLRequestUserData, client_));
 
+    scoped_ptr<net::URLFetcherResponseWriter> response_writer;
+    if (cef_flags & UR_FLAG_NO_DOWNLOAD_DATA) {
+      response_writer.reset(new CefURLFetcherResponseWriter(NULL, NULL));
+    } else {
+      response_writer.reset(
+          new CefURLFetcherResponseWriter(url_request_, message_loop_proxy_));
+    }
+    fetcher_->SaveResponseWithWriter(response_writer.Pass());
+
     fetcher_->Start();
 
     return true;
@@ -382,16 +454,6 @@ void CefURLFetcherDelegate::OnURLFetchDownloadProgress(
     const net::URLFetcher* source,
     int64 current, int64 total) {
   context_->OnDownloadProgress(current, total);
-}
-
-void CefURLFetcherDelegate::OnURLFetchDownloadData(
-    const net::URLFetcher* source,
-    scoped_ptr<std::string> download_data) {
-  context_->OnDownloadData(download_data.Pass());
-}
-
-bool CefURLFetcherDelegate::ShouldSendDownloadData() {
-  return !(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA);
 }
 
 void CefURLFetcherDelegate::OnURLFetchUploadProgress(

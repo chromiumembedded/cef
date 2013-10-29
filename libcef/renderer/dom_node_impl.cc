@@ -8,6 +8,7 @@
 #include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/dom_event_impl.h"
 #include "libcef/renderer/thread_util.h"
+#include "libcef/renderer/webkit_glue.h"
 
 #include "base/logging.h"
 #include "base/strings/string_util.h"
@@ -272,7 +273,7 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (node_.isElementNode())
     return false;
 
-  return node_.setNodeValue(string16(value));
+  return webkit_glue::SetNodeValue(node_, string16(value));
 }
 
 CefString CefDOMNodeImpl::GetAsMarkup() {

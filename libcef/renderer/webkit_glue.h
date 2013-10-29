@@ -7,11 +7,17 @@
 #define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 
 #include <string>
-#include "base/strings/string16.h"
-#include "v8/include/v8.h"
+
+namespace v8 {
+class Context;
+template <class T> class Handle;
+class Isolate;
+}
 
 namespace WebKit {
 class WebFrame;
+class WebNode;
+class WebString;
 class WebView;
 }
 
@@ -29,7 +35,9 @@ v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame);
 v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
 
 // Returns the text of the document element.
-base::string16 DumpDocumentText(WebKit::WebFrame* frame);
+std::string DumpDocumentText(WebKit::WebFrame* frame);
+
+bool SetNodeValue(WebKit::WebNode& node, const WebKit::WebString& value);
 
 }  // webkit_glue
 

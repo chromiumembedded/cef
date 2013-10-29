@@ -47,7 +47,6 @@ using WebKit::WebView;
 
 namespace {
 
-const int64 kInvalidBrowserId = -1;
 const int64 kInvalidFrameId = -1;
 
 WebKit::WebString FilePathStringToWebString(
@@ -698,7 +697,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
           response = web_frame->contentAsMarkup().utf8();
           success = true;
         } else if (LowerCaseEqualsASCII(command, "gettext")) {
-          response = UTF16ToUTF8(webkit_glue::DumpDocumentText(web_frame));
+          response = webkit_glue::DumpDocumentText(web_frame);
           success = true;
         } else if (web_frame->executeCommand(UTF8ToUTF16(command))) {
           success = true;

@@ -33,7 +33,8 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget() OVERRIDE;
+  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(const GURL& url)
+      OVERRIDE;
   virtual scoped_ptr<content::DevToolsTarget> CreateTargetForId(
       const std::string& id) OVERRIDE;
   virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;

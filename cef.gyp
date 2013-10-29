@@ -138,15 +138,6 @@
               ],
             },
             {
-              'postbuild_name': 'Copy WebCore Resources',
-              'action': [
-                'cp',
-                '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/public/resources/',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
-              ],
-            },
-            {
               'postbuild_name': 'Copy locale Resources',
               'action': [
                 'cp',
@@ -362,15 +353,6 @@
                 '@executable_path/libcef.dylib',
                 '@executable_path/../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy WebCore Resources',
-              'action': [
-                'cp',
-                '-Rf',
-                '${BUILT_PRODUCTS_DIR}/../../third_party/WebKit/public/resources/',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
               ],
             },
             {
@@ -1027,6 +1009,8 @@
         '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
         '<(DEPTH)/chrome/browser/printing/printer_query.cc',
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
+        '<(DEPTH)/chrome/browser/printing/printing_ui_web_contents_observer.cc',
+        '<(DEPTH)/chrome/browser/printing/printing_ui_web_contents_observer.h',
         '<(DEPTH)/chrome/common/prerender_messages.h',
         '<(DEPTH)/chrome/common/print_messages.cc',
         '<(DEPTH)/chrome/common/print_messages.h',

@@ -266,13 +266,13 @@ CEF_EXPORT void cef_trace_event_async_begin(const char* category,
   }
 }
 
-CEF_EXPORT void cef_trace_event_async_step(const char* category,
-                                           const char* name,
-                                           uint64 id,
-                                           uint64 step,
-                                           const char* arg1_name,
-                                           uint64 arg1_val,
-                                           int copy) {
+CEF_EXPORT void cef_trace_event_async_step_into(const char* category,
+                                                const char* name,
+                                                uint64 id,
+                                                uint64 step,
+                                                const char* arg1_name,
+                                                uint64 arg1_val,
+                                                int copy) {
   DCHECK(category);
   DCHECK(name);
   if (!category || !name)
@@ -280,17 +280,50 @@ CEF_EXPORT void cef_trace_event_async_step(const char* category,
 
   if (copy) {
     if (arg1_name == NULL) {
-      TRACE_EVENT_COPY_ASYNC_STEP0(category, name, id, step);
+      INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_INTO,
+          category, name, id, TRACE_EVENT_FLAG_COPY, "step", step);
     } else {
-      TRACE_EVENT_COPY_ASYNC_STEP1(category, name, id, step,
-                                         arg1_name, arg1_val);
+      INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_INTO,
+          category, name, id, TRACE_EVENT_FLAG_COPY, "step", step,
+          arg1_name, arg1_val);
     }
   } else {
     if (arg1_name == NULL) {
-      TRACE_EVENT_ASYNC_STEP0(category, name, id, step);
+      TRACE_EVENT_ASYNC_STEP_INTO0(category, name, id, step);
     } else {
-      TRACE_EVENT_ASYNC_STEP1(category, name, id, step,
-                                    arg1_name, arg1_val);
+      TRACE_EVENT_ASYNC_STEP_INTO1(category, name, id, step,
+                                   arg1_name, arg1_val);
+    }
+  }
+}
+
+CEF_EXPORT void cef_trace_event_async_step_past(const char* category,
+                                                const char* name,
+                                                uint64 id,
+                                                uint64 step,
+                                                const char* arg1_name,
+                                                uint64 arg1_val,
+                                                int copy) {
+  DCHECK(category);
+  DCHECK(name);
+  if (!category || !name)
+    return;
+
+  if (copy) {
+    if (arg1_name == NULL) {
+      INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_PAST,
+          category, name, id, TRACE_EVENT_FLAG_COPY, "step", step);
+    } else {
+      INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_PAST,
+          category, name, id, TRACE_EVENT_FLAG_COPY, "step", step,
+          arg1_name, arg1_val);
+    }
+  } else {
+    if (arg1_name == NULL) {
+      TRACE_EVENT_ASYNC_STEP_PAST0(category, name, id, step);
+    } else {
+      TRACE_EVENT_ASYNC_STEP_PAST1(category, name, id, step,
+                                   arg1_name, arg1_val);
     }
   }
 }

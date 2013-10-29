@@ -12,9 +12,6 @@
 
 namespace {
 
-// Maximum number of characters we allow in a tooltip.
-const size_t kMaxTooltipLength = 1024;
-
 // TODO(suzhe): Upstream this function.
 WebKit::WebColor WebColorFromNSColor(NSColor *color) {
   CGFloat r, g, b, a;

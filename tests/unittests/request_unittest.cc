@@ -200,7 +200,6 @@ TEST(RequestTest, SendRecv) {
 
 namespace {
 
-const char kTypeTestCompleteMsg[] = "RequestTest.Type";
 const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
 
 static struct TypeExpected {

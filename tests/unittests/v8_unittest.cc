@@ -27,8 +27,6 @@ const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
 const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
 const char kV8OnUncaughtExceptionTestUrl[] =
     "http://tests/V8Test.OnUncaughtException";
-const char kV8WorkerParentTestUrl[] = "http://tests/V8Test.WorkerParent";
-const char kV8WorkerTestUrl[] = "http://tests/V8Test.Worker.js";
 const char kV8TestMsg[] = "V8Test.Test";
 const char kV8TestCmdArg[] = "v8-test";
 const char kV8RunTestMsg[] = "V8Test.RunTest";

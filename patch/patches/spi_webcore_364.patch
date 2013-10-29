@@ -1,8 +1,8 @@
 Index: frame/FrameView.cpp
 ===================================================================
---- frame/FrameView.cpp	(revision 159695)
+--- frame/FrameView.cpp	(revision 160715)
 +++ frame/FrameView.cpp	(working copy)
-@@ -198,8 +198,10 @@
+@@ -200,8 +200,10 @@
      if (!isMainFrame())
          return;
  
@@ -15,23 +15,20 @@ Index: frame/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/mac/NSScrollerImpDetails.mm	(revision 159695)
+--- platform/mac/NSScrollerImpDetails.mm	(revision 160715)
 +++ platform/mac/NSScrollerImpDetails.mm	(working copy)
-@@ -33,6 +33,7 @@
+@@ -73,10 +73,14 @@
  
  bool isScrollbarOverlayAPIAvailable()
  {
 +#if 0
-     static bool apiAvailable;
-     static bool shouldInitialize = true;
-     if (shouldInitialize) {
-@@ -43,6 +44,9 @@
-                        && [scrollerImpPairClass instancesRespondToSelector:@selector(scrollerStyle)];
-     }
+     static bool apiAvailable =
+         [NSClassFromString(@"NSScrollerImp") respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)]
+         && [NSClassFromString(@"NSScrollerImpPair") instancesRespondToSelector:@selector(scrollerStyle)];
      return apiAvailable;
 +#else
 +    return false;
 +#endif
  }
  
- NSScrollerStyle recommendedScrollerStyle() {
+ NSScrollerStyle recommendedScrollerStyle()
