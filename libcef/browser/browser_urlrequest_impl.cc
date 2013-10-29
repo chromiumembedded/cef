@@ -73,7 +73,8 @@ class NET_EXPORT CefURLFetcherResponseWriter :
     if (url_request_) {
       message_loop_proxy_->PostTask(FROM_HERE,
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
-                     url_request_, buffer, num_bytes, callback,
+                     url_request_, scoped_refptr<net::IOBuffer>(buffer),
+                     num_bytes, callback,
                      base::MessageLoop::current()->message_loop_proxy()));
       return net::ERR_IO_PENDING;
     }
@@ -89,7 +90,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
  private:
   static void WriteOnClientThread(
       CefRefPtr<CefBrowserURLRequest> url_request,
-      net::IOBuffer* buffer,
+      scoped_refptr<net::IOBuffer> buffer,
       int num_bytes,
       const net::CompletionCallback& callback,
       scoped_refptr<base::MessageLoopProxy> source_message_loop_proxy) {
