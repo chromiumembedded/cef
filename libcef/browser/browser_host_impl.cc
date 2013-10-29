@@ -1543,6 +1543,10 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
       // via the platform window destruction mechanism.
       PlatformCloseWindow();
     } else {
+      // Keep a reference to the browser while it's in the process of being
+      // destroyed.
+      CefRefPtr<CefBrowserHostImpl> browser(this);
+
       // No window exists. Destroy the browser immediately.
       DestroyBrowser();
       if (!IsWindowRenderingDisabled()) {
