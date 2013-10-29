@@ -52,6 +52,7 @@ def get_svn_info(path):
   """ Retrieves the URL and revision from svn info. """
   url = 'None'
   rev = 'None'
+  sys.stdout.write("-------- Running \"%s info --xml %s\"...\n" % (svn_exe, path))
   if path[0:4] == 'http' or os.path.exists(path):
     try:
       p = subprocess.Popen([svn_exe, 'info', '--xml', path], \
@@ -269,7 +270,7 @@ if options.x64build and platform == 'windows' and not options.ninjabuild:
 script_dir = os.path.dirname(__file__)
 
 download_dir = os.path.abspath(options.downloaddir)
-if not os.path.exists(download_dir):
+if not options.dryrun and not os.path.exists(download_dir):
   # create the download directory
   os.makedirs(download_dir)
 
@@ -295,14 +296,19 @@ if not os.path.exists(depot_tools_dir):
 
 if not options.noupdate and options.depottools == '':
   # Update depot_tools. It will download required scripts (svn, python, ...)
-  if sys.platform == 'win32':
+  if platform == 'windows':
     run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
   else:
     run('update_depot_tools', depot_tools_dir, depot_tools_dir);
 
-if sys.platform == 'win32':
+if platform == 'windows':
   # Force use of the SVN version bundled with depot_tools.
   svn_exe = os.path.join(depot_tools_dir, 'svn.bat')
+  if options.dryrun and not os.path.exists(svn_exe):
+    sys.stdout.write("WARNING: --dry-run assumes that depot_tools" \
+                     " is already in your PATH. If it isn't\nplease" \
+                     " specify a --depot-tools value.\n")
+    svn_exe = 'svn.bat'
 else:
   svn_exe = 'svn'
 
@@ -356,7 +362,7 @@ except Exception, e:
 
 # check if the "chromium" directory exists
 chromium_dir = os.path.join(download_dir, 'chromium')
-if not os.path.exists(chromium_dir):
+if not options.dryrun and not os.path.exists(chromium_dir):
   # create the "chromium" directory
   os.makedirs(chromium_dir)
 
