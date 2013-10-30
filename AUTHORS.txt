@@ -25,3 +25,4 @@ Brian Power <powerbf.it@gmail.com>
 Corey Lucier <clucier@adobe.com>
 Mihai Tica <mitica@adobe.com>
 Czarek Tomczak <czarek.tomczak@gmail.com>
+Felix Bruns <felixbruns@spotify.com>

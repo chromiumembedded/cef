@@ -29,6 +29,7 @@
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "content/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
@@ -38,12 +39,13 @@
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
+#include "net/http/http_util.h"
 #include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
-#include "net/url_request/static_http_user_agent_settings.h"
+#include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
@@ -55,6 +57,42 @@ using content::BrowserThread;
 #if defined(OS_WIN)
 #pragma comment(lib, "winhttp.lib")
 #endif
+
+namespace {
+
+// An implementation of |HttpUserAgentSettings| that provides a static
+// HTTP Accept-Language header value and uses |content::GetUserAgent|
+// to provide the HTTP User-Agent header value.
+class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
+ public:
+  explicit CefHttpUserAgentSettings(const std::string& raw_language_list)
+      : http_accept_language_(net::HttpUtil::GenerateAcceptLanguageHeader(
+            raw_language_list)) {
+    CEF_REQUIRE_IOT();
+  }
+
+  virtual ~CefHttpUserAgentSettings() {
+    CEF_REQUIRE_IOT();
+  }
+
+  // net::HttpUserAgentSettings implementation
+  virtual std::string GetAcceptLanguage() const OVERRIDE {
+    CEF_REQUIRE_IOT();
+    return http_accept_language_;
+  }
+
+  virtual std::string GetUserAgent(const GURL& url) const OVERRIDE {
+    CEF_REQUIRE_IOT();
+    return content::GetUserAgent(url);
+  }
+
+ private:
+  const std::string http_accept_language_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefHttpUserAgentSettings);
+};
+
+}  // namespace
 
 CefURLRequestContextGetter::CefURLRequestContextGetter(
     base::MessageLoop* io_loop,
@@ -101,7 +139,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
     storage_->set_http_user_agent_settings(
-        new net::StaticHttpUserAgentSettings("en-us,en", EmptyString()));
+        new CefHttpUserAgentSettings("en-us,en"));
 
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());

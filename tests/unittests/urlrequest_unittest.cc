@@ -189,13 +189,20 @@ class RequestSchemeHandler : public CefResourceHandler {
       settings_.response_data.clear();
 
     CefRequest::HeaderMap headerMap;
+    CefRequest::HeaderMap::iterator headerIter;
     request->GetHeaderMap(headerMap);
+
+    // Check if the default headers were sent.
+    headerIter = headerMap.find("User-Agent");
+    EXPECT_TRUE(headerIter != headerMap.end() && !headerIter->second.empty());
+    headerIter = headerMap.find("Accept-Language");
+    EXPECT_TRUE(headerIter != headerMap.end() && !headerIter->second.empty());
 
     // Check if the request cookie was sent.
     bool has_send_cookie = false;
-    CefRequest::HeaderMap::iterator iter = headerMap.find("Cookie");
-    if (iter != headerMap.end()) {
-      std::string cookie = iter->second;
+    headerIter = headerMap.find("Cookie");
+    if (headerIter != headerMap.end()) {
+      std::string cookie = headerIter->second;
       if (cookie.find(kRequestSendCookieName) != std::string::npos)
         has_send_cookie = true;
     }
