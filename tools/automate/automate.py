@@ -294,7 +294,7 @@ if not os.path.exists(depot_tools_dir):
     # checkout depot_tools
     run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
 
-if not options.noupdate and options.depottools == '':
+if not options.noupdate:
   # Update depot_tools. It will download required scripts (svn, python, ...)
   if platform == 'windows':
     run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
