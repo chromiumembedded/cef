@@ -12,7 +12,7 @@ namespace scheme {
 void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
   static CefContentClient::SchemeInfo schemes[] = {
     { chrome::kChromeUIScheme,        true,  true,  true  },
-    { chrome::kChromeDevToolsScheme,  true,  true,  false }
+    { chrome::kChromeDevToolsScheme,  true,  false, true  }
   };
 
   CefContentClient* client = CefContentClient::Get();

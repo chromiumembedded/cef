@@ -184,7 +184,7 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
   std::string page_id = binding_->GetIdentifier(rvh);
   std::string host = http_scheme ?
       base::StringPrintf("http://localhost:%d/devtools/", port) :
-      base::StringPrintf("%s://%s/devtools/", chrome::kChromeDevToolsScheme,
+      base::StringPrintf("%s://%s/", chrome::kChromeDevToolsScheme,
                          scheme::kChromeDevToolsHost);
 
   return base::StringPrintf(
