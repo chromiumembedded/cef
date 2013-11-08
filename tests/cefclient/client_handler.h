@@ -250,12 +250,10 @@ class ClientHandler : public CefClient,
   void SendNotification(NotificationType type);
 
   void ShowDevTools(CefRefPtr<CefBrowser> browser);
+  void CloseDevTools(CefRefPtr<CefBrowser> browser);
 
   // Returns the startup URL.
   std::string GetStartupURL() { return m_StartupURL; }
-
-  // Create an external browser window that loads the specified URL.
-  static void LaunchExternalBrowser(const std::string& url);
 
   void BeginTracing();
   void EndTracing();
@@ -321,12 +319,6 @@ class ClientHandler : public CefClient,
 
   // Registered delegates.
   ProcessMessageDelegateSet process_message_delegates_;
-
-  // If true DevTools will be opened in an external browser window.
-  bool m_bExternalDevTools;
-
-  // List of open DevTools URLs if not using an external browser window.
-  std::set<std::string> m_OpenDevToolsURLs;
 
   // The startup URL.
   std::string m_StartupURL;

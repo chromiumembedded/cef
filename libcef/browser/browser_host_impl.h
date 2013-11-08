@@ -47,6 +47,7 @@ class URLRequest;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
+class CefDevToolsFrontend;
 struct CefNavigateParams;
 class SiteInstance;
 
@@ -81,12 +82,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Create a new CefBrowserHostImpl instance.
   static CefRefPtr<CefBrowserHostImpl> Create(
-      const CefWindowInfo& window_info,
-      const CefBrowserSettings& settings,
+      const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
-      content::WebContents* web_contents,
-      scoped_refptr<CefBrowserInfo> browser_info,
+      const CefString& url,
+      const CefBrowserSettings& settings,
       CefWindowHandle opener,
+      bool is_popup,
       CefRefPtr<CefRequestContext> request_context);
 
   // Returns the browser associated with the specified RenderViewHost.
@@ -128,6 +129,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void Find(int identifier, const CefString& searchText,
                     bool forward, bool matchCase, bool findNext) OVERRIDE;
   virtual void StopFinding(bool clearSelection) OVERRIDE;
+  virtual void ShowDevTools(const CefWindowInfo& windowInfo,
+                            CefRefPtr<CefClient> client,
+                            const CefBrowserSettings& settings) OVERRIDE;
+  virtual void CloseDevTools() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
@@ -274,6 +279,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
   DestructionState destruction_state() const { return destruction_state_; }
 
  private:
+  class DevToolsWebContentsObserver;
+
+  static CefRefPtr<CefBrowserHostImpl> CreateInternal(
+      const CefWindowInfo& window_info,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      content::WebContents* web_contents,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      CefWindowHandle opener,
+      CefRefPtr<CefRequestContext> request_context);
+
   // content::WebContentsDelegate methods.
   virtual content::WebContents* OpenURLFromTab(
       content::WebContents* source,
@@ -481,6 +497,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::FileChooserParams::Mode mode,
       const std::vector<base::FilePath>& file_paths);
 
+  void OnDevToolsWebContentsDestroyed();
+
   CefWindowInfo window_info_;
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
@@ -550,6 +568,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for creating and managing context menus.
   scoped_ptr<CefMenuCreator> menu_creator_;
+
+  // Track the lifespan of the frontend WebContents associated with this
+  // browser.
+  scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
+  // CefDevToolsFrontend will delete itself when the frontend WebContents is
+  // destroyed.
+  CefDevToolsFrontend* devtools_frontend_;
 
   // True if a file chooser is currently pending.
   bool file_chooser_pending_;

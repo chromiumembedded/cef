@@ -1,6 +1,6 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2013 the Chromium Embedded Framework Authors. Portions Copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/devtools_scheme_handler.h"
@@ -186,6 +186,11 @@ scoped_ptr<net::StreamListenSocket>
   return scoped_ptr<net::StreamListenSocket>();
 }
 
+std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
+  return base::StringPrintf("%s://%s/devtools.html",
+      chrome::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);
+}
+
 std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
                                                 bool http_scheme) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
@@ -202,7 +207,7 @@ std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
   const std::string& page_id = agent_host->GetId();
   const std::string& host = http_scheme ?
       base::StringPrintf("http://localhost:%d/devtools/", port) :
-      base::StringPrintf("%s://%s/devtools/", chrome::kChromeDevToolsScheme,
+      base::StringPrintf("%s://%s/", chrome::kChromeDevToolsScheme,
                          scheme::kChromeDevToolsHost);
 
   return base::StringPrintf(

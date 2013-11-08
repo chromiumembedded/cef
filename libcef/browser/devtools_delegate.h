@@ -1,6 +1,6 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2013 the Chromium Embedded Framework Authors. Portions Copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
 #ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DELEGATE_H_
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DELEGATE_H_
@@ -41,6 +41,9 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;
+
+  // Returns the chrome-devtools URL.
+  std::string GetChromeDevToolsURL();
 
   // Returns the DevTools URL for the specified RenderViewHost.
   std::string GetDevToolsURL(content::RenderViewHost* rvh, bool http_scheme);

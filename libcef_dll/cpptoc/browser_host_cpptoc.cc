@@ -348,6 +348,55 @@ void CEF_CALLBACK browser_host_stop_finding(struct _cef_browser_host_t* self,
       clearSelection?true:false);
 }
 
+void CEF_CALLBACK browser_host_show_dev_tools(struct _cef_browser_host_t* self,
+    const cef_window_info_t* windowInfo, struct _cef_client_t* client,
+    const struct _cef_browser_settings_t* settings) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: windowInfo; type: struct_byref_const
+  DCHECK(windowInfo);
+  if (!windowInfo)
+    return;
+  // Verify param: client; type: refptr_diff
+  DCHECK(client);
+  if (!client)
+    return;
+  // Verify param: settings; type: struct_byref_const
+  DCHECK(settings);
+  if (!settings)
+    return;
+
+  // Translate param: windowInfo; type: struct_byref_const
+  CefWindowInfo windowInfoObj;
+  if (windowInfo)
+    windowInfoObj.Set(*windowInfo, false);
+  // Translate param: settings; type: struct_byref_const
+  CefBrowserSettings settingsObj;
+  if (settings)
+    settingsObj.Set(*settings, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ShowDevTools(
+      windowInfoObj,
+      CefClientCToCpp::Wrap(client),
+      settingsObj);
+}
+
+void CEF_CALLBACK browser_host_close_dev_tools(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->CloseDevTools();
+}
+
 void CEF_CALLBACK browser_host_set_mouse_cursor_change_disabled(
     struct _cef_browser_host_t* self, int disabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -635,6 +684,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.print = browser_host_print;
   struct_.struct_.find = browser_host_find;
   struct_.struct_.stop_finding = browser_host_stop_finding;
+  struct_.struct_.show_dev_tools = browser_host_show_dev_tools;
+  struct_.struct_.close_dev_tools = browser_host_close_dev_tools;
   struct_.struct_.set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;
   struct_.struct_.is_mouse_cursor_change_disabled =

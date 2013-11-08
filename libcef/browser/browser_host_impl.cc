@@ -15,6 +15,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/devtools_frontend.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/printing/print_view_manager.h"
@@ -76,6 +77,29 @@ class CreateBrowserHelper {
 void CreateBrowserWithHelper(CreateBrowserHelper* helper) {
   CefBrowserHost::CreateBrowserSync(helper->window_info_, helper->client_,
       helper->url_, helper->settings_, helper->request_context_);
+  delete helper;
+}
+
+class ShowDevToolsHelper {
+ public:
+  ShowDevToolsHelper(CefRefPtr<CefBrowserHostImpl> browser,
+                     const CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient> client,
+                     const CefBrowserSettings& settings)
+                      : browser_(browser),
+                        window_info_(windowInfo),
+                        client_(client),
+                        settings_(settings) {}
+
+  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefWindowInfo window_info_;
+  CefRefPtr<CefClient> client_;
+  CefBrowserSettings settings_;
+};
+
+void ShowDevToolsWithHelper(ShowDevToolsHelper* helper) {
+  helper->browser_->ShowDevTools(helper->window_info_, helper->client_,
+      helper->settings_);
   delete helper;
 }
 
@@ -286,6 +310,25 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return NULL;
   }
 
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::Create(windowInfo, client, url, settings, NULL, false,
+                                 request_context);
+  return browser.get();
+}
+
+
+// CefBrowserHostImpl static methods.
+// -----------------------------------------------------------------------------
+
+// static
+CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
+    const CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient> client,
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    CefWindowHandle opener,
+    bool is_popup,
+    CefRefPtr<CefRequestContext> request_context) {
   CefBrowserSettings new_settings = settings;
 
   // Verify that render handler is in place for a windowless browser.
@@ -305,14 +348,13 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
       CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
 
   scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->CreateBrowserInfo();
+      CefContentBrowserClient::Get()->CreateBrowserInfo(is_popup);
 
   info->set_window_rendering_disabled(
       CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
-  DCHECK(!info->is_popup());
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(windowInfo, new_settings, client, NULL, info,
-                                 NULL, request_context);
+      CefBrowserHostImpl::CreateInternal(windowInfo, new_settings, client, NULL,
+                                         info, opener, request_context);
   if (!url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
                      content::PAGE_TRANSITION_TYPED, std::string());
@@ -320,15 +362,8 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   return browser.get();
 }
 
-
-// CefBrowserHostImpl static methods.
-// -----------------------------------------------------------------------------
-
-CefBrowserHostImpl::~CefBrowserHostImpl() {
-}
-
 // static
-CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
+CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     const CefWindowInfo& window_info,
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
@@ -445,8 +480,34 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByRoutingID(
 }
 
 
-// CefBrowserHost methods.
+// CefBrowserHostImpl methods.
 // -----------------------------------------------------------------------------
+
+// WebContentsObserver that will be notified when the frontend WebContents is
+// destroyed so that the inspected browser can clear its DevTools references.
+class CefBrowserHostImpl::DevToolsWebContentsObserver :
+    public content::WebContentsObserver {
+ public:
+  DevToolsWebContentsObserver(CefBrowserHostImpl* browser,
+                              content::WebContents* frontend_web_contents)
+      : WebContentsObserver(frontend_web_contents),
+        browser_(browser) {
+  }
+
+  // WebContentsObserver methods:
+  virtual void WebContentsDestroyed(
+      content::WebContents* web_contents) OVERRIDE {
+    browser_->OnDevToolsWebContentsDestroyed();
+  }
+
+ private:
+  CefBrowserHostImpl* browser_;
+
+  DISALLOW_COPY_AND_ASSIGN(DevToolsWebContentsObserver);
+};
+
+CefBrowserHostImpl::~CefBrowserHostImpl() {
+}
 
 CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
   return this;
@@ -647,6 +708,43 @@ void CefBrowserHostImpl::StopFinding(bool clearSelection) {
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::StopFinding, this, clearSelection));
+  }
+}
+
+void CefBrowserHostImpl::ShowDevTools(
+    const CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient> client,
+    const CefBrowserSettings& settings) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!web_contents_)
+      return;
+
+    if (devtools_frontend_) {
+      devtools_frontend_->Focus();
+      return;
+    }
+
+    devtools_frontend_ = CefDevToolsFrontend::Show(
+        this, windowInfo, client, settings);
+    devtools_observer_.reset(new DevToolsWebContentsObserver(
+        this, devtools_frontend_->frontend_browser()->web_contents()));
+  } else {
+    ShowDevToolsHelper* helper =
+        new ShowDevToolsHelper(this, windowInfo, client, settings);
+    CEF_POST_TASK(CEF_UIT, base::Bind(ShowDevToolsWithHelper, helper));
+  }
+}
+
+void CefBrowserHostImpl::CloseDevTools() {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!devtools_frontend_)
+      return;
+    devtools_observer_.reset();
+    devtools_frontend_->Close();
+    devtools_frontend_ = NULL;
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::CloseDevTools, this));
   }
 }
 
@@ -1737,9 +1835,11 @@ void CefBrowserHostImpl::WebContentsCreated(
     DCHECK(!info->is_popup());
   }
 
-  CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::Create(
-      pending_popup_info->window_info, pending_popup_info->settings,
-      pending_popup_info->client, new_contents, info, opener, NULL);
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::CreateInternal(pending_popup_info->window_info,
+                                         pending_popup_info->settings,
+                                         pending_popup_info->client,
+                                         new_contents, info, opener, NULL);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2136,6 +2236,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
+      devtools_frontend_(NULL),
       file_chooser_pending_(false) {
   DCHECK(!browser_info_->browser().get());
   browser_info_->set_browser(this);
@@ -2439,4 +2540,9 @@ void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
 
   // Notify our RenderViewHost in all cases.
   render_view_host->FilesSelectedInChooser(selected_files, mode);
+}
+
+void CefBrowserHostImpl::OnDevToolsWebContentsDestroyed() {
+  devtools_observer_.reset();
+  devtools_frontend_ = NULL;
 }

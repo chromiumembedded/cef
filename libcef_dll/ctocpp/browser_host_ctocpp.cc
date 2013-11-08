@@ -292,6 +292,35 @@ void CefBrowserHostCToCpp::StopFinding(bool clearSelection) {
       clearSelection);
 }
 
+void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient> client, const CefBrowserSettings& settings) {
+  if (CEF_MEMBER_MISSING(struct_, show_dev_tools))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: client; type: refptr_diff
+  DCHECK(client.get());
+  if (!client.get())
+    return;
+
+  // Execute
+  struct_->show_dev_tools(struct_,
+      &windowInfo,
+      CefClientCppToC::Wrap(client),
+      &settings);
+}
+
+void CefBrowserHostCToCpp::CloseDevTools() {
+  if (CEF_MEMBER_MISSING(struct_, close_dev_tools))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->close_dev_tools(struct_);
+}
+
 void CefBrowserHostCToCpp::SetMouseCursorChangeDisabled(bool disabled) {
   if (CEF_MEMBER_MISSING(struct_, set_mouse_cursor_change_disabled))
     return;

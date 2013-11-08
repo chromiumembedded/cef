@@ -301,11 +301,12 @@ CefContentBrowserClient* CefContentBrowserClient::Get() {
       CefContentClient::Get()->browser());
 }
 
-scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo() {
+scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo(
+    bool is_popup) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, false);
+      new CefBrowserInfo(++next_browser_id_, is_popup);
   browser_info_list_.push_back(browser_info);
   return browser_info;
 }

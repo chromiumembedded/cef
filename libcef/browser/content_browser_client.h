@@ -50,7 +50,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // to CefBrowserHostImpl::ShouldCreateWebContents on the UI thread. To resolve
   // this race CefBrowserInfo may be created when requested for the first time
   // and before the associated CefBrowserHostImpl is created.
-  scoped_refptr<CefBrowserInfo> CreateBrowserInfo();
+  scoped_refptr<CefBrowserInfo> CreateBrowserInfo(bool is_popup);
   scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(int render_process_id,
                                                        int render_view_id);
   void RemoveBrowserInfo(scoped_refptr<CefBrowserInfo> browser_info);

@@ -342,6 +342,20 @@ typedef struct _cef_browser_host_t {
       int clearSelection);
 
   ///
+  // Open developer tools in its own window.
+  ///
+  void (CEF_CALLBACK *show_dev_tools)(struct _cef_browser_host_t* self,
+      const struct _cef_window_info_t* windowInfo,
+      struct _cef_client_t* client,
+      const struct _cef_browser_settings_t* settings);
+
+  ///
+  // Explicitly close the developer tools window if one exists for this browser
+  // instance.
+  ///
+  void (CEF_CALLBACK *close_dev_tools)(struct _cef_browser_host_t* self);
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   void (CEF_CALLBACK *set_mouse_cursor_change_disabled)(

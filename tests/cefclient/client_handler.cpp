@@ -33,6 +33,7 @@ namespace {
 // Custom menu command Ids.
 enum client_menu_ids {
   CLIENT_ID_SHOW_DEVTOOLS   = MENU_ID_USER_FIRST,
+  CLIENT_ID_CLOSE_DEVTOOLS,
   CLIENT_ID_TESTMENU_SUBMENU,
   CLIENT_ID_TESTMENU_CHECKITEM,
   CLIENT_ID_TESTMENU_RADIOITEM1,
@@ -108,12 +109,6 @@ ClientHandler::ClientHandler()
   if (m_StartupURL.empty())
     m_StartupURL = "http://www.google.com/";
 
-  // Also use external dev tools if off-screen rendering is enabled since we
-  // disallow popup windows.
-  m_bExternalDevTools =
-      command_line->HasSwitch(cefclient::kExternalDevTools) ||
-      AppIsOffScreenRenderingEnabled();
-
   m_bMouseCursorChangeDisabled =
       command_line->HasSwitch(cefclient::kMouseCursorChangeDisabled);
 }
@@ -158,16 +153,9 @@ void ClientHandler::OnBeforeContextMenu(
     if (model->GetCount() > 0)
       model->AddSeparator();
 
-    // Add a "Show DevTools" item to all context menus.
+    // Add DevTools items to all context menus.
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
-
-    CefString devtools_url = browser->GetHost()->GetDevToolsURL(true);
-    if (devtools_url.empty() ||
-        m_OpenDevToolsURLs.find(devtools_url) != m_OpenDevToolsURLs.end()) {
-      // Disable the menu option if DevTools isn't enabled or if a window is
-      // already open for the current URL.
-      model->SetEnabled(CLIENT_ID_SHOW_DEVTOOLS, false);
-    }
+    model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
 
     // Test context menu features.
     BuildTestMenu(model);
@@ -183,6 +171,9 @@ bool ClientHandler::OnContextMenuCommand(
   switch (command_id) {
     case CLIENT_ID_SHOW_DEVTOOLS:
       ShowDevTools(browser);
+      return true;
+    case CLIENT_ID_CLOSE_DEVTOOLS:
+      CloseDevTools(browser);
       return true;
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);
@@ -361,12 +352,6 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
       m_OSRHandler = NULL;
     }
   } else if (browser->IsPopup()) {
-    // Remove the record for DevTools popup windows.
-    std::set<std::string>::iterator it =
-        m_OpenDevToolsURLs.find(browser->GetMainFrame()->GetURL());
-    if (it != m_OpenDevToolsURLs.end())
-      m_OpenDevToolsURLs.erase(it);
-
     // Remove from the browser popup list.
     BrowserList::iterator bit = m_PopupBrowsers.begin();
     for (; bit != m_PopupBrowsers.end(); ++bit) {
@@ -615,42 +600,18 @@ std::string ClientHandler::GetLastDownloadFile() {
 }
 
 void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser) {
-  std::string devtools_url = browser->GetHost()->GetDevToolsURL(true);
-  if (!devtools_url.empty()) {
-    if (m_bExternalDevTools) {
-      // Open DevTools in an external browser window.
-      LaunchExternalBrowser(devtools_url);
-    } else if (m_OpenDevToolsURLs.find(devtools_url) ==
-               m_OpenDevToolsURLs.end()) {
-      // Open DevTools in a popup window.
-      m_OpenDevToolsURLs.insert(devtools_url);
-      browser->GetMainFrame()->ExecuteJavaScript(
-          "window.open('" +  devtools_url + "');", "about:blank", 0);
-    }
-  }
+  CefWindowInfo windowInfo;
+  CefBrowserSettings settings;
+
+#if defined(OS_WIN)
+  windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(), "DevTools");
+#endif
+
+  browser->GetHost()->ShowDevTools(windowInfo, this, settings);
 }
 
-// static
-void ClientHandler::LaunchExternalBrowser(const std::string& url) {
-  if (CefCurrentlyOn(TID_PROCESS_LAUNCHER)) {
-    // Retrieve the current executable path.
-    CefString file_exe;
-    if (!CefGetPath(PK_FILE_EXE, file_exe))
-      return;
-
-    // Create the command line.
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::CreateCommandLine();
-    command_line->SetProgram(file_exe);
-    command_line->AppendSwitchWithValue(cefclient::kUrl, url);
-
-    // Launch the process.
-    CefLaunchProcess(command_line);
-  } else {
-    // Execute on the PROCESS_LAUNCHER thread.
-    CefPostTask(TID_PROCESS_LAUNCHER,
-        NewCefRunnableFunction(&ClientHandler::LaunchExternalBrowser, url));
-  }
+void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
+  browser->GetHost()->CloseDevTools();
 }
 
 void ClientHandler::BeginTracing() {

@@ -390,6 +390,21 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StopFinding(bool clearSelection) =0;
 
   ///
+  // Open developer tools in its own window.
+  ///
+  /*--cef()--*/
+  virtual void ShowDevTools(const CefWindowInfo& windowInfo,
+                            CefRefPtr<CefClient> client,
+                            const CefBrowserSettings& settings) =0;
+
+  ///
+  // Explicitly close the developer tools window if one exists for this browser
+  // instance.
+  ///
+  /*--cef()--*/
+  virtual void CloseDevTools() =0;
+
+  ///
   // Set whether mouse cursor change is disabled.
   ///
   /*--cef()--*/
