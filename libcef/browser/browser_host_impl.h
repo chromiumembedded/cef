@@ -115,7 +115,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
   virtual CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
-  virtual CefString GetDevToolsURL(bool http_scheme) OVERRIDE;
   virtual double GetZoomLevel() OVERRIDE;
   virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
   virtual void RunFileDialog(
@@ -519,8 +518,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool can_go_forward_;
   bool has_document_;
   GURL loading_url_;
-  CefString devtools_url_http_;
-  CefString devtools_url_chrome_;
 
   // Messages we queue while waiting for the RenderView to be ready. We queue
   // them here instead of in the RenderProcessHost to ensure that they're sent

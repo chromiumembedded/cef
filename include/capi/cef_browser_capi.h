@@ -271,18 +271,6 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  // Returns the DevTools URL for this browser. If |http_scheme| is true (1) the
-  // returned URL will use the http scheme instead of the chrome-devtools
-  // scheme. Remote debugging can be enabled by specifying the "remote-
-  // debugging-port" command-line flag or by setting the
-  // CefSettings.remote_debugging_port value. If remote debugging is not enabled
-  // this function will return an NULL string.
-  ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_dev_tools_url)(
-      struct _cef_browser_host_t* self, int http_scheme);
-
-  ///
   // Get the current zoom level. The default zoom level is 0.0. This function
   // can only be called on the UI thread.
   ///

@@ -213,22 +213,6 @@ struct _cef_request_context_t* CEF_CALLBACK browser_host_get_request_context(
   return CefRequestContextCppToC::Wrap(_retval);
 }
 
-cef_string_userfree_t CEF_CALLBACK browser_host_get_dev_tools_url(
-    struct _cef_browser_host_t* self, int http_scheme) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefString _retval = CefBrowserHostCppToC::Get(self)->GetDevToolsURL(
-      http_scheme?true:false);
-
-  // Return type: string
-  return _retval.DetachToUserFree();
-}
-
 double CEF_CALLBACK browser_host_get_zoom_level(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -676,7 +660,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
       browser_host_get_opener_window_handle;
   struct_.struct_.get_client = browser_host_get_client;
   struct_.struct_.get_request_context = browser_host_get_request_context;
-  struct_.struct_.get_dev_tools_url = browser_host_get_dev_tools_url;
   struct_.struct_.get_zoom_level = browser_host_get_zoom_level;
   struct_.struct_.set_zoom_level = browser_host_set_zoom_level;
   struct_.struct_.run_file_dialog = browser_host_run_file_dialog;

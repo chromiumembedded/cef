@@ -314,17 +314,6 @@ class CefBrowserHost : public virtual CefBase {
   virtual CefRefPtr<CefRequestContext> GetRequestContext() =0;
 
   ///
-  // Returns the DevTools URL for this browser. If |http_scheme| is true the
-  // returned URL will use the http scheme instead of the chrome-devtools
-  // scheme. Remote debugging can be enabled by specifying the
-  // "remote-debugging-port" command-line flag or by setting the
-  // CefSettings.remote_debugging_port value. If remote debugging is not enabled
-  // this method will return an empty string.
-  ///
-  /*--cef()--*/
-  virtual CefString GetDevToolsURL(bool http_scheme) =0;
-
-  ///
   // Get the current zoom level. The default zoom level is 0.0. This method can
   // only be called on the UI thread.
   ///

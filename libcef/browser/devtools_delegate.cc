@@ -144,27 +144,6 @@ scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateNewTarget(
    return scoped_ptr<content::DevToolsTarget>();
 }
 
-scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateTargetForId(
-    const std::string& id) {
-  scoped_ptr<content::DevToolsTarget> target;
-
-  std::vector<content::RenderViewHost*> rvh_list =
-      content::DevToolsAgentHost::GetValidRenderViewHosts();
-  for (std::vector<content::RenderViewHost*>::iterator it = rvh_list.begin();
-       it != rvh_list.end(); ++it) {
-    scoped_refptr<content::DevToolsAgentHost> agent_host(
-        content::DevToolsAgentHost::GetOrCreateFor(*it));
-    if (agent_host->GetId() == id) {
-      content::WebContents* web_contents =
-          content::WebContents::FromRenderViewHost(*it);
-      target.reset(new Target(web_contents));
-      break;
-    }
-  }
-
-  return target.Pass();
-}
-
 void CefDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
   std::vector<content::RenderViewHost*> rvh_list =
@@ -189,30 +168,4 @@ scoped_ptr<net::StreamListenSocket>
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
   return base::StringPrintf("%s://%s/devtools.html",
       chrome::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);
-}
-
-std::string CefDevToolsDelegate::GetDevToolsURL(content::RenderViewHost* rvh,
-                                                bool http_scheme) {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  std::string port_str =
-      command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
-  DCHECK(!port_str.empty());
-  int port;
-  if (!base::StringToInt(port_str, &port))
-    return std::string();
-
-  scoped_refptr<content::DevToolsAgentHost> agent_host(
-      content::DevToolsAgentHost::GetOrCreateFor(rvh));
-
-  const std::string& page_id = agent_host->GetId();
-  const std::string& host = http_scheme ?
-      base::StringPrintf("http://localhost:%d/devtools/", port) :
-      base::StringPrintf("%s://%s/", chrome::kChromeDevToolsScheme,
-                         scheme::kChromeDevToolsHost);
-
-  return base::StringPrintf(
-      "%sdevtools.html?ws=localhost:%d/devtools/page/%s",
-      host.c_str(),
-      port,
-      page_id.c_str());
 }

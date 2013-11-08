@@ -61,7 +61,6 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 
   // Necessary for V8Test.OnUncaughtException tests.
   settings.uncaught_exception_stack_size = 10;
-  settings.remote_debugging_port = 12345;
 }
 
 // static

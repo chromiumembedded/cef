@@ -571,11 +571,6 @@ CefRefPtr<CefRequestContext> CefBrowserHostImpl::GetRequestContext() {
   return request_context_;
 }
 
-CefString CefBrowserHostImpl::GetDevToolsURL(bool http_scheme) {
-  base::AutoLock lock_scope(state_lock_);
-  return (http_scheme ? devtools_url_http_ : devtools_url_chrome_);
-}
-
 double CefBrowserHostImpl::GetZoomLevel() {
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -1937,17 +1932,6 @@ void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   browser_info_->add_render_id(render_view_host->GetProcess()->GetID(),
                                render_view_host->GetRoutingID());
-
-  // Update the DevTools URLs, if any.
-  CefDevToolsDelegate* devtools_delegate =
-      CefContentBrowserClient::Get()->devtools_delegate();
-  if (devtools_delegate) {
-    base::AutoLock lock_scope(state_lock_);
-    devtools_url_http_ =
-        devtools_delegate->GetDevToolsURL(render_view_host, true);
-    devtools_url_chrome_ =
-        devtools_delegate->GetDevToolsURL(render_view_host, false);
-  }
 
   // May be already registered if the renderer crashed previously.
   if (!registrar_->IsRegistered(

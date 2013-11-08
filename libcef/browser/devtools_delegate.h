@@ -35,8 +35,6 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
   virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(const GURL& url)
       OVERRIDE;
-  virtual scoped_ptr<content::DevToolsTarget> CreateTargetForId(
-      const std::string& id) OVERRIDE;
   virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
@@ -44,9 +42,6 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
   // Returns the chrome-devtools URL.
   std::string GetChromeDevToolsURL();
-
-  // Returns the DevTools URL for the specified RenderViewHost.
-  std::string GetDevToolsURL(content::RenderViewHost* rvh, bool http_scheme);
 
  private:
   content::DevToolsHttpHandler* devtools_http_handler_;

@@ -160,22 +160,6 @@ CefRefPtr<CefRequestContext> CefBrowserHostCToCpp::GetRequestContext() {
   return CefRequestContextCToCpp::Wrap(_retval);
 }
 
-CefString CefBrowserHostCToCpp::GetDevToolsURL(bool http_scheme) {
-  if (CEF_MEMBER_MISSING(struct_, get_dev_tools_url))
-    return CefString();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_string_userfree_t _retval = struct_->get_dev_tools_url(struct_,
-      http_scheme);
-
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
-}
-
 double CefBrowserHostCToCpp::GetZoomLevel() {
   if (CEF_MEMBER_MISSING(struct_, get_zoom_level))
     return 0;
