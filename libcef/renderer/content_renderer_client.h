@@ -36,7 +36,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
 
   // Returns the browser associated with the specified main WebFrame.
-  CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(WebKit::WebFrame* frame);
+  CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(blink::WebFrame* frame);
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
@@ -78,14 +78,14 @@ class CefContentRendererClient : public content::ContentRendererClient,
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
   virtual bool OverrideCreatePlugin(
       content::RenderView* render_view,
-      WebKit::WebFrame* frame,
-      const WebKit::WebPluginParams& params,
-      WebKit::WebPlugin** plugin) OVERRIDE;
-  virtual void DidCreateScriptContext(WebKit::WebFrame* frame,
+      blink::WebFrame* frame,
+      const blink::WebPluginParams& params,
+      blink::WebPlugin** plugin) OVERRIDE;
+  virtual void DidCreateScriptContext(blink::WebFrame* frame,
                                       v8::Handle<v8::Context> context,
                                       int extension_group,
                                       int world_id) OVERRIDE;
-  virtual void WillReleaseScriptContext(WebKit::WebFrame* frame,
+  virtual void WillReleaseScriptContext(blink::WebFrame* frame,
                                         v8::Handle<v8::Context> context,
                                         int world_id) OVERRIDE;
 

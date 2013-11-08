@@ -14,7 +14,7 @@ class CefDOMDocumentImpl;
 class CefDOMEventImpl : public CefDOMEvent {
  public:
   CefDOMEventImpl(CefRefPtr<CefDOMDocumentImpl> document,
-                  const WebKit::WebDOMEvent& event);
+                  const blink::WebDOMEvent& event);
   virtual ~CefDOMEventImpl();
 
   // CefDOMEvent methods.
@@ -35,7 +35,7 @@ class CefDOMEventImpl : public CefDOMEvent {
 
  protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
-  WebKit::WebDOMEvent event_;
+  blink::WebDOMEvent event_;
 
   IMPLEMENT_REFCOUNTING(CefDOMEventImpl);
 };

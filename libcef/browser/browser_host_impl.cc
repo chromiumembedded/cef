@@ -107,16 +107,16 @@ void ShowDevToolsWithHelper(ShowDevToolsHelper* helper) {
 bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event) {
   switch (event.type) {
-    case WebKit::WebKeyboardEvent::RawKeyDown:
+    case blink::WebKeyboardEvent::RawKeyDown:
       cef_event.type = KEYEVENT_RAWKEYDOWN;
       break;
-    case WebKit::WebKeyboardEvent::KeyDown:
+    case blink::WebKeyboardEvent::KeyDown:
       cef_event.type = KEYEVENT_KEYDOWN;
       break;
-    case WebKit::WebKeyboardEvent::KeyUp:
+    case blink::WebKeyboardEvent::KeyUp:
       cef_event.type = KEYEVENT_KEYUP;
       break;
-    case WebKit::WebKeyboardEvent::Char:
+    case blink::WebKeyboardEvent::Char:
       cef_event.type = KEYEVENT_CHAR;
       break;
     default:
@@ -124,15 +124,15 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
   }
 
   cef_event.modifiers = 0;
-  if (event.modifiers & WebKit::WebKeyboardEvent::ShiftKey)
+  if (event.modifiers & blink::WebKeyboardEvent::ShiftKey)
     cef_event.modifiers |= EVENTFLAG_SHIFT_DOWN;
-  if (event.modifiers & WebKit::WebKeyboardEvent::ControlKey)
+  if (event.modifiers & blink::WebKeyboardEvent::ControlKey)
     cef_event.modifiers |= EVENTFLAG_CONTROL_DOWN;
-  if (event.modifiers & WebKit::WebKeyboardEvent::AltKey)
+  if (event.modifiers & blink::WebKeyboardEvent::AltKey)
     cef_event.modifiers |= EVENTFLAG_ALT_DOWN;
-  if (event.modifiers & WebKit::WebKeyboardEvent::MetaKey)
+  if (event.modifiers & blink::WebKeyboardEvent::MetaKey)
     cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
-  if (event.modifiers & WebKit::WebKeyboardEvent::IsKeyPad)
+  if (event.modifiers & blink::WebKeyboardEvent::IsKeyPad)
     cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
 
   cef_event.windows_key_code = event.windowsKeyCode;
@@ -679,7 +679,7 @@ void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
     if (!web_contents_)
       return;
 
-    WebKit::WebFindOptions options;
+    blink::WebFindOptions options;
     options.forward = forward;
     options.matchCase = matchCase;
     options.findNext = findNext;
@@ -891,7 +891,7 @@ void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
     return;
   }
 
-  WebKit::WebMouseEvent web_event;
+  blink::WebMouseEvent web_event;
   PlatformTranslateClickEvent(web_event, event, type, mouseUp, clickCount);
 
   SendMouseEvent(web_event);
@@ -906,7 +906,7 @@ void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
     return;
   }
 
-  WebKit::WebMouseEvent web_event;
+  blink::WebMouseEvent web_event;
   PlatformTranslateMoveEvent(web_event, event, mouseLeave);
 
   SendMouseEvent(web_event);
@@ -921,7 +921,7 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
     return;
   }
 
-  WebKit::WebMouseWheelEvent web_event;
+  blink::WebMouseWheelEvent web_event;
   PlatformTranslateWheelEvent(web_event, event, deltaX, deltaY);
 
   if (!IsWindowRenderingDisabled()) {
@@ -945,33 +945,33 @@ int CefBrowserHostImpl::TranslateModifiers(uint32 cef_modifiers) {
   int webkit_modifiers = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
-    webkit_modifiers |= WebKit::WebInputEvent::ShiftKey;
+    webkit_modifiers |= blink::WebInputEvent::ShiftKey;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
-    webkit_modifiers |= WebKit::WebInputEvent::ControlKey;
+    webkit_modifiers |= blink::WebInputEvent::ControlKey;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
-    webkit_modifiers |= WebKit::WebInputEvent::AltKey;
+    webkit_modifiers |= blink::WebInputEvent::AltKey;
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    webkit_modifiers |= WebKit::WebInputEvent::MetaKey;
+    webkit_modifiers |= blink::WebInputEvent::MetaKey;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-    webkit_modifiers |= WebKit::WebInputEvent::LeftButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::LeftButtonDown;
   if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-    webkit_modifiers |= WebKit::WebInputEvent::MiddleButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::MiddleButtonDown;
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-    webkit_modifiers |= WebKit::WebInputEvent::RightButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::RightButtonDown;
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    webkit_modifiers |= WebKit::WebInputEvent::CapsLockOn;
+    webkit_modifiers |= blink::WebInputEvent::CapsLockOn;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
-    webkit_modifiers |= WebKit::WebInputEvent::NumLockOn;
+    webkit_modifiers |= blink::WebInputEvent::NumLockOn;
   if (cef_modifiers & EVENTFLAG_IS_LEFT)
-    webkit_modifiers |= WebKit::WebInputEvent::IsLeft;
+    webkit_modifiers |= blink::WebInputEvent::IsLeft;
   if (cef_modifiers & EVENTFLAG_IS_RIGHT)
-    webkit_modifiers |= WebKit::WebInputEvent::IsRight;
+    webkit_modifiers |= blink::WebInputEvent::IsRight;
   if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
-    webkit_modifiers |= WebKit::WebInputEvent::IsKeyPad;
+    webkit_modifiers |= blink::WebInputEvent::IsKeyPad;
   return webkit_modifiers;
 }
 
-void CefBrowserHostImpl::SendMouseEvent(const WebKit::WebMouseEvent& event) {
+void CefBrowserHostImpl::SendMouseEvent(const blink::WebMouseEvent& event) {
   if (!IsWindowRenderingDisabled()) {
     content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
     if (widget)
@@ -1772,7 +1772,7 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
 bool CefBrowserHostImpl::CanDragEnter(
     content::WebContents* source,
     const content::DropData& data,
-    WebKit::WebDragOperationsMask mask) {
+    blink::WebDragOperationsMask mask) {
   CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
   if (handler.get()) {
     CefRefPtr<CefDragData> drag_data(new CefDragDataImpl(data));

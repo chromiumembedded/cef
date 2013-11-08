@@ -449,7 +449,6 @@ struct CefBrowserSettingsTraits {
         src->image_shrink_standalone_to_fit;
     target->text_area_resize = src->text_area_resize;
     target->tab_to_links = src->tab_to_links;
-    target->author_and_user_styles = src->author_and_user_styles;
     target->local_storage = src->local_storage;
     target->databases= src->databases;
     target->application_cache = src->application_cache;

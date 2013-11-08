@@ -137,7 +137,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #if defined(OS_WIN) && !defined(USE_AURA)
   virtual void WillWmDestroy() OVERRIDE;
 #endif
-  virtual void GetScreenInfo(WebKit::WebScreenInfo* results) OVERRIDE;
+  virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
   virtual void OnAccessibilityEvents(
       const std::vector<AccessibilityHostMsg_EventParams>& params)
@@ -159,6 +159,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       const base::Callback<void(bool)>& callback) OVERRIDE;
   virtual bool CanCopyToVideoFrame() const OVERRIDE;
   virtual void OnAcceleratedCompositingStateChange() OVERRIDE;
+  virtual void AcceleratedSurfaceInitialized(
+      int host_id, int route_id) OVERRIDE;
   virtual void SetHasHorizontalScrollbar(
       bool has_horizontal_scrollbar) OVERRIDE;
   virtual void SetScrollOffsetPinning(
@@ -191,8 +193,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void SetBackground(const SkBitmap& background) OVERRIDE;
 
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);
-  void SendMouseEvent(const WebKit::WebMouseEvent& event);
-  void SendMouseWheelEvent(const WebKit::WebMouseWheelEvent& event);
+  void SendMouseEvent(const blink::WebMouseEvent& event);
+  void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
 
   void Invalidate(const gfx::Rect& rect,
                   CefBrowserHost::PaintElementType type);
@@ -215,7 +217,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   void set_parent_host_view(CefRenderWidgetHostViewOSR* parent_view);
 
   bool IsPopupWidget() const {
-    return popup_type_ != WebKit::WebPopupTypeNone;
+    return popup_type_ != blink::WebPopupTypeNone;
   }
 
  private:

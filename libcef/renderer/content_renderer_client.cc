@@ -60,20 +60,20 @@ MSVC_POP_WARNING();
 
 namespace {
 
-// Stub implementation of WebKit::WebPrerenderingSupport.
-class CefPrerenderingSupport : public WebKit::WebPrerenderingSupport {
+// Stub implementation of blink::WebPrerenderingSupport.
+class CefPrerenderingSupport : public blink::WebPrerenderingSupport {
  public:
   virtual ~CefPrerenderingSupport() {}
 
  private:
-  virtual void add(const WebKit::WebPrerender& prerender) OVERRIDE {}
-  virtual void cancel(const WebKit::WebPrerender& prerender) OVERRIDE {}
-  virtual void abandon(const WebKit::WebPrerender& prerender) OVERRIDE {}
+  virtual void add(const blink::WebPrerender& prerender) OVERRIDE {}
+  virtual void cancel(const blink::WebPrerender& prerender) OVERRIDE {}
+  virtual void abandon(const blink::WebPrerender& prerender) OVERRIDE {}
 };
 
-// Stub implementation of WebKit::WebPrerendererClient.
+// Stub implementation of blink::WebPrerendererClient.
 class CefPrerendererClient : public content::RenderViewObserver,
-                             public WebKit::WebPrerendererClient {
+                             public blink::WebPrerendererClient {
  public:
   explicit CefPrerendererClient(content::RenderView* render_view)
       : content::RenderViewObserver(render_view) {
@@ -84,7 +84,7 @@ class CefPrerendererClient : public content::RenderViewObserver,
  private:
   virtual ~CefPrerendererClient() {}
 
-  virtual void willAddPrerender(WebKit::WebPrerender* prerender) OVERRIDE {}
+  virtual void willAddPrerender(blink::WebPrerender* prerender) OVERRIDE {}
 };
 
 // Implementation of SequencedTaskRunner for WebWorker threads.
@@ -163,7 +163,7 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForView(
 }
 
 CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForMainFrame(
-    WebKit::WebFrame* frame) {
+    blink::WebFrame* frame) {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   BrowserMap::const_iterator it = browsers_.begin();
@@ -194,15 +194,15 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
 void CefContentRendererClient::WebKitInitialized() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
-  WebKit::WebRuntimeFeatures::enableMediaPlayer(
+  blink::WebRuntimeFeatures::enableMediaPlayer(
       media::IsMediaLibraryInitialized());
 
   // TODO(cef): Enable these once the implementation supports it.
-  WebKit::WebRuntimeFeatures::enableNotifications(false);
+  blink::WebRuntimeFeatures::enableNotifications(false);
 
-  WebKit::WebRuntimeFeatures::enableSpeechInput(
+  blink::WebRuntimeFeatures::enableSpeechInput(
       command_line.HasSwitch(switches::kEnableSpeechInput));
-  WebKit::WebRuntimeFeatures::enableMediaStream(
+  blink::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
 
   const CefContentClient::SchemeInfoList* schemes =
@@ -212,17 +212,17 @@ void CefContentRendererClient::WebKitInitialized() {
     CefContentClient::SchemeInfoList::const_iterator it = schemes->begin();
     for (; it != schemes->end(); ++it) {
       const CefContentClient::SchemeInfo& info = *it;
-      const WebKit::WebString& scheme =
-          WebKit::WebString::fromUTF8(info.scheme_name);
+      const blink::WebString& scheme =
+          blink::WebString::fromUTF8(info.scheme_name);
       if (info.is_standard) {
         // Standard schemes must also be registered as CORS enabled to support
         // CORS-restricted requests (for example, XMLHttpRequest redirects).
-        WebKit::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(scheme);
+        blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(scheme);
       }
       if (info.is_local)
-        WebKit::WebSecurityPolicy::registerURLSchemeAsLocal(scheme);
+        blink::WebSecurityPolicy::registerURLSchemeAsLocal(scheme);
       if (info.is_display_isolated)
-        WebKit::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(scheme);
+        blink::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(scheme);
     }
   }
 
@@ -232,10 +232,10 @@ void CefContentRendererClient::WebKitInitialized() {
       const Cef_CrossOriginWhiteListEntry_Params& entry =
           cross_origin_whitelist_entries_[i];
       GURL gurl = GURL(entry.source_origin);
-      WebKit::WebSecurityPolicy::addOriginAccessWhitelistEntry(
+      blink::WebSecurityPolicy::addOriginAccessWhitelistEntry(
           gurl,
-          WebKit::WebString::fromUTF8(entry.target_protocol),
-          WebKit::WebString::fromUTF8(entry.target_domain),
+          blink::WebString::fromUTF8(entry.target_protocol),
+          blink::WebString::fromUTF8(entry.target_domain),
           entry.allow_target_subdomains);
     }
     cross_origin_whitelist_entries_.clear();
@@ -394,7 +394,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   if (!media_path.empty())
     media::InitializeMediaLibrary(media_path);
 
-  WebKit::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
+  blink::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
 
   // Create global objects associated with the default Isolate.
   CefV8IsolateCreated();
@@ -458,9 +458,9 @@ void CefContentRendererClient::RenderViewCreated(
 
 bool CefContentRendererClient::OverrideCreatePlugin(
     content::RenderView* render_view,
-    WebKit::WebFrame* frame,
-    const WebKit::WebPluginParams& params,
-    WebKit::WebPlugin** plugin) {
+    blink::WebFrame* frame,
+    const blink::WebPluginParams& params,
+    blink::WebPlugin** plugin) {
   CefRefPtr<CefBrowserImpl> browser =
       CefBrowserImpl::GetBrowserForMainFrame(frame->top());
   if (!browser || !browser->is_window_rendering_disabled())
@@ -504,11 +504,11 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 
   if (flash || silverlight) {
     // Force Flash and Silverlight plugins to use windowless mode.
-    WebKit::WebPluginParams params_to_use = params;
-    params_to_use.mimeType = WebKit::WebString::fromUTF8(mime_type);
+    blink::WebPluginParams params_to_use = params;
+    params_to_use.mimeType = blink::WebString::fromUTF8(mime_type);
   
     size_t size = params.attributeNames.size();
-    WebKit::WebVector<WebKit::WebString> new_names(size+1),
+    blink::WebVector<blink::WebString> new_names(size+1),
                                          new_values(size+1);
 
     for (size_t i = 0; i < size; ++i) {
@@ -536,7 +536,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 }
 
 void CefContentRendererClient::DidCreateScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
+    blink::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->top());
@@ -566,7 +566,7 @@ void CefContentRendererClient::DidCreateScriptContext(
 }
 
 void CefContentRendererClient::WillReleaseScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
+    blink::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {

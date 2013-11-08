@@ -21,10 +21,10 @@
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 
-using WebKit::WebString;
+using blink::WebString;
 
 CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
-                           WebKit::WebFrame* frame)
+                           blink::WebFrame* frame)
   : browser_(browser),
     frame_(frame),
     frame_id_(frame->identifier()) {
@@ -170,7 +170,7 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());
     frame_->executeScript(
-        WebKit::WebScriptSource(jsCode.ToString16(), gurl, startLine));
+        blink::WebScriptSource(jsCode.ToString16(), gurl, startLine));
   }
 }
 
@@ -209,7 +209,7 @@ CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   if (frame_) {
-    WebKit::WebFrame* parent = frame_->parent();
+    blink::WebFrame* parent = frame_->parent();
     if (parent)
       return browser_->GetWebFrameImpl(parent).get();
   }
@@ -254,7 +254,7 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   // Create a CefDOMDocumentImpl object that is valid only for the scope of this
   // method.
   CefRefPtr<CefDOMDocumentImpl> documentImpl;
-  const WebKit::WebDocument& document = frame_->document();
+  const blink::WebDocument& document = frame_->document();
   if (!document.isNull())
     documentImpl = new CefDOMDocumentImpl(browser_, frame_);
 

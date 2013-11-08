@@ -37,57 +37,57 @@ MSVC_POP_WARNING();
 
 namespace webkit_glue {
 
-bool CanGoBack(WebKit::WebView* view) {
+bool CanGoBack(blink::WebView* view) {
   if (!view)
     return false;
-  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
   return (impl->client()->historyBackListCount() > 0);
 }
 
-bool CanGoForward(WebKit::WebView* view) {
+bool CanGoForward(blink::WebView* view) {
   if (!view)
     return false;
-  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
   return (impl->client()->historyForwardListCount() > 0);
 }
 
-void GoBack(WebKit::WebView* view) {
+void GoBack(blink::WebView* view) {
   if (!view)
     return;
-  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
   if (impl->client()->historyBackListCount() > 0)
     impl->client()->navigateBackForwardSoon(-1);
 }
 
-void GoForward(WebKit::WebView* view) {
+void GoForward(blink::WebView* view) {
   if (!view)
     return;
-  WebKit::WebViewImpl* impl = reinterpret_cast<WebKit::WebViewImpl*>(view);
+  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
  if (impl->client()->historyForwardListCount() > 0)
     impl->client()->navigateBackForwardSoon(1);
 }
 
-v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame) {
-  WebKit::WebFrameImpl* impl = static_cast<WebKit::WebFrameImpl*>(frame);
+v8::Isolate* GetV8Isolate(blink::WebFrame* frame) {
+  blink::WebFrameImpl* impl = static_cast<blink::WebFrameImpl*>(frame);
   return WebCore::toIsolate(impl->frame());
 }
 
-v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame) {
-  WebKit::WebFrameImpl* impl = static_cast<WebKit::WebFrameImpl*>(frame);
+v8::Handle<v8::Context> GetV8Context(blink::WebFrame* frame) {
+  blink::WebFrameImpl* impl = static_cast<blink::WebFrameImpl*>(frame);
   return WebCore::ScriptController::mainWorldContext(impl->frame());
 }
 
-std::string DumpDocumentText(WebKit::WebFrame* frame) {
+std::string DumpDocumentText(blink::WebFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
-  WebKit::WebElement document_element = frame->document().documentElement();
+  blink::WebElement document_element = frame->document().documentElement();
   if (document_element.isNull())
     return std::string();
 
   return document_element.innerText().utf8();
 }
 
-bool SetNodeValue(WebKit::WebNode& node, const WebKit::WebString& value) {
+bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
   WebCore::Node* web_node = node.unwrap<WebCore::Node>();
   web_node->setNodeValue(value);
   return true;

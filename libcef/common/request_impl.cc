@@ -282,7 +282,7 @@ void CefRequestImpl::Get(net::URLRequest* request) {
   }
 }
 
-void CefRequestImpl::Set(const WebKit::WebURLRequest& request) {
+void CefRequestImpl::Set(const blink::WebURLRequest& request) {
   DCHECK(!request.isNull());
 
   AutoLock lock_scope(this);
@@ -291,7 +291,7 @@ void CefRequestImpl::Set(const WebKit::WebURLRequest& request) {
   url_ = request.url().spec().utf16();
   method_ = request.httpMethod();
 
-  const WebKit::WebHTTPBody& body = request.httpBody();
+  const blink::WebHTTPBody& body = request.httpBody();
   if (!body.isNull()) {
     postdata_ = new CefPostDataImpl();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
@@ -303,7 +303,7 @@ void CefRequestImpl::Set(const WebKit::WebURLRequest& request) {
   GetHeaderMap(request, headermap_);
 
   flags_ = UR_FLAG_NONE;
-  if (request.cachePolicy() == WebKit::WebURLRequest::ReloadIgnoringCacheData)
+  if (request.cachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
     flags_ |= UR_FLAG_SKIP_CACHE;
   if (request.allowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
@@ -322,18 +322,18 @@ void CefRequestImpl::Set(const WebKit::WebURLRequest& request) {
       ::ResourceType::FromTargetType(request.targetType()));
 }
 
-void CefRequestImpl::Get(WebKit::WebURLRequest& request) {
+void CefRequestImpl::Get(blink::WebURLRequest& request) {
   request.initialize();
   AutoLock lock_scope(this);
 
   GURL gurl = GURL(url_.ToString());
-  request.setURL(WebKit::WebURL(gurl));
+  request.setURL(blink::WebURL(gurl));
 
   std::string method(method_);
-  request.setHTTPMethod(WebKit::WebString::fromUTF8(method.c_str()));
-  request.setTargetType(WebKit::WebURLRequest::TargetIsMainFrame);
+  request.setHTTPMethod(blink::WebString::fromUTF8(method.c_str()));
+  request.setTargetType(blink::WebURLRequest::TargetIsMainFrame);
 
-  WebKit::WebHTTPBody body;
+  blink::WebHTTPBody body;
   if (postdata_.get()) {
     body.initialize();
     static_cast<CefPostDataImpl*>(postdata_.get())->Get(body);
@@ -343,8 +343,8 @@ void CefRequestImpl::Get(WebKit::WebURLRequest& request) {
   SetHeaderMap(headermap_, request);
 
   request.setCachePolicy((flags_ & UR_FLAG_SKIP_CACHE) ?
-      WebKit::WebURLRequest::ReloadIgnoringCacheData :
-      WebKit::WebURLRequest::UseProtocolCachePolicy);
+      blink::WebURLRequest::ReloadIgnoringCacheData :
+      blink::WebURLRequest::UseProtocolCachePolicy);
 
   #define SETBOOLFLAG(obj, flags, method, FLAG) \
       obj.method((flags & (FLAG)) == (FLAG))
@@ -362,7 +362,7 @@ void CefRequestImpl::Get(WebKit::WebURLRequest& request) {
 
   if (!first_party_for_cookies_.empty()) {
     GURL gurl = GURL(first_party_for_cookies_.ToString());
-    request.setFirstPartyForCookies(WebKit::WebURL(gurl));
+    request.setFirstPartyForCookies(blink::WebURL(gurl));
   }
 }
 
@@ -391,14 +391,14 @@ void CefRequestImpl::GetHeaderMap(const net::HttpRequestHeaders& headers,
 
 
 // static
-void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
+void CefRequestImpl::GetHeaderMap(const blink::WebURLRequest& request,
                                   HeaderMap& map) {
-  class HeaderVisitor : public WebKit::WebHTTPHeaderVisitor {
+  class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
     explicit HeaderVisitor(HeaderMap* map) : map_(map) {}
 
-    virtual void visitHeader(const WebKit::WebString& name,
-                             const WebKit::WebString& value) {
+    virtual void visitHeader(const blink::WebString& name,
+                             const blink::WebString& value) {
       map_->insert(std::make_pair(string16(name), string16(value)));
     }
 
@@ -412,7 +412,7 @@ void CefRequestImpl::GetHeaderMap(const WebKit::WebURLRequest& request,
 
 // static
 void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
-                                  WebKit::WebURLRequest& request) {
+                                  blink::WebURLRequest& request) {
   HeaderMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it)
     request.setHTTPHeaderField(string16(it->first), string16(it->second));
@@ -547,12 +547,12 @@ net::UploadDataStream* CefPostDataImpl::Get() {
   return new net::UploadDataStream(element_readers.Pass(), 0);
 }
 
-void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data) {
+void CefPostDataImpl::Set(const blink::WebHTTPBody& data) {
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
 
   CefRefPtr<CefPostDataElement> postelem;
-  WebKit::WebHTTPBody::Element element;
+  blink::WebHTTPBody::Element element;
   size_t size = data.elementCount();
   for (size_t i = 0; i < size; ++i) {
     if (data.elementAt(i, element)) {
@@ -563,16 +563,16 @@ void CefPostDataImpl::Set(const WebKit::WebHTTPBody& data) {
   }
 }
 
-void CefPostDataImpl::Get(WebKit::WebHTTPBody& data) {
+void CefPostDataImpl::Get(blink::WebHTTPBody& data) {
   AutoLock lock_scope(this);
 
-  WebKit::WebHTTPBody::Element element;
+  blink::WebHTTPBody::Element element;
   ElementVector::iterator it = elements_.begin();
   for (; it != elements_.end(); ++it) {
     static_cast<CefPostDataElementImpl*>(it->get())->Get(element);
-    if (element.type == WebKit::WebHTTPBody::Element::TypeData) {
+    if (element.type == blink::WebHTTPBody::Element::TypeData) {
       data.appendData(element.data);
-    } else if (element.type == WebKit::WebHTTPBody::Element::TypeFile) {
+    } else if (element.type == blink::WebHTTPBody::Element::TypeFile) {
       data.appendFile(element.filePath);
     } else {
       NOTREACHED();
@@ -759,29 +759,29 @@ net::UploadElementReader* CefPostDataElementImpl::Get() {
   }
 }
 
-void CefPostDataElementImpl::Set(const WebKit::WebHTTPBody::Element& element) {
+void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
 
-  if (element.type == WebKit::WebHTTPBody::Element::TypeData) {
+  if (element.type == blink::WebHTTPBody::Element::TypeData) {
     SetToBytes(element.data.size(),
         static_cast<const void*>(element.data.data()));
-  } else if (element.type == WebKit::WebHTTPBody::Element::TypeFile) {
+  } else if (element.type == blink::WebHTTPBody::Element::TypeFile) {
     SetToFile(string16(element.filePath));
   } else {
     NOTREACHED();
   }
 }
 
-void CefPostDataElementImpl::Get(WebKit::WebHTTPBody::Element& element) {
+void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) {
   AutoLock lock_scope(this);
 
   if (type_ == PDE_TYPE_BYTES) {
-    element.type = WebKit::WebHTTPBody::Element::TypeData;
+    element.type = blink::WebHTTPBody::Element::TypeData;
     element.data.assign(
         static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
-    element.type = WebKit::WebHTTPBody::Element::TypeFile;
+    element.type = blink::WebHTTPBody::Element::TypeFile;
     element.filePath.assign(string16(CefString(&data_.filename)));
   } else {
     NOTREACHED();

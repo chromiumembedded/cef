@@ -486,12 +486,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t tab_to_links;
 
   ///
-  // Controls whether style sheets can be used. Also configurable using the
-  // "disable-author-and-user-styles" command-line switch.
-  ///
-  cef_state_t author_and_user_styles;
-
-  ///
   // Controls whether local storage can be used. Also configurable using the
   // "disable-local-storage" command-line switch.
   ///

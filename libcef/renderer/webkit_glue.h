@@ -14,7 +14,7 @@ template <class T> class Handle;
 class Isolate;
 }
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 class WebNode;
 class WebString;
@@ -23,21 +23,21 @@ class WebView;
 
 namespace webkit_glue {
 
-bool CanGoBack(WebKit::WebView* view);
-bool CanGoForward(WebKit::WebView* view);
-void GoBack(WebKit::WebView* view);
-void GoForward(WebKit::WebView* view);
+bool CanGoBack(blink::WebView* view);
+bool CanGoForward(blink::WebView* view);
+void GoBack(blink::WebView* view);
+void GoForward(blink::WebView* view);
 
 // Retrieve the V8 isolate associated with the frame.
-v8::Isolate* GetV8Isolate(WebKit::WebFrame* frame);
+v8::Isolate* GetV8Isolate(blink::WebFrame* frame);
 
 // Retrieve the V8 context associated with the frame.
-v8::Handle<v8::Context> GetV8Context(WebKit::WebFrame* frame);
+v8::Handle<v8::Context> GetV8Context(blink::WebFrame* frame);
 
 // Returns the text of the document element.
-std::string DumpDocumentText(WebKit::WebFrame* frame);
+std::string DumpDocumentText(blink::WebFrame* frame);
 
-bool SetNodeValue(WebKit::WebNode& node, const WebKit::WebString& value);
+bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
 
 }  // webkit_glue
 

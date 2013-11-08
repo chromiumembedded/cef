@@ -695,31 +695,31 @@ void CefBrowserHostImpl::PlatformTranslateKeyEvent(
   switch (key_event.type) {
   case KEYEVENT_RAWKEYDOWN:
   case KEYEVENT_KEYDOWN:
-    result.type = WebKit::WebInputEvent::RawKeyDown;
+    result.type = blink::WebInputEvent::RawKeyDown;
     break;
   case KEYEVENT_KEYUP:
-    result.type = WebKit::WebInputEvent::KeyUp;
+    result.type = blink::WebInputEvent::KeyUp;
     break;
   case KEYEVENT_CHAR:
-    result.type = WebKit::WebInputEvent::Char;
+    result.type = blink::WebInputEvent::Char;
     break;
   default:
     NOTREACHED();
   }
 
-  if (result.type == WebKit::WebInputEvent::Char ||
-      result.type == WebKit::WebInputEvent::RawKeyDown) {
+  if (result.type == blink::WebInputEvent::Char ||
+      result.type == blink::WebInputEvent::RawKeyDown) {
     result.text[0] = result.windowsKeyCode;
     result.unmodifiedText[0] = result.windowsKeyCode;
   }
-  if (result.type != WebKit::WebInputEvent::Char)
+  if (result.type != blink::WebInputEvent::Char)
     result.setKeyIdentifierFromWindowsKeyCode();
 
   result.modifiers |= TranslateModifiers(key_event.modifiers);
 }
 
 void CefBrowserHostImpl::PlatformTranslateClickEvent(
-    WebKit::WebMouseEvent& result,
+    blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     CefBrowserHost::MouseButtonType type,
     bool mouseUp, int clickCount) {
@@ -727,19 +727,19 @@ void CefBrowserHostImpl::PlatformTranslateClickEvent(
 
   switch (type) {
   case MBT_LEFT:
-    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
-                            WebKit::WebInputEvent::MouseDown;
-    result.button = WebKit::WebMouseEvent::ButtonLeft;
+    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
+                            blink::WebInputEvent::MouseDown;
+    result.button = blink::WebMouseEvent::ButtonLeft;
     break;
   case MBT_MIDDLE:
-    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
-                            WebKit::WebInputEvent::MouseDown;
-    result.button = WebKit::WebMouseEvent::ButtonMiddle;
+    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
+                            blink::WebInputEvent::MouseDown;
+    result.button = blink::WebMouseEvent::ButtonMiddle;
     break;
   case MBT_RIGHT:
-    result.type = mouseUp ? WebKit::WebInputEvent::MouseUp :
-                            WebKit::WebInputEvent::MouseDown;
-    result.button = WebKit::WebMouseEvent::ButtonRight;
+    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
+                            blink::WebInputEvent::MouseDown;
+    result.button = blink::WebMouseEvent::ButtonRight;
     break;
   default:
     NOTREACHED();
@@ -749,37 +749,37 @@ void CefBrowserHostImpl::PlatformTranslateClickEvent(
 }
 
 void CefBrowserHostImpl::PlatformTranslateMoveEvent(
-    WebKit::WebMouseEvent& result,
+    blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     bool mouseLeave) {
   PlatformTranslateMouseEvent(result, mouse_event);
 
   if (!mouseLeave) {
-    result.type = WebKit::WebInputEvent::MouseMove;
+    result.type = blink::WebInputEvent::MouseMove;
     if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-      result.button = WebKit::WebMouseEvent::ButtonLeft;
+      result.button = blink::WebMouseEvent::ButtonLeft;
     else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-      result.button = WebKit::WebMouseEvent::ButtonMiddle;
+      result.button = blink::WebMouseEvent::ButtonMiddle;
     else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-      result.button = WebKit::WebMouseEvent::ButtonRight;
+      result.button = blink::WebMouseEvent::ButtonRight;
     else
-      result.button = WebKit::WebMouseEvent::ButtonNone;
+      result.button = blink::WebMouseEvent::ButtonNone;
   } else {
-    result.type = WebKit::WebInputEvent::MouseLeave;
-    result.button = WebKit::WebMouseEvent::ButtonNone;
+    result.type = blink::WebInputEvent::MouseLeave;
+    result.button = blink::WebMouseEvent::ButtonNone;
   }
 
   result.clickCount = 0;
 }
 
 void CefBrowserHostImpl::PlatformTranslateWheelEvent(
-    WebKit::WebMouseWheelEvent& result,
+    blink::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
     int deltaX, int deltaY) {
   PlatformTranslateMouseEvent(result, mouse_event);
 
-  result.type = WebKit::WebInputEvent::MouseWheel;
-  result.button = WebKit::WebMouseEvent::ButtonNone;
+  result.type = blink::WebInputEvent::MouseWheel;
+  result.button = blink::WebMouseEvent::ButtonNone;
 
   float wheelDelta;
   bool horizontalScroll = false;
@@ -818,7 +818,7 @@ void CefBrowserHostImpl::PlatformTranslateWheelEvent(
 }
 
 void CefBrowserHostImpl::PlatformTranslateMouseEvent(
-    WebKit::WebMouseEvent& result,
+    blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event) {
   // position
   result.x = mouse_event.x;

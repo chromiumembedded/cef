@@ -64,19 +64,19 @@ void RenderParamsFromPrintSettings(const printing::PrintSettings& settings,
   params->margin_left = settings.page_setup_device_units().content_area().x();
   params->dpi = settings.dpi();
   // Currently hardcoded at 1.25. See PrintSettings' constructor.
-  params->min_shrink = settings.min_shrink;
+  params->min_shrink = settings.min_shrink();
   // Currently hardcoded at 2.0. See PrintSettings' constructor.
-  params->max_shrink = settings.max_shrink;
+  params->max_shrink = settings.max_shrink();
   // Currently hardcoded at 72dpi. See PrintSettings' constructor.
-  params->desired_dpi = settings.desired_dpi;
+  params->desired_dpi = settings.desired_dpi();
   // Always use an invalid cookie.
   params->document_cookie = 0;
-  params->selection_only = settings.selection_only;
+  params->selection_only = settings.selection_only();
   params->supports_alpha_blend = settings.supports_alpha_blend();
-  params->should_print_backgrounds = settings.should_print_backgrounds;
-  params->display_header_footer = settings.display_header_footer;
-  params->title = settings.title;
-  params->url = settings.url;
+  params->should_print_backgrounds = settings.should_print_backgrounds();
+  params->display_header_footer = settings.display_header_footer();
+  params->title = settings.title();
+  params->url = settings.url();
 }
 
 }  // namespace
@@ -375,7 +375,7 @@ void PrintingMessageFilter::OnScriptedPrintReply(
     RenderParamsFromPrintSettings(printer_query->settings(), &params.params);
     params.params.document_cookie = printer_query->cookie();
     params.pages =
-        printing::PageRange::GetPages(printer_query->settings().ranges);
+        printing::PageRange::GetPages(printer_query->settings().ranges());
   }
   PrintHostMsg_ScriptedPrint::WriteReplyParams(reply_msg, params);
   Send(reply_msg);
@@ -432,7 +432,7 @@ void PrintingMessageFilter::OnUpdatePrintSettingsReply(
     RenderParamsFromPrintSettings(printer_query->settings(), &params.params);
     params.params.document_cookie = printer_query->cookie();
     params.pages =
-        printing::PageRange::GetPages(printer_query->settings().ranges);
+        printing::PageRange::GetPages(printer_query->settings().ranges());
   }
   PrintHostMsg_UpdatePrintSettings::WriteReplyParams(reply_msg, params);
   Send(reply_msg);

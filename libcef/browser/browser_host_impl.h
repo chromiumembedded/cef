@@ -34,7 +34,7 @@ namespace content {
 struct NativeWebKeyboardEvent;
 }
 
-namespace WebKit {
+namespace blink {
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
@@ -321,7 +321,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual bool CanDragEnter(
       content::WebContents* source,
       const content::DropData& data,
-      WebKit::WebDragOperationsMask operations_allowed) OVERRIDE;
+      blink::WebDragOperationsMask operations_allowed) OVERRIDE;
   virtual bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
@@ -453,21 +453,21 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   void PlatformTranslateKeyEvent(content::NativeWebKeyboardEvent& native_event,
                                  const CefKeyEvent& key_event);
-  void PlatformTranslateClickEvent(WebKit::WebMouseEvent& web_event,
+  void PlatformTranslateClickEvent(blink::WebMouseEvent& web_event,
                                    const CefMouseEvent& mouse_event,
                                    CefBrowserHost::MouseButtonType type,
                                    bool mouseUp, int clickCount);
-  void PlatformTranslateMoveEvent(WebKit::WebMouseEvent& web_event,
+  void PlatformTranslateMoveEvent(blink::WebMouseEvent& web_event,
                                   const CefMouseEvent& mouse_event,
                                   bool mouseLeave);
-  void PlatformTranslateWheelEvent(WebKit::WebMouseWheelEvent& web_event,
+  void PlatformTranslateWheelEvent(blink::WebMouseWheelEvent& web_event,
                                    const CefMouseEvent& mouse_event,
                                    int deltaX, int deltaY);
-  void PlatformTranslateMouseEvent(WebKit::WebMouseEvent& web_event,
+  void PlatformTranslateMouseEvent(blink::WebMouseEvent& web_event,
                                   const CefMouseEvent& mouse_event);
 
   int TranslateModifiers(uint32 cefKeyStates);
-  void SendMouseEvent(const WebKit::WebMouseEvent& web_event);
+  void SendMouseEvent(const blink::WebMouseEvent& web_event);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);

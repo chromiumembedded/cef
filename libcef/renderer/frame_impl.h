@@ -12,7 +12,7 @@
 
 class CefBrowserImpl;
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 }
 
@@ -22,7 +22,7 @@ class WebFrame;
 class CefFrameImpl : public CefFrame {
  public:
   CefFrameImpl(CefBrowserImpl* browser,
-               WebKit::WebFrame* frame);
+               blink::WebFrame* frame);
   virtual ~CefFrameImpl();
 
   // CefFrame implementation.
@@ -56,11 +56,11 @@ class CefFrameImpl : public CefFrame {
 
   void Detach();
 
-  WebKit::WebFrame* web_frame() const { return frame_; }
+  blink::WebFrame* web_frame() const { return frame_; }
 
  protected:
   CefBrowserImpl* browser_;
-  WebKit::WebFrame* frame_;
+  blink::WebFrame* frame_;
   int64 frame_id_;
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);

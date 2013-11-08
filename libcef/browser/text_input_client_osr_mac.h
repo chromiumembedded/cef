@@ -62,7 +62,7 @@
   string16 markedText_;
 
   // Underline information of the |markedText_|.
-  std::vector<WebKit::WebCompositionUnderline> underlines_;
+  std::vector<blink::WebCompositionUnderline> underlines_;
 
   // Indicates if doCommandBySelector method receives any edit command when
   // handling a key down event.

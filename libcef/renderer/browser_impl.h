@@ -30,7 +30,7 @@ namespace base {
 class ListValue;
 }
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 }
 
@@ -50,7 +50,7 @@ class CefBrowserImpl : public CefBrowser,
   static CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
   // Returns the browser associated with the specified main WebFrame.
   static CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(
-      WebKit::WebFrame* frame);
+      blink::WebFrame* frame);
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -92,7 +92,7 @@ class CefBrowserImpl : public CefBrowser,
                           bool user_initiated);
 
   // Returns the matching CefFrameImpl reference or creates a new one.
-  CefRefPtr<CefFrameImpl> GetWebFrameImpl(WebKit::WebFrame* frame);
+  CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebFrame* frame);
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64 frame_id);
 
   // Frame objects will be deleted immediately before the frame is closed.
@@ -114,19 +114,19 @@ class CefBrowserImpl : public CefBrowser,
   virtual void OnDestruct() OVERRIDE;
   virtual void DidStartLoading() OVERRIDE;
   virtual void DidStopLoading() OVERRIDE;
-  virtual void DidFailLoad(WebKit::WebFrame* frame,
-                           const WebKit::WebURLError& error) OVERRIDE;
-  virtual void DidFinishLoad(WebKit::WebFrame* frame) OVERRIDE;
-  virtual void DidStartProvisionalLoad(WebKit::WebFrame* frame) OVERRIDE;
+  virtual void DidFailLoad(blink::WebFrame* frame,
+                           const blink::WebURLError& error) OVERRIDE;
+  virtual void DidFinishLoad(blink::WebFrame* frame) OVERRIDE;
+  virtual void DidStartProvisionalLoad(blink::WebFrame* frame) OVERRIDE;
   virtual void DidFailProvisionalLoad(
-      WebKit::WebFrame* frame,
-      const WebKit::WebURLError& error) OVERRIDE;
-  virtual void DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+      blink::WebFrame* frame,
+      const blink::WebURLError& error) OVERRIDE;
+  virtual void DidCommitProvisionalLoad(blink::WebFrame* frame,
                                         bool is_new_navigation) OVERRIDE;
-  virtual void FrameDetached(WebKit::WebFrame* frame) OVERRIDE;
-  virtual void FocusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;
-  virtual void DidCreateDataSource(WebKit::WebFrame* frame,
-                                   WebKit::WebDataSource* ds) OVERRIDE;
+  virtual void FrameDetached(blink::WebFrame* frame) OVERRIDE;
+  virtual void FocusedNodeChanged(const blink::WebNode& node) OVERRIDE;
+  virtual void DidCreateDataSource(blink::WebFrame* frame,
+                                   blink::WebDataSource* ds) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   // RenderViewObserver::OnMessageReceived message handlers.
@@ -135,9 +135,9 @@ class CefBrowserImpl : public CefBrowser,
   void OnResponseAck(int request_id);
 
   void OnLoadingStateChange(bool isLoading);
-  void OnLoadStart(WebKit::WebFrame* frame);
-  void OnLoadEnd(WebKit::WebFrame* frame);
-  void OnLoadError(WebKit::WebFrame* frame, const WebKit::WebURLError& error);
+  void OnLoadStart(blink::WebFrame* frame);
+  void OnLoadEnd(blink::WebFrame* frame);
+  void OnLoadError(blink::WebFrame* frame, const blink::WebURLError& error);
 
   // ID of the browser that this RenderView is associated with. During loading
   // of cross-origin requests multiple RenderViews may be associated with the

@@ -13,7 +13,7 @@
 namespace {
 
 // TODO(suzhe): Upstream this function.
-WebKit::WebColor WebColorFromNSColor(NSColor *color) {
+blink::WebColor WebColorFromNSColor(NSColor *color) {
   CGFloat r, g, b, a;
   [color getRed:&r green:&g blue:&b alpha:&a];
   
@@ -27,7 +27,7 @@ WebKit::WebColor WebColorFromNSColor(NSColor *color) {
 // Extract underline information from an attributed string. Mostly copied from
 // third_party/WebKit/Source/WebKit/mac/WebView/WebHTMLView.mm
 void ExtractUnderlines(NSAttributedString* string,
-    std::vector<WebKit::WebCompositionUnderline>* underlines) {
+    std::vector<blink::WebCompositionUnderline>* underlines) {
   int length = [[string string] length];
   int i = 0;
   while (i < length) {
@@ -37,13 +37,13 @@ void ExtractUnderlines(NSAttributedString* string,
         inRange:NSMakeRange(i, length - i)];
     NSNumber *style = [attrs objectForKey: NSUnderlineStyleAttributeName];
     if (style) {
-      WebKit::WebColor color = SK_ColorBLACK;
+      blink::WebColor color = SK_ColorBLACK;
       if (NSColor *colorAttr =
           [attrs objectForKey:NSUnderlineColorAttributeName]) {
         color = WebColorFromNSColor(
             [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
       }
-      underlines->push_back(WebKit::WebCompositionUnderline(
+      underlines->push_back(blink::WebCompositionUnderline(
           range.location, NSMaxRange(range), color, [style intValue] > 1));
     }
     i = range.location + range.length;
@@ -150,7 +150,7 @@ extern "C" {
     ExtractUnderlines(aString, &underlines_);
   } else {
     // Use a thin black underline by default.
-    underlines_.push_back(WebKit::WebCompositionUnderline(0, length,
+    underlines_.push_back(blink::WebCompositionUnderline(0, length,
         SK_ColorBLACK, false));
   }
 
@@ -305,7 +305,7 @@ extern "C" {
       textToBeInserted_.length() <= 1) {
     content::NativeWebKeyboardEvent event(keyEvent);
     if (textToBeInserted_.length() == 1) {
-      event.type = WebKit::WebInputEvent::Type::Char;
+      event.type = blink::WebInputEvent::Type::Char;
       event.text[0] = textToBeInserted_[0];
       event.text[1] = 0;
     }

@@ -60,7 +60,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   // RenderViewHostDelegateView methods.
   virtual void StartDragging(
       const content::DropData& drop_data,
-      WebKit::WebDragOperationsMask allowed_ops,
+      blink::WebDragOperationsMask allowed_ops,
       const gfx::ImageSkia& image,
       const gfx::Vector2d& image_offset,
       const content::DragEventSourceInfo& event_info) OVERRIDE;

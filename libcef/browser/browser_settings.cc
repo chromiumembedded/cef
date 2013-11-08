@@ -49,8 +49,6 @@ void SetDefaults(WebPreferences& web) {
       !command_line.HasSwitch(switches::kDisableTextAreaResize);
   web.tabs_to_links =
       !command_line.HasSwitch(switches::kDisableTabToLinks);
-  web.author_and_user_styles_enabled =
-      !command_line.HasSwitch(switches::kDisableAuthorAndUserStyles);
 }
 
 // Helper macro for setting a WebPreferences variable based on the value of a
@@ -131,7 +129,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
       web.shrinks_standalone_images_to_fit);
   SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
-  SET_STATE(cef.author_and_user_styles, web.author_and_user_styles_enabled);
   SET_STATE(cef.local_storage, web.local_storage_enabled);
   SET_STATE(cef.databases, web.databases_enabled);
   SET_STATE(cef.application_cache, web.application_cache_enabled);

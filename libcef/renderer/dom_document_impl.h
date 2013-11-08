@@ -9,7 +9,7 @@
 #include <map>
 #include "include/cef_dom.h"
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 class WebNode;
 };
@@ -19,7 +19,7 @@ class CefBrowserImpl;
 class CefDOMDocumentImpl : public CefDOMDocument {
  public:
   CefDOMDocumentImpl(CefBrowserImpl* browser,
-                     WebKit::WebFrame* frame);
+                     blink::WebFrame* frame);
   virtual ~CefDOMDocumentImpl();
 
   // CefDOMDocument methods.
@@ -41,11 +41,11 @@ class CefDOMDocumentImpl : public CefDOMDocument {
   virtual CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
 
   CefBrowserImpl* GetBrowser() { return browser_; }
-  WebKit::WebFrame* GetFrame() { return frame_; }
+  blink::WebFrame* GetFrame() { return frame_; }
 
   // The document maintains a map of all existing node objects.
-  CefRefPtr<CefDOMNode> GetOrCreateNode(const WebKit::WebNode& node);
-  void RemoveNode(const WebKit::WebNode& node);
+  CefRefPtr<CefDOMNode> GetOrCreateNode(const blink::WebNode& node);
+  void RemoveNode(const blink::WebNode& node);
 
   // Must be called before the object is destroyed.
   void Detach();
@@ -55,9 +55,9 @@ class CefDOMDocumentImpl : public CefDOMDocument {
 
  protected:
   CefBrowserImpl* browser_;
-  WebKit::WebFrame* frame_;
+  blink::WebFrame* frame_;
 
-  typedef std::map<WebKit::WebNode, CefDOMNode*> NodeMap;
+  typedef std::map<blink::WebNode, CefDOMNode*> NodeMap;
   NodeMap node_map_;
 
   IMPLEMENT_REFCOUNTING(CefDOMDocumentImpl);

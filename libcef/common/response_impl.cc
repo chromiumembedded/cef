@@ -168,25 +168,25 @@ void CefResponseImpl::SetResponseHeaders(
     mime_type_ = mime_type;
 }
 
-void CefResponseImpl::Set(const WebKit::WebURLResponse& response) {
+void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   DCHECK(!response.isNull());
 
   AutoLock lock_scope(this);
   CHECK_READONLY_RETURN_VOID();
 
-  WebKit::WebString str;
+  blink::WebString str;
   status_code_ = response.httpStatusCode();
   str = response.httpStatusText();
   status_text_ = CefString(str);
   str = response.mimeType();
   mime_type_ = CefString(str);
 
-  class HeaderVisitor : public WebKit::WebHTTPHeaderVisitor {
+  class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
     explicit HeaderVisitor(HeaderMap* map) : map_(map) {}
 
-    virtual void visitHeader(const WebKit::WebString& name,
-                             const WebKit::WebString& value) {
+    virtual void visitHeader(const blink::WebString& name,
+                             const blink::WebString& value) {
       map_->insert(std::make_pair(string16(name), string16(value)));
     }
 

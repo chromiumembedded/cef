@@ -123,7 +123,7 @@ bool CefWebContentsViewOSR::GetAllowOverlappingViews() const {
 
 void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,
-    WebKit::WebDragOperationsMask allowed_ops,
+    blink::WebDragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
     const content::DragEventSourceInfo& event_info) {

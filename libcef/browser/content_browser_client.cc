@@ -247,7 +247,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   }
 };
 
-void TranslatePopupFeatures(const WebKit::WebWindowFeatures& webKitFeatures,
+void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
                             CefPopupFeatures& features) {
   features.x = static_cast<int>(webKitFeatures.x);
   features.xSet = webKitFeatures.xSet;
@@ -633,7 +633,7 @@ bool CefContentBrowserClient::CanCreateWindow(
     const GURL& target_url,
     const content::Referrer& referrer,
     WindowOpenDisposition disposition,
-    const WebKit::WebWindowFeatures& features,
+    const blink::WebWindowFeatures& features,
     bool user_gesture,
     bool opener_suppressed,
     content::ResourceContext* context,

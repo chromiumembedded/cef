@@ -15,13 +15,13 @@
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebRange.h"
 
-using WebKit::WebDocument;
-using WebKit::WebElement;
-using WebKit::WebFrame;
-using WebKit::WebNode;
-using WebKit::WebRange;
-using WebKit::WebString;
-using WebKit::WebURL;
+using blink::WebDocument;
+using blink::WebElement;
+using blink::WebFrame;
+using blink::WebNode;
+using blink::WebRange;
+using blink::WebString;
+using blink::WebURL;
 
 
 CefDOMDocumentImpl::CefDOMDocumentImpl(CefBrowserImpl* browser,
@@ -199,7 +199,7 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
-    const WebKit::WebNode& node) {
+    const blink::WebNode& node) {
   if (!VerifyContext())
     return NULL;
 
@@ -220,7 +220,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
   return nodeImpl;
 }
 
-void CefDOMDocumentImpl::RemoveNode(const WebKit::WebNode& node) {
+void CefDOMDocumentImpl::RemoveNode(const blink::WebNode& node) {
   if (!VerifyContext())
     return;
 

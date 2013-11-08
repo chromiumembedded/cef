@@ -1,8 +1,8 @@
 Index: frame/FrameView.cpp
 ===================================================================
---- frame/FrameView.cpp	(revision 160715)
+--- frame/FrameView.cpp	(revision 161588)
 +++ frame/FrameView.cpp	(working copy)
-@@ -200,8 +200,10 @@
+@@ -201,8 +201,10 @@
      if (!isMainFrame())
          return;
  
@@ -15,7 +15,7 @@ Index: frame/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(Frame* frame)
 Index: platform/mac/NSScrollerImpDetails.mm
 ===================================================================
---- platform/mac/NSScrollerImpDetails.mm	(revision 160715)
+--- platform/mac/NSScrollerImpDetails.mm	(revision 161588)
 +++ platform/mac/NSScrollerImpDetails.mm	(working copy)
 @@ -73,10 +73,14 @@
  

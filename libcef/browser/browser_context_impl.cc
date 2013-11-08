@@ -253,10 +253,18 @@ net::URLRequestContextGetter*
 void CefBrowserContextImpl::RequestMIDISysExPermission(
     int render_process_id,
     int render_view_id,
+    int bridge_id,
     const GURL& requesting_frame,
     const MIDISysExPermissionCallback& callback) {
   // TODO(CEF): Implement Web MIDI API permission handling.
   callback.Run(false);
+}
+
+void CefBrowserContextImpl::CancelMIDISysExPermissionRequest(
+    int render_process_id,
+    int render_view_id,
+    int bridge_id,
+    const GURL& requesting_frame) {
 }
 
 content::ResourceContext* CefBrowserContextImpl::GetResourceContext() {

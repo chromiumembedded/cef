@@ -39,17 +39,17 @@
 #include "third_party/WebKit/public/web/WebView.h"
 #include "webkit/glue/webkit_glue.h"
 
-using WebKit::WebFrame;
-using WebKit::WebScriptSource;
-using WebKit::WebString;
-using WebKit::WebURL;
-using WebKit::WebView;
+using blink::WebFrame;
+using blink::WebScriptSource;
+using blink::WebString;
+using blink::WebURL;
+using blink::WebView;
 
 namespace {
 
 const int64 kInvalidFrameId = -1;
 
-WebKit::WebString FilePathStringToWebString(
+blink::WebString FilePathStringToWebString(
     const base::FilePath::StringType& str) {
 #if defined(OS_POSIX)
   return WideToUTF16Hack(base::SysNativeMBToWide(str));
@@ -72,7 +72,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForView(
 
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
-    WebKit::WebFrame* frame) {
+    blink::WebFrame* frame) {
   return CefContentRendererClient::Get()->GetBrowserForMainFrame(frame);
 }
 
@@ -290,7 +290,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
 
   WebFrame* web_frame = framePtr->web_frame();
 
-  WebKit::WebURLRequest request(params.url);
+  blink::WebURLRequest request(params.url);
 
   // DidCreateDataSource checks for this value.
   request.setRequestorID(-1);
@@ -299,8 +299,8 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
     request.setHTTPMethod(ASCIIToUTF16(params.method));
 
   if (params.referrer.is_valid()) {
-    WebString referrer = WebKit::WebSecurityPolicy::generateReferrerHeader(
-        static_cast<WebKit::WebReferrerPolicy>(params.referrer_policy),
+    WebString referrer = blink::WebSecurityPolicy::generateReferrerHeader(
+        static_cast<blink::WebReferrerPolicy>(params.referrer_policy),
         params.url,
         WebString::fromUTF8(params.referrer.spec()));
     if (!referrer.isEmpty())
@@ -330,7 +330,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
           ASCIIToUTF16("application/x-www-form-urlencoded"));
     }
 
-    WebKit::WebHTTPBody body;
+    blink::WebHTTPBody body;
     body.initialize();
 
     const ScopedVector<net::UploadElement>& elements =
@@ -340,7 +340,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
     for (; it != elements.end(); ++it) {
       const net::UploadElement& element = **it;
       if (element.type() == net::UploadElement::TYPE_BYTES) {
-        WebKit::WebData data;
+        blink::WebData data;
         data.assign(element.bytes(), element.bytes_length());
         body.appendData(data);
       } else if (element.type() == net::UploadElement::TYPE_FILE) {
@@ -376,7 +376,7 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 }
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
-    WebKit::WebFrame* frame) {
+    blink::WebFrame* frame) {
   DCHECK(frame);
   int64 frame_id = frame->identifier();
 
@@ -478,14 +478,14 @@ void CefBrowserImpl::DidStopLoading() {
 }
 
 void CefBrowserImpl::DidFailLoad(
-    WebKit::WebFrame* frame,
-    const WebKit::WebURLError& error) {
+    blink::WebFrame* frame,
+    const blink::WebURLError& error) {
   OnLoadError(frame, error);
   OnLoadEnd(frame);
 }
 
-void CefBrowserImpl::DidFinishLoad(WebKit::WebFrame* frame) {
-  WebKit::WebDataSource* ds = frame->dataSource();
+void CefBrowserImpl::DidFinishLoad(blink::WebFrame* frame) {
+  blink::WebDataSource* ds = frame->dataSource();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
                                     frame->identifier(),
                                     ds->request().url(),
@@ -494,18 +494,18 @@ void CefBrowserImpl::DidFinishLoad(WebKit::WebFrame* frame) {
   OnLoadEnd(frame);
 }
 
-void CefBrowserImpl::DidStartProvisionalLoad(WebKit::WebFrame* frame) {
+void CefBrowserImpl::DidStartProvisionalLoad(blink::WebFrame* frame) {
   // Send the frame creation notification if necessary.
   GetWebFrameImpl(frame);
 }
 
 void CefBrowserImpl::DidFailProvisionalLoad(
-    WebKit::WebFrame* frame,
-    const WebKit::WebURLError& error) {
+    blink::WebFrame* frame,
+    const blink::WebURLError& error) {
   OnLoadError(frame, error);
 }
 
-void CefBrowserImpl::DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebFrame* frame,
                                               bool is_new_navigation) {
   OnLoadStart(frame);
 }
@@ -533,7 +533,7 @@ void CefBrowserImpl::FrameDetached(WebFrame* frame) {
   Send(new CefHostMsg_FrameDetached(routing_id(), frame_id));
 }
 
-void CefBrowserImpl::FocusedNodeChanged(const WebKit::WebNode& node) {
+void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
   // Notify the handler.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
@@ -543,9 +543,9 @@ void CefBrowserImpl::FocusedNodeChanged(const WebKit::WebNode& node) {
       if (node.isNull()) {
         handler->OnFocusedNodeChanged(this, GetFocusedFrame(), NULL);
       } else {
-        const WebKit::WebDocument& document = node.document();
+        const blink::WebDocument& document = node.document();
         if (!document.isNull()) {
-          WebKit::WebFrame* frame = document.frame();
+          blink::WebFrame* frame = document.frame();
           CefRefPtr<CefDOMDocumentImpl> documentImpl =
               new CefDOMDocumentImpl(this, frame);
           handler->OnFocusedNodeChanged(this,
@@ -565,7 +565,7 @@ void CefBrowserImpl::FocusedNodeChanged(const WebKit::WebNode& node) {
 
   // Try to identify the focused frame from the node.
   if (!node.isNull()) {
-    const WebKit::WebDocument& document = node.document();
+    const blink::WebDocument& document = node.document();
     if (!document.isNull())
       focused_frame = document.frame();
   }
@@ -587,9 +587,9 @@ void CefBrowserImpl::FocusedNodeChanged(const WebKit::WebNode& node) {
   Send(new CefHostMsg_FrameFocusChange(routing_id(), frame_id));
 }
 
-void CefBrowserImpl::DidCreateDataSource(WebKit::WebFrame* frame,
-                                         WebKit::WebDataSource* ds) {
-  const WebKit::WebURLRequest& request = ds->request();
+void CefBrowserImpl::DidCreateDataSource(blink::WebFrame* frame,
+                                         blink::WebDataSource* ds) {
+  const blink::WebURLRequest& request = ds->request();
   if (request.requestorID() == -1) {
     // Mark the request as browser-initiated so
     // RenderViewImpl::decidePolicyForNavigation won't attempt to fork it.
@@ -770,7 +770,7 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
   }
 }
 
-void CefBrowserImpl::OnLoadStart(WebKit::WebFrame* frame) {
+void CefBrowserImpl::OnLoadStart(blink::WebFrame* frame) {
   if (is_swapped_out())
     return;
 
@@ -788,7 +788,7 @@ void CefBrowserImpl::OnLoadStart(WebKit::WebFrame* frame) {
   }
 }
 
-void CefBrowserImpl::OnLoadEnd(WebKit::WebFrame* frame) {
+void CefBrowserImpl::OnLoadEnd(blink::WebFrame* frame) {
   if (is_swapped_out())
     return;
 
@@ -807,8 +807,8 @@ void CefBrowserImpl::OnLoadEnd(WebKit::WebFrame* frame) {
   }
 }
 
-void CefBrowserImpl::OnLoadError(WebKit::WebFrame* frame,
-                                 const WebKit::WebURLError& error) {
+void CefBrowserImpl::OnLoadError(blink::WebFrame* frame,
+                                 const blink::WebURLError& error) {
   if (is_swapped_out())
     return;
 

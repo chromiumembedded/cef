@@ -19,15 +19,15 @@ namespace {
 
 const float kDefaultScaleFactor = 1.0;
 
-static WebKit::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
-  WebKit::WebScreenInfo webScreenInfo;
+static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
+  blink::WebScreenInfo webScreenInfo;
   webScreenInfo.deviceScaleFactor = src.device_scale_factor;
   webScreenInfo.depth = src.depth;
   webScreenInfo.depthPerComponent = src.depth_per_component;
   webScreenInfo.isMonochrome = src.is_monochrome;
-  webScreenInfo.rect = WebKit::WebRect(src.rect.x, src.rect.y,
+  webScreenInfo.rect = blink::WebRect(src.rect.x, src.rect.y,
                                        src.rect.width, src.rect.height);
-  webScreenInfo.availableRect = WebKit::WebRect(src.available_rect.x,
+  webScreenInfo.availableRect = blink::WebRect(src.available_rect.x,
                                                 src.available_rect.y,
                                                 src.available_rect.width,
                                                 src.available_rect.height);
@@ -250,7 +250,7 @@ void CefRenderWidgetHostViewOSR::WillWmDestroy() {
 }
 #endif
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(WebKit::WebScreenInfo* results) {
+void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 
@@ -356,6 +356,10 @@ bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
 }
 
 void CefRenderWidgetHostViewOSR::OnAcceleratedCompositingStateChange() {
+}
+
+void CefRenderWidgetHostViewOSR::AcceleratedSurfaceInitialized(
+    int host_id, int route_id) {
 }
 
 void CefRenderWidgetHostViewOSR::SetHasHorizontalScrollbar(
@@ -576,11 +580,11 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
 }
 
 void CefRenderWidgetHostViewOSR::SendMouseEvent(
-    const WebKit::WebMouseEvent& event) {
+    const blink::WebMouseEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget() && popup_host_view_) {
     if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
-      WebKit::WebMouseEvent popup_event(event);
+      blink::WebMouseEvent popup_event(event);
       popup_event.x -= popup_host_view_->popup_position_.x();
       popup_event.y -= popup_host_view_->popup_position_.y();
       popup_event.windowX = popup_event.x;
@@ -596,11 +600,11 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
 }
 
 void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
-    const WebKit::WebMouseWheelEvent& event) {
+    const blink::WebMouseWheelEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
   if (!IsPopupWidget() && popup_host_view_) {
     if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
-      WebKit::WebMouseWheelEvent popup_event(event);
+      blink::WebMouseWheelEvent popup_event(event);
       popup_event.x -= popup_host_view_->popup_position_.x();
       popup_event.y -= popup_host_view_->popup_position_.y();
       popup_event.windowX = popup_event.x;

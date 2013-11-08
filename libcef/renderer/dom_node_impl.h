@@ -14,7 +14,7 @@ class CefDOMDocumentImpl;
 class CefDOMNodeImpl : public CefDOMNode {
  public:
   CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
-                 const WebKit::WebNode& node);
+                 const blink::WebNode& node);
   virtual ~CefDOMNodeImpl();
 
   // CefDOMNode methods.
@@ -56,7 +56,7 @@ class CefDOMNodeImpl : public CefDOMNode {
 
  protected:
   CefRefPtr<CefDOMDocumentImpl> document_;
-  WebKit::WebNode node_;
+  blink::WebNode node_;
 
   IMPLEMENT_REFCOUNTING(CefDOMNodeImpl);
 };

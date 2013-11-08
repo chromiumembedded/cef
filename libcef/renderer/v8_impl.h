@@ -20,7 +20,7 @@
 class CefTrackNode;
 class GURL;
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 };
 
@@ -175,7 +175,7 @@ class CefV8ContextImpl : public CefV8Context {
                     CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 
   v8::Handle<v8::Context> GetV8Context();
-  WebKit::WebFrame* GetWebFrame();
+  blink::WebFrame* GetWebFrame();
 
  protected:
   typedef CefV8Handle<v8::Context> Handle;

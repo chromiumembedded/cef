@@ -17,23 +17,23 @@
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 
-using WebKit::WebString;
-using WebKit::WebURL;
-using WebKit::WebURLError;
-using WebKit::WebURLLoader;
-using WebKit::WebURLRequest;
-using WebKit::WebURLResponse;
+using blink::WebString;
+using blink::WebURL;
+using blink::WebURLError;
+using blink::WebURLLoader;
+using blink::WebURLRequest;
+using blink::WebURLResponse;
 
 
 namespace {
 
-class CefWebURLLoaderClient : public WebKit::WebURLLoaderClient {
+class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
  public:
   CefWebURLLoaderClient(CefRenderURLRequest::Context* context,
                         int request_flags);
   virtual ~CefWebURLLoaderClient();
 
-  // WebKit::WebURLLoaderClient methods.
+  // blink::WebURLLoaderClient methods.
   virtual void willSendRequest(
       WebURLLoader* loader,
       WebURLRequest& newRequest,
@@ -105,7 +105,7 @@ class CefRenderURLRequest::Context
     if (!url.is_valid())
       return false;
 
-    loader_.reset(WebKit::Platform::current()->createURLLoader());
+    loader_.reset(blink::Platform::current()->createURLLoader());
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
@@ -235,7 +235,7 @@ class CefRenderURLRequest::Context
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
-  scoped_ptr<WebKit::WebURLLoader> loader_;
+  scoped_ptr<blink::WebURLLoader> loader_;
   scoped_ptr<CefWebURLLoaderClient> url_client_;
   int64 upload_data_size_;
   bool got_upload_progress_complete_;

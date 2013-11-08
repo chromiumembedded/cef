@@ -24,16 +24,16 @@
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebSelectElement.h"
 
-using WebKit::WebDocument;
-using WebKit::WebDOMEvent;
-using WebKit::WebDOMEventListener;
-using WebKit::WebElement;
-using WebKit::WebFrame;
-using WebKit::WebFormControlElement;
-using WebKit::WebInputElement;
-using WebKit::WebNode;
-using WebKit::WebSelectElement;
-using WebKit::WebString;
+using blink::WebDocument;
+using blink::WebDOMEvent;
+using blink::WebDOMEventListener;
+using blink::WebElement;
+using blink::WebFrame;
+using blink::WebFormControlElement;
+using blink::WebInputElement;
+using blink::WebNode;
+using blink::WebSelectElement;
+using blink::WebString;
 
 namespace {
 
@@ -85,7 +85,7 @@ class CefDOMEventListenerWrapper : public WebDOMEventListener,
 
 
 CefDOMNodeImpl::CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
-                               const WebKit::WebNode& node)
+                               const blink::WebNode& node)
     : document_(document),
       node_(node) {
 }
@@ -359,7 +359,7 @@ CefString CefDOMNodeImpl::GetElementTagName() {
     return str;
   }
 
-  const WebElement& element = node_.toConst<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<blink::WebElement>();
   const WebString& tagname = element.tagName();
   if (!tagname.isNull())
     str = tagname;
@@ -376,7 +376,7 @@ bool CefDOMNodeImpl::HasElementAttributes() {
     return false;
   }
 
-  const WebElement& element = node_.toConst<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<blink::WebElement>();
   return (element.attributeCount() > 0);
 }
 
@@ -389,7 +389,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
     return false;
   }
 
-  const WebElement& element = node_.toConst<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<blink::WebElement>();
   return element.hasAttribute(string16(attrName));
 }
 
@@ -403,7 +403,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
     return str;
   }
 
-  const WebElement& element = node_.toConst<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<blink::WebElement>();
   const WebString& attr = element.getAttribute(string16(attrName));
   if (!attr.isNull())
     str = attr;
@@ -420,7 +420,7 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
     return;
   }
 
-  const WebElement& element = node_.toConst<WebKit::WebElement>();
+  const WebElement& element = node_.toConst<blink::WebElement>();
   unsigned int len = element.attributeCount();
   if (len == 0)
     return;
@@ -442,7 +442,7 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
     return false;
   }
 
-  WebElement element = node_.to<WebKit::WebElement>();
+  WebElement element = node_.to<blink::WebElement>();
   return element.setAttribute(string16(attrName), string16(value));
 }
 
@@ -456,7 +456,7 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
     return str;
   }
 
-  WebElement element = node_.to<WebKit::WebElement>();
+  WebElement element = node_.to<blink::WebElement>();
   const WebString& text = element.innerText();
   if (!text.isNull())
     str = text;

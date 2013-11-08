@@ -872,7 +872,7 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
   if (!CEF_CURRENTLY_ON_RT())
     return browser;
 
-  WebKit::WebFrame* webframe = GetWebFrame();
+  blink::WebFrame* webframe = GetWebFrame();
   if (webframe)
     browser = CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
 
@@ -887,7 +887,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   if (!CEF_CURRENTLY_ON_RT())
     return frame;
 
-  WebKit::WebFrame* webframe = GetWebFrame();
+  blink::WebFrame* webframe = GetWebFrame();
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
@@ -989,11 +989,11 @@ v8::Handle<v8::Context> CefV8ContextImpl::GetV8Context() {
   return handle_->GetNewV8Handle();
 }
 
-WebKit::WebFrame* CefV8ContextImpl::GetWebFrame() {
+blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
   v8::HandleScope handle_scope(handle_->isolate());
   v8::Context::Scope context_scope(GetV8Context());
-  WebKit::WebFrame* frame = WebKit::WebFrame::frameForCurrentContext();
+  blink::WebFrame* frame = blink::WebFrame::frameForCurrentContext();
   return frame;
 }
 

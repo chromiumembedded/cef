@@ -10,12 +10,12 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebDOMEvent.h"
 
-using WebKit::WebDOMEvent;
-using WebKit::WebString;
+using blink::WebDOMEvent;
+using blink::WebString;
 
 
 CefDOMEventImpl::CefDOMEventImpl(CefRefPtr<CefDOMDocumentImpl> document,
-                                 const WebKit::WebDOMEvent& event)
+                                 const blink::WebDOMEvent& event)
     : document_(document),
       event_(event) {
   DCHECK(!event_.isNull());

@@ -18,7 +18,7 @@ class UploadElementReader;
 class URLRequest;
 };
 
-namespace WebKit {
+namespace blink {
 class WebURLRequest;
 }
 
@@ -55,19 +55,19 @@ class CefRequestImpl : public CefRequest {
   void Get(net::URLRequest* request);
 
   // Populate this object from a WebURLRequest object.
-  void Set(const WebKit::WebURLRequest& request);
+  void Set(const blink::WebURLRequest& request);
 
   // Populate the WebURLRequest object from this object.
-  void Get(WebKit::WebURLRequest& request);
+  void Get(blink::WebURLRequest& request);
 
   void SetReadOnly(bool read_only);
 
   static void GetHeaderMap(const net::HttpRequestHeaders& headers,
                            HeaderMap& map);
-  static void GetHeaderMap(const WebKit::WebURLRequest& request,
+  static void GetHeaderMap(const blink::WebURLRequest& request,
                            HeaderMap& map);
   static void SetHeaderMap(const HeaderMap& map,
-                           WebKit::WebURLRequest& request);
+                           blink::WebURLRequest& request);
 
  protected:
   CefString url_;
@@ -105,8 +105,8 @@ class CefPostDataImpl : public CefPostData {
   void Set(const net::UploadDataStream& data_stream);
   void Get(net::UploadData& data);
   net::UploadDataStream* Get();
-  void Set(const WebKit::WebHTTPBody& data);
-  void Get(WebKit::WebHTTPBody& data);
+  void Set(const blink::WebHTTPBody& data);
+  void Get(blink::WebHTTPBody& data);
 
   void SetReadOnly(bool read_only);
 
@@ -141,8 +141,8 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void Set(const net::UploadElementReader& element_reader);
   void Get(net::UploadElement& element);
   net::UploadElementReader* Get();
-  void Set(const WebKit::WebHTTPBody::Element& element);
-  void Get(WebKit::WebHTTPBody::Element& element);
+  void Set(const blink::WebHTTPBody::Element& element);
+  void Get(blink::WebHTTPBody::Element& element);
 
   void SetReadOnly(bool read_only);
 
