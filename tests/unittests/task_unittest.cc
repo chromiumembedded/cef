@@ -182,7 +182,7 @@ TEST(TaskTest, PostTask1) {
 
 TEST(TaskTest, PostDelayedTask1) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&PostDelayedTask2, &ran_test));
+  CefPostTask(TID_UI, NewCefRunnableFunction(&PostDelayedTask1, &ran_test));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
