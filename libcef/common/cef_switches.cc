@@ -39,9 +39,6 @@ const char kContextSafetyImplementation[] = "context-safety-implementation";
 // Default encoding.
 const char kDefaultEncoding[]             = "default-encoding";
 
-// User style sheet location.
-const char kUserStyleSheetLocation[]      = "user-style-sheet-location";
-
 // Disable opening of windows via JavaScript.
 const char kDisableJavascriptOpenWindows[] =
     "disable-javascript-open-windows";

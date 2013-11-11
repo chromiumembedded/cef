@@ -1,8 +1,8 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 161588)
+--- public/web/WebView.h	(revision 161696)
 +++ public/web/WebView.h	(working copy)
-@@ -443,6 +443,7 @@
+@@ -441,6 +441,7 @@
  
      // Sets whether select popup menus should be rendered by the browser.
      BLINK_EXPORT static void setUseExternalPopupMenus(bool);
@@ -12,7 +12,7 @@ Index: public/web/WebView.h
      // Visited link state --------------------------------------------------
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 161588)
+--- Source/web/ChromeClientImpl.cpp	(revision 161696)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
 @@ -871,7 +871,7 @@
  
@@ -25,9 +25,9 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 161588)
+--- Source/web/WebViewImpl.cpp	(revision 161696)
 +++ Source/web/WebViewImpl.cpp	(working copy)
-@@ -403,6 +403,7 @@
+@@ -390,6 +390,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3714,9 +3715,14 @@
+@@ -3693,9 +3694,14 @@
      updateLayerTreeViewport();
  }
  
@@ -53,7 +53,7 @@ Index: Source/web/WebViewImpl.cpp
  void WebViewImpl::startDragging(Frame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 161588)
+--- Source/web/WebViewImpl.h	(revision 161696)
 +++ Source/web/WebViewImpl.h	(working copy)
 @@ -414,7 +414,8 @@
  

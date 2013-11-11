@@ -373,14 +373,6 @@ typedef struct _cef_browser_settings_t {
   cef_string_t default_encoding;
 
   ///
-  // Location of the user style sheet that will be used for all pages. This must
-  // be a data URL of the form "data:text/css;charset=utf-8;base64,csscontent"
-  // where "csscontent" is the base64 encoded contents of the CSS file. Also
-  // configurable using the "user-style-sheet-location" command-line switch.
-  ///
-  cef_string_t user_style_sheet_location;
-
-  ///
   // Controls the loading of fonts from remote sources. Also configurable using
   // the "disable-remote-fonts" command-line switch.
   ///

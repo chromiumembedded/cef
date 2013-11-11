@@ -22,13 +22,6 @@ void SetDefaults(WebPreferences& web) {
         command_line.GetSwitchValueASCII(switches::kDefaultEncoding);
   }
 
-  if (command_line.HasSwitch(switches::kUserStyleSheetLocation)) {
-    web.user_style_sheet_location = GURL(
-        command_line.GetSwitchValueASCII(switches::kUserStyleSheetLocation));
-    if (!web.user_style_sheet_location.is_empty())
-      web.user_style_sheet_enabled = true;
-  }
-
   web.javascript_can_open_windows_automatically =
       !command_line.HasSwitch(switches::kDisableJavascriptOpenWindows);
   web.allow_scripts_to_close_windows =
@@ -101,12 +94,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
 
   if (cef.default_encoding.length > 0)
     web.default_encoding = CefString(&cef.default_encoding);
-
-  if (cef.user_style_sheet_location.length > 0) {
-    web.user_style_sheet_enabled = true;
-    web.user_style_sheet_location =
-        GURL(CefString(&cef.user_style_sheet_location).ToString());
-  }
 
   SET_STATE(cef.remote_fonts, web.remote_fonts_enabled);
   SET_STATE(cef.javascript, web.javascript_enabled);

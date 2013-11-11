@@ -400,7 +400,6 @@ struct CefBrowserSettingsTraits {
     cef_string_clear(&s->cursive_font_family);
     cef_string_clear(&s->fantasy_font_family);
     cef_string_clear(&s->default_encoding);
-    cef_string_clear(&s->user_style_sheet_location);
   }
 
   static inline void set(const struct_type* src, struct_type* target,
@@ -426,10 +425,6 @@ struct CefBrowserSettingsTraits {
 
     cef_string_set(src->default_encoding.str, src->default_encoding.length,
         &target->default_encoding, copy);
-
-    cef_string_set(src->user_style_sheet_location.str,
-        src->user_style_sheet_location.length,
-        &target->user_style_sheet_location, copy);
 
     target->remote_fonts = src->remote_fonts;
     target->javascript = src->javascript;

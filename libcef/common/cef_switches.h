@@ -25,7 +25,6 @@ extern const char kDisablePackLoading[];
 extern const char kUncaughtExceptionStackSize[];
 extern const char kContextSafetyImplementation[];
 extern const char kDefaultEncoding[];
-extern const char kUserStyleSheetLocation[];
 extern const char kDisableJavascriptOpenWindows[];
 extern const char kDisableJavascriptCloseWindows[];
 extern const char kDisableJavascriptAccessClipboard[];
