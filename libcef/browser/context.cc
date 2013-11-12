@@ -16,8 +16,10 @@
 #include "libcef/common/main_delegate.h"
 #include "libcef/renderer/content_renderer_client.h"
 
+#include "base/base_switches.h"
 #include "base/bind.h"
 #include "base/command_line.h"
+#include "base/debug/debugger.h"
 #include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "chrome/browser/printing/print_job_manager.h"
@@ -65,6 +67,10 @@ int CefExecuteProcess(const CefMainArgs& args,
 #else
   command_line.InitFromArgv(args.argc, args.argv);
 #endif
+
+  // Wait for the debugger as early in process initialization as possible.
+  if (command_line.HasSwitch(switches::kWaitForDebugger))
+    base::debug::WaitForDebugger(60, true);
 
   // If no process type is specified then it represents the browser process and
   // we do nothing.
