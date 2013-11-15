@@ -169,6 +169,16 @@ def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
           new_path = cfg['new_header_path']
         normalize_headers(dst, new_path)
 
+def combine_libs(build_dir, libs, dest_lib):
+  """ Combine multiple static libraries into a single static library. """
+  cmdline = 'msvs_env.bat python combine_libs.py -o "%s"' % dest_lib
+  for lib in libs:
+    lib_path = os.path.join(build_dir, lib)
+    if not path_exists(lib_path):
+      raise Exception('Library not found: ' + lib_path)
+    cmdline = cmdline + ' "%s"' % lib_path
+  run(cmdline, os.path.join(cef_dir, 'tools'))
+
 def generate_msvs_projects(version):
   """ Generate MSVS projects for the specified version. """
   sys.stdout.write('Generating '+version+' project files...')
@@ -464,9 +474,23 @@ if platform == 'windows':
   if options.ninjabuild:
     out_dir = os.path.join(src_dir, 'out')
     libcef_dll_file = 'libcef.dll.lib'
+    sandbox_libs = [
+      'obj\\base\\base.lib',
+      'obj\\base\\base_static.lib',
+      'obj\\cef\\cef_sandbox.lib',
+      'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
+      'obj\\sandbox\\sandbox.lib',
+    ]
   else:
     out_dir = os.path.join(src_dir, 'build')
     libcef_dll_file = 'lib/libcef.lib'
+    sandbox_libs = [
+      'lib\\base.lib',
+      'lib\\base_static.lib',
+      'lib\\cef_sandbox.lib',
+      'lib\\dynamic_annotations.lib',
+      'lib\\sandbox.lib',
+    ]
 
   valid_build_dir = None
 
@@ -485,6 +509,7 @@ if platform == 'windows':
       copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
                 options.quiet)
+      combine_libs(build_dir, sandbox_libs, os.path.join(dst_dir, 'cef_sandbox.lib'));
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -506,6 +531,7 @@ if platform == 'windows':
     if mode != 'client':
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
           options.quiet)
+      combine_libs(build_dir, sandbox_libs, os.path.join(dst_dir, 'cef_sandbox.lib'));
     else:
       copy_file(os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
 
@@ -644,6 +670,7 @@ elif platform == 'linux':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
     else:
@@ -663,6 +690,7 @@ elif platform == 'linux':
       copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
     else:
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
     copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")

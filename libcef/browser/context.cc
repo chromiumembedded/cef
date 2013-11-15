@@ -60,7 +60,8 @@ class CefForceShutdown {
 }  // namespace
 
 int CefExecuteProcess(const CefMainArgs& args,
-                      CefRefPtr<CefApp> application) {
+                      CefRefPtr<CefApp> application,
+                      void* windows_sandbox_info) {
   CommandLine command_line(CommandLine::NO_PROGRAM);
 #if defined(OS_WIN)
   command_line.ParseFromString(::GetCommandLineW());
@@ -89,9 +90,14 @@ int CefExecuteProcess(const CefMainArgs& args,
   // Execute the secondary process.
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  content::InitializeSandboxInfo(&sandbox_info);
+  if (windows_sandbox_info == NULL) {
+    content::InitializeSandboxInfo(&sandbox_info);
+    windows_sandbox_info = &sandbox_info;
+  }
 
-  return content::ContentMain(args.instance, &sandbox_info, &main_delegate);
+  return content::ContentMain(args.instance,
+      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info),
+      &main_delegate);
 #else
   return content::ContentMain(args.argc, const_cast<const char**>(args.argv),
                               &main_delegate);
@@ -100,7 +106,8 @@ int CefExecuteProcess(const CefMainArgs& args,
 
 bool CefInitialize(const CefMainArgs& args,
                    const CefSettings& settings,
-                   CefRefPtr<CefApp> application) {
+                   CefRefPtr<CefApp> application,
+                   void* windows_sandbox_info) {
   // Return true if the global context already exists.
   if (g_context)
     return true;
@@ -116,7 +123,8 @@ bool CefInitialize(const CefMainArgs& args,
   g_context = new CefContext();
 
   // Initialize the global context.
-  return g_context->Initialize(args, settings, application);
+  return g_context->Initialize(args, settings, application,
+                               windows_sandbox_info);
 }
 
 void CefShutdown() {
@@ -222,7 +230,8 @@ CefContext* CefContext::Get() {
 
 bool CefContext::Initialize(const CefMainArgs& args,
                             const CefSettings& settings,
-                            CefRefPtr<CefApp> application) {
+                            CefRefPtr<CefApp> application,
+                            void* windows_sandbox_info) {
   init_thread_id_ = base::PlatformThread::CurrentId();
   settings_ = settings;
 
@@ -257,10 +266,15 @@ bool CefContext::Initialize(const CefMainArgs& args,
   // Initialize the content runner.
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  content::InitializeSandboxInfo(&sandbox_info);
+  if (windows_sandbox_info == NULL) {
+    content::InitializeSandboxInfo(&sandbox_info);
+    windows_sandbox_info = &sandbox_info;
+    settings_.no_sandbox = true;
+  }
 
-  exit_code = main_runner_->Initialize(args.instance, &sandbox_info,
-                                       main_delegate_.get());
+  exit_code = main_runner_->Initialize(args.instance,
+      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info),
+      main_delegate_.get());
 #else
   exit_code = main_runner_->Initialize(args.argc,
                                        const_cast<const char**>(args.argv),

@@ -41,6 +41,7 @@
       'include/wrapper/cef_zip_archive.h',
     ],
     'includes_win': [
+      'include/cef_sandbox_win.h',
       'include/internal/cef_types_win.h',
       'include/internal/cef_win.h',
     ],

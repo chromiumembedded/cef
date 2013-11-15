@@ -344,6 +344,7 @@ struct CefSettingsTraits {
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
     target->single_process = src->single_process;
+    target->no_sandbox = src->no_sandbox;
     cef_string_set(src->browser_subprocess_path.str,
         src->browser_subprocess_path.length,
         &target->browser_subprocess_path, copy);

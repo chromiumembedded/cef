@@ -97,7 +97,6 @@
             'VCLinkerTool': {
               # Set /SUBSYSTEM:WINDOWS.
               'SubSystem': '2',
-              'EntryPointSymbol' : 'wWinMainCRTStartup',
             },
             'VCManifestTool': {
               'AdditionalManifestFiles': [
@@ -112,7 +111,8 @@
               '-lrpcrt4.lib',
               '-lopengl32.lib',
               '-lglu32.lib',
-              '-l$(ConfigurationName)/libcef.lib'
+              '-l$(ConfigurationName)/libcef.lib',
+              '-l$(ConfigurationName)/cef_sandbox.lib',
             ],
           },
           'sources': [
@@ -224,6 +224,7 @@
                 'Resources/cef.pak',
                 'Resources/devtools_resources.pak',
                 'Resources/locales/',
+                '$(BUILDTYPE)/chrome-sandbox',
                 '$(BUILDTYPE)/libcef.so',
                 '$(BUILDTYPE)/libffmpegsumo.so',
               ],

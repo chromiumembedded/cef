@@ -14,6 +14,10 @@
 // Include after base/bind.h to avoid name collisions with cef_tuple.h.
 #include "include/cef_runnable.h"
 
+#if defined(OS_WIN)
+#include "include/cef_sandbox_win.h"
+#endif
+
 namespace {
 
 // Thread used to run the test suite.
@@ -60,10 +64,18 @@ int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
 #endif
 
+  void* windows_sandbox_info = NULL;
+
+#if defined(OS_WIN)
+  // Manages the life span of the sandbox information object.
+  CefScopedSandboxInfo scoped_sandbox;
+  windows_sandbox_info = scoped_sandbox.sandbox_info();
+#endif
+
   CefRefPtr<CefApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app);
+  int exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);
   if (exit_code >= 0)
     return exit_code;
 
@@ -80,7 +92,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app);
+  CefInitialize(main_args, settings, app, windows_sandbox_info);
 
   // Create the test suite object.
   CefTestSuite test_suite(argc, argv);

@@ -59,6 +59,9 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'dependencies': [
+            'cef_sandbox',
+          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -72,7 +75,6 @@
             'VCLinkerTool': {
               # Set /SUBSYSTEM:WINDOWS.
               'SubSystem': '2',
-              'EntryPointSymbol' : 'wWinMainCRTStartup',
             },
             'VCManifestTool': {
               'AdditionalManifestFiles': [
@@ -94,7 +96,7 @@
             '<@(cefclient_sources_win)',
           ],
         }],
-        ['OS == "win"', {
+        [ 'toolkit_uses_gtk == 1', {
           'dependencies': [
             '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
           ],
@@ -304,6 +306,9 @@
       ],
       'conditions': [
         [ 'OS=="win"', {
+          'dependencies': [
+            'cef_sandbox',
+          ],
           'sources': [
             'tests/cefclient/cefclient.rc',
             'tests/cefclient/resource_util_win.cpp',
@@ -315,6 +320,11 @@
               ],
             },
           },
+        }],
+        [ 'toolkit_uses_gtk == 1', {
+          'dependencies': [
+            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
+          ],
         }],
         [ 'OS=="mac"', {
           'product_name': 'cef_unittests',
@@ -1383,5 +1393,23 @@
         },
       ],
     }],  # OS=="linux" or OS=="freebsd" or OS=="openbsd"
+    [ 'OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'cef_sandbox',
+          'type': 'static_library',
+          'msvs_guid': 'C90B9CA2-2BD2-4140-9DB8-4474785FF360',
+          'dependencies': [
+            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
+          ],
+          'include_dirs': [
+            '.',
+          ],
+          'sources': [
+            'libcef_dll/sandbox/sandbox_win.cc',
+          ],
+        },
+      ],
+    }],  # OS=="win"
   ],
 }

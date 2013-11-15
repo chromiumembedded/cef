@@ -48,7 +48,8 @@ class CefContext : public content::NotificationObserver {
   // These methods will be called on the main application thread.
   bool Initialize(const CefMainArgs& args,
                   const CefSettings& settings,
-                  CefRefPtr<CefApp> application);
+                  CefRefPtr<CefApp> application,
+                  void* windows_sandbox_info);
   void Shutdown();
 
   // Returns true if the current thread is the initialization thread.

@@ -561,7 +561,9 @@ if any_changed or options.forcebuild:
       command = 'ninja -v -C'
     target = ' cefclient'
     if options.buildtests:
-      target = ' cefclient cef_unittests'
+      target = target + ' cef_unittests'
+    if platform == 'linux':
+      target = target + ' chrome_sandbox'
     build_dir_suffix = ''
     if platform == 'windows' and options.x64build:
       build_dir_suffix = '_x64'

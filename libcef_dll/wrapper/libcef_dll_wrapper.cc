@@ -113,7 +113,7 @@
 // GLOBAL METHODS - Body may be edited by hand.
 
 CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
-    CefRefPtr<CefApp> application) {
+    CefRefPtr<CefApp> application, void* windows_sandbox_info) {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
@@ -123,19 +123,21 @@ CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: application
+  // Unverified params: application, windows_sandbox_info
 
   // Execute
   int _retval = cef_execute_process(
       &args,
-      CefAppCppToC::Wrap(application));
+      CefAppCppToC::Wrap(application),
+      windows_sandbox_info);
 
   // Return type: simple
   return _retval;
 }
 
 CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
-    const CefSettings& settings, CefRefPtr<CefApp> application) {
+    const CefSettings& settings, CefRefPtr<CefApp> application,
+    void* windows_sandbox_info) {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
@@ -145,13 +147,14 @@ CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: application
+  // Unverified params: application, windows_sandbox_info
 
   // Execute
   int _retval = cef_initialize(
       &args,
       &settings,
-      CefAppCppToC::Wrap(application));
+      CefAppCppToC::Wrap(application),
+      windows_sandbox_info);
 
   // Return type: bool
   return _retval?true:false;

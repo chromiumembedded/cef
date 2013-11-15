@@ -166,14 +166,25 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     if (settings.single_process)
       command_line->AppendSwitch(switches::kSingleProcess);
 
+    bool no_sandbox = settings.no_sandbox;
+
     if (settings.browser_subprocess_path.length > 0) {
       base::FilePath file_path =
           base::FilePath(CefString(&settings.browser_subprocess_path));
       if (!file_path.empty()) {
         command_line->AppendSwitchPath(switches::kBrowserSubprocessPath,
                                        file_path);
+
+#if defined(OS_WIN)
+        // The sandbox is not supported when using a separate subprocess
+        // executable on Windows.
+        no_sandbox = true;
+#endif
       }
     }
+
+    if (no_sandbox)
+      command_line->AppendSwitch(switches::kNoSandbox);
 
     if (settings.user_agent.length > 0) {
       command_line->AppendSwitchASCII(switches::kUserAgent,
@@ -267,10 +278,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
           base::IntToString(settings.context_safety_implementation));
     }
-
-    // TODO(cef): Figure out how to support the sandbox.
-    if (!command_line->HasSwitch(switches::kNoSandbox))
-      command_line->AppendSwitch(switches::kNoSandbox);
   }
 
   if (content_client_.application().get()) {

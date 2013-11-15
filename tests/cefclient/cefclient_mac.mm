@@ -468,7 +468,7 @@ int main(int argc, char* argv[]) {
   CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get());
+  int exit_code = CefExecuteProcess(main_args, app.get(), NULL);
   if (exit_code >= 0)
     return exit_code;
 
@@ -490,7 +490,7 @@ int main(int argc, char* argv[]) {
   AppGetSettings(settings);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get());
+  CefInitialize(main_args, settings, app.get(), NULL);
 
   // Register the scheme handler.
   scheme_test::InitTest();

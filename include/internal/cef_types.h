@@ -168,6 +168,13 @@ typedef struct _cef_settings_t {
   bool single_process;
 
   ///
+  // Set to true (1) to disable the sandbox for sub-processes. See
+  // cef_sandbox_win.h for requirements to enable the sandbox on Windows. Also
+  // configurable using the "no-sandbox" command-line switch.
+  ///
+  bool no_sandbox;
+
+  ///
   // The path to a separate executable that will be launched for sub-processes.
   // By default the browser process executable is used. See the comments on
   // CefExecuteProcess() for details. Also configurable using the

@@ -109,14 +109,14 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
-    struct _cef_app_t* application) {
+    struct _cef_app_t* application, void* windows_sandbox_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: args; type: struct_byref_const
   DCHECK(args);
   if (!args)
     return 0;
-  // Unverified params: application
+  // Unverified params: application, windows_sandbox_info
 
   // Translate param: args; type: struct_byref_const
   CefMainArgs argsObj;
@@ -126,14 +126,16 @@ CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
   // Execute
   int _retval = CefExecuteProcess(
       argsObj,
-      CefAppCToCpp::Wrap(application));
+      CefAppCToCpp::Wrap(application),
+      windows_sandbox_info);
 
   // Return type: simple
   return _retval;
 }
 
 CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
-    const struct _cef_settings_t* settings, struct _cef_app_t* application) {
+    const struct _cef_settings_t* settings, struct _cef_app_t* application,
+    void* windows_sandbox_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: args; type: struct_byref_const
@@ -144,7 +146,7 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
   DCHECK(settings);
   if (!settings)
     return 0;
-  // Unverified params: application
+  // Unverified params: application, windows_sandbox_info
 
   // Translate param: args; type: struct_byref_const
   CefMainArgs argsObj;
@@ -159,7 +161,8 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
   bool _retval = CefInitialize(
       argsObj,
       settingsObj,
-      CefAppCToCpp::Wrap(application));
+      CefAppCToCpp::Wrap(application),
+      windows_sandbox_info);
 
   // Return type: bool
   return _retval;

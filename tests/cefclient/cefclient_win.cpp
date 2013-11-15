@@ -13,6 +13,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "include/cef_sandbox_win.h"
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
@@ -66,11 +67,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
+  // Manages the life span of the sandbox information object.
+  CefScopedSandboxInfo scoped_sandbox;
+
   CefMainArgs main_args(hInstance);
   CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get());
+  int exit_code = CefExecuteProcess(main_args, app.get(),
+                                    scoped_sandbox.sandbox_info());
   if (exit_code >= 0)
     return exit_code;
 
@@ -87,7 +92,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   AppGetSettings(settings);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get());
+  CefInitialize(main_args, settings, app.get(), scoped_sandbox.sandbox_info());
 
   // Register the scheme handler.
   scheme_test::InitTest();

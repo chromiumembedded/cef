@@ -53,19 +53,23 @@ extern "C" {
 // called for the browser process (identified by no "type" command-line value)
 // it will return immediately with a value of -1. If called for a recognized
 // secondary process it will block until the process should exit and then return
-// the process exit code. The |application| parameter may be NULL.
+// the process exit code. The |application| parameter may be NULL. The
+// |windows_sandbox_info| parameter is only used on Windows and may be NULL (see
+// cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
-    struct _cef_app_t* application);
+    struct _cef_app_t* application, void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to initialize
 // the CEF browser process. The |application| parameter may be NULL. A return
 // value of true (1) indicates that it succeeded and false (0) indicates that it
-// failed.
+// failed. The |windows_sandbox_info| parameter is only used on Windows and may
+// be NULL (see cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
-    const struct _cef_settings_t* settings, struct _cef_app_t* application);
+    const struct _cef_settings_t* settings, struct _cef_app_t* application,
+    void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to shut down

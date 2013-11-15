@@ -56,19 +56,29 @@ class CefApp;
 // called for the browser process (identified by no "type" command-line value)
 // it will return immediately with a value of -1. If called for a recognized
 // secondary process it will block until the process should exit and then return
-// the process exit code. The |application| parameter may be empty.
+// the process exit code. The |application| parameter may be empty. The
+// |windows_sandbox_info| parameter is only used on Windows and may be NULL (see
+// cef_sandbox_win.h for details).
 ///
-/*--cef(api_hash_check,optional_param=application)--*/
-int CefExecuteProcess(const CefMainArgs& args, CefRefPtr<CefApp> application);
+/*--cef(api_hash_check,optional_param=application,
+        optional_param=windows_sandbox_info)--*/
+int CefExecuteProcess(const CefMainArgs& args,
+                      CefRefPtr<CefApp> application,
+                      void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to initialize
 // the CEF browser process. The |application| parameter may be empty. A return
 // value of true indicates that it succeeded and false indicates that it failed.
+// The |windows_sandbox_info| parameter is only used on Windows and may be NULL
+// (see cef_sandbox_win.h for details).
 ///
-/*--cef(api_hash_check,optional_param=application)--*/
-bool CefInitialize(const CefMainArgs& args, const CefSettings& settings,
-                   CefRefPtr<CefApp> application);
+/*--cef(api_hash_check,optional_param=application,
+        optional_param=windows_sandbox_info)--*/
+bool CefInitialize(const CefMainArgs& args,
+                   const CefSettings& settings,
+                   CefRefPtr<CefApp> application,
+                   void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to shut down
