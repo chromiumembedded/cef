@@ -86,4 +86,7 @@ const char kEnableSpeechInput[]           = "enable-speech-input";
 // Enable the speech input profanity filter.
 const char kEnableProfanityFilter[]       = "enable-profanity-filter";
 
+// The directory breakpad should store minidumps in.
+const char kCrashDumpsDir[]               = "crash-dumps-dir";
+
 }  // namespace switches

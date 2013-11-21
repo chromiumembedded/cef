@@ -221,12 +221,22 @@ def create_xcode_projects():
   gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
   RunAction(cef_dir, gyper);
 
-  # Post-process the Xcode project to fix file paths
+  # Post-process the Xcode project file.
   src_file = os.path.join(output_dir, 'cefclient.xcodeproj/project.pbxproj')
   data = read_file(src_file)
+
+  # Fix file paths.
   data = data.replace('../../../build/mac/', 'tools/')
   data = data.replace('../../../build', 'build')
   data = data.replace('../../../xcodebuild', 'xcodebuild')
+
+  # Fix framework type.
+  data = data.replace('lastKnownFileType = text; name = "Chromium Embedded Framework";', \
+                      'explicitFileType = "compiled.mach-o.dylib"; name = "Chromium Embedded Framework";')
+
+  # Fix target compiler.
+  data = data.replace('GCC_VERSION = 4.2;', 'GCC_VERSION = com.apple.compilers.llvm.clang.1_0;')
+
   write_file(src_file, data)
 
 def create_make_projects():
@@ -588,6 +598,7 @@ elif platform == 'macosx':
     out_dir = os.path.join(src_dir, 'xcodebuild')
 
   valid_build_dir = None
+  framework_name = 'Chromium Embedded Framework'
 
   if mode == 'standard':
     # transfer Debug files
@@ -596,8 +607,8 @@ elif platform == 'macosx':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
-      copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
-      copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
+      copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
+               os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
       copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
 
   # transfer Release files
@@ -607,8 +618,8 @@ elif platform == 'macosx':
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
     if mode != 'client':
-      copy_file(os.path.join(build_dir, 'ffmpegsumo.so'), dst_dir, options.quiet)
-      copy_file(os.path.join(build_dir, 'libcef.dylib'), dst_dir, options.quiet)
+      copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
+               os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
       copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
     else:
       copy_dir(os.path.join(build_dir, 'cefclient.app'), os.path.join(dst_dir, 'cefclient.app'), options.quiet)
@@ -619,17 +630,10 @@ elif platform == 'macosx':
 
       # create the real dSYM file from the "fake" dSYM file
       sys.stdout.write("Creating the real dSYM file...\n")
-      src_path = os.path.join(build_dir, 'libcef.dylib.dSYM/Contents/Resources/DWARF/libcef.dylib')
-      dst_path = os.path.join(symbol_output_dir, 'libcef.dylib.dSYM')
-      run('dsymutil '+src_path+' -o '+dst_path, cef_dir)
-
-  if not valid_build_dir is None and mode != 'client':
-    # transfer resource files
-    build_dir = valid_build_dir
-    dst_dir = os.path.join(output_dir, 'Resources')
-    make_dir(dst_dir, options.quiet)
-    copy_files(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/*.*'), \
-               dst_dir, options.quiet)
+      src_path = os.path.join(build_dir, \
+          '%s.framework.dSYM/Contents/Resources/DWARF/%s' % (framework_name, framework_name))
+      dst_path = os.path.join(symbol_output_dir, '%s.dSYM' % framework_name)
+      run('dsymutil "%s" -o "%s"' % (src_path, dst_path), cef_dir)
 
   if mode == 'standard':
     # transfer include files

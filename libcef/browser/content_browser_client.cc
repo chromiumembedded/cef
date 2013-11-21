@@ -26,6 +26,7 @@
 #include "libcef/common/content_client.h"
 #include "libcef/common/scheme_registration.h"
 
+#include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
@@ -42,6 +43,14 @@
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
+
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#include "base/debug/leak_annotations.h"
+#include "base/platform_file.h"
+#include "components/breakpad/app/breakpad_linux.h"
+#include "components/breakpad/browser/crash_handler_host_linux.h"
+#include "content/public/common/content_descriptors.h"
+#endif
 
 namespace {
 
@@ -278,6 +287,61 @@ void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
   }
 }
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
+    const std::string& process_type) {
+  base::FilePath dumps_path =
+      CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kCrashDumpsDir);
+  {
+    ANNOTATE_SCOPED_MEMORY_LEAK;
+    breakpad::CrashHandlerHostLinux* crash_handler =
+        new breakpad::CrashHandlerHostLinux(
+            process_type, dumps_path, false);
+    crash_handler->StartUploaderThread();
+    return crash_handler;
+  }
+}
+
+int GetCrashSignalFD(const CommandLine& command_line) {
+  if (!breakpad::IsCrashReporterEnabled())
+    return -1;
+
+  std::string process_type =
+      command_line.GetSwitchValueASCII(switches::kProcessType);
+
+  if (process_type == switches::kRendererProcess) {
+    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    if (!crash_handler)
+      crash_handler = CreateCrashHandlerHost(process_type);
+    return crash_handler->GetDeathSignalSocket();
+  }
+
+  if (process_type == switches::kPluginProcess) {
+    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    if (!crash_handler)
+      crash_handler = CreateCrashHandlerHost(process_type);
+    return crash_handler->GetDeathSignalSocket();
+  }
+
+  if (process_type == switches::kPpapiPluginProcess) {
+    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    if (!crash_handler)
+      crash_handler = CreateCrashHandlerHost(process_type);
+    return crash_handler->GetDeathSignalSocket();
+  }
+
+  if (process_type == switches::kGpuProcess) {
+    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    if (!crash_handler)
+      crash_handler = CreateCrashHandlerHost(process_type);
+    return crash_handler->GetDeathSignalSocket();
+  }
+
+  return -1;
+}
+#endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+
 }  // namespace
 
 
@@ -509,6 +573,10 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kEnableReleaseDcheck,
       switches::kDisablePackLoading,
       switches::kResourcesDirPath,
+      switches::kEnableCrashReporter,
+#if !defined(OS_WIN)
+      switches::kCrashDumpsDir,
+#endif
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
@@ -762,6 +830,21 @@ void CefContentBrowserClient::BrowserURLHandlerCreated(
 std::string CefContentBrowserClient::GetDefaultDownloadName() {
   return "download";
 }
+
+
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
+    const CommandLine& command_line,
+    int child_process_id,
+    std::vector<content::FileDescriptorInfo>* mappings) {
+  int crash_signal_fd = GetCrashSignalFD(command_line);
+  if (crash_signal_fd >= 0) {
+    mappings->push_back(content::FileDescriptorInfo(
+        kCrashDumpSignal, base::FileDescriptor(crash_signal_fd, false)));
+  }
+}
+#endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+
 
 #if defined(OS_WIN)
 const wchar_t* CefContentBrowserClient::GetResourceDllName() {

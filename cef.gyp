@@ -8,7 +8,9 @@
     'chromium_code': 1,
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
     'about_credits_file': '<(SHARED_INTERMEDIATE_DIR)/about_credits.html',
+    'framework_name': 'Chromium Embedded Framework',
     'revision': '<!(python tools/revision.py)',
+    'chrome_version': '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     # Need to be creative to match dylib version formatting requirements.
     'version_mac_dylib':
         '<!(python ../chrome/tools/build/version.py -f VERSION -f ../chrome/VERSION -t "@CEF_MAJOR@<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
@@ -24,8 +26,6 @@
       'mac_bundle': 1,
       'msvs_guid': '6617FED9-C5D4-4907-BF55-A90062A6683F',
       'dependencies': [
-        'cef_pak',
-        'libcef',
         'libcef_dll_wrapper',
       ],
       'defines': [
@@ -60,7 +60,9 @@
       'conditions': [
         ['OS=="win"', {
           'dependencies': [
+            '<(DEPTH)/content/content_shell_and_tests.gyp:content_shell_crash_service',
             'cef_sandbox',
+            'libcef',
           ],
           'configurations': {
             'Debug_Base': {
@@ -104,6 +106,7 @@
         [ 'OS=="mac"', {
           'product_name': 'cefclient',
           'dependencies': [
+            'cef_framework',
             'cefclient_helper_app',
             'interpose_dependency_shim',
           ],
@@ -111,14 +114,6 @@
             'PRODUCT_NAME': 'cefclient',
           },
           'copies': [
-            {
-              # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
-              'files': [
-                '<(PRODUCT_DIR)/libcef.dylib',
-                '<(PRODUCT_DIR)/ffmpegsumo.so',
-              ],
-            },
             {
               # Add the helper app.
               'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks',
@@ -130,12 +125,20 @@
           ],
           'postbuilds': [
             {
+              'postbuild_name': 'Copy <(framework_name).framework',
+              'action': [
+                '../build/mac/copy_framework_unversioned.sh',
+                '${BUILT_PRODUCTS_DIR}/<(framework_name).framework',
+                '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
+              ],
+            },
+            {
               'postbuild_name': 'Fix Framework Link',
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -145,25 +148,7 @@
                 'cp',
                 '-Rf',
                 '${BUILT_PRODUCTS_DIR}/locales/',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy cef.pak File',
-              'action': [
-                'cp',
-                '-f',
-                '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy devtools_resources.pak File',
-              'action': [
-                'cp',
-                '-f',
-                '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/<(framework_name).framework/Resources/'
               ],
             },
             {
@@ -203,6 +188,7 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             'gtk',
+            'libcef',
           ],
           'sources': [
             '<@(includes_linux)',
@@ -232,8 +218,6 @@
         '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
         '<(DEPTH)/ui/ui.gyp:ui',
-        'cef_pak',
-        'libcef',
         'libcef_dll_wrapper',
       ],
       'sources': [
@@ -308,6 +292,7 @@
         [ 'OS=="win"', {
           'dependencies': [
             'cef_sandbox',
+            'libcef',
           ],
           'sources': [
             'tests/cefclient/cefclient.rc',
@@ -329,6 +314,7 @@
         [ 'OS=="mac"', {
           'product_name': 'cef_unittests',
           'dependencies': [
+            'cef_framework',
             'cef_unittests_helper_app',
           ],
           'variables': {
@@ -339,14 +325,6 @@
           },
           'copies': [
             {
-              # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
-              'files': [
-                '<(PRODUCT_DIR)/libcef.dylib',
-                '<(PRODUCT_DIR)/ffmpegsumo.so',
-              ],
-            },
-            {
               # Add the helper app.
               'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks',
               'files': [
@@ -356,12 +334,20 @@
           ],
           'postbuilds': [
             {
+              'postbuild_name': 'Copy <(framework_name).framework',
+              'action': [
+                '../build/mac/copy_framework_unversioned.sh',
+                '${BUILT_PRODUCTS_DIR}/<(framework_name).framework',
+                '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
+              ],
+            },
+            {
               'postbuild_name': 'Fix Framework Link',
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -371,25 +357,7 @@
                 'cp',
                 '-Rf',
                 '${BUILT_PRODUCTS_DIR}/locales/',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy cef.pak File',
-              'action': [
-                'cp',
-                '-f',
-                '${BUILT_PRODUCTS_DIR}/cef.pak',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/cef.pak'
-              ],
-            },
-            {
-              'postbuild_name': 'Copy devtools_resources.pak File',
-              'action': [
-                'cp',
-                '-f',
-                '${BUILT_PRODUCTS_DIR}/devtools_resources.pak',
-                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/devtools_resources.pak'
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/<(framework_name).framework/Resources/'
               ],
             },
             {
@@ -432,6 +400,7 @@
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:gtk',
             '<(DEPTH)/build/linux/system.gyp:gtkprint',
+            'libcef',
           ],
           'sources': [
             'tests/cefclient/resource_util_linux.cpp',
@@ -449,92 +418,9 @@
       ],
     },
     {
-      'target_name': 'libcef',
-      'type': 'shared_library',
-      'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
-      'dependencies': [
-        'libcef_static',
-      ],
-      'defines': [
-        'BUILDING_CEF_SHARED',
-      ],
-      'include_dirs': [
-        '.',
-      ],
-      'sources': [
-        '<@(includes_common)',
-        '<@(includes_capi)',
-        '<@(libcef_sources_common)',
-      ],
-      'xcode_settings': {
-        # Default path that will be changed by install_name_tool in dependent targets.
-        'INSTALL_PATH': '@executable_path',
-        'DYLIB_INSTALL_NAME_BASE': '@executable_path',
-        # The libcef_static target contains ObjC categories. Passing the -ObjC flag
-        # is necessary to properly load them and avoid a "selector not recognized"
-        # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
-        # for more information.
-        'OTHER_LDFLAGS': ['-Wl,-ObjC'],
-        'DYLIB_COMPATIBILITY_VERSION': '<(version_mac_dylib)',
-        'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
-      },
-      'conditions': [
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-          ],
-        }],
-        ['OS=="win"', {
-          'configurations': {
-            'Debug_Base': {
-              'msvs_settings': {
-                'VCLinkerTool': {
-                  'LinkIncremental': '<(msvs_large_module_debug_link_mode)',
-                },
-              },
-            },
-          },
-          'sources': [
-            '<@(includes_win)',
-            # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
-            # resources can be loaded via ResourceBundle. See crbug.com/147663.
-            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
-            'libcef_dll/libcef_dll.rc',
-          ],
-          'link_settings': {
-            'libraries': [
-              '-lcomctl32.lib',
-            ],
-          },
-          'msvs_settings': {
-            'VCLinkerTool': {
-              # Generate a PDB symbol file for both Debug and Release builds.
-              'GenerateDebugInformation': 'true',
-            },
-            'VCManifestTool': {
-              'AdditionalManifestFiles': [
-                'libcef_dll/libcef.dll.manifest',
-              ],
-            },
-          },
-        }],
-        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-          'dependencies':[
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-            '<(DEPTH)/build/linux/system.gyp:gtkprint',
-          ],
-        }],
-      ],
-    },
-    {
       'target_name': 'libcef_dll_wrapper',
       'type': 'static_library',
       'msvs_guid': 'A9D6DC71-C0DC-4549-AEA0-3B15B44E86A9',
-      'dependencies': [
-        'libcef',
-      ],
       'defines': [
         'USING_CEF_SHARED',
       ],
@@ -548,6 +434,15 @@
         '<@(libcef_dll_wrapper_sources_common)',
       ],
       'conditions': [
+        [ 'OS=="mac"', {
+          'dependencies': [
+            'cef_framework',
+          ],
+        }, {  # OS!="mac"
+          'dependencies': [
+            'libcef',
+          ],
+        }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:gtk',
@@ -773,6 +668,7 @@
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/base/base.gyp:base_prefs',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '<(DEPTH)/components/components.gyp:breakpad_component',
         '<(DEPTH)/components/components.gyp:navigation_interception',
         '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
@@ -916,6 +812,8 @@
         'libcef/browser/xml_reader_impl.h',
         'libcef/browser/zip_reader_impl.cc',
         'libcef/browser/zip_reader_impl.h',
+        'libcef/common/breakpad_client.cc',
+        'libcef/common/breakpad_client.h',
         'libcef/common/cef_message_generator.cc',
         'libcef/common/cef_message_generator.h',
         'libcef/common/cef_messages.cc',
@@ -1108,6 +1006,11 @@
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_linux.cc',
           ],
         }],
+        ['os_posix == 1 and OS != "mac" and android_webview_build != 1', {
+          'dependencies': [
+            '<(DEPTH)/components/components.gyp:breakpad_host',
+          ],
+        }],
       ],
     },
   ],
@@ -1155,7 +1058,7 @@
           # those libraries would appear twice in plugin processes: Once from
           # Chromium Framework, and once from this dylib.
           'dependencies': [
-            'libcef',
+            'cef_framework',
           ],
           'conditions': [
             ['component=="shared_library"', {
@@ -1190,13 +1093,93 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../../../../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
           ],
         },
+        {
+          'target_name': 'cef_framework',
+          'type': 'shared_library',
+          'product_name': '<(framework_name)',
+          'mac_bundle': 1,
+          'mac_bundle_resources': [
+            '<(PRODUCT_DIR)/cef.pak',
+            '<(PRODUCT_DIR)/devtools_resources.pak',
+            'libcef/resources/framework-Info.plist',
+          ],
+          'mac_bundle_resources!': [
+            'libcef/resources/framework-Info.plist',
+          ],
+          'xcode_settings': {
+            # Default path that will be changed by install_name_tool in dependent targets.
+            'INSTALL_PATH': '@executable_path',
+            'DYLIB_INSTALL_NAME_BASE': '@executable_path',
+            'LD_DYLIB_INSTALL_NAME': '@executable_path/<(framework_name)',
+
+            # The libcef_static target contains ObjC categories. Passing the -ObjC flag
+            # is necessary to properly load them and avoid a "selector not recognized"
+            # runtime error. See http://developer.apple.com/library/mac/#qa/qa1490/_index.html
+            # for more information.
+            'OTHER_LDFLAGS': ['-Wl,-ObjC'],
+
+            'DYLIB_COMPATIBILITY_VERSION': '<(version_mac_dylib)',
+            'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
+            'INFOPLIST_FILE': 'libcef/resources/framework-Info.plist',
+          },
+          'dependencies': [
+            'cef_pak',
+            'libcef_static',
+          ],
+          'defines': [
+            'BUILDING_CEF_SHARED',
+          ],
+          'include_dirs': [
+            '.',
+          ],
+          'sources': [
+            '<@(includes_common)',
+            '<@(includes_capi)',
+            '<@(libcef_sources_common)',
+          ],
+          'postbuilds': [
+            {
+              # Modify the Info.plist as needed.  The script explains why
+              # this is needed.  This is also done in the chrome target.
+              # The framework needs the Breakpad keys if this feature is
+              # enabled.  It does not need the Keystone keys; these always
+              # come from the outer application bundle.  The framework
+              # doesn't currently use the SCM keys for anything,
+              # but this seems like a really good place to store them.
+              'postbuild_name': 'Tweak Info.plist',
+              'action': ['../build/mac/tweak_info_plist.py',
+                         '--breakpad=1',
+                         '--keystone=0',
+                         '--scm=1',
+                         '--version=<(chrome_version)',
+                         '--branding=<(framework_name)'],
+            },
+          ],
+          'copies': [
+            {
+              # Copy FFmpeg binaries for audio/video support.
+              'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
+              'files': [
+                '<(PRODUCT_DIR)/ffmpegsumo.so',
+              ],
+            },
+            {
+              # Copy binaries for breakpad support.
+              'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Resources',
+              'files': [
+                '<(PRODUCT_DIR)/crash_inspector',
+                '<(PRODUCT_DIR)/crash_report_sender.app',
+              ],
+            },
+          ],
+        },  # target cef_framework
         {
           'target_name': 'cefclient_helper_app',
           'type': 'executable',
@@ -1204,8 +1187,7 @@
           'product_name': 'cefclient Helper',
           'mac_bundle': 1,
           'dependencies': [
-            'cef_pak',
-            'libcef',
+            'cef_framework',
             'libcef_dll_wrapper',
           ],
           'defines': [
@@ -1253,8 +1235,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../../../../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -1284,8 +1266,7 @@
             '<(DEPTH)/testing/gtest.gyp:gtest',
             '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
             '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
-            'cef_pak',
-            'libcef',
+            'cef_framework',
             'libcef_dll_wrapper',
           ],
           'defines': [
@@ -1346,8 +1327,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../../../../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -1366,7 +1347,77 @@
           ],
         },  # target cef_unittests_helper_app
       ],
-    }],  # OS=="mac"
+    }, {  # OS!="mac"
+      'targets': [
+      {
+        'target_name': 'libcef',
+        'type': 'shared_library',
+        'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
+        'dependencies': [
+          'libcef_static',
+        ],
+        'defines': [
+          'BUILDING_CEF_SHARED',
+        ],
+        'include_dirs': [
+          '.',
+        ],
+        'sources': [
+          '<@(includes_common)',
+          '<@(includes_capi)',
+          '<@(libcef_sources_common)',
+        ],
+        'conditions': [
+          ['OS=="win" and win_use_allocator_shim==1', {
+            'dependencies': [
+              '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+            ],
+          }],
+          ['OS=="win"', {
+            'configurations': {
+              'Debug_Base': {
+                'msvs_settings': {
+                  'VCLinkerTool': {
+                    'LinkIncremental': '<(msvs_large_module_debug_link_mode)',
+                  },
+                },
+              },
+            },
+            'sources': [
+              '<@(includes_win)',
+              # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
+              # resources can be loaded via ResourceBundle. See crbug.com/147663.
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
+              'libcef_dll/libcef_dll.rc',
+            ],
+            'link_settings': {
+              'libraries': [
+                '-lcomctl32.lib',
+              ],
+            },
+            'msvs_settings': {
+              'VCLinkerTool': {
+                # Generate a PDB symbol file for both Debug and Release builds.
+                'GenerateDebugInformation': 'true',
+              },
+              'VCManifestTool': {
+                'AdditionalManifestFiles': [
+                  'libcef_dll/libcef.dll.manifest',
+                ],
+              },
+            },
+          }],
+          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+            'dependencies':[
+              '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+              '<(DEPTH)/build/linux/system.gyp:gtk',
+              '<(DEPTH)/build/linux/system.gyp:gtkprint',
+            ],
+          }],
+        ],
+      }],
+    }],  # OS!="mac"
     [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
       'targets': [
         {

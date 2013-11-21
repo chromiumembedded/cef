@@ -5,13 +5,16 @@
 #include "libcef/common/main_delegate.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
+#include "libcef/common/breakpad_client.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/renderer/content_renderer_client.h"
 
+#include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/file_util.h"
+#include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
@@ -28,15 +31,25 @@
 
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
+#include "components/breakpad/app/breakpad_win.h"
 #endif
 
 #if defined(OS_MACOSX)
+#include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
+#include "components/breakpad/app/breakpad_mac.h"
 #include "content/public/common/content_paths.h"
 #endif
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#include "components/breakpad/app/breakpad_linux.h"
+#endif
+
 namespace {
+
+base::LazyInstance<CefBreakpadClient>::Leaky g_shell_breakpad_client =
+    LAZY_INSTANCE_INITIALIZER;
 
 #if defined(OS_MACOSX)
 
@@ -345,6 +358,26 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 void CefMainDelegate::PreSandboxStartup() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
+  if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
+    breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
+#if defined(OS_MACOSX)
+    base::mac::DisableOSCrashDumps();
+    breakpad::InitCrashReporter();
+    breakpad::InitCrashProcessInfo();
+#elif defined(OS_POSIX) && !defined(OS_MACOSX)
+    std::string process_type = command_line.GetSwitchValueASCII(
+        switches::kProcessType);
+    if (process_type != switches::kZygoteProcess)
+      breakpad::InitCrashReporter();
+#elif defined(OS_WIN)
+    UINT new_flags =
+        SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX;
+    UINT existing_flags = SetErrorMode(new_flags);
+    SetErrorMode(existing_flags | new_flags);
+    breakpad::InitCrashReporter();
+#endif
+  }
+
 #if defined(OS_MACOSX)
   if (!command_line.HasSwitch(switches::kProcessType)) {
     // Only override the child process path when executing the main process.
@@ -396,6 +429,14 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
   ResourceBundle::CleanupSharedInstance();
 }
 
+#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
+void CefMainDelegate::ZygoteForked() {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableCrashReporter)) {
+    breakpad::InitCrashReporter();
+  }
+}
+#endif
 
 content::ContentBrowserClient* CefMainDelegate::CreateContentBrowserClient() {
   browser_client_.reset(new CefContentBrowserClient);

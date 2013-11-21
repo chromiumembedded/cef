@@ -132,6 +132,13 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserURLHandler* handler) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  virtual void GetAdditionalMappedFilesForChildProcess(
+      const CommandLine& command_line,
+      int child_process_id,
+      std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
+#endif
+
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() OVERRIDE;
 #endif

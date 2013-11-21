@@ -475,7 +475,7 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   std::transform(url.begin(), url.end(), url.begin(), tolower);
 
   std::string startupURL = GetStartupURL();
-  if (url.find(startupURL) != 0)
+  if (startupURL != "chrome://crash" && url.find(startupURL) != 0)
     frame->LoadURL(startupURL);
 }
 

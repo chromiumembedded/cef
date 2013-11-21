@@ -1,0 +1,58 @@
+// Copyright 2013 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "libcef/common/breakpad_client.h"
+#include "libcef/common/cef_switches.h"
+#include "include/cef_version.h"
+
+#include "base/command_line.h"
+#include "base/logging.h"
+#include "base/files/file_path.h"
+#include "base/strings/string16.h"
+#include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
+
+CefBreakpadClient::CefBreakpadClient() {}
+CefBreakpadClient::~CefBreakpadClient() {}
+
+#if defined(OS_WIN)
+void CefBreakpadClient::GetProductNameAndVersion(
+    const base::FilePath& exe_path,
+    base::string16* product_name,
+    base::string16* version,
+    base::string16* special_build,
+    base::string16* channel_name) {
+  *product_name = ASCIIToUTF16("cef");
+  *version = UTF8ToUTF16(base::StringPrintf(
+        "%d.%d.%d", CEF_VERSION_MAJOR, CHROME_VERSION_BUILD, CEF_REVISION));
+  *special_build = string16();
+  *channel_name = string16();
+}
+#endif
+
+#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
+void CefBreakpadClient::GetProductNameAndVersion(std::string* product_name,
+                                                 std::string* version) {
+  *product_name = "cef";
+  *version = base::StringPrintf(
+        "%d.%d.%d", CEF_VERSION_MAJOR, CHROME_VERSION_BUILD, CEF_REVISION);
+}
+
+base::FilePath CefBreakpadClient::GetReporterLogFilename() {
+  return base::FilePath(FILE_PATH_LITERAL("uploads.log"));
+}
+#endif
+
+bool CefBreakpadClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
+#if !defined(OS_WIN)
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kCrashDumpsDir))
+    return false;
+  *crash_dir = CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+      switches::kCrashDumpsDir);
+  return true;
+#else
+  NOTREACHED();
+  return false;
+#endif
+}

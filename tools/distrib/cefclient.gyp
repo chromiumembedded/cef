@@ -5,6 +5,7 @@
 {
   'variables': {
     'chromium_code': 1,
+    'framework_name': 'Chromium Embedded Framework',
     'linux_use_gold_binary': 0,
     'linux_use_gold_flags': 0,
     'conditions': [
@@ -147,26 +148,12 @@
           ],
           'copies': [
             {
-              # Add library dependencies to the bundle.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/',
-              'files': [
-                '$(CONFIGURATION)/libcef.dylib',
-                '$(CONFIGURATION)/ffmpegsumo.so',
-              ],
-            },
-            {
-              # Add other resources to the bundle.
-              'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/',
-              'files': [
-                'Resources/',
-              ],
-            },
-            {
-              # Add the helper app.
+              # Add the framework and helper app.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks',
               'files': [
-                '<(PRODUCT_DIR)/cefclient Helper.app',
+                '$(CONFIGURATION)/<(framework_name).framework/',
                 '$(CONFIGURATION)/libplugin_carbon_interpose.dylib',
+                '<(PRODUCT_DIR)/cefclient Helper.app',
               ],
             },
           ],
@@ -176,8 +163,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -202,7 +189,7 @@
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
               '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
-              '$(CONFIGURATION)/libcef.dylib',
+              '$(CONFIGURATION)/<(framework_name).framework/<(framework_name)',
             ],
           },
           'sources': [
@@ -320,7 +307,7 @@
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
-              '$(CONFIGURATION)/libcef.dylib',
+              '$(CONFIGURATION)/<(framework_name).framework/<(framework_name)',
             ],
           },
           'sources': [
@@ -351,8 +338,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '@executable_path/libcef.dylib',
-                '@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Libraries/libcef.dylib',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../../../../Frameworks/<(framework_name).framework/<(framework_name)',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },

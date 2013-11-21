@@ -39,6 +39,7 @@ extern const char kPersistSessionCookies[];
 extern const char kEnableMediaStream[];
 extern const char kEnableSpeechInput[];
 extern const char kEnableProfanityFilter[];
+extern const char kCrashDumpsDir[];
 
 }  // namespace switches
 
