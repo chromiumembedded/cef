@@ -1310,6 +1310,7 @@
             'tests/unittests/navigation_unittest.cc',
             'tests/unittests/process_message_unittest.cc',
             'tests/unittests/request_handler_unittest.cc',
+            'tests/unittests/request_unittest.cc',
             'tests/unittests/scheme_handler_unittest.cc',
             'tests/unittests/urlrequest_unittest.cc',
             'tests/unittests/test_handler.cc',

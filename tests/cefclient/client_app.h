@@ -55,6 +55,15 @@ class ClientApp : public CefApp,
       return NULL;
     }
 
+    virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+                                    CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    cef_navigation_type_t navigation_type,
+                                    bool is_redirect) {
+      return false;
+    }
+
     virtual void OnContextCreated(CefRefPtr<ClientApp> app,
                                   CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
@@ -147,6 +156,11 @@ class ClientApp : public CefApp,
   virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
+  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  NavigationType navigation_type,
+                                  bool is_redirect) OVERRIDE;
   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE;

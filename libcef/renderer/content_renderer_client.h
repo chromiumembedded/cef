@@ -81,6 +81,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
       WebKit::WebFrame* frame,
       const WebKit::WebPluginParams& params,
       WebKit::WebPlugin** plugin) OVERRIDE;
+  virtual bool HandleNavigation(WebKit::WebFrame* frame,
+                                const WebKit::WebURLRequest& request,
+                                WebKit::WebNavigationType type,
+                                WebKit::WebNavigationPolicy default_policy,
+                                bool is_redirect) OVERRIDE;
   virtual void DidCreateScriptContext(WebKit::WebFrame* frame,
                                       v8::Handle<v8::Context> context,
                                       int extension_group,

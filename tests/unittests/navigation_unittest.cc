@@ -166,6 +166,40 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate,
     SendTestResultsIfDone(browser);
   }
 
+  virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+                                  CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  cef_navigation_type_t navigation_type,
+                                  bool is_redirect) OVERRIDE {
+    if (!run_test_)
+      return false;
+
+    const NavListItem& item = kHNavList[nav_];
+
+    std::string url = request->GetURL();
+    EXPECT_STREQ(item.target, url.c_str());
+
+    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
+    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+
+    if (item.action == NA_LOAD)
+      EXPECT_EQ(NAVIGATION_OTHER, navigation_type);
+    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+      EXPECT_EQ(NAVIGATION_BACK_FORWARD, navigation_type);
+
+    if (nav_ > 0) {
+      const NavListItem& last_item = kHNavList[nav_ - 1];
+      EXPECT_EQ(last_item.can_go_back, browser->CanGoBack());
+      EXPECT_EQ(last_item.can_go_forward, browser->CanGoForward());
+    } else {
+      EXPECT_FALSE(browser->CanGoBack());
+      EXPECT_FALSE(browser->CanGoForward());
+    }
+
+    return false;
+  }
+
  protected:
   void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
     if (got_load_end_ && got_loading_state_end_)
