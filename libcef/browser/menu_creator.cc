@@ -250,9 +250,6 @@ void CefMenuCreator::CreateDefaultModel() {
       model_->SetEnabled(MENU_ID_BACK, false);
     if (!browser_->CanGoForward())
       model_->SetEnabled(MENU_ID_FORWARD, false);
-
-    // TODO(cef): Enable once printing is supported.
-    model_->SetEnabled(MENU_ID_PRINT, false);
   }
 }
 
@@ -304,8 +301,7 @@ void CefMenuCreator::ExecuteDefaultCommand(int command_id) {
     NOTIMPLEMENTED();
     break;
   case MENU_ID_PRINT:
-    // TODO(cef): Implement.
-    NOTIMPLEMENTED();
+    browser_->Print();
     break;
   case MENU_ID_VIEW_SOURCE:
     browser_->GetFocusedFrame()->ViewSource();
