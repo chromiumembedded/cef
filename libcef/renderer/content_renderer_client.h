@@ -81,6 +81,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
       blink::WebFrame* frame,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) OVERRIDE;
+  virtual bool HandleNavigation(blink::WebFrame* frame,
+                                const blink::WebURLRequest& request,
+                                blink::WebNavigationType type,
+                                blink::WebNavigationPolicy default_policy,
+                                bool is_redirect) OVERRIDE;
   virtual void DidCreateScriptContext(blink::WebFrame* frame,
                                       v8::Handle<v8::Context> context,
                                       int extension_group,

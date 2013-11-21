@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
@@ -96,6 +97,40 @@ CefRefPtr<CefLoadHandler> CefRenderProcessHandlerCToCpp::GetLoadHandler() {
 
   // Return type: refptr_same
   return CefLoadHandlerCToCpp::Wrap(_retval);
+}
+
+bool CefRenderProcessHandlerCToCpp::OnBeforeNavigation(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request, NavigationType navigation_type,
+    bool is_redirect) {
+  if (CEF_MEMBER_MISSING(struct_, on_before_navigation))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_before_navigation(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request),
+      navigation_type,
+      is_redirect);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 void CefRenderProcessHandlerCToCpp::OnContextCreated(

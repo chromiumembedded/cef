@@ -42,6 +42,10 @@ void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   extern void CreateNavigationRendererTests(RenderDelegateSet& delegates);
   CreateNavigationRendererTests(delegates);
 
+  // Bring in the Request tests.
+  extern void CreateRequestRendererTests(RenderDelegateSet& delegates);
+  CreateRequestRendererTests(delegates);
+
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerRendererTests(RenderDelegateSet& delegates);
   CreateRequestHandlerRendererTests(delegates);

@@ -95,6 +95,17 @@ typedef struct _cef_render_process_handler_t {
       struct _cef_render_process_handler_t* self);
 
   ///
+  // Called before browser navigation. Return true (1) to cancel the navigation
+  // or false (0) to allow the navigation to proceed. The |request| object
+  // cannot be modified in this callback.
+  ///
+  int (CEF_CALLBACK *on_before_navigation)(
+      struct _cef_render_process_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_request_t* request,
+      enum cef_navigation_type_t navigation_type, int is_redirect);
+
+  ///
   // Called immediately after the V8 context for a frame has been created. To
   // retrieve the JavaScript 'window' object use the
   // cef_v8context_t::get_global() function. V8 handles can only be accessed
