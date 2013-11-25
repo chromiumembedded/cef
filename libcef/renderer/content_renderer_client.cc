@@ -23,7 +23,6 @@ MSVC_POP_WARNING();
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/chrome_bindings.h"
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
@@ -609,8 +608,6 @@ void CefContentRendererClient::DidCreateScriptContext(
       WebCore::toExecutionContext(context));
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
-
-  scheme::OnContextCreated(browserPtr, framePtr, contextPtr);
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

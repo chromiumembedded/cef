@@ -27,7 +27,6 @@ class BrowserContext;
 namespace scheme {
 
 extern const char kChromeURL[];
-extern const char kChromeProcessMessage[];
 
 // Register the chrome scheme handler.
 void RegisterChromeHandler();
@@ -39,10 +38,6 @@ bool WillHandleBrowserAboutURL(GURL* url,
 // Used to fire any asynchronous content updates.
 void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
                          const GURL& validated_url);
-
-// Used to execute messages from render process bindings.
-void OnChromeProcessMessage(CefRefPtr<CefBrowser> browser,
-                            const base::ListValue& arguments);
 
 // Create a new ProtocolHandler that will filter the URLs passed to the default
 // "chrome" protocol handler and forward the rest to CEF's handler.

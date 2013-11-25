@@ -8,7 +8,6 @@
 #include <map>
 #include <string>
 
-#include "include/cef_trace.h"
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
 #include "libcef/browser/context.h"
@@ -16,7 +15,6 @@
 #include "libcef/browser/internal_scheme_handler.h"
 #include "libcef/browser/scheme_impl.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
@@ -31,7 +29,6 @@
 #include "content/browser/net/view_blob_internals_job_factory.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
-#include "grit/tracing_resources.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
@@ -40,20 +37,17 @@
 namespace scheme {
 
 const char kChromeURL[] = "chrome://";
-const char kChromeProcessMessage[] = "chrome.send";
 
 namespace {
 
 const char kChromeCreditsDomain[] = "credits";
 const char kChromeLicenseDomain[] = "license";
-const char kChromeTracingDomain[] = "tracing";
 const char kChromeVersionDomain[] = "version";
 
 enum ChromeDomain {
   CHROME_UNKNOWN = 0,
   CHROME_CREDITS,
   CHROME_LICENSE,
-  CHROME_TRACING,
   CHROME_VERSION,
 };
 
@@ -64,7 +58,6 @@ ChromeDomain GetChromeDomain(const std::string& domain_name) {
   } domains[] = {
     { kChromeCreditsDomain, CHROME_CREDITS },
     { kChromeLicenseDomain, CHROME_LICENSE },
-    { kChromeTracingDomain, CHROME_TRACING },
     { kChromeVersionDomain, CHROME_VERSION },
   };
 
@@ -205,9 +198,6 @@ class Delegate : public InternalHandlerDelegate {
       case CHROME_LICENSE:
         handled = OnLicense(action);
         break;
-      case CHROME_TRACING:
-        handled = OnTracing(path, action);
-        break;
       case CHROME_VERSION:
         handled = OnVersion(action);
         break;
@@ -253,16 +243,6 @@ class Delegate : public InternalHandlerDelegate {
         const_cast<char*>(html.c_str()), html.length());
     action->stream_size = html.length();
 
-    return true;
-  }
-
-  bool OnTracing(const std::string& path, Action* action) {
-    if (path == "tracing.js") {
-      action->resource_id = IDR_TRACING_JS;
-    } else {
-      action->mime_type = "text/html";
-      action->resource_id = IDR_TRACING_HTML;
-    }
     return true;
   }
 
@@ -344,301 +324,6 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
   CefVisitWebPluginInfo(new Visitor(frame));
 }
 
-// Test that the tracing browser window hasn't closed or navigated elsewhere.
-bool IsTraceFrameValid(CefRefPtr<CefFrameHostImpl> frame) {
-  if (!frame->IsValid())
-    return false;
-
-  std::string tracing_url(kChromeURL);
-  tracing_url += kChromeTracingDomain;
-
-  std::string url = frame->GetURL();
-  if (url.find(tracing_url.c_str()) != 0)
-    return false;
-
-  return true;
-}
-
-void LoadTraceFile(CefRefPtr<CefFrameHostImpl> frame,
-                   const base::FilePath& path) {
-  CEF_REQUIRE_FILET();
-
-  if (!IsTraceFrameValid(frame))
-    return;
-
-  std::string file_contents;
-  if (!base::ReadFileToString(path, &file_contents)) {
-    frame->SendJavaScript(
-      "tracingController.onLoadTraceFileCanceled();", std::string(), 0);
-    return;
-  }
-
-  // We need to escape the file contents, because it will go into a javascript
-  // quoted string in LoadTraceFileSuccess. We need to escape control characters
-  // (to have well-formed javascript statements), as well as \ and ' (the only
-  // special characters in a ''-quoted string). Do the escaping on this thread,
-  // it may take a little while for big files and we don't want to block the UI
-  // during that time. Also do the UTF-16 conversion here.
-  // Note: we're using UTF-16 because we'll need to cut the string into slices
-  // to give to Javascript, and it's easier to cut than UTF-8 (since JS strings
-  // are arrays of 16-bit values, UCS-2 really, whereas we can't cut inside of a
-  // multibyte UTF-8 codepoint).
-  size_t size = file_contents.size();
-  std::string escaped_contents;
-  escaped_contents.reserve(size);
-  for (size_t i = 0; i < size; ++i) {
-    char c = file_contents[i];
-    if (c < ' ') {
-      escaped_contents += base::StringPrintf("\\u%04x", c);
-      continue;
-    }
-    if (c == '\\' || c == '\'')
-      escaped_contents.push_back('\\');
-    escaped_contents.push_back(c);
-  }
-  file_contents.clear();
-
-  const string16& contents16 = UTF8ToUTF16(escaped_contents);
-
-  // We need to pass contents to tracingController.onLoadTraceFileComplete, but
-  // that may be arbitrarily big, and IPC messages are limited in size. So we
-  // need to cut it into pieces and rebuild the string in Javascript.
-  // IPC::Channel::kMaximumMessageSize is in bytes, and we need to account for
-  // overhead.
-  static const size_t kMaxSize = IPC::Channel::kMaximumMessageSize / 2 - 128;
-  const string16& first_prefix = ASCIIToUTF16("window.traceData = '");
-  const string16& prefix = ASCIIToUTF16("window.traceData += '");
-  const string16& suffix = ASCIIToUTF16("';");
-
-  for (size_t i = 0; i < contents16.size(); i += kMaxSize) {
-    string16 javascript = i == 0 ? first_prefix : prefix;
-    javascript += contents16.substr(i, kMaxSize) + suffix;
-    frame->SendJavaScript(UTF16ToUTF8(javascript), std::string(), 0);
-  }
-
-  frame->SendJavaScript(
-      "tracingController.onLoadTraceFileComplete(window.traceData);"
-      "delete window.traceData;",
-      std::string(), 0);
-}
-
-void SaveTraceFile(CefRefPtr<CefFrameHostImpl> frame,
-                   const base::FilePath& path,
-                   scoped_ptr<std::string> contents) {
-  CEF_REQUIRE_FILET();
-
-  if (!IsTraceFrameValid(frame))
-    return;
-
-  if (file_util::WriteFile(path, contents->c_str(), contents->size())) {
-    frame->SendJavaScript(
-        "tracingController.onSaveTraceFileComplete();",
-        std::string(), 0);
-  } else {
-    frame->SendJavaScript(
-        "tracingController.onSaveTraceFileCanceled();",
-        std::string(), 0);
-  }
-}
-
-void OnKnownCategoriesCollected(
-    CefRefPtr<CefFrameHostImpl> frame,
-    const std::set<std::string>& known_categories) {
-  CEF_REQUIRE_UIT();
-
-  if (!IsTraceFrameValid(frame))
-    return;
-
-  std::string categories;
-  for (std::set<std::string>::iterator iter = known_categories.begin();
-       iter != known_categories.end();
-       ++iter) {
-    if (categories.length() > 0)
-      categories += ",";
-    categories += "\"" + *iter + "\"";
-  }
-
-  frame->SendJavaScript(
-        "tracingController.onKnownCategoriesCollected([" + categories + "]);",
-        std::string(), 0);
-}
-
-void OnChromeTracingProcessMessage(CefRefPtr<CefBrowser> browser,
-                                   const std::string& action,
-                                   const base::ListValue* arguments) {
-  CefRefPtr<CefFrameHostImpl> frame =
-      static_cast<CefFrameHostImpl*>(browser->GetMainFrame().get());
-
-  if (action == "tracingControllerInitialized") {
-    // Send the client info to the tracingController.
-  } else if (action == "beginTracing") {
-    if (!arguments || arguments->GetSize() != 3) {
-      NOTREACHED() << "Invalid arguments to " << action.c_str();
-      return;
-    }
-
-    class Client : public CefTraceClient {
-     public:
-      explicit Client(CefRefPtr<CefFrameHostImpl> frame)
-          : frame_(frame),
-            ended_(false) {
-      }
-
-      virtual void OnTraceDataCollected(const char* fragment,
-                                        size_t fragment_size) OVERRIDE {
-        std::string javascript("window.traceData += '");
-
-        std::string escaped_data;
-        ReplaceChars(std::string(fragment, fragment_size),
-                     "\\", "\\\\", &escaped_data);
-        javascript += escaped_data;
-
-        // Intentionally append a , to the traceData. This technically causes all
-        // traceData that we pass back to JS to end with a comma, but that is
-        // actually something the JS side strips away anyway.
-        javascript += ",';";
-
-        Execute(javascript);
-      }
-
-      virtual void OnTraceBufferPercentFullReply(float percent_full) OVERRIDE {
-        Execute(base::StringPrintf(
-            "tracingController.onRequestBufferPercentFullComplete(%f);",
-            percent_full));
-      }
-
-      virtual void OnEndTracingComplete() OVERRIDE {
-        ended_ = true;
-        Execute("tracingController.onEndTracingComplete(window.traceData);"
-                "delete window.traceData;");
-      }
-
-     private:
-      void Execute(const std::string& code) {
-        if (!IsTraceFrameValid(frame_) && !ended_) {
-          ended_ = true;
-          CefEndTracingAsync();
-          return;
-        }
-        frame_->SendJavaScript(code, std::string(), 0);
-      }
-
-      CefRefPtr<CefFrameHostImpl> frame_;
-      bool ended_;
-      IMPLEMENT_REFCOUNTING(Callback);
-    };
-
-    std::string categories;
-    arguments->GetString(1, &categories);
-
-    CefRefPtr<CefTraceClient> client = new Client(frame);
-
-    // Tracing may already be running, in which case the previous client will
-    // continue handling it.
-    CefBeginTracing(client, categories);
-  } else if (action == "endTracingAsync") {
-    // This is really us beginning to end tracing, rather than tracing being
-    // truly over. When this function yields, we expect to get some number of
-    // OnTraceDataCollected callbacks, which will append data to
-    // window.traceData. To set up for this, set window.traceData to the empty
-    // string.
-    frame->SendJavaScript("window.traceData = '';", std::string(), 0);
-
-    if (!CefEndTracingAsync()) {
-      // We weren't really tracing to begin with.
-      frame->SendJavaScript(
-          "tracingController.onEndTracingComplete(window.traceData);"
-          "delete window.traceData;",
-          std::string(), 0);
-    }
-  } else if (action == "beginRequestBufferPercentFull") {
-    CefGetTraceBufferPercentFullAsync();
-  } else if (action == "loadTraceFile") {
-    class Callback : public CefRunFileDialogCallback {
-     public:
-      explicit Callback(CefRefPtr<CefFrameHostImpl> frame)
-          : frame_(frame) {
-      }
-
-      virtual void OnFileDialogDismissed(
-          CefRefPtr<CefBrowserHost> browser_host,
-          const std::vector<CefString>& file_paths) OVERRIDE {
-        if (!IsTraceFrameValid(frame_))
-          return;
-
-        if (!file_paths.empty()) {
-          CEF_POST_TASK(CEF_FILET,
-              base::Bind(LoadTraceFile, frame_,
-                         base::FilePath(file_paths.front())));
-        } else {
-          frame_->SendJavaScript(
-              "tracingController.onLoadTraceFileCanceled();",
-              std::string(), 0);
-        }
-      }
-
-     private:
-      CefRefPtr<CefFrameHostImpl> frame_;
-      IMPLEMENT_REFCOUNTING(Callback);
-    };
-
-    browser->GetHost()->RunFileDialog(FILE_DIALOG_OPEN, CefString(),
-        CefString(), std::vector<CefString>(), new Callback(frame));
-  } else if (action == "saveTraceFile") {
-    if (!arguments || arguments->GetSize() != 1) {
-      NOTREACHED() << "Invalid arguments to " << action.c_str();
-      return;
-    }
-
-    class Callback : public CefRunFileDialogCallback {
-      public:
-      Callback(CefRefPtr<CefFrameHostImpl> frame,
-               scoped_ptr<std::string> contents)
-          : frame_(frame),
-            contents_(contents.Pass()) {
-      }
-
-      virtual void OnFileDialogDismissed(
-          CefRefPtr<CefBrowserHost> browser_host,
-          const std::vector<CefString>& file_paths) OVERRIDE {
-        if (!IsTraceFrameValid(frame_))
-          return;
-
-        if (!file_paths.empty()) {
-          CEF_POST_TASK(CEF_FILET,
-              base::Bind(SaveTraceFile, frame_,
-                          base::FilePath(file_paths.front()),
-                          base::Passed(contents_.Pass())));
-        } else {
-          frame_->SendJavaScript(
-              "tracingController.onSaveTraceFileCanceled();",
-              std::string(), 0);
-        }
-      }
-
-      private:
-      CefRefPtr<CefFrameHostImpl> frame_;
-      scoped_ptr<std::string> contents_;
-      IMPLEMENT_REFCOUNTING(Callback);
-    };
-
-    std::string contents_str;
-    arguments->GetString(0, &contents_str);
-
-    scoped_ptr<std::string> contents(new std::string());
-    contents_str.swap(*contents);
-
-    browser->GetHost()->RunFileDialog(FILE_DIALOG_SAVE, CefString(),
-        CefString(), std::vector<CefString>(),
-        new Callback(frame, contents.Pass()));
-  } else if (action == "getKnownCategories") {
-    CefContext::Get()->GetTraceSubscriber()->GetKnownCategoriesAsync(
-        base::Bind(OnKnownCategoriesCollected, frame));
-  } else {
-    NOTREACHED() << "Unknown trace action: " << action.c_str();
-  }
-}
-
 // Wrapper for a ChromeProtocolHandler instance from
 // content/browser/webui/url_data_manager_backend.cc. 
 class ChromeProtocolHandlerWrapper :
@@ -702,28 +387,6 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
   switch (domain) {
     case CHROME_VERSION:
       DidFinishChromeVersionLoad(frame);
-    default:
-      break;
-  }
-}
-
-void OnChromeProcessMessage(CefRefPtr<CefBrowser> browser,
-                            const base::ListValue& arguments) {
-  std::string action;
-  const base::ListValue* args = NULL;
-
-  size_t size = arguments.GetSize();
-  if (size > 0) {
-    arguments.GetString(0, &action);
-    if (size > 1)
-      arguments.GetList(1, &args);
-  }
-
-  GURL url = GURL(browser->GetMainFrame()->GetURL().ToString());
-  ChromeDomain domain = GetChromeDomain(url.host());
-  switch (domain) {
-    case CHROME_TRACING:
-      OnChromeTracingProcessMessage(browser, action, args);
     default:
       break;
   }

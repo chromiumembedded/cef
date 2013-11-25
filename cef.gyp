@@ -556,7 +556,6 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
-        '<(DEPTH)/content/browser/tracing/tracing_resources.gyp:tracing_resources',
         '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
@@ -573,7 +572,6 @@
           'action_name': 'repack_cef_pack',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing/tracing_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
@@ -596,7 +594,6 @@
           'action_name': 'make_pack_resources_header',
           'variables': {
             'header_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing/grit/tracing_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
@@ -660,7 +657,6 @@
         # CEF grit resource includes
         '<(DEPTH)/cef/libcef/resources/grit_stub',
         '<(grit_out_dir)',
-        '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
@@ -863,8 +859,6 @@
         'libcef/common/values_impl.h',
         'libcef/renderer/browser_impl.cc',
         'libcef/renderer/browser_impl.h',
-        'libcef/renderer/chrome_bindings.cc',
-        'libcef/renderer/chrome_bindings.h',
         'libcef/renderer/content_renderer_client.cc',
         'libcef/renderer/content_renderer_client.h',
         'libcef/renderer/dom_document_impl.cc',

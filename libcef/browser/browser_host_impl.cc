@@ -2120,8 +2120,6 @@ void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
                                                   message.get());
       message->Detach(NULL);
     }
-  } else if (params.name == scheme::kChromeProcessMessage) {
-    scheme::OnChromeProcessMessage(this, params.arguments);
   } else {
     // Invalid request.
     NOTREACHED();
