@@ -2,7 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include <fstream>
 #include <map>
 #include <sstream>
 
@@ -15,6 +14,7 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
+#include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/strings/stringprintf.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -649,12 +649,11 @@ class RequestTestRunner {
     settings_.request->SetMethod("POST");
 
     EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
-    base::FilePath path =
+    const base::FilePath& path =
         post_file_tmpdir_.path().Append(FILE_PATH_LITERAL("example.txt"));
-    std::ofstream myfile;
-    myfile.open(path.value());
-    myfile << "HELLO FRIEND!";
-    myfile.close();
+    const char content[] = "HELLO FRIEND!";
+    int write_ct = file_util::WriteFile(path, content, sizeof(content) - 1);
+    EXPECT_EQ(sizeof(content) - 1, write_ct);
     SetUploadFile(settings_.request, path);
 
     settings_.response = CefResponse::Create();
