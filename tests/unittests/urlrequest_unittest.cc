@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <fstream>
 #include <map>
 #include <sstream>
 
@@ -14,6 +15,7 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
+#include "base/files/scoped_temp_dir.h"
 #include "base/strings/stringprintf.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -45,6 +47,7 @@ enum RequestTestMode {
   REQTEST_GET_ALLOWCOOKIES,
   REQTEST_GET_REDIRECT,
   REQTEST_POST,
+  REQTEST_POST_FILE,
   REQTEST_POST_WITHPROGRESS,
   REQTEST_HEAD,
 };
@@ -104,6 +107,15 @@ void SetUploadData(CefRefPtr<CefRequest> request,
   CefRefPtr<CefPostData> postData = CefPostData::Create();
   CefRefPtr<CefPostDataElement> element = CefPostDataElement::Create();
   element->SetToBytes(data.size(), data.c_str());
+  postData->AddElement(element);
+  request->SetPostData(postData);
+}
+
+void SetUploadFile(CefRefPtr<CefRequest> request,
+                   const base::FilePath& file) {
+  CefRefPtr<CefPostData> postData = CefPostData::Create();
+  CefRefPtr<CefPostDataElement> element = CefPostDataElement::Create();
+  element->SetToFile(file.value());
   postData->AddElement(element);
   request->SetPostData(postData);
 }
@@ -532,6 +544,7 @@ class RequestTestRunner {
                   GenericRunTest);
     REGISTER_TEST(REQTEST_GET_REDIRECT, SetupGetRedirectTest, GenericRunTest);
     REGISTER_TEST(REQTEST_POST, SetupPostTest, GenericRunTest);
+    REGISTER_TEST(REQTEST_POST_FILE, SetupPostFileTest, GenericRunTest);
     REGISTER_TEST(REQTEST_POST_WITHPROGRESS, SetupPostWithProgressTest,
                   GenericRunTest);
     REGISTER_TEST(REQTEST_HEAD, SetupHeadTest, GenericRunTest);
@@ -621,6 +634,28 @@ class RequestTestRunner {
     settings_.request->SetURL(MakeSchemeURL("PostTest.html"));
     settings_.request->SetMethod("POST");
     SetUploadData(settings_.request, "the_post_data");
+
+    settings_.response = CefResponse::Create();
+    settings_.response->SetMimeType("text/html");
+    settings_.response->SetStatus(200);
+    settings_.response->SetStatusText("OK");
+
+    settings_.response_data = "POST TEST SUCCESS";
+  }
+
+  void SetupPostFileTest() {
+    settings_.request = CefRequest::Create();
+    settings_.request->SetURL(MakeSchemeURL("PostFileTest.html"));
+    settings_.request->SetMethod("POST");
+
+    EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
+    base::FilePath path =
+        post_file_tmpdir_.path().Append(FILE_PATH_LITERAL("example.txt"));
+    std::ofstream myfile;
+    myfile.open(path.value());
+    myfile << "HELLO FRIEND!";
+    myfile.close();
+    SetUploadFile(settings_.request, path);
 
     settings_.response = CefResponse::Create();
     settings_.response->SetMimeType("text/html");
@@ -755,6 +790,9 @@ class RequestTestRunner {
       scheme_factory_ = NULL;
     }
 
+    if (post_file_tmpdir_.IsValid())
+      EXPECT_TRUE(post_file_tmpdir_.Delete());
+
     delegate_->DestroyTest(settings_);
   }
 
@@ -799,6 +837,8 @@ class RequestTestRunner {
 
   std::string scheme_name_;
   CefRefPtr<RequestSchemeHandlerFactory> scheme_factory_;
+
+  base::ScopedTempDir post_file_tmpdir_;
 
  public:
   RequestRunSettings settings_;
@@ -1044,6 +1084,7 @@ REQ_TEST(BrowserGETNoData, REQTEST_GET_NODATA, true);
 REQ_TEST(BrowserGETAllowCookies, REQTEST_GET_ALLOWCOOKIES, true);
 REQ_TEST(BrowserGETRedirect, REQTEST_GET_REDIRECT, true);
 REQ_TEST(BrowserPOST, REQTEST_POST, true);
+REQ_TEST(BrowserPOSTFile, REQTEST_POST_FILE, true);
 REQ_TEST(BrowserPOSTWithProgress, REQTEST_POST_WITHPROGRESS, true);
 REQ_TEST(BrowserHEAD, REQTEST_HEAD, true);
 
