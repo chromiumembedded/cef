@@ -101,7 +101,14 @@ typedef struct _cef_urlrequest_t {
 
 ///
 // Create a new URL request. Only GET, POST, HEAD, DELETE and PUT request
-// functions are supported. The |request| object will be marked as read-only
+// functions are supported. Multiple post data elements are not supported and
+// elements of type PDE_TYPE_FILE are only supported for requests originating
+// from the browser process. Requests originating from the render process will
+// receive the same handling as requests originating from Web content -- if the
+// response contains Content-Disposition or Mime-Type header values that would
+// not normally be rendered then the response may receive special handling
+// inside the browser (for example, via the file download code path instead of
+// the URL request code path). The |request| object will be marked as read-only
 // after calling this function.
 ///
 CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(

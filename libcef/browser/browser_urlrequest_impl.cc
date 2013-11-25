@@ -157,20 +157,34 @@ class CefBrowserURLRequest::Context
     if (post_data.get()) {
       CefPostData::ElementVector elements;
       post_data->GetElements(elements);
-      if (elements.size() == 1 && elements[0]->GetType() == PDE_TYPE_BYTES) {
-        CefPostDataElementImpl* impl =
-            static_cast<CefPostDataElementImpl*>(elements[0].get());
-
+      if (elements.size() == 1) {
         // Default to URL encoding if not specified.
         if (content_type.empty())
           content_type = "application/x-www-form-urlencoded";
 
-        upload_data_size = impl->GetBytesCount();
-        fetcher_->SetUploadData(content_type,
-            std::string(static_cast<char*>(impl->GetBytes()),
-                        upload_data_size));
-      } else {
-        NOTIMPLEMENTED() << "multi-part form data is not supported";
+        CefPostDataElementImpl* impl =
+            static_cast<CefPostDataElementImpl*>(elements[0].get());
+
+        switch (elements[0]->GetType())
+          case PDE_TYPE_BYTES: {
+            upload_data_size = impl->GetBytesCount();
+            fetcher_->SetUploadData(content_type,
+                std::string(static_cast<char*>(impl->GetBytes()),
+                            upload_data_size));
+            break;
+          case PDE_TYPE_FILE:
+            fetcher_->SetUploadFilePath(
+                content_type, 
+                base::FilePath(impl->GetFile()),
+                0, kuint64max,
+                content::BrowserThread::GetMessageLoopProxyForThread(
+                    content::BrowserThread::FILE).get());
+            break;
+          case PDE_TYPE_EMPTY:
+            break;
+        }
+      } else if (elements.size() > 1) {
+        NOTIMPLEMENTED() << " multi-part form data is not supported";
       }
     }
 

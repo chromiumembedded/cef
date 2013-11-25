@@ -60,8 +60,15 @@ class CefURLRequest : public virtual CefBase {
 
   ///
   // Create a new URL request. Only GET, POST, HEAD, DELETE and PUT request
-  // methods are supported. The |request| object will be marked as read-only
-  // after calling this method.
+  // methods are supported. Multiple post data elements are not supported and
+  // elements of type PDE_TYPE_FILE are only supported for requests originating
+  // from the browser process. Requests originating from the render process will
+  // receive the same handling as requests originating from Web content -- if
+  // the response contains Content-Disposition or Mime-Type header values that
+  // would not normally be rendered then the response may receive special
+  // handling inside the browser (for example, via the file download code path
+  // instead of the URL request code path). The |request| object will be marked
+  // as read-only after calling this method.
   ///
   /*--cef()--*/
   static CefRefPtr<CefURLRequest> Create(
