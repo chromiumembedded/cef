@@ -16,5 +16,5 @@
 # http://dev.chromium.org/developers/how-tos/get-the-code
 
 {
-  'release_url': 'http://src.chromium.org/svn/releases/31.0.1650.39',
+  'release_url': 'http://src.chromium.org/svn/releases/31.0.1650.57',
 }

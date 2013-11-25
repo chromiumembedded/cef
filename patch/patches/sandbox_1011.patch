@@ -1,8 +1,8 @@
 Index: sandbox_win.cc
 ===================================================================
---- sandbox_win.cc	(revision 227628)
+--- sandbox_win.cc	(revision 235101)
 +++ sandbox_win.cc	(working copy)
-@@ -592,8 +592,23 @@
+@@ -590,8 +590,23 @@
    cmd_line->AppendArg(base::StringPrintf("/prefetch:%d", base::Hash(type_str)));
  
    if (!in_sandbox) {
