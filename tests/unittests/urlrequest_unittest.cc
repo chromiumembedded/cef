@@ -653,7 +653,7 @@ class RequestTestRunner {
         post_file_tmpdir_.path().Append(FILE_PATH_LITERAL("example.txt"));
     const char content[] = "HELLO FRIEND!";
     int write_ct = file_util::WriteFile(path, content, sizeof(content) - 1);
-    EXPECT_EQ(sizeof(content) - 1, write_ct);
+    EXPECT_EQ(static_cast<int>(sizeof(content) - 1), write_ct);
     SetUploadFile(settings_.request, path);
 
     settings_.response = CefResponse::Create();
