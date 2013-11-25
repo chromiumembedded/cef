@@ -70,7 +70,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   // Initialize user preferences.
   pref_store_ = new CefBrowserPrefStore();
   pref_store_->SetInitializationCompleted();
-  pref_service_.reset(pref_store_->CreateService());
+  pref_service_ = pref_store_->CreateService().Pass();
 
   // Create a v8::Isolate for the current thread if it doesn't already exist.
   if (!v8::Isolate::GetCurrent()) {

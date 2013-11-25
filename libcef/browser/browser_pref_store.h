@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_BROWSER_PREF_STORE_H_
 #define CEF_LIBCEF_BROWSER_BROWSER_PREF_STORE_H_
 
+#include "base/memory/scoped_ptr.h"
 #include "base/prefs/testing_pref_store.h"
 
 class PrefService;
@@ -13,7 +14,7 @@ class CefBrowserPrefStore : public TestingPrefStore {
  public:
   CefBrowserPrefStore();
 
-  PrefService* CreateService();
+  scoped_ptr<PrefService> CreateService();
 
  protected:
   virtual ~CefBrowserPrefStore();

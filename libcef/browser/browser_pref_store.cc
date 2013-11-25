@@ -6,7 +6,8 @@
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 
 #include "base/command_line.h"
-#include "base/prefs/pref_service_builder.h"
+#include "base/prefs/pref_service.h"
+#include "base/prefs/pref_service_factory.h"
 #include "base/prefs/pref_registry_simple.h"
 #include "base/values.h"
 #include "chrome/browser/net/pref_proxy_config_tracker_impl.h"
@@ -17,11 +18,11 @@
 CefBrowserPrefStore::CefBrowserPrefStore() {
 }
 
-PrefService* CefBrowserPrefStore::CreateService() {
-  PrefServiceBuilder builder;
-  builder.WithCommandLinePrefs(
+scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
+  base::PrefServiceFactory factory;
+  factory.set_command_line_prefs(
       new CommandLinePrefStore(CommandLine::ForCurrentProcess()));
-  builder.WithUserPrefs(this);
+  factory.set_user_prefs(this);
 
   scoped_refptr<PrefRegistrySimple> registry(new PrefRegistrySimple());
 
@@ -31,7 +32,7 @@ PrefService* CefBrowserPrefStore::CreateService() {
 
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
-  return builder.Create(registry);
+  return factory.Create(registry);
 }
 
 CefBrowserPrefStore::~CefBrowserPrefStore() {

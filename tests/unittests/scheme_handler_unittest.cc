@@ -1278,11 +1278,11 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
 // Test that a custom standard scheme can generate cross-domain XSS requests
 // when using document.domain.
 TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
-  RegisterTestScheme("customstd", "a.test");
-  RegisterTestScheme("customstd", "b.test");
-  SetUpXSS("customstd://a.test/run.html",
-           "customstd://b.test/iframe.html",
-           "test");
+  RegisterTestScheme("customstd", "a.test.com");
+  RegisterTestScheme("customstd", "b.test.com");
+  SetUpXSS("customstd://a.test.com/run.html",
+           "customstd://b.test.com/iframe.html",
+           "test.com");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1300,11 +1300,11 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
 // Test that an HTTP scheme can generate cross-domain XSS requests when using
 // document.domain.
 TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
-  RegisterTestScheme("http", "a.test");
-  RegisterTestScheme("http", "b.test");
-  SetUpXSS("http://a.test/run.html",
-           "http://b.test/iframe.html",
-           "test");
+  RegisterTestScheme("http", "a.test.com");
+  RegisterTestScheme("http", "b.test.com");
+  SetUpXSS("http://a.test.com/run.html",
+           "http://b.test.com/iframe.html",
+           "test.com");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
