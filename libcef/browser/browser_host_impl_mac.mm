@@ -14,6 +14,7 @@
 
 #include "base/file_util.h"
 #include "base/mac/mac_util.h"
+#include "base/mac/scoped_nsautorelease_pool.h"
 #include "base/strings/string_util.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
@@ -315,6 +316,8 @@ bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
 }
 
 bool CefBrowserHostImpl::PlatformCreateWindow() {
+  base::mac::ScopedNSAutoreleasePool autorelease_pool;
+
   NSWindow* newWnd = nil;
 
   NSView* parentView = window_info_.parent_view;
