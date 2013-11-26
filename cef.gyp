@@ -188,6 +188,7 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             'gtk',
+            'gtkglext',
             'libcef',
           ],
           'sources': [
@@ -201,6 +202,179 @@
                 '<@(cefclient_bundle_resources_linux)',
               ],
             },
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'cefsimple',
+      'type': 'executable',
+      'mac_bundle': 1,
+      'msvs_guid': 'A5DCDE19-F4B1-4E3A-BD4F-BFE688B24D34',
+      'dependencies': [
+        'libcef_dll_wrapper',
+      ],
+      'defines': [
+        'USING_CEF_SHARED',
+      ],
+      'include_dirs': [
+        '.',
+        # cefsimple includes are relative to the tests directory to make
+        # creation of binary releases easier.
+        'tests'
+      ],
+      'sources': [
+        '<@(includes_common)',
+        '<@(includes_wrapper)',
+        '<@(cefsimple_sources_common)',
+      ],
+      'mac_bundle_resources': [
+        '<@(cefsimple_bundle_resources_mac)',
+      ],
+      'mac_bundle_resources!': [
+        # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
+        # that automatically sets the correct INFOPLIST_FILE setting and adds
+        # the file to a source group.
+        'tests/cefsimple/mac/Info.plist',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': 'tests/cefsimple/mac/Info.plist',
+        # Necessary to avoid an "install_name_tool: changing install names or
+        # rpaths can't be redone" error.
+        'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
+      },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            'cef_sandbox',
+            'libcef',
+          ],
+          'configurations': {
+            'Debug_Base': {
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '<(msvs_large_module_debug_link_mode)',
+                },
+              },
+            },
+          },
+          'msvs_settings': {
+            'VCLinkerTool': {
+              # Set /SUBSYSTEM:WINDOWS.
+              'SubSystem': '2',
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': [
+                'tests/cefsimple/cefsimple.exe.manifest',
+              ],
+            },
+          },
+          'link_settings': {
+            'libraries': [
+              '-lcomctl32.lib',
+              '-lshlwapi.lib',
+              '-lrpcrt4.lib',
+            ],
+          },
+          'sources': [
+            '<@(includes_win)',
+            '<@(cefsimple_sources_win)',
+          ],
+        }],
+        [ 'toolkit_uses_gtk == 1', {
+          'dependencies': [
+            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
+          ],
+        }],
+        [ 'OS=="mac"', {
+          'product_name': 'cefsimple',
+          'dependencies': [
+            'cef_framework',
+            'cefsimple_helper_app',
+            'interpose_dependency_shim',
+          ],
+          'variables': {
+            'PRODUCT_NAME': 'cefsimple',
+          },
+          'copies': [
+            {
+              # Add the helper app.
+              'destination': '<(PRODUCT_DIR)/<(PRODUCT_NAME).app/Contents/Frameworks',
+              'files': [
+                '<(PRODUCT_DIR)/<(PRODUCT_NAME) Helper.app',
+                '<(PRODUCT_DIR)/libplugin_carbon_interpose.dylib',
+              ],
+            },
+          ],
+          'postbuilds': [
+            {
+              'postbuild_name': 'Copy <(framework_name).framework',
+              'action': [
+                '../build/mac/copy_framework_unversioned.sh',
+                '${BUILT_PRODUCTS_DIR}/<(framework_name).framework',
+                '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
+              ],
+            },
+            {
+              'postbuild_name': 'Fix Framework Link',
+              'action': [
+                'install_name_tool',
+                '-change',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../Frameworks/<(framework_name).framework/<(framework_name)',
+                '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
+              ],
+            },
+            {
+              'postbuild_name': 'Copy locale Resources',
+              'action': [
+                'cp',
+                '-Rf',
+                '${BUILT_PRODUCTS_DIR}/locales/',
+                '${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks/<(framework_name).framework/Resources/'
+              ],
+            },
+            {
+              # Modify the Info.plist as needed.
+              'postbuild_name': 'Tweak Info.plist',
+              'action': ['../build/mac/tweak_info_plist.py',
+                         '--scm=1'],
+            },
+            {
+              # This postbuid step is responsible for creating the following
+              # helpers:
+              #
+              # cefsimple Helper EH.app and cefsimple Helper NP.app are created
+              # from cefsimple Helper.app.
+              #
+              # The EH helper is marked for an executable heap. The NP helper
+              # is marked for no PIE (ASLR).
+              'postbuild_name': 'Make More Helpers',
+              'action': [
+                '../build/mac/make_more_helpers.sh',
+                'Frameworks',
+                'cefsimple',
+              ],
+            },
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
+          'sources': [
+            '<@(includes_mac)',
+            '<@(cefsimple_sources_mac)',
+          ],
+        }],
+        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          'dependencies': [
+            'gtk',
+            'libcef',
+          ],
+          'sources': [
+            '<@(includes_linux)',
+            '<@(cefsimple_sources_linux)',
           ],
         }],
       ],
@@ -1249,6 +1423,80 @@
           ],
         },  # target cefclient_helper_app
         {
+          'target_name': 'cefsimple_helper_app',
+          'type': 'executable',
+          'variables': { 'enable_wexit_time_destructors': 1, },
+          'product_name': 'cefsimple Helper',
+          'mac_bundle': 1,
+          'dependencies': [
+            'cef_framework',
+            'libcef_dll_wrapper',
+          ],
+          'defines': [
+            'USING_CEF_SHARED',
+          ],
+          'include_dirs': [
+            '.',
+            # cefsimple includes are relative to the tests directory to make
+            # creation of binary releases easier.
+            'tests'
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
+          'sources': [
+            '<@(cefsimple_sources_mac_helper)',
+          ],
+          # TODO(mark): Come up with a fancier way to do this.  It should only
+          # be necessary to list helper-Info.plist once, not the three times it
+          # is listed here.
+          'mac_bundle_resources!': [
+            'tests/cefsimple/mac/helper-Info.plist',
+          ],
+          # TODO(mark): For now, don't put any resources into this app.  Its
+          # resources directory will be a symbolic link to the browser app's
+          # resources directory.
+          'mac_bundle_resources/': [
+            ['exclude', '.*'],
+          ],
+          'xcode_settings': {
+            'INFOPLIST_FILE': 'tests/cefsimple/mac/helper-Info.plist',
+            # Necessary to avoid an "install_name_tool: changing install names or
+            # rpaths can't be redone" error.
+            'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
+          },
+          'postbuilds': [
+            {
+              # The framework defines its load-time path
+              # (DYLIB_INSTALL_NAME_BASE) relative to the main executable
+              # (chrome).  A different relative path needs to be used in
+              # cefsimple_helper_app.
+              'postbuild_name': 'Fix Framework Link',
+              'action': [
+                'install_name_tool',
+                '-change',
+                '@executable_path/<(framework_name)',
+                '@executable_path/../../../../Frameworks/<(framework_name).framework/<(framework_name)',
+                '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
+              ],
+            },
+            {
+              # Modify the Info.plist as needed.  The script explains why this
+              # is needed.  This is also done in the chrome and chrome_dll
+              # targets.  In this case, --breakpad=0, --keystone=0, and --scm=0
+              # are used because Breakpad, Keystone, and SCM keys are
+              # never placed into the helper.
+              'postbuild_name': 'Tweak Info.plist',
+              'action': ['../build/mac/tweak_info_plist.py',
+                         '--breakpad=0',
+                         '--keystone=0',
+                         '--scm=0'],
+            },
+          ],
+        },  # target cefsimple_helper_app
+        {
           'target_name': 'cef_unittests_helper_app',
           'type': 'executable',
           'product_name': 'cef_unittests Helper',
@@ -1420,8 +1668,28 @@
           'variables': {
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
+            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtk+-unix-print-2.0',
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <(gtk_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <(gtk_packages))',
+            ],
+          },
+        },
+        {
+          'target_name': 'gtkglext',
+          'type': 'none',
+          'variables': {
             # gtkglext is required by the cefclient OSR example.
-            'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtkglext-1.0 gtk+-unix-print-2.0',
+            'gtk_packages': 'gtkglext-1.0',
           },
           'direct_dependent_settings': {
             'cflags': [

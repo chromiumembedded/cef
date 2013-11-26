@@ -204,5 +204,38 @@
     'cefclient_bundle_resources_linux': [
       '<@(cefclient_bundle_resources_common)',
     ],
+    'cefsimple_sources_common': [
+      'tests/cefsimple/simple_app.cpp',
+      'tests/cefsimple/simple_app.h',
+      'tests/cefsimple/simple_handler.cpp',
+      'tests/cefsimple/simple_handler.h',
+      'tests/cefsimple/util.h',
+    ],
+    'cefsimple_sources_win': [
+      'tests/cefsimple/cefsimple.exe.manifest',
+      'tests/cefsimple/cefsimple.rc',
+      'tests/cefsimple/cefsimple_win.cpp',
+      'tests/cefsimple/simple_handler_win.cpp',
+      'tests/cefsimple/resource.h',
+      'tests/cefsimple/res/cefsimple.ico',
+      'tests/cefsimple/res/small.ico',
+    ],
+    'cefsimple_sources_mac': [
+      'tests/cefsimple/cefsimple_mac.mm',
+      'tests/cefsimple/simple_handler_mac.mm',
+    ],
+    'cefsimple_sources_mac_helper': [
+      'tests/cefsimple/process_helper_mac.cpp',
+    ],
+    'cefsimple_bundle_resources_mac': [
+      'tests/cefsimple/mac/cefsimple.icns',
+      'tests/cefsimple/mac/English.lproj/InfoPlist.strings',
+      'tests/cefsimple/mac/English.lproj/MainMenu.xib',
+      'tests/cefsimple/mac/Info.plist',
+    ],
+    'cefsimple_sources_linux': [
+      'tests/cefsimple/cefsimple_gtk.cpp',
+      'tests/cefsimple/simple_handler_gtk.cpp',
+    ],
   },
 }

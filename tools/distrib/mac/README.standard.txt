@@ -2,7 +2,12 @@ CONTENTS
 --------
 
 cefclient   Contains the cefclient sample application configured to build
-            using the files in this distribution.
+            using the files in this distribution. This application demonstrates
+            a wide range of CEF functionalities.
+
+cefsimple   Contains the cefsimple sample application configured to build
+            using the files in this distribution. This application demonstrates
+            the minimal functionality required to create a browser window.
 
 Debug       Contains the "Chromium Embedded Framework.framework" and other
             components required to run the debug version of CEF-based

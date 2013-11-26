@@ -438,6 +438,10 @@ if mode == 'standard':
   # create the cefclient directory
   cefclient_dir = os.path.join(output_dir, 'cefclient')
   make_dir(cefclient_dir, options.quiet)
+  
+  # create the cefsimple directory
+  cefsimple_dir = os.path.join(output_dir, 'cefsimple')
+  make_dir(cefsimple_dir, options.quiet)
 
   # create the libcef_dll_wrapper directory
   wrapper_dir = os.path.join(output_dir, 'libcef_dll')
@@ -461,6 +465,10 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_common'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
 
+  # transfer common cefsimple files
+  transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
+                      'tests/cefsimple/', cefsimple_dir, options.quiet)
+
   # transfer common libcef_dll_wrapper files
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
                       'libcef_dll/', wrapper_dir, options.quiet)
@@ -472,6 +480,7 @@ if mode == 'standard':
   paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
   data = read_file(paths_gypi)
   data = data.replace('tests/cefclient/', 'cefclient/')
+  data = data.replace('tests/cefsimple/', 'cefsimple/')
   write_file(os.path.join(output_dir, 'cef_paths2.gypi'), data)
   copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
             os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
@@ -574,6 +583,10 @@ if platform == 'windows':
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
 
+    # transfer cefsimple files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
+
     # transfer additional files, if any
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
                    output_dir, options.quiet)
@@ -652,6 +665,18 @@ elif platform == 'macosx':
     copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac/'), os.path.join(output_dir, 'cefclient/mac/'), \
              options.quiet)
 
+    # transfer cefsimple files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_mac'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_mac_helper'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_bundle_resources_mac'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
+
+    # transfer cefsimple/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/cefsimple/mac/'), os.path.join(output_dir, 'cefsimple/mac/'), \
+             options.quiet)
+
     # transfer additional files, if any
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
                   output_dir, options.quiet)
@@ -722,6 +747,10 @@ elif platform == 'linux':
                         'tests/cefclient/', cefclient_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_linux'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
+
+    # transfer cefsimple files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
 
     # transfer additional files, if any
     copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
