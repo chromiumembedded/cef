@@ -51,6 +51,10 @@
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
+#if defined(OS_LINUX) || defined(OS_ANDROID)
+#include "ui/gfx/font_render_params_linux.h"
+#endif
+
 namespace {
 
 class CreateBrowserHelper {
@@ -365,6 +369,62 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
       !browser->PlatformCreateWindow()) {
     return NULL;
   }
+
+#if defined(OS_LINUX) || defined(OS_ANDROID)
+  content::RendererPreferences* prefs = web_contents->GetMutableRendererPrefs();
+  const gfx::FontRenderParams& params = gfx::GetDefaultWebKitFontRenderParams();
+  prefs->should_antialias_text = params.antialiasing;
+  prefs->use_subpixel_positioning = params.subpixel_positioning;
+  switch (params.hinting) {
+    case gfx::FontRenderParams::HINTING_NONE:
+      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_NONE;
+      break;
+    case gfx::FontRenderParams::HINTING_SLIGHT:
+      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_SLIGHT;
+      break;
+    case gfx::FontRenderParams::HINTING_MEDIUM:
+      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_MEDIUM;
+      break;
+    case gfx::FontRenderParams::HINTING_FULL:
+      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_FULL;
+      break;
+    default:
+      NOTREACHED() << "Unhandled hinting style " << params.hinting;
+      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_SYSTEM_DEFAULT;
+      break;
+  }
+  prefs->use_autohinter = params.autohinter;
+  prefs->use_bitmaps = params.use_bitmaps;
+  switch (params.subpixel_rendering) {
+    case gfx::FontRenderParams::SUBPIXEL_RENDERING_NONE:
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_NONE;
+      break;
+    case gfx::FontRenderParams::SUBPIXEL_RENDERING_RGB:
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_RGB;
+      break;
+    case gfx::FontRenderParams::SUBPIXEL_RENDERING_BGR:
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_BGR;
+      break;
+    case gfx::FontRenderParams::SUBPIXEL_RENDERING_VRGB:
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_VRGB;
+      break;
+    case gfx::FontRenderParams::SUBPIXEL_RENDERING_VBGR:
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_VBGR;
+      break;
+    default:
+      NOTREACHED() << "Unhandled subpixel rendering style "
+                   << params.subpixel_rendering;
+      prefs->subpixel_rendering =
+          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_SYSTEM_DEFAULT;
+      break;
+  }
+  web_contents->GetRenderViewHost()->SyncRendererPrefs();
+#endif  // defined(OS_LINUX) || defined(OS_ANDROID)
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
