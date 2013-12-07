@@ -56,6 +56,10 @@
 #include "ui/gfx/font_render_params_linux.h"
 #endif
 
+#if defined(USE_AURA)
+#include "ui/views/widget/widget.h"
+#endif
+
 namespace {
 
 class CreateBrowserHelper {
@@ -146,6 +150,21 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
   cef_event.unmodified_character = event.unmodifiedText[0];
 
   return true;
+}
+
+// Returns the OS event handle, if any, associated with |event|.
+CefEventHandle GetCefEventHandle(const content::NativeWebKeyboardEvent& event) {
+#if defined(USE_AURA)
+  if (!event.os_event)
+    return NULL;
+#if defined(OS_WIN)
+  return const_cast<CefEventHandle>(&event.os_event->native_event());
+#else
+  return const_cast<CefEventHandle>(event.os_event->native_event());
+#endif
+#else  // !defined(USE_AURA)
+  return event.os_event;
+#endif  // !defined(USE_AURA)
 }
 
 class CefFileDialogCallbackImpl : public CefFileDialogCallback {
@@ -1306,6 +1325,10 @@ void CefBrowserHostImpl::DestroyBrowser() {
   web_contents_.reset(NULL);
   menu_creator_.reset(NULL);
 
+#if defined(USE_AURA)
+  window_widget_ = NULL;
+#endif
+
   DetachAllFrames();
 
   CefContentBrowserClient::Get()->RemoveBrowserInfo(browser_info_);
@@ -1314,9 +1337,15 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
 gfx::NativeView CefBrowserHostImpl::GetContentView() const {
   CEF_REQUIRE_UIT();
+#if defined(USE_AURA)
+  if (!window_widget_)
+    return NULL;
+  return window_widget_->GetNativeView();
+#else
   if (!web_contents_.get())
     return NULL;
   return web_contents_->GetView()->GetNativeView();
+#endif
 }
 
 content::WebContents* CefBrowserHostImpl::GetWebContents() const {
@@ -1784,15 +1813,9 @@ bool CefBrowserHostImpl::PreHandleKeyboardEvent(
       if (!GetCefKeyEvent(event, cef_event))
         return false;
 
-#if defined(OS_WIN)
-      CefEventHandle os_event = const_cast<CefEventHandle>(&event.os_event);
-#else
-      CefEventHandle os_event = event.os_event;
-#endif
-
       cef_event.focus_on_editable_field = focus_on_editable_field_;
 
-      return handler->OnPreKeyEvent(this, cef_event, os_event,
+      return handler->OnPreKeyEvent(this, cef_event, GetCefEventHandle(event),
                                     is_keyboard_shortcut);
     }
   }
@@ -1812,15 +1835,9 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
     if (handler.get()) {
       CefKeyEvent cef_event;
       if (GetCefKeyEvent(event, cef_event)) {
-#if defined(OS_WIN)
-        CefEventHandle os_event = const_cast<CefEventHandle>(&event.os_event);
-#else
-        CefEventHandle os_event = event.os_event;
-#endif
-
         cef_event.focus_on_editable_field = focus_on_editable_field_;
 
-        if (handler->OnKeyEvent(this, cef_event, os_event))
+        if (handler->OnKeyEvent(this, cef_event, GetCefEventHandle(event)))
           return;
       }
     }
@@ -2280,6 +2297,10 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       mouse_cursor_change_disabled_(false),
       devtools_frontend_(NULL),
       file_chooser_pending_(false) {
+#if defined(USE_AURA)
+  window_widget_ = NULL;
+#endif
+
   DCHECK(!browser_info_->browser().get());
   browser_info_->set_browser(this);
 

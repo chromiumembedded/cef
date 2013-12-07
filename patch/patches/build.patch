@@ -1,6 +1,6 @@
 Index: common.gypi
 ===================================================================
---- common.gypi	(revision 102269)
+--- common.gypi	(revision 237081)
 +++ common.gypi	(working copy)
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -12,9 +12,18 @@ Index: common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
+@@ -186,7 +189,7 @@
+             'enable_app_list%': 0,
+           }],
+ 
+-          ['use_aura==1 or (OS!="win" and OS!="mac" and OS!="ios" and OS!="android")', {
++          ['OS!="win" and OS!="mac" and OS!="ios" and OS!="android"', {
+             'use_default_render_theme%': 1,
+           }, {
+             'use_default_render_theme%': 0,
 Index: mac/strip_save_dsym
 ===================================================================
---- mac/strip_save_dsym	(revision 102269)
+--- mac/strip_save_dsym	(revision 237081)
 +++ mac/strip_save_dsym	(working copy)
 @@ -48,7 +48,7 @@
                   "bundle"]

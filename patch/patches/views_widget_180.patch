@@ -1,0 +1,40 @@
+Index: desktop_aura/desktop_root_window_host_win.cc
+===================================================================
+--- desktop_aura/desktop_root_window_host_win.cc	(revision 237081)
++++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
+@@ -131,7 +131,9 @@
+                         native_widget_delegate_);
+ 
+   HWND parent_hwnd = NULL;
+-  if (params.parent && params.parent->GetDispatcher()) {
++  if (params.parent_widget) {
++    parent_hwnd = params.parent_widget;
++  } else if (params.parent && params.parent->GetDispatcher()) {
+     parent_hwnd =
+         params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
+   }
+Index: desktop_aura/desktop_screen_win.cc
+===================================================================
+--- desktop_aura/desktop_screen_win.cc	(revision 237081)
++++ desktop_aura/desktop_screen_win.cc	(working copy)
+@@ -54,6 +54,8 @@
+ }
+ 
+ HWND DesktopScreenWin::GetHWNDFromNativeView(gfx::NativeView window) const {
++  if (!window)
++    return NULL;
+   aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
+   return dispatcher ? dispatcher->host()->GetAcceleratedWidget() : NULL;
+ }
+Index: widget.h
+===================================================================
+--- widget.h	(revision 237081)
++++ widget.h	(working copy)
+@@ -201,6 +201,7 @@
+     // Should the widget be double buffered? Default is false.
+     bool double_buffer;
+     gfx::NativeView parent;
++    gfx::AcceleratedWidget parent_widget;
+     // Specifies the initial bounds of the Widget. Default is empty, which means
+     // the NativeWidget may specify a default size. If the parent is specified,
+     // |bounds| is in the parent's coordinate system. If the parent is not

@@ -30,6 +30,11 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/file_chooser_params.h"
 
+#if defined(USE_AURA)
+#include "third_party/WebKit/public/platform/WebCursorInfo.h"
+#include "ui/base/cursor/cursor.h"
+#endif
+
 namespace content {
 struct NativeWebKeyboardEvent;
 }
@@ -43,6 +48,12 @@ class WebInputEvent;
 namespace net {
 class URLRequest;
 }
+
+#if defined(USE_AURA)
+namespace views {
+class Widget;
+}
+#endif
 
 struct Cef_Request_Params;
 struct Cef_Response_Params;
@@ -246,6 +257,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
 #if defined(OS_WIN)
   static void RegisterWindowClass();
+#endif
+
+#if defined(USE_AURA)
+  ui::PlatformCursor GetPlatformCursor(blink::WebCursorInfo::Type type);
 #endif
 
   void OnSetFocus(cef_focus_source_t source);
@@ -578,6 +593,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Current title for the main frame. Only accessed on the UI thread.
   string16 title_;
+
+#if defined(USE_AURA)
+  // Widget hosting the web contents. It will be deleted automatically when the
+  // associated root window is destroyed.
+  views::Widget* window_widget_;
+#endif  // defined(USE_AURA)
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

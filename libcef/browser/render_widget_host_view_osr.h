@@ -75,6 +75,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 
  public:
   // RenderWidgetHostView methods.
+  virtual gfx::Size GetPhysicalBackingSize() const OVERRIDE;
   virtual void InitAsChild(gfx::NativeView parent_view) OVERRIDE;
   virtual content::RenderWidgetHost* GetRenderWidgetHost() const OVERRIDE;
   virtual void SetSize(const gfx::Size& size) OVERRIDE;
@@ -136,6 +137,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       int error_code) OVERRIDE;
 #if defined(OS_WIN) && !defined(USE_AURA)
   virtual void WillWmDestroy() OVERRIDE;
+#endif
+#if defined(OS_WIN) && defined(USE_AURA)
+  virtual void SetParentNativeViewAccessible(
+      gfx::NativeViewAccessible accessible_parent) OVERRIDE;
 #endif
   virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
@@ -202,7 +207,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   bool InstallTransparency();
 
   void OnScreenInfoChanged();
-  float GetDeviceScaleFactor();
+  float GetDeviceScaleFactor() const;
 
   void CancelWidget();
   void NotifyShowWidget();

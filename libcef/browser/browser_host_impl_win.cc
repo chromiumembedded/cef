@@ -11,6 +11,7 @@
 #include <wininet.h>
 #include <winspool.h>
 
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/i18n/case_conversion.h"
@@ -23,11 +24,17 @@
 #include "content/public/common/file_chooser_params.h"
 #include "grit/cef_strings.h"
 #include "grit/ui_strings.h"
+#include "grit/ui_unscaled_resources.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/win/hwnd_util.h"
+#include "ui/views/controls/webview/webview.h"
+#include "ui/views/layout/fill_layout.h"
+#include "ui/views/widget/widget.h"
+#include "ui/views/widget/widget_delegate.h"
+#include "webkit/common/cursors/webcursor.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -427,6 +434,174 @@ WORD KeyStatesToWord() {
   return result;
 }
 
+// From webkit/common/cursors/webcursor_win.cc.
+
+using blink::WebCursorInfo;
+
+LPCWSTR ToCursorID(WebCursorInfo::Type type) {
+  switch (type) {
+    case WebCursorInfo::TypePointer:
+      return IDC_ARROW;
+    case WebCursorInfo::TypeCross:
+      return IDC_CROSS;
+    case WebCursorInfo::TypeHand:
+      return IDC_HAND;
+    case WebCursorInfo::TypeIBeam:
+      return IDC_IBEAM;
+    case WebCursorInfo::TypeWait:
+      return IDC_WAIT;
+    case WebCursorInfo::TypeHelp:
+      return IDC_HELP;
+    case WebCursorInfo::TypeEastResize:
+      return IDC_SIZEWE;
+    case WebCursorInfo::TypeNorthResize:
+      return IDC_SIZENS;
+    case WebCursorInfo::TypeNorthEastResize:
+      return IDC_SIZENESW;
+    case WebCursorInfo::TypeNorthWestResize:
+      return IDC_SIZENWSE;
+    case WebCursorInfo::TypeSouthResize:
+      return IDC_SIZENS;
+    case WebCursorInfo::TypeSouthEastResize:
+      return IDC_SIZENWSE;
+    case WebCursorInfo::TypeSouthWestResize:
+      return IDC_SIZENESW;
+    case WebCursorInfo::TypeWestResize:
+      return IDC_SIZEWE;
+    case WebCursorInfo::TypeNorthSouthResize:
+      return IDC_SIZENS;
+    case WebCursorInfo::TypeEastWestResize:
+      return IDC_SIZEWE;
+    case WebCursorInfo::TypeNorthEastSouthWestResize:
+      return IDC_SIZENESW;
+    case WebCursorInfo::TypeNorthWestSouthEastResize:
+      return IDC_SIZENWSE;
+    case WebCursorInfo::TypeColumnResize:
+      return MAKEINTRESOURCE(IDC_COLRESIZE);
+    case WebCursorInfo::TypeRowResize:
+      return MAKEINTRESOURCE(IDC_ROWRESIZE);
+    case WebCursorInfo::TypeMiddlePanning:
+      return MAKEINTRESOURCE(IDC_PAN_MIDDLE);
+    case WebCursorInfo::TypeEastPanning:
+      return MAKEINTRESOURCE(IDC_PAN_EAST);
+    case WebCursorInfo::TypeNorthPanning:
+      return MAKEINTRESOURCE(IDC_PAN_NORTH);
+    case WebCursorInfo::TypeNorthEastPanning:
+      return MAKEINTRESOURCE(IDC_PAN_NORTH_EAST);
+    case WebCursorInfo::TypeNorthWestPanning:
+      return MAKEINTRESOURCE(IDC_PAN_NORTH_WEST);
+    case WebCursorInfo::TypeSouthPanning:
+      return MAKEINTRESOURCE(IDC_PAN_SOUTH);
+    case WebCursorInfo::TypeSouthEastPanning:
+      return MAKEINTRESOURCE(IDC_PAN_SOUTH_EAST);
+    case WebCursorInfo::TypeSouthWestPanning:
+      return MAKEINTRESOURCE(IDC_PAN_SOUTH_WEST);
+    case WebCursorInfo::TypeWestPanning:
+      return MAKEINTRESOURCE(IDC_PAN_WEST);
+    case WebCursorInfo::TypeMove:
+      return IDC_SIZEALL;
+    case WebCursorInfo::TypeVerticalText:
+      return MAKEINTRESOURCE(IDC_VERTICALTEXT);
+    case WebCursorInfo::TypeCell:
+      return MAKEINTRESOURCE(IDC_CELL);
+    case WebCursorInfo::TypeContextMenu:
+      return MAKEINTRESOURCE(IDC_ARROW);
+    case WebCursorInfo::TypeAlias:
+      return MAKEINTRESOURCE(IDC_ALIAS);
+    case WebCursorInfo::TypeProgress:
+      return IDC_APPSTARTING;
+    case WebCursorInfo::TypeNoDrop:
+      return IDC_NO;
+    case WebCursorInfo::TypeCopy:
+      return MAKEINTRESOURCE(IDC_COPYCUR);
+    case WebCursorInfo::TypeNone:
+      return MAKEINTRESOURCE(IDC_CURSOR_NONE);
+    case WebCursorInfo::TypeNotAllowed:
+      return IDC_NO;
+    case WebCursorInfo::TypeZoomIn:
+      return MAKEINTRESOURCE(IDC_ZOOMIN);
+    case WebCursorInfo::TypeZoomOut:
+      return MAKEINTRESOURCE(IDC_ZOOMOUT);
+    case WebCursorInfo::TypeGrab:
+      return MAKEINTRESOURCE(IDC_HAND_GRAB);
+    case WebCursorInfo::TypeGrabbing:
+      return MAKEINTRESOURCE(IDC_HAND_GRABBING);
+  }
+  NOTREACHED();
+  return NULL;
+}
+
+bool IsSystemCursorID(LPCWSTR cursor_id) {
+  return cursor_id >= IDC_ARROW;  // See WinUser.h
+}
+
+// Manages the views-based root window that hosts the web contents. This object
+// will be deleted automatically when the associated root window is destroyed.
+class CefWindowDelegateView : public views::WidgetDelegateView {
+ public:
+  CefWindowDelegateView()
+    : web_view_(NULL) {
+  }
+
+  // Create the Widget and associated root window.
+  void Init(gfx::AcceleratedWidget parent_widget,
+            content::WebContents* web_contents,
+            const gfx::Rect& bounds) {
+    DCHECK(!web_view_);
+    web_view_ = new views::WebView(web_contents->GetBrowserContext());
+    web_view_->SetWebContents(web_contents);
+    web_view_->SetPreferredSize(bounds.size());
+
+    views::Widget* widget = new views::Widget;
+
+    // See CalculateWindowStylesFromInitParams in
+    // ui/views/widget/widget_hwnd_utils.cc for the conversion of |params| to
+    // Windows style flags.
+    views::Widget::InitParams params;
+    params.parent_widget = parent_widget;
+    params.bounds = bounds;
+    params.delegate = this;
+    params.top_level = true;
+    // Set the WS_CHILD flag.
+    params.child = true;
+    // Set the WS_VISIBLE flag.
+    params.type = views::Widget::InitParams::TYPE_CONTROL;
+    // Don't set the WS_EX_COMPOSITED flag.
+    params.opacity = views::Widget::InitParams::OPAQUE_WINDOW;
+
+    // Results in a call to InitContent().
+    widget->Init(params);
+
+    // |widget| should now be associated with |this|.
+    DCHECK_EQ(widget, GetWidget());
+  }
+
+ private:
+  // Initialize the Widget's content.
+  void InitContent() {
+    set_background(views::Background::CreateStandardPanelBackground());
+    SetLayoutManager(new views::FillLayout());
+    AddChildView(web_view_);
+  }
+
+  // WidgetDelegateView methods:
+  virtual bool CanResize() const OVERRIDE { return true; }
+  virtual bool CanMaximize() const OVERRIDE { return true; }
+  virtual View* GetContentsView() OVERRIDE { return this; }
+
+  // View methods:
+  virtual void ViewHierarchyChanged(
+      const ViewHierarchyChangedDetails& details) OVERRIDE {
+    if (details.is_add && details.child == this)
+      InitContent();
+  }
+
+ private:
+  views::WebView* web_view_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
+};
+
 }  // namespace
 
 // static
@@ -490,12 +665,11 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   case WM_SIZE:
     // Minimizing resizes the window to 0x0 which causes our layout to go all
     // screwy, so we just ignore it.
-    if (wParam != SIZE_MINIMIZED && browser) {
-      // resize the web view window to the full size of the browser window
+    if (wParam != SIZE_MINIMIZED && browser && browser->window_widget_) {
+      // Resize the Widget window to the full size of the browser window.
       RECT rc;
       GetClientRect(hwnd, &rc);
-      MoveWindow(browser->GetContentView(), 0, 0, rc.right, rc.bottom,
-          TRUE);
+      browser->window_widget_->SetSize(gfx::Size(rc.right, rc.bottom));
     }
     return 0;
 
@@ -516,6 +690,20 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(
+    blink::WebCursorInfo::Type type) {
+  HMODULE module_handle = NULL;
+  const wchar_t* cursor_id = ToCursorID(type);
+  if (!IsSystemCursorID(cursor_id)) {
+    module_handle = ::GetModuleHandle(
+        CefContentBrowserClient::Get()->GetResourceDllName());
+    if (!module_handle)
+      module_handle = ::GetModuleHandle(NULL);
+  }
+
+  return LoadCursor(module_handle, cursor_id);
 }
 
 bool CefBrowserHostImpl::PlatformCreateWindow() {
@@ -547,20 +735,18 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   // Add a reference that will be released in the WM_DESTROY handler.
   AddRef();
 
-  // Parent the TabContents to the browser window.
-  SetParent(web_contents_->GetView()->GetNativeView(), window_info_.window);
-
-  // Size the web view window to the browser window.
   RECT cr;
   GetClientRect(window_info_.window, &cr);
 
-  // Respect the WS_VISIBLE window style when setting the window's position.
-  UINT flags = SWP_NOZORDER | SWP_SHOWWINDOW;
-  if (!(window_info_.style & WS_VISIBLE))
-    flags |= SWP_NOACTIVATE;
+  DCHECK(!window_widget_);
 
-  SetWindowPos(GetContentView(), NULL, cr.left, cr.top, cr.right,
-                cr.bottom, flags);
+  CefWindowDelegateView* delegate_view = new CefWindowDelegateView();
+  delegate_view->Init(window_info_.window,
+                      web_contents(),
+                      gfx::Rect(0, 0, cr.right, cr.bottom));
+
+  window_widget_ = delegate_view->GetWidget();
+  window_widget_->Show();
 
   return true;
 }
@@ -632,8 +818,27 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Any unhandled keyboard/character messages are sent to DefWindowProc so that
   // shortcut keys work correctly.
-  DefWindowProc(event.os_event.hwnd, event.os_event.message,
-                event.os_event.wParam, event.os_event.lParam);
+  HWND hwnd = PlatformGetWindowHandle();
+  if (!hwnd)
+    return;
+
+  UINT message = 0;
+  switch (event.type) {
+    case blink::WebInputEvent::RawKeyDown:
+      message = WM_KEYDOWN;
+      break;
+    case blink::WebInputEvent::KeyUp:
+      message = WM_KEYUP;
+      break;
+    case blink::WebInputEvent::Char:
+      message = WM_CHAR;
+      break;
+    default:
+      NOTREACHED();
+      return;
+  }
+
+  DefWindowProc(hwnd, message, event.windowsKeyCode, event.nativeKeyCode);
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(

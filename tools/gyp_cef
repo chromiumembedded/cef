@@ -26,6 +26,10 @@ import gyp
 # Add paths so that pymod_do_main(...) can import files.
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
 sys.path.insert(1, os.path.join(chrome_src, 'chrome', 'tools', 'build'))
+sys.path.insert(1, os.path.join(chrome_src, 'native_client', 'build'))
+sys.path.insert(1, os.path.join(chrome_src, 'native_client_sdk', 'src',
+    'build_tools'))
+sys.path.insert(1, os.path.join(chrome_src, 'remoting', 'tools', 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
     'Source', 'build', 'scripts'))
 

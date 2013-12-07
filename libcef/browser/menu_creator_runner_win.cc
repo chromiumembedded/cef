@@ -7,6 +7,7 @@
 
 #include "base/message_loop/message_loop.h"
 #include "content/public/browser/web_contents_view.h"
+#include "ui/aura/window.h"
 #include "ui/gfx/point.h"
 #include "ui/views/controls/menu/menu_2.h"
 
@@ -42,11 +43,10 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
 
     screen_point = gfx::Point(screenX, screenY);
   } else {
-    POINT temp = {manager->params().x, manager->params().y};
-    HWND hwnd =
-        manager->browser()->GetWebContents()->GetView()->GetNativeView();
-    ClientToScreen(hwnd, &temp);
-    screen_point = temp;
+    aura::Window* window = manager->browser()->GetContentView();
+    const gfx::Rect& bounds_in_screen = window->GetBoundsInScreen();
+    screen_point = gfx::Point(bounds_in_screen.x() + manager->params().x,
+                              bounds_in_screen.y() + manager->params().y);
   }
 
   // Show the menu. Blocks until the menu is dismissed.

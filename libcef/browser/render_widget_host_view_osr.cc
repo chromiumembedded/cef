@@ -6,13 +6,13 @@
 #include "libcef/browser/backing_store_osr.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
-#include "libcef/common/content_client.h"
 
 #include "base/message_loop/message_loop.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
 #include "third_party/WebKit/public/platform/WebScreenInfo.h"
+#include "ui/gfx/size_conversions.h"
 #include "webkit/common/cursors/webcursor.h"
 
 namespace {
@@ -66,6 +66,12 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
 
 
 // RenderWidgetHostView implementation.
+
+gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
+  return gfx::ToCeiledSize(gfx::ScaleSize(GetViewBounds().size(),
+                                          GetDeviceScaleFactor()));
+}
+
 void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
 }
 
@@ -178,17 +184,23 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
   if (!browser_impl_.get())
     return;
-#if defined(OS_WIN)
-  HMODULE hModule = ::GetModuleHandle(
-      CefContentClient::Get()->browser()->GetResourceDllName());
-  if (!hModule)
-    hModule = ::GetModuleHandle(NULL);
+#if defined(USE_AURA)
   WebCursor web_cursor = cursor;
-  HCURSOR hCursor = web_cursor.GetCursor((HINSTANCE)hModule);
+
+  ui::PlatformCursor platform_cursor;
+  if (web_cursor.IsCustom()) {
+    // |web_cursor| owns the resulting |platform_cursor|.
+    platform_cursor = web_cursor.GetPlatformCursor();
+  } else {
+    WebCursor::CursorInfo cursor_info;
+    cursor.GetCursorInfo(&cursor_info);
+    platform_cursor = browser_impl_->GetPlatformCursor(cursor_info.type);
+  }
+
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
-      browser_impl_->GetBrowser(), hCursor);
+      browser_impl_->GetBrowser(), platform_cursor);
 #elif defined(OS_MACOSX) || defined(TOOLKIT_GTK)
-  // cursor is const, and GetNativeCursor is not
+  // |web_cursor| owns the resulting |native_cursor|.
   WebCursor web_cursor = cursor;
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
@@ -247,6 +259,12 @@ void CefRenderWidgetHostViewOSR::RenderProcessGone(
 void CefRenderWidgetHostViewOSR::WillWmDestroy() {
   // Will not be called if GetNativeView returns NULL.
   NOTREACHED();
+}
+#endif
+
+#if defined(OS_WIN) && defined(USE_AURA)
+void CefRenderWidgetHostViewOSR::SetParentNativeViewAccessible(
+    gfx::NativeViewAccessible accessible_parent) {
 }
 #endif
 
@@ -641,7 +659,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   // in the rwhv_aura (current_cursor_.SetScaleFactor)
 }
 
-float CefRenderWidgetHostViewOSR::GetDeviceScaleFactor() {
+float CefRenderWidgetHostViewOSR::GetDeviceScaleFactor() const {
   if (!browser_impl_.get())
     return kDefaultScaleFactor;
 

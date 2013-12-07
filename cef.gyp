@@ -831,6 +831,7 @@
         # CEF grit resource includes
         '<(DEPTH)/cef/libcef/resources/grit_stub',
         '<(grit_out_dir)',
+        '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources',
         '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
@@ -1110,16 +1111,6 @@
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
-            # Include sources for context menu implementation.
-            '<(DEPTH)/ui/views/controls/menu/menu_2.cc',
-            '<(DEPTH)/ui/views/controls/menu/menu_2.h',
-            '<(DEPTH)/ui/views/controls/menu/menu_config.cc',
-            '<(DEPTH)/ui/views/controls/menu/menu_config.h',
-            '<(DEPTH)/ui/views/controls/menu/menu_config_win.cc',
-            '<(DEPTH)/ui/views/controls/menu/menu_listener.cc',
-            '<(DEPTH)/ui/views/controls/menu/menu_listener.h',
-            '<(DEPTH)/ui/views/controls/menu/native_menu_win.cc',
-            '<(DEPTH)/ui/views/controls/menu/native_menu_win.h',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_win.cc',
           ],
@@ -1177,6 +1168,13 @@
         ['os_posix == 1 and OS != "mac" and android_webview_build != 1', {
           'dependencies': [
             '<(DEPTH)/components/components.gyp:breakpad_host',
+          ],
+        }],
+        ['use_aura==1', {
+          'dependencies': [
+            '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
+            '<(DEPTH)/ui/views/views.gyp:views',
+            '<(DEPTH)/ui/views/views.gyp:views_test_support',
           ],
         }],
       ],

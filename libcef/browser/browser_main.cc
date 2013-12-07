@@ -30,6 +30,13 @@
 #include "chrome/browser/printing/print_dialog_gtk.h"
 #endif
 
+#if defined(USE_AURA)
+#include "ui/aura/env.h"
+#include "ui/gfx/screen.h"
+#include "ui/views/test/desktop_test_views_delegate.h"
+#include "ui/views/widget/desktop_aura/desktop_screen.h"
+#endif  // defined(USE_AURA)
+
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
@@ -45,6 +52,15 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
     message_loop_.reset(new CefBrowserMessageLoop());
     message_loop_->set_thread_name("CrBrowserMain");
   }
+}
+
+void CefBrowserMainParts::ToolkitInitialized() {
+#if defined(USE_AURA)
+  aura::Env::CreateInstance();
+
+  DCHECK(!views::ViewsDelegate::views_delegate);
+  new views::DesktopTestViewsDelegate;
+#endif
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {
@@ -66,6 +82,11 @@ int CefBrowserMainParts::PreCreateThreads() {
   // Initialize the GpuDataManager before IO access restrictions are applied and
   // before the IO thread is started.
   content::GpuDataManager::GetInstance();
+
+#if defined(USE_AURA)
+  gfx::Screen::SetScreenInstance(gfx::SCREEN_TYPE_NATIVE,
+                                 views::CreateDesktopScreen());
+#endif
 
   // Initialize user preferences.
   pref_store_ = new CefBrowserPrefStore();
@@ -137,6 +158,11 @@ void CefBrowserMainParts::PostDestroyThreads() {
     proxy_v8_isolate_->Exit();
     proxy_v8_isolate_->Dispose();
   }
+
+#if defined(USE_AURA)
+  aura::Env::DeleteInstance();
+  delete views::ViewsDelegate::views_delegate;
+#endif
 
   PlatformCleanup();
 }
