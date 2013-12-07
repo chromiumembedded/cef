@@ -378,7 +378,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::CreateInternal(windowInfo, new_settings, client, NULL,
                                          info, opener, request_context);
-  if (!url.empty()) {
+  if (browser && !url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
                      content::PAGE_TRANSITION_TYPED, std::string());
   }
