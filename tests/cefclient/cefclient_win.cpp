@@ -21,6 +21,17 @@
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
+
+// Set to 0 to disable sandbox support.
+#define CEF_ENABLE_SANDBOX 1
+
+#if CEF_ENABLE_SANDBOX
+// The cef_sandbox.lib static library is currently built with VS2010. It may not
+// link successfully with other VS versions.
+#pragma comment(lib, "cef_sandbox.lib")
+#endif
+
+
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
 #define BUTTON_WIDTH 72
@@ -67,15 +78,20 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  // Manages the life span of the sandbox information object.
+  void* sandbox_info = NULL;
+
+#if CEF_ENABLE_SANDBOX
+  // Manage the life span of the sandbox information object. This is necessary
+  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
   CefScopedSandboxInfo scoped_sandbox;
+  sandbox_info = scoped_sandbox.sandbox_info();
+#endif
 
   CefMainArgs main_args(hInstance);
   CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get(),
-                                    scoped_sandbox.sandbox_info());
+  int exit_code = CefExecuteProcess(main_args, app.get(), sandbox_info);
   if (exit_code >= 0)
     return exit_code;
 
@@ -88,11 +104,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   CefSettings settings;
 
+#if !CEF_ENABLE_SANDBOX
+  settings.no_sandbox = true;
+#endif
+
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get(), scoped_sandbox.sandbox_info());
+  CefInitialize(main_args, settings, app.get(), sandbox_info);
 
   // Register the scheme handler.
   scheme_test::InitTest();

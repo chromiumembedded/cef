@@ -113,9 +113,12 @@
               '-lopengl32.lib',
               '-lglu32.lib',
               '-l$(ConfigurationName)/libcef.lib',
-              '-l$(ConfigurationName)/cef_sandbox.lib',
             ],
           },
+          'library_dirs': [
+            # Needed to find cef_sandbox.lib using #pragma comment(lib, ...).
+            '$(ConfigurationName)',
+          ],
           'sources': [
             '<@(includes_win)',
             '<@(cefclient_sources_win)',
@@ -329,9 +332,12 @@
               '-lshlwapi.lib',
               '-lrpcrt4.lib',
               '-l$(ConfigurationName)/libcef.lib',
-              '-l$(ConfigurationName)/cef_sandbox.lib',
             ],
           },
+          'library_dirs': [
+            # Needed to find cef_sandbox.lib using #pragma comment(lib, ...).
+            '$(ConfigurationName)',
+          ],
           'sources': [
             '<@(includes_win)',
             '<@(cefsimple_sources_win)',
